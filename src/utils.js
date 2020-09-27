@@ -157,26 +157,6 @@ let utils = {
   },
 
   uploadImage: async function (url, targetDirectory, baseFilename, useProxy = true) {
-    async function download(url) {
-      return new Promise((resolve, reject) => {
-        try {
-          let req = new XMLHttpRequest();
-          req.open("GET", url);
-          req.responseType = "blob";
-          req.onerror = () => reject("Network error");
-          req.onload = () => {
-            console.log(req.response);
-            reject("bleh");
-            if (req.status === 200) resolve(req.response);
-            else reject("Loading error: " + req.statusText);
-          };
-          req.send();
-        } catch (error) {
-          reject(error.message);
-        }
-      });
-    }
-
     async function downloadImage(url) {
       return new Promise((resolve, reject) => {
         fetch(url,{
@@ -215,12 +195,9 @@ let utils = {
     }
 
     async function process(url, path, filename) {
-      let data = await download(url);
-      //let data = await downloadImage(url);
-      console.log("fetched");
-      console.log(data);
+      //let data = await download(url);
+      let data = await downloadImage(url);
       let result = await upload(data, path, filename);
-      console.log("uploaded");
       return result;
     }
 
@@ -234,12 +211,10 @@ let utils = {
     // uploading the character avatar and token
     try {
       url = useProxy ? "http://34.244.124.64:8080/" + url : url;
-      console.error(`URL: ${url}`);
+      //console.error(`URL: ${url}`);
       let result = await process(url, targetDirectory, filename + "." + ext);
-      console.log(result);
       return result;
     } catch (error) {
-      console.error(error);
       utils.log(error);
       ui.notifications.warn("Image upload failed. Please check your ddb-importer upload folder setting");
       return null;
