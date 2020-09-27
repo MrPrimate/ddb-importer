@@ -1,0 +1,44 @@
+{
+  "name": "ddb-importer",
+  "title": "D&D Beyond Character Importer",
+  "description": "Import your dndbeyond.com character",
+  "version": "0.0.1",
+  "minimumCoreVersion": "0.6.0",
+  "compatibleCoreVersion": "0.7.1",
+  "authors": [
+    {
+      "name": "MrPrimate",
+      "email": "jack@mrprimate.co.uk",
+      "url": "https://mrprimate.co.uk"
+    }
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    }
+  ],
+  "systems": ["dnd5e"],
+  "esmodules": ["src/index.js"],
+  "styles": [
+    "./css/module-settings.css",
+    "./css/default.css",
+    "./src/character/import.css",
+    "./css/sidebar.css",
+    "./css/journal.css",
+    "./css/notifications.css",
+    "./css/scene-navigation.css",
+    "./css/statblock.css"
+  ],
+  "packs": [],
+  "socket": true,
+  "url": "https://github.com/mrprimate/ddb-importer",
+  "manifest": "https://raw.github.com/mrprimate/ddb-importer/master/module.json",
+  "download": "https://github.com/mrprimate/ddb-importer/archive/master.zip"
+}

@@ -1,0 +1,74 @@
+.Basic-Text-Frame {
+  clear: both;
+  position: relative;
+  box-shadow: 0 0 5px #979aa4;
+  border: 1px solid #d4d0ce;
+  background: #ffffff66;
+  padding: 10px;
+  margin: 10px 0 10px 0;
+}
+
+.Stat-Block-Styles_Stat-Block-Title {
+  font-size: 18px !important;
+  font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
+  line-height: 1.4 !important;
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+}
+
+.Stat-Block-Styles_Stat-Block-Metadata {
+  font-style: italic;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  margin-bottom: 8px !important;
+}
+
+.Stat-Block-Styles_Stat-Block-Data,
+.Stat-Block-Styles_Stat-Block-Data-Last,
+.Stat-Block-Styles_Stat-Block-Body,
+.Stat-Block-Styles_Stat-Block-Hanging,
+.Stat-Block-Styles_Stat-Block-Hanging-Last,
+.Stat-Block-Styles_Stat-Block-Body-Last--apply-before-heading- {
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  margin-bottom: 10px !important;
+}
+
+.stat-block-ability-scores {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  border-top: 2px solid #bc0f0f;
+  border-bottom: 2px solid #bc0f0f;
+  margin: 10px 0;
+}
+
+.stat-block-ability-scores-stat {
+  width: 33.33333%;
+  padding: 10px 5px;
+  text-align: center;
+}
+
+.stat-block-ability-scores-stat {
+  width: 16.66667%;
+}
+
+.stat-block-ability-scores-heading {
+  font-weight: bold;
+}
+
+.stat-block-ability-scores-modifier {
+  margin-left: 5px;
+}
+
+.Stat-Block-Styles_Stat-Block-Heading,
+.Stat-Block-Styles_Stat-Block-Heading--after-last-bar- {
+  font-size: 16px !important;
+  font-weight: bold;
+  font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
+}

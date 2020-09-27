@@ -1,0 +1,36 @@
+/* (Popout) Sidebar styles */
+div.sidebar-popout section.sidebar-directory ol.directory-list li.directory-item.folder header,
+#sidebar section.sidebar-directory ol.directory-list li.directory-item.folder header {
+  align-items: baseline;
+}
+
+div.sidebar-popout section > ol.directory-list > li header > span.ddbimporter-folder-label,
+#sidebar section > ol.directory-list > li header > span.ddbimporter-folder-label {
+  display: inline-block;
+  flex: 0 0 auto !important;
+  border: thin solid #330b0b;
+  color: #941f1f;
+  border-radius: 3px;
+  padding: 1px;
+  font-size: 8pt;
+  background-color: #ffffff;
+  margin-right: 2px;
+  line-height: 10pt;
+  position: relative;
+  top: -2px;
+}
+
+div.sidebar-popout section ol.directory-list li[data-type="ddbimporter-folder"] header h3,
+#sidebar section ol.directory-list li[data-type="ddbimporter-folder"] header h3 {
+  font-size: 0.8rem;
+}
+
+div.sidebar-popout section ol.directory-list li[data-type="ddbimporter-folder"],
+#sidebar section ol.directory-list li[data-type="ddbimporter-folder"] {
+  line-height: 36px;
+}
+
+div.sidebar-popout section ol.directory-list li[data-type="ddbimporter-folder"] header h3 i.fas,
+#sidebar section ol.directory-list li[data-type="ddbimporter-folder"] header h3 i.fas {
+  margin-right: 4px;
+}

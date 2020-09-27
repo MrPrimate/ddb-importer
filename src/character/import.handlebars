@@ -1,0 +1,119 @@
+<div>
+    <div>
+        <div class="form-section">
+            <div class="form-description">
+                <h3>Get your Character's ID</h3>
+                <p>Insert a URL to your character below. Make sure that the character is set to <b>public</b> or else
+                    the data is not accessible for us.</p>
+                <p>You can use any of the following:</p>
+                <ul>
+                    <li><b>The regular character sheet URL</b>, e.g.
+                        https://www.dndbeyond.com/profile/[Username]/characters/[CharacterId]</li>
+                    <li><b>A link to a shared character</b>, e.g. https://ddb.ac/characters/[CharacterId]/[RandomString]
+                    </li>
+                    <li><b>The Character API itself</b>, e.g.
+                        https://character-service.dndbeyond.com/character/v4/character/[CharacterId]</li>
+                </ul>
+            </div>
+            <div class="form-caption">
+                URL
+                <span class="dndbeyond-url-status">{{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}<i
+                        class="fas fa-check-circle" style="color: green"></i>{{else}}<i></i>{{/if}}</span>
+            </div>
+            <div class="form-content" style="display: flex">
+                <input type="text" name="dndbeyond-url" style="flex: 0 1 auto" ;
+                    value="{{#if actor.data.flags.ddbimporter.dndbeyond.url}}{{actor.data.flags.ddbimporter.dndbeyond.url}}{{/if}}" />
+                <button type="button" id="open-dndbeyond-url" name="open-dndbeyond-url"
+                    style="flex-basis: 20px; flex-grow: 0;line-height: 20px;"
+                    {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}><i
+                        class="fas fa-external-link-alt"></i></button>
+            </div>
+            <div class="form-caption">
+                Character ID
+            </div>
+            <div class="form-content">
+                <span
+                    class="dndbeyond-character-id">{{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}{{actor.data.flags.ddbimporter.dndbeyond.characterId}}{{else}}Not
+                    detected{{/if}}</span>
+            </div>
+
+        </div>
+        <div>
+            <hr>
+        </div>
+
+        <div class="form-section">
+            <div class="form-caption">
+                Paste JSON here
+            </div>
+            <div class="form-content" style="display: flex">
+                <textarea id="json"></textarea>
+            </div>
+            <div class="form-description">
+
+                <div style="font-weight:bold; text-align: center; margin: 5px;">
+                    OR
+                </div>
+            </div>
+
+            <div class="form-description">
+
+                <div class="form-description">
+
+                    <div>
+                        <button type="button" id="dndbeyond-character-import-start"
+                            {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>Start
+                            Import</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <hr>
+        </div>
+        <div>
+            <div>
+                <h3>Update selection</h3>
+                <p>The following "items" will be deleted and re-created on import (default: everything):</p>
+                <div class="import-policy-group">
+                    {{#each importPolicies}}
+                    <div class="import-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                            name="character-import-policy-{{this.name}}"
+                            data-section="{{this.name}}">{{this.description}}
+                    </div>
+                    {{/each}}
+                </div>
+                <hr>
+                <div>
+                    <h3>Update configuration</h3>
+                    <p>Change delete and re-create policy.</p>
+                    {{#each importConfig}}
+                    <div class="import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                            name="character-import-policy-{{this.name}}"
+                            data-section="{{this.name}}">{{this.description}}
+                    </div>
+                    {{/each}}
+                </div>
+                <hr>
+                <div>
+                    <h3>Notes</h3>
+                    <p>When using "Import new only" features managed by the Class such as levels and spell progression
+                        won't
+                        be
+                        updated. Some items are always updated. This includes currency, HP, AC, stats, speeds, skills
+                        and
+                        special
+                        traits. Pretty much everything on the attributes page. Only spells and inventory items are
+                        stored in
+                        a compendium. If you want to import compendium entries you should change this to "Save new
+                        entities
+                        only, do
+                        not overwrite existing ones" on the Module Settings page.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="task-name">
+
+        </div>
+    </div>

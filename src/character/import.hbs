@@ -1,0 +1,96 @@
+<div>
+  <div>
+    <div class="form-section">
+      <div class="form-description">
+        <h3>Save a reference to your character for easy access</h3>
+        <p>
+          The following shortcuts are enabled on <img class="inline-image"
+            src="/modules/ddb-importer/img/ddb-icon.png"> button the if you are setting the URL to your charactersheet
+          below:
+        </p>
+        <ul>
+          <li><b>SHIFT + Left-Click:</b> Opens the D&amp;D Beyond character sheet in a new window</li>
+          <li><b>ALT + Left-Click:</b> Opens the JSON of your character in a new window</li>
+        </ul>
+        <p>
+          The URL should look like this:
+          <b>https://www.dndbeyond.com/profile/<i>[Username]</i>>/characters/<i>[CharacterID]</i></b>
+        </p>
+      </div>
+      <div class="form-caption">
+        URL
+        <span class="dndbeyond-url-status">{{#if actor.data.flags.ddbimporter.dndbeyond.url}}<i class="fas fa-check-circle"
+            style="color: green"></i>{{else}}<i></i>{{/if}}</span>
+      </div>
+      <div class="form-content">
+        <input type="text" name="dndbeyond-url"
+          value="{{#if actor.data.flags.ddbimporter.dndbeyond.url}}{{actor.data.flags.ddbimporter.dndbeyond.url}}{{/if}}" />
+      </div>
+    </div>
+    <div>
+      <hr>
+    </div>
+    <div class="form-section">
+      <div class="form-description">
+        <h3>Import your character</h3>
+        <ol>
+          <li>Open your character's sheet in D&amp;D Beyond</li>
+          <li>Note the [number] at the end of the URL</li>
+          <li>Open <b>https://character-service.dndbeyond.com/character/v4/character/[number]</b> in a browser, where
+            number is the one shown in the previous step</li>
+          <li>Press <strong>Enter</strong></li>
+          <li>
+            <strong>Be patient!</strong> Wait for the whole page to load. This can take a couple of seconds, wait for
+            the spinning loading icon to stop.
+          </li>
+          <li><b>On Chrome</b> press CTRL-A to select everything and then CTRL-C to copy it into the clipboard</li>
+          <li><b>On Firefox</b> press the Button "Copy" to copy the contents into the clipboard</li>
+          <li>Select the textarea below and paste the data with CTRL-V</li>
+        </ol>
+
+        <p style="font-weight: bold; color: green">Alternatively, set the URL in the textfield above and use ALT-Left
+          click on the [B] button on the character
+          sheet to open the correct URL for you (see above).</p>
+      </div>
+      <div class="form-caption">JSON</div>
+      <div class="form-content"><textarea id="json"></textarea></div>
+    </div>
+  </div>
+  <div>
+    <hr>
+  </div>
+  <div>
+    <div>
+      <h3>Update selection</h3>
+      <p>The following "items" will be deleted and re-created on import (default: everything):</p>
+      <div class="import-policy-group">
+        {{#each importPolicies}}
+        <div class="import-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+            name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.description}}</div>
+        {{/each}}
+      </div>
+      <hr>
+      <div>
+        <h3>Update configuration</h3>
+        <p>Change delete and re-create policy.</p>
+        {{#each importConfig}}
+        <div class="import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+            name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.description}}</div>
+        {{/each}}
+      </div>
+      <hr>
+      <div>
+        <h3>Notes</h3>
+        <p>When using "Import new only" features managed by the Class such as levels and spell progression won't be
+          updated. Some items are always updated. This includes currency, HP, AC, stats, speeds, skills and special
+          traits. Pretty much everything on the attributes page. Only spells and inventory items are stored in
+          a compendium. If you want to import compendium entries you should change this to "Save new entities only, do
+          not overwrite existing ones" on the Module Settings page.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="task-name">
+
+  </div>
+</div>
