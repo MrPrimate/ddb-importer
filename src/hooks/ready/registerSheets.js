@@ -101,34 +101,34 @@ export default function () {
   /**
    * NPC sheets
    */
-  let npcSheetNames = Object.values(CONFIG.Actor.sheetClasses.npc)
-    .map((sheetClass) => sheetClass.cls)
-    .map((sheet) => sheet.name);
+  // let npcSheetNames = Object.values(CONFIG.Actor.sheetClasses.npc)
+  //   .map((sheetClass) => sheetClass.cls)
+  //   .map((sheet) => sheet.name);
 
-  npcSheetNames.forEach((sheetName) => {
-    Hooks.on("render" + sheetName, (app, html, data) => {
-      // only for GMs or the owner of this npc
-      if (!data.owner || !data.actor) return;
-      let button = $('<button type="button" id="ddbImportButton"></button>');
+  // npcSheetNames.forEach((sheetName) => {
+  //   Hooks.on("render" + sheetName, (app, html, data) => {
+  //     // only for GMs or the owner of this npc
+  //     if (!data.owner || !data.actor) return;
+  //     let button = $('<button type="button" id="ddbImporterButton"></button>');
 
-      if (
-        app.entity.data.flags.ddbimporter &&
-        app.entity.data.flags.ddbimporter.dndbeyond &&
-        app.entity.data.flags.ddbimporter.dndbeyond.url
-      ) {
-        button.click((event) => {
-          let url = null;
+  //     if (
+  //       app.entity.data.flags.ddbimporter &&
+  //       app.entity.data.flags.ddbimporter.dndbeyond &&
+  //       app.entity.data.flags.ddbimporter.dndbeyond.url
+  //     ) {
+  //       button.click((event) => {
+  //         let url = null;
 
-          url = app.entity.data.flags.ddbimporter.dndbeyond.url;
+  //         url = app.entity.data.flags.ddbimporter.dndbeyond.url;
 
-          event.preventDefault();
-          renderPopup("web", url);
-        });
-      }
+  //         event.preventDefault();
+  //         renderPopup("web", url);
+  //       });
+  //     }
 
-      let wrap = $('<div class="ddbCharacterName"></div>');
-      $(html).find("input[name='name']").wrap(wrap);
-      $(html).find("input[name='name']").parent().prepend(button);
-    });
-  });
+  //     let wrap = $('<div class="ddbCharacterName"></div>');
+  //     $(html).find("input[name='name']").wrap(wrap);
+  //     $(html).find("input[name='name']").parent().prepend(button);
+  //   });
+  // });
 }

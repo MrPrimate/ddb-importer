@@ -33,15 +33,15 @@ export default function () {
   //   default: "[data] ",
   // });
 
-  game.settings.register("ddb-importer", "scene-format", {
-    name: "ddb-importer.scene-format.name",
-    hint: "ddb-importer.scene-format.hint",
-    scope: "world",
-    config: true,
-    type: String,
-    choices: ["ddb-importer.scene-format.0", "ddb-importer.scene-format.1"],
-    default: 0,
-  });
+  // game.settings.register("ddb-importer", "scene-format", {
+  //   name: "ddb-importer.scene-format.name",
+  //   hint: "ddb-importer.scene-format.hint",
+  //   scope: "world",
+  //   config: true,
+  //   type: String,
+  //   choices: ["ddb-importer.scene-format.0", "ddb-importer.scene-format.1"],
+  //   default: 0,
+  // });
 
   game.settings.register("ddb-importer", "entity-import-policy", {
     name: "ddb-importer.entity-import-policy.name",
@@ -228,26 +228,26 @@ export default function () {
   });
 
   // sets the current tutorial step the user has completed
-  game.settings.register("ddb-importer", "tutorial-step", {
-    scope: "world",
-    config: false,
-    type: Number,
-    default: 0,
-  });
+  // game.settings.register("ddb-importer", "tutorial-step", {
+  //   scope: "world",
+  //   config: false,
+  //   type: Number,
+  //   default: 0,
+  // });
   // sets the current tutorial step the user has completed
-  game.settings.register("ddb-importer", "tutorial-user", {
-    scope: "world",
-    config: false,
-    type: String,
-    default: "",
-  });
+  // game.settings.register("ddb-importer", "tutorial-user", {
+  //   scope: "world",
+  //   config: false,
+  //   type: String,
+  //   default: "",
+  // });
   // sets the current tutorial step the user has completed
-  game.settings.register("ddb-importer", "popup-version", {
-    scope: "world",
-    config: false,
-    type: String,
-    default: "1.0.0",
-  });
+  // game.settings.register("ddb-importer", "popup-version", {
+  //   scope: "world",
+  //   config: false,
+  //   type: String,
+  //   default: "1.0.0",
+  // });
   // sets the user submission name for scene adjustments
   // game.settings.register("ddb-importer", "scene-submission-username", {
   //   scope: "user",

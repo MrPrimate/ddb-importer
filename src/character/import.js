@@ -137,6 +137,80 @@ const filterItemsByUserSelection = (result, sections) => {
   return items;
 };
 
+/**
+ * Loads and parses character in the proxy
+ * @param {*} characterId
+ */
+
+async function getCharacterData(characterId) {
+  const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  //const body = { cobalt: cobalt_cookie };
+  const body = {};
+  return new Promise((resolve, reject) => {
+    fetch(`${PARSING_API}/parseCharacter/${characterId}`,{
+      method: "POST",
+      mode: "cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+      },
+      redirect: "follow", // manual, *follow, error
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify(body), // body data type must match "Content-Type" header
+    })
+      .then((response) => response.json())
+      .then((data) => {console.log(data); resolve(data)})
+      .catch((error) => reject(error));
+  });
+};
+
+async function getAlwaysPreparedSpellsOnly(data) {
+  return new Promise((resolve, reject) => {
+    const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
+    //const body = { cobalt: cobalt_cookie, data: data };
+    const body = { data: data };
+    console.error(body);
+    fetch(`${PARSING_API}/alwaysPreparedSpells`, {
+      method: "POST",
+      mode: "cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+      },
+      redirect: "follow", // manual, *follow, error
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify(body), // body data type must match "Content-Type" header
+    })
+      .then((response) => response.json())
+      .then((data) => resolve(data))
+      .catch((error) => reject(error));
+  });
+}
+
+async function getAllAvailableSpells(data, characterId) {
+  const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const body = { cobalt: cobalt_cookie, data: data };
+  return new Promise((resolve, reject) => {
+    fetch(`${PARSING_API}/allAvailableSpells/${characterId}`, {
+      method: "POST",
+      mode: "cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+      },
+      redirect: "follow", // manual, *follow, error
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify(body), // body data type must match "Content-Type" header
+    })
+      .then((response) => response.json())
+      .then((data) => resolve(data))
+      .catch((error) => reject(error));
+  });
+};
+
 export default class CharacterImport extends Application {
   constructor(options, actor) {
     super(options);
@@ -596,85 +670,6 @@ export default class CharacterImport extends Application {
     });
   }
 
-  /**
-   * Loads and parses character in the proxy
-   * @param {*} characterId
-   */
-
-  getCharacterData(characterId) {
-    const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-    //const body = { cobalt: cobalt_cookie };
-    const body = {};
-    return new Promise((resolve, reject) => {
-      fetch(`${PARSING_API}/parseCharacter/${characterId}`,{
-        method: "POST",
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-        },
-        redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data) => {console.log(data); resolve(data)})
-        .catch((error) => reject(error));
-    });
-  }
-
-  /* eslint-disable class-methods-use-this */
-  getAlwaysPreparedSpellsOnly(data) {
-    return new Promise((resolve, reject) => {
-      const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-      //const body = { cobalt: cobalt_cookie, data: data };
-      const body = { data: data };
-      console.error(body);
-      fetch(`${PARSING_API}/alwaysPreparedSpells`, {
-        method: "POST",
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-        },
-        redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data) => resolve(data))
-        .catch((error) => reject(error));
-    });
-  }
-  /* eslint-enable class-methods-use-this */
-
-  /* eslint-disable class-methods-use-this */
-  getAllAvailableSpells(data, characterId) {
-    const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-    const body = { cobalt: cobalt_cookie, data: data };
-    return new Promise((resolve, reject) => {
-      fetch(`${PARSING_API}/allAvailableSpells/${characterId}`, {
-        method: "POST",
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-        },
-        redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data) => resolve(data))
-        .catch((error) => reject(error));
-    });
-  }
-  /* eslint-enable class-methods-use-this */
-
-
   activateListeners(html) {
     // watch the change of the import-policy-selector checkboxes
     $(html)
@@ -772,53 +767,7 @@ export default class CharacterImport extends Application {
           let classInfo = getClassIds(data);
           logger.verbose(classInfo);
 
-          // THIS DOES NOT WORK AS ADVERTISED!
-          // this.getAllAvailableSpells(classInfo, data.id)
-          //   .then((result) => {
-          //     if (result.success && result.data) {
-          //       CharacterImport.showCurrentTask(
-          //         html,
-          //         "All available spells received, adding them to your import",
-          //         null,
-          //         false
-          //       );
-
-          //       // insert the data into the main import
-          //       classInfo = result.data;
-
-          //       data.classSpells = data.classSpells.map((classSpells) => {
-          //         // find always prepared spells in the results
-          //         const allAvailableSpells = classInfo.find(
-          //           (classInfo) => classInfo.characterClassId === classSpells.characterClassId
-          //         );
-
-          //         if (allAvailableSpells) {
-          //           allAvailableSpells.spells.forEach((spell) => {
-          //             if (classSpells.spells.find((s) => s.definition.name === spell.definition.name) === undefined) {
-          //               logger.verbose("Adding new allways available spell: " + spell.definition.name);
-          //               classSpells.spells.push(spell);
-          //             } else {
-          //               logger.verbose("Already in list: " + spell.definition.name);
-          //             }
-          //           });
-          //         }
-          //         return classSpells;
-          //       });
-
-          //       // begin parsing the character data
-          //       this.parseCharacterData(html, data);
-          //     }
-          //   })
-          //   .catch(() => {
-          //     CharacterImport.showCurrentTask(
-          //       html,
-          //       "Error during fetching all available spells",
-          //       "We will continue without them, you might be missing some spells in that import",
-          //       true
-          //     );
-          //   });
-
-          this.getAlwaysPreparedSpellsOnly(classInfo)
+          getAlwaysPreparedSpellsOnly(classInfo)
             .then((result) => {
               if (result.success && result.data) {
                 CharacterImport.showCurrentTask(
@@ -876,7 +825,7 @@ export default class CharacterImport extends Application {
         let data = undefined;
         try {
           CharacterImport.showCurrentTask(html, "Getting Character data");
-          const characterData = await this.getCharacterData(this.actor.data.flags.ddbimporter.dndbeyond.characterId);
+          const characterData = await getCharacterData(this.actor.data.flags.ddbimporter.dndbeyond.characterId);
           logger.debug("import.js loadCharacterData result", characterData);
           if (characterData.success) {
             // begin parsing the character data
@@ -1053,12 +1002,15 @@ export default class CharacterImport extends Application {
 
     // We loop back over the spell slots to update them to our computed
     // available value as per DDB.
+    let actorUpdates = [];
     CharacterImport.showCurrentTask(html, "Updating spell slots");
     for (const [type, info] of Object.entries(this.result.character.data.spells)) {
-      await this.actor.update({
+      actorUpdates.push(this.actor.update({
         [`data.spells.${type}.value`]: parseInt(info.value),
-      });
+      }));
     }
+
+    await Promise.all(actorUpdates);
 
     this.close();
   }

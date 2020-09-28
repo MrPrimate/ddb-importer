@@ -10,15 +10,11 @@ import setupLogging from "./hooks/init/setupLogging.js";
 import registerSheets from "./hooks/ready/registerSheets.js";
 import checkCompendiums from "./hooks/ready/checkCompendiums.js";
 import registerGameSettings from "./hooks/ready/registerGameSettings.js";
-import extendSceneNavigationContext from "./hooks/getSceneNavigationContext/extendSceneNavigationContext.js";
 
 // other hooks
 import addFolderLabel from "./hooks/renderSidebarTab/addFolderLabel.js";
-import linkImages from "./hooks/renderJournalSheet/linkImages.js";
-//import { tutorialSetup } from "./tutorial/index.js";
-import showPopup from "./popup.js";
+//import showPopup from "./popup.js";
 import checkVersion from "./hooks/init/checkVersion.js";
-import checkElectron from "./hooks/ready/checkElectron.js";
 import displayConnectionIndicator from "./hooks/renderPlayerList/displayConnectionIndicator.js";
 
 // renderNoteConfig
@@ -44,9 +40,6 @@ export function onceReady() {
   // check for the running version
   checkVersion();
 
-  // check if ran in electron app
-  checkElectron();
-
   // delay the startup just a tiny little bit
   setTimeout(() => {
     utils.log("Starting EventPort", "messaging");
@@ -59,9 +52,9 @@ export function onceReady() {
     registerSheets();
 
     // send a notification to dndbeyond that it should update the actor data
-    Hooks.on("preUpdateActor", com.updateActorHP);
+    //Hooks.on("preUpdateActor", com.updateActorHP);
 
-    showPopup();//.then(() => tutorialSetup());
+    //showPopup();//.then(() => tutorialSetup());
   }, 500);
 }
 
@@ -81,14 +74,6 @@ export function onReady() {
 /* eslint-disable no-unused-vars */
 export function renderSidebarTab(directory, html, user) {
   addFolderLabel(html);
-}
-
-export function renderJournalSheet(sheet, html, data) {
-  linkImages(html);
-}
-
-export function getSceneNavigationContext(html, contextItems) {
-  extendSceneNavigationContext(html, contextItems);
 }
 
 export function renderPLayerList(app, html) {
