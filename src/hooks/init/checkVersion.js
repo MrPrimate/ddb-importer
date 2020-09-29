@@ -2,7 +2,7 @@ import utils from "../../utils.js";
 
 const getLatestVersion = async (manifestUrl) => {
   return new Promise((resolve, reject) => {
-    fetch(manifestUrl,{
+    fetch(manifestUrl, {
       method: "GET",
       mode: "no-cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached

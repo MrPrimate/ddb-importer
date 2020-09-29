@@ -38,8 +38,8 @@ export default function () {
       let button = $('<button type="button" id="ddbImporterButton" class="inactive"></button>');
       if (
         app.entity.data.flags.ddbimporter &&
-        app.entity.data.flags.ddbimporter .dndbeyond &&
-        app.entity.data.flags.ddbimporter .dndbeyond.url
+        app.entity.data.flags.ddbimporter.dndbeyond &&
+        app.entity.data.flags.ddbimporter.dndbeyond.url
       ) {
         button.removeClass("inactive");
       }

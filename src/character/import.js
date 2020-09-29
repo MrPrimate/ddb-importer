@@ -1,7 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 
-const PARSING_API =  "http://34.244.124.64:3000";
+const PARSING_API = "http://34.244.124.64:3000";
 
 // reference to the D&D Beyond popup
 const POPUPS = {
@@ -84,22 +84,31 @@ const getCharacterAPIEndpoint = (characterId) => {
 
 // a mapping of compendiums with content type
 const compendiumLookup = [
-  {
-    type: "inventory",
-    compendium: "entity-item-compendium",
-  },
-  {
-    type: "spells",
-    compendium: "entity-spell-compendium",
-  },
-  {
-    type: "features",
-    compendium: "entity-feature-compendium",
-  },
-  {
-    type: "classes",
-    compendium: "entity-class-compendium",
-  },
+  { type: "inventory", compendium: "entity-item-compendium" },
+  { type: "spells", compendium: "entity-spell-compendium" },
+  { type: "features", compendium: "entity-feature-compendium" },
+  { type: "feat", name: "entity-feature-compendium" },
+  { type: "weapon", name: "entity-item-compendium" },
+  { type: "consumable", name: "entity-item-compendium" },
+  { type: "tool", name: "entity-item-compendium" },
+  { type: "loot", name: "entity-item-compendium" },
+  { type: "backpack", name: "entity-item-compendium" },
+  { type: "spell", name: "entity-spell-compendium" },
+  { type: "equipment", name: "entity-item-compendium" },
+];
+
+const srdCompendiumLookup = [
+  { type: "inventory", name: "dnd5e.items" },
+  { type: "spells", name: "dnd5e.spells" },
+  { type: "features", name: "dnd5e.classfeatures" },
+  { type: "feat", name: "dnd5e.classfeatures" },
+  { type: "weapon", name: "dnd5e.items" },
+  { type: "consumable", name: "dnd5e.items" },
+  { type: "tool", name: "dnd5e.items" },
+  { type: "loot", name: "dnd5e.items" },
+  { type: "backpack", name: "dnd5e.items" },
+  { type: "spell", name: "dnd5e.spells" },
+  { type: "equipment", name: "dnd5e.items" },
 ];
 
 const gameFolderLookup = [
@@ -112,7 +121,8 @@ const gameFolderLookup = [
 
 const getCharacterUpdatePolicyTypes = () => {
   let itemTypes = [];
-  if (game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
+  // if (game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
+  itemTypes.push("class");
   if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
   if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
   if (game.settings.get("ddb-importer", "character-update-policy-equipment")) itemTypes.push("equipment");
@@ -137,17 +147,40 @@ const filterItemsByUserSelection = (result, sections) => {
   return items;
 };
 
+// async function loadCharacterData(characterId) {
+//   // const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
+//   // const body = { cobalt: cobalt_cookie };
+//   // const body = {};
+//   return new Promise((resolve, reject) => {
+//     fetch(`${PARSING_API}/getCharacter/${characterId}`, {
+//       method: "GET",
+//       mode: "cors", // no-cors, *cors, same-origin
+//       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+//       credentials: "same-origin", // include, *same-origin, omit
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       redirect: "follow", // manual, *follow, error
+//       referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+//      // body: JSON.stringify(body), // body data type must match "Content-Type" header
+//     })
+//       .then((response) => response.json())
+//       .then((data) => resolve(data))
+//       .catch((error) => reject(error));
+//   });
+// }
+
 /**
  * Loads and parses character in the proxy
  * @param {*} characterId
  */
 
 async function getCharacterData(characterId) {
-  const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-  //const body = { cobalt: cobalt_cookie };
+  // const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  // const body = { cobalt: cobalt_cookie };
   const body = {};
   return new Promise((resolve, reject) => {
-    fetch(`${PARSING_API}/parseCharacter/${characterId}`,{
+    fetch(`${PARSING_API}/parseCharacter/${characterId}`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -160,17 +193,16 @@ async function getCharacterData(characterId) {
       body: JSON.stringify(body), // body data type must match "Content-Type" header
     })
       .then((response) => response.json())
-      .then((data) => {console.log(data); resolve(data)})
+      .then((data) => resolve(data))
       .catch((error) => reject(error));
   });
-};
+}
 
 async function getAlwaysPreparedSpellsOnly(data) {
   return new Promise((resolve, reject) => {
-    const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-    //const body = { cobalt: cobalt_cookie, data: data };
+    // const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
+    // const body = { cobalt: cobalt_cookie, data: data };
     const body = { data: data };
-    console.error(body);
     fetch(`${PARSING_API}/alwaysPreparedSpells`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
@@ -189,27 +221,27 @@ async function getAlwaysPreparedSpellsOnly(data) {
   });
 }
 
-async function getAllAvailableSpells(data, characterId) {
-  const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-  const body = { cobalt: cobalt_cookie, data: data };
-  return new Promise((resolve, reject) => {
-    fetch(`${PARSING_API}/allAvailableSpells/${characterId}`, {
-      method: "POST",
-      mode: "cors", // no-cors, *cors, same-origin
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: "same-origin", // include, *same-origin, omit
-      headers: {
-        "Content-Type": "application/json",
-      },
-      redirect: "follow", // manual, *follow, error
-      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      body: JSON.stringify(body), // body data type must match "Content-Type" header
-    })
-      .then((response) => response.json())
-      .then((data) => resolve(data))
-      .catch((error) => reject(error));
-  });
-};
+// async function getAllAvailableSpells(data, characterId) {
+//   const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
+//   const body = { cobalt: cobalt_cookie, data: data };
+//   return new Promise((resolve, reject) => {
+//     fetch(`${PARSING_API}/allAvailableSpells/${characterId}`, {
+//       method: "POST",
+//       mode: "cors", // no-cors, *cors, same-origin
+//       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+//       credentials: "same-origin", // include, *same-origin, omit
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       redirect: "follow", // manual, *follow, error
+//       referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+//       body: JSON.stringify(body), // body data type must match "Content-Type" header
+//     })
+//       .then((response) => response.json())
+//       .then((data) => resolve(data))
+//       .catch((error) => reject(error));
+//   });
+// }
 
 export default class CharacterImport extends Application {
   constructor(options, actor) {
@@ -296,37 +328,106 @@ export default class CharacterImport extends Application {
    * @param {*} itemsToRemove
    */
   static async removeItems(items, itemsToRemove) {
-    const newItems = await items.filter(
-      (item) =>
-        !itemsToRemove.some((originalItem) => item.name === originalItem.name && item.type === originalItem.type)
-    );
-    return newItems;
+    return new Promise((resolve) => {
+      resolve(
+        items.filter(
+          (item) =>
+            !itemsToRemove.some((originalItem) => item.name === originalItem.name && item.type === originalItem.type)
+        )
+      );
+    });
   }
 
   async importItems(items) {
-    await this.actor.createEmbeddedEntity("OwnedItem", items, {
-      displaySheet: false,
+    return new Promise((resolve) => {
+      resolve(this.actor.createEmbeddedEntity("OwnedItem", items, { displaySheet: false }));
     });
   }
+
+  // async importItemsFromSRDCompendium(items) {
+  //   let importedItems = [];
+  //   console.error("Importing");
+  //   console.log(JSON.stringify(items));
+  //   items.forEach((item) => {
+  //     console.error(item);
+  //     console.log(item.type);
+  //     const compendiumName = srdCompendiumLookup.find((c) => c.type == item.type).name;
+  //     console.log(compendiumName);
+  //     items.push(this.actor.importItemFromCollection(compendiumName, item._id));
+  //   });
+  //   console.error("IMPORT SRD RESOLVING");
+  //   return new Promise((resolve) => {
+  //     resolve(importedItems);
+  //   });
+  // }
 
   /**
    * gets items from compendium
    * @param {*} items
    */
-  static async getCompendiumItems(items, type) {
-    const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
-    const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+  static async getCompendiumItems(items, type, compendiumLabel = null) {
+    if (!compendiumLabel) {
+      const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
+      compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+    }
     const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
     const index = await compendium.getIndex();
+    const firstPassItems = await index.filter((i) => items.some((orig) => i.name === orig.name));
 
-    const results = index
-      .filter((i) => items.some((item) => i.name === item.name))
-      .map(async (i) => {
-        let item = await compendium.getEntry(i._id);
+    let results = [];
+    for (const i of firstPassItems) {
+      let item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
+      const ddbItem = items.find((orig) =>
+        (item.name === orig.name && item.type === orig.type && orig.data.activation
+          ? orig.data.activation.type === item.data.activation.type
+          : true)
+      );
+      if (ddbItem) {
+        if (ddbItem.data.quantity) item.data.quantity = ddbItem.data.quantity;
+        if (ddbItem.data.attuned) item.data.attuned = ddbItem.data.attuned;
+        if (ddbItem.data.equipped) item.data.equipped = ddbItem.data.equipped;
+        if (ddbItem.data.uses) item.data.uses = ddbItem.data.uses;
+        if (ddbItem.data.resources) item.data.resources = ddbItem.data.resources;
+        if (ddbItem.data.consume) item.data.consume = ddbItem.data.consume;
+        if (ddbItem.data.preparation) item.data.preparation = ddbItem.data.preparation;
+        // do we want to enrich the compendium item with our parsed flag data?
+        // item.flags = { ...ddbItem.flags, ...item.flags };
         delete item["_id"];
-        return item;
-      });
-    return Promise.all(results);
+        results.push(item);
+      }
+    }
+
+    // for (const i of firstPassItems) {
+    //   compendium.getEntry(i._id).then((item) => {
+    //     const ddbItem = items.find((orig) =>
+    //       (item.name === orig.name && item.type === orig.type && orig.data.activation
+    //         ? orig.data.activation.type === item.data.activation.type
+    //         : true)
+    //     );
+    //     if (ddbItem) {
+    //       if (ddbItem.data.quantity) item.data.quantity = ddbItem.data.quantity;
+    //       if (ddbItem.data.attuned) item.data.attuned = ddbItem.data.attuned;
+    //       if (ddbItem.data.equipped) item.data.equipped = ddbItem.data.equipped;
+    //       if (ddbItem.data.uses) item.data.uses = ddbItem.data.uses;
+    //       if (ddbItem.data.resources) item.data.resources = ddbItem.data.resources;
+    //       if (ddbItem.data.consume) item.data.consume = ddbItem.data.consume;
+    //       if (ddbItem.data.preparation) item.data.preparation = ddbItem.data.preparation;
+    //       // do we want to enrich the compendium item with our parsed flag data?
+    //       // item.flags = { ...ddbItem.flags, ...item.flags };
+    //       delete item["_id"];
+    //       results.push(item);
+    //     }
+    //   });
+    // }
+
+    // return Promise.all(results);
+    return results;
+  }
+
+  static async getSRDCompendiumItems(items, type) {
+    // console.error(game.packs.keys());
+    const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
+    return CharacterImport.getCompendiumItems(items, type, compendiumName);
   }
 
   /**
@@ -506,12 +607,7 @@ export default class CharacterImport extends Application {
   async updateImage(html, data) {
     // updating the image?
     let imagePath = this.actor.img;
-    if (
-      game.user.isTrusted &&
-      imagePath.indexOf("mystery-man") !== -1 &&
-      data.avatarUrl &&
-      data.avatarUrl !== ""
-    ) {
+    if (game.user.isTrusted && imagePath.indexOf("mystery-man") !== -1 && data.avatarUrl && data.avatarUrl !== "") {
       CharacterImport.showCurrentTask(html, "Uploading avatar image");
       let filename = data.name
         .replace(/[^a-zA-Z]/g, "-")
@@ -521,8 +617,8 @@ export default class CharacterImport extends Application {
       let uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
       imagePath = await utils.uploadImage(data.avatarUrl, uploadDirectory, filename);
       this.result.character.img = imagePath;
-      //this grabs the frame, we don't care about waiting for this
-      if( data.frameAvatarUrl && data.frameAvatarUrl !== "") {
+      // this grabs the frame, we don't care about waiting for this
+      if (data.frameAvatarUrl && data.frameAvatarUrl !== "") {
         utils.uploadImage(data.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
       }
     }
@@ -588,11 +684,11 @@ export default class CharacterImport extends Application {
 
   getData() {
     const importPolicies = [
-      {
-        name: "class",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-class"),
-        description: "Classes",
-      },
+      // {
+      //   name: "class",
+      //   isChecked: game.settings.get("ddb-importer", "character-update-policy-class"),
+      //   description: "Classes",
+      // },
       {
         name: "feat",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-feat"),
@@ -634,7 +730,12 @@ export default class CharacterImport extends Application {
       {
         name: "use-existing",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
-        description: "Use existing items from the compendium, rather than recreating.",
+        description: "Use existing items from DDB import compendiums, rather than recreating.",
+      },
+      {
+        name: "use-srd",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd"),
+        description: "Use existing items from the SRD compendium, rather than DDB.",
       },
     ];
 
@@ -646,29 +747,6 @@ export default class CharacterImport extends Application {
   }
 
   /* -------------------------------------------- */
-
-  loadCharacterData(characterId) {
-    const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-    //const body = { cobalt: cobalt_cookie };
-    //const body = {};
-    return new Promise((resolve, reject) => {
-      fetch(`${PARSING_API}/getCharacter/${characterId}`,{
-        method: "GET",
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-        },
-        redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-       // body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data) => {console.log(data); resolve(data)})
-        .catch((error) => reject(error));
-    });
-  }
 
   activateListeners(html) {
     // watch the change of the import-policy-selector checkboxes
@@ -822,14 +900,13 @@ export default class CharacterImport extends Application {
         // retrieve the character data from the proxy
         event.preventDefault();
 
-        let data = undefined;
         try {
           CharacterImport.showCurrentTask(html, "Getting Character data");
           const characterData = await getCharacterData(this.actor.data.flags.ddbimporter.dndbeyond.characterId);
-          logger.debug("import.js loadCharacterData result", characterData);
+          logger.debug("import.js getCharacterData result", characterData);
           if (characterData.success) {
             // begin parsing the character data
-            //console.error(characterData);
+            // console.error(characterData);
             await this.parseCharacterData(html, characterData);
             CharacterImport.showCurrentTask(html, "Loading Character data", "Done.", false);
             this.close();
@@ -940,8 +1017,6 @@ export default class CharacterImport extends Application {
     this.updateCompendium("inventory");
     this.updateCompendium("spells");
     this.updateCompendium("features");
-    // Issue #263 hotfix - remove Classes Compendium (for now)
-    // this.updateCompendium("classes");
 
     // Adding all items to the actor
     const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
@@ -960,23 +1035,35 @@ export default class CharacterImport extends Application {
     }
 
     let compendiumItems = [];
+    let srdCompendiumItems = [];
     const useExistingCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-existing");
+    const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
 
-    if (useExistingCompendiumItems) {
+    /**
+     * If SRD is selected, we prefer this
+     */
+    if (useSRDCompendiumItems) {
       utils.log("Removing compendium items");
-      const compendiumInventoryItems = await CharacterImport.getCompendiumItems(items, "inventory");
-      const compendiumSpellItems = await CharacterImport.getCompendiumItems(items, "spells");
-      const compendiumFeatureItems = await CharacterImport.getCompendiumItems(items, "features");
-      // Issue #263 hotfix - remove Classes Compendium (for now)
-      // const compendiumClassItems = await CharacterImport.getCompendiumItems(items, "classes");
+      const compendiumFeatureItems = await CharacterImport.getSRDCompendiumItems(items, "features");
+      const compendiumInventoryItems = await CharacterImport.getSRDCompendiumItems(items, "inventory");
+      const compendiumSpellItems = await CharacterImport.getSRDCompendiumItems(items, "spells");
 
-      compendiumItems = compendiumItems.concat(
+      srdCompendiumItems = compendiumItems.concat(
         compendiumInventoryItems,
         compendiumSpellItems,
         compendiumFeatureItems
-        // Issue #263 hotfix - remove Classes Compendium (for now)
-        // compendiumClassItems,
       );
+      // removed existing items from those to be imported
+      items = await CharacterImport.removeItems(items, srdCompendiumItems);
+    }
+
+    if (useExistingCompendiumItems) {
+      utils.log("Removing compendium items");
+      const compendiumFeatureItems = await CharacterImport.getCompendiumItems(items, "features");
+      const compendiumInventoryItems = await CharacterImport.getCompendiumItems(items, "inventory");
+      const compendiumSpellItems = await CharacterImport.getCompendiumItems(items, "spells");
+
+      compendiumItems = compendiumItems.concat(compendiumInventoryItems, compendiumSpellItems, compendiumFeatureItems);
       // removed existing items from those to be imported
       items = await CharacterImport.removeItems(items, compendiumItems);
     }
@@ -1000,14 +1087,22 @@ export default class CharacterImport extends Application {
       await this.importItems(compendiumItems);
     }
 
+    if (useSRDCompendiumItems) {
+      CharacterImport.showCurrentTask(html, "Importing SRD compendium items");
+      utils.log("Importing SRD compendium items");
+      await this.importItems(srdCompendiumItems);
+    }
+
     // We loop back over the spell slots to update them to our computed
     // available value as per DDB.
     let actorUpdates = [];
     CharacterImport.showCurrentTask(html, "Updating spell slots");
     for (const [type, info] of Object.entries(this.result.character.data.spells)) {
-      actorUpdates.push(this.actor.update({
-        [`data.spells.${type}.value`]: parseInt(info.value),
-      }));
+      actorUpdates.push(
+        this.actor.update({
+          [`data.spells.${type}.value`]: parseInt(info.value),
+        })
+      );
     }
 
     await Promise.all(actorUpdates);

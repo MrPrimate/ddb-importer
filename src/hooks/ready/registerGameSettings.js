@@ -1,12 +1,12 @@
 import DirectoryPicker from "../../lib/DirectoryPicker.js";
 
 export default function () {
-  const actorCompendiums = game.packs
-    .filter((pack) => pack.entity === "Actor")
-    .reduce((choices, pack) => {
-      choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-      return choices;
-    }, {});
+  // const actorCompendiums = game.packs
+  //   .filter((pack) => pack.entity === "Actor")
+  //   .reduce((choices, pack) => {
+  //     choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
+  //     return choices;
+  //   }, {});
 
   const itemCompendiums = game.packs
     .filter((pack) => pack.entity === "Item")
@@ -129,15 +129,15 @@ export default function () {
     config: true,
     type: String,
     choices: {
-      "VERBOSE": "VERBOSE",
-      "DEBUG": "DEBUG",
-      "INFO": "INFO",
-      "WARN": "WARN",
-      "ERR": "ERROR",
-      "FATAL": "FATAL",
-      "OFF": "OFF"
+      VERBOSE: "VERBOSE",
+      DEBUG: "DEBUG",
+      INFO: "INFO",
+      WARN: "WARN",
+      ERR: "ERROR",
+      FATAL: "FATAL",
+      OFF: "OFF",
     },
-    default: "INFO"
+    default: "INFO",
   });
 
   /** Character update settings, stored per user and non-configurable in the settings screen */
@@ -159,14 +159,24 @@ export default function () {
     default: false,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-class", {
-    name: "ddb-importer.character-update-policy-class.name",
-    hint: "ddb-importer.character-update-policy-class.hint",
+  game.settings.register("ddb-importer", "character-update-policy-use-srd", {
+    name: "ddb-importer.character-update-policy-use-srd.name",
+    hint: "ddb-importer.character-update-policy-use-srd.hint",
     scope: "player",
     config: false,
     type: Boolean,
-    default: true,
+    default: false,
   });
+
+
+  // game.settings.register("ddb-importer", "character-update-policy-class", {
+  //   name: "ddb-importer.character-update-policy-class.name",
+  //   hint: "ddb-importer.character-update-policy-class.hint",
+  //   scope: "player",
+  //   config: false,
+  //   type: Boolean,
+  //   default: true,
+  // });
 
   game.settings.register("ddb-importer", "character-update-policy-feat", {
     name: "ddb-importer.character-update-policy-feat.name",
@@ -215,8 +225,7 @@ export default function () {
     config: false,
     type: Boolean,
     default: true,
-  }
-  );
+  });
 
   game.settings.register("ddb-importer", "character-update-policy-spell", {
     name: "ddb-importer.character-update-policy-spell.name",
@@ -261,7 +270,6 @@ export default function () {
     scope: "player",
     config: true,
     type: String,
-    default: ""
+    default: "",
   });
-
 }

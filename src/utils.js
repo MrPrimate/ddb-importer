@@ -159,15 +159,15 @@ let utils = {
   uploadImage: async function (url, targetDirectory, baseFilename, useProxy = true) {
     async function downloadImage(url) {
       return new Promise((resolve, reject) => {
-        fetch(url,{
+        fetch(url, {
           method: "GET",
         })
           .then((response) => {
-            console.log(response);
             if (!response.ok) {
-              reject(error.message)
+              reject("Could not retrieve image");
             }
-            return response.blob()})
+            return response.blob();
+})
           .then((blob) => resolve(blob))
           .catch((error) => reject(error.message));
       });
@@ -195,7 +195,7 @@ let utils = {
     }
 
     async function process(url, path, filename) {
-      //let data = await download(url);
+      // let data = await download(url);
       let data = await downloadImage(url);
       let result = await upload(data, path, filename);
       return result;
@@ -211,7 +211,7 @@ let utils = {
     // uploading the character avatar and token
     try {
       url = useProxy ? "http://34.244.124.64:8080/" + url : url;
-      //console.error(`URL: ${url}`);
+      // console.error(`URL: ${url}`);
       let result = await process(url, targetDirectory, filename + "." + ext);
       return result;
     } catch (error) {

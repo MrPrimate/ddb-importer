@@ -33,8 +33,8 @@ export default async function () {
     createIfNotExists("entity-spell-compendium", "Item", "Spells"),
     createIfNotExists("entity-item-compendium", "Item", "Items"),
     createIfNotExists("entity-feature-compendium", "Item", "Features"),
-    //createIfNotExists("entity-monster-compendium", "Actor", "Monsters"),
-    //createIfNotExists("entity-monster-feature-compendium", "Item", "Monster Features")
+    // createIfNotExists("entity-monster-compendium", "Actor", "Monsters"),
+    // createIfNotExists("entity-monster-feature-compendium", "Item", "Monster Features")
   ]);
 
   if (results.some((result) => result.value)) location.reload();

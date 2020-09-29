@@ -7,6 +7,11 @@ This module is similar to ddb-importer, in fact I have been a large contributor 
 This module only parsers characters.
 It won't import monseters, etc.
 
+Main differences:
+
+- Can use supplied SRD items where available
+- Parsing is done remotely. It will cache your characters data for 15 minutes
+
 ## Pre-requisites and recommendations
 
 I'd recommend installing:
@@ -14,6 +19,25 @@ I'd recommend installing:
 - [The Tokenizer](https://www.vttassets.com/asset/vtta-tokenizer) and
 - [The Iconizer](https://www.vttassets.com/asset/vtta-iconizer)
 - [Magic Items](https://foundryvtt.com/packages/magicitems/)
+- [Skill Customization for D&D5E](https://foundryvtt.com/packages/skill-customization-5e/)
+
+These all offer enhancements for your game, and the parser will attempt to add flags to use them.
+
+## SRD Import Notes
+
+Some detail will be lost:
+
+* Any auto configuration of Magic Item spells
+* Any custom damage modifications from things like Fighting Styles and Improved Divine Smite
+
+Some details are updated, if applicable:
+
+* number of uses
+* quantity of items
+* attuned status
+* equipped status
+* resource tracking
+* spell preparation status
 
 
 ## Configuration

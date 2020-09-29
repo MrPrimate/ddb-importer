@@ -1,7 +1,7 @@
 import utils from "./utils.js";
 
 import EventPort from "./messaging/index.js";
-import OutgoingCommunication from "./messaging/outgoing.js";
+// import OutgoingCommunication from "./messaging/outgoing.js";
 
 // init hooks
 import setupLogging from "./hooks/init/setupLogging.js";
@@ -13,7 +13,7 @@ import registerGameSettings from "./hooks/ready/registerGameSettings.js";
 
 // other hooks
 import addFolderLabel from "./hooks/renderSidebarTab/addFolderLabel.js";
-//import showPopup from "./popup.js";
+// import showPopup from "./popup.js";
 import checkVersion from "./hooks/init/checkVersion.js";
 import displayConnectionIndicator from "./hooks/renderPlayerList/displayConnectionIndicator.js";
 
@@ -46,15 +46,15 @@ export function onceReady() {
     let port = new EventPort();
     port.start();
 
-    let com = OutgoingCommunication(port);
+    // let com = OutgoingCommunication(port);
 
     // register the D&DBeyond Button on the character sheets
     registerSheets();
 
     // send a notification to dndbeyond that it should update the actor data
-    //Hooks.on("preUpdateActor", com.updateActorHP);
+    // Hooks.on("preUpdateActor", com.updateActorHP);
 
-    //showPopup();//.then(() => tutorialSetup());
+    // showPopup();//.then(() => tutorialSetup());
   }, 500);
 }
 
