@@ -1,5 +1,7 @@
 import DirectoryPicker from "./lib/DirectoryPicker.js";
 
+const PROXY = "http://34.255.208.212:8080/";
+
 let utils = {
   debug: () => {
     return true;
@@ -210,7 +212,7 @@ let utils = {
 
     // uploading the character avatar and token
     try {
-      url = useProxy ? "http://34.244.124.64:8080/" + url : url;
+      url = useProxy ? PROXY + url : url;
       // console.error(`URL: ${url}`);
       let result = await process(url, targetDirectory, filename + "." + ext);
       return result;

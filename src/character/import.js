@@ -1,7 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 
-const PARSING_API = "http://34.244.124.64:3000";
+const PARSING_API = "http://34.255.208.212:3000";
 
 // reference to the D&D Beyond popup
 const POPUPS = {
