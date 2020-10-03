@@ -121,13 +121,11 @@ const gameFolderLookup = [
 
 const getCharacterUpdatePolicyTypes = () => {
   let itemTypes = [];
-  // if (game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
   itemTypes.push("class");
   if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
   if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
-  if (game.settings.get("ddb-importer", "character-update-policy-equipment")) itemTypes.push("equipment");
-  if (game.settings.get("ddb-importer", "character-update-policy-inventory"))
-    itemTypes = itemTypes.concat(["consumable", "tool", "loot", "backpack"]);
+  if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
+    itemTypes = itemTypes.concat(["equipment", "consumable", "tool", "loot", "backpack"]);
   if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
   return itemTypes;
 };
@@ -684,11 +682,6 @@ export default class CharacterImport extends Application {
 
   getData() {
     const importPolicies = [
-      // {
-      //   name: "class",
-      //   isChecked: game.settings.get("ddb-importer", "character-update-policy-class"),
-      //   description: "Classes",
-      // },
       {
         name: "feat",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-feat"),
@@ -702,12 +695,7 @@ export default class CharacterImport extends Application {
       {
         name: "equipment",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-equipment"),
-        description: "Equipment",
-      },
-      {
-        name: "inventory",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-inventory"),
-        description: "Other inventory items",
+        description: "Other Equipment",
       },
       {
         name: "currency",
