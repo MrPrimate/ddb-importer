@@ -11,7 +11,7 @@ Main differences:
 
 - Can use supplied SRD items where available
 - Parsing is done remotely. It will cache your characters data for 15 minutes.
-- There maybe an option to remove this restriction to patreon contributors in the future.
+- There maybe an option to remove this restriction to patreon supporters in the future.
 
 You CAN use this alongside the vtta-dndbeyond extension.
 

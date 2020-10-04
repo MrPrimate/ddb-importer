@@ -236,6 +236,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-image", {
+    name: "ddb-importer.character-update-policy-image.name",
+    hint: "ddb-importer.character-update-policy-image.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   // sets the current tutorial step the user has completed
   // game.settings.register("ddb-importer", "tutorial-step", {
   //   scope: "world",

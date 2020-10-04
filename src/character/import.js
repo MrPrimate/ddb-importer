@@ -342,22 +342,6 @@ export default class CharacterImport extends Application {
     });
   }
 
-  // async importItemsFromSRDCompendium(items) {
-  //   let importedItems = [];
-  //   console.error("Importing");
-  //   console.log(JSON.stringify(items));
-  //   items.forEach((item) => {
-  //     console.error(item);
-  //     console.log(item.type);
-  //     const compendiumName = srdCompendiumLookup.find((c) => c.type == item.type).name;
-  //     console.log(compendiumName);
-  //     items.push(this.actor.importItemFromCollection(compendiumName, item._id));
-  //   });
-  //   console.error("IMPORT SRD RESOLVING");
-  //   return new Promise((resolve) => {
-  //     resolve(importedItems);
-  //   });
-  // }
 
   /**
    * gets items from compendium
@@ -395,30 +379,6 @@ export default class CharacterImport extends Application {
       }
     }
 
-    // for (const i of firstPassItems) {
-    //   compendium.getEntry(i._id).then((item) => {
-    //     const ddbItem = items.find((orig) =>
-    //       (item.name === orig.name && item.type === orig.type && orig.data.activation
-    //         ? orig.data.activation.type === item.data.activation.type
-    //         : true)
-    //     );
-    //     if (ddbItem) {
-    //       if (ddbItem.data.quantity) item.data.quantity = ddbItem.data.quantity;
-    //       if (ddbItem.data.attuned) item.data.attuned = ddbItem.data.attuned;
-    //       if (ddbItem.data.equipped) item.data.equipped = ddbItem.data.equipped;
-    //       if (ddbItem.data.uses) item.data.uses = ddbItem.data.uses;
-    //       if (ddbItem.data.resources) item.data.resources = ddbItem.data.resources;
-    //       if (ddbItem.data.consume) item.data.consume = ddbItem.data.consume;
-    //       if (ddbItem.data.preparation) item.data.preparation = ddbItem.data.preparation;
-    //       // do we want to enrich the compendium item with our parsed flag data?
-    //       // item.flags = { ...ddbItem.flags, ...item.flags };
-    //       delete item["_id"];
-    //       results.push(item);
-    //     }
-    //   });
-    // }
-
-    // return Promise.all(results);
     return results;
   }
 
@@ -605,7 +565,9 @@ export default class CharacterImport extends Application {
   async updateImage(html, data) {
     // updating the image?
     let imagePath = this.actor.img;
-    if (game.user.isTrusted && imagePath.indexOf("mystery-man") !== -1 && data.avatarUrl && data.avatarUrl !== "") {
+    if (game.user.isTrusted && data.avatarUrl && data.avatarUrl !== "" &&
+      (imagePath.indexOf("mystery-man") !== -1 || game.settings.get("ddb-importer", "character-update-policy-image") )
+     ) {
       CharacterImport.showCurrentTask(html, "Uploading avatar image");
       let filename = data.name
         .replace(/[^a-zA-Z]/g, "-")
@@ -706,6 +668,11 @@ export default class CharacterImport extends Application {
         name: "spell",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-spell"),
         description: "Spells",
+      },
+      {
+        name: "image",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-image"),
+        description: "Image",
       },
     ];
 
