@@ -23,6 +23,10 @@ import addNumberedIcons from "./hooks/renderNoteConfig/addNumberedIcons.js";
 // socket messaging
 import onSocketMessage from "./hooks/socket/onSocketMessage.js";
 
+// monster muncher
+import addMonsterMuncher from "./hooks/renderMonsterMuncher/addMonsterMuncher.js";
+
+
 // foundry is initializing
 export function init() {
   setupLogging();
@@ -70,13 +74,13 @@ export function onReady() {
   });
 }
 
-// these functions are hooked in, we don't use all the data, so lets stop eslint complaining
-/* eslint-disable no-unused-vars */
-export function renderSidebarTab(directory, html, user) {
+
+export function renderSidebarTab(app, html) {
   addFolderLabel(html);
+  addMonsterMuncher(app, html);
 }
 
-export function renderPLayerList(app, html) {
+export function renderPlayerList(app, html) {
   displayConnectionIndicator(app, html);
 }
 
@@ -84,4 +88,4 @@ export function renderNoteConfig(app, html, data) {
   addNumberedIcons(app, html, data);
 }
 
-/* eslint-enable no-unused-vars */
+

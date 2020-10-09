@@ -3,7 +3,7 @@ import {
   onReady,
   onceReady,
   renderSidebarTab,
-  renderPLayerList,
+  renderPlayerList,
   renderNoteConfig,
 } from "./hooks.js";
 
@@ -13,5 +13,5 @@ Hooks.once("init", init);
 Hooks.once("ready", onceReady);
 Hooks.on("ready", onReady);
 Hooks.on("renderSidebarTab", renderSidebarTab);
-Hooks.on("renderPlayerList", renderPLayerList);
+Hooks.on("renderPlayerList", renderPlayerList);
 Hooks.on("renderNoteConfig", renderNoteConfig);
