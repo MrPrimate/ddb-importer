@@ -1,12 +1,12 @@
 import DirectoryPicker from "../../lib/DirectoryPicker.js";
 
 export default function () {
-  // const actorCompendiums = game.packs
-  //   .filter((pack) => pack.entity === "Actor")
-  //   .reduce((choices, pack) => {
-  //     choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-  //     return choices;
-  //   }, {});
+  const actorCompendiums = game.packs
+    .filter((pack) => pack.entity === "Actor")
+    .reduce((choices, pack) => {
+      choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
+      return choices;
+    }, {});
 
   const itemCompendiums = game.packs
     .filter((pack) => pack.entity === "Item")
@@ -102,15 +102,15 @@ export default function () {
     choices: itemCompendiums,
   });
 
-  // game.settings.register("ddb-importer", "entity-monster-compendium", {
-  //   name: "ddb-importer.entity-monster-compendium.name",
-  //   hint: "ddb-importer.entity-monster-compendium.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: String,
-  //   isSelect: true,
-  //   choices: actorCompendiums,
-  // });
+  game.settings.register("ddb-importer", "entity-monster-compendium", {
+    name: "ddb-importer.entity-monster-compendium.name",
+    hint: "ddb-importer.entity-monster-compendium.hint",
+    scope: "world",
+    config: true,
+    type: String,
+    isSelect: true,
+    choices: actorCompendiums,
+  });
 
   // game.settings.register("ddb-importer", "entity-monster-feature-compendium", {
   //   name: "ddb-importer.entity-monster-feature-compendium.name",
