@@ -303,6 +303,7 @@ export default class CharacterImport extends Application {
     CharacterImport.copyFlagGroup("dynamiceffects", originalItem, item);
     CharacterImport.copyFlagGroup("maestro", originalItem, item);
     CharacterImport.copyFlagGroup("mess", originalItem, item);
+    CharacterImport.copyFlagGroup("favtab", originalItem, item);
   }
 
   /**
