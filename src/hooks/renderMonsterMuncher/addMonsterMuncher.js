@@ -17,11 +17,11 @@ import MonsterMuncher from "../../monster/munch.js";
 
 
 export default function (app, html) {
-  $(html)
+  $(html);
   if (app.options.id == "compendium") {
-    let button = $("<button class='monster-muncher'><i class='fas fa-file-import'></i> Monster Muncher</button>")
+    let button = $("<button class='monster-muncher'><i class='fas fa-file-import'></i> Monster Muncher</button>");
 
-    button.click(function () {
+    button.click(() => {
       new MonsterMuncher().render(true);
     });
 

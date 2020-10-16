@@ -3,6 +3,8 @@ import logger from "../logger.js";
 
 const PARSING_API = "https://ddb.mrprimate.co.uk";
 
+const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
+
 // reference to the D&D Beyond popup
 const POPUPS = {
   json: null,
@@ -125,7 +127,7 @@ const getCharacterUpdatePolicyTypes = () => {
   if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
   if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
   if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
-    itemTypes = itemTypes.concat(["equipment", "consumable", "tool", "loot", "backpack"]);
+    itemTypes = itemTypes.concat(EQUIPMENT_TYPES);
   if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
   return itemTypes;
 };
@@ -343,28 +345,82 @@ export default class CharacterImport extends Application {
     });
   }
 
+  static getLooseNames(name) {
+    let looseNames = [name];
+    let refactNameArray = name.split("(")[0].trim().split(", ");
+    refactNameArray.unshift(refactNameArray.pop());
+    const refactName = refactNameArray.join(" ").trim();
+    looseNames.push(refactName, refactName.toLowerCase());
+    return looseNames;
+  }
+
+  static async looseItemNameMatch(item, items, loose = false) {
+    // first pass is a strict match
+    let matchingItem = items.find((matchItem) => {
+      let activationMatch = false;
+
+      if (item.data.activation && item.data.activation.type == "") {
+        activationMatch = true;
+      } else if (matchItem.data.activation && item.data.activation) {
+        activationMatch = matchItem.data.activation.type === item.data.activation.type;
+      }
+
+      const isMatch = item.name === matchItem.name && item.type === matchItem.type && activationMatch;
+      return isMatch;
+    });
+
+    if (!matchingItem && loose) {
+      const looseNames = CharacterImport.getLooseNames(item.name);
+      // lets go loosey goosey on matching equipment, we often get types wrong
+      matchingItem = items.find(
+        (matchItem) =>
+          looseNames.includes(matchItem.name.toLowerCase()) &&
+          EQUIPMENT_TYPES.includes(item.type) &&
+          EQUIPMENT_TYPES.includes(matchItem.type)
+      );
+
+      // super loose name match!
+      if (!matchingItem) {
+        // still no matching item, lets do a final pass
+        matchingItem = items.find(
+          (matchItem) => looseNames.includes(matchItem.name.split("(")[0].trim().toLowerCase())
+        );
+      }
+    }
+    return matchingItem;
+  }
 
   /**
    * gets items from compendium
    * @param {*} items
    */
-  static async getCompendiumItems(items, type, compendiumLabel = null) {
+  static async getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false) {
     if (!compendiumLabel) {
       const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
       compendiumLabel = game.settings.get("ddb-importer", compendiumName);
     }
     const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
     const index = await compendium.getIndex();
-    const firstPassItems = await index.filter((i) => items.some((orig) => i.name === orig.name));
+    const firstPassItems = await index.filter((i) => items.some((orig) => {
+      const looseNames = CharacterImport.getLooseNames(orig.name);
+      if (looseMatch) {
+        return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
+      } else {
+        return i.name === orig.name;
+      }
+    }));
 
     let results = [];
     for (const i of firstPassItems) {
       let item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
-      const ddbItem = items.find((orig) =>
-        (item.name === orig.name && item.type === orig.type && orig.data.activation
-          ? orig.data.activation.type === item.data.activation.type
-          : true)
-      );
+      const ddbItem = await CharacterImport.looseItemNameMatch(item, items, looseMatch); // eslint-disable-line no-await-in-loop
+
+      // const ddbItem = items.find((orig) =>
+      //   (item.name === orig.name && item.type === orig.type && orig.data.activation
+      //     ? orig.data.activation.type === item.data.activation.type
+      //     : true)
+      // );
+
       if (ddbItem) {
         if (ddbItem.data.quantity) item.data.quantity = ddbItem.data.quantity;
         if (ddbItem.data.attuned) item.data.attuned = ddbItem.data.attuned;
@@ -383,10 +439,36 @@ export default class CharacterImport extends Application {
     return results;
   }
 
-  static async getSRDCompendiumItems(items, type) {
+  static async getSRDCompendiumItems(items, type, looseMatch = false) {
     // console.error(game.packs.keys());
     const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
-    return CharacterImport.getCompendiumItems(items, type, compendiumName);
+    return CharacterImport.getCompendiumItems(items, type, compendiumName, looseMatch);
+  }
+
+  static async copySRDIcons(items) {
+    let srdCompendiumItems = [];
+    const compendiumFeatureItems = await CharacterImport.getSRDCompendiumItems(items, "features", true);
+    const compendiumInventoryItems = await CharacterImport.getSRDCompendiumItems(items, "inventory", true);
+    const compendiumSpellItems = await CharacterImport.getSRDCompendiumItems(items, "spells", true);
+
+    srdCompendiumItems = srdCompendiumItems.concat(
+      compendiumInventoryItems,
+      compendiumSpellItems,
+      compendiumFeatureItems
+    );
+
+    return new Promise((resolve) => {
+      const srdItems = items.map((item) => {
+        CharacterImport.looseItemNameMatch(item, srdCompendiumItems, true).then((match) => {
+          if (match) {
+            item.img = match.img;
+          }
+        });
+        return item;
+      });
+      resolve(srdItems);
+    });
+
   }
 
   /**
@@ -566,9 +648,12 @@ export default class CharacterImport extends Application {
   async updateImage(html, data) {
     // updating the image?
     let imagePath = this.actor.img;
-    if (game.user.isTrusted && data.avatarUrl && data.avatarUrl !== "" &&
-      (imagePath.indexOf("mystery-man") !== -1 || game.settings.get("ddb-importer", "character-update-policy-image") )
-     ) {
+    if (
+      game.user.isTrusted &&
+      data.avatarUrl &&
+      data.avatarUrl !== "" &&
+      (imagePath.indexOf("mystery-man") !== -1 || game.settings.get("ddb-importer", "character-update-policy-image"))
+    ) {
       CharacterImport.showCurrentTask(html, "Uploading avatar image");
       let filename = data.name
         .replace(/[^a-zA-Z]/g, "-")
@@ -692,6 +777,11 @@ export default class CharacterImport extends Application {
         name: "use-srd",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd"),
         description: "Use existing items from the SRD compendium, rather than DDB.",
+      },
+      {
+        name: "use-srd-icons",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd-icons"),
+        description: "Use icons from the SRD compendium.",
       },
     ];
 
@@ -994,6 +1084,7 @@ export default class CharacterImport extends Application {
     let srdCompendiumItems = [];
     const useExistingCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-existing");
     const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
+    const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
 
     /**
      * If SRD is selected, we prefer this
@@ -1028,6 +1119,9 @@ export default class CharacterImport extends Application {
     if (items.length > 0) {
       CharacterImport.showCurrentTask(html, "Copying existing flags");
       await this.copySupportedCharacterItemFlags(items);
+      if (useSRDCompendiumIcons && !useSRDCompendiumItems) {
+        items = await CharacterImport.copySRDIcons(items);
+      }
 
       utils.log("Character items", "character");
       utils.log(items, "character");

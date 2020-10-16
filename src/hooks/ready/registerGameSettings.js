@@ -168,6 +168,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-use-srd-icons", {
+    name: "ddb-importer.character-update-policy-use-srd-icons.name",
+    hint: "ddb-importer.character-update-policy-use-srd-icons.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
 
   // game.settings.register("ddb-importer", "character-update-policy-class", {
   //   name: "ddb-importer.character-update-policy-class.name",

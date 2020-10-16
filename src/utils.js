@@ -1,6 +1,6 @@
 import DirectoryPicker from "./lib/DirectoryPicker.js";
 
-const PROXY = "https://cors.mrprimate.co.uk/";
+const PROXY = "https://proxy.vttassets.com/?url=";
 
 let utils = {
   debug: () => {
