@@ -34,8 +34,9 @@ export default function () {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this character
       if (!data.owner || !data.actor) return;
+      console.warn(sheetName);
 
-      let button = $('<button type="button" id="ddbImporterButton" class="inactive"></button>');
+      let button = $(`<button type="button" id="ddbImporterButton" class="inactive"></button>`);
       if (
         app.entity.data.flags.ddbimporter &&
         app.entity.data.flags.ddbimporter.dndbeyond &&
@@ -92,9 +93,12 @@ export default function () {
         return false;
       });
 
-      let wrap = $('<div class="ddbCharacterName"></div>');
+      const wrap = $('<div class="ddbCharacterName"></div>');
       $(html).find("input[name='name']").wrap(wrap);
-      $(html).find("input[name='name']").parent().prepend(button);
+      const findButton = $(html).find("button[id='ddbImporterButton']");
+      if (findButton.length == 0){
+        findButton.parent().prepend(button);
+      }
     });
   });
 

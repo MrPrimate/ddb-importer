@@ -26,6 +26,8 @@ import onSocketMessage from "./hooks/socket/onSocketMessage.js";
 // monster muncher
 import addMonsterMuncher from "./hooks/renderMonsterMuncher/addMonsterMuncher.js";
 
+import registerNotifications from "./lib/Notification.js";
+
 
 // foundry is initializing
 export function init() {
@@ -40,6 +42,9 @@ export function onceReady() {
 
   // check for valid compendiums
   checkCompendiums();
+
+  // notificaitons
+  registerNotifications();
 
   // check for the running version
   checkVersion();
