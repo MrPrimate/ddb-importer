@@ -19,8 +19,7 @@ You CAN use this alongside the vtta-dndbeyond extension, two icons will show up.
 
 ## Support
 
-Where can you support me? See my patreon https://patreon.com/mrprimate
-This will get you access to my Discord channel as well.
+Where can you support me? See my [Patreon](https://patreon.com/mrprimate).
 
 ## Pre-requisites and recommendations
 
