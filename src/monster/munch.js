@@ -15,7 +15,7 @@ export default class MonsterMuncher extends Application {
 
   activateListeners(html) {
     super.activateListeners(html);
-    html.find(".munch-monster").click(async (ev) => {
+    html.find(".munch-monster").click(async () => {
       let monsterSearchName = html.find("[name=ddb-import-munch-name]").val();
       let updateBool = html.find("[name=updateButton]").is(":checked");
       MonsterMuncher.parseCritter(monsterSearchName, updateBool);
@@ -24,6 +24,6 @@ export default class MonsterMuncher extends Application {
   }
 
   static async parseCritter(monsterSearchName, updateBool) {
-    console.log(`munching monsters! ${monsterSearchName}`);
+    console.log(`munching monsters! ${monsterSearchName} ${updateBool}`); // eslint-disable-line no-console
   }
 }
