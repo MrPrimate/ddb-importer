@@ -15,7 +15,7 @@ export default class MonsterMuncher extends Application {
 
   activateListeners(html) {
     super.activateListeners(html);
-    html.find(".munch-monster").click(async (ev) => {
+    html.find(".munch-monster").click(async () => {
       let monsterSearchName = html.find("[name=ddb-import-munch-name]").val();
       let updateBool = html.find("[name=updateButton]").is(":checked");
       MonsterMuncher.parseCritter(monsterSearchName, updateBool);
