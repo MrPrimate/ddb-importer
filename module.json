@@ -1,7 +1,7 @@
 {
   "name": "ddb-importer",
   "title": "D&D Beyond Importer",
-  "description": "Import your dndbeyond.com character and munch monsters at super speed!",
+  "description": "Import your dndbeyond.com characters and munch monsters at super speed!",
   "version": "0.0.1",
   "minimumCoreVersion": "0.7.5",
   "compatibleCoreVersion": "0.7.5",
@@ -40,6 +40,6 @@
   "packs": [],
   "socket": true,
   "url": "https://github.com/mrprimate/ddb-importer",
-  "manifest": "https://raw.github.com/mrprimate/ddb-importer/master/module.json",
-  "download": "https://github.com/mrprimate/ddb-importer/archive/master.zip"
+  "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module.json",
+  "download": "https://github.com/mrprimate/ddb-importer/releases/download/latest/ddb-importer.zip"
 }

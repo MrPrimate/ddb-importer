@@ -4,16 +4,18 @@ Import your dndbeyond.com characters into Foundry Virtual Tabletop.
 
 This module is similar to ddb-importer, in fact I have been a large contributor to the character parser.
 
-This module only parsers characters.
-It won't import monsters, etc.
+This module parsers characters.
+
+Bulk monster importing (Monster Munching) is coming shortly.
 
 Main differences:
 
-- Can use supplied SRD items where available
+- Can use supplied SRD items where available.
+- You can choose to use matching SRD icons.
 - Parsing is done remotely. It will cache your characters data for 15 minutes.
 - There maybe an option to remove this restriction to patreon supporters in the future.
 
-You CAN use this alongside the vtta-dndbeyond extension.
+You CAN use this alongside the vtta-dndbeyond extension, two icons will show up.
 
 ## Support
 
