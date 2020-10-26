@@ -9,19 +9,26 @@ on:
       - '**.yml'
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [12.x, 14.x]
+
     steps:
     - uses: actions/checkout@v2
-    - name: Lint check with Node.js ${{ matrix.node-version }}
+    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
     - name: Get Version              # Run the script that returns the version from `module.json`
       shell: bash
       id: get-version
