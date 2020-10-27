@@ -148,8 +148,8 @@ const filterItemsByUserSelection = (result, sections) => {
 };
 
 // async function loadCharacterData(characterId) {
-//   // const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-//   // const body = { cobalt: cobalt_cookie };
+//   // const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+//   // const body = { cobalt: cobaltCookie };
 //   // const body = {};
 //   return new Promise((resolve, reject) => {
 //     fetch(`${PARSING_API}/getCharacter/${characterId}`, {
@@ -176,8 +176,8 @@ const filterItemsByUserSelection = (result, sections) => {
  */
 
 async function getCharacterData(characterId) {
-  const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-  const body = { cobalt: cobalt_cookie };
+  const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const body = { cobalt: cobaltCookie };
   // const body = {};
   return new Promise((resolve, reject) => {
     fetch(`${PARSING_API}/parseCharacter/${characterId}`, {
@@ -200,9 +200,9 @@ async function getCharacterData(characterId) {
 
 async function getAlwaysPreparedSpellsOnly(data) {
   return new Promise((resolve, reject) => {
-    const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-    const body = { cobalt: cobalt_cookie, data: data };
-    //const body = { data: data };
+    const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+    const body = { cobalt: cobaltCookie, data: data };
+    // const body = { data: data };
     fetch(`${PARSING_API}/alwaysPreparedSpells`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
@@ -222,8 +222,8 @@ async function getAlwaysPreparedSpellsOnly(data) {
 }
 
 // async function getAllAvailableSpells(data, characterId) {
-//   const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-//   const body = { cobalt: cobalt_cookie, data: data };
+//   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+//   const body = { cobalt: cobaltCookie, data: data };
 //   return new Promise((resolve, reject) => {
 //     fetch(`${PARSING_API}/allAvailableSpells/${characterId}`, {
 //       method: "POST",
