@@ -176,9 +176,9 @@ const filterItemsByUserSelection = (result, sections) => {
  */
 
 async function getCharacterData(characterId) {
-  // const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-  // const body = { cobalt: cobalt_cookie };
-  const body = {};
+  const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const body = { cobalt: cobalt_cookie };
+  // const body = {};
   return new Promise((resolve, reject) => {
     fetch(`${PARSING_API}/parseCharacter/${characterId}`, {
       method: "POST",
@@ -200,9 +200,9 @@ async function getCharacterData(characterId) {
 
 async function getAlwaysPreparedSpellsOnly(data) {
   return new Promise((resolve, reject) => {
-    // const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
-    // const body = { cobalt: cobalt_cookie, data: data };
-    const body = { data: data };
+    const cobalt_cookie = game.settings.get("ddb-importer", "cobalt-cookie");
+    const body = { cobalt: cobalt_cookie, data: data };
+    //const body = { data: data };
     fetch(`${PARSING_API}/alwaysPreparedSpells`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
