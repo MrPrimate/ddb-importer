@@ -14,7 +14,7 @@ import registerGameSettings from "./hooks/ready/registerGameSettings.js";
 // other hooks
 import addFolderLabel from "./hooks/renderSidebarTab/addFolderLabel.js";
 // import showPopup from "./popup.js";
-import checkVersion from "./hooks/init/checkVersion.js";
+// import checkVersion from "./hooks/init/checkVersion.js";
 import displayConnectionIndicator from "./hooks/renderPlayerList/displayConnectionIndicator.js";
 
 // renderNoteConfig
@@ -47,7 +47,7 @@ export function onceReady() {
   registerNotifications();
 
   // check for the running version
-  checkVersion();
+  // checkVersion();
 
   // delay the startup just a tiny little bit
   setTimeout(() => {
