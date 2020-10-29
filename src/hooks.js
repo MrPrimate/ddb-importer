@@ -24,7 +24,7 @@ import addNumberedIcons from "./hooks/renderNoteConfig/addNumberedIcons.js";
 import onSocketMessage from "./hooks/socket/onSocketMessage.js";
 
 // monster muncher
-import addMonsterMuncher from "./hooks/renderMonsterMuncher/addMonsterMuncher.js";
+import addMonsterMuncher from "./hooks/renderMuncher/addMonsterMuncher.js";
 
 import registerNotifications from "./lib/Notification.js";
 
