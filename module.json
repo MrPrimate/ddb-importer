@@ -1,8 +1,8 @@
 {
   "name": "ddb-importer",
   "title": "D&D Beyond Importer",
-  "description": "Import your dndbeyond.com characters and munch monsters at super speed!",
-  "version": "0.0.3",
+  "description": "Import your dndbeyond.com characters, spells and monsters at super speed!",
+  "version": "0.0.4",
   "minimumCoreVersion": "0.7.5",
   "compatibleCoreVersion": "0.7.5",
   "authors": [
@@ -35,7 +35,8 @@
     "./css/notifications.css",
     "./css/scene-navigation.css",
     "./css/statblock.css",
-    "./css/monster-muncher.css"
+    "./css/monster-muncher.css",
+    "./css/spell-muncher.css"
   ],
   "packs": [],
   "socket": true,

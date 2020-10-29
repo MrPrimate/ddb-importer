@@ -14,17 +14,13 @@ import registerGameSettings from "./hooks/ready/registerGameSettings.js";
 // other hooks
 import addFolderLabel from "./hooks/renderSidebarTab/addFolderLabel.js";
 // import showPopup from "./popup.js";
-// import checkVersion from "./hooks/init/checkVersion.js";
-import displayConnectionIndicator from "./hooks/renderPlayerList/displayConnectionIndicator.js";
-
-// renderNoteConfig
-import addNumberedIcons from "./hooks/renderNoteConfig/addNumberedIcons.js";
 
 // socket messaging
 import onSocketMessage from "./hooks/socket/onSocketMessage.js";
 
 // monster muncher
 import addMonsterMuncher from "./hooks/renderMuncher/addMonsterMuncher.js";
+import addSpellMuncher from "./hooks/renderMuncher/addSpellMuncher.js";
 
 import registerNotifications from "./lib/Notification.js";
 
@@ -83,14 +79,5 @@ export function onReady() {
 export function renderSidebarTab(app, html) {
   addFolderLabel(html);
   addMonsterMuncher(app, html);
+  addSpellMuncher(app, html);
 }
-
-export function renderPlayerList(app, html) {
-  displayConnectionIndicator(app, html);
-}
-
-export function renderNoteConfig(app, html, data) {
-  addNumberedIcons(app, html, data);
-}
-
-

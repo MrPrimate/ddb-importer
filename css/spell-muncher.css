@@ -1,0 +1,11 @@
+button.spell-muncher {
+  flex-shrink: 1 !important;
+  flex: unset !important;
+  margin: 5px 4px 0px 3px !important;
+  clear: both;
+}
+
+.ddbimporter .form-group {
+  margin: 10px
+}
+
