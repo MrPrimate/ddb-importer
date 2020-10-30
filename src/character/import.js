@@ -1,7 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 
-const PARSING_API = "https://beta.ddb.mrprimate.co.uk";
+const PARSING_API = "https://ddb.mrprimate.co.uk";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 
