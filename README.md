@@ -2,25 +2,36 @@
 
 Import your dndbeyond.com characters into Foundry Virtual Tabletop.
 
-This module is similar to ddb-importer, in fact I have been a large contributor to the character parser.
+This module is similar to vtta-dndbeyond, in fact I have been a large contributor to the character parser.
 
-This module parsers characters.
+This module:
+* Parses characters similar to vtta-dndbeyond but with better accuracy.
+* Can bulk import spells.
+* Can bulk import monsters. These monsters come from JSON definitions, so parsing is easier.
+* When you import a Cleric or Druid it will import _all_ your spells.*
 
-Bulk monster importing (Monster Munching) is coming shortly.
+In addition you can:
 
-Main differences:
+- Use supplied SRD items where available.
+- Choose to use matching SRD icons.
 
-- Can use supplied SRD items where available.
-- You can choose to use matching SRD icons.
-- Parsing is remote, this is because of the nature of the calls made to the dndbeyond api that can't be done browser side. It will cache your characters data for around 15 minutes, more if the service is busy.
+## What's the catch?
+
+Parsing is remote, this is because of the nature of the calls made to the dndbeyond api that can't be done browser side. It will cache your characters data for around 15 minutes, more if the service is busy.
 - There maybe an option to remove this restriction to patreon supporters in the future.
-- If you set the Cobalt Cookie setting to the value of your D&DBeyond `CobaltSession` cookie, you can import full spell lists for Druids and Clerics, ot just spells prepared.
+- In order to get all your spells and do bulk importing you need to set the Cobalt Cookie setting to the value of your D&DBeyond `CobaltSession` cookie. See my helper [Chrome extension](https://github.com/mrprimate/ddb-importer-chrome) to help.
+
+## Notes
 
 You CAN use this alongside the vtta-dndbeyond extension, two icons will show up. This extension has yellow text on the B symbol.
 
 ## Support
 
 Where can you support me? See my [Patreon](https://patreon.com/mrprimate).
+
+## What's next?
+
+If I get enough support I will work on getting Artificers infusions importing and seeing what active effects can be extracted and automatically added.
 
 ## Pre-requisites and recommendations
 
