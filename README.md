@@ -20,6 +20,7 @@ In addition you can:
 Parsing is remote, this is because of the nature of the calls made to the dndbeyond api that can't be done browser side. It will cache your characters data for around 15 minutes, more if the service is busy.
 - There maybe an option to remove this restriction to patreon supporters in the future.
 - In order to get all your spells and do bulk importing you need to set the Cobalt Cookie setting to the value of your D&DBeyond `CobaltSession` cookie. See my helper [Chrome extension](https://github.com/mrprimate/ddb-importer-chrome) to help.
+- Do **NOT** give your cookie to other people, this is like handing out a password to your dndbeyond account.
 
 ## Notes
 

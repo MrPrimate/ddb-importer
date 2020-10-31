@@ -140,6 +140,15 @@ export default function () {
     default: "INFO",
   });
 
+  game.settings.register("ddb-importer", "api-endpoint", {
+    name: "ddb-importer.api-endpoint.name",
+    hint: "ddb-importer.api-endpoint.hint",
+    scope: "world",
+    config: false,
+    type: String,
+    default: "https://ddb.mrprimate.co.uk",
+  });
+
   /** Character update settings, stored per user and non-configurable in the settings screen */
   game.settings.register("ddb-importer", "character-update-policy-new", {
     name: "ddb-importer.character-update-policy-new.name",

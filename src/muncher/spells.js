@@ -1,11 +1,10 @@
 // Main module class
-const PARSING_API = "https://beta.ddb.mrprimate.co.uk";
 
 export default class SpellMuncher extends Application {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer";
-    options.template = "modules/ddb-importer/src/spells/munch_ui.html";
+    options.template = "modules/ddb-importer/src/muncher/spells_munch_ui.html";
     options.classes.push("ddb-importer");
     options.resizable = false;
     options.height = "auto";
@@ -17,10 +16,11 @@ export default class SpellMuncher extends Application {
 
   static getSpellData(className) {
     const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+    const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
     const body = { cobalt: cobaltCookie };
     // const body = {};
     return new Promise((resolve, reject) => {
-      fetch(`${PARSING_API}/getClassSpells/${className}`, {
+      fetch(`${parsingApi}/getClassSpells/${className}`, {
         method: "POST",
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -49,30 +49,20 @@ export default class SpellMuncher extends Application {
 
   static async parseSpell(updateBool) {
     console.log(`munching spells! Updating? ${updateBool}`); // eslint-disable-line no-console
-    // const clericSpells = SpellMuncher.getSpellData("Cleric");
-    // const druidSpells = SpellMuncher.getSpellData("Druid");
-    // const warlockSpells = SpellMuncher.getSpellData("Warlock");
-    // const wizardSpells = SpellMuncher.getSpellData("Wizard");
-    // const paladinSpells = SpellMuncher.getSpellData("Paladin");
-    // const rangerSpells = SpellMuncher.getSpellData("Ranger");
-    // console.log(clericSpells);
-    // console.log(druidSpells);
-    // console.log(warlockSpells);
-    // console.log(wizardSpells);
 
     const results = await Promise.allSettled([
       SpellMuncher.getSpellData("Cleric"),
       SpellMuncher.getSpellData("Druid"),
+      SpellMuncher.getSpellData("Sorcerer"),
       SpellMuncher.getSpellData("Warlock"),
       SpellMuncher.getSpellData("Wizard"),
       SpellMuncher.getSpellData("Paladin"),
       SpellMuncher.getSpellData("Ranger"),
     ]);
 
-    //const spells = results.flat().map((r) => r.data)
-    // to do need to get data out of each one
+    const spells = results.map((r) => r.value.data).flat().flat();
+    const uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => (t.name === v.name)) === i);
 
-    console.log(results.flat());
-
+    console.log(uniqueSpells);
   }
 }

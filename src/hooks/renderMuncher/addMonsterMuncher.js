@@ -1,4 +1,4 @@
-import MonsterMuncher from "../../monster/munch.js";
+import MonsterMuncher from "../../muncher/monster.js";
 
 export default function (app, html) {
   $(html);

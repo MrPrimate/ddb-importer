@@ -1,4 +1,4 @@
-import SpellMuncher from "../../spells/munch.js";
+import SpellMuncher from "../../muncher/spells.js";
 
 export default function (app, html) {
   $(html);

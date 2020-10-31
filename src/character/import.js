@@ -1,8 +1,6 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 
-const PARSING_API = "https://beta.ddb.mrprimate.co.uk";
-
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 
 // reference to the D&D Beyond popup
@@ -149,10 +147,11 @@ const filterItemsByUserSelection = (result, sections) => {
 
 // async function loadCharacterData(characterId) {
 //   // const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+//   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
 //   // const body = { cobalt: cobaltCookie };
 //   // const body = {};
 //   return new Promise((resolve, reject) => {
-//     fetch(`${PARSING_API}/getCharacter/${characterId}`, {
+//     fetch(`${parsingApi}/getCharacter/${characterId}`, {
 //       method: "GET",
 //       mode: "cors", // no-cors, *cors, same-origin
 //       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -177,10 +176,11 @@ const filterItemsByUserSelection = (result, sections) => {
 
 async function getCharacterData(characterId) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie };
   // const body = {};
   return new Promise((resolve, reject) => {
-    fetch(`${PARSING_API}/parseCharacter/${characterId}`, {
+    fetch(`${parsingApi}/parseCharacter/${characterId}`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -197,51 +197,6 @@ async function getCharacterData(characterId) {
       .catch((error) => reject(error));
   });
 }
-
-async function getAlwaysPreparedSpellsOnly(data) {
-  return new Promise((resolve, reject) => {
-    const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
-    const body = { cobalt: cobaltCookie, data: data };
-    // const body = { data: data };
-    fetch(`${PARSING_API}/alwaysPreparedSpells`, {
-      method: "POST",
-      mode: "cors", // no-cors, *cors, same-origin
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: "same-origin", // include, *same-origin, omit
-      headers: {
-        "Content-Type": "application/json",
-      },
-      redirect: "follow", // manual, *follow, error
-      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      body: JSON.stringify(body), // body data type must match "Content-Type" header
-    })
-      .then((response) => response.json())
-      .then((data) => resolve(data))
-      .catch((error) => reject(error));
-  });
-}
-
-// async function getAllAvailableSpells(data, characterId) {
-//   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
-//   const body = { cobalt: cobaltCookie, data: data };
-//   return new Promise((resolve, reject) => {
-//     fetch(`${PARSING_API}/allAvailableSpells/${characterId}`, {
-//       method: "POST",
-//       mode: "cors", // no-cors, *cors, same-origin
-//       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-//       credentials: "same-origin", // include, *same-origin, omit
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       redirect: "follow", // manual, *follow, error
-//       referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-//       body: JSON.stringify(body), // body data type must match "Content-Type" header
-//     })
-//       .then((response) => response.json())
-//       .then((data) => resolve(data))
-//       .catch((error) => reject(error));
-//   });
-// }
 
 export default class CharacterImport extends Application {
   constructor(options, actor) {
@@ -806,139 +761,15 @@ export default class CharacterImport extends Application {
         );
       });
 
-    $(html)
-      .find('.import-config input[type="checkbox"]')
-      .on("change", (event) => {
-        game.settings.set(
-          "ddb-importer",
-          "character-update-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked
-        );
-      });
-
-    $(html)
-      .find("#json")
-      .on("paste", async (event) => {
-        const getSpellLevelAccess = (cls, casterLevel) => {
-          const spellSlots = cls.definition.spellRules.levelSpellSlots[casterLevel];
-          const spellLevelAccess = spellSlots.reduce(
-            (count, numSpellSlots) => (numSpellSlots > 0 ? count + 1 : count),
-            0
-          );
-          return spellLevelAccess;
-        };
-        const getCasterLevel = (cls, isMultiClassing) => {
-          let casterLevel = 0;
-          if (isMultiClassing) {
-            // get the casting level if the character is a multiclassed spellcaster
-            if (cls.definition.spellRules && cls.definition.spellRules.multiClassSpellSlotDivisor) {
-              casterLevel = Math.floor(cls.level / cls.definition.spellRules.multiClassSpellSlotDivisor);
-            }
-          } else {
-            casterLevel = cls.level;
-          }
-
-          return casterLevel;
-        };
-        const getClassIds = (data) => {
-          const isMultiClassing = data.classes.length > 1;
-
-          return data.classes.map((characterClass) => {
-            return {
-              characterClassId: characterClass.id,
-              name:
-                characterClass.subclassDefinition && characterClass.subclassDefinition.name
-                  ? characterClass.definition.name + `(${characterClass.subclassDefinition.name})`
-                  : characterClass.definition.name,
-              id:
-                characterClass.subclassDefinition && characterClass.subclassDefinition.id
-                  ? characterClass.subclassDefinition.id
-                  : characterClass.definition.id,
-              level: getCasterLevel(characterClass, isMultiClassing),
-              spellLevelAccess: getSpellLevelAccess(characterClass, getCasterLevel(characterClass)),
-              spells: [],
-            };
-          });
-        };
-
-        event.preventDefault();
-        var pasteData = event.originalEvent.clipboardData.getData("text");
-
-        let data = undefined;
-        try {
-          data = JSON.parse(pasteData);
-        } catch (error) {
-          if (error.message === "Unexpected end of JSON input") {
-            CharacterImport.showCurrentTask(
-              html,
-              "JSON invalid",
-              "I could not parse your JSON data because it was cut off. Make sure to wait for the page to stop loading before copying the data into your clipboard.",
-              true
-            );
-          } else {
-            CharacterImport.showCurrentTask(html, "JSON invalid", error.message, true);
-          }
-        }
-        // check for malformed data structures
-        if (data.message !== undefined && data.success !== undefined && data.data !== undefined) {
-          CharacterImport.showCurrentTask(html, data.message, null, data.success);
-          if (data.success === false) return;
-
-          // remove all unnecessary object structure from now on
-          data = data.data;
-
-          // get the character info from the paste
-          let classInfo = getClassIds(data);
-          logger.verbose(classInfo);
-
-          getAlwaysPreparedSpellsOnly(classInfo)
-            .then((result) => {
-              if (result.success && result.data) {
-                CharacterImport.showCurrentTask(
-                  html,
-                  "Always prepared spells received, adding them to your import",
-                  null,
-                  false
-                );
-
-                // insert the data into the main import
-                classInfo = result.data;
-
-                data.classSpells = data.classSpells.map((classSpells) => {
-                  // find always prepared spells in the results
-                  const alwaysPreparedSpells = classInfo.find(
-                    (classInfo) => classInfo.characterClassId === classSpells.characterClassId
-                  );
-
-                  if (alwaysPreparedSpells) {
-                    alwaysPreparedSpells.spells.forEach((spell) => {
-                      if (classSpells.spells.find((s) => s.definition.name === spell.definition.name) === undefined) {
-                        logger.verbose("Adding new always prepared spell: " + spell.definition.name);
-                        classSpells.spells.push(spell);
-                      } else {
-                        logger.verbose("Already in list: " + spell.definition.name);
-                      }
-                    });
-                  }
-                  return classSpells;
-                });
-
-                // begin parsing the character data
-                this.parseCharacterData(html, data);
-              }
-            })
-            .catch(() => {
-              CharacterImport.showCurrentTask(
-                html,
-                "Error during fetching always prepared spells",
-                "We will continue without them, you might be missing some spells in that import",
-                true
-              );
-            });
-        } else {
-          CharacterImport.showCurrentTask(html, "Malformed data received, please try again", null, true);
-        }
-      });
+    // $(html)
+    //   .find('.import-config input[type="checkbox"]')
+    //   .on("change", (event) => {
+    //     game.settings.set(
+    //       "ddb-importer",
+    //       "character-update-policy-" + event.currentTarget.dataset.section,
+    //       event.currentTarget.checked
+    //     );
+    //   });
 
     $(html)
       .find("#dndbeyond-character-import-start")
