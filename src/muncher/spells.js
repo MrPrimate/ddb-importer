@@ -1,4 +1,6 @@
 // Main module class
+import { updateFolderItems, copySRDIcons } from './import.js';
+import logger from "../logger.js";
 
 export default class SpellMuncher extends Application {
   static get defaultOptions() {
@@ -41,14 +43,15 @@ export default class SpellMuncher extends Application {
   activateListeners(html) {
     super.activateListeners(html);
     html.find(".munch-spells").click(async () => {
-      let updateBool = html.find("[name=updateButton]").is(":checked");
-      SpellMuncher.parseSpell(updateBool);
+      const updateBool = html.find("[name=updateSpells]").is(":checked");
+      const srdIcons = html.find("[name=srdIcons]").is(":checked");
+      SpellMuncher.parseSpell(updateBool, srdIcons, this);
     });
     this.close();
   }
 
-  static async parseSpell(updateBool) {
-    console.log(`munching spells! Updating? ${updateBool}`); // eslint-disable-line no-console
+  static async parseSpell(updateBool, srdIcons, window) {
+    logger.info(`munching spells! Updating? ${updateBool} SRD? ${srdIcons}`); // eslint-disable-line no-console
 
     const results = await Promise.allSettled([
       SpellMuncher.getSpellData("Cleric"),
@@ -58,11 +61,14 @@ export default class SpellMuncher extends Application {
       SpellMuncher.getSpellData("Wizard"),
       SpellMuncher.getSpellData("Paladin"),
       SpellMuncher.getSpellData("Ranger"),
+      SpellMuncher.getSpellData("Bard"),
     ]);
 
     const spells = results.map((r) => r.value.data).flat().flat();
-    const uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => (t.name === v.name)) === i);
+    let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => (t.name === v.name)) === i);
 
-    console.log(uniqueSpells);
+    if (srdIcons) uniqueSpells = await copySRDIcons(uniqueSpells);
+    await updateFolderItems('spells', {'spells': uniqueSpells}, updateBool);
+    window.close();
   }
 }

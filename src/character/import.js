@@ -114,7 +114,7 @@ const srdCompendiumLookup = [
 const gameFolderLookup = [
   {
     type: "itemSpells",
-    folder: "magic-items",
+    folder: "magic-item-spells",
     itemType: "spell",
   },
 ];
@@ -628,7 +628,7 @@ export default class CharacterImport extends Application {
   /**
    * This adds magic item spells to a world,
    */
-  async updateWorldItems() {
+  async addMagicItemSpells() {
     const itemSpells = await this.updateFolderItems("itemSpells");
     // scan the inventory for each item with spells and copy the imported data over
     this.result.inventory.forEach((item) => {
@@ -886,7 +886,7 @@ export default class CharacterImport extends Application {
     // store all spells in the folder specific for Dynamic Items
     if (magicItemsInstalled && this.result.itemSpells && Array.isArray(this.result.itemSpells)) {
       CharacterImport.showCurrentTask(html, "Preparing magicitem spells");
-      await this.updateWorldItems();
+      await this.addMagicItemSpells();
     }
 
     // Update compendium packs with spells and inventory
@@ -902,7 +902,11 @@ export default class CharacterImport extends Application {
     // If there is no magicitems module fall back to importing the magic
     // item spells as normal spells fo the character
     if (!magicItemsInstalled) {
-      items.push(this.result.itemSpells.filter((item) => item.flags.ddbimporter.dndbeyond.active === true));
+      items.push(this.result.itemSpells.filter((item) => {
+        const active = item.flags.ddbimporter.dndbeyond && item.flags.ddbimporter.dndbeyond.active === true;
+        if (!active) logger.warn(`Missing active flag on item spell ${item.name}`);
+        return active;
+      }));
       items = items.flat();
     }
 

@@ -37,5 +37,6 @@
   "ddb-importer.item-type.loot": "Beute",
   "ddb-importer.item-type.class": "Klassen",
   "ddb-importer.item-type.backpack": "Rucksack",
-  "ddb-importer.item-type.magic-items": "Magic Items"
+  "ddb-importer.item-type.magic-items": "Magic Items",
+  "ddb-importer.item-type.magic-item-spells": "Magic Item Spells"
 }

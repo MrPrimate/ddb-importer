@@ -35,8 +35,23 @@ const srdCompendiumLookup = [
 const gameFolderLookup = [
   {
     type: "itemSpells",
-    folder: "magic-items",
+    folder: "magic-item-spells",
     itemType: "spell",
+  },
+  {
+    type: "magicItems",
+    folder: "magic-items",
+    itemType: "item",
+  },
+  {
+    type: "spells",
+    folder: "spell",
+    itemType: "spell",
+  },
+  {
+    type: "monsters",
+    folder: "npc",
+    itemType: "actor",
   },
 ];
 
@@ -83,6 +98,51 @@ export async function copySupportedItemFlags(originalItem, item) {
   copyFlagGroup("maestro", originalItem, item);
   copyFlagGroup("mess", originalItem, item);
   copyFlagGroup("favtab", originalItem, item);
+}
+
+export function getLooseNames(name) {
+  let looseNames = [name];
+  let refactNameArray = name.split("(")[0].trim().split(", ");
+  refactNameArray.unshift(refactNameArray.pop());
+  const refactName = refactNameArray.join(" ").trim();
+  looseNames.push(refactName, refactName.toLowerCase());
+  return looseNames;
+}
+
+export async function looseItemNameMatch(item, items, loose = false) {
+  // first pass is a strict match
+  let matchingItem = items.find((matchItem) => {
+    let activationMatch = false;
+
+    if (item.data.activation && item.data.activation.type == "") {
+      activationMatch = true;
+    } else if (matchItem.data.activation && item.data.activation) {
+      activationMatch = matchItem.data.activation.type === item.data.activation.type;
+    }
+
+    const isMatch = item.name === matchItem.name && item.type === matchItem.type && activationMatch;
+    return isMatch;
+  });
+
+  if (!matchingItem && loose) {
+    const looseNames = getLooseNames(item.name);
+    // lets go loosey goosey on matching equipment, we often get types wrong
+    matchingItem = items.find(
+      (matchItem) =>
+        looseNames.includes(matchItem.name.toLowerCase()) &&
+        EQUIPMENT_TYPES.includes(item.type) &&
+        EQUIPMENT_TYPES.includes(matchItem.type)
+    );
+
+    // super loose name match!
+    if (!matchingItem) {
+      // still no matching item, lets do a final pass
+      matchingItem = items.find(
+        (matchItem) => looseNames.includes(matchItem.name.split("(")[0].trim().toLowerCase())
+      );
+    }
+  }
+  return matchingItem;
 }
 
 export async function updateCompendium(type, input) {
@@ -174,11 +234,11 @@ export async function updateCompendium(type, input) {
  * Updates game folder items
  * @param {*} type
  */
-export async function updateFolderItems(type, input) {
+export async function updateFolderItems(type, input, update=true) {
   const folderLookup = gameFolderLookup.find((c) => c.type == type);
-  const magicItemsFolder = await utils.getFolder(folderLookup.folder);
+  const itemsFolder = await utils.getFolder(folderLookup.folder);
   const existingItems = await game.items.entities.filter(
-    (item) => item.type === folderLookup.itemType && item.data.folder === magicItemsFolder._id
+    (item) => item.type === folderLookup.itemType && item.data.folder === itemsFolder._id
   );
 
   // update or create folder items
@@ -189,6 +249,7 @@ export async function updateFolderItems(type, input) {
         .map(async (item) => {
           const existingItem = await existingItems.find((existing) => item.name === existing.name);
           item._id = existingItem._id;
+          logger.info(`Updating ${type} ${item.name}`);
           await copySupportedItemFlags(existingItem, item);
           await Item.update(item);
           return item;
@@ -204,7 +265,8 @@ export async function updateFolderItems(type, input) {
           if (!game.user.can("ITEM_CREATE")) {
             ui.notifications.warn(`Cannot create ${folderLookup.type} ${item.name} for ${type}`);
           } else {
-            item.folder = magicItemsFolder._id;
+            logger.info(`Creating ${type} ${item.name}`);
+            item.folder = itemsFolder._id;
             await Item.create(item);
           }
           return item;
@@ -212,14 +274,14 @@ export async function updateFolderItems(type, input) {
     );
   };
 
-  await updateItems();
+  if (update) await updateItems();
   await createItems();
 
   // lets generate our compendium info like id, pack and img for use
   // by things like magicitems
   const items = Promise.all(
     game.items.entities
-      .filter((item) => item.type === folderLookup.itemType && item.data.folder === magicItemsFolder._id)
+      .filter((item) => item.type === folderLookup.itemType && item.data.folder === itemsFolder._id)
       .map((result) => {
         return {
           _id: result._id,
@@ -236,7 +298,7 @@ export async function updateFolderItems(type, input) {
 /**
  * This adds magic item spells to a world,
  */
-export async function updateWorldItems(input) {
+export async function addMagicItemSpells(input) {
   const itemSpells = await updateFolderItems("itemSpells");
   // scan the inventory for each item with spells and copy the imported data over
   input.inventory.forEach((item) => {

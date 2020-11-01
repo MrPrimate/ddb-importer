@@ -256,6 +256,7 @@ let utils = {
     entityTypes.set("character", "Actor");
     entityTypes.set("page", "JournalEntry");
     entityTypes.set("magic-items", "Item");
+    entityTypes.set("magic-item-spells", "Item");
 
     let baseName = "D&D Beyond Import";
     let baseColor = "#6f0006";
