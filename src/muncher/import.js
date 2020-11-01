@@ -234,7 +234,7 @@ export async function updateCompendium(type, input) {
  * Updates game folder items
  * @param {*} type
  */
-export async function updateFolderItems(type, input, update=true) {
+export async function updateFolderItems(type, input, update = true) {
   const folderLookup = gameFolderLookup.find((c) => c.type == type);
   const itemsFolder = await utils.getFolder(folderLookup.folder);
   const existingItems = await game.items.entities.filter(

@@ -24,13 +24,12 @@ export default class MonsterMuncher extends Application {
   }
 
   static async parseCritter(monsterSearchName, updateBool) {
-    const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+    // const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
     console.log(`munching monsters! ${monsterSearchName} ${updateBool}`); // eslint-disable-line no-console
   }
 
-  getData() {
-    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") == "" ? false : true;
-    console.warn(cobalt);
+  getData() { // eslint-disable-line class-methods-use-this
+    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     return {
       cobalt: cobalt,
     };

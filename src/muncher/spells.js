@@ -68,13 +68,12 @@ export default class SpellMuncher extends Application {
     let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => (t.name === v.name)) === i);
 
     if (srdIcons) uniqueSpells = await copySRDIcons(uniqueSpells);
-    await updateFolderItems('spells', {'spells': uniqueSpells}, updateBool);
+    await updateFolderItems('spells', { 'spells': uniqueSpells }, updateBool);
     window.close();
   }
 
-  getData() {
-    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") == "" ? false : true;
-    console.warn(cobalt);
+  getData() { // eslint-disable-line class-methods-use-this
+    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     return {
       cobalt: cobalt,
     };
