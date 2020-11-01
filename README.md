@@ -7,7 +7,7 @@ This module is similar to vtta-dndbeyond, in fact I have been a large contributo
 This module:
 * Parses characters similar to vtta-dndbeyond but with better accuracy.
 * Can bulk import spells.
-* Can bulk import monsters. These monsters come from JSON definitions, so parsing is easier.
+* [Not yet available] Can bulk import monsters. These monsters come from JSON definitions, so parsing is easier.
 * When you import a Cleric or Druid it will import _all_ your spells.*
 
 In addition you can:
