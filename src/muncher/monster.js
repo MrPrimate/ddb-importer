@@ -2,8 +2,8 @@
 export default class MonsterMuncher extends Application {
   static get defaultOptions() {
     const options = super.defaultOptions;
-    options.id = "ddb-importer";
-    options.template = "modules/ddb-importer/src/muncher/monster_munch_ui.html";
+    options.id = "ddb-importer-mpnsters";
+    options.template = "modules/ddb-importer/src/muncher/monster_munch_ui.handlebars";
     options.classes.push("ddb-importer");
     options.resizable = false;
     options.height = "auto";
@@ -26,5 +26,13 @@ export default class MonsterMuncher extends Application {
   static async parseCritter(monsterSearchName, updateBool) {
     const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
     console.log(`munching monsters! ${monsterSearchName} ${updateBool}`); // eslint-disable-line no-console
+  }
+
+  getData() {
+    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") == "" ? false : true;
+    console.warn(cobalt);
+    return {
+      cobalt: cobalt,
+    };
   }
 }

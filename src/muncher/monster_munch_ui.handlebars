@@ -9,10 +9,14 @@
         </ul>
 
         <br />
+        <div class="tasking-name">
+
+        </div>
+        <br />
 
         <input type="search" id="ddb-import-munch-name" name="ddb-import-munch-name"></input>
         <input class="update-checkbox" type="checkbox" value="1" name="updateButton" checked>
         <label for="updateButton">Update existing?</label>
-        <input type="submit" class="munch-monster" value="Import">
+        <input type="submit" class="munch-monster" value="Import" {{#if cobalt}}enabled{{else}}disabled{{/if}}>
     </div>
 </div>

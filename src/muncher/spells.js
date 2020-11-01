@@ -5,8 +5,8 @@ import logger from "../logger.js";
 export default class SpellMuncher extends Application {
   static get defaultOptions() {
     const options = super.defaultOptions;
-    options.id = "ddb-importer";
-    options.template = "modules/ddb-importer/src/muncher/spells_munch_ui.html";
+    options.id = "ddb-importer-spells";
+    options.template = "modules/ddb-importer/src/muncher/spells_munch_ui.handlebars";
     options.classes.push("ddb-importer");
     options.resizable = false;
     options.height = "auto";
@@ -70,5 +70,13 @@ export default class SpellMuncher extends Application {
     if (srdIcons) uniqueSpells = await copySRDIcons(uniqueSpells);
     await updateFolderItems('spells', {'spells': uniqueSpells}, updateBool);
     window.close();
+  }
+
+  getData() {
+    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") == "" ? false : true;
+    console.warn(cobalt);
+    return {
+      cobalt: cobalt,
+    };
   }
 }
