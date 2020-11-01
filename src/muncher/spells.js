@@ -1,5 +1,5 @@
 // Main module class
-import { updateFolderItems, copySRDIcons } from './import.js';
+import { updateFolderItems, copySRDIcons, updateCompendium } from './import.js';
 import logger from "../logger.js";
 
 export default class SpellMuncher extends Application {
@@ -69,6 +69,7 @@ export default class SpellMuncher extends Application {
 
     if (srdIcons) uniqueSpells = await copySRDIcons(uniqueSpells);
     await updateFolderItems('spells', { 'spells': uniqueSpells }, updateBool);
+    await updateCompendium('spells', { 'spells': uniqueSpells }, updateBool);
     window.close();
   }
 
