@@ -15,6 +15,10 @@ In addition you can:
 - Use supplied SRD items where available.
 - Choose to use matching SRD icons.
 
+## Examples
+
+![](./docs/bulk-spell-import.gif)
+
 ## What's the catch?
 
 Parsing is remote, this is because of the nature of the calls made to the dndbeyond api that can't be done browser side. It will cache your characters data for around 15 minutes, more if the service is busy.
