@@ -1,22 +1,45 @@
 <div>
     <div class = "form-group-import">
-        <h2>Enter a search term to munch matching DDB Monsters. Leave blank to munch as many as possible.</a></h2>
-        <h3>You can only munch once every few hours. Sorry.</h3>
+        <h2>Import monsters from DDB with a single click.</a></h2>
+        <h3>Your monster data is cached once munched for an hour or so.</h3>
         <ul>
-          <li>Before you can munch make sure your Cobalt token is set in configuration. The button will be greyed out until this is set.</li>
-          <li>Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome extension</a> to get this!</li>
-          <li>This feature is not enabled right now, come back later!</li>
+            <li>Before you can munch make sure your Cobalt token is set in configuration. The button will be greyed out until this is set.</li>
+            <li>Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome extension</a> to get this!</li>
+            <li>This feature can take a <b>long</b> time, please be patient and leave the browser tab open.</li>
+            <li>NOT YET LIVE!</li>
         </ul>
 
         <br />
-        <div class="tasking-name">
+        <div class="monster-tasking-name">
 
         </div>
         <br />
 
-        <input type="search" id="ddb-import-munch-name" name="ddb-import-munch-name"></input>
-        <input class="update-checkbox" type="checkbox" value="1" name="updateButton" checked>
-        <label for="updateButton">Update existing?</label>
-        <input type="submit" class="munch-monster" value="Import" {{#if cobalt}}enabled{{else}}disabled{{/if}}>
+        <hr>
+        <div>
+            <h3>Munching flavours</h3>
+            {{#each importConfig}}
+            <div class="monsters-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                    name="monsters-policy-{{this.name}}"
+                    data-section="{{this.name}}">{{this.description}}
+            </div>
+            {{/each}}
+        </div>
+        <hr>
+
+        <div>
+          <hr>
+        </div>
+
+        <div class="form-section">
+            <div class="form-description">
+                <div class="form-description"></div>
+                    <div>
+                        <button type="button" id="munch-monsters-start"
+                            {{#if cobalt}}disabled{{else}}disabled{{/if}}>Munch Monsters</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

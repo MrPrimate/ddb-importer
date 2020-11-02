@@ -55,6 +55,22 @@ const gameFolderLookup = [
   },
 ];
 
+/**
+ * Removes items
+ * @param {*} items
+ * @param {*} itemsToRemove
+ */
+export async function removeItems(items, itemsToRemove) {
+  return new Promise((resolve) => {
+    resolve(
+      items.filter(
+        (item) =>
+          !itemsToRemove.some((originalItem) => item.name === originalItem.name && item.type === originalItem.type)
+      )
+    );
+  });
+}
+
 const getCharacterUpdatePolicyTypes = () => {
   let itemTypes = [];
   itemTypes.push("class");

@@ -9,15 +9,36 @@
         </ul>
 
         <br />
-        <div class="tasking-name">
+        <div class="spell-tasking-name">
 
         </div>
         <br />
 
-        <input class="update-checkbox" type="checkbox" value="1" name="updateSpells" checked>
-        <label for="updateSpells">Update existing?</label>
-        <input class="srd-checkbox" type="checkbox" value="0" name="srdIcons" checked>
-        <label for="srdIcons">SRD Icons?</label>
-        <input type="submit" class="munch-spells" value="Import" {{#if cobalt}}enabled{{else}}disabled{{/if}}>
+        <hr>
+        <div>
+            <h3>Munching flavours</h3>
+            {{#each importConfig}}
+            <div class="spells-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                    name="spells-policy-{{this.name}}"
+                    data-section="{{this.name}}">{{this.description}}
+            </div>
+            {{/each}}
+        </div>
+        <hr>
+
+        <div>
+          <hr>
+        </div>
+
+        <div class="form-section">
+            <div class="form-description">
+                <div class="form-description"></div>
+                    <div>
+                        <button type="button" id="munch-spells-start"
+                            {{#if cobalt}}enabled{{else}}disabled{{/if}}>Munch Spells</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

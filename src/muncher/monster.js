@@ -1,10 +1,13 @@
 // Main module class
+// import { updateCompendium, getSRDCompendiumItems, removeItems } from "./import.js";
+import logger from "../logger.js";
+
 export default class MonsterMuncher extends Application {
   static get defaultOptions() {
     const options = super.defaultOptions;
-    options.id = "ddb-importer-mpnsters";
+    options.id = "ddb-importer-monsters";
     options.template = "modules/ddb-importer/src/muncher/monster_munch_ui.handlebars";
-    options.classes.push("ddb-importer");
+    options.classes.push("monster-muncher");
     options.resizable = false;
     options.height = "auto";
     options.width = 400;
@@ -15,15 +18,22 @@ export default class MonsterMuncher extends Application {
 
   activateListeners(html) {
     super.activateListeners(html);
-    html.find(".munch-monster").click(async () => {
-      let monsterSearchName = html.find("[name=ddb-import-munch-name]").val();
-      let updateBool = html.find("[name=updateButton]").is(":checked");
-      MonsterMuncher.parseCritter(monsterSearchName, updateBool);
+    html.find("#munch-monsters-start").click(async () => {
+      this.parseSpell();
+    });
+
+    // watch the change of the import-policy-selector checkboxes
+    html.find('.monsters-import-policy input[type="checkbox"]').on("change", (event) => {
+      game.settings.set(
+        "ddb-importer",
+        "monsters-policy-" + event.currentTarget.dataset.section,
+        event.currentTarget.checked
+      );
     });
     this.close();
   }
 
-  static getMonsterData(searchTerm) {
+  static getMonsterData() {
     const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
     const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
     const body = { cobalt: cobaltCookie };
@@ -48,15 +58,33 @@ export default class MonsterMuncher extends Application {
     });
   }
 
-  static async parseCritter(monsterSearchName, updateBool) {
-    // const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-    console.log(`munching monsters! ${monsterSearchName} ${updateBool}`); // eslint-disable-line no-console
+  async parseCritter() {
+    logger.info("Munching monsters!"); // eslint-disable-line no-console
+    this.close();
   }
 
   getData() { // eslint-disable-line class-methods-use-this
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+    const importConfig = [
+      {
+        name: "update-existing",
+        isChecked: game.settings.get("ddb-importer", "monsters-policy-update-existing"),
+        description: "Update existing monsters.",
+      },
+      {
+        name: "use-srd",
+        isChecked: game.settings.get("ddb-importer", "monsters-policy-use-srd"),
+        description: "Copy matching SRD monsters instead of importing.",
+      },
+      {
+        name: "use-srd-icons",
+        isChecked: game.settings.get("ddb-importer", "monsters-policy-use-srd-icons"),
+        description: "Use icons from the SRD compendium.",
+      },
+    ];
     return {
       cobalt: cobalt,
+      importConfig: importConfig,
     };
   }
 }

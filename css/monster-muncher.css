@@ -5,7 +5,24 @@ button.monster-muncher {
   clear: both;
 }
 
-.ddbimporter .form-group {
+.monster-muncher .form-group {
   margin: 10px
 }
 
+.monster-muncher div.form-section {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.monster-muncher div.form-caption {
+  flex: 0 1 15%;
+  font-family: "Roboto Condensed";
+}
+.monster-muncher div.form-content {
+  flex: 0 1 85%;
+}
+.monster-muncher div.form-description {
+  flex: 0 1 100%;
+  font-size: 0.9rem;
+}
