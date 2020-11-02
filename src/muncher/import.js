@@ -161,8 +161,16 @@ export async function looseItemNameMatch(item, items, loose = false) {
   return matchingItem;
 }
 
-export async function updateCompendium(type, input) {
-  const importPolicy = game.settings.get("ddb-importer", "entity-import-policy");
+export async function updateCompendium(type, input, update=null) {
+  let importPolicy = game.settings.get("ddb-importer", "entity-import-policy");
+  //const importPolicy = game.settings.get("ddb-importer", "entity-import-policy");
+  if (update != null) {
+    if (update == true) {
+      importPolicy = 0;
+    } else {
+      importPolicy = 1;
+    }
+  }
   const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
   const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
   const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);

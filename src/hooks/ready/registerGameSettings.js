@@ -302,6 +302,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "monsters-policy-use-srd-icons", {
+    name: "ddb-importer.monsters-policy-use-srd-icons.name",
+    hint: "ddb-importer.monsters-policy-use-srd-icons.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   // sets the current tutorial step the user has completed
   // game.settings.register("ddb-importer", "tutorial-step", {
   //   scope: "world",
