@@ -16,6 +16,8 @@ const compendiumLookup = [
   { type: "backpack", name: "entity-item-compendium" },
   { type: "spell", name: "entity-spell-compendium" },
   { type: "equipment", name: "entity-item-compendium" },
+  { type: "monsters", name: "entity-actor-compendium" },
+  { type: "monsterfeatures", name: "entity-feature-compendium" },
 ];
 
 const srdCompendiumLookup = [
@@ -30,6 +32,8 @@ const srdCompendiumLookup = [
   { type: "backpack", name: "dnd5e.items" },
   { type: "spell", name: "dnd5e.spells" },
   { type: "equipment", name: "dnd5e.items" },
+  { type: "monsters", name: "dnd5e.monsters" },
+  { type: "monsterfeatures", name: "dnd5e.monsterfeatures" },
 ];
 
 const gameFolderLookup = [
@@ -421,4 +425,27 @@ export async function copySRDIcons(items) {
     });
     resolve(srdItems);
   });
+}
+
+
+export async function srdFiddling(items, type) {
+  const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
+  const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
+  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  const iconItems = (srdIcons) ? await copySRDIcons(items) : items;
+
+  if (useSrd) {
+    logger.debug("Removing compendium items");
+    const srdItems = await getSRDCompendiumItems(items, type);
+    let itemMap = {};
+    itemMap[type] = srdItems;
+    updateCompendium(type, itemMap, updateBool);
+    // removed existing items from those to be imported
+    return new Promise((resolve) => {
+      const cleanedItems = removeItems(iconItems, srdItems);
+      resolve(cleanedItems);
+    });
+  } else {
+    return iconItems;
+  }
 }

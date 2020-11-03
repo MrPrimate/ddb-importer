@@ -17,8 +17,7 @@ import addFolderLabel from "./hooks/renderSidebarTab/addFolderLabel.js";
 import onSocketMessage from "./hooks/socket/onSocketMessage.js";
 
 // monster muncher
-import addMonsterMuncher from "./hooks/renderMuncher/addMonsterMuncher.js";
-import addSpellMuncher from "./hooks/renderMuncher/addSpellMuncher.js";
+import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
 
 import registerNotifications from "./lib/Notification.js";
 
@@ -69,6 +68,5 @@ export function onReady() {
 
 export function renderSidebarTab(app, html) {
   addFolderLabel(html);
-  addMonsterMuncher(app, html);
-  addSpellMuncher(app, html);
+  addMuncher(app, html);
 }

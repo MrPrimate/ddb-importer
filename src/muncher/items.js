@@ -1,14 +1,15 @@
 // Main module class
-import { copySRDIcons, updateCompendium, srdFiddling } from "./import.js";
+import { copySRDIcons, updateCompendium, srdFiddling, addMagicItemSpells } from "./import.js";
 import logger from "../logger.js";
 
-function getSpellData(className) {
+
+function getItemData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie };
   // const body = {};
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/getClassSpells/${className}`, {
+    fetch(`${parsingApi}/getItems`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -26,37 +27,24 @@ function getSpellData(className) {
   });
 }
 
-export async function parseSpells() {
+export async function parseItems() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
-  logger.info(`Munching spells! Updating? ${updateBool} SRD? ${srdIcons}`);
+  const magicItemsInstalled = !!game.modules.get("magicitems");
+  logger.info(`Munching items! Updating? ${updateBool} SRD? ${srdIcons}`);
 
-  const results = await Promise.allSettled([
-    getSpellData("Cleric"),
-    getSpellData("Druid"),
-    getSpellData("Sorcerer"),
-    getSpellData("Warlock"),
-    getSpellData("Wizard"),
-    getSpellData("Paladin"),
-    getSpellData("Ranger"),
-    getSpellData("Bard"),
-  ]);
+  const results = await getItemData();
+  let items = results.map((r) => r.value.data).flat().flat();
 
-  const spells = results.map((r) => r.value.data).flat().flat();
-  let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
+  // store all spells in the folder specific for Dynamic Items
+  if (magicItemsInstalled && items.itemSpells && Array.isArray(items.itemSpells)) {
+    await addMagicItemSpells(items.itemSpells);
+  }
 
-  // if (useSrdSpells) {
-  //   logger.debug("Removing compendium items");
-  //   const srdSpells = await getSRDCompendiumItems(uniqueSpells, "spells");
-  //   // removed existing items from those to be imported
-  //   uniqueSpells = await removeItems(uniqueSpells, srdSpells);
-  // }
-  const finalSpells = await srdFiddling(uniqueSpells, "spells");
-
-  // if (srdIcons) uniqueSpells = await copySRDIcons(srdSpells);
+  const finalItems = await srdFiddling(items, "inventory");
 
   return new Promise((resolve) => {
-    resolve(updateCompendium("spells", { spells: finalSpells }, updateBool));
+    resolve(updateCompendium("inventory", { inventory: finalItems }, updateBool));
   });
 }
 

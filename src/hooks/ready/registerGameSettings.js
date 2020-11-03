@@ -255,56 +255,28 @@ export default function () {
     default: false,
   });
 
-  /** Spell update settings, stored per user and non-configurable in the settings screen */
-  game.settings.register("ddb-importer", "spells-policy-update-existing", {
-    name: "ddb-importer.spells-policy-update-existing.name",
-    hint: "ddb-importer.spells-policy-update-existing.hint",
+  /** Munching update settings, stored per user and non-configurable in the settings screen */
+  game.settings.register("ddb-importer", "munching-policy-update-existing", {
+    name: "ddb-importer.munching-policy-update-existing.name",
+    hint: "ddb-importer.munching-policy-update-existing.hint",
     scope: "player",
     config: false,
     type: Boolean,
     default: false,
   });
 
-  game.settings.register("ddb-importer", "spells-policy-use-srd", {
-    name: "ddb-importer.spells-policy-use-srd.name",
-    hint: "ddb-importer.spells-policy-use-srd.hint",
+  game.settings.register("ddb-importer", "munching-policy-use-srd", {
+    name: "ddb-importer.munching-policy-use-srd.name",
+    hint: "ddb-importer.munching-policy-use-srd.hint",
     scope: "player",
     config: false,
     type: Boolean,
     default: false,
   });
 
-  game.settings.register("ddb-importer", "spells-policy-use-srd-icons", {
-    name: "ddb-importer.spells-policy-use-srd-icons.name",
-    hint: "ddb-importer.spells-policy-use-srd-icons.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  /** Monsters update settings, stored per user and non-configurable in the settings screen */
-  game.settings.register("ddb-importer", "monsters-policy-update-existing", {
-    name: "ddb-importer.monsters-policy-update-existing.name",
-    hint: "ddb-importer.monsters-policy-update-existing.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register("ddb-importer", "monsters-policy-use-srd", {
-    name: "ddb-importer.monsters-policy-use-srd.name",
-    hint: "ddb-importer.monsters-policy-use-srd.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register("ddb-importer", "monsters-policy-use-srd-icons", {
-    name: "ddb-importer.monsters-policy-use-srd-icons.name",
-    hint: "ddb-importer.monsters-policy-use-srd-icons.hint",
+  game.settings.register("ddb-importer", "munching-policy-use-srd-icons", {
+    name: "ddb-importer.munching-policy-use-srd-icons.name",
+    hint: "ddb-importer.munching-policy-use-srd-icons.hint",
     scope: "player",
     config: false,
     type: Boolean,
