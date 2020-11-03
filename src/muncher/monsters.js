@@ -1,5 +1,5 @@
 // Main module class
-import { copySRDIcons, updateCompendium, srdFiddling } from "./import.js";
+import { updateCompendium, srdFiddling } from "./import.js";
 import logger from "../logger.js";
 
 
