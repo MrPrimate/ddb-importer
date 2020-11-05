@@ -35,9 +35,9 @@ export async function parseItems() {
 
   const results = await getItemData();
   let items = results.value.data.items;
-  let itemSpells = results.value.data.itemSpells;
+  // let itemSpells = results.value.data.itemSpells;
 
-  // TODO, loads spells from compendium via list match
+  // now we need to loads spells from compendium via list match
 
   // store all spells in the folder specific for Dynamic Items
   if (magicItemsInstalled && items.itemSpells && Array.isArray(items.itemSpells)) {
