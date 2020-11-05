@@ -6,8 +6,10 @@ This module is similar to vtta-dndbeyond, in fact I have been a large contributo
 
 This module:
 * Parses characters similar to vtta-dndbeyond but with better accuracy.
+* _Won't_ add items, and spells to the compendiums during character import. There's a new tools to do that! Class features are still added to the Features compendium.
 * Can bulk import spells.
 * [Not yet available] Can bulk import monsters. These monsters come from JSON definitions, so parsing is easier.
+* [Not yet available] Can bulk import simple class feature descriptions.
 * When you import a Cleric or Druid it will import _all_ your spells.*
 
 In addition you can:
@@ -85,4 +87,17 @@ Three settings are available:
 - **Save all entities, overwrite existing ones** - Imported entities will be saved to their designated compendium, which you will set below. Existing entries will be updated/ overwritten. Great if you want to import all your stuff into Foundry
 - **Save new entities only, do not overwrite existing ones** - Import only entities currently not available in the compendiums
 - **Do not save the entities at** all - Just do nothing. If you choose this, you do not need to set the compendium entries below
+
+
+
+# FAQ
+
+## Why do my compendium features always get updated?
+
+When you import a character features are imported into a the Features compendium.
+There's a global setting in module settings to control updates/overwriting/not importing.
+
+Previously this would also impact spells and items.
+These are now managed via the Munching tool and are not updated via character import.
+In the future feature imports will also be possible.
 

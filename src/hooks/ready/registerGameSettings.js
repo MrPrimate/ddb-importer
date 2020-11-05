@@ -57,20 +57,20 @@ export default function () {
     ],
   });
 
-  game.settings.register("ddb-importer", "entity-cleanup-policy", {
-    name: "ddb-importer.entity-cleanup-policy.name",
-    hint: "ddb-importer.entity-cleanup-policy.hint",
-    scope: "world",
-    config: true,
-    type: Number,
-    default: 0,
-    choices: [
-      "ddb-importer.entity-cleanup-policy.0",
-      "ddb-importer.entity-cleanup-policy.1",
-      "ddb-importer.entity-cleanup-policy.2",
-      "ddb-importer.entity-cleanup-policy.3",
-    ],
-  });
+  // game.settings.register("ddb-importer", "entity-cleanup-policy", {
+  //   name: "ddb-importer.entity-cleanup-policy.name",
+  //   hint: "ddb-importer.entity-cleanup-policy.hint",
+  //   scope: "world",
+  //   config: true,
+  //   type: Number,
+  //   default: 0,
+  //   choices: [
+  //     "ddb-importer.entity-cleanup-policy.0",
+  //     "ddb-importer.entity-cleanup-policy.1",
+  //     "ddb-importer.entity-cleanup-policy.2",
+  //     "ddb-importer.entity-cleanup-policy.3",
+  //   ],
+  // });
 
   game.settings.register("ddb-importer", "entity-item-compendium", {
     name: "ddb-importer.entity-item-compendium.name",

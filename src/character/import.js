@@ -889,10 +889,10 @@ export default class CharacterImport extends Application {
       await this.addMagicItemSpells();
     }
 
-    // Update compendium packs with spells and inventory
+    // Update compendium packs with  features
     CharacterImport.showCurrentTask(html, "Updating compendium(s)");
-    this.updateCompendium("inventory");
-    this.updateCompendium("spells");
+    // this.updateCompendium("inventory");
+    // this.updateCompendium("spells");
     this.updateCompendium("features");
 
     // Adding all items to the actor
