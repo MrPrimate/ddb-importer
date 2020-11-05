@@ -594,8 +594,8 @@ export default class CharacterImport extends Application {
     const invalidItemTypes = getCharacterUpdatePolicyTypes();
 
     // collect all items belonging to one of those inventory item categories
-    let ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
-    let toRemove = ownedItems.filter((item) => invalidItemTypes.includes(item.type)).map((item) => item._id);
+    const ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
+    const toRemove = ownedItems.filter((item) => invalidItemTypes.includes(item.type)).map((item) => item._id);
     await this.actor.deleteEmbeddedEntity("OwnedItem", toRemove);
     return toRemove;
   }
@@ -761,15 +761,15 @@ export default class CharacterImport extends Application {
         );
       });
 
-    // $(html)
-    //   .find('.import-config input[type="checkbox"]')
-    //   .on("change", (event) => {
-    //     game.settings.set(
-    //       "ddb-importer",
-    //       "character-update-policy-" + event.currentTarget.dataset.section,
-    //       event.currentTarget.checked
-    //     );
-    //   });
+    $(html)
+      .find('.import-config input[type="checkbox"]')
+      .on("change", (event) => {
+        game.settings.set(
+          "ddb-importer",
+          "character-update-policy-" + event.currentTarget.dataset.section,
+          event.currentTarget.checked
+        );
+      });
 
     $(html)
       .find("#dndbeyond-character-import-start")
@@ -878,6 +878,7 @@ export default class CharacterImport extends Application {
 
     // clear items
     const importKeepExistingActorItems = game.settings.get("ddb-importer", "character-update-policy-new");
+
     if (!importKeepExistingActorItems) {
       CharacterImport.showCurrentTask(html, "Clearing inventory");
       await this.clearItemsByUserSelection();
