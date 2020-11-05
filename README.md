@@ -92,12 +92,6 @@ Three settings are available:
 
 # FAQ
 
-## Why do my compendium features always get updated?
+## Why do my compendium features not get updated on import?
 
-When you import a character features are imported into a the Features compendium.
-There's a global setting in module settings to control updates/overwriting/not importing.
-
-Previously this would also impact spells and items.
-These are now managed via the Munching tool and are not updated via character import.
-In the future feature imports will also be possible.
-
+This is a different feature to vtta-dndbeyond, use the bulk import tool to import features, spells and items.

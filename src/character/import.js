@@ -890,10 +890,10 @@ export default class CharacterImport extends Application {
     }
 
     // Update compendium packs with  features
-    CharacterImport.showCurrentTask(html, "Updating compendium(s)");
+    // CharacterImport.showCurrentTask(html, "Updating compendium(s)");
     // this.updateCompendium("inventory");
     // this.updateCompendium("spells");
-    this.updateCompendium("features");
+    // this.updateCompendium("features");
 
     // Adding all items to the actor
     const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];

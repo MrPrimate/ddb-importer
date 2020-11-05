@@ -47,7 +47,7 @@ export default function () {
     name: "ddb-importer.entity-import-policy.name",
     hint: "ddb-importer.entity-import-policy.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: Number,
     default: 1,
     choices: [
