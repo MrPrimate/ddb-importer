@@ -866,6 +866,12 @@ export default class CharacterImport extends Application {
 
     await this.updateImage(html, data.ddb);
 
+    // manage updates of basic character data more intelligently
+    if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
+      // revert currency if user didn't select to update it
+      this.result.character.data.currency = this.actorOriginal.data.currency;
+    }
+
     // basic import
     CharacterImport.showCurrentTask(html, "Updating basic character information");
     await this.actor.update(this.result.character);
@@ -875,12 +881,6 @@ export default class CharacterImport extends Application {
     if (!importKeepExistingActorItems) {
       CharacterImport.showCurrentTask(html, "Clearing inventory");
       await this.clearItemsByUserSelection();
-    }
-
-    // manage updates of basic character data more intelligently
-    if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
-      // revert currency if user didn't select to update it
-      this.actor.data.data.currency = this.actorOriginal.data.currency;
     }
 
     // store all spells in the folder specific for Dynamic Items
