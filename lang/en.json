@@ -51,5 +51,5 @@
   "ddb-importer.scene-format.0": "WEBP (smaller file sizes)",
   "ddb-importer.scene-format.1": "PNG/JPEG (original, larger file sizes)",
   "ddb-importer.cobalt-cookie.name": "DDB Cobalt Cookie",
-  "ddb-importer.cobalt-cookie.hint": "You can get this by digging around with Chrome tools, it's not a requirement"
+  "ddb-importer.cobalt-cookie.hint": "You can get this using my <a href=\"https://github.com/MrPrimate/ddb-importer-chrome\">Chrome extension</a>"
 }
