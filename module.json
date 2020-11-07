@@ -2,9 +2,9 @@
   "name": "ddb-importer",
   "title": "D&D Beyond Importer",
   "description": "Import your dndbeyond.com characters, spells and monsters at super speed!",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "minimumCoreVersion": "0.7.5",
-  "compatibleCoreVersion": "0.7.5",
+  "compatibleCoreVersion": "0.7.6",
   "authors": [
     {
       "name": "MrPrimate",
