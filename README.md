@@ -8,6 +8,7 @@ This module:
 * Parses characters similar to vtta-dndbeyond but with better accuracy.
 * _Won't_ add items, and spells to the compendiums during character import. There's a new tools to do that! Class features are still added to the Features compendium.
 * Can bulk import spells.
+* Can bulk import items.
 * [Not yet available] Can bulk import monsters. These monsters come from JSON definitions, so parsing is easier.
 * [Not yet available] Can bulk import simple class feature descriptions.
 * When you import a Cleric or Druid it will import _all_ your spells.*
@@ -95,3 +96,24 @@ Three settings are available:
 ## Why do my compendium features not get updated on import?
 
 This is a different feature to vtta-dndbeyond, use the bulk import tool to import features, spells and items.
+
+## The import buttons are greyed out!
+
+They require the cobalt token setting to be set.
+Remember don't share this token with anyone, it can be used to access your DDB account.
+
+## Clerics and Druids don't get their un-prepared spells
+
+You need to have the cobalt token set to get these spells.
+
+# Known Issues
+
+## Item/Spell custom attack, damage etc don't import
+
+This requires a few changes but is on the list!
+
+## Magic Items don't have spells attached
+
+When you use the Magic Items module and Munch Items the spells are not attached to the Item.
+This is a tricky issue and parsing these things out of the item text takes time as they are not exposed as an attached object to the item.
+
