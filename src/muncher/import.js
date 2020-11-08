@@ -16,7 +16,7 @@ const compendiumLookup = [
   { type: "backpack", name: "entity-item-compendium" },
   { type: "spell", name: "entity-spell-compendium" },
   { type: "equipment", name: "entity-item-compendium" },
-  { type: "monsters", name: "entity-actor-compendium" },
+  { type: "monsters", compendium: "entity-monster-compendium" },
   { type: "monsterfeatures", name: "entity-feature-compendium" },
 ];
 

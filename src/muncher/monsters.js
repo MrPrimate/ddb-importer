@@ -34,9 +34,13 @@ export async function parseCritters() {
   logger.info(`Munching monsters! Updating? ${updateBool} SRD? ${srdIcons}`);
 
   const results = await getMonsterData();
-  let monsters = results.map((r) => r.value.data).flat().flat();
+  console.log(results);
+
+  let monsters = results.data;
 
   const finalMonsters = await srdFiddling(monsters, "monsters");
+
+  // TODO: load spells per monster
 
   return new Promise((resolve) => {
     resolve(updateCompendium("monsters", { monsters: finalMonsters }, updateBool));
