@@ -1,27 +1,91 @@
 // Main module class
 import { updateCompendium, srdFiddling, addMagicItemSpells } from "./import.js";
 import logger from "../logger.js";
+import getInventory from "../parser/inventory/index.js";
+import utils from "../utils.js";
 
+async function getCharacterInventory(items) {
+  return items.map((item) => {
+    return {
+      chargesUsed: 0,
+      definitionId: 0,
+      definitionTypeId: 0,
+      displayAsAttack: null,
+      entityTypeId: 0,
+      equipped: false,
+      id: 0,
+      isAttuned: false,
+      quantity: 1,
+      definition: item,
+    }
+  });
+}
+
+async function generateImportItems(items) {
+  const mockCharacter = {
+    data: JSON.parse(utils.getTemplate("character")),
+    type: "character",
+    name: "",
+    flags: {
+      ddbimporter: {
+        dndbeyond: {
+          totalLevels: 0,
+          proficiencies: [],
+          characterValues: [],
+        },
+      },
+    },
+  };
+  const mockDDB = {
+    character: {
+      classes: [],
+      race: {
+        racialTraits: [],
+      },
+      characterValues: [],
+      inventory: items,
+      customItems: null,
+      options: {
+        class: [],
+        race: [],
+        feat: [],
+      },
+      modifiers: {
+        race: [],
+        class: [],
+        background: [],
+        feat: [],
+        item: [],
+        condition: [],
+      },
+      feats: [],
+    }
+  };
+  let itemSpells = []; // here we need to parse each available spell and build a mock spell parser
+  const inventory = getInventory(mockDDB, mockCharacter, itemSpells);
+  const results = {
+    items: inventory,
+    itemSpellNames: itemSpells, // this needs to be a list of spells to find
+  }
+  return results;
+}
 
 function getItemData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie };
-  // const body = {};
+
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/getItems`, {
+    fetch(`${parsingApi}/proxy/getItems`, {
       method: "POST",
-      mode: "cors", // no-cors, *cors, same-origin
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: "same-origin", // include, *same-origin, omit
       headers: {
         "Content-Type": "application/json",
       },
-      redirect: "follow", // manual, *follow, error
-      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       body: JSON.stringify(body), // body data type must match "Content-Type" header
     })
       .then((response) => response.json())
+      .then((data) => getCharacterInventory(data.data))
+      .then(items => generateImportItems(items))
       .then((data) => resolve(data))
       .catch((error) => reject(error));
   });
@@ -34,11 +98,11 @@ export async function parseItems() {
   logger.info(`Munching items! Updating? ${updateBool} SRD? ${srdIcons}`);
 
   const results = await getItemData();
-  let items = results.data.items;
-  // let itemSpells = results.value.data.itemSpells;
-  let itemSpells = null;
+  let items = results.items;
 
-  // now we need to loads spells from compendium via list match
+  // Items Spell addition is currently not done, parsing out spells needs to be addded
+  // let itemSpells = results.value.itemSpells;
+  let itemSpells = null;
 
   // store all spells in the folder specific for Dynamic Items
   if (magicItemsInstalled && itemSpells && Array.isArray(itemSpells)) {

@@ -8,6 +8,8 @@ const compendiumLookup = [
   { type: "inventory", compendium: "entity-item-compendium" },
   { type: "spells", compendium: "entity-spell-compendium" },
   { type: "features", compendium: "entity-feature-compendium" },
+  { type: "npc", compendium: "entity-monster-compendium" },
+  { type: "monsters", compendium: "entity-monster-compendium" },
   { type: "feat", name: "entity-feature-compendium" },
   { type: "weapon", name: "entity-item-compendium" },
   { type: "consumable", name: "entity-item-compendium" },
@@ -16,7 +18,6 @@ const compendiumLookup = [
   { type: "backpack", name: "entity-item-compendium" },
   { type: "spell", name: "entity-spell-compendium" },
   { type: "equipment", name: "entity-item-compendium" },
-  { type: "monsters", compendium: "entity-monster-compendium" },
   { type: "monsterfeatures", name: "entity-feature-compendium" },
 ];
 
@@ -165,9 +166,8 @@ export async function looseItemNameMatch(item, items, loose = false) {
   return matchingItem;
 }
 
-export async function updateCompendium(type, input, update = null) {
+export async function updateCompendium(type, input, update=null) {
   let importPolicy = game.settings.get("ddb-importer", "entity-import-policy");
-  // const importPolicy = game.settings.get("ddb-importer", "entity-import-policy");
   if (update !== null) {
     if (update == true) {
       importPolicy = 0;
