@@ -6,7 +6,7 @@ let hasSpellCastingAbility = (spellCastingAbilityId) => {
   return DICTIONARY.character.abilities.find((ability) => ability.id === spellCastingAbilityId) !== undefined;
 };
 
-// convert spellcasting ability id to string used by vtta
+// convert spellcasting ability id to string used by foundry
 let convertSpellCastingAbilityId = (spellCastingAbilityId) => {
   return DICTIONARY.character.abilities.find((ability) => ability.id === spellCastingAbilityId).value;
 };

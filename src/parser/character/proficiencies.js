@@ -77,7 +77,7 @@ export function getToolProficiencies(data, character) {
     });
 
   character.flags.ddbimporter.dndbeyond.proficiencies.forEach((prof) => {
-    // Some have values we can match too in VTTA, others have to be custom imported
+    // Some have values we can match too in foundry, others have to be custom imported
     switch (prof.name) {
       case "Artisan's Tools":
         values.push("art");
