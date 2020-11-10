@@ -27,7 +27,7 @@ function queryIcons(names) {
  *
  * @param {[string]} spells Array of Strings or
  */
-const retrieveSpells = async (spells) => {
+async function retrieveSpells(spells) {
   let compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
   const GET_ENTITY = true;
 
@@ -51,23 +51,23 @@ async function getCompendium() {
   return undefined;
 };
 
-async function addNPCToCompendium(npc, name) {
+async function addNPCToCompendium(npc) {
   const compendium = await getCompendium();
   if (compendium) {
     // unlock the compendium for update/create
     compendium.locked = false;
 
-    let index = await compendium.getIndex();
-    let entity = index.find((entity) => entity.name.toLowerCase() === name.toLowerCase());
+    const index = await compendium.getIndex();
+    const entity = index.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
     if (entity) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
         const compendiumNPC = JSON.parse(JSON.stringify(npc));
-        compendiumNPC.data._id = entity._id;
+        compendiumNPC._id = entity._id;
 
-        await compendium.updateEntity(compendiumNPC.data);
+        await compendium.updateEntity(compendiumNPC);
       }
     } else {
-      await compendium.createEntity(npc.data);
+      await compendium.createEntity(npc);
     }
   } else {
     logger.error("Error opening compendium, check your settings");
@@ -80,18 +80,12 @@ async function createNPC(npc, options) {
   // should be aliased again
   let result = await Actor.create(npc, options);
 
-  // if (npc.flags.ddbimporter.dndbeyond.spells.length !== 0) {
-  //   // update existing (1) or overwrite (0)
-  //   let spells = await retrieveSpells(npc.flags.ddbimporter.dndbeyond.spells);
-  //   spells = spells.map((spell) => spell.data);
-  //   await result.createEmbeddedEntity("OwnedItem", spells);
-  // }
-
   return result;
 };
 
 async function updateIcons(data) {
   // replace icons by iconizer, if available
+  console.warn(data);
   const itemNames = data.items.map((item) => {
     return {
       name: item.name,
@@ -116,8 +110,8 @@ async function updateIcons(data) {
 
 
 async function getNPCImage(data) {
-  const dndBeyondImageUrl = data.flags.ddbimporter.dndbeyond.img;
-  const dndBeyondTokenImageUrl = data.flags.ddbimporter.dndbeyond.tokenImg;
+  const dndBeyondImageUrl = data.flags.monsterMunch.img;
+  const dndBeyondTokenImageUrl = data.flags.monsterMunch.tokenImg;
   if (dndBeyondImageUrl) {
     const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
     const npcType = data.data.details.type;
@@ -229,14 +223,47 @@ async function addSpells(data){
   const innate = data.flags.monsterMunch.spellList.innate;
 
   if (atWill.length !== 0) {
-    const atWillNames = atWill.map((spell) => spell.name);
-    //at will:
+    logger.debug("Retrieving at Will spells:", klass);
+    let spells = await retrieveSpells(klass);
+    spells = spells.filter((spell) => spell !== null).map((spell) => {
+      spell.data.preparation = {
+        mode: "atwill",
+        prepared: false,
+      };
+      spell.data.uses = {
+        value: null,
+        max: null,
+        per: "",
+      };
+      return spell;
+    });
+    await npc.createEmbeddedEntity("OwnedItem", spells);
+  }
+
+  // class spells
+  if (klass.length !== 0) {
+    logger.debug("Retrieving class spells:", klass);
+    let spells = await retrieveSpells(klass);
+    spells = spells.filter((spell) => spell !== null).map((spell) => {
+      spell.data.preparation = {
+        mode: "prepared",
+        prepared: true,
+      };
+      return spell;
+    });
+    await npc.createEmbeddedEntity("OwnedItem", spells);
+  }
+
+  // innate spells
+  if (innate.length !== 0) {
+    const innateNames = innate.map((spell) => spell.name);
+    // innate:
     // {name: "", type: "srt/lng/day", value: 0}
-    logger.debug("Retrieving at will spells:", atWillNames);
-    const spells = await retrieveSpells(atWillNames);
-    const atWillSpells = spells.filter((spell) => spell !== null)
+    logger.debug("Retrieving innate spells:", innateNames);
+    const spells = await retrieveSpells(innateNames);
+    const innateSpells = spells.filter((spell) => spell !== null)
       .map((spell) => {
-        const spellInfo = atWill.find((w) => w.name == spell.name);
+        const spellInfo = innate.find((w) => w.name == spell.name);
         spell.data.preparation = {
           mode: "innate",
           prepared: true,
@@ -246,29 +273,11 @@ async function addSpells(data){
           value: spellInfo.value,
           max: spellInfo.value,
           per: per.value ? per.value : "day",
-        }
-
+        };
+        return spell;
       });
-    await npc.createEmbeddedEntity("OwnedItem", atWillSpells);
+    await npc.createEmbeddedEntity("OwnedItem", innateSpells);
   }
-
-  // class spells
-  if (klass.length !== 0) {
-    logger.debug("Retrieving class spells:", klass);
-    let spells = await retrieveSpells(klass);
-    spells = spells.filter((spell) => spell !== null);
-    await npc.createEmbeddedEntity("OwnedItem", spells);
-  }
-
-  // innate spells
-  if (innate.length !== 0) {
-    logger.debug("Retrieving innate spells:", innate);
-    let spells = await retrieveSpells(innate);
-    spells = spells.filter((spell) => spell !== null);
-    await npc.createEmbeddedEntity("OwnedItem", spells);
-  }
-
-
 }
 
 async function buildNPC(data) {
@@ -298,20 +307,14 @@ const getSpellCompendium = async () => {
 };
 
 const cleanUp = async (npc) => {
-  // cleaning up after imports
-  const cleanupAfterImport =
-    game.settings.get("ddb-importer", "entity-cleanup-policy") === CLEAN_ALL ||
-    game.settings.get("ddb-importer", "entity-cleanup-policy") === CLEAN_MONSTERS;
-  if (cleanupAfterImport) {
-    await npc.delete();
-  }
+  await npc.delete();
 };
 
-async function parseNPC (body) {
+async function parseNPC (data) {
   let npc = await buildNPC(data);
   // spell additions here?
-  await addNPCToCompendium(npc, body.data.name);
-  await cleanUp(npc);
+  await addNPCToCompendium(npc);
+  // await cleanUp(npc);
   return npc;
 };
 
@@ -319,7 +322,7 @@ export function addNPC(data) {
   return new Promise((resolve, reject) => {
     parseNPC(data)
       .then((npc) => {
-        resolve(npc.data);
+        resolve(npc);
       })
       .catch((error) => {
         logger.error(`error parsing NPC: ${error}`);
@@ -328,4 +331,3 @@ export function addNPC(data) {
   });
 };
 
-export default addNPC;

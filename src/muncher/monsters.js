@@ -1,6 +1,7 @@
 // Main module class
 import { updateCompendium, srdFiddling } from "./import.js";
 import logger from "../logger.js";
+import { addNPC } from "./importMonster.js";
 
 // This needs to be expanded to do the phased retreval of paging monsters
 function getMonsterData() {
@@ -37,7 +38,10 @@ export async function parseCritters() {
   console.log(finalMonsters);
 
   return new Promise((resolve) => {
-    resolve(updateCompendium("monsters", { monsters: finalMonsters }, updateBool));
+    resolve(finalMonsters.forEach((monster) => {
+      addNPC(monster);
+    }));
+    //resolve(updateCompendium("monsters", { monsters: finalMonsters }, updateBool));
   });
 }
 
