@@ -40,9 +40,9 @@ export default function () {
 
       let button = $('<button type="button" id="ddbImporterButton" class="inactive"></button>');
       if (
-        app.entity.data.flags.vtta &&
-        app.entity.data.flags.vtta.dndbeyond &&
-        app.entity.data.flags.vtta.dndbeyond.url
+        app.entity.data.flags.ddbimporter &&
+        app.entity.data.flags.ddbimporter.dndbeyond &&
+        app.entity.data.flags.ddbimporter.dndbeyond.url
       ) {
         button.removeClass("inactive");
       }
@@ -52,20 +52,20 @@ export default function () {
       button.click((event) => {
         let url = null;
         if (
-          app.entity.data.flags.vtta &&
-          app.entity.data.flags.vtta.dndbeyond &&
-          app.entity.data.flags.vtta.dndbeyond.url
+          app.entity.data.flags.ddbimporter &&
+          app.entity.data.flags.ddbimporter.dndbeyond &&
+          app.entity.data.flags.ddbimporter.dndbeyond.url
         ) {
-          url = app.entity.data.flags.vtta.dndbeyond.url;
+          url = app.entity.data.flags.ddbimporter.dndbeyond.url;
         }
 
         let jsonURL = null;
         if (
-          app.entity.data.flags.vtta &&
-          app.entity.data.flags.vtta.dndbeyond &&
-          app.entity.data.flags.vtta.dndbeyond.json
+          app.entity.data.flags.ddbimporter &&
+          app.entity.data.flags.ddbimporter.dndbeyond &&
+          app.entity.data.flags.ddbimporter.dndbeyond.json
         ) {
-          jsonURL = app.entity.data.flags.vtta.dndbeyond.json;
+          jsonURL = app.entity.data.flags.ddbimporter.dndbeyond.json;
         }
 
         if (event.shiftKey) {

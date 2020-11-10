@@ -1,5 +1,6 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
+import { parseJson } from "../parser/character.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 
@@ -178,9 +179,9 @@ async function getCharacterData(characterId) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie };
-  // const body = {};
+
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/parseCharacter/${characterId}`, {
+    fetch(`${parsingApi}/proxy/getCharacter/${characterId}`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -193,6 +194,13 @@ async function getCharacterData(characterId) {
       body: JSON.stringify(body), // body data type must match "Content-Type" header
     })
       .then((response) => response.json())
+      .then((data) => {
+        // construct the expected { character: {...} } object
+        let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;
+        const character = parseJson(ddb);
+        data['character'] = character;
+        return data;
+      })
       .then((data) => resolve(data))
       .catch((error) => reject(error));
   });

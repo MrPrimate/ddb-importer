@@ -1,4 +1,5 @@
 import DirectoryPicker from "./lib/DirectoryPicker.js";
+import DICTIONARY from './dictionary.js';
 
 const PROXY = "https://proxy.vttassets.com/?url=";
 
@@ -60,6 +61,249 @@ let utils = {
       });
 
     return nearestHit;
+  },
+
+  hasChosenCharacterOption: (data, optionName) => {
+    const classOptions = [data.character.options.race, data.character.options.class, data.character.options.feat]
+      .flat()
+      .find((option) => option.definition.name === optionName);
+    return !!classOptions;
+  },
+
+  getClassFromOptionID: (data, optionId) => {
+    // Use case class spell - which class?
+    // componentId on spells.class[0].componentId = options.class[0].definition.id
+    // options.class[0].definition.componentId = classes[0].classFeatures[0].definition.id
+    const option = data.character.options.class.find((option) => option.definition.id === optionId);
+    utils.log(option);
+    if (option) {
+      const klass = data.character.classes.find((klass) =>
+        klass.classFeatures.some((feature) => feature.definition.id === option.componentId)
+      );
+      return klass;
+    }
+    return undefined;
+  },
+
+  /**
+   * Look up a component by id
+   * For now we assume that most features we are going to want to get a scaling value
+   * from are character options
+   * @param {*} ddb
+   * @param {*} featureId
+   */
+  findComponentByComponentId: (ddb, componentId) => {
+    let result;
+    ddb.character.classes.forEach((cls) => {
+      const feature = cls.classFeatures.find((component) => component.definition.id === componentId);
+      if (feature) result = feature;
+    });
+    return result;
+  },
+
+  /**
+   * Gets the sourcebook for a subset of dndbeyond sources
+   * @param {obj} definition item definition
+   */
+  getSourceData: (definition) => {
+    let source = {
+      name: null,
+      page: null,
+    };
+    if (definition.sourceIds) {
+      source.name = DICTIONARY.sources
+        .filter((source) => definition.sourceIds.includes(source.id))
+        .map((source) => source.name)
+        .join();
+    } else if (definition.sourceId) {
+      source.name = DICTIONARY.sources
+        .filter((source) => source.id === definition.sourceId)
+        .map((source) => source.name);
+    }
+
+    // add a page num if available
+    if (definition.sourcePageNumber) source.page = definition.sourcePageNumber;
+
+    return source;
+  },
+
+  /**
+   * Fetches the sources and pages for a definition
+   * @param {obj} data item
+   */
+  parseSource: (definition) => {
+    const sourceData = utils.getSourceData(definition);
+
+    let source = sourceData.name;
+    if (sourceData.page) source += ` (pg. ${sourceData.page})`;
+
+    return source;
+  },
+
+  getActiveItemModifiers: (data) => {
+    // get items we are going to interact on
+    const modifiers = data.character.inventory
+      .filter(
+        (item) =>
+          ((!item.definition.canEquip && !item.definition.canAttune && !item.definition.isConsumable) || // if item just gives a thing and not potion/scroll
+          (item.isAttuned && item.equipped) || // if it is attuned and equipped
+          (item.isAttuned && !item.definition.canEquip) || // if it is attuned but can't equip
+            (!item.definition.canAttune && item.equipped)) && // can't attune but is equipped
+          item.definition.grantedModifiers.length > 0
+      )
+      .flatMap((item) => item.definition.grantedModifiers);
+
+    return modifiers;
+  },
+
+  filterModifiers: (modifiers, type, subType = null, restriction = ["", null]) => {
+    return modifiers
+      .flat()
+      .filter(
+        (modifier) =>
+          modifier.type === type &&
+          (subType !== null ? modifier.subType === subType : true) &&
+          (!restriction ? true : restriction.includes(modifier.restriction))
+      );
+  },
+
+  filterBaseModifiers: (data, type, subType = null, restriction = ["", null]) => {
+    const modifiers = [
+      data.character.modifiers.class,
+      data.character.modifiers.race,
+      data.character.modifiers.background,
+      data.character.modifiers.feat,
+      utils.getActiveItemModifiers(data),
+    ];
+
+    return utils.filterModifiers(modifiers, type, subType, restriction);
+  },
+
+  /**
+   * Checks the list of modifiers provided for a matching bonus type
+   * and returns a sum of it's value. May include a dice string.
+   * @param {*} modifiers
+   * @param {*} character
+   * @param {*} bonusSubType
+   */
+  getModifierSum: (modifiers, character) => {
+    let sum = 0;
+    let diceString = "";
+    modifiers.forEach((bonus) => {
+      if (bonus.statId !== null) {
+        const ability = DICTIONARY.character.abilities.find((ability) => ability.id === bonus.statId);
+        sum += character.data.abilities[ability.value].mod;
+      } else if (bonus.dice) {
+        const mod = bonus.dice.diceString;
+        diceString += diceString === "" ? mod : " + " + mod;
+      } else {
+        sum += bonus.value;
+      }
+    });
+    if (diceString !== "") {
+      sum = sum + " + " + diceString;
+    }
+
+    return sum;
+  },
+
+  findClassByFeatureId: (data, featureId) => {
+    const cls = data.character.classes.find((cls) => {
+      let classFeatures = cls.classFeatures;
+      let featureMatch = classFeatures.find((feature) => feature.definition.id === featureId);
+      if (featureMatch) {
+        return cls;
+      } else {
+        // if not in global class feature list lets dig down
+        classFeatures = cls.definition.classFeatures;
+        if (cls.subclassDefinition && cls.subclassDefinition.classFeatures) {
+          classFeatures = classFeatures.concat(cls.subclassDefinition.classFeatures);
+        }
+        return classFeatures.find((feature) => feature.id === featureId) !== undefined;
+      }
+    });
+    return cls;
+  },
+
+  calculateModifier: (val) => {
+    return Math.floor((val - 10) / 2);
+  },
+
+  parseDiceString: (str, mods = "") => {
+    // sanitizing possible inputs a bit
+    str = str.toLowerCase().replace(/-–−/g, "-").replace(/\s/g, "");
+
+    // all found dice strings, e.g. 1d8, 4d6
+    let dice = [];
+    // all bonuses, e.g. -1+8
+    let bonuses = [];
+
+    while (str.search(/[+-]*\d+d?\d*/) !== -1) {
+      const result = str.match(/([+-]*)(\d+)(d?)(\d*)/);
+      str = str.replace(result[0], "");
+
+      // sign. We only take the sign standing exactly in front of the dice string
+      // so +-1d8 => -1d8. Just as a failsave
+      const sign = result[1] === "" ? "+" : result[1].substr(result[1].length - 1, 1);
+      const count = result[2];
+      const die = result[4];
+
+      if (result[3] === "d") {
+        dice.push({
+          sign: sign,
+          count: parseInt(sign + count),
+          die: parseInt(die),
+        });
+      } else {
+        bonuses.push({
+          sign: sign,
+          count: parseInt(sign + count),
+        });
+      }
+      // sorting dice by die, then by sign
+      dice = dice.sort((a, b) => {
+        if (a.die < b.die) return -1;
+        if (a.die > b.die) return 1;
+        if (a.sign === b.sign) {
+          if (a.count < b.count) return -1;
+          if (a.count > b.count) return 1;
+          return 0;
+        } else {
+          return a.sign === "+" ? -1 : 1;
+        }
+      });
+    }
+
+    // sum up the bonus
+    let bonus = bonuses.reduce((prev, cur) => prev + cur.count, 0);
+
+    // group the dice, so that all the same dice are summed up if they have the same sign
+    // e.g.
+    // +1d8+2d8 => 3d8
+    // +1d8-2d8 => +1d8 -2d8 will remain as-is
+    for (let i = 0; i < dice.length - 1; i++) {
+      let cur = dice[i];
+      let next = i <= dice.length - 1 ? dice[i + 1] : { sign: "+", count: 0, die: cur.die };
+      if (cur.die === next.die && cur.sign === next.sign) {
+        cur.count += next.count;
+        dice.splice(i + 1, 1);
+        i--;
+      }
+    }
+
+    const diceString = dice.reduce((prev, cur) => {
+      return (
+        prev + " " + (cur.count >= 0 && prev !== "" ? `${cur.sign}${cur.count}d${cur.die}` : `${cur.count}d${cur.die}`)
+      );
+    }, "");
+    const resultBonus = bonus === 0 ? "" : bonus > 0 ? ` + ${bonus}` : ` ${bonus}`;
+
+    const result = {
+      dice: dice,
+      bonus: bonus,
+      diceString: (diceString + mods + resultBonus).trim(),
+    };
+    return result;
   },
 
 
