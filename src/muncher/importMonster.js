@@ -89,7 +89,6 @@ async function updateIcons(data) {
   const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
   data = (srdIcons) ? await copySRDIcons(data) : data;
   // replace icons by iconizer, if available
-  console.warn(data);
   const itemNames = data.items.map((item) => {
     return {
       name: item.name,
@@ -114,29 +113,18 @@ async function updateIcons(data) {
 
 
 async function getNPCImage(data) {
-  const dndBeyondImageUrl = data.flags.monsterMunch.img;
+  let dndBeyondImageUrl = data.flags.monsterMunch.img;
   const dndBeyondTokenImageUrl = data.flags.monsterMunch.tokenImg;
+  const npcType = data.data.details.type;
+  const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+
+  if (!dndBeyondImageUrl && dndBeyondTokenImageUrl) dndBeyondImageUrl = dndBeyondTokenImageUrl;
+
   if (dndBeyondImageUrl) {
-    const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
-    const npcType = data.data.details.type;
-    const ext = dndBeyondImageUrl
-      .split(".")
-      .pop()
-      .split(/#|\?|&/)[0];
+    const ext = dndBeyondImageUrl.split(".").pop().split(/#|\?|&/)[0];
 
     if (dndBeyondImageUrl.endsWith(npcType + "." + ext)) {
-      const filename =
-        "npc-generic-" +
-        npcType
-          .replace(/[^a-zA-Z]/g, "-")
-          .replace(/-+/g, "-")
-          .trim();
-      const filenameToken =
-        "npc-generic-token-" +
-        npcType
-          .replace(/[^a-zA-Z]/g, "-")
-          .replace(/-+/g, "-")
-          .trim();
+      const filename = "npc-generic-" + npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
 
       if (!(await utils.fileExists(uploadDirectory, filename + "." + ext))) {
         // eslint-disable-next-line require-atomic-updates
@@ -145,31 +133,43 @@ async function getNPCImage(data) {
         // eslint-disable-next-line require-atomic-updates
         data.img = utils.getFileUrl(uploadDirectory, filename + "." + ext);
       }
-      if (!(await utils.fileExists(uploadDirectory, filenameToken + "." + ext))) {
+    } else {
+      // image upload
+      const filename = "npc-" + data.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
+      const imageExists = await utils.fileExists(uploadDirectory, filename + "." + ext);
+
+      if (!imageExists) {
+        // eslint-disable-next-line require-atomic-updates
+        data.img = await utils.uploadImage(dndBeyondImageUrl, uploadDirectory, filename);
+      } else {
+        data.img = utils.getFileUrl(uploadDirectory, filename + "." + ext);
+      }
+    }
+  }
+
+  if (dndBeyondImageUrl) {
+    const tokenExt = dndBeyondTokenImageUrl.split(".").pop().split(/#|\?|&/)[0];
+
+    if (dndBeyondTokenImageUrl.endsWith(npcType + "." + tokenExt)) {
+      const filenameToken = "npc-generic-token-" + npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
+
+      if (!(await utils.fileExists(uploadDirectory, filenameToken + "." + tokenExt))) {
         // eslint-disable-next-line require-atomic-updates
         data.token.img = await utils.uploadImage(dndBeyondTokenImageUrl, uploadDirectory, filenameToken);
       } else {
         // eslint-disable-next-line require-atomic-updates
-        data.token.img = utils.getFileUrl(uploadDirectory, filename + "." + ext);
+        data.token.img = utils.getFileUrl(uploadDirectory, filenameToken + "." + tokenExt);
       }
     } else {
       // image upload
-      const filename =
-        "npc-" +
-        data.name
-          .replace(/[^a-zA-Z]/g, "-")
-          .replace(/-+/g, "-")
-          .trim();
-      const filenameToken =
-        "npc-token-" +
-        data.name
-          .replace(/[^a-zA-Z]/g, "-")
-          .replace(/-+/g, "-")
-          .trim();
-      // eslint-disable-next-line require-atomic-updates
-      data.img = await utils.uploadImage(dndBeyondImageUrl, uploadDirectory, filename);
-      // eslint-disable-next-line require-atomic-updates
-      data.token.img = await utils.uploadImage(dndBeyondTokenImageUrl, uploadDirectory, filenameToken);
+      const filenameToken = "npc-token-" + data.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
+      const tokenImageExists = await utils.fileExists(uploadDirectory, filenameToken + "." + tokenExt);
+      if (!tokenImageExists) {
+        // eslint-disable-next-line require-atomic-updates
+        data.token.img = await utils.uploadImage(dndBeyondTokenImageUrl, uploadDirectory, filenameToken);
+      } else {
+        data.token.img = utils.getFileUrl(uploadDirectory, filenameToken + "." + tokenExt);
+      }
     }
   }
 
@@ -220,31 +220,34 @@ async function updateNPC(data) {
 // };
 
 async function addSpells(data){
-
-  // at will spells
-  console.log(data.name);
-  console.log(data);
-  console.warn(data.flags);
-  const atWill = data.flags.monsterMunch.spellList.atWill;
+  const atWill = data.flags.monsterMunch.spellList.atwill;
   const klass = data.flags.monsterMunch.spellList.class;
   const innate = data.flags.monsterMunch.spellList.innate;
 
   if (atWill.length !== 0) {
-    logger.debug("Retrieving at Will spells:", klass);
-    let spells = await retrieveSpells(klass);
+    logger.debug("Retrieving at Will spells:", atWill);
+    let spells = await retrieveSpells(atWill);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
-      spell.data.preparation = {
-        mode: "atwill",
-        prepared: false,
-      };
-      spell.data.uses = {
-        value: null,
-        max: null,
-        per: "",
-      };
+      if (spell.data.level == 0){
+        spell.data.preparation = {
+          mode: "prepared",
+          prepared: false,
+        };
+      }else {
+        spell.data.preparation = {
+          mode: "atwill",
+          prepared: false,
+        };
+        spell.data.uses = {
+          value: null,
+          max: null,
+          per: "",
+        };
+      }
       return spell;
     });
-    await npc.createEmbeddedEntity("OwnedItem", spells);
+    data.items = data.items.concat(spells);
+    // await npc.createEmbeddedEntity("OwnedItem", spells);
   }
 
   // class spells
@@ -258,7 +261,8 @@ async function addSpells(data){
       };
       return spell;
     });
-    await npc.createEmbeddedEntity("OwnedItem", spells);
+    data.items = data.items.concat(spells);
+    // await npc.createEmbeddedEntity("OwnedItem", spells);
   }
 
   // innate spells
@@ -270,20 +274,21 @@ async function addSpells(data){
     const spells = await retrieveSpells(innateNames);
     const innateSpells = spells.filter((spell) => spell !== null)
       .map((spell) => {
-        const spellInfo = innate.find((w) => w.name == spell.name);
+        const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
         spell.data.preparation = {
           mode: "innate",
           prepared: true,
         };
-        const per = DICTIONARY.resets.find((d) => d.id.toLowerCase() == spellInfo.type.toLowerCase() );
+        const per = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
         spell.data.uses = {
           value: spellInfo.value,
           max: spellInfo.value,
-          per: per.value ? per.value : "day",
+          per: per.type ? per.type : "day",
         };
         return spell;
       });
-    await npc.createEmbeddedEntity("OwnedItem", innateSpells);
+    data.items = data.items.concat(innateSpells);
+    //await npc.createEmbeddedEntity("OwnedItem", innateSpells);
   }
 }
 
@@ -292,7 +297,6 @@ async function buildNPC(data) {
   await getNPCImage(data);
   await addSpells(data);
   logger.debug("Importing Icons");
-  await srdFiddling(data, "spells");
   await updateIcons(data);
   // create the new npc
   logger.debug("Importing NPC");
@@ -328,6 +332,7 @@ async function parseNPC (data) {
 };
 
 export function addNPC(data) {
+  console.log(data);
   return new Promise((resolve, reject) => {
     parseNPC(data)
       .then((npc) => {
