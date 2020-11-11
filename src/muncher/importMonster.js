@@ -1,6 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
+import { copySRDIcons } from "./import.js";
 
 /**
  * Sends a event request to Iconizer to add the correct icons
@@ -84,6 +85,9 @@ async function createNPC(npc, options) {
 };
 
 async function updateIcons(data) {
+  // check for SRD icons
+  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  data = (srdIcons) ? await copySRDIcons(data) : data;
   // replace icons by iconizer, if available
   console.warn(data);
   const itemNames = data.items.map((item) => {
@@ -218,6 +222,9 @@ async function updateNPC(data) {
 async function addSpells(data){
 
   // at will spells
+  console.log(data.name);
+  console.log(data);
+  console.warn(data.flags);
   const atWill = data.flags.monsterMunch.spellList.atWill;
   const klass = data.flags.monsterMunch.spellList.class;
   const innate = data.flags.monsterMunch.spellList.innate;
@@ -281,10 +288,12 @@ async function addSpells(data){
 }
 
 async function buildNPC(data) {
-  logger.debug("Importing Icons");
-  await updateIcons(data);
   logger.debug("Importing Images");
   await getNPCImage(data);
+  await addSpells(data);
+  logger.debug("Importing Icons");
+  await srdFiddling(data, "spells");
+  await updateIcons(data);
   // create the new npc
   logger.debug("Importing NPC");
   const options = {

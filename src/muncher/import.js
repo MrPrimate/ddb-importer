@@ -407,11 +407,13 @@ export async function copySRDIcons(items) {
   const compendiumFeatureItems = await getSRDCompendiumItems(items, "features", true);
   const compendiumInventoryItems = await getSRDCompendiumItems(items, "inventory", true);
   const compendiumSpellItems = await getSRDCompendiumItems(items, "spells", true);
+  const compendiumMonsterFeatures = await getSRDCompendiumItems(items, "monsterfeatures", true);
 
   srdCompendiumItems = srdCompendiumItems.concat(
     compendiumInventoryItems,
     compendiumSpellItems,
-    compendiumFeatureItems
+    compendiumFeatureItems,
+    compendiumMonsterFeatures,
   );
 
   return new Promise((resolve) => {
