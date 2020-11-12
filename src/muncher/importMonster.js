@@ -87,7 +87,7 @@ async function createNPC(npc, options) {
 async function updateIcons(data) {
   // check for SRD icons
   const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
-  data = (srdIcons) ? await copySRDIcons(data) : data;
+  data.items = (srdIcons) ? await copySRDIcons(data.items) : data;
   // replace icons by iconizer, if available
   const itemNames = data.items.map((item) => {
     return {
@@ -107,7 +107,7 @@ async function updateIcons(data) {
       }
     }
   } catch (exception) {
-    logger.warn("Iconizer not responding");
+    logger.log("Iconizer not responding");
   }
 }
 
@@ -332,7 +332,6 @@ async function parseNPC (data) {
 };
 
 export function addNPC(data) {
-  console.log(data);
   return new Promise((resolve, reject) => {
     parseNPC(data)
       .then((npc) => {
