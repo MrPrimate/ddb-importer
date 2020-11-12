@@ -511,7 +511,6 @@ export default class CharacterImport extends Application {
         const results = entries.map((result) => {
           return {
             _id: result._id,
-            id: result._id,
             pack: compendium.collection,
             img: result.img,
             name: result.name,
