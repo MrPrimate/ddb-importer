@@ -1,15 +1,6 @@
 import logger from "../logger.js";
 
 /**
- * UTILITY
- * Returns a string representation of friendlyTypename and friendlySubtypeName for an obj[]
- * @param {object[]} arr array of objects
- */
-const extractInfo = (arr) => {
-  return arr.map((e) => `${e.friendlyTypeName} (${e.friendlySubtypeName})`);
-};
-
-/**
  * Extracts basic character information
  * @param {object} data Character JSON
  * returns information about the classes this character chose, including
@@ -50,24 +41,11 @@ const getClassFeatures = (cls, classLevel = 20) => {
       .filter((classFeature) => classFeature.requiredLevel <= classLevel)
       .sort((a, b) => a.requiredLevel - b.requiredLevel);
   } else {
-    const result = cls.classFeatures
-      .map((feature) => feature.definition)
-      .filter((classFeature) => classFeature.requiredLevel <= classLevel);
     return cls.classFeatures
       .map((feature) => feature.definition)
       .filter((classFeature) => classFeature.requiredLevel <= classLevel)
       .sort((a, b) => a.requiredLevel - b.requiredLevel);
   }
-};
-
-/**
- * Gets all class options chosen
- * @param {obj} optopns character.options.classes entry
- */
-const getChosenOptionIds = (options) => {
-  return options.map((option) => {
-    return option.definition.id;
-  });
 };
 
 
@@ -110,7 +88,7 @@ const getClassModifiers = (data, classFeatures, isStartingClass = false) => {
   return modifiers;
 };
 
-const getClassOptionModifiers = (data, classInfo) => {
+const getClassOptionModifiers = (data) => {
 
   const classFeatures = data.classes.map((cls) => {
     return getClassFeatures(cls, cls.level);
@@ -160,7 +138,7 @@ const filterModifiers = (data, classInfo) => {
 const main = (data) => {
   const classInfo = getClassInfo(data);
   const filteredClassInfo = filterModifiers(data, classInfo);
-  let classModifiers = getClassOptionModifiers(data, classInfo);
+  let classModifiers = getClassOptionModifiers(data);
 
   filteredClassInfo.forEach((cls) => {
     classModifiers = classModifiers.concat(cls.modifiers);

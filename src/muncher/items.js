@@ -17,7 +17,7 @@ async function getCharacterInventory(items) {
       isAttuned: false,
       quantity: 1,
       definition: item,
-    }
+    };
   });
 }
 
@@ -66,7 +66,7 @@ async function generateImportItems(items) {
   const results = {
     items: inventory,
     itemSpellNames: itemSpells, // this needs to be a list of spells to find
-  }
+  };
   return results;
 }
 
@@ -85,7 +85,7 @@ function getItemData() {
     })
       .then((response) => response.json())
       .then((data) => getCharacterInventory(data.data))
-      .then(items => generateImportItems(items))
+      .then((items) => generateImportItems(items))
       .then((data) => resolve(data))
       .catch((error) => reject(error));
   });

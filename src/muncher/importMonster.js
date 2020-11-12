@@ -22,7 +22,7 @@ function queryIcons(names) {
     document.addEventListener("deliverIcon", listener);
     document.dispatchEvent(new CustomEvent("queryIcons", { detail: { names: names } }));
   });
-};
+}
 
 /**
  *
@@ -39,7 +39,7 @@ async function retrieveSpells(spells) {
   });
 
   return utils.queryCompendiumEntries(compendiumName, spellNames, GET_ENTITY);
-};
+}
 
 async function getCompendium() {
   const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
@@ -50,7 +50,7 @@ async function getCompendium() {
     }
   }
   return undefined;
-};
+}
 
 async function addNPCToCompendium(npc) {
   const compendium = await getCompendium();
@@ -73,20 +73,12 @@ async function addNPCToCompendium(npc) {
   } else {
     logger.error("Error opening compendium, check your settings");
   }
-};
-
-// we are creating the NPC here not temporary
-async function createNPC(npc, options) {
-  // let result = await Actor5e.create(npc, options);
-  // should be aliased again
-  let result = await Actor.create(npc, options);
-
-  return result;
-};
+}
 
 async function updateIcons(data) {
   // check for SRD icons
   const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  // eslint-disable-next-line require-atomic-updates
   data.items = (srdIcons) ? await copySRDIcons(data.items) : data;
   // replace icons by iconizer, if available
   const itemNames = data.items.map((item) => {
@@ -142,6 +134,7 @@ async function getNPCImage(data) {
         // eslint-disable-next-line require-atomic-updates
         data.img = await utils.uploadImage(dndBeyondImageUrl, uploadDirectory, filename);
       } else {
+        // eslint-disable-next-line require-atomic-updates
         data.img = utils.getFileUrl(uploadDirectory, filename + "." + ext);
       }
     }
@@ -168,6 +161,7 @@ async function getNPCImage(data) {
         // eslint-disable-next-line require-atomic-updates
         data.token.img = await utils.uploadImage(dndBeyondTokenImageUrl, uploadDirectory, filenameToken);
       } else {
+        // eslint-disable-next-line require-atomic-updates
         data.token.img = utils.getFileUrl(uploadDirectory, filenameToken + "." + tokenExt);
       }
     }
@@ -175,51 +169,7 @@ async function getNPCImage(data) {
 
 }
 
-async function updateNPC(data) {
-  logger.verbose("NPC exists");
-  // remove the inventory of said npc
-  await npc.deleteEmbeddedEntity(
-    "OwnedItem",
-    npc.getEmbeddedCollection("OwnedItem").map((item) => item._id)
-  );
-
-  // update items and basic data
-  await npc.update(data);
-  logger.verbose("NPC updated");
-  if (data.flags.monsterMunch.spellList.length !== 0) {
-    logger.debug("Retrieving spells:", data.flags.monsterMunch.spellList);
-    let spells = await retrieveSpells(data.flags.monsterMunch.spellList);
-    spells = spells.filter((spell) => spell !== null);
-    await npc.createEmbeddedEntity("OwnedItem", spells);
-  }
-}
-
-// async function buildNPC(data) {
-//   // get the folder to add this npc into
-//   const folder = await utils.getFolder("npc", data.data.details.type, data.data.details.race);
-//   // in this instance I can't figure out how to make these safe, but the risk seems minimal.
-//   // eslint-disable-next-line require-atomic-updates
-//   data.folder = folder._id;
-
-//   await updateIcons(data);
-
-//   logger.debug("Importing NPC");
-//   // check if there is an NPC with that name in that folder already
-//   let npc = folder.content ? folder.content.find((actor) => actor.name === data.name) : undefined;
-//   if (npc) {
-//     await updateNPC(data);
-//   } else {
-//     await getNPCImage(data);
-//     // create the new npc
-//     npc = await createNPC(data, {
-//       temporary: false,
-//       displaySheet: true,
-//     });
-//   }
-//   return npc;
-// };
-
-async function addSpells(data){
+async function addSpells(data) {
   const atWill = data.flags.monsterMunch.spellList.atwill;
   const klass = data.flags.monsterMunch.spellList.class;
   const innate = data.flags.monsterMunch.spellList.innate;
@@ -228,12 +178,12 @@ async function addSpells(data){
     logger.debug("Retrieving at Will spells:", atWill);
     let spells = await retrieveSpells(atWill);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
-      if (spell.data.level == 0){
+      if (spell.data.level == 0) {
         spell.data.preparation = {
           mode: "prepared",
           prepared: false,
         };
-      }else {
+      } else {
         spell.data.preparation = {
           mode: "atwill",
           prepared: false,
@@ -246,8 +196,8 @@ async function addSpells(data){
       }
       return spell;
     });
+    // eslint-disable-next-line require-atomic-updates
     data.items = data.items.concat(spells);
-    // await npc.createEmbeddedEntity("OwnedItem", spells);
   }
 
   // class spells
@@ -261,8 +211,8 @@ async function addSpells(data){
       };
       return spell;
     });
+    // eslint-disable-next-line require-atomic-updates
     data.items = data.items.concat(spells);
-    // await npc.createEmbeddedEntity("OwnedItem", spells);
   }
 
   // innate spells
@@ -287,8 +237,8 @@ async function addSpells(data){
         };
         return spell;
       });
+    // eslint-disable-next-line require-atomic-updates
     data.items = data.items.concat(innateSpells);
-    //await npc.createEmbeddedEntity("OwnedItem", innateSpells);
   }
 }
 
@@ -306,30 +256,13 @@ async function buildNPC(data) {
   };
   let npc = await Actor.create(data, options);
   return npc;
-};
-
-const getSpellCompendium = async () => {
-  const compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
-  if (compendiumName && compendiumName !== "") {
-    const compendium = await game.packs.find((pack) => pack.collection === compendiumName);
-    if (compendium) {
-      return compendium;
-    }
-  }
-  return undefined;
-};
-
-const cleanUp = async (npc) => {
-  await npc.delete();
-};
+}
 
 async function parseNPC (data) {
   let npc = await buildNPC(data);
-  // spell additions here?
   await addNPCToCompendium(npc);
-  // await cleanUp(npc);
   return npc;
-};
+}
 
 export function addNPC(data) {
   return new Promise((resolve, reject) => {
@@ -342,5 +275,5 @@ export function addNPC(data) {
         reject(error);
       });
   });
-};
+}
 

@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling } from "./import.js";
+import { srdFiddling } from "./import.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
 
@@ -34,14 +34,10 @@ export async function parseCritters() {
 
   const finalMonsters = await srdFiddling(monsters, "monsters");
 
-  // remaining work: load spells into monster data
-  console.log(finalMonsters);
-
   return new Promise((resolve) => {
     resolve(finalMonsters.forEach((monster) => {
       addNPC(monster);
     }));
-    //resolve(updateCompendium("monsters", { monsters: finalMonsters }, updateBool));
   });
 }
 

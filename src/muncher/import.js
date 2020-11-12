@@ -166,7 +166,7 @@ export async function looseItemNameMatch(item, items, loose = false) {
   return matchingItem;
 }
 
-export async function updateCompendium(type, input, update=null) {
+export async function updateCompendium(type, input, update = null) {
   let importPolicy = game.settings.get("ddb-importer", "entity-import-policy");
   if (update !== null) {
     if (update == true) {
