@@ -80,11 +80,15 @@ let parseMatch = (ddb, character, match, feature) => {
       const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
         .flat()
         .find((option) => option.definition.id === feature.componentId);
-      const optionCls = utils.findClassByFeatureId(ddb, classOption.componentId);
-      if (optionCls) {
-        result = result.replace("classlevel", optionCls.level);
-      } else {
+      if (!classOption) {
         logger.error("Unable to parse option class info, please log a bug report");
+      } else {
+        const optionCls = utils.findClassByFeatureId(ddb, classOption.componentId);
+        if (optionCls) {
+          result = result.replace("classlevel", optionCls.level);
+        } else {
+          logger.error("Unable to parse option class info, please log a bug report");
+        }
       }
     }
   }
@@ -126,6 +130,7 @@ let parseMatch = (ddb, character, match, feature) => {
  * @param {*} constraint
  */
 const applyConstraint = (value, constraint) => {
+  // {{(classlevel/2)@rounddown#unsigned}}
   // @ features
   // @roundup
   // @roundown
