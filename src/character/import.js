@@ -205,7 +205,7 @@ async function getCharacterData(characterId) {
       .catch((error) => {
         logger.error("JSON Fetch and Parse Error");
         logger.error(error);
-        reject(error)
+        reject(error);
       });
   });
 }

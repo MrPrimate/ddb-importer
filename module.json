@@ -7,7 +7,7 @@
   "download": "https://github.com/mrprimate/ddb-importer/releases/download/0.1.0/ddb-importer.zip",
   "url": "https://github.com/mrprimate/ddb-importer",
   "minimumCoreVersion": "0.7.5",
-  "compatibleCoreVersion": "0.7.6",
+  "compatibleCoreVersion": "0.7.7",
   "authors": [
     {
       "name": "MrPrimate",

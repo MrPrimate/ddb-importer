@@ -38,10 +38,9 @@ export function parseJson(ddb) {
     getSpecial(characterJSON);
 
     return characterJSON;
-  }
-  catch (error) {
+  } catch (error) {
     logger.error(error);
-    logger.error( "Error during parse:", error.message );
-    throw( error );
+    logger.error("Error during parse:", error.message);
+    throw (error);
   }
 }
