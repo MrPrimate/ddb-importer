@@ -30,6 +30,13 @@
 //               "upcastCost": "1"
 //           }
 //       }
+// "feats": {},
+// "tables": {},
+// "equipped": true,
+// "attuned": true,
+// "destroyFlavorText": "reaches 0 charges: it crumbles into ashes and is destroyed.",
+// "sorting": "l"
+
 // }
 //
 //
@@ -180,6 +187,10 @@ function createDefaultItem() {
     spells: {},
     feats: {},
     tables: {},
+    equipped: true,
+    attuned: false,
+    destroyFlavorText: "",
+    sorting: "l"
   };
 }
 
@@ -222,6 +233,8 @@ export default function parseMagicItem(data, itemSpells, characterItem = true) {
   if (data.definition.magic) {
     // default magicitem data
     let magicItem = createDefaultItem();
+    magicItem.attuned = data.definition.canAttune;
+    magicItem.equipped = data.definition.canEquip;
 
     if (!characterItem) {
       const maxUses = "has (\\d*) charges";
