@@ -202,7 +202,11 @@ async function getCharacterData(characterId) {
         return data;
       })
       .then((data) => resolve(data))
-      .catch((error) => reject(error));
+      .catch((error) => {
+        logger.error("JSON Fetch and Parse Error");
+        logger.error(error);
+        reject(error)
+      });
   });
 }
 
@@ -790,7 +794,6 @@ export default class CharacterImport extends Application {
           logger.debug("import.js getCharacterData result", characterData);
           if (characterData.success) {
             // begin parsing the character data
-            // console.error(characterData);
             await this.parseCharacterData(html, characterData);
             CharacterImport.showCurrentTask(html, "Loading Character data", "Done.", false);
             this.close();
@@ -804,7 +807,8 @@ export default class CharacterImport extends Application {
               CharacterImport.showCurrentTask(html, "Error retrieving Character: " + error, error, true);
               break;
             default:
-              CharacterImport.showCurrentTask(html, "Unknown error retrieving Character: " + error, error, true);
+              logger.error(error);
+              CharacterImport.showCurrentTask(html, "Error parsing Character: " + error, error, true);
               break;
           }
           return false;
