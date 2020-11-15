@@ -170,6 +170,14 @@ const filterItemsByUserSelection = (result, sections) => {
 //   });
 // }
 
+function download(content, fileName, contentType) {
+  var a = document.createElement("a");
+  var file = new Blob([content], {type: contentType});
+  a.href = URL.createObjectURL(file);
+  a.download = fileName;
+  a.click();
+}
+
 /**
  * Loads and parses character in the proxy
  * @param {*} characterId
@@ -626,12 +634,12 @@ export default class CharacterImport extends Application {
         .replace(/-+/g, "-")
         .trim();
 
-      let uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+      const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
       imagePath = await utils.uploadImage(data.avatarUrl, uploadDirectory, filename);
       this.result.character.img = imagePath;
-      // this grabs the frame, we don't care about waiting for this
       if (data.frameAvatarUrl && data.frameAvatarUrl !== "") {
-        utils.uploadImage(data.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
+        const framePath = await utils.uploadImage(data.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
+        this.result.character.flags.ddbimporter['framePath'] = framePath;
       }
     }
   }
@@ -790,8 +798,13 @@ export default class CharacterImport extends Application {
 
         try {
           CharacterImport.showCurrentTask(html, "Getting Character data");
-          const characterData = await getCharacterData(this.actor.data.flags.ddbimporter.dndbeyond.characterId);
+          const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
+          const characterData = await getCharacterData(characterId);
           logger.debug("import.js getCharacterData result", characterData);
+          const debug = game.settings.get("ddb-importer", "log-level");
+          if (debug == "DEBUG") {
+            download(JSON.stringify(characterData), `${characterId}.json`, 'application/json');
+          }
           if (characterData.success) {
             // begin parsing the character data
             await this.parseCharacterData(html, characterData);
