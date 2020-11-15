@@ -21,14 +21,17 @@ export default class DDBMuncher extends Application {
   activateListeners(html) {
     super.activateListeners(html);
     html.find("#munch-monsters-start").click(async () => {
+      $('#munching-task-notes').text(`Please be patient downloading monsters!`);
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseCritters();
     });
     html.find("#munch-spells-start").click(async () => {
+      $('#munching-task-notes').text(`Please be patient downloading spells!`);
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseSpells();
     });
     html.find("#munch-items-start").click(async () => {
+      $('#munching-task-notes').text(`Please be patient downloading items!`);
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseItems();
     });
@@ -46,19 +49,19 @@ export default class DDBMuncher extends Application {
 
 
   async parseCritters() {
-    logger.info("Munching monsters!"); // eslint-disable-line no-console
+    logger.info("Munching monsters!");
     await parseCritters();
     this.close();
   }
 
   async parseSpells() {
-    logger.info("Munching spells!"); // eslint-disable-line no-console
+    logger.info("Munching spells!");
     await parseSpells();
     this.close();
   }
 
   async parseItems() {
-    logger.info("Munching items!"); // eslint-disable-line no-console
+    logger.info("Munching items!");
     await parseItems();
     this.close();
   }

@@ -1,5 +1,5 @@
 // Main module class
-import { srdFiddling } from "./import.js";
+import { download, srdFiddling } from "./import.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
 
@@ -20,7 +20,10 @@ function getMonsterData() {
     })
       .then((response) => response.json())
       .then((data) => resolve(data))
-      .catch((error) => reject(error));
+      .catch((error) => {
+        download(JSON.stringify(characterData), `${characterId}.json`, 'application/json');
+        reject(error)
+      });
   });
 }
 
@@ -34,11 +37,16 @@ export async function parseCritters() {
 
   const finalMonsters = await srdFiddling(monsters, "monsters");
 
-  return new Promise((resolve) => {
-    resolve(finalMonsters.forEach((monster) => {
-      addNPC(monster);
-    }));
-  });
+  let currentMonster = 0;
+  const monsterCount = finalMonsters.length + 1;
+  $('#munching-task-notes').text(`Please be patient importing ${monsterCount} monsters!`);
+  for (const monster of finalMonsters) {
+    $('#munching-task-name').text(`Importing ${monster.name} (${currentMonster}/${monsterCount})`);
+    logger.debug(`Importing ${monster.name}`);
+    await addNPC(monster);
+    currentMonster += 1;
+  }
+
 }
 
 

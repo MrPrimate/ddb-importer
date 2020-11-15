@@ -43,6 +43,9 @@ export async function parseSpells() {
   let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
   const finalSpells = await srdFiddling(uniqueSpells, "spells");
 
+  const finalCount = finalSpells.length + 1;
+  $('#munching-task-notes').text(`Please be patient importing ${finalCount} spells!`);
+
   return new Promise((resolve) => {
     resolve(updateCompendium("spells", { spells: finalSpells }, updateBool));
   });

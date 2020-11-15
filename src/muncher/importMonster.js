@@ -117,8 +117,9 @@ async function getNPCImage(data) {
 
     if (dndBeyondImageUrl.endsWith(npcType + "." + ext)) {
       const filename = "npc-generic-" + npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
+      const imageExists = await utils.fileExists(uploadDirectory, filename + "." + ext);
 
-      if (!(await utils.fileExists(uploadDirectory, filename + "." + ext))) {
+      if (!imageExists) {
         // eslint-disable-next-line require-atomic-updates
         data.img = await utils.uploadImage(dndBeyondImageUrl, uploadDirectory, filename);
       } else {
@@ -145,8 +146,9 @@ async function getNPCImage(data) {
 
     if (dndBeyondTokenImageUrl.endsWith(npcType + "." + tokenExt)) {
       const filenameToken = "npc-generic-token-" + npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
+      const tokenImageExists = await utils.fileExists(uploadDirectory, filenameToken + "." + tokenExt);
 
-      if (!(await utils.fileExists(uploadDirectory, filenameToken + "." + tokenExt))) {
+      if (!tokenImageExists) {
         // eslint-disable-next-line require-atomic-updates
         data.token.img = await utils.uploadImage(dndBeyondTokenImageUrl, uploadDirectory, filenameToken);
       } else {
@@ -217,14 +219,14 @@ async function addSpells(data) {
 
   // innate spells
   if (innate.length !== 0) {
-    const innateNames = innate.map((spell) => spell.name);
+    const innateNames = innate.map((spell) => spell.name.replace(/’/g, "'"));
     // innate:
     // {name: "", type: "srt/lng/day", value: 0}
     logger.debug("Retrieving innate spells:", innateNames);
     const spells = await retrieveSpells(innateNames);
     const innateSpells = spells.filter((spell) => spell !== null)
       .map((spell) => {
-        const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
+        const spellInfo = innate.find((w) => w.name.replace(/’/g, "'").toLowerCase() == spell.name.toLowerCase());
         spell.data.preparation = {
           mode: "innate",
           prepared: true,
