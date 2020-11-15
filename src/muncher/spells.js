@@ -39,7 +39,10 @@ export async function parseSpells() {
     getSpellData("Bard"),
   ]);
 
-  const spells = results.map((r) => r.value).flat().flat();
+  const spells = results.map((r) => r.value).flat().flat().map((spell) => {
+    spell.name = spell.name.replace(/’/g, "'");
+    return spell;
+  });
   let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
   const finalSpells = await srdFiddling(uniqueSpells, "spells");
 
