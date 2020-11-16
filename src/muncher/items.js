@@ -85,12 +85,11 @@ function getItemData() {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.success) {
-          return data;
-        } else {
+        if (!data.success) {
           $('#munching-task-notes').text(`Failure:${data.message}`);
-          reject(message);
+          reject(data.message);
         }
+        return data;
       })
       .then((data) => getCharacterInventory(data.data))
       .then((items) => generateImportItems(items))
