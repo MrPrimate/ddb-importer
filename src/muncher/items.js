@@ -84,6 +84,14 @@ function getItemData() {
       body: JSON.stringify(body), // body data type must match "Content-Type" header
     })
       .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          return data;
+        } else {
+          $('#munching-task-notes').text(`Failure:${data.message}`);
+          reject(message);
+        }
+      })
       .then((data) => getCharacterInventory(data.data))
       .then((items) => generateImportItems(items))
       .then((data) => resolve(data))

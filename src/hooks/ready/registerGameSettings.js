@@ -149,6 +149,15 @@ export default function () {
     default: "https://ddb.mrprimate.co.uk",
   });
 
+  game.settings.register("ddb-importer", "beta-key", {
+    name: "ddb-importer.beta-key.name",
+    hint: "ddb-importer.beta-key.hint",
+    scope: "player",
+    config: false,
+    type: String,
+    default: "",
+  });
+
   /** Character update settings, stored per user and non-configurable in the settings screen */
   game.settings.register("ddb-importer", "character-update-policy-new", {
     name: "ddb-importer.character-update-policy-new.name",

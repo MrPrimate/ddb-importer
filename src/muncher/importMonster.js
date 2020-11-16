@@ -227,16 +227,18 @@ async function addSpells(data) {
     const innateSpells = spells.filter((spell) => spell !== null)
       .map((spell) => {
         const spellInfo = innate.find((w) => w.name.replace(/’/g, "'").toLowerCase() == spell.name.toLowerCase());
-        spell.data.preparation = {
-          mode: "innate",
-          prepared: true,
-        };
-        const per = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
-        spell.data.uses = {
-          value: spellInfo.value,
-          max: spellInfo.value,
-          per: per.type ? per.type : "day",
-        };
+        if (spellInfo) {
+          spell.data.preparation = {
+            mode: "innate",
+            prepared: true,
+          };
+          const per = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
+          spell.data.uses = {
+            value: spellInfo.value,
+            max: spellInfo.value,
+            per: (per && per.type) ? per.type : "day",
+          };
+        }
         return spell;
       });
     // eslint-disable-next-line require-atomic-updates

@@ -6,8 +6,9 @@ import { addNPC } from "./importMonster.js";
 // This needs to be expanded to do the phased retreval of paging monsters
 function getMonsterData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const betaKey = game.settings.get("ddb-importer", "beta-key");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const body = { cobalt: cobaltCookie };
+  const body = { cobalt: cobaltCookie, betaKey: betaKey };
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/getMonsters`, {
@@ -19,7 +20,15 @@ function getMonsterData() {
       body: JSON.stringify(body), // body data type must match "Content-Type" header
     })
       .then((response) => response.json())
-      .then((data) => resolve(data))
+      .then((data) => {
+        console.log(data.success);
+        if (data.success) {
+          resolve(data)
+        } else {
+          $('#munching-task-notes').text(`Failure:${data.message}`);
+          reject(data.message);
+        }
+      })
       .catch((error) => {
         download(JSON.stringify(characterData), `${characterId}.json`, 'application/json');
         reject(error)

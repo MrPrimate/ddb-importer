@@ -17,6 +17,14 @@ function getSpellData(className) {
       body: JSON.stringify(body), // body data type must match "Content-Type" header
     })
       .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          return data;
+        } else {
+          $('#munching-task-notes').text(`Failure: ${data.message}`);
+          reject(data.message);
+        }
+      })
       .then((data) => getSpells(data.data))
       .then((data) => resolve(data))
       .catch((error) => reject(error));

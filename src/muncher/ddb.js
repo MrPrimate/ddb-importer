@@ -68,6 +68,7 @@ export default class DDBMuncher extends Application {
 
   getData() { // eslint-disable-line class-methods-use-this
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+    const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     const importConfig = [
       {
         name: "update-existing",
@@ -88,6 +89,7 @@ export default class DDBMuncher extends Application {
     return {
       cobalt: cobalt,
       importConfig: importConfig,
+      beta: betaKey && cobalt,
     };
   }
 }
