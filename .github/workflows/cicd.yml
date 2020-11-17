@@ -59,3 +59,10 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json,./ddb-importer.zip'  # don't forget to rename module zip thing
         tag: latest
+    - name: Discord notification
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_HOOK }}
+        DISCORD_USERNAME: Release-O-Bot
+      uses: Ilshidur/action-discord@master@0.0.2
+      with:
+        args: 'DDB Importer {{ steps.get-version.outputs.version }} has been created.'
