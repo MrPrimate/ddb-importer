@@ -10,6 +10,7 @@ import logger from "../logger.js";
 
 export function parseJson(ddb) {
   try {
+    logger.debug("Starting core character parse");
     let character = getCharacter(ddb);
     logger.debug("Character parse complete");
     let features = getFeatures(ddb, character);
