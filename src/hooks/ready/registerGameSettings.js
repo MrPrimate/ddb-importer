@@ -292,6 +292,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-download-monster-images", {
+    name: "ddb-importer.munching-policy-download-monster-images.name",
+    hint: "ddb-importer.munching-policy-download-monster-images.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   // sets the current tutorial step the user has completed
   // game.settings.register("ddb-importer", "tutorial-step", {
   //   scope: "world",

@@ -85,6 +85,11 @@ export default class DDBMuncher extends Application {
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd-icons"),
         description: "Use icons from the SRD compendiums.",
       },
+      {
+        name: "download-monster-images",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-download-monster-images"),
+        description: "Download Monster Images",
+      },
     ];
     return {
       cobalt: cobalt,

@@ -109,10 +109,11 @@ async function getNPCImage(data) {
   const dndBeyondTokenImageUrl = data.flags.monsterMunch.tokenImg;
   const npcType = data.data.details.type;
   const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+  const downloadImages = game.settings.get("ddb-importer", "munching-policy-download-monster-images");
 
   if (!dndBeyondImageUrl && dndBeyondTokenImageUrl) dndBeyondImageUrl = dndBeyondTokenImageUrl;
 
-  if (dndBeyondImageUrl) {
+  if (dndBeyondImageUrl && downloadImages) {
     const ext = dndBeyondImageUrl.split(".").pop().split(/#|\?|&/)[0];
 
     if (dndBeyondImageUrl.endsWith(npcType + "." + ext)) {
