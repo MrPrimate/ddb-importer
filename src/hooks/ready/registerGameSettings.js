@@ -323,7 +323,7 @@ export default function () {
   game.settings.register("ddb-importer", "cobalt-cookie", {
     name: "ddb-importer.cobalt-cookie.name",
     hint: "ddb-importer.cobalt-cookie.hint",
-    scope: "player",
+    scope: "world",
     config: true,
     type: String,
     default: "",
