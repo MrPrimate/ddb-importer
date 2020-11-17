@@ -139,6 +139,8 @@ export async function looseItemNameMatch(item, items, loose = false) {
       activationMatch = true;
     } else if (matchItem.data.activation && item.data.activation) {
       activationMatch = matchItem.data.activation.type === item.data.activation.type;
+    } else if (!item.data.activation) {
+      activationMatch = true;
     }
 
     const isMatch = item.name === matchItem.name && item.type === matchItem.type && activationMatch;
@@ -360,8 +362,8 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   const index = await compendium.getIndex();
   const firstPassItems = await index.filter((i) =>
     items.some((orig) => {
-      const looseNames = getLooseNames(orig.name);
       if (looseMatch) {
+        const looseNames = getLooseNames(orig.name);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
       } else {
         return i.name === orig.name;

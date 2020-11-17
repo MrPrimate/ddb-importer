@@ -1,5 +1,5 @@
 // Main module class
-import { srdFiddling } from "./import.js";
+import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
 
@@ -40,6 +40,14 @@ export async function parseCritters() {
   const results = await getMonsterData();
   let monsters = results.data;
 
+  if (!updateBool) {
+    $('#munching-task-notes').text(`Calculating which monsters to update...`);
+    logger.debug("Removing existing monsters from import list");
+    const existingMonsters = await getCompendiumItems(monsters, "npc");
+    logger.debug(`Matched ${existingMonsters.length}`);
+    $('#munching-task-notes').text(`Removing ${existingMonsters.length} from update...`);
+    monsters = await removeItems(monsters, existingMonsters);
+  }
   const finalMonsters = await srdFiddling(monsters, "monsters");
 
   let currentMonster = 0;
