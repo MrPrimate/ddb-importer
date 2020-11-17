@@ -205,14 +205,23 @@ async function getCharacterData(characterId) {
       .then((data) => {
         // construct the expected { character: {...} } object
         let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;
-        const character = parseJson(ddb);
-        data['character'] = character;
-        return data;
+        try {
+          const character = parseJson(ddb);
+          data['character'] = character;
+          return data;
+        } catch (error) {
+          const debug = game.settings.get("ddb-importer", "log-level");
+          if (debug == "DEBUG") {
+            download(JSON.stringify(data), `${characterId}-raw.json`, 'application/json');
+          }
+          throw (error);
+        }
       })
       .then((data) => resolve(data))
       .catch((error) => {
         logger.error("JSON Fetch and Parse Error");
         logger.error(error);
+        logger.error(error.stack);
         reject(error);
       });
   });
