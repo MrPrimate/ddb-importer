@@ -63,6 +63,6 @@ jobs:
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_HOOK }}
         DISCORD_USERNAME: Release-O-Bot
-      uses: Ilshidur/action-discord@master@0.0.2
+      uses: Ilshidur/action-discord@0.0.2
       with:
         args: 'DDB Importer {{ steps.get-version.outputs.version }} has been created.'
