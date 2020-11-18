@@ -113,6 +113,14 @@ function getLimitedUse(action, character) {
         (ability) => ability.id === action.limitedUse.statModifierUsesId
       ).value;
       maxUses = character.data.abilities[ability].mod;
+      if (action.limitedUse.maxUses) maxUses += action.limitedUse.maxUses;
+    } else if (action.limitedUse.useProficiencyBonus) {
+      const multiplier = (action.limitedUse.proficiencyBonusOperator) ? action.limitedUse.proficiencyBonusOperator : 1;
+      if (action.limitedUse.operator === 1) {
+        maxUses = character.data.attributes.prof * multiplier;
+      } else {
+        maxUses = character.data.attributes.prof;
+      }
     } else {
       maxUses = action.limitedUse.maxUses;
     }
