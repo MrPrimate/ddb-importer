@@ -69,27 +69,39 @@ export default class DDBMuncher extends Application {
   getData() { // eslint-disable-line class-methods-use-this
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
+    // const daeInstalled = game.modules.get('dae').active && game.modules.get('Dynamic-Effects-SRD').active;
+
     const importConfig = [
       {
         name: "update-existing",
         isChecked: game.settings.get("ddb-importer", "munching-policy-update-existing"),
         description: "Update existing items.",
+        enabled: true,
       },
       {
         name: "use-srd",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd"),
         description: "Copy matching SRD compendium items instead of importing.",
+        enabled: true,
       },
       {
         name: "use-srd-icons",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd-icons"),
         description: "Use icons from the SRD compendiums.",
+        enabled: true,
       },
       {
         name: "download-monster-images",
         isChecked: game.settings.get("ddb-importer", "munching-policy-download-monster-images"),
         description: "Download Monster Images",
+        enabled: true,
       },
+      // {
+      //   name: "dae-copy",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
+      //   description: "Copy Dynamic Active Effects (requires DAE and SRD module)",
+      //   enabled: daeInstalled,
+      // },
     ];
     return {
       cobalt: cobalt,

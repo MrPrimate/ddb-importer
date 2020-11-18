@@ -7,7 +7,7 @@
             <li>Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome extension</a> to get this!</li>
             <li>This feature can take a <b>long</b> time, please be patient and leave the browser tab open.</li>
         </ul>
-
+        <hr>
         <br />
         <div class="munching-task-name" id="munching-task-name">
           <b> </b>
@@ -23,7 +23,7 @@
             {{#each importConfig}}
             <div class="munching-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
                     name="munching-policy-{{this.name}}"
-                    data-section="{{this.name}}">{{this.description}}
+                    data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
             </div>
             {{/each}}
         </div>
