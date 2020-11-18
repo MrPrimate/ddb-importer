@@ -264,6 +264,16 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-dae-copy", {
+    name: "ddb-importer.character-update-policy-dae-copy.name",
+    hint: "ddb-importer.character-update-policy-dae-copy.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+
   /** Munching update settings, stored per user and non-configurable in the settings screen */
   game.settings.register("ddb-importer", "munching-policy-update-existing", {
     name: "ddb-importer.munching-policy-update-existing.name",
@@ -300,6 +310,16 @@ export default function () {
     type: Boolean,
     default: true,
   });
+
+  game.settings.register("ddb-importer", "munching-policy-dae-copy", {
+    name: "ddb-importer.munching-policy-dae-copy.name",
+    hint: "ddb-importer.munching-policy-dae-copy.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
 
   // sets the current tutorial step the user has completed
   // game.settings.register("ddb-importer", "tutorial-step", {

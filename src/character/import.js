@@ -745,26 +745,38 @@ export default class CharacterImport extends Application {
       },
     ];
 
+    const daeInstalled = game.modules.get('dae').active && game.modules.get('Dynamic-Effects-SRD').active;
+
     const importConfig = [
       {
         name: "new",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-new"),
         description: "Import new items only. Doesn't delete or update existing items in Foundry.",
+        enabled: true,
       },
       {
         name: "use-existing",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
         description: "Use existing items from DDB import compendiums, rather than recreating.",
+        enabled: true,
       },
       {
         name: "use-srd",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd"),
         description: "Use existing items from the SRD compendium, rather than DDB.",
+        enabled: true,
       },
       {
         name: "use-srd-icons",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd-icons"),
         description: "Use icons from the SRD compendium.",
+        enabled: true,
+      },
+      {
+        name: "dae-copy",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy"),
+        description: "Copy Dynamic Active Effects (requires DAE and SRD module).",
+        enabled: daeInstalled,
       },
     ];
 
@@ -1025,6 +1037,13 @@ export default class CharacterImport extends Application {
     }
 
     await Promise.all(actorUpdates);
+
+    const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
+    const daeInstalled = game.modules.get('dae').active && game.modules.get('Dynamic-Effects-SRD').active;
+    if (daeCopy && daeInstalled) {
+      CharacterImport.showCurrentTask(html, "Importing DAE Effects");
+      await DAE.migrateActorDAESRD(this.actor, false);
+    }
 
     this.close();
   }

@@ -75,7 +75,7 @@
                     {{#each importConfig}}
                     <div class="import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
                             name="character-import-policy-{{this.name}}"
-                            data-section="{{this.name}}">{{this.description}}
+                            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
                     </div>
                     {{/each}}
                 </div>
