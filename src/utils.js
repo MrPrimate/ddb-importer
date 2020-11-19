@@ -760,7 +760,7 @@ let utils = {
   },
 
   isModuleInstalledAndActive: (moduleName) => {
-    return moduleName in game.modules && game.modules.get(moduleName).active
+    return moduleName in game.modules && game.modules.get(moduleName).active;
   }
 };
 
