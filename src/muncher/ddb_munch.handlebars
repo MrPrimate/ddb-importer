@@ -48,7 +48,15 @@
                         <button type="button" id="munch-features-start" class="munch-button"
                             {{#if cobalt}}disabled{{else}}disabled{{/if}}><s>Class Features Munch</s> SOON!</button>
                     </div>
+                                         <hr>
                      <div>
+                       <h4>Monster Search Filter (leave blank for all)</h4>
+                       Make sure you have imported spells before Monsters!
+                    </div>
+                     <div class="form-content" style="display: flex">
+                        <input type="text" name="monster-filter" id="monster-munch-filter" style="flex: 0 1 auto" ;value="" />
+                    </div>
+                    <div>
                         <button type="button" id="munch-monsters-start" class="munch-button"
                             {{#if beta}}enabled{{else}}disabled{{/if}}><s>Monster Munch</s> SOON!</button>
                     </div>

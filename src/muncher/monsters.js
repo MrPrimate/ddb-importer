@@ -9,9 +9,10 @@ function getMonsterData() {
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie, betaKey: betaKey };
+  const searchTerm = $('#monster-munch-filter')[0].value;
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/getMonsters`, {
+    fetch(`${parsingApi}/getMonster/${searchTerm}`, {
       method: "POST",
       mode: "cors",
       headers: {
