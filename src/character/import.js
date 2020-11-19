@@ -745,7 +745,7 @@ export default class CharacterImport extends Application {
       },
     ];
 
-    const daeInstalled = game.modules.get('dae').active && game.modules.get('Dynamic-Effects-SRD').active;
+    const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
 
     const importConfig = [
       {
@@ -1039,7 +1039,7 @@ export default class CharacterImport extends Application {
     await Promise.all(actorUpdates);
 
     const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
-    const daeInstalled = game.modules.get('dae').active && game.modules.get('Dynamic-Effects-SRD').active;
+    const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     if (daeCopy && daeInstalled) {
       CharacterImport.showCurrentTask(html, "Importing DAE Effects");
       await DAE.migrateActorDAESRD(this.actor, false);

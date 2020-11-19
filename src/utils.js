@@ -758,6 +758,10 @@ let utils = {
 
     return 0;
   },
+
+  isModuleInstalledAndActive: (moduleName) => {
+    return moduleName in game.modules && game.modules.get(moduleName).active
+  }
 };
 
 export default utils;
