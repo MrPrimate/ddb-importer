@@ -1,3 +1,7 @@
+# v 0.0.16
+
+* Bug prevented module loading where DAE was not installed.
+
 # v 0.0.15
 
 * Support Dynamic Active Effect replacements if you have DAE SRD module installed
