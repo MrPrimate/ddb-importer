@@ -17,7 +17,7 @@ export function getToken(data) {
     let value = senses
       .filter((sense) => brightSightValues.includes(sense.name))
       .reduce((prev, cur) => (prev > cur.value ? prev : cur.value), 0);
-    tokenData.brightSight = value;
+    if (value) tokenData.brightSight = value;
   }
 
   // Darkvision

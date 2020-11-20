@@ -1,3 +1,7 @@
+# v 0.0.19
+
+* Fix a problem with null custom senses
+
 # v 0.0.17
 
 * Bug prevented DAE copy import option appearing
