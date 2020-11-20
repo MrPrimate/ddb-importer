@@ -21,7 +21,7 @@ function getCustomActions(ddb, displayedAsAttack) {
     };
     action.range = range;
 
-    action.abilityModifierStatId = action.statId;
+    if (action.statId) action.abilityModifierStatId = action.statId;
 
     action.activation = {
       activationTime: action.activationTime,
@@ -41,7 +41,7 @@ function isMartialArtists(classes) {
 function getDamage(action) {
   let damage = {};
   const damageType = (action.damageTypeId) ? DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name : null;
-  const modBonus = (action.statId && !action.isOffhand) ? " + @mod" : "";
+  const modBonus = ((action.statId || action.abilityModifierStatId) && !action.isOffhand) ? " + @mod" : "";
   const fixedBonus = (action.dice.fixedValue) ? ` + ${action.dice.fixedValue}` : "";
 
   if (action.dice) {
