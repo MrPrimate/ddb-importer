@@ -1,3 +1,9 @@
+# v 0.0.17
+
+* Bug prevented DAE copy import option appearing
+* Fixed import issue for features like Psychic Blades which stopped the ability bonus addition to damage
+* Improved SRD icon name matching
+
 # v 0.0.16
 
 * Bug prevented module loading where DAE was not installed.
