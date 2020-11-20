@@ -122,11 +122,20 @@ export async function copySupportedItemFlags(originalItem, item) {
 }
 
 export function getLooseNames(name) {
-  let looseNames = [name];
+  let looseNames = [name.toLowerCase()];
   let refactNameArray = name.split("(")[0].trim().split(", ");
   refactNameArray.unshift(refactNameArray.pop());
   const refactName = refactNameArray.join(" ").trim();
   looseNames.push(refactName, refactName.toLowerCase());
+
+  let deconNameArray = name.replace("(", "").replace(")", "").trim().split(", ");
+  deconNameArray.unshift(deconNameArray.pop());
+  const deconName = deconNameArray.join(" ").trim();
+  looseNames.push(deconName, deconName.toLowerCase());
+
+  looseNames.push(name.replace("'", "’").toLowerCase());
+  looseNames.push(name.replace("’", "'").toLowerCase());
+
   return looseNames;
 }
 
@@ -152,7 +161,7 @@ export async function looseItemNameMatch(item, items, loose = false) {
     // lets go loosey goosey on matching equipment, we often get types wrong
     matchingItem = items.find(
       (matchItem) =>
-        looseNames.includes(matchItem.name.toLowerCase()) &&
+        (looseNames.includes(matchItem.name.toLowerCase()) || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", ""))) &&
         EQUIPMENT_TYPES.includes(item.type) &&
         EQUIPMENT_TYPES.includes(matchItem.type)
     );
@@ -414,15 +423,36 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false) {
   return getCompendiumItems(items, type, compendiumName, looseMatch);
 }
 
-export async function copySRDIcons(items) {
-  let srdCompendiumItems = [];
-  const compendiumFeatureItems = await getSRDCompendiumItems(items, "features", true);
-  const compendiumInventoryItems = await getSRDCompendiumItems(items, "inventory", true);
-  const compendiumSpellItems = await getSRDCompendiumItems(items, "spells", true);
-  const compendiumMonsterFeatures = await getSRDCompendiumItems(items, "monsterfeatures", true);
+export async function getSRDIconMatch(type) {
+  const compendiumLabel = srdCompendiumLookup.find((c) => c.type == type).name;
+  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
+  const index = await compendium.getIndex();
 
-  srdCompendiumItems = srdCompendiumItems.concat(
-    compendiumInventoryItems,
+  let items = [];
+  for (const i of index) {
+    const item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
+    let smallItem = {
+      name: item.name,
+      img: item.img,
+      type: item.type,
+      data: {}
+    };
+    if (item.data.activation) smallItem.data.activation = item.data.activation;
+    items.push(smallItem);
+  }
+
+
+  return items;
+}
+
+
+export async function copySRDIcons(items) {
+  const compendiumFeatureItems = await getSRDIconMatch("features");
+  const compendiumInventoryItems = await getSRDIconMatch("inventory");
+  const compendiumSpellItems = await getSRDIconMatch("spells");
+  const compendiumMonsterFeatures = await getSRDIconMatch("monsterfeatures");
+
+  const srdCompendiumItems = compendiumInventoryItems.concat(
     compendiumSpellItems,
     compendiumFeatureItems,
     compendiumMonsterFeatures,

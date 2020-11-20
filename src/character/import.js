@@ -330,16 +330,27 @@ export default class CharacterImport extends Application {
   }
 
   static getLooseNames(name) {
-    let looseNames = [name];
+    let looseNames = [name.toLowerCase()];
     let refactNameArray = name.split("(")[0].trim().split(", ");
     refactNameArray.unshift(refactNameArray.pop());
     const refactName = refactNameArray.join(" ").trim();
     looseNames.push(refactName, refactName.toLowerCase());
+
+    let deconNameArray = name.replace("(", "").replace(")", "").trim().split(", ");
+    deconNameArray.unshift(deconNameArray.pop());
+    const deconName = deconNameArray.join(" ").trim();
+    looseNames.push(deconName, deconName.toLowerCase());
+
+    looseNames.push(name.replace("'", "’").toLowerCase());
+    looseNames.push(name.replace("’", "'").toLowerCase());
+
+    // logger.debug(looseNames);
     return looseNames;
   }
 
   static async looseItemNameMatch(item, items, loose = false) {
     // first pass is a strict match
+    // logger.debug(item.name);
     let matchingItem = items.find((matchItem) => {
       let activationMatch = false;
 
@@ -358,7 +369,7 @@ export default class CharacterImport extends Application {
       // lets go loosey goosey on matching equipment, we often get types wrong
       matchingItem = items.find(
         (matchItem) =>
-          looseNames.includes(matchItem.name.toLowerCase()) &&
+          (looseNames.includes(matchItem.name.toLowerCase()) || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", ""))) &&
           EQUIPMENT_TYPES.includes(item.type) &&
           EQUIPMENT_TYPES.includes(matchItem.type)
       );
@@ -386,8 +397,8 @@ export default class CharacterImport extends Application {
     const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
     const index = await compendium.getIndex();
     const firstPassItems = await index.filter((i) => items.some((orig) => {
-      const looseNames = CharacterImport.getLooseNames(orig.name);
       if (looseMatch) {
+        const looseNames = CharacterImport.getLooseNames(orig.name);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
       } else {
         return i.name === orig.name;
@@ -429,14 +440,34 @@ export default class CharacterImport extends Application {
     return CharacterImport.getCompendiumItems(items, type, compendiumName, looseMatch);
   }
 
-  static async copySRDIcons(items) {
-    let srdCompendiumItems = [];
-    const compendiumFeatureItems = await CharacterImport.getSRDCompendiumItems(items, "features", true);
-    const compendiumInventoryItems = await CharacterImport.getSRDCompendiumItems(items, "inventory", true);
-    const compendiumSpellItems = await CharacterImport.getSRDCompendiumItems(items, "spells", true);
+  static async getSRDIconMatch(type) {
+    const compendiumLabel = srdCompendiumLookup.find((c) => c.type == type).name;
+    const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
+    const index = await compendium.getIndex();
 
-    srdCompendiumItems = srdCompendiumItems.concat(
-      compendiumInventoryItems,
+    let items = [];
+    for (const i of index) {
+      const item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
+      let smallItem = {
+        name: item.name,
+        img: item.img,
+        type: item.type,
+        data: {}
+      };
+      if (item.data.activation) smallItem.data.activation = item.data.activation;
+      items.push(smallItem);
+    }
+
+
+    return items;
+  }
+
+  static async copySRDIcons(items) {
+    const compendiumFeatureItems = await CharacterImport.getSRDIconMatch("features");
+    const compendiumInventoryItems = await CharacterImport.getSRDIconMatch("inventory");
+    const compendiumSpellItems = await CharacterImport.getSRDIconMatch("spells");
+
+    const srdCompendiumItems = compendiumInventoryItems.concat(
       compendiumSpellItems,
       compendiumFeatureItems
     );
