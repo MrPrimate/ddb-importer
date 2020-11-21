@@ -376,6 +376,7 @@ function getAttackActions(ddb, character) {
 function getOtherActions(ddb, character, items) {
   const actions = [ddb.character.actions.race, ddb.character.actions.class, ddb.character.actions.feat, getCustomActions(ddb, false)]
     .flat()
+    .filter((action) => action.name && action.name !== "")
     .filter(
       (action) =>
         // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
