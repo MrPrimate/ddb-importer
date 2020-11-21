@@ -1,6 +1,7 @@
 # v 0.0.19
 
 * Fix a problem with null custom senses
+* Support sharing content via Campaigns
 
 # v 0.0.17
 
