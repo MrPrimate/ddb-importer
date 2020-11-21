@@ -5,8 +5,9 @@ import { getSpells } from "../parser/spells/getGenericSpells.js";
 
 function getSpellData(className) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const campaignId = game.settings.get("ddb-importer", "campaign-id");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const body = { cobalt: cobaltCookie };
+  const body = { cobalt: cobaltCookie, campaignId: campaignId };
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/getClassSpells/${className}`, {

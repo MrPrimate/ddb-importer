@@ -357,4 +357,12 @@ export default function () {
     type: String,
     default: "",
   });
+  game.settings.register("ddb-importer", "campaign-id", {
+    name: "ddb-importer.campaign-id.name",
+    hint: "ddb-importer.campaign-id.hint",
+    scope: "world",
+    config: true,
+    type: String,
+    default: "",
+  });
 }
