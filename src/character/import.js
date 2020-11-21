@@ -938,7 +938,7 @@ export default class CharacterImport extends Application {
   async parseCharacterData(html, data) {
     this.result = data.character;
     // is magicitems installed
-    const magicItemsInstalled = !!game.modules.get("magicitems");
+    const magicItemsInstalled = utils.isModuleInstalledAndActive("magicitems");
 
     await this.updateImage(html, data.ddb);
 
