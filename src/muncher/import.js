@@ -105,7 +105,7 @@ export const filterItemsByUserSelection = (result, sections) => {
 async function copyFlagGroup(flagGroup, originalItem, targetItem) {
   if (targetItem.flags === undefined) targetItem.flags = {};
   if (originalItem.flags && !!originalItem.flags[flagGroup]) {
-    utils.log(`Copying ${flagGroup} for ${originalItem.name}`);
+    logger.debug(`Copying ${flagGroup} for ${originalItem.name}`);
     targetItem.flags[flagGroup] = originalItem.flags[flagGroup];
   }
 }
@@ -277,7 +277,7 @@ export async function updateCompendium(type, input, update = null) {
  * Updates game folder items
  * @param {*} type
  */
-export async function updateFolderItems(type, input, update = true) {
+async function updateFolderItems(type, input, update = true) {
   const folderLookup = gameFolderLookup.find((c) => c.type == type);
   const itemsFolder = await utils.getFolder(folderLookup.folder);
   const existingItems = await game.items.entities.filter(
@@ -342,7 +342,8 @@ export async function updateFolderItems(type, input, update = true) {
  * This adds magic item spells to a world,
  */
 export async function addMagicItemSpells(input) {
-  const itemSpells = await updateFolderItems("itemSpells");
+
+  const itemSpells = await updateFolderItems("itemSpells", input);
   // scan the inventory for each item with spells and copy the imported data over
   input.inventory.forEach((item) => {
     if (item.flags.magicitems.spells) {

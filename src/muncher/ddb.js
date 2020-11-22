@@ -22,6 +22,7 @@ export default class DDBMuncher extends Application {
     super.activateListeners(html);
     html.find("#munch-monsters-start").click(async () => {
       $('#munching-task-notes').text(`Please be patient downloading monsters!`);
+      // $('#munching-task-notes').parent().parent().css("height", "auto");
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseCritters();
     });
