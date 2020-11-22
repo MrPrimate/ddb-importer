@@ -27,13 +27,14 @@ export function getHitpoints(data, character) {
   // add the result to the base hitpoints
   baseHitPoints += totalBonusHitpoints;
 
+  const totalHitPoints = overrideHitPoints === 0
+    ? constitutionHP + baseHitPoints + bonusHitPoints
+    : overrideHitPoints;
+
   return {
-    value:
-      overrideHitPoints === 0
-        ? constitutionHP + baseHitPoints + bonusHitPoints - removedHitPoints
-        : overrideHitPoints - removedHitPoints,
+    value: totalHitPoints - removedHitPoints,
     min: 0,
-    max: constitutionHP + baseHitPoints + bonusHitPoints,
+    max: totalHitPoints,
     temp: temporaryHitPoints,
     tempmax: temporaryHitPoints,
   };
