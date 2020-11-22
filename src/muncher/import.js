@@ -133,8 +133,10 @@ export function getLooseNames(name) {
   const deconName = deconNameArray.join(" ").trim();
   looseNames.push(deconName, deconName.toLowerCase());
 
+  // word smart quotes are the worst
   looseNames.push(name.replace("'", "’").toLowerCase());
   looseNames.push(name.replace("’", "'").toLowerCase());
+  looseNames.push(name.replace(/s$/, "").toLowerCase()); // trim s, e.g. crossbow bolt(s)
 
   return looseNames;
 }
