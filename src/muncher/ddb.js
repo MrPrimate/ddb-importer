@@ -3,6 +3,7 @@ import logger from "../logger.js";
 import { parseItems } from "./items.js";
 import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
+import { munchNote } from "./import.js";
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {
@@ -21,18 +22,17 @@ export default class DDBMuncher extends Application {
   activateListeners(html) {
     super.activateListeners(html);
     html.find("#munch-monsters-start").click(async () => {
-      $('#munching-task-notes').text(`Please be patient downloading monsters!`);
-      // $('#munching-task-notes').parent().parent().css("height", "auto");
+      munchNote(`Please be patient downloading monsters!`);
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseCritters();
     });
     html.find("#munch-spells-start").click(async () => {
-      $('#munching-task-notes').text(`Please be patient downloading spells!`);
+      munchNote(`Please be patient downloading spells!`);
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseSpells();
     });
     html.find("#munch-items-start").click(async () => {
-      $('#munching-task-notes').text(`Please be patient downloading items!`);
+      munchNote(`Please be patient downloading items!`);
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseItems();
     });
@@ -50,21 +50,37 @@ export default class DDBMuncher extends Application {
 
 
   async parseCritters() {
-    logger.info("Munching monsters!");
-    await parseCritters();
-    this.close();
+    try {
+      logger.info("Munching monsters!");
+      await parseCritters();
+      this.close();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
+
   }
 
   async parseSpells() {
-    logger.info("Munching spells!");
-    await parseSpells();
-    this.close();
+    try {
+      logger.info("Munching spells!");
+      await parseSpells();
+      this.close();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
   }
 
   async parseItems() {
-    logger.info("Munching items!");
-    await parseItems();
-    this.close();
+    try {
+      logger.info("Munching items!");
+      await parseItems();
+      this.close();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
   }
 
   getData() { // eslint-disable-line class-methods-use-this

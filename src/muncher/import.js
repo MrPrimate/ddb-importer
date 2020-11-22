@@ -61,6 +61,22 @@ const gameFolderLookup = [
 ];
 
 /**
+ * Display information when Munching
+ * @param {*} note
+ * @param {*} nameField
+ */
+export function munchNote(note, nameField = false) {
+  if (nameField) {
+    $('#munching-task-name').text(note);
+    $('#ddb-importer-monsters').css("height", "auto");
+  } else {
+    $('#munching-task-notes').text(note);
+    $('#ddb-importer-monsters').css("height", "auto");
+  }
+}
+
+
+/**
  * Removes items
  * @param {*} items
  * @param {*} itemsToRemove
@@ -208,7 +224,7 @@ export async function updateCompendium(type, input, update = null) {
               const entry = await compendium.index.find((idx) => idx.name === item.name);
               const existing = await compendium.getEntity(entry._id);
               item._id = existing._id;
-              $('#munching-task-name').text(`Updating ${item.name}`);
+              munchNote(`Updating ${item.name}`, true);
               await copySupportedItemFlags(existing, item);
               await compendium.updateEntity(item);
               return item;
@@ -228,7 +244,7 @@ export async function updateCompendium(type, input, update = null) {
               temporary: true,
               displaySheet: false,
             });
-            $('#munching-task-name').text(`Creating ${item.name}`);
+            munchNote(`Creating ${item.name}`, true);
             await compendium.importEntity(newItem);
             return newItem;
           })

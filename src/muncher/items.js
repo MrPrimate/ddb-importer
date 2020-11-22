@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, addMagicItemSpells } from "./import.js";
+import { updateCompendium, srdFiddling, addMagicItemSpells, munchNote } from "./import.js";
 import logger from "../logger.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils.js";
@@ -87,7 +87,7 @@ function getItemData() {
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
-          $('#munching-task-notes').text(`Failure:${data.message}`);
+          munchNote(`Failure:${data.message}`);
           reject(data.message);
         }
         return data;
@@ -119,7 +119,7 @@ export async function parseItems() {
 
   const finalItems = await srdFiddling(items, "inventory");
   const finalCount = finalItems.length + 1;
-  $('#munching-task-notes').text(`Please be patient importing ${finalCount} items!`);
+  munchNote(`Please be patient importing ${finalCount} items!`);
 
   return new Promise((resolve) => {
     resolve(updateCompendium("inventory", { inventory: finalItems }, updateBool));

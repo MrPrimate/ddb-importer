@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling } from "./import.js";
+import { updateCompendium, srdFiddling, munchNote } from "./import.js";
 import logger from "../logger.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 
@@ -20,7 +20,7 @@ function getSpellData(className) {
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
-          $('#munching-task-notes').text(`Failure: ${data.message}`);
+          munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;
@@ -34,7 +34,7 @@ function getSpellData(className) {
 export async function parseSpells() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
-  logger.info(`Munching spells! Updating? ${updateBool} SRD? ${srdIcons}`);
+  logger.debug(`Munching spells! Updating? ${updateBool} SRD? ${srdIcons}`);
 
   const results = await Promise.allSettled([
     getSpellData("Cleric"),
@@ -55,7 +55,7 @@ export async function parseSpells() {
   const finalSpells = await srdFiddling(uniqueSpells, "spells");
 
   const finalCount = finalSpells.length + 1;
-  $('#munching-task-notes').text(`Please be patient importing ${finalCount} spells!`);
+  munchNote(`Please be patient importing ${finalCount} spells!`);
 
   return new Promise((resolve) => {
     resolve(updateCompendium("spells", { spells: finalSpells }, updateBool));
