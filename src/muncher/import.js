@@ -137,6 +137,7 @@ export function getLooseNames(name) {
   looseNames.push(name.replace("'", "’").toLowerCase());
   looseNames.push(name.replace("’", "'").toLowerCase());
   looseNames.push(name.replace(/s$/, "").toLowerCase()); // trim s, e.g. crossbow bolt(s)
+  looseNames.push(name.replace(",", "").toLowerCase()); // +1 weapons etc
 
   return looseNames;
 }
