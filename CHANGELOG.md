@@ -1,3 +1,9 @@
+# v 0.0.20
+
+* Override HP not working correctly
+* Improved SRD icon matching
+
+
 # v 0.0.19
 
 * Fix a problem with null custom senses
