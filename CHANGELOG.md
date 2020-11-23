@@ -1,3 +1,9 @@
+# v 0.0.21
+
+* Compendium import will now use Iconizer if it's installed and active for missing icons
+* Even more SRD icon matching
+* Allow use of DDB Spell School icons
+
 # v 0.0.20
 
 * Override HP not working correctly

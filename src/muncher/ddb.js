@@ -1,5 +1,6 @@
 // Main module class
 import logger from "../logger.js";
+import utils from "../utils.js";
 import { parseItems } from "./items.js";
 import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
@@ -86,9 +87,29 @@ export default class DDBMuncher extends Application {
   getData() { // eslint-disable-line class-methods-use-this
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
-    // const daeInstalled = game.modules.get('dae').active && game.modules.get('Dynamic-Effects-SRD').active;
+    // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
+    const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
 
-    const importConfig = [
+    const itemConfig = [];
+    const spellConfig = [
+      {
+        name: "use-ddb-icons",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-icons"),
+        description: "If no other icon, use the D&DBeyond spell school icon.",
+        enabled: true,
+      },
+    ];
+
+    const monsterConfig = [
+      {
+        name: "download-monster-images",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-download-monster-images"),
+        description: "Download Monster Images",
+        enabled: true,
+      },
+    ];
+
+    const genericConfig = [
       {
         name: "update-existing",
         isChecked: game.settings.get("ddb-importer", "munching-policy-update-existing"),
@@ -103,15 +124,15 @@ export default class DDBMuncher extends Application {
       },
       {
         name: "use-srd-icons",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd-icons"),
+        isChecked: (iconizerInstalled) ? game.settings.get("ddb-importer", "munching-policy-use-srd-icons") : false,
         description: "Use icons from the SRD compendiums.",
         enabled: true,
       },
       {
-        name: "download-monster-images",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-download-monster-images"),
-        description: "Download Monster Images",
-        enabled: true,
+        name: "use-iconizer-icons",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-iconizer"),
+        description: "If installed use Iconizer.",
+        enabled: iconizerInstalled,
       },
       // {
       //   name: "dae-copy",
@@ -122,7 +143,10 @@ export default class DDBMuncher extends Application {
     ];
     return {
       cobalt: cobalt,
-      importConfig: importConfig,
+      genericConfig: genericConfig,
+      monsterConfig: monsterConfig,
+      spellConfig: spellConfig,
+      itemConfig: itemConfig,
       beta: betaKey && cobalt,
     };
   }

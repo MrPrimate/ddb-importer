@@ -1,28 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { copySRDIcons } from "./import.js";
-
-/**
- * Sends a event request to Iconizer to add the correct icons
- * @param {*} names
- */
-function queryIcons(names) {
-  return new Promise((resolve, reject) => {
-    let listener = (event) => {
-      resolve(event.detail);
-      // cleaning up
-      document.removeEventListener("deliverIcon", listener);
-    };
-
-    setTimeout(() => {
-      document.removeEventListener("deliverIcon", listener);
-      reject("Tokenizer not responding");
-    }, 500);
-    document.addEventListener("deliverIcon", listener);
-    document.dispatchEvent(new CustomEvent("queryIcons", { detail: { names: names } }));
-  });
-}
+import { updateIcons } from "./import.js";
 
 /**
  *
@@ -72,34 +51,6 @@ async function addNPCToCompendium(npc) {
     }
   } else {
     logger.error("Error opening compendium, check your settings");
-  }
-}
-
-async function updateIcons(data) {
-  // check for SRD icons
-  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
-  // eslint-disable-next-line require-atomic-updates
-  data.items = (srdIcons) ? await copySRDIcons(data.items) : data;
-  // replace icons by iconizer, if available
-  const itemNames = data.items.map((item) => {
-    return {
-      name: item.name,
-    };
-  });
-  try {
-    logger.debug("Querying iconizer for icons");
-    const icons = await queryIcons(itemNames);
-    logger.verbose("Icons found", icons);
-
-    // replace the icons
-    for (let item of data.items) {
-      const icon = icons.find((icon) => icon.name === item.name);
-      if (icon && (item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
-        item.img = icon.img;
-      }
-    }
-  } catch (exception) {
-    logger.log("Iconizer not responding");
   }
 }
 
@@ -252,7 +203,8 @@ async function buildNPC(data) {
   await getNPCImage(data);
   await addSpells(data);
   logger.debug("Importing Icons");
-  await updateIcons(data);
+  // eslint-disable-next-line require-atomic-updates
+  data.items = await updateIcons(data.items);
   // create the new npc
   logger.debug("Importing NPC");
   const options = {

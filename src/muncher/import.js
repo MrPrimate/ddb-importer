@@ -1,5 +1,6 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
+import DICTIONARY from "../dictionary.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 
@@ -143,7 +144,7 @@ export function getLooseNames(name) {
   refactNameArray.unshift(refactNameArray.pop());
   const refactName = refactNameArray.join(" ").trim();
   looseNames.push(refactName, refactName.toLowerCase());
-  looseNames.push(refactName.replace(/\+\d*\s*/, "").trim().toLowerCase())
+  looseNames.push(refactName.replace(/\+\d*\s*/, "").trim().toLowerCase());
 
   let refactNamePlusArray = name.replace(/\+\d*\s*/, "").trim().split("(")[0].trim().split(", ");
   refactNamePlusArray.unshift(refactNamePlusArray.pop());
@@ -471,6 +472,51 @@ export async function getSRDIconMatch(type) {
   return items;
 }
 
+/**
+ * Sends a event request to Iconizer to add the correct icons
+ * @param {*} names
+ */
+function queryIconizer(names) {
+  return new Promise((resolve, reject) => {
+    let listener = (event) => {
+      resolve(event.detail);
+      // cleaning up
+      document.removeEventListener("deliverIcon", listener);
+    };
+
+    setTimeout(() => {
+      document.removeEventListener("deliverIcon", listener);
+      reject("Tokenizer not responding");
+    }, 500);
+    document.addEventListener("deliverIcon", listener);
+    document.dispatchEvent(new CustomEvent("queryIcons", { detail: { names: names } }));
+  });
+}
+
+async function getIconizerIcons(items) {
+  // replace icons by iconizer, if available
+  const itemNames = items.map((item) => {
+    return {
+      name: item.name,
+    };
+  });
+  try {
+    logger.debug("Querying iconizer for icons");
+    const icons = await queryIconizer(itemNames);
+    logger.verbose("Icons found", icons);
+
+    // replace the icons
+    items.forEach((item) => {
+      const icon = icons.find((icon) => icon.name === item.name);
+      if (icon && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
+        item.img = icon.img;
+      }
+    });
+  } catch (exception) {
+    logger.debug("Iconizer not responding");
+  }
+  return items;
+}
 
 export async function copySRDIcons(items) {
   const compendiumFeatureItems = await getSRDIconMatch("features");
@@ -497,12 +543,43 @@ export async function copySRDIcons(items) {
   });
 }
 
+export async function getDDBIcons(items) {
+  items.forEach((item) => {
+    if (!item.type == "spell") return;
+    const school = DICTIONARY.spell.schools.find((school) => school.id === item.data.school);
+    if (school && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
+      item.img = school.img;
+    }
+  });
+  return items;
+}
+
+
+export async function updateIcons(items) {
+  // check for SRD icons
+  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  // eslint-disable-next-line require-atomic-updates
+  if (srdIcons) items = await copySRDIcons(items);
+
+  // use iconizer
+  const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
+  const useIconizer = game.settings.get("ddb-importer", "munching-policy-use-iconizer");
+  if (iconizerInstalled && useIconizer) items = await getIconizerIcons(items);
+
+  // this will use ddb spell school icons as a fall back
+  const ddbIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-icons");
+  if (ddbIcons) items = await getDDBIcons(items);
+
+  return items;
+}
+
 
 export async function srdFiddling(items, type) {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
-  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
-  const iconItems = (srdIcons) ? await copySRDIcons(items) : items;
+  // const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  // const iconItems = (srdIcons) ? await copySRDIcons(items) : items;
+  const iconItems = updateIcons(items);
 
   if (useSrd) {
     logger.debug("Removing compendium items");

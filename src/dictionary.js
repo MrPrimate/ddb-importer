@@ -454,14 +454,14 @@ const DICTIONARY = {
   },
   spell: {
     schools: [
-      { id: "abj", name: "abjuration" },
-      { id: "con", name: "conjuration" },
-      { id: "div", name: "divination" },
-      { id: "enc", name: "enchantment" },
-      { id: "evo", name: "evocation" },
-      { id: "ill", name: "illusion" },
-      { id: "nec", name: "necromancy" },
-      { id: "trs", name: "transmutation" },
+      { id: "abj", name: "abjuration", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/abjuration.png" },
+      { id: "con", name: "conjuration", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/conjuration.png" },
+      { id: "div", name: "divination", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/divination.png" },
+      { id: "enc", name: "enchantment", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/enchantment.png" },
+      { id: "evo", name: "evocation", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/evocation.png" },
+      { id: "ill", name: "illusion", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/illusion.png" },
+      { id: "nec", name: "necromancy", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/necromancy.png" },
+      { id: "trs", name: "transmutation", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/transmutation.png" },
     ],
     progression: [
       { name: "Artificer", value: "artificer" },

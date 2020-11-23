@@ -10,26 +10,22 @@
             <li>While you wait, why not join me on <a href="https://www.patreon.com/MrPrimate">Patreon</a>? Active Patreon supports will get beta access to Monster Munching in December.</li>
         </ul>
         <hr>
-        <br />
         <div class="munching-task-name" id="munching-task-name">
-          <b> </b>
+          <br />
         </div>
         <div class="munching-task-notes" id="munching-task-notes">
-          <b> </b>
+          <br />
         </div>
-        <br />
-
         <hr>
         <div>
             <h3>Munching flavours</h3>
-            {{#each importConfig}}
-            <div class="munching-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+            {{#each genericConfig}}
+            <div class="munching-generic-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
                     name="munching-policy-{{this.name}}"
                     data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
             </div>
             {{/each}}
         </div>
-        <hr>
 
         <div>
           <hr>
@@ -39,9 +35,18 @@
             <div class="form-description">
                 <div class="form-description"></div>
                     <div>
+                      <div>
+                      {{#each spellConfig}}
+                      <div class="munching-spell-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                              name="munching-policy-{{this.name}}"
+                              data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                      </div>
+                      {{/each}}
+
                         <button type="button" id="munch-spells-start" class="munch-button"
                             {{#if cobalt}}enabled{{else}}disabled{{/if}}>Spell Munch</button>
                     </div>
+                    <hr>
                      <div>
                         <button type="button" id="munch-items-start" class="munch-button"
                             {{#if cobalt}}enabled{{else}}disabled{{/if}}>Item Munch</button>
@@ -53,15 +58,21 @@
                      <hr>
                      <div>
                        <h4>Monster Search Filter (leave blank for all)</h4>
-                       Make sure you have imported spells before Monsters!
                     </div>
                      <div class="form-content" style="display: flex">
                         <input type="text" name="monster-filter" id="monster-munch-filter" style="flex: 0 1 auto" ;value="" />
                     </div>
+                      {{#each monsterConfig}}
+                      <div class="munching-spell-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                              name="munching-policy-{{this.name}}"
+                              data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                      </div>
+                      {{/each}}
                     <div>
                         <button type="button" id="munch-monsters-start" class="munch-button"
                             {{#if beta}}enabled{{else}}disabled{{/if}}><s>Monster Munch</s> SOON!</button>
                     </div>
+                    Make sure you have imported spells before Monsters!
                 </div>
             </div>
         </div>
