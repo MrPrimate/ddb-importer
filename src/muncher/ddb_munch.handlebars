@@ -63,7 +63,7 @@
                         <input type="text" name="monster-filter" id="monster-munch-filter" style="flex: 0 1 auto" ;value="" />
                     </div>
                       {{#each monsterConfig}}
-                      <div class="munching-spell-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                      <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
                               name="munching-policy-{{this.name}}"
                               data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
                       </div>

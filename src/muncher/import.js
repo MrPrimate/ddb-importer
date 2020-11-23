@@ -503,7 +503,7 @@ async function getIconizerIcons(items) {
   try {
     logger.debug("Querying iconizer for icons");
     const icons = await queryIconizer(itemNames);
-    logger.verbose("Icons found", icons);
+    // logger.verbose("Icons found", icons);
 
     // replace the icons
     items.forEach((item) => {
@@ -577,9 +577,7 @@ export async function updateIcons(items) {
 export async function srdFiddling(items, type) {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
-  // const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
-  // const iconItems = (srdIcons) ? await copySRDIcons(items) : items;
-  const iconItems = updateIcons(items);
+  const iconItems = await updateIcons(items);
 
   if (useSrd) {
     logger.debug("Removing compendium items");

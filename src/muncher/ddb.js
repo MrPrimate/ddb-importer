@@ -39,7 +39,31 @@ export default class DDBMuncher extends Application {
     });
 
     // watch the change of the import-policy-selector checkboxes
-    html.find('.munching-import-config input[type="checkbox"]').on("change", (event) => {
+    html.find('.munching-generic-config input[type="checkbox"]').on("change", (event) => {
+      game.settings.set(
+        "ddb-importer",
+        "munching-policy-" + event.currentTarget.dataset.section,
+        event.currentTarget.checked
+      );
+    });
+
+    html.find('.munching-spell-config input[type="checkbox"]').on("change", (event) => {
+      game.settings.set(
+        "ddb-importer",
+        "munching-policy-" + event.currentTarget.dataset.section,
+        event.currentTarget.checked
+      );
+    });
+
+    html.find('.munching-monster-config input[type="checkbox"]').on("change", (event) => {
+      game.settings.set(
+        "ddb-importer",
+        "munching-policy-" + event.currentTarget.dataset.section,
+        event.currentTarget.checked
+      );
+    });
+
+    html.find('.munching-item-config input[type="checkbox"]').on("change", (event) => {
       game.settings.set(
         "ddb-importer",
         "munching-policy-" + event.currentTarget.dataset.section,
@@ -129,7 +153,7 @@ export default class DDBMuncher extends Application {
         enabled: true,
       },
       {
-        name: "use-iconizer-icons",
+        name: "use-iconizer",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-iconizer"),
         description: "If installed use Iconizer.",
         enabled: iconizerInstalled,
