@@ -143,6 +143,12 @@ export function getLooseNames(name) {
   refactNameArray.unshift(refactNameArray.pop());
   const refactName = refactNameArray.join(" ").trim();
   looseNames.push(refactName, refactName.toLowerCase());
+  looseNames.push(refactName.replace(/\+\d*\s*/, "").trim().toLowerCase())
+
+  let refactNamePlusArray = name.replace(/\+\d*\s*/, "").trim().split("(")[0].trim().split(", ");
+  refactNamePlusArray.unshift(refactNamePlusArray.pop());
+  const refactNamePlus = refactNamePlusArray.join(" ").trim();
+  looseNames.push(refactNamePlus.toLowerCase());
 
   let deconNameArray = name.replace("(", "").replace(")", "").trim().split(", ");
   deconNameArray.unshift(deconNameArray.pop());
