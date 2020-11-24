@@ -55,7 +55,7 @@ export async function parseSpells() {
   const finalSpells = await srdFiddling(uniqueSpells, "spells");
 
   const finalCount = finalSpells.length + 1;
-  munchNote(`Please be patient importing ${finalCount} spells!`);
+  munchNote(`Please be patient importing ${finalCount} spells!`, true);
 
   return new Promise((resolve) => {
     resolve(updateCompendium("spells", { spells: finalSpells }, updateBool));

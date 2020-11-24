@@ -23,17 +23,17 @@ export default class DDBMuncher extends Application {
   activateListeners(html) {
     super.activateListeners(html);
     html.find("#munch-monsters-start").click(async () => {
-      munchNote(`Please be patient downloading monsters!`);
+      munchNote(`Please be patient downloading monsters!`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseCritters();
     });
     html.find("#munch-spells-start").click(async () => {
-      munchNote(`Please be patient downloading spells!`);
+      munchNote(`Please be patient downloading spells!`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseSpells();
     });
     html.find("#munch-items-start").click(async () => {
-      munchNote(`Please be patient downloading items!`);
+      munchNote(`Please be patient downloading items!`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       this.parseItems();
     });

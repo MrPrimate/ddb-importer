@@ -119,7 +119,7 @@ export async function parseItems() {
 
   const finalItems = await srdFiddling(items, "inventory");
   const finalCount = finalItems.length + 1;
-  munchNote(`Please be patient importing ${finalCount} items!`);
+  munchNote(`Please be patient importing ${finalCount} items!`, true);
 
   return new Promise((resolve) => {
     resolve(updateCompendium("inventory", { inventory: finalItems }, updateBool));

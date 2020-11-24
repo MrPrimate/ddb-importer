@@ -161,6 +161,7 @@ export function getLooseNames(name) {
   looseNames.push(name.replace("’", "'").toLowerCase());
   looseNames.push(name.replace(/s$/, "").toLowerCase()); // trim s, e.g. crossbow bolt(s)
   looseNames.push(name.replace(",", "").toLowerCase()); // +1 weapons etc
+  looseNames.push(`${name} attack`.toLowerCase()); // Claw Attack
 
   return looseNames;
 }
@@ -231,7 +232,7 @@ export async function updateCompendium(type, input, update = null) {
               const entry = await compendium.index.find((idx) => idx.name === item.name);
               const existing = await compendium.getEntity(entry._id);
               item._id = existing._id;
-              munchNote(`Updating ${item.name}`, true);
+              munchNote(`Updating ${item.name}`);
               await copySupportedItemFlags(existing, item);
               await compendium.updateEntity(item);
               return item;
@@ -251,7 +252,7 @@ export async function updateCompendium(type, input, update = null) {
               temporary: true,
               displaySheet: false,
             });
-            munchNote(`Creating ${item.name}`, true);
+            munchNote(`Creating ${item.name}`);
             await compendium.importEntity(newItem);
             return newItem;
           })
@@ -462,7 +463,7 @@ export async function getSRDIconMatch(type) {
       name: item.name,
       img: item.img,
       type: item.type,
-      data: {}
+      data: {},
     };
     if (item.data.activation) smallItem.data.activation = item.data.activation;
     items.push(smallItem);
@@ -518,7 +519,7 @@ async function getIconizerIcons(items) {
   return items;
 }
 
-export async function copySRDIcons(items) {
+export async function getSRDIconLibrary() {
   const compendiumFeatureItems = await getSRDIconMatch("features");
   const compendiumInventoryItems = await getSRDIconMatch("inventory");
   const compendiumSpellItems = await getSRDIconMatch("spells");
@@ -529,15 +530,30 @@ export async function copySRDIcons(items) {
     compendiumFeatureItems,
     compendiumMonsterFeatures,
   );
+  return srdCompendiumItems;
+}
+
+// eslint-disable-next-line require-atomic-updates
+export async function copySRDIcons(items, srdIconLibrary = null, nameMatchList = []) {
+  // eslint-disable-next-line require-atomic-updates
+  if (!srdIconLibrary) srdIconLibrary = await getSRDIconLibrary();
 
   return new Promise((resolve) => {
     const srdItems = items.map((item) => {
-      looseItemNameMatch(item, srdCompendiumItems, true).then((match) => {
-        if (match) {
-          item.img = match.img;
-        }
-      });
+      logger.debug(`Matching ${item.name}`);
+      const nameMatch = nameMatchList.find((m) => m.name === item.name);
+      if (nameMatch) {
+        item.img = nameMatch.img;
+      } else {
+        looseItemNameMatch(item, srdIconLibrary, true).then((match) => {
+          if (match) {
+            srdIconLibrary.push({ name: item.name, img: match.img });
+            item.img = match.img;
+          }
+        });
+      }
       return item;
+
     });
     resolve(srdItems);
   });
@@ -555,20 +571,24 @@ export async function getDDBIcons(items) {
 }
 
 
-export async function updateIcons(items) {
+export async function updateIcons(items, srdIconUpdate = true) {
   // check for SRD icons
+  logger.debug("SRD Icon Matching");
   const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
   // eslint-disable-next-line require-atomic-updates
-  if (srdIcons) items = await copySRDIcons(items);
+  if (srdIcons && srdIconUpdate) items = await copySRDIcons(items);
 
   // use iconizer
+  logger.debug("Iconizer Matching");
   const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
   const useIconizer = game.settings.get("ddb-importer", "munching-policy-use-iconizer");
   if (iconizerInstalled && useIconizer) items = await getIconizerIcons(items);
 
   // this will use ddb spell school icons as a fall back
+  logger.debug("DDB Spell School Icon Match");
   const ddbIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-icons");
   if (ddbIcons) items = await getDDBIcons(items);
+
 
   return items;
 }

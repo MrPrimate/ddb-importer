@@ -198,13 +198,14 @@ async function addSpells(data) {
   }
 }
 
+// async function buildNPC(data, srdIconLibrary, iconMap) {
 async function buildNPC(data) {
   logger.debug("Importing Images");
   await getNPCImage(data);
   await addSpells(data);
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates
-  data.items = await updateIcons(data.items);
+  data.items = await updateIcons(data.items, false);
   // create the new npc
   logger.debug("Importing NPC");
   const options = {
