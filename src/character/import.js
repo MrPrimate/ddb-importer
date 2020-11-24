@@ -144,6 +144,9 @@ async function getCharacterData(characterId) {
     })
       .then((response) => response.json())
       .then((data) => {
+        if (!data.success) {
+          resolve(data);
+        }
         // construct the expected { character: {...} } object
         let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;
         try {
