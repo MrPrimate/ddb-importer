@@ -42,6 +42,8 @@ You CAN use this alongside the vtta-dndbeyond extension, two icons will show up.
 
 Where can you support me? See my [Patreon](https://patreon.com/mrprimate).
 
+You can log bugs here, or mention them in the [Discord channel](https://discord.gg/WzPuRuDJVP).
+
 ## What's next?
 
 If I get enough support I will work on getting Artificers infusions importing and seeing what active effects can be extracted and automatically added.
