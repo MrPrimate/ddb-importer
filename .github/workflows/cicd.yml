@@ -4,10 +4,8 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - '**.md'
-      - '**.yml'
-      - 'docs/*'
+    paths:
+      - 'module.json'
 
 jobs:
   test:
