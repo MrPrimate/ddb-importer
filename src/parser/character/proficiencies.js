@@ -1,6 +1,9 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
 
+import { DDB_CONFIG } from "../../config.json";
+
+
 export function getProficiencies(data) {
   let sections = [];
   for (let section in data.character.modifiers) {
@@ -19,6 +22,51 @@ export function getProficiencies(data) {
 
   return proficiencies;
 }
+
+
+// "weapons": [{
+//   "id": 1,
+//   "entityTypeId": 1782728300,
+//   "name": "Crossbow, Hand",
+//   "description": "<p>Proficiency with a hand crossbow allows you to add your proficiency bonus to the attack roll for any attack you make with it.</p>",
+//   "categoryId": 2
+// }, {
+//   "id": 2,
+//   "entityTypeId": 1782728300,
+//   "name": "Glaive",
+//   "description": "<p>Proficiency with a glaive allows you to add your proficiency bonus to the attack roll for any attack you make with it.</p>",
+//   "categoryId": 2
+// }, {
+//   "id": 3,
+//   "entityTypeId": 1782728300,
+//   "name": "Dagger",
+//   "description": "<p>Proficiency with a dagger allows you to add your proficiency bonus to the attack roll for any attack you make with it.</p>",
+//   "categoryId": 1
+// },
+
+// "proficiencyGroups": [{
+//   "label": "Armor",
+//   "customProficiencyGroup": 4,
+//   "customAdjustments": [32],
+//   "entityTypeIds": [701257905, 174869515]
+// }, {
+//   "label": "Weapons",
+//   "customProficiencyGroup": 5,
+//   "customAdjustments": [33],
+//   "entityTypeIds": [1782728300, 660121713]
+// }, {
+//   "label": "Tools",
+//   "customProficiencyGroup": 2,
+//   "customAdjustments": [34],
+//   "entityTypeIds": [2103445194, 1452973421]
+// }, {
+//   "label": "Languages",
+//   "customProficiencyGroup": 3,
+//   "customAdjustments": [35],
+//   "entityTypeIds": [906033267]
+// }],
+
+
 
 
 export function getArmorProficiencies(data, character) {
