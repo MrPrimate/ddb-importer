@@ -1,8 +1,23 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
 
-import { DDB_CONFIG } from "../../config.json";
+import { DDB_CONFIG } from "../../ddb-config.js";
 
+function getCustomProficiencies(data, type) {
+  const profGroup = DDB_CONFIG.proficiencyGroups.find((group) => group.label == type);
+  const profCharacterValues = data.character.characterValues.filter(
+    (value) =>
+      profGroup.customAdjustments.includes(parseInt(value.typeId)) &&
+      profGroup.entityTypeIds.includes(parseInt(value.valueTypeId)) &&
+      value.value == 3
+  );
+  const customProfs = DDB_CONFIG[type.toLowerCase()]
+    .filter((prof) => profCharacterValues.some((value) => value.valueId == prof.id))
+    .map((prof) => prof.name);
+
+  console.log(customProfs);
+  return customProfs;
+}
 
 export function getProficiencies(data) {
   let sections = [];
@@ -22,52 +37,6 @@ export function getProficiencies(data) {
 
   return proficiencies;
 }
-
-
-// "weapons": [{
-//   "id": 1,
-//   "entityTypeId": 1782728300,
-//   "name": "Crossbow, Hand",
-//   "description": "<p>Proficiency with a hand crossbow allows you to add your proficiency bonus to the attack roll for any attack you make with it.</p>",
-//   "categoryId": 2
-// }, {
-//   "id": 2,
-//   "entityTypeId": 1782728300,
-//   "name": "Glaive",
-//   "description": "<p>Proficiency with a glaive allows you to add your proficiency bonus to the attack roll for any attack you make with it.</p>",
-//   "categoryId": 2
-// }, {
-//   "id": 3,
-//   "entityTypeId": 1782728300,
-//   "name": "Dagger",
-//   "description": "<p>Proficiency with a dagger allows you to add your proficiency bonus to the attack roll for any attack you make with it.</p>",
-//   "categoryId": 1
-// },
-
-// "proficiencyGroups": [{
-//   "label": "Armor",
-//   "customProficiencyGroup": 4,
-//   "customAdjustments": [32],
-//   "entityTypeIds": [701257905, 174869515]
-// }, {
-//   "label": "Weapons",
-//   "customProficiencyGroup": 5,
-//   "customAdjustments": [33],
-//   "entityTypeIds": [1782728300, 660121713]
-// }, {
-//   "label": "Tools",
-//   "customProficiencyGroup": 2,
-//   "customAdjustments": [34],
-//   "entityTypeIds": [2103445194, 1452973421]
-// }, {
-//   "label": "Languages",
-//   "customProficiencyGroup": 3,
-//   "customAdjustments": [35],
-//   "entityTypeIds": [906033267]
-// }],
-
-
-
 
 export function getArmorProficiencies(data, character) {
   let values = [];
@@ -92,6 +61,10 @@ export function getArmorProficiencies(data, character) {
       custom.push(prof.name);
     }
   });
+
+  // load custom proficiencies in characterValues
+  const customProfs = getCustomProficiencies(data, "Armor");
+  custom = custom.concat(customProfs);
 
   return {
     value: [...new Set(values)],
@@ -169,6 +142,10 @@ export function getToolProficiencies(data, character) {
     }
   });
 
+  // load custom proficiencies in characterValues
+  const customProfs = getCustomProficiencies(data, "Tools");
+  custom = custom.concat(customProfs);
+
   return {
     value: [...new Set(values)],
     custom: [...new Set(custom)].join(";"),
@@ -192,6 +169,10 @@ export function getWeaponProficiencies(data, character) {
       custom.push(prof.name);
     }
   });
+
+  // load custom proficiencies in characterValues
+  const customProfs = getCustomProficiencies(data, "Weapons");
+  custom = custom.concat(customProfs);
 
   return {
     value: [...new Set(values)],
@@ -220,6 +201,10 @@ export function getLanguages(data) {
       custom.push(proficiency.name);
     }
   });
+
+  // load custom proficiencies in characterValues
+  const customProfs = getCustomProficiencies(data, "Languages");
+  custom = custom.concat(customProfs);
 
   return {
     value: languages,

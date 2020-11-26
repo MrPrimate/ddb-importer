@@ -1,6 +1,7 @@
 # v 0.0.26
 
 * Error checking around Campaign Id
+* Add custom proficiencies
 
 # v 0.0.25
 
