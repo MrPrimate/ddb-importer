@@ -61,16 +61,6 @@ const gameFolderLookup = [
   },
 ];
 
-export function getCampaignId() {
-  const campaignId = game.settings.get("ddb-importer", "campaign-id").split('/').pop();
-
-  if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
-    munchNote(`Campaign Id is invalid! ${campaignId}`, true);
-    throw(`Campaign Id is invalid! ${campaignId}`);
-  }
-  return campaignId;
-}
-
 /**
  * Display information when Munching
  * @param {*} note
@@ -86,6 +76,15 @@ export function munchNote(note, nameField = false) {
   }
 }
 
+export function getCampaignId() {
+  const campaignId = game.settings.get("ddb-importer", "campaign-id").split('/').pop();
+
+  if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
+    munchNote(`Campaign Id is invalid! ${campaignId}`, true);
+    throw new Error(`Campaign Id is invalid! ${campaignId}`);
+  }
+  return campaignId;
+}
 
 /**
  * Removes items
