@@ -383,33 +383,36 @@ export default class CharacterImport extends Application {
 
     const importConfig = [
       {
+        name: "use-srd-icons",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd-icons"),
+        description: "Use icons from the SRD compendium. (This can take a while).",
+        enabled: true,
+      },
+    ];
+
+    const advancedImportConfig = [
+      {
         name: "new",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-new"),
-        description: "Import new items only. Doesn't delete or update existing items in Foundry.",
+        description: "Import new items only. Doesn't delete or update existing items in Foundry. If this is checked features managed by the Class such as levels and spell progression won't be updated. Attributes such as HP, AC, stats, speeds, skills and special traits are always updated.",
         enabled: true,
       },
       {
         name: "use-existing",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
-        description: "Use existing items from DDB import compendiums, rather than recreating.",
+        description: "Use existing items from DDB import compendiums, rather than recreating. This is useful if you have customised the items in the compendium, although you will loose any custom effects applied by this module e.g. Improved Divine Smite.",
         enabled: true,
       },
       {
         name: "use-srd",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd"),
-        description: "Use existing items from the SRD compendium, rather than DDB.",
-        enabled: true,
-      },
-      {
-        name: "use-srd-icons",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd-icons"),
-        description: "Use icons from the SRD compendium.",
+        description: "Use existing items from the SRD compendiums, rather than DDB. Importing using SRD will not include features like fighting style and divine smite in damage calculations.",
         enabled: true,
       },
       {
         name: "dae-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy"),
-        description: "Copy Dynamic Active Effects (requires DAE and SRD module).",
+        description: "Use Dynamic Active Effects Compendiums for matching items (requires DAE and SRD module).",
         enabled: daeInstalled,
       },
     ];
@@ -418,6 +421,7 @@ export default class CharacterImport extends Application {
       actor: this.actor,
       importPolicies: importPolicies,
       importConfig: importConfig,
+      advancedImportConfig: advancedImportConfig,
     };
   }
 
@@ -446,12 +450,23 @@ export default class CharacterImport extends Application {
       });
 
     $(html)
+      .find('.advanced-import-config input[type="checkbox"]')
+      .on("change", (event) => {
+        game.settings.set(
+          "ddb-importer",
+          "character-update-policy-" + event.currentTarget.dataset.section,
+          event.currentTarget.checked
+        );
+      });
+
+    $(html)
       .find("#dndbeyond-character-import-start")
       .on("click", async (event) => {
         // retrieve the character data from the proxy
         event.preventDefault();
 
         try {
+          $(html).find("#dndbeyond-character-import-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Getting Character data");
           const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
           const characterData = await getCharacterData(characterId);
@@ -483,6 +498,7 @@ export default class CharacterImport extends Application {
           return false;
         }
 
+        $(html).find("#dndbeyond-character-import-start").prop("disabled", false);
         return true;
       });
 

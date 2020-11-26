@@ -1,3 +1,8 @@
+# v 0.0.25
+
+* Improved import screen wording
+* Compendium import now respects proficiency in weapons
+
 # v 0.0.24
 
 * Support monk/kensei weapon damage scaling

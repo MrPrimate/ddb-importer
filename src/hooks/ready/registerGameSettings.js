@@ -192,7 +192,7 @@ export default function () {
     scope: "player",
     config: false,
     type: Boolean,
-    default: false,
+    default: true,
   });
 
   // Character update policy
