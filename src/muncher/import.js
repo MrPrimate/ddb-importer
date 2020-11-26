@@ -154,13 +154,14 @@ export function getLooseNames(name) {
   const refactName = refactNameArray.join(" ").trim();
   looseNames.push(refactName, refactName.toLowerCase());
   looseNames.push(refactName.replace(/\+\d*\s*/, "").trim().toLowerCase());
+  looseNames.push(refactName.replace(/\+\d*\s*/, "").trim().toLowerCase().replace(/s$/, ""));
 
   let refactNamePlusArray = name.replace(/\+\d*\s*/, "").trim().split("(")[0].trim().split(", ");
   refactNamePlusArray.unshift(refactNamePlusArray.pop());
   const refactNamePlus = refactNamePlusArray.join(" ").trim();
   looseNames.push(refactNamePlus.toLowerCase());
 
-  let deconNameArray = name.replace("(", "").replace(")", "").trim().split(", ");
+  let deconNameArray = name.replace("(", "").replace(")", "").trim().split(",");
   deconNameArray.unshift(deconNameArray.pop());
   const deconName = deconNameArray.join(" ").trim();
   looseNames.push(deconName, deconName.toLowerCase());
@@ -171,6 +172,7 @@ export function getLooseNames(name) {
   looseNames.push(name.replace(/s$/, "").toLowerCase()); // trim s, e.g. crossbow bolt(s)
   looseNames.push(name.replace(",", "").toLowerCase()); // +1 weapons etc
   looseNames.push(`${name} attack`.toLowerCase()); // Claw Attack
+  looseNames.push(name.split(",")[0].toLowerCase());
 
   return looseNames;
 }
@@ -584,22 +586,27 @@ export async function getDDBIcons(items) {
 
 export async function updateIcons(items, srdIconUpdate = true) {
   // check for SRD icons
-  logger.debug("SRD Icon Matching");
   const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
   // eslint-disable-next-line require-atomic-updates
-  if (srdIcons && srdIconUpdate) items = await copySRDIcons(items);
+  if (srdIcons && srdIconUpdate) {
+    logger.debug("SRD Icon Matching");
+    items = await copySRDIcons(items);
+  }
 
   // use iconizer
-  logger.debug("Iconizer Matching");
   const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
   const useIconizer = game.settings.get("ddb-importer", "munching-policy-use-iconizer");
-  if (iconizerInstalled && useIconizer) items = await getIconizerIcons(items);
+  if (iconizerInstalled && useIconizer) {
+    logger.debug("Iconizer Matching");
+    items = await getIconizerIcons(items);
+  }
 
   // this will use ddb spell school icons as a fall back
-  logger.debug("DDB Spell School Icon Match");
   const ddbIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-icons");
-  if (ddbIcons) items = await getDDBIcons(items);
-
+  if (ddbIcons) {
+    logger.debug("DDB Spell School Icon Match");
+    items = await getDDBIcons(items);
+  }
 
   return items;
 }

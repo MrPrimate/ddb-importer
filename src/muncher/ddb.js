@@ -148,14 +148,14 @@ export default class DDBMuncher extends Application {
       },
       {
         name: "use-srd-icons",
-        isChecked: (iconizerInstalled) ? game.settings.get("ddb-importer", "munching-policy-use-srd-icons") : false,
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd-icons"),
         description: "Use icons from the SRD compendiums.",
         enabled: true,
       },
       {
         name: "use-iconizer",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-iconizer"),
-        description: "If installed use Iconizer.",
+        isChecked: (iconizerInstalled) ? game.settings.get("ddb-importer", "munching-policy-use-iconizer") : false,
+        description: "Use Iconizer (if installed).",
         enabled: iconizerInstalled,
       },
       // {
