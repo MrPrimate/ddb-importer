@@ -1,11 +1,11 @@
 // Main module class
-import { updateCompendium, srdFiddling, munchNote } from "./import.js";
+import { updateCompendium, srdFiddling, munchNote, getCampaignId } from "./import.js";
 import logger from "../logger.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 
 function getSpellData(className) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
-  const campaignId = game.settings.get("ddb-importer", "campaign-id");
+  const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie, campaignId: campaignId };
 

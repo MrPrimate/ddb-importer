@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, addMagicItemSpells, munchNote } from "./import.js";
+import { updateCompendium, srdFiddling, addMagicItemSpells, munchNote, getCampaignId } from "./import.js";
 import logger from "../logger.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils.js";
@@ -72,7 +72,7 @@ async function generateImportItems(items) {
 
 function getItemData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
-  const campaignId = game.settings.get("ddb-importer", "campaign-id");
+  const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie, campaignId: campaignId };
 

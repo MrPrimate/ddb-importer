@@ -52,6 +52,6 @@
   "ddb-importer.scene-format.1": "PNG/JPEG (original, larger file sizes)",
   "ddb-importer.cobalt-cookie.name": "DDB Cobalt Cookie",
   "ddb-importer.cobalt-cookie.hint": "You can get this using my Chrome extension https://github.com/MrPrimate/ddb-importer-chrome",
-  "ddb-importer.campaign-id.name": "DDB Campaign ID",
-  "ddb-importer.campaign-id.hint": "Go to your campaign page, it's the number in the URL, e.g. https://www.dndbeyond.com/campaigns/12345 would be 12345"
+  "ddb-importer.campaign-id.name": "DDB Campaign URL or ID",
+  "ddb-importer.campaign-id.hint": "Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345"
 }

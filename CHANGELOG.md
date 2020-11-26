@@ -1,3 +1,7 @@
+# v 0.0.26
+
+* Error checking around Campaign Id
+
 # v 0.0.25
 
 * Improved import screen wording
