@@ -353,8 +353,8 @@ const DICTIONARY = {
       { name: "Painter's Supplies", type: "Tool", subType: "Supplies", ability: "dex" },
     ],
     characterValuesLookup: [
-      { name: "pactWeapon", typeId: 28, valueTypeId: 1439493548 },
-      { name: "hexWarrior", typeId: 29, valueTypeId: 1439493548 },
+      { name: "pactWeapon", typeId: 28 },
+      { name: "hexWarrior", typeId: 29 },
     ],
     // Supported Warlock Pact Weapon options
     pactFeatures: ["Improved Pact Weapon", "Lifedrinker"],

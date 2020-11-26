@@ -203,9 +203,19 @@ let getDamage = (data, flags) => {
     // else if we have duelling we add the bonus here (assumption- if you have dueling
     // you're going to use it! (DDB also makes this assumption))
     const fightingStyleMod = twoHanded ? greatWeaponFighting : dueling;
+
+    // if we are a martial artist and the weapon is eligable we may need to use a bigger dice type.
+    // this martial arts die info is addedd to the weapon flags before parse weapon is called
+    const martialArtsDie = flags.martialArtsDie;
+    let diceString = data.definition.damage.diceString;
+
+    if (martialArtsDie.diceValue && data.definition.damage.diceValue && martialArtsDie.diceValue > data.definition.damage.diceValue) {
+      diceString = martialArtsDie.diceString;
+    }
+
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
-      utils.parseDiceString(data.definition.damage.diceString + `+ ${magicalDamageBonus}`, fightingStyleMod)
+      utils.parseDiceString(diceString + `+ ${magicalDamageBonus}`, fightingStyleMod)
         .diceString + " + @mod",
       data.definition.damageType.toLowerCase(),
     ]);
@@ -284,7 +294,8 @@ export default function parseWeapon(data, character, flags) {
   weapon.data.properties = getProperties(data);
 
   /* proficient: true, */
-  if (flags.classFeatures.includes("pactWeapon")) {
+  const proficientFeatures = ["pactWeapon", "kensaiWeapon"];
+  if (flags.classFeatures.some((feat) => proficientFeatures.includes(feat))) {
     weapon.data.proficient = true;
   } else {
     weapon.data.proficient = getProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficiencies);
@@ -351,6 +362,12 @@ export default function parseWeapon(data, character, flags) {
   if (flags.classFeatures.includes("hexWarrior")) {
     if (character.data.abilities.cha.value >= character.data.abilities[weapon.data.ability].value) {
       weapon.data.ability = "cha";
+    }
+  }
+  // kensai monks
+  if (flags.classFeatures.includes("kensaiWeapon") || flags.classFeatures.includes("monkWeapon")) {
+    if (character.data.abilities.dex.value >= character.data.abilities[weapon.data.ability].value) {
+      weapon.data.ability = "dex";
     }
   }
 

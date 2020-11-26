@@ -32,7 +32,7 @@ import logger from "../../logger.js";
  * @param {*} data
  * @param {*} restrictions (array)
  */
-let getExtraDamage = (ddb, restrictions) => {
+function getExtraDamage(ddb, restrictions) {
   return utils.filterBaseModifiers(ddb, "damage", null, restrictions).map((mod) => {
     if (mod.dice) {
       return [mod.dice.diceString, mod.subType];
@@ -42,23 +42,23 @@ let getExtraDamage = (ddb, restrictions) => {
       return [null, null];
     }
   });
-};
+}
 
-let getWarlockFeatures = (ddb, weaponId) => {
+function getWarlockFeatures(ddb, weapon) {
   // Some features, notably hexblade abilities we scrape out here
   const warlockFeatures = ddb.character.characterValues
     .filter(
-      (charValue) =>
-        charValue.value &&
-        charValue.valueId === weaponId &&
-        DICTIONARY.character.characterValuesLookup.find(
-          (entry) => entry.typeId === charValue.typeId && entry.valueTypeId === charValue.valueTypeId
+      (characterValue) =>
+        characterValue.value &&
+        characterValue.valueId == weapon.id &&
+        DICTIONARY.character.characterValuesLookup.some(
+          (entry) => entry.typeId == characterValue.typeId
         )
     )
     .map(
-      (charValue) =>
+      (characterValue) =>
         DICTIONARY.character.characterValuesLookup.find(
-          (entry) => entry.typeId === charValue.typeId && entry.valueTypeId === charValue.valueTypeId
+          (entry) => entry.typeId == characterValue.typeId
         ).name
     );
 
@@ -67,23 +67,78 @@ let getWarlockFeatures = (ddb, weaponId) => {
     .filter(
       (option) =>
         warlockFeatures.includes("pactWeapon") &&
-        !!option.definition.name &&
+        option.definition.name &&
         DICTIONARY.character.pactFeatures.includes(option.definition.name)
     )
     .map((option) => option.definition.name);
 
-  return warlockFeatures.concat(pactFeatures);
-};
+  const features = warlockFeatures.concat(pactFeatures);
+  return features;
+}
 
-let getWeaponFlags = (ddb, data) => {
+function getMonkFeatures(ddb, weapon) {
+  const kenseiWeapon = ddb.character.modifiers.class.some((mod) =>
+    mod.friendlySubtypeName === weapon.definition.type &&
+    mod.type === "kensei"
+  );
+
+  const monkWeapon = ddb.character.modifiers.class.some((mod) =>
+    mod.friendlySubtypeName === weapon.definition.type &&
+    mod.type == "monk-weapon"
+  ) || weapon.definition.isMonkWeapon;
+
+  let features = [];
+
+  if (kenseiWeapon) features.push("kenseiWeapon");
+  if (monkWeapon) features.push("monkWeapon");
+
+  return features;
+}
+
+
+function getMartialArtsDie(ddb) {
+  let result = {
+    diceCount: null,
+    diceMultiplier: null,
+    diceString: null,
+    diceValue: null,
+    fixedValue: null,
+  };
+
+  const die = ddb.character.classes
+    // is a martial artist
+    .filter((cls) => cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"))
+    // get class features
+    .map((cls) => cls.classFeatures)
+    .flat()
+    // filter relevant features, those that are martial arts and have a levelscaling hd
+    .filter((feature) => feature.definition.name === "Martial Arts" && feature.levelScale && feature.levelScale.dice)
+    // get this dice object
+    .map((feature) => feature.levelScale.dice);
+
+  if (die && die.length > 0) {
+    result = die[0];
+  }
+
+  return result;
+
+}
+
+function getClassFeatures(ddb, weapon) {
+  const warlockFeatures = getWarlockFeatures(ddb, weapon);
+  const monkFeatures = getMonkFeatures(ddb, weapon);
+  return warlockFeatures.concat(monkFeatures);
+}
+
+function getWeaponFlags(ddb, data) {
   let flags = {
     damage: {
       parts: [],
     },
-    classFeatures: [],
+      // Some features, notably hexblade abilities we scrape out here
+    classFeatures: getClassFeatures(ddb, data),
+    martialArtsDie: getMartialArtsDie(ddb),
   };
-  // Some features, notably hexblade abilities we scrape out here
-  flags.classFeatures = getWarlockFeatures(ddb, data.id);
 
   if (flags.classFeatures.includes("Lifedrinker")) {
     flags.damage.parts.push(["@mod", "necrotic"]);
@@ -110,9 +165,9 @@ let getWeaponFlags = (ddb, data) => {
   // as is defensive style
 
   return flags;
-};
+}
 
-let otherGear = (ddb, data, character) => {
+function otherGear (ddb, data, character) {
   let item = {};
   switch (data.definition.subType) {
     case "Potion":
@@ -135,7 +190,7 @@ let otherGear = (ddb, data, character) => {
       }
   }
   return item;
-};
+}
 
 function getCustomValue(data, character, type) {
   if (!character) return null;
@@ -167,7 +222,7 @@ function addCustomValues(ddbItem, foundryItem, character) {
   if (weightOverride) foundryItem.data.weight = weightOverride;
 }
 
-let parseItem = (ddb, data, character) => {
+function parseItem(ddb, data, character) {
   try {
     // is it a weapon?
     let item = {};
@@ -177,7 +232,7 @@ let parseItem = (ddb, data, character) => {
           if (data.definition.type === "Ammunition" || data.definition.subType === "Ammunition") {
             item = parseAmmunition(data);
           } else {
-            const flags = getWeaponFlags(ddb, data, character);
+            const flags = getWeaponFlags(ddb, data);
             item = parseWeapon(data, character, flags);
           }
           break;
@@ -218,6 +273,7 @@ let parseItem = (ddb, data, character) => {
       `Unable to parse item: ${data.definition.name}, ${data.definition.type}/${data.definition.filterType}. ${err.message}`,
       "character"
     );
+    logger.error(err.stack);
     return { // return empty strut
       name: data.definition.name,
       flags: {
@@ -228,7 +284,7 @@ let parseItem = (ddb, data, character) => {
       },
     };
   }
-};
+}
 
 function getName(data, character) {
   // spell name
