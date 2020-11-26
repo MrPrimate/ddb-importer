@@ -20,10 +20,7 @@ import { getActions } from "./actions.js";
 import { getSpecialTraits } from "./specialtraits.js";
 import { getSpells } from "./spells.js";
 
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-
-const DDB_CONFIG = require("./templates/config.json");
+import { DDB_CONFIG } from "../../config.json";
 
 export function parseMonsters(monsterData) {
 
