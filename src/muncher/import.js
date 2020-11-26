@@ -427,6 +427,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
       if (ddbItem.data.resources) item.data.resources = ddbItem.data.resources;
       if (ddbItem.data.consume) item.data.consume = ddbItem.data.consume;
       if (ddbItem.data.preparation) item.data.preparation = ddbItem.data.preparation;
+      if (ddbItem.data.proficient) item.data.proficient = ddbItem.data.proficient;
       // do we want to enrich the compendium item with our parsed flag data?
       // item.flags = { ...ddbItem.flags, ...item.flags };
       delete item["_id"];
