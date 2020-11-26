@@ -1,3 +1,9 @@
+# v 0.0.24
+
+* Support monk/kensei weapon damage scaling
+* Fix up broken Hex Warrior parsing
+* If importing from a compendium, fix up proficiency in weapon
+
 # v 0.0.21
 
 * Compendium import will now use Iconizer if it's installed and active for missing icons
