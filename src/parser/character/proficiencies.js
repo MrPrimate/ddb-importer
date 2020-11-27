@@ -15,7 +15,6 @@ function getCustomProficiencies(data, type) {
     .filter((prof) => profCharacterValues.some((value) => value.valueId == prof.id))
     .map((prof) => prof.name);
 
-  console.log(customProfs);
   return customProfs;
 }
 

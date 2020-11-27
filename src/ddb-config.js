@@ -4271,8 +4271,7 @@ export const DDB_CONFIG = {
     "bonus": 6
   }],
   "levelExperiencePoints": [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000, 140000,
-    165000, 195000, 225000, 265000, 305000, 355000
-  ],
+    165000, 195000, 225000, 265000, 305000, 355000],
   "diceValues": [4, 6, 8, 10, 12, 20],
   "stats": [{
     "id": 1,
@@ -5461,4 +5460,4 @@ export const DDB_CONFIG = {
     "entityTypeIds": [906033267]
   }],
   "vehicleConfiguration": null
-}
+};

@@ -1,7 +1,7 @@
 # v 0.0.26
 
 * Error checking around Campaign Id
-* Add custom proficiencies
+* Add custom proficiencies for Weapons, Languages, Tools, and Armor
 
 # v 0.0.25
 
