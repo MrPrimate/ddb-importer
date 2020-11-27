@@ -1,5 +1,6 @@
 import DirectoryPicker from "./lib/DirectoryPicker.js";
 import DICTIONARY from './dictionary.js';
+import { DDB_CONFIG } from './ddb-config.js';
 
 const PROXY = "https://proxy.vttassets.com/?url=";
 
@@ -102,29 +103,42 @@ let utils = {
   },
 
   /**
+   *
    * Gets the sourcebook for a subset of dndbeyond sources
    * @param {obj} definition item definition
    */
   getSourceData: (definition) => {
-    let source = {
+    let result = {
       name: null,
       page: null,
     };
-    if (definition.sourceIds) {
-      source.name = DICTIONARY.sources
-        .filter((source) => definition.sourceIds.includes(source.id))
-        .map((source) => source.name)
-        .join();
-    } else if (definition.sourceId) {
-      source.name = DICTIONARY.sources
-        .filter((source) => source.id === definition.sourceId)
-        .map((source) => source.name);
+    if (definition.sources) {
+      if (definition.sources.length > 0) {
+        result.name = DDB_CONFIG.sources
+          .filter((source) => definition.sources.some((ds) => source.id === ds.sourceId))
+          .map((source) => {
+            const dSource = definition.sources.find((ds) => source.id === ds.sourceId);
+            const page = (dSource.pageNumber) ? ` p ${dSource.pageNumber}` : "";
+            return `${source.description}${page}`;
+          })
+          .join(', ');
+      }
+    } else {
+      if (definition.sourceIds) {
+        result.name = DDB_CONFIG.sources
+          .filter((source) => definition.sourceIds.includes(source.id))
+          .map((source) => source.description)
+          .join();
+      } else if (definition.sourceId) {
+        result.name = DDB_CONFIG.sources
+          .filter((source) => source.id === definition.sourceId)
+          .map((source) => source.description);
+      }
+
+      // add a page num if available
+      if (definition.sourcePageNumber) result.page = definition.sourcePageNumber;
     }
-
-    // add a page num if available
-    if (definition.sourcePageNumber) source.page = definition.sourcePageNumber;
-
-    return source;
+    return result;
   },
 
   /**
