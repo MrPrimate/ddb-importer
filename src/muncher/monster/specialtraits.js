@@ -1,13 +1,9 @@
 // specialTraitsDescription
 // handle legendary resistance here
 
-
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
 import { getSource } from "./source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage, getAction } from "./utils.js"
+import { getRecharge, getActivation, getFeatSave, getDamage, getAction } from "./utils.js";
+import { FEAT_TEMPLATE } from "./templates/feat.js";
 
 export function getSpecialTraits(monster, DDB_CONFIG) {
   if (monster.specialTraitsDescription == "") {
@@ -25,7 +21,10 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     max: 0
   };
 
-  const dom = JSDOM.fragment(monster.specialTraitsDescription);
+  let dom = new DocumentFragment();
+  $.parseHTML(monster.specialTraitsDescription).forEach((element) => {
+    dom.appendChild(element);
+  });
 
   dom.childNodes.forEach((node) => {
     if (node.textContent == "\n") {
@@ -37,14 +36,14 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
 
   // build out skeleton actions
   dom.querySelectorAll("strong").forEach((node) => {
-    let action = JSON.parse(JSON.stringify(require("./templates/feat.json")));
+    let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
     action.name = node.textContent.trim().replace(/\.$/, '').trim();
     action.data.source = getSource(monster, DDB_CONFIG);
     dynamicActions.push(action);
   });
 
   if (dynamicActions.length == 0) {
-    let action = JSON.parse(JSON.stringify(require("./templates/feat.json")));
+    let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
     action.name = "Special Traits";
     action.data.source = getSource(monster, DDB_CONFIG);
     dynamicActions.push(action);
@@ -78,7 +77,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     action.data.recharge = getRecharge(node.textContent);
     action.data.save = getFeatSave(node.textContent, action.data.save);
     // assumption - if we have parsed a save dc set action type to save
-    if(action.data.save.dc) {
+    if (action.data.save.dc) {
       action.data.actionType = "save";
     }
     action.data.damage = getDamage(node.textContent);

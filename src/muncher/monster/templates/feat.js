@@ -1,5 +1,4 @@
-
-{
+export const FEAT_TEMPLATE = {
   "name": "",
   "type": "feat",
   "data": {
@@ -62,4 +61,4 @@
   "flags": {},
   "img": "",
   "effects": []
-}
+};

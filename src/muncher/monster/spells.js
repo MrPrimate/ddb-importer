@@ -1,7 +1,3 @@
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
 import { getAbilityMods } from "./abilities.js";
 
 
@@ -54,14 +50,14 @@ function parseBonusSpellAttack(text, monster, DDB_CONFIG) {
 function parseInnateSpells(text, spells, spellList) {
  // handle innate style spells here
   // 3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)
-  //console.log(text);
+  // console.log(text);
   const innateSeatch = "^(\\d+)\/(\\w+)\\s+each:\\s+(.*$)";
   const innateMatch = text.match(innateSeatch);
-  //console.log(innateMatch);
+  // console.log(innateMatch);
   if (innateMatch) {
-    const spellArray = innateMatch[3].split(",").map((spell) => spell.split('(',1)[0].trim());
+    const spellArray = innateMatch[3].split(",").map((spell) => spell.split('(', 1)[0].trim());
     spellArray.forEach((spell) => {
-      spellList.innate.push({name: spell, type: innateMatch[2], value: innateMatch[1]});
+      spellList.innate.push({ name: spell, type: innateMatch[2], value: innateMatch[1] });
     });
   }
 
@@ -70,22 +66,22 @@ function parseInnateSpells(text, spells, spellList) {
 }
 
 function parseSpells(text, spells, spellList) {
-    //let = JSON.parse(JSON.stringify(spells));
-    //console.log(text);
+    // let = JSON.parse(JSON.stringify(spells));
+    // console.log(text);
 
 
     const spellLevelSearch = "^(Cantrip|\\d)(?:st|th|nd|rd)?(?:\\s*level)?(?:s)?\\s+\\((at will|\\d)\\s*(?:slot|slots)?\\):\\s+(.*$)";
-    //const spellLevelSearch = "^(Cantrip|\\d)";
+    // const spellLevelSearch = "^(Cantrip|\\d)";
     const match = text.match(spellLevelSearch);
 
-    //console.log(match);
+    // console.log(match);
 
     if (!match) return parseInnateSpells(text, spells, spellList);
 
     const spellLevel = match[1];
     const slots = match[2];
 
-    if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))){
+    if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))) {
       spells[`spell${spellLevel}`]['value'] = slots;
       spells[`spell${spellLevel}`]['max'] = slots;
       const spellArray = match[3].split(",").map((spell) => spell.trim());
@@ -96,7 +92,7 @@ function parseSpells(text, spells, spellList) {
       spellList.atwill.push(...spellArray);
     }
 
-    //console.log(spellList);
+    // console.log(spellList);
 
     return [spells, spellList];
 
@@ -114,7 +110,7 @@ export function getSpells(monster, DDB_CONFIG) {
     atwill: [],
     // {name: "", type: "srt/lng/day", value: 0} // check these values
     innate: [],
-  }
+  };
 
   // ability associated
   let spellcasting = "";
@@ -174,7 +170,10 @@ export function getSpells(monster, DDB_CONFIG) {
     }
   };
 
-  const dom = JSDOM.fragment(monster.specialTraitsDescription);
+  let dom = new DocumentFragment();
+  $.parseHTML(monster.specialTraitsDescription).forEach((element) => {
+    dom.appendChild(element);
+  });
 
   dom.childNodes.forEach((node) => {
     if (node.textContent == "\n") {
@@ -194,10 +193,10 @@ export function getSpells(monster, DDB_CONFIG) {
     [spells, spellList] = parseSpells(node.textContent, spells, spellList);
 
 
-  })
+  });
 
 
-  //console.log("*****")
+  // console.log("*****")
 
   const result = {
     spelldc: spelldc,
@@ -208,7 +207,7 @@ export function getSpells(monster, DDB_CONFIG) {
     spellAttackBonus: spellAttackBonus,
   };
 
-  //console.log(JSON.stringify(result, null, 4));
+  // console.log(JSON.stringify(result, null, 4));
   return result;
 
 }

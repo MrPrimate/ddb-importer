@@ -1,9 +1,6 @@
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
 import { getSource } from "./source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage } from "./utils.js"
+import { getRecharge, getActivation, getFeatSave, getDamage } from "./utils.js";
+import { FEAT_TEMPLATE } from "./templates/feat.js";
 
 export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   if (monster.legendaryActionsDescription == "") {
@@ -21,7 +18,10 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
     max: 3
   };
 
-  const dom = JSDOM.fragment(monster.legendaryActionsDescription);
+  let dom = new DocumentFragment();
+  $.parseHTML(monster.legendaryActionsDescription).forEach((element) => {
+    dom.appendChild(element);
+  });
 
   dom.childNodes.forEach((node) => {
     if (node.textContent == "\n") {
@@ -32,7 +32,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   let dynamicActions = [];
 
   // Base feat
-  let feat = JSON.parse(JSON.stringify(require("./templates/feat.json")));
+  let feat = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
   feat.name = "Legendary Actions";
   feat.data.source = getSource(monster, DDB_CONFIG);
   feat.data.description.value = dom.childNodes.textContent;
@@ -42,19 +42,18 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
 
   // build out skeleton actions
   dom.querySelectorAll("strong").forEach((node) => {
-    let action = JSON.parse(JSON.stringify(require("./templates/feat.json")));
+    let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
     action.name = node.textContent.trim().replace(/\.$/, '').trim();
-    const actionMatch = monsterActions.find((mstAction) => action.name == mstAction.name
-      || action.name == `${mstAction.name} Attack`
-      || action.name == `${mstAction.name}`.split('(',1)[0].trim()
-      || action.name == `${mstAction.name} Attack`.split('(',1)[0].trim());
+    const actionMatch = monsterActions.find((mstAction) => action.name == mstAction.name ||
+      action.name == `${mstAction.name} Attack` ||
+      action.name == `${mstAction.name}`.split('(', 1)[0].trim() ||
+      action.name == `${mstAction.name} Attack`.split('(', 1)[0].trim());
 
     action.flags.monsterMunch = {};
     if (actionMatch) {
       action = JSON.parse(JSON.stringify(actionMatch));
       action.flags.monsterMunch['actionCopy'] = true;
-    }
-    else {
+    } else {
       action.flags.monsterMunch['actionCopy'] = false;
     }
     action.data.activation.type = "legendary";
@@ -98,9 +97,9 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
     action.data.recharge = getRecharge(node.textContent);
     action.data.save = getFeatSave(node.textContent, action.data.save);
     // assumption - if we have parsed a save dc set action type to save
-    if(action.data.save.dc) {
+    if (action.data.save.dc) {
       action.data.actionType = "save";
-      //action.type = "weapon";
+      // action.type = "weapon";
     }
     action.data.damage = getDamage(node.textContent);
 

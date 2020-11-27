@@ -2,6 +2,7 @@
 import { srdFiddling, getCompendiumItems, removeItems, munchNote, getSRDIconLibrary, copySRDIcons } from "./import.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
+import { parseMonsters } from "./monster/monster.js";
 
 // This needs to be expanded to do the phased retreval of paging monsters
 function getMonsterData() {
@@ -12,7 +13,7 @@ function getMonsterData() {
   const searchTerm = $("#monster-munch-filter")[0].value;
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/getMonster/${searchTerm}`, {
+    fetch(`${parsingApi}/proxy/getMonster/${searchTerm}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -23,12 +24,19 @@ function getMonsterData() {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          if (data.failed && data.failed.length !== 0) logger.error(`Failed to parse ${data.failed}`);
-          resolve(data);
+          return(data);
         } else {
-          munchNote(`API Failure:${data.message}`);
+          munchNote(`API Failure: ${data.message}`);
           reject(data.message);
         }
+      })
+      .then((data) => {
+        const parsedMonsters = parseMonsters(data.data);
+        return parsedMonsters;
+      })
+      .then((data) => {
+        if (data.failedMonsterNames && data.failedMonsterNames.length !== 0) logger.error(`Failed to parse ${data.failedMonsterNames}`);
+        resolve(data.actors);
       })
       .catch((error) => reject(error));
   });
@@ -52,9 +60,7 @@ async function generateIconMap(monsters) {
 
 export async function parseCritters() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-
-  const results = await getMonsterData();
-  let monsters = results.data;
+  let monsters = await getMonsterData();
 
   if (!updateBool) {
     munchNote(`Calculating which monsters to update...`, true);
@@ -68,6 +74,7 @@ export async function parseCritters() {
   munchNote(`Fiddling with the SRD data...`, true);
   const finalMonsters = await srdFiddling(monsters, "monsters");
 
+  munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);
 
   let currentMonster = 0;

@@ -20,7 +20,8 @@ import { getActions } from "./actions.js";
 import { getSpecialTraits } from "./specialtraits.js";
 import { getSpells } from "./spells.js";
 
-import { DDB_CONFIG } from "../../config.json";
+import { DDB_CONFIG } from "../../ddb-config.js";
+import { MONSTER_TEMPLATE } from "./templates/monster.js";
 
 export function parseMonsters(monsterData) {
 
@@ -29,7 +30,7 @@ export function parseMonsters(monsterData) {
 
   monsterData.forEach((monster) => {
     try {
-      let foundryActor = JSON.parse(JSON.stringify(require("./templates/monster_template.json")));
+      let foundryActor = JSON.parse(JSON.stringify(MONSTER_TEMPLATE));
       // console.log(monster);
       let items = [];
 
@@ -48,7 +49,7 @@ export function parseMonsters(monsterData) {
       foundryActor.data.abilities = getAbilities(foundryActor.data.abilities, monster, DDB_CONFIG);
 
       // skills
-      foundryActor.data.skills = getSkills(foundryActor.data.skills, monster, DDB_CONFIG)
+      foundryActor.data.skills = getSkills(foundryActor.data.skills, monster, DDB_CONFIG);
 
       // Senses
       foundryActor.data.traits.senses = getTextSenses(monster);
@@ -121,21 +122,21 @@ export function parseMonsters(monsterData) {
       const spellcastingData = getSpells(monster, DDB_CONFIG);
       foundryActor.data.attributes.spellcasting = spellcastingData.spellcasting;
       foundryActor.data.attributes.spelldc = spellcastingData.spelldc;
-      foundryActor.data.attributes.spellLevel = spellcastingData.spellLevel
+      foundryActor.data.attributes.spellLevel = spellcastingData.spellLevel;
       foundryActor.data.details.spellLevel = spellcastingData.spellLevel;
       foundryActor.data.spells = spellcastingData.spells;
       foundryActor.flags.monsterMunch['spellList'] = spellcastingData.spellList;
 
       foundryActor.items = items;
 
-      //console.log(JSON.stringify(foundryActor.items));
-      //console.log(foundryActor.data.resources);
-      //console.log(foundryActor.data.traits.languages);
+      // console.log(JSON.stringify(foundryActor));
+      // console.log(foundryActor.data.resources);
+      // console.log(foundryActor.data.traits.languages);
 
-      //console.log(foundryActor.data.attributes);
+      // console.log(foundryActor.data.attributes);
       foundryActors.push(foundryActor);
     } catch (err) {
-      console.log(`Failed parsing ${monster.name}`)
+      console.log(`Failed parsing ${monster.name}`);
       console.log(err);
       console.log(err.stack);
       failedMonsterNames.push(monster.name);
@@ -146,35 +147,8 @@ export function parseMonsters(monsterData) {
   const result = {
     actors: foundryActors,
     failedMonsterNames: failedMonsterNames,
-  }
+  };
 
   return result;
 }
 
-// const MONSTER_JSON = require('./example-monster.json');
-// const MONSTER_JSON = require("./examples/ancient-black-dragon.json");
-// const MONSTER_JSON = require("./examples/spellcaster.json");
-// const MONSTER_JSON = require("./examples/aboleth.json");
-// const MONSTER_JSON = require("./examples/rezmir.json");
-
-// const localmonsterData = MONSTER_JSON.data;
-// const parsed = parseMonsters(localmonsterData);
-// console.log(JSON.stringify(parsed, null, 4));
-
-// const MONSTER_JSON = require("./examples/all.json");
-// const parsed = parseMonsters(MONSTER_JSON);
-
-// var fs = require('fs');
-// fs.writeFile("/tmp/all-parsed.json", JSON.stringify(parsed), function(err) {
-//     if (err) {
-//         console.log(err);
-//     }
-// });
-
-// reference url
-// https://www.dndbeyond.com/api/config/json
-
-// TODO:
-// check recharge
-
-// module.export = parseMonsters;

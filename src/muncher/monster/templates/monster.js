@@ -1,4 +1,4 @@
-{
+export const MONSTER_TEMPLATE = {
   "name": "",
   "type": "npc",
   "data": {
@@ -440,4 +440,4 @@
 
   ],
   "effects": []
-}
+};
