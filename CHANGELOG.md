@@ -1,3 +1,7 @@
+# v 0.0.27
+
+* Improvements to broken source name lookup
+
 # v 0.0.26
 
 * Error checking around Campaign Id
