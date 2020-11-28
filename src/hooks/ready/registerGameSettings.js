@@ -320,18 +320,18 @@ export default function () {
     default: true,
   });
 
-  game.settings.register("ddb-importer", "munching-policy-remote-monster-images", {
-    name: "ddb-importer.munching-policy-remote-monster-images.name",
-    hint: "ddb-importer.munching-policy-remote-monster-images.hint",
+  game.settings.register("ddb-importer", "munching-policy-remote-images", {
+    name: "ddb-importer.munching-policy-remote-images.name",
+    hint: "ddb-importer.munching-policy-remote-images.hint",
     scope: "player",
     config: false,
     type: Boolean,
     default: true,
   });
 
-  game.settings.register("ddb-importer", "munching-policy-download-monster-images", {
-    name: "ddb-importer.munching-policy-download-monster-images.name",
-    hint: "ddb-importer.munching-policy-download-monster-images.hint",
+  game.settings.register("ddb-importer", "munching-policy-download-images", {
+    name: "ddb-importer.munching-policy-download-images.name",
+    hint: "ddb-importer.munching-policy-download-images.hint",
     scope: "player",
     config: false,
     type: Boolean,

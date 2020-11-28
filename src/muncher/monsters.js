@@ -93,4 +93,5 @@ export async function parseCritters() {
     await addNPC(monster);
     currentMonster += 1;
   }
+  return monsterCount;
 }

@@ -21,6 +21,7 @@
             <h3>Munching flavours</h3>
             {{#each genericConfig}}
             <div class="munching-generic-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                    id="munching-generic-policy-{{this.name}}"
                     name="munching-policy-{{this.name}}"
                     data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
             </div>
@@ -64,7 +65,6 @@
                     </div>
                       {{#each monsterConfig}}
                       <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                              id="munching-policy-{{this.name}}"
                               name="munching-policy-{{this.name}}"
                               data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
                       </div>

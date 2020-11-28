@@ -267,6 +267,8 @@ function parseItem(ddb, data, character) {
       // try parsing it as a custom item
       item = parseCustomItem(data);
     }
+    if (data.definition.avatarUrl) item.flags.ddbimporter.dndbeyond['avatarUrl'] = data.definition.avatarUrl.split('?')[0];
+    if (data.definition.largeAvatarUrl) item.flags.ddbimporter.dndbeyond['largeAvatarUrl'] = data.definition.largeAvatarUrl.split('?')[0];
     return item;
   } catch (err) {
     logger.warn(
