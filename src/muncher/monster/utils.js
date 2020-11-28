@@ -1,6 +1,83 @@
 import DICTIONARY from './dict.js';
 import { getAbilityMods } from "./abilities.js";
-// import logger from '../logger.js';
+import logger from '../logger.js';
+
+// replaces matchAll, requires a non global regexp
+function reMatchAll(regexp, string) {
+  const matches = string.match(new RegExp(regexp, "gm"));
+  if (matches) {
+      let start = 0;
+      return matches.map((group0) => {
+          const match = group0.match(regexp);
+          match.index = string.indexOf(group0, start);
+          start = match.index;
+          return match;
+      });
+  }
+  return matches;
+}
+
+
+function getExtendedDamage(description) {
+  let result = {
+    damage: {
+      parts: [],
+      versatile: ""
+    },
+    save: {
+      dc: null,
+      ability: null
+    },
+  };
+
+  const hitIndex = description.indexOf("Hit:");
+  let hit = description;
+  if (hitIndex > 0) hit = description.slice(hitIndex);
+  // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
+  const damamgeExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?: plus [^\)]+)?)\)?)? ([\w ]+?) damage(?: when used with | if used with )?(two hands)?/); // eslint-disable-line no-useless-escape
+  const matches = reMatchAll(damamgeExpression, hit) || [];
+
+  // logger.info(matches);
+  let versatile = false;
+  for (let dmg of matches) {
+      if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
+          continue; // eslint-disable-line no-continue
+      }
+      // check for versatile
+      if (dmg[1] == "or " || dmg[5] == "two hands") {
+        versatile = true;
+      }
+      const damage = dmg[3] || dmg[2];
+      // Make sure we did match a damage
+      if (damage) {
+          // assumption here is that there is just one field added to versatile. this is going to be rare.
+          if (versatile) {
+            if (result.damage.versatile == "") result.damage.versatile = damage.replace("plus", "+");
+          } else {
+            result.damage.parts.push([damage.replace("plus", "+"), dmg[4]]);
+          }
+      }
+  }
+
+  const save = hit.match(/DC ([0-9]+) (.*?) saving throw/);
+  if (save) {
+      result.save.dc = save[1];
+      result.save.ability = save[2].toLowerCase().substr(0, 3);
+  } else {
+      const escape = hit.match(/escape DC ([0-9]+)/);
+      if (escape) {
+        result.save.dc = escape[1];
+        result.save.ability = "Escape";
+      }
+  }
+
+  return result;
+}
+
+export function getDamage(description) {
+  const extendedDamage = getExtendedDamage(description);
+  return extendedDamage.damage;
+}
 
 export function getAction(text, type = "action") {
   let action = type;
@@ -49,7 +126,7 @@ export function getFeatSave(text, save) {
 }
 
 export function getReach(text) {
-  const reachSearch = "reach\s*(\s*\d+\s*)\s*ft";
+  const reachSearch = /reach\s*(\s*\d+\s*)\s*ft/;
   const match = text.match(reachSearch);
   if (match) {
     return match[1];
@@ -64,9 +141,9 @@ export function getRange(text) {
     units: "",
   };
 
-  const rangeSearch1 = "range\s*(\d+)\s*\s*\/\s*(\d+)\s*\s*ft";
-  const rangeSearch2 = "range\s*(\d+)\s*ft[.]*\s*\s*\/\s*(\d+)\s*\s*ft";
-  const rangeSearch3 = "range\s*(\d+)\s*\s*ft";
+  const rangeSearch1 = /range\s*(\d+)\s*\s*\/\s*(\d+)\s*\s*ft/;
+  const rangeSearch2 = /range\s*(\d+)\s*ft[.]*\s*\s*\/\s*(\d+)\s*\s*ft/;
+  const rangeSearch3 = /range\s*(\d+)\s*\s*ft/;
 
   const matches1 = text.match(rangeSearch1);
   const matches2 = text.match(rangeSearch2);
@@ -139,11 +216,11 @@ function checkAbilities(abilities, mods, proficiencyBonus, target, negatives = f
       result.proficient = true;
       result.bonus = target - proficiencyBonus - mods[ability];
     } else if (result.toHit > mods[ability]) {
-      result.success = true,
+      result.success = true;
       result.proficient = false;
       result.bonus = target - mods[ability];
     } else if (negatives) {
-      result.success = true,
+      result.success = true;
       result.proficient = false;
       result.bonus = target - mods[ability];
     }
@@ -162,7 +239,7 @@ function getWeaponAttack(resultData, proficiencyBonus) {
   // we have a weapon name match so we can infer a bit more
   if (lookup) {
     for (const [key, value] of Object.entries(lookup.properties)) {
-      // console.log(`${key}: ${value}`);
+      // logger.info(`${key}: ${value}`);
       result.properties[key] = value;
     }
     const versatileWeapon = result.properties.ver && result.abilities['dex'] > result.abilities['str'];
@@ -194,7 +271,7 @@ function getWeaponAttack(resultData, proficiencyBonus) {
     // we are going to assume it's dex or str based.
     if (!result.baseAbility) {
       const magicAbilities = checkAbilities(weaponAbilities, result.abilities, proficiencyBonus, result.toHit);
-      // console.log(magicAbilities);
+      // logger.info(magicAbilities);
 
       const filteredAbilities = magicAbilities.filter((ab) => ab.success == true).sort((a, b) => {
         if (a.proficient == !b.proficient) return -1;
@@ -216,13 +293,13 @@ function getWeaponAttack(resultData, proficiencyBonus) {
 
     // negative mods!
     if (!result.baseAbility) {
-      console.warn("NEGATIVE PARSE!");
-      console.warn(result.monsterName);
-      console.warn(result.name);
-      console.log(result.toHit);
+      logger.warn("NEGATIVE PARSE!");
+      logger.warn(result.monsterName);
+      logger.warn(result.name);
+      logger.info(result.toHit);
 
       const magicAbilities = checkAbilities(weaponAbilities, result.abilities, proficiencyBonus, result.toHit, true);
-      // console.log(magicAbilities);
+      // logger.info(magicAbilities);
 
       const filteredAbilities = magicAbilities.filter((ab) => ab.success == true).sort((a, b) => {
         if (a.proficient == !b.proficient) return -1;
@@ -233,17 +310,16 @@ function getWeaponAttack(resultData, proficiencyBonus) {
         }
         return 0;
       });
-      console.log(filteredAbilities);
-      console.log(result.text);
-      let res = [{ success: true, ability: 'str', proficient: true, bonus: 2 }];
+      logger.debug(filteredAbilities);
+      logger.debug(result.text);
       // fine lets use the first hit
       if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {
         result.baseAbility = filteredAbilities[0].ability;
         result.proficient = filteredAbilities[0].proficient;
         result.extraAttackBonus = filteredAbilities[0].bonus;
       } else {
-        console.error("Unable to calculate attack!");
-        console.log(result.text);
+        logger.error("Unable to calculate attack!");
+        logger.info(result.text);
       }
     }
   }
@@ -331,96 +407,3 @@ export function getAttackInfo(monster, DDB_CONFIG, name, text) {
   return result;
 }
 
-
-// replaces matchAll, requires a non global regexp
-function reMatchAll(regexp, string) {
-  const matches = string.match(new RegExp(regexp, "gm"));
-  if (matches) {
-      let start = 0;
-      return matches.map((group0) => {
-          const match = group0.match(regexp);
-          match.index = string.indexOf(group0, start);
-          start = match.index;
-          return match;
-      });
-  }
-  return matches;
-}
-
-
-export function getDamage(description) {
-  const extendedDamage = getExtendedDamage(description);
-  return extendedDamage.damage;
-}
-
-/**
- *  This funciton taken from beyond20. Thanks KaKaRoTo!
- */
-function getExtendedDamage(description) {
-  let result = {
-    damage: {
-      parts: [],
-      versatile: ""
-    },
-    save: {
-      dc: null,
-      ability: null
-    },
-    formula: "",
-    preDCDamages: null,
-  };
-
-  const hit_idx = description.indexOf("Hit:");
-  let hit = description;
-  if (hit_idx > 0)
-      hit = description.slice(hit_idx);
-  // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
-  const damage_regexp = new RegExp(/([\w]* )(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?: plus [^\)]+)?)\)?)? ([\w ]+?) damage(?: when used with | if used with )?(two hands)?/);
-  const damage_matches = reMatchAll(damage_regexp, hit) || [];
-
-  // console.log(damage_matches);
-  let versatile = false;
-  for (let dmg of damage_matches) {
-      // Skip any damage that starts wit "DC" because of "DC 13 saving throw or take damage" which could match.
-      // A lookbehind would be a simple solution here but rapydscript doesn't let me.
-      // Also skip "target reduced to 0 hit points by this damage" from demon-grinder vehicle.
-      if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
-          continue;
-      }
-      // check for versatile
-      if (dmg[1] == "or " || dmg[5] == "two hands") {
-        versatile = true;
-      }
-      const damage = dmg[3] || dmg[2];
-      // Make sure we did match a damage ('  some damage' would match the regexp, but there is no value)
-      if (damage) {
-          // assumption here is that there is just one field added to versatile. this is going to be rare.
-          if (versatile) {
-            if (result.damage.versatile == "") result.damage.versatile = damage.replace("plus", "+");
-          } else {
-            result.damage.parts.push([damage.replace("plus", "+"), dmg[4]]);
-          }
-
-      }
-  }
-
-  const m = hit.match(/DC ([0-9]+) (.*?) saving throw/);
-  result.preDCDamages = result.damage.parts.length;
-  if (m) {
-      result.save.dc = m[1];
-      result.save.ability = m[2].toLowerCase().substr(0, 3);
-      result.preDCDamages = damage_matches.reduce((total, match) => {
-          if (match.index < m.index)
-              total++;
-          return total;
-      }, 0);
-  } else {
-      const m2 = hit.match(/escape DC ([0-9]+)/);
-      if (m2) {
-        result.save.dc = m2[1];
-        result.save.ability = "Escape";
-      }
-  }
-
-  return result;
-}

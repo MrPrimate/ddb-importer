@@ -44,7 +44,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
     // console.log(node.textContent);
     let pDom = new DocumentFragment();
-    $.parseHTML(actions).forEach((element) => {
+    $.parseHTML(node).forEach((element) => {
       pDom.appendChild(element);
     });
     const query = pDom.querySelector("strong");
@@ -62,7 +62,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     dom.querySelectorAll("p").forEach((node) => {
       let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
       let pDom = new DocumentFragment();
-      $.parseHTML(actions).forEach((element) => {
+      $.parseHTML(node).forEach((element) => {
         pDom.appendChild(element);
       });
       const query = pDom.querySelector("b");
@@ -81,7 +81,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     dom.querySelectorAll("p").forEach((node) => {
       let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
       let pDom = new DocumentFragment();
-      $.parseHTML(actions).forEach((element) => {
+      $.parseHTML(node).forEach((element) => {
         pDom.appendChild(element);
       });
       const title = pDom.textContent.split('.')[0];
@@ -100,7 +100,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     if (switchAction) {
       action = switchAction;
     }
-    action.data.description.value = action.data.description.value + node.outerHTML;
+    action.data.description.value += node.outerHTML;
 
     const gtAtkInfo = getAttackInfo(monster, DDB_CONFIG, action.name, node.textContent);
     // console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
@@ -155,7 +155,6 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     }
 
     action.data.range = gtAtkInfo.range;
-
 
     // console.log(JSON.stringify(action.data, null, 4));
     // console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")

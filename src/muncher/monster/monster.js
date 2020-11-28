@@ -23,6 +23,8 @@ import { getSpells } from "./spells.js";
 import { DDB_CONFIG } from "../../ddb-config.js";
 import { MONSTER_TEMPLATE } from "./templates/monster.js";
 
+import logger from '../logger.js';
+
 export function parseMonsters(monsterData) {
 
   let foundryActors = [];
@@ -31,13 +33,13 @@ export function parseMonsters(monsterData) {
   monsterData.forEach((monster) => {
     try {
       let foundryActor = JSON.parse(JSON.stringify(MONSTER_TEMPLATE));
-      // console.log(monster);
+      // logger.info(monster);
       let items = [];
 
       // name
       foundryActor.name = monster.name;
-      // console.log("********************");
-      // console.log(monster.name);
+      // logger.info("********************");
+      // logger.info(monster.name);
       foundryActor.token.name = monster.name;
       foundryActor.flags.monsterMunch = {
         url: monster.url,
@@ -129,16 +131,16 @@ export function parseMonsters(monsterData) {
 
       foundryActor.items = items;
 
-      // console.log(JSON.stringify(foundryActor));
-      // console.log(foundryActor.data.resources);
-      // console.log(foundryActor.data.traits.languages);
+      // logger.info(JSON.stringify(foundryActor));
+      // logger.info(foundryActor.data.resources);
+      // logger.info(foundryActor.data.traits.languages);
 
-      // console.log(foundryActor.data.attributes);
+      // logger.info(foundryActor.data.attributes);
       foundryActors.push(foundryActor);
     } catch (err) {
-      console.log(`Failed parsing ${monster.name}`);
-      console.log(err);
-      console.log(err.stack);
+      logger.info(`Failed parsing ${monster.name}`);
+      logger.info(err);
+      logger.info(err.stack);
       failedMonsterNames.push(monster.name);
     }
 

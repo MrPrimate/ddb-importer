@@ -51,7 +51,7 @@ function parseInnateSpells(text, spells, spellList) {
  // handle innate style spells here
   // 3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)
   // console.log(text);
-  const innateSeatch = "^(\\d+)\/(\\w+)\\s+each:\\s+(.*$)";
+  const innateSeatch = /^(\d+)\/(\w+)\s+each:\s+(.*$)"/;
   const innateMatch = text.match(innateSeatch);
   // console.log(innateMatch);
   if (innateMatch) {

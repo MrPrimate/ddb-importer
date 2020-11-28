@@ -23,12 +23,11 @@ function getMonsterData() {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.success) {
-          return(data);
-        } else {
+        if (!data.success) {
           munchNote(`API Failure: ${data.message}`);
           reject(data.message);
         }
+        return data;
       })
       .then((data) => {
         const parsedMonsters = parseMonsters(data.data);

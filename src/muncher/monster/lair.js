@@ -71,7 +71,7 @@ export function getLairActions(monster, DDB_CONFIG) {
       actionType = node.textContent;
       action = switchAction;
     }
-    action.data.description.value = action.data.description.value + node.outerHTML;
+    action.data.description.value += node.outerHTML;
 
     const initiativeMatch = node.textContent.match(/initiative count (d+)/);
     if (initiativeMatch) {

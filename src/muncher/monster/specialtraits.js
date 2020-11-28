@@ -63,7 +63,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     if (switchAction) {
       action = switchAction;
     }
-    action.data.description.value = action.data.description.value + node.outerHTML;
+    action.data.description.value += node.outerHTML;
 
     const activationCost = getActivation(node.textContent);
     if (activationCost) {

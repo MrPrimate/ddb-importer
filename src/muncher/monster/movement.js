@@ -45,7 +45,7 @@ export function getSpeed (monster, DDB_CONFIG) {
 
     if (movement.name == "Walk") {
       values = `${monsterMovement.speed}ft.`;
-      if (monsterMovement.notes != null) {
+      if (monsterMovement.notes !== null) {
         special.push(`${monsterMovement.speed}ft. ${movement.description} (${monsterMovement.notes})`);
       }
     } else {

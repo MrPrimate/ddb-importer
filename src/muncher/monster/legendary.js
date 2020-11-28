@@ -84,7 +84,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
     }
     // console.log(action)
     if (action.flags && action.flags.monstersMunch && action.flags.monsterMunch.actionCopy) return;
-    action.data.description.value = action.data.description.value + node.outerHTML;
+    action.data.description.value += node.outerHTML;
 
     const activationCost = getActivation(node.textContent);
     if (activationCost) {
