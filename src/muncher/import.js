@@ -717,7 +717,6 @@ export async function updateIcons(items, srdIconUpdate = true) {
   }
 
   // this will use ddb spell school icons as a fall back
-  const ddbIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-icons");
   if (ddbIcons) {
     logger.debug("DDB Spell School Icon Match");
     items = await getDDBSpellSchoolIcons(items);

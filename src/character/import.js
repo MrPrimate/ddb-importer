@@ -9,7 +9,7 @@ import {
   copySRDIcons,
   download,
   getDDBEquipmentIcons,
-  getDDBSchoolSpellIcons,
+  getDDBSpellSchoolIcons,
 } from "../muncher/import.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
@@ -563,6 +563,36 @@ export default class CharacterImport extends Application {
       });
   }
 
+  async importCharacterItems(html, items) {
+    const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
+    const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
+    const ddbIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-icons");
+
+    // if we still have items to add, add them
+    if (items.length > 0) {
+      CharacterImport.showCurrentTask(html, "Copying existing data flags");
+      await this.copySupportedCharacterItemFlags(items);
+
+      if (ddbIcons) {
+        CharacterImport.showCurrentTask(html, "Fetching DDB Inventory Images");
+        items = await getDDBEquipmentIcons(items, true);
+      }
+
+      if (useSRDCompendiumIcons && !useSRDCompendiumItems) {
+        CharacterImport.showCurrentTask(html, "Adding SRD Icons");
+        items = await copySRDIcons(items);
+      }
+
+      if (ddbIcons) {
+        CharacterImport.showCurrentTask(html, "Fetching DDB Spell School Images");
+        items = await getDDBSpellSchoolIcons(items, true);
+      }
+
+      CharacterImport.showCurrentTask(html, "Adding items to character");
+      await this.importItems(items);
+    }
+  }
+
   async parseCharacterData(html, data) {
     this.result = data.character;
     // is magicitems installed
@@ -620,7 +650,6 @@ export default class CharacterImport extends Application {
     let srdCompendiumItems = [];
     const useExistingCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-existing");
     const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
-    const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
 
     /**
      * If SRD is selected, we prefer this
@@ -651,29 +680,8 @@ export default class CharacterImport extends Application {
       items = await CharacterImport.removeItems(items, compendiumItems);
     }
 
-    // if we still have items to add, add them
-    if (items.length > 0) {
-      CharacterImport.showCurrentTask(html, "Copying existing data flags");
-      await this.copySupportedCharacterItemFlags(items);
-
-      if (game.settings.get("ddb-importer", "character-update-policy-use-ddb-icons")) {
-        CharacterImport.showCurrentTask(html, "Fetching DDB Inventory Images");
-        items = await getDDBEquipmentIcons(items, true);
-      }
-
-      if (useSRDCompendiumIcons && !useSRDCompendiumItems) {
-        CharacterImport.showCurrentTask(html, "Adding SRD Icons");
-        items = await copySRDIcons(items);
-      }
-
-      if (game.settings.get("ddb-importer", "character-update-policy-use-ddb-icons")) {
-        CharacterImport.showCurrentTask(html, "Fetching DDB Spell School Images");
-        items = await getDDBSpellSchoolIcons(items, true);
-      }
-
-      CharacterImport.showCurrentTask(html, "Adding items to character");
-      await this.importItems(items);
-    }
+    // import remaining items to character
+    await this.importCharacterItems(html, items);
 
     // now import any compendium items that we matched
     if (useExistingCompendiumItems) {
