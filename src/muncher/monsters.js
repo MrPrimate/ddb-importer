@@ -52,6 +52,7 @@ async function generateIconMap(monsters) {
     let itemMap = [];
 
     monsters.forEach((monster) => {
+      munchNote(`Processing ${monster.name}`);
       promises.push(
         copySRDIcons(monster.items, srdIconLibrary, itemMap).then((items) => {
           monster.items = items;

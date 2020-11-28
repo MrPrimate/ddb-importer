@@ -137,13 +137,13 @@ export default class DDBMuncher extends Application {
       {
         name: "download-monster-images",
         isChecked: game.settings.get("ddb-importer", "munching-policy-download-monster-images"),
-        description: "Download monster images",
+        description: "Download monster images (takes longer and space)",
         enabled: true,
       },
       {
         name: "remote-monster-images",
         isChecked: game.settings.get("ddb-importer", "munching-policy-remote-monster-images"),
-        description: "Use dndbeyond remote monster images",
+        description: "Use dndbeyond remote images (a lot quicker)",
         enabled: true,
       },
     ];
