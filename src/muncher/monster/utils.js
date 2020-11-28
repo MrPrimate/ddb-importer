@@ -1,6 +1,6 @@
 import DICTIONARY from './dict.js';
 import { getAbilityMods } from "./abilities.js";
-import logger from '../logger.js';
+import logger from '../../logger.js';
 
 // replaces matchAll, requires a non global regexp
 function reMatchAll(regexp, string) {
@@ -144,10 +144,12 @@ export function getRange(text) {
   const rangeSearch1 = /range\s*(\d+)\s*\s*\/\s*(\d+)\s*\s*ft/;
   const rangeSearch2 = /range\s*(\d+)\s*ft[.]*\s*\s*\/\s*(\d+)\s*\s*ft/;
   const rangeSearch3 = /range\s*(\d+)\s*\s*ft/;
+  const reachSearch = /reach\s*(\d+)\s*\s*ft/;
 
   const matches1 = text.match(rangeSearch1);
   const matches2 = text.match(rangeSearch2);
   const matches3 = text.match(rangeSearch3);
+  const reachMatch = text.match(reachSearch);
 
   if (matches1) {
     range.value = matches1[1];
@@ -160,7 +162,11 @@ export function getRange(text) {
   } else if (matches3) {
     range.value = matches3[1];
     range.units = "ft";
+  } else if (reachMatch) {
+    range.value = reachMatch[1];
+    range.units = "ft";
   }
+
   return range;
 }
 

@@ -61,6 +61,7 @@ async function getNPCImage(data) {
   const npcType = data.data.details.type;
   const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
   const downloadImages = game.settings.get("ddb-importer", "munching-policy-download-monster-images");
+  const remoteImages = game.settings.get("ddb-importer", "munching-policy-remote-monster-images");
 
   if (!dndBeyondImageUrl && dndBeyondTokenImageUrl) dndBeyondImageUrl = dndBeyondTokenImageUrl;
 
@@ -91,9 +92,11 @@ async function getNPCImage(data) {
         data.img = utils.getFileUrl(uploadDirectory, filename + "." + ext);
       }
     }
+  } else if (dndBeyondImageUrl && remoteImages) {
+    data.img = dndBeyondImageUrl;
   }
 
-  if (dndBeyondImageUrl) {
+  if (dndBeyondTokenImageUrl && downloadImages) {
     const tokenExt = dndBeyondTokenImageUrl.split(".").pop().split(/#|\?|&/)[0];
 
     if (dndBeyondTokenImageUrl.endsWith(npcType + "." + tokenExt)) {
@@ -119,6 +122,8 @@ async function getNPCImage(data) {
         data.token.img = utils.getFileUrl(uploadDirectory, filenameToken + "." + tokenExt);
       }
     }
+  } else if (dndBeyondTokenImageUrl && remoteImages) {
+    data.token.img = dndBeyondTokenImageUrl;
   }
 
 }

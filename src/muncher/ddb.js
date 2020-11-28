@@ -56,11 +56,20 @@ export default class DDBMuncher extends Application {
     });
 
     html.find('.munching-monster-config input[type="checkbox"]').on("change", (event) => {
+      const selection = event.currentTarget.dataset.section;
+      const checked = event.currentTarget.checked;
       game.settings.set(
         "ddb-importer",
-        "munching-policy-" + event.currentTarget.dataset.section,
+        "munching-policy-" + selection,
         event.currentTarget.checked
       );
+      if (selection == "remote-monster-images" && checked) {
+        game.settings.set("ddb-importer", "munching-policy-download-monster-images", false);
+        $('#munching-policy-download-monster-images').prop('checked', false);
+      } else if (selection == "download-monster-images" && checked) {
+        game.settings.set("ddb-importer", "munching-policy-remote-monster-images", false);
+        $('#munching-policy-remote-monster-images').prop('checked', false);
+      }
     });
 
     html.find('.munching-item-config input[type="checkbox"]').on("change", (event) => {
@@ -128,7 +137,13 @@ export default class DDBMuncher extends Application {
       {
         name: "download-monster-images",
         isChecked: game.settings.get("ddb-importer", "munching-policy-download-monster-images"),
-        description: "Download Monster Images",
+        description: "Download monster images",
+        enabled: true,
+      },
+      {
+        name: "remote-monster-images",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-remote-monster-images"),
+        description: "Use dndbeyond remote monster images",
         enabled: true,
       },
     ];

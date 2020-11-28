@@ -42,17 +42,23 @@ function getMonsterData() {
 }
 
 async function generateIconMap(monsters) {
-  const srdIconLibrary = await getSRDIconLibrary();
-  munchNote(`Please be patient updating SRD Icons`, true);
-  let itemMap = [];
   let promises = [];
-  monsters.forEach((monster) => {
-    promises.push(
-      copySRDIcons(monster.items, srdIconLibrary, itemMap).then((items) => {
-        monster.items = items;
-      })
-    );
-  });
+
+  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  // eslint-disable-next-line require-atomic-updates
+  if (srdIcons) {
+    const srdIconLibrary = await getSRDIconLibrary();
+    munchNote(`Please be patient updating SRD Icons`, true);
+    let itemMap = [];
+
+    monsters.forEach((monster) => {
+      promises.push(
+        copySRDIcons(monster.items, srdIconLibrary, itemMap).then((items) => {
+          monster.items = items;
+        })
+      );
+    });
+  }
 
   return Promise.all(promises);
 }

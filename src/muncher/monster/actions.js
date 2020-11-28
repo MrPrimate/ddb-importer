@@ -38,13 +38,11 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
 
   let dynamicActions = [];
 
-
   // build out skeleton actions
   dom.querySelectorAll("p").forEach((node) => {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-    // console.log(node.textContent);
     let pDom = new DocumentFragment();
-    $.parseHTML(node).forEach((element) => {
+    $.parseHTML(node.outerHTML).forEach((element) => {
       pDom.appendChild(element);
     });
     const query = pDom.querySelector("strong");
@@ -62,7 +60,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     dom.querySelectorAll("p").forEach((node) => {
       let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
       let pDom = new DocumentFragment();
-      $.parseHTML(node).forEach((element) => {
+      $.parseHTML(node.outerHTML).forEach((element) => {
         pDom.appendChild(element);
       });
       const query = pDom.querySelector("b");
@@ -81,7 +79,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     dom.querySelectorAll("p").forEach((node) => {
       let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
       let pDom = new DocumentFragment();
-      $.parseHTML(node).forEach((element) => {
+      $.parseHTML(node.outerHTML).forEach((element) => {
         pDom.appendChild(element);
       });
       const title = pDom.textContent.split('.')[0];

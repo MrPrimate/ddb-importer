@@ -23,7 +23,7 @@ import { getSpells } from "./spells.js";
 import { DDB_CONFIG } from "../../ddb-config.js";
 import { MONSTER_TEMPLATE } from "./templates/monster.js";
 
-import logger from '../logger.js';
+import logger from '../../logger.js';
 
 export function parseMonsters(monsterData) {
 
