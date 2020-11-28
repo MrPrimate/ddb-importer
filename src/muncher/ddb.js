@@ -25,26 +25,31 @@ export default class DDBMuncher extends Application {
     html.find("#munch-monsters-start").click(async () => {
       munchNote(`Please be patient downloading monsters!`, true);
       $('button[id^="munch-"]').prop('disabled', true);
-      this.parseCritters();
+      DDBMuncher.parseCritters();
     });
     html.find("#munch-spells-start").click(async () => {
       munchNote(`Please be patient downloading spells!`, true);
       $('button[id^="munch-"]').prop('disabled', true);
-      this.parseSpells();
+      DDBMuncher.parseSpells();
     });
     html.find("#munch-items-start").click(async () => {
       munchNote(`Please be patient downloading items!`, true);
       $('button[id^="munch-"]').prop('disabled', true);
-      this.parseItems();
+      DDBMuncher.parseItems();
     });
 
     // watch the change of the import-policy-selector checkboxes
     html.find('.munching-generic-config input[type="checkbox"]').on("change", (event) => {
-      game.settings.set(
-        "ddb-importer",
-        "munching-policy-" + event.currentTarget.dataset.section,
-        event.currentTarget.checked
-      );
+      const selection = event.currentTarget.dataset.section;
+      const checked = event.currentTarget.checked;
+      game.settings.set("ddb-importer", "munching-policy-" + selection, checked);
+      if (selection == "remote-images" && checked) {
+        game.settings.set("ddb-importer", "munching-policy-download-images", false);
+        $('#munching-generic-policy-download-images').prop('checked', false);
+      } else if (selection == "download-images" && checked) {
+        game.settings.set("ddb-importer", "munching-policy-remote-images", false);
+        $('#munching-generic-policy-remote-images').prop('checked', false);
+      }
     });
 
     html.find('.munching-spell-config input[type="checkbox"]').on("change", (event) => {
@@ -61,6 +66,7 @@ export default class DDBMuncher extends Application {
         "munching-policy-" + event.currentTarget.dataset.section,
         event.currentTarget.checked
       );
+
     });
 
     html.find('.munching-item-config input[type="checkbox"]').on("change", (event) => {
@@ -73,12 +79,27 @@ export default class DDBMuncher extends Application {
     this.close();
   }
 
+  static enableButtons() {
+    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+    const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
 
-  async parseCritters() {
+    if (cobalt) {
+      $('button[id^="munch-spells-start"]').prop('disabled', false);
+      $('button[id^="munch-items-start"]').prop('disabled', false);
+    }
+    if (cobalt && betaKey) {
+      // $('button[id^="munch-features-start"]').prop('disabled', false);
+      $('button[id^="munch-monsters-start"]').prop('disabled', false);
+    }
+  }
+
+  static async parseCritters() {
     try {
       logger.info("Munching monsters!");
-      await parseCritters();
-      this.close();
+      const result = await parseCritters();
+      munchNote(`Finised importing ${result} monsters!`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -86,22 +107,26 @@ export default class DDBMuncher extends Application {
 
   }
 
-  async parseSpells() {
+  static async parseSpells() {
     try {
       logger.info("Munching spells!");
-      await parseSpells();
-      this.close();
+      const result = await parseSpells();
+      munchNote(`Finised importing ${result.length} spells!`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
     }
   }
 
-  async parseItems() {
+  static async parseItems() {
     try {
       logger.info("Munching items!");
-      await parseItems();
-      this.close();
+      const result = await parseItems();
+      munchNote(`Finised importing ${result.length} items!`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -124,14 +149,7 @@ export default class DDBMuncher extends Application {
       },
     ];
 
-    const monsterConfig = [
-      {
-        name: "download-monster-images",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-download-monster-images"),
-        description: "Download Monster Images",
-        enabled: true,
-      },
-    ];
+    const monsterConfig = [];
 
     const genericConfig = [
       {
@@ -157,6 +175,18 @@ export default class DDBMuncher extends Application {
         isChecked: (iconizerInstalled) ? game.settings.get("ddb-importer", "munching-policy-use-iconizer") : false,
         description: "Use Iconizer (if installed).",
         enabled: iconizerInstalled,
+      },
+      {
+        name: "download-images",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-download-images"),
+        description: "Download D&D Beyond images (takes longer and needs space)",
+        enabled: true,
+      },
+      {
+        name: "remote-images",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-remote-images"),
+        description: "Use D&D Beyond remote images (a lot quicker)",
+        enabled: true,
       },
       // {
       //   name: "dae-copy",

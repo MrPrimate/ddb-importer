@@ -8,6 +8,7 @@ import {
   getSRDCompendiumItems,
   copySRDIcons,
   download,
+  getDDBIcons,
 } from "../muncher/import.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
@@ -388,6 +389,12 @@ export default class CharacterImport extends Application {
         description: "Use icons from the SRD compendium. (This can take a while).",
         enabled: true,
       },
+      {
+        name: "use-ddb-icons",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-ddb-icons"),
+        description: "Use icons from D&DBeyond for items (where they exist).",
+        enabled: true,
+      },
     ];
 
     const advancedImportConfig = [
@@ -647,9 +654,15 @@ export default class CharacterImport extends Application {
     if (items.length > 0) {
       CharacterImport.showCurrentTask(html, "Copying existing data flags");
       await this.copySupportedCharacterItemFlags(items);
+
       if (useSRDCompendiumIcons && !useSRDCompendiumItems) {
         CharacterImport.showCurrentTask(html, "Adding SRD Icons");
         items = await copySRDIcons(items);
+      }
+
+      if (game.settings.get("ddb-importer", "character-update-policy-use-ddb-icons")) {
+        CharacterImport.showCurrentTask(html, "Fetching DDB Inventory Images");
+        items = await getDDBIcons(items, true);
       }
 
       CharacterImport.showCurrentTask(html, "Adding items to character");

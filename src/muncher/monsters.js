@@ -2,6 +2,7 @@
 import { srdFiddling, getCompendiumItems, removeItems, munchNote, getSRDIconLibrary, copySRDIcons } from "./import.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
+import { parseMonsters } from "./monster/monster.js";
 
 // This needs to be expanded to do the phased retreval of paging monsters
 function getMonsterData() {
@@ -12,7 +13,7 @@ function getMonsterData() {
   const searchTerm = $("#monster-munch-filter")[0].value;
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/getMonster/${searchTerm}`, {
+    fetch(`${parsingApi}/proxy/getMonster/${searchTerm}`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -22,39 +23,50 @@ function getMonsterData() {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.success) {
-          if (data.failed && data.failed.length !== 0) logger.error(`Failed to parse ${data.failed}`);
-          resolve(data);
-        } else {
-          munchNote(`API Failure:${data.message}`);
+        if (!data.success) {
+          munchNote(`API Failure: ${data.message}`);
           reject(data.message);
         }
+        return data;
+      })
+      .then((data) => {
+        const parsedMonsters = parseMonsters(data.data);
+        return parsedMonsters;
+      })
+      .then((data) => {
+        if (data.failedMonsterNames && data.failedMonsterNames.length !== 0) logger.error(`Failed to parse ${data.failedMonsterNames}`);
+        resolve(data.actors);
       })
       .catch((error) => reject(error));
   });
 }
 
 async function generateIconMap(monsters) {
-  const srdIconLibrary = await getSRDIconLibrary();
-  munchNote(`Please be patient updating SRD Icons`, true);
-  let itemMap = [];
   let promises = [];
-  monsters.forEach((monster) => {
-    promises.push(
-      copySRDIcons(monster.items, srdIconLibrary, itemMap).then((items) => {
-        monster.items = items;
-      })
-    );
-  });
+
+  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  // eslint-disable-next-line require-atomic-updates
+  if (srdIcons) {
+    const srdIconLibrary = await getSRDIconLibrary();
+    munchNote(`Please be patient updating SRD Icons`, true);
+    let itemMap = [];
+
+    monsters.forEach((monster) => {
+      munchNote(`Processing ${monster.name}`);
+      promises.push(
+        copySRDIcons(monster.items, srdIconLibrary, itemMap).then((items) => {
+          monster.items = items;
+        })
+      );
+    });
+  }
 
   return Promise.all(promises);
 }
 
 export async function parseCritters() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-
-  const results = await getMonsterData();
-  let monsters = results.data;
+  let monsters = await getMonsterData();
 
   if (!updateBool) {
     munchNote(`Calculating which monsters to update...`, true);
@@ -68,6 +80,7 @@ export async function parseCritters() {
   munchNote(`Fiddling with the SRD data...`, true);
   const finalMonsters = await srdFiddling(monsters, "monsters");
 
+  munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);
 
   let currentMonster = 0;
@@ -80,4 +93,5 @@ export async function parseCritters() {
     await addNPC(monster);
     currentMonster += 1;
   }
+  return monsterCount;
 }

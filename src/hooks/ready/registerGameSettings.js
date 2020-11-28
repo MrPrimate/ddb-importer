@@ -264,6 +264,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-use-ddb-icons", {
+    name: "ddb-importer.character-update-policy-use-ddb-icons.name",
+    hint: "ddb-importer.character-update-policy-use-ddb-icons.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-dae-copy", {
     name: "ddb-importer.character-update-policy-dae-copy.name",
     hint: "ddb-importer.character-update-policy-dae-copy.hint",
@@ -320,13 +329,22 @@ export default function () {
     default: true,
   });
 
-  game.settings.register("ddb-importer", "munching-policy-download-monster-images", {
-    name: "ddb-importer.munching-policy-download-monster-images.name",
-    hint: "ddb-importer.munching-policy-download-monster-images.hint",
+  game.settings.register("ddb-importer", "munching-policy-remote-images", {
+    name: "ddb-importer.munching-policy-remote-images.name",
+    hint: "ddb-importer.munching-policy-remote-images.hint",
     scope: "player",
     config: false,
     type: Boolean,
     default: true,
+  });
+
+  game.settings.register("ddb-importer", "munching-policy-download-images", {
+    name: "ddb-importer.munching-policy-download-images.name",
+    hint: "ddb-importer.munching-policy-download-images.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
   });
 
   game.settings.register("ddb-importer", "munching-policy-dae-copy", {

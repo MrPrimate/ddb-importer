@@ -1,6 +1,9 @@
 # v 0.0.27
 
 * Improvements to broken source name lookup
+* Items/Weapons can now download/use D&D Beyond images
+* Use remote dndbeyond images rather than downloading
+* Monster parsing moved into git
 
 # v 0.0.26
 

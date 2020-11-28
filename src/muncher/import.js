@@ -3,6 +3,7 @@ import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
+const INVENTORY_TYPE = EQUIPMENT_TYPES.concat("weapon");
 
 // a mapping of compendiums with content type
 const compendiumLookup = [
@@ -200,8 +201,8 @@ export async function looseItemNameMatch(item, items, loose = false) {
     matchingItem = items.find(
       (matchItem) =>
         (looseNames.includes(matchItem.name.toLowerCase()) || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", ""))) &&
-        EQUIPMENT_TYPES.includes(item.type) &&
-        EQUIPMENT_TYPES.includes(matchItem.type)
+        INVENTORY_TYPE.includes(item.type) &&
+        INVENTORY_TYPE.includes(matchItem.type)
     );
 
     // super loose name match!
@@ -450,6 +451,34 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   return results;
 }
 
+async function getImagePath(imageUrl, type = "ddb", name = "", download = false, remoteImages = false) {
+  const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+  const downloadImage = (download) ? download : game.settings.get("ddb-importer", "munching-policy-download-images");
+  const remoteImage = (remoteImages) ? remoteImages : game.settings.get("ddb-importer", "munching-policy-remote-images");
+
+  if (imageUrl && downloadImage) {
+    const ext = imageUrl.split(".").pop().split(/#|\?|&/)[0];
+    if (!name) name = imageUrl.split("/").pop();
+
+    // image upload
+    const filename = type + "-" + name.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").trim();
+    const imageExists = await utils.fileExists(uploadDirectory, filename + "." + ext);
+
+    if (imageExists) {
+      // eslint-disable-next-line require-atomic-updates
+      const image = utils.getFileUrl(uploadDirectory, filename + "." + ext);
+      return image;
+    } else {
+      // eslint-disable-next-line require-atomic-updates
+      const image = await utils.uploadImage(imageUrl, uploadDirectory, filename);
+      return image;
+    }
+  } else if (imageUrl && remoteImage) {
+    return imageUrl;
+  }
+  return null;
+}
+
 export function download(content, fileName, contentType) {
   var a = document.createElement("a");
   var file = new Blob([content], { type: contentType });
@@ -572,15 +601,83 @@ export async function copySRDIcons(items, srdIconLibrary = null, nameMatchList =
   });
 }
 
-export async function getDDBIcons(items) {
-  items.forEach((item) => {
-    if (!item.type == "spell") return;
-    const school = DICTIONARY.spell.schools.find((school) => school.id === item.data.school);
-    if (school && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
-      item.img = school.img;
+async function getDDBItemImages(items, download) {
+  munchNote(`Fetching DDB Item Images`);
+  const downloadImages = (download) ? true : game.settings.get("ddb-importer", "munching-policy-download-images");
+  const remoteImages = game.settings.get("ddb-importer", "munching-policy-remote-images");
+
+  const itemMap = items.map(async (item) => {
+    let itemImage = {
+      name: item.name,
+      type: item.type,
+      img: null,
+      large: null,
+    };
+
+    if (item.flags && item.flags.ddbimporter && item.flags.ddbimporter) {
+      const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
+      const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
+
+      if (avatarUrl && avatarUrl != "") {
+        munchNote(`Downloading ${item.name} image`);
+        const smallImage = await getImagePath(avatarUrl, 'item', item.name, downloadImages, remoteImages);
+        logger.debug(`Final image ${smallImage}`);
+        itemImage.img = smallImage;
+      }
+      if (largeAvatarUrl && largeAvatarUrl != "") {
+        const largeImage = await getImagePath(largeAvatarUrl, 'item-large', item.name, downloadImages, remoteImages);
+        itemImage.large = largeImage;
+        if (!itemImage.img) itemImage.img = largeImage;
+      }
     }
+
+    return itemImage;
   });
-  return items;
+
+  return Promise.all(itemMap);
+}
+
+async function getDDBSchoolSpellIcons(download) {
+  munchNote(`Fetching spell school icons`);
+  const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
+    const img = await getImagePath(school.img, 'spell', school.name, download);
+    let schoolIcons = {
+      name: school.name,
+      img: img,
+      id: school.id,
+    };
+    return schoolIcons;
+  });
+
+  return Promise.all(schoolMap);
+}
+
+export async function getDDBIcons(items, download) {
+  const schools = await getDDBSchoolSpellIcons(download);
+  const itemImages = await getDDBItemImages(items.filter((item) => INVENTORY_TYPE.includes(item.type)), download);
+
+  let updatedItems = items.map((item) => {
+    // logger.debug(item.name);
+    // logger.debug(item.flags.ddbimporter.dndbeyond);
+    if (item.type == "spell") {
+      const school = schools.find((school) => school.id === item.data.school);
+      if (school && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
+        item.img = school.img;
+      }
+    } else if (INVENTORY_TYPE.includes(item.type)) {
+      if (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg") {
+        const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
+        if (imageMatch && imageMatch.img) {
+          item.img = imageMatch.img;
+        }
+        if (imageMatch && imageMatch.large) {
+          item.flags.ddbimporter.dndbeyond['pictureUrl'] = imageMatch.large;
+        }
+      }
+    }
+    return item;
+  });
+  return Promise.all(updatedItems);
 }
 
 
