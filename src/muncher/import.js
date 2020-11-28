@@ -3,6 +3,7 @@ import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
+const INVENTORY_TYPE = EQUIPMENT_TYPES.concat("weapon");
 
 // a mapping of compendiums with content type
 const compendiumLookup = [
@@ -200,8 +201,8 @@ export async function looseItemNameMatch(item, items, loose = false) {
     matchingItem = items.find(
       (matchItem) =>
         (looseNames.includes(matchItem.name.toLowerCase()) || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", ""))) &&
-        EQUIPMENT_TYPES.includes(item.type) &&
-        EQUIPMENT_TYPES.includes(matchItem.type)
+        INVENTORY_TYPE.includes(item.type) &&
+        INVENTORY_TYPE.includes(matchItem.type)
     );
 
     // super loose name match!
@@ -600,9 +601,9 @@ export async function copySRDIcons(items, srdIconLibrary = null, nameMatchList =
   });
 }
 
-async function getDDBItemImages(items) {
+async function getDDBItemImages(items, download) {
   munchNote(`Fetching DDB Item Images`);
-  const downloadImages = game.settings.get("ddb-importer", "munching-policy-download-images");
+  const downloadImages = (download) ? true : game.settings.get("ddb-importer", "munching-policy-download-images");
   const remoteImages = game.settings.get("ddb-importer", "munching-policy-remote-images");
 
   const itemMap = items.map(async (item) => {
@@ -613,19 +614,21 @@ async function getDDBItemImages(items) {
       large: null,
     };
 
-    const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
-    const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
+    if (item.flags && item.flags.ddbimporter && item.flags.ddbimporter) {
+      const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
+      const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
 
-    if (avatarUrl && avatarUrl != "") {
-      munchNote(`Downloading ${item.name} image`);
-      const smallImage = await getImagePath(avatarUrl, 'item', item.name, downloadImages, remoteImages);
-      logger.debug(`Final image ${smallImage}`);
-      itemImage.img = smallImage;
-    }
-    if (largeAvatarUrl && largeAvatarUrl != "") {
-      const largeImage = await getImagePath(largeAvatarUrl, 'item-large', item.name, downloadImages, remoteImages);
-      itemImage.large = largeImage;
-      if (!itemImage.img) itemImage.img = largeImage;
+      if (avatarUrl && avatarUrl != "") {
+        munchNote(`Downloading ${item.name} image`);
+        const smallImage = await getImagePath(avatarUrl, 'item', item.name, downloadImages, remoteImages);
+        logger.debug(`Final image ${smallImage}`);
+        itemImage.img = smallImage;
+      }
+      if (largeAvatarUrl && largeAvatarUrl != "") {
+        const largeImage = await getImagePath(largeAvatarUrl, 'item-large', item.name, downloadImages, remoteImages);
+        itemImage.large = largeImage;
+        if (!itemImage.img) itemImage.img = largeImage;
+      }
     }
 
     return itemImage;
@@ -634,10 +637,10 @@ async function getDDBItemImages(items) {
   return Promise.all(itemMap);
 }
 
-async function getDDBSchoolSpellIcons() {
+async function getDDBSchoolSpellIcons(download) {
   munchNote(`Fetching spell school icons`);
   const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
-    const img = await getImagePath(school.img, 'spell');
+    const img = await getImagePath(school.img, 'spell', school.name, download);
     let schoolIcons = {
       name: school.name,
       img: img,
@@ -649,9 +652,9 @@ async function getDDBSchoolSpellIcons() {
   return Promise.all(schoolMap);
 }
 
-export async function getDDBIcons(items) {
-  const schools = await getDDBSchoolSpellIcons();
-  const itemImages = await getDDBItemImages(items.filter((item) => EQUIPMENT_TYPES.includes(item.type)));
+export async function getDDBIcons(items, download) {
+  const schools = await getDDBSchoolSpellIcons(download);
+  const itemImages = await getDDBItemImages(items.filter((item) => INVENTORY_TYPE.includes(item.type)), download);
 
   let updatedItems = items.map((item) => {
     // logger.debug(item.name);
@@ -661,7 +664,7 @@ export async function getDDBIcons(items) {
       if (school && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
         item.img = school.img;
       }
-    } else if (EQUIPMENT_TYPES.includes(item.type)) {
+    } else if (INVENTORY_TYPE.includes(item.type)) {
       if (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg") {
         const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
         if (imageMatch && imageMatch.img) {
