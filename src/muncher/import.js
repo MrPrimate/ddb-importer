@@ -637,7 +637,7 @@ async function getDDBItemImages(items, download) {
   return Promise.all(itemMap);
 }
 
-async function getDDBSchoolSpellIcons(download) {
+async function getDDBSchoolSpellImages(download) {
   munchNote(`Fetching spell school icons`);
   const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
     const img = await getImagePath(school.img, 'spell', school.name, download);
@@ -652,9 +652,8 @@ async function getDDBSchoolSpellIcons(download) {
   return Promise.all(schoolMap);
 }
 
-export async function getDDBIcons(items, download) {
-  const schools = await getDDBSchoolSpellIcons(download);
-  const itemImages = await getDDBItemImages(items.filter((item) => INVENTORY_TYPE.includes(item.type)), download);
+export async function getDDBSpellSchoolIcons(items, download) {
+  const schools = await getDDBSchoolSpellImages(download);
 
   let updatedItems = items.map((item) => {
     // logger.debug(item.name);
@@ -664,7 +663,19 @@ export async function getDDBIcons(items, download) {
       if (school && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
         item.img = school.img;
       }
-    } else if (INVENTORY_TYPE.includes(item.type)) {
+    }
+    return item;
+  });
+  return Promise.all(updatedItems);
+}
+
+export async function getDDBEquipmentIcons(items, download) {
+  const itemImages = await getDDBItemImages(items.filter((item) => INVENTORY_TYPE.includes(item.type)), download);
+
+  let updatedItems = items.map((item) => {
+    // logger.debug(item.name);
+    // logger.debug(item.flags.ddbimporter.dndbeyond);
+    if (INVENTORY_TYPE.includes(item.type)) {
       if (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg") {
         const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
         if (imageMatch && imageMatch.img) {
@@ -682,6 +693,13 @@ export async function getDDBIcons(items, download) {
 
 
 export async function updateIcons(items, srdIconUpdate = true) {
+  // this will use ddb spell school icons as a fall back
+  const ddbIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-icons");
+  if (ddbIcons) {
+    logger.debug("DDB Equipment Icon Match");
+    items = await getDDBEquipmentIcons(items);
+  }
+
   // check for SRD icons
   const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
   // eslint-disable-next-line require-atomic-updates
@@ -702,7 +720,7 @@ export async function updateIcons(items, srdIconUpdate = true) {
   const ddbIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-icons");
   if (ddbIcons) {
     logger.debug("DDB Spell School Icon Match");
-    items = await getDDBIcons(items);
+    items = await getDDBSpellSchoolIcons(items);
   }
 
   return items;

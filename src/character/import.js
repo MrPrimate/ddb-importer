@@ -8,7 +8,8 @@ import {
   getSRDCompendiumItems,
   copySRDIcons,
   download,
-  getDDBIcons,
+  getDDBEquipmentIcons,
+  getDDBSchoolSpellIcons,
 } from "../muncher/import.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
@@ -655,14 +656,19 @@ export default class CharacterImport extends Application {
       CharacterImport.showCurrentTask(html, "Copying existing data flags");
       await this.copySupportedCharacterItemFlags(items);
 
+      if (game.settings.get("ddb-importer", "character-update-policy-use-ddb-icons")) {
+        CharacterImport.showCurrentTask(html, "Fetching DDB Inventory Images");
+        items = await getDDBEquipmentIcons(items, true);
+      }
+
       if (useSRDCompendiumIcons && !useSRDCompendiumItems) {
         CharacterImport.showCurrentTask(html, "Adding SRD Icons");
         items = await copySRDIcons(items);
       }
 
       if (game.settings.get("ddb-importer", "character-update-policy-use-ddb-icons")) {
-        CharacterImport.showCurrentTask(html, "Fetching DDB Inventory Images");
-        items = await getDDBIcons(items, true);
+        CharacterImport.showCurrentTask(html, "Fetching DDB Spell School Images");
+        items = await getDDBSpellSchoolIcons(items, true);
       }
 
       CharacterImport.showCurrentTask(html, "Adding items to character");

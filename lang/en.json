@@ -1,7 +1,7 @@
 {
   "ddb-importer.module-name": "D&D Beyond Character Import",
-  "ddb-importer.image-upload-directory.name": "Avatar upload directory",
-  "ddb-importer.image-upload-directory.hint": "Specificies the avatar upload location on the server.",
+  "ddb-importer.image-upload-directory.name": "Image upload directory",
+  "ddb-importer.image-upload-directory.hint": "Specificies the image upload location on the server.",
   "ddb-importer.scene-upload-directory.name": "Scene upload directory",
   "ddb-importer.scene-upload-directory.hint": "Specificies the scene upload location on the server.",
   "ddb-importer.entity-import-policy.name": "Compendium import policy (GM only)",
