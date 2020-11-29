@@ -1,3 +1,7 @@
+# v 0.0.31
+
+* Monster token import fixes
+
 # v 0.0.30
 
 * Improved image handling for monster uploads
