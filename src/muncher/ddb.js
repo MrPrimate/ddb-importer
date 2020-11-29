@@ -105,7 +105,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching monsters!");
       const result = await parseCritters();
-      munchNote(`Finised importing ${result} monsters!`, true);
+      munchNote(`Finished importing ${result} monsters!`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
@@ -119,7 +119,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching spells!");
       const result = await parseSpells();
-      munchNote(`Finised importing ${result.length} spells!`, true);
+      munchNote(`Finished importing ${result.length} spells!`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
@@ -132,7 +132,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching items!");
       const result = await parseItems();
-      munchNote(`Finised importing ${result.length} items!`, true);
+      munchNote(`Finished importing ${result.length} items!`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {

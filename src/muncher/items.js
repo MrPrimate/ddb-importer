@@ -87,7 +87,7 @@ function getItemData() {
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
-          munchNote(`Failure:${data.message}`);
+          munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;
@@ -118,7 +118,7 @@ export async function parseItems() {
   }
 
   const finalItems = await srdFiddling(items, "inventory");
-  const finalCount = finalItems.length + 1;
+  const finalCount = finalItems.length;
   munchNote(`Please be patient importing ${finalCount} items!`, true);
 
   return new Promise((resolve) => {

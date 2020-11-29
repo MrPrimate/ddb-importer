@@ -29,13 +29,14 @@ async function getMonsterData() {
         return data;
       })
       .then((data) => {
-        munchNote(`Retrieved ${data.data.length + 1} monsters, starting parse...`, true, false);
-        logger.info(`Retrieved ${data.data.length + 1} monsters`);
+        munchNote(`Retrieved ${data.data.length} monsters, starting parse...`, true, false);
+        logger.info(`Retrieved ${data.data.length} monsters`);
         const parsedMonsters = parseMonsters(data.data);
         return parsedMonsters;
       })
       .then((data) => {
-        munchNote(`Parsed ${data.actors.length} monsters, failed ${data.failedMonsterNames} monsters`, false, true);
+
+        munchNote(`Parsed ${data.actors.length} monsters, failed ${data.failedMonsterNames.length} monsters`, false, true);
         if (data.failedMonsterNames && data.failedMonsterNames.length !== 0) logger.error(`Failed to parse ${data.failedMonsterNames}`);
         resolve(data.actors);
       })
@@ -87,7 +88,7 @@ export async function parseCritters() {
   await generateIconMap(finalMonsters);
 
   let currentMonster = 1;
-  const monsterCount = finalMonsters.length + 1;
+  const monsterCount = finalMonsters.length;
   munchNote(`Importing ${monsterCount} monsters!`, true);
   for (const monster of finalMonsters) {
     munchNote(`Importing ${monster.name} (${currentMonster}/${monsterCount})`, false, true);

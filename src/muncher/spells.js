@@ -33,8 +33,6 @@ function getSpellData(className) {
 
 export async function parseSpells() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
-  logger.debug(`Munching spells! Updating? ${updateBool} SRD? ${srdIcons}`);
 
   const results = await Promise.allSettled([
     getSpellData("Cleric"),
@@ -54,8 +52,8 @@ export async function parseSpells() {
   let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
   const finalSpells = await srdFiddling(uniqueSpells, "spells");
 
-  const finalCount = finalSpells.length + 1;
-  munchNote(`Please be patient importing ${finalCount} spells!`, true);
+  const finalCount = finalSpells.length;
+  munchNote(`Importing ${finalCount} spells...`, true);
 
   return new Promise((resolve) => {
     resolve(updateCompendium("spells", { spells: finalSpells }, updateBool));
