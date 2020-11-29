@@ -82,15 +82,16 @@ async function getNPCImage(data) {
     }
   }
 
+  // Currently token images always have to be downloaded. Not sure why.
   if (dndBeyondTokenImageUrl) {
     const tokenExt = dndBeyondTokenImageUrl.split(".").pop().split(/#|\?|&/)[0];
 
     if (dndBeyondTokenImageUrl.endsWith(npcType + "." + tokenExt)) {
       // eslint-disable-next-line require-atomic-updates
-      data.token.img = await getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName);
+      data.token.img = await getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName, true, false);
     } else {
       // eslint-disable-next-line require-atomic-updates
-      data.token.img = await getImagePath(dndBeyondImageUrl, "npc-token", npcName);
+      data.token.img = await getImagePath(dndBeyondTokenImageUrl, "npc-token", npcName, true, false);
     }
   }
 
