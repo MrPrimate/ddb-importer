@@ -1,7 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { updateIcons } from "./import.js";
+import { updateIcons, getImagePath } from "./import.js";
 
 /**
  *
@@ -56,80 +56,53 @@ async function addNPCToCompendium(npc) {
 
 
 async function getNPCImage(data) {
+  // check to see if we have munched flags to work on
+  if (!data.flags || !data.flags.monsterMunch || !data.flags.monsterMunch.img) {
+    return false;
+  }
+
   let dndBeyondImageUrl = data.flags.monsterMunch.img;
-  const dndBeyondTokenImageUrl = data.flags.monsterMunch.tokenImg;
+  let dndBeyondTokenImageUrl = data.flags.monsterMunch.tokenImg;
   const npcType = data.data.details.type;
-  const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
-  const downloadImages = game.settings.get("ddb-importer", "munching-policy-download-images");
-  const remoteImages = game.settings.get("ddb-importer", "munching-policy-remote-images");
+  const genericNPCName = npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
+  const npcName = data.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
 
   if (!dndBeyondImageUrl && dndBeyondTokenImageUrl) dndBeyondImageUrl = dndBeyondTokenImageUrl;
+  if (!dndBeyondTokenImageUrl && dndBeyondImageUrl) dndBeyondTokenImageUrl = dndBeyondImageUrl;
 
-  if (dndBeyondImageUrl && downloadImages) {
+  if (dndBeyondImageUrl) {
     const ext = dndBeyondImageUrl.split(".").pop().split(/#|\?|&/)[0];
 
     if (dndBeyondImageUrl.endsWith(npcType + "." + ext)) {
-      const filename = "npc-generic-" + npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
-      const imageExists = await utils.fileExists(uploadDirectory, filename + "." + ext);
-
-      if (!imageExists) {
-        // eslint-disable-next-line require-atomic-updates
-        data.img = await utils.uploadImage(dndBeyondImageUrl, uploadDirectory, filename);
-      } else {
-        // eslint-disable-next-line require-atomic-updates
-        data.img = utils.getFileUrl(uploadDirectory, filename + "." + ext);
-      }
+      // eslint-disable-next-line require-atomic-updates
+      data.img = await getImagePath(dndBeyondImageUrl, "npc-generic", genericNPCName);
     } else {
-      // image upload
-      const filename = "npc-" + data.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
-      const imageExists = await utils.fileExists(uploadDirectory, filename + "." + ext);
-
-      if (!imageExists) {
-        // eslint-disable-next-line require-atomic-updates
-        data.img = await utils.uploadImage(dndBeyondImageUrl, uploadDirectory, filename);
-      } else {
-        // eslint-disable-next-line require-atomic-updates
-        data.img = utils.getFileUrl(uploadDirectory, filename + "." + ext);
-      }
+      // eslint-disable-next-line require-atomic-updates
+      data.img = await getImagePath(dndBeyondImageUrl, "npc", npcName);
     }
-  } else if (dndBeyondImageUrl && remoteImages) {
-    data.img = dndBeyondImageUrl;
   }
 
-  if (dndBeyondTokenImageUrl && downloadImages) {
+  if (dndBeyondTokenImageUrl) {
     const tokenExt = dndBeyondTokenImageUrl.split(".").pop().split(/#|\?|&/)[0];
 
     if (dndBeyondTokenImageUrl.endsWith(npcType + "." + tokenExt)) {
-      const filenameToken = "npc-generic-token-" + npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
-      const tokenImageExists = await utils.fileExists(uploadDirectory, filenameToken + "." + tokenExt);
-
-      if (!tokenImageExists) {
-        // eslint-disable-next-line require-atomic-updates
-        data.token.img = await utils.uploadImage(dndBeyondTokenImageUrl, uploadDirectory, filenameToken);
-      } else {
-        // eslint-disable-next-line require-atomic-updates
-        data.token.img = utils.getFileUrl(uploadDirectory, filenameToken + "." + tokenExt);
-      }
+      // eslint-disable-next-line require-atomic-updates
+      data.token.img = await getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName);
     } else {
-      // image upload
-      const filenameToken = "npc-token-" + data.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
-      const tokenImageExists = await utils.fileExists(uploadDirectory, filenameToken + "." + tokenExt);
-      if (!tokenImageExists) {
-        // eslint-disable-next-line require-atomic-updates
-        data.token.img = await utils.uploadImage(dndBeyondTokenImageUrl, uploadDirectory, filenameToken);
-      } else {
-        // eslint-disable-next-line require-atomic-updates
-        data.token.img = utils.getFileUrl(uploadDirectory, filenameToken + "." + tokenExt);
-      }
+      // eslint-disable-next-line require-atomic-updates
+      data.token.img = await getImagePath(dndBeyondImageUrl, "npc-token", npcName);
     }
-  } else if (dndBeyondTokenImageUrl && remoteImages) {
-    // eslint-disable-next-line require-atomic-updates
-    data.token.img = dndBeyondTokenImageUrl;
   }
 
+  return true;
 }
 
 async function addSpells(data) {
+  // check to see if we have munched flags to work on
+  if (!data.flags || !data.flags.monsterMunch || !data.flags.monsterMunch.spellList) {
+    return;
+  }
+
   const atWill = data.flags.monsterMunch.spellList.atwill;
   const klass = data.flags.monsterMunch.spellList.class;
   const innate = data.flags.monsterMunch.spellList.innate;
@@ -235,7 +208,8 @@ export function addNPC(data) {
         resolve(npc);
       })
       .catch((error) => {
-        logger.error(`error parsing NPC: ${error}`);
+        logger.error(`error parsing NPC: ${error} ${data.name}`);
+        logger.error(error.stack);
         reject(error);
       });
   });

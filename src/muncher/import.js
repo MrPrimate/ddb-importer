@@ -67,9 +67,12 @@ const gameFolderLookup = [
  * @param {*} note
  * @param {*} nameField
  */
-export function munchNote(note, nameField = false) {
+export function munchNote(note, nameField = false, monsterNote = false) {
   if (nameField) {
     $('#munching-task-name').text(note);
+    $('#ddb-importer-monsters').css("height", "auto");
+  } else if (monsterNote) {
+    $('#munching-task-monster').text(note);
     $('#ddb-importer-monsters').css("height", "auto");
   } else {
     $('#munching-task-notes').text(note);
@@ -451,7 +454,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   return results;
 }
 
-async function getImagePath(imageUrl, type = "ddb", name = "", download = false, remoteImages = false) {
+export async function getImagePath(imageUrl, type = "ddb", name = "", download = false, remoteImages = false) {
   const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
   const downloadImage = (download) ? download : game.settings.get("ddb-importer", "munching-policy-download-images");
   const remoteImage = (remoteImages) ? remoteImages : game.settings.get("ddb-importer", "munching-policy-remote-images");
@@ -467,14 +470,14 @@ async function getImagePath(imageUrl, type = "ddb", name = "", download = false,
     if (imageExists) {
       // eslint-disable-next-line require-atomic-updates
       const image = utils.getFileUrl(uploadDirectory, filename + "." + ext);
-      return image;
+      return image.trim();
     } else {
       // eslint-disable-next-line require-atomic-updates
       const image = await utils.uploadImage(imageUrl, uploadDirectory, filename);
-      return image;
+      return image.trim();
     }
   } else if (imageUrl && remoteImage) {
-    return imageUrl;
+    return imageUrl.trim();
   }
   return null;
 }
@@ -631,6 +634,7 @@ async function getDDBItemImages(items, download) {
       }
     }
 
+    munchNote("");
     return itemImage;
   });
 
@@ -649,6 +653,7 @@ async function getDDBSchoolSpellImages(download) {
     return schoolIcons;
   });
 
+  munchNote("");
   return Promise.all(schoolMap);
 }
 
@@ -731,7 +736,13 @@ export async function srdFiddling(items, type) {
   const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
   const iconItems = await updateIcons(items);
 
-  if (useSrd) {
+  if (useSrd && type == "monsters") {
+    const srdItems = await getSRDCompendiumItems(items, type);
+    // removed existing items from those to be imported
+    logger.debug("Removing compendium items");
+    const lessSrdItems = await removeItems(iconItems, srdItems);
+    return lessSrdItems.concat(srdItems);
+  } else if (useSrd) {
     logger.debug("Removing compendium items");
     const srdItems = await getSRDCompendiumItems(items, type);
     let itemMap = {};
