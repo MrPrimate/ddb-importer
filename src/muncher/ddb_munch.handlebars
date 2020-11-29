@@ -52,6 +52,12 @@
                     </div>
                     <hr>
                      <div>
+                      {{#each itemConfig}}
+                      <div class="munching-item-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                              name="munching-policy-{{this.name}}"
+                              data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                      </div>
+                      {{/each}}
                         <button type="button" id="munch-items-start" class="munch-button"
                             {{#if cobalt}}enabled{{else}}disabled{{/if}}>Item Munch</button>
                     </div>

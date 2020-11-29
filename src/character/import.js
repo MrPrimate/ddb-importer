@@ -391,9 +391,15 @@ export default class CharacterImport extends Application {
         enabled: true,
       },
       {
-        name: "use-ddb-icons",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-ddb-icons"),
-        description: "Use icons from D&DBeyond for items (where they exist).",
+        name: "use-ddb-spell-icons",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons"),
+        description: "Use spell school icons from D&DBeyond.",
+        enabled: true,
+      },
+      {
+        name: "use-ddb-item-icons",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons"),
+        description: "Use equipment icons from D&DBeyond (where they exist).",
         enabled: true,
       },
     ];
@@ -566,14 +572,15 @@ export default class CharacterImport extends Application {
   async importCharacterItems(html, items) {
     const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
     const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
-    const ddbIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-icons");
+    const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
+    const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
 
     // if we still have items to add, add them
     if (items.length > 0) {
       CharacterImport.showCurrentTask(html, "Copying existing data flags");
       await this.copySupportedCharacterItemFlags(items);
 
-      if (ddbIcons) {
+      if (ddbItemIcons) {
         CharacterImport.showCurrentTask(html, "Fetching DDB Inventory Images");
         items = await getDDBEquipmentIcons(items, true);
       }
@@ -583,7 +590,7 @@ export default class CharacterImport extends Application {
         items = await copySRDIcons(items);
       }
 
-      if (ddbIcons) {
+      if (ddbSpellIcons) {
         CharacterImport.showCurrentTask(html, "Fetching DDB Spell School Images");
         items = await getDDBSpellSchoolIcons(items, true);
       }

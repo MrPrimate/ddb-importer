@@ -60,6 +60,14 @@ export default class DDBMuncher extends Application {
       );
     });
 
+    html.find('.munching-item-config input[type="checkbox"]').on("change", (event) => {
+      game.settings.set(
+        "ddb-importer",
+        "munching-policy-" + event.currentTarget.dataset.section,
+        event.currentTarget.checked
+      );
+    });
+
     html.find('.munching-monster-config input[type="checkbox"]').on("change", (event) => {
       game.settings.set(
         "ddb-importer",
@@ -139,11 +147,19 @@ export default class DDBMuncher extends Application {
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
 
-    const itemConfig = [];
+    const itemConfig = [
+      {
+        name: "use-ddb-item-icons",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-item-icons"),
+        description: "Use D&D Beyond item images, if available",
+        enabled: true,
+      },
+    ];
+
     const spellConfig = [
       {
-        name: "use-ddb-icons",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-icons"),
+        name: "use-ddb-spell-icons",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-spell-icons"),
         description: "If no other icon, use the D&DBeyond spell school icon.",
         enabled: true,
       },
@@ -155,13 +171,13 @@ export default class DDBMuncher extends Application {
       {
         name: "update-existing",
         isChecked: game.settings.get("ddb-importer", "munching-policy-update-existing"),
-        description: "Update existing items.",
+        description: "Update existing things.",
         enabled: true,
       },
       {
         name: "use-srd",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd"),
-        description: "Copy matching SRD compendium items instead of importing.",
+        description: "Use SRD compendium things instead of importing.",
         enabled: true,
       },
       {
@@ -179,7 +195,7 @@ export default class DDBMuncher extends Application {
       {
         name: "download-images",
         isChecked: game.settings.get("ddb-importer", "munching-policy-download-images"),
-        description: "Download D&D Beyond images (takes longer and needs space)",
+        description: "Download D&D Beyond images (takes longer and needs space).",
         enabled: true,
       },
       {

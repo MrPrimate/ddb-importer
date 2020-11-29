@@ -699,8 +699,8 @@ export async function getDDBEquipmentIcons(items, download) {
 
 export async function updateIcons(items, srdIconUpdate = true) {
   // this will use ddb spell school icons as a fall back
-  const ddbIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-icons");
-  if (ddbIcons) {
+  const ddbItemIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-item-icons");
+  if (ddbItemIcons) {
     logger.debug("DDB Equipment Icon Match");
     items = await getDDBEquipmentIcons(items);
   }
@@ -722,7 +722,8 @@ export async function updateIcons(items, srdIconUpdate = true) {
   }
 
   // this will use ddb spell school icons as a fall back
-  if (ddbIcons) {
+  const ddbSpellIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-spell-icons");
+  if (ddbSpellIcons) {
     logger.debug("DDB Spell School Icon Match");
     items = await getDDBSpellSchoolIcons(items);
   }

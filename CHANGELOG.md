@@ -1,3 +1,8 @@
+# v 0.0.30
+
+* Improved image handling for monster uploads
+* Spell school and item images split into separate options
+
 # v 0.0.29
 
 * Fix up Booming Blade and Green-Flame blade cantrips for errata changes
