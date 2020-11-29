@@ -113,6 +113,16 @@ export function fixSpells(ddb, items) {
       case "Chaos Bolt":
         spell.data.damage = { parts: [["2d8", ""], ["1d6", ""]], versatile: "", value: "" };
         break;
+      case "Booming Blade":
+        spell.data.damage = { parts: [["0", "thunder"]], versatile: "1d8", value: "" };
+        spell.data.scaling = { mode: "cantrip", formula: "1d8" };
+        spell.data.actionType = "other";
+        break;
+      case "Green-Flame Blade":
+        spell.data.damage = { parts: [["0", "fire"]], versatile: "@mod", value: "" };
+        spell.data.scaling = { mode: "cantrip", formula: "1d8" };
+        spell.data.actionType = "other";
+        break;
       // no default
     }
 

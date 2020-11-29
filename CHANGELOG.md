@@ -1,3 +1,11 @@
+# v 0.0.29
+
+* Fix up Booming Blade and Green-Flame blade cantrips for errata changes
+
+# v 0.0.28
+
+* Prefer DDB Equipment icons over others
+
 # v 0.0.27
 
 * Improvements to broken source name lookup
