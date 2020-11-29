@@ -1,6 +1,5 @@
 // Main module class
 import { updateCompendium, srdFiddling, munchNote, getCampaignId } from "./import.js";
-import logger from "../logger.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 
 function getSpellData(className) {
