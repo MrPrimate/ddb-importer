@@ -3,6 +3,7 @@
 * Monster imports enabled for Patreon supporters
 * Fix broken innate spellcasting for monster parser
 * Tortle AC fix
+* When importing from SRD try and update icons if they don't already have one
 
 # v 0.0.31
 
