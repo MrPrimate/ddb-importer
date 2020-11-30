@@ -1,6 +1,8 @@
 # v 0.1.0
 
 * Monster imports enabled for Patreon supporters
+* Fix broken innate spellcasting for monster parser
+* Tortle AC fix
 
 # v 0.0.31
 

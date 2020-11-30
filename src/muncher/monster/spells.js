@@ -51,8 +51,8 @@ function parseInnateSpells(text, spells, spellList) {
  // handle innate style spells here
   // 3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)
   // console.log(text);
-  const innateSeatch = /^(\d+)\/(\w+)\s+each:\s+(.*$)"/;
-  const innateMatch = text.match(innateSeatch);
+  const innateSearch = /^(\d+)\/(\w+)(?:\s+each)?:\s+(.*$)/;
+  const innateMatch = text.match(innateSearch);
   // console.log(innateMatch);
   if (innateMatch) {
     const spellArray = innateMatch[3].split(",").map((spell) => spell.split('(', 1)[0].trim());
@@ -66,14 +66,9 @@ function parseInnateSpells(text, spells, spellList) {
 }
 
 function parseSpells(text, spells, spellList) {
-    // let = JSON.parse(JSON.stringify(spells));
     // console.log(text);
-
-
     const spellLevelSearch = "^(Cantrip|\\d)(?:st|th|nd|rd)?(?:\\s*level)?(?:s)?\\s+\\((at will|\\d)\\s*(?:slot|slots)?\\):\\s+(.*$)";
-    // const spellLevelSearch = "^(Cantrip|\\d)";
     const match = text.match(spellLevelSearch);
-
     // console.log(match);
 
     if (!match) return parseInnateSpells(text, spells, spellList);
@@ -182,7 +177,7 @@ export function getSpells(monster, DDB_CONFIG) {
   });
 
   dom.childNodes.forEach((node) => {
-    const spellcastingMatch = node.textContent.trim().match(/^Spellcasting|Innate Spellcasting/);
+    const spellcastingMatch = node.textContent.trim().match(/^Spellcasting|^Innate Spellcasting/);
     if (spellcastingMatch) {
       spellcasting = parseSpellcasting(node.textContent);
       spelldc = parseSpelldc(node.textContent);
