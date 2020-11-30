@@ -90,7 +90,7 @@ let getUnarmoredAC = (modifiers, character) => {
     let unarmoredACValue = 10;
     // +DEX
     // for a case of setting unarmoured ac, the dex won't detract
-    unarmoredACValue += Math.max(0,Math.min(character.data.abilities.dex.mod, maxUnamoredDexMod));
+    unarmoredACValue += Math.max(0, Math.min(character.data.abilities.dex.mod, maxUnamoredDexMod));
     // +WIS or +CON, if monk or barbarian, draconic resilience === null
 
     // console.log(`Unarmoured AC Value: ${unarmoredACValue}`);
