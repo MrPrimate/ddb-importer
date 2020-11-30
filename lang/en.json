@@ -53,5 +53,7 @@
   "ddb-importer.cobalt-cookie.name": "DDB Cobalt Cookie",
   "ddb-importer.cobalt-cookie.hint": "You can get this using my Chrome extension https://github.com/MrPrimate/ddb-importer-chrome",
   "ddb-importer.campaign-id.name": "DDB Campaign URL or ID",
-  "ddb-importer.campaign-id.hint": "Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345"
+  "ddb-importer.campaign-id.hint": "Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345",
+  "ddb-importer.beta-key.name": "Patreon supporter Beta Key",
+  "ddb-importer.beta-key.hint": "Some Patreon supporter tiers have access to Beta features, enter your key here"
 }

@@ -1,3 +1,7 @@
+# v 0.1.0
+
+* Monster imports enabled for Patreon supporters
+
 # v 0.0.31
 
 * Monster token import fixes

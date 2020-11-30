@@ -156,8 +156,8 @@ async function getCharacterData(characterId) {
           data["character"] = character;
           return data;
         } catch (error) {
-          const debug = game.settings.get("ddb-importer", "log-level");
-          if (debug == "DEBUG") {
+          const debugJson = game.settings.get("ddb-importer", "debug-json");
+          if (debugJson) {
             download(JSON.stringify(data), `${characterId}-raw.json`, "application/json");
           }
           throw error;
@@ -485,8 +485,8 @@ export default class CharacterImport extends Application {
           const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
           const characterData = await getCharacterData(characterId);
           logger.debug("import.js getCharacterData result", characterData);
-          const debug = game.settings.get("ddb-importer", "log-level");
-          if (debug == "DEBUG") {
+          const debugJson = game.settings.get("ddb-importer", "debug-json");
+          if (debugJson) {
             download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
           }
           if (characterData.success) {
