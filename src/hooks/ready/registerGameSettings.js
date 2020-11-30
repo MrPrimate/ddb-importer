@@ -152,10 +152,19 @@ export default function () {
   game.settings.register("ddb-importer", "beta-key", {
     name: "ddb-importer.beta-key.name",
     hint: "ddb-importer.beta-key.hint",
-    scope: "player",
-    config: false,
+    scope: "world",
+    config: true,
     type: String,
     default: "",
+  });
+
+  game.settings.register("ddb-importer", "debug-json", {
+    name: "ddb-importer.debug-json.name",
+    hint: "ddb-importer.debug-json.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
   });
 
   /** Character update settings, stored per user and non-configurable in the settings screen */

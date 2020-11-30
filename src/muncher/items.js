@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, addMagicItemSpells, munchNote, getCampaignId } from "./import.js";
+import { updateCompendium, srdFiddling, addMagicItemSpells, munchNote, getCampaignId, download } from "./import.js";
 import logger from "../logger.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils.js";
@@ -75,6 +75,7 @@ function getItemData() {
   const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie, campaignId: campaignId };
+  const debugJson = game.settings.get("ddb-importer", "debug-json");
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/getItems`, {
@@ -86,6 +87,9 @@ function getItemData() {
     })
       .then((response) => response.json())
       .then((data) => {
+        if (debugJson) {
+          download(JSON.stringify(data), `items-raw.json`, "application/json");
+        }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);
           reject(data.message);

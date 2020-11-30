@@ -1,5 +1,5 @@
 // Main module class
-import { srdFiddling, getCompendiumItems, removeItems, munchNote, getSRDIconLibrary, copySRDIcons } from "./import.js";
+import { srdFiddling, getCompendiumItems, removeItems, munchNote, getSRDIconLibrary, copySRDIcons, download } from "./import.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
@@ -10,6 +10,7 @@ async function getMonsterData() {
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie, betaKey: betaKey };
   const searchTerm = $("#monster-munch-filter")[0].value;
+  const debugJson = game.settings.get("ddb-importer", "debug-json");
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/getMonster/${searchTerm}`, {
@@ -25,6 +26,9 @@ async function getMonsterData() {
         if (!data.success) {
           munchNote(`API Failure: ${data.message}`);
           reject(data.message);
+        }
+        if (debugJson) {
+          download(JSON.stringify(data), `monsters-raw.json`, "application/json");
         }
         return data;
       })

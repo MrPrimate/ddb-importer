@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, munchNote, getCampaignId } from "./import.js";
+import { updateCompendium, srdFiddling, munchNote, getCampaignId, download } from "./import.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 
 function getSpellData(className) {
@@ -7,6 +7,7 @@ function getSpellData(className) {
   const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const body = { cobalt: cobaltCookie, campaignId: campaignId };
+  const debugJson = game.settings.get("ddb-importer", "debug-json");
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/getClassSpells/${className}`, {
@@ -18,6 +19,9 @@ function getSpellData(className) {
     })
       .then((response) => response.json())
       .then((data) => {
+        if (debugJson) {
+          download(JSON.stringify(data), `spells-raw.json`, "application/json");
+        }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);
           reject(data.message);
