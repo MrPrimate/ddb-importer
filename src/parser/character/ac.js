@@ -84,11 +84,17 @@ let getUnarmoredAC = (modifiers, character) => {
   ).map((mods) => mods.value);
   const maxUnamoredDexMod = Math.min(...maxUnamoredDexMods, 20);
 
+  // console.log(`Max Dex: ${maxUnamoredDexMod}`);
+
   isUnarmored.forEach((unarmored) => {
     let unarmoredACValue = 10;
     // +DEX
-    unarmoredACValue += Math.min(character.data.abilities.dex.mod, maxUnamoredDexMod);
+    // for a case of setting unarmoured ac, the dex won't detract
+    unarmoredACValue += Math.max(0,Math.min(character.data.abilities.dex.mod, maxUnamoredDexMod));
     // +WIS or +CON, if monk or barbarian, draconic resilience === null
+
+    // console.log(`Unarmoured AC Value: ${unarmoredACValue}`);
+    // console.log(unarmored);
 
     if (unarmored.statId !== null) {
       let ability = DICTIONARY.character.abilities.find((ability) => ability.id === unarmored.statId);
@@ -99,6 +105,7 @@ let getUnarmoredAC = (modifiers, character) => {
     }
     unarmoredACValues.push(unarmoredACValue);
   });
+  // console.warn(unarmoredACValues);
   return unarmoredACValues;
 };
 
@@ -197,12 +204,12 @@ export function getArmorClass(data, character) {
   const shields = equippedArmor.filter((shield) => shield.definition.armorTypeId === 4);
   const armors = equippedArmor.filter((armour) => armour.definition.armorTypeId !== 4);
 
-  // utils.log("Calculated GearAC: " + gearAC);
-  // utils.log("Unarmoured AC Bonus:" + unarmoredACBonus);
-  // utils.log("Calculated MiscACBonus: " + miscACBonus);
-  // utils.log("Equipped AC Options: " + JSON.stringify(equippedArmor));
-  // utils.log("Armors: " + JSON.stringify(armors));
-  // utils.log("Shields: " + JSON.stringify(shields));
+  // console.log("Calculated GearAC: " + gearAC);
+  // console.log("Unarmoured AC Bonus:" + unarmoredACBonus);
+  // console.log("Calculated MiscACBonus: " + miscACBonus);
+  // console.log("Equipped AC Options: " + JSON.stringify(equippedArmor));
+  // console.log("Armors: " + JSON.stringify(armors));
+  // console.log("Shields: " + JSON.stringify(shields));
 
   // the presumption here is that you can only wear a shield and a single
   // additional 'armor' piece. in DDB it's possible to equip multiple armor
@@ -242,6 +249,9 @@ export function getArmorClass(data, character) {
         const ignoreUnarmouredACBonus = utils.filterBaseModifiers(data, "ignore", "unarmored-dex-ac-bonus");
         if (ignoreUnarmouredACBonus) {
           acCalc = armorAC + gearAC + miscACBonus;
+          // console.log(armorAC);
+          // console.log(gearAC);
+          // console.log(miscACBonus);
         } else {
           acCalc = armorAC + gearAC + miscACBonus + unarmoredACBonus;
         }
