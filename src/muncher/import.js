@@ -746,8 +746,9 @@ export async function srdFiddling(items, type) {
   } else if (useSrd) {
     logger.debug("Removing compendium items");
     const srdItems = await getSRDCompendiumItems(items, type);
+    const srdIconedItems = await updateIcons(items, false);
     let itemMap = {};
-    itemMap[type] = srdItems;
+    itemMap[type] = srdIconedItems;
     updateCompendium(type, itemMap, updateBool);
     // removed existing items from those to be imported
     return new Promise((resolve) => {
