@@ -40,10 +40,11 @@ export function parseMonsters(monsterData) {
       foundryActor.name = monster.name;
       // logger.info("********************");
       // logger.info(monster.name);
+      let img = (monster.basicAvatarUrl) ? monster.basicAvatarUrl : monster.largeAvatarUrl;
       foundryActor.token.name = monster.name;
       foundryActor.flags.monsterMunch = {
         url: monster.url,
-        img: monster.basicAvatarUrl,
+        img: (img) ? img : monster.avatarUrl,
         tokenImg: monster.avatarUrl,
       };
 

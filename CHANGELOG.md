@@ -1,3 +1,7 @@
+# v 0.1.1
+
+* Some monsters did not download avatar images correctly
+
 # v 0.1.0
 
 * Monster imports enabled for Patreon supporters
