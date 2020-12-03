@@ -44,7 +44,7 @@ export function getSensesLookup(data) {
 
   // Magical bonuses and additional, e.g. Gloom Stalker
   utils
-    .filterBaseModifiers(data, "sense", "darkvision")
+    .filterBaseModifiers(data, "sense", "darkvision", ["", null, "plus 60 feet if wearer already has Darkvision"])
     .map((mod) => {
       return {
         name: DICTIONARY.character.senses.find((s) => s.id === mod.entityId).name,

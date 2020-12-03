@@ -2,6 +2,7 @@
 
 * Updating README and module dependencies
 * Option to use generic magic item icons from DDB
+* Fix a darkvision bug with goggles of night
 
 # v 0.1.1
 
