@@ -1,3 +1,8 @@
+# v 0.1.2
+
+* Updating README and module dependencies
+* Option to use generic magic item icons from DDB
+
 # v 0.1.1
 
 * Some monsters did not download avatar images correctly
