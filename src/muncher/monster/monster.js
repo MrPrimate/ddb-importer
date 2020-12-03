@@ -109,7 +109,9 @@ export function parseMonsters(monsterData) {
         const legendaryActions = getLegendaryActions(monster, DDB_CONFIG, actions);
         items.push(...legendaryActions.legendaryActions);
         foundryActor.data.resources["legact"] = legendaryActions.actions;
-
+        foundryActor.token.bar2 = {
+          attribute: "resources.legact"
+        };
       }
 
       if (monster.specialTraitsDescription != "") {

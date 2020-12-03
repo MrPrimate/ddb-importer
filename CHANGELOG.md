@@ -3,6 +3,7 @@
 * Updating README and module dependencies
 * Option to use generic magic item icons from DDB
 * Fix a darkvision bug with goggles of night
+* If a monster has legendary actions it appears in token bar 2, as per SRD monsters
 
 # v 0.1.1
 
