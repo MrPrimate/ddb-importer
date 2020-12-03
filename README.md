@@ -9,7 +9,7 @@ This module:
 * _Won't_ add items, and spells to the compendiums during character import. There's a new tools to do that! Class features are still added to the Features compendium.
 * Can bulk import spells.
 * Can bulk import items.
-* [Not yet available] Can bulk import monsters. These monsters come from JSON definitions, so parsing is easier.
+* [Patreon](https://patreon.com/mrprimate) supporters can bulk import monsters. These monsters come from JSON definitions, so parsing is easier.
 * [Not yet available] Can bulk import simple class feature descriptions.
 * When you import a Cleric or Druid it will import _all_ your spells.*
 
@@ -24,7 +24,7 @@ In addition you can:
 
 ## What's the catch?
 
-Calls to dndbeyond are proxied to provide auth and to bypass CORS checks.
+Calls to dndbeyond are proxied to provide authentication and to bypass CORS checks.
 
 The proxy calls dndbeyond with your credentials to fetch your data.
 
@@ -52,8 +52,7 @@ If I get enough support I will work on getting Artificers infusions importing an
 
 I'd recommend installing:
 
-- [The Tokenizer](https://www.vttassets.com/asset/vtta-tokenizer) and
-- [The Iconizer](https://www.vttassets.com/asset/vtta-iconizer)
+- [The Iconizer](https://www.vttassets.com/assets/vtta-iconizer)
 - [Magic Items](https://foundryvtt.com/packages/magicitems/)
 - [Skill Customization for D&D5E](https://foundryvtt.com/packages/skill-customization-5e/)
 
@@ -74,6 +73,7 @@ Some details are updated, if applicable:
 * equipped status
 * resource tracking
 * spell preparation status
+* proficiency
 
 
 ## Configuration
@@ -115,9 +115,6 @@ You need to have the cobalt token set to get these spells.
 
 # Known Issues
 
-## Item/Spell custom attack, damage etc don't import
-
-This requires a few changes but is on the list!
 
 ## Magic Items don't have spells attached
 
