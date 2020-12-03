@@ -269,6 +269,10 @@ function parseItem(ddb, data, character) {
     }
     if (data.definition.avatarUrl) item.flags.ddbimporter.dndbeyond['avatarUrl'] = data.definition.avatarUrl.split('?')[0];
     if (data.definition.largeAvatarUrl) item.flags.ddbimporter.dndbeyond['largeAvatarUrl'] = data.definition.largeAvatarUrl.split('?')[0];
+    if (data.definition.filterType) {
+      const filter = DICTIONARY.items.find((i) => i.filterType === data.definition.filterType);
+      if (filter) item.flags.ddbimporter.dndbeyond['filterType'] = filter.filterType;
+    }
     return item;
   } catch (err) {
     logger.warn(

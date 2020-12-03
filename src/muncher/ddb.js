@@ -154,6 +154,12 @@ export default class DDBMuncher extends Application {
         description: "Use D&D Beyond item images, if available",
         enabled: true,
       },
+      {
+        name: "use-ddb-generic-item-icons",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-generic-item-icons"),
+        description: "Use D&D Beyond generic item type images, if available (final fallback)",
+        enabled: true,
+      },
     ];
 
     const spellConfig = [

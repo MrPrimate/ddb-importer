@@ -641,6 +641,44 @@ async function getDDBItemImages(items, download) {
   return Promise.all(itemMap);
 }
 
+async function getDDBGenericItemImages(download) {
+  munchNote(`Fetching DDB Generic Item icons`);
+  const itemMap = DICTIONARY.items.map(async (item) => {
+    const img = await getImagePath(item.img, 'item', item.filterType, download);
+    let itemIcons = {
+      filterType: item.filterType,
+      img: img,
+    };
+    return itemIcons;
+  });
+
+  munchNote("");
+  return Promise.all(itemMap);
+}
+
+
+export async function getDDBGenericItemIcons(items, download) {
+  const genericItems = await getDDBGenericItemImages(download);
+
+  let updatedItems = items.map((item) => {
+    // logger.debug(item.name);
+    // logger.debug(item.flags.ddbimporter.dndbeyond.filterType);
+    const excludedItems = ["spell", "feat", "class"];
+    if (!excludedItems.includes(item.type) &&
+        item.flags &&
+        item.flags.ddbimporter &&
+        item.flags.ddbimporter.dndbeyond &&
+        item.flags.ddbimporter.dndbeyond.filterType) {
+      const generic = genericItems.find((i) => i.filterType === item.flags.ddbimporter.dndbeyond.filterType);
+      if (generic && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
+        item.img = generic.img;
+      }
+    }
+    return item;
+  });
+  return Promise.all(updatedItems);
+}
+
 async function getDDBSchoolSpellImages(download) {
   munchNote(`Fetching spell school icons`);
   const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
@@ -726,6 +764,13 @@ export async function updateIcons(items, srdIconUpdate = true) {
   if (ddbSpellIcons) {
     logger.debug("DDB Spell School Icon Match");
     items = await getDDBSpellSchoolIcons(items);
+  }
+
+  // this will use ddb spell school icons as a fall back
+  const ddbGenericItemIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-generic-item-icons");
+  if (ddbGenericItemIcons) {
+    logger.debug("DDB Generic Item Icon Match");
+    items = await getDDBGenericItemIcons(items);
   }
 
   return items;

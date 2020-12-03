@@ -10,6 +10,7 @@ import {
   download,
   getDDBEquipmentIcons,
   getDDBSpellSchoolIcons,
+  getDDBGenericItemIcons,
 } from "../muncher/import.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
@@ -402,6 +403,12 @@ export default class CharacterImport extends Application {
         description: "Use equipment icons from D&DBeyond (where they exist).",
         enabled: true,
       },
+      {
+        name: "use-ddb-generic-item-icons",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons"),
+        description: "Use D&D Beyond generic item type images, if available (final fallback)",
+        enabled: true,
+      },
     ];
 
     const advancedImportConfig = [
@@ -574,6 +581,7 @@ export default class CharacterImport extends Application {
     const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
     const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
     const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
+    const ddbGenericItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons");
 
     // if we still have items to add, add them
     if (items.length > 0) {
@@ -593,6 +601,11 @@ export default class CharacterImport extends Application {
       if (ddbSpellIcons) {
         CharacterImport.showCurrentTask(html, "Fetching DDB Spell School Images");
         items = await getDDBSpellSchoolIcons(items, true);
+      }
+
+      if (ddbGenericItemIcons) {
+        CharacterImport.showCurrentTask(html, "Fetching DDB Generic Item Images");
+        items = await getDDBGenericItemIcons(items, true);
       }
 
       CharacterImport.showCurrentTask(html, "Adding items to character");

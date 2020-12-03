@@ -282,6 +282,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-use-ddb-generic-item-icons", {
+    name: "ddb-importer.character-update-policy-use-ddb-generic-item-icons.name",
+    hint: "ddb-importer.character-update-policy-use-ddb-generic-item-icons.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-use-ddb-item-icons", {
     name: "ddb-importer.character-update-policy-use-ddb-item-icons.name",
     hint: "ddb-importer.character-update-policy-use-ddb-item-icons.hint",
@@ -350,6 +359,15 @@ export default function () {
   game.settings.register("ddb-importer", "munching-policy-use-ddb-spell-icons", {
     name: "ddb-importer.munching-policy-use-ddb-spell-icons.name",
     hint: "ddb-importer.munching-policy-use-ddb-spell-icons.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "munching-policy-use-ddb-generic-item-icons", {
+    name: "ddb-importer.munching-policy-use-ddb-generic-item-icons.name",
+    hint: "ddb-importer.munching-policy-use-ddb-generic-item-icons.hint",
     scope: "player",
     config: false,
     type: Boolean,

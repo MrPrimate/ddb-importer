@@ -367,6 +367,17 @@ const DICTIONARY = {
       { typeId: 22, value: "weight" },
     ],
   },
+  items: [
+    { filterType: "Armor", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/armor.jpg" },
+    { filterType: "Potion", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/potion.jpg" },
+    { filterType: "Ring", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/ring.jpg" },
+    { filterType: "Rod", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/rod.jpg" },
+    { filterType: "Scroll", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/scroll.jpg" },
+    { filterType: "Staff", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/staff.jpg" },
+    { filterType: "Wand", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/wand.jpg" },
+    { filterType: "Weapon", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/weapon.jpg" },
+    { filterType: "Wondrous item", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/wondrousitem.jpg" },
+  ],
   equipment: {
     armorType: [
       { name: "Light Armor", id: 1, value: "light" },
