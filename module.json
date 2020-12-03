@@ -1,5 +1,6 @@
 {
   "name": "ddb-importer",
+  "author": "MrPrimate",
   "title": "D&D Beyond Importer",
   "description": "Import your dndbeyond.com characters, spells and monsters at super speed!",
   "version": "0.1.1",
