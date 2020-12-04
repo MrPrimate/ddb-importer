@@ -131,6 +131,16 @@ let getArmoredACBonuses = (modifiers, character) => {
 };
 
 export function getArmorClass(data, character) {
+  const overRideAC = data.character.characterValues.find((val) => val.typeId === 1);
+
+  if (overRideAC) {
+    return {
+      type: "Number",
+      label: "Armor Class",
+      value: overRideAC.value,
+    };
+  }
+
   // array to assemble possible AC values
   let armorClassValues = [];
   // get a list of equipped armor
@@ -185,6 +195,10 @@ export function getArmorClass(data, character) {
   utils.filterModifiers(miscModifiers, "bonus", "armor-class").forEach((bonus) => {
     miscACBonus += bonus.value;
   });
+
+  miscACBonus += data.character.characterValues.filter((value) =>
+    value.typeId === 3 || value.typeId === 2
+  ).map((val) => val.value).reduce((a, b) => a + b, 0);
 
   // Each racial armor appears to be slightly different!
   // We care about Tortles and Lizardfolk here as they can use shields, but their

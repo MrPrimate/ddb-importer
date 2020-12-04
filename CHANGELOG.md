@@ -2,6 +2,7 @@
 
 * Monster parsing no longer downloads images repeatedly on S3 (thanks @Ivan Von Girderboot)
 * Compatibility bump
+* Support custom AC magic, misc and over ride values
 
 # v 0.1.2
 
