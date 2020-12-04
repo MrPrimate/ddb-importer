@@ -378,6 +378,21 @@ const DICTIONARY = {
     { filterType: "Weapon", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/weapon.jpg" },
     { filterType: "Wondrous item", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/item_types/wondrousitem.jpg" },
   ],
+  genericItemIcons: [
+    { name: "Adventuring Gear", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/adventuring-gear.jpg" },
+    { name: "Tool", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/tool.jpg" },
+    { name: "Gemstone", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/gemstone.jpg" },
+    { name: "Holy Symbol", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/holy-symbol.jpg" },
+    { name: "Weapon", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/weapon.jpg" },
+    { name: "Arcane Focus", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/arcane-focus.jpg" },
+    { name: "Ammunition", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/ammunition.jpg" },
+    { name: "Poison", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/poison.jpg" },
+    { name: "Mount", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/mount.jpg" },
+    { name: "Potion", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/potion.jpg" },
+    { name: "Armor", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/armor.jpg" },
+    { name: "Pack", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/pack.jpg" },
+    { name: "Vehicle", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/vehicle.jpg" },
+  ],
   equipment: {
     armorType: [
       { name: "Light Armor", id: 1, value: "light" },
