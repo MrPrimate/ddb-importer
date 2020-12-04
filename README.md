@@ -52,7 +52,7 @@ If I get enough support I will work on getting Artificers infusions importing an
 
 I'd recommend installing:
 
-- [The Iconizer](https://www.vttassets.com/assets/vtta-iconizer)
+- Iconizer, install it by pasting [this link for now](https://github.com/MrPrimate/vtta-iconizer/releases/download/latest/module.json)
 - [Magic Items](https://foundryvtt.com/packages/magicitems/)
 - [Skill Customization for D&D5E](https://foundryvtt.com/packages/skill-customization-5e/)
 
