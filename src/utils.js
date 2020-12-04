@@ -1,5 +1,6 @@
 import DirectoryPicker from "./lib/DirectoryPicker.js";
 import DICTIONARY from './dictionary.js';
+import logger from "./logger.js";
 import { DDB_CONFIG } from './ddb-config.js';
 
 const PROXY = "https://proxy.vttassets.com/?url=";
@@ -353,7 +354,17 @@ let utils = {
 
   fileExists: async (directoryPath, filename) => {
     try {
-      await utils.serverFileExists(DirectoryPicker.parse(directoryPath).current + "/" + filename);
+      let dir = DirectoryPicker.parse(directoryPath);
+      let uri;
+
+      if (dir.activeSource == 'data') { // Local on-server file system 
+        uri = dir.current + '/' + filename;
+      } else { // S3 Bucket
+        uri = game.data.files.s3?.endpoint.protocol + '//' + dir.bucket + '.' + game.data.files.s3?.endpoint.hostname + "/" + dir.current + '/' + filename;
+      }
+
+      logger.debug('Looking for file at ' + uri);
+      await utils.serverFileExists(uri);
       return true;
     } catch (ignored) {
       return false;
