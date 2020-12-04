@@ -360,7 +360,7 @@ let utils = {
       if (dir.activeSource == 'data') { // Local on-server file system 
         uri = dir.current + '/' + filename;
       } else { // S3 Bucket
-        uri = game.data.files.s3?.endpoint.protocol + '//' + dir.bucket + '.' + game.data.files.s3?.endpoint.hostname + "/" + dir.current + '/' + filename;
+        uri = game.data.files.s3.endpoint.protocol + '//' + dir.bucket + '.' + game.data.files.s3.endpoint.hostname + "/" + dir.current + '/' + filename;
       }
 
       logger.debug('Looking for file at ' + uri);
