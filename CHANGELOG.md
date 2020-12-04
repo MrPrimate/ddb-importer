@@ -1,3 +1,8 @@
+# v 0.1.3
+
+* Monster parsing no longer downloads images repeatedly on S3 (thanks @Ivan Von Girderboot)
+* Compatibility bump
+
 # v 0.1.2
 
 * Updating README and module dependencies
