@@ -1,4 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
+import logger from "../../logger.js";
 import utils from "../../utils.js";
 
 /**
@@ -204,12 +205,12 @@ export function getArmorClass(data, character) {
   const shields = equippedArmor.filter((shield) => shield.definition.armorTypeId === 4);
   const armors = equippedArmor.filter((armour) => armour.definition.armorTypeId !== 4);
 
-  // console.log("Calculated GearAC: " + gearAC);
-  // console.log("Unarmoured AC Bonus:" + unarmoredACBonus);
-  // console.log("Calculated MiscACBonus: " + miscACBonus);
-  // console.log("Equipped AC Options: " + JSON.stringify(equippedArmor));
-  // console.log("Armors: " + JSON.stringify(armors));
-  // console.log("Shields: " + JSON.stringify(shields));
+  logger.debug("Calculated GearAC: " + gearAC);
+  logger.debug("Unarmoured AC Bonus:" + unarmoredACBonus);
+  logger.debug("Calculated MiscACBonus: " + miscACBonus);
+  logger.debug("Equipped AC Options: " + JSON.stringify(equippedArmor));
+  logger.debug("Armors: " + JSON.stringify(armors));
+  logger.debug("Shields: " + JSON.stringify(shields));
 
   // the presumption here is that you can only wear a shield and a single
   // additional 'armor' piece. in DDB it's possible to equip multiple armor
