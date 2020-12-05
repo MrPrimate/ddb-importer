@@ -254,6 +254,7 @@ function getWeaponAttack(resultData, proficiencyBonus) {
     } else if (lookup.actionType == "mwak") {
       weaponAbilities = ["str"];
     }
+    result.weaponType = lookup.weaponType;
   }
 
   if (result.weaponAttack) {
@@ -349,6 +350,7 @@ export function getAttackInfo(monster, DDB_CONFIG, name, text) {
     spellAttack: false,
     meleeAttack: false,
     rangedAttack: false,
+    weaponType: null,
     toHit: 0,
     damage: {
       parts: [],
