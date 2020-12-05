@@ -7,6 +7,7 @@ Monster Bug Hunt edition
 * Better Weapon Type guess, including some natural weapons
 * Better Reach detection
 * Cone and Line breath target parsing
+* Regional effects are now parsed separately to Lair Actions
 
 Other:
 * Fixed S3 regression bug (thanks @Ivan Von Girderboot)

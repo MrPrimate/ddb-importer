@@ -38,25 +38,25 @@ export function getLairActions(monster, DDB_CONFIG) {
   defaultAction.data.source = getSource(monster, DDB_CONFIG);
   dynamicActions.push(defaultAction);
 
-  // dom.querySelectorAll("h4").forEach((node) => {
-  //   let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-  //   action.name = node.textContent;
-  //   if (node.textContent == "Lair Actions") {
-  //     action.data.activation.type = "lair";
-  //   }
-  //   action.data.source = getSource(monster, DDB_CONFIG);
-  //   dynamicActions.push(action);
-  // });
+  dom.querySelectorAll("h4").forEach((node) => {
+    let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
+    action.name = node.textContent;
+    if (node.textContent == "Lair Actions") {
+      return;
+    }
+    action.data.source = getSource(monster, DDB_CONFIG);
+    dynamicActions.push(action);
+  });
 
-  // dom.querySelectorAll("h3").forEach((node) => {
-  //   let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-  //   action.name = node.textContent;
-  //   if (node.textContent == "Lair Actions") {
-  //     action.data.activation.type = "lair";
-  //   }
-  //   action.data.source = getSource(monster, DDB_CONFIG);
-  //   dynamicActions.push(action);
-  // });
+  dom.querySelectorAll("h3").forEach((node) => {
+    let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
+    action.name = node.textContent;
+    if (node.textContent == "Lair Actions") {
+      return;
+    }
+    action.data.source = getSource(monster, DDB_CONFIG);
+    dynamicActions.push(action);
+  });
 
   let actionType = "Lair Actions";
   let action = dynamicActions.find((act) => act.name == actionType);
