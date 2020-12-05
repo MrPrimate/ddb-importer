@@ -354,7 +354,7 @@ let utils = {
 
   fileExists: async (directoryPath, filename) => {
     try {
-      let uri = getFileUrl(directoryPath, filename);
+      let uri = utils.getFileUrl(directoryPath, filename);
       logger.debug('Looking for file at ' + uri);
       await utils.serverFileExists(uri);
       return true;
@@ -729,23 +729,20 @@ let utils = {
   },
 
   getFileUrl: (directoryPath, filename) => {
-
+    let uri;
     try {
       let dir = DirectoryPicker.parse(directoryPath);
-      let uri;
-
       if (dir.activeSource == 'data') { // Local on-server file system 
         uri = dir.current + '/' + filename;
       } else { // S3 Bucket
         uri = game.data.files.s3.endpoint.protocol + '//' + dir.bucket + '.' + game.data.files.s3.endpoint.hostname + "/" + dir.current + '/' + filename;
       }
-    }
-    catch(exception){
-      throw ('Unable to determine file URL for directoryPath"' + directoryPath + '" and filename"' + filename + '"');
+    } catch (exception) {
+      throw new Error('Unable to determine file URL for directoryPath"' + directoryPath + '" and filename"' + filename + '"');
     }
     return uri;
   },
-
+  
   versionCompare: (v1, v2, options) => {
     var lexicographical = options && options.lexicographical,
       zeroExtend = options && options.zeroExtend,
