@@ -6,6 +6,10 @@ Monster Bug Hunt edition
 * Some Legendary actions did not parse damage or saves correctly
 * Better Weapon Type guess, including some natural weapons
 * Better Reach detection
+* Cone and Line breath target parsing
+
+Other:
+* Fixed S3 regression bug (thanks @Ivan Von Girderboot)
 
 # v 0.1.3
 

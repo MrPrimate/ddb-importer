@@ -154,6 +154,8 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     }
 
     action.data.range = gtAtkInfo.range;
+    action.data.target = gtAtkInfo.target;
+    action.data.duration = gtAtkInfo.duration;
 
     // console.log(JSON.stringify(action.data, null, 4));
     // console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
