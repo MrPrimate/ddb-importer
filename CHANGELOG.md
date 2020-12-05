@@ -1,3 +1,8 @@
+# v 0.1.4
+
+Monster Fix edition
+* Legendary resistance now parses correctly
+
 # v 0.1.3
 
 * Monster parsing no longer downloads images repeatedly on S3 (thanks @Ivan Von Girderboot)
