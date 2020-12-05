@@ -127,6 +127,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     action.data.attackBonus = gtAtkInfo.extraAttackBonus;
 
     if (gtAtkInfo.weaponAttack) {
+      action.data.weaponType = gtAtkInfo.weaponType;
       action.data.equipped = true;
       // console.log(gtAtkInfo.weaponAttack);
       // console.log(gtAtkInfo.meleeAttack);

@@ -44,6 +44,9 @@ const DICTIONARY = {
     { name: "Bite", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Claw", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Tail", actionType: "mwak", weaponType: "natural", properties: {} },
+    { name: "Wing", actionType: "mwak", weaponType: "natural", properties: {} },
+    { name: "Slam", actionType: "mwak", weaponType: "natural", properties: {} },
+    { name: "Rake", actionType: "mwak", weaponType: "natural", properties: {} },
   ],
 };
 export default DICTIONARY;

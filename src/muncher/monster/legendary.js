@@ -37,6 +37,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   feat.data.source = getSource(monster, DDB_CONFIG);
   feat.data.description.value = dom.childNodes.textContent;
   feat.flags.monsterMunch = {};
+  feat.flags.monsterMunch['actionCopy'] = false;
   dynamicActions.push(feat);
 
 
@@ -94,14 +95,17 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
       action.data.activation.cost = 1;
     }
 
-    action.data.recharge = getRecharge(node.textContent);
-    action.data.save = getFeatSave(node.textContent, action.data.save);
-    // assumption - if we have parsed a save dc set action type to save
-    if (action.data.save.dc) {
-      action.data.actionType = "save";
-      // action.type = "weapon";
-    }
-    action.data.damage = getDamage(node.textContent);
+    // only attempt to update these if we don't parse an action
+    if (!action.flags.monsterMunch.actionCopy){
+      action.data.recharge = getRecharge(node.textContent);
+      action.data.save = getFeatSave(node.textContent, action.data.save);
+      // assumption - if we have parsed a save dc set action type to save
+      if (action.data.save.dc) {
+        action.data.actionType = "save";
+        // action.type = "weapon";
+      }
+      action.data.damage = getDamage(node.textContent);
+    };
 
 
   });

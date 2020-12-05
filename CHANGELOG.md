@@ -1,3 +1,18 @@
+# v 0.1.4
+
+Monster Bug Hunt edition
+* Legendary resistance now parses correctly
+* Legendary resistance now decrease resource value
+* Some Legendary actions did not parse damage or saves correctly
+* Better Weapon Type guess, including some natural weapons
+* Better Reach detection
+
+# v 0.1.3
+
+* Monster parsing no longer downloads images repeatedly on S3 (thanks @Ivan Von Girderboot)
+* Compatibility bump
+* Support custom AC magic, misc and over ride values
+
 # v 0.1.2
 
 * Updating README and module dependencies
