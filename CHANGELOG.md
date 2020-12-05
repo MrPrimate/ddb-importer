@@ -5,6 +5,7 @@ Monster Fix edition
 * Legendary resistance now decrease resource value
 * Some Legendary actions did not parse damage or saves correctly
 * Better Weapon Type guess, including some natural weapons
+* Better Reach detection
 
 # v 0.1.3
 

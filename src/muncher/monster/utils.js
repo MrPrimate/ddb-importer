@@ -407,6 +407,7 @@ export function getAttackInfo(monster, DDB_CONFIG, name, text) {
   }
   result.reach = getReach(text);
   result.range = getRange(text);
+  if (result.range.value > 5) result.properties.rch = true;
   result.recharge = getRecharge(text);
   result.activation = getActivation(text);
   result.save = getFeatSave(text, result.save);
