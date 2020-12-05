@@ -52,13 +52,6 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
   let action = dynamicActions[0];
 
   dom.childNodes.forEach((node) => {
-    // legendary resistance check
-    const actionMatch = node.textContent.match(/Legendary Resistance \((\d+)\/Day\)/);
-    if (actionMatch) {
-      resistanceResource.value = parseInt(actionMatch[1]);
-      resistanceResource.max = parseInt(actionMatch[1]);
-    }
-
     const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
     if (switchAction) {
       action = switchAction;
@@ -81,6 +74,20 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
       action.data.actionType = "save";
     }
     action.data.damage = getDamage(node.textContent);
+
+    // legendary resistance check
+    const actionMatch = node.textContent.match(/Legendary Resistance \((\d+)\/Day\)/);
+    if (actionMatch) {
+      resistanceResource.value = parseInt(actionMatch[1]);
+      resistanceResource.max = parseInt(actionMatch[1]);
+      action.data.activation.type = "special";
+      action.data.activation.const = null;
+      action.data.consume = {
+        type: "attribute",
+        target: "resources.legres.value",
+        amount: 1
+      };
+    }
 
   });
 

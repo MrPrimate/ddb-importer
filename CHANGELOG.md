@@ -2,6 +2,8 @@
 
 Monster Fix edition
 * Legendary resistance now parses correctly
+* Legendary resistance now decrease resource value
+
 
 # v 0.1.3
 
