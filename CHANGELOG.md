@@ -1,6 +1,6 @@
 # v 0.1.4
 
-Monster Fix edition
+Monster Bug Hunt edition
 * Legendary resistance now parses correctly
 * Legendary resistance now decrease resource value
 * Some Legendary actions did not parse damage or saves correctly
