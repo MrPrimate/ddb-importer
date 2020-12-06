@@ -136,7 +136,7 @@ export function getActivation(text) {
 }
 
 export function getFeatSave(text, save) {
-  const saveSearch = "DC (\\d+) (\\w+) saving throw";
+  const saveSearch = /DC (\d+) (\w+) saving throw/;
   const match = text.match(saveSearch);
   if (match) {
     save.dc = parseInt(match[1]);
@@ -190,20 +190,6 @@ export function getRange(text) {
 
   return range;
 }
-
-// export function getDamage(text) {
-//   const damageRegEx = `\(\\d+\)*\\s*\\(*\(\\d*d*\\d+\\s*[-+–−]*\\s*\\d*\)\\) \(\\w+\) damage`;
-//   const match = text.match(damageRegEx);
-
-//   let damage = {
-//     parts: [],
-//     versatile: ""
-//   };
-
-//   if (match) damage.parts.push([match[2], match[3]]);
-//   return damage;
-// }
-
 
 function checkAbility(abilities, mods, proficiencyBonus, target) {
   let result = {

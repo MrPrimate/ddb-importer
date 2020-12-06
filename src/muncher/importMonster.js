@@ -98,6 +98,31 @@ async function getNPCImage(data) {
   return true;
 }
 
+function getSpellEdgeCase(spell, type, edgeCases) {
+  const edgeCase = edgeCases.find((edge) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
+
+  if (edgeCase) {
+    switch(edgeCase.edge.toLowerCase()) {
+      case "self":
+      case "self only":
+        spell.data.target.type = "self";
+        console.debug("spell target changed to self");
+        break;
+      // no default
+    }
+    spell.name = `${spell.name} (${edgeCase.edge})`;
+    spell.data.description.chat += `\n<p>Special Notes: ${edgeCase.edge}.</p>`;
+    spell.data.description.value += `\n<p>Special Notes: ${edgeCase.edge}.</p>`;
+
+    const diceSearch = /(\d+)d(\d+)/;
+    const diceMatch = edgeCase.edge.match(diceSearch);
+    if (diceMatch) {
+      spell.data.damage.parts[0][0] = edgeCase.edge;
+    }
+  }
+
+}
+
 async function addSpells(data) {
   // check to see if we have munched flags to work on
   if (!data.flags || !data.flags.monsterMunch || !data.flags.monsterMunch.spellList) {
@@ -107,7 +132,7 @@ async function addSpells(data) {
   const atWill = data.flags.monsterMunch.spellList.atwill;
   const klass = data.flags.monsterMunch.spellList.class;
   const innate = data.flags.monsterMunch.spellList.innate;
-  const selfOnly = data.flags.monsterMunch.spellList.selfonly;
+  const edgeCases = data.flags.monsterMunch.spellList.edgeCases;
 
   if (atWill.length !== 0) {
     logger.debug("Retrieving at Will spells:", atWill);
@@ -129,9 +154,7 @@ async function addSpells(data) {
           per: "",
         };
       }
-      if (selfOnly.includes(spell.name.toLowerCase())) {
-        spell.data.target.type = "self";
-      }
+      getSpellEdgeCase(spell, "atwill", edgeCases);
       return spell;
     });
     // eslint-disable-next-line require-atomic-updates
@@ -147,6 +170,7 @@ async function addSpells(data) {
         mode: "prepared",
         prepared: true,
       };
+      getSpellEdgeCase(spell, "class", edgeCases);
       return spell;
     });
     // eslint-disable-next-line require-atomic-updates
@@ -155,14 +179,13 @@ async function addSpells(data) {
 
   // innate spells
   if (innate.length !== 0) {
-    const innateNames = innate.map((spell) => spell.name.replace(/’/g, "'"));
     // innate:
     // {name: "", type: "srt/lng/day", value: 0}
-    logger.debug("Retrieving innate spells:", innateNames);
-    const spells = await retrieveSpells(innateNames);
+    logger.debug("Retrieving innate spells:", innate);
+    const spells = await retrieveSpells(innate);
     const innateSpells = spells.filter((spell) => spell !== null)
       .map((spell) => {
-        const spellInfo = innate.find((w) => w.name.replace(/’/g, "'").toLowerCase() == spell.name.toLowerCase());
+        const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
         if (spellInfo) {
           spell.data.preparation = {
             mode: "innate",
@@ -174,9 +197,7 @@ async function addSpells(data) {
             max: spellInfo.value,
             per: (per && per.type) ? per.type : "day",
           };
-          if (selfOnly.includes(spell.name.toLowerCase())) {
-            spell.data.target.type = "self";
-          }
+          getSpellEdgeCase(spell, "innate", edgeCases);
         }
         return spell;
       });

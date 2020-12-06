@@ -8,6 +8,8 @@ Monster Parsing Bugs:
 * Improved at will spell matching for monsters such as the Archmage & Drider
 * Monster with self only spells will now have target set to self.
 * Parse limited uses of some actions and special actions, e.g. Archer
+* Support higher damage dice
+* Add restrictions to spell descriptions and names
 
 # v 0.1.4
 

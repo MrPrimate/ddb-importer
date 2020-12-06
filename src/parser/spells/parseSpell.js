@@ -29,7 +29,7 @@ export function parseSpell(data, character) {
   };
 
   // spell name
-  spell.name = data.definition.name;
+  spell.name = data.definition.name.replace(/’/g, "'");
 
   // add tags
   spell.flags.ddbimporter.dndbeyond.tags = data.definition.tags;

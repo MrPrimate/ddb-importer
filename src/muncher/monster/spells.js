@@ -1,4 +1,5 @@
 import { getAbilityMods } from "./abilities.js";
+import logger from '../../logger.js';
 
 
 function parseSpellcasting(text) {
@@ -57,10 +58,7 @@ function parseInnateSpells(text, spells, spellList) {
   if (innateMatch) {
     const spellArray = innateMatch[3].split(",").map((spell) => spell.trim());
     spellArray.forEach((spell) => {
-      const selfOnly = spell.toLowerCase().includes("self only");
-      const spellName = spell.split('(', 1)[0].trim();
-      if (selfOnly) spellList.selfonly.push(spellName);
-      spellList.innate.push({ name: spellName, type: innateMatch[2], value: innateMatch[1] });
+      spellList.innate.push({ name: spell, type: innateMatch[2], value: innateMatch[1] });
     });
   }
 
@@ -70,10 +68,7 @@ function parseInnateSpells(text, spells, spellList) {
   if (atWillMatch) {
     const spellArray = atWillMatch[1].split(",").map((spell) => spell.trim());
     spellArray.forEach((spell) => {
-      const selfOnly = spell.toLowerCase().includes("self only");
-      const spellName = spell.split('(', 1)[0].trim();
-      if (selfOnly) spellList.selfonly.push(spellName);
-      spellList.atwill.push(spellName);
+      spellList.atwill.push(spell);
     });
   }
 
@@ -121,6 +116,75 @@ function parseSpells(text, spells, spellList) {
 
 }
 
+
+function splitEdgeCase(spell) {
+  let result = {
+    name: spell,
+    edge: null,
+  };
+console.warn(spell);
+  const splitSpell = spell.split("(");
+  if (splitSpell.length > 1) {
+    result.name = splitSpell[0].trim();
+    result.edge = splitSpell[1].split(")")[0].trim();
+  }
+
+  return result;
+}
+
+function getEdgeCases(spellList) {
+  let results = {
+    class: [],
+    atwill: [],
+    // {name: "", type: "srt/lng/day", value: 0} // check these values
+    innate: [],
+    edgeCases:[], // map { name: "", type: "", edge: "" }
+  };
+
+  // class and atwill
+  spellList.class.forEach((spell) => {
+    const edgeCheck = splitEdgeCase(spell);
+    results.class.push(edgeCheck.name);
+    if (edgeCheck.edge) {
+      const edgeEntry = {
+        name: edgeCheck.name,
+        type: "class",
+        edge: edgeCheck.edge,
+      }
+      results.edgeCases.push(edgeEntry);
+    }
+  });
+  spellList.atwill.forEach((spell) => {
+    const edgeCheck = splitEdgeCase(spell);
+    results.atwill.push(edgeCheck.name);
+    if (edgeCheck.edge) {
+      const edgeEntry = {
+        name: edgeCheck.name,
+        type: "atwill",
+        edge: edgeCheck.edge,
+      }
+      results.edgeCases.push(edgeEntry);
+    }
+  });
+  // innate
+  spellList.innate.forEach((spellMap) => {
+    const edgeCheck = splitEdgeCase(spellMap.name);
+    spellMap.name = edgeCheck.name;
+    results.innate.push(spellMap);
+    if (edgeCheck.edge) {
+      const edgeEntry = {
+        name: edgeCheck.name,
+        type: "innate",
+        edge: edgeCheck.edge,
+      }
+      results.edgeCases.push(edgeEntry);
+    }
+  });
+
+  return results;
+}
+
+
 // <p><em><strong>Innate Spellcasting.</strong></em> The oblex&rsquo;s innate spellcasting ability is Intelligence (spell save DC 15). It can innately cast the following spells, requiring no components:</p>\r\n<p>3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)</p>
 
 
@@ -133,7 +197,7 @@ export function getSpells(monster, DDB_CONFIG) {
     atwill: [],
     // {name: "", type: "srt/lng/day", value: 0} // check these values
     innate: [],
-    selfonly: [],
+    edgeCases:[], // map { name: "", type: "", edge: "" }
   };
 
   // ability associated
@@ -206,24 +270,24 @@ export function getSpells(monster, DDB_CONFIG) {
   });
 
   dom.childNodes.forEach((node) => {
-    const spellcastingMatch = node.textContent.trim().match(/^Spellcasting|^Innate Spellcasting/);
+    const spellText = node.textContent.replace(/’/g, "'");
+    const spellcastingMatch = spellText.trim().match(/^Spellcasting|^Innate Spellcasting/);
     if (spellcastingMatch) {
-      spellcasting = parseSpellcasting(node.textContent);
-      spelldc = parseSpelldc(node.textContent);
-      spellLevel = parseSpellLevel(node.textContent);
-      spellAttackBonus = parseBonusSpellAttack(node.textContent, monster, DDB_CONFIG);
+      spellcasting = parseSpellcasting(spellText);
+      spelldc = parseSpelldc(spellText);
+      spellLevel = parseSpellLevel(spellText);
+      spellAttackBonus = parseBonusSpellAttack(spellText, monster, DDB_CONFIG);
     }
 
-    [spells, spellList] = parseSpells(node.textContent, spells, spellList);
-    const additionalAtWill = parseAdditionalAtWill(node.textContent);
-    additionalAtWill.forEach((spell) => {
-      const selfOnly = spell.toLowerCase().includes("self only");
-      const spellName = spell.split('(', 1)[0].trim();
-      if (selfOnly) spellList.selfonly.push(spellName);
-      spellList.atwill.push(spellName);
-    });
+    [spells, spellList] = parseSpells(spellText, spells, spellList);
+    const additionalAtWill = parseAdditionalAtWill(spellText);
+    spellList.atwill.push(...additionalAtWill);
   });
 
+  spellList = getEdgeCases(spellList);
+
+  // console.warn(spellList);
+  logger.debug(JSON.stringify(spellList));
 
   // console.log("*****")
 
