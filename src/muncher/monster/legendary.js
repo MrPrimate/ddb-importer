@@ -96,7 +96,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
     }
 
     // only attempt to update these if we don't parse an action
-    if (!action.flags.monsterMunch.actionCopy){
+    if (!action.flags.monsterMunch.actionCopy) {
       action.data.recharge = getRecharge(node.textContent);
       action.data.save = getFeatSave(node.textContent, action.data.save);
       // assumption - if we have parsed a save dc set action type to save
@@ -105,7 +105,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
         // action.type = "weapon";
       }
       action.data.damage = getDamage(node.textContent);
-    };
+    }
 
 
   });

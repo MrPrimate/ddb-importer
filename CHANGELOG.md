@@ -6,6 +6,12 @@ Monster Bug Hunt edition
 * Some Legendary actions did not parse damage or saves correctly
 * Better Weapon Type guess, including some natural weapons
 * Better Reach detection
+* Cone and Line breath target parsing
+* Regional effects are now parsed separately to Lair Actions
+
+Other:
+* Fixed S3 regression bug (thanks @Ivan Von Girderboot)
+* (Option) Copy Active Effects from current character items on import
 
 # v 0.1.3
 

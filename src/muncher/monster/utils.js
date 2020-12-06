@@ -334,6 +334,35 @@ function getWeaponAttack(resultData, proficiencyBonus) {
   return result;
 }
 
+export function getTarget(text) {
+  let target = {
+    "value": null,
+    "width": null,
+    "units": "",
+    "type": ""
+  };
+
+  // 90-foot line that is 10 feet wide
+  // in a 90-foot cone
+  const coneSearch = /(\d+)-foot line/;
+  const lineSearch = /(\d+)-foot cone/;
+
+  const coneMatch = text.match(coneSearch);
+  const lineMatch = text.match(lineSearch);
+
+  if (coneMatch) {
+    target.value = coneMatch[1];
+    target.units = "ft";
+    target.type = "cone";
+  } else if (lineMatch) {
+    target.value = lineMatch[1];
+    target.units = "ft";
+    target.type = "line";
+  }
+
+  return target;
+}
+
 export function getAttackInfo(monster, DDB_CONFIG, name, text) {
   const matches = text.match(
     /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/
@@ -355,6 +384,16 @@ export function getAttackInfo(monster, DDB_CONFIG, name, text) {
     damage: {
       parts: [],
       versatile: ""
+    },
+    target: {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": ""
+    },
+    duration: {
+      "value": null,
+      "units": "inst"
     },
     extraAttackBonus: 0,
     baseAbility: null,
@@ -411,6 +450,7 @@ export function getAttackInfo(monster, DDB_CONFIG, name, text) {
   result.recharge = getRecharge(text);
   result.activation = getActivation(text);
   result.save = getFeatSave(text, result.save);
+  result.target = getTarget(text);
 
 
   return result;

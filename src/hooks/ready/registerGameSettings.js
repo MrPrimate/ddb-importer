@@ -309,6 +309,14 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-active-effect-copy", {
+    name: "ddb-importer.character-update-policy-active-effect-copy.name",
+    hint: "ddb-importer.character-update-policy-active-effect-copy.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
 
   /** Munching update settings, stored per user and non-configurable in the settings screen */
   game.settings.register("ddb-importer", "munching-policy-update-existing", {
