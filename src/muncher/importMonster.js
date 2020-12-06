@@ -98,7 +98,8 @@ async function getNPCImage(data) {
   return true;
 }
 
-function getSpellEdgeCase(spell, type, edgeCases) {
+function getSpellEdgeCase(spell, type, spellList) {
+  const edgeCases = spellList.edgeCases;
   const edgeCase = edgeCases.find((edge) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
 
   if (edgeCase) {
@@ -111,14 +112,34 @@ function getSpellEdgeCase(spell, type, edgeCases) {
       // no default
     }
     spell.name = `${spell.name} (${edgeCase.edge})`;
-    spell.data.description.chat += `\n<p>Special Notes: ${edgeCase.edge}.</p>`;
-    spell.data.description.value += `\n<p>Special Notes: ${edgeCase.edge}.</p>`;
+    spell.data.description.chat = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.data.description.chat}`;
+    spell.data.description.value = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.data.description.value}`;
 
     const diceSearch = /(\d+)d(\d+)/;
     const diceMatch = edgeCase.edge.match(diceSearch);
     if (diceMatch) {
       spell.data.damage.parts[0][0] = edgeCase.edge;
     }
+
+    // save DC 12
+    const saveSearch = /save DC (\d+)/;
+    const saveMatch = edgeCase.edge.match(saveSearch);
+    if (saveMatch) {
+      spell.data.save.dc = saveMatch[1];
+      spell.data.save.scaling = "flat";
+    }
+
+  }
+
+  // remove material components?
+  if (!spellList.material) {
+    spell.data.materials = {
+      value: "",
+      consumed: false,
+      cost: 0,
+      supply: 0
+    };
+    spell.data.components.material = false;
   }
 
 }
@@ -129,10 +150,10 @@ async function addSpells(data) {
     return;
   }
 
-  const atWill = data.flags.monsterMunch.spellList.atwill;
-  const klass = data.flags.monsterMunch.spellList.class;
-  const innate = data.flags.monsterMunch.spellList.innate;
-  const edgeCases = data.flags.monsterMunch.spellList.edgeCases;
+  const spellList = data.flags.monsterMunch.spellList;
+  const atWill = spellList.atwill;
+  const klass = spellList.class;
+  const innate = spellList.innate;
 
   if (atWill.length !== 0) {
     logger.debug("Retrieving at Will spells:", atWill);
@@ -154,7 +175,7 @@ async function addSpells(data) {
           per: "",
         };
       }
-      getSpellEdgeCase(spell, "atwill", edgeCases);
+      getSpellEdgeCase(spell, "atwill", spellList);
       return spell;
     });
     // eslint-disable-next-line require-atomic-updates
@@ -170,7 +191,7 @@ async function addSpells(data) {
         mode: "prepared",
         prepared: true,
       };
-      getSpellEdgeCase(spell, "class", edgeCases);
+      getSpellEdgeCase(spell, "class", spellList);
       return spell;
     });
     // eslint-disable-next-line require-atomic-updates
@@ -197,7 +218,7 @@ async function addSpells(data) {
             max: spellInfo.value,
             per: (per && per.type) ? per.type : "day",
           };
-          getSpellEdgeCase(spell, "innate", edgeCases);
+          getSpellEdgeCase(spell, "innate", spellList);
         }
         return spell;
       });

@@ -198,6 +198,7 @@ export function getSpells(monster, DDB_CONFIG) {
     // {name: "", type: "srt/lng/day", value: 0} // check these values
     innate: [],
     edgeCases: [], // map { name: "", type: "", edge: "" }
+    material: true,
   };
 
   // ability associated
@@ -277,6 +278,13 @@ export function getSpells(monster, DDB_CONFIG) {
       spelldc = parseSpelldc(spellText);
       spellLevel = parseSpellLevel(spellText);
       spellAttackBonus = parseBonusSpellAttack(spellText, monster, DDB_CONFIG);
+    }
+
+    const noMaterialSearch = /no material component|no component/;
+    const noMaterialMatch = spellText.match(noMaterialSearch);
+
+    if (noMaterialMatch) {
+      spellList.material = false;
     }
 
     [spells, spellList] = parseSpells(spellText, spells, spellList);

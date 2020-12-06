@@ -10,6 +10,8 @@ Monster Parsing Bugs:
 * Parse limited uses of some actions and special actions, e.g. Archer
 * Support higher damage dice
 * Add restrictions to spell descriptions and names
+* Support unique spell DC's e.g. Nezznar the Black Spider
+* Remove material components when not required from spells
 
 # v 0.1.4
 
