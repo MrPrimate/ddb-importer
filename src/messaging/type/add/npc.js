@@ -170,7 +170,7 @@ let buildNPC = async (data) => {
   try {
     logger.debug("Querying iconizer for icons");
     icons = await queryIcons(icons);
-    logger.verbose("Icons found", icons);
+    logger.debug("Icons found", icons);
 
     // replace the icons
     for (let item of data.items) {
@@ -187,7 +187,7 @@ let buildNPC = async (data) => {
   // check if there is an NPC with that name in that folder already
   let npc = folder.content ? folder.content.find((actor) => actor.name === data.name) : undefined;
   if (npc) {
-    logger.verbose("NPC exists");
+    logger.debug("NPC exists");
     // remove the inventory of said npc
     await npc.deleteEmbeddedEntity(
       "OwnedItem",
@@ -196,7 +196,7 @@ let buildNPC = async (data) => {
 
     // update items and basic data
     await npc.update(data);
-    logger.verbose("NPC updated");
+    logger.debug("NPC updated");
     if (data.flags.ddbimporter.dndbeyond.spells && data.flags.ddbimporter.dndbeyond.spells.length !== 0) {
       logger.debug("Retrieving spells:", data.flags.ddbimporter.dndbeyond.spells);
       let spells = await retrieveSpells(data.flags.ddbimporter.dndbeyond.spells);
@@ -316,10 +316,10 @@ const parseNPC = async (body) => {
 
 let addNPC = (body) => {
   return new Promise((resolve, reject) => {
-    logger.verbose("npc.js addNPC body parameter", body);
+    logger.debug("npc.js addNPC body parameter", body);
     parseNPC(body)
       .then((npc) => {
-        logger.verbose("npc.js addNPC parseNPC result", npc);
+        logger.debug("npc.js addNPC parseNPC result", npc);
         resolve(npc.data);
       })
       .catch((error) => {

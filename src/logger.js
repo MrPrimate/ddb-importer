@@ -5,7 +5,7 @@ const logger = {
         }
 
         const setting = game.settings.get("ddb-importer", "log-level");
-        const logLevels = ["VERBOSE", "DEBUG", "INFO", "WARN", "ERR", "FATAL", "OFF"];
+        const logLevels = ["DEBUG", "INFO", "WARN", "ERR", "OFF"];
         const logLevelIndex = logLevels.indexOf(logLevel.toUpperCase());
         if (setting == "OFF" ||
             logLevelIndex === -1 ||
@@ -34,13 +34,6 @@ const logger = {
         }
         msg = `${LOG_PREFIX} | ${logLevel} > ${msg}`;
         switch (logLevel) {
-            case "VERBOSE":
-                if (payload) {
-                    console.trace(msg, ...payload);// eslint-disable-line no-console
-                } else {
-                    console.trace(msg);// eslint-disable-line no-console
-                }
-                break;
             case "DEBUG":
                 if (payload) {
                     console.debug(msg, ...payload);// eslint-disable-line no-console
@@ -62,7 +55,6 @@ const logger = {
                     console.warn(msg);// eslint-disable-line no-console
                 }
                 break;
-            case "FATAL":
             case "ERR":
                 if (payload) {
                     console.error(msg, ...payload);// eslint-disable-line no-console
@@ -72,10 +64,6 @@ const logger = {
                 break;
             default: break;
         }
-    },
-
-    verbose: (...data) => {
-        logger.log("VERBOSE", data);
     },
 
     debug: (...data) => {
@@ -94,8 +82,5 @@ const logger = {
         logger.log("ERR", ...data);
     },
 
-    fatal: (...data) => {
-        logger.log("FATAL", ...data);
-    }
 };
 export default logger;

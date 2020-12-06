@@ -129,12 +129,10 @@ export default function () {
     config: true,
     type: String,
     choices: {
-      VERBOSE: "VERBOSE",
       DEBUG: "DEBUG",
       INFO: "INFO",
       WARN: "WARN",
-      ERR: "ERROR",
-      FATAL: "FATAL",
+      ERR: "ERROR ",
       OFF: "OFF",
     },
     default: "INFO",

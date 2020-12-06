@@ -549,7 +549,7 @@ async function getIconizerIcons(items) {
   try {
     logger.debug("Querying iconizer for icons");
     const icons = await queryIconizer(itemNames);
-    // logger.verbose("Icons found", icons);
+    // logger.debug("Icons found", icons);
 
     // replace the icons
     items.forEach((item) => {

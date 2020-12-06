@@ -1,11 +1,13 @@
 # v 0.1.5
 
 * Improved S3 handling (thanks @Ivan Von Girderboot)
+* Slimline and fix up logger options
 
 Monster Parsing Bugs:
 * Better spellcaster level detection
 * Improved at will spell matching for monsters such as the Archmage & Drider
 * Monster with self only spells will now have target set to self.
+* Parse limited uses of some actions and special actions, e.g. Archer
 
 # v 0.1.4
 
