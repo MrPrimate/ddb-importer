@@ -385,7 +385,7 @@ export function getAttackInfo(monster, DDB_CONFIG, name, text) {
       parts: [],
       versatile: ""
     },
-    target:{
+    target: {
       "value": null,
       "width": null,
       "units": "",

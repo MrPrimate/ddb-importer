@@ -760,7 +760,6 @@ export default class CharacterImport extends Application {
 
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     if (activeEffectCopy) {
-      console.log(this.actorOriginal);
       this.actor.effects = this.actorOriginal.effects;
     }
 
