@@ -107,6 +107,7 @@ async function addSpells(data) {
   const atWill = data.flags.monsterMunch.spellList.atwill;
   const klass = data.flags.monsterMunch.spellList.class;
   const innate = data.flags.monsterMunch.spellList.innate;
+  const selfOnly = data.flags.monsterMunch.spellList.selfonly;
 
   if (atWill.length !== 0) {
     logger.debug("Retrieving at Will spells:", atWill);
@@ -127,6 +128,9 @@ async function addSpells(data) {
           max: null,
           per: "",
         };
+      }
+      if (selfOnly.includes(spell.name.toLowerCase())) {
+        spell.data.target.type = "self";
       }
       return spell;
     });
@@ -170,6 +174,9 @@ async function addSpells(data) {
             max: spellInfo.value,
             per: (per && per.type) ? per.type : "day",
           };
+          if (selfOnly.includes(spell.name.toLowerCase())) {
+            spell.data.target.type = "self";
+          }
         }
         return spell;
       });

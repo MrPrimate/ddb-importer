@@ -5,7 +5,7 @@
 Monster Parsing Bugs:
 * Better spellcaster level detection
 * Improved at will spell matching for monsters such as the Archmage & Drider
-*
+* Monster with self only spells will now have target set to self.
 
 # v 0.1.4
 

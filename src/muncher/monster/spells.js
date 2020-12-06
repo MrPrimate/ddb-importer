@@ -55,9 +55,12 @@ function parseInnateSpells(text, spells, spellList) {
   const innateMatch = text.match(innateSearch);
   // console.log(innateMatch);
   if (innateMatch) {
-    const spellArray = innateMatch[3].split(",").map((spell) => spell.split('(', 1)[0].trim());
+    const spellArray = innateMatch[3].split(",").map((spell) => spell.trim());
     spellArray.forEach((spell) => {
-      spellList.innate.push({ name: spell, type: innateMatch[2], value: innateMatch[1] });
+      const selfOnly = spell.toLowerCase().includes("self only");
+      const spellName = spell.split('(', 1)[0].trim();
+      if (selfOnly) spellList.selfonly.push(spellName);
+      spellList.innate.push({ name: spellName, type: innateMatch[2], value: innateMatch[1] });
     });
   }
 
@@ -65,8 +68,13 @@ function parseInnateSpells(text, spells, spellList) {
   const atWillSearch = /^At (?:Will|will):\s+(.*$)/;
   const atWillMatch = text.match(atWillSearch);
   if (atWillMatch) {
-    const spellArray = atWillMatch[1].split(",").map((spell) => spell.split('(', 1)[0].trim());
-    spellList.atwill.push(...spellArray);
+    const spellArray = atWillMatch[1].split(",").map((spell) => spell.trim());
+    spellArray.forEach((spell) => {
+      const selfOnly = spell.toLowerCase().includes("self only");
+      const spellName = spell.split('(', 1)[0].trim();
+      if (selfOnly) spellList.selfonly.push(spellName);
+      spellList.atwill.push(spellName);
+    });
   }
 
   return [spells, spellList];
@@ -125,6 +133,7 @@ export function getSpells(monster, DDB_CONFIG) {
     atwill: [],
     // {name: "", type: "srt/lng/day", value: 0} // check these values
     innate: [],
+    selfonly: [],
   };
 
   // ability associated
@@ -207,8 +216,12 @@ export function getSpells(monster, DDB_CONFIG) {
 
     [spells, spellList] = parseSpells(node.textContent, spells, spellList);
     const additionalAtWill = parseAdditionalAtWill(node.textContent);
-    spellList.atwill.push(...additionalAtWill);
-
+    additionalAtWill.forEach((spell) => {
+      const selfOnly = spell.toLowerCase().includes("self only");
+      const spellName = spell.split('(', 1)[0].trim();
+      if (selfOnly) spellList.selfonly.push(spellName);
+      spellList.atwill.push(spellName);
+    });
   });
 
 
