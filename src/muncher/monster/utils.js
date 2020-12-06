@@ -99,15 +99,13 @@ export function getUses(text) {
     per: null,
   };
 
-  console.error(text);
   const usesSearch = /\((\d+)\/(\w+)\)/;
   const usesMatch = text.match(usesSearch);
-  console.log(usesMatch);
   // console.log(usesMatch);
   if (usesMatch) {
     uses.value = usesMatch[1];
     uses.max = usesMatch[1];
-    uses.per = "day"
+    uses.per = "day";
     const perMatch = DICTIONARY.resets.find((reset) => reset.id === usesMatch[2]);
     if (perMatch) uses.per = perMatch.value;
   }
