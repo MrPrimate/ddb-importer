@@ -102,11 +102,11 @@ function getSpellEdgeCase(spell, type, edgeCases) {
   const edgeCase = edgeCases.find((edge) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
 
   if (edgeCase) {
-    switch(edgeCase.edge.toLowerCase()) {
+    switch (edgeCase.edge.toLowerCase()) {
       case "self":
       case "self only":
         spell.data.target.type = "self";
-        console.debug("spell target changed to self");
+        logger.debug("spell target changed to self");
         break;
       // no default
     }

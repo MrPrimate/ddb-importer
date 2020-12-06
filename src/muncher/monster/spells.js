@@ -122,7 +122,7 @@ function splitEdgeCase(spell) {
     name: spell,
     edge: null,
   };
-console.warn(spell);
+
   const splitSpell = spell.split("(");
   if (splitSpell.length > 1) {
     result.name = splitSpell[0].trim();
@@ -138,7 +138,7 @@ function getEdgeCases(spellList) {
     atwill: [],
     // {name: "", type: "srt/lng/day", value: 0} // check these values
     innate: [],
-    edgeCases:[], // map { name: "", type: "", edge: "" }
+    edgeCases: [], // map { name: "", type: "", edge: "" }
   };
 
   // class and atwill
@@ -150,7 +150,7 @@ function getEdgeCases(spellList) {
         name: edgeCheck.name,
         type: "class",
         edge: edgeCheck.edge,
-      }
+      };
       results.edgeCases.push(edgeEntry);
     }
   });
@@ -162,7 +162,7 @@ function getEdgeCases(spellList) {
         name: edgeCheck.name,
         type: "atwill",
         edge: edgeCheck.edge,
-      }
+      };
       results.edgeCases.push(edgeEntry);
     }
   });
@@ -176,7 +176,7 @@ function getEdgeCases(spellList) {
         name: edgeCheck.name,
         type: "innate",
         edge: edgeCheck.edge,
-      }
+      };
       results.edgeCases.push(edgeEntry);
     }
   });
@@ -197,7 +197,7 @@ export function getSpells(monster, DDB_CONFIG) {
     atwill: [],
     // {name: "", type: "srt/lng/day", value: 0} // check these values
     innate: [],
-    edgeCases:[], // map { name: "", type: "", edge: "" }
+    edgeCases: [], // map { name: "", type: "", edge: "" }
   };
 
   // ability associated
