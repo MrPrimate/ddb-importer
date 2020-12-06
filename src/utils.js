@@ -340,7 +340,7 @@ let utils = {
       http.open("HEAD", path);
       http.onreadystatechange = function () {
         if (this.readyState == this.DONE) {
-          if (this.status !== 404) {
+          if (this.status  >= 200 && this.status <= 399) { // Assume any 2xx or 3xx responses mean the image is there.
             resolve(path);
           } else {
             reject(path);
@@ -742,7 +742,7 @@ let utils = {
     }
     return uri;
   },
-  
+
   versionCompare: (v1, v2, options) => {
     var lexicographical = options && options.lexicographical,
       zeroExtend = options && options.zeroExtend,
