@@ -340,7 +340,7 @@ let utils = {
       http.open("HEAD", path);
       http.onreadystatechange = function () {
         if (this.readyState == this.DONE) {
-          if (this.status  >= 200 && this.status <= 399) { // Assume any 2xx or 3xx responses mean the image is there.
+          if (this.status >= 200 && this.status <= 399) { // Assume any 2xx or 3xx responses mean the image is there.
             resolve(path);
           } else {
             reject(path);
