@@ -11,6 +11,7 @@ Monster Bug Hunt edition
 
 Other:
 * Fixed S3 regression bug (thanks @Ivan Von Girderboot)
+* (Option) Copy Active Effects from current character items on import
 
 # v 0.1.3
 

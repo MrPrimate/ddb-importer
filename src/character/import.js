@@ -220,14 +220,6 @@ export default class CharacterImport extends Application {
     $(html).parent().parent().css("height", "auto");
   }
 
-  static async copyFlagGroup(flagGroup, originalItem, targetItem) {
-    if (targetItem.flags === undefined) targetItem.flags = {};
-    if (originalItem.flags && !!originalItem.flags[flagGroup]) {
-      utils.log(`Copying ${flagGroup} for ${originalItem.name}`);
-      targetItem.flags[flagGroup] = originalItem.flags[flagGroup];
-    }
-  }
-
   /**
    * Loops through a characters items and updates flags
    * @param {*} items
@@ -239,6 +231,22 @@ export default class CharacterImport extends Application {
       );
       if (originalItem) {
         copySupportedItemFlags(originalItem, item);
+      }
+    });
+  }
+
+
+  async copyCharacterItemEffects(items) {
+    items.forEach((item) => {
+      const originalItem = this.actorOriginal.items.find(
+        (originalItem) => item.name === originalItem.name && item.type === originalItem.type
+      );
+      if (originalItem) {
+        if (item.effects === undefined) item.effects = [];
+        if (originalItem.effects) {
+          utils.log(`Copying Effects for ${originalItem.name}`);
+          item.effects = originalItem.effects;
+        }
       }
     });
   }
@@ -421,7 +429,7 @@ export default class CharacterImport extends Application {
       {
         name: "use-existing",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
-        description: "Use existing items from DDB import compendiums, rather than recreating. This is useful if you have customised the items in the compendium, although you will loose any custom effects applied by this module e.g. Improved Divine Smite.",
+        description: "Use existing items from DDB import compendiums, rather than recreating. This is useful if you have customised the items in the compendium, although you will lose any custom effects applied by this module e.g. Improved Divine Smite.",
         enabled: true,
       },
       {
@@ -435,6 +443,12 @@ export default class CharacterImport extends Application {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy"),
         description: "Use Dynamic Active Effects Compendiums for matching items (requires DAE and SRD module).",
         enabled: daeInstalled,
+      },
+      {
+        name: "active-effect-copy",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
+        description: "Copy existing Active Effects on items and character.",
+        enabled: true,
       },
     ];
 
@@ -582,6 +596,7 @@ export default class CharacterImport extends Application {
     const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
     const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
     const ddbGenericItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons");
+    const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
 
     // if we still have items to add, add them
     if (items.length > 0) {
@@ -606,6 +621,11 @@ export default class CharacterImport extends Application {
       if (ddbGenericItemIcons) {
         CharacterImport.showCurrentTask(html, "Fetching DDB Generic Item Images");
         items = await getDDBGenericItemIcons(items, true);
+      }
+
+      if (activeEffectCopy) {
+        CharacterImport.showCurrentTask(html, "Copying Item Active Effects");
+        await this.copyCharacterItemEffects(items);
       }
 
       CharacterImport.showCurrentTask(html, "Adding items to character");
@@ -736,6 +756,12 @@ export default class CharacterImport extends Application {
     if (daeCopy && daeInstalled) {
       CharacterImport.showCurrentTask(html, "Importing DAE Effects");
       await DAE.migrateActorDAESRD(this.actor, false);
+    }
+
+    const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
+    if (activeEffectCopy) {
+      console.log(this.actorOriginal);
+      this.actor.effects = this.actorOriginal.effects;
     }
 
     this.close();
