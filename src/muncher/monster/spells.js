@@ -72,6 +72,15 @@ function parseInnateSpells(text, spells, spellList) {
     });
   }
 
+  // last ditch attempt, mephits have some weird formating
+  if (!innateMatch && !atWillMatch) {
+    const mephitMatch = text.match(/(\d+)\/(\w+)(?:.*)?cast (.*),/);
+    if (mephitMatch) {
+      const spell = mephitMatch[3].trim();
+      spellList.innate.push({ name: spell, type: mephitMatch[2], value: mephitMatch[1] });
+    }
+  }
+
   return [spells, spellList];
 
 }

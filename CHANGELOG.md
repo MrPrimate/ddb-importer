@@ -12,6 +12,7 @@ Monster Parsing Bugs:
 * Add restrictions to spell descriptions and names
 * Support unique spell DC's e.g. Nezznar the Black Spider
 * Remove material components when not required from spells
+* Import innate spells for Mephits (they have unique syntax)
 
 # v 0.1.4
 
