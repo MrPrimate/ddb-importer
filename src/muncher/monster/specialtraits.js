@@ -2,7 +2,7 @@
 // handle legendary resistance here
 
 import { getSource } from "./source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage, getAction } from "./utils.js";
+import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses } from "./utils.js";
 import { FEAT_TEMPLATE } from "./templates/feat.js";
 
 export function getSpecialTraits(monster, DDB_CONFIG) {
@@ -67,6 +67,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     }
     action.data.activation.type = getAction(node.textContent, "");
 
+    action.data.uses = getUses(node.textContent);
     action.data.recharge = getRecharge(node.textContent);
     action.data.save = getFeatSave(node.textContent, action.data.save);
     // assumption - if we have parsed a save dc set action type to save

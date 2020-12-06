@@ -92,6 +92,29 @@ export function getAction(text, type = "action") {
   return action;
 }
 
+export function getUses(text) {
+  let uses = {
+    value: 0,
+    max: 0,
+    per: null,
+  };
+
+  console.error(text);
+  const usesSearch = /\((\d+)\/(\w+)\)/;
+  const usesMatch = text.match(usesSearch);
+  console.log(usesMatch);
+  // console.log(usesMatch);
+  if (usesMatch) {
+    uses.value = usesMatch[1];
+    uses.max = usesMatch[1];
+    uses.per = "day"
+    const perMatch = DICTIONARY.resets.find((reset) => reset.id === usesMatch[2]);
+    if (perMatch) uses.per = perMatch.value;
+  }
+
+  return uses;
+}
+
 export function getRecharge(text) {
   const matches = text.toLowerCase().match(/\(recharge ([0-9–-–−]+)\)/);
   if (matches) {
@@ -363,7 +386,7 @@ export function getTarget(text) {
   return target;
 }
 
-export function getAttackInfo(monster, DDB_CONFIG, name, text) {
+export function getActionInfo(monster, DDB_CONFIG, name, text) {
   const matches = text.match(
     /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/
   );
@@ -427,7 +450,12 @@ export function getAttackInfo(monster, DDB_CONFIG, name, text) {
       ability: null,
       scaling: "flat",
     },
-    text: text
+    text: text,
+    uses: {
+      value: 0,
+      max: 0,
+      per: null,
+    },
   };
   if (matches) {
     result.isAttack = matches[1] !== undefined;
@@ -451,6 +479,7 @@ export function getAttackInfo(monster, DDB_CONFIG, name, text) {
   result.activation = getActivation(text);
   result.save = getFeatSave(text, result.save);
   result.target = getTarget(text);
+  result.uses = getUses(text);
 
 
   return result;

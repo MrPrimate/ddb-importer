@@ -48,6 +48,22 @@ const DICTIONARY = {
     { name: "Slam", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Rake", actionType: "mwak", weaponType: "natural", properties: {} },
   ],
+  resets: [
+    { id: 1, value: "sr" },
+    { id: "ShortRest", value: "sr" },
+    { id: "Short", value: "sr" },
+    { id: "short", value: "sr" },
+    { id: 2, value: "lr" },
+    { id: "LongRest", value: "lr" },
+    { id: "Long", value: "lr" },
+    { id: "long", value: "lr" },
+    { id: "Day", value: "day" },
+    { id: "day", value: "day" },
+    { id: "Dawn", value: "day" },
+    { id: "dusk", value: "day" },
+    { id: "Consumable", value: "charges" },
+    { id: "Other", value: "charges" },
+  ],
 };
 export default DICTIONARY;
 
