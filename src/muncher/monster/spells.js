@@ -13,7 +13,7 @@ function parseSpellcasting(text) {
 
 function parseSpellLevel(text) {
   let spellLevel = "";
-  const levelSearch = "is a (\\d+)(?:th|nd|rd|st)(?:-| )level spellcaster";
+  const levelSearch = /is (?:a|an) (\d+)(?:th|nd|rd|st)(?:-| )level spellcaster/;
   const match = text.match(levelSearch);
   if (match) {
     spellLevel = parseInt(match[1]);
@@ -61,13 +61,33 @@ function parseInnateSpells(text, spells, spellList) {
     });
   }
 
+  // At will: dancing lights
+  const atWillSearch = /^At (?:Will|will):\s+(.*$)/;
+  const atWillMatch = text.match(atWillSearch);
+  if (atWillMatch) {
+    const spellArray = atWillMatch[1].split(",").map((spell) => spell.split('(', 1)[0].trim());
+    spellList.atwill.push(...spellArray);
+  }
+
   return [spells, spellList];
 
 }
 
+
+// e.g. The archmage can cast disguise self and invisibility at will and has the following wizard spells prepared:
+function parseAdditionalAtWill(text) {
+  const atWillSearch = /can cast (.*?) at will/;
+  const atWillMatch = text.match(atWillSearch);
+  let atWillSpells = [];
+  if (atWillMatch) {
+    atWillSpells = atWillMatch[1].replace(" and", ",").split(",").map((spell) => spell.split('(', 1)[0].trim());
+  }
+  return atWillSpells;
+}
+
 function parseSpells(text, spells, spellList) {
     // console.log(text);
-    const spellLevelSearch = "^(Cantrip|\\d)(?:st|th|nd|rd)?(?:\\s*level)?(?:s)?\\s+\\((at will|\\d)\\s*(?:slot|slots)?\\):\\s+(.*$)";
+    const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*level)?(?:s)?\s+\((at will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
     const match = text.match(spellLevelSearch);
     // console.log(match);
 
@@ -186,7 +206,8 @@ export function getSpells(monster, DDB_CONFIG) {
     }
 
     [spells, spellList] = parseSpells(node.textContent, spells, spellList);
-
+    const additionalAtWill = parseAdditionalAtWill(node.textContent);
+    spellList.atwill.push(...additionalAtWill);
 
   });
 

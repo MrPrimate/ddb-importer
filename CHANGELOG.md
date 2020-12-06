@@ -2,6 +2,11 @@
 
 * Improved S3 handling (thanks @Ivan Von Girderboot)
 
+Monster Parsing Bugs:
+* Better spellcaster level detection
+* Improved at will spell matching for monsters such as the Archmage & Drider
+*
+
 # v 0.1.4
 
 Monster Bug Hunt edition:
