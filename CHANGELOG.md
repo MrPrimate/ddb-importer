@@ -1,6 +1,10 @@
+# v 0.1.5
+
+* Improved S3 handling (thanks @Ivan Von Girderboot)
+
 # v 0.1.4
 
-Monster Bug Hunt edition
+Monster Bug Hunt edition:
 * Legendary resistance now parses correctly
 * Legendary resistance now decrease resource value
 * Some Legendary actions did not parse damage or saves correctly
