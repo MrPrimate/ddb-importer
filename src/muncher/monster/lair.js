@@ -75,7 +75,7 @@ export function getLairActions(monster, DDB_CONFIG) {
       resource = {
         value: true,
         initiative: parseInt(initiativeMatch[1]),
-      }
+      };
     }
   });
 
