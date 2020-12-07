@@ -452,11 +452,16 @@ export default class CharacterImport extends Application {
       },
     ];
 
+    const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
+    const badDirs = ["[data]", "[data] ", "", null];
+    const dataDirSet = !badDirs.includes(uploadDir);
+
     return {
       actor: this.actor,
       importPolicies: importPolicies,
       importConfig: importConfig,
       advancedImportConfig: advancedImportConfig,
+      dataDirSet: dataDirSet,
     };
   }
 

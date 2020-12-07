@@ -1,3 +1,7 @@
+# v 0.1.6
+
+* Prevent users importing if image upload is not set - present screen with helpful message and tutorials
+
 # v 0.1.5
 
 * Improved S3 handling (thanks @Ivan Von Girderboot)

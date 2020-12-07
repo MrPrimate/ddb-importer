@@ -1,4 +1,5 @@
 <div>
+  {{#if dataDirSet}}
   <div class="form-section">
     <div class="form-description">
       <h3>Get your Character's ID</h3>
@@ -85,4 +86,14 @@
     </div>
     {{/each}}
   </div>
+  {{else}}
+  <h3>Configuration Needs Completing!</h3>
+  <p>Please make sure you have set an images upload directory in the module settings.</p>
+  <p>If you need help getting setup checkout the following YouTube videos:</p>
+  <p>
+    <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Amazing Overview (Install, Setup, How to Use)</a> is recommended!</li>
+    <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
+    <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
+  </p>
+  {{/if}}
 </div>
