@@ -1,5 +1,6 @@
 # v 0.1.7
 
+* Minotaur characters had a speed of 0
 
 Monster, monster, monster:
 * Fixed issue with bad data causing blights to not import senses correctly.

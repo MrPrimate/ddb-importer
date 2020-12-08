@@ -6,9 +6,9 @@ export function getSpeed(data) {
   // For all processing, we take into account the regular movement types of this character
   let movementTypes = {};
   for (let type in data.character.race.weightSpeeds.normal) {
-    if (data.character.race.weightSpeeds.normal[type] !== 0) {
+    //if (data.character.race.weightSpeeds.normal[type] !== 0) {
       movementTypes[type] = data.character.race.weightSpeeds.normal[type];
-    }
+    //}
   }
 
   // get bonus speed mods
