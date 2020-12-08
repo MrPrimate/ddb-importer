@@ -39,7 +39,7 @@ export function getTokenSenses(token, monster, DDB_CONFIG) {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
     if (senseMatch && sense.notes) {
       const senseType = SENSE_MAP[senseMatch.name];
-      const rangeMatch = sense.notes.match(/^(\d+)/);
+      const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
         token[senseType] = rangeMatch[1];
       }

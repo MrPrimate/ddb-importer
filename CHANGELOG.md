@@ -1,3 +1,9 @@
+# v 0.1.7
+
+
+Monster, monster, monster:
+* Fixed issue with bad data causing blights to not import senses correctly.
+
 # v 0.1.6
 
 * Prevent users importing if image upload is not set - present screen with helpful message and tutorials
