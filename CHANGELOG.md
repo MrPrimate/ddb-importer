@@ -1,3 +1,7 @@
+# v 0.1.9
+
+* Resolved bug with duplicate items when using SRD items
+
 # v 0.1.7
 
 * Minotaur characters had a speed of 0

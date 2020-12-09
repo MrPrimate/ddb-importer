@@ -48,7 +48,8 @@ export async function parseSpells() {
     getSpellData("Bard"),
   ]);
 
-  const spells = results.map((r) => r.value).flat().flat().map((spell) => {
+  const spells = results.map((r) => r.value).flat().flat()
+  .map((spell) => {
     spell.name = spell.name.replace(/’/g, "'");
     return spell;
   });

@@ -780,27 +780,30 @@ export async function updateIcons(items, srdIconUpdate = true) {
 export async function srdFiddling(items, type) {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
-  const iconItems = await updateIcons(items);
 
   if (useSrd && type == "monsters") {
     const srdItems = await getSRDCompendiumItems(items, type);
     // removed existing items from those to be imported
     logger.debug("Removing compendium items");
-    const lessSrdItems = await removeItems(iconItems, srdItems);
-    return lessSrdItems.concat(srdItems);
+    const lessSrdItems = await removeItems(items, srdItems);
+    const newIcons = lessSrdItems.concat(srdItems);
+    const iconItems = await updateIcons(newIcons);
+    return iconItems;
   } else if (useSrd) {
     logger.debug("Removing compendium items");
     const srdItems = await getSRDCompendiumItems(items, type);
-    const srdIconedItems = await updateIcons(items, false);
     let itemMap = {};
-    itemMap[type] = srdIconedItems;
+    itemMap[type] = srdItems;
+    logger.debug("Adding SRD compendium items");
     updateCompendium(type, itemMap, updateBool);
     // removed existing items from those to be imported
     return new Promise((resolve) => {
-      const cleanedItems = removeItems(iconItems, srdItems);
-      resolve(cleanedItems);
+      removeItems(items, srdItems)
+      .then((cleanedItems) => updateIcons(cleanedItems))
+      .then((iconItems) => resolve(iconItems));
     });
   } else {
+    const iconItems = await updateIcons(items);
     return iconItems;
   }
 }
