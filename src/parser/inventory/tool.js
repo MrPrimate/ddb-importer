@@ -78,7 +78,7 @@ let getUses = (data) => {
   }
 };
 
-export default function parseTool(ddb, data) {
+export default function parseTool(ddb, data, itemType) {
   /**
    * MAIN parseTool
    */
@@ -89,7 +89,7 @@ export default function parseTool(ddb, data) {
     flags: {
       ddbimporter: {
         dndbeyond: {
-          type: data.definition.type,
+          type: itemType,
         },
       },
     },

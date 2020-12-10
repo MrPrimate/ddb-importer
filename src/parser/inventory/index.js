@@ -167,6 +167,61 @@ function getWeaponFlags(ddb, data) {
   return flags;
 }
 
+function getItemFromGearTypeIdOne(ddb, data, character) {
+  let item = {};
+
+  switch (data.definition.subType) {
+    case "Potion":
+      item = parsePotion(data, data.definition.subType);
+      break;
+    case "Tool":
+      item = parseTool(ddb, data, data.definition.subType);
+      break;
+    case "Ammunition":
+      item = parseAmmunition(data, data.definition.subType);
+      break;
+    default:
+      item = parseLoot(data, data.definition.subType);
+  }
+  return item;
+}
+
+function otherGear (ddb, data, character) {
+  let item = {};
+  
+  switch (data.definition.gearTypeId) {
+    case 1:
+      item = getItemFromGearTypeIdOne(ddb, data, character);
+      break;
+    case 4:
+      item = parseLoot(data, "Mount");
+      break;
+    case 5:
+    item = parsePotion(data, "Poison");
+      break;
+    case 6:
+    item = parsePotion(data, "Potion");
+      break;
+    case 11:
+      item = parseTool(ddb, data, "Tool");
+      break;
+    case 12:
+    case 17:
+      item = parseLoot(data, "Vehicle");
+      break;
+    case 16:
+      item = parseLoot(data, "Equipment Pack");
+      break;
+    case 18:
+      // TODO change to parseGemstone (consummable)
+      item = parseLoot(data, "Gemstone");
+      break;
+    default:
+      logger.warn("Other Gear type missing from " + data.definition.name);
+  }
+  return item;
+}
+
 function getCustomValue(data, character, type) {
   if (!character) return null;
   const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
@@ -206,7 +261,7 @@ function parseItem(ddb, data, character) {
       switch (data.definition.filterType) {
         case "Weapon": {
           if (data.definition.type === "Ammunition" || data.definition.subType === "Ammunition") {
-            item = parseAmmunition(data);
+            item = parseAmmunition(data, "Ammunition");
           } else {
             const flags = getWeaponFlags(ddb, data);
             item = parseWeapon(data, character, flags);
@@ -226,13 +281,13 @@ function parseItem(ddb, data, character) {
           item = parseStaff(data, character);
           break;
         case "Potion":
-          item = parsePotion(data);
+          item = parsePotion(data, data.definition.type);
           break;
         case "Scroll":
           item = parseScroll(data);
           break;
         case "Other Gear":
-          item = parseLoot(data, character);
+          item = otherGear(ddb, data, character);
           break;
         default:
           logger.warn("Item filterType not implemented for " + data.definition.name);
