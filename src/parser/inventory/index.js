@@ -167,7 +167,7 @@ function getWeaponFlags(ddb, data) {
   return flags;
 }
 
-function getItemFromGearTypeIdOne(ddb, data, character) {
+function getItemFromGearTypeIdOne(ddb, data) {
   let item = {};
 
   switch (data.definition.subType) {
@@ -186,12 +186,12 @@ function getItemFromGearTypeIdOne(ddb, data, character) {
   return item;
 }
 
-function otherGear (ddb, data, character) {
+function otherGear (ddb, data) {
   let item = {};
   
   switch (data.definition.gearTypeId) {
     case 1:
-      item = getItemFromGearTypeIdOne(ddb, data, character);
+      item = getItemFromGearTypeIdOne(ddb, data);
       break;
     case 4:
       item = parseLoot(data, "Mount");
@@ -213,7 +213,7 @@ function otherGear (ddb, data, character) {
       item = parseLoot(data, "Equipment Pack");
       break;
     case 18:
-      // TODO change to parseGemstone (consummable)
+      // Change to parseGemstone (consummable) ?
       item = parseLoot(data, "Gemstone");
       break;
     default:
@@ -287,7 +287,7 @@ function parseItem(ddb, data, character) {
           item = parseScroll(data);
           break;
         case "Other Gear":
-          item = otherGear(ddb, data, character);
+          item = otherGear(ddb, data);
           break;
         default:
           logger.warn("Item filterType not implemented for " + data.definition.name);
