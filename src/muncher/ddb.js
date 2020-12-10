@@ -171,7 +171,14 @@ export default class DDBMuncher extends Application {
       },
     ];
 
-    const monsterConfig = [];
+    const monsterConfig = [
+      {
+        name: "hide-description",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-hide-description"),
+        description: "Hide description from players?",
+        enabled: true,
+      },
+    ];
 
     const genericConfig = [
       {

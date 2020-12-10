@@ -1,3 +1,8 @@
+# v 0.1.10
+
+* Generic loot item images from dndbeyond are here! (Thanks to @CaptainYoshi )
+* First pass of option to hide monster action/attack description from players
+
 # v 0.1.9
 
 * Resolved bug with duplicate items when using SRD items

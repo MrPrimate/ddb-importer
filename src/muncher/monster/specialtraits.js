@@ -5,6 +5,12 @@ import { getSource } from "./source.js";
 import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses } from "./utils.js";
 import { FEAT_TEMPLATE } from "./templates/feat.js";
 
+
+function addPlayerDescription(monster, action) {
+  let playerDescription = `</section>\nThe ${monster.name} uses ${action.name}!`;
+  return playerDescription;
+}
+
 export function getSpecialTraits(monster, DDB_CONFIG) {
   if (monster.specialTraitsDescription == "") {
     return {
@@ -15,6 +21,8 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
       specialActions: [],
     };
   }
+
+  const hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
 
   let resistanceResource = {
     value: 0,
@@ -54,9 +62,15 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
   dom.childNodes.forEach((node) => {
     const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
     if (switchAction) {
+      if (action.data.description.value !== "" && hideDescription) {
+        action.data.description.value += addPlayerDescription(monster, action);
+      }
       action = switchAction;
+      if (action.data.description.value === "" && hideDescription) {
+        action.data.description.value = "<section class=\"secret\">\n";
+      }
     }
-    action.data.description.value += node.outerHTML;
+    if (node.outerHTML) action.data.description.value += node.outerHTML;
 
     const activationCost = getActivation(node.textContent);
     if (activationCost) {
@@ -91,6 +105,10 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     }
 
   });
+
+  if (action && action.data.description.value !== "" && hideDescription) {
+    action.data.description.value += addPlayerDescription(monster, action);
+  }
 
   // console.log(dynamicActions);
 

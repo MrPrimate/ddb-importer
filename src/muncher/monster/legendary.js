@@ -2,6 +2,12 @@ import { getSource } from "./source.js";
 import { getRecharge, getActivation, getFeatSave, getDamage } from "./utils.js";
 import { FEAT_TEMPLATE } from "./templates/feat.js";
 
+function addPlayerDescription(monster, action) {
+  let playerDescription = `</section>\nThe ${monster.name} performs a Legendary Action! Prepare for ${action.name}!`;
+  return playerDescription;
+}
+
+
 export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   if (monster.legendaryActionsDescription == "") {
     return {
@@ -12,6 +18,8 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
       legendaryActions: [],
     };
   }
+
+  const hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
 
   let actionResource = {
     value: 3,
@@ -81,11 +89,17 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
 
     const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
     if (switchAction) {
+      if (action.data.description.value !== "" && hideDescription) {
+        action.data.description.value += addPlayerDescription(monster, action);
+      }
       action = switchAction;
+      if (action.data.description.value === "" && hideDescription) {
+        action.data.description.value = "<section class=\"secret\">\n";
+      }
     }
     // console.log(action)
     if (action.flags && action.flags.monstersMunch && action.flags.monsterMunch.actionCopy) return;
-    action.data.description.value += node.outerHTML;
+    if (node.outerHTML) action.data.description.value += node.outerHTML;
 
     const activationCost = getActivation(node.textContent);
     if (activationCost) {
@@ -106,9 +120,11 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
       }
       action.data.damage = getDamage(node.textContent);
     }
-
-
   });
+
+  if (action && action.data.description.value !== "" && hideDescription) {
+    action.data.description.value += addPlayerDescription(monster, action);
+  }
 
   // console.log(dynamicActions);
 

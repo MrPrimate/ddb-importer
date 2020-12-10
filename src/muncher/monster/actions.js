@@ -4,11 +4,27 @@ import { FEAT_TEMPLATE } from "./templates/feat.js";
 
 // "actionsDescription": "<p><em><strong>Multiattack.</strong></em> The dragon can use its Frightful Presence. It then makes three attacks: one with its bite and two with its claws.</p>\r\n<p><em><strong>Bite.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 15 ft., one target. <em>Hit:</em> 19 (2d10 + 8) piercing damage plus 9 (2d8) acid damage.</p>\r\n<p><em><strong>Claw.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 10 ft., one target. <em>Hit:</em> 15 (2d6 + 8) slashing damage.</p>\r\n<p><em><strong>Tail.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 20 ft., one target. <em>Hit:</em> 17 (2d8 + 8) bludgeoning damage.</p>\r\n<p><em><strong>Frightful Presence.</strong></em> Each creature of the dragon's choice that is within 120 feet of the dragon and aware of it must succeed on a DC 19 Wisdom saving throw or become frightened for 1 minute. A creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature is immune to the dragon's Frightful Presence for the next 24 hours.</p>\r\n<p><em><strong>Acid Breath (Recharge 5&ndash;6).</strong></em> The dragon exhales acid in a 90-foot line that is 10 feet wide. Each creature in that line must make a DC 22 Dexterity saving throw, taking 67 (15d8) acid damage on a failed save, or half as much damage on a successful one.</p>",
 
+function addPlayerDescription(monster, action) {
+  let playerDescription = "";
+  if (["rwak", "mwak"].includes(action.data.actionType)) {
+    playerDescription = `</section>\nThe ${monster.name} performs a ${action.name} attack!`;
+  } else if (["rsak", "msak"].includes(action.data.actionType)) {
+    playerDescription = `</section>\nThe ${monster.name} casts ${action.name}!`;
+  } else if (["save"].includes(action.data.actionType)) {
+    playerDescription = `</section>\nThe ${monster.name} uses ${action.name} and a save is required!`;
+  } else {
+    playerDescription = `</section>\nThe ${monster.name} performs the ${action.name} action`;
+  }
+  return playerDescription;
+}
+
+
 export function getActions(monster, DDB_CONFIG, type = "action") {
   if (monster.actionsDescription == "") {
     return [];
   }
 
+  const hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
   let actions = null;
 
   switch (type) {
@@ -49,7 +65,9 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     if (!query) return;
     action.name = query.textContent.trim().replace(/\.$/, '').trim();
     action.data.source = getSource(monster, DDB_CONFIG);
-    action.flags.monsterMunch = {};
+    action.flags.monsterMunch = {
+      titleHTML: query.outerHTML,
+    };
     dynamicActions.push(action);
   });
 
@@ -67,7 +85,9 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       if (!query) return;
       action.name = query.textContent.trim().replace(/\.$/, '').trim();
       action.data.source = getSource(monster, DDB_CONFIG);
-      action.flags.monsterMunch = {};
+      action.flags.monsterMunch = {
+        titleHTML: query.outerHTML,
+      };
       dynamicActions.push(action);
     });
     action = dynamicActions[0];
@@ -85,7 +105,9 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       const title = pDom.textContent.split('.')[0];
       action.name = title.trim();
       action.data.source = getSource(monster, DDB_CONFIG);
-      action.flags.monsterMunch = {};
+      action.flags.monsterMunch = {
+        titleHTML: pDom.outerHTML.split('.')[0],
+      };
       dynamicActions.push(action);
     });
     action = dynamicActions[0];
@@ -96,9 +118,15 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
   // console.log(node.textContent);
     const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
     if (switchAction) {
+      if (action.data.description.value !== "" && hideDescription) {
+        action.data.description.value += addPlayerDescription(monster, action);
+      }
       action = switchAction;
+      if (action.data.description.value === "" && hideDescription) {
+        action.data.description.value = "<section class=\"secret\">\n";
+      }
     }
-    action.data.description.value += node.outerHTML;
+    if (node.outerHTML) action.data.description.value += node.outerHTML;
 
     const actionInfo = getActionInfo(monster, DDB_CONFIG, action.name, node.textContent);
     // console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
@@ -181,6 +209,10 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     // console.log(JSON.stringify(beyond20_damage(node.textContent), null, 4));
     // console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
   });
+
+  if (action && action.data.description.value !== "" && hideDescription) {
+    action.data.description.value += addPlayerDescription(monster, action);
+  }
 
   // console.log(dynamicActions);
   // console.log(JSON.stringify(dynamicActions, null, 4));
