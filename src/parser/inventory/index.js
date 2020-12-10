@@ -167,31 +167,6 @@ function getWeaponFlags(ddb, data) {
   return flags;
 }
 
-function otherGear (ddb, data, character) {
-  let item = {};
-  switch (data.definition.subType) {
-    case "Potion":
-      item = parsePotion(data);
-      break;
-    case "Tool":
-      item = parseTool(ddb, data);
-      break;
-    case "Ammunition":
-      item = parseAmmunition(data);
-      break;
-    default:
-      // Final exceptions
-      switch (data.definition.name) {
-        case "Thieves' Tools":
-          item = parseTool(ddb, data, character);
-          break;
-        default:
-          item = parseLoot(data);
-      }
-  }
-  return item;
-}
-
 function getCustomValue(data, character, type) {
   if (!character) return null;
   const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
@@ -222,6 +197,7 @@ function addCustomValues(ddbItem, foundryItem, character) {
   if (weightOverride) foundryItem.data.weight = weightOverride;
 }
 
+// the filter type "Other Gear" represents the equipment while the other filters represents the magic items in ddb
 function parseItem(ddb, data, character) {
   try {
     // is it a weapon?
@@ -255,12 +231,11 @@ function parseItem(ddb, data, character) {
         case "Scroll":
           item = parseScroll(data);
           break;
-        case "Other Gear": {
-          item = otherGear(ddb, data, character);
-          break;
-        }
-        default:
+        case "Other Gear":
           item = parseLoot(data, character);
+          break;
+        default:
+          logger.warn("Item filterType not implemented for " + data.definition.name);
           break;
       }
     } else {

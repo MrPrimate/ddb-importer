@@ -43,6 +43,42 @@ const getItemType = (data) => {
   return itemType === undefined ? "loot" : itemType;
 };
 
+const getItemSubType = (data) => {
+  let itemSubType;
+
+  switch (data.definition.gearTypeId) {
+    case 1:
+      itemSubType = data.definition.subType;
+      break;
+    case 4:
+      itemSubType = "Mount";
+      break;
+    case 5:
+      itemSubType = "Poison";
+      break;
+    case 6:
+      itemSubType = "Potion";
+      break;
+    case 11:
+      itemSubType = "Tool";
+      break;
+    case 12:  // Vehicle (Land)
+    case 17:  // Vehicle (Water)
+      itemSubType = "Vehicle";
+      break;
+    case 16:
+      itemSubType = "Equipment Pack";
+      break;
+    case 18:
+      itemSubType = "Gemstone";
+      break;
+    default:
+      logger.warn("Item subType missing for loot item " + data.definition.name);
+  }
+  
+  return itemSubType;
+};
+
 export default function parseLoot(data) {
   /**
    * MAIN parseLoot
@@ -54,7 +90,7 @@ export default function parseLoot(data) {
     flags: {
       ddbimporter: {
         dndbeyond: {
-          type: data.definition.type,
+          type: getItemSubType(data),
         },
       },
     },
