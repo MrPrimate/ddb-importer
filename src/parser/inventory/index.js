@@ -167,27 +167,57 @@ function getWeaponFlags(ddb, data) {
   return flags;
 }
 
-function otherGear (ddb, data, character) {
+function getItemFromGearTypeIdOne(ddb, data) {
   let item = {};
+
   switch (data.definition.subType) {
     case "Potion":
-      item = parsePotion(data);
+      item = parsePotion(data, data.definition.subType);
       break;
     case "Tool":
-      item = parseTool(ddb, data);
+      item = parseTool(ddb, data, data.definition.subType);
       break;
     case "Ammunition":
-      item = parseAmmunition(data);
+      item = parseAmmunition(data, data.definition.subType);
       break;
     default:
-      // Final exceptions
-      switch (data.definition.name) {
-        case "Thieves' Tools":
-          item = parseTool(ddb, data, character);
-          break;
-        default:
-          item = parseLoot(data);
-      }
+      item = parseLoot(data, data.definition.subType);
+  }
+  return item;
+}
+
+function otherGear (ddb, data) {
+  let item = {};
+  
+  switch (data.definition.gearTypeId) {
+    case 1:
+      item = getItemFromGearTypeIdOne(ddb, data);
+      break;
+    case 4:
+      item = parseLoot(data, "Mount");
+      break;
+    case 5:
+    item = parsePotion(data, "Poison");
+      break;
+    case 6:
+    item = parsePotion(data, "Potion");
+      break;
+    case 11:
+      item = parseTool(ddb, data, "Tool");
+      break;
+    case 12:
+    case 17:
+      item = parseLoot(data, "Vehicle");
+      break;
+    case 16:
+      item = parseLoot(data, "Equipment Pack");
+      break;
+    case 18:
+      // Change to parseGemstone (consummable) ?
+      item = parseLoot(data, "Gemstone");
+      break;
+    default:
+      logger.warn("Other Gear type missing from " + data.definition.name);
   }
   return item;
 }
@@ -222,6 +252,7 @@ function addCustomValues(ddbItem, foundryItem, character) {
   if (weightOverride) foundryItem.data.weight = weightOverride;
 }
 
+// the filter type "Other Gear" represents the equipment while the other filters represents the magic items in ddb
 function parseItem(ddb, data, character) {
   try {
     // is it a weapon?
@@ -230,7 +261,7 @@ function parseItem(ddb, data, character) {
       switch (data.definition.filterType) {
         case "Weapon": {
           if (data.definition.type === "Ammunition" || data.definition.subType === "Ammunition") {
-            item = parseAmmunition(data);
+            item = parseAmmunition(data, "Ammunition");
           } else {
             const flags = getWeaponFlags(ddb, data);
             item = parseWeapon(data, character, flags);
@@ -250,17 +281,16 @@ function parseItem(ddb, data, character) {
           item = parseStaff(data, character);
           break;
         case "Potion":
-          item = parsePotion(data);
+          item = parsePotion(data, data.definition.type);
           break;
         case "Scroll":
           item = parseScroll(data);
           break;
-        case "Other Gear": {
-          item = otherGear(ddb, data, character);
+        case "Other Gear":
+          item = otherGear(ddb, data);
           break;
-        }
         default:
-          item = parseLoot(data, character);
+          logger.warn("Item filterType not implemented for " + data.definition.name);
           break;
       }
     } else {

@@ -656,9 +656,24 @@ async function getDDBGenericItemImages(download) {
   return Promise.all(itemMap);
 }
 
+async function getDDBGenericLootImages(download) {
+  munchNote(`Fetching DDB Generic Loot icons`);
+  const itemMap = DICTIONARY.genericItemIcons.map(async (item) => {
+    const img = await getImagePath(item.img, 'equipment', item.name, download);
+    let itemIcons = {
+      name: item.name,
+      img: img,
+    };
+    return itemIcons;
+  });
+
+  munchNote("");
+  return Promise.all(itemMap);
+}
 
 export async function getDDBGenericItemIcons(items, download) {
   const genericItems = await getDDBGenericItemImages(download);
+  const genericLoots = await getDDBGenericLootImages(download);
 
   let updatedItems = items.map((item) => {
     // logger.debug(item.name);
@@ -667,9 +682,13 @@ export async function getDDBGenericItemIcons(items, download) {
     if (!excludedItems.includes(item.type) &&
         item.flags &&
         item.flags.ddbimporter &&
-        item.flags.ddbimporter.dndbeyond &&
-        item.flags.ddbimporter.dndbeyond.filterType) {
-      const generic = genericItems.find((i) => i.filterType === item.flags.ddbimporter.dndbeyond.filterType);
+        item.flags.ddbimporter.dndbeyond) {
+      let generic = null;
+      if (item.flags.ddbimporter.dndbeyond.filterType) {
+        generic = genericItems.find((i) => i.filterType === item.flags.ddbimporter.dndbeyond.filterType);
+      } else if (item.flags.ddbimporter.dndbeyond.type) {
+        generic = genericLoots.find((i) => i.name === item.flags.ddbimporter.dndbeyond.type);
+      }
       if (generic && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
         item.img = generic.img;
       }

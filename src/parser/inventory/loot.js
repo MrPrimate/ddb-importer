@@ -43,7 +43,7 @@ const getItemType = (data) => {
   return itemType === undefined ? "loot" : itemType;
 };
 
-export default function parseLoot(data) {
+export default function parseLoot(data, itemType) {
   /**
    * MAIN parseLoot
    */
@@ -54,7 +54,7 @@ export default function parseLoot(data) {
     flags: {
       ddbimporter: {
         dndbeyond: {
-          type: data.definition.type,
+          type: itemType,
         },
       },
     },

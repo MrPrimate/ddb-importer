@@ -87,7 +87,7 @@ let getDamage = (data, magicalDamageBonus) => {
   return result;
 };
 
-export default function parseAmmunition(data) {
+export default function parseAmmunition(data, itemType) {
   /**
    * MAIN parseWeapon
    */
@@ -99,7 +99,7 @@ export default function parseAmmunition(data) {
     flags: {
       ddbimporter: {
         dndbeyond: {
-          type: data.definition.type,
+          type: itemType,
         },
       },
     },

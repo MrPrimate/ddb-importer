@@ -385,12 +385,13 @@ const DICTIONARY = {
     { name: "Holy Symbol", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/holy-symbol.jpg" },
     { name: "Weapon", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/weapon.jpg" },
     { name: "Arcane Focus", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/arcane-focus.jpg" },
+    { name: "Druidic Focus", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/druidic-focus.jpg" },
     { name: "Ammunition", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/ammunition.jpg" },
     { name: "Poison", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/poison.jpg" },
     { name: "Mount", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/mount.jpg" },
     { name: "Potion", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/potion.jpg" },
-    { name: "Armor", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/armor.jpg" },
-    { name: "Pack", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/pack.jpg" },
+    { name: "Equipment Pack", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/pack.jpg" },
+    // Vehicle (Land)/(Water)
     { name: "Vehicle", img: "https://www.dndbeyond.com/content/1-0-1358-0/skins/waterdeep/images/icons/equipment/vehicle.jpg" },
   ],
   equipment: {

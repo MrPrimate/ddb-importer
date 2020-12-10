@@ -87,7 +87,7 @@ let getDamage = (data, actionType) => {
   return damage;
 };
 
-export default function parsePotion(data) {
+export default function parsePotion(data, itemType) {
   /**
    * MAIN parseWeapon
    */
@@ -98,7 +98,7 @@ export default function parsePotion(data) {
     flags: {
       ddbimporter: {
         dndbeyond: {
-          type: data.definition.type,
+          type: itemType,
         },
       },
     },
