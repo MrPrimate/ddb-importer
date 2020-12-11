@@ -1,3 +1,8 @@
+# v 0.1.11
+
+* Monster Parsing: If image upload fails, fallback to remote image
+* Support Senses in DND5E 1.2.0 system for characters and monsters
+
 # v 0.1.10
 
 * Generic loot item images from dndbeyond are here! (Thanks to @CaptainYoshi )

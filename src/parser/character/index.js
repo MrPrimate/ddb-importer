@@ -24,7 +24,7 @@ import {
   getLanguages,
 } from "./proficiencies.js";
 import { getAbilities } from "./abilities.js";
-import { getSenses } from "./senses.js";
+import { getSenses, getSensesMap } from "./senses.js";
 import { getToken } from "./token.js";
 import {
   getDeathSaves,
@@ -98,6 +98,7 @@ export default function getCharacter(ddb) {
   const movement = getSpeed(ddb);
   character.data.attributes.speed = movement['speed'];
   character.data.attributes.movement = movement['movement'];
+  character.data.attributes.senses = getSensesMap(ddb);
 
   // spellcasting
   character.data.attributes.spellcasting = getSpellCasting(ddb, character);

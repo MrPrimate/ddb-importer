@@ -1,5 +1,5 @@
 
-import { getTextSenses, getTokenSenses } from "./senses.js";
+import { getTextSenses, getTokenSenses, getSenses } from "./senses.js";
 import {
   getDamageImmunities,
   getDamageResistances,
@@ -55,6 +55,7 @@ export function parseMonsters(monsterData) {
       foundryActor.data.skills = getSkills(foundryActor.data.skills, monster, DDB_CONFIG);
 
       // Senses
+      foundryActor.data.attributes.senses = getSenses(monster, DDB_CONFIG);
       foundryActor.data.traits.senses = getTextSenses(monster);
       foundryActor.token = getTokenSenses(foundryActor.token, monster, DDB_CONFIG);
 

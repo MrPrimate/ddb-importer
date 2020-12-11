@@ -50,6 +50,35 @@ export function getTokenSenses(token, monster, DDB_CONFIG) {
 }
 
 
+export function getSenses(monster, DDB_CONFIG) {
+  let senses = {
+    darkvision: 0,
+    blindsight: 0,
+    tremorsense: 0,
+    truesight: 0,
+    units: "ft",
+    special: ""
+  };
+  const senseLookup = DDB_CONFIG.senses;
+
+  monster.senses.forEach((sense) => {
+    const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
+    if (senseMatch && sense.notes && senseMatch.name.toLowerCase() in senses) {
+      const rangeMatch = sense.notes.trim().match(/^(\d+)/);
+      if (rangeMatch) {
+        senses[senseMatch.name.toLowerCase()] = rangeMatch[1];
+      } else {
+        senses.special += `${senseMatch.name}: ${sense.notes}; `;
+      }
+    } else {
+      senses.special += `${senseMatch.name}: ${sense.notes}; `;
+    }
+  });
+
+  return senses;
+
+}
+
 // "senses": [
 //   {
 //       "senseId": 1,

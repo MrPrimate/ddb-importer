@@ -1,6 +1,7 @@
 import { getSensesLookup } from "./senses.js";
+import utils from "../../utils.js";
 
-export function getToken(data) {
+function getTokenSensesNew(data) {
   // Default to the most basic token setup.
   // everything else can be handled by the user / Token Mold
   let tokenData = {
@@ -8,7 +9,33 @@ export function getToken(data) {
     name: data.character.name,
   };
 
-  let senses = getSensesLookup(data);
+  const senses = getSensesLookup(data);
+  // darkvision: 0,
+  // blindsight: 0,
+  // tremorsense: 0,
+  // truesight: 0,
+
+  // These values in senses grant bright sight
+  const devilSight = senses.special.includes("You can see normally in darkness");
+  let brightSights = [senses.truesight, senses.blindsight];
+  if (devilSight) brightSights.push(senses.darkvision);
+  tokenData['brightSight'] = Math.max(...brightSights);
+
+  // Darkvision
+  tokenData['dimSight'] = senses.darkvision;
+
+  return tokenData;
+}
+
+function getTokenSensesOld(data) {
+  // Default to the most basic token setup.
+  // everything else can be handled by the user / Token Mold
+  let tokenData = {
+    actorLink: true,
+    name: data.character.name,
+  };
+
+  const senses = getSensesLookup(data);
 
   // These values in senses grant bright sight
   const brightSightValues = ["Truesight", "Blindsight", "Devils Sight"];
@@ -29,4 +56,16 @@ export function getToken(data) {
   if (!tokenData.dimSight) tokenData.dimSight = 0;
 
   return tokenData;
+}
+
+
+export function getToken(data) {
+  const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
+
+  if (versionCompare >= 0) {
+    return getTokenSensesNew(data);
+  } else {
+    return getTokenSensesOld(data);
+  }
+
 }

@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
 
-export function getSensesLookup(data) {
+function getSensesLookupOld(data) {
   let senses = [];
   // custom senses
   if (data.character.customSenses) {
@@ -63,11 +63,99 @@ export function getSensesLookup(data) {
   return senses;
 }
 
+export function getSensesMap(data) {
+  let senses = {
+    darkvision: 0,
+    blindsight: 0,
+    tremorsense: 0,
+    truesight: 0,
+    units: "ft",
+    special: ""
+  };
+
+  // custom senses
+  if (data.character.customSenses) {
+    data.character.customSenses
+      .filter((sense) => !sense.distance)
+      .forEach((sense) => {
+        const s = DICTIONARY.character.senses.find((s) => s.id === sense.senseId);
+        if (s) {
+          senses[s.name.toLowerCase()] = sense.distance;
+        } else {
+          senses.special += `${sense.distance}; `;
+        }
+      });
+  }
+
+  // Darkvision
+  utils.filterBaseModifiers(data, "set-base", "darkvision").forEach((sense) => {
+    if (sense.value > senses['darkvision']) {
+      senses['darkvision'] = sense.value;
+    }
+  });
+
+  // Devils Sight gives bright light to 120 foot instead of normal darkvision
+  utils
+    .filterBaseModifiers(data, "set-base", "darkvision", [
+      "You can see normally in darkness, both magical and nonmagical",
+    ])
+    .forEach((sense) => {
+      if (sense.value > senses['darkvision'].value) {
+        senses['darkvision'] = sense.value;
+        senses.special += "You can see normally in darkness, both magical and nonmagical ; ";
+      }
+    });
+
+  // Magical bonuses and additional, e.g. Gloom Stalker
+  utils
+    .filterBaseModifiers(data, "sense", "darkvision", ["", null, "plus 60 feet if wearer already has Darkvision"])
+    .forEach((mod) => {
+      const hasSense = mod.subType in senses;
+      if (hasSense) {
+        senses[mod.subType] += mod.value;
+      } else {
+        senses.special += `${mod.value}; `;
+      }
+    });
+
+  return senses;
+
+}
+
+export function getSensesLookup(data) {
+  // const low = "1.1.0";
+  // const high = "1.2.0"
+
+  // const compareLowHigh = utils.versionCompare(low, high);
+  // const compareSame = utils.versionCompare(high, high);
+  // const compareHighLow = utils.versionCompare(high, low);
+  // console.warn(`${compareLowHigh}-${compareSame}-${compareHighLow}`);
+  // // -1-0-1
+
+  // dnd5e 1.2.0 introduced a different sense system
+  const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
+
+  let senses;
+  if (versionCompare >= 0) {
+    senses = getSensesMap(data);
+  } else {
+    senses = getSensesLookupOld(data);
+  }
+
+  return senses;
+}
+
 export function getSenses(data) {
-  let senses = getSensesLookup(data);
+  const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
 
-  // sort the senses alphabetically
-  senses = senses.sort((a, b) => a.name >= b.name);
-
-  return senses.map((e) => e.name + ": " + e.value + " ft.").join(", ");
+  let senses;
+  if (versionCompare >= 0) {
+    senses = getSensesMap(data);
+    return senses;
+  } else {
+    senses = getSensesLookupOld(data);
+    senses = senses.sort((a, b) => a.name >= b.name);
+    // sort the senses alphabetically
+    return senses.map((e) => e.name + ": " + e.value + " ft.").join(", ");
+  }
 }

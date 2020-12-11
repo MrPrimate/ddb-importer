@@ -732,7 +732,7 @@ let utils = {
     let uri;
     try {
       let dir = DirectoryPicker.parse(directoryPath);
-      if (dir.activeSource == 'data') { // Local on-server file system 
+      if (dir.activeSource == 'data') { // Local on-server file system
         uri = dir.current + '/' + filename;
       } else { // S3 Bucket
         uri = game.data.files.s3.endpoint.protocol + '//' + dir.bucket + '.' + game.data.files.s3.endpoint.hostname + "/" + dir.current + '/' + filename;
