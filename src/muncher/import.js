@@ -474,7 +474,13 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
     } else {
       // eslint-disable-next-line require-atomic-updates
       const image = await utils.uploadImage(imageUrl, uploadDirectory, filename);
-      return image.trim();
+      // did upload succeed? if not fall back to remote image path
+      if (image) {
+        return image.trim();
+      } else {
+        return imageUrl.trim();
+      }
+
     }
   } else if (imageUrl && remoteImage) {
     return imageUrl.trim();
