@@ -72,6 +72,15 @@ export default function () {
   //   ],
   // });
 
+  game.settings.register("ddb-importer", "auto-create-compendium", {
+    name: "ddb-importer.auto-create-compendium.name",
+    hint: "ddb-importer.auto-create-compendium.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "entity-item-compendium", {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",

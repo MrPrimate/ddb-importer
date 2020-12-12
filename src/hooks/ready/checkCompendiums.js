@@ -30,13 +30,18 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
 
 
 export default async function () {
-  let results = await Promise.allSettled([
-    createIfNotExists("entity-spell-compendium", "Item", "Spells"),
-    createIfNotExists("entity-item-compendium", "Item", "Items"),
-    createIfNotExists("entity-feature-compendium", "Item", "Features"),
-    createIfNotExists("entity-monster-compendium", "Actor", "Monsters"),
-    // createIfNotExists("entity-monster-feature-compendium", "Item", "Monster Features")
-  ]);
+  const autoCreate = game.settings.get("ddb-importer", "auto-create-compendium");
 
-  if (results.some((result) => result.value)) location.reload();
+  if (autoCreate) {
+    let results = await Promise.allSettled([
+      createIfNotExists("entity-spell-compendium", "Item", "Spells"),
+      createIfNotExists("entity-item-compendium", "Item", "Items"),
+      createIfNotExists("entity-feature-compendium", "Item", "Features"),
+      createIfNotExists("entity-monster-compendium", "Actor", "Monsters"),
+      // createIfNotExists("entity-monster-feature-compendium", "Item", "Monster Features")
+    ]);
+
+    if (results.some((result) => result.value)) location.reload();
+  }
+
 }

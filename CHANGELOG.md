@@ -5,6 +5,7 @@
 * Added config helper screen for setting up Muncher for the first time.
 * Check campaign id/url for join link
 * Allip Incorporeal Movement feature did not import correctly.
+* Add option to prevent recreation of missing compendiums (@ajclarke)
 
 # v 0.1.11
 

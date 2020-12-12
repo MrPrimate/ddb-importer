@@ -55,5 +55,9 @@
   "ddb-importer.campaign-id.name": "DDB Campaign URL or ID",
   "ddb-importer.campaign-id.hint": "Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345",
   "ddb-importer.beta-key.name": "Patreon supporter Beta Key",
-  "ddb-importer.beta-key.hint": "Some Patreon supporter tiers have access to Beta features, enter your key here"
+  "ddb-importer.beta-key.hint": "Some Patreon supporter tiers have access to Beta features, enter your key here",
+  "ddb-importer.auto-create-compendium.name": "Auto create compendiums if not present?",
+  "ddb-importer.auto-create-compendium.hint": "Auto create compendiums if not present?"
+
+
 }
