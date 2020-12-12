@@ -46,9 +46,11 @@ export default class DDBMuncher extends Application {
 
     html.find("#munch-monsters-config").on("click", async (event) => {
       event.preventDefault();
-      DDBMuncher.setConfig();
-      this.close();
-      new DDBMuncher().render(true);
+      const configSet = DDBMuncher.setConfig();
+      if (configSet) {
+        this.close();
+        new DDBMuncher().render(true);
+      }
     });
 
     // watch the change of the import-policy-selector checkboxes
@@ -101,15 +103,24 @@ export default class DDBMuncher extends Application {
     this.close();
   }
 
-  static async setConfig() {
+  static setConfig() {
     const imageDir = $('input[name="image-upload-directory"]')[0].value;
     const cobaltCookie = $('input[name="cobalt-cookie"]')[0].value;
     const betaKey = $('input[name="beta-key"]')[0].value;
     const campaignId = $('input[name="campaign-id"]')[0].value;
-    await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
-    await game.settings.set("ddb-importer", "cobalt-cookie", cobaltCookie);
-    await game.settings.set("ddb-importer", "beta-key", betaKey);
-    await game.settings.set("ddb-importer", "campaign-id", campaignId);
+    game.settings.set("ddb-importer", "image-upload-directory", imageDir);
+    game.settings.set("ddb-importer", "cobalt-cookie", cobaltCookie);
+    game.settings.set("ddb-importer", "beta-key", betaKey);
+    game.settings.set("ddb-importer", "campaign-id", campaignId);
+
+    const campaignIdCorrect = !campaignId.includes("join");
+
+    if (!campaignIdCorrect) {
+      $('#munching-task-setup').text(`Incorrect CampaignID/URL! You have used the campaign join URL, please change`);
+      $('#ddb-importer-monsters').css("height", "auto");
+      return false;
+    }
+    return true;
   }
 
   static enableButtons() {
@@ -171,6 +182,7 @@ export default class DDBMuncher extends Application {
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
+    const campaignIdCorrect = !game.settings.get("ddb-importer", "campaign-id").includes("join");
 
     const itemConfig = [
       {
@@ -261,7 +273,7 @@ export default class DDBMuncher extends Application {
       "beta-key": game.settings.get("ddb-importer", "beta-key"),
     };
 
-    const setupComplete = dataDirSet && cobalt;
+    const setupComplete = dataDirSet && cobalt && campaignIdCorrect;
 
     return {
       cobalt: cobalt,
@@ -271,7 +283,8 @@ export default class DDBMuncher extends Application {
       itemConfig: itemConfig,
       beta: betaKey && cobalt,
       setupConfig: setupConfig,
-      setupComplete: setupComplete
+      setupComplete: setupComplete,
+      campaignIdCorrect: campaignIdCorrect,
     };
   }
 }

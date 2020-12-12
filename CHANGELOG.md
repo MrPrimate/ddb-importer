@@ -3,6 +3,7 @@
 * Better handling of Access Denied images - if you currently have any broken image files you will need to remove them from your server manually. When using remote images some may still appear broken, e.g. Icewind Kobold.
 * Fixed an issue where Bracers of Archery tried to add damage bonus to magic arrow items and failed.
 * Added config helper screen for setting up Muncher for the first time.
+* Check campaign id/url for join link
 
 # v 0.1.11
 

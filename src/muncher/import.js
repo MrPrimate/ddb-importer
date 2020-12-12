@@ -86,6 +86,9 @@ export function getCampaignId() {
   if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
     munchNote(`Campaign Id is invalid! ${campaignId}`, true);
     throw new Error(`Campaign Id is invalid! ${campaignId}`);
+  } else if (campaignId.includes("join")) {
+    munchNote(`Campaign URL is a join campaign link, please change it! ${campaignId}`, true);
+    throw new Error(`Campaign URL is a join campaign link, please change it! ${campaignId}`);
   }
   return campaignId;
 }
