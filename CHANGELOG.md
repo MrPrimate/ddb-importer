@@ -1,6 +1,7 @@
 # v 0.1.12
 
 * Better handling of Access Denied images - if you currently have any broken image files you will need to remove them from your server manually. When using remote images some may still appear broken, e.g. Icewind Kobold.
+* Fixed an issue where Bracers of Archery tried to add damage bonus to magic arrow items and failed.
 
 # v 0.1.11
 

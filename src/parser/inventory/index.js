@@ -188,7 +188,7 @@ function getItemFromGearTypeIdOne(ddb, data) {
 
 function otherGear (ddb, data) {
   let item = {};
-  
+
   switch (data.definition.gearTypeId) {
     case 1:
       item = getItemFromGearTypeIdOne(ddb, data);
@@ -247,7 +247,9 @@ function addCustomValues(ddbItem, foundryItem, character) {
   // adamantine
 
   if (toHitBonus) foundryItem.data.attackBonus += toHitBonus;
-  if (damageBonus) foundryItem.data.damage.parts[0][0] = foundryItem.data.damage.parts[0][0].concat(` +${damageBonus}`);
+  if (damageBonus && foundryItem.data.damage.parts.length !== 0) {
+    foundryItem.data.damage.parts[0][0] = foundryItem.data.damage.parts[0][0].concat(` +${damageBonus}`);
+  }
   if (costOverride) foundryItem.data.cost = costOverride;
   if (weightOverride) foundryItem.data.weight = weightOverride;
 }
