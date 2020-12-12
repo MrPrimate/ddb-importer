@@ -1,3 +1,7 @@
+# v 0.1.12
+
+* Better handling of Access Denied images - if you currently have any broken image files you will need to remove them from your server manually. When using remote images some may still appear broken, e.g. Icewind Kobold.
+
 # v 0.1.11
 
 * Monster Parsing: If image upload fails, fallback to remote image

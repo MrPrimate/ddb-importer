@@ -478,12 +478,18 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
       if (image) {
         return image.trim();
       } else {
-        return imageUrl.trim();
+        return null;
       }
 
     }
   } else if (imageUrl && remoteImage) {
-    return imageUrl.trim();
+    try {
+      logger.debug('Trying: ' + imageUrl.trim());
+      await utils.serverFileExists(imageUrl.trim());
+      return imageUrl.trim();
+    } catch (ignored) {
+      return null;
+    }
   }
   return null;
 }

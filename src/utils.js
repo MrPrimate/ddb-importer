@@ -460,6 +460,8 @@ let utils = {
     async function process(url, path, filename) {
       // let data = await download(url);
       let data = await downloadImage(url);
+      // hack as proxy returns ddb access denied as application/xml
+      if (data.type === "application/xml") return null;
       let result = await upload(data, path, filename);
       return result;
     }

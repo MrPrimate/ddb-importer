@@ -95,6 +95,10 @@ async function getNPCImage(data) {
     }
   }
 
+  // check avatar, if not use token image
+  // eslint-disable-next-line require-atomic-updates
+  if (!data.img && data.token.img) data.img = data.token.img;
+
   return true;
 }
 
