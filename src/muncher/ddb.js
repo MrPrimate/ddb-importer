@@ -5,6 +5,12 @@ import { parseItems } from "./items.js";
 import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
 import { munchNote } from "./import.js";
+import DirectoryPicker from "../lib/DirectoryPicker.js";
+
+// eslint-disable-next-line no-unused-vars
+Hooks.on("renderDDBMuncher", (app, html, user) => {
+  DirectoryPicker.processHtml(html);
+});
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {
@@ -14,7 +20,7 @@ export default class DDBMuncher extends Application {
     options.classes.push("ddb-muncher");
     options.resizable = false;
     options.height = "auto";
-    options.width = 400;
+    options.width = 550;
     options.minimizable = true;
     options.title = "MrPrimate's Muncher";
     return options;
@@ -36,6 +42,13 @@ export default class DDBMuncher extends Application {
       munchNote(`Downloading items...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseItems();
+    });
+
+    html.find("#munch-monsters-config").on("click", async (event) => {
+      event.preventDefault();
+      DDBMuncher.setConfig();
+      this.close();
+      new DDBMuncher().render(true);
     });
 
     // watch the change of the import-policy-selector checkboxes
@@ -84,7 +97,19 @@ export default class DDBMuncher extends Application {
         event.currentTarget.checked
       );
     });
+
     this.close();
+  }
+
+  static async setConfig() {
+    const imageDir = $('input[name="image-upload-directory"]')[0].value;
+    const cobaltCookie = $('input[name="cobalt-cookie"]')[0].value;
+    const betaKey = $('input[name="beta-key"]')[0].value;
+    const campaignId = $('input[name="campaign-id"]')[0].value;
+    await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
+    await game.settings.set("ddb-importer", "cobalt-cookie", cobaltCookie);
+    await game.settings.set("ddb-importer", "beta-key", betaKey);
+    await game.settings.set("ddb-importer", "campaign-id", campaignId);
   }
 
   static enableButtons() {
@@ -224,6 +249,20 @@ export default class DDBMuncher extends Application {
       //   enabled: daeInstalled,
       // },
     ];
+
+    const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
+    const badDirs = ["[data]", "[data] ", "", null];
+    const dataDirSet = !badDirs.includes(uploadDir);
+
+    const setupConfig = {
+      "image-upload-directory": uploadDir,
+      "cobalt-cookie": game.settings.get("ddb-importer", "cobalt-cookie"),
+      "campaign-id": game.settings.get("ddb-importer", "campaign-id"),
+      "beta-key": game.settings.get("ddb-importer", "beta-key"),
+    };
+
+    const setupComplete = dataDirSet && cobalt;
+
     return {
       cobalt: cobalt,
       genericConfig: genericConfig,
@@ -231,6 +270,8 @@ export default class DDBMuncher extends Application {
       spellConfig: spellConfig,
       itemConfig: itemConfig,
       beta: betaKey && cobalt,
+      setupConfig: setupConfig,
+      setupComplete: setupComplete
     };
   }
 }
