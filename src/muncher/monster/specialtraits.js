@@ -30,7 +30,8 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
   };
 
   let dom = new DocumentFragment();
-  $.parseHTML(monster.specialTraitsDescription).forEach((element) => {
+  const fixedDescription = monster.specialTraitsDescription.replace("<strong>I</strong><strong>ncorporeal", "<strong>Incorporeal");
+  $.parseHTML(fixedDescription).forEach((element) => {
     dom.appendChild(element);
   });
 

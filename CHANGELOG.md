@@ -4,6 +4,7 @@
 * Fixed an issue where Bracers of Archery tried to add damage bonus to magic arrow items and failed.
 * Added config helper screen for setting up Muncher for the first time.
 * Check campaign id/url for join link
+* Allip Incorporeal Movement feature did not import correctly.
 
 # v 0.1.11
 
