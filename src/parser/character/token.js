@@ -1,5 +1,6 @@
 import { getSensesLookup } from "./senses.js";
 import utils from "../../utils.js";
+import logger from "../../logger.js";
 
 function getTokenSensesNew(data) {
   // Default to the most basic token setup.
@@ -60,12 +61,18 @@ function getTokenSensesOld(data) {
 
 
 export function getToken(data) {
-  const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
+  try {
+    const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
 
-  if (versionCompare >= 0) {
-    return getTokenSensesNew(data);
-  } else {
-    return getTokenSensesOld(data);
+    if (versionCompare >= 0) {
+      return getTokenSensesNew(data);
+    } else {
+      return getTokenSensesOld(data);
+    }
+
+  } catch (err) {
+    logger.error(err);
+    logger.error(err.stack);
+    throw new Error("Please update your D&D 5e system to a newer version");
   }
-
 }

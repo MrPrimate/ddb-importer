@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
+import logger from "../../logger.js";
 
 function getSensesLookupOld(data) {
   let senses = [];
@@ -133,13 +134,19 @@ export function getSensesLookup(data) {
   // // -1-0-1
 
   // dnd5e 1.2.0 introduced a different sense system
-  const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
-
   let senses;
-  if (versionCompare >= 0) {
-    senses = getSensesMap(data);
-  } else {
-    senses = getSensesLookupOld(data);
+
+  try {
+    const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
+    if (versionCompare >= 0) {
+      senses = getSensesMap(data);
+    } else {
+      senses = getSensesLookupOld(data);
+    }
+  } catch (err) {
+    logger.error(err);
+    logger.error(err.stack);
+    throw new Error("Please update your D&D 5e system to a newer version");
   }
 
   return senses;
