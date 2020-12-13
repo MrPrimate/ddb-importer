@@ -269,7 +269,19 @@ export function getSpells(monster, DDB_CONFIG) {
   };
 
   let dom = new DocumentFragment();
-  $.parseHTML(monster.specialTraitsDescription).forEach((element) => {
+
+  // some monsters have poor spell formating, reported and might be able to remove in future
+  // https://www.dndbeyond.com/forums/d-d-beyond-general/bugs-support/91228-sir-godfrey-gwilyms-spell-statblock
+  let specialTraits;
+  const specialCases = ["Sir Godfrey Gwilym"];
+  if (specialCases.includes(monster.name)) {
+    specialTraits = monster.specialTraitsDescription.replace(/<br \/>/g, "</p><p>");
+    logger.warn(`Fiddling with ${monster.name} spells due to bad formatting`);
+  } else {
+    specialTraits = monster.specialTraitsDescription;
+  }
+
+  $.parseHTML(specialTraits).forEach((element) => {
     dom.appendChild(element);
   });
 
