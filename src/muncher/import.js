@@ -797,14 +797,14 @@ export async function updateIcons(items, srdIconUpdate = true) {
   const ddbSpellIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-spell-icons");
   if (ddbSpellIcons) {
     logger.debug("DDB Spell School Icon Match");
-    items = await getDDBSpellSchoolIcons(items);
+    items = await getDDBSpellSchoolIcons(items, true);
   }
 
   // this will use ddb spell school icons as a fall back
   const ddbGenericItemIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-generic-item-icons");
   if (ddbGenericItemIcons) {
     logger.debug("DDB Generic Item Icon Match");
-    items = await getDDBGenericItemIcons(items);
+    items = await getDDBGenericItemIcons(items, true);
   }
 
   return items;
