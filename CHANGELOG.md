@@ -5,6 +5,7 @@
 * Experimental import of items for monsters. This might result in imported items not having the correct attack/damage values. Please fo let me know!
 * Critical roll spells now get munched
 * Fixed regression where generic ddb item and spell icons are no longer downloaded (otherwise they CORS error)
+* Enable extra damage for things like Flame Blade
 
 # v 0.1.13
 

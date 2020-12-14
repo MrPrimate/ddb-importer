@@ -175,7 +175,7 @@ let getMagicalBonus = (data, flags) => {
  * @param {obj} flags
  * /* damage: { parts: [], versatile: '' }, * /
  */
-let getDamage = (data, flags) => {
+let getDamage = (data, flags, betterRolls5e) => {
   const magicalDamageBonus = getMagicalBonus(data, flags);
   // we can safely make these assumptions about GWF and Dueling because the
   // flags are only added for melee attacks
@@ -224,8 +224,14 @@ let getDamage = (data, flags) => {
   // additional damage parts
   // Note: For the time being, restricted additional bonus parts are not included in the damage
   data.definition.grantedModifiers
-    .filter((mod) => mod.type === "damage" && (!mod.restriction || (!!mod.restriction && mod.restriction === "")))
+    .filter((mod) => mod.type === "damage"
+      // && (!mod.restriction || (!!mod.restriction && mod.restriction === ""))
+    )
     .forEach((mod) => {
+      const attackNum = parts.length;
+      const restriction = (mod.restriction) ? mod.restriction : "";
+      betterRolls5e.quickDamage.context[attackNum] = restriction;
+
       if (mod.dice) {
         parts.push([mod.dice.diceString, mod.subType]);
       } else if (mod.value) {
@@ -245,7 +251,7 @@ let getDamage = (data, flags) => {
     versatile: versatile,
   };
 
-  return result;
+  return [result, betterRolls5e];
 };
 
 let getActionType = (data) => {
@@ -272,6 +278,25 @@ export default function parseWeapon(data, character, flags) {
           classFeatures: flags.classFeatures,
         },
       },
+    },
+  };
+
+    // if using better rolls lets add some useful QOL information.
+  // marks context as magical attack and makes alt click a versatile damage click
+  weapon.flags.betterRolls5e = {
+    quickDamage: {
+      context: {
+        "0": getMagicalBonus(data, flags) > 0 ? "Magical" : "",
+      },
+      value: {
+        "0": true,
+      },
+      altValue: {
+        "0": true,
+      },
+    },
+    quickVersatile: {
+      altValue: true,
     },
   };
 
@@ -384,26 +409,7 @@ export default function parseWeapon(data, character, flags) {
   // we leave that as-is
 
   /* damage: { parts: [], versatile: '' }, */
-  weapon.data.damage = getDamage(data, flags);
-
-  // if using better rolls lets add some useful QOL information.
-  // marks context as magical attack and makes alt click a versatile damage click
-  weapon.flags.betterRolls5e = {
-    quickDamage: {
-      context: {
-        "0": getMagicalBonus(data, flags) > 0 ? "Magical" : "",
-      },
-      value: {
-        "0": true,
-      },
-      altValue: {
-        "0": true,
-      },
-    },
-    quickVersatile: {
-      altValue: true,
-    },
-  };
+  [weapon.data.damage, weapon.flags.betterRolls5e] = getDamage(data, flags, weapon.flags.betterRolls5e);
 
   /* formula: '', */
   // we leave that as-is
