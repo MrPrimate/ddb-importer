@@ -105,7 +105,6 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       const title = pDom.textContent.split('.')[0];
       action.name = title.trim();
       action.data.source = getSource(monster, DDB_CONFIG);
-      console.warn(pDom.outerHTML);
       if (pDom.outerHTML) {
         action.flags.monsterMunch = {
           titleHTML: pDom.outerHTML.split('.')[0],

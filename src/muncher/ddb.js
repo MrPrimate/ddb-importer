@@ -215,6 +215,12 @@ export default class DDBMuncher extends Application {
         description: "Hide description from players?",
         enabled: true,
       },
+      {
+        name: "monster-items",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-items"),
+        description: "[Experimental] Load items from DDB compendium instead of parsing action/attack?",
+        enabled: true,
+      },
     ];
 
     const genericConfig = [

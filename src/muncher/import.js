@@ -3,7 +3,8 @@ import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
-const INVENTORY_TYPE = EQUIPMENT_TYPES.concat("weapon");
+const INVENTORY_TYPES = EQUIPMENT_TYPES.concat("weapon");
+const MONSTER_TYPES = INVENTORY_TYPES.concat("feat");
 
 // a mapping of compendiums with content type
 const compendiumLookup = [
@@ -154,6 +155,24 @@ export async function copySupportedItemFlags(originalItem, item) {
   copyFlagGroup("favtab", originalItem, item);
 }
 
+export function getMonsterNames(name) {
+  let magicNames = [name, name.toLowerCase()];
+
+  // +2 sword
+  let frontPlus = name.match(/^(\+\d*)\s*(.*)/);
+  if (frontPlus) {
+    magicNames.push(`${frontPlus[2].trim()}, ${frontPlus[1]}`.toLowerCase().trim());
+  }
+
+  // sword +2
+  let backPlus = name.match(/(.*)\s*(\+\d*)$/);
+  if (backPlus) {
+    magicNames.push(`${backPlus[1].trim()}, ${backPlus[2]}`.toLowerCase().trim());
+  }
+
+  return magicNames;
+}
+
 export function getLooseNames(name) {
   let looseNames = [name.toLowerCase()];
   let refactNameArray = name.split("(")[0].trim().split(", ");
@@ -184,7 +203,8 @@ export function getLooseNames(name) {
   return looseNames;
 }
 
-export async function looseItemNameMatch(item, items, loose = false) {
+// The monster setting is less vigorous!
+export async function looseItemNameMatch(item, items, loose = false, monster = false) {
   // first pass is a strict match
   let matchingItem = items.find((matchItem) => {
     let activationMatch = false;
@@ -201,14 +221,32 @@ export async function looseItemNameMatch(item, items, loose = false) {
     return isMatch;
   });
 
+  if (!matchingItem && monster) {
+    // console.warn(`lose monster match ${item.name}`);
+    // console.log(item);
+    // console.log(items);
+    matchingItem = items.find(
+      (matchItem) => {
+        const monsterNames = getMonsterNames(matchItem.name);
+        // console.log(`matchItem ${matchItem.name}`);
+        // console.log(monsterNames);
+        const monsterMatch = (monsterNames.includes(item.name.toLowerCase())) &&
+          MONSTER_TYPES.includes(matchItem.type) &&
+          INVENTORY_TYPES.includes(item.type);
+        // console.log(monsterMatch);
+        return monsterMatch;
+      });
+    // console.log(matchingItem);
+  }
+
   if (!matchingItem && loose) {
     const looseNames = getLooseNames(item.name);
     // lets go loosey goosey on matching equipment, we often get types wrong
     matchingItem = items.find(
       (matchItem) =>
         (looseNames.includes(matchItem.name.toLowerCase()) || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", ""))) &&
-        INVENTORY_TYPE.includes(item.type) &&
-        INVENTORY_TYPE.includes(matchItem.type)
+        INVENTORY_TYPES.includes(item.type) &&
+        INVENTORY_TYPES.includes(matchItem.type)
     );
 
     // super loose name match!
@@ -404,11 +442,52 @@ export async function addMagicItemSpells(input) {
   });
 }
 
+async function updateMatchingItems(oldItems, newItems, looseMatch = false, monster = false) {
+  let results = [];
+
+  for (let item of newItems) {
+    logger.debug(`checking ${item.name}`);
+    const matched = await looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
+
+    logger.debug(`matched? ${JSON.stringify(matched)}`);
+    // console.log(matched);
+    // const ddbItem = items.find((orig) =>
+    //   (item.name === orig.name && item.type === orig.type && orig.data.activation
+    //     ? orig.data.activation.type === item.data.activation.type
+    //     : true)
+    // );
+
+    if (matched) {
+      if (item.flags.ddbimporter) {
+        item.flags.ddbimporter["originalItemName"] = matched.name;
+      } else {
+        item.flags.ddbimporter = { originalItemName: matched.name };
+      }
+
+      if (matched.data.quantity) item.data.quantity = matched.data.quantity;
+      if (matched.data.attuned) item.data.attuned = matched.data.attuned;
+      if (matched.data.equipped) item.data.equipped = matched.data.equipped;
+      if (matched.data.uses) item.data.uses = matched.data.uses;
+      if (matched.data.resources) item.data.resources = matched.data.resources;
+      if (matched.data.consume) item.data.consume = matched.data.consume;
+      if (matched.data.preparation) item.data.preparation = matched.data.preparation;
+      if (matched.data.proficient) item.data.proficient = matched.data.proficient;
+      if (matched.data.ability) item.data.ability = matched.data.ability;
+      // do we want to enrich the compendium item with our parsed flag data?
+      // item.flags = { ...matched.flags, ...item.flags };
+      delete item["_id"];
+      results.push(item);
+    }
+  }
+
+  return results;
+}
+
 /**
  * gets items from compendium
  * @param {*} items
  */
-export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false) {
+export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false, monsterMatch = false) {
   if (!compendiumLabel) {
     const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
     compendiumLabel = game.settings.get("ddb-importer", compendiumName);
@@ -417,43 +496,37 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   const index = await compendium.getIndex();
   const firstPassItems = await index.filter((i) =>
     items.some((orig) => {
+      // console.warn(`${i.name} - ${orig.name}`);
       if (looseMatch) {
         const looseNames = getLooseNames(orig.name);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
+      } else if (monsterMatch) {
+        const monsterNames = getMonsterNames(orig.name);
+        // console.log(magicNames)
+        if (i.name === orig.name) {
+          return true;
+        } else if (monsterNames.includes(i.name.toLowerCase())) {
+          return true;
+        } else {
+          return false;
+        }
       } else {
         return i.name === orig.name;
       }
     })
   );
 
-  let results = [];
+  let loadedItems = [];
   for (const i of firstPassItems) {
     let item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
-    const ddbItem = await looseItemNameMatch(item, items, looseMatch); // eslint-disable-line no-await-in-loop
-
-    // const ddbItem = items.find((orig) =>
-    //   (item.name === orig.name && item.type === orig.type && orig.data.activation
-    //     ? orig.data.activation.type === item.data.activation.type
-    //     : true)
-    // );
-
-    if (ddbItem) {
-      if (ddbItem.data.quantity) item.data.quantity = ddbItem.data.quantity;
-      if (ddbItem.data.attuned) item.data.attuned = ddbItem.data.attuned;
-      if (ddbItem.data.equipped) item.data.equipped = ddbItem.data.equipped;
-      if (ddbItem.data.uses) item.data.uses = ddbItem.data.uses;
-      if (ddbItem.data.resources) item.data.resources = ddbItem.data.resources;
-      if (ddbItem.data.consume) item.data.consume = ddbItem.data.consume;
-      if (ddbItem.data.preparation) item.data.preparation = ddbItem.data.preparation;
-      if (ddbItem.data.proficient) item.data.proficient = ddbItem.data.proficient;
-      if (ddbItem.data.ability) item.data.ability = ddbItem.data.ability;
-      // do we want to enrich the compendium item with our parsed flag data?
-      // item.flags = { ...ddbItem.flags, ...item.flags };
-      delete item["_id"];
-      results.push(item);
-    }
+    loadedItems.push(item);
   }
+  logger.debug(`loaded items: ${JSON.stringify(loadedItems)}`);
+  // console.log(loadedItems);
 
+  const results = await updateMatchingItems(items, loadedItems, looseMatch, monsterMatch);
+  logger.debug(`result items: ${results}`);
+  // console.log(results);
   return results;
 }
 
@@ -747,12 +820,12 @@ export async function getDDBSpellSchoolIcons(items, download) {
 }
 
 export async function getDDBEquipmentIcons(items, download) {
-  const itemImages = await getDDBItemImages(items.filter((item) => INVENTORY_TYPE.includes(item.type)), download);
+  const itemImages = await getDDBItemImages(items.filter((item) => INVENTORY_TYPES.includes(item.type)), download);
 
   let updatedItems = items.map((item) => {
     // logger.debug(item.name);
     // logger.debug(item.flags.ddbimporter.dndbeyond);
-    if (INVENTORY_TYPE.includes(item.type)) {
+    if (INVENTORY_TYPES.includes(item.type)) {
       if (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg") {
         const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
         if (imageMatch && imageMatch.img) {

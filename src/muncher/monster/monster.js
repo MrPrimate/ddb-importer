@@ -41,6 +41,10 @@ export function parseMonsters(monsterData) {
       // logger.info("********************");
       // logger.info(monster.name);
       let img = (monster.basicAvatarUrl) ? monster.basicAvatarUrl : monster.largeAvatarUrl;
+      // foundry doesn't support gifs
+      if (img && img.match(/.gif$/)) {
+        img = null;
+      }
       foundryActor.token.name = monster.name;
       foundryActor.flags.monsterMunch = {
         url: monster.url,

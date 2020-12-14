@@ -1,24 +1,48 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { updateIcons, getImagePath } from "./import.js";
+import { updateIcons, getImagePath, getCompendiumItems } from "./import.js";
+
 
 /**
  *
- * @param {[string]} spells Array of Strings or
+ * @param {[string]} items Array of Strings or
  */
-async function retrieveSpells(spells) {
-  let compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
+async function retrieveCompendiumItems(items, compendiumName) {
   const GET_ENTITY = true;
 
-  const spellNames = spells.map((spell) => {
-    if (typeof spell === "string") return spell;
-    if (typeof spell === "object" && Object.prototype.hasOwnProperty.call(spell, "name")) return spell.name;
+  const itemNames = items.map((item) => {
+    if (typeof item === "string") return item;
+    if (typeof item === "object" && Object.prototype.hasOwnProperty.call(item, "name")) return item.name;
     return "";
   });
 
-  return utils.queryCompendiumEntries(compendiumName, spellNames, GET_ENTITY);
+  const results = await utils.queryCompendiumEntries(compendiumName, itemNames, GET_ENTITY);
+  const cleanResults = results.filter((item) => item !== null);
+
+  return cleanResults;
 }
+
+
+/**
+ *
+ * @param {[items]} spells Array of Strings or items
+ */
+async function retrieveSpells(spells) {
+  const compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
+
+  return retrieveCompendiumItems(spells, compendiumName);
+}
+
+// /**
+//  *
+//  * @param {[string]} items Array of Strings or items
+//  */
+// async function retrieveItems(items) {
+//   const compendiumName = await game.settings.get("ddb-importer", "entity-item-compendium");
+
+//   return retrieveCompendiumItems(items, compendiumName);
+// }
 
 async function getCompendium() {
   const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
@@ -231,11 +255,37 @@ async function addSpells(data) {
   }
 }
 
+async function swapItems(data) {
+  const swap = game.settings.get("ddb-importer", "munching-policy-monster-items");
+
+  if (swap) {
+    logger.debug("Replacing items...");
+    // console.info(data.items);
+    const updatedItems = await getCompendiumItems(data.items, "inventory", null, false, true);
+    const itemsToRemove = updatedItems.map((item) => {
+      logger.debug(`${item.name} to ${item.flags.ddbimporter.originalItemName}`);
+      return { name: item.flags.ddbimporter.originalItemName, type: item.type };
+    });
+    logger.debug(`Swapping items ${JSON.stringify(itemsToRemove)}`);
+    // console.warn(itemsToRemove);
+    const lessUpdatedItems = data.items.filter((item) =>
+      !itemsToRemove.some((target) => item.name === target.name && item.type === target.type)
+    );
+    // console.log(lessUpdatedItems);
+    const newItems = lessUpdatedItems.concat(updatedItems);
+    // console.error(newItems);
+    // eslint-disable-next-line require-atomic-updates
+    data.items = newItems;
+
+  }
+}
+
 // async function buildNPC(data, srdIconLibrary, iconMap) {
 async function buildNPC(data) {
   logger.debug("Importing Images");
   await getNPCImage(data);
   await addSpells(data);
+  await swapItems(data);
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates
   data.items = await updateIcons(data.items, false);

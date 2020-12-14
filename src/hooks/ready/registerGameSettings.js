@@ -425,6 +425,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-monster-items", {
+    name: "ddb-importer.munching-policy-monster-items.name",
+    hint: "ddb-importer.munching-policy-monster-items.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   // sets the current tutorial step the user has completed
   // game.settings.register("ddb-importer", "tutorial-step", {
   //   scope: "world",
