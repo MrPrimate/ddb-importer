@@ -447,7 +447,7 @@ export default class CharacterImport extends Application {
       {
         name: "active-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
-        description: "Copy existing Active Effects on items and character.",
+        description: "[Experimental] Copy existing Active Effects on items and character.",
         enabled: true,
       },
     ];
