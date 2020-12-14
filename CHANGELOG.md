@@ -6,6 +6,7 @@
 * Critical roll spells now get munched
 * Fixed regression where generic ddb item and spell icons are no longer downloaded (otherwise they CORS error)
 * Enable extra damage for things like Flame Blade
+* Certain Weapons such as Maces always imported as Dex weapons in muncher
 
 # v 0.1.13
 

@@ -44,6 +44,10 @@ function getExtraDamage(ddb, restrictions) {
   });
 }
 
+function isMartialArtists(classes) {
+  return classes.some((cls) => cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"));
+}
+
 function getWarlockFeatures(ddb, weapon) {
   // Some features, notably hexblade abilities we scrape out here
   const warlockFeatures = ddb.character.characterValues
@@ -85,7 +89,7 @@ function getMonkFeatures(ddb, weapon) {
   const monkWeapon = ddb.character.modifiers.class.some((mod) =>
     mod.friendlySubtypeName === weapon.definition.type &&
     mod.type == "monk-weapon"
-  ) || weapon.definition.isMonkWeapon;
+  ) || (weapon.definition.isMonkWeapon && isMartialArtists(ddb.character.classes));
 
   let features = [];
 

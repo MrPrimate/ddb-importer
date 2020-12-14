@@ -144,10 +144,9 @@ let getAbility = (weaponProperties, weaponRange, abilities) => {
   }
 
   // if it's a ranged weapon, and not a reach weapon (long = 10 (?))
-  if (weaponRange.long !== 5 && !weaponProperties.rch) {
+  if (weaponRange.long > 5 && !weaponProperties.rch) {
     return "dex";
   }
-
   // the default is STR
   return "str";
 };
