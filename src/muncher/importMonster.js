@@ -85,6 +85,11 @@ async function getNPCImage(data) {
     return false;
   }
 
+  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+  if (!updateImages && data.img !== "icons/svg/mystery-man.svg") {
+    return false;
+  }
+
   let dndBeyondImageUrl = data.flags.monsterMunch.img;
   let dndBeyondTokenImageUrl = data.flags.monsterMunch.tokenImg;
   const npcType = data.data.details.type;

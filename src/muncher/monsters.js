@@ -71,18 +71,40 @@ async function generateIconMap(monsters) {
   return Promise.all(promises);
 }
 
+function copyExistingMonsterImages(monsters, existingMonsters) {
+  const updated = monsters.map((monster) => {
+    const existing = existingMonsters.find((m) => monster.name === m.name);
+    if (existing) {
+      monster.img = existing.img;
+      monster.token.img = existing.token.img;
+      return monster;
+    } else {
+      return monster;
+    }
+  });
+  return updated;
+}
+
 export async function parseCritters() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
+  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
   let monsters = await getMonsterData();
 
-  if (!updateBool) {
+  if (!updateBool || !updateImages) {
     munchNote(`Calculating which monsters to update...`, true);
-    logger.debug("Removing existing monsters from import list");
     const existingMonsters = await getCompendiumItems(monsters, "npc");
     const existingMonstersTotal = existingMonsters.length + 1;
-    logger.debug(`Matched ${existingMonstersTotal}`);
-    munchNote(`Removing ${existingMonstersTotal} from update...`);
-    monsters = await removeItems(monsters, existingMonsters);
+    if (!updateBool) {
+      logger.debug("Removing existing monsters from import list");
+      logger.debug(`Matched ${existingMonstersTotal}`);
+      munchNote(`Removing ${existingMonstersTotal} from update...`);
+      monsters = await removeItems(monsters, existingMonsters);
+    }
+    if (!updateImages) {
+      logger.debug("Copying monster images across...");
+      munchNote(`Copying images for ${existingMonstersTotal} monsters...`);
+      monsters = copyExistingMonsterImages(monsters, existingMonsters);
+    }
   }
   munchNote("");
   munchNote(`Fiddling with the SRD data...`, true);

@@ -232,6 +232,12 @@ export default class DDBMuncher extends Application {
         description: "[Experimental] Load items from DDB compendium instead of parsing action/attack?",
         enabled: true,
       },
+      {
+        name: "update-images",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-update-images"),
+        description: "Update Monster images on existing items?",
+        enabled: true,
+      },
     ];
 
     const genericConfig = [
