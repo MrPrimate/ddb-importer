@@ -1,6 +1,7 @@
 # v 0.1.15
 
 * Support new attunement options
+* Better error reporting on config screen
 
 # v 0.1.14
 

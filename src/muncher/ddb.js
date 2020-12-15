@@ -7,6 +7,8 @@ import { parseCritters } from "./monsters.js";
 import { munchNote } from "./import.js";
 import DirectoryPicker from "../lib/DirectoryPicker.js";
 
+const BAD_DIRS = ["[data]", "[data] ", "", null];
+
 // eslint-disable-next-line no-unused-vars
 Hooks.on("renderDDBMuncher", (app, html, user) => {
   DirectoryPicker.processHtml(html);
@@ -113,9 +115,18 @@ export default class DDBMuncher extends Application {
     game.settings.set("ddb-importer", "beta-key", betaKey);
     game.settings.set("ddb-importer", "campaign-id", campaignId);
 
+    const imageDirSet = !BAD_DIRS.includes(imageDir);
     const campaignIdCorrect = !campaignId.includes("join");
 
-    if (!campaignIdCorrect) {
+    if (!imageDirSet) {
+      $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);
+      $('#ddb-importer-monsters').css("height", "auto");
+      return false;
+    } else if(cobaltCookie === "") {
+      $('#munching-task-setup').text(`To use Muncher you need to set a Cobalt Cookie value!`);
+      $('#ddb-importer-monsters').css("height", "auto");
+      return false;
+    } else if (!campaignIdCorrect) {
       $('#munching-task-setup').text(`Incorrect CampaignID/URL! You have used the campaign join URL, please change`);
       $('#ddb-importer-monsters').css("height", "auto");
       return false;
@@ -269,8 +280,7 @@ export default class DDBMuncher extends Application {
     ];
 
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
-    const badDirs = ["[data]", "[data] ", "", null];
-    const dataDirSet = !badDirs.includes(uploadDir);
+    const dataDirSet = !BAD_DIRS.includes(uploadDir);
 
     const setupConfig = {
       "image-upload-directory": uploadDir,
