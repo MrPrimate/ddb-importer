@@ -122,7 +122,7 @@ export default class DDBMuncher extends Application {
       $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);
       $('#ddb-importer-monsters').css("height", "auto");
       return false;
-    } else if(cobaltCookie === "") {
+    } else if (cobaltCookie === "") {
       $('#munching-task-setup').text(`To use Muncher you need to set a Cobalt Cookie value!`);
       $('#ddb-importer-monsters').css("height", "auto");
       return false;

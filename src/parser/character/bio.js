@@ -33,15 +33,15 @@ export function getIdeal(data) {
 }
 
 function getCharacteristics(data) {
-  let characteristicBlurb =  "";
+  let characteristicBlurb = "";
   if (data.character.gender) characteristicBlurb += `Gender: ${data.character.gender}\n`;
   if (data.character.eyes) characteristicBlurb += `Eyes: ${data.character.eyes}\n`;
   if (data.character.height) characteristicBlurb += `Height: ${data.character.height}\n`;
   if (data.character.faith) characteristicBlurb += `Faith: ${data.character.faith}\n`;
   if (data.character.hair) characteristicBlurb += `Hair: ${data.character.hair}\n`;
-  if (data.character.skin) characteristicBlurb +=`Skin: ${data.character.skin}\n`;
-  if (data.character.age) characteristicBlurb +=`Age: ${data.character.age}\n`;
-  if (data.character.weight) characteristicBlurb +=`Weight: ${data.character.weight}\n`;
+  if (data.character.skin) characteristicBlurb += `Skin: ${data.character.skin}\n`;
+  if (data.character.age) characteristicBlurb += `Age: ${data.character.age}\n`;
+  if (data.character.weight) characteristicBlurb += `Weight: ${data.character.weight}\n`;
   return characteristicBlurb;
 }
 

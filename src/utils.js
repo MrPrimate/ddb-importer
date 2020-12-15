@@ -121,9 +121,9 @@ let utils = {
           .map((source) => {
             const dSource = definition.sources.find((ds) => source.id === ds.sourceId);
             const page = (dSource.pageNumber) ? ` pg ${dSource.pageNumber}` : "";
-            const sourceBook = (dSource) ?
-              (fullSource) ? source.description : source.name :
-              "Homebrew";
+            const sourceBook = (dSource)
+              ? (fullSource) ? source.description : source.name
+              : "Homebrew";
             return `${sourceBook}${page}`;
           })
           .join(', ');
