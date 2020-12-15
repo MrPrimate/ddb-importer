@@ -226,7 +226,7 @@ function getResetType(description) {
   return resetType;
 }
 
-export default function parseMagicItem(data, itemSpells, characterItem = true) {
+export function parseMagicItem(data, itemSpells, characterItem = true) {
   // this builds metadata for the magicitems module to use
   // https://gitlab.com/riccisi/foundryvtt-magic-items/
 
@@ -282,5 +282,15 @@ export default function parseMagicItem(data, itemSpells, characterItem = true) {
     return {
       enabled: false,
     };
+  }
+}
+
+export function getAttunement(item) {
+  if (item.isAttuned) {
+    return 2;
+  } else if (item.definition.canAttune) {
+    return 1;
+  } else {
+    return 0;
   }
 }

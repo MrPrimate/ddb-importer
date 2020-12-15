@@ -23,7 +23,7 @@ import parseCustomItem from "./custom.js";
 import utils from "../../utils.js";
 
 // magicitems support
-import parseMagicItem from "./magicify.js";
+import { parseMagicItem, getAttunement } from "./magicify.js";
 import logger from "../../logger.js";
 
 /**
@@ -303,6 +303,7 @@ function parseItem(ddb, data, character) {
       // try parsing it as a custom item
       item = parseCustomItem(data);
     }
+    item.data.attunement = getAttunement(data);
     if (data.definition.avatarUrl) item.flags.ddbimporter.dndbeyond['avatarUrl'] = data.definition.avatarUrl.split('?')[0];
     if (data.definition.largeAvatarUrl) item.flags.ddbimporter.dndbeyond['largeAvatarUrl'] = data.definition.largeAvatarUrl.split('?')[0];
     if (data.definition.filterType) {

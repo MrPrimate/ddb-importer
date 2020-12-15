@@ -1,3 +1,7 @@
+# v 0.1.15
+
+* Support new attunement options
+
 # v 0.1.14
 
 * Jarl's were not parsing
