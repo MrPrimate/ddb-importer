@@ -2,6 +2,7 @@
 
 * Support new attunement options
 * Better error reporting on config screen
+* Improved character background parsing
 
 # v 0.1.14
 

@@ -32,8 +32,23 @@ export function getIdeal(data) {
   return result;
 }
 
+function getCharacteristics(data) {
+  let characteristicBlurb =  "";
+  if (data.character.gender) characteristicBlurb += `Gender: ${data.character.gender}\n`;
+  if (data.character.eyes) characteristicBlurb += `Eyes: ${data.character.eyes}\n`;
+  if (data.character.height) characteristicBlurb += `Height: ${data.character.height}\n`;
+  if (data.character.faith) characteristicBlurb += `Faith: ${data.character.faith}\n`;
+  if (data.character.hair) characteristicBlurb += `Hair: ${data.character.hair}\n`;
+  if (data.character.skin) characteristicBlurb +=`Skin: ${data.character.skin}\n`;
+  if (data.character.age) characteristicBlurb +=`Age: ${data.character.age}\n`;
+  if (data.character.weight) characteristicBlurb +=`Weight: ${data.character.weight}\n`;
+  return characteristicBlurb;
+}
+
 export function getAppearance(data) {
-  let result = data.character.traits.appearance;
+  let result = getCharacteristics(data);
+  if (result !== "") result += "\n";
+  result += data.character.traits.appearance;
   if (result !== null) {
     return result;
   } else {
@@ -83,12 +98,12 @@ export function getBiography(data) {
   // };
 
   let backstory =
-    data.character.notes.backstory !== null ? "<h2>Backstory</h2><p>" + data.character.notes.backstory + "</p>" : "";
+    data.character.notes.backstory !== null ? "<h1>Backstory</h1><p>" + data.character.notes.backstory + "</p>" : "";
 
   if (data.character.background.hasCustomBackground === true) {
     let bg = data.character.background.customBackground;
 
-    let result = bg.name ? "<h1>" + bg.name + "</h1>" : "";
+    let result = bg.name ? "<h1>Background: " + bg.name + "</h1>" : "";
     result += bg.description ? "<p>" + bg.description + "</p>" : "";
     if (bg.featuresBackground) {
       result += "<h2>" + bg.featuresBackground.name + "</h2>";
@@ -114,7 +129,7 @@ export function getBiography(data) {
   } else if (data.character.background.definition !== null) {
     let bg = data.character.background.definition;
 
-    let result = "<h1>" + bg.name + "</h1>";
+    let result = "<h1>Background: " + bg.name + "</h1>";
     result += bg.shortDescription.replace("\r\n", "");
     if (bg.featureName) {
       result += "<h2>" + bg.featureName + "</h2>";
