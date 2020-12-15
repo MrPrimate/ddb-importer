@@ -81,6 +81,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "use-full-source", {
+    name: "ddb-importer.use-full-source.name",
+    hint: "ddb-importer.use-full-source.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "entity-item-compendium", {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",

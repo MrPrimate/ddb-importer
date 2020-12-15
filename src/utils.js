@@ -109,6 +109,7 @@ let utils = {
    * @param {obj} definition item definition
    */
   getSourceData: (definition) => {
+    const fullSource = game.settings.get("ddb-importer", "use-full-source");
     let result = {
       name: null,
       page: null,
@@ -119,8 +120,11 @@ let utils = {
           .filter((source) => definition.sources.some((ds) => source.id === ds.sourceId))
           .map((source) => {
             const dSource = definition.sources.find((ds) => source.id === ds.sourceId);
-            const page = (dSource.pageNumber) ? ` p ${dSource.pageNumber}` : "";
-            return `${source.description}${page}`;
+            const page = (dSource.pageNumber) ? ` pg ${dSource.pageNumber}` : "";
+            const sourceBook = (dSource) ?
+              (fullSource) ? source.description : source.name :
+              "Homebrew";
+            return `${sourceBook}${page}`;
           })
           .join(', ');
       }
@@ -133,7 +137,10 @@ let utils = {
       } else if (definition.sourceId) {
         result.name = DDB_CONFIG.sources
           .filter((source) => source.id === definition.sourceId)
-          .map((source) => source.description);
+          .map((source) => {
+            const sourceBook = (fullSource) ? source.description : source.name;
+            return sourceBook;
+          });
       }
 
       // add a page num if available
