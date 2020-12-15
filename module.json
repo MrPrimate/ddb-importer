@@ -29,13 +29,6 @@
     }
   ],
   "systems": ["dnd5e"],
-
-"dependencies": [
-    {
-      "name": "dnd5e",
-      "type": "system"
-    }
-  ],
   "esmodules": ["src/index.js"],
   "styles": [
     "./css/module-settings.css",
