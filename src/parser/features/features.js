@@ -1,57 +1,6 @@
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
 
-/**
- * Searches for selected options if a given feature provides choices to the user
- * @param {string} type character property: "class", "race" etc.
- * @param {object} feat options to search for
- */
-let getChoices = (ddb, type, feat) => {
-  const id = feat.id;
-
-  /**
-   * EXAMPLE: Totem Spirit: Bear
-    componentId: 100
-    componentTypeId: 12168134
-    defaultSubtypes: []
-    id: "3-0-43966541"
-    isInfinite: false
-    isOptional: false
-    label: null
-    optionValue: 177
-    options: Array(5)
-      0: {id: 177, label: "Bear", description: "<p>While raging, you have resistance to all damage…u tough enough to stand up to any punishment.</p>"}
-      1: {id: 178, label: "Eagle", description: "<p>While you’re raging, other creatures have disad…tor who can weave through the fray with ease.</p>"}
-      2: {id: 179, label: "Wolf", description: "<p>While you’re raging, your friends have advantag…it of the wolf makes you a leader of hunters.</p>"}
-      3: {id: 180, label: "Elk", description: "<p>While you are raging and aren't wearing heavy a…t of the elk makes you extraordinarily swift.</p>"}
-      4: {id: 181, label: "Tiger", description: "<p>While raging, you can add 10 feet to your long … The spirit of the tiger empowers your leaps.</p>"}
- */
-
-  if (ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
-    // find a choice in the related choices-array
-    const choices = ddb.character.choices[type].filter(
-      (characterChoice) => characterChoice.componentId && characterChoice.componentId === id
-    );
-
-    if (choices) {
-      const options = choices
-        .filter(
-          (choice) =>
-            choice.options &&
-            Array.isArray(choice.options) &&
-            choice.optionValue &&
-            choice.options.find((opt) => opt.id === choice.optionValue)
-        )
-        .map((choice) => {
-          return choice.options.find((opt) => opt.id === choice.optionValue);
-        });
-      return options;
-    }
-  }
-  // we could not determine if there are any choices left
-  return undefined;
-};
-
 function getDescription(ddb, character, feat) {
   let snippet = "";
   let description = "";
@@ -99,7 +48,7 @@ function parseFeature(feat, ddb, character, source, type) {
   };
 
   // Add choices to the textual description of that feat
-  let choices = getChoices(ddb, type, feat);
+  let choices = utils.getChoices(ddb, type, feat);
 
   if (choices.length > 0) {
     choices.forEach((choice) => {
@@ -146,6 +95,9 @@ function parseClassFeatures(ddb, character) {
   let classesFeatureList = [];
   let subClassesFeatureList = [];
   let processedClassesFeatureList = [];
+  const excludedFeatures = ddb.character.optionalClassFeatures
+    .filter((f) => f.affectedClassFeatureId)
+    .map((f) => f.affectedClassFeatureId);
 
   // subclass features can often be duplicates of class features.
   ddb.character.classes.forEach((klass) => {
@@ -157,6 +109,7 @@ function parseClassFeatures(ddb, character) {
     );
     const klassName = klass.definition.name;
     const klassFeatureList = classFeatures
+      .filter((feat) => !excludedFeatures.includes(feat.id))
       .map((feat) => {
         let items = parseFeature(feat, ddb, character, klassName, "class");
         return items.map((item) => {
@@ -195,7 +148,8 @@ function parseClassFeatures(ddb, character) {
           feat.name !== "Bonus Proficiency" &&
           feat.name !== "Ability Score Improvement" &&
           feat.requiredLevel <= klass.level &&
-          !ddb.character.actions.class.some((action) => action.name === feat.name)
+          !ddb.character.actions.class.some((action) => action.name === feat.name) &&
+          !excludedFeatures.includes(feat.id)
       );
       const subKlassName = `${klassName} : ${klass.subclassDefinition.name}`;
       const subKlassFeatureList = subFeatures

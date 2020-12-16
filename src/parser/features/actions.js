@@ -4,32 +4,31 @@ import parseTemplateString from "../templateStrings.js";
 
 // get actions from ddb.character.customActions
 function getCustomActions(ddb, displayedAsAttack) {
-
   const customActions = ddb.character.customActions
-  .filter((action) => action.displayAsAttack === displayedAsAttack)
-  .map((action) => {
-    action.dice = {
-      diceString: (action.diceCount && action.diceType) ? `${action.diceCount}d${action.diceType}` : null,
-      fixedValue: action.fixedValue
-    };
+    .filter((action) => action.displayAsAttack === displayedAsAttack)
+    .map((action) => {
+      action.dice = {
+        diceString: action.diceCount && action.diceType ? `${action.diceCount}d${action.diceType}` : null,
+        fixedValue: action.fixedValue,
+      };
 
-    const range = {
-      aoeType: action.aoeType,
-      aoeSize: action.aoeSize,
-      range: action.range,
-      long: action.longRange
-    };
-    action.range = range;
+      const range = {
+        aoeType: action.aoeType,
+        aoeSize: action.aoeSize,
+        range: action.range,
+        long: action.longRange,
+      };
+      action.range = range;
 
-    if (action.statId) action.abilityModifierStatId = action.statId;
+      if (action.statId) action.abilityModifierStatId = action.statId;
 
-    action.activation = {
-      activationTime: action.activationTime,
-      activationType: action.activationType,
-    };
+      action.activation = {
+        activationTime: action.activationTime,
+        activationType: action.activationType,
+      };
 
-    return action;
-  });
+      return action;
+    });
 
   return customActions;
 }
@@ -40,9 +39,11 @@ function isMartialArtists(classes) {
 
 function getDamage(action) {
   let damage = {};
-  const damageType = (action.damageTypeId) ? DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name : null;
-  const modBonus = ((action.statId || action.abilityModifierStatId) && !action.isOffhand) ? " + @mod" : "";
-  const fixedBonus = (action.dice.fixedValue) ? ` + ${action.dice.fixedValue}` : "";
+  const damageType = action.damageTypeId
+    ? DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name
+    : null;
+  const modBonus = (action.statId || action.abilityModifierStatId) && !action.isOffhand ? " + @mod" : "";
+  const fixedBonus = action.dice.fixedValue ? ` + ${action.dice.fixedValue}` : "";
 
   if (action.dice) {
     if (action.dice.diceString) {
@@ -104,10 +105,13 @@ function martialArtsDamage(ddb, action) {
 }
 
 function getLimitedUse(action, character) {
-  if (action.limitedUse && (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId)) {
+  if (
+    action.limitedUse &&
+    (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus)
+  ) {
     const resetType = DICTIONARY.resets.find((type) => type.id === action.limitedUse.resetType);
-
     let maxUses;
+
     if (action.limitedUse.statModifierUsesId) {
       const ability = DICTIONARY.character.abilities.find(
         (ability) => ability.id === action.limitedUse.statModifierUsesId
@@ -115,7 +119,7 @@ function getLimitedUse(action, character) {
       maxUses = character.data.abilities[ability].mod;
       if (action.limitedUse.maxUses) maxUses += action.limitedUse.maxUses;
     } else if (action.limitedUse.useProficiencyBonus) {
-      const multiplier = (action.limitedUse.proficiencyBonusOperator) ? action.limitedUse.proficiencyBonusOperator : 1;
+      const multiplier = action.limitedUse.proficiencyBonusOperator ? action.limitedUse.proficiencyBonusOperator : 1;
       if (action.limitedUse.operator === 1) {
         maxUses = character.data.attributes.prof * multiplier;
       } else {
@@ -167,7 +171,7 @@ function getResource(character, action) {
       consume = {
         type: "attribute",
         target: `resources.${resource}.value`,
-        amount: null
+        amount: null,
       };
     }
   });
@@ -212,9 +216,7 @@ function calculateSaveAttack(action, weapon) {
     dc: null,
     scaling: "spell",
   };
-  weapon.data.ability = DICTIONARY.character.abilities.find(
-    (stat) => stat.id === action.abilityModifierStatId
-  ).value;
+  weapon.data.ability = DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value;
   return weapon;
 }
 
@@ -229,7 +231,8 @@ function calculateActionTypeOne(ddb, character, action, weapon) {
           : "str"
         : "str";
     weapon.data.damage = martialArtsDamage(ddb, action);
-  } else { // type 3
+  } else {
+    // type 3
     if (action.abilityModifierStatId) {
       weapon.data.ability = DICTIONARY.character.abilities.find(
         (stat) => stat.id === action.abilityModifierStatId
@@ -285,6 +288,7 @@ function getAttackAction(ddb, character, action) {
     type: "weapon",
     data: JSON.parse(utils.getTemplate("weapon")),
   };
+
   try {
     if (action.isMartialArts) {
       weapon.flags = {
@@ -360,7 +364,13 @@ function getUnarmedStrike(ddb, character) {
  * @param {*} character
  */
 function getAttackActions(ddb, character) {
-  return [ddb.character.actions.class, ddb.character.actions.race, ddb.character.actions.feat, getCustomActions(ddb, true)]
+  return [
+    // do class options here have a class id, needed for optional class features
+    ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId)),
+    ddb.character.actions.race,
+    ddb.character.actions.feat,
+    getCustomActions(ddb, true),
+  ]
     .flat()
     .filter((action) => action.displayAsAttack)
     .map((action) => {
@@ -374,7 +384,13 @@ function getAttackActions(ddb, character) {
  * @param {*} items
  */
 function getOtherActions(ddb, character, items) {
-  const actions = [ddb.character.actions.race, ddb.character.actions.class, ddb.character.actions.feat, getCustomActions(ddb, false)]
+  const actions = [
+    // do class options here have a class id, needed for optional class features
+    ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId)),
+    ddb.character.actions.race,
+    ddb.character.actions.feat,
+    getCustomActions(ddb, false),
+  ]
     .flat()
     .filter((action) => action.name && action.name !== "")
     .filter(
