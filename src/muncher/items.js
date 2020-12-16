@@ -74,7 +74,8 @@ function getItemData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const body = { cobalt: cobaltCookie, campaignId: campaignId };
+  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
   const debugJson = game.settings.get("ddb-importer", "debug-json");
 
   return new Promise((resolve, reject) => {

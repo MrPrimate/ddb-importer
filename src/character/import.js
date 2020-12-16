@@ -130,7 +130,8 @@ const filterItemsByUserSelection = (result, sections) => {
 async function getCharacterData(characterId) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const body = { cobalt: cobaltCookie };
+  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const body = { cobalt: cobaltCookie, betaKey: betaKey };
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/getCharacter/${characterId}`, {
