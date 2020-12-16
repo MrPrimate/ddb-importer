@@ -79,7 +79,8 @@ export function getCharacterSpells(ddb, character) {
     if (!spell.definition) return;
     // If the spell has an ability attached, use that
     let spellCastingAbility = undefined;
-    const classInfo = lookups.classFeature.find((cls) => cls.id === spell.componentId);
+    const featureId = utils.determineActualFeatureId(ddb, spell.componentId);
+    const classInfo = lookups.classFeature.find((cls) => cls.id === featureId);
     // Sometimes there are spells here which don't have an class Info
     // this seems to be part of the optional tasha's rules, lets not parse for now
     // as ddb implementation is not yet finished
