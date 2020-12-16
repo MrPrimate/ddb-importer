@@ -229,10 +229,96 @@ let utils = {
     return sum;
   },
 
+  /**
+   * Searches for selected options if a given feature provides choices to the user
+   * @param {string} type character property: "class", "race" etc.
+   * @param {object} feat options to search for
+   */
+  getChoices: (ddb, type, feat) => {
+    const id = feat.id;
+
+    /**
+     * EXAMPLE: Totem Spirit: Bear
+      componentId: 100
+      componentTypeId: 12168134
+      defaultSubtypes: []
+      id: "3-0-43966541"
+      isInfinite: false
+      isOptional: false
+      label: null
+      optionValue: 177
+      options: Array(5)
+        0: {id: 177, label: "Bear", description: "<p>While raging, you have resistance to all damage…u tough enough to stand up to any punishment.</p>"}
+        1: {id: 178, label: "Eagle", description: "<p>While you’re raging, other creatures have disad…tor who can weave through the fray with ease.</p>"}
+        2: {id: 179, label: "Wolf", description: "<p>While you’re raging, your friends have advantag…it of the wolf makes you a leader of hunters.</p>"}
+        3: {id: 180, label: "Elk", description: "<p>While you are raging and aren't wearing heavy a…t of the elk makes you extraordinarily swift.</p>"}
+        4: {id: 181, label: "Tiger", description: "<p>While raging, you can add 10 feet to your long … The spirit of the tiger empowers your leaps.</p>"}
+  */
+
+    if (ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
+      // find a choice in the related choices-array
+      const choices = ddb.character.choices[type].filter(
+        (characterChoice) => characterChoice.componentId && characterChoice.componentId === id
+      );
+
+      if (choices) {
+        const options = choices
+          .filter(
+            (choice) =>
+              choice.options &&
+              Array.isArray(choice.options) &&
+              choice.optionValue &&
+              choice.options.find((opt) => opt.id === choice.optionValue)
+          )
+          .map((choice) => {
+            return choice.options.find((opt) => opt.id === choice.optionValue);
+          });
+        return options;
+      }
+    }
+    // we could not determine if there are any choices left
+    return undefined;
+  },
+
+  getComponentIdFromOptionValue: (ddb, type, optionId) => {
+    if (ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
+      // find a choice in the related choices-array
+      const choice = ddb.character.choices[type].find(
+        (characterChoice) => characterChoice.optionValue && characterChoice.optionValue === optionId
+      );
+      if (choice) return choice.componentId;
+    }
+    // we could not determine if there are any choices left
+    return undefined;
+  },
+
+  determineActualFeatureId: (data, featureId, type = "class") => {
+    const optionalFeature = data.character.optionalClassFeatures
+      .filter((f) => f.classFeatureId === featureId)
+      .map((f) => f.affectedClassFeatureId);
+    // are we dealing with an optional class feature?
+    const choiceFeature = utils.getComponentIdFromOptionValue(data, type, featureId);
+
+    if (choiceFeature) {
+      const choiceOptionalFeature = data.character.optionalClassFeatures
+        .filter((f) => f.classFeatureId === choiceFeature)
+        .map((f) => f.affectedClassFeatureId);
+      if (choiceOptionalFeature) {
+        return choiceOptionalFeature[0];
+      }
+    } else if (optionalFeature && optionalFeature.length > 0) {
+      return optionalFeature[0];
+    }
+    return featureId;
+  },
+
   findClassByFeatureId: (data, featureId) => {
+    // optional class features need this filter, as they replace existing features
+    const featId = utils.determineActualFeatureId(data, featureId);
+
     const cls = data.character.classes.find((cls) => {
       let classFeatures = cls.classFeatures;
-      let featureMatch = classFeatures.find((feature) => feature.definition.id === featureId);
+      let featureMatch = classFeatures.find((feature) => feature.definition.id === featId);
       if (featureMatch) {
         return cls;
       } else {
@@ -241,7 +327,7 @@ let utils = {
         if (cls.subclassDefinition && cls.subclassDefinition.classFeatures) {
           classFeatures = classFeatures.concat(cls.subclassDefinition.classFeatures);
         }
-        return classFeatures.find((feature) => feature.id === featureId) !== undefined;
+        return classFeatures.find((feature) => feature.id === featId) !== undefined;
       }
     });
     return cls;
