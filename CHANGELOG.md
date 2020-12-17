@@ -4,7 +4,7 @@
 * Better error reporting on config screen
 * Improved character background parsing
 * Option to not replace art on monster munch update
-* Global option to use Source book acronymn rather than full name
+* Global option to use Source book acronym rather than full name
 
 # v 0.1.14
 
