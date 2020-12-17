@@ -12,6 +12,7 @@ import {
   getDDBSpellSchoolIcons,
   getDDBGenericItemIcons,
 } from "../muncher/import.js";
+import { getCharacterOptions } from "./options.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 
@@ -151,8 +152,18 @@ async function getCharacterData(characterId) {
         if (!data.success) {
           resolve(data);
         }
+        return data;
+      })
+      .then((data) => {
+        return getCharacterOptions(data.ddb).then((classOptions) => {
+          data.classOptions = classOptions;
+          return data;
+        });
+      })
+      .then((data) => {
         // construct the expected { character: {...} } object
         let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;
+        ddb.classOptions = data.classOptions;
         try {
           const character = parseJson(ddb);
           data["character"] = character;
