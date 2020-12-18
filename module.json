@@ -29,11 +29,11 @@
     }
   ],
   "systems": ["dnd5e"],
-  "esmodules": ["src/index.js"],
+  "esmodules": ["dist/main.js"],
   "styles": [
     "./css/module-settings.css",
     "./css/default.css",
-    "./src/character/import.css",
+    "./css/import.css",
     "./css/sidebar.css",
     "./css/journal.css",
     "./css/notifications.css",

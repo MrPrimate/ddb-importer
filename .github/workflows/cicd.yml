@@ -33,7 +33,10 @@ jobs:
       shell: bash
       id: get-version
       run: echo "::set-output name=version::$(node ./.github/workflows/get-version.js)"
-    - run: zip -r ./ddb-importer.zip module.json src icons css img lang LICENSE.md       # Add folders/files here
+    - name: Webpack
+      run: npm run build
+    - name: Create Zip
+      run: zip -r ./ddb-importer.zip module.json dist icons css img lang LICENSE.md       # Add folders/files here
     - name: Create Release                                # Create an additional release for this version
       id: create_versioned_release
       uses: ncipollo/release-action@v1

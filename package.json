@@ -1,6 +1,7 @@
 {
   "name": "ddb-importer",
-  "version": "0.0.1",
+  "version": "0.2.0",
+  "private": true,
   "scripts": {
     "lint": "npx eslint src/",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -8,7 +9,9 @@
   "devDependencies": {
     "eslint": "^6.8.0",
     "jest": "^25.1.0",
-    "prettier": "2.0.5"
+    "prettier": "2.0.5",
+    "webpack": "^5.11.0",
+    "webpack-cli": "^4.2.0"
   },
   "dependencies": {
     "typescript": "^3.8.3"
