@@ -206,7 +206,7 @@ export default function parseFeatures(ddb, character) {
   ddb.character.race.racialTraits
     .filter(
       (trait) =>
-        !["Ability Score Increase", "Age", "Alignment", "Size", "Speed", "Languages"].includes(trait.definition.name) &&
+        !trait.definition.hideInSheet &&
         !ddb.character.actions.race.some((action) => action.name === trait.definition.name)
     )
     .forEach((feat) => {
@@ -226,6 +226,17 @@ export default function parseFeatures(ddb, character) {
   // class and subclass traits
   let classItems = parseClassFeatures(ddb, character);
 
+  // optional class features
+  ddb.classOptions
+    .filter((feat) => !ddb.character.actions.class.some((action) => action.name === feat.name))
+    .forEach((feat) => {
+      const source = utils.parseSource(feat);
+      let feats = parseFeature(feat, ddb, character, source, "feat");
+      feats.forEach((item) => {
+        items.push(item);
+      });
+    });
+
   // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
   classItems.forEach((item) => {
     const existingFeature = getNameMatchedFeature(items, item);
@@ -238,7 +249,7 @@ export default function parseFeatures(ddb, character) {
     }
   });
 
-  // finally add feats
+  // add feats
   ddb.character.feats
     .filter((feat) => !ddb.character.actions.feat.some((action) => action.name === feat.name))
     .forEach((feat) => {
