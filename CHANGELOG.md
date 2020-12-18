@@ -2,6 +2,7 @@
 
 * Software is now distributed using webpack, which will increase performance
 * Optional features you haven't selected won't show up
+* Optional features will now import if you are a God Mode tier patreon supporter, this will come to all users after a small beta window
 
 # v 0.1.16
 
