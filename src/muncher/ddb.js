@@ -18,7 +18,7 @@ export default class DDBMuncher extends Application {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-monsters";
-    options.template = "modules/ddb-importer/src/muncher/ddb_munch.handlebars";
+    options.template = "modules/ddb-importer/handlebars/munch.handlebars";
     options.classes.push("ddb-muncher");
     options.resizable = false;
     options.height = "auto";
