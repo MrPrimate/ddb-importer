@@ -58,6 +58,6 @@
   "ddb-importer.beta-key.hint": "Some Patreon supporter tiers have access to Beta features, enter your key here",
   "ddb-importer.auto-create-compendium.name": "Auto create compendiums if not present?",
   "ddb-importer.auto-create-compendium.hint": "Auto create compendiums if not present?",
-  "ddb-importer.use-full-source.name": "Use full source nook name?",
+  "ddb-importer.use-full-source.name": "Use full source book name?",
   "ddb-importer.use-full-source.hint": "Otherwise use acronym"
 }
