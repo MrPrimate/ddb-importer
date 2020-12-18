@@ -1,3 +1,8 @@
+# v 0.2.0
+
+* Software is now distributed using webpack, which will increase performance
+* Optional features you haven't selected won't show up
+
 # v 0.1.16
 
 * Support new attunement options
