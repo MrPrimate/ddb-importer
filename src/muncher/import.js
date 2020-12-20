@@ -11,6 +11,7 @@ const compendiumLookup = [
   { type: "inventory", compendium: "entity-item-compendium" },
   { type: "spells", compendium: "entity-spell-compendium" },
   { type: "features", compendium: "entity-feature-compendium" },
+  { type: "races", compendium: "entity-feature-compendium" },
   { type: "npc", compendium: "entity-monster-compendium" },
   { type: "monsters", compendium: "entity-monster-compendium" },
   { type: "feat", name: "entity-feature-compendium" },
@@ -28,6 +29,7 @@ const srdCompendiumLookup = [
   { type: "inventory", name: "dnd5e.items" },
   { type: "spells", name: "dnd5e.spells" },
   { type: "features", name: "dnd5e.classfeatures" },
+  { type: "races", name: "dnd5e.races" },
   { type: "feat", name: "dnd5e.classfeatures" },
   { type: "weapon", name: "dnd5e.items" },
   { type: "consumable", name: "dnd5e.items" },
@@ -260,7 +262,94 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
   return matchingItem;
 }
 
-export async function updateCompendium(type, input, update = null) {
+function flagMatch(item1, item2, matchFlags) {
+  if (matchFlags.length === 0) return true;
+  let matched = false;
+  matchFlags.forEach((flag) => {
+    if (item1.flags.ddbimporter[flag] &&
+      item2.flags.ddbimporter[flag] &&
+      item1.flags.ddbimporter[flag] === item2.flags.ddbimporter[flag]
+    ) {
+      matched = true;
+    }
+  })
+
+  return matched;
+}
+
+async function getFilteredItems(compendium, item, index, matchFlags) {
+  const indexEntries = index.filter((idx) => idx.name === item.name);
+
+  const mapped = await Promise.all(indexEntries.map((idx) => {
+    const entry = compendium.getEntity(idx._id);
+    return entry;
+  }));
+
+  const flagFiltered = mapped.filter((idx) => {
+    const nameMatch = idx.name === item.name;
+    const flagMatched = flagMatch(idx, item, matchFlags);
+    return nameMatch && flagMatched;
+  })
+
+  return flagFiltered;
+}
+
+async function isFilteredItem(compendium, item, index, matchFlags) {
+  const filteredItems = await getFilteredItems(compendium, item, index, matchFlags);
+  return new Promise((resolve) => {
+    // we care only if there is 1 filtered item
+    console.warn(`${item.name} ${filteredItems.length}`);
+    if (filteredItems.length === 1) {
+      resolve(true);
+    } else {
+      resolve(false);
+    }
+  });
+}
+
+async function getFlaggedItems(compendium, items, index, matchFlags) {
+  let results = [];
+  items.forEach((item) => {
+    const flagged = getFilteredItems(compendium, item, index, matchFlags);
+    results.push(flagged)
+  });
+  return Promise.all(results);
+}
+
+async function updateCompendiumItems(compendium, compendiumItems, index, matchFlags) {
+  let promises = [];
+  compendiumItems.forEach(async (item) => {
+    const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
+    // we have a match, update first match
+    if (existingItems.length >= 1) {
+      const existing = existingItems[0];
+      item._id = existing._id;
+      munchNote(`Updating ${item.name}`);
+      await copySupportedItemFlags(existing, item);
+      promises.push(compendium.updateEntity(item));
+    }
+  })
+  return Promise.all(promises);
+}
+
+async function createCompendiumItems(compendium, compendiumItems, index, matchFlags) {
+  let promises = [];
+  compendiumItems.forEach(async (item) => {
+    const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
+    // we have a single match
+    if (existingItems.length === 0) {
+      const newItem = await Item.create(item, {
+        temporary: true,
+        displaySheet: false,
+      });
+      munchNote(`Creating ${item.name}`);
+      promises.push(compendium.importEntity(newItem));
+    }
+  })
+  return Promise.all(promises);
+}
+
+export async function updateCompendium(type, input, update = null, matchFlags = []) {
   let importPolicy = game.settings.get("ddb-importer", "entity-import-policy");
   if (update !== null) {
     if (update == true) {
@@ -279,68 +368,24 @@ export async function updateCompendium(type, input, update = null) {
     // remove duplicate items based on name and type
     const compendiumItems = [...new Map(input[type].map((item) => [item["name"] + item["type"], item])).values()];
 
-    const updateItems = async () => {
-      if (importPolicy === 0) {
-        return Promise.all(
-          compendiumItems
-            .filter((item) => initialIndex.some((idx) => idx.name === item.name))
-            .map(async (item) => {
-              const entry = await compendium.index.find((idx) => idx.name === item.name);
-              const existing = await compendium.getEntity(entry._id);
-              item._id = existing._id;
-              munchNote(`Updating ${item.name}`);
-              await copySupportedItemFlags(existing, item);
-              await compendium.updateEntity(item);
-              return item;
-            })
-        );
-      } else {
-        return Promise.all([]);
-      }
+    // update existing items
+    if (importPolicy === 0) {
+      await updateCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
     };
 
-    const createItems = async () => {
-      return Promise.all(
-        compendiumItems
-          .filter((item) => !initialIndex.some((idx) => idx.name === item.name))
-          .map(async (item) => {
-            const newItem = await Item.create(item, {
-              temporary: true,
-              displaySheet: false,
-            });
-            munchNote(`Creating ${item.name}`);
-            await compendium.importEntity(newItem);
-            return newItem;
-          })
-      );
-    };
-
-    await updateItems();
-    await createItems();
+    // create new items
+    await createCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
 
     const updatedIndex = await compendium.getIndex();
-    const getItems = async () => {
-      return Promise.all(
-        input[type].map(async (item) => {
-          const searchResult = await updatedIndex.find((idx) => idx.name === item.name);
-          if (!searchResult) {
-            logger.debug(`Couldn't find ${item.name} in the compendium`);
-            return null;
-          } else {
-            const entity = compendium.getEntity(searchResult._id);
-            return entity;
-          }
-        })
-      );
-    };
+    const updateItems = getFlaggedItems(compendium, compendiumItems, updatedIndex, matchFlags);
+
 
     // lets generate our compendium info like id, pack and img for use
     // by things like magicitems
-    const items = getItems().then((entries) => {
-      const results = entries.map((result) => {
+    const items = updateItems.then((entries) => {
+      const results = entries.flat().map((result) => {
         return {
           _id: result._id,
-          id: result._id,
           pack: compendium.collection,
           img: result.img,
           name: result.name,
@@ -483,14 +528,20 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
   return results;
 }
 
+
+export function getCompendiumLabel(type) {
+  const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
+  const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+  return compendiumLabel;
+}
+
 /**
  * gets items from compendium
  * @param {*} items
  */
 export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false, monsterMatch = false) {
   if (!compendiumLabel) {
-    const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
-    compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+    compendiumLabel = getCompendiumLabel(type);
   }
   const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
   const index = await compendium.getIndex();
@@ -560,8 +611,8 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
     }
   } else if (imageUrl && remoteImage) {
     try {
-      logger.debug('Trying: ' + imageUrl.trim());
-      await utils.serverFileExists(imageUrl.trim());
+      // logger.debug('Trying: ' + imageUrl.trim());
+      // await utils.serverFileExists(imageUrl.trim());
       return imageUrl.trim();
     } catch (ignored) {
       return null;
