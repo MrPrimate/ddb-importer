@@ -106,9 +106,7 @@ function getItemData() {
 
 export async function parseItems() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
   const magicItemsInstalled = !!game.modules.get("magicitems");
-  logger.info(`Munching items! Updating? ${updateBool} SRD? ${srdIcons}`);
 
   const results = await getItemData();
   let items = results.items;
