@@ -39,21 +39,9 @@ function getRaceData() {
 }
 
 export async function parseRaces() {
-  const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
-
   const results = await getRaceData();
-  // let items = results.items;
 
-  // const finalItems = await srdFiddling(items, "inventory");
-  // const finalCount = finalItems.length;
-  // munchNote(`Please be patient importing ${finalCount} items!`, true);
-
-  // return new Promise((resolve) => {
-  //   resolve(updateCompendium("inventory", { inventory: finalItems }, updateBool));
-  // });
-
-  return true;
+  return results;
 }
 
 

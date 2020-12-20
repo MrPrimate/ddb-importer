@@ -30,89 +30,106 @@ function buildBase(data) {
     entityRaceId: data.entityRaceId,
   }
 
+  result.data.source = utils.parseSource(data);
+
   return result;
 }
 
-function buildRace(race, compendiumRacialTraits, compendiumLabel)  {
-  console.warn("Race build started");
+
+async function buildRace(race, compendiumRacialTraits, compendiumLabel)  {
   let result = buildBase(race);
 
-  // const racialFeaturesMock = race.racialFeatures.map((feature) => {
-  //   return { name: feature.name, data: {}, flags: {}, img: null};
-  // })
+  let avatarUrl = race.avatarUrl;
+  let largeAvatarUrl = race.largeAvatarUrl;
+  let portraitAvatarUrl = race.portraitAvatarUrl;
 
-  // const compendiumLabel = getCompendiumLabel("races");
-  // const compendiumRacialTraits = await getCompendiumItems(racialFeaturesMock, "races", compendiumLabel);
+  if (race.portraitAvatarUrl) {
+    portraitAvatarUrl = await getImagePath(race.portraitAvatarUrl, "race-portrait", race.fullName, true);
+    result.img = portraitAvatarUrl;
+    result.flags.ddbimporter['portraitAvatarUrl'] = race.portraitAvatarUrl;
+  }
 
-  race.racialTraits.forEach((feature) => {
+  if (avatarUrl) {
+    avatarUrl = await getImagePath(race.avatarUrl, "race-avatar", race.fullName, true);
+    result.flags.ddbimporter['largeAvatarUrl'] = race.avatarUrl;
+    if (!result.img) {
+      result.img = avatarUrl;
+    }
+  }
+  if (race.largeAvatarUrl) {
+    largeAvatarUrl = await getImagePath(race.largeAvatarUrl, "race-large", race.fullName, true);
+    result.flags.ddbimporter['largeAvatarUrl'] = largeAvatarUrl;
+    if (!result.img) {
+      result.img = largeAvatarUrl;
+    }
+  }
+
+  race.racialTraits.forEach((f) => {
+    const feature = f.definition;
     const featureMatch = compendiumRacialTraits.find((match) => feature.name === match.name && match.flags.ddbimporter && match.flags.ddbimporter.entityRaceId === feature.entityRaceId);
-    const title = (featureMatch) `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>`
+    const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
     result.data.description.value += `${title}\n${feature.description}\n\n`;
   });
 
-  if (race.portraitAvatarUrl) {
-    result.img = getImagePath(data.portraitAvatarUrl, "race", data.name);
-  } else if (avatarUrl) {
-    result.img = getImagePath(data.avatarUrl, "race", data.name);
-  } else if (race.largeAvatarUrl) {
-    result.img = getImagePath(data.largeAvatarUrl, "race", data.name);
-  }
+  return result;
+}
 
-  result.flags.ddbimporter['avatarUrl'] = data.avatarUrl;
-  result.flags.ddbimporter['largeAvatarUrl'] = data.largeAvatarUrl;
-  result.flags.ddbimporter['portraitAvatarUrl'] = data.portraitAvatarUrl;
+function getRacialTrait(trait, fullName) {
+  logger.debug("Race trait build started");
 
+  let result = buildBase(trait);
+
+  result.flags.ddbimporter['spellListIds'] = trait.spellListIds;
+  result.flags.ddbimporter['definitionKey'] = trait.definitionKey;
+  result.flags.ddbimporter['race'] = fullName;
 
   return result;
 }
 
-function getRacialTrait(race) {
-  console.warn("Race trait build started");
-
-  let result = buildBase(race);
-
-  result.flags.ddbimporter['spellListIds'] = race.spellListIds;
-  result.flags.ddbimporter['definitionKey'] = race.definitionKey;
-
-  return result;
-}
+const NO_TRAITS = [
+  "Speed",
+  "Ability Score Increase",
+  "Size"
+]
 
 export async function getRaces(data) {
-  console.warn("get races started");
+  logger.debug("get races started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
   let races = [];
   let racialFeatures = [];
 
-  console.log(data);
-
   data.forEach((race) => {
-    console.log(race);
+    logger.debug(`${race.fullName} features parsing started...`);
     race.racialTraits.forEach((trait) => {
-      console.log(trait.definition.name)
-      if (!trait.definition.hideInSheet) {
-        const parsedTrait = getRacialTrait(trait.definition);
+      logger.debug(`${trait.definition.name} trait starting...`)
+      if (!trait.definition.hideInSheet && !NO_TRAITS.includes(trait.definition.name)) {
+        const parsedTrait = getRacialTrait(trait.definition, race.fullName);
         racialFeatures.push(parsedTrait);
       }
     });
   });
-
-  console.log("Racial features");
-  console.log(racialFeatures);
 
   const fiddledRacialFeatures = await srdFiddling(racialFeatures, "races");
   munchNote(`Importing ${fiddledRacialFeatures.length} traits!`, true);
   await updateCompendium("races", { races: fiddledRacialFeatures }, updateBool);
 
   const compendiumLabel = getCompendiumLabel("races");
-  const compendiumRacialTraits = await getCompendiumItems(racialFeatures, "races", compendiumLabel);
+  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
+  const index = await compendium.getIndex();
+  const firstPassTraits = await index.filter((i) => fiddledRacialFeatures.some((orig) => i.name === orig.name));
+  let compendiumRacialTraits = [];
 
-  data.forEach((race) => {
-    const builtRace = buildRace(race, compendiumRacialTraits, compendiumLabel);
+  await Promise.allSettled(firstPassTraits.map(async (feature) => {
+    const trait = await compendium.getEntry(feature._id);
+    compendiumRacialTraits.push(trait);
+  }));
+
+  await Promise.allSettled(data.map(async (race) => {
+    logger.debug(`${race.fullName} race parsing started...`);
+    const builtRace = await buildRace(race, compendiumRacialTraits, compendiumLabel);
     races.push(builtRace);
-  });
-
-  console.log(races);
+  }));
 
   const fiddledRaces = await srdFiddling(races, "races");
   munchNote(`Importing ${fiddledRaces.length} races!`, true);

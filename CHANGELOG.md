@@ -1,6 +1,8 @@
 # v 0.2.1
 
-
+* Experimental race import for God Mode Tier patreons to trial.
+* Refactored existing item search to improve lookups for future improvements.
+* Homebrew monster import toggle.
 
 # v 0.2.0
 
