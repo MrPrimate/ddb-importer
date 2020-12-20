@@ -1,0 +1,47 @@
+{
+  "name": "ddb-importer",
+  "author": "MrPrimate",
+  "title": "D&D Beyond Importer [Dev Mode]",
+  "description": "Import your dndbeyond.com characters, spells and monsters at super speed!",
+  "version": "0.0.0",
+  "download": "https://github.com/mrprimate/ddb-importer/releases/download/latest/ddb-importer.zip",
+  "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module.json",
+  "url": "https://github.com/mrprimate/ddb-importer",
+  "minimumCoreVersion": "0.7.5",
+  "compatibleCoreVersion": "0.7.9",
+  "authors": [
+    {
+      "name": "MrPrimate",
+      "email": "jack@mrprimate.co.uk",
+      "url": "https://mrprimate.co.uk"
+    }
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    }
+  ],
+  "systems": ["dnd5e"],
+  "esmodules": ["src/index.js"],
+  "styles": [
+    "./css/module-settings.css",
+    "./css/default.css",
+    "./css/import.css",
+    "./css/sidebar.css",
+    "./css/journal.css",
+    "./css/notifications.css",
+    "./css/scene-navigation.css",
+    "./css/statblock.css",
+    "./css/monster-muncher.css",
+    "./css/spell-muncher.css"
+  ],
+  "packs": [],
+  "socket": true
+}

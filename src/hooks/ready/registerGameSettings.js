@@ -174,6 +174,15 @@ export default function () {
     default: "",
   });
 
+  game.settings.register("ddb-importer", "patreon-tier", {
+    name: "ddb-importer.patreon-tier.name",
+    hint: "ddb-importer.patreon-tier.hint",
+    scope: "world",
+    config: false,
+    type: String,
+    default: null,
+  });
+
   game.settings.register("ddb-importer", "debug-json", {
     name: "ddb-importer.debug-json.name",
     hint: "ddb-importer.debug-json.hint",

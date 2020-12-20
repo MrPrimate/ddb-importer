@@ -62,8 +62,10 @@
                             {{#if cobalt}}enabled{{else}}disabled{{/if}}>Item Munch</button>
                     </div>
                      <div>
+                       <button type="button" id="munch-races-start" class="munch-button"
+                            {{#if tiers.god}}enabled{{else}}disabled{{/if}}>{{#if beta}}Race Munch{{else}}Races BETA for God Tier Supporters{{/if}}</button>
                         <button type="button" id="munch-features-start" class="munch-button"
-                            {{#if cobalt}}disabled{{else}}disabled{{/if}}><s>Class Features Munch</s> SOON!</button>
+                            {{#if tiers.god}}disabled{{else}}disabled{{/if}}><s>Class Munch</s> SOON!</button>
                     </div>
                      <hr>
                      <div>
@@ -80,7 +82,7 @@
                       {{/each}}
                     <div>
                         <button type="button" id="munch-monsters-start" class="munch-button"
-                            {{#if beta}}enabled{{else}}disabled{{/if}}>{{#if beta}}Monster Munch BETA!{{else}}<s>Monster Munch</s> Beta for Patreon Supporters!{{/if}}</button>
+                            {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Monster Munch BETA!{{else}}<s>Monster Munch</s> Beta for Patreon Supporters!{{/if}}</button>
                     </div>
                     Make sure you have imported spells before Monsters!
                 </div>

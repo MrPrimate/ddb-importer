@@ -4,6 +4,7 @@ import utils from "../utils.js";
 import { parseItems } from "./items.js";
 import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
+import { parseRaces } from "./races.js";
 import { munchNote } from "./import.js";
 import DirectoryPicker from "../lib/DirectoryPicker.js";
 
@@ -14,8 +15,53 @@ Hooks.on("renderDDBMuncher", (app, html, user) => {
   DirectoryPicker.processHtml(html);
 });
 
+
+
+async function getPatreonTier() {
+  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+  const body = { betaKey: betaKey };
+
+  return new Promise((resolve, reject) => {
+    fetch(`${parsingApi}/patreonTier`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body), // body data type must match "Content-Type" header
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.success) {
+          munchNote(`API Failure: ${data.message}`);
+          reject(data.message);
+        }
+        resolve(data.data);
+      })
+      .catch((error) => reject(error));
+  });
+}
+
+function getPatreonTiers(tier) {
+  const godTier = tier === "GOD";
+  const undyingTier = tier === "UNDYING";
+  const coffeeTier = tier === "COFFEE";
+
+  const tiers = {
+    god: godTier,
+    undying: undyingTier,
+    coffee: coffeeTier,
+    supporter: godTier || undyingTier || coffeeTier,
+    not: !godTier && !undyingTier && !coffeeTier,
+  }
+
+  return tiers;
+}
+
 export default class DDBMuncher extends Application {
   static get defaultOptions() {
+    DDBMuncher.setPatreonTier();
     const options = super.defaultOptions;
     options.id = "ddb-importer-monsters";
     options.template = "modules/ddb-importer/handlebars/munch.handlebars";
@@ -44,6 +90,11 @@ export default class DDBMuncher extends Application {
       munchNote(`Downloading items...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseItems();
+    });
+    html.find("#munch-races-start").click(async () => {
+      munchNote(`Downloading items...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.parseRaces();
     });
 
     html.find("#munch-monsters-config").on("click", async (event) => {
@@ -106,6 +157,7 @@ export default class DDBMuncher extends Application {
   }
 
   static setConfig() {
+    DDBMuncher.setPatreonTier();
     const imageDir = $('input[name="image-upload-directory"]')[0].value;
     const cobaltCookie = $('input[name="cobalt-cookie"]')[0].value;
     const betaKey = $('input[name="beta-key"]')[0].value;
@@ -143,9 +195,15 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-items-start"]').prop('disabled', false);
     }
     if (cobalt && betaKey) {
-      // $('button[id^="munch-features-start"]').prop('disabled', false);
+      $('button[id^="munch-races-start"]').prop('disabled', false);
+      // $('button[id^="munch-classes-start"]').prop('disabled', false);
       $('button[id^="munch-monsters-start"]').prop('disabled', false);
     }
+  }
+
+  static async setPatreonTier() {
+    const tier = await getPatreonTier();
+    game.settings.set("ddb-importer", "patreon-tier", tier);
   }
 
   static async parseCritters() {
@@ -188,12 +246,29 @@ export default class DDBMuncher extends Application {
     }
   }
 
+  static async parseRaces() {
+    try {
+      logger.info("Munching races!");
+      const result = await parseRaces();
+      munchNote(`Finished importing ${result.length} races!`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
+  }
+
+
+
   getData() { // eslint-disable-line class-methods-use-this
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
     const campaignIdCorrect = !game.settings.get("ddb-importer", "campaign-id").includes("join");
+    const tier = game.settings.get("ddb-importer", "patreon-tier");
+    const tiers = getPatreonTiers(tier);
 
     const itemConfig = [
       {
@@ -307,6 +382,7 @@ export default class DDBMuncher extends Application {
       setupConfig: setupConfig,
       setupComplete: setupComplete,
       campaignIdCorrect: campaignIdCorrect,
+      tiers: tiers,
     };
   }
 }

@@ -1,3 +1,7 @@
+# v 0.2.1
+
+
+
 # v 0.2.0
 
 * Software is now distributed using webpack, which will increase performance
