@@ -5,6 +5,7 @@
 * Homebrew monster import toggle.
 * Module setting for monsters have vision toggle.
 * Devils site was not importing correctly due to senses change in latest D&D system.
+* Option to restrict character imports to trusted users only.
 
 # v 0.2.0
 

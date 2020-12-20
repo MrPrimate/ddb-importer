@@ -99,6 +99,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "restrict-to-trusted", {
+    name: "ddb-importer.restrict-to-trusted.name",
+    hint: "ddb-importer.restrict-to-trusted.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "entity-item-compendium", {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",

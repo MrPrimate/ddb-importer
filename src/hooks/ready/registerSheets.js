@@ -30,10 +30,12 @@ export default function () {
     .map((sheetClass) => sheetClass.cls)
     .map((sheet) => sheet.name);
 
+  const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
+
   pcSheetNames.forEach((sheetName) => {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this character
-      if (!data.owner || !data.actor) return;
+      if (!data.owner || !data.actor || (trustedUsersOnly && !game.user.isTrusted)) return;
 
       // don't add the button multiple times
       if ($(html).find("#ddbImporterButton").length > 0) return;

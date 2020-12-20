@@ -1,8 +1,7 @@
 import DDBMuncher from "../../muncher/ddb.js";
 
 export function addMuncher (app, html) {
-  $(html);
-  if (app.options.id == "compendium") {
+  if (app.options.id == "compendium" && game.user.isGM) {
     let button = $("<button class='ddb-muncher'><i class='fas fa-file-import'></i> DDB Muncher</button>");
 
     button.click(() => {
