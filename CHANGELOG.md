@@ -1,4 +1,4 @@
-# v 0.2.1
+# v 0.2.2
 
 * Experimental race import for God Mode Tier patreons to trial.
 * Refactored existing item search to improve lookups for future improvements.
@@ -7,7 +7,7 @@
 * Devils site was not importing correctly due to senses change in latest D&D system.
 * Option to restrict character imports to trusted users only.
 
-# v 0.2.0
+# v 0.2.0/0.2.1
 
 * Software is now distributed using webpack, which will increase performance
 * Optional features you haven't selected won't show up
