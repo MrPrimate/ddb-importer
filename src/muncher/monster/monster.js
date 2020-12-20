@@ -30,6 +30,8 @@ export function parseMonsters(monsterData) {
   let foundryActors = [];
   let failedMonsterNames = [];
 
+  const setVision = game.settings.get("ddb-importer", "monster-has-vision");
+
   monsterData.forEach((monster) => {
     try {
       let foundryActor = JSON.parse(JSON.stringify(MONSTER_TEMPLATE));
@@ -62,6 +64,7 @@ export function parseMonsters(monsterData) {
       foundryActor.data.attributes.senses = getSenses(monster, DDB_CONFIG);
       foundryActor.data.traits.senses = getTextSenses(monster);
       foundryActor.token = getTokenSenses(foundryActor.token, monster, DDB_CONFIG);
+      foundryActor.token.vision = setVision;
 
       // Conditions
       foundryActor.data.traits.di = getDamageImmunities(monster, DDB_CONFIG);

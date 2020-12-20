@@ -90,6 +90,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "monster-has-vision", {
+    name: "ddb-importer.monster-has-vision.name",
+    hint: "ddb-importer.monster-has-vision.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "entity-item-compendium", {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",

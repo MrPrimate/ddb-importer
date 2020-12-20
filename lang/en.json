@@ -59,5 +59,7 @@
   "ddb-importer.auto-create-compendium.name": "Auto create compendiums if not present?",
   "ddb-importer.auto-create-compendium.hint": "Auto create compendiums if not present?",
   "ddb-importer.use-full-source.name": "Use full source book name?",
-  "ddb-importer.use-full-source.hint": "Otherwise use acronym"
+  "ddb-importer.use-full-source.hint": "Otherwise use acronym",
+  "ddb-importer.monster-has-vision.name": "Should imported monster have vision set?",
+  "ddb-importer.monster-has-vision.hint": "If unticked monsters will not have vision set"
 }
