@@ -452,6 +452,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-monster-homebrew", {
+    name: "ddb-importer.munching-policy-monster-homebrew.name",
+    hint: "ddb-importer.munching-policy-monster-homebrew.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "munching-policy-update-images", {
     name: "ddb-importer.munching-policy-update-images.name",
     hint: "ddb-importer.munching-policy-update-images.hint",

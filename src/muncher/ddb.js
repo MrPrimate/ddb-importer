@@ -52,6 +52,7 @@ function getPatreonTiers(tier) {
     god: godTier,
     undying: undyingTier,
     coffee: coffeeTier,
+    homebrew: godTier || undyingTier,
     supporter: godTier || undyingTier || coffeeTier,
     not: !godTier && !undyingTier && !coffeeTier,
   }
@@ -250,7 +251,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching races!");
       const result = await parseRaces();
-      munchNote(`Finished importing ${result.length} races!`, true);
+      munchNote(`Finished importing ${result.length} races and features!`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
@@ -312,6 +313,12 @@ export default class DDBMuncher extends Application {
         isChecked: game.settings.get("ddb-importer", "munching-policy-update-images"),
         description: "Update Monster images on existing items?",
         enabled: true,
+      },
+      {
+        name: "monster-homebrew",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew"),
+        description: "Include homebrew?",
+        enabled: tiers.homebrew,
       },
     ];
 
