@@ -101,9 +101,9 @@ export function getSensesMap(data) {
       "You can see normally in darkness, both magical and nonmagical",
     ])
     .forEach((sense) => {
-      if (sense.value > senses['darkvision'].value) {
+      if (sense.value > senses['darkvision']) {
         senses['darkvision'] = sense.value;
-        senses.special += "You can see normally in darkness, both magical and nonmagical ; ";
+        senses.special += "You can see normally in darkness, both magical and nonmagical.";
       }
     });
 
@@ -115,7 +115,7 @@ export function getSensesMap(data) {
       if (hasSense) {
         senses[mod.subType] += mod.value;
       } else {
-        senses.special += `${mod.value}; `;
+        senses.special += ` ${mod.value},`;
       }
     });
 

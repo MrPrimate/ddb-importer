@@ -4,6 +4,7 @@
 * Refactored existing item search to improve lookups for future improvements.
 * Homebrew monster import toggle.
 * Module setting for monsters have vision toggle.
+* Devils site was not importing correctly due to senses change in latest D&D system.
 
 # v 0.2.0
 
