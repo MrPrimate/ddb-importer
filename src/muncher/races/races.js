@@ -67,12 +67,16 @@ async function buildRace(race, compendiumRacialTraits, compendiumLabel) {
     }
   }
 
+  const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
+  // eslint-disable-next-line require-atomic-updates
+  result.data.description.value += image;
+
   race.racialTraits.forEach((f) => {
     const feature = f.definition;
     const featureMatch = compendiumRacialTraits.find((match) => feature.name === match.name && match.flags.ddbimporter && match.flags.ddbimporter.entityRaceId === feature.entityRaceId);
     const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
-    const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
-    result.data.description.value += `${title}\n${image}${feature.description}\n\n`;
+
+    result.data.description.value += `${title}\n${feature.description}\n\n`;
   });
 
   return result;
@@ -93,7 +97,9 @@ function getRacialTrait(trait, fullName) {
 const NO_TRAITS = [
   "Speed",
   "Ability Score Increase",
-  "Size"
+  "Size",
+  "Feat",
+  "Languages",
 ];
 
 export async function getRaces(data) {
