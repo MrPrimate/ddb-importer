@@ -272,7 +272,7 @@ function flagMatch(item1, item2, matchFlags) {
     ) {
       matched = true;
     }
-  })
+  });
 
   return matched;
 }
@@ -289,29 +289,16 @@ async function getFilteredItems(compendium, item, index, matchFlags) {
     const nameMatch = idx.name === item.name;
     const flagMatched = flagMatch(idx, item, matchFlags);
     return nameMatch && flagMatched;
-  })
+  });
 
   return flagFiltered;
-}
-
-async function isFilteredItem(compendium, item, index, matchFlags) {
-  const filteredItems = await getFilteredItems(compendium, item, index, matchFlags);
-  return new Promise((resolve) => {
-    // we care only if there is 1 filtered item
-    console.warn(`${item.name} ${filteredItems.length}`);
-    if (filteredItems.length === 1) {
-      resolve(true);
-    } else {
-      resolve(false);
-    }
-  });
 }
 
 async function getFlaggedItems(compendium, items, index, matchFlags) {
   let results = [];
   items.forEach((item) => {
     const flagged = getFilteredItems(compendium, item, index, matchFlags);
-    results.push(flagged)
+    results.push(flagged);
   });
   return Promise.all(results);
 }
@@ -323,12 +310,13 @@ async function updateCompendiumItems(compendium, compendiumItems, index, matchFl
     // we have a match, update first match
     if (existingItems.length >= 1) {
       const existing = existingItems[0];
+      // eslint-disable-next-line require-atomic-updates
       item._id = existing._id;
       munchNote(`Updating ${item.name}`);
       await copySupportedItemFlags(existing, item);
       promises.push(compendium.updateEntity(item));
     }
-  })
+  });
   return Promise.all(promises);
 }
 
@@ -345,7 +333,7 @@ async function createCompendiumItems(compendium, compendiumItems, index, matchFl
       munchNote(`Creating ${item.name}`);
       promises.push(compendium.importEntity(newItem));
     }
-  })
+  });
   return Promise.all(promises);
 }
 
@@ -371,7 +359,7 @@ export async function updateCompendium(type, input, update = null, matchFlags = 
     // update existing items
     if (importPolicy === 0) {
       await updateCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
-    };
+    }
 
     // create new items
     await createCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);

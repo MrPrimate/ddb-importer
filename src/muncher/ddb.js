@@ -16,7 +16,6 @@ Hooks.on("renderDDBMuncher", (app, html, user) => {
 });
 
 
-
 async function getPatreonTier() {
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
@@ -55,7 +54,7 @@ function getPatreonTiers(tier) {
     homebrew: godTier || undyingTier,
     supporter: godTier || undyingTier || coffeeTier,
     not: !godTier && !undyingTier && !coffeeTier,
-  }
+  };
 
   return tiers;
 }
@@ -259,7 +258,6 @@ export default class DDBMuncher extends Application {
       logger.error(error.stack);
     }
   }
-
 
 
   getData() { // eslint-disable-line class-methods-use-this

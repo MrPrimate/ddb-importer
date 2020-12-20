@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
-import { getImagePath, getCompendiumLabel, getCompendiumItems, updateCompendium, srdFiddling, munchNote } from "../import.js";
+import { getImagePath, getCompendiumLabel, updateCompendium, srdFiddling, munchNote } from "../import.js";
 
 const RACE_TEMPLATE = {
   "name": "",
@@ -28,7 +28,7 @@ function buildBase(data) {
 
   result.flags.ddbimporter = {
     entityRaceId: data.entityRaceId,
-  }
+  };
 
   result.data.source = utils.parseSource(data);
 
@@ -36,12 +36,12 @@ function buildBase(data) {
 }
 
 
-async function buildRace(race, compendiumRacialTraits, compendiumLabel)  {
+async function buildRace(race, compendiumRacialTraits, compendiumLabel) {
   let result = buildBase(race);
 
-  let avatarUrl = race.avatarUrl;
-  let largeAvatarUrl = race.largeAvatarUrl;
-  let portraitAvatarUrl = race.portraitAvatarUrl;
+  let avatarUrl;
+  let largeAvatarUrl;
+  let portraitAvatarUrl;
 
   if (race.portraitAvatarUrl) {
     portraitAvatarUrl = await getImagePath(race.portraitAvatarUrl, "race-portrait", race.fullName, true);
@@ -49,17 +49,20 @@ async function buildRace(race, compendiumRacialTraits, compendiumLabel)  {
     result.flags.ddbimporter['portraitAvatarUrl'] = race.portraitAvatarUrl;
   }
 
-  if (avatarUrl) {
+  if (race.avatarUrl) {
     avatarUrl = await getImagePath(race.avatarUrl, "race-avatar", race.fullName, true);
-    result.flags.ddbimporter['largeAvatarUrl'] = race.avatarUrl;
+    result.flags.ddbimporter['avatarUrl'] = race.avatarUrl;
     if (!result.img) {
       result.img = avatarUrl;
     }
   }
+
   if (race.largeAvatarUrl) {
     largeAvatarUrl = await getImagePath(race.largeAvatarUrl, "race-large", race.fullName, true);
-    result.flags.ddbimporter['largeAvatarUrl'] = largeAvatarUrl;
+    // eslint-disable-next-line require-atomic-updates
+    result.flags.ddbimporter['largeAvatarUrl'] = race.largeAvatarUrl;
     if (!result.img) {
+      // eslint-disable-next-line require-atomic-updates
       result.img = largeAvatarUrl;
     }
   }
@@ -68,7 +71,8 @@ async function buildRace(race, compendiumRacialTraits, compendiumLabel)  {
     const feature = f.definition;
     const featureMatch = compendiumRacialTraits.find((match) => feature.name === match.name && match.flags.ddbimporter && match.flags.ddbimporter.entityRaceId === feature.entityRaceId);
     const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
-    result.data.description.value += `${title}\n${feature.description}\n\n`;
+    const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
+    result.data.description.value += `${title}\n${image}${feature.description}\n\n`;
   });
 
   return result;
@@ -90,7 +94,7 @@ const NO_TRAITS = [
   "Speed",
   "Ability Score Increase",
   "Size"
-]
+];
 
 export async function getRaces(data) {
   logger.debug("get races started");
@@ -102,7 +106,7 @@ export async function getRaces(data) {
   data.forEach((race) => {
     logger.debug(`${race.fullName} features parsing started...`);
     race.racialTraits.forEach((trait) => {
-      logger.debug(`${trait.definition.name} trait starting...`)
+      logger.debug(`${trait.definition.name} trait starting...`);
       if (!trait.definition.hideInSheet && !NO_TRAITS.includes(trait.definition.name)) {
         const parsedTrait = getRacialTrait(trait.definition, race.fullName);
         racialFeatures.push(parsedTrait);

@@ -1,8 +1,6 @@
 // Main module class
-import { updateCompendium, srdFiddling, addMagicItemSpells, munchNote, getCampaignId, download } from "./import.js";
-import logger from "../logger.js";
+import { munchNote, getCampaignId, download } from "./import.js";
 import { getRaces } from "./races/races.js";
-import utils from "../utils.js";
 
 function getRaceData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
@@ -29,7 +27,6 @@ function getRaceData() {
           munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
-        console.log(data);
         return data;
       })
       .then((data) => getRaces(data.data))
