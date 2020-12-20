@@ -1,3 +1,7 @@
+# v 0.2.3
+
+* Fix a failure during spell and weapon customisation.
+
 # v 0.2.2
 
 * Experimental race import for God Mode Tier patreons to trial.

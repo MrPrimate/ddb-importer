@@ -52,7 +52,13 @@ function addCustomValues(item, ddb) {
   const dcBonus = getCustomValue(item, ddb, 14);
 
   if (toHitBonus) item.data.attackBonus += toHitBonus;
-  if (damageBonus) item.data.damage.parts[0] = item.data.damage.parts[0].concat(` +${damageBonus}`);
+  if (damageBonus && item.data.damage.parts.length !== 0) {
+    item.data.damage.parts[0][0] = item.data.damage.parts[0][0].concat(` +${damageBonus}`);
+  } else if (damageBonus) {
+    const part = [`+${damageBonus}`, ""];
+    item.data.damage.parts.push(part);
+  }
+  // if (damageBonus) item.data.damage.parts[0] = item.data.damage.parts[0].concat(` +${damageBonus}`);
   if (dcBonus) {
     if (item.flags.ddbimporter.dndbeyond.dc) {
       item.data.save.dc = parseInt(item.flags.ddbimporter.dndbeyond.dc) + dcBonus;

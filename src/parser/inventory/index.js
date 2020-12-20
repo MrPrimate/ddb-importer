@@ -253,6 +253,9 @@ function addCustomValues(ddbItem, foundryItem, character) {
   if (toHitBonus) foundryItem.data.attackBonus += toHitBonus;
   if (damageBonus && foundryItem.data.damage.parts.length !== 0) {
     foundryItem.data.damage.parts[0][0] = foundryItem.data.damage.parts[0][0].concat(` +${damageBonus}`);
+  } else if (damageBonus) {
+    const part = [`+${damageBonus}`, ""];
+    foundryItem.data.damage.parts.push(part);
   }
   if (costOverride) foundryItem.data.cost = costOverride;
   if (weightOverride) foundryItem.data.weight = weightOverride;
