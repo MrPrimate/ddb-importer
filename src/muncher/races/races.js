@@ -30,6 +30,10 @@ function buildBase(data) {
     entityRaceId: data.entityRaceId,
   };
 
+  if (data.moreDetailsUrl) {
+    result.flags.ddbimporter['moreDetailsUrl'] = data.moreDetailsUrl;
+  }
+
   result.data.source = utils.parseSource(data);
 
   return result;
@@ -146,5 +150,5 @@ export async function getRaces(data) {
 
   await updateCompendium("races", { races: fiddledRaces }, updateBool);
 
-  return races.concat(racialFeatures);
+  return fiddledRaces.concat(fiddledRacialFeatures);
 }
