@@ -3,6 +3,7 @@
 * Optional class features for Rangers now handle speed changes for Deft Explorer (Roving 6th level)
 * Races go into their own compendium
 
+
 # v 0.2.4
 
 * Some selection boxes inappropriately enabled.
