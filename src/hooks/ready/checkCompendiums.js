@@ -10,12 +10,12 @@ let sanitize = (text) => {
 let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => {
   const compendiumName = game.settings.get("ddb-importer", settingName);
   const compendium = await game.packs.find((pack) => pack.collection === compendiumName);
-  const sanitizedLabel = sanitize(compendiumLabel);
   if (compendium) {
     logger.info(`Compendium '${compendiumName}' found, will not create compendium.`);
     return false;
   } else {
     logger.info(`Compendium '${compendiumName}' was not found, creating it now.`);
+    const sanitizedLabel = sanitize(compendiumLabel);
     // create a compendium for the user
     await Compendium.create({
       entity: compendiumType,
@@ -36,7 +36,9 @@ export default async function () {
     let results = await Promise.allSettled([
       createIfNotExists("entity-spell-compendium", "Item", "Spells"),
       createIfNotExists("entity-item-compendium", "Item", "Items"),
-      createIfNotExists("entity-feature-compendium", "Item", "Features"),
+      // createIfNotExists("entity-feature-compendium", "Item", "Features"),
+      // createIfNotExists("entity-classes-compendium", "Item", "Classes"),
+      createIfNotExists("entity-race-compendium", "Item", "Races"),
       createIfNotExists("entity-monster-compendium", "Actor", "Monsters"),
       // createIfNotExists("entity-monster-feature-compendium", "Item", "Monster Features")
     ]);

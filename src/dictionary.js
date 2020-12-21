@@ -125,11 +125,11 @@ const DICTIONARY = {
       { id: 4, name: "Truesight" },
     ],
     speeds: [
-      { id: 1, type: "walk" },
-      { id: 2, type: "burrow" },
-      { id: 3, type: "climb" },
-      { id: 4, type: "fly" },
-      { id: 5, type: "swim" },
+      { id: 1, type: "walk", innate: "walking" },
+      { id: 2, type: "burrow", innate: "burrowing" },
+      { id: 3, type: "climb", innate: "climbing" },
+      { id: 4, type: "fly", innate: "flying" },
+      { id: 5, type: "swim", innate: "swimming" },
     ],
     languages: [
       { name: "Common", value: "common" },

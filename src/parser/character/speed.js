@@ -25,8 +25,9 @@ export function getSpeed(data) {
   // loop over speed types and add and racial bonuses and feat modifiers
   for (let type in movementTypes) {
     // is there a 'inntate-speed-[type]ing' race/class modifier?
+    const innateType = DICTIONARY.character.speeds.find((s) => s.type === type).innate;
     let innateSpeeds = data.character.modifiers.race.filter(
-      (modifier) => modifier.type === "set" && modifier.subType === `innate-speed-${type}ing`
+      (modifier) => modifier.type === "set" && modifier.subType === `innate-speed-${innateType}`
     );
     let base = movementTypes[type];
 
@@ -36,8 +37,13 @@ export function getSpeed(data) {
         base = speed.value;
       }
     });
+
+    let innateBonus = utils
+      .filterBaseModifiers(data, "bonus", `speed-${type}ing`, restriction)
+      .reduce((speed, feat) => speed + feat.value, 0);
+
     // overwrite the (perhaps) changed value
-    movementTypes[type] = base + bonusSpeed;
+    movementTypes[type] = base + bonusSpeed + innateBonus;
   }
 
   // unarmored movement for barbarians and monks
@@ -50,6 +56,28 @@ export function getSpeed(data) {
         }
       });
   }
+
+  // new ranger deft explorer sets speeds, leaves value null, use walking
+  for (let type in movementTypes) {
+    const innateType = DICTIONARY.character.speeds.find((s) => s.type === type).innate;
+    // is there a 'inntate-speed-[type]ing' race/class modifier?
+    let innateSpeeds = utils
+      .filterBaseModifiers(data, "set", `innate-speed-${innateType}`, restriction);
+    let base = movementTypes[type];
+
+    innateSpeeds.forEach((speed) => {
+      // take the highest value
+      if (speed.value > base) {
+        base = speed.value;
+      } else if (!speed.value && movementTypes['walk']) {
+        base = movementTypes['walk'];
+      }
+    });
+
+    // overwrite the (perhaps) changed value
+    movementTypes[type] = base;
+  }
+
 
   // is there a custom seed over-ride?
   if (data.character.customSpeeds) {
