@@ -66,7 +66,7 @@ export function getSenses(monster, DDB_CONFIG) {
     if (senseMatch && sense.notes && senseMatch.name.toLowerCase() in senses) {
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
-        senses[senseMatch.name.toLowerCase()] = rangeMatch[1];
+        senses[senseMatch.name.toLowerCase()] = parseInt(rangeMatch[1]);
       } else {
         senses.special += `${senseMatch.name}: ${sense.notes}; `;
       }

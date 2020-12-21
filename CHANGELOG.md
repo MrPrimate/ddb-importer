@@ -1,8 +1,12 @@
+# v 0.2.6
+
+* Monster senses were not opening.
+
 # v 0.2.5
 
 * Optional class features for Rangers now handle speed changes for Deft Explorer (Roving 6th level)
 * Races go into their own compendium
-* Stability around API and enabled options changing on munch screen.
+* Stability fixes around API and enabled options changing on munch screen.
 
 # v 0.2.4
 
