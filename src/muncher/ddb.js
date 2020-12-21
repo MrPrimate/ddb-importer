@@ -22,7 +22,7 @@ async function getPatreonTier() {
   const body = { betaKey: betaKey };
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/patreonTier`, {
+    fetch(`${parsingApi}/patreon/tier`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -189,7 +189,7 @@ export default class DDBMuncher extends Application {
   static enableButtons() {
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
-    const tier = game.settings.set("ddb-importer", "patreon-tier");
+    const tier = game.settings.get("ddb-importer", "patreon-tier");
 
     if (cobalt) {
       $('button[id^="munch-spells-start"]').prop('disabled', false);

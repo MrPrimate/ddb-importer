@@ -132,10 +132,10 @@ async function getCharacterData(characterId) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
-  const body = { cobalt: cobaltCookie, betaKey: betaKey };
+  const body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId };
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/getCharacter/${characterId}`, {
+    fetch(`${parsingApi}/proxy/character`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached

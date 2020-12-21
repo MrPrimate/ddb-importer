@@ -7,11 +7,11 @@ function getSpellData(className) {
   const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
-  const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
+  const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
   const debugJson = game.settings.get("ddb-importer", "debug-json");
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/getClassSpells/${className}`, {
+    fetch(`${parsingApi}/proxy/class/spells`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

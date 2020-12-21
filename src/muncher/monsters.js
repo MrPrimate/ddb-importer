@@ -11,10 +11,10 @@ async function getMonsterData() {
   const searchTerm = $("#monster-munch-filter")[0].value;
   const debugJson = game.settings.get("ddb-importer", "debug-json");
   const homebrew = game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
-  const body = { cobalt: cobaltCookie, betaKey: betaKey, search: searchTerm, homebrew: homebrew };
+  const body = { cobalt: cobaltCookie, betaKey: betaKey, search: searchTerm, homebrew: homebrew, searchTerm: searchTerm };
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/getMonster/${searchTerm}`, {
+    fetch(`${parsingApi}/proxy/monster`, {
       method: "POST",
       mode: "cors",
       headers: {

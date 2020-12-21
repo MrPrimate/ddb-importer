@@ -78,7 +78,7 @@ function getItemData() {
   const debugJson = game.settings.get("ddb-importer", "debug-json");
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/getItems`, {
+    fetch(`${parsingApi}/proxy/items`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

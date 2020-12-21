@@ -16,7 +16,7 @@ export async function getCharacterOptions(ddb) {
     const body = { cobalt: cobaltCookie, betaKey: betaKey, ids: optionIds, campaignId: proxyCampaignId };
 
     return new Promise((resolve) => {
-      fetch(`${parsingApi}/proxy/getCharacterOptions`, {
+      fetch(`${parsingApi}/proxy/character/options`, {
         method: "POST",
         mode: "cors",
         cache: "no-cache",
