@@ -157,7 +157,6 @@ export default class DDBMuncher extends Application {
   }
 
   static setConfig() {
-    DDBMuncher.setPatreonTier();
     const imageDir = $('input[name="image-upload-directory"]')[0].value;
     const cobaltCookie = $('input[name="cobalt-cookie"]')[0].value;
     const betaKey = $('input[name="beta-key"]')[0].value;
@@ -169,6 +168,7 @@ export default class DDBMuncher extends Application {
 
     const imageDirSet = !BAD_DIRS.includes(imageDir);
     const campaignIdCorrect = !campaignId.includes("join");
+    DDBMuncher.setPatreonTier();
 
     if (!imageDirSet) {
       $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);
@@ -189,15 +189,18 @@ export default class DDBMuncher extends Application {
   static enableButtons() {
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
+    const tier = game.settings.set("ddb-importer", "patreon-tier");
 
     if (cobalt) {
       $('button[id^="munch-spells-start"]').prop('disabled', false);
       $('button[id^="munch-items-start"]').prop('disabled', false);
     }
     if (cobalt && betaKey) {
+      $('button[id^="munch-monsters-start"]').prop('disabled', false);
+    }
+    if (cobalt && tier === "GOD") {
       $('button[id^="munch-races-start"]').prop('disabled', false);
       // $('button[id^="munch-classes-start"]').prop('disabled', false);
-      $('button[id^="munch-monsters-start"]').prop('disabled', false);
     }
   }
 

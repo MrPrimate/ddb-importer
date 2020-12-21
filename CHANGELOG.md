@@ -1,3 +1,7 @@
+# v 0.2.4
+
+* Some selection boxes inappropriately enabled.
+
 # v 0.2.3
 
 * Fix a failure during spell and weapon customisation.
