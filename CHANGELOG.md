@@ -1,3 +1,7 @@
+# v 0.2.7
+
+* Bug when importing characters using use existing features/compendium is checked fixed.
+
 # v 0.2.6
 
 * Monster senses were not opening.
