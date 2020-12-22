@@ -1,4 +1,5 @@
 import utils from "../../utils.js";
+import logger from "../../logger.js";
 
 const CLASS_TEMPLATE = {
   "name": "",

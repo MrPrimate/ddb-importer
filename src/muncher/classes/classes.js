@@ -6,6 +6,8 @@ import { getImagePath, getCompendiumLabel, updateCompendium, srdFiddling, munchN
 async function buildClass(klass, compendiumClassTraits, compendiumLabel) {
   let result = buildBase(klass);
 
+  result.type = "class";
+
   let avatarUrl;
   let largeAvatarUrl;
   let portraitAvatarUrl;
@@ -48,12 +50,20 @@ async function buildClass(klass, compendiumClassTraits, compendiumLabel) {
     result.data.description.value += `<p><b>Starting Equipment</b></p>\n${klass.equipmentDescription}\n\n`;
   }
 
+  classFeaturesAdded = [];
 
   klass.classFeatures.forEach((feature) => {
-    const featureMatch = compendiumClassTraits.find((match) => feature.name === match.name && match.flags.ddbimporter && match.flags.ddbimporter.parentClassId === feature.parentClassId);
-    const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
+    const classFeaturesAdded = classFeatures.some((f) => f.name === feature.name);
 
-    result.data.description.value += `${title}\n${feature.description}\n\n`;
+    //sort by level?
+    if (!classFeaturesAdded) {
+      const featureMatch = compendiumClassTraits.find((match) => feature.name === match.name && match.flags.ddbimporter && match.flags.ddbimporter.parentClassId === feature.parentClassId);
+      const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
+
+      result.data.description.value += `${title}\n${feature.description}\n\n`;
+      classFeaturesAdded.push(feature.name);
+    }
+
   });
 
   return result;
@@ -63,9 +73,12 @@ async function buildClass(klass, compendiumClassTraits, compendiumLabel) {
 const NO_TRAITS = [
   "Speed",
   "Ability Score Increase",
+  "Ability Score Improvement",
   "Size",
   "Feat",
   "Languages",
+  "Hit Points",
+  "Proficiencies",
 ];
 
 export async function getClasses(data) {
@@ -77,10 +90,11 @@ export async function getClasses(data) {
 
   data.forEach((klass) => {
     logger.debug(`${klass.fullName} feature parsing started...`);
-    klass.racialTraits.forEach((feature) => {
-      logger.debug(`${feature.definition.name} feature starting...`);
-      if (!feature.definition.hideInSheet && !NO_TRAITS.includes(feature.definition.name)) {
-        const parsedFeature = getClassFeature(feature.definition, klass.name, "");
+    klass.classFeatures.forEach((feature) => {
+      const existingFeature = classFeatures.some((f) => f.name === feature.name);
+      logger.debug(`${feature.name} feature starting...`);
+      if (!NO_TRAITS.includes(feature.name) && !existingFeature) {
+        const parsedFeature = getClassFeature(feature, klass.name, "");
         classFeatures.push(parsedFeature);
       }
     });
@@ -88,9 +102,9 @@ export async function getClasses(data) {
 
   const fiddledClassFeatures = await srdFiddling(classFeatures, "classes");
   munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
-  await updateCompendium("races", { races: fiddledRacialFeatures }, updateBool);
+  await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
-  const compendiumLabel = getCompendiumLabel("races");
+  const compendiumLabel = getCompendiumLabel("features");
   const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
   const index = await compendium.getIndex();
   const firstPassFeatures = await index.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));

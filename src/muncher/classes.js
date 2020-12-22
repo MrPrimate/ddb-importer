@@ -1,6 +1,6 @@
 // Main module class
 import { munchNote, getCampaignId, download } from "./import.js";
-import { getClasses } from "./races/classes.js";
+import { getClasses } from "./classes/classes.js";
 
 function getClassesData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
@@ -36,10 +36,11 @@ function getClassesData() {
 }
 
 export async function parseClasses() {
-  const subClassResults = await getSubClassData();
+  // const subClassResults = await getSubClassData();
   const classesResults = await getClassesData();
 
-  return classesResults.concat(subClassResults);
+  return classesResults;
+  //return classesResults.concat(subClassResults);
 }
 
 
