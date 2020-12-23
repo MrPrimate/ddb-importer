@@ -211,10 +211,16 @@ function calculateSaveAttack(action, weapon) {
     parts: [[action.dice.diceString, damageType]],
     versatile: "",
   };
+
+  const fixedDC = (action.fixedSaveDc) ? action.fixedSaveDc : null;
+  const scaling = (fixedDC) ? fixedDC : (action.abilityModifierStatId) ?
+    DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
+
+
   weapon.data.save = {
     ability: DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value,
-    dc: null,
-    scaling: "spell",
+    dc: fixedDC,
+    scaling: scaling,
   };
   weapon.data.ability = DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value;
   return weapon;

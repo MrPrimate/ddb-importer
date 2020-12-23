@@ -1,4 +1,8 @@
-# v 0.2.7
+# v 0.2.9
+
+* Dragonborn breath weapon was not parsing DC save type correctly.
+
+# v 0.2.7/0.2.8
 
 * Bug when importing characters using use existing features/compendium is checked fixed.
 
