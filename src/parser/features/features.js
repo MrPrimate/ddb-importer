@@ -1,3 +1,4 @@
+import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
 
@@ -47,13 +48,19 @@ function parseFeature(feat, ddb, character, source, type) {
     },
   };
 
+  logger.debug(`Searching for ${name} choices`);
+
   // Add choices to the textual description of that feat
   let choices = utils.getChoices(ddb, type, feat);
 
   if (choices.length > 0) {
+    logger.debug(`Found ${choices.map((c) => c.label).join(',')}`);
     choices.forEach((choice) => {
+      logger.debug(`Adding choice ${choice.label}`);
       let choiceItem = JSON.parse(JSON.stringify(item));
-      let choiceFeat = JSON.parse(JSON.stringify(feat));
+      let choiceFeat = (feat.definition) ?
+        JSON.parse(JSON.stringify(feat.definition)) :
+        JSON.parse(JSON.stringify(feat));
 
       choiceItem.name = choice.label ? `${choiceItem.name}: ${choice.label}` : choiceItem.name;
       if (choiceFeat.description) {

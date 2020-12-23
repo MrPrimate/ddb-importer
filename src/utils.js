@@ -235,7 +235,8 @@ let utils = {
    * @param {object} feat options to search for
    */
   getChoices: (ddb, type, feat) => {
-    const id = feat.id;
+    const id = (feat.id) ? feat.id : (feat.definition.id) ?
+      feat.definition.id : null;
 
     /**
      * EXAMPLE: Totem Spirit: Bear
@@ -271,7 +272,10 @@ let utils = {
               choice.options.find((opt) => opt.id === choice.optionValue)
           )
           .map((choice) => {
-            return choice.options.find((opt) => opt.id === choice.optionValue);
+            // console.warn(choice);
+            const result = choice.options.find((opt) => opt.id === choice.optionValue);
+            // console.log(result);
+            return result;
           });
         return options;
       }
