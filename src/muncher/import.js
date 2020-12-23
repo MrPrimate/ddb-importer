@@ -746,20 +746,23 @@ async function getDDBItemImages(items, download) {
       large: null,
     };
 
-    if (item.flags && item.flags.ddbimporter && item.flags.ddbimporter) {
-      const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
-      const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
-
-      if (avatarUrl && avatarUrl != "") {
-        munchNote(`Downloading ${item.name} image`);
-        const smallImage = await getImagePath(avatarUrl, 'item', item.name, downloadImages, remoteImages);
-        logger.debug(`Final image ${smallImage}`);
-        itemImage.img = smallImage;
+    if (item.flags && item.flags.ddbimporter && item.flags.ddbimporter && item.flags.ddbimporter.dndbeyond) {
+      if (item.flags.ddbimporter.dndbeyond.avatarUrl) {
+        const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
+        if (avatarUrl && avatarUrl != "") {
+          munchNote(`Downloading ${item.name} image`);
+          const smallImage = await getImagePath(avatarUrl, 'item', item.name, downloadImages, remoteImages);
+          logger.debug(`Final image ${smallImage}`);
+          itemImage.img = smallImage;
+        }
       }
-      if (largeAvatarUrl && largeAvatarUrl != "") {
-        const largeImage = await getImagePath(largeAvatarUrl, 'item-large', item.name, downloadImages, remoteImages);
-        itemImage.large = largeImage;
-        if (!itemImage.img) itemImage.img = largeImage;
+      if (item.flags.ddbimporter.dndbeyond.largeAvatarUrl) {
+        const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
+        if (largeAvatarUrl && largeAvatarUrl != "") {
+          const largeImage = await getImagePath(largeAvatarUrl, 'item-large', item.name, downloadImages, remoteImages);
+          itemImage.large = largeImage;
+          if (!itemImage.img) itemImage.img = largeImage;
+        }
       }
     }
 
