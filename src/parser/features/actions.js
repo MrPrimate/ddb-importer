@@ -293,16 +293,17 @@ function getAttackAction(ddb, character, action) {
     name: action.name,
     type: "weapon",
     data: JSON.parse(utils.getTemplate("weapon")),
+    flags: {
+      ddbimporter: {
+        id: action.id,
+      }
+    },
   };
 
   try {
     if (action.isMartialArts) {
-      weapon.flags = {
-        ddbimporter: {
-          dndbeyond: {
-            type: "Martial Arts",
-          },
-        },
+      weapon.flags.ddbimporter.dndbeyond = {
+        type: "Martial Arts",
       };
     }
 
@@ -359,6 +360,7 @@ function getUnarmedStrike(ddb, character) {
       activationTime: 1,
       activationType: 1,
     },
+    id: "unarmedStrike",
   };
   const unarmedStrike = getAttackAction(ddb, character, unarmedStrikeMock);
   return unarmedStrike;
@@ -410,6 +412,11 @@ function getOtherActions(ddb, character, items) {
         name: action.name,
         type: "feat",
         data: JSON.parse(utils.getTemplate("feat")),
+        flags: {
+          ddbimporter: {
+            id: action.id,
+          }
+        },
       };
       feat.data.activation = getActivation(action);
       feat.data.description = getDescription(ddb, character, action);

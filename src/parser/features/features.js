@@ -39,6 +39,7 @@ function parseFeature(feat, ddb, character, source, type) {
     data: JSON.parse(utils.getTemplate("feat")),
     flags: {
       ddbimporter: {
+        id: feat.id,
         dndbeyond: {
           requiredLevel: feat.requiredLevel,
           displayOrder:

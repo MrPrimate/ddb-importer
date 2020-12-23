@@ -313,6 +313,7 @@ function parseItem(ddb, data, character) {
       const filter = DICTIONARY.items.find((i) => i.filterType === data.definition.filterType);
       if (filter) item.flags.ddbimporter.dndbeyond['filterType'] = filter.filterType;
     }
+    item.flags.ddbimporter['id'] = data.id;
     return item;
   } catch (err) {
     logger.warn(

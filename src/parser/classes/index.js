@@ -32,6 +32,11 @@ export default function parseClasses(ddb) {
       name: characterClass.definition.name,
       type: 'class',
       data: JSON.parse(utils.getTemplate('class')),
+      flags: {
+        ddbimporter: {
+          id: characterClass.definition.id,
+        },
+      },
     };
 
     item.data.description = {

@@ -23,6 +23,7 @@ export function parseSpell(data, character) {
     data: JSON.parse(utils.getTemplate("spell")),
     flags: {
       ddbimporter: {
+        id: data.id,
         dndbeyond: data.flags.ddbimporter.dndbeyond,
       },
     },
