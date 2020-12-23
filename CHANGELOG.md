@@ -2,6 +2,7 @@
 
 * Dragonborn breath weapon was not parsing DC save type correctly.
 * Better detection of optional choices like Mask of the Wild for variant Half Elf's.
+* Support Dual Wielding AC Bonus.
 
 # v 0.2.7/0.2.8
 

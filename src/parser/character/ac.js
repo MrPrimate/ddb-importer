@@ -130,6 +130,23 @@ let getArmoredACBonuses = (modifiers, character) => {
   return armoredACBonuses;
 };
 
+function getDualWieldAC(data, modifiers) {
+  const dualWielding = data.character.characterValues.some((cv) => {
+    const equipped = data.character.inventory.some((item) => item.equipped && item.id == cv.valueId);
+    const dualWielding = cv.typeId === 18;
+    return equipped && dualWielding;
+  });
+  let dualWieldBonus = 0;
+
+  if (dualWielding) {
+    utils.filterModifiers(modifiers, "bonus", "dual-wield-armor-class").forEach((bonus) => {
+      dualWieldBonus += bonus.value;
+    });
+  }
+
+  return dualWieldBonus;
+}
+
 export function getArmorClass(data, character) {
   const overRideAC = data.character.characterValues.find((val) => val.typeId === 1);
 
@@ -199,6 +216,8 @@ export function getArmorClass(data, character) {
   miscACBonus += data.character.characterValues.filter((value) =>
     value.typeId === 3 || value.typeId === 2
   ).map((val) => val.value).reduce((a, b) => a + b, 0);
+
+  miscACBonus += getDualWieldAC(data, miscModifiers);
 
   // Each racial armor appears to be slightly different!
   // We care about Tortles and Lizardfolk here as they can use shields, but their
