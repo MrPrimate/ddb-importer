@@ -318,7 +318,7 @@ export default class DDBMuncher extends Application {
       {
         name: "monster-homebrew",
         isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew"),
-        description: "Include homebrew?",
+        description: (tiers.homebrew) ? "Include homebrew?" : "Include homebrew? [Undying or God tier patreon supporters]",
         enabled: tiers.homebrew,
       },
     ];
