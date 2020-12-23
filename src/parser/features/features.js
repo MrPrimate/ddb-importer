@@ -55,13 +55,11 @@ function parseFeature(feat, ddb, character, source, type) {
   let choices = utils.getChoices(ddb, type, feat);
 
   if (choices.length > 0) {
-    logger.debug(`Found ${choices.map((c) => c.label).join(',')}`);
+    logger.debug(`Found ${choices.map((c) => c.label).join(",")}`);
     choices.forEach((choice) => {
       logger.debug(`Adding choice ${choice.label}`);
       let choiceItem = JSON.parse(JSON.stringify(item));
-      let choiceFeat = (feat.definition) ?
-        JSON.parse(JSON.stringify(feat.definition)) :
-        JSON.parse(JSON.stringify(feat));
+      let choiceFeat = feat.definition ? JSON.parse(JSON.stringify(feat.definition)) : JSON.parse(JSON.stringify(feat));
 
       choiceItem.name = choice.label ? `${choiceItem.name}: ${choice.label}` : choiceItem.name;
       if (choiceFeat.description) {
@@ -111,9 +109,7 @@ function parseClassFeatures(ddb, character) {
   ddb.character.classes.forEach((klass) => {
     const classFeatures = klass.definition.classFeatures.filter(
       (feat) =>
-        feat.name !== "Proficiencies" &&
-        feat.name !== "Ability Score Improvement" &&
-        feat.requiredLevel <= klass.level
+        feat.name !== "Proficiencies" && feat.name !== "Ability Score Improvement" && feat.requiredLevel <= klass.level
     );
     const klassName = klass.definition.name;
     const klassFeatureList = classFeatures

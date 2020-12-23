@@ -1,7 +1,7 @@
 import DirectoryPicker from "./lib/DirectoryPicker.js";
-import DICTIONARY from './dictionary.js';
+import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
-import { DDB_CONFIG } from './ddb-config.js';
+import { DDB_CONFIG } from "./ddb-config.js";
 
 const PROXY = "https://proxy.vttassets.com/?url=";
 
@@ -120,13 +120,11 @@ let utils = {
           .filter((source) => definition.sources.some((ds) => source.id === ds.sourceId))
           .map((source) => {
             const dSource = definition.sources.find((ds) => source.id === ds.sourceId);
-            const page = (dSource.pageNumber) ? ` pg ${dSource.pageNumber}` : "";
-            const sourceBook = (dSource)
-              ? (fullSource) ? source.description : source.name
-              : "Homebrew";
+            const page = dSource.pageNumber ? ` pg ${dSource.pageNumber}` : "";
+            const sourceBook = dSource ? (fullSource ? source.description : source.name) : "Homebrew";
             return `${sourceBook}${page}`;
           })
-          .join(', ');
+          .join(", ");
       }
     } else {
       if (definition.sourceIds) {
@@ -138,7 +136,7 @@ let utils = {
         result.name = DDB_CONFIG.sources
           .filter((source) => source.id === definition.sourceId)
           .map((source) => {
-            const sourceBook = (fullSource) ? source.description : source.name;
+            const sourceBook = fullSource ? source.description : source.name;
             return sourceBook;
           });
       }
@@ -235,8 +233,7 @@ let utils = {
    * @param {object} feat options to search for
    */
   getChoices: (ddb, type, feat) => {
-    const id = (feat.id) ? feat.id : (feat.definition.id) ?
-      feat.definition.id : null;
+    const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
 
     /**
      * EXAMPLE: Totem Spirit: Bear
@@ -418,7 +415,6 @@ let utils = {
     return result;
   },
 
-
   capitalize: (s) => {
     if (typeof s !== "string") return "";
     return s.charAt(0).toUpperCase() + s.slice(1);
@@ -437,7 +433,8 @@ let utils = {
       http.open("HEAD", path);
       http.onreadystatechange = function () {
         if (this.readyState == this.DONE) {
-          if (this.status >= 200 && this.status <= 399) { // Assume any 2xx or 3xx responses mean the image is there.
+          if (this.status >= 200 && this.status <= 399) {
+            // Assume any 2xx or 3xx responses mean the image is there.
             resolve(path);
           } else {
             reject(path);
@@ -452,7 +449,7 @@ let utils = {
   fileExists: async (directoryPath, filename) => {
     try {
       let uri = utils.getFileUrl(directoryPath, filename);
-      logger.debug('Looking for file at ' + uri);
+      logger.debug("Looking for file at " + uri);
       await utils.serverFileExists(uri);
       return true;
     } catch (ignored) {
@@ -527,7 +524,7 @@ let utils = {
               reject("Could not retrieve image");
             }
             return response.blob();
-})
+          })
           .then((blob) => resolve(blob))
           .catch((error) => reject(error.message));
       });
@@ -831,13 +828,26 @@ let utils = {
     let uri;
     try {
       let dir = DirectoryPicker.parse(directoryPath);
-      if (dir.activeSource == 'data') { // Local on-server file system
-        uri = dir.current + '/' + filename;
-      } else { // S3 Bucket
-        uri = game.data.files.s3.endpoint.protocol + '//' + dir.bucket + '.' + game.data.files.s3.endpoint.hostname + "/" + dir.current + '/' + filename;
+      if (dir.activeSource == "data") {
+        // Local on-server file system
+        uri = dir.current + "/" + filename;
+      } else {
+        // S3 Bucket
+        uri =
+          game.data.files.s3.endpoint.protocol +
+          "//" +
+          dir.bucket +
+          "." +
+          game.data.files.s3.endpoint.hostname +
+          "/" +
+          dir.current +
+          "/" +
+          filename;
       }
     } catch (exception) {
-      throw new Error('Unable to determine file URL for directoryPath"' + directoryPath + '" and filename"' + filename + '"');
+      throw new Error(
+        'Unable to determine file URL for directoryPath"' + directoryPath + '" and filename"' + filename + '"'
+      );
     }
     return uri;
   },
@@ -888,7 +898,7 @@ let utils = {
 
   isModuleInstalledAndActive: (moduleName) => {
     return game.modules.has(moduleName) && game.modules.get(moduleName).active;
-  }
+  },
 };
 
 export default utils;

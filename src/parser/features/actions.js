@@ -213,8 +213,7 @@ function calculateSaveAttack(action, weapon) {
   };
 
   const fixedDC = (action.fixedSaveDc) ? action.fixedSaveDc : null;
-  const scaling = (fixedDC) ? fixedDC : (action.abilityModifierStatId) ?
-    DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
+  const scaling = (fixedDC) ? fixedDC : (action.abilityModifierStatId) ? DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
 
 
   weapon.data.save = {
