@@ -26,7 +26,7 @@ export function buildBase(data) {
   result.data.description.value += `${data.description}\n\n`;
 
   result.flags.ddbimporter = {
-    classId: data.id,
+    id: data.id,
   };
 
   if (data.moreDetailsUrl) {
@@ -37,7 +37,7 @@ export function buildBase(data) {
 
   return result;
 }
-export function getClassFeature(feature, className, subClassName) {
+export function getClassFeature(feature, klass, subClassName="") {
   logger.debug("Class feature build started");
 
   let result = buildBase(feature);
@@ -45,8 +45,9 @@ export function getClassFeature(feature, className, subClassName) {
   result.flags.ddbimporter['featureId'] = feature.id;
   result.flags.ddbimporter['requiredLevel'] = feature.requiredLevel;
   result.flags.ddbimporter['prerequisite'] = feature.prerequisite;
-  result.flags.ddbimporter['class'] = className;
-  result.flags.ddbimporter['subClass'] = "";
+  result.flags.ddbimporter['class'] = klass.name;
+  result.flags.ddbimporter['classId'] = klass.id;
+  result.flags.ddbimporter['subClass'] = subClassName;
 
   return result;
 }
