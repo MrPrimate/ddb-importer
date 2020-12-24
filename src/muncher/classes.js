@@ -40,7 +40,7 @@ export async function parseClasses() {
   const classesResults = await getClassesData();
 
   return classesResults;
-  //return classesResults.concat(subClassResults);
+  // return classesResults.concat(subClassResults);
 }
 
 

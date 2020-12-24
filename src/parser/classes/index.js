@@ -72,11 +72,11 @@ export default function parseClasses(ddb) {
     //     : []);
 
     const classProficiencyFeatureIds = characterClass.definition.classFeatures
-    .filter((feature) => feature.name === "Proficiencies" )
+    .filter((feature) => feature.name === "Proficiencies")
     .map((feature) => feature.id)
     .concat((characterClass.subclassDefinition)
       ? characterClass.subclassDefinition.classFeatures
-        .filter((feature) => feature.name === "Proficiencies" )
+        .filter((feature) => feature.name === "Proficiencies")
         .map((feature) => feature.id)
       : []);
 
@@ -107,7 +107,7 @@ export default function parseClasses(ddb) {
       );
       optionNames.forEach((skill) => {
         if (!skillChoices.includes(skill)) {
-          skillChoices.push(skill)
+          skillChoices.push(skill);
         }
       });
     });

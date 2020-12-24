@@ -6,7 +6,7 @@ import { getImagePath, getCompendiumLabel, updateCompendium, srdFiddling, munchN
 
 async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
   let result = buildBase(klass);
-  console.warn(`Parsing ${klass.name}`);
+  logger.debug(`Parsing ${klass.name}`);
 
   result.type = "class";
 
@@ -42,12 +42,17 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
   // eslint-disable-next-line require-atomic-updates
   result.data.description.value += image;
 
+  // eslint-disable-next-line require-atomic-updates
   result.flags.ddbimporter['parentClassId'] = klass.parentClassId;
+  // eslint-disable-next-line require-atomic-updates
   result.flags.ddbimporter['hitDice'] = klass.hitDice;
+  // eslint-disable-next-line require-atomic-updates
   result.flags.ddbimporter['spellCastingAbilityId'] = klass.spellCastingAbilityId;
 
   // setup data
+  // eslint-disable-next-line require-atomic-updates
   result.data.levels = 1;
+  // eslint-disable-next-line require-atomic-updates
   result.data.hitDice = `d${klass.hitDice}`;
 
   let spellcasting = "";
@@ -57,6 +62,7 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
       spellcasting = spellProgression.value;
     }
   }
+  // eslint-disable-next-line require-atomic-updates
   result.data.spellcasting = spellcasting;
 
   // this can be used with the add class response
@@ -83,6 +89,7 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
   if (allMatch) {
     const skills = DICTIONARY.character.skills.map((skill) => skill.name);
     const numberSkills = DICTIONARY.numbers.find((num) => allMatch[1].toLowerCase() === num.natural);
+    // eslint-disable-next-line require-atomic-updates
     result.data.skills = {
       number: numberSkills ? numberSkills.num : 2,
       choices: skills,
@@ -96,6 +103,7 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
       return dictSkill.name;
     });
     const numberSkills = DICTIONARY.numbers.find((num) => skillMatch[1].toLowerCase() === num.natural);
+    // eslint-disable-next-line require-atomic-updates
     result.data.skills = {
       number: numberSkills ? numberSkills.num : 2,
       choices: skills,
@@ -105,8 +113,8 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
 
   // "moreDetailsUrl": "/characters/classes/rogue",
 
-  console.warn(`Still parsing ${klass.name}`);
   if (klass.equipmentDescription) {
+    // eslint-disable-next-line require-atomic-updates
     result.data.description.value += `<p><b>Starting Equipment</b></p>\n${klass.equipmentDescription}\n\n`;
   }
 
@@ -115,19 +123,18 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
   klass.classFeatures.forEach((feature) => {
     const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
 
-    //sort by level?
+    // sort by level?
     if (!classFeaturesAdded) {
       const featureMatch = compendiumClassFeatures.find((match) => feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() && match.flags.ddbimporter && match.flags.ddbimporter.classId == klass.id);
       const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
 
+      // eslint-disable-next-line require-atomic-updates
       result.data.description.value += `${title}\n${feature.description}\n\n`;
       classFeatures.push(feature.name);
     }
 
   });
 
-  console.warn(`Result! ${klass.name}`);
-  console.log(result);
 
   return result;
 }
@@ -186,7 +193,7 @@ export async function getClasses(data) {
 
   const fiddledClasses = await srdFiddling(klasses, "classes");
   munchNote(`Importing ${fiddledClasses.length} classes!`, true);
-console.warn(fiddledClasses);
+
   await updateCompendium("classes", { classes: fiddledClasses }, updateBool);
 
   return fiddledClasses.concat(fiddledClassFeatures);

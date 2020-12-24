@@ -37,7 +37,7 @@ export function buildBase(data) {
 
   return result;
 }
-export function getClassFeature(feature, klass, subClassName="") {
+export function getClassFeature(feature, klass, subClassName = "") {
   logger.debug("Class feature build started");
 
   let result = buildBase(feature);

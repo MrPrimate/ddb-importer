@@ -11,6 +11,7 @@ import {
   getDDBEquipmentIcons,
   getDDBSpellSchoolIcons,
   getDDBGenericItemIcons,
+  getCampaignId,
 } from "../muncher/import.js";
 import { getCharacterOptions } from "./options.js";
 
@@ -158,7 +159,7 @@ async function getCharacterData(characterId) {
       })
       .then((data) => {
         if (data.classOptions) {
-          return data
+          return data;
         } else {
           return getCharacterOptions(data.ddb).then((classOptions) => {
             data.classOptions = classOptions;
