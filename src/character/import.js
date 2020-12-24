@@ -132,7 +132,9 @@ async function getCharacterData(characterId) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
-  const body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId };
+  const campaignId = getCampaignId();
+  const proxyCampaignId = campaignId === "" ? null : campaignId;
+  const body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/character`, {
@@ -155,10 +157,14 @@ async function getCharacterData(characterId) {
         return data;
       })
       .then((data) => {
-        return getCharacterOptions(data.ddb).then((classOptions) => {
-          data.classOptions = classOptions;
-          return data;
-        });
+        if (data.classOptions) {
+          return data
+        } else {
+          return getCharacterOptions(data.ddb).then((classOptions) => {
+            data.classOptions = classOptions;
+            return data;
+          });
+        }
       })
       .then((data) => {
         // construct the expected { character: {...} } object

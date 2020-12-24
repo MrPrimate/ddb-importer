@@ -1,6 +1,7 @@
 # v 0.2.10
 
 * Better class skill detection
+* Pull in spells granted by optional class features and Dragonmarked races
 
 # v 0.2.9
 
