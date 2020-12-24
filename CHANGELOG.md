@@ -1,3 +1,7 @@
+# v 0.2.10
+
+* Better class skill detection
+
 # v 0.2.9
 
 * Dragonborn breath weapon was not parsing DC save type correctly.

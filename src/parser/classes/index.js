@@ -65,33 +65,57 @@ export default function parseClasses(ddb) {
 
     // There class object supports skills granted by the class.
     // Lets find and add them for future compatibility.
-    const classIds = characterClass.definition.classFeatures
-      .map((feature) => feature.id)
-      .concat((characterClass.subclassDefinition)
-        ? characterClass.subclassDefinition.classFeatures.map((feature) => feature.id)
-        : []);
+    // const classFeatureIds = characterClass.definition.classFeatures
+    //   .map((feature) => feature.id)
+    //   .concat((characterClass.subclassDefinition)
+    //     ? characterClass.subclassDefinition.classFeatures.map((feature) => feature.id)
+    //     : []);
 
-    // const profs = DICTIONARY.character.skills.map((skill) => {
-    //   return ddb.character.modifiers.class
-    //   .filter((mod) =>
-    //     mod.friendlySubtypeName === skill.label &&
-    //     classIds.includes(mod.componentId))
-    //   .map((f) => skill.name);
-    // }).flat();
+    const classProficiencyFeatureIds = characterClass.definition.classFeatures
+    .filter((feature) => feature.name === "Proficiencies" )
+    .map((feature) => feature.id)
+    .concat((characterClass.subclassDefinition)
+      ? characterClass.subclassDefinition.classFeatures
+        .filter((feature) => feature.name === "Proficiencies" )
+        .map((feature) => feature.id)
+      : []);
 
-    const profs = DICTIONARY.character.skills
-      .filter((skill) =>
-        ddb.character.modifiers.class
-          .filter((mod) =>
-            mod.friendlySubtypeName === skill.label &&
-            classIds.includes(mod.componentId)
-          )
-      )
-      .map((skill) => skill.name);
+    // const classSkillSubType = `choose-a-${characterClass.definition.name.toLowerCase()}-skill`;
+    // const skillIds = ddb.character.modifiers.class
+    //   .filter((mod) => mod.subType === classSkillSubType && mod.type === "proficiency")
+    //   .map((mod) => mod.componentId);
 
+    // "subType": 1,
+    // "type": 2,
+
+    let skillsChosen = [];
+    let skillChoices = [];
+    ddb.character.choices.class.filter((choice) =>
+      classProficiencyFeatureIds.includes(choice.componentId) &&
+      choice.subType === 1 &&
+      choice.type === 2
+    ).forEach((choice) => {
+      const option = choice.options.find((option) => option.id === choice.optionValue);
+      const smallChosen = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
+      if (smallChosen && !skillsChosen.includes(smallChosen.name)) {
+        skillsChosen.push(smallChosen.name);
+      }
+      const optionNames = choice.options.filter((option) =>
+        DICTIONARY.character.skills.some((skill) => skill.label === option.label)
+      ).map((option) =>
+        DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
+      );
+      optionNames.forEach((skill) => {
+        if (!skillChoices.includes(skill)) {
+          skillChoices.push(skill)
+        }
+      });
+    });
 
     item.data.skills = {
-      value: profs
+      value: skillsChosen,
+      number: skillsChosen.length,
+      choices: skillChoices,
     };
 
     const castSpells = (characterClass.definition.canCastSpells ||
