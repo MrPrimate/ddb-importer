@@ -9,10 +9,14 @@ const MONSTER_TYPES = INVENTORY_TYPES.concat("feat");
 // a mapping of compendiums with content type
 const compendiumLookup = [
   { type: "inventory", compendium: "entity-item-compendium" },
+  { type: "item", compendium: "entity-item-compendium" },
   { type: "spells", compendium: "entity-spell-compendium" },
+  { type: "spell", compendium: "entity-spell-compendium" },
   { type: "features", compendium: "entity-feature-compendium" },
   { type: "classes", compendium: "entity-class-compendium" },
+  { type: "class", compendium: "entity-class-compendium" },
   { type: "races", compendium: "entity-race-compendium" },
+  { type: "race", compendium: "entity-race-compendium" },
   { type: "npc", compendium: "entity-monster-compendium" },
   { type: "monsters", compendium: "entity-monster-compendium" },
   { type: "feat", name: "entity-feature-compendium" },
