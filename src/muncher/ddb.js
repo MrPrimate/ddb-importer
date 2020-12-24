@@ -5,6 +5,7 @@ import { parseItems } from "./items.js";
 import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
 import { parseRaces } from "./races.js";
+import { parseClasses } from "./classes.js";
 import { munchNote } from "./import.js";
 import DirectoryPicker from "../lib/DirectoryPicker.js";
 
@@ -95,6 +96,11 @@ export default class DDBMuncher extends Application {
       munchNote(`Downloading items...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseRaces();
+    });
+    html.find("#munch-classes-start").click(async () => {
+      munchNote(`Downloading classes...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.parseClasses();
     });
 
     html.find("#munch-monsters-config").on("click", async (event) => {
@@ -200,7 +206,7 @@ export default class DDBMuncher extends Application {
     }
     if (cobalt && tier === "GOD") {
       $('button[id^="munch-races-start"]').prop('disabled', false);
-      // $('button[id^="munch-classes-start"]').prop('disabled', false);
+      $('button[id^="munch-classes-start"]').prop('disabled', false);
     }
   }
 
@@ -254,6 +260,19 @@ export default class DDBMuncher extends Application {
       logger.info("Munching races!");
       const result = await parseRaces();
       munchNote(`Finished importing ${result.length} races and features!`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
+  }
+
+  static async parseClasses() {
+    try {
+      logger.info("Munching classes!");
+      const result = await parseClasses();
+      munchNote(`Finished importing ${result.length} classes and features!`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {

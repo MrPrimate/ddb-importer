@@ -1,7 +1,8 @@
 # v 0.2.10
 
 * Better class skill detection
-* Pull in spells granted by optional class features and Dragonmarked races
+* Pull in spells granted by optional class features and Dragonmarked races (patreon supporters only)
+* [BETA] Initial class munching - God tier supporters only. No subclasses or subclass features. Yet.
 
 # v 0.2.9
 

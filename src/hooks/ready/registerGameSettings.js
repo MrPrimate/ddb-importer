@@ -128,15 +128,15 @@ export default function () {
     choices: itemCompendiums,
   });
 
-  // game.settings.register("ddb-importer", "entity-class-compendium", {
-  //   name: "ddb-importer.entity-class-compendium.name",
-  //   hint: "ddb-importer.entity-class-compendium.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: String,
-  //   isSelect: true,
-  //   choices: itemCompendiums,
-  // });
+  game.settings.register("ddb-importer", "entity-class-compendium", {
+    name: "ddb-importer.entity-class-compendium.name",
+    hint: "ddb-importer.entity-class-compendium.hint",
+    scope: "world",
+    config: true,
+    type: String,
+    isSelect: true,
+    choices: itemCompendiums,
+  });
 
   game.settings.register("ddb-importer", "entity-race-compendium", {
     name: "ddb-importer.entity-race-compendium.name",
