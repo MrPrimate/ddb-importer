@@ -782,10 +782,12 @@ export default class CharacterImport extends Application {
       await DAE.migrateActorDAESRD(this.actor, false);
     }
 
-    const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
-    if (activeEffectCopy) {
-      this.actor.effects = this.actorOriginal.effects;
-    }
+    // revisit this, not as simple as copying over, need to lookup exisiting active effects and mark active
+    // may need to call funciton to transfer effects to actor.
+    // const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
+    // if (activeEffectCopy) {
+    //   this.actor.effects = this.actorOriginal.effects;
+    // }
 
     this.close();
   }
