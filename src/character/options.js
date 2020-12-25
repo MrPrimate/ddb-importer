@@ -1,6 +1,5 @@
 import logger from "../logger.js";
 import {
-  getCampaignId,
   download,
 } from "../muncher/import.js";
 
