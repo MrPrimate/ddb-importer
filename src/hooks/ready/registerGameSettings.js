@@ -148,6 +148,16 @@ export default function () {
     choices: itemCompendiums,
   });
 
+  game.settings.register("ddb-importer", "entity-trait-compendium", {
+    name: "ddb-importer.entity-trait-compendium.name",
+    hint: "ddb-importer.entity-trait-compendium.hint",
+    scope: "world",
+    config: true,
+    type: String,
+    isSelect: true,
+    choices: itemCompendiums,
+  });
+
   game.settings.register("ddb-importer", "entity-spell-compendium", {
     name: "ddb-importer.entity-spell-compendium.name",
     hint: "ddb-importer.entity-spell-compendium.hint",

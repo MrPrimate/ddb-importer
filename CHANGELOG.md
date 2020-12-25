@@ -1,3 +1,8 @@
+# v 0.2.11
+
+* Racial traits now have their own compendium
+* Features compendium when created is now named "Class Features" by default
+
 # v 0.2.10
 
 * Better class skill detection

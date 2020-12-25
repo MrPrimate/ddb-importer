@@ -124,11 +124,11 @@ export async function getRaces(data) {
     });
   });
 
-  const fiddledRacialFeatures = await srdFiddling(racialFeatures, "races");
+  const fiddledRacialFeatures = await srdFiddling(racialFeatures, "traits");
   munchNote(`Importing ${fiddledRacialFeatures.length} traits!`, true);
-  await updateCompendium("races", { races: fiddledRacialFeatures }, updateBool);
+  await updateCompendium("traits", { traits: fiddledRacialFeatures }, updateBool);
 
-  const compendiumLabel = getCompendiumLabel("races");
+  const compendiumLabel = getCompendiumLabel("traits");
   const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
   const index = await compendium.getIndex();
   const firstPassTraits = await index.filter((i) => fiddledRacialFeatures.some((orig) => i.name === orig.name));
