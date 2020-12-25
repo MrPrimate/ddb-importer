@@ -3,7 +3,9 @@ import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";
 
-const PROXY = "https://proxy.vttassets.com/?url=";
+// const PROXY = "https://proxy.vttassets.com/?url=";
+const PROXY = "https://i.vtta.io/dl/";
+const URL_ENCODE = true;
 
 let utils = {
   debug: () => {
@@ -569,7 +571,8 @@ let utils = {
 
     // uploading the character avatar and token
     try {
-      url = useProxy ? PROXY + url : url;
+      const target = URL_ENCODE ? encodeURIComponent(url) : url;
+      url = useProxy ? PROXY + target : url;
       // console.error(`URL: ${url}`);
       let result = await process(url, targetDirectory, filename + "." + ext);
       return result;
