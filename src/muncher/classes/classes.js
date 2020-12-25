@@ -5,7 +5,7 @@ import { buildBase, getClassFeature } from "./shared.js";
 import { getImagePath, getCompendiumLabel, updateCompendium, srdFiddling } from "../import.js";
 import { munchNote } from "../utils.js";
 
-async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
+export async function buildBaseClass(klass) {
   let result = buildBase(klass);
   logger.debug(`Parsing ${klass.name}`);
 
@@ -119,6 +119,13 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
     result.data.description.value += `<p><b>Starting Equipment</b></p>\n${klass.equipmentDescription}\n\n`;
   }
 
+  return result;
+}
+
+
+export async function buildClassFeatures(klass, compendiumClassFeatures, compendiumLabel) {
+  logger.debug(`Parsing ${klass.name} features`);
+  let description = "";
   let classFeatures = [];
 
   klass.classFeatures.forEach((feature) => {
@@ -130,13 +137,19 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
       const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
 
       // eslint-disable-next-line require-atomic-updates
-      result.data.description.value += `${title}\n${feature.description}\n\n`;
+      description += `${title}\n${feature.description}\n\n`;
       classFeatures.push(feature.name);
     }
 
   });
 
+  return description;
+}
 
+
+async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
+  let result = buildBaseClass(klass);
+  result.data.description.value = buildClassFeatures(klass, compendiumClassFeatures, compendiumLabel);
   return result;
 }
 
