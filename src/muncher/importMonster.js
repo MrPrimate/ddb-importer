@@ -128,6 +128,10 @@ async function getNPCImage(data) {
   // eslint-disable-next-line require-atomic-updates
   if (!data.img && data.token.img) data.img = data.token.img;
 
+  // final check if image comes back as null
+  if (data.img === null) data.img = "icons/svg/mystery-man.svg";
+  if (data.token.img === null) data.token.img = "icons/svg/mystery-man.svg"
+
   return true;
 }
 
