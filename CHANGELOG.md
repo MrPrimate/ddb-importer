@@ -2,6 +2,7 @@
 
 * Racial traits now have their own compendium
 * Features compendium when created is now named "Class Features" by default
+* Bug where image check came back as null and import failed
 
 # v 0.2.10
 
