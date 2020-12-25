@@ -9,11 +9,10 @@ export async function getCharacterOptions(ddb) {
   if (ddb.preferences.enableOptionalClassFeatures) {
     const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
     const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-    const campaignId = getCampaignId();
-    const proxyCampaignId = campaignId === "" ? null : campaignId;
+    const campaignId = (result.campaign.id && result.campaign.id !== "") ? result.campaign.id : null;
     const betaKey = game.settings.get("ddb-importer", "beta-key");
     const optionIds = ddb.optionalClassFeatures.map((opt) => opt.classFeatureId);
-    const body = { cobalt: cobaltCookie, betaKey: betaKey, ids: optionIds, campaignId: proxyCampaignId };
+    const body = { cobalt: cobaltCookie, betaKey: betaKey, ids: optionIds, campaignId: campaignId };
 
     return new Promise((resolve) => {
       fetch(`${parsingApi}/proxy/character/options`, {
