@@ -15,13 +15,15 @@ export class DDBSetup extends FormApplication {
     options.width = 500;
     return options;
   }
-  get title() {
+
+  get title() { // eslint-disable-line class-methods-use-this
     // improve localisation
     // game.i18n.localize("")
     return "DDB Importer Settings";
   }
+
   /** @override */
-  async getData() {
+  async getData() { // eslint-disable-line class-methods-use-this
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
@@ -50,9 +52,10 @@ export class DDBSetup extends FormApplication {
       tiers: tiers,
     };
   }
+
   /** @override */
   // eslint-disable-next-line no-unused-vars
-  async _updateObject(event, formData) {
+  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
     const imageDir = formData['image-upload-directory'];
     const campaignId = formData['campaign-id'];
@@ -85,7 +88,7 @@ export class DDBSetup extends FormApplication {
         game.settings.set("ddb-importer", "settings-call-muncher", false);
         new DDBMuncher().render(true);
       }
-      //this.close();
+      // this.close();
     }
   }
 }
@@ -114,28 +117,15 @@ export class DDBCompendiumSetup extends FormApplication {
     options.width = 500;
     return options;
   }
-  get title() {
+
+  get title() { // eslint-disable-line class-methods-use-this
     // improve localisation
     // game.i18n.localize("")
     return "DDB Importer Compendium Settings";
   }
+
   /** @override */
-  async getData() {
-
-    const actorCompendiumSelections = game.packs
-    .filter((pack) => pack.entity === "Actor")
-    .reduce((choices, pack) => {
-      choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-      return choices;
-    }, {});
-
-    const itemCompendiumSelections = game.packs
-      .filter((pack) => pack.entity === "Item")
-      .reduce((choices, pack) => {
-        choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-        return choices;
-      }, {});
-
+  async getData() { // eslint-disable-line class-methods-use-this
     const settings = [
       {
         name: "auto-create-compendium",
@@ -202,13 +192,12 @@ export class DDBCompendiumSetup extends FormApplication {
       compendiums: compendiums,
     };
   }
+
   /** @override */
   // eslint-disable-next-line no-unused-vars
-  async _updateObject(event, formData) {
+  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
-    console.warn(formData);
     for (const [key, value] of Object.entries(formData)) {
-      console.log(key, value);
       game.settings.set("ddb-importer", key, value);
     }
   }

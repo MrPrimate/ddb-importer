@@ -16,7 +16,7 @@ export default function () {
       return choices;
     }, {});
 
-  game.settings.registerMenu("ddb-importer",'setupMenu',{
+  game.settings.registerMenu("ddb-importer", 'setupMenu', {
     name: "ddb-importer.setup.name",
     label: "ddb-importer.setup.name",
     hint: "ddb-importer.setup.hint",
@@ -25,7 +25,7 @@ export default function () {
     restricted: true
   });
 
-  game.settings.registerMenu("ddb-importer",'compendiumMenu',{
+  game.settings.registerMenu("ddb-importer", 'compendiumMenu', {
     name: "ddb-importer.compendium-setup.name",
     label: "ddb-importer.compendium-setup.name",
     hint: "ddb-importer.setup.hint",
