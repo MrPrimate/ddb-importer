@@ -39,7 +39,7 @@ export async function buildBaseClass(klass) {
     }
   }
 
-  const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
+  const image = (avatarUrl) ? `<img class="ddb-class-image" src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n` : `<img class="ddb-class-image" src="">`;
   // eslint-disable-next-line require-atomic-updates
   result.data.description.value += image;
 
