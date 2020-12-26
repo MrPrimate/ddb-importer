@@ -316,8 +316,9 @@ export default class CharacterImport extends Application {
   async updateImage(html, data) {
     // updating the image?
     let imagePath = this.actor.img;
+    const userHasPermission = !(game.settings.get("ddb-importer", "restrict-to-trusted") && !game.user.isTrusted);
     if (
-      game.user.isTrusted &&
+      userHasPermission &&
       data.avatarUrl &&
       data.avatarUrl !== "" &&
       (imagePath.indexOf("mystery-man") !== -1 || game.settings.get("ddb-importer", "character-update-policy-image"))
