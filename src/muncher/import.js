@@ -1,6 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
+import { munchNote } from "./utils.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const INVENTORY_TYPES = EQUIPMENT_TYPES.concat("weapon");
@@ -73,36 +74,6 @@ const gameFolderLookup = [
   },
 ];
 
-/**
- * Display information when Munching
- * @param {*} note
- * @param {*} nameField
- */
-export function munchNote(note, nameField = false, monsterNote = false) {
-  if (nameField) {
-    $('#munching-task-name').text(note);
-    $('#ddb-importer-monsters').css("height", "auto");
-  } else if (monsterNote) {
-    $('#munching-task-monster').text(note);
-    $('#ddb-importer-monsters').css("height", "auto");
-  } else {
-    $('#munching-task-notes').text(note);
-    $('#ddb-importer-monsters').css("height", "auto");
-  }
-}
-
-export function getCampaignId() {
-  const campaignId = game.settings.get("ddb-importer", "campaign-id").split('/').pop();
-
-  if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
-    munchNote(`Campaign Id is invalid! ${campaignId}`, true);
-    throw new Error(`Campaign Id is invalid! ${campaignId}`);
-  } else if (campaignId.includes("join")) {
-    munchNote(`Campaign URL is a join campaign link, please change it! ${campaignId}`, true);
-    throw new Error(`Campaign URL is a join campaign link, please change it! ${campaignId}`);
-  }
-  return campaignId;
-}
 
 /**
  * Removes items
@@ -615,14 +586,6 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
     }
   }
   return null;
-}
-
-export function download(content, fileName, contentType) {
-  var a = document.createElement("a");
-  var file = new Blob([content], { type: contentType });
-  a.href = URL.createObjectURL(file);
-  a.download = fileName;
-  a.click();
 }
 
 export async function getSRDCompendiumItems(items, type, looseMatch = false) {

@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import {
   download,
-} from "../muncher/import.js";
+} from "../muncher/utils.js";
 
 export async function getCharacterOptions(ddb) {
 

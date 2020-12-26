@@ -1,6 +1,6 @@
 // Main module class
-import { munchNote, getCampaignId, download } from "./import.js";
 import { getClasses } from "./classes/classes.js";
+import { munchNote, getCampaignId, download } from "./utils.js";
 
 function getClassesData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");

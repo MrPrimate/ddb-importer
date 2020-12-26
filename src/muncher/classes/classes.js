@@ -2,7 +2,8 @@ import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 
 import { buildBase, getClassFeature } from "./shared.js";
-import { getImagePath, getCompendiumLabel, updateCompendium, srdFiddling, munchNote } from "../import.js";
+import { getImagePath, getCompendiumLabel, updateCompendium, srdFiddling } from "../import.js";
+import { munchNote } from "../utils.js";
 
 async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
   let result = buildBase(klass);

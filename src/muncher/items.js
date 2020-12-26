@@ -1,5 +1,6 @@
 // Main module class
-import { updateCompendium, srdFiddling, addMagicItemSpells, munchNote, getCampaignId, download } from "./import.js";
+import { updateCompendium, srdFiddling, addMagicItemSpells } from "./import.js";
+import { munchNote, getCampaignId, download } from "./utils.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils.js";
 

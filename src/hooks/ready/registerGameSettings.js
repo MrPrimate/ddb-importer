@@ -1,4 +1,5 @@
 import DirectoryPicker from "../../lib/DirectoryPicker.js";
+import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
 
 export default function () {
   const actorCompendiums = game.packs
@@ -15,11 +16,29 @@ export default function () {
       return choices;
     }, {});
 
+  game.settings.registerMenu("ddb-importer", 'setupMenu', {
+    name: "ddb-importer.setup.name",
+    label: "ddb-importer.setup.name",
+    hint: "ddb-importer.setup.hint",
+    icon: 'fas fa-wrench',
+    type: DDBSetup,
+    restricted: true
+  });
+
+  game.settings.registerMenu("ddb-importer", 'compendiumMenu', {
+    name: "ddb-importer.compendium-setup.name",
+    label: "ddb-importer.compendium-setup.name",
+    hint: "ddb-importer.setup.hint",
+    icon: 'fas fa-wrench',
+    type: DDBCompendiumSetup,
+    restricted: true
+  });
+
   game.settings.register("ddb-importer", "image-upload-directory", {
     name: "ddb-importer.image-upload-directory.name",
     hint: "ddb-importer.image-upload-directory.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: DirectoryPicker.Directory,
     default: "[data] ",
   });
@@ -72,11 +91,19 @@ export default function () {
   //   ],
   // });
 
+  game.settings.register("ddb-importer", "settings-call-muncher", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+
   game.settings.register("ddb-importer", "auto-create-compendium", {
     name: "ddb-importer.auto-create-compendium.name",
     hint: "ddb-importer.auto-create-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
   });
@@ -112,7 +139,7 @@ export default function () {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -122,7 +149,7 @@ export default function () {
     name: "ddb-importer.entity-feature-compendium.name",
     hint: "ddb-importer.entity-feature-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -132,7 +159,7 @@ export default function () {
     name: "ddb-importer.entity-class-compendium.name",
     hint: "ddb-importer.entity-class-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -142,7 +169,7 @@ export default function () {
     name: "ddb-importer.entity-race-compendium.name",
     hint: "ddb-importer.entity-race-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -152,7 +179,7 @@ export default function () {
     name: "ddb-importer.entity-trait-compendium.name",
     hint: "ddb-importer.entity-trait-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -162,7 +189,7 @@ export default function () {
     name: "ddb-importer.entity-spell-compendium.name",
     hint: "ddb-importer.entity-spell-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -172,7 +199,7 @@ export default function () {
     name: "ddb-importer.entity-monster-compendium.name",
     hint: "ddb-importer.entity-monster-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: actorCompendiums,
@@ -217,7 +244,7 @@ export default function () {
     name: "ddb-importer.beta-key.name",
     hint: "ddb-importer.beta-key.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "",
   });
@@ -550,7 +577,7 @@ export default function () {
     name: "ddb-importer.cobalt-cookie.name",
     hint: "ddb-importer.cobalt-cookie.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "",
   });
@@ -558,7 +585,7 @@ export default function () {
     name: "ddb-importer.campaign-id.name",
     hint: "ddb-importer.campaign-id.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "",
   });

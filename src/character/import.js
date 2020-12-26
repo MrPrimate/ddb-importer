@@ -7,13 +7,12 @@ import {
   getCompendiumItems,
   getSRDCompendiumItems,
   copySRDIcons,
-  download,
   getDDBEquipmentIcons,
   getDDBSpellSchoolIcons,
   getDDBGenericItemIcons,
-  getCampaignId,
 } from "../muncher/import.js";
 import { getCharacterOptions } from "./options.js";
+import { download, getCampaignId } from "../muncher/utils.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 

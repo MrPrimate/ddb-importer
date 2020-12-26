@@ -27,7 +27,8 @@
     "SettingsConfig": true,
     "ui": true,
     "canvas": true,
-    "DAE": true
+    "DAE": true,
+    "FormApplication": true
   },
   "parserOptions": {
     "ecmaVersion": 2018,

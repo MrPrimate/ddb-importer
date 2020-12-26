@@ -1,0 +1,43 @@
+
+<h2>DDB Importer Configuration!</h2>
+<p>Hello! I'm sure your <i>itching</i> to get going, but first we need to do some setup!</p>
+<p>If you need help getting setup checkout the following YouTube videos:</p>
+<p>
+  <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Amazing Overview (Install, Setup, How to Use)</a> is recommended!</li>
+  <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
+  <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
+</p>
+
+<div class="form-description">
+  <form id="ddb-importer-settings" autocomplete="off" onsubmit="event.preventDefault();">
+    <hr>
+    <h3>[Required] A location for image uploads</h3>
+    <p>These can't be stored in your root data folder, create a place for them to live.</p>
+      <input class="setup-config" type="text" data-dtype="Directory" name="image-upload-directory" style="flex: 0 1 auto" ;
+        value="{{setupConfig.image-upload-directory}}" />
+    <hr>
+    <h3>[Required] A Cobalt Cookie</h3>
+    <p>Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome extension</a> to get this! Or follow <a href="https://cdn.discordapp.com/attachments/761196994898165781/781176499155238942/manually-find-cookie.png">these manual steps</a>.</p>
+      <input class="setup-config" type="password" name="cobalt-cookie" style="flex: 0 1 auto" ;
+        value="{{setupConfig.cobalt-cookie}}" />
+    <hr>
+    <h3>[Optional] Campaign URL/ID</h3>
+    <p>Only needed if you're shared content via a Campaign. Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/1234567 or 1234567. Don't enter the URL used to <i>join</i> a campaign.</p>
+      <input class="setup-config" type="text" name="campaign-id" style="flex: 0 1 auto" ;
+        value="{{setupConfig.campaign-id}}" />
+    <hr>
+    <h3>[Optional] Patreon Key</hr>
+    <p><a href="https://www.patreon.com/MrPrimate">Patreon Supporter?</a> Enter your Patreon Key here to unlock features!</p>
+    <p>Currently Monster Munching is only available to Patreon Supporters.</p>
+    <input class="setup-config" type="password" name="beta-key" style="flex: 0 1 auto" ;
+      value="{{setupConfig.beta-key}}" />
+    <hr>
+    <p>If you need to change these settings in the future, you can do it in the module settings page.</p>
+    <hr>
+    <div class="munching-task-setup" id="munching-task-setup" style="color: red">
+      {{#unless campaignIdCorrect}}Incorrect CampaignID/URL! You have used the campaign join URL, please change{{/unless}}<br />
+    </div>
+    <button id="munch-settings" class="munch-button" type="submit">Save</button>
+  </form>
+</div>
+

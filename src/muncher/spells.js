@@ -1,5 +1,6 @@
 // Main module class
-import { updateCompendium, srdFiddling, munchNote, getCampaignId, download } from "./import.js";
+import { updateCompendium, srdFiddling } from "./import.js";
+import { munchNote, getCampaignId, download } from "./utils.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 
 function getSpellData(className) {

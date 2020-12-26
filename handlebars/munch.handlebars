@@ -1,152 +1,98 @@
 <div>
-  {{#if setupComplete}}
-    <div class = "form-group-import">
-        <h2>Munch your content from D&D Beyond</a></h2>
-      <p>Read Me!</p>
-        <ul>
-            <li>Your data is cached for an hour or so to avoid spamming DDB.</li>
-            <li>This feature can take a <b>long</b> time, please be patient and leave the browser tab open.</li>
-            <li>While you wait, why not support me on <a href="https://www.patreon.com/MrPrimate">Patreon</a>? Active supporters get access to Monster Munching.</li>
-            <li>Please log any bugs on the <a href="https://discord.gg/WzPuRuDJVP">Discord</a>.</li>
-        </ul>
-        <hr>
-        <div class="munching-task-name" id="munching-task-name">
-          <br />
-        </div>
-        <div class="munching-task-monster" id="munching-task-monster">
-          <br />
-        </div>
-        <div class="munching-task-notes" id="munching-task-notes">
-          <br />
-        </div>
-        <hr>
-        <div>
-            <h3>Munching flavours</h3>
-            {{#each genericConfig}}
-            <div class="munching-generic-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                    id="munching-generic-policy-{{this.name}}"
-                    name="munching-policy-{{this.name}}"
-                    data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
-            </div>
-            {{/each}}
-        </div>
-
-        <div>
-          <hr>
-        </div>
-
-        <div class="form-section">
-            <div class="form-description">
-                <div class="form-description"></div>
-                    <div>
-                      <div>
-                      {{#each spellConfig}}
-                      <div class="munching-spell-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                              name="munching-policy-{{this.name}}"
-                              data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
-                      </div>
-                      {{/each}}
-
-                        <button type="button" id="munch-spells-start" class="munch-button"
-                            {{#if cobalt}}enabled{{else}}disabled{{/if}}>Spell Munch</button>
-                    </div>
-                    <hr>
-                     <div>
-                      {{#each itemConfig}}
-                      <div class="munching-item-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                              name="munching-policy-{{this.name}}"
-                              data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
-                      </div>
-                      {{/each}}
-                        <button type="button" id="munch-items-start" class="munch-button"
-                            {{#if cobalt}}enabled{{else}}disabled{{/if}}>Item Munch</button>
-                    </div>
-                     <div>
-                       <button type="button" id="munch-races-start" class="munch-button"
-                            {{#if tiers.god}}enabled{{else}}disabled{{/if}}>{{#if tiers.god}}[Experimental] Race Munch{{else}}Races BETA for God Tier Supporters{{/if}}</button>
-                        <button type="button" id="munch-classes-start" class="munch-button"
-                            {{#if tiers.god}}enabled{{else}}disabled{{/if}}>{{#if tiers.god}}[Experimental] Class Munch{{else}}Classes BETA for God Tier Supporters{{/if}}</button>
-                    </div>
-                     <hr>
-                     <div>
-                       <h4>Monster Search Filter (leave blank for all)</h4>
-                    </div>
-                     <div class="form-content" style="display: flex">
-                        <input type="text" name="monster-filter" id="monster-munch-filter" style="flex: 0 1 auto" ;value="" />
-                    </div>
-                      {{#each monsterConfig}}
-                      <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                              name="munching-policy-{{this.name}}"
-                              data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
-                      </div>
-                      {{/each}}
-                    <div>
-                        <button type="button" id="munch-monsters-start" class="munch-button"
-                            {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Monster Munch!{{else}}<s>Monster Munch</s> for Patreon Supporters!{{/if}}</button>
-                    </div>
-                    Make sure you have imported spells before Monsters!
-                </div>
-            </div>
-        </div>
-        <hr>
-      <p>If you need help getting setup checkout the following YouTube videos:</p>
+  <div class = "form-group-import">
+      <h2>Munch your content from D&D Beyond</a></h2>
+    <p>Read Me!</p>
       <ul>
-        <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Overview (Install, Setup, How to Use)</a> is recommended!</li>
-        <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
-        <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
+          <li>Your data is cached for an hour or so to avoid spamming DDB.</li>
+          <li>This feature can take a <b>long</b> time, please be patient and leave the browser tab open.</li>
+          <li>While you wait, why not support me on <a href="https://www.patreon.com/MrPrimate">Patreon</a>? Active supporters get access to Monster Munching.</li>
+          <li>Please log any bugs on the <a href="https://discord.gg/WzPuRuDJVP">Discord</a>.</li>
       </ul>
-    </div>
-  {{else}}
-  <h2>Configuration Needs Completing!</h2>
-  <p>Hello! I'm sure your <i>itching</i> to get going, but first we need to do some setup!</p>
-  <hr>
-  <h3>[Required] A location for image uploads</h3>
-  <p>These can't be stored in your root data folder, create a place for them to live.</p>
-    <div class="form-content" style="display: flex">
-      <input class="setup-config" type="text" data-dtype="Directory" name="image-upload-directory" style="flex: 0 1 auto" ;
-        value="{{setupConfig.image-upload-directory}}" />
-    </div>
-    <br>
-    <h3>[Required] A Cobalt Cookie</h3>
-    <p>Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome extension</a> to get this!</p>
-    <div class="form-content" style="display: flex">
-      <input class="setup-config" type="password" name="cobalt-cookie" style="flex: 0 1 auto" ;
-        value="{{setupConfig.cobalt-cookie}}" />
-    </div>
-    <br>
-    <h3>[Optional] Campaign URL/ID</h3>
-    <p>Only needed if you're shared content via a Campaign. Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345. Don't enter the URL used to <i>join</i> a campaign.</p>
-    <div class="form-content" style="display: flex">
-      <input class="setup-config" type="text" name="campaign-id" style="flex: 0 1 auto" ;
-        value="{{setupConfig.campaign-id}}" />
-    </div>
-    <br>
-    <h3>[Optional] Patreon Key</hr>
-    <p><a href="https://www.patreon.com/MrPrimate">Patreon Supporter?</a> Enter your Patreon Key here to unlock features!</p>
-    <p>Currently Monster Munching is only available to Patreon Supporters.</p>
-    <div class="form-content" style="display: flex">
-    <input class="setup-config" type="password" name="beta-key" style="flex: 0 1 auto" ;
-      value="{{setupConfig.beta-key}}" />
-    </div>
-    <hr>
-    <p>If you need to change these settings in the future, you can do it in the module settings page.</p>
-    <hr>
-    <div class="munching-task-setup" id="munching-task-setup" style="color: red">
-      {{#unless campaignIdCorrect}}Incorrect CampaignID/URL! You have used the campaign join URL, please change{{/unless}}<br />
-    </div>
-    <div>
-      <div class="form-description"><div class="form-content" style="display: flex">
-      <button type="button" id="munch-monsters-config" class="munch-button">SAVE! You'll need to start the Muncher again!</button>
-      </div></div>
-    </div>
+      <hr>
+      <div class="munching-task-name" id="munching-task-name">
+        <br />
+      </div>
+      <div class="munching-task-monster" id="munching-task-monster">
+        <br />
+      </div>
+      <div class="munching-task-notes" id="munching-task-notes">
+        <br />
+      </div>
+      <hr>
+      <div>
+          <h3>Munching flavours</h3>
+          {{#each genericConfig}}
+          <div class="munching-generic-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                  id="munching-generic-policy-{{this.name}}"
+                  name="munching-policy-{{this.name}}"
+                  data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+          </div>
+          {{/each}}
+      </div>
 
-  <hr>
-  <p>If you need help getting setup checkout the following YouTube videos:</p>
-  <p>
-    <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Amazing Overview (Install, Setup, How to Use)</a> is recommended!</li>
-    <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
-    <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
-  </p>
-  <hr>
-  {{/if}}
+      <div>
+        <hr>
+      </div>
+
+      <div class="form-section">
+          <div class="form-description">
+              <div class="form-description"></div>
+                  <div>
+                    <div>
+                    {{#each spellConfig}}
+                    <div class="munching-spell-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                            name="munching-policy-{{this.name}}"
+                            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                    </div>
+                    {{/each}}
+
+                      <button type="button" id="munch-spells-start" class="munch-button"
+                          {{#if cobalt}}enabled{{else}}disabled{{/if}}>Spell Munch</button>
+                  </div>
+                  <hr>
+                    <div>
+                    {{#each itemConfig}}
+                    <div class="munching-item-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                            name="munching-policy-{{this.name}}"
+                            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                    </div>
+                    {{/each}}
+                      <button type="button" id="munch-items-start" class="munch-button"
+                          {{#if cobalt}}enabled{{else}}disabled{{/if}}>Item Munch</button>
+                  </div>
+                    <div>
+                      <button type="button" id="munch-races-start" class="munch-button"
+                          {{#if tiers.god}}enabled{{else}}disabled{{/if}}>{{#if tiers.god}}[Experimental] Race Munch{{else}}Races BETA for God Tier Supporters{{/if}}</button>
+                      <button type="button" id="munch-classes-start" class="munch-button"
+                          {{#if tiers.god}}enabled{{else}}disabled{{/if}}>{{#if tiers.god}}[Experimental] Class Munch{{else}}Classes BETA for God Tier Supporters{{/if}}</button>
+                  </div>
+                    <hr>
+                    <div>
+                      <h4>Monster Search Filter (leave blank for all)</h4>
+                  </div>
+                    <div class="form-content" style="display: flex">
+                      <input type="text" name="monster-filter" id="monster-munch-filter" style="flex: 0 1 auto" ;value="" />
+                  </div>
+                    {{#each monsterConfig}}
+                    <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                            name="munching-policy-{{this.name}}"
+                            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                    </div>
+                    {{/each}}
+                  <div>
+                      <button type="button" id="munch-monsters-start" class="munch-button"
+                          {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Monster Munch!{{else}}<s>Monster Munch</s> for Patreon Supporters!{{/if}}</button>
+                  </div>
+                  Make sure you have imported spells before Monsters!
+              </div>
+          </div>
+      </div>
+      <hr>
+    <p>If you need help getting setup checkout the following YouTube videos:</p>
+    <ul>
+      <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Overview (Install, Setup, How to Use)</a> is recommended!</li>
+      <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
+      <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
+    </ul>
+  </div>
 </div>
