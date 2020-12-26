@@ -88,16 +88,128 @@ export class DDBSetup extends FormApplication {
       //this.close();
     }
   }
+}
 
-  // activateListeners(html) {
-  //   super.activateListeners(html);
-  //   html.find("#munch-monsters-config").on("click", async (event) => {
-  //     event.preventDefault();
-  //     const configSet = DDBMuncher.setConfig();
-  //     // if (configSet) {
-  //     //   this.close();
-  //     //   new DDBMuncher().render(true);
-  //     // }
-  //   });
-  // }
+
+function getCompendiumLookups(type, selected) {
+  const selections = game.packs
+  .filter((pack) => pack.entity === type)
+  .reduce((choices, pack) => {
+    choices[pack.collection] = {
+      label: `[${pack.metadata.package}] ${pack.metadata.label}`,
+      selected: pack.collection === selected,
+    };
+    return choices;
+  }, {});
+
+  return selections;
+}
+
+
+export class DDBCompendiumSetup extends FormApplication {
+  static get defaultOptions() {
+    const options = super.defaultOptions;
+    options.id = "ddb-importer-settings-compendium";
+    options.template = "modules/ddb-importer/handlebars/compendium.handlebars";
+    options.width = 500;
+    return options;
+  }
+  get title() {
+    // improve localisation
+    // game.i18n.localize("")
+    return "DDB Importer Compendium Settings";
+  }
+  /** @override */
+  async getData() {
+
+    const actorCompendiumSelections = game.packs
+    .filter((pack) => pack.entity === "Actor")
+    .reduce((choices, pack) => {
+      choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
+      return choices;
+    }, {});
+
+    const itemCompendiumSelections = game.packs
+      .filter((pack) => pack.entity === "Item")
+      .reduce((choices, pack) => {
+        choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
+        return choices;
+      }, {});
+
+    const settings = [
+      {
+        name: "auto-create-compendium",
+        isChecked: game.settings.get("ddb-importer", "auto-create-compendium"),
+        description: "Create default compendiums if missing?",
+        enabled: true,
+      },
+    ];
+
+    const compendiums = [
+      {
+        setting: "entity-spell-compendium",
+        name: "Spells",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-spell-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-spell-compendium")),
+      },
+      {
+        setting: "entity-item-compendium",
+        name: "Items",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-item-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-item-compendium")),
+      },
+      {
+        setting: "entity-class-compendium",
+        name: "Classes",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-class-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-class-compendium")),
+      },
+      {
+        setting: "entity-feature-compendium",
+        name: "Class features",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-feature-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-feature-compendium")),
+      },
+      {
+        setting: "entity-race-compendium",
+        name: "Races",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-race-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-race-compendium")),
+      },
+      {
+        setting: "entity-trait-compendium",
+        name: "Racial traits",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-trait-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-trait-compendium")),
+      },
+      {
+        setting: "entity-monster-compendium",
+        name: "Monsters",
+        type: "actor",
+        current: game.settings.get("ddb-importer", "entity-monster-compendium"),
+        compendiums: getCompendiumLookups("Actor", game.settings.get("ddb-importer", "entity-monster-compendium")),
+      },
+    ];
+
+    return {
+      settings: settings,
+      compendiums: compendiums,
+    };
+  }
+  /** @override */
+  // eslint-disable-next-line no-unused-vars
+  async _updateObject(event, formData) {
+    event.preventDefault();
+    console.warn(formData);
+    for (const [key, value] of Object.entries(formData)) {
+      console.log(key, value);
+      game.settings.set("ddb-importer", key, value);
+    }
+  }
 }

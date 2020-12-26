@@ -1,5 +1,5 @@
 import DirectoryPicker from "../../lib/DirectoryPicker.js";
-import { DDBSetup } from "../../lib/Settings.js";
+import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
 
 export default function () {
   const actorCompendiums = game.packs
@@ -22,6 +22,15 @@ export default function () {
     hint: "ddb-importer.setup.hint",
     icon: 'fas fa-wrench',
     type: DDBSetup,
+    restricted: true
+  });
+
+  game.settings.registerMenu("ddb-importer",'compendiumMenu',{
+    name: "ddb-importer.compendium-setup.name",
+    label: "ddb-importer.compendium-setup.name",
+    hint: "ddb-importer.setup.hint",
+    icon: 'fas fa-wrench',
+    type: DDBCompendiumSetup,
     restricted: true
   });
 
@@ -94,7 +103,7 @@ export default function () {
     name: "ddb-importer.auto-create-compendium.name",
     hint: "ddb-importer.auto-create-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
   });
@@ -130,7 +139,7 @@ export default function () {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -140,7 +149,7 @@ export default function () {
     name: "ddb-importer.entity-feature-compendium.name",
     hint: "ddb-importer.entity-feature-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -150,7 +159,7 @@ export default function () {
     name: "ddb-importer.entity-class-compendium.name",
     hint: "ddb-importer.entity-class-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -160,7 +169,7 @@ export default function () {
     name: "ddb-importer.entity-race-compendium.name",
     hint: "ddb-importer.entity-race-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -170,7 +179,7 @@ export default function () {
     name: "ddb-importer.entity-trait-compendium.name",
     hint: "ddb-importer.entity-trait-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -180,7 +189,7 @@ export default function () {
     name: "ddb-importer.entity-spell-compendium.name",
     hint: "ddb-importer.entity-spell-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: itemCompendiums,
@@ -190,7 +199,7 @@ export default function () {
     name: "ddb-importer.entity-monster-compendium.name",
     hint: "ddb-importer.entity-monster-compendium.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     isSelect: true,
     choices: actorCompendiums,
