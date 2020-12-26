@@ -82,6 +82,14 @@ export default function () {
   //   ],
   // });
 
+  game.settings.register("ddb-importer", "settings-call-muncher", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+
   game.settings.register("ddb-importer", "auto-create-compendium", {
     name: "ddb-importer.auto-create-compendium.name",
     hint: "ddb-importer.auto-create-compendium.hint",

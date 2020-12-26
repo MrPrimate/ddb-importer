@@ -6,21 +6,11 @@ import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
 import { parseRaces } from "./races.js";
 import { parseClasses } from "./classes.js";
-import DirectoryPicker from "../lib/DirectoryPicker.js";
-import { getPatreonTiers, munchNote, setPatreonTier } from "./utils.js";
-
-const BAD_DIRS = ["[data]", "[data] ", "", null];
-
-// eslint-disable-next-line no-unused-vars
-Hooks.on("renderDDBMuncher", (app, html, user) => {
-  DirectoryPicker.processHtml(html);
-});
-
+import { getPatreonTiers, munchNote } from "./utils.js";
 
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {
-    setPatreonTier();
     const options = super.defaultOptions;
     options.id = "ddb-importer-monsters";
     options.template = "modules/ddb-importer/handlebars/munch.handlebars";
@@ -59,15 +49,6 @@ export default class DDBMuncher extends Application {
       munchNote(`Downloading classes...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseClasses();
-    });
-
-    html.find("#munch-monsters-config").on("click", async (event) => {
-      event.preventDefault();
-      const configSet = DDBMuncher.setConfig();
-      if (configSet) {
-        this.close();
-        new DDBMuncher().render(true);
-      }
     });
 
     // watch the change of the import-policy-selector checkboxes
@@ -118,36 +99,6 @@ export default class DDBMuncher extends Application {
     });
 
     this.close();
-  }
-
-  static setConfig() {
-    const imageDir = $('input[name="image-upload-directory"]')[0].value;
-    const cobaltCookie = $('input[name="cobalt-cookie"]')[0].value;
-    const betaKey = $('input[name="beta-key"]')[0].value;
-    const campaignId = $('input[name="campaign-id"]')[0].value;
-    game.settings.set("ddb-importer", "image-upload-directory", imageDir);
-    game.settings.set("ddb-importer", "cobalt-cookie", cobaltCookie);
-    game.settings.set("ddb-importer", "beta-key", betaKey);
-    game.settings.set("ddb-importer", "campaign-id", campaignId);
-
-    const imageDirSet = !BAD_DIRS.includes(imageDir);
-    const campaignIdCorrect = !campaignId.includes("join");
-    setPatreonTier();
-
-    if (!imageDirSet) {
-      $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);
-      $('#ddb-importer-monsters').css("height", "auto");
-      return false;
-    } else if (cobaltCookie === "") {
-      $('#munching-task-setup').text(`To use Muncher you need to set a Cobalt Cookie value!`);
-      $('#ddb-importer-monsters').css("height", "auto");
-      return false;
-    } else if (!campaignIdCorrect) {
-      $('#munching-task-setup').text(`Incorrect CampaignID/URL! You have used the campaign join URL, please change`);
-      $('#ddb-importer-monsters').css("height", "auto");
-      return false;
-    }
-    return true;
   }
 
   static enableButtons() {
@@ -240,7 +191,6 @@ export default class DDBMuncher extends Application {
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
-    const campaignIdCorrect = !game.settings.get("ddb-importer", "campaign-id").includes("join");
     const tier = game.settings.get("ddb-importer", "patreon-tier");
     const tiers = getPatreonTiers(tier);
 
@@ -340,18 +290,6 @@ export default class DDBMuncher extends Application {
       // },
     ];
 
-    const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
-    const dataDirSet = !BAD_DIRS.includes(uploadDir);
-
-    const setupConfig = {
-      "image-upload-directory": uploadDir,
-      "cobalt-cookie": game.settings.get("ddb-importer", "cobalt-cookie"),
-      "campaign-id": game.settings.get("ddb-importer", "campaign-id"),
-      "beta-key": game.settings.get("ddb-importer", "beta-key"),
-    };
-
-    const setupComplete = dataDirSet && cobalt && campaignIdCorrect;
-
     return {
       cobalt: cobalt,
       genericConfig: genericConfig,
@@ -359,9 +297,6 @@ export default class DDBMuncher extends Application {
       spellConfig: spellConfig,
       itemConfig: itemConfig,
       beta: betaKey && cobalt,
-      setupConfig: setupConfig,
-      setupComplete: setupComplete,
-      campaignIdCorrect: campaignIdCorrect,
       tiers: tiers,
     };
   }

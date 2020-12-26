@@ -1,10 +1,6 @@
-import logger from "../logger.js";
-import utils from "../utils.js";
 import DirectoryPicker from "./DirectoryPicker.js";
-import { getPatreonTiers, munchNote, getCampaignId, download } from "../muncher/utils.js";
-
-const BAD_DIRS = ["[data]", "[data] ", "", null];
-
+import { getPatreonTiers, setPatreonTier, BAD_DIRS } from "../muncher/utils.js";
+import DDBMuncher from "../muncher/ddb.js";
 
 // eslint-disable-next-line no-unused-vars
 Hooks.on("renderDDBSetup", (app, html, user) => {
@@ -24,7 +20,8 @@ export class DDBSetup extends FormApplication {
     // game.i18n.localize("")
     return "DDB Importer Settings";
   }
-  async getData(options) {
+  /** @override */
+  async getData() {
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
@@ -53,55 +50,54 @@ export class DDBSetup extends FormApplication {
       tiers: tiers,
     };
   }
+  /** @override */
+  // eslint-disable-next-line no-unused-vars
   async _updateObject(event, formData) {
-    let importData = formData.importData;
-    // if (importData != null && importData.length > 0) {
-    //   try {
-    //     let importJson = JSON.parse(importData);
-    //     let success = true;
-    //     Object.keys(importJson).forEach(function (key) {
-    //       if (importJson[key].pathToFolder != null && importJson[key].pathToFolder.length > FOLDER_LIMIT) {
-    //         success = false;
-    //       }
-    //     });
-    //     if (success) {
-    //       game.settings.set(mod, "cfolders", importJson).then(function () {
-    //         refreshFolders();
-    //         ui.notifications.info(game.i18n.localize("CF.folderImportSuccess"));
-    //       });
-    //     } else {
-    //       ui.notifications.error(game.i18n.localize("CF.folderImportMaxDepth") + " (" + FOLDER_LIMIT + ")");
-    //     }
-    //   } catch (error) {
-    //     ui.notifications.error(game.i18n.localize("CF.folderImportFailure"));
-    //   }
-
-    const imageDir = $('input[name="image-upload-directory"]')[0].value;
-    const cobaltCookie = $('input[name="cobalt-cookie"]')[0].value;
-    const betaKey = $('input[name="beta-key"]')[0].value;
-    const campaignId = $('input[name="campaign-id"]')[0].value;
-    game.settings.set("ddb-importer", "image-upload-directory", imageDir);
-    game.settings.set("ddb-importer", "cobalt-cookie", cobaltCookie);
-    game.settings.set("ddb-importer", "beta-key", betaKey);
-    game.settings.set("ddb-importer", "campaign-id", campaignId);
+    event.preventDefault();
+    const imageDir = formData['image-upload-directory'];
+    const campaignId = formData['campaign-id'];
+    const cobaltCookie = formData['cobalt-cookie'];
+    await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
+    await game.settings.set("ddb-importer", "cobalt-cookie", cobaltCookie);
+    await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
+    await game.settings.set("ddb-importer", "campaign-id", campaignId);
 
     const imageDirSet = !BAD_DIRS.includes(imageDir);
     const campaignIdCorrect = !campaignId.includes("join");
-    DDBMuncher.setPatreonTier();
+    await setPatreonTier();
 
     if (!imageDirSet) {
       $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);
       $('#ddb-importer-settings').css("height", "auto");
-      return false;
+      throw new Error(`Please set the image upload directory to something other than the root.`);
     } else if (cobaltCookie === "") {
       $('#munching-task-setup').text(`To use Muncher you need to set a Cobalt Cookie value!`);
       $('#ddb-importer-settings').css("height", "auto");
-      return false;
+      throw new Error(`To use Muncher you need to set a Cobalt Cookie value!`);
     } else if (!campaignIdCorrect) {
       $('#munching-task-setup').text(`Incorrect CampaignID/URL! You have used the campaign join URL, please change`);
       $('#ddb-importer-settings').css("height", "auto");
-      return false;
+      throw new Error(`Incorrect CampaignID/URL! You have used the campaign join URL, please change`);
+    } else {
+      const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
+
+      if (callMuncher) {
+        game.settings.set("ddb-importer", "settings-call-muncher", false);
+        new DDBMuncher().render(true);
+      }
+      //this.close();
     }
-    this.close();
   }
+
+  // activateListeners(html) {
+  //   super.activateListeners(html);
+  //   html.find("#munch-monsters-config").on("click", async (event) => {
+  //     event.preventDefault();
+  //     const configSet = DDBMuncher.setConfig();
+  //     // if (configSet) {
+  //     //   this.close();
+  //     //   new DDBMuncher().render(true);
+  //     // }
+  //   });
+  // }
 }

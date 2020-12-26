@@ -1,3 +1,4 @@
+export const BAD_DIRS = ["[data]", "[data] ", "", null];
 
 export function download(content, fileName, contentType) {
   var a = document.createElement("a");
