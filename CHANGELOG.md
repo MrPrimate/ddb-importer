@@ -1,3 +1,7 @@
+# v 0.2.12
+
+* Players were unable to upload images
+
 # v 0.2.11
 
 * Racial traits now have their own compendium
