@@ -1,5 +1,6 @@
 // Main module class
-import { srdFiddling, getCompendiumItems, removeItems, munchNote, getSRDIconLibrary, copySRDIcons, download } from "./import.js";
+import { srdFiddling, getCompendiumItems, removeItems, getSRDIconLibrary, copySRDIcons } from "./import.js";
+import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";

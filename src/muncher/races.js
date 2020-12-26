@@ -1,5 +1,5 @@
 // Main module class
-import { munchNote, getCampaignId, download } from "./import.js";
+import { munchNote, getCampaignId, download } from "./utils.js";
 import { getRaces } from "./races/races.js";
 
 function getRaceData() {

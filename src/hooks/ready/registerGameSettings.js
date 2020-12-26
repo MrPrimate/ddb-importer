@@ -1,4 +1,5 @@
 import DirectoryPicker from "../../lib/DirectoryPicker.js";
+import { DDBSetup } from "../../lib/Settings.js";
 
 export default function () {
   const actorCompendiums = game.packs
@@ -15,11 +16,20 @@ export default function () {
       return choices;
     }, {});
 
+  game.settings.registerMenu("ddb-importer",'setupMenu',{
+    name: "ddb-importer.setup.name",
+    label: "ddb-importer.setup.name",
+    hint: "ddb-importer.setup.hint",
+    icon: 'fas fa-wrench',
+    type: DDBSetup,
+    restricted: true
+  });
+
   game.settings.register("ddb-importer", "image-upload-directory", {
     name: "ddb-importer.image-upload-directory.name",
     hint: "ddb-importer.image-upload-directory.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: DirectoryPicker.Directory,
     default: "[data] ",
   });
@@ -217,7 +227,7 @@ export default function () {
     name: "ddb-importer.beta-key.name",
     hint: "ddb-importer.beta-key.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "",
   });
@@ -550,7 +560,7 @@ export default function () {
     name: "ddb-importer.cobalt-cookie.name",
     hint: "ddb-importer.cobalt-cookie.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "",
   });
@@ -558,7 +568,7 @@ export default function () {
     name: "ddb-importer.campaign-id.name",
     hint: "ddb-importer.campaign-id.hint",
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "",
   });

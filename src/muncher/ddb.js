@@ -6,8 +6,8 @@ import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
 import { parseRaces } from "./races.js";
 import { parseClasses } from "./classes.js";
-import { munchNote } from "./import.js";
 import DirectoryPicker from "../lib/DirectoryPicker.js";
+import { getPatreonTiers, munchNote, setPatreonTier } from "./utils.js";
 
 const BAD_DIRS = ["[data]", "[data] ", "", null];
 
@@ -17,52 +17,10 @@ Hooks.on("renderDDBMuncher", (app, html, user) => {
 });
 
 
-async function getPatreonTier() {
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const body = { betaKey: betaKey };
-
-  return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/patreon/tier`, {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body), // body data type must match "Content-Type" header
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) {
-          munchNote(`API Failure: ${data.message}`);
-          reject(data.message);
-        }
-        resolve(data.data);
-      })
-      .catch((error) => reject(error));
-  });
-}
-
-function getPatreonTiers(tier) {
-  const godTier = tier === "GOD";
-  const undyingTier = tier === "UNDYING";
-  const coffeeTier = tier === "COFFEE";
-
-  const tiers = {
-    god: godTier,
-    undying: undyingTier,
-    coffee: coffeeTier,
-    homebrew: godTier || undyingTier,
-    supporter: godTier || undyingTier || coffeeTier,
-    not: !godTier && !undyingTier && !coffeeTier,
-  };
-
-  return tiers;
-}
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {
-    DDBMuncher.setPatreonTier();
+    setPatreonTier();
     const options = super.defaultOptions;
     options.id = "ddb-importer-monsters";
     options.template = "modules/ddb-importer/handlebars/munch.handlebars";
@@ -174,7 +132,7 @@ export default class DDBMuncher extends Application {
 
     const imageDirSet = !BAD_DIRS.includes(imageDir);
     const campaignIdCorrect = !campaignId.includes("join");
-    DDBMuncher.setPatreonTier();
+    setPatreonTier();
 
     if (!imageDirSet) {
       $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);
@@ -208,11 +166,6 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-races-start"]').prop('disabled', false);
       $('button[id^="munch-classes-start"]').prop('disabled', false);
     }
-  }
-
-  static async setPatreonTier() {
-    const tier = await getPatreonTier();
-    game.settings.set("ddb-importer", "patreon-tier", tier);
   }
 
   static async parseCritters() {
