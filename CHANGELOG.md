@@ -1,3 +1,7 @@
+# v 0.2.13
+
+* Settings menu overhaul. New screens for initial/core setup and compendium selection.
+
 # v 0.2.12
 
 * Players were unable to upload images
