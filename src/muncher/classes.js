@@ -88,7 +88,6 @@ export async function parseClasses() {
     getSubClassesData("Monk"),
   ]);
 
-  // return subClassResults;
   return classesResults.concat(subClassResults);
 }
 
