@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 
 import { buildBaseClass, getClassFeature, buildClassFeatures } from "./shared.js";
 import { getCompendiumLabel, updateCompendium, srdFiddling } from "../import.js";
-import { munchNote } from "../utils.js";
+import { munchNote, getImagePath } from "../utils.js";
 
 const NO_TRAITS = [
   "Speed",
@@ -16,7 +16,6 @@ const NO_TRAITS = [
 ];
 
 async function buildSubClassBase(klass, subClass) {
-  console.log(`Ready? ${subClass.name}`);
   delete klass['_id'];
 
   let avatarUrl;
@@ -25,14 +24,18 @@ async function buildSubClassBase(klass, subClass) {
 
   if (subClass.portraitAvatarUrl) {
     portraitAvatarUrl = await getImagePath(subClass.portraitAvatarUrl, "class-portrait", subClass.fullName, true);
+    // eslint-disable-next-line require-atomic-updates
     klass.img = portraitAvatarUrl;
+    // eslint-disable-next-line require-atomic-updates
     klass.flags.ddbimporter['portraitAvatarUrl'] = subClass.portraitAvatarUrl;
   }
 
   if (subClass.avatarUrl) {
     avatarUrl = await getImagePath(subClass.avatarUrl, "class-avatar", subClass.fullName, true);
+    // eslint-disable-next-line require-atomic-updates
     klass.flags.ddbimporter['avatarUrl'] = subClass.avatarUrl;
     if (!klass.img) {
+      // eslint-disable-next-line require-atomic-updates
       klass.img = avatarUrl;
     }
   }
@@ -58,21 +61,24 @@ async function buildSubClassBase(klass, subClass) {
 
   if (avatarUrl || largeAvatarUrl) {
     const imageMatch = /$<img class="ddb-class-image"(.*)$/;
-    const image = (avatarUrl) ?
-      `<img class="ddb-class-image" src="${avatarUrl}">\n\n` :
-      `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
+    const image = (avatarUrl)
+      ? `<img class="ddb-class-image" src="${avatarUrl}">\n\n`
+      : `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
     klass.data.description.value.replace(imageMatch, image);
   }
 
+  // eslint-disable-next-line require-atomic-updates
   klass.name += ` (${subClass.name})`;
+  // eslint-disable-next-line require-atomic-updates
   klass.data.description.value += `<h3>${subClass.name}</h3>\n${subClass.description}\n\n`;
 
   // spell caster now?
-  //if canCastSpells but now canCastSpells then set to third
+  // if canCastSpells but now canCastSpells then set to third
   if (klass.data.spellcasting === "" && subClass.canCastSpells) {
+    // eslint-disable-next-line require-atomic-updates
     klass.data.spellcasting = "third";
   }
-  console.log(klass);
+
   return klass;
 
 }
@@ -87,7 +93,6 @@ async function buildSubClass(klass, subclass, compendiumSubClassFeatures, compen
 export async function getSubClasses(data) {
   logger.debug("get subclasses started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  console.warn(data);
 
   let subClasses = [];
   let classFeatures = [];
@@ -129,13 +134,10 @@ export async function getSubClasses(data) {
   console.warn("ABOUT TO SUB PARSE");
   await Promise.allSettled(data.map(async (subClass) => {
     const classMatch = content.find((i) => i.data.flags.ddbimporter['id'] == subClass.parentClassId);
-    console.warn(classMatch);
-    logger.debug(`${subClass.name} subclass parsing started...`);
     const builtClass = await buildSubClass(classMatch.data, subClass, compendiumClassFeatures, compendiumLabel);
     subClasses.push(builtClass);
   }));
 
-  console.error(subClasses);
   const fiddledClasses = await srdFiddling(subClasses, "classes");
   munchNote(`Importing ${fiddledClasses.length} subclasses!`, true);
 
