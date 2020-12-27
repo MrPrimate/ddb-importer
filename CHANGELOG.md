@@ -1,6 +1,7 @@
 # v 0.2.13
 
 * Settings menu overhaul. New screens for initial/core setup and compendium selection.
+* When using Iconizer icons and don't update existing images was checked, no images would be updated, even on new items.
 
 # v 0.2.12
 
