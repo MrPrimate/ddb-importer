@@ -653,7 +653,7 @@ async function getIconizerIcons(items) {
     items.forEach((item) => {
       const icon = icons.find((icon) => icon.name === item.name);
       if (icon && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
-        item.img = icon.img;
+        item.img = icon.img || "icons/svg/mystery-man.svg";
       }
     });
   } catch (exception) {
