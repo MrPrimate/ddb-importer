@@ -1,3 +1,7 @@
+# v0.2.16
+
+* Retains Midi-QOL flags/settings on features/items
+
 # v 0.2.14/0.2.15
 
 * Directory picker was not showing in settings screen.

@@ -134,6 +134,7 @@ export async function copySupportedItemFlags(originalItem, item) {
   copyFlagGroup("maestro", originalItem, item);
   copyFlagGroup("mess", originalItem, item);
   copyFlagGroup("favtab", originalItem, item);
+  copyFlagGroup("midi-qol", originalItem, item);
 }
 
 export function getMonsterNames(name) {
