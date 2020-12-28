@@ -131,7 +131,6 @@ export async function getSubClasses(data) {
   // const classIndex = await classCompendium.getIndex();
   const content = await classCompendium.getContent();
 
-  console.warn("ABOUT TO SUB PARSE");
   await Promise.allSettled(data.map(async (subClass) => {
     const classMatch = content.find((i) => i.data.flags.ddbimporter['id'] == subClass.parentClassId);
     const builtClass = await buildSubClass(classMatch.data, subClass, compendiumClassFeatures, compendiumLabel);
