@@ -3,7 +3,6 @@ import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { updateIcons, getImagePath, getCompendiumItems } from "./import.js";
 
-
 /**
  *
  * @param {[string]} items Array of Strings or

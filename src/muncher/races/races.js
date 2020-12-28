@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
-import { getCompendiumLabel, updateCompendium, srdFiddling } from "../import.js";
-import { munchNote, getImagePath } from "../utils.js";
+import { getCompendiumLabel, updateCompendium, srdFiddling, getImagePath } from "../import.js";
+import { munchNote } from "../utils.js";
 
 
 const RACE_TEMPLATE = {

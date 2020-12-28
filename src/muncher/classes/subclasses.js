@@ -1,8 +1,8 @@
 import logger from "../../logger.js";
 
 import { buildBaseClass, getClassFeature, buildClassFeatures } from "./shared.js";
-import { getCompendiumLabel, updateCompendium, srdFiddling } from "../import.js";
-import { munchNote, getImagePath } from "../utils.js";
+import { getCompendiumLabel, updateCompendium, srdFiddling, getImagePath } from "../import.js";
+import { munchNote } from "../utils.js";
 
 const NO_TRAITS = [
   "Speed",
