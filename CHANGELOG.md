@@ -1,3 +1,7 @@
+# v 0.2.14
+
+* Directory picker was not showing in settings screen.
+
 # v 0.2.13
 
 * Settings menu overhaul. New screens for initial/core setup and compendium selection.
