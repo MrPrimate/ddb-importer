@@ -286,6 +286,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-inplace", {
+    name: "ddb-importer.character-update-policy-inplace.name",
+    hint: "ddb-importer.character-update-policy-inplace.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-use-srd", {
     name: "ddb-importer.character-update-policy-use-srd.name",
     hint: "ddb-importer.character-update-policy-use-srd.hint",

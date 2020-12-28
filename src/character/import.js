@@ -15,6 +15,7 @@ import { getCharacterOptions } from "./options.js";
 import { download, getCampaignId } from "../muncher/utils.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
+const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
 // reference to the D&D Beyond popup
 const POPUPS = {
@@ -302,12 +303,14 @@ export default class CharacterImport extends Application {
    * - inventory: consumable, loot, tool and backpack
    * - spell
    */
-  async clearItemsByUserSelection() {
-    const invalidItemTypes = getCharacterUpdatePolicyTypes();
+  async clearItemsByUserSelection(excludedList = []) {
+    const includedItems = getCharacterUpdatePolicyTypes();
 
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
-    const toRemove = ownedItems.filter((item) => invalidItemTypes.includes(item.type)).map((item) => item._id);
+    const toRemove = ownedItems
+      .filter((item) => includedItems.includes(item.type) && !excludedList.some((excluded) => excluded._id === item._id))
+      .map((item) => item._id);
     await this.actor.deleteEmbeddedEntity("OwnedItem", toRemove);
     return toRemove;
   }
@@ -460,13 +463,13 @@ export default class CharacterImport extends Application {
       {
         name: "dae-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy"),
-        description: "Use Dynamic Active Effects Compendiums for matching items (requires DAE and SRD module).",
+        description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
         enabled: daeInstalled,
       },
       {
         name: "active-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
-        description: "[Experimental] Copy existing Active Effects on items and character.",
+        description: "[Experimental] Retain existing Active Effects on items/features.",
         enabled: true,
       },
     ];
@@ -663,6 +666,52 @@ export default class CharacterImport extends Application {
     }
   }
 
+  // returns items not updated
+  async updateExistingIdMatchedItems(html, items) {
+    if (this.actorOriginal.flags.ddbimporter && this.actorOriginal.flags.ddbimporter.inPlaceUpdateAvailable) {
+      const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
+      const ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
+
+      let nonMatchedItems = [];
+      let matchedItems = [];
+
+      await items.forEach((item) => {
+        let matchedItem = ownedItems
+          .find((owned) =>
+            item.name === owned.name &&
+            item.type === owned.type &&
+            item.flags && item.flags.ddbimporter &&
+            owned.flags && owned.flags.ddbimporter &&
+            item.flags.ddbimporter.id === owned.flags.ddbimporter.id
+          );
+        if (matchedItem) {
+          item['_id'] = matchedItem['_id'];
+          matchedItems.push(item);
+        } else {
+          nonMatchedItems.push(item);
+        }
+      });
+
+      // enrich matched items
+      let enrichedItems = await this.enrichCharacterItems(html, matchedItems);
+
+      // aways copy active effects
+      if (!activeEffectCopy) {
+        await this.copyCharacterItemEffects(enrichedItems);
+      }
+
+      const updated = await this.actor.updateEmbeddedEntity("OwnedItem", enrichedItems);
+
+      return new Promise((resolve) => {
+        resolve([nonMatchedItems, updated]);
+      });
+    } else {
+      return new Promise((resolve) => {
+        resolve(items);
+      });
+    }
+  }
+
   async parseCharacterData(html, data) {
     this.result = data.character;
     // is magicitems installed
@@ -683,12 +732,29 @@ export default class CharacterImport extends Application {
     CharacterImport.showCurrentTask(html, "Updating core character information");
     await this.actor.update(this.result.character);
 
-    // clear items
-    const importKeepExistingActorItems = game.settings.get("ddb-importer", "character-update-policy-new");
 
-    if (!importKeepExistingActorItems) {
+    // items for actor
+    let items = [];
+    // should we try and keep existing actor items?
+    const importKeepExistingActorItems = game.settings.get("ddb-importer", "character-update-policy-new");
+    // attempt to update existing items
+    const updateExistingItems = game.settings.get("ddb-importer", "character-update-policy-inplace");
+    const updateReady = this.actorOriginal.flags.ddbimporter && this.actorOriginal.flags.ddbimporter.inPlaceUpdateAvailable;
+
+    if (updateExistingItems && updateReady) {
+      items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
+      CharacterImport.showCurrentTask(html, "Attempting existing item update");
+      let [newItems, updatedItems] = await this.updateExistingIdMatchedItems(html, items);
+      items = newItems;
+      CharacterImport.showCurrentTask(html, "Clearing remaining items for re-creation");
+      await this.clearItemsByUserSelection(updatedItems);
+    } else if (!importKeepExistingActorItems) {
       CharacterImport.showCurrentTask(html, "Clearing inventory");
       await this.clearItemsByUserSelection();
+    }
+
+    if (!updateExistingItems) {
+      items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
     }
 
     // store all spells in the folder specific for Dynamic Items
@@ -696,10 +762,6 @@ export default class CharacterImport extends Application {
       CharacterImport.showCurrentTask(html, "Preparing magicitem spells");
       await addMagicItemSpells(this.result);
     }
-
-    // Adding all items to the actor
-    const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
-    let items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
 
     // If there is no magicitems module fall back to importing the magic
     // item spells as normal spells fo the character

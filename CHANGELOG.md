@@ -1,6 +1,7 @@
 # v0.2.16
 
 * Retains Midi-QOL flags/settings on features/items
+* If it can, Character Imports will now update items rather than deleting and recreating. This will help modules like Better Roles with rely on item ID.
 
 # v 0.2.14/0.2.15
 
