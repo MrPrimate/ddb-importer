@@ -41,7 +41,7 @@ export default class DDBMuncher extends Application {
       DDBMuncher.parseItems();
     });
     html.find("#munch-races-start").click(async () => {
-      munchNote(`Downloading items...`, true);
+      munchNote(`Downloading races...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseRaces();
     });
