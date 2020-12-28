@@ -7,6 +7,11 @@ Hooks.on("renderDDBSetup", (app, html, user) => {
   DirectoryPicker.processHtml(html);
 });
 
+// eslint-disable-next-line no-unused-vars
+Hooks.on("renderma", (app, html, user) => {
+  DirectoryPicker.processHtml(html);
+});
+
 export class DDBSetup extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
