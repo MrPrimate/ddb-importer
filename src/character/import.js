@@ -614,7 +614,7 @@ export default class CharacterImport extends Application {
       });
   }
 
-  async importCharacterItems(html, items) {
+  async enrichCharacterItems(html, items) {
     const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
     const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
     const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
@@ -651,7 +651,13 @@ export default class CharacterImport extends Application {
         CharacterImport.showCurrentTask(html, "Copying Item Active Effects");
         await this.copyCharacterItemEffects(items);
       }
+    }
+    return Promise.all(items);
+  }
 
+  async importCharacterItems(html, items) {
+    if (items.length > 0) {
+      items = await this.enrichCharacterItems(html, items);
       CharacterImport.showCurrentTask(html, "Adding items to character");
       await this.importItems(items);
     }
