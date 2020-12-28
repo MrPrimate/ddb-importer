@@ -1,4 +1,4 @@
-# v 0.2.14
+# v 0.2.14/0.2.15
 
 * Directory picker was not showing in settings screen.
 
