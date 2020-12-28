@@ -670,8 +670,11 @@ export default class CharacterImport extends Application {
       this.result.character.data.currency = this.actorOriginal.data.currency;
     }
 
+    // flag as having items ids
+    this.result.character.flags.ddbimporter['inPlaceUpdateAvailable'] = true;
+
     // basic import
-    CharacterImport.showCurrentTask(html, "Updating basic character information");
+    CharacterImport.showCurrentTask(html, "Updating core character information");
     await this.actor.update(this.result.character);
 
     // clear items
