@@ -946,6 +946,6 @@ export async function daeSRDReplaceActorItems(actors, replaceItems) {
     });
     return daeActors;
   } else {
-    return AuthenticatorAssertionResponse;
+    return actors;
   }
 }

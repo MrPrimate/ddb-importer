@@ -4,7 +4,6 @@ import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
-import utils from "../utils.js";
 
 async function getMonsterData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
