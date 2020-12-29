@@ -109,7 +109,7 @@ export async function getSubClasses(data) {
     });
   });
 
-  const fiddledClassFeatures = await srdFiddling(classFeatures, "classes");
+  const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
   munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
