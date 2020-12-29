@@ -256,17 +256,22 @@ export default class CharacterImport extends Application {
 
 
   async copyCharacterItemEffects(items) {
-    items.forEach((item) => {
-      const originalItem = this.actorOriginal.items.find(
-        (originalItem) => item.name === originalItem.name && item.type === originalItem.type
+    return new Promise((resolve) => {
+      resolve(
+        items.map((item) => {
+          const originalItem = this.actorOriginal.items.find(
+            (originalItem) => item.name === originalItem.name && item.type === originalItem.type
+          );
+          if (originalItem) {
+            if (item.effects === undefined) item.effects = [];
+            if (originalItem.effects) {
+              utils.log(`Copying Effects for ${originalItem.name}`);
+              item.effects = originalItem.effects;
+            }
+          }
+          return item;
+        })
       );
-      if (originalItem) {
-        if (item.effects === undefined) item.effects = [];
-        if (originalItem.effects) {
-          utils.log(`Copying Effects for ${originalItem.name}`);
-          item.effects = originalItem.effects;
-        }
-      }
     });
   }
 
@@ -652,7 +657,7 @@ export default class CharacterImport extends Application {
 
       if (activeEffectCopy) {
         CharacterImport.showCurrentTask(html, "Copying Item Active Effects");
-        await this.copyCharacterItemEffects(items);
+        items = await this.copyCharacterItemEffects(items);
       }
     }
     return Promise.all(items);
@@ -697,7 +702,7 @@ export default class CharacterImport extends Application {
 
       // aways copy active effects
       if (!activeEffectCopy) {
-        await this.copyCharacterItemEffects(enrichedItems);
+        enrichedItems = await this.copyCharacterItemEffects(enrichedItems);
       }
 
       const updated = await this.actor.updateEmbeddedEntity("OwnedItem", enrichedItems);
@@ -712,36 +717,19 @@ export default class CharacterImport extends Application {
     }
   }
 
-  async parseCharacterData(html, data) {
-    this.result = data.character;
+  async processCharacterItems(html) {
     // is magicitems installed
     const magicItemsInstalled = utils.isModuleInstalledAndActive("magicitems");
-
-    await this.updateImage(html, data.ddb);
-
-    // manage updates of basic character data more intelligently
-    if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
-      // revert currency if user didn't select to update it
-      this.result.character.data.currency = this.actorOriginal.data.currency;
-    }
-
-    // flag as having items ids
-    this.result.character.flags.ddbimporter['inPlaceUpdateAvailable'] = true;
-
-    // basic import
-    CharacterImport.showCurrentTask(html, "Updating core character information");
-    await this.actor.update(this.result.character);
-
-
     // items for actor
     let items = [];
     // should we try and keep existing actor items?
     const importKeepExistingActorItems = game.settings.get("ddb-importer", "character-update-policy-new");
     // attempt to update existing items
     const updateExistingItems = game.settings.get("ddb-importer", "character-update-policy-inplace");
-    const updateReady = this.actorOriginal.flags.ddbimporter && this.actorOriginal.flags.ddbimporter.inPlaceUpdateAvailable;
+    const updateReady = (((this.actorOriginal || {}).flags || {}).ddbimporter || {}).inPlaceUpdateAvailable;
 
     if (updateExistingItems && updateReady) {
+      logger.debug("Loading items for update");
       items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
       CharacterImport.showCurrentTask(html, "Attempting existing item update");
       let [newItems, updatedItems] = await this.updateExistingIdMatchedItems(html, items);
@@ -749,11 +737,13 @@ export default class CharacterImport extends Application {
       CharacterImport.showCurrentTask(html, "Clearing remaining items for re-creation");
       await this.clearItemsByUserSelection(updatedItems);
     } else if (!importKeepExistingActorItems) {
-      CharacterImport.showCurrentTask(html, "Clearing inventory");
+      logger.debug("Clearing items");
+      CharacterImport.showCurrentTask(html, "Clearing items");
       await this.clearItemsByUserSelection();
     }
 
-    if (!updateExistingItems) {
+    if (!updateExistingItems || !updateReady) {
+      logger.debug("Non-update item load");
       items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
     }
 
@@ -830,6 +820,28 @@ export default class CharacterImport extends Application {
       logger.info("Importing SRD compendium items");
       await this.importItems(srdCompendiumItems);
     }
+
+  }
+
+  async parseCharacterData(html, data) {
+    this.result = data.character;
+    await this.updateImage(html, data.ddb);
+
+    // manage updates of basic character data more intelligently
+    if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
+      // revert currency if user didn't select to update it
+      this.result.character.data.currency = this.actorOriginal.data.currency;
+    }
+
+    // flag as having items ids
+    this.result.character.flags.ddbimporter['inPlaceUpdateAvailable'] = true;
+
+    // basic import
+    CharacterImport.showCurrentTask(html, "Updating core character information");
+    await this.actor.update(this.result.character);
+
+    // items import
+    await this.processCharacterItems(html);
 
     // We loop back over the spell slots to update them to our computed
     // available value as per DDB.
