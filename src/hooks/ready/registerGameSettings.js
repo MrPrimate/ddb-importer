@@ -240,6 +240,29 @@ export default function () {
     default: "https://ddb.mrprimate.co.uk",
   });
 
+  // const PROXY = "https://proxy.vttassets.com/?url=";
+  // const URL_ENCODE = false;
+  // const PROXY = "https://i.vtta.io/dl/";
+  // const URL_ENCODE = true;
+
+  game.settings.register("ddb-importer", "cors-endpoint", {
+    name: "ddb-importer.cors-endpoint.name",
+    hint: "ddb-importer.cors-endpoint.hint",
+    scope: "world",
+    config: false,
+    type: String,
+    default: "https://proxy.vttassets.com/?url=",
+  });
+
+  game.settings.register("ddb-importer", "cors-encode", {
+    name: "ddb-importer.cors-encode.name",
+    hint: "ddb-importer.cors-encode.hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "beta-key", {
     name: "ddb-importer.beta-key.name",
     hint: "ddb-importer.beta-key.hint",

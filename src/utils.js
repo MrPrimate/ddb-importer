@@ -3,10 +3,6 @@ import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";
 
-// const PROXY = "https://proxy.vttassets.com/?url=";
-const PROXY = "https://i.vtta.io/dl/";
-const URL_ENCODE = true;
-
 let utils = {
   debug: () => {
     return true;
@@ -520,6 +516,9 @@ let utils = {
       return new Promise((resolve, reject) => {
         fetch(url, {
           method: "GET",
+          headers: {
+            "x-requested-with": "foundry"
+          },
         })
           .then((response) => {
             if (!response.ok) {
@@ -571,8 +570,10 @@ let utils = {
 
     // uploading the character avatar and token
     try {
-      const target = URL_ENCODE ? encodeURIComponent(url) : url;
-      url = useProxy ? PROXY + target : url;
+      const proxyEndpoint = game.settings.get("ddb-importer", "cors-endpoint");
+      const urlEncode = game.settings.get("ddb-importer", "cors-encode");
+      const target = urlEncode ? encodeURIComponent(url) : url;
+      url = useProxy ? proxyEndpoint + target : url;
       // console.error(`URL: ${url}`);
       let result = await process(url, targetDirectory, filename + "." + ext);
       return result;
