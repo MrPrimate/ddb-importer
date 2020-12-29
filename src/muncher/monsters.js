@@ -1,9 +1,10 @@
 // Main module class
-import { srdFiddling, getCompendiumItems, removeItems, getSRDIconLibrary, copySRDIcons } from "./import.js";
+import { srdFiddling, getCompendiumItems, removeItems, getSRDIconLibrary, copySRDIcons, daeSRDReplaceActorItems } from "./import.js";
 import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
+import utils from "../utils.js";
 
 async function getMonsterData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
@@ -90,6 +91,8 @@ function copyExistingMonsterImages(monsters, existingMonsters) {
 export async function parseCritters() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+  const daeCopy = game.settings.get("ddb-importer", "munching-policy-dae-copy");
+
   let monsters = await getMonsterData();
 
   if (!updateBool || !updateImages) {
@@ -110,7 +113,8 @@ export async function parseCritters() {
   }
   munchNote("");
   munchNote(`Fiddling with the SRD data...`, true);
-  const finalMonsters = await srdFiddling(monsters, "monsters");
+  const daeMonsters = await daeSRDReplaceActorItems(monsters, daeCopy);
+  const finalMonsters = await srdFiddling(daeMonsters, "monsters");
 
   munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);

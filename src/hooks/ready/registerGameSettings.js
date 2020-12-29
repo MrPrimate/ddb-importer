@@ -538,7 +538,7 @@ export default function () {
     scope: "player",
     config: false,
     type: Boolean,
-    default: true,
+    default: false,
   });
 
   game.settings.register("ddb-importer", "munching-policy-hide-description", {

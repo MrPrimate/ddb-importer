@@ -67,10 +67,12 @@ async function addNPCToCompendium(npc) {
         const compendiumNPC = JSON.parse(JSON.stringify(npc));
         compendiumNPC._id = entity._id;
 
-        await compendium.updateEntity(compendiumNPC);
+        const result = await compendium.updateEntity(compendiumNPC);
+        return result;
       }
     } else {
-      await compendium.createEntity(npc);
+      const result = await compendium.createEntity(npc);
+      return result;
     }
   } else {
     logger.error("Error opening compendium, check your settings");

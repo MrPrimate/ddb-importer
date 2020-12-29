@@ -897,7 +897,6 @@ export async function updateIcons(items, srdIconUpdate = true) {
   return items;
 }
 
-
 export async function srdFiddling(items, type) {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
@@ -926,5 +925,27 @@ export async function srdFiddling(items, type) {
   } else {
     const iconItems = await updateIcons(items);
     return iconItems;
+  }
+}
+
+async function daeSRDReplace(items) {
+  let daeItems = items;
+  return daeItems;
+}
+
+export async function daeSRDReplaceActorItems(actors, replaceItems) {
+  const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+  if (replaceItems && daeInstalled) {
+    let daeActors = [];
+    await actors.forEach((actor) => {
+      munchNote(`Importing DAE Effects for ${actor.name}`);
+      daeSRDReplace(actor.items).then((daeItems) => {
+        actor.items = daeItems;
+        daeActors.push(actor);
+      });
+    });
+    return daeActors;
+  } else {
+    return AuthenticatorAssertionResponse;
   }
 }

@@ -189,10 +189,10 @@ export default class DDBMuncher extends Application {
   getData() { // eslint-disable-line class-methods-use-this
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
-    // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
     const tier = game.settings.get("ddb-importer", "patreon-tier");
     const tiers = getPatreonTiers(tier);
+    const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
 
     const itemConfig = [
       {
@@ -236,6 +236,12 @@ export default class DDBMuncher extends Application {
         isChecked: game.settings.get("ddb-importer", "munching-policy-update-images"),
         description: "Update Monster images on existing items?",
         enabled: true,
+      },
+      {
+        name: "dae-copy",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
+        description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
+        enabled: daeInstalled,
       },
       {
         name: "monster-homebrew",
