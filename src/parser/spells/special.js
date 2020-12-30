@@ -116,8 +116,22 @@ export function fixSpells(ddb, items) {
       case "Magic Missile":
         spell.data.actionType = "other";
         break;
+      // dnd beyond lists a damage for each type
       case "Chaos Bolt":
         spell.data.damage = { parts: [["2d8", ""], ["1d6", ""]], versatile: "", value: "" };
+        break;
+      // dnd beyond lists a damage for each type
+      case "Chromatic Orb":
+        spell.data.damage = { parts: [["3d8", ""]], versatile: "", value: "" };
+        spell.data.chatFlavor = "Choose from Acid, Cold, Fire, Lightning, Poison, Thunder, or Acid";
+        break;
+      case "Dragon's Breath":
+        spell.data.damage = { parts: [["3d6", ""]], versatile: "", value: "" };
+        spell.data.chatFlavor = "Choose one of Acid, Cold, Fire, Lightning, or Poison.";
+        break;
+      case "Absorb Elements":
+        spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
+        spell.data.chatFlavor = "Choose one of Acid, Cold, Fire, Lightning, or Poison.";
         break;
       case "Booming Blade":
         spell.data.damage = { parts: [["0", "thunder"]], versatile: "1d8", value: "" };
