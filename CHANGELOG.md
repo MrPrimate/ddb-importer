@@ -3,6 +3,7 @@
 * Retains Midi-QOL flags/settings on features/items
 * If it can, Character Imports will now update items rather than deleting and recreating. This will help modules like Better Roles with rely on item ID.
 * Class feature imports when copying SRD entries went to wrong compendium.
+* DAE feature swap now available for monsters.
 
 # v 0.2.14/0.2.15
 
