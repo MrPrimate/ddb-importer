@@ -2,6 +2,8 @@ import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { updateIcons, getImagePath, getCompendiumItems } from "./import.js";
+import { munchNote } from "./utils.js";
+import { migrateItemsDAESRD } from "./dae.js";
 
 /**
  *
@@ -65,6 +67,14 @@ async function addNPCToCompendium(npc) {
     if (entity) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
         const compendiumNPC = JSON.parse(JSON.stringify(npc));
+        const existingNPC = await compendium.getEntry(entity._id);
+
+        const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+        if (!updateImages && existingNPC.img !== "icons/svg/mystery-man.svg") {
+          compendiumNPC.img = existingNPC.img;
+          if (existingNPC.token.img !== "icons/svg/mystery-man.svg") compendiumNPC.token.img = existingNPC.token.img;
+        }
+
         compendiumNPC._id = entity._id;
 
         await compendium.updateEntity(compendiumNPC);
@@ -296,14 +306,24 @@ async function buildNPC(data) {
   await getNPCImage(data);
   await addSpells(data);
   await swapItems(data);
+
+  // DAE
+  const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+  const daeCopy = game.settings.get("ddb-importer", "munching-policy-dae-copy");
+  if (daeInstalled && daeCopy) {
+    munchNote(`Importing DAE Item for ${data.name}`);
+    // eslint-disable-next-line require-atomic-updates
+    data.items = await migrateItemsDAESRD(data.items);
+  }
+
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates
   data.items = await updateIcons(data.items, false);
   // create the new npc
-  logger.debug("Importing NPC");
+  logger.debug("Creating NPC actor");
   const options = {
     temporary: true,
-    displaySheet: true,
+    displaySheet: false,
   };
   let npc = await Actor.create(data, options);
   return npc;
@@ -311,6 +331,7 @@ async function buildNPC(data) {
 
 async function parseNPC (data) {
   let npc = await buildNPC(data);
+  logger.debug("Adding actor to compendium");
   await addNPCToCompendium(npc);
   return npc;
 }

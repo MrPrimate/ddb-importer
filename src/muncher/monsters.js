@@ -1,5 +1,5 @@
 // Main module class
-import { srdFiddling, getCompendiumItems, removeItems, getSRDIconLibrary, copySRDIcons, daeSRDReplaceActorItems } from "./import.js";
+import { srdFiddling, getCompendiumItems, removeItems, getSRDIconLibrary, copySRDIcons } from "./import.js";
 import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
@@ -90,7 +90,6 @@ function copyExistingMonsterImages(monsters, existingMonsters) {
 export async function parseCritters() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-  const daeCopy = game.settings.get("ddb-importer", "munching-policy-dae-copy");
 
   let monsters = await getMonsterData();
 
@@ -112,8 +111,7 @@ export async function parseCritters() {
   }
   munchNote("");
   munchNote(`Fiddling with the SRD data...`, true);
-  const daeMonsters = await daeSRDReplaceActorItems(monsters, daeCopy);
-  const finalMonsters = await srdFiddling(daeMonsters, "monsters");
+  const finalMonsters = await srdFiddling(monsters, "monsters");
 
   munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);

@@ -13,6 +13,7 @@ import {
 } from "../muncher/import.js";
 import { getCharacterOptions } from "./options.js";
 import { download, getCampaignId } from "../muncher/utils.js";
+import { migrateItemsDAESRD } from "../muncher/dae.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
@@ -629,6 +630,8 @@ export default class CharacterImport extends Application {
     const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
     const ddbGenericItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons");
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
+    const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
+    const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
 
     // if we still have items to add, add them
     if (items.length > 0) {
@@ -659,6 +662,12 @@ export default class CharacterImport extends Application {
         CharacterImport.showCurrentTask(html, "Copying Item Active Effects");
         items = await this.copyCharacterItemEffects(items);
       }
+
+      if (daeCopy && daeInstalled) {
+        CharacterImport.showCurrentTask(html, "Importing DAE Effects");
+        items = await migrateItemsDAESRD(items);
+      }
+      console.warn(items);
     }
     return Promise.all(items);
   }
@@ -857,13 +866,13 @@ export default class CharacterImport extends Application {
 
     await Promise.all(actorUpdates);
 
-    const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
-    const daeInstalled =
-      utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-    if (daeCopy && daeInstalled) {
-      CharacterImport.showCurrentTask(html, "Importing DAE Effects");
-      await DAE.migrateActorDAESRD(this.actor, false);
-    }
+    // const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
+    // const daeInstalled =
+    //   utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+    // if (daeCopy && daeInstalled) {
+    //   CharacterImport.showCurrentTask(html, "Importing DAE Effects");
+    //   await DAE.migrateActorDAESRD(this.actor, false);
+    // }
 
     // revisit this, not as simple as copying over, need to lookup exisiting active effects and mark active
     // may need to call funciton to transfer effects to actor.
