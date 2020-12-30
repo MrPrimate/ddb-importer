@@ -72,7 +72,9 @@ async function addNPCToCompendium(npc) {
         const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
         if (!updateImages && existingNPC.img !== "icons/svg/mystery-man.svg") {
           compendiumNPC.img = existingNPC.img;
-          if (existingNPC.token.img !== "icons/svg/mystery-man.svg") compendiumNPC.token.img = existingNPC.token.img;
+        }
+        if (!updateImages && existingNPC.token.img !== "icons/svg/mystery-man.svg") {
+          compendiumNPC.token.img = existingNPC.token.img;
         }
 
         compendiumNPC._id = entity._id;

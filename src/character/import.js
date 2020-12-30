@@ -13,7 +13,11 @@ import {
 } from "../muncher/import.js";
 import { getCharacterOptions } from "./options.js";
 import { download, getCampaignId } from "../muncher/utils.js";
-import { migrateActorDAESRD, migrateItemsDAESRD, addItemsDAESRD } from "../muncher/dae.js";
+import {
+  migrateActorDAESRD,
+  // migrateItemsDAESRD,
+  addItemsDAESRD
+} from "../muncher/dae.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
@@ -689,7 +693,6 @@ export default class CharacterImport extends Application {
   // returns items not updated
   async updateExistingIdMatchedItems(html, items) {
     if (this.actorOriginal.flags.ddbimporter && this.actorOriginal.flags.ddbimporter.inPlaceUpdateAvailable) {
-      const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
       const ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
 
       let nonMatchedItems = [];
@@ -717,11 +720,6 @@ export default class CharacterImport extends Application {
 
       // enrich matched items
       let enrichedItems = await this.enrichCharacterItems(html, matchedItems);
-
-      // aways copy active effects
-      if (!activeEffectCopy) {
-        enrichedItems = await this.copyCharacterItemEffects(enrichedItems);
-      }
 
       const updated = await this.actor.updateEmbeddedEntity("OwnedItem", enrichedItems);
 
@@ -887,15 +885,11 @@ export default class CharacterImport extends Application {
       await migrateActorDAESRD(this.actor);
     }
 
-    // revisit this, not as simple as copying over, need to lookup exisiting active effects and mark active
-    // may need to call funciton to transfer effects to actor.
+    // revisit this
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     if (activeEffectCopy) {
       await this.actor.deleteEmbeddedEntity("ActiveEffect", this.actor.effects.map((ae) => ae.id));
-      console.error(this.actorOriginal.effects);
-      let effectTransfer = this.actorOriginal.effects.map(ef => ef);
-      console.warn(this.actorOriginal.effects);
-      await this.actor.createEmbeddedEntity("ActiveEffect", this.actorOriginal.effects)
+      await this.actor.createEmbeddedEntity("ActiveEffect", this.actorOriginal.effects);
     }
 
     this.close();

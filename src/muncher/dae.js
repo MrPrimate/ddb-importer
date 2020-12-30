@@ -39,6 +39,7 @@ export async function loadPacks() {
   featsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Feats").getContent();
   midiPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Midi-collection").getContent();
   magicItemsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Magic Items").getContent();
+  // eslint-disable-next-line require-atomic-updates
   packsLoaded = true;
 }
 
@@ -77,7 +78,7 @@ export async function migrateItemsDAESRD(items) {
             if (replaceData) {
               setProperty(replaceData.data.flags, "dae.migrated", true);
               return dataSwap(itemData, replaceData.data);
-            };
+            }
             break;
           case "spell":
             replaceData = findDAEItem(itemData, [midiPack, spellPack]);
@@ -85,7 +86,7 @@ export async function migrateItemsDAESRD(items) {
             if (replaceData) {
               setProperty(replaceData.data.flags, "dae.migrated", true);
               return dataSwap(itemData, replaceData.data);
-            };
+            }
             break;
           case "equipment":
           case "weapon":
@@ -98,7 +99,7 @@ export async function migrateItemsDAESRD(items) {
             if (replaceData) {
               setProperty(replaceData.data.flags, "dae.migrated", true);
               return dataSwap(itemData, replaceData.data);
-            };
+            }
             break;
           default:
             break;
@@ -111,6 +112,7 @@ export async function migrateItemsDAESRD(items) {
 
 
 export async function addItemsDAESRD(items) {
+  // eslint-disable-next-line require-atomic-updates
   if (!packsLoaded) await loadPacks();
   return new Promise((resolve) => {
     resolve(
@@ -145,7 +147,6 @@ export async function addItemsDAESRD(items) {
     );
   });
 }
-
 
 
 export async function migrateActorDAESRD(actor) {

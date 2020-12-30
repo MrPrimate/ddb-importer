@@ -28,7 +28,8 @@
     "ui": true,
     "canvas": true,
     "DAE": true,
-    "FormApplication": true
+    "FormApplication": true,
+    "setProperty": true
   },
   "parserOptions": {
     "ecmaVersion": 2018,
