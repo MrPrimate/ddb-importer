@@ -4,6 +4,7 @@ import { parseJson } from "../parser/character.js";
 import {
   copySupportedItemFlags,
   addMagicItemSpells,
+  // updateFolderItems,
   getCompendiumItems,
   getSRDCompendiumItems,
   copySRDIcons,
@@ -733,6 +734,34 @@ export default class CharacterImport extends Application {
     }
   }
 
+  /**
+   * This adds magic item spells to a world,
+   */
+  // async addMagicItemSpells() {
+  //   const itemSpells = await updateFolderItems("itemSpells", this.result);
+  //   console.warn(itemSpells);
+  //   // scan the inventory for each item with spells and copy the imported data over
+  //   await this.result.inventory.forEach((item) => {
+  //     console.warn(item);
+  //     if (item.flags.magicitems.spells) {
+  //       for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
+  //         console.log(spell);
+
+  //         const itemSpell = itemSpells.find((itemSpell) => itemSpell.name === spell.name);
+  //         if (itemSpell) {
+  //           console.log(itemSpell);
+  //           for (const [key, value] of Object.entries(itemSpell)) {
+  //             console.log(`setting ${key} to ${value}`);
+  //             item.flags.magicitems.spells[i][key] = value;
+  //           }
+  //         } else if (!game.user.can("ITEM_CREATE")) {
+  //           ui.notifications.warn(`Magic Item ${item.name} cannot be enriched because of lacking player permissions`);
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
+
   async processCharacterItems(html) {
     // is magicitems installed
     const magicItemsInstalled = utils.isModuleInstalledAndActive("magicitems");
@@ -743,6 +772,12 @@ export default class CharacterImport extends Application {
     // attempt to update existing items
     const updateExistingItems = game.settings.get("ddb-importer", "character-update-policy-inplace");
     const updateReady = (((this.actorOriginal || {}).flags || {}).ddbimporter || {}).inPlaceUpdateAvailable;
+
+    // store all spells in the folder specific for Dynamic Items
+    if (magicItemsInstalled && this.result.itemSpells && Array.isArray(this.result.itemSpells)) {
+      CharacterImport.showCurrentTask(html, "Preparing magicitem spells");
+      await addMagicItemSpells(this.result);
+    }
 
     if (updateExistingItems && updateReady) {
       logger.debug("Loading items for update");
@@ -761,12 +796,6 @@ export default class CharacterImport extends Application {
     if (!updateExistingItems || !updateReady) {
       logger.debug("Non-update item load");
       items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
-    }
-
-    // store all spells in the folder specific for Dynamic Items
-    if (magicItemsInstalled && this.result.itemSpells && Array.isArray(this.result.itemSpells)) {
-      CharacterImport.showCurrentTask(html, "Preparing magicitem spells");
-      await addMagicItemSpells(this.result);
     }
 
     // If there is no magicitems module fall back to importing the magic
@@ -836,7 +865,6 @@ export default class CharacterImport extends Application {
       logger.info("Importing SRD compendium items");
       await this.importItems(srdCompendiumItems);
     }
-
   }
 
   async parseCharacterData(html, data) {

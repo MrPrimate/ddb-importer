@@ -927,20 +927,3 @@ export async function srdFiddling(items, type) {
     return iconItems;
   }
 }
-
-// export async function daeSRDReplaceActorItems(actors, replaceItems) {
-//   const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-//   if (replaceItems && daeInstalled) {
-//     let daeActors = [];
-//     await actors.forEach((actor) => {
-//       munchNote(`Importing DAE Effects for ${actor.name}`);
-//       migrateItemsDAESRD(actor.items).then((daeItems) => {
-//         actor.items = daeItems;
-//         daeActors.push(actor);
-//       });
-//     });
-//     return daeActors;
-//   } else {
-//     return actors;
-//   }
-// }
