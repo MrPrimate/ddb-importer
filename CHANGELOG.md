@@ -5,6 +5,7 @@
 * Class feature imports when copying SRD entries went to wrong compendium.
 * DAE feature swap now available for monsters.
 * General improvements to DAE imports for characters.
+* A characters magic item spells now import with icons, respecting character settings.
 
 # v 0.2.14/0.2.15
 

@@ -367,6 +367,28 @@ export async function updateCompendium(type, input, update = null, matchFlags = 
   return [];
 }
 
+export async function updateMagicItemImages(items) {
+  const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
+  const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
+  const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
+
+  // if we still have items to add, add them
+  if (items.length > 0) {
+    if (ddbItemIcons) {
+      items = await getDDBEquipmentIcons(items, true);
+    }
+
+    if (useSRDCompendiumIcons) {
+      items = await copySRDIcons(items);
+    }
+
+    if (ddbSpellIcons) {
+      items = await getDDBSpellSchoolIcons(items, true);
+    }
+  }
+  return items;
+}
+
 /**
  * Updates game folder items
  * @param {*} type
@@ -377,6 +399,10 @@ async function updateFolderItems(type, input, update = true) {
   const existingItems = await game.items.entities.filter(
     (item) => item.type === folderLookup.itemType && item.data.folder === itemsFolder._id
   );
+
+  if (type === "itemSpells") {
+    input[type] = await updateMagicItemImages(input[type]);
+  }
 
   // update or create folder items
   const updateItems = async () => {
@@ -436,7 +462,6 @@ async function updateFolderItems(type, input, update = true) {
  * This adds magic item spells to a world,
  */
 export async function addMagicItemSpells(input) {
-
   const itemSpells = await updateFolderItems("itemSpells", input);
   // scan the inventory for each item with spells and copy the imported data over
   input.inventory.forEach((item) => {
