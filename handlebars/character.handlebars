@@ -81,7 +81,7 @@
     <p>If you're using this module for the first time, you probably don't want to enable these.</p>
     {{#each advancedImportConfig}}
     <div class="advanced-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-        name="character-import-policy-{{this.name}}" data-section="{{this.name}}"
+        name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
         {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
     </div>
     {{/each}}

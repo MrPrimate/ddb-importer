@@ -110,6 +110,44 @@ export async function migrateItemsDAESRD(items) {
 }
 
 
+export async function addItemsDAESRD(items) {
+  if (!packsLoaded) await loadPacks();
+  return new Promise((resolve) => {
+    resolve(
+      items.map((itemData) => {
+        let replaceData;
+        switch (itemData.type) {
+          case "feat":
+            replaceData = findDAEItem(itemData, [midiPack, featsPack]);
+            if (replaceData) logger.debug(`Adding effects for ${replaceData.data.name}`);
+            if (replaceData) itemData.effects = replaceData.data.effects;
+            break;
+          case "spell":
+            replaceData = findDAEItem(itemData, [midiPack, spellPack]);
+            if (replaceData) logger.debug(`Adding effects for  ${replaceData.data.name}`);
+            if (replaceData) itemData.effects = replaceData.data.effects;
+            break;
+          case "equipment":
+          case "weapon":
+          case "loot":
+          case "consumable":
+          case "tool":
+          case "backpack":
+            replaceData = findDAEItem(itemData, [midiPack, itemPack, magicItemsPack]);
+            if (replaceData) logger.debug(`Adding effects for  ${replaceData.data.name}`);
+            if (replaceData) itemData.effects = replaceData.data.effects;
+            break;
+          default:
+            break;
+        }
+        return itemData;
+      })
+    );
+  });
+}
+
+
+
 export async function migrateActorDAESRD(actor) {
   if (!packsLoaded) await loadPacks();
   const items = actor.data.items;
@@ -156,13 +194,8 @@ export async function migrateActorDAESRD(actor) {
     }
   });
   let removeItems = actor.items.map((i) => i.id);
-  console.warn("Delete");
-  console.log(removeItems);
   await actor.deleteOwnedItem(removeItems);
-  console.warn("DeleteEmbedded");
   await actor.deleteEmbeddedEntity("ActiveEffect", actor.effects.map((ae) => ae.id));
-  console.warn("Create");
   await actor.createOwnedItem(replaceItems);
-  console.warn("Done");
   logger.debug(`${actor.name} replaced ${count} out of ${replaceItems.length} items from the DAE SRD`);
 }

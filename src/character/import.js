@@ -13,7 +13,7 @@ import {
 } from "../muncher/import.js";
 import { getCharacterOptions } from "./options.js";
 import { download, getCampaignId } from "../muncher/utils.js";
-import { migrateItemsDAESRD } from "../muncher/dae.js";
+import { migrateActorDAESRD, migrateItemsDAESRD, addItemsDAESRD } from "../muncher/dae.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
@@ -467,9 +467,15 @@ export default class CharacterImport extends Application {
         enabled: true,
       },
       {
+        name: "dae-effect-copy",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy"),
+        description: "Retain DDB item, but transer Dynamic Active Effects Compendiums effect for matching items/features (requires DAE and SRD module).",
+        enabled: daeInstalled,
+      },
+      {
         name: "dae-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy"),
-        description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
+        description: "Replace DDB item with Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
         enabled: daeInstalled,
       },
       {
@@ -630,7 +636,7 @@ export default class CharacterImport extends Application {
     const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
     const ddbGenericItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons");
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
-    const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
+    const daeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy");
     const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
 
     // if we still have items to add, add them
@@ -663,11 +669,11 @@ export default class CharacterImport extends Application {
         items = await this.copyCharacterItemEffects(items);
       }
 
-      if (daeCopy && daeInstalled) {
+      if (daeEffectCopy && daeInstalled) {
         CharacterImport.showCurrentTask(html, "Importing DAE Effects");
-        items = await migrateItemsDAESRD(items);
+        items = await addItemsDAESRD(items);
       }
-      console.warn(items);
+
     }
     return Promise.all(items);
   }
@@ -700,6 +706,9 @@ export default class CharacterImport extends Application {
           );
         if (matchedItem) {
           item['_id'] = matchedItem['_id'];
+          if (matchedItem.effects && matchedItem.effects.length > 0 && item.effects && item.effects.length === 0) {
+            item.effects = matchedItem.effects;
+          }
           matchedItems.push(item);
         } else {
           nonMatchedItems.push(item);
@@ -834,6 +843,9 @@ export default class CharacterImport extends Application {
 
   async parseCharacterData(html, data) {
     this.result = data.character;
+    // remove current active effects
+    await this.actor.deleteEmbeddedEntity("ActiveEffect", this.actor.effects.map((ae) => ae.id));
+    // update image
     await this.updateImage(html, data.ddb);
 
     // manage updates of basic character data more intelligently
@@ -866,20 +878,25 @@ export default class CharacterImport extends Application {
 
     await Promise.all(actorUpdates);
 
-    // const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
-    // const daeInstalled =
-    //   utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-    // if (daeCopy && daeInstalled) {
-    //   CharacterImport.showCurrentTask(html, "Importing DAE Effects");
-    //   await DAE.migrateActorDAESRD(this.actor, false);
-    // }
+    // copy items whole from DAE
+    const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
+    const daeInstalled =
+      utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+    if (daeCopy && daeInstalled) {
+      CharacterImport.showCurrentTask(html, "Importing DAE Effects");
+      await migrateActorDAESRD(this.actor);
+    }
 
     // revisit this, not as simple as copying over, need to lookup exisiting active effects and mark active
     // may need to call funciton to transfer effects to actor.
-    // const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
-    // if (activeEffectCopy) {
-    //   this.actor.effects = this.actorOriginal.effects;
-    // }
+    const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
+    if (activeEffectCopy) {
+      await this.actor.deleteEmbeddedEntity("ActiveEffect", this.actor.effects.map((ae) => ae.id));
+      console.error(this.actorOriginal.effects);
+      let effectTransfer = this.actorOriginal.effects.map(ef => ef);
+      console.warn(this.actorOriginal.effects);
+      await this.actor.createEmbeddedEntity("ActiveEffect", this.actorOriginal.effects)
+    }
 
     this.close();
   }
