@@ -115,10 +115,16 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     action = dynamicActions[0];
   }
 
+  // console.warn(dynamicActions);
+
   dom.childNodes.forEach((node) => {
-  // console.log("***");
-  // console.log(node.textContent);
-    const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
+    // console.log("***");
+    // console.warn(action);
+    // console.log("***");
+    // console.log(node.textContent);
+    // const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
+    const switchAction = dynamicActions.find((act) => node.textContent.split('.')[0].trim() === act.name);
+    // console.warn(switchAction);
     if (switchAction) {
       if (action.data.description.value !== "" && hideDescription) {
         action.data.description.value += addPlayerDescription(monster, action);
