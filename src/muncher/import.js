@@ -367,212 +367,6 @@ export async function updateCompendium(type, input, update = null, matchFlags = 
   return [];
 }
 
-export async function updateMagicItemImages(items) {
-  const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
-  const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
-  const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
-
-  // if we still have items to add, add them
-  if (items.length > 0) {
-    if (ddbItemIcons) {
-      items = await getDDBEquipmentIcons(items, true);
-    }
-
-    if (useSRDCompendiumIcons) {
-      items = await copySRDIcons(items);
-    }
-
-    if (ddbSpellIcons) {
-      items = await getDDBSpellSchoolIcons(items, true);
-    }
-  }
-  return items;
-}
-
-/**
- * Updates game folder items
- * @param {*} type
- */
-async function updateFolderItems(type, input, update = true) {
-  const folderLookup = gameFolderLookup.find((c) => c.type == type);
-  const itemsFolder = await utils.getFolder(folderLookup.folder);
-  const existingItems = await game.items.entities.filter(
-    (item) => item.type === folderLookup.itemType && item.data.folder === itemsFolder._id
-  );
-
-  if (type === "itemSpells") {
-    input[type] = await updateMagicItemImages(input[type]);
-  }
-
-  // update or create folder items
-  const updateItems = async () => {
-    return Promise.all(
-      input[type]
-        .filter((item) => existingItems.some((idx) => idx.name === item.name))
-        .map(async (item) => {
-          const existingItem = await existingItems.find((existing) => item.name === existing.name);
-          item._id = existingItem._id;
-          logger.info(`Updating ${type} ${item.name}`);
-          await copySupportedItemFlags(existingItem, item);
-          await Item.update(item);
-          return item;
-        })
-    );
-  };
-
-  const createItems = async () => {
-    return Promise.all(
-      input[type]
-        .filter((item) => !existingItems.some((idx) => idx.name === item.name))
-        .map(async (item) => {
-          if (!game.user.can("ITEM_CREATE")) {
-            ui.notifications.warn(`Cannot create ${folderLookup.type} ${item.name} for ${type}`);
-          } else {
-            logger.info(`Creating ${type} ${item.name}`);
-            item.folder = itemsFolder._id;
-            await Item.create(item);
-          }
-          return item;
-        })
-    );
-  };
-
-  if (update) await updateItems();
-  await createItems();
-
-  // lets generate our compendium info like id, pack and img for use
-  // by things like magicitems
-  const items = Promise.all(
-    game.items.entities
-      .filter((item) => item.type === folderLookup.itemType && item.data.folder === itemsFolder._id)
-      .map((result) => {
-        return {
-          _id: result._id,
-          id: result._id,
-          pack: "world",
-          img: result.img,
-          name: result.name,
-        };
-      })
-  );
-  return items;
-}
-
-/**
- * This adds magic item spells to a world,
- */
-export async function addMagicItemSpells(input) {
-  const itemSpells = await updateFolderItems("itemSpells", input);
-  // scan the inventory for each item with spells and copy the imported data over
-  input.inventory.forEach((item) => {
-    if (item.flags.magicitems.spells) {
-      for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
-        const itemSpell = itemSpells.find((item) => item.name === spell.name);
-        if (itemSpell) {
-          for (const [key, value] of Object.entries(itemSpell)) {
-            item.flags.magicitems.spells[i][key] = value;
-          }
-        } else if (!game.user.can("ITEM_CREATE")) {
-          ui.notifications.warn(`Magic Item ${item.name} cannot be enriched because of lacking player permissions`);
-        }
-      }
-    }
-  });
-}
-
-async function updateMatchingItems(oldItems, newItems, looseMatch = false, monster = false) {
-  let results = [];
-
-  for (let item of newItems) {
-    logger.debug(`checking ${item.name}`);
-    const matched = await looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
-
-    logger.debug(`matched? ${JSON.stringify(matched)}`);
-    // console.log(matched);
-    // const ddbItem = items.find((orig) =>
-    //   (item.name === orig.name && item.type === orig.type && orig.data.activation
-    //     ? orig.data.activation.type === item.data.activation.type
-    //     : true)
-    // );
-
-    if (matched) {
-      if (item.flags.ddbimporter) {
-        item.flags.ddbimporter["originalItemName"] = matched.name;
-      } else {
-        item.flags.ddbimporter = { originalItemName: matched.name };
-      }
-
-      if (matched.data.quantity) item.data.quantity = matched.data.quantity;
-      if (matched.data.attuned) item.data.attuned = matched.data.attuned;
-      if (matched.data.equipped) item.data.equipped = matched.data.equipped;
-      if (matched.data.uses) item.data.uses = matched.data.uses;
-      if (matched.data.resources) item.data.resources = matched.data.resources;
-      if (matched.data.consume) item.data.consume = matched.data.consume;
-      if (matched.data.preparation) item.data.preparation = matched.data.preparation;
-      if (matched.data.proficient) item.data.proficient = matched.data.proficient;
-      if (matched.data.ability) item.data.ability = matched.data.ability;
-      // do we want to enrich the compendium item with our parsed flag data?
-      // item.flags = { ...matched.flags, ...item.flags };
-      delete item["_id"];
-      results.push(item);
-    }
-  }
-
-  return results;
-}
-
-
-export function getCompendiumLabel(type) {
-  const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
-  const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
-  return compendiumLabel;
-}
-
-/**
- * gets items from compendium
- * @param {*} items
- */
-export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false, monsterMatch = false) {
-  if (!compendiumLabel) {
-    compendiumLabel = getCompendiumLabel(type);
-  }
-  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
-  const index = await compendium.getIndex();
-  const firstPassItems = await index.filter((i) =>
-    items.some((orig) => {
-      // console.warn(`${i.name} - ${orig.name}`);
-      if (looseMatch) {
-        const looseNames = getLooseNames(orig.name);
-        return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
-      } else if (monsterMatch) {
-        const monsterNames = getMonsterNames(orig.name);
-        // console.log(magicNames)
-        if (i.name === orig.name) {
-          return true;
-        } else if (monsterNames.includes(i.name.toLowerCase())) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return i.name === orig.name;
-      }
-    })
-  );
-
-  let loadedItems = [];
-  for (const i of firstPassItems) {
-    let item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
-    loadedItems.push(item);
-  }
-  logger.debug(`loaded items: ${JSON.stringify(loadedItems)}`);
-  // console.log(loadedItems);
-
-  const results = await updateMatchingItems(items, loadedItems, looseMatch, monsterMatch);
-  logger.debug(`result items: ${results}`);
-  // console.log(results);
-  return results;
-}
 
 export async function getImagePath(imageUrl, type = "ddb", name = "", download = false, remoteImages = false) {
   const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
@@ -614,12 +408,6 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
   return null;
 }
 
-export async function getSRDCompendiumItems(items, type, looseMatch = false) {
-  // console.error(game.packs.keys());
-  const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
-  return getCompendiumItems(items, type, compendiumName, looseMatch);
-}
-
 export async function getSRDIconMatch(type) {
   const compendiumLabel = srdCompendiumLookup.find((c) => c.type == type).name;
   const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
@@ -638,53 +426,6 @@ export async function getSRDIconMatch(type) {
     items.push(smallItem);
   }
 
-
-  return items;
-}
-
-/**
- * Sends a event request to Iconizer to add the correct icons
- * @param {*} names
- */
-function queryIconizer(names) {
-  return new Promise((resolve, reject) => {
-    let listener = (event) => {
-      resolve(event.detail);
-      // cleaning up
-      document.removeEventListener("deliverIcon", listener);
-    };
-
-    setTimeout(() => {
-      document.removeEventListener("deliverIcon", listener);
-      reject("Tokenizer not responding");
-    }, 500);
-    document.addEventListener("deliverIcon", listener);
-    document.dispatchEvent(new CustomEvent("queryIcons", { detail: { names: names } }));
-  });
-}
-
-async function getIconizerIcons(items) {
-  // replace icons by iconizer, if available
-  const itemNames = items.map((item) => {
-    return {
-      name: item.name,
-    };
-  });
-  try {
-    logger.debug("Querying iconizer for icons");
-    const icons = await queryIconizer(itemNames);
-    // logger.debug("Icons found", icons);
-
-    // replace the icons
-    items.forEach((item) => {
-      const icon = icons.find((icon) => icon.name === item.name);
-      if (icon && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
-        item.img = icon.img || "icons/svg/mystery-man.svg";
-      }
-    });
-  } catch (exception) {
-    logger.debug("Iconizer not responding");
-  }
   return items;
 }
 
@@ -880,6 +621,266 @@ export async function getDDBEquipmentIcons(items, download) {
   return Promise.all(updatedItems);
 }
 
+
+export async function updateMagicItemImages(items) {
+  const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
+  const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
+  const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
+
+  // if we still have items to add, add them
+  if (items.length > 0) {
+    if (ddbItemIcons) {
+      items = await getDDBEquipmentIcons(items, true);
+    }
+
+    if (useSRDCompendiumIcons) {
+      items = await copySRDIcons(items);
+    }
+
+    if (ddbSpellIcons) {
+      items = await getDDBSpellSchoolIcons(items, true);
+    }
+  }
+  return items;
+}
+
+/**
+ * Updates game folder items
+ * @param {*} type
+ */
+async function updateFolderItems(type, input, update = true) {
+  const folderLookup = gameFolderLookup.find((c) => c.type == type);
+  const itemsFolder = await utils.getFolder(folderLookup.folder);
+  const existingItems = await game.items.entities.filter(
+    (item) => item.type === folderLookup.itemType && item.data.folder === itemsFolder._id
+  );
+
+  if (type === "itemSpells") {
+    // eslint-disable-next-line require-atomic-updates
+    input[type] = await updateMagicItemImages(input[type]);
+  }
+
+  // update or create folder items
+  const updateItems = async () => {
+    return Promise.all(
+      input[type]
+        .filter((item) => existingItems.some((idx) => idx.name === item.name))
+        .map(async (item) => {
+          const existingItem = await existingItems.find((existing) => item.name === existing.name);
+          item._id = existingItem._id;
+          logger.info(`Updating ${type} ${item.name}`);
+          await copySupportedItemFlags(existingItem, item);
+          await Item.update(item);
+          return item;
+        })
+    );
+  };
+
+  const createItems = async () => {
+    return Promise.all(
+      input[type]
+        .filter((item) => !existingItems.some((idx) => idx.name === item.name))
+        .map(async (item) => {
+          if (!game.user.can("ITEM_CREATE")) {
+            ui.notifications.warn(`Cannot create ${folderLookup.type} ${item.name} for ${type}`);
+          } else {
+            logger.info(`Creating ${type} ${item.name}`);
+            item.folder = itemsFolder._id;
+            await Item.create(item);
+          }
+          return item;
+        })
+    );
+  };
+
+  if (update) await updateItems();
+  await createItems();
+
+  // lets generate our compendium info like id, pack and img for use
+  // by things like magicitems
+  const items = Promise.all(
+    game.items.entities
+      .filter((item) => item.type === folderLookup.itemType && item.data.folder === itemsFolder._id)
+      .map((result) => {
+        return {
+          _id: result._id,
+          id: result._id,
+          pack: "world",
+          img: result.img,
+          name: result.name,
+        };
+      })
+  );
+  return items;
+}
+
+/**
+ * This adds magic item spells to a world,
+ */
+export async function addMagicItemSpells(input) {
+  const itemSpells = await updateFolderItems("itemSpells", input);
+  // scan the inventory for each item with spells and copy the imported data over
+  input.inventory.forEach((item) => {
+    if (item.flags.magicitems.spells) {
+      for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
+        const itemSpell = itemSpells.find((item) => item.name === spell.name);
+        if (itemSpell) {
+          for (const [key, value] of Object.entries(itemSpell)) {
+            item.flags.magicitems.spells[i][key] = value;
+          }
+        } else if (!game.user.can("ITEM_CREATE")) {
+          ui.notifications.warn(`Magic Item ${item.name} cannot be enriched because of lacking player permissions`);
+        }
+      }
+    }
+  });
+}
+
+async function updateMatchingItems(oldItems, newItems, looseMatch = false, monster = false) {
+  let results = [];
+
+  for (let item of newItems) {
+    logger.debug(`checking ${item.name}`);
+    const matched = await looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
+
+    logger.debug(`matched? ${JSON.stringify(matched)}`);
+    // console.log(matched);
+    // const ddbItem = items.find((orig) =>
+    //   (item.name === orig.name && item.type === orig.type && orig.data.activation
+    //     ? orig.data.activation.type === item.data.activation.type
+    //     : true)
+    // );
+
+    if (matched) {
+      if (item.flags.ddbimporter) {
+        item.flags.ddbimporter["originalItemName"] = matched.name;
+      } else {
+        item.flags.ddbimporter = { originalItemName: matched.name };
+      }
+
+      if (matched.data.quantity) item.data.quantity = matched.data.quantity;
+      if (matched.data.attuned) item.data.attuned = matched.data.attuned;
+      if (matched.data.equipped) item.data.equipped = matched.data.equipped;
+      if (matched.data.uses) item.data.uses = matched.data.uses;
+      if (matched.data.resources) item.data.resources = matched.data.resources;
+      if (matched.data.consume) item.data.consume = matched.data.consume;
+      if (matched.data.preparation) item.data.preparation = matched.data.preparation;
+      if (matched.data.proficient) item.data.proficient = matched.data.proficient;
+      if (matched.data.ability) item.data.ability = matched.data.ability;
+      // do we want to enrich the compendium item with our parsed flag data?
+      // item.flags = { ...matched.flags, ...item.flags };
+      delete item["_id"];
+      results.push(item);
+    }
+  }
+
+  return results;
+}
+
+
+export function getCompendiumLabel(type) {
+  const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
+  const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+  return compendiumLabel;
+}
+
+/**
+ * gets items from compendium
+ * @param {*} items
+ */
+export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false, monsterMatch = false) {
+  if (!compendiumLabel) {
+    compendiumLabel = getCompendiumLabel(type);
+  }
+  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
+  const index = await compendium.getIndex();
+  const firstPassItems = await index.filter((i) =>
+    items.some((orig) => {
+      // console.warn(`${i.name} - ${orig.name}`);
+      if (looseMatch) {
+        const looseNames = getLooseNames(orig.name);
+        return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
+      } else if (monsterMatch) {
+        const monsterNames = getMonsterNames(orig.name);
+        // console.log(magicNames)
+        if (i.name === orig.name) {
+          return true;
+        } else if (monsterNames.includes(i.name.toLowerCase())) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return i.name === orig.name;
+      }
+    })
+  );
+
+  let loadedItems = [];
+  for (const i of firstPassItems) {
+    let item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
+    loadedItems.push(item);
+  }
+  logger.debug(`loaded items: ${JSON.stringify(loadedItems)}`);
+  // console.log(loadedItems);
+
+  const results = await updateMatchingItems(items, loadedItems, looseMatch, monsterMatch);
+  logger.debug(`result items: ${results}`);
+  // console.log(results);
+  return results;
+}
+
+export async function getSRDCompendiumItems(items, type, looseMatch = false) {
+  // console.error(game.packs.keys());
+  const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
+  return getCompendiumItems(items, type, compendiumName, looseMatch);
+}
+
+/**
+ * Sends a event request to Iconizer to add the correct icons
+ * @param {*} names
+ */
+function queryIconizer(names) {
+  return new Promise((resolve, reject) => {
+    let listener = (event) => {
+      resolve(event.detail);
+      // cleaning up
+      document.removeEventListener("deliverIcon", listener);
+    };
+
+    setTimeout(() => {
+      document.removeEventListener("deliverIcon", listener);
+      reject("Tokenizer not responding");
+    }, 500);
+    document.addEventListener("deliverIcon", listener);
+    document.dispatchEvent(new CustomEvent("queryIcons", { detail: { names: names } }));
+  });
+}
+
+async function getIconizerIcons(items) {
+  // replace icons by iconizer, if available
+  const itemNames = items.map((item) => {
+    return {
+      name: item.name,
+    };
+  });
+  try {
+    logger.debug("Querying iconizer for icons");
+    const icons = await queryIconizer(itemNames);
+    // logger.debug("Icons found", icons);
+
+    // replace the icons
+    items.forEach((item) => {
+      const icon = icons.find((icon) => icon.name === item.name);
+      if (icon && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
+        item.img = icon.img || "icons/svg/mystery-man.svg";
+      }
+    });
+  } catch (exception) {
+    logger.debug("Iconizer not responding");
+  }
+  return items;
+}
 
 export async function updateIcons(items, srdIconUpdate = true) {
   // this will use ddb spell school icons as a fall back
