@@ -3,7 +3,7 @@ import { getRecharge, getActivation, getFeatSave, getDamage } from "./utils.js";
 import { FEAT_TEMPLATE } from "./templates/feat.js";
 
 function addPlayerDescription(monster, action) {
-  let playerDescription = `</section>\nThe ${monster.name} performs a Legendary Action! Prepare for ${action.name}!`;
+  let playerDescription = `</section>\nThe ${monster.name} performs ${action.name}!`;
   return playerDescription;
 }
 
@@ -43,7 +43,10 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   let feat = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
   feat.name = "Legendary Actions";
   feat.data.source = getSource(monster, DDB_CONFIG);
-  feat.data.description.value = dom.childNodes.textContent;
+  feat.data.description.value = "";
+  if (hideDescription) feat.data.description.value += "<section class=\"secret\">\n";
+  feat.data.description.value += monster.legendaryActionsDescription;
+  if (hideDescription) feat.data.description.value += "</section>\n Performing a Legendary Action.\n\n";
   feat.flags.monsterMunch = {};
   feat.flags.monsterMunch['actionCopy'] = false;
   dynamicActions.push(feat);
@@ -88,41 +91,44 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
     }
 
     const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
-    if (switchAction) {
-      if (action.data.description.value !== "" && hideDescription) {
-        action.data.description.value += addPlayerDescription(monster, action);
-      }
-      action = switchAction;
-      if (action.data.description.value === "" && hideDescription) {
-        action.data.description.value = "<section class=\"secret\">\n";
-      }
-    }
-    // console.log(action)
-    if (action.flags && action.flags.monstersMunch && action.flags.monsterMunch.actionCopy) return;
-    if (node.outerHTML) action.data.description.value += node.outerHTML;
+    if (action.name !== "Legendary Actions" || switchAction) {
 
-    const activationCost = getActivation(node.textContent);
-    if (activationCost) {
-      action.data.activation.cost = activationCost;
-      action.data.consume.amount = activationCost;
-    } else {
-      action.data.activation.cost = 1;
-    }
-
-    // only attempt to update these if we don't parse an action
-    if (!action.flags.monsterMunch.actionCopy) {
-      action.data.recharge = getRecharge(node.textContent);
-      action.data.save = getFeatSave(node.textContent, action.data.save);
-      // assumption - if we have parsed a save dc set action type to save
-      if (action.data.save.dc) {
-        action.data.actionType = "save";
-        // action.type = "weapon";
+      if (switchAction) {
+        if (action.data.description.value !== "" && hideDescription && action.name !== "Legendary Actions") {
+          action.data.description.value += addPlayerDescription(monster, action);
+        }
+        action = switchAction;
+        if (action.data.description.value === "" && hideDescription) {
+          action.data.description.value = "<section class=\"secret\">\n";
+        }
       }
-      action.data.damage = getDamage(node.textContent);
+      // console.log(action)
+      if (action.flags && action.flags.monstersMunch && action.flags.monsterMunch.actionCopy) return;
+      if (node.outerHTML) action.data.description.value += node.outerHTML;
+
+      const activationCost = getActivation(node.textContent);
+      if (activationCost) {
+        action.data.activation.cost = activationCost;
+        action.data.consume.amount = activationCost;
+      } else {
+        action.data.activation.cost = 1;
+      }
+
+      // only attempt to update these if we don't parse an action
+      if (!action.flags.monsterMunch.actionCopy) {
+        action.data.recharge = getRecharge(node.textContent);
+        action.data.save = getFeatSave(node.textContent, action.data.save);
+        // assumption - if we have parsed a save dc set action type to save
+        if (action.data.save.dc) {
+          action.data.actionType = "save";
+          // action.type = "weapon";
+        }
+        action.data.damage = getDamage(node.textContent);
+      }
     }
   });
 
-  if (action && action.data.description.value !== "" && hideDescription) {
+  if (action && action.data.description.value !== "" && hideDescription && action.name !== "Legendary Actions") {
     action.data.description.value += addPlayerDescription(monster, action);
   }
 
