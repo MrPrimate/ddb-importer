@@ -453,7 +453,15 @@ export default class CharacterImport extends Application {
       },
     ];
 
+    const updateReady = (((this.actorOriginal || {}).flags || {}).ddbimporter || {}).inPlaceUpdateAvailable;
+
     const advancedImportConfig = [
+      {
+        name: "inplace",
+        isChecked: updateReady && game.settings.get("ddb-importer", "character-update-policy-inplace"),
+        description: "[Experimental] Attempt to replace existing items rather than deleting and replacing. This is recommended for retaining hotbar links for modules like Better Rolls. If it is greyed out it's not yet available with your existing character data. Maybe next time?",
+        enabled: updateReady,
+      },
       {
         name: "new",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-new"),
@@ -475,7 +483,7 @@ export default class CharacterImport extends Application {
       {
         name: "dae-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy"),
-        description: "Retain DDB item, but transer Dynamic Active Effects Compendiums effect for matching items/features (requires DAE and SRD module).",
+        description: "[Experimental] Retain DDB item, but transfer Dynamic Active Effects Compendiums effect for matching items/features (requires DAE and SRD module).",
         enabled: daeInstalled,
       },
       {
