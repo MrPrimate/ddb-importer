@@ -322,6 +322,7 @@ export default class CharacterImport extends Application {
     const toRemove = ownedItems
       .filter((item) => includedItems.includes(item.type) && !excludedList.some((excluded) => excluded._id === item._id))
       .map((item) => item._id);
+
     await this.actor.deleteEmbeddedEntity("OwnedItem", toRemove);
     return toRemove;
   }
@@ -721,11 +722,10 @@ export default class CharacterImport extends Application {
 
       // enrich matched items
       let enrichedItems = await this.enrichCharacterItems(html, matchedItems);
-
-      const updated = await this.actor.updateEmbeddedEntity("OwnedItem", enrichedItems);
+      await this.actor.updateEmbeddedEntity("OwnedItem", enrichedItems);
 
       return new Promise((resolve) => {
-        resolve([nonMatchedItems, updated]);
+        resolve([nonMatchedItems, enrichedItems]);
       });
     } else {
       return new Promise((resolve) => {
