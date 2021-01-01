@@ -102,13 +102,11 @@ export function getSkills(data, character) {
       .reduce((a, b) => a + b, 0) || 0;
     const customSkillBonus = getCustomSkillBonus(data, skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
-console.error(skillBonus);
+
     if (skillBonus && skillBonus > 0) {
       character.flags['skill-customization-5e'][skill.name] = {
         "skill-bonus": skillBonus
       };
-    }
-console.warn(character.flags);
 
     const value = character.data.abilities[skill.ability].value + proficiencyBonus + skillBonus;
 
