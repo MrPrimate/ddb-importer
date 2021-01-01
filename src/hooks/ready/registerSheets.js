@@ -102,4 +102,38 @@ export default function () {
       $(html).find("input[name='name']").parent().prepend(button);
     });
   });
+
+
+  /**
+   * NPC sheets
+   */
+  let npcSheetNames = Object.values(CONFIG.Actor.sheetClasses.npc)
+    .map((sheetClass) => sheetClass.cls)
+    .map((sheet) => sheet.name);
+
+  npcSheetNames.forEach((sheetName) => {
+    Hooks.on("render" + sheetName, (app, html, data) => {
+      // only for GMs or the owner of this npc
+      if (!data.owner || !data.actor) return;
+      let button = $('<button type="button" id="ddbImporterButton"></button>');
+
+      if (
+        app.entity.data.flags.monsterMunch &&
+        app.entity.data.flags.monsterMunch.url
+      ) {
+        button.click((event) => {
+          let url = null;
+
+          url = app.entity.data.flags.monsterMunch.url;
+
+          event.preventDefault();
+          renderPopup("web", url);
+        });
+      }
+
+      let wrap = $('<div class="ddbCharacterName"></div>');
+      $(html).find("input[name='name']").wrap(wrap);
+      $(html).find("input[name='name']").parent().prepend(button);
+    });
+  });
 }
