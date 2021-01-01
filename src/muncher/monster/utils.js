@@ -36,27 +36,34 @@ function getExtendedDamage(description) {
   // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
   const damamgeExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?: plus [^\)]+)?)\)?)? ([\w ]+?) damage(?: when used with | if used with )?(two hands)?/); // eslint-disable-line no-useless-escape
   const matches = reMatchAll(damamgeExpression, hit) || [];
+  const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
+  const regainMatch = hit.match(regainExpression);
 
   // logger.info(matches);
-  let versatile = false;
+
   for (let dmg of matches) {
-      if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
-          continue; // eslint-disable-line no-continue
+    let versatile = false;
+    if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
+        continue; // eslint-disable-line no-continue
+    }
+    // check for versatile
+    if (dmg[1] == "or " || dmg[5] == "two hands") {
+      versatile = true;
+    }
+    const damage = dmg[3] || dmg[2];
+    // Make sure we did match a damage
+    if (damage) {
+      // assumption here is that there is just one field added to versatile. this is going to be rare.
+      if (versatile) {
+        if (result.damage.versatile == "") result.damage.versatile = damage.replace("plus", "+");
+      } else {
+        result.damage.parts.push([damage.replace("plus", "+"), dmg[4]]);
       }
-      // check for versatile
-      if (dmg[1] == "or " || dmg[5] == "two hands") {
-        versatile = true;
-      }
-      const damage = dmg[3] || dmg[2];
-      // Make sure we did match a damage
-      if (damage) {
-          // assumption here is that there is just one field added to versatile. this is going to be rare.
-          if (versatile) {
-            if (result.damage.versatile == "") result.damage.versatile = damage.replace("plus", "+");
-          } else {
-            result.damage.parts.push([damage.replace("plus", "+"), dmg[4]]);
-          }
-      }
+    }
+  }
+
+  if (regainMatch) {
+    result.damage.parts.push([regainMatch[3], 'healing']);
   }
 
   const save = hit.match(/DC ([0-9]+) (.*?) saving throw/);
@@ -246,7 +253,9 @@ function checkAbilities(abilities, mods, proficiencyBonus, target, negatives = f
 function getWeaponAttack(resultData, proficiencyBonus) {
   let result = JSON.parse(JSON.stringify(resultData));
   const abilities = ["str", "dex", "int", "wis", "cha", "con"];
+  let initialAbilities = [];
   let weaponAbilities = ["str", "dex"];
+  let spellAbilities = ["cha", "wis", "int"];
 
   const lookup = DICTIONARY.weapons.find((weapon) => result.name.startsWith(weapon.name));
   // we have a weapon name match so we can infer a bit more
@@ -264,12 +273,20 @@ function getWeaponAttack(resultData, proficiencyBonus) {
     result.weaponType = lookup.weaponType;
   }
 
-  if (result.weaponAttack) {
-    // check most likely melee attacks - str and dex based
-    const checkWeaponAbilities = checkAbility(weaponAbilities, result.abilities, proficiencyBonus, result.toHit);
-    if (checkWeaponAbilities.success) {
-      result.baseAbility = checkWeaponAbilities.ability;
-      result.proficient = checkWeaponAbilities.proficient;
+  if (result.spellAttack) {
+    initialAbilities = spellAbilities;
+  } else if (result.weaponAttack) {
+    initialAbilities = weaponAbilities;
+  } else {
+    initialAbilities = abilities;
+  }
+
+  if (result.weaponAttack || result.spellAttack) {
+    // check most likely initial attacks - str and dex based weapon, mental for spell
+    const checkInitialAbilities = checkAbility(initialAbilities, result.abilities, proficiencyBonus, result.toHit);
+    if (checkInitialAbilities.success) {
+      result.baseAbility = checkInitialAbilities.ability;
+      result.proficient = checkInitialAbilities.proficient;
     }
 
     // okay lets see if its one of the others then!
@@ -284,7 +301,7 @@ function getWeaponAttack(resultData, proficiencyBonus) {
     // okay, some oddity, maybe magic bonus, lets calculate one!
     // we are going to assume it's dex or str based.
     if (!result.baseAbility) {
-      const magicAbilities = checkAbilities(weaponAbilities, result.abilities, proficiencyBonus, result.toHit);
+      const magicAbilities = checkAbilities(initialAbilities, result.abilities, proficiencyBonus, result.toHit);
       // logger.info(magicAbilities);
 
       const filteredAbilities = magicAbilities.filter((ab) => ab.success == true).sort((a, b) => {
@@ -312,7 +329,7 @@ function getWeaponAttack(resultData, proficiencyBonus) {
       logger.warn(result.name);
       logger.info(result.toHit);
 
-      const magicAbilities = checkAbilities(weaponAbilities, result.abilities, proficiencyBonus, result.toHit, true);
+      const magicAbilities = checkAbilities(initialAbilities, result.abilities, proficiencyBonus, result.toHit, true);
       // logger.info(magicAbilities);
 
       const filteredAbilities = magicAbilities.filter((ab) => ab.success == true).sort((a, b) => {
@@ -453,7 +470,7 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
   const damage = getExtendedDamage(text);
   result.damage = damage.damage;
 
-  if (result.weaponAttack) {
+  if (result.weaponAttack || result.spellAttack) {
     result = getWeaponAttack(result, proficiencyBonus);
   }
   result.reach = getReach(text);

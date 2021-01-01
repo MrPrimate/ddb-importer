@@ -10,6 +10,8 @@
 * Monster Munch: Improved parsing of Legendary Actions.
 * Save proficiencies from feats, e.g. Resilient
 * Warlock monsters now import pact spells, pact spell slots also set and spells marked as pact spells.
+* Monster Munch: Improved attacks for monsters like Aurelia
+* Monster Munch: Include healing for actions like Warleaders Helix
 
 # v 0.2.14/0.2.15
 
