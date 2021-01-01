@@ -137,7 +137,7 @@ export async function copySupportedItemFlags(originalItem, item) {
   copyFlagGroup("midi-qol", originalItem, item);
 }
 
-export function getMonsterNames(name) {
+function getMonsterNames(name) {
   let magicNames = [name, name.toLowerCase()];
 
   // +2 sword
@@ -155,8 +155,9 @@ export function getMonsterNames(name) {
   return magicNames;
 }
 
-export function getLooseNames(name) {
-  let looseNames = [name.toLowerCase()];
+function getLooseNames(name, extraNames=[]) {
+  let looseNames = extraNames;
+  looseNames.push(name.toLowerCase());
   let refactNameArray = name.split("(")[0].trim().split(", ");
   refactNameArray.unshift(refactNameArray.pop());
   const refactName = refactNameArray.join(" ").trim();
@@ -190,6 +191,8 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
   // first pass is a strict match
   let matchingItem = items.find((matchItem) => {
     let activationMatch = false;
+    const alternativeNames = (((matchItem.flags || {}).ddbimporter || {}).dndbeyond || {}).alternativeNames;
+    const extraNames = (alternativeNames) ? matchItem.flags.ddbimporter.dndbeyond.alternativeNames : [];
 
     if (item.data.activation && item.data.activation.type == "") {
       activationMatch = true;
@@ -199,7 +202,8 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
       activationMatch = true;
     }
 
-    const isMatch = item.name === matchItem.name && item.type === matchItem.type && activationMatch;
+    const nameMatch = item.name === matchItem.name || extraNames.includes(item.name);
+    const isMatch = nameMatch && item.type === matchItem.type && activationMatch;
     return isMatch;
   });
 
@@ -796,9 +800,10 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   const index = await compendium.getIndex();
   const firstPassItems = await index.filter((i) =>
     items.some((orig) => {
-      // console.warn(`${i.name} - ${orig.name}`);
+      const alternativeNames = (((orig.flags || {}).ddbimporter || {}).dndbeyond || {}).alternativeNames;
+      const extraNames = (alternativeNames) ? orig.flags.ddbimporter.dndbeyond.alternativeNames : [];
       if (looseMatch) {
-        const looseNames = getLooseNames(orig.name);
+        const looseNames = getLooseNames(orig.name, extraNames);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
       } else if (monsterMatch) {
         const monsterNames = getMonsterNames(orig.name);
@@ -811,7 +816,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
           return false;
         }
       } else {
-        return i.name === orig.name;
+        return i.name === orig.name || extraNames.includes(i.name);
       }
     })
   );

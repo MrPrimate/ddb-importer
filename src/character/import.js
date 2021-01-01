@@ -291,7 +291,12 @@ export default class CharacterImport extends Application {
       resolve(
         items.filter(
           (item) =>
-            !itemsToRemove.some((originalItem) => item.name === originalItem.name && item.type === originalItem.type)
+            !itemsToRemove.some((originalItem) => {
+              const originalNameFlag = ((originalItem.flags || {}).ddbimporter || {}).originalItemName;
+              const originalNameMatch = (originalNameFlag) ? originalItem.flags.ddbimporter.originalItemName === item.name : false;
+              const nameMatch = item.name === originalItem.name || originalNameMatch;
+              return nameMatch && item.type === originalItem.type;
+            })
         )
       );
     });
@@ -459,7 +464,7 @@ export default class CharacterImport extends Application {
       {
         name: "inplace",
         isChecked: updateReady && game.settings.get("ddb-importer", "character-update-policy-inplace"),
-        description: "[Experimental] Attempt to replace existing items rather than deleting and replacing. This is recommended for retaining hotbar links for modules like Better Rolls. If it is greyed out it's not yet available with your existing character data. Maybe next time?",
+        description: "[Experimental] Attempt to replace existing items rather than deleting and replacing. This is recommended for retaining hotbar links for modules like Better Rolls. Matched items won't be replaced by compendium items. If it is greyed out it's not yet available with your existing character data. Maybe next time?",
         enabled: updateReady,
       },
       {

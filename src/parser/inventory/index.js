@@ -26,6 +26,8 @@ import utils from "../../utils.js";
 import { parseMagicItem, getAttunement } from "./magicify.js";
 import logger from "../../logger.js";
 
+import { fixItems } from "./special.js";
+
 /**
  * We get extra damage to a weapon attack here, for example Improved
  * Divine Smite
@@ -375,5 +377,7 @@ export default function getInventory(ddb, character, itemSpells) {
       items.push(item);
     }
   }
+
+  fixItems(items);
   return items;
 }
