@@ -107,6 +107,7 @@ export function getSkills(data, character) {
       character.flags['skill-customization-5e'][skill.name] = {
         "skill-bonus": skillBonus
       };
+    }
 
     const value = character.data.abilities[skill.ability].value + proficiencyBonus + skillBonus;
 
