@@ -70,10 +70,7 @@ export function getAbilities(data) {
     // console.log(`setAbilityState ${setAbilityState}`);
     // console.log(`overRiddenStat ${overRiddenStat}`);
 
-    const proficient =
-      data.character.modifiers.class.find(
-        (mod) => mod.subType === ability.long + "-saving-throws" && mod.type === "proficiency"
-      ) !== undefined
+    const proficient = utils.filterBaseModifiers(data, "proficiency", `${ability.long}-saving-throws`).length > 0
         ? 1
         : 0;
 
