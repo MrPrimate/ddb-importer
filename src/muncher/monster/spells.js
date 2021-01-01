@@ -103,7 +103,7 @@ function parseSpells(text, spells, spellList) {
     const match = text.match(spellLevelSearch);
     // console.log(match);
 
-    const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:level|-level)\s*(?:slot|slots)?\):\s+(.*$)/
+    const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:level|-level)\s*(?:slot|slots)?\):\s+(.*$)/;
     const warlockMatch = text.match(warlockLevelSearch);
 
     if (!match && !warlockMatch) return parseInnateSpells(text, spells, spellList);

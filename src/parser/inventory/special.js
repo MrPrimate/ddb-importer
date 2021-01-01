@@ -36,7 +36,7 @@ export function fixItems(items) {
         item.data.actionType = "heal";
         item.data['target']['type'] = "creature";
         item.data['range']['type'] = "touch";
-        item.flags['ddbimporter']['dndbeyond']['alternativeNames'] = ['Potion of Superior Healing','potion of superior healing'];
+        item.flags['ddbimporter']['dndbeyond']['alternativeNames'] = ['Potion of Superior Healing', 'potion of superior healing'];
         break;
       case "Potion of Healing (Supreme)":
       case "Potion of Supreme Healing":

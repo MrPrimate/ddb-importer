@@ -155,7 +155,7 @@ function getMonsterNames(name) {
   return magicNames;
 }
 
-function getLooseNames(name, extraNames=[]) {
+function getLooseNames(name, extraNames = []) {
   let looseNames = extraNames;
   looseNames.push(name.toLowerCase());
   let refactNameArray = name.split("(")[0].trim().split(", ");
