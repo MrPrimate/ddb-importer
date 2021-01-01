@@ -9,6 +9,7 @@
 * Monster Munch: Improved action parsing for monsters such as otyugh.
 * Monster Munch: Improved parsing of Legendary Actions.
 * Save proficiencies from feats, e.g. Resilient
+* Warlock monsters now import pact spells, pact spell slots also set and spells marked as pact spells.
 
 # v 0.2.14/0.2.15
 

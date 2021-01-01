@@ -103,19 +103,31 @@ function parseSpells(text, spells, spellList) {
     const match = text.match(spellLevelSearch);
     // console.log(match);
 
-    if (!match) return parseInnateSpells(text, spells, spellList);
+    const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:level|-level)\s*(?:slot|slots)?\):\s+(.*$)/
+    const warlockMatch = text.match(warlockLevelSearch);
 
-    const spellLevel = match[1];
-    const slots = match[2];
+    if (!match && !warlockMatch) return parseInnateSpells(text, spells, spellList);
+
+    const spellLevel = (match) ? match[1] : 'pact';
+    const slots = (match) ? match[2] : warlockMatch[2];
+    const spellMatches = (match) ? match[3] : warlockMatch[4];
 
     if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))) {
       spells[`spell${spellLevel}`]['value'] = slots;
       spells[`spell${spellLevel}`]['max'] = slots;
-      const spellArray = match[3].split(",").map((spell) => spell.trim());
+      spells[`spell${spellLevel}`]['override'] = slots;
+      const spellArray = spellMatches.split(",").map((spell) => spell.trim());
       spellList.class.push(...spellArray);
+    } else if (spellLevel === 'pact' && Number.isInteger(parseInt(slots))) {
+      spells[spellLevel]['value'] = slots;
+      spells[spellLevel]['max'] = slots;
+      spells[spellLevel]['override'] = slots;
+      spells[spellLevel]['level'] = warlockMatch[3];
+      const spellArray = spellMatches.split(",").map((spell) => spell.trim());
+      spellList.pact.push(...spellArray);
     } else if (slots == "at will") {
       // at will spells
-      const spellArray = match[3].replace(/\*/g, '').split(",").map((spell) => spell.trim());
+      const spellArray = spellMatches.replace(/\*/g, '').split(",").map((spell) => spell.trim());
       spellList.atwill.push(...spellArray);
     }
 
@@ -144,6 +156,7 @@ function splitEdgeCase(spell) {
 function getEdgeCases(spellList) {
   let results = {
     class: [],
+    pact: [],
     atwill: [],
     // {name: "", type: "srt/lng/day", value: 0} // check these values
     innate: [],
@@ -170,6 +183,18 @@ function getEdgeCases(spellList) {
       const edgeEntry = {
         name: edgeCheck.name,
         type: "atwill",
+        edge: edgeCheck.edge,
+      };
+      results.edgeCases.push(edgeEntry);
+    }
+  });
+  spellList.pact.forEach((spell) => {
+    const edgeCheck = splitEdgeCase(spell);
+    results.pact.push(edgeCheck.name);
+    if (edgeCheck.edge) {
+      const edgeEntry = {
+        name: edgeCheck.name,
+        type: "pact",
         edge: edgeCheck.edge,
       };
       results.edgeCases.push(edgeEntry);
@@ -203,6 +228,7 @@ export function getSpells(monster, DDB_CONFIG) {
   let spellLevel = 0;
   let spellList = {
     class: [],
+    pact: [],
     atwill: [],
     // {name: "", type: "srt/lng/day", value: 0} // check these values
     innate: [],

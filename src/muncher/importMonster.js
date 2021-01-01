@@ -204,6 +204,7 @@ async function addSpells(data) {
   const atWill = spellList.atwill;
   const klass = spellList.class;
   const innate = spellList.innate;
+  const pact = spellList.pact;
 
   if (atWill.length !== 0) {
     logger.debug("Retrieving at Will spells:", atWill);
@@ -242,6 +243,22 @@ async function addSpells(data) {
         prepared: true,
       };
       getSpellEdgeCase(spell, "class", spellList);
+      return spell;
+    });
+    // eslint-disable-next-line require-atomic-updates
+    data.items = data.items.concat(spells);
+  }
+
+  // pact spells
+  if (pact.length !== 0) {
+    logger.debug("Retrieving pact spells:", pact);
+    let spells = await retrieveSpells(pact);
+    spells = spells.filter((spell) => spell !== null).map((spell) => {
+      spell.data.preparation = {
+        mode: "pact",
+        prepared: true,
+      };
+      getSpellEdgeCase(spell, "pact", spellList);
       return spell;
     });
     // eslint-disable-next-line require-atomic-updates
