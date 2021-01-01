@@ -8,6 +8,7 @@
 * A characters magic item spells now import with icons, respecting character settings.
 * Monster Munch: Improved action parsing for monsters such as otyugh.
 * Monster Munch: Improved parsing of Legendary Actions.
+* Save proficiencies from feats, e.g. Resilient
 
 # v 0.2.14/0.2.15
 
