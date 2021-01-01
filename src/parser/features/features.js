@@ -1,6 +1,7 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
+import { fixFeatures } from "./special.js";
 
 function getDescription(ddb, character, feat) {
   let snippet = "";
@@ -264,5 +265,6 @@ export default function parseFeatures(ddb, character) {
       });
     });
 
+  fixFeatures(items);
   return items;
 }

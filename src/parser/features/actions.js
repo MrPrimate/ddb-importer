@@ -1,6 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
+import { fixFeatures } from "./special.js";
 
 // get actions from ddb.character.customActions
 function getCustomActions(ddb, displayedAsAttack) {
@@ -465,5 +466,6 @@ export default function parseActions(ddb, character) {
     }
   });
 
+  fixFeatures(actions);
   return actions;
 }
