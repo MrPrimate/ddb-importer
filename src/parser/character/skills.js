@@ -71,13 +71,13 @@ let getCustomSkillBonus = (data, skill) => {
       (value) => (value.typeId == 24 || value.typeId == 25) && value.valueId == skill.valueId
     ).reduce((total, bonus) => {
       return total + bonus.value;
-}, 0);
+    }, 0);
 
     if (customBonus) {
       return customBonus;
     }
   }
-  return undefined;
+  return 0;
 };
 
 
@@ -99,15 +99,16 @@ export function getSkills(data, character) {
     const skillModifierBonus = utils
       .filterBaseModifiers(data, "bonus", skill.subType)
       .map((skl) => skl.value)
-      .reduce((a, b) => a + b, 0);
+      .reduce((a, b) => a + b, 0) || 0;
     const customSkillBonus = getCustomSkillBonus(data, skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
-
-    if (skillBonus) {
+console.error(skillBonus);
+    if (skillBonus && skillBonus > 0) {
       character.flags['skill-customization-5e'][skill.name] = {
         "skill-bonus": skillBonus
       };
     }
+console.warn(character.flags);
 
     const value = character.data.abilities[skill.ability].value + proficiencyBonus + skillBonus;
 
