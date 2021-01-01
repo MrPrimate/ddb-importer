@@ -13,6 +13,9 @@
 * Monster Munch: Improved attacks for monsters like Aurelia
 * Monster Munch: Include healing for actions like Warleaders Helix.
 * Skill Customization bonuses not coming through.
+* Improved parsing of Stone's Endurance and Second Wind.
+* Healing potions will now roll damage.
+* Better matching for SRD replaced Healing potions.
 
 # v 0.2.14/0.2.15
 
