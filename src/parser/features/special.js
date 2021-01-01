@@ -24,6 +24,10 @@ export function fixFeatures(features) {
         feature.data['target']['type'] = "self";
         feature.data['range']['type'] = "self";
         break;
+      case "Divine Intervention":
+        feature.data.damage = { parts: [["1d100", ""]], versatile: "", value: "" };
+        feature.data.actionType = "other";
+        break;
       // add a rage effect
       case "Rage":
         feature.effects = [
