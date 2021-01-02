@@ -65,6 +65,27 @@ async function getPatreonTier() {
   });
 }
 
+export async function getPatreonValidity(betaKey) {
+  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+  const body = { betaKey: betaKey };
+
+  return new Promise((resolve, reject) => {
+    fetch(`${parsingApi}/patreon/valid`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body), // body data type must match "Content-Type" header
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => reject(error));
+  });
+}
+
 export function getPatreonTiers(tier) {
   const godTier = tier === "GOD";
   const undyingTier = tier === "UNDYING";
