@@ -12,7 +12,15 @@ async function getMonsterData() {
   const searchTerm = $("#monster-munch-filter")[0].value;
   const debugJson = game.settings.get("ddb-importer", "debug-json");
   const homebrew = game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
-  const body = { cobalt: cobaltCookie, betaKey: betaKey, search: searchTerm, homebrew: homebrew, searchTerm: searchTerm };
+  const exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
+  const body = {
+    cobalt: cobaltCookie,
+    betaKey: betaKey,
+    search: searchTerm,
+    homebrew: homebrew,
+    searchTerm: searchTerm,
+    exactMatch: exactMatch,
+  };
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/monster`, {
@@ -41,9 +49,13 @@ async function getMonsterData() {
         return parsedMonsters;
       })
       .then((data) => {
-
-        munchNote(`Parsed ${data.actors.length} monsters, failed ${data.failedMonsterNames.length} monsters`, false, true);
-        if (data.failedMonsterNames && data.failedMonsterNames.length !== 0) logger.error(`Failed to parse ${data.failedMonsterNames}`);
+        munchNote(
+          `Parsed ${data.actors.length} monsters, failed ${data.failedMonsterNames.length} monsters`,
+          false,
+          true
+        );
+        if (data.failedMonsterNames && data.failedMonsterNames.length !== 0)
+          logger.error(`Failed to parse ${data.failedMonsterNames}`);
         resolve(data.actors);
       })
       .catch((error) => reject(error));

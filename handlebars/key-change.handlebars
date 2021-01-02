@@ -1,0 +1,20 @@
+<h2>DDB Patreon Key {{#if success}}Expiry{{else}}Failure{{/if}}</h2>
+
+{{#if success}}
+<p>Hello! At the moment the Patreon Key changes every month. They key you are using has expired :(</p>
+<p>If you're an active supporter you can grab your new key <a href="https://www.patreon.com/posts/patreon-keys-45692991">here.</a></p>
+
+{{else}}
+<p>There was a failure checking your Patreon Key the API said:</p>
+<p style="color: red">{{message}}</p>
+{{/if}}
+
+<div class="form-description">
+  <form id="ddb-importer-settings" autocomplete="off" onsubmit="event.preventDefault();">
+    <h2>Patreon Key</h2>
+    <p>Enter your Patreon Key to unlock features</p>
+    <input class="setup-config" type="password" name="beta-key" style="flex: 0 1 auto" ;
+      value="{{setupConfig.beta-key}}" />
+    <button id="munch-settings" class="munch-button" type="submit">Save</button>
+  </form>
+</div>

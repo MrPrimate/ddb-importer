@@ -249,6 +249,12 @@ export default class DDBMuncher extends Application {
         description: (tiers.homebrew) ? "Include homebrew?" : "Include homebrew? [Undying or God tier patreon supporters]",
         enabled: tiers.homebrew,
       },
+      {
+        name: "monster-exact-match",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exact-match"),
+        description: (tiers.homebrew) ? "Exact name match?" : "Exact name match? [Undying or God tier patreon supporters]",
+        enabled: tiers.homebrew,
+      },
     ];
 
     const genericConfig = [
