@@ -1,0 +1,21 @@
+<h2>Monster Muncher Source Selection</h2>
+<p>Mmmmmm sauce.</p>
+
+<div class="form-description">
+  <form id="ddb-importer-sources" autocomplete="off" onsubmit="event.preventDefault();">
+    <div class="form-content">
+      <hr>
+      {{#each sources}}
+      <div class="munching-sources">
+        <input {{#if this.selected}}checked{{/if}} type="checkbox"
+              id="{{this.id}}"
+              name="{{this.id}}"
+              data-section="{{this.label}}">
+        {{this.label}} ({{this.acronym}})
+      {{/each}}
+      <hr>
+     </div>
+    <button id="munch-monsters-compendium" class="munch-button" type="submit">Save</button>
+    </div>
+  </form>
+</div>

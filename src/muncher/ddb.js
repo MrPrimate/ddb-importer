@@ -7,7 +7,60 @@ import { parseCritters } from "./monsters.js";
 import { parseRaces } from "./races.js";
 import { parseClasses } from "./classes.js";
 import { getPatreonTiers, munchNote } from "./utils.js";
+import { DDB_CONFIG } from "../ddb-config.js";
 
+function getSourcesLookups(selected) {
+  const selections = DDB_CONFIG.sources
+  .filter((source) => source.isReleased)
+  .map((source) => {
+    const details = {
+      id: source.id,
+      acronym: source.name,
+      label: source.description,
+      selected: selected.includes(source.id),
+    };
+    return details;
+  });
+
+  return selections;
+}
+
+export class DDBSources extends FormApplication {
+  static get defaultOptions() {
+    const options = super.defaultOptions;
+    options.id = "ddb-importer-sources";
+    options.template = "modules/ddb-importer/handlebars/sources.handlebars";
+    options.width = 500;
+    return options;
+  }
+
+  get title() { // eslint-disable-line class-methods-use-this
+    // improve localisation
+    // game.i18n.localize("")
+    return "Monster Muncher Sauce Selection";
+  }
+
+  /** @override */
+  async getData() { // eslint-disable-line class-methods-use-this
+    const existingSelection = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
+    const sources = getSourcesLookups(existingSelection);
+
+    return {
+      sources: sources,
+    };
+  }
+
+  /** @override */
+  // eslint-disable-next-line no-unused-vars
+  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
+    event.preventDefault();
+    let sources = [];
+    for (const [key, value] of Object.entries(formData)) {
+      if (value) sources.push(parseInt(key));
+    }
+    await game.settings.set("ddb-importer", "munching-policy-monster-sources", sources);
+  }
+}
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {
@@ -30,6 +83,10 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseCritters();
     });
+    html.find("#munch-source-select").click(async () => {
+      DDBMuncher.selectSources();
+    });
+
     html.find("#munch-spells-start").click(async () => {
       munchNote(`Downloading spells...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
@@ -116,6 +173,7 @@ export default class DDBMuncher extends Application {
     if (cobalt && tier === "GOD") {
       $('button[id^="munch-races-start"]').prop('disabled', false);
       $('button[id^="munch-classes-start"]').prop('disabled', false);
+      $('button[id^="munch-source-select"]').prop('disabled', false);
     }
   }
 
@@ -185,6 +243,10 @@ export default class DDBMuncher extends Application {
     }
   }
 
+  static async selectSources() {
+    new DDBSources().render(true);
+  }
+
 
   getData() { // eslint-disable-line class-methods-use-this
     const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
@@ -252,7 +314,7 @@ export default class DDBMuncher extends Application {
       {
         name: "monster-exact-match",
         isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exact-match"),
-        description: (tiers.homebrew) ? "Exact name match?" : "Exact name match? [Undying or God tier patreon supporters]",
+        description: (tiers.homebrew) ? "Exact name match? (case insensitive)" : "Exact name match? [Undying or God tier patreon supporters]",
         enabled: tiers.homebrew,
       },
     ];

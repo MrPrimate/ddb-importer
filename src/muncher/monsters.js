@@ -13,6 +13,7 @@ async function getMonsterData() {
   const debugJson = game.settings.get("ddb-importer", "debug-json");
   const homebrew = game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
   const exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
+  const sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
   const body = {
     cobalt: cobaltCookie,
     betaKey: betaKey,
@@ -20,6 +21,7 @@ async function getMonsterData() {
     homebrew: homebrew,
     searchTerm: searchTerm,
     exactMatch: exactMatch,
+    sources: sources,
   };
 
   return new Promise((resolve, reject) => {

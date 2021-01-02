@@ -1,7 +1,8 @@
 # v 0.2.17
 
 * Workflow for prompting for key change
-* Monster munch: allow filtering by exact name match [Undying and God tier patreon supporters]
+* Monster munch: allow filtering by exact name match [Undying and God tier Patreon supporters]
+* Monster munch: filter by source book [God tier Early Access feature]
 
 # v 0.2.16
 
