@@ -75,7 +75,7 @@ let utils = {
     // componentId on spells.class[0].componentId = options.class[0].definition.id
     // options.class[0].definition.componentId = classes[0].classFeatures[0].definition.id
     const option = data.character.options.class.find((option) => option.definition.id === optionId);
-    utils.log(option);
+    // utils.log(option);
     if (option) {
       const klass = data.character.classes.find((klass) =>
         klass.classFeatures.some((feature) => feature.definition.id === option.componentId)
@@ -302,7 +302,7 @@ let utils = {
       const choiceOptionalFeature = data.character.optionalClassFeatures
         .filter((f) => f.classFeatureId === choiceFeature)
         .map((f) => f.affectedClassFeatureId);
-      if (choiceOptionalFeature) {
+      if (choiceOptionalFeature && choiceOptionalFeature.length > 0) {
         return choiceOptionalFeature[0];
       }
     } else if (optionalFeature && optionalFeature.length > 0) {
