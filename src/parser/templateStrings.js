@@ -232,5 +232,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
     }
   });
 
+  result = result.replace("+ +", "+");
+
   return result;
 }

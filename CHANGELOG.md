@@ -1,7 +1,8 @@
 # v 0.2.18
 
 * Add missing character URL back, will fix broken shift-click functionality on the B icon.
-* Spells from some class feature edge cases did not import after Tasha's changed, e.g. Divine Soul extra spells
+* Spells from some class feature edge cases did not import after Tasha's changed, e.g. Divine Soul extra spells.
+* Some string parsing in descriptions resulted in ad "+ +" rather than "+".
 
 # v 0.2.17
 
