@@ -129,6 +129,11 @@ export function fixSpells(ddb, items) {
         spell.data.damage = { parts: [["3d6", ""]], versatile: "", value: "" };
         spell.data.chatFlavor = "Choose one of Acid, Cold, Fire, Lightning, or Poison.";
         break;
+      case "Hunter's Mark":
+      case "Hunter’s Mark":
+        spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
+        spell.data.actionType = "other";
+        break;
       case "Absorb Elements":
         spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
         spell.data.chatFlavor = "Choose one of Acid, Cold, Fire, Lightning, or Poison.";
