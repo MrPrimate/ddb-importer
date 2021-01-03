@@ -23,6 +23,7 @@
 // SOFTWARE.
 
 import logger from "../logger.js";
+import utils from "../utils.js";
 
 var packsLoaded = false;
 var itemPack;
@@ -45,7 +46,10 @@ export async function loadPacks() {
 
 function findDAEItem(itemData, packs) {
   for (let pack of packs) {
-    let matchItem = pack.find((pd) => pd.name === itemData.name && pd.type === itemData.type);
+    let matchItem = pack.find((pd) =>
+      pd.name === itemData.name &&
+      pd.type === itemData.type
+    );
     if (matchItem) return matchItem;
   }
   return undefined;
@@ -67,40 +71,48 @@ function dataSwap(itemData, replaceData) {
 
 export async function migrateItemsDAESRD(items) {
   if (!packsLoaded) await loadPacks();
+  const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
+
   return new Promise((resolve) => {
     resolve(
       items.map((itemData) => {
         let replaceData;
         switch (itemData.type) {
-          case "feat":
-            replaceData = findDAEItem(itemData, [midiPack, featsPack]);
+          case "feat": {
+            const featPacks = (midiInstalled) ? [midiPack, featsPack] : [featsPack];
+            replaceData = findDAEItem(itemData, featPacks);
             if (replaceData) logger.debug(`migrating${replaceData.data.name}`);
             if (replaceData) {
               setProperty(replaceData.data.flags, "dae.migrated", true);
               return dataSwap(itemData, replaceData.data);
             }
             break;
-          case "spell":
-            replaceData = findDAEItem(itemData, [midiPack, spellPack]);
+          }
+          case "spell": {
+            const spellPacks = (midiInstalled) ? [midiPack, spellPack] : [spellPack];
+            replaceData = findDAEItem(itemData, spellPacks);
             if (replaceData) logger.debug(`migrating ${replaceData.data.name}`);
             if (replaceData) {
               setProperty(replaceData.data.flags, "dae.migrated", true);
               return dataSwap(itemData, replaceData.data);
             }
             break;
+          }
           case "equipment":
           case "weapon":
           case "loot":
           case "consumable":
           case "tool":
-          case "backpack":
-            replaceData = findDAEItem(itemData, [midiPack, itemPack, magicItemsPack]);
+          case "backpack": {
+            const equipmentPacks = (midiInstalled) ? [midiPack, itemPack, magicItemsPack] : [itemPack, magicItemsPack];
+            replaceData = findDAEItem(itemData, equipmentPacks);
             if (replaceData) logger.debug(`migrating ${replaceData.data.name}`);
             if (replaceData) {
               setProperty(replaceData.data.flags, "dae.migrated", true);
               return dataSwap(itemData, replaceData.data);
             }
             break;
+          }
           default:
             break;
         }

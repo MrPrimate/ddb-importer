@@ -4,6 +4,7 @@
 * Spells from some class feature edge cases did not import after Tasha's changed, e.g. Divine Soul extra spells.
 * Some string parsing in descriptions resulted in ad "+ +" rather than "+".
 * When using a cobalt cookie authentication will now be attempted to retrieve private characters. (i.e. character can now be set to private and imported, as long as you have permission to view them).
+* DAE preferred midi compendium when midi-qol was not installed.
 
 # v 0.2.17
 
