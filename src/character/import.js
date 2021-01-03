@@ -217,7 +217,8 @@ export default class CharacterImport extends Application {
         if (characterId) {
           const apiEndpointUrl = getCharacterAPIEndpoint(characterId);
           this.actor.data.flags.ddbimporter.dndbeyond.characterId = characterId;
-          this.actor.data.flags.ddbimporter.dndbeyond.url = apiEndpointUrl;
+          this.actor.data.flags.ddbimporter.dndbeyond.apiEndpointUrl = apiEndpointUrl;
+          this.actor.data.flags.ddbimporter.dndbeyond.url = url;
         } else {
           // clear the url, because it's malformed anyway
           this.actor.data.flags.ddbimporter.dndbeyond.url = null;
@@ -615,7 +616,8 @@ export default class CharacterImport extends Application {
             flags: {
               ddbimporter: {
                 dndbeyond: {
-                  url: apiEndpointUrl,
+                  url: URL,
+                  apiEndpointUrl: apiEndpointUrl,
                   characterId: characterId,
                 },
               },

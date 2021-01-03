@@ -1,3 +1,7 @@
+# v 0.2.18
+
+* Add missing character URL back, will fix broken shift-click functionality on the B icon.
+
 # v 0.2.17
 
 * Workflow for prompting for key change
