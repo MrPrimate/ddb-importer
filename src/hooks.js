@@ -19,6 +19,9 @@ import onSocketMessage from "./hooks/socket/onSocketMessage.js";
 // monster muncher
 import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
 
+// image hooks
+import linkImages from "./hooks/renderJournalSheet/linkImages.js";
+
 import registerNotifications from "./lib/Notification.js";
 
 
@@ -69,4 +72,8 @@ export function onReady() {
 export function renderSidebarTab(app, html) {
   addFolderLabel(html);
   addMuncher(app, html);
+}
+
+export function renderJournalSheet(sheet, html, data) {
+  linkImages(html);
 }
