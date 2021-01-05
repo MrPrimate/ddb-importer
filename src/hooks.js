@@ -74,6 +74,7 @@ export function renderSidebarTab(app, html) {
   addMuncher(app, html);
 }
 
+// eslint-disable-next-line no-unused-vars
 export function renderJournalSheet(sheet, html, data) {
   linkImages(html);
 }

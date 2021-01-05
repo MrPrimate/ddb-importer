@@ -52,10 +52,10 @@ export function fixItems(items) {
         item.data.activation = { type: "action", cost: 1, condition: "" };
         item.data.uses = { value: 1, max: "1", per: "day" };
         item.data.range = { value: 60, long: null, units: "ft" };
-        item.ability = dex;
-        item.activation = "rwak";
-        item.save = { ability: "str", dc: 20, scaling: "flat" };
-        item.target = { value: 1, width: null, units: "any", type: "creature" };
+        item.data.ability = "dex";
+        item.data.activation = "rwak";
+        item.data.save = { ability: "str", dc: 20, scaling: "flat" };
+        item.data.target = { value: 1, width: null, units: "any", type: "creature" };
       // no default
     }
   });

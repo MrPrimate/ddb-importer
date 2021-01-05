@@ -122,7 +122,7 @@ function getLimitedUse(action, character) {
     } else if (action.limitedUse.useProficiencyBonus) {
       const multiplier = action.limitedUse.proficiencyBonusOperator ? action.limitedUse.proficiencyBonusOperator : 1;
       if (action.limitedUse.operator === 1) {
-        maxUses = character.data.attributes.prof * multiplier + action.limitedUse.maxUses;
+        maxUses = (character.data.attributes.prof * multiplier) + action.limitedUse.maxUses;
       } else {
         maxUses = character.data.attributes.prof;
       }
