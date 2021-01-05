@@ -48,6 +48,14 @@ export function fixItems(items) {
         item.data['range']['type'] = "touch";
         item.flags['ddbimporter']['dndbeyond']['alternativeNames'] = ['Potion of Supreme Healing'];
         break;
+      case "Iron Bands of Binding":
+        item.data.activation = { type: "action", cost: 1, condition: "" };
+        item.data.uses = { value: 1, max: "1", per: "day" };
+        item.data.range = { value: 60, long: null, units: "ft" };
+        item.ability = dex;
+        item.activation = "rwak";
+        item.save = { ability: "str", dc: 20, scaling: "flat" };
+        item.target = { value: 1, width: null, units: "any", type: "creature" };
       // no default
     }
   });
