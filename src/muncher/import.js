@@ -194,11 +194,16 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
     const alternativeNames = (((matchItem.flags || {}).ddbimporter || {}).dndbeyond || {}).alternativeNames;
     const extraNames = (alternativeNames) ? matchItem.flags.ddbimporter.dndbeyond.alternativeNames : [];
 
-    if (item.data.activation && item.data.activation.type == "") {
+    if (item.data.hasOwnProperty('activation') && item.data.activation.type == "") {
       activationMatch = true;
-    } else if (matchItem.data.activation && item.data.activation) {
-      activationMatch = matchItem.data.activation.type === item.data.activation.type;
-    } else if (!item.data.activation) {
+    } else if (matchItem.data.hasOwnProperty('activation') && item.data.hasOwnProperty('activation')) {
+      // I can't remember why I added this. Maybe I was concerned about identical named items with
+      // different activation times?
+      // maybe I just want to check it exists?
+      // causing issues so changed.
+      // activationMatch = matchItem.data.activation.type === item.data.activation.type;
+      activationMatch = matchItem.data.activation.hasOwnProperty('type') && item.data.activation.hasOwnProperty('type');
+    } else if (!item.data.hasOwnProperty('activation')) {
       activationMatch = true;
     }
 
