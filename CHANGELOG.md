@@ -1,3 +1,10 @@
+# v 0.2.19
+
+* Monster action name is no longer included in the action description.
+* Some abilities like Chef: Special Food did not calculate users correctly.
+* Importing from compendium did not work if action type had changed.
+* Some legendary actions split the charges used into a seperate action (e.g. Aboleth).
+
 # v 0.2.18
 
 * Add missing character URL back, will fix broken shift-click functionality on the B icon.
