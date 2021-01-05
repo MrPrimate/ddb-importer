@@ -123,20 +123,32 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     // console.log("***");
     // console.log(node.textContent);
     // const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
-    const switchAction = dynamicActions.find((act) => node.textContent.split('.')[0].trim() === act.name);
+    const nodeName = node.textContent.split('.')[0].trim();
+    const switchAction = dynamicActions.find((act) => nodeName === act.name);
     // console.warn(switchAction);
+    let startFlag = false;
     if (switchAction) {
       if (action.data.description.value !== "" && hideDescription) {
         action.data.description.value += addPlayerDescription(monster, action);
       }
       action = switchAction;
-      if (action.data.description.value === "" && hideDescription) {
-        action.data.description.value = "<section class=\"secret\">\n";
+      if (action.data.description.value === "") {
+        startFlag = true;
+        if (hideDescription) {
+          action.data.description.value = "<section class=\"secret\">\n";
+        }
       }
     }
-    if (node.outerHTML) action.data.description.value += node.outerHTML;
 
     const actionInfo = getActionInfo(monster, DDB_CONFIG, action.name, node.textContent);
+
+    if (node.outerHTML) {
+      let outerHTML = node.outerHTML;
+      if (switchAction && startFlag) {
+        outerHTML = outerHTML.replace(`${nodeName}.`, "");
+      }
+      action.data.description.value += outerHTML;
+    }
     // console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
     // console.log(JSON.stringify(actionInfo, null, 4));
     // console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");

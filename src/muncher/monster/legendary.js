@@ -84,13 +84,16 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   .forEach((node) => {
     // check for action numbers
     // can take 3 legendary actions
+    let startFlag = false;
     const actionMatch = node.textContent.match(/can take (d+) legendary actions/);
     if (actionMatch) {
       actionResource.value = parseInt(actionMatch[1]);
       actionResource.max = parseInt(actionMatch[1]);
     }
 
-    const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
+//    const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
+    const nodeName = node.textContent.split('.')[0].trim();
+    const switchAction = dynamicActions.find((act) => nodeName === act.name);
     if (action.name !== "Legendary Actions" || switchAction) {
 
       if (switchAction) {
@@ -98,13 +101,22 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
           action.data.description.value += addPlayerDescription(monster, action);
         }
         action = switchAction;
-        if (action.data.description.value === "" && hideDescription) {
-          action.data.description.value = "<section class=\"secret\">\n";
+        if (action.data.description.value === "") {
+          startFlag = true;
+          if (hideDescription) {
+            action.data.description.value = "<section class=\"secret\">\n";
+          }
         }
       }
       // console.log(action)
       if (action.flags && action.flags.monstersMunch && action.flags.monsterMunch.actionCopy) return;
-      if (node.outerHTML) action.data.description.value += node.outerHTML;
+      if (node.outerHTML) {
+        let outerHTML = node.outerHTML;
+        if (switchAction && startFlag) {
+          outerHTML = outerHTML.replace(`${nodeName}.`, "");
+        }
+        action.data.description.value += outerHTML;
+      }
 
       const activationCost = getActivation(node.textContent);
       if (activationCost) {

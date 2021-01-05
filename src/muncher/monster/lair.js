@@ -72,18 +72,28 @@ export function getLairActions(monster, DDB_CONFIG) {
   }
 
   dom.childNodes.forEach((node) => {
-    const switchAction = dynamicActions.find((act) => act.name == node.textContent);
+    // const switchAction = dynamicActions.find((act) => act.name == node.textContent);
+    const nodeName = node.textContent.split('.')[0].trim();
+    const switchAction = dynamicActions.find((act) => nodeName === act.name);
+    let startFlag = false;
     if (switchAction) {
       actionType = node.textContent;
       if (action.data.description.value !== "" && hideDescription) {
         action.data.description.value += addPlayerDescription(monster, action);
       }
       action = switchAction;
+      if (action.data.description.value === "") startFlag = true;
       if ((action.data.description.value === "" || action.name === "Lair Actions") && hideDescription) {
         action.data.description.value += "<section class=\"secret\">\n";
       }
     }
-    if (node.outerHTML) action.data.description.value += node.outerHTML;
+    if (node.outerHTML) {
+      let outerHTML = node.outerHTML;
+      if (switchAction && startFlag) {
+        outerHTML = outerHTML.replace(`${nodeName}.`, "");
+      }
+      action.data.description.value += outerHTML;
+    }
 
     const initiativeMatch = node.textContent.match(/initiative count (\d+)/);
     if (initiativeMatch) {
