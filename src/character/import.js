@@ -329,7 +329,7 @@ export default class CharacterImport extends Application {
       .filter((item) => includedItems.includes(item.type) && !excludedList.some((excluded) => excluded._id === item._id))
       .map((item) => item._id);
 
-    await this.actor.deleteEmbeddedEntity("OwnedItem", toRemove);
+    if (toRemove.length > 0) await this.actor.deleteEmbeddedEntity("OwnedItem", toRemove);
     return toRemove;
   }
 
