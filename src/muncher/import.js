@@ -131,6 +131,7 @@ async function copyFlagGroup(flagGroup, originalItem, targetItem) {
  */
 export async function copySupportedItemFlags(originalItem, item) {
   copyFlagGroup("dynamiceffects", originalItem, item);
+  copyFlagGroup("dae", originalItem, item);
   copyFlagGroup("maestro", originalItem, item);
   copyFlagGroup("mess", originalItem, item);
   copyFlagGroup("favtab", originalItem, item);
