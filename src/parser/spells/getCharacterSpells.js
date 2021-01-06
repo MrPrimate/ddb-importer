@@ -39,7 +39,7 @@ export function getCharacterSpells(ddb, character) {
             class: classInfo.definition.name,
             level: classInfo.level,
             spellLevel: spell.definition.level,
-            spellSlots: character.data.spells,
+            // spellSlots: character.data.spells,
             ability: spellCastingAbility,
             mod: abilityModifier,
             dc: 8 + proficiencyModifier + abilityModifier,
