@@ -52,7 +52,7 @@ export function getSpeed(data) {
       .filter((modifier) => modifier.type === "bonus" && modifier.subType === "unarmored-movement")
       .forEach((bonusSpeed) => {
         for (let type in movementTypes) {
-          movementTypes[type] += bonusSpeed.value;
+          if (movementTypes[type] !== 0) movementTypes[type] += bonusSpeed.value;
         }
       });
   }
