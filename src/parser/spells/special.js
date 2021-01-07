@@ -150,6 +150,8 @@ export function fixSpells(ddb, items) {
         break;
       case "Goodberry":
         spell.data.damage = { parts: [["1", "healing"]], versatile: "", value: "" };
+      case "Flaming Sphere":
+        spell.data.target['value'] = 2.5;
       // no default
     }
 
