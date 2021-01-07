@@ -720,13 +720,11 @@ export default class CharacterImport extends Application {
           .find((owned) =>
             item.name === owned.name &&
             item.type === owned.type &&
-            item.flags && item.flags.ddbimporter &&
-            owned.flags && owned.flags.ddbimporter &&
-            item.flags.ddbimporter.id === owned.flags.ddbimporter.id
+            item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id
           );
         if (matchedItem) {
           item['_id'] = matchedItem['_id'];
-          if (matchedItem.effects && matchedItem.effects.length > 0 && item.effects && item.effects.length === 0) {
+          if (matchedItem.effects?.length > 0 && item.effects?.length === 0) {
             item.effects = matchedItem.effects;
           }
           matchedItems.push(item);
