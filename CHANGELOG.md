@@ -3,6 +3,9 @@
 * Monks unarmoured speed added to all speed types.
 * Correct Flaming Sphere template size.
 * Improved SRD Icon matching speed.
+* Bloodhunter subclasses now import.
+* Duplicate class features now import as separate features.
+* Class Optional features now import in class munch.
 
 # v 0.2.19
 

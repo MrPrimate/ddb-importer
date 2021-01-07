@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import { buildBaseClass, getClassFeature, buildClassFeatures } from "./shared.js";
+import { buildBaseClass, getClassFeature, buildClassFeatures, NO_TRAITS } from "./shared.js";
 import { getCompendiumLabel, updateCompendium, srdFiddling } from "../import.js";
 import { munchNote } from "../utils.js";
 
@@ -9,18 +9,6 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
   result.data.description.value += await buildClassFeatures(klass, compendiumClassFeatures, compendiumLabel);
   return result;
 }
-
-
-const NO_TRAITS = [
-  "Speed",
-  "Ability Score Increase",
-  "Ability Score Improvement",
-  "Size",
-  "Feat",
-  "Languages",
-  "Hit Points",
-  "Proficiencies",
-];
 
 export async function getClasses(data) {
   logger.debug("get clases started");

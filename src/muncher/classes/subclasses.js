@@ -1,19 +1,8 @@
 import logger from "../../logger.js";
 
-import { buildBaseClass, getClassFeature, buildClassFeatures } from "./shared.js";
+import { buildBaseClass, getClassFeature, buildClassFeatures, NO_TRAITS } from "./shared.js";
 import { getCompendiumLabel, updateCompendium, srdFiddling, getImagePath } from "../import.js";
 import { munchNote } from "../utils.js";
-
-const NO_TRAITS = [
-  "Speed",
-  "Ability Score Increase",
-  "Ability Score Improvement",
-  "Size",
-  "Feat",
-  "Languages",
-  "Hit Points",
-  "Proficiencies",
-];
 
 async function buildSubClassBase(klass, subClass) {
   delete klass['_id'];
@@ -103,7 +92,7 @@ export async function getSubClasses(data) {
       const existingFeature = classFeatures.some((f) => f.name === feature.name);
       logger.debug(`${feature.name} feature starting...`);
       if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
-        const parsedFeature = getClassFeature(feature, subClass);
+        const parsedFeature = getClassFeature(feature, subClass, subClass.name);
         classFeatures.push(parsedFeature);
       }
     });
