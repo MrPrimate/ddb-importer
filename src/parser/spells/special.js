@@ -77,6 +77,7 @@ function addCustomValues(item, ddb) {
  * @param {*} ddb
  * @param {*} items
  */
+/* eslint-disable complexity */
 export function fixSpells(ddb, items) {
   items.forEach((spell) => {
     switch (spell.name) {
@@ -150,11 +151,14 @@ export function fixSpells(ddb, items) {
         break;
       case "Goodberry":
         spell.data.damage = { parts: [["1", "healing"]], versatile: "", value: "" };
+        break;
       case "Flaming Sphere":
         spell.data.target['value'] = 2.5;
+        break;
       // no default
     }
 
   if (ddb) addCustomValues(spell, ddb);
   });
 }
+/* eslint-enable complexity */

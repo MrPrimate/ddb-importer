@@ -65,6 +65,7 @@ export async function loadSRDPacks() {
   srdPacks["dnd5e.classfeatures"] = await game.packs.get("dnd5e.classfeatures").getContent();
   srdPacks["dnd5e.races"] = await game.packs.get("dnd5e.races").getContent();
   srdPacks["dnd5e.monsterfeatures"] = await game.packs.get("dnd5e.monsterfeatures").getContent();
+  // eslint-disable-next-line require-atomic-updates
   srdPacksLoaded = true;
 }
 
@@ -440,8 +441,6 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
 async function getSRDIconMatch(type) {
   if (!srdPacksLoaded) await loadSRDPacks();
   const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
-  console.warn(compendiumName);
-  console.log(srdPacks);
 
   const items = srdPacks[compendiumName].map((item) => {
     let smallItem = {
@@ -883,7 +882,7 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false) {
   );
   logger.debug(`loaded items: ${JSON.stringify(loadedItems)}`);
 
-  const results = await updateMatchingItems(items, loadedItems, looseMatch, monsterMatch);
+  const results = await updateMatchingItems(items, loadedItems, looseMatch);
   logger.debug(`result items: ${results}`);
 
   return results;
