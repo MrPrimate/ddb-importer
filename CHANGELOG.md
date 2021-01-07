@@ -1,3 +1,9 @@
+# 0.2.20
+
+* Monks unarmoured speed added to all speed types.
+* Correct Flaming Sphere template size.
+* Improved SRD Icon matching speed.
+
 # v 0.2.19
 
 * Monster action name is no longer included in the action description.
