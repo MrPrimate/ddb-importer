@@ -8,7 +8,7 @@
     "build": "webpack"
   },
   "devDependencies": {
-    "eslint": "^6.8.0",
+    "eslint": "^7.17.0",
     "jest": "^25.1.0",
     "prettier": "2.0.5",
     "webpack": "^5.11.0",
