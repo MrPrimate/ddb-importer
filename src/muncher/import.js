@@ -51,6 +51,23 @@ const srdCompendiumLookup = [
   { type: "monsterfeatures", name: "dnd5e.monsterfeatures" },
 ];
 
+var srdIconMapLoaded = false;
+var srdIconMap = {};
+var srdPacksLoaded = false;
+var srdPacks = {};
+
+
+export async function loadSRDPacks() {
+  if (srdPacksLoaded) return;
+  logger.debug("Loading srd packs");
+  srdPacks["dnd5e.items"] = await game.packs.get("dnd5e.items").getContent();
+  srdPacks["dnd5e.spells"] = await game.packs.get("dnd5e.spells").getContent();
+  srdPacks["dnd5e.classfeatures"] = await game.packs.get("dnd5e.classfeatures").getContent();
+  srdPacks["dnd5e.races"] = await game.packs.get("dnd5e.races").getContent();
+  srdPacks["dnd5e.monsterfeatures"] = await game.packs.get("dnd5e.monsterfeatures").getContent();
+  srdPacksLoaded = true;
+}
+
 const gameFolderLookup = [
   {
     type: "itemSpells",
@@ -420,14 +437,13 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
   return null;
 }
 
-export async function getSRDIconMatch(type) {
-  const compendiumLabel = srdCompendiumLookup.find((c) => c.type == type).name;
-  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
-  const index = await compendium.getIndex();
+async function getSRDIconMatch(type) {
+  if (!srdPacksLoaded) await loadSRDPacks();
+  const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
+  console.warn(compendiumName);
+  console.log(srdPacks);
 
-  let items = [];
-  for (const i of index) {
-    const item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
+  const items = srdPacks[compendiumName].map((item) => {
     let smallItem = {
       name: item.name,
       img: item.img,
@@ -435,24 +451,25 @@ export async function getSRDIconMatch(type) {
       data: {},
     };
     if (item.data.activation) smallItem.data.activation = item.data.activation;
-    items.push(smallItem);
-  }
+    return smallItem;
+  });
 
   return items;
 }
 
 export async function getSRDIconLibrary() {
+  if (srdIconMapLoaded) return srdIconMap;
   const compendiumFeatureItems = await getSRDIconMatch("features");
   const compendiumInventoryItems = await getSRDIconMatch("inventory");
   const compendiumSpellItems = await getSRDIconMatch("spells");
   const compendiumMonsterFeatures = await getSRDIconMatch("monsterfeatures");
 
-  const srdCompendiumItems = compendiumInventoryItems.concat(
+  srdIconMap = compendiumInventoryItems.concat(
     compendiumSpellItems,
     compendiumFeatureItems,
     compendiumMonsterFeatures,
   );
-  return srdCompendiumItems;
+  return srdIconMap;
 }
 
 // eslint-disable-next-line require-atomic-updates
@@ -642,14 +659,17 @@ export async function updateMagicItemImages(items) {
   // if we still have items to add, add them
   if (items.length > 0) {
     if (ddbItemIcons) {
+      logger.debug("Magic items: adding equipment icons");
       items = await getDDBEquipmentIcons(items, true);
     }
 
     if (useSRDCompendiumIcons) {
+      logger.debug("Magic items: adding srd compendium icons");
       items = await copySRDIcons(items);
     }
 
     if (ddbSpellIcons) {
+      logger.debug("Magic items: adding ddb spell school icons");
       items = await getDDBSpellSchoolIcons(items, true);
     }
   }
@@ -845,8 +865,28 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
 
 export async function getSRDCompendiumItems(items, type, looseMatch = false) {
   // console.error(game.packs.keys());
+  if (!srdPacksLoaded) await loadSRDPacks();
   const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
-  return getCompendiumItems(items, type, compendiumName, looseMatch);
+  const compendiumItems = srdPacks[compendiumName];
+
+  const loadedItems = await compendiumItems.filter((i) =>
+    compendiumItems.some((orig) => {
+      const alternativeNames = (((orig.flags || {}).ddbimporter || {}).dndbeyond || {}).alternativeNames;
+      const extraNames = (alternativeNames) ? orig.flags.ddbimporter.dndbeyond.alternativeNames : [];
+      if (looseMatch) {
+        const looseNames = getLooseNames(orig.name, extraNames);
+        return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
+      } else {
+        return i.name === orig.name || extraNames.includes(i.name);
+      }
+    })
+  );
+  logger.debug(`loaded items: ${JSON.stringify(loadedItems)}`);
+
+  const results = await updateMatchingItems(items, loadedItems, looseMatch, monsterMatch);
+  logger.debug(`result items: ${results}`);
+
+  return results;
 }
 
 /**
