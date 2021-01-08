@@ -251,7 +251,7 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    default: "https://proxy.vttassets.com/?url=",
+    default: "https://london.drop.mrprimate.co.uk/",
   });
 
   game.settings.register("ddb-importer", "cors-encode", {
