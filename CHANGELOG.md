@@ -2,6 +2,8 @@
 
 * Copy over new attunement status on compendium matched items.
 * Race and Class feature imports fill out requirements field.
+* You can now import from SRD compendiums again.
+* Character with no name will now import.
 
 # 0.2.20
 
