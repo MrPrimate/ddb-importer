@@ -60,11 +60,11 @@ var srdPacks = {};
 export async function loadSRDPacks() {
   if (srdPacksLoaded) return;
   logger.debug("Loading srd packs");
-  srdPacks["dnd5e.items"] = await game.packs.get("dnd5e.items").getContent();
-  srdPacks["dnd5e.spells"] = await game.packs.get("dnd5e.spells").getContent();
-  srdPacks["dnd5e.classfeatures"] = await game.packs.get("dnd5e.classfeatures").getContent();
-  srdPacks["dnd5e.races"] = await game.packs.get("dnd5e.races").getContent();
-  srdPacks["dnd5e.monsterfeatures"] = await game.packs.get("dnd5e.monsterfeatures").getContent();
+  srdPacks["dnd5e.items"] = await game.packs.get("dnd5e.items").getContent().then((data) => data.map((i) => i.data));
+  srdPacks["dnd5e.spells"] = await game.packs.get("dnd5e.spells").getContent().then((data) => data.map((i) => i.data));
+  srdPacks["dnd5e.classfeatures"] = await game.packs.get("dnd5e.classfeatures").getContent().then((data) => data.map((i) => i.data));
+  srdPacks["dnd5e.races"] = await game.packs.get("dnd5e.races").getContent().then((data) => data.map((i) => i.data));
+  srdPacks["dnd5e.monsterfeatures"] = await game.packs.get("dnd5e.monsterfeatures").getContent().then((data) => data.map((i) => i.data));
   // eslint-disable-next-line require-atomic-updates
   srdPacksLoaded = true;
 }
