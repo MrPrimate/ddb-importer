@@ -767,6 +767,20 @@ export async function addMagicItemSpells(input) {
   });
 }
 
+export function updateCharacterItemFlags(itemData, replaceData) {
+  if (itemData.data.quantity) replaceData.data.quantity = itemData.data.quantity;
+  if (itemData.data.attuned) replaceData.data.attuned = itemData.data.attuned;
+  if (itemData.data.attunement) replaceData.data.attunement = itemData.data.attunement;
+  if (itemData.data.equipped) replaceData.data.equipped = itemData.data.equipped;
+  if (itemData.data.uses) replaceData.data.uses = itemData.data.uses;
+  if (itemData.data.resources) replaceData.data.resources = itemData.data.resources;
+  if (itemData.data.consume) replaceData.data.consume = itemData.data.consume;
+  if (itemData.data.preparation) replaceData.data.preparation = itemData.data.preparation;
+  if (itemData.data.proficient) replaceData.data.proficient = itemData.data.proficient;
+  if (itemData.data.ability) replaceData.data.ability = itemData.data.ability;
+  return replaceData;
+}
+
 async function updateMatchingItems(oldItems, newItems, looseMatch = false, monster = false) {
   let results = [];
 
@@ -789,15 +803,7 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
         item.flags.ddbimporter = { originalItemName: matched.name };
       }
 
-      if (matched.data.quantity) item.data.quantity = matched.data.quantity;
-      if (matched.data.attuned) item.data.attuned = matched.data.attuned;
-      if (matched.data.equipped) item.data.equipped = matched.data.equipped;
-      if (matched.data.uses) item.data.uses = matched.data.uses;
-      if (matched.data.resources) item.data.resources = matched.data.resources;
-      if (matched.data.consume) item.data.consume = matched.data.consume;
-      if (matched.data.preparation) item.data.preparation = matched.data.preparation;
-      if (matched.data.proficient) item.data.proficient = matched.data.proficient;
-      if (matched.data.ability) item.data.ability = matched.data.ability;
+      updateCharacterItemFlags(matched, item);
       // do we want to enrich the compendium item with our parsed flag data?
       // item.flags = { ...matched.flags, ...item.flags };
       delete item["_id"];

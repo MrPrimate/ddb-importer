@@ -24,6 +24,7 @@
 
 import logger from "../logger.js";
 import utils from "../utils.js";
+import { updateCharacterItemFlags } from "./import.js";
 
 var packsLoaded = false;
 var itemPack;
@@ -56,15 +57,7 @@ function findDAEItem(itemData, packs) {
 }
 
 function dataSwap(itemData, replaceData) {
-  if (itemData.data.quantity) replaceData.data.quantity = itemData.data.quantity;
-  if (itemData.data.attuned) replaceData.data.attuned = itemData.data.attuned;
-  if (itemData.data.equipped) replaceData.data.equipped = itemData.data.equipped;
-  if (itemData.data.uses) replaceData.data.uses = itemData.data.uses;
-  if (itemData.data.resources) replaceData.data.resources = itemData.data.resources;
-  if (itemData.data.consume) replaceData.data.consume = itemData.data.consume;
-  if (itemData.data.preparation) replaceData.data.preparation = itemData.data.preparation;
-  if (itemData.data.proficient) replaceData.data.proficient = itemData.data.proficient;
-  if (itemData.data.ability) replaceData.data.ability = itemData.data.ability;
+  updateCharacterItemFlags(itemData, replaceData);
   if (itemData._id) replaceData._id = itemData._id;
   return replaceData;
 }
