@@ -91,6 +91,7 @@ export function getClassFeature(feature, klass, subClassName = "") {
   result.flags.ddbimporter['class'] = klass.name;
   result.flags.ddbimporter['classId'] = klass.id;
   result.flags.ddbimporter['subClass'] = subClassName;
+  result.data.requirements = klass.name;
 
   return result;
 }

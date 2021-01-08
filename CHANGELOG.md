@@ -1,3 +1,8 @@
+# 0.2.21
+
+* Copy over new attunement status on compendium matched items.
+* Race and Class feature imports fill out requirements field.
+
 # 0.2.20
 
 * Monks unarmoured speed added to all speed types.

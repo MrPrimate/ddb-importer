@@ -96,6 +96,7 @@ function getRacialTrait(trait, fullName) {
   result.flags.ddbimporter['spellListIds'] = trait.spellListIds;
   result.flags.ddbimporter['definitionKey'] = trait.definitionKey;
   result.flags.ddbimporter['race'] = fullName;
+  result.data.requirements = fullName;
 
   return result;
 }
