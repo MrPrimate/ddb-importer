@@ -54,20 +54,14 @@ const srdCompendiumLookup = [
 
 var srdIconMapLoaded = false;
 var srdIconMap = {};
-var srdPacksLoaded = false;
+var srdPacksLoaded = {};
 var srdPacks = {};
 
-
-export async function loadSRDPacks() {
-  if (srdPacksLoaded) return;
-  logger.debug("Loading srd packs");
-  srdPacks["dnd5e.items"] = await game.packs.get("dnd5e.items").getContent().then((data) => data.map((i) => i.data));
-  srdPacks["dnd5e.spells"] = await game.packs.get("dnd5e.spells").getContent().then((data) => data.map((i) => i.data));
-  srdPacks["dnd5e.classfeatures"] = await game.packs.get("dnd5e.classfeatures").getContent().then((data) => data.map((i) => i.data));
-  srdPacks["dnd5e.races"] = await game.packs.get("dnd5e.races").getContent().then((data) => data.map((i) => i.data));
-  srdPacks["dnd5e.monsterfeatures"] = await game.packs.get("dnd5e.monsterfeatures").getContent().then((data) => data.map((i) => i.data));
+async function loadSRDPacks(compendiumName) {
+  if (srdPacksLoaded[compendiumName]) return;
+  srdPacks[compendiumName] = await game.packs.get(compendiumName).getContent().then((data) => data.map((i) => i.data));
   // eslint-disable-next-line require-atomic-updates
-  srdPacksLoaded = true;
+  srdPacksLoaded[compendiumName] = true;
 }
 
 const gameFolderLookup = [
@@ -440,8 +434,8 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
 }
 
 async function getSRDIconMatch(type) {
-  if (!srdPacksLoaded) await loadSRDPacks();
   const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
+  if (!srdPacksLoaded[compendiumName]) await loadSRDPacks(compendiumName);
 
   const items = srdPacks[compendiumName].map((item) => {
     let smallItem = {
@@ -871,8 +865,8 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
 
 export async function getSRDCompendiumItems(items, type, looseMatch = false) {
   // console.error(game.packs.keys());
-  if (!srdPacksLoaded) await loadSRDPacks();
   const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
+  if (!srdPacksLoaded[compendiumName]) await loadSRDPacks(compendiumName);
   const compendiumItems = srdPacks[compendiumName];
 
   const loadedItems = await compendiumItems.filter((i) =>
