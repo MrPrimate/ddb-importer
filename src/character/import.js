@@ -16,7 +16,6 @@ import { getCharacterOptions } from "./options.js";
 import { download, getCampaignId } from "../muncher/utils.js";
 import {
   migrateActorDAESRD,
-  // migrateItemsDAESRD,
   addItemsDAESRD
 } from "../muncher/dae.js";
 

@@ -5,6 +5,9 @@ import { updateIcons, getImagePath, getCompendiumItems } from "./import.js";
 import { munchNote } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
+var compendiumLoaded = false;
+var monsterCompendium;
+
 /**
  *
  * @param {[string]} items Array of Strings or
@@ -46,11 +49,13 @@ async function retrieveSpells(spells) {
 // }
 
 async function getCompendium() {
+  if (compendiumLoaded) return monsterCompendium;
   const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
   if (compendiumName && compendiumName !== "") {
-    const compendium = await game.packs.find((pack) => pack.collection === compendiumName);
-    if (compendium) {
-      return compendium;
+    monsterCompendium = await game.packs.find((pack) => pack.collection === compendiumName);
+    if (monsterCompendium) {
+      compendiumLoaded = true;
+      return monsterCompendium;
     }
   }
   return undefined;

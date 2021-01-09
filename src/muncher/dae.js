@@ -62,6 +62,40 @@ function dataSwap(itemData, replaceData) {
   return replaceData;
 }
 
+function matchItem(itemData, midiInstalled) {
+  let returnItem = null;
+  switch (itemData.type) {
+    case "feat": {
+      const featPacks = (midiInstalled) ? [midiPack, featsPack] : [featsPack];
+      returnItem = findDAEItem(itemData, featPacks);
+      break;
+    }
+    case "spell": {
+      const spellPacks = (midiInstalled) ? [midiPack, spellPack] : [spellPack];
+      returnItem = findDAEItem(itemData, spellPacks);
+      break;
+    }
+    case "equipment":
+    case "weapon":
+    case "loot":
+    case "consumable":
+    case "tool":
+    case "backpack": {
+      const equipmentPacks = (midiInstalled) ? [midiPack, itemPack, magicItemsPack] : [itemPack, magicItemsPack];
+      returnItem = findDAEItem(itemData, equipmentPacks);
+      break;
+    }
+    default:
+      break;
+  }
+  return returnItem;
+}
+
+
+/**
+ * Migrates items wholesale
+ * @param {*} items
+ */
 export async function migrateItemsDAESRD(items) {
   if (!packsLoaded) await loadPacks();
   const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
@@ -69,45 +103,11 @@ export async function migrateItemsDAESRD(items) {
   return new Promise((resolve) => {
     resolve(
       items.map((itemData) => {
-        let replaceData;
-        switch (itemData.type) {
-          case "feat": {
-            const featPacks = (midiInstalled) ? [midiPack, featsPack] : [featsPack];
-            replaceData = findDAEItem(itemData, featPacks);
-            if (replaceData) logger.debug(`migrating${replaceData.data.name}`);
-            if (replaceData) {
-              setProperty(replaceData.data.flags, "dae.migrated", true);
-              return dataSwap(itemData, replaceData.data);
-            }
-            break;
-          }
-          case "spell": {
-            const spellPacks = (midiInstalled) ? [midiPack, spellPack] : [spellPack];
-            replaceData = findDAEItem(itemData, spellPacks);
-            if (replaceData) logger.debug(`migrating ${replaceData.data.name}`);
-            if (replaceData) {
-              setProperty(replaceData.data.flags, "dae.migrated", true);
-              return dataSwap(itemData, replaceData.data);
-            }
-            break;
-          }
-          case "equipment":
-          case "weapon":
-          case "loot":
-          case "consumable":
-          case "tool":
-          case "backpack": {
-            const equipmentPacks = (midiInstalled) ? [midiPack, itemPack, magicItemsPack] : [itemPack, magicItemsPack];
-            replaceData = findDAEItem(itemData, equipmentPacks);
-            if (replaceData) logger.debug(`migrating ${replaceData.data.name}`);
-            if (replaceData) {
-              setProperty(replaceData.data.flags, "dae.migrated", true);
-              return dataSwap(itemData, replaceData.data);
-            }
-            break;
-          }
-          default:
-            break;
+        let replaceData = matchItem(itemData, midiInstalled);
+        if (replaceData) {
+          logger.debug(`migrating ${replaceData.data.name}`);
+          setProperty(replaceData.data.flags, "dae.migrated", true);
+          return dataSwap(itemData, replaceData.data);
         }
         return itemData;
       })
@@ -115,37 +115,22 @@ export async function migrateItemsDAESRD(items) {
   });
 }
 
-
+/**
+ * Adds dae effects to existing items
+ * @param {*} items
+ */
 export async function addItemsDAESRD(items) {
   // eslint-disable-next-line require-atomic-updates
   if (!packsLoaded) await loadPacks();
+  const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
+
   return new Promise((resolve) => {
     resolve(
       items.map((itemData) => {
-        let replaceData;
-        switch (itemData.type) {
-          case "feat":
-            replaceData = findDAEItem(itemData, [midiPack, featsPack]);
-            if (replaceData) logger.debug(`Adding effects for ${replaceData.data.name}`);
-            if (replaceData) itemData.effects = replaceData.data.effects;
-            break;
-          case "spell":
-            replaceData = findDAEItem(itemData, [midiPack, spellPack]);
-            if (replaceData) logger.debug(`Adding effects for  ${replaceData.data.name}`);
-            if (replaceData) itemData.effects = replaceData.data.effects;
-            break;
-          case "equipment":
-          case "weapon":
-          case "loot":
-          case "consumable":
-          case "tool":
-          case "backpack":
-            replaceData = findDAEItem(itemData, [midiPack, itemPack, magicItemsPack]);
-            if (replaceData) logger.debug(`Adding effects for  ${replaceData.data.name}`);
-            if (replaceData) itemData.effects = replaceData.data.effects;
-            break;
-          default:
-            break;
+        let replaceData = matchItem(itemData, midiInstalled);
+        if (replaceData) {
+          logger.debug(`Adding effects for ${replaceData.data.name}`);
+          itemData.effects = replaceData.data.effects;
         }
         return itemData;
       })
@@ -153,51 +138,26 @@ export async function addItemsDAESRD(items) {
   });
 }
 
-
+/**
+ * Replaces matching items in an actor
+ * @param {*} actor
+ */
 export async function migrateActorDAESRD(actor) {
   if (!packsLoaded) await loadPacks();
+  const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
+
   const items = actor.data.items;
   let replaceItems = [];
   let count = 0;
   items.forEach((itemData) => {
-    let replaceData;
-    switch (itemData.type) {
-      case "feat":
-        replaceData = findDAEItem(itemData, [midiPack, featsPack]);
-        if (replaceData) logger.debug(`migrating ${actor.name} ${replaceData.name}`);
-        if (replaceData) {
-          setProperty(replaceData.data.flags, "dae.migrated", true);
-          replaceItems.push(dataSwap(itemData, replaceData.data));
-          count++;
-        } else replaceItems.push(itemData);
-        break;
-      case "spell":
-        replaceData = findDAEItem(itemData, [midiPack, spellPack]);
-        if (replaceData) logger.debug(`migrating ${actor.name} ${replaceData.name}`);
-        if (replaceData) {
-          setProperty(replaceData.data.flags, "dae.migrated", true);
-          replaceItems.push(dataSwap(itemData, replaceData.data));
-          count++;
-        } else replaceItems.push(itemData);
-        break;
-      case "equipment":
-      case "weapon":
-      case "loot":
-      case "consumable":
-      case "tool":
-      case "backpack":
-        replaceData = findDAEItem(itemData, [midiPack, itemPack, magicItemsPack]);
-        if (replaceData) logger.debug(`migrating ${actor.name} ${replaceData.name}`);
-        if (replaceData) {
-          setProperty(replaceData.data.flags, "dae.migrated", true);
-          replaceItems.push(dataSwap(itemData, replaceData.data));
-          count++;
-        } else replaceItems.push(itemData);
-        break;
-      default:
-        replaceItems.push(itemData);
-        break;
-    }
+    let replaceData = matchItem(itemData, midiInstalled);
+
+    if (replaceData) {
+      logger.debug(`migrating ${actor.name} ${replaceData.name}`);
+      setProperty(replaceData.data.flags, "dae.migrated", true);
+      replaceItems.push(dataSwap(itemData, replaceData.data));
+      count++;
+    } else replaceItems.push(itemData);
   });
   let removeItems = actor.items.map((i) => i.id);
   await actor.deleteOwnedItem(removeItems);
