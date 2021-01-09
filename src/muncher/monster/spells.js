@@ -99,11 +99,11 @@ function parseAdditionalAtWill(text) {
 
 function parseSpells(text, spells, spellList) {
     // console.log(text);
-    const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*level)?(?:s)?\s+\((at will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
+    const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
     const match = text.match(spellLevelSearch);
     // console.log(match);
 
-    const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:level|-level)\s*(?:slot|slots)?\):\s+(.*$)/;
+    const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:Level|level|-level)\s*(?:slot|slots)?\):\s+(.*$)/;
     const warlockMatch = text.match(warlockLevelSearch);
 
     if (!match && !warlockMatch) return parseInnateSpells(text, spells, spellList);

@@ -3,6 +3,7 @@
 * Munching Spells and Items can now copy over DAE SRD effects.
 * Support Silvered, Magical and Adamantine weapon properties.
 * Retain journal notes on characters.
+* Some NPC's like Nezznar did not match some spells due to formating differences.
 
 # 0.2.21
 
