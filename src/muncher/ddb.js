@@ -356,12 +356,12 @@ export default class DDBMuncher extends Application {
         description: "Use D&D Beyond remote images (a lot quicker)",
         enabled: true,
       },
-      // {
-      //   name: "dae-copy",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
-      //   description: "Copy Dynamic Active Effects (requires DAE and SRD module)",
-      //   enabled: daeInstalled,
-      // },
+      {
+        name: "use-dae-effects",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
+        description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD module)",
+        enabled: true,
+      },
     ];
 
     return {

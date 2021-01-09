@@ -2,6 +2,7 @@ import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { munchNote } from "./utils.js";
+import { addItemsDAESRD } from "./dae.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const INVENTORY_TYPES = EQUIPMENT_TYPES.concat("weapon");
@@ -1010,4 +1011,14 @@ export async function srdFiddling(items, type) {
     const iconItems = await updateIcons(items);
     return iconItems;
   }
+}
+
+
+export async function daeFiddling(items) {
+  const fiddle = game.settings.get("ddb-importer", "munching-policy-use-dae-effects");
+
+  if (fiddle) {
+    let fiddledItems = await addItemsDAESRD(items);
+    return fiddledItems;
+  } else return items;
 }

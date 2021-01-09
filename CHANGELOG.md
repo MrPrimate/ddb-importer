@@ -1,3 +1,7 @@
+# 0.2.22
+
+* Munching Spells and Items can now copy over DAE SRD effects.
+
 # 0.2.21
 
 * Copy over new attunement status on compendium matched items.

@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, addMagicItemSpells } from "./import.js";
+import { updateCompendium, srdFiddling, addMagicItemSpells, daeFiddling } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils.js";
@@ -120,7 +120,9 @@ export async function parseItems() {
     await addMagicItemSpells(itemSpells);
   }
 
-  const finalItems = await srdFiddling(items, "inventory");
+  const srdItems = await srdFiddling(items, "inventory");
+  const finalItems = await daeFiddling(srdItems);
+
   const finalCount = finalItems.length;
   munchNote(`Please be patient importing ${finalCount} items!`, true);
 

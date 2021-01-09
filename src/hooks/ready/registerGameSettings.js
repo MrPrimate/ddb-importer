@@ -550,6 +550,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-use-dae-effects", {
+    name: "ddb-importer.munching-policy-use-dae-effects.name",
+    hint: "ddb-importer.munching-policy-use-dae-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "munching-policy-hide-description", {
     name: "ddb-importer.munching-policy-hide-description.name",
     hint: "ddb-importer.munching-policy-hide-description.hint",

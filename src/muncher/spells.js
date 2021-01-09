@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling } from "./import.js";
+import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 
@@ -58,7 +58,8 @@ export async function parseSpells() {
     return spell;
   });
   let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
-  const finalSpells = await srdFiddling(uniqueSpells, "spells");
+  const srdSpells = await srdFiddling(uniqueSpells, "spells");
+  const finalSpells = await daeFiddling(srdSpells);
 
   const finalCount = finalSpells.length;
   munchNote(`Importing ${finalCount} spells...`, true);
