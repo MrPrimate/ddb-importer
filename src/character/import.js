@@ -260,6 +260,26 @@ export default class CharacterImport extends Application {
     });
   }
 
+  copyExistingJournalNotes() {
+    if (!this.actorOriginal) return;
+    const journalFields = [
+      "notes1name",
+      "notes2name",
+      "notes3name",
+      "notes4name",
+      "notes1",
+      "notes2",
+      "notes3",
+      "notes4",
+      "notes",
+    ];
+    journalFields.forEach((field) => {
+      if (this.actorOriginal.data.details[field]) {
+        this.actor.data.data.details[field] = this.actorOriginal.data.details[field];
+      }
+    });
+  }
+
 
   async copyCharacterItemEffects(items) {
     return new Promise((resolve) => {
@@ -898,6 +918,8 @@ export default class CharacterImport extends Application {
     // basic import
     CharacterImport.showCurrentTask(html, "Updating core character information");
     await this.actor.update(this.result.character);
+    // copy existing journal notes
+    this.copyExistingJournalNotes();
 
     // items import
     await this.processCharacterItems(html);
