@@ -177,6 +177,13 @@ export class DDBCompendiumSetup extends FormApplication {
         compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-race-compendium")),
       },
       {
+        setting: "entity-feat-compendium",
+        name: "Feats",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-feat-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-feat-compendium")),
+      },
+      {
         setting: "entity-trait-compendium",
         name: "Racial traits",
         type: "item",

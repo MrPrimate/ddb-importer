@@ -1,3 +1,7 @@
+# 0.2.23
+
+* Feat import.
+
 # 0.2.22
 
 * Munching Spells and Items can now copy over DAE SRD effects.
