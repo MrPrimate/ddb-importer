@@ -435,6 +435,9 @@ const DICTIONARY = {
       { name: "Versatile", value: "ver" },
       { name: "Returning", value: "ret" },
       { name: "Focus", value: "foc" },
+      { name: "Adamantine", value: "ada" },
+      { name: "Magical", value: "mgc" },
+      { name: "Silvered", value: "sil" },
     ],
   },
   actions: {

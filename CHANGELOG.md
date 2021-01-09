@@ -1,6 +1,7 @@
 # 0.2.22
 
 * Munching Spells and Items can now copy over DAE SRD effects.
+* Support Silvered, Magical and Adamantine weapon properties.
 
 # 0.2.21
 

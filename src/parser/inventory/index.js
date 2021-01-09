@@ -250,7 +250,9 @@ function addCustomValues(ddbItem, foundryItem, character) {
   const weightOverride = getCustomValue(ddbItem, character, 22);
   // dual wield 18
   // silvered
+  const silvered = getCustomValue(ddbItem, character, 20);
   // adamantine
+  const adamantine = getCustomValue(ddbItem, character, 21);
 
   if (toHitBonus) foundryItem.data.attackBonus += toHitBonus;
   if (damageBonus && foundryItem.data.damage.parts.length !== 0) {
@@ -261,6 +263,8 @@ function addCustomValues(ddbItem, foundryItem, character) {
   }
   if (costOverride) foundryItem.data.cost = costOverride;
   if (weightOverride) foundryItem.data.weight = weightOverride;
+  if (silvered) foundryItem.data.properties['sil'] = true;
+  if (adamantine) foundryItem.data.properties['ada'] = true;
 }
 
 // the filter type "Other Gear" represents the equipment while the other filters represents the magic items in ddb
@@ -345,6 +349,15 @@ function getName(data, character) {
   }
 }
 
+function magicFlags(data, item) {
+  if (data.definition.magic) {
+    if (item.data.properties) {
+      item.data.properties['mgc'] = true;
+    } else {
+      item.data.properties = { mgc: true };
+    }
+  }
+}
 
 export default function getInventory(ddb, character, itemSpells) {
   let items = [];
@@ -372,6 +385,7 @@ export default function getInventory(ddb, character, itemSpells) {
     entry.definition.name = getName(entry, character);
     var item = Object.assign({}, parseItem(ddb, entry, character));
     addCustomValues(entry, item, character);
+    magicFlags(entry, item);
     if (item) {
       item.flags.magicitems = parseMagicItem(entry, itemSpells);
       items.push(item);

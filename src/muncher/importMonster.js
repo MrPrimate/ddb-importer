@@ -54,6 +54,7 @@ async function getCompendium() {
   if (compendiumName && compendiumName !== "") {
     monsterCompendium = await game.packs.find((pack) => pack.collection === compendiumName);
     if (monsterCompendium) {
+      // eslint-disable-next-line require-atomic-updates
       compendiumLoaded = true;
       return monsterCompendium;
     }
