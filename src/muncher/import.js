@@ -42,6 +42,7 @@ const srdCompendiumLookup = [
   { type: "traits", name: "dnd5e.races" },
   { type: "features", name: "dnd5e.classfeatures" },
   { type: "feat", name: "dnd5e.classfeatures" },
+  { type: "feats", name: "dnd5e.classfeatures" },
   { type: "classes", name: "dnd5e.classfeatures" },
   { type: "weapon", name: "dnd5e.items" },
   { type: "consumable", name: "dnd5e.items" },
