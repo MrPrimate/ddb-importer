@@ -212,9 +212,9 @@ function calculateSaveAttack(action, weapon) {
   const fixedDC = (action.fixedSaveDc) ? action.fixedSaveDc : null;
   const scaling = (fixedDC) ? fixedDC : (action.abilityModifierStatId) ? DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
 
-  const saveAbility = (action.saveStatId) ?
-    DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value :
-    "";
+  const saveAbility = (action.saveStatId)
+    ? DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value
+    : "";
 
   weapon.data.save = {
     ability: saveAbility,
@@ -373,8 +373,6 @@ function getUnarmedStrike(ddb, character) {
  * @param {*} character
  */
 function getAttackActions(ddb, character) {
-  const classActions = ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId));
-  console.warn(classActions);
   return [
     // do class options here have a class id, needed for optional class features
     ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId)),

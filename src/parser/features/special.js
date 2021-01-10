@@ -12,7 +12,7 @@ export function fixFeatures(features) {
     switch (feature.name) {
       case "Channel Divinity: Radiance of the Dawn":
         feature.data.damage = { parts: [["2d10 + @classes.cleric.levels", "radiant"]], versatile: "", value: "" };
-        break
+        break;
       case "Surprise Attack":
         feature.data.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
         feature.data.activation['type'] = 'special';
