@@ -315,20 +315,28 @@ let utils = {
     // optional class features need this filter, as they replace existing features
     const featId = utils.determineActualFeatureId(data, featureId);
 
-    const cls = data.character.classes.find((cls) => {
+    let cls = data.character.classes.find((cls) => {
       let classFeatures = cls.classFeatures;
       let featureMatch = classFeatures.find((feature) => feature.definition.id === featId);
+
       if (featureMatch) {
-        return cls;
+        return true;
       } else {
         // if not in global class feature list lets dig down
         classFeatures = cls.definition.classFeatures;
         if (cls.subclassDefinition && cls.subclassDefinition.classFeatures) {
           classFeatures = classFeatures.concat(cls.subclassDefinition.classFeatures);
         }
-        return classFeatures.find((feature) => feature.id === featId) !== undefined;
+        return classFeatures.some((feature) => feature.id === featId);
       }
     });
+    // try class option lookup
+    if (!cls) {
+      const option = data.character.options.class.find((option) => option.definition.id == featureId);
+      if (option) {
+        cls = data.character.classes.find((cls) => cls.classFeatures.find((feature) => feature.definition.id == option.componentId));
+      }
+    }
     return cls;
   },
 

@@ -1,6 +1,7 @@
 # 0.2.24
 
 * Improved senses parsing. Blind Fighting now imports blindsight.
+* Enriched action parsing for things like Unarmed Fighting actions.
 
 # 0.2.23
 

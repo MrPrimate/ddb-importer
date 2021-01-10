@@ -44,7 +44,7 @@ function getDamage(action) {
     ? DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name
     : null;
   const modBonus = (action.statId || action.abilityModifierStatId) && !action.isOffhand ? " + @mod" : "";
-  const fixedBonus = action.dice.fixedValue ? ` + ${action.dice.fixedValue}` : "";
+  const fixedBonus = action.dice?.fixedValue ? ` + ${action.dice.fixedValue}` : "";
 
   if (action.dice) {
     if (action.dice.diceString) {
@@ -206,23 +206,24 @@ function calculateRange(action, weapon) {
 }
 
 function calculateSaveAttack(action, weapon) {
-  const damageType = DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name;
   weapon.data.actionType = "save";
-  weapon.data.damage = {
-    parts: [[action.dice.diceString, damageType]],
-    versatile: "",
-  };
+  weapon.data.damage = getDamage(action);
 
   const fixedDC = (action.fixedSaveDc) ? action.fixedSaveDc : null;
   const scaling = (fixedDC) ? fixedDC : (action.abilityModifierStatId) ? DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
 
+  const saveAbility = (action.saveStatId) ?
+    DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value :
+    "";
 
   weapon.data.save = {
-    ability: DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value,
+    ability: saveAbility,
     dc: fixedDC,
     scaling: scaling,
   };
-  weapon.data.ability = DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value;
+  if (action.abilityModifierStatId) {
+    weapon.data.ability = DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value;
+  }
   return weapon;
 }
 
@@ -372,6 +373,8 @@ function getUnarmedStrike(ddb, character) {
  * @param {*} character
  */
 function getAttackActions(ddb, character) {
+  const classActions = ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId));
+  console.warn(classActions);
   return [
     // do class options here have a class id, needed for optional class features
     ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId)),
@@ -422,6 +425,9 @@ function getOtherActions(ddb, character, items) {
       feat.data.description = getDescription(ddb, character, action);
       feat.data.uses = getLimitedUse(action, character);
       feat.data.consume = getResource(character, action);
+
+      feat = calculateRange(action, feat);
+      feat = getAttackType(ddb, character, action, feat);
 
       return feat;
     });
