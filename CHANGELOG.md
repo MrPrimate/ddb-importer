@@ -1,6 +1,6 @@
 # 0.2.23
 
-* Feat import.
+* Experimental beta Feat imports available to God Tier patreon supporters (coming to other tiers later).
 
 # 0.2.22
 
