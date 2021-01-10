@@ -205,6 +205,16 @@ export default function () {
     choices: itemCompendiums,
   });
 
+  // game.settings.register("ddb-importer", "entity-item-spell-compendium", {
+  //   name: "ddb-importer.entity-item-spell-compendium.name",
+  //   hint: "ddb-importer.entity-item-spell-compendium.hint",
+  //   scope: "world",
+  //   config: false,
+  //   type: String,
+  //   isSelect: true,
+  //   choices: itemCompendiums,
+  // });
+
   game.settings.register("ddb-importer", "entity-monster-compendium", {
     name: "ddb-importer.entity-monster-compendium.name",
     hint: "ddb-importer.entity-monster-compendium.hint",

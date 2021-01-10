@@ -29,6 +29,8 @@
   "ddb-importer.entity-feat-compendium.hint": "Feat compendium for imported feats",
   "ddb-importer.entity-class-compendium.name": "Class compendium",
   "ddb-importer.entity-class-compendium.hint": "Class compendium for imported classes",
+  "ddb-importer.entity-item-spell-compendium.name": "Magic Item Spell compendium",
+  "ddb-importer.entity-item-spell-compendium.hint": "Target compendium for imported spells belonging to magic items",
   "ddb-importer.entity-spell-compendium.name": "Spell compendium",
   "ddb-importer.entity-spell-compendium.hint": "Target compendium for imported spells",
   "ddb-importer.entity-monster-compendium.name": "Monster compendium",
