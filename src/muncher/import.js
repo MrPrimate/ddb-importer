@@ -15,6 +15,7 @@ const compendiumLookup = [
   { type: "spells", compendium: "entity-spell-compendium" },
   { type: "feats", compendium: "entity-feat-compendium" },
   { type: "spell", compendium: "entity-spell-compendium" },
+  { type: "itemspells", compendium: "entity-item-spell-compendium" },
   { type: "features", compendium: "entity-feature-compendium" },
   { type: "classes", compendium: "entity-class-compendium" },
   { type: "class", compendium: "entity-class-compendium" },

@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, addMagicItemSpells, daeFiddling } from "./import.js";
+import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils.js";
@@ -104,6 +104,24 @@ function getItemData() {
   });
 }
 
+export async function addMagicItemSpells(items, spells, updateBool) {
+  if (spells.length === 0) return;
+  const itemSpells = await updateCompendium("itemspells", { itemspells: spells }, updateBool);
+  // scan the inventory for each item with spells and copy the imported data over
+  items.forEach((item) => {
+    if (item.flags.magicitems.spells) {
+      for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
+        const itemSpell = itemSpells.find((item) => item.name === spell.name);
+        if (itemSpell) {
+          for (const [key, value] of Object.entries(itemSpell)) {
+            item.flags.magicitems.spells[i][key] = value;
+          }
+        }
+      }
+    }
+  });
+}
+
 export async function parseItems() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const magicItemsInstalled = !!game.modules.get("magicitems");
@@ -117,7 +135,7 @@ export async function parseItems() {
 
   // store all spells in the folder specific for Dynamic Items
   if (magicItemsInstalled && itemSpells && Array.isArray(itemSpells)) {
-    await addMagicItemSpells(itemSpells);
+    await addMagicItemSpells(items, itemSpells, updateBool);
   }
 
   const srdItems = await srdFiddling(items, "inventory");
