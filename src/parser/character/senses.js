@@ -88,12 +88,14 @@ export function getSensesMap(data) {
       });
   }
 
-  // Darkvision
-  utils.filterBaseModifiers(data, "set-base", "darkvision").forEach((sense) => {
-    if (sense.value > senses['darkvision']) {
-      senses['darkvision'] = sense.value;
-    }
-  });
+  // Base senses
+  for (const senseName in senses) {
+    utils.filterBaseModifiers(data, "set-base", senseName).forEach((sense) => {
+      if (sense.value > senses[senseName]) {
+        senses[senseName] = sense.value;
+      }
+    });
+  }
 
   // Devils Sight gives bright light to 120 foot instead of normal darkvision
   utils

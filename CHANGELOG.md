@@ -1,3 +1,7 @@
+# 0.2.24
+
+* Improved senses parsing. Blind Fighting now imports blindsight.
+
 # 0.2.23
 
 * Experimental beta Feat imports available to God Tier patreon supporters (coming to other tiers later).
