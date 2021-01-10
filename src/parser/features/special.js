@@ -10,6 +10,13 @@
 export function fixFeatures(features) {
   features.forEach((feature) => {
     switch (feature.name) {
+      case "Channel Divinity: Radiance of the Dawn":
+        feature.data.damage = { parts: [["2d10 + @classes.cleric.levels", "radiant"]], versatile: "", value: "" };
+        break
+      case "Surprise Attack":
+        feature.data.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
+        feature.data.activation['type'] = 'special';
+        break;
       case "Second Wind":
         feature.data.damage = { parts: [["1d10 + @classes.fighter.levels", "healing"]], versatile: "", value: "" };
         feature.data.actionType = "heal";
