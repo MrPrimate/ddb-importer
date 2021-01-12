@@ -1,3 +1,8 @@
+
+# 0.2.25
+
+* Eldritch cannon parsing improvements.
+
 # 0.2.24
 
 * Improved senses parsing. Blind Fighting now imports blindsight.

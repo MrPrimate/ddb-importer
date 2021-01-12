@@ -190,7 +190,7 @@ function calculateRange(action, weapon) {
     weapon.data.range = { value: null, units: "self", long: null };
     weapon.data.target = {
       value: action.range.aoeSize,
-      type: DICTIONARY.actions.aoeType.find((type) => type.id === action.range.aoeType).value,
+      type: DICTIONARY.actions.aoeType.find((type) => type.id === action.range.aoeType)?.value,
       units: "ft",
     };
   } else if (action.range && action.range.range) {

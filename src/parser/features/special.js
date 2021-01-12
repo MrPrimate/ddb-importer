@@ -17,6 +17,24 @@ export function fixFeatures(features) {
         feature.data.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
         feature.data.activation['type'] = 'special';
         break;
+      case "Eldritch Cannon: Force Ballista":
+        feature.data['target']['value'] = 1;
+        feature.data['target']['type'] = "creature";
+        feature.data['range']['value'] = 120;
+        feature.data['range']['units'] = "ft";
+        feature.data.ability = "int";
+        feature.data.actionType = "rsak";
+        feature.data.chatFlavor = "On hit pushed 5 ft away.";
+        feature.data.damage = { parts: [["1d8 + @mod", "temphp"]], versatile: "", value: "" };
+        break;
+      case "Eldritch Cannon: Protector":
+        feature.data['target']['units'] = "any";
+        feature.data['target']['type'] = "ally";
+        feature.data['range']['value'] = 10;
+        feature.data.ability = "int";
+        feature.data.actionType = "heal";
+        feature.data.damage = { parts: [["1d8 + @mod", "temphp"]], versatile: "", value: "" };
+        break;
       case "Second Wind":
         feature.data.damage = { parts: [["1d10 + @classes.fighter.levels", "healing"]], versatile: "", value: "" };
         feature.data.actionType = "heal";
