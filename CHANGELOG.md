@@ -1,3 +1,6 @@
+# 0.2.25
+
+* Improved debugging.
 
 # 0.2.25
 

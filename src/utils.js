@@ -459,6 +459,8 @@ let utils = {
       await utils.serverFileExists(uri);
       return true;
     } catch (ignored) {
+      logger.debug(`File ignored`);
+      logger.debug(ignored);
       return false;
     }
   },

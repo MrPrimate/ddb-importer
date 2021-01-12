@@ -36,8 +36,10 @@ jobs:
     - run: npm ci
     - name: Webpack
       run: npm run build
-    - name: Create Zip
+    - name: Create Release Zip
       run: zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang LICENSE.md       # Add folders/files here
+    - name: Create Dev Zip
+      run: zip -r ./ddb-importer-debug.zip module-debug.json src icons handlebars css img lang LICENSE.md
     - name: Create Release                                # Create an additional release for this version
       id: create_versioned_release
       uses: ncipollo/release-action@v1
@@ -49,7 +51,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json,./ddb-importer.zip'    # don't forget to rename module zip thing
         tag: ${{ steps.get-version.outputs.version }} # Use the version as the tag
-    - name: Create Release
+    - name: Create Latest Release
       id: create_latest_release
       uses: ncipollo/release-action@v1
       if: endsWith(github.ref, 'master') # Only update the latest release when pushing to the master branch
@@ -61,6 +63,18 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json,./ddb-importer.zip'  # don't forget to rename module zip thing
         tag: latest
+    - name: Create Debug Release
+      id: create_debug_release
+      uses: ncipollo/release-action@v1
+      if: endsWith(github.ref, 'master') # Only update the latest release when pushing to the master branch
+      with:
+        allowUpdates: true
+        name: Debug
+        draft: false
+        prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: './ddb-importer-debug.zip,./module-debug.json'  # don't forget to rename module zip thing
+        tag: debug
     - name: Discord notification
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_HOOK }}
