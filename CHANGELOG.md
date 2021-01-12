@@ -2,6 +2,7 @@
 # 0.2.25
 
 * Eldritch cannon parsing improvements.
+* Fix issue where some actions would fail to parse (notably artificiers).
 
 # 0.2.24
 
