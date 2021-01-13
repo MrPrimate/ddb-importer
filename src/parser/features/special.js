@@ -25,7 +25,7 @@ export function fixFeatures(features) {
         feature.data.ability = "int";
         feature.data.actionType = "rsak";
         feature.data.chatFlavor = "On hit pushed 5 ft away.";
-        feature.data.damage = { parts: [["1d8 + @mod", "temphp"]], versatile: "", value: "" };
+        feature.data.damage = { parts: [["2d8", "force"]], versatile: "", value: "" };
         break;
       case "Eldritch Cannon: Protector":
         feature.data['target']['units'] = "any";
