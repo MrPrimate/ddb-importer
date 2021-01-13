@@ -412,7 +412,7 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
 
     if (imageExists) {
       // eslint-disable-next-line require-atomic-updates
-      const image = utils.getFileUrl(uploadDirectory, filename + "." + ext);
+      const image = await utils.getFileUrl(uploadDirectory, filename + "." + ext);
       return image.trim();
     } else {
       // eslint-disable-next-line require-atomic-updates
