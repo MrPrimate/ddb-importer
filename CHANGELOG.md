@@ -1,3 +1,7 @@
+# 0.2.26
+
+* Correct Eldritch Cannon: Force Ballista
+
 # 0.2.25
 
 * Improved debugging.
