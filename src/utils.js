@@ -453,14 +453,14 @@ let utils = {
   },
 
   fileExists: async (directoryPath, filename) => {
-    try {
-      let uri = utils.getFileUrl(directoryPath, filename);
-      logger.debug("Looking for file at " + uri);
-      await utils.serverFileExists(uri);
+    logger.debug(`Checking for ${filename}...`);
+    const dir = DirectoryPicker.parse(directoryPath);
+    const fileList = await DirectoryPicker.browse(dir.activeSource, dir.current, { bucket: dir.bucket });
+    if (fileList.files.includes(`${dir.current}/${filename}`)) {
+      logger.debug(`Found ${dir.current}/${filename}`);
       return true;
-    } catch (ignored) {
-      logger.debug(`File ignored`);
-      logger.debug(ignored);
+    } else {
+      logger.debug(`Could not find ${dir.current}/${filename}`);
       return false;
     }
   },
@@ -838,13 +838,17 @@ let utils = {
       }
   },
 
-  getFileUrl: (directoryPath, filename) => {
+  getFileUrl: async (directoryPath, filename) => {
     let uri;
     try {
       let dir = DirectoryPicker.parse(directoryPath);
       if (dir.activeSource == "data") {
         // Local on-server file system
         uri = dir.current + "/" + filename;
+      } else if (dir.activeSource == "forgevtt") {
+        const status = ForgeAPI.lastStatus || await ForgeAPI.status();
+        const userId = status.user;
+        uri = "https://assets.forge-vtt.com/" + userId + "/" + dir.current + "/" + filename;
       } else {
         // S3 Bucket
         uri =

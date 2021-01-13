@@ -29,7 +29,8 @@
     "canvas": true,
     "DAE": true,
     "FormApplication": true,
-    "setProperty": true
+    "setProperty": true,
+    "ForgeAPI": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

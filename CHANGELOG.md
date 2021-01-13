@@ -1,6 +1,7 @@
-# 0.2.26
+# 0.2.27
 
 * Correct Eldritch Cannon: Force Ballista
+* Improved detection of files and (hopefully) reduction in forge upload messages
 
 # 0.2.25
 
