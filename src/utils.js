@@ -456,11 +456,12 @@ let utils = {
     logger.debug(`Checking for ${filename}...`);
     const dir = DirectoryPicker.parse(directoryPath);
     const fileList = await DirectoryPicker.browse(dir.activeSource, dir.current, { bucket: dir.bucket });
-    if (fileList.files.includes(`${dir.current}/${filename}`)) {
-      logger.debug(`Found ${dir.current}/${filename}`);
+    const fileUrl = await utils.getFileUrl(directoryPath, filename);
+    if (fileList.files.includes(fileUrl)) {
+      logger.debug(`Found ${fileUrl}`);
       return true;
     } else {
-      logger.debug(`Could not find ${dir.current}/${filename}`);
+      logger.debug(`Could not find ${fileUrl}`);
       return false;
     }
   },
