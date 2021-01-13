@@ -381,7 +381,7 @@ export default class DDBMuncher extends Application {
         name: "use-dae-effects",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
         description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD module)",
-        enabled: true,
+        enabled: daeInstalled,
       },
     ];
 
