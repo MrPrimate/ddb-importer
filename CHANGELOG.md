@@ -2,7 +2,7 @@
 
 * Some optional class features like Wild Companion no longer imported due to JSON change.
 * Small improvements to file detection performance.
-* Improved parsing of Stirge and other creatures with a multi-paragraph attack block.
+* Improved parsing of Stirge, Grell and other creatures with a multi-paragraph attack block.
 * Spirit Guardians now attempts to deduce your damage type based on alignment.
 
 # 0.2.27/0.2.28
