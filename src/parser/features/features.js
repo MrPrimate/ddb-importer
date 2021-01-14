@@ -235,6 +235,7 @@ export default function parseFeatures(ddb, character) {
   ddb.classOptions
     .filter((feat) => !ddb.character.actions.class.some((action) => action.name === feat.name))
     .forEach((feat) => {
+      logger.debug(`Parsing Optional Feature ${feat.name}`);
       const source = utils.parseSource(feat);
       let feats = parseFeature(feat, ddb, character, source, "feat");
       feats.forEach((item) => {

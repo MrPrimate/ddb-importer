@@ -1,4 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
+import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
 import { fixFeatures } from "./special.js";
@@ -300,6 +301,7 @@ function getAttackAction(ddb, character, action) {
       }
     },
   };
+  logger.debug(`Getting Attack Action ${action.name}`);
 
   try {
     if (action.isMartialArts) {
@@ -409,6 +411,7 @@ function getOtherActions(ddb, character, items) {
         (action.displayAsAttack === true && !items.some((attack) => attack.name === action.name))
     )
     .map((action) => {
+      logger.debug(`Getting Other Action ${action.name}`);
       let feat = {
         name: action.name,
         type: "feat",

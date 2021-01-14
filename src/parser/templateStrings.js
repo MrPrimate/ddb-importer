@@ -81,13 +81,16 @@ let parseMatch = (ddb, character, match, feature) => {
         .flat()
         .find((option) => option.definition.id === feature.componentId);
       if (!classOption) {
-        logger.error("Unable to parse option class info, please log a bug report");
+        if (!feature.componentId) {
+          logger.debug("Feature failed componentID parse", feature);
+        }
+        logger.error(`Unable to parse option class info. ComponentId is ${feature.componentId}`);
       } else {
         const optionCls = utils.findClassByFeatureId(ddb, classOption.componentId);
         if (optionCls) {
           result = result.replace("classlevel", optionCls.level);
         } else {
-          logger.error("Unable to parse option class info, please log a bug report");
+          logger.error(`Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${feature.componentId}`);
         }
       }
     }
