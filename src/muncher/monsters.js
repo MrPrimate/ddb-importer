@@ -4,6 +4,7 @@ import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
 import { addNPC } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
+import utils from "../utils.js";
 
 async function getMonsterData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
@@ -104,6 +105,10 @@ function copyExistingMonsterImages(monsters, existingMonsters) {
 export async function parseCritters() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+  const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+
+  // to speed up file checking we pregenerate existing files now.
+  await utils.generateCurrentFiles(uploadDirectory);
 
   let monsters = await getMonsterData();
 

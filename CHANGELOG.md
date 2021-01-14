@@ -1,6 +1,7 @@
 # 0.2.29
 
 * Some optional class features like Wild Companion no longer imported due to JSON change.
+* Small improvements to file detection performance.
 
 # 0.2.27/0.2.28
 

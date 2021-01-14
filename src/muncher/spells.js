@@ -2,6 +2,7 @@
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
+import utils from "../utils.js";
 
 function getSpellData(className) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
@@ -38,6 +39,10 @@ function getSpellData(className) {
 
 export async function parseSpells() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
+  const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+
+  // to speed up file checking we pregenerate existing files now.
+  await utils.generateCurrentFiles(uploadDirectory);
 
   const results = await Promise.allSettled([
     getSpellData("Cleric"),

@@ -3,6 +3,8 @@ import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";
 
+var existingFiles = [];
+
 let utils = {
   debug: () => {
     return true;
@@ -292,7 +294,7 @@ let utils = {
   },
 
   determineActualFeatureId: (data, featureId, type = "class") => {
-    const optionalFeature = data.character.optionalClassFeatures
+    const optionalFeatureReplacement = data.character.optionalClassFeatures
       .filter((f) => f.classFeatureId === featureId)
       .map((f) => f.affectedClassFeatureId);
     // are we dealing with an optional class feature?
@@ -305,8 +307,9 @@ let utils = {
       if (choiceOptionalFeature && choiceOptionalFeature.length > 0) {
         return choiceOptionalFeature[0];
       }
-    } else if (optionalFeature && optionalFeature.length > 0) {
-      return optionalFeature[0];
+    } else if (optionalFeatureReplacement && optionalFeatureReplacement.length > 0) {
+      logger.debug(`Feature ${featureId} is replacing ${optionalFeatureReplacement[0]}`);
+      return optionalFeatureReplacement[0];
     }
     return featureId;
   },
@@ -314,6 +317,7 @@ let utils = {
   findClassByFeatureId: (data, featureId) => {
     // optional class features need this filter, as they replace existing features
     const featId = utils.determineActualFeatureId(data, featureId);
+    logger.debug(`Finding featureId ${featureId}`);
 
     let cls = data.character.classes.find((cls) => {
       let classFeatures = cls.classFeatures;
@@ -336,6 +340,16 @@ let utils = {
       if (option) {
         cls = data.character.classes.find((cls) => cls.classFeatures.find((feature) => feature.definition.id == option.componentId));
       }
+    }
+    // class option lookups
+    if (!cls) {
+      const classOption = data.character.classOptions.find((option) => option.id == featureId);
+      if (classOption) {
+        cls = data.character.classes.find((cls) => cls.definition.id == classOption.classId);
+      }
+    }
+    if (!cls) {
+      logger.debug(`Class not found for ${featureId}`);
     }
     return cls;
   },
@@ -452,13 +466,30 @@ let utils = {
     });
   },
 
-  fileExists: async (directoryPath, filename) => {
-    logger.debug(`Checking for ${filename}...`);
+  fileExistsUpdate: (fileList) => {
+    const targetFiles = fileList.filter((f) => !existingFiles.includes(f));
+    existingFiles = existingFiles.concat(targetFiles);
+  },
+
+  generateCurrentFiles: async (directoryPath) => {
+    logger.debug(`Checking for files in ${directoryPath}...`);
     const dir = DirectoryPicker.parse(directoryPath);
     const fileList = await DirectoryPicker.browse(dir.activeSource, dir.current, { bucket: dir.bucket });
+    utils.fileExistsUpdate(fileList.files);
+  },
+
+  fileExists: async (directoryPath, filename) => {
     const fileUrl = await utils.getFileUrl(directoryPath, filename);
+    let existingFile = existingFiles.includes(fileUrl);
+    if (existingFile) return true;
+
+    logger.debug(`Checking for ${filename} at ${fileUrl}...`);
+    const dir = DirectoryPicker.parse(directoryPath);
+    const fileList = await DirectoryPicker.browse(dir.activeSource, dir.current, { bucket: dir.bucket });
+
     if (fileList.files.includes(fileUrl)) {
       logger.debug(`Found ${fileUrl}`);
+      existingFiles.push(fileUrl);
       return true;
     } else {
       logger.debug(`Could not find ${fileUrl}`);
