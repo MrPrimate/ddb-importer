@@ -155,6 +155,16 @@ export function fixSpells(ddb, items) {
       case "Flaming Sphere":
         spell.data.target['value'] = 2.5;
         break;
+      case "Spirit Guardians": {
+        const radiantAlignments = [1, 2, 3, 4, 5, 6, 10, 14];
+        const necroticAlignments = [7, 8, 9, 11];
+        if (radiantAlignments.includes(ddb.character.alignmentId)) {
+          spell.data.damage = { parts: [["3d8", "radiant"]], versatile: "", value: "" };
+        } else if (necroticAlignments.includes(ddb.character.alignmentId)) {
+          spell.data.damage = { parts: [["3d8", "necrotic"]], versatile: "", value: "" };
+        }
+        break;
+      }
       // no default
     }
 
@@ -162,3 +172,5 @@ export function fixSpells(ddb, items) {
   });
 }
 /* eslint-enable complexity */
+
+
