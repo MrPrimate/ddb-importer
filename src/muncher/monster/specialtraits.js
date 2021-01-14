@@ -85,6 +85,10 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
       action.data.description.value += outerHTML;
     }
 
+    // If we have already parsed bits of this action, we probably don't want to
+    // do it again!
+    // if (!startFlag) return;
+
     const activationCost = getActivation(node.textContent);
     if (activationCost) {
       action.data.activation.cost = activationCost;

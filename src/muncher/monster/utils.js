@@ -482,7 +482,6 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
   result.target = getTarget(text);
   result.uses = getUses(text);
 
-
   return result;
 }
 

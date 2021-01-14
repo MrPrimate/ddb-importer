@@ -787,7 +787,7 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
     logger.debug(`checking ${item.name}`);
     const matched = await looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
 
-    logger.debug(`matched? ${JSON.stringify(matched)}`);
+    // logger.debug(`matched? ${JSON.stringify(matched)}`);
     // console.log(matched);
     // const ddbItem = items.find((orig) =>
     //   (item.name === orig.name && item.type === orig.type && orig.data.activation
@@ -858,11 +858,11 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
     let item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
     loadedItems.push(item);
   }
-  logger.debug(`loaded items: ${JSON.stringify(loadedItems)}`);
+  logger.debug(`compendium ${type} loaded items:`, loadedItems);
   // console.log(loadedItems);
 
   const results = await updateMatchingItems(items, loadedItems, looseMatch, monsterMatch);
-  logger.debug(`result items: ${results}`);
+  logger.debug(`compendium ${type} result items:`, results);
   // console.log(results);
   return results;
 }
@@ -885,10 +885,10 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false) {
       }
     })
   );
-  logger.debug(`loaded items: ${JSON.stringify(loadedItems)}`);
+  logger.debug(`SRD ${type} loaded items:`, loadedItems);
 
   const results = await updateMatchingItems(items, loadedItems, looseMatch);
-  logger.debug(`result items: ${results}`);
+  logger.debug(`SRD ${type} result items:`, results);
 
   return results;
 }

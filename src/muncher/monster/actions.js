@@ -149,6 +149,11 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       }
       action.data.description.value += outerHTML;
     }
+
+    // If we have already parsed bits of this action, we probably don't want to
+    // do it again!
+    if (!startFlag) return;
+
     // console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
     // console.log(JSON.stringify(actionInfo, null, 4));
     // console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
@@ -207,27 +212,6 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     action.data.duration = actionInfo.duration;
     action.data.uses = actionInfo.uses;
 
-    // console.log(JSON.stringify(action.data, null, 4));
-    // console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-
-
-    // console.log("###########################################")
-    // console.log(node.textContent);
-    // console.log("##############################");
-    // const b20AtkRoll = beyond20_buildAttackRoll(action.name, node.textContent);
-    // //console.log(b20AtkRoll);
-    // console.log(JSON.stringify(b20AtkRoll, null, 4));
-    // console.log("*******************************")
-    // const parsAtk = parseAttack(node.textContent);
-    // //console.log(parsAtk);
-    // //console.log(parsAtk.result.damage.parts);
-    // console.log(JSON.stringify(parsAtk, null, 4));
-    // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-    // const actionInfo = getActionInfo(monster, DDB_CONFIG, action.name, node.textContent);
-    // console.log(JSON.stringify(actionInfo, null, 4));
-    // console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-    // console.log(JSON.stringify(beyond20_damage(node.textContent), null, 4));
-    // console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
   });
 
   if (action && action.data.description.value !== "" && hideDescription) {
