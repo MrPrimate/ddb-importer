@@ -156,6 +156,7 @@ export function fixSpells(ddb, items) {
         spell.data.target['value'] = 2.5;
         break;
       case "Spirit Guardians": {
+        if (!ddb) break;
         const radiantAlignments = [1, 2, 3, 4, 5, 6, 10, 14];
         const necroticAlignments = [7, 8, 9, 11];
         if (radiantAlignments.includes(ddb.character.alignmentId)) {

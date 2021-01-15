@@ -1,3 +1,7 @@
+# 0.2.30
+
+* Bulk spell import was failing.
+
 # 0.2.29
 
 * Some optional class features like Wild Companion no longer imported due to JSON change.
