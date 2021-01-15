@@ -24,6 +24,8 @@ export function parseSpell(data, character) {
     flags: {
       ddbimporter: {
         id: data.id,
+        definitionId: data.definition.id,
+        entityTypeId: data.entityTypeId,
         dndbeyond: data.flags.ddbimporter.dndbeyond,
       },
     },

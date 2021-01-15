@@ -1,6 +1,7 @@
 # 0.2.31
 
 * Allow Classes to be optionally updated on character update/import.
+* Improved spell and item metadata.
 
 # 0.2.30
 

@@ -320,6 +320,8 @@ function parseItem(ddb, data, character) {
       if (filter) item.flags.ddbimporter.dndbeyond['filterType'] = filter.filterType;
     }
     item.flags.ddbimporter['id'] = data.id;
+    item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
+
     return item;
   } catch (err) {
     logger.warn(
