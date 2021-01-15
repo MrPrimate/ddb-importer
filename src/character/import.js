@@ -104,7 +104,7 @@ const getCharacterAPIEndpoint = (characterId) => {
 
 const getCharacterUpdatePolicyTypes = () => {
   let itemTypes = [];
-  itemTypes.push("class");
+  if (game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
   if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
   if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
   if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
@@ -416,6 +416,11 @@ export default class CharacterImport extends Application {
 
   getData() {
     const importPolicies = [
+      {
+        name: "class",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-class"),
+        description: "Classes",
+      },
       {
         name: "feat",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-feat"),

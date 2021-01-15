@@ -1,3 +1,7 @@
+# 0.2.31
+
+* Allow Classes to be optionally updated on character update/import.
+
 # 0.2.30
 
 * Bulk spell import was failing.

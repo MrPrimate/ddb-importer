@@ -358,6 +358,16 @@ export default function () {
 
   // Character update policy
 
+  game.settings.register("ddb-importer", "character-update-policy-class", {
+    name: "ddb-importer.character-update-policy-class.name",
+    hint: "ddb-importer.character-update-policy-class.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+
   game.settings.register("ddb-importer", "character-update-policy-feat", {
     name: "ddb-importer.character-update-policy-feat.name",
     hint: "ddb-importer.character-update-policy-feat.hint",
