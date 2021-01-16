@@ -110,7 +110,10 @@ function parseClassFeatures(ddb, character) {
   ddb.character.classes.forEach((klass) => {
     const classFeatures = klass.definition.classFeatures.filter(
       (feat) =>
-        feat.name !== "Proficiencies" && feat.name !== "Ability Score Improvement" && feat.requiredLevel <= klass.level
+        feat.name !== "Proficiencies" &&
+        feat.name !== "Ability Score Improvement" &&
+        !ddb.character.actions.class.some((action) => action.name === feat.name) &&
+        feat.requiredLevel <= klass.level
     );
     const klassName = klass.definition.name;
     const klassFeatureList = classFeatures

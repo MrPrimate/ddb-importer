@@ -2,6 +2,7 @@
 
 * Allow Classes to be optionally updated on character update/import.
 * Improved spell and item metadata.
+* Some features (like Rage) were duplicated twice - once as a passive and once as active. This caused problems with tools likes DAE where both features would be changed. Now just the active feature is imported.
 
 # 0.2.30
 
