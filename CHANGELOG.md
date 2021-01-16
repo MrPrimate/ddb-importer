@@ -4,6 +4,7 @@
 * Improved spell and item metadata.
 * Some features (like Rage) were duplicated twice - once as a passive and once as active. This caused problems with tools likes DAE where both features would be changed. Now just the active feature is imported.
 * Better detection of Better Rolls consume uses flag.
+* If you're not using a cobalt cookie character parsing would fail for some character types.
 
 # 0.2.30
 

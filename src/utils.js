@@ -342,7 +342,7 @@ let utils = {
       }
     }
     // class option lookups
-    if (!cls) {
+    if (!cls && data.character.classOptions) {
       const classOption = data.character.classOptions.find((option) => option.id == featureId);
       if (classOption) {
         cls = data.character.classes.find((cls) => cls.definition.id == classOption.classId);
