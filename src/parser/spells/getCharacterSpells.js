@@ -38,6 +38,7 @@ export function getCharacterSpells(ddb, character) {
             lookup: "classSpell",
             class: classInfo.definition.name,
             level: classInfo.level,
+            characterClassId: playerClass.characterClassId,
             spellLevel: spell.definition.level,
             // spellSlots: character.data.spells,
             ability: spellCastingAbility,
