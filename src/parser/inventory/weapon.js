@@ -297,6 +297,16 @@ export default function parseWeapon(data, character, flags) {
     quickVersatile: {
       altValue: true,
     },
+    quickCharges: {
+      value: {
+        use: true,
+        resource: true
+      },
+      altValue: {
+        use: true,
+        resource: true
+      }
+    },
   };
 
   /* weaponType: { value: 'simpleM' }, */

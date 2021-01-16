@@ -321,6 +321,21 @@ function getAttackAction(ddb, character, action) {
     weapon.data.weaponType = getWeaponType(action);
     weapon.data.uses = getLimitedUse(action, character);
     weapon.data.consume = getResource(character, action);
+
+    if (weapon.data.uses?.max) {
+      weapon.flags.betterRolls5e = {
+        "quickCharges": {
+          "value": {
+            "use": true,
+            "resource": true
+          },
+          "altValue": {
+            "use": true,
+            "resource": true
+          }
+        }
+      };
+    }
   } catch (err) {
     utils.log(
       `Unable to Import Attack Action: ${action.name}, please log a bug report. Err: ${err.message}`,
@@ -429,6 +444,21 @@ function getOtherActions(ddb, character, items) {
 
       feat = calculateRange(action, feat);
       feat = getAttackType(ddb, character, action, feat);
+
+      if (feat.data.uses?.max) {
+        feat.flags.betterRolls5e = {
+          quickCharges: {
+            value: {
+              use: true,
+              resource: true
+            },
+            altValue: {
+              use: true,
+              resource: true
+            }
+          }
+        };
+      }
 
       return feat;
     });

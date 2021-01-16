@@ -359,6 +359,20 @@ function magicFlags(data, item) {
       item.data.properties = { mgc: true };
     }
   }
+  if (item.data.uses?.max && !item.flags?.betterRolls5e) {
+    item.flags['betterRolls5e'] = {
+      quickCharges: {
+        value: {
+          use: true,
+          resource: true
+        },
+        altValue: {
+          use: true,
+          resource: true
+        }
+      },
+    };
+  }
 }
 
 export default function getInventory(ddb, character, itemSpells) {

@@ -93,6 +93,16 @@ export function parseSpell(data, character) {
     quickVersatile: {
       altValue: true,
     },
+    quickCharges: {
+      value: {
+        use: true,
+        resource: true
+      },
+      altValue: {
+        use: true,
+        resource: true
+      }
+    },
   };
 
   return spell;
