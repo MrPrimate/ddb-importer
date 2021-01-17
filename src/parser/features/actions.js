@@ -298,6 +298,7 @@ function getAttackAction(ddb, character, action) {
     flags: {
       ddbimporter: {
         id: action.id,
+        entityTypeId: action.entityTypeId,
       }
     },
   };

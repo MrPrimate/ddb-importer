@@ -41,6 +41,7 @@ function parseFeature(feat, ddb, character, source, type) {
     flags: {
       ddbimporter: {
         id: feat.id,
+        entityTypeId: feat.entityTypeId,
         dndbeyond: {
           requiredLevel: feat.requiredLevel,
           displayOrder:

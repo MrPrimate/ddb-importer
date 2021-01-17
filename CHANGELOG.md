@@ -1,6 +1,7 @@
 # 0.2.32
 
-* Some speed bonuses applied to all speed types
+* Some speed bonuses applied to all speed types.
+* More metadata additions for various future improvements.
 
 # 0.2.31
 

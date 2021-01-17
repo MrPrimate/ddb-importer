@@ -351,7 +351,7 @@ function getName(data, character) {
   }
 }
 
-function magicFlags(data, item) {
+function enrichFlags(data, item) {
   if (data.definition.magic) {
     if (item.data.properties) {
       item.data.properties['mgc'] = true;
@@ -373,6 +373,10 @@ function magicFlags(data, item) {
       },
     };
   }
+  if (item.data.definition?.entityTypeId) item.flags.ddbimporter['definitionEntityTypeId'] = item.data.definition.entityTypeId;
+  if (item.data.definition?.id) item.flags.ddbimporter['definitionId'] = item.data.definition.id;
+  if (item.data.entityTypeId) item.flags.ddbimporter['entityTypeId'] = item.data.entityTypeId;
+  if (item.data.id) item.flags.ddbimporter['id'] = item.data.id;
 }
 
 export default function getInventory(ddb, character, itemSpells) {
@@ -401,7 +405,7 @@ export default function getInventory(ddb, character, itemSpells) {
     entry.definition.name = getName(entry, character);
     var item = Object.assign({}, parseItem(ddb, entry, character));
     addCustomValues(entry, item, character);
-    magicFlags(entry, item);
+    enrichFlags(entry, item);
     if (item) {
       item.flags.magicitems = parseMagicItem(entry, itemSpells);
       items.push(item);
