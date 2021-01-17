@@ -2,6 +2,7 @@
 
 * Some speed bonuses applied to all speed types.
 * More metadata additions for various future improvements.
+* Monster/NPC sheet open URL button now appears on title bar, to reduce sheet breakage.
 
 # 0.2.31
 

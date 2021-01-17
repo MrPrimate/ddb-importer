@@ -115,25 +115,21 @@ export default function () {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this npc
       if (!data.owner || !data.actor) return;
-      let button = $('<button type="button" id="ddbImporterButton"></button>');
 
-      if (
-        app.entity.data.flags.monsterMunch &&
-        app.entity.data.flags.monsterMunch.url
-      ) {
-        button.click((event) => {
-          let url = null;
+      let openBtn = $(`<a class="ddb-open-url" title="D&D Beyond"><i class="fas fa-external-link-alt"></i>D&D Beyond</a>`);
 
-          url = app.entity.data.flags.monsterMunch.url;
-
-          event.preventDefault();
+      if (app.entity.data.flags.monsterMunch && app.entity.data.flags.monsterMunch.url) {
+        // eslint-disable-next-line no-unused-vars
+        openBtn.click((event) => {
+          let url = app.entity.data.flags.monsterMunch.url;
+          logger.debug(`Clicked for url ${url}`)
           renderPopup("web", url);
         });
-      }
 
-      let wrap = $('<div class="ddbCharacterName"></div>');
-      $(html).find("input[name='name']").wrap(wrap);
-      $(html).find("input[name='name']").parent().prepend(button);
+        html.closest('.app').find('.ddb-open-url').remove();
+        let titleElement = html.closest('.app').find('.window-title');
+        if (!app._minimized) openBtn.insertAfter(titleElement);
+      }
     });
   });
 }
