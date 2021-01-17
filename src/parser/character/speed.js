@@ -18,11 +18,7 @@ export function getSpeed(data) {
   // Accounts for Barbarian Class Feature - Fast Movement
   if (!wearingHeavy) restriction.push("while you aren’t wearing heavy armor");
 
-  const bonusSpeed = utils
-    .filterBaseModifiers(data, "bonus", "speed", restriction)
-    .reduce((speed, feat) => speed + feat.value, 0);
-
-  // loop over speed types and add and racial bonuses and feat modifiers
+  // build base speeds
   for (let type in movementTypes) {
     // is there a 'inntate-speed-[type]ing' race/class modifier?
     const innateType = DICTIONARY.character.speeds.find((s) => s.type === type).innate;
@@ -38,12 +34,22 @@ export function getSpeed(data) {
       }
     });
 
+    // overwrite the (perhaps) changed value
+    movementTypes[type] = base;
+  }
+
+  const bonusSpeed = utils
+    .filterBaseModifiers(data, "bonus", "speed", restriction)
+    .reduce((speed, feat) => speed + feat.value, 0);
+
+  // speed bonuses
+  for (let type in movementTypes) {
     let innateBonus = utils
       .filterBaseModifiers(data, "bonus", `speed-${type}ing`, restriction)
       .reduce((speed, feat) => speed + feat.value, 0);
 
     // overwrite the (perhaps) changed value
-    movementTypes[type] = base + bonusSpeed + innateBonus;
+    if (movementTypes[type] !== 0) movementTypes[type] += bonusSpeed + innateBonus;
   }
 
   // unarmored movement for barbarians and monks
