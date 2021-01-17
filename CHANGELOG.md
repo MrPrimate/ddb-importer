@@ -1,3 +1,7 @@
+# 0.2.32
+
+* Some speed bonuses applied to all speed types
+
 # 0.2.31
 
 * Allow Classes to be optionally updated on character update/import.
