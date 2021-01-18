@@ -2,6 +2,35 @@ import DirectoryPicker from "./DirectoryPicker.js";
 import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 
+export function isSetupComplete(needsCobalt=true) {
+  const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
+  const dataDirSet = !BAD_DIRS.includes(uploadDir);
+  const campaignId = game.settings.get("ddb-importer", "campaign-id");
+  const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+  const campaignIdCorrect = !campaignId.includes("join");
+  const setupComplete = dataDirSet && (cobalt || !needsCobalt) && campaignIdCorrect;
+  return setupComplete;
+}
+
+export async function isValidKey() {
+  let validKey = false;
+
+  const key = game.settings.get("ddb-importer", "beta-key");
+  if (key === "") {
+    validKey = true;
+  } else {
+    const check = await getPatreonValidity(key);
+    if (check.success && check.data) {
+      validKey = true;
+    } else {
+      validKey = false;
+      game.settings.set("ddb-importer", "settings-call-muncher", true);
+      new DDBKeyChange().render(true);
+    }
+  }
+  return validKey;
+}
+
 // eslint-disable-next-line no-unused-vars
 Hooks.on("renderDDBSetup", (app, html, user) => {
   DirectoryPicker.processHtml(html);

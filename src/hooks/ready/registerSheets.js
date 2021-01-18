@@ -1,5 +1,6 @@
 import CharacterImport from "../../character/import.js";
 import logger from "../../logger.js";
+import { DDBSetup, isSetupComplete } from "../../lib/Settings.js";
 
 const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v4/character/";
 // reference to the D&D Beyond popup
@@ -82,8 +83,15 @@ export default function () {
         }
 
         if ((!event.shiftKey && !event.ctrlKey && !event.altKey) || url === null) {
-          let characterImport = new CharacterImport(CharacterImport.defaultOptions, data.actor);
-          characterImport.render(true);
+          const setupComplete = isSetupComplete(false);
+
+          if (setupComplete) {
+            characterImport = new CharacterImport(CharacterImport.defaultOptions, data.actor);
+            characterImport.render(true);
+          } else {
+            new DDBSetup().render(true);
+          }
+
           return true;
         }
 

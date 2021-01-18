@@ -1,15 +1,15 @@
-<div>
-  {{#if dataDirSet}}
-  <div class="form-section">
+<form>
+
+  <!-- Character Import Header -->
+  <header class="sheet-header">
+    <img class="effect-icon" src="{{actor.data.token.img}}" data-edit="img">
+    <h1 class="effect-title">{{ actor.name }}</h1>
+  </header>
+
+  <hr>
+    <div class="form-section">
     <div class="form-description">
-      <h3>Get your Character's ID</h3>
-      <p>Insert a URL to your character below. Make sure that the character is set to <b>public</b>.</p>
-      <p>You can use any of the following:</p>
-      <ul>
-        <li><b>The regular character sheet URL</b>, e.g. https://www.dndbeyond.com/profile/[Username]/characters/[CharacterId]</li>
-        <li><b>A link to a shared character</b>, e.g. https://ddb.ac/characters/[CharacterId]/[RandomString]</li>
-        <li><b>The Character API itself</b>, e.g. https://character-service.dndbeyond.com/character/v4/character/[CharacterId]</li>
-      </ul>
+      <p>Insert your character URL.</p>
     </div>
     <div class="form-caption">
       URL
@@ -33,7 +33,16 @@
     </div>
 
   </div>
-  <hr>
+
+  <!-- Character Configuration Tabs -->
+  <nav class="sheet-tabs tabs">
+    <a class="item active" data-tab="import"><i class="fas fa-book"></i> Import Character</a>
+    <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Advanced Settings</a>
+    <a class="item" data-tab="upload"><i class="fas fa-external-link-alt"></i> Sync to D&D Beyond</a>
+  </nav>
+
+  <!-- Import Tab -->
+  <section class="tab" data-tab="import">
   <div>
     <h3>Update selection</h3>
     <p>Only ticked items will be updated.</p>
@@ -73,11 +82,10 @@
       </div>
     </div>
   </div>
-  <hr>
-  <div class="task-name"></div>
-  <hr>
-  <div>
-    <h3>Advanced configuration</h3>
+</section>
+
+  <!-- Advanced Configuration Tab -->
+  <section class="tab" data-tab="config">
     <p>If you're using this module for the first time, you probably don't want to enable these.</p>
     {{#each advancedImportConfig}}
     <div class="advanced-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
@@ -85,15 +93,20 @@
         {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
     </div>
     {{/each}}
-  </div>
-  {{else}}
-  <h3>Configuration Needs Completing!</h3>
-  <p>Please make sure you have set an images upload directory in the module settings.</p>
-  <p>If you need help getting setup checkout the following YouTube videos:</p>
-  <p>
-    <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Amazing Overview (Install, Setup, How to Use)</a> is recommended!</li>
-    <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
-    <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
-  </p>
-  {{/if}}
+</section>
+
+<!-- Advanced Configuration Tab -->
+  <section class="tab" data-tab="upload">
+
+<div>
+  This is a super secret project yo.
 </div>
+  </section>
+
+<hr>
+
+  <footer class="sheet-footer">
+    <div class="task-name"></div>
+  </footer>
+
+</form>

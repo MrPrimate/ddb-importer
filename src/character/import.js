@@ -199,7 +199,7 @@ async function getCharacterData(characterId) {
   });
 }
 
-export default class CharacterImport extends Application {
+export default class CharacterImport extends FormApplication {
   constructor(options, actor) {
     super(options);
     this.actor = game.actors.entities.find((a) => a.id === actor._id);
@@ -235,8 +235,11 @@ export default class CharacterImport extends Application {
     options.title = game.i18n.localize("ddb-importer.module-name");
     options.template = "modules/ddb-importer/handlebars/character.handlebars";
     options.width = 800;
-    options.height = "auto";
-    options.classes = ["ddbimporter"];
+    options.height = 'auto';
+    options.classes = ["ddbimporter", "sheet"];
+    options.tabs = [{navSelector: ".tabs", contentSelector: "form", initial: "import"}]
+    // options.tabs = [ {navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "parts"}];
+
     return options;
   }
 
@@ -553,6 +556,7 @@ export default class CharacterImport extends Application {
   /* -------------------------------------------- */
 
   activateListeners(html) {
+    super.activateListeners(html);
     // watch the change of the import-policy-selector checkboxes
     $(html)
       .find('.import-policy input[type="checkbox"]')
@@ -783,34 +787,6 @@ export default class CharacterImport extends Application {
       });
     }
   }
-
-  /**
-   * This adds magic item spells to a world,
-   */
-  // async addMagicItemSpells() {
-  //   const itemSpells = await updateFolderItems("itemSpells", this.result);
-  //   console.warn(itemSpells);
-  //   // scan the inventory for each item with spells and copy the imported data over
-  //   await this.result.inventory.forEach((item) => {
-  //     console.warn(item);
-  //     if (item.flags.magicitems.spells) {
-  //       for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
-  //         console.log(spell);
-
-  //         const itemSpell = itemSpells.find((itemSpell) => itemSpell.name === spell.name);
-  //         if (itemSpell) {
-  //           console.log(itemSpell);
-  //           for (const [key, value] of Object.entries(itemSpell)) {
-  //             console.log(`setting ${key} to ${value}`);
-  //             item.flags.magicitems.spells[i][key] = value;
-  //           }
-  //         } else if (!game.user.can("ITEM_CREATE")) {
-  //           ui.notifications.warn(`Magic Item ${item.name} cannot be enriched because of lacking player permissions`);
-  //         }
-  //       }
-  //     }
-  //   });
-  // }
 
   async processCharacterItems(html) {
     // is magicitems installed
