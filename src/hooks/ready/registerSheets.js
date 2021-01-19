@@ -86,7 +86,7 @@ export default function () {
           const setupComplete = isSetupComplete(false);
 
           if (setupComplete) {
-            characterImport = new CharacterImport(CharacterImport.defaultOptions, data.actor);
+            let characterImport = new CharacterImport(CharacterImport.defaultOptions, data.actor);
             characterImport.render(true);
           } else {
             new DDBSetup().render(true);
