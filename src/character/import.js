@@ -18,6 +18,7 @@ import {
   migrateActorDAESRD,
   addItemsDAESRD
 } from "../muncher/dae.js";
+import { copyInbuiltIcons } from "../icons/index.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
@@ -458,6 +459,12 @@ export default class CharacterImport extends Application {
 
     const importConfig = [
       {
+        name: "use-inbuilt-icons",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons"),
+        description: "Use icons from the inbuilt dictionary. (Currently items/equipment only).",
+        enabled: true,
+      },
+      {
         name: "use-srd-icons",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd-icons"),
         description: "Use icons from the SRD compendium. (This can take a while).",
@@ -675,6 +682,7 @@ export default class CharacterImport extends Application {
   }
 
   async enrichCharacterItems(html, items) {
+    const useInbuiltIcons = game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons");
     const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
     const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
     const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
@@ -692,6 +700,11 @@ export default class CharacterImport extends Application {
       if (ddbItemIcons) {
         CharacterImport.showCurrentTask(html, "Fetching DDB Inventory Images");
         items = await getDDBEquipmentIcons(items, true);
+      }
+
+      if (useInbuiltIcons) {
+        CharacterImport.showCurrentTask(html, "Adding SRD Icons");
+        items = await copyInbuiltIcons(items);
       }
 
       if (useSRDCompendiumIcons && !useSRDCompendiumItems) {

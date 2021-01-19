@@ -3,6 +3,7 @@ import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { munchNote } from "./utils.js";
 import { addItemsDAESRD } from "./dae.js";
+import { copyInbuiltIcons } from "../icons/index.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const INVENTORY_TYPES = EQUIPMENT_TYPES.concat("weapon");
@@ -653,6 +654,7 @@ export async function getDDBEquipmentIcons(items, download) {
 export async function updateMagicItemImages(items) {
   const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
   const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
+  const inbuiltIcons = game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons");
   const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
 
   // if we still have items to add, add them
@@ -660,6 +662,11 @@ export async function updateMagicItemImages(items) {
     if (ddbItemIcons) {
       logger.debug("Magic items: adding equipment icons");
       items = await getDDBEquipmentIcons(items, true);
+    }
+
+    if (inbuiltIcons) {
+      logger.debug("Magic items: adding inbuilt icons");
+      items = await copyInbuiltIcons(items);
     }
 
     if (useSRDCompendiumIcons) {
@@ -946,6 +953,12 @@ export async function updateIcons(items, srdIconUpdate = true) {
   if (ddbItemIcons) {
     logger.debug("DDB Equipment Icon Match");
     items = await getDDBEquipmentIcons(items);
+  }
+
+  const inBuiltIcons = game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons");
+  if (inBuiltIcons) {
+    logger.debug("Inbuilt icon matching");
+    items = await copyInbuiltIcons(items);
   }
 
   // check for SRD icons

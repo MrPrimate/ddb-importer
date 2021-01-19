@@ -279,6 +279,12 @@ export default class DDBMuncher extends Application {
 
     const itemConfig = [
       {
+        name: "use-inbuilt-icons",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons"),
+        description: "Use icons from the inbuilt dictionary. (Currently items only).",
+        enabled: true,
+      },
+      {
         name: "use-ddb-item-icons",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-item-icons"),
         description: "Use D&D Beyond item images, if available",
