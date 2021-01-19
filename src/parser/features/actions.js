@@ -132,7 +132,7 @@ function getLimitedUse(action, character) {
     }
     return {
       value: maxUses - action.limitedUse.numberUsed,
-      max: maxUses,
+      max: (maxUses) ? parseInt(maxUses) : null,
       per: resetType ? resetType.value : "",
     };
   } else {
@@ -166,7 +166,11 @@ function getActivation(action) {
 }
 
 function getResource(character, action) {
-  let consume = null;
+  let consume = {
+    "type": "",
+    "target": "",
+    "amount": null
+  };
   Object.keys(character.data.resources).forEach((resource) => {
     const detail = character.data.resources[resource];
     if (action.name === detail.label) {
@@ -188,7 +192,7 @@ function getWeaponType(action) {
 
 function calculateRange(action, weapon) {
   if (action.range && action.range.aoeType && action.range.aoeSize) {
-    weapon.data.range = { value: null, units: "self", long: null };
+    weapon.data.range = { value: null, units: "self", long: "" };
     weapon.data.target = {
       value: action.range.aoeSize,
       type: DICTIONARY.actions.aoeType.find((type) => type.id === action.range.aoeType)?.value,
