@@ -96,6 +96,7 @@ export default function parseClasses(ddb) {
       choice.type === 2
     ).forEach((choice) => {
       const option = choice.options.find((option) => option.id === choice.optionValue);
+      if (!option) return;
       const smallChosen = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
       if (smallChosen && !skillsChosen.includes(smallChosen.name)) {
         skillsChosen.push(smallChosen.name);

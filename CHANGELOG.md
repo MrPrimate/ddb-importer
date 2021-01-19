@@ -3,6 +3,7 @@
 * Some speed bonuses applied to all speed types.
 * More metadata additions for various future improvements.
 * Monster/NPC sheet open URL button now appears on title bar, to reduce sheet breakage.
+* When a characters skill proficiencies are not selected it no longer bombs out.
 
 # 0.2.31
 
