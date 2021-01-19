@@ -1,4 +1,5 @@
 import CharacterImport from "../../character/import.js";
+import logger from "../logger.js";
 
 // reference to the D&D Beyond popup
 const POPUPS = {
@@ -122,7 +123,7 @@ export default function () {
         // eslint-disable-next-line no-unused-vars
         openBtn.click((event) => {
           let url = app.entity.data.flags.monsterMunch.url;
-          logger.debug(`Clicked for url ${url}`)
+          logger.debug(`Clicked for url ${url}`);
           renderPopup("web", url);
         });
 
