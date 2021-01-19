@@ -1,3 +1,11 @@
+# 0.2.34
+
+* Some actions which had consume actions had to be edited before they could be rolled.
+* Monster URL link to DDB now can be selectively in the title bar or next to the name.
+* DDB Importer link on the character sheet can be selectively in the title bar or next to the name.
+* Icon used by DDB Importer changed to the awesome fonts D&D Beyond brand image.
+* Feat import failed if use SRD was selected.
+
 # 0.2.32/0.2.33
 
 * Some speed bonuses applied to all speed types.

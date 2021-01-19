@@ -135,6 +135,24 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "monster-link-title", {
+    name: "ddb-importer.monster-link-title.name",
+    hint: "ddb-importer.monster-link-title.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-link-title", {
+    name: "ddb-importer.character-link-title.name",
+    hint: "ddb-importer.character-link-title.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "entity-item-compendium", {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",
