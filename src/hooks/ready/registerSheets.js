@@ -1,5 +1,5 @@
 import CharacterImport from "../../character/import.js";
-import logger from "../logger.js";
+import logger from "../../logger.js";
 
 // reference to the D&D Beyond popup
 const POPUPS = {
