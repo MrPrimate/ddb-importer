@@ -37,9 +37,9 @@ jobs:
     - name: Webpack
       run: npm run build
     - name: Create Release Zip
-      run: zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang LICENSE.md       # Add folders/files here
+      run: zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang data LICENSE.md       # Add folders/files here
     - name: Create Dev Zip
-      run: zip -r ./ddb-importer-debug.zip module-debug.json src icons handlebars css img lang LICENSE.md
+      run: zip -r ./ddb-importer-debug.zip module-debug.json src icons handlebars css img lang data LICENSE.md
     - name: Create Release                                # Create an additional release for this version
       id: create_versioned_release
       uses: ncipollo/release-action@v1
