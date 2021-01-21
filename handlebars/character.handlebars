@@ -36,9 +36,10 @@
 
   <!-- Character Configuration Tabs -->
   <nav class="sheet-tabs tabs">
-    <a class="item active" data-tab="import"><i class="fas fa-book"></i> Import Character</a>
+    <a class="item active" data-tab="import"><i class="fas fa-arrow-alt-circle-down"></i> Import Character</a>
     <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Advanced Settings</a>
-    <a class="item" data-tab="upload"><i class="fas fa-external-link-alt"></i> Sync to D&D Beyond</a>
+    <a class="item" data-tab="sync"><i class="fas fa-sync-alt"></i></i> Sync to D&D Beyond</a>
+    <a class="item" data-tab="help"><i class="fas fa-info-circle"></i> Help</a>
   </nav>
 
   <!-- Import Tab -->
@@ -95,12 +96,54 @@
     {{/each}}
 </section>
 
-<!-- Advanced Configuration Tab -->
-  <section class="tab" data-tab="upload">
+<!-- Sync/Upload Tab -->
+  <section class="tab" data-tab="sync">
 
-<div>
-  This is a super secret project yo.
-</div>
+    <h3>Update selection</h3>
+    <p>Only ticked items will be updated.</p>
+    <div class="sync-policy">
+      {{#each syncConfig}}
+      <div class="sync-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="sync-policy-{{this.name}}" id="sync-policy-{{this.name}}" data-section="{{this.name}}"
+          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+      </div>
+      {{/each}}
+    </div>
+  <hr>
+  <div class="form-section">
+      <div class="form-description">
+        <div class="form-description"></div>
+        <div>
+          <button type="button" id="dndbeyond-character-sync"
+            {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>Sync to D&D Beyond</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+<!-- Help Tab -->
+  <section class="tab" data-tab="help">
+    <h3>Videos</h3>
+    <p>If you need help getting setup checkout the following YouTube videos:</p>
+    <ul>
+      <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Overview (Install, Setup, How to Use)</a> is recommended!</li>
+      <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
+      <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
+    </ul>
+    <br>
+    <h3>Troubleshooting</h3>
+    <ul>
+      <li>Make sure you're using the latest version.</li>
+      <li>Check that your character is complete of D&D Beyond.</li>
+      <li>Ask a question/submit a bug on <a href="https://discord.gg/WzPuRuDJVP">Discord</a>.</li>
+      <li>Or submit a bug on <a href="https://github.com/MrPrimate/ddb-importer">GitHub</a>.</li>
+    </ul>
+    <h3>Community</h3>
+    <ul>
+      <li>Join us on <a href="https://discord.gg/WzPuRuDJVP">Discord</a></li>
+      <li>Support me on <a href="https://patreon.com/MrPrimate">Patreon</a></li>
+    </ul>
   </section>
 
 <hr>

@@ -13,12 +13,13 @@ import {
   getDDBGenericItemIcons,
 } from "../muncher/import.js";
 import { getCharacterOptions } from "./options.js";
-import { download, getCampaignId } from "../muncher/utils.js";
+import { download, getCampaignId, getPatreonTiers } from "../muncher/utils.js";
 import {
   migrateActorDAESRD,
   addItemsDAESRD
 } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
+import { updateDDBCharacter } from "./sync.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
@@ -464,7 +465,7 @@ export default class CharacterImport extends FormApplication {
       {
         name: "use-inbuilt-icons",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons"),
-        description: "Use icons from the inbuilt dictionary. (Currently items/equipment only).",
+        description: "Use icons from the inbuilt dictionary. (High coverage of items and spells).",
         enabled: true,
       },
       {
@@ -540,9 +541,75 @@ export default class CharacterImport extends FormApplication {
       },
     ];
 
+    const syncConfig = [
+      {
+        name: "action-use",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-action-use"),
+        description: "Action Uses",
+        enabled: false,
+      },
+      {
+        name: "currency",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-currency"),
+        description: "Currency",
+        enabled: true,
+      },
+      {
+        name: "deathsaves",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-deathsaves"),
+        description: "Death Saves",
+        enabled: true,
+      },
+      {
+        name: "equipment",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-equipment"),
+        description: "Equipment",
+        enabled: false,
+      },
+      {
+        name: "condition",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-condition"),
+        description: "Exhaustion",
+        enabled: true,
+      },
+      {
+        name: "hitpoints",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-currency"),
+        description: "HitPoints",
+        enabled: true,
+      },
+      {
+        name: "inspiration",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-inspiration"),
+        description: "Inspiration",
+        enabled: true,
+      },
+      {
+        name: "spells-prepared",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-spells-prepared"),
+        description: "Spells Prepared",
+        enabled: false,
+      },
+      {
+        name: "spells-slots",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-spells-slots"),
+        description: "Spell Slot Usage",
+        enabled: true,
+      },
+      {
+        name: "spells-sync",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-spells-sync"),
+        description: "Spells Known",
+        enabled: false,
+      },
+    ];
+
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
     const badDirs = ["[data]", "[data] ", "", null];
     const dataDirSet = !badDirs.includes(uploadDir);
+    const tier = game.settings.get("ddb-importer", "patreon-tier");
+    const tiers = getPatreonTiers(tier);
+    const syncEnabled = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId && tiers.supporter;
 
     return {
       actor: this.actor,
@@ -550,6 +617,9 @@ export default class CharacterImport extends FormApplication {
       importConfig: importConfig,
       advancedImportConfig: advancedImportConfig,
       dataDirSet: dataDirSet,
+      syncConfig: syncConfig,
+      syncEnabled: syncEnabled,
+      tiers: tiers,
     };
   }
 
@@ -584,6 +654,16 @@ export default class CharacterImport extends FormApplication {
         game.settings.set(
           "ddb-importer",
           "character-update-policy-" + event.currentTarget.dataset.section,
+          event.currentTarget.checked
+        );
+      });
+
+    $(html)
+      .find('.sync-policy input[type="checkbox"]')
+      .on("change", (event) => {
+        game.settings.set(
+          "ddb-importer",
+          "sync-policy-" + event.currentTarget.dataset.section,
           event.currentTarget.checked
         );
       });
@@ -629,6 +709,18 @@ export default class CharacterImport extends FormApplication {
 
         $(html).find("#dndbeyond-character-import-start").prop("disabled", false);
         return true;
+      });
+
+    $(html)
+      .find("#dndbeyond-character-sync")
+      .on("click", async (event) => {
+        try {
+          // $(html).find("#dndbeyond-character-sync").prop("disabled", true);
+          updateDDBCharacter(this.actor);
+          // $(html).find("#dndbeyond-character-sync").prop("enabled", true);
+        } catch (error) {
+          CharacterImport.showCurrentTask(html, "Error updating character", error, true);
+        }
       });
 
     $(html)
