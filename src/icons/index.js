@@ -16,6 +16,8 @@ const TYPE_MAP = {
   loot: "items",
   backpack: "items",
   inventory: "items",
+  spells: "spells",
+  spell: "spells",
 };
 
 async function loadIconMap(type) {
