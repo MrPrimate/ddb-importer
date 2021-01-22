@@ -34,6 +34,8 @@ Do **NOT** give your cookie to other people, this is like handing out a password
 
 We do not store your cobalt cookie on the server.
 
+To logout/invalidate these credentials log out of your D&DBeyond Session.
+
 ## Notes
 
 You CAN use this alongside the vtta-dndbeyond extension, two icons will show up. This extension has yellow text on the B symbol.
