@@ -99,8 +99,20 @@ export async function updateDDBCharacter(actor) {
   // const spellsPrepared = updateCharacterCall(characterId, "spells/prepare", spellPreparedData);
   // promises.push(spellsPrepared);
 
-  const spellSlotData = {
-    level1: 2
+
+  //   spells:
+  // pact: {value: 0, override: null, max: 0, level: 0}
+  // spell0: {value: 0, max: 0}
+  // spell1: {value: 4, override: null, max: 4}
+  // spell2: {value: 3, override: null, max: 3}
+  // spell3: {value: 0, override: null, max: 0}
+  // spell4: {value: 0, override: null, max: 0}
+  // spell5: {value: 0, override: null, max: 0}
+  // spell6: {value: 0, override: null, max: 0}
+  // spell7: {value: 0, override: null, max: 0}
+  // spell8: {value: 0, override: null, max: 0}
+  // spell9: {value: 0, override: null, max: 0}
+  let spellSlotData = {
   };
   const spellSlots = updateCharacterCall(characterId, "spells/slots", spellSlotData);
   promises.push(spellSlots);

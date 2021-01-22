@@ -105,17 +105,18 @@
       {{#each syncConfig}}
       <div class="sync-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
           name="sync-policy-{{this.name}}" id="sync-policy-{{this.name}}" data-section="{{this.name}}"
-          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}{{#if this.enabled}}{{else}} [Coming soon!]{{/if}}
       </div>
       {{/each}}
     </div>
   <hr>
+  <p>For best results you will need to re-munch spells and items if you did this prior to the 0.3.0 release.</p>
   <div class="form-section">
       <div class="form-description">
         <div class="form-description"></div>
         <div>
           <button type="button" id="dndbeyond-character-sync"
-            {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>Sync to D&D Beyond</button>
+            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>Sync to D&D Beyond</button>
         </div>
       </div>
     </div>
@@ -132,10 +133,18 @@
       <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
     </ul>
     <br>
+    <h3>FAQ</h3>
+    <ul>
+      <li>If Spells and Items are not syncing please try munching them again.</li>
+      <li>If AC is not calculating properly and you are using DAE you may need to turn off Auto Calculate AC in the settings.</li>
+      <li>The module will try and retain settings for common modules such as MESS, midi-qol etc.</li>
+    </ul>
+    <br>
     <h3>Troubleshooting</h3>
     <ul>
       <li>Make sure you're using the latest version.</li>
       <li>Check that your character is complete of D&D Beyond.</li>
+      <li>Try unticking any option marked Experimental.</li>
       <li>Ask a question/submit a bug on <a href="https://discord.gg/WzPuRuDJVP">Discord</a>.</li>
       <li>Or submit a bug on <a href="https://github.com/MrPrimate/ddb-importer">GitHub</a>.</li>
     </ul>
