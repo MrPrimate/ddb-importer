@@ -1,5 +1,6 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
+import { getCharacterData } from "./import.js";
 
 async function updateCharacterCall(characterId, path, bodyContent) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
@@ -39,9 +40,12 @@ async function updateCharacterCall(characterId, path, bodyContent) {
 export async function updateDDBCharacter(actor) {
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
 
+  const ddbData = await getCharacterData(characterId);
+
   let promises = [];
 
   console.warn(actor.data);
+  console.warn(ddbData);
 
   // Fetch current character data and determine what needs to be updated
 
@@ -112,8 +116,26 @@ export async function updateDDBCharacter(actor) {
   // spell7: {value: 0, override: null, max: 0}
   // spell8: {value: 0, override: null, max: 0}
   // spell9: {value: 0, override: null, max: 0}
-  let spellSlotData = {
-  };
+
+  if (actor.data.data.spells.pact.max > 0) {
+    const used = actor.data.data.spells.pact.max - actor.data.data.spells.pact.value;
+    let spellSlotPackData = {
+      spellslots: {},
+      pact: true,
+    };
+    spellSlotPackData.spellslots[`level${actor.data.data.spells.pact.level}`] = used;
+    const spellPactSlots = updateCharacterCall(characterId, "spells/pact", spellSlotPackData);
+    promises.push(spellPactSlots);
+  }
+
+  let spellSlotData = { spellslots: {} };
+  for (let i = 1; i <= 9; i++) {
+    let spellData = actor.data.data.spells[`spell${i}`];
+    if (spellData.max > 0) {
+      const used = spellData.max - spellData.value;
+      spellSlotData.spellSlots[`spell${i}`] = used;
+    }
+  }
   const spellSlots = updateCharacterCall(characterId, "spells/slots", spellSlotData);
   promises.push(spellSlots);
 

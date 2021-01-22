@@ -136,13 +136,16 @@ const filterItemsByUserSelection = (result, sections) => {
  * @param {*} characterId
  */
 
-async function getCharacterData(characterId) {
+export async function getCharacterData(characterId, updateId) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
-  const body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
+  let body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
+  if (updateId) {
+    body['updateId'] = updateId;
+  }
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/character`, {
