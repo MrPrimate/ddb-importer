@@ -356,7 +356,7 @@ export default class DDBMuncher extends Application {
       {
         name: "use-inbuilt-icons",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons"),
-        description: "Use icons from the inbuilt dictionary. (High coverage of items and spells).",
+        description: "Use icons from the inbuilt dictionary. (High coverage of items, feats, and spells).",
         enabled: true,
       },
       {

@@ -18,6 +18,8 @@ const TYPE_MAP = {
   inventory: "items",
   spells: "spells",
   spell: "spells",
+  feats: "feats",
+  feat: "feats",
 };
 
 async function loadIconMap(type) {
@@ -76,7 +78,7 @@ export async function copyInbuiltIcons(items) {
 
   return new Promise((resolve) => {
     const iconItems = items.map((item) => {
-      logger.debug(`Inbuilt icon match started for ${item.name}`);
+      logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
       const pathMatched = getIconPath(item.name, item.type);
       if (pathMatched) item.img = pathMatched;
       return item;

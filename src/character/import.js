@@ -468,7 +468,7 @@ export default class CharacterImport extends FormApplication {
       {
         name: "use-inbuilt-icons",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons"),
-        description: "Use icons from the inbuilt dictionary. (High coverage of items and spells).",
+        description: "Use icons from the inbuilt dictionary. (High coverage of items, feats, and spells).",
         enabled: true,
       },
       {
