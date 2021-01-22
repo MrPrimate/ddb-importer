@@ -3,7 +3,7 @@ import logger from "../logger.js";
 
 var iconMap = {};
 
-const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
+// const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 
 const TYPE_MAP = {
   items: "items",
