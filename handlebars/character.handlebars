@@ -103,10 +103,12 @@
     <p>Select the changes you wish to D&D Beyond.</p>
     <div class="sync-policy">
       {{#each syncConfig}}
+      {{#if this.enabled}}
       <div class="sync-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
           name="sync-policy-{{this.name}}" id="sync-policy-{{this.name}}" data-section="{{this.name}}"
           {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}{{#if this.enabled}}{{else}} [Coming soon!]{{/if}}
       </div>
+      {{/if}}
       {{/each}}
     </div>
   <hr>
