@@ -241,7 +241,7 @@ export default class CharacterImport extends FormApplication {
     options.width = 800;
     options.height = 'auto';
     options.classes = ["ddbimporter", "sheet"];
-    options.tabs = [{navSelector: ".tabs", contentSelector: "form", initial: "import"}]
+    options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "import" }];
 
     return options;
   }
@@ -575,9 +575,15 @@ export default class CharacterImport extends FormApplication {
         enabled: true,
       },
       {
+        name: "hitdice",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-hitdice"),
+        description: "Hit Dice/Short Rest",
+        enabled: true,
+      },
+      {
         name: "hitpoints",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-currency"),
-        description: "HitPoints",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-hitpoints"),
+        description: "Hit Points",
         enabled: true,
       },
       {
@@ -595,7 +601,7 @@ export default class CharacterImport extends FormApplication {
       {
         name: "spells-slots",
         isChecked: game.settings.get("ddb-importer", "sync-policy-spells-slots"),
-        description: "Spell Slot Usage",
+        description: "Spell Slots",
         enabled: true,
       },
       {
@@ -715,11 +721,13 @@ export default class CharacterImport extends FormApplication {
 
     $(html)
       .find("#dndbeyond-character-sync")
-      .on("click", async (event) => {
+      .on("click", async () => {
         try {
           $(html).find("#dndbeyond-character-sync").prop("disabled", true);
-          await updateDDBCharacter(this.actor).then(() => {
-            CharacterImport.showCurrentTask(html, "Sync complete");
+          await updateDDBCharacter(this.actor).then((result) => {
+            const updateNotes = result.flat().filter((r) => r !== null).map((r) => r.message).join(" ");
+            logger.debug(updateNotes);
+            CharacterImport.showCurrentTask(html, "Sync complete", updateNotes);
             $(html).find("#dndbeyond-character-sync").prop("disabled", false);
           });
         } catch (error) {

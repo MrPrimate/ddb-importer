@@ -73,7 +73,7 @@ export default class DDBMuncher extends Application {
     options.width = 600;
     options.title = "MrPrimate's Muncher";
     options.classes = ["ddb-muncher", "sheet"];
-    options.tabs = [{navSelector: ".tabs", contentSelector: "form", initial: "settings"}]
+    options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "settings" }];
     return options;
   }
 

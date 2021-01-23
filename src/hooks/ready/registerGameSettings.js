@@ -742,6 +742,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "sync-policy-hitdice", {
+    name: "ddb-importer.sync-policy-hitdice.name",
+    hint: "ddb-importer.sync-policy-hitdice.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "sync-policy-action-use", {
     name: "ddb-importer.sync-policy-action-use.name",
     hint: "ddb-importer.sync-policy-action-use.hint",

@@ -8,7 +8,8 @@ async function updateCharacterCall(characterId, path, bodyContent) {
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const coreBody = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId };
   const body = { ...coreBody, ...bodyContent };
-  console.warn(body);
+
+  logger.debug(body);
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/update/${path}`, {
@@ -37,141 +38,191 @@ async function updateCharacterCall(characterId, path, bodyContent) {
   });
 }
 
-async function spellSlots(actor, characterId, ddbData) {
-  let results = [];
-  if (actor.data.data.spells.pact.max > 0 &&
-    ddbData.character.character.data.spells.pact.value !== actor.data.data.spells.pact.value
-  ) {
-    const used = actor.data.data.spells.pact.max - actor.data.data.spells.pact.value;
-    let spellSlotPackData = {
-      spellslots: {},
-      pact: true,
-    };
-    spellSlotPackData.spellslots[`level${actor.data.data.spells.pact.level}`] = used;
-    const spellPactSlots = updateCharacterCall(characterId, "spell/slots", spellSlotPackData);
-    results.push(spellPactSlots);
-  }
-
-  let spellSlotData = { spellslots: {}, update: false };
-  for (let i = 1; i <= 9; i++) {
-    let spellData = actor.data.data.spells[`spell${i}`];
-    if (spellData.max > 0 && ddbData.character.character.data.spells[`spell${i}`].value !== spellData.value) {
-      const used = spellData.max - spellData.value;
-      spellSlotData.spellSlots[`spell${i}`] = used;
-      spellSlotData['update'] = true;
+async function spellSlotsPact(actor, characterId, ddbData) {
+  return new Promise((resolve) => {
+    if (!game.settings.get("ddb-importer", "sync-policy-spells-slots")) resolve();
+    if (
+      actor.data.data.spells.pact.max > 0 &&
+      ddbData.character.character.data.spells.pact.value !== actor.data.data.spells.pact.value
+    ) {
+      const used = actor.data.data.spells.pact.max - actor.data.data.spells.pact.value;
+      let spellSlotPackData = {
+        spellslots: {},
+        pact: true,
+      };
+      spellSlotPackData.spellslots[`level${actor.data.data.spells.pact.level}`] = used;
+      const spellPactSlots = updateCharacterCall(characterId, "spell/slots", spellSlotPackData);
+      resolve(spellPactSlots);
     }
-  }
-  if (spellSlotData['update']) {
-    const spellSlots = updateCharacterCall(characterId, "spells/slots", spellSlotData);
-    results.push(spellSlots);
-  }
+    resolve();
+  });
+}
 
+async function spellSlots(actor, characterId, ddbData) {
+  return new Promise((resolve) => {
+    if (!game.settings.get("ddb-importer", "sync-policy-spells-slots")) resolve();
 
-  return results;
+    let spellSlotData = { spellslots: {}, update: false };
+    for (let i = 1; i <= 9; i++) {
+      let spellData = actor.data.data.spells[`spell${i}`];
+      if (spellData.max > 0 && ddbData.character.character.data.spells[`spell${i}`].value !== spellData.value) {
+        const used = spellData.max - spellData.value;
+        spellSlotData.spellslots[`level${i}`] = used;
+        spellSlotData["update"] = true;
+      }
+    }
+    if (spellSlotData["update"]) {
+      resolve(updateCharacterCall(characterId, "spells/slots", spellSlotData));
+    }
+
+    resolve();
+  });
 }
 
 async function currency(actor, characterId, ddbData) {
-  let result = [];
-  const same = isEqual(ddbData.character.character.data.currency, actor.data.data.currency);
+  return new Promise((resolve) => {
+    if (!game.settings.get("ddb-importer", "sync-policy-currency")) resolve();
+    const same = isEqual(ddbData.character.character.data.currency, actor.data.data.currency);
 
-  if (!same) {
-    result.push(updateCharacterCall(characterId, "currency", actor.data.data.currency));
-  };
+    if (!same) {
+      resolve(updateCharacterCall(characterId, "currency", actor.data.data.currency));
+    }
 
-  return result;
+    resolve();
+  });
 }
 
 async function hitPoints(actor, characterId, ddbData) {
-  let result = [];
-  const localTemp = (actor.data.data.attributes.hp.temp) ? actor.data.data.attributes.hp.temp : 0;
-  const same = ddbData.character.character.data.attributes.hp.value === actor.data.data.attributes.hp.value &&
-    ddbData.character.character.data.attributes.hp.temp === localTemp;
+  return new Promise((resolve) => {
+    if (!game.settings.get("ddb-importer", "sync-policy-hitpoints")) resolve();
+    const localTemp = actor.data.data.attributes.hp.temp ? actor.data.data.attributes.hp.temp : 0;
+    const same =
+      ddbData.character.character.data.attributes.hp.value === actor.data.data.attributes.hp.value &&
+      ddbData.character.character.data.attributes.hp.temp === localTemp;
 
-  if (!same) {
-    const hitPointData = {
-      removedHitPoints: actor.data.data.attributes.hp.max - actor.data.data.attributes.hp.value,
-      temporaryHitPoints: localTemp,
-    };
-    const hitPoints = updateCharacterCall(characterId, "hitpoints", hitPointData);
-    result.push(hitPoints);
-  };
+    if (!same) {
+      const hitPointData = {
+        removedHitPoints: actor.data.data.attributes.hp.max - actor.data.data.attributes.hp.value,
+        temporaryHitPoints: localTemp,
+      };
+      resolve(updateCharacterCall(characterId, "hitpoints", hitPointData));
+    }
 
-  return result;
+    resolve();
+  });
 }
 
 async function inspiration(actor, characterId, ddbData) {
-  let result = [];
-  const same = ddbData.character.character.data.attributes.inspiration === actor.data.data.attributes.inspiration;
+  return new Promise((resolve) => {
+    if (!game.settings.get("ddb-importer", "sync-policy-inspiration")) resolve();
+    const same = ddbData.character.character.data.attributes.inspiration === actor.data.data.attributes.inspiration;
 
-  if (!same) {
-    const inspiration = updateCharacterCall(characterId, "inspiration", {
-      inspiration: actor.data.data.attributes.inspiration,
-    });
-    result.push(inspiration);
-  };
+    if (!same) {
+      const inspiration = updateCharacterCall(characterId, "inspiration", {
+        inspiration: actor.data.data.attributes.inspiration,
+      });
+      resolve(inspiration);
+    }
 
-  return result;
+    resolve();
+  });
 }
 
 async function exhaustion(actor, characterId, ddbData) {
-  let result = [];
-  const same = ddbData.character.character.data.attributes.exhaustion === actor.data.data.attributes.exhaustion;
+  return new Promise((resolve) => {
+    if (!game.settings.get("ddb-importer", "sync-policy-condition")) resolve();
+    const same = ddbData.character.character.data.attributes.exhaustion === actor.data.data.attributes.exhaustion;
 
-  if (!same) {
-    let exhaustionData = {
-      conditionId: 4,
-      addCondition: false,
-    };
-    if (actor.data.data.attributes.exhaustion !== 0) {
-      exhaustionData["level"] = actor.data.data.attributes.exhaustion;
-      exhaustionData["totalHP"] = actor.data.data.attributes.hp.max;
-      exhaustionData["addCondition"] = true;
+    if (!same) {
+      let exhaustionData = {
+        conditionId: 4,
+        addCondition: false,
+      };
+      if (actor.data.data.attributes.exhaustion !== 0) {
+        exhaustionData["level"] = actor.data.data.attributes.exhaustion;
+        exhaustionData["totalHP"] = actor.data.data.attributes.hp.max;
+        exhaustionData["addCondition"] = true;
+      }
+      resolve(updateCharacterCall(characterId, "condition", exhaustionData));
     }
-    const ex = updateCharacterCall(characterId, "condition", exhaustionData);
-    result.push(ex);
-  };
 
-  return result;
+    resolve();
+  });
 }
 
 async function deathSaves(actor, characterId, ddbData) {
-  let result = [];
-  const same = isEqual(ddbData.character.character.data.attributes.death, actor.data.data.attributes.death);
+  return new Promise((resolve) => {
+    if (!game.settings.get("ddb-importer", "sync-policy-deathsaves")) resolve();
+    const same = isEqual(ddbData.character.character.data.attributes.death, actor.data.data.attributes.death);
 
-  if (!same) {
-    const deathSaveData = {
-      failCount: actor.data.data.attributes.death.failure,
-      successCount: actor.data.data.attributes.death.success,
+    if (!same) {
+      const deathSaveData = {
+        failCount: actor.data.data.attributes.death.failure,
+        successCount: actor.data.data.attributes.death.success,
+      };
+      resolve(updateCharacterCall(characterId, "deathsaves", deathSaveData));
+    }
+
+    resolve();
+  });
+}
+
+async function hitDice(actor, characterId, ddbData) {
+  return new Promise((resolve) => {
+    if (!game.settings.get("ddb-importer", "sync-policy-hitdice")) resolve();
+
+    const ddbClasses = ddbData.character.classes;
+
+    const klasses = actor.data.items.filter(
+      (item) => item.type === "class" && item.flags.ddbimporter.id && item.flags.ddbimporter.definitionId
+    );
+
+    let hitDiceData = {
+      classHitDiceUsed: {},
+      resetMaxHpModifier: false,
     };
-    const deathSaves = updateCharacterCall(characterId, "deathsaves", deathSaveData);
-    result.push(deathSaves);
-  };
 
-  return result;
+    klasses.forEach((klass) => {
+      const classMatch = ddbClasses.find((ddbClass) => ddbClass.flags.ddbimporter.id === klass.flags.ddbimporter.id);
+      if (classMatch && classMatch.data.hitDiceUsed !== klass.data.hitDiceUsed) {
+        hitDiceData.classHitDiceUsed[klass.flags.ddbimporter.id] = klass.data.hitDiceUsed;
+      }
+    });
+
+    const same = isEqual({}, hitDiceData.classHitDiceUsed);
+    if (!same) {
+      resolve(updateCharacterCall(characterId, "hitdice", { shortRest: hitDiceData }));
+    }
+
+    resolve();
+  });
 }
 
 export async function updateDDBCharacter(actor) {
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
-  const syncId = actor.data.flags.ddbimporter.dndbeyond.syncId ? actor.data.flags.ddbimporter.dndbeyond.syncId : 0;
+  const syncId = actor.data.flags["ddb-importer"]?.syncId ? actor.data.flags["ddb-importer"].syncId + 1 : 0;
   const ddbData = await getCharacterData(characterId, syncId);
 
-  console.warn(actor.data);
-  console.warn(ddbData);
+  // console.warn(actor.data);
+  // console.warn(ddbData);
 
-  let promises = [].concat(
-    currency(actor, characterId, ddbData),
-    hitPoints(actor, characterId, ddbData),
-    spellSlots(actor, characterId, ddbData),
-    inspiration(actor, characterId, ddbData),
-    exhaustion(actor, characterId, ddbData),
-    deathSaves(actor, characterId, ddbData),
-  );
+  let promises = []
+    .concat(
+      currency(actor, characterId, ddbData),
+      hitPoints(actor, characterId, ddbData),
+      hitDice(actor, characterId, ddbData),
+      spellSlots(actor, characterId, ddbData),
+      spellSlotsPact(actor, characterId, ddbData),
+      inspiration(actor, characterId, ddbData),
+      exhaustion(actor, characterId, ddbData),
+      deathSaves(actor, characterId, ddbData)
+    )
+    .flat();
 
   // for each action, check to see if it has uses, if yes:
   // const actionData = { actionId: "", entityTypeId: "", uses: "" };
   // const action = updateCharacterCall(characterId, "action/use", actionData);
   // promises.push(action);
-
 
   // if a prepared spell caster
   // for each prepared spell that was added or removed
@@ -215,8 +266,9 @@ export async function updateDDBCharacter(actor) {
   // const addItem = updateCharacterCall(characterId, "equipment/add", addItemData);
   // promises.push(addItem);
 
-  actor.data.flags.ddbimporter.dndbeyond.syncId = syncId + 1;
+  actor.setFlag("ddb-importer", "syncId", syncId);
 
-  console.log(promises)
-  return Promise.all(promises);
+  let results = await Promise.all(promises);
+
+  return results;
 }

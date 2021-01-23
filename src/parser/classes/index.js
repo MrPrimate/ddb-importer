@@ -34,7 +34,9 @@ export default function parseClasses(ddb) {
       data: JSON.parse(utils.getTemplate('class')),
       flags: {
         ddbimporter: {
-          id: characterClass.definition.id,
+          id: characterClass.id,
+          definitionId: characterClass.definition.id,
+          entityTypeId: characterClass.entityTypeId,
         },
       },
     };

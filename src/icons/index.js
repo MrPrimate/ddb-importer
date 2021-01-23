@@ -24,19 +24,20 @@ const TYPE_MAP = {
 
 async function loadIconMap(type) {
   // check to see if dictionary is loaded
-  console.debug(`Loading Inbuilt Icon Map for ${type}`);
+  logger.debug(`Loading Inbuilt Icon Map for ${type}`);
   if (iconMap[type]) return;
 
   // const path = `${BASE_PATH}/modules/ddb-importer/data/${type}.json`;
-  //const fileExists = await utils.serverFileExists(path);
+  // const fileExists = await utils.serverFileExists(path);
   const fileExists = await utils.fileExists("[data] modules/ddb-importer/data", `${type}.json`);
 
   if (fileExists) {
     let url = await utils.getFileUrl("[data] modules/ddb-importer/data", `${type}.json`);
     let response = await fetch(url, { method: "GET" });
+    // eslint-disable-next-line require-atomic-updates
     iconMap[type] = await response.json();
   }
-  console.warn(iconMap);
+  // console.warn(iconMap);
 }
 
 function getIconPath(name, type) {
@@ -61,10 +62,10 @@ async function loadIconMaps(types) {
     .map((type) => TYPE_MAP[type]).filter((type, i, ar) => ar.indexOf(type) === i);
 
   mapTypes.forEach((type) => {
-    console.warn(`Loading ${type}`);
+    logger.debug(`Loading ${type}`);
     promises.push(loadIconMap(type));
   });
-  console.log(promises);
+
   return Promise.all(promises);
 }
 
