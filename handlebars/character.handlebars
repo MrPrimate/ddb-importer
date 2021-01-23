@@ -118,7 +118,7 @@
         <div class="form-description"></div>
         <div>
           <button type="button" id="dndbeyond-character-sync"
-            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>Sync to D&D Beyond</button>
+            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Sync to D&D Beyond{{else}}Sync Available to Patreon Supporters{{/if}}</button>
         </div>
       </div>
     </div>
