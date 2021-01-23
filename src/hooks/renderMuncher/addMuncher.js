@@ -4,7 +4,7 @@ import { DDBSetup, isSetupComplete, isValidKey } from "../../lib/Settings.js";
 
 export function addMuncher (app, html) {
   if (app.options.id == "compendium" && game.user.isGM) {
-    let button = $("<button class='ddb-muncher'><i class='fas fa-file-import'></i> DDB Muncher</button>");
+    let button = $("<button class='ddb-muncher'><i class='fas fa-pastafarianism'></i> DDB Muncher</button>");
 
     button.click(async () => {
       const setupComplete = isSetupComplete();
