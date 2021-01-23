@@ -725,9 +725,9 @@ export default class CharacterImport extends FormApplication {
         try {
           $(html).find("#dndbeyond-character-sync").prop("disabled", true);
           await updateDDBCharacter(this.actor).then((result) => {
-            result.forEach((r) => {
-              console.warn(r);
-            });
+            // result.forEach((r) => {
+            //   console.warn(r);
+            // });
             const updateNotes = result.flat().filter((r) => r !== undefined).map((r) => r.message).join(" ");
             logger.debug(updateNotes);
             CharacterImport.showCurrentTask(html, "Sync complete", updateNotes);

@@ -205,7 +205,7 @@ async function updateSpellsPrepared(characterId, spellPreparedData) {
 }
 
 async function spellsPrepared(actor, characterId, ddbData) {
-  if (!game.settings.get("ddb-importer", "sync-policy-spells-prepared")) resolve();
+  if (!game.settings.get("ddb-importer", "sync-policy-spells-prepared")) return [];
   const ddbSpells = ddbData.character.spells;
 
   const preparedSpells = actor.data.items.filter((item) => {
@@ -236,7 +236,7 @@ async function spellsPrepared(actor, characterId, ddbData) {
 
   let promises = [];
   preparedSpells.forEach((spellPreparedData) => {
-    console.warn(spellPreparedData);
+    // console.warn(spellPreparedData);
     // promises.push(spellPreparedData);
     promises.push(updateSpellsPrepared(characterId, spellPreparedData));
   });
@@ -250,8 +250,8 @@ export async function updateDDBCharacter(actor) {
   const syncId = actor.data.flags["ddb-importer"]?.syncId ? actor.data.flags["ddb-importer"].syncId + 1 : 0;
   const ddbData = await getCharacterData(characterId, syncId);
 
-  console.warn(actor.data);
-  console.warn(ddbData);
+  // console.warn(actor.data);
+  // console.warn(ddbData);
 
   let singlePromises = []
     .concat(
@@ -302,11 +302,11 @@ export async function updateDDBCharacter(actor) {
 
   actor.setFlag("ddb-importer", "syncId", syncId);
 
-  console.log(singlePromises);
-  console.log(spellsPreparedResults);
+  // console.log(singlePromises);
+  // console.log(spellsPreparedResults);
 
   const singleResults = await Promise.all(singlePromises);
-  const results = singleResults.concat(spellsPreparedResults).filter((result) => result !== undefined);;
+  const results = singleResults.concat(spellsPreparedResults).filter((result) => result !== undefined);
 
   logger.debug("Update results", results);
 
