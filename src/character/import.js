@@ -242,7 +242,6 @@ export default class CharacterImport extends FormApplication {
     options.height = 'auto';
     options.classes = ["ddbimporter", "sheet"];
     options.tabs = [{navSelector: ".tabs", contentSelector: "form", initial: "import"}]
-    // options.tabs = [ {navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "parts"}];
 
     return options;
   }
