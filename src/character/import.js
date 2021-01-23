@@ -136,15 +136,15 @@ const filterItemsByUserSelection = (result, sections) => {
  * @param {*} characterId
  */
 
-export async function getCharacterData(characterId, updateId) {
+export async function getCharacterData(characterId, syncId) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
   let body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
-  if (updateId) {
-    body['updateId'] = updateId;
+  if (syncId) {
+    body['updateId'] = syncId;
   }
 
   return new Promise((resolve, reject) => {
@@ -717,9 +717,11 @@ export default class CharacterImport extends FormApplication {
       .find("#dndbeyond-character-sync")
       .on("click", async (event) => {
         try {
-          // $(html).find("#dndbeyond-character-sync").prop("disabled", true);
-          updateDDBCharacter(this.actor);
-          // $(html).find("#dndbeyond-character-sync").prop("enabled", true);
+          $(html).find("#dndbeyond-character-sync").prop("disabled", true);
+          await updateDDBCharacter(this.actor).then(() => {
+            CharacterImport.showCurrentTask(html, "Sync complete");
+            $(html).find("#dndbeyond-character-sync").prop("enabled", true);
+          });
         } catch (error) {
           CharacterImport.showCurrentTask(html, "Error updating character", error, true);
         }

@@ -152,7 +152,8 @@ async function deathSaves(actor, characterId, ddbData) {
 
 export async function updateDDBCharacter(actor) {
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
-  const ddbData = await getCharacterData(characterId);
+  const syncId = actor.data.flags.ddbimporter.dndbeyond.syncId ? actor.data.flags.ddbimporter.dndbeyond.syncId : 0;
+  const ddbData = await getCharacterData(characterId, syncId);
 
   console.warn(actor.data);
   console.warn(ddbData);
@@ -214,5 +215,8 @@ export async function updateDDBCharacter(actor) {
   // const addItem = updateCharacterCall(characterId, "equipment/add", addItemData);
   // promises.push(addItem);
 
+  actor.data.flags.ddbimporter.dndbeyond.syncId = syncId + 1;
+
+  console.log(promises)
   return Promise.all(promises);
 }
