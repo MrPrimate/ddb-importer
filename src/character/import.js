@@ -720,7 +720,7 @@ export default class CharacterImport extends FormApplication {
           $(html).find("#dndbeyond-character-sync").prop("disabled", true);
           await updateDDBCharacter(this.actor).then(() => {
             CharacterImport.showCurrentTask(html, "Sync complete");
-            $(html).find("#dndbeyond-character-sync").prop("enabled", true);
+            $(html).find("#dndbeyond-character-sync").prop("disabled", false);
           });
         } catch (error) {
           CharacterImport.showCurrentTask(html, "Error updating character", error, true);
