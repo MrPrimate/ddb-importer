@@ -1,15 +1,15 @@
-<div>
-  {{#if dataDirSet}}
-  <div class="form-section">
+<form>
+
+  <!-- Character Import Header -->
+  <header class="sheet-header">
+    <img class="effect-icon" src="{{actor.data.token.img}}" data-edit="img">
+    <h1 class="effect-title">{{ actor.name }}</h1>
+  </header>
+
+  <hr>
+    <div class="form-section">
     <div class="form-description">
-      <h3>Get your Character's ID</h3>
-      <p>Insert a URL to your character below. Make sure that the character is set to <b>public</b>.</p>
-      <p>You can use any of the following:</p>
-      <ul>
-        <li><b>The regular character sheet URL</b>, e.g. https://www.dndbeyond.com/profile/[Username]/characters/[CharacterId]</li>
-        <li><b>A link to a shared character</b>, e.g. https://ddb.ac/characters/[CharacterId]/[RandomString]</li>
-        <li><b>The Character API itself</b>, e.g. https://character-service.dndbeyond.com/character/v4/character/[CharacterId]</li>
-      </ul>
+      <p>Insert your character URL.</p>
     </div>
     <div class="form-caption">
       URL
@@ -33,7 +33,17 @@
     </div>
 
   </div>
-  <hr>
+
+  <!-- Character Configuration Tabs -->
+  <nav class="sheet-tabs tabs">
+    <a class="item active" data-tab="import"><i class="fas fa-arrow-alt-circle-down"></i> Import Character</a>
+    <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Advanced Settings</a>
+    <a class="item" data-tab="sync"><i class="fas fa-sync-alt"></i></i> Sync to D&D Beyond</a>
+    <a class="item" data-tab="help"><i class="fas fa-info-circle"></i> Help</a>
+  </nav>
+
+  <!-- Import Tab -->
+  <section class="tab" data-tab="import">
   <div>
     <h3>Update selection</h3>
     <p>Only ticked items will be updated.</p>
@@ -73,11 +83,10 @@
       </div>
     </div>
   </div>
-  <hr>
-  <div class="task-name"></div>
-  <hr>
-  <div>
-    <h3>Advanced configuration</h3>
+</section>
+
+  <!-- Advanced Configuration Tab -->
+  <section class="tab" data-tab="config">
     <p>If you're using this module for the first time, you probably don't want to enable these.</p>
     {{#each advancedImportConfig}}
     <div class="advanced-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
@@ -85,15 +94,71 @@
         {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
     </div>
     {{/each}}
-  </div>
-  {{else}}
-  <h3>Configuration Needs Completing!</h3>
-  <p>Please make sure you have set an images upload directory in the module settings.</p>
-  <p>If you need help getting setup checkout the following YouTube videos:</p>
-  <p>
-    <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Amazing Overview (Install, Setup, How to Use)</a> is recommended!</li>
-    <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
-    <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
-  </p>
-  {{/if}}
-</div>
+</section>
+
+<!-- Sync/Upload Tab -->
+  <section class="tab" data-tab="sync">
+
+    <h3>Sync selection</h3>
+    <p>Select the changes you wish to D&D Beyond.</p>
+    <div class="sync-policy">
+      {{#each syncConfig}}
+      {{#if this.enabled}}
+      <div class="sync-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="sync-policy-{{this.name}}" id="sync-policy-{{this.name}}" data-section="{{this.name}}"
+          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}{{#if this.enabled}}{{else}} [Coming soon!]{{/if}}
+      </div>
+      {{/if}}
+      {{/each}}
+    </div>
+  <hr>
+  <p>For best results you will need to re-munch spells and items if you did this prior to the 0.3.0 release. If you imported your character with an earlier version some features may not update (such as Hit Dice) until you have reimported.</p>
+  <div class="form-section">
+      <div class="form-description">
+        <div class="form-description"></div>
+        <div>
+          <button type="button" id="dndbeyond-character-sync"
+            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Sync to D&D Beyond{{else}}Sync Available to Patreon Supporters{{/if}}</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+<!-- Help Tab -->
+  <section class="tab" data-tab="help">
+    <h3>Videos</h3>
+    <p>If you need help getting setup checkout the following YouTube videos:</p>
+    <ul>
+      <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Overview (Install, Setup, How to Use)</a> is recommended!</li>
+      <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
+      <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
+    </ul>
+    <h3>FAQ</h3>
+    <ul>
+      <li>If Spells and Items are not syncing please try munching them again.</li>
+      <li>If AC is not calculating properly and you are using DAE you may need to turn off Auto Calculate AC in the settings.</li>
+      <li>The module will try and retain settings for common modules such as MESS, midi-qol etc.</li>
+    </ul>
+    <h3>Troubleshooting</h3>
+    <ul>
+      <li>Make sure you're using the latest version.</li>
+      <li>Check that your character is complete of D&D Beyond.</li>
+      <li>Try unticking any option marked Experimental.</li>
+      <li>Ask a question/submit a bug on <a href="https://discord.gg/WzPuRuDJVP">Discord</a>.</li>
+      <li>Or submit a bug on <a href="https://github.com/MrPrimate/ddb-importer">GitHub</a>.</li>
+    </ul>
+    <h3>Community</h3>
+    <ul>
+      <li>Join us on <a href="https://discord.gg/WzPuRuDJVP">Discord</a></li>
+      <li>Support me on <a href="https://patreon.com/MrPrimate">Patreon</a></li>
+    </ul>
+  </section>
+
+<hr>
+
+  <footer class="sheet-footer">
+    <div class="task-name"></div>
+  </footer>
+
+</form>

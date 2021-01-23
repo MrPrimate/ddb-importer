@@ -373,10 +373,11 @@ function enrichFlags(data, item) {
       },
     };
   }
-  if (item.data.definition?.entityTypeId) item.flags.ddbimporter['definitionEntityTypeId'] = item.data.definition.entityTypeId;
-  if (item.data.definition?.id) item.flags.ddbimporter['definitionId'] = item.data.definition.id;
-  if (item.data.entityTypeId) item.flags.ddbimporter['entityTypeId'] = item.data.entityTypeId;
-  if (item.data.id) item.flags.ddbimporter['id'] = item.data.id;
+  if (data.definition?.entityTypeId) item.flags.ddbimporter['definitionEntityTypeId'] = data.definition.entityTypeId;
+  if (data.definition?.id) item.flags.ddbimporter['definitionId'] = data.definition.id;
+  if (data.entityTypeId) item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
+  if (data.id) item.flags.ddbimporter['id'] = data.id;
+  if (data.definition?.tags) item.flags.ddbimporter.dndbeyond['tags'] = data.definition.tags;
 }
 
 export default function getInventory(ddb, character, itemSpells) {

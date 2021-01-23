@@ -68,12 +68,12 @@ export default class DDBMuncher extends Application {
     const options = super.defaultOptions;
     options.id = "ddb-importer-monsters";
     options.template = "modules/ddb-importer/handlebars/munch.handlebars";
-    options.classes.push("ddb-muncher");
     options.resizable = false;
     options.height = "auto";
-    options.width = 550;
-    options.minimizable = true;
+    options.width = 600;
     options.title = "MrPrimate's Muncher";
+    options.classes = ["ddb-muncher", "sheet"];
+    options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "settings" }];
     return options;
   }
 
@@ -351,6 +351,12 @@ export default class DDBMuncher extends Application {
         name: "use-srd",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd"),
         description: "Use SRD compendium things instead of importing.",
+        enabled: true,
+      },
+      {
+        name: "use-inbuilt-icons",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons"),
+        description: "Use icons from the inbuilt dictionary. (High coverage of items, feats, and spells).",
         enabled: true,
       },
       {

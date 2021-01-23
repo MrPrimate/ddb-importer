@@ -3,6 +3,7 @@ import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { munchNote } from "./utils.js";
 import { addItemsDAESRD } from "./dae.js";
+import { copyInbuiltIcons } from "../icons/index.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const INVENTORY_TYPES = EQUIPMENT_TYPES.concat("weapon");
@@ -212,18 +213,19 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
     const alternativeNames = (((matchItem.flags || {}).ddbimporter || {}).dndbeyond || {}).alternativeNames;
     const extraNames = (alternativeNames) ? matchItem.flags.ddbimporter.dndbeyond.alternativeNames : [];
 
-    if (Object.prototype.hasOwnProperty.call(item.data, 'activation') && item.data.activation.type == "") {
+    const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.data, 'activation');
+    const matchItemActivationProperty = Object.prototype.hasOwnProperty.call(item.data, 'activation');
+
+    if (itemActivationProperty && item.data?.activation?.type == "") {
       activationMatch = true;
-    } else if (Object.prototype.hasOwnProperty.call(matchItem.data, 'activation') &&
-      Object.prototype.hasOwnProperty.call(item.data, 'activation')) {
+    } else if (matchItemActivationProperty && itemActivationProperty) {
       // I can't remember why I added this. Maybe I was concerned about identical named items with
       // different activation times?
       // maybe I just want to check it exists?
       // causing issues so changed.
       // activationMatch = matchItem.data.activation.type === item.data.activation.type;
-      activationMatch = Object.prototype.hasOwnProperty.call(matchItem.data.activation, 'type') &&
-        Object.prototype.hasOwnProperty.call(item.data.activation, 'type');
-    } else if (!Object.prototype.hasOwnProperty.call(item.data, 'activation')) {
+      activationMatch = matchItemActivationProperty && itemActivationProperty;
+    } else if (!itemActivationProperty) {
       activationMatch = true;
     }
 
@@ -652,6 +654,7 @@ export async function getDDBEquipmentIcons(items, download) {
 export async function updateMagicItemImages(items) {
   const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
   const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
+  const inbuiltIcons = game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons");
   const ddbItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons");
 
   // if we still have items to add, add them
@@ -659,6 +662,11 @@ export async function updateMagicItemImages(items) {
     if (ddbItemIcons) {
       logger.debug("Magic items: adding equipment icons");
       items = await getDDBEquipmentIcons(items, true);
+    }
+
+    if (inbuiltIcons) {
+      logger.debug("Magic items: adding inbuilt icons");
+      items = await copyInbuiltIcons(items);
     }
 
     if (useSRDCompendiumIcons) {
@@ -945,6 +953,12 @@ export async function updateIcons(items, srdIconUpdate = true) {
   if (ddbItemIcons) {
     logger.debug("DDB Equipment Icon Match");
     items = await getDDBEquipmentIcons(items);
+  }
+
+  const inBuiltIcons = game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons");
+  if (inBuiltIcons) {
+    logger.debug("Inbuilt icon matching");
+    items = await copyInbuiltIcons(items);
   }
 
   // check for SRD icons

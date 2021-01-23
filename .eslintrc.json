@@ -30,7 +30,8 @@
     "DAE": true,
     "FormApplication": true,
     "setProperty": true,
-    "ForgeAPI": true
+    "ForgeAPI": true,
+    "ROUTE_PREFIX": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

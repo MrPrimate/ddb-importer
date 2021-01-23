@@ -135,6 +135,24 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "monster-link-title", {
+    name: "ddb-importer.monster-link-title.name",
+    hint: "ddb-importer.monster-link-title.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-link-title", {
+    name: "ddb-importer.character-link-title.name",
+    hint: "ddb-importer.character-link-title.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "entity-item-compendium", {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",
@@ -347,6 +365,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-use-inbuilt-icons", {
+    name: "ddb-importer.character-update-policy-use-inbuilt-icons.name",
+    hint: "ddb-importer.character-update-policy-use-inbuilt-icons.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-use-srd-icons", {
     name: "ddb-importer.character-update-policy-use-srd-icons.name",
     hint: "ddb-importer.character-update-policy-use-srd-icons.hint",
@@ -526,6 +553,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-use-inbuilt-icons", {
+    name: "ddb-importer.munching-policy-use-inbuilt-icons.name",
+    hint: "ddb-importer.munching-policy-use-inbuilt-icons.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "munching-policy-use-ddb-item-icons", {
     name: "ddb-importer.munching-policy-use-ddb-item-icons.name",
     hint: "ddb-importer.munching-policy-use-ddb-item-icons.hint",
@@ -687,4 +723,104 @@ export default function () {
     type: String,
     default: "",
   });
+
+  game.settings.register("ddb-importer", "sync-policy-currency", {
+    name: "ddb-importer.sync-policy-currency.name",
+    hint: "ddb-importer.sync-policy-currency.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-hitpoints", {
+    name: "ddb-importer.sync-policy-hitpoints.name",
+    hint: "ddb-importer.sync-policy-hitpoints.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-hitdice", {
+    name: "ddb-importer.sync-policy-hitdice.name",
+    hint: "ddb-importer.sync-policy-hitdice.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-action-use", {
+    name: "ddb-importer.sync-policy-action-use.name",
+    hint: "ddb-importer.sync-policy-action-use.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-inspiration", {
+    name: "ddb-importer.sync-policy-inspiration.name",
+    hint: "ddb-importer.sync-policy-inspiration.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-condition", {
+    name: "ddb-importer.sync-policy-condition.name",
+    hint: "ddb-importer.sync-policy-condition.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-deathsaves", {
+    name: "ddb-importer.sync-policy-deathsaves.name",
+    hint: "ddb-importer.sync-policy-deathsaves.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-spells-prepared", {
+    name: "ddb-importer.sync-policy-spells-prepared.name",
+    hint: "ddb-importer.sync-policy-spells-prepared.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-spells-slots", {
+    name: "ddb-importer.sync-policy-spells-slots.name",
+    hint: "ddb-importer.sync-policy-spells-slots.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-spells-sync", {
+    name: "ddb-importer.sync-policy-spells-sync.name",
+    hint: "ddb-importer.sync-policy-spells-sync.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "sync-policy-equipment", {
+    name: "ddb-importer.sync-policy-equipment.name",
+    hint: "ddb-importer.sync-policy-equipment.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
 }

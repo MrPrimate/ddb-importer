@@ -2,6 +2,83 @@ import DirectoryPicker from "./DirectoryPicker.js";
 import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 
+export function isSetupComplete(needsCobalt = true) {
+  const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
+  const dataDirSet = !BAD_DIRS.includes(uploadDir);
+  const campaignId = game.settings.get("ddb-importer", "campaign-id");
+  const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+  const campaignIdCorrect = !campaignId.includes("join");
+  const setupComplete = dataDirSet && (cobalt || !needsCobalt) && campaignIdCorrect;
+  return setupComplete;
+}
+
+
+export class DDBKeyChange extends FormApplication {
+  static get defaultOptions() {
+    const options = super.defaultOptions;
+    options.id = "ddb-importer-key-change";
+    options.template = "modules/ddb-importer/handlebars/key-change.handlebars";
+    options.width = 500;
+    return options;
+  }
+
+  get title() { // eslint-disable-line class-methods-use-this
+    // improve localisation
+    // game.i18n.localize("")
+    return "DDB Importer Key Expiry";
+  }
+
+  /** @override */
+  async getData() { // eslint-disable-line class-methods-use-this
+    const key = game.settings.get("ddb-importer", "beta-key");
+    const setupConfig = {
+      "beta-key": key,
+    };
+    const check = await getPatreonValidity(key);
+
+    return {
+      success: (check && check.success) ? check.success : false,
+      message: (check && check.message) ? check.message : "Unable to check patreon key status",
+      setupConfig: setupConfig,
+    };
+  }
+
+  /** @override */
+  // eslint-disable-next-line no-unused-vars
+  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
+    event.preventDefault();
+    await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
+    await setPatreonTier();
+
+    const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
+
+    if (callMuncher) {
+      game.settings.set("ddb-importer", "settings-call-muncher", false);
+      new DDBMuncher().render(true);
+    }
+
+  }
+}
+
+export async function isValidKey() {
+  let validKey = false;
+
+  const key = game.settings.get("ddb-importer", "beta-key");
+  if (key === "") {
+    validKey = true;
+  } else {
+    const check = await getPatreonValidity(key);
+    if (check.success && check.data) {
+      validKey = true;
+    } else {
+      validKey = false;
+      game.settings.set("ddb-importer", "settings-call-muncher", true);
+      new DDBKeyChange().render(true);
+    }
+  }
+  return validKey;
+}
+
 // eslint-disable-next-line no-unused-vars
 Hooks.on("renderDDBSetup", (app, html, user) => {
   DirectoryPicker.processHtml(html);
@@ -215,50 +292,3 @@ export class DDBCompendiumSetup extends FormApplication {
   }
 }
 
-
-export class DDBKeyChange extends FormApplication {
-  static get defaultOptions() {
-    const options = super.defaultOptions;
-    options.id = "ddb-importer-key-change";
-    options.template = "modules/ddb-importer/handlebars/key-change.handlebars";
-    options.width = 500;
-    return options;
-  }
-
-  get title() { // eslint-disable-line class-methods-use-this
-    // improve localisation
-    // game.i18n.localize("")
-    return "DDB Importer Key Expiry";
-  }
-
-  /** @override */
-  async getData() { // eslint-disable-line class-methods-use-this
-    const key = game.settings.get("ddb-importer", "beta-key");
-    const setupConfig = {
-      "beta-key": key,
-    };
-    const check = await getPatreonValidity(key);
-
-    return {
-      success: (check && check.success) ? check.success : false,
-      message: (check && check.message) ? check.message : "Unable to check patreon key status",
-      setupConfig: setupConfig,
-    };
-  }
-
-  /** @override */
-  // eslint-disable-next-line no-unused-vars
-  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
-    event.preventDefault();
-    await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
-    await setPatreonTier();
-
-    const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
-
-    if (callMuncher) {
-      game.settings.set("ddb-importer", "settings-call-muncher", false);
-      new DDBMuncher().render(true);
-    }
-
-  }
-}

@@ -95,6 +95,7 @@ export function getPatreonTiers(tier) {
     god: godTier,
     undying: undyingTier,
     coffee: coffeeTier,
+    source: godTier || undyingTier,
     homebrew: godTier || undyingTier,
     supporter: godTier || undyingTier || coffeeTier,
     not: !godTier && !undyingTier && !coffeeTier,

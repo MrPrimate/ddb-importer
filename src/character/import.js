@@ -13,11 +13,13 @@ import {
   getDDBGenericItemIcons,
 } from "../muncher/import.js";
 import { getCharacterOptions } from "./options.js";
-import { download, getCampaignId } from "../muncher/utils.js";
+import { download, getCampaignId, getPatreonTiers } from "../muncher/utils.js";
 import {
   migrateActorDAESRD,
   addItemsDAESRD
 } from "../muncher/dae.js";
+import { copyInbuiltIcons } from "../icons/index.js";
+import { updateDDBCharacter } from "./sync.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
@@ -134,13 +136,16 @@ const filterItemsByUserSelection = (result, sections) => {
  * @param {*} characterId
  */
 
-async function getCharacterData(characterId) {
+export async function getCharacterData(characterId, syncId) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
-  const body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
+  let body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
+  if (syncId) {
+    body['updateId'] = syncId;
+  }
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/character`, {
@@ -198,7 +203,7 @@ async function getCharacterData(characterId) {
   });
 }
 
-export default class CharacterImport extends Application {
+export default class CharacterImport extends FormApplication {
   constructor(options, actor) {
     super(options);
     this.actor = game.actors.entities.find((a) => a.id === actor._id);
@@ -234,8 +239,10 @@ export default class CharacterImport extends Application {
     options.title = game.i18n.localize("ddb-importer.module-name");
     options.template = "modules/ddb-importer/handlebars/character.handlebars";
     options.width = 800;
-    options.height = "auto";
-    options.classes = ["ddbimporter"];
+    options.height = 'auto';
+    options.classes = ["ddbimporter", "sheet"];
+    options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "import" }];
+
     return options;
   }
 
@@ -458,6 +465,12 @@ export default class CharacterImport extends Application {
 
     const importConfig = [
       {
+        name: "use-inbuilt-icons",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons"),
+        description: "Use icons from the inbuilt dictionary. (High coverage of items, feats, and spells).",
+        enabled: true,
+      },
+      {
         name: "use-srd-icons",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd-icons"),
         description: "Use icons from the SRD compendium. (This can take a while).",
@@ -530,9 +543,81 @@ export default class CharacterImport extends Application {
       },
     ];
 
+    const syncConfig = [
+      {
+        name: "action-use",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-action-use"),
+        description: "Action Uses",
+        enabled: false,
+      },
+      {
+        name: "currency",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-currency"),
+        description: "Currency",
+        enabled: true,
+      },
+      {
+        name: "deathsaves",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-deathsaves"),
+        description: "Death Saves",
+        enabled: true,
+      },
+      {
+        name: "equipment",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-equipment"),
+        description: "Equipment",
+        enabled: false,
+      },
+      {
+        name: "condition",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-condition"),
+        description: "Exhaustion",
+        enabled: true,
+      },
+      {
+        name: "hitdice",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-hitdice"),
+        description: "Hit Dice/Short Rest",
+        enabled: true,
+      },
+      {
+        name: "hitpoints",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-hitpoints"),
+        description: "Hit Points",
+        enabled: true,
+      },
+      {
+        name: "inspiration",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-inspiration"),
+        description: "Inspiration",
+        enabled: true,
+      },
+      {
+        name: "spells-prepared",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-spells-prepared"),
+        description: "Spells Prepared",
+        enabled: true,
+      },
+      {
+        name: "spells-slots",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-spells-slots"),
+        description: "Spell Slots",
+        enabled: true,
+      },
+      {
+        name: "spells-sync",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-spells-sync"),
+        description: "Spells Known",
+        enabled: false,
+      },
+    ];
+
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
     const badDirs = ["[data]", "[data] ", "", null];
     const dataDirSet = !badDirs.includes(uploadDir);
+    const tier = game.settings.get("ddb-importer", "patreon-tier");
+    const tiers = getPatreonTiers(tier);
+    const syncEnabled = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId && tiers.supporter;
 
     return {
       actor: this.actor,
@@ -540,12 +625,16 @@ export default class CharacterImport extends Application {
       importConfig: importConfig,
       advancedImportConfig: advancedImportConfig,
       dataDirSet: dataDirSet,
+      syncConfig: syncConfig,
+      syncEnabled: syncEnabled,
+      tiers: tiers,
     };
   }
 
   /* -------------------------------------------- */
 
   activateListeners(html) {
+    super.activateListeners(html);
     // watch the change of the import-policy-selector checkboxes
     $(html)
       .find('.import-policy input[type="checkbox"]')
@@ -573,6 +662,16 @@ export default class CharacterImport extends Application {
         game.settings.set(
           "ddb-importer",
           "character-update-policy-" + event.currentTarget.dataset.section,
+          event.currentTarget.checked
+        );
+      });
+
+    $(html)
+      .find('.sync-policy input[type="checkbox"]')
+      .on("change", (event) => {
+        game.settings.set(
+          "ddb-importer",
+          "sync-policy-" + event.currentTarget.dataset.section,
           event.currentTarget.checked
         );
       });
@@ -618,6 +717,27 @@ export default class CharacterImport extends Application {
 
         $(html).find("#dndbeyond-character-import-start").prop("disabled", false);
         return true;
+      });
+
+    $(html)
+      .find("#dndbeyond-character-sync")
+      .on("click", async () => {
+        try {
+          $(html).find("#dndbeyond-character-sync").prop("disabled", true);
+          await updateDDBCharacter(this.actor).then((result) => {
+            // result.forEach((r) => {
+            //   console.warn(r);
+            // });
+            const updateNotes = result.flat().filter((r) => r !== undefined).map((r) => r.message).join(" ");
+            logger.debug(updateNotes);
+            CharacterImport.showCurrentTask(html, "Sync complete", updateNotes);
+            $(html).find("#dndbeyond-character-sync").prop("disabled", false);
+          });
+        } catch (error) {
+          logger.error(error);
+          logger.error(error.stack);
+          CharacterImport.showCurrentTask(html, "Error updating character", error, true);
+        }
       });
 
     $(html)
@@ -675,6 +795,7 @@ export default class CharacterImport extends Application {
   }
 
   async enrichCharacterItems(html, items) {
+    const useInbuiltIcons = game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons");
     const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
     const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
     const ddbSpellIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons");
@@ -692,6 +813,11 @@ export default class CharacterImport extends Application {
       if (ddbItemIcons) {
         CharacterImport.showCurrentTask(html, "Fetching DDB Inventory Images");
         items = await getDDBEquipmentIcons(items, true);
+      }
+
+      if (useInbuiltIcons) {
+        CharacterImport.showCurrentTask(html, "Adding SRD Icons");
+        items = await copyInbuiltIcons(items);
       }
 
       if (useSRDCompendiumIcons && !useSRDCompendiumItems) {
@@ -770,34 +896,6 @@ export default class CharacterImport extends Application {
       });
     }
   }
-
-  /**
-   * This adds magic item spells to a world,
-   */
-  // async addMagicItemSpells() {
-  //   const itemSpells = await updateFolderItems("itemSpells", this.result);
-  //   console.warn(itemSpells);
-  //   // scan the inventory for each item with spells and copy the imported data over
-  //   await this.result.inventory.forEach((item) => {
-  //     console.warn(item);
-  //     if (item.flags.magicitems.spells) {
-  //       for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
-  //         console.log(spell);
-
-  //         const itemSpell = itemSpells.find((itemSpell) => itemSpell.name === spell.name);
-  //         if (itemSpell) {
-  //           console.log(itemSpell);
-  //           for (const [key, value] of Object.entries(itemSpell)) {
-  //             console.log(`setting ${key} to ${value}`);
-  //             item.flags.magicitems.spells[i][key] = value;
-  //           }
-  //         } else if (!game.user.can("ITEM_CREATE")) {
-  //           ui.notifications.warn(`Magic Item ${item.name} cannot be enriched because of lacking player permissions`);
-  //         }
-  //       }
-  //     }
-  //   });
-  // }
 
   async processCharacterItems(html) {
     // is magicitems installed

@@ -1,6 +1,8 @@
 import CharacterImport from "../../character/import.js";
 import logger from "../../logger.js";
+import { DDBSetup, isSetupComplete } from "../../lib/Settings.js";
 
+const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v4/character/";
 // reference to the D&D Beyond popup
 const POPUPS = {
   json: null,
@@ -27,50 +29,41 @@ export default function () {
   /**
    * Character sheets
    */
-  let pcSheetNames = Object.values(CONFIG.Actor.sheetClasses.character)
+  const pcSheetNames = Object.values(CONFIG.Actor.sheetClasses.character)
     .map((sheetClass) => sheetClass.cls)
     .map((sheet) => sheet.name);
 
   const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
+  const characterLink = game.settings.get("ddb-importer", "character-link-title");
+  const monsterLink = game.settings.get("ddb-importer", "monster-link-title");
 
   pcSheetNames.forEach((sheetName) => {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this character
       if (!data.owner || !data.actor || (trustedUsersOnly && !game.user.isTrusted)) return;
 
-      // don't add the button multiple times
-      if ($(html).find("#ddbImporterButton").length > 0) return;
-
-      let button = $('<button type="button" id="ddbImporterButton" class="inactive"></button>');
-      if (
-        app.entity.data.flags.ddbimporter &&
-        app.entity.data.flags.ddbimporter.dndbeyond &&
-        app.entity.data.flags.ddbimporter.dndbeyond.url
-      ) {
-        button.removeClass("inactive");
+      let url = null;
+      if (app.entity.data.flags.ddbimporter?.dndbeyond?.url) {
+        url = app.entity.data.flags.ddbimporter.dndbeyond.url;
       }
 
-      let characterImport;
+      let jsonURL = null;
+      if (app.entity.data.flags.ddbimporter?.dndbeyond?.json) {
+        jsonURL = app.entity.data.flags.ddbimporter.dndbeyond.json;
+      }
+
+      let button;
+
+      if (characterLink) {
+        button = $(`<a class="ddb-open-url" title="DDB Importer"><i class="fab fa-d-and-d-beyond"></i></a>`);
+      } else {
+        // don't add the button multiple times
+        if ($(html).find("#ddbImporterButton").length > 0) return;
+        button = $('<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>');
+        if (app.entity.data.flags.ddbimporter?.dndbeyond?.url) button.removeClass("inactive");
+      }
 
       button.click((event) => {
-        let url = null;
-        if (
-          app.entity.data.flags.ddbimporter &&
-          app.entity.data.flags.ddbimporter.dndbeyond &&
-          app.entity.data.flags.ddbimporter.dndbeyond.url
-        ) {
-          url = app.entity.data.flags.ddbimporter.dndbeyond.url;
-        }
-
-        let jsonURL = null;
-        if (
-          app.entity.data.flags.ddbimporter &&
-          app.entity.data.flags.ddbimporter.dndbeyond &&
-          app.entity.data.flags.ddbimporter.dndbeyond.json
-        ) {
-          jsonURL = app.entity.data.flags.ddbimporter.dndbeyond.json;
-        }
-
         if (event.shiftKey) {
           event.preventDefault();
           return renderPopup("web", url);
@@ -85,22 +78,35 @@ export default function () {
           const characterId = url.split("/").pop();
           if (characterId) {
             event.preventDefault();
-            return renderPopup("json", "https://character-service.dndbeyond.com/character/v4/character/" + characterId);
+            return renderPopup("json", API_ENDPOINT + characterId);
           }
         }
 
         if ((!event.shiftKey && !event.ctrlKey && !event.altKey) || url === null) {
-          characterImport = new CharacterImport(CharacterImport.defaultOptions, data.actor);
-          characterImport.render(true);
+          const setupComplete = isSetupComplete(false);
+
+          if (setupComplete) {
+            let characterImport = new CharacterImport(CharacterImport.defaultOptions, data.actor);
+            characterImport.render(true);
+          } else {
+            new DDBSetup().render(true);
+          }
+
           return true;
         }
 
         return false;
       });
 
-      let wrap = $('<div class="ddbCharacterName"></div>');
-      $(html).find("input[name='name']").wrap(wrap);
-      $(html).find("input[name='name']").parent().prepend(button);
+      if (characterLink) {
+        html.closest('.app').find('.ddb-open-url').remove();
+        let titleElement = html.closest('.app').find('.window-title');
+        if (!app._minimized) button.insertAfter(titleElement);
+      } else {
+        let wrap = $('<div class="ddbCharacterName"></div>');
+        $(html).find("input[name='name']").wrap(wrap);
+        $(html).find("input[name='name']").parent().prepend(button);
+      }
     });
   });
 
@@ -108,7 +114,7 @@ export default function () {
   /**
    * NPC sheets
    */
-  let npcSheetNames = Object.values(CONFIG.Actor.sheetClasses.npc)
+  const npcSheetNames = Object.values(CONFIG.Actor.sheetClasses.npc)
     .map((sheetClass) => sheetClass.cls)
     .map((sheet) => sheet.name);
 
@@ -116,20 +122,31 @@ export default function () {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this npc
       if (!data.owner || !data.actor) return;
+      if (!app.entity.data.flags?.monsterMunch?.url) return;
+      let url = app.entity.data.flags.monsterMunch.url;
 
-      let openBtn = $(`<a class="ddb-open-url" title="D&D Beyond"><i class="fas fa-external-link-alt"></i>D&D Beyond</a>`);
+      let button;
 
-      if (app.entity.data.flags.monsterMunch && app.entity.data.flags.monsterMunch.url) {
-        // eslint-disable-next-line no-unused-vars
-        openBtn.click((event) => {
-          let url = app.entity.data.flags.monsterMunch.url;
-          logger.debug(`Clicked for url ${url}`);
-          renderPopup("web", url);
-        });
+      if (monsterLink) {
+        button = $(`<a class="ddb-open-url" title="D&D Beyond"><i class="fab fa-d-and-d-beyond"></i></a>`);
+      } else {
+        button = $('<button type="button" id="ddbImporterButton"><i class="fab fa-d-and-d-beyond"></button>');
+      }
 
+      // eslint-disable-next-line no-unused-vars
+      button.click((event) => {
+        logger.debug(`Clicked for url ${url}`);
+        renderPopup("web", url);
+      });
+
+      if (monsterLink) {
         html.closest('.app').find('.ddb-open-url').remove();
         let titleElement = html.closest('.app').find('.window-title');
-        if (!app._minimized) openBtn.insertAfter(titleElement);
+        if (!app._minimized) button.insertAfter(titleElement);
+      } else {
+        let wrap = $('<div class="ddbCharacterName"></div>');
+        $(html).find("input[name='name']").wrap(wrap);
+        $(html).find("input[name='name']").parent().prepend(button);
       }
     });
   });

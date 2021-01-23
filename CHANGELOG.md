@@ -1,3 +1,17 @@
+# 0.3.0
+
+* Major overhaul of the visual interface.
+* New Inbuilt Icon Matching feature (many thanks to @Zac and others who have been filling in details here). All equipment, Spells and Feats in DDB can now be matched against one of the standard 5e provided system or Foundry icons.
+* Monster URL link to DDB now can be selectively in the title bar or next to the name.
+* DDB Importer link on the character sheet can be selectively in the title bar or next to the name.
+* Icon used by DDB Importer changed to the awesome fonts D&D Beyond brand image.
+* Feat import failed if use SRD was selected.
+* Source filtering now available for Undying Tier supporters.
+* Some items like vials and flasks will now show up as consumable.
+* Some actions which had consume actions had to be edited before they could be rolled.
+* Some items would not import if their charge reset type was not specified.
+* Patreon supporters now have access to a limited Character Sync option. This will sync Hit Points, Hit Dice, Exhaustion, Currency, Spell Slots, Spells Prepared, Death Saves, and Inspiration. Action uses, biography/notes, and Equipment will be coming soon.
+
 # 0.2.32/0.2.33
 
 * Some speed bonuses applied to all speed types.

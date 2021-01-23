@@ -77,5 +77,9 @@
   "ddb-importer.setup.name": "Core setup",
   "ddb-importer.setup.hint": "Core setup options",
   "ddb-importer.compendium-setup.name": "Compendiums",
-  "ddb-importer.compendium-setup.hint": "Configure compendiums to use"
+  "ddb-importer.compendium-setup.hint": "Configure compendiums to use",
+  "ddb-importer.monster-link-title.name": "Monster D&D Beyond link in title bar?",
+  "ddb-importer.monster-link-title.hint": "Otherwise it's a button next to the name. (Reload to take effect).",
+  "ddb-importer.character-link-title.name": "Character DDB-Importer button in title bar?",
+  "ddb-importer.character-link-title.hint": "Otherwise it's a button next to the name. (Reload to take effect)."
 }

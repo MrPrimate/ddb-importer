@@ -23,6 +23,10 @@ let getEquipped = (data) => {
 };
 
 const getItemType = (data) => {
+  let result = {
+    type: "loot"
+  };
+
   const foundryTypes = ["weapon", "equipment", "consumable", "tool", "loot", "class", "spell", "feat", "backpack"];
 
   const itemTypes =
@@ -33,6 +37,7 @@ const getItemType = (data) => {
   let itemType = itemTypes
     .map((itemType) => {
       if (itemType === "container") return "backpack";
+      if (itemType === "consumable") return "consumable";
       return foundryTypes.find((t) => t.indexOf(itemType) !== -1 || itemType.indexOf(t) !== -1);
     })
     .reduce(
@@ -40,16 +45,39 @@ const getItemType = (data) => {
       undefined
     );
 
-  return itemType === undefined ? "loot" : itemType;
+  if (!itemType) {
+    const isConsumable =
+      data.definition.type === "Gear" &&
+      data.definition.subType === "Adventuring Gear" &&
+      data.definition.tags.includes('Utility') &&
+      ((data.definition.tags.includes('Damage') &&
+      data.definition.tags.includes('Combat')) ||
+      data.definition.tags.includes('Healing'));
+    if (isConsumable) itemType = "consumable";
+  }
+
+  if (itemType) {
+    result.type = itemType;
+    if (itemType === "consumable") {
+      if (data.definition.name.includes('vial') || data.definition.name.includes('flask')) {
+        result.consumableType = "potion";
+      } else {
+        result.consumableType = "trinket";
+      }
+    }
+  }
+
+  return result;
 };
 
 export default function parseLoot(data, itemType) {
   /**
    * MAIN parseLoot
    */
+  const type = getItemType(data);
   let loot = {
     name: data.definition.name,
-    type: getItemType(data),
+    type: type.type,
     data: JSON.parse(utils.getTemplate("loot")), // was: tool
     flags: {
       ddbimporter: {
@@ -59,6 +87,10 @@ export default function parseLoot(data, itemType) {
       },
     },
   };
+
+  if (type.consumableType) {
+    loot.data.consumableType = type.consumableType;
+  }
 
   // description: {
   //     value: '',
