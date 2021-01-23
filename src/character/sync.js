@@ -9,7 +9,7 @@ async function updateCharacterCall(characterId, path, bodyContent) {
   const coreBody = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId };
   const body = { ...coreBody, ...bodyContent };
 
-  logger.debug(body);
+  logger.debug("Update body:", bodyContent);
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/update/${path}`, {
@@ -198,15 +198,62 @@ async function hitDice(actor, characterId, ddbData) {
   });
 }
 
+async function updateSpellsPrepared(characterId, spellPreparedData) {
+  return new Promise((resolve) => {
+    resolve(updateCharacterCall(characterId, "spell/prepare", spellPreparedData));
+  });
+}
+
+async function spellsPrepared(actor, characterId, ddbData) {
+  if (!game.settings.get("ddb-importer", "sync-policy-spells-prepared")) resolve();
+  const ddbSpells = ddbData.character.spells;
+
+  const preparedSpells = actor.data.items.filter((item) => {
+    const spellMatch = ddbSpells.find((s) =>
+      s.name === item.name &&
+      item.data.preparation?.mode === "prepared" &&
+      item.flags.ddbimporter?.dndbeyond?.characterClassId &&
+      item.flags.ddbimporter?.dndbeyond?.characterClassId === s.flags.ddbimporter?.dndbeyond?.characterClassId
+    );
+    if (!spellMatch) return false;
+    const select = item.type === "spell" &&
+      item.data.preparation?.mode === "prepared" &&
+      item.data.preparation.prepared !== spellMatch.data.preparation?.prepared;
+    return spellMatch && select;
+  }).map((spell) => {
+    let spellPreparedData = {
+        spellInfo: {
+          spellId: spell.flags.ddbimporter.definitionId,
+          characterClassId: spell.flags.ddbimporter.dndbeyond.characterClassId,
+          entityTypeId: spell.flags.ddbimporter.entityTypeId,
+          id: spell.flags.ddbimporter.id,
+          prepared: false,
+        }
+    };
+    if (spell.data.preparation.prepared) spellPreparedData.spellInfo.prepared = true;
+    return spellPreparedData;
+  });
+
+  let promises = [];
+  preparedSpells.forEach((spellPreparedData) => {
+    console.warn(spellPreparedData);
+    // promises.push(spellPreparedData);
+    promises.push(updateSpellsPrepared(characterId, spellPreparedData));
+  });
+
+  return Promise.all(promises);
+
+}
+
 export async function updateDDBCharacter(actor) {
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
   const syncId = actor.data.flags["ddb-importer"]?.syncId ? actor.data.flags["ddb-importer"].syncId + 1 : 0;
   const ddbData = await getCharacterData(characterId, syncId);
 
-  // console.warn(actor.data);
-  // console.warn(ddbData);
+  console.warn(actor.data);
+  console.warn(ddbData);
 
-  let promises = []
+  let singlePromises = []
     .concat(
       currency(actor, characterId, ddbData),
       hitPoints(actor, characterId, ddbData),
@@ -215,28 +262,15 @@ export async function updateDDBCharacter(actor) {
       spellSlotsPact(actor, characterId, ddbData),
       inspiration(actor, characterId, ddbData),
       exhaustion(actor, characterId, ddbData),
-      deathSaves(actor, characterId, ddbData)
-    )
-    .flat();
+      deathSaves(actor, characterId, ddbData),
+    ).flat();
+
+  let spellsPreparedResults = await spellsPrepared(actor, characterId, ddbData);
 
   // for each action, check to see if it has uses, if yes:
   // const actionData = { actionId: "", entityTypeId: "", uses: "" };
   // const action = updateCharacterCall(characterId, "action/use", actionData);
   // promises.push(action);
-
-  // if a prepared spell caster
-  // for each prepared spell that was added or removed
-  // const spellPreparedData = {
-  //   spellInfo: {
-  //     spellId: 2242,
-  //     characterClassId: 40045547,
-  //     entityTypeId: 435869154,
-  //     id: 2641037,
-  //     prepared: false,
-  //   },
-  // };
-  // const spellsPrepared = updateCharacterCall(characterId, "spells/prepare", spellPreparedData);
-  // promises.push(spellsPrepared);
 
   // if a known/choice spellcaster
   // and new spell/ spells removed
@@ -268,7 +302,13 @@ export async function updateDDBCharacter(actor) {
 
   actor.setFlag("ddb-importer", "syncId", syncId);
 
-  let results = await Promise.all(promises);
+  console.log(singlePromises);
+  console.log(spellsPreparedResults);
+
+  const singleResults = await Promise.all(singlePromises);
+  const results = singleResults.concat(spellsPreparedResults).filter((result) => result !== undefined);;
+
+  logger.debug("Update results", results);
 
   return results;
 }

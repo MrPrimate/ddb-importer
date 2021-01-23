@@ -596,7 +596,7 @@ export default class CharacterImport extends FormApplication {
         name: "spells-prepared",
         isChecked: game.settings.get("ddb-importer", "sync-policy-spells-prepared"),
         description: "Spells Prepared",
-        enabled: false,
+        enabled: true,
       },
       {
         name: "spells-slots",
@@ -725,12 +725,17 @@ export default class CharacterImport extends FormApplication {
         try {
           $(html).find("#dndbeyond-character-sync").prop("disabled", true);
           await updateDDBCharacter(this.actor).then((result) => {
-            const updateNotes = result.flat().filter((r) => r !== null).map((r) => r.message).join(" ");
+            result.forEach((r) => {
+              console.warn(r);
+            });
+            const updateNotes = result.flat().filter((r) => r !== undefined).map((r) => r.message).join(" ");
             logger.debug(updateNotes);
             CharacterImport.showCurrentTask(html, "Sync complete", updateNotes);
             $(html).find("#dndbeyond-character-sync").prop("disabled", false);
           });
         } catch (error) {
+          logger.error(error);
+          logger.error(error.stack);
           CharacterImport.showCurrentTask(html, "Error updating character", error, true);
         }
       });

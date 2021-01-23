@@ -59,6 +59,7 @@ function findDAEItem(itemData, packs) {
 function dataSwap(itemData, replaceData) {
   updateCharacterItemFlags(itemData, replaceData);
   if (itemData._id) replaceData._id = itemData._id;
+  if (itemData.flags) replaceData.flags = { ...itemData.flags, ...replaceData.flags };
   return replaceData;
 }
 
