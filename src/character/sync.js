@@ -83,7 +83,7 @@ async function currency(actor, characterId, ddbData) {
 
 async function hitPoints(actor, characterId, ddbData) {
   let result = [];
-  localTemp = (actor.data.data.attributes.hp.temp) ? actor.data.data.attributes.hp.temp : 0;
+  const localTemp = (actor.data.data.attributes.hp.temp) ? actor.data.data.attributes.hp.temp : 0;
   const same = ddbData.character.character.data.attributes.hp.value === actor.data.data.attributes.hp.value &&
     ddbData.character.character.data.attributes.hp.temp === localTemp;
 
@@ -115,7 +115,7 @@ async function inspiration(actor, characterId, ddbData) {
 
 async function exhaustion(actor, characterId, ddbData) {
   let result = [];
-  const same = ddbData.character.character.data.exhaustion === actor.data.data.attributes.exhaustion;
+  const same = ddbData.character.character.data.attributes.exhaustion === actor.data.data.attributes.exhaustion;
 
   if (!same) {
     let exhaustionData = {
