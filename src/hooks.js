@@ -9,6 +9,7 @@ import setupLogging from "./hooks/init/setupLogging.js";
 import registerSheets from "./hooks/ready/registerSheets.js";
 import checkCompendiums from "./hooks/ready/checkCompendiums.js";
 import registerGameSettings from "./hooks/ready/registerGameSettings.js";
+import { itemSheets } from "./hooks/ready/items.js";
 
 // other hooks
 import addFolderLabel from "./hooks/renderSidebarTab/addFolderLabel.js";
@@ -52,6 +53,7 @@ export function onceReady() {
 
     // register the D&DBeyond Button on the character sheets
     registerSheets();
+    itemSheets();
 
   }, 500);
 }

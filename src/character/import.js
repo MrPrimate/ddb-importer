@@ -125,7 +125,9 @@ const filterItemsByUserSelection = (result, sections) => {
   const validItemTypes = getCharacterUpdatePolicyTypes();
 
   for (const section of sections) {
-    items = items.concat(result[section]).filter((item) => validItemTypes.includes(item.type));
+    items = items.concat(result[section]).filter((item) =>
+      validItemTypes.includes(item.type)
+    );
   }
   return items;
 };
@@ -352,7 +354,11 @@ export default class CharacterImport extends FormApplication {
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
     const toRemove = ownedItems
-      .filter((item) => includedItems.includes(item.type) && !excludedList.some((excluded) => excluded._id === item._id))
+      .filter((item) =>
+        includedItems.includes(item.type) &&
+        !excludedList.some((excluded) => excluded._id === item._id)
+      )
+      .filter((item) => !item.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item._id);
 
     if (toRemove.length > 0) await this.actor.deleteEmbeddedEntity("OwnedItem", toRemove);
@@ -502,7 +508,7 @@ export default class CharacterImport extends FormApplication {
       {
         name: "inplace",
         isChecked: updateReady && game.settings.get("ddb-importer", "character-update-policy-inplace"),
-        description: "[Experimental] Attempt to replace existing items rather than deleting and replacing. This is recommended for retaining hotbar links for modules like Better Rolls. Matched items won't be replaced by compendium items. If it is greyed out it's not yet available with your existing character data. Maybe next time?",
+        description: "Replace existing items, rather than deleting and replacing. This is recommended for retaining hotbar links for modules like Better Rolls. Matched items won't be replaced by compendium items. If it is greyed out it's not yet available with your existing character data. Maybe next time?",
         enabled: updateReady,
       },
       {
@@ -879,11 +885,13 @@ export default class CharacterImport extends FormApplication {
             item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id
           );
         if (matchedItem) {
-          item['_id'] = matchedItem['_id'];
-          if (matchedItem.effects?.length > 0 && item.effects?.length === 0) {
-            item.effects = matchedItem.effects;
+          if (!matchedItem.flags.ddbimporter?.ignoreItemImport) {
+            item['_id'] = matchedItem['_id'];
+            if (matchedItem.effects?.length > 0 && item.effects?.length === 0) {
+              item.effects = matchedItem.effects;
+            }
+            matchedItems.push(item);
           }
-          matchedItems.push(item);
         } else {
           nonMatchedItems.push(item);
         }
