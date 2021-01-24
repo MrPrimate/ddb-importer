@@ -1,12 +1,15 @@
 import logger from "../logger.js";
 import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/isequal.js";
+import { getCampaignId } from "../muncher/utils.js";
 
 async function updateCharacterCall(characterId, path, bodyContent) {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
-  const coreBody = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId };
+  const campaignId = getCampaignId();
+  const proxyCampaignId = campaignId === "" ? null : campaignId;
+  const coreBody = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
   const body = { ...coreBody, ...bodyContent };
 
   logger.debug("Update body:", bodyContent);
@@ -86,6 +89,19 @@ async function currency(actor, characterId, ddbData) {
 
     if (!same) {
       resolve(updateCharacterCall(characterId, "currency", actor.data.data.currency));
+    }
+
+    resolve();
+  });
+}
+
+async function xp(actor, characterId, ddbData) {
+  return new Promise((resolve) => {
+    if (!game.settings.get("ddb-importer", "sync-policy-xp")) resolve();
+    const same = ddbData.character.character.data.details.xp.value === actor.data.data.details.xp.value;
+
+    if (!same) {
+      resolve(updateCharacterCall(characterId, "xp", { currentXp: actor.data.data.details.xp.value }));
     }
 
     resolve();
@@ -263,6 +279,7 @@ export async function updateDDBCharacter(actor) {
       inspiration(actor, characterId, ddbData),
       exhaustion(actor, characterId, ddbData),
       deathSaves(actor, characterId, ddbData),
+      xp(actor, characterId, ddbData),
     ).flat();
 
   let spellsPreparedResults = await spellsPrepared(actor, characterId, ddbData);

@@ -610,6 +610,12 @@ export default class CharacterImport extends FormApplication {
         description: "Spells Known",
         enabled: false,
       },
+      {
+        name: "xp",
+        isChecked: game.settings.get("ddb-importer", "sync-policy-xp"),
+        description: "XP",
+        enabled: true,
+      },
     ];
 
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");

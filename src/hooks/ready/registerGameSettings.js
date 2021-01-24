@@ -823,4 +823,13 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "sync-policy-xp", {
+    name: "ddb-importer.sync-policy-xp.name",
+    hint: "ddb-importer.sync-policy-xp.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
 }

@@ -1,3 +1,7 @@
+# 0.3.1
+
+* Character Sync now supports XP.
+
 # 0.3.0
 
 * Major overhaul of the visual interface.
