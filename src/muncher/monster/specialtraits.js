@@ -106,6 +106,10 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
       action.data.actionType = "save";
     }
     action.data.damage = getDamage(node.textContent);
+    // assumption - if the action type is not set but there is damage, the action type is other
+    if (!action.data.actionType && action.data.damage.parts.length != 0) {
+      action.data.actionType = "other";
+    }
 
     // legendary resistance check
     const actionMatch = node.textContent.match(/Legendary Resistance \((\d+)\/Day\)/);
