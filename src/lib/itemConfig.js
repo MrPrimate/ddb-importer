@@ -3,6 +3,7 @@ export class DDBItemConfig extends FormApplication {
     const options = super.defaultOptions;
     options.title = "DDB Owned Item Config";
     options.template = "modules/ddb-importer/handlebars/item-config.handlebars";
+    options.classes = ["ddbimporter", "sheet"];
     options.width = 500;
     return options;
   }
@@ -26,7 +27,7 @@ export class DDBItemConfig extends FormApplication {
       {
         name: "ignoreItemImport",
         isChecked: itemImport,
-        description: "Ignore this item when when importing the character. (Requires 'Replace existing items' to be used).",
+        description: "Ignore this item when when importing the character.",
       },
       // {
       //   name: "ignoreItemSync",
@@ -35,11 +36,14 @@ export class DDBItemConfig extends FormApplication {
       // },
     ];
 
-    return {
-      name: item.data.name,
-      img: item.data.img,
+    const result = {
+      name: item.name,
+      img: item.img,
+      character: this.object.actor.name,
       settings: settings,
     };
+
+    return result;
   }
 
   get id() {

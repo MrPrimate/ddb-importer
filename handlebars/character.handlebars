@@ -91,7 +91,7 @@
     {{#each advancedImportConfig}}
     <div class="advanced-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
         name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
-        {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+        {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b><p>{{{this.description}}}</p>
     </div>
     {{/each}}
 </section>
