@@ -509,7 +509,7 @@ export default class CharacterImport extends FormApplication {
         name: "inplace",
         isChecked: updateReady && game.settings.get("ddb-importer", "character-update-policy-inplace"),
         title: "Update Existing Items",
-        description: "<i>Recommended</i>. Update existing items, rather than deleting and recreating new ones. This will retaining hotbar links for modules like Better Rolls. Matched items won't be replaced by compendium items, to retain a custom item on the sheet mark that item as ignored by ddb-importer in it's settings. If it is greyed out it's not yet available with your existing character data adn will be available after your next import.",
+        description: "<i>Recommended</i>. Update existing items, rather than deleting and recreating new ones. This will retaining hotbar links for modules like Better Rolls. Matched items won't be replaced by compendium items, to retain a custom item on the sheet mark that item as ignored by ddb-importer in it's settings. If it is greyed out it's not yet available with your existing character data and will be available after your next import.",
         enabled: updateReady,
       },
       {
