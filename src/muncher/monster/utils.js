@@ -109,7 +109,7 @@ export function getUses(text) {
   const usesSearch = /\((\d+)\/(\w+)\)/;
   const usesMatch = text.match(usesSearch);
   // console.log(usesMatch);
-  if (usesMatch) {
+  if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
     uses.value = usesMatch[1];
     uses.max = usesMatch[1];
     uses.per = "day";
