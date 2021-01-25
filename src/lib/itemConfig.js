@@ -14,16 +14,16 @@ export class DDBItemConfig extends FormApplication {
     // console.warn(this.object);
     let item = this.object.data;
 
-    // const icon = item.flags.ddbimporter?.ignoreIcon;
+    const icon = item.flags.ddbimporter?.ignoreIcon;
     const itemImport = item.flags.ddbimporter?.ignoreItemImport;
     // const itemSync = item.flags.ddbimporter?.ignoreItemSync;
 
     const settings = [
-      // {
-      //   name: "ignoreIcon",
-      //   isChecked: icon,
-      //   description: "Ignore icon updates when importing the character",
-      // },
+      {
+        name: "ignoreIcon",
+        isChecked: icon,
+        description: "Ignore icon updates when importing the character",
+      },
       {
         name: "ignoreItemImport",
         isChecked: itemImport,
@@ -60,7 +60,7 @@ export class DDBItemConfig extends FormApplication {
     let item = this.object.data;
 
     if (!item.flags.ddbimporter) item.flags.ddbimporter = {};
-    // item.flags.ddbimporter['ignoreIcon'] = formData['ignoreIcon'];
+    item.flags.ddbimporter['ignoreIcon'] = formData['ignoreIcon'];
     item.flags.ddbimporter['ignoreItemImport'] = formData['ignoreItemImport'];
     // item.flags.ddbimporter['ignoreItemSync'] = formData['ignoreItemSync'];
     this.object.actor.updateEmbeddedEntity("OwnedItem", item);

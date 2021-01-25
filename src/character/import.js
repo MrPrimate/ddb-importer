@@ -897,6 +897,9 @@ export default class CharacterImport extends FormApplication {
             if (matchedItem.effects?.length > 0 && item.effects?.length === 0) {
               item.effects = matchedItem.effects;
             }
+            if (matchedItem.flags.ddbimporter?.ignoreIcon) {
+              item.flags.ddbimporter.matchedImg = matchedItem.img;
+            }
             matchedItems.push(item);
           }
         } else {
@@ -906,6 +909,13 @@ export default class CharacterImport extends FormApplication {
 
       // enrich matched items
       let enrichedItems = await this.enrichCharacterItems(html, matchedItems);
+
+      // ensure excluded icons are retained
+      enrichedItems = enrichedItems.map((item) => {
+        if (item.flags.ddbimporter?.matchedImg) item.img = item.flags.ddbimporter.matchedImg;
+        return item;
+      });
+
       await this.actor.updateEmbeddedEntity("OwnedItem", enrichedItems);
 
       return new Promise((resolve) => {

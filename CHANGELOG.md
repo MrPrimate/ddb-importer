@@ -1,7 +1,7 @@
 # 0.3.1
 
 * Character Sync now supports XP.
-* Owned Items on a character now have a title bar button. This allows an item to be excluded from the import when the characer import runs. This is useful if you have added or altered items/spells/features etc to a sheet and wish to retain them.
+* Owned Items on a character now have a title bar button. This allows an item (or just it's icon) to be excluded from the import when the characer import runs. This is useful if you have added or altered items/spells/features etc to a sheet and wish to retain them. Please let me know if there are specific aspects that would be useful to retain on a item.
 
 # 0.3.0
 
