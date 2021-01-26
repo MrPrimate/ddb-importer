@@ -1,3 +1,10 @@
+# 0.3.2
+
+* Active Effect copy did not copy effects just on the character.
+* Active Effects on a character could be duplicated on re-import.
+* Active Effects did not retain current enabled status on character.
+* Clarified the intent of various Active Effect copy Advanced Settings.
+
 # 0.3.1
 
 * Character Sync now supports XP.

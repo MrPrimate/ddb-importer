@@ -515,8 +515,8 @@ export default class CharacterImport extends FormApplication {
       {
         name: "new",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-new"),
-        title: "[Deprecated] Replace Existing Items",
-        description: "Import new items only. Doesn't delete or update existing items in Foundry. If this is checked features managed by the Class such as levels and spell progression won't be updated. Attributes such as HP, AC, stats, speeds, skills and special traits are always updated. Please consider marking the item you wish to keep as ignored by import instead.",
+        title: "[Deprecated] Import new items only",
+        description: "Doesn't delete or update existing items in Foundry. If this is checked features managed by the Class such as levels and spell progression won't be updated. Attributes such as HP, AC, stats, speeds, skills and special traits are always updated. Please consider marking the item you wish to keep as ignored by import instead.",
         enabled: true,
       },
       {
@@ -536,22 +536,22 @@ export default class CharacterImport extends FormApplication {
       {
         name: "dae-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy"),
-        title: "[Experimental] Copy Active Effect from DAE Compendiums",
-        description: "[Experimental] Retains parsed item, but <i>transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features (requires DAE and SRD module).",
+        title: "Copy Active Effect from DAE Compendiums",
+        description: "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features (requires DAE and SRD module).",
         enabled: daeInstalled,
       },
       {
         name: "dae-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy"),
         title: "[Caution] Replace Items using DAE compendiums",
-        description: "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features (requires DAE and SRD module).",
+        description: "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features (requires DAE and SRD module). This will remove any effects applied directly to your character/not via features/items.",
         enabled: daeInstalled,
       },
       {
         name: "active-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
-        title: "[Experimental] Retain Active Effects on existing items",
-        description: "Retain existing Active Effects on items/features. Any effects on the character not liked to an item will be removed, effects on an item will be retained.",
+        title: "Retain Active Effects",
+        description: "Retain existing Active Effects, if you're using active effects, you probably want this checked.",
         enabled: true,
       },
     ];
@@ -1033,10 +1033,32 @@ export default class CharacterImport extends FormApplication {
     }
   }
 
+  async removeActiveEffects(activeEffectCopy) {
+    // remove current active effects
+    const itemEffects = this.actor.data.effects.filter((ae) => ae.origin.includes('OwnedItem'));
+    const charEffects = this.actor.data.effects.filter((ae) => !ae.origin.includes('OwnedItem'));
+
+    // always remove existing active item effects
+    await this.actor.deleteEmbeddedEntity("ActiveEffect", itemEffects.map((ae) => ae._id));
+
+    // are we trying to retain existing effects?
+    if (activeEffectCopy) {
+      // add retained character effects to result
+      this.result.character.effects = charEffects;
+    } else {
+      // if not retaining effects remove character effects
+      await this.actor.deleteEmbeddedEntity("ActiveEffect", charEffects.map((ae) => ae._id));
+    }
+  }
+
   async parseCharacterData(html, data) {
     this.result = data.character;
-    // remove current active effects
-    await this.actor.deleteEmbeddedEntity("ActiveEffect", this.actor.effects.map((ae) => ae.id));
+
+    // handle active effects
+    const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
+    CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
+    await this.removeActiveEffects(activeEffectCopy);
+
     // update image
     await this.updateImage(html, data.ddb);
 
@@ -1052,6 +1074,7 @@ export default class CharacterImport extends FormApplication {
     // basic import
     CharacterImport.showCurrentTask(html, "Updating core character information");
     await this.actor.update(this.result.character);
+
     // copy existing journal notes
     this.copyExistingJournalNotes();
 
@@ -1081,11 +1104,19 @@ export default class CharacterImport extends FormApplication {
       await migrateActorDAESRD(this.actor);
     }
 
-    // revisit this
-    const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     if (activeEffectCopy) {
-      await this.actor.deleteEmbeddedEntity("ActiveEffect", this.actor.effects.map((ae) => ae.id));
-      await this.actor.createEmbeddedEntity("ActiveEffect", this.actorOriginal.effects);
+      // find effects with a matching name that existed on previous actor
+      // and that have a different active state and activate them
+      const targetEffects = this.actor.data.effects.filter((ae) => {
+        const previousEffectDiff = this.actorOriginal.effects.find((oae) =>
+          oae.label === ae.label && oae.disabled !== ae.disabled
+        );
+        if (previousEffectDiff) return true;
+        return false;
+      });
+      targetEffects.forEach((ae) => {
+        this.actor.updateEmbeddedEntity("ActiveEffect", { "_id": ae._id, "disabled": !ae.disabled });
+      });
     }
 
     this.close();
