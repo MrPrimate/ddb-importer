@@ -8,6 +8,7 @@ import { munchNote } from "../utils.js";
 export async function getClassOptions(data, className) {
   logger.debug("get options started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
+  let results = [];
 
   let classFeatures = [];
   const classMatch = DDB_CONFIG.classConfigurations.find((k) => k.name === className);
@@ -23,6 +24,7 @@ export async function getClassOptions(data, className) {
     if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
       const parsedFeature = getClassFeature(feature, klass);
       classFeatures.push(parsedFeature);
+      results.push({ class: className, subClass: "", feature: feature.name });
     }
   });
 
@@ -30,5 +32,6 @@ export async function getClassOptions(data, className) {
   munchNote(`Importing ${fiddledClassFeatures.length} options!`, true);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
-  return fiddledClassFeatures;
+  // return fiddledClassFeatures;
+  return results;
 }

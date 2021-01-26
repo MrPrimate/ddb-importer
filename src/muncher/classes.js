@@ -106,8 +106,7 @@ function getClassesData() {
 export async function parseClasses() {
   const classesResults = await getClassesData();
 
- // const classesResults = [];
-  const subClassResults = await Promise.allSettled([
+  const subClassResults = await Promise.all([
     getSubClassesData("Cleric"),
     getSubClassesData("Druid"),
     getSubClassesData("Sorcerer"),
@@ -124,7 +123,7 @@ export async function parseClasses() {
     getSubClassesData("Blood Hunter"),
   ]);
 
-  const classOptionsResults = await Promise.allSettled([
+  const classOptionsResults = await Promise.all([
     getClassOptionsData("Cleric"),
     getClassOptionsData("Druid"),
     getClassOptionsData("Sorcerer"),
@@ -135,13 +134,17 @@ export async function parseClasses() {
     getClassOptionsData("Bard"),
     getClassOptionsData("Barbarian"),
     getClassOptionsData("Fighter"),
-    getClassOptionsData("Artificer"),
     getClassOptionsData("Rogue"),
     getClassOptionsData("Monk"),
     getClassOptionsData("Blood Hunter"),
+    getClassOptionsData("Artificer"),
   ]);
 
-  return classesResults.concat(subClassResults, classOptionsResults);
+  const results = classesResults.concat(subClassResults.flat(), classOptionsResults.flat());
+
+  // download(JSON.stringify(results), `classes-icon.json`, "application/json");
+
+  return results;
 }
 
 

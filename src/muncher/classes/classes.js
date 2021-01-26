@@ -11,6 +11,7 @@ async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
 }
 
 export async function getClasses(data) {
+  let results = [];
   logger.debug("get clases started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
@@ -18,13 +19,14 @@ export async function getClasses(data) {
   let classFeatures = [];
 
   data.forEach((klass) => {
-    logger.debug(`${klass.fullName} feature parsing started...`);
+    logger.debug(`${klass.name} feature parsing started...`);
     klass.classFeatures.forEach((feature) => {
       const existingFeature = classFeatures.some((f) => f.name === feature.name);
       logger.debug(`${feature.name} feature starting...`);
       if (!NO_TRAITS.includes(feature.name) && !existingFeature) {
         const parsedFeature = getClassFeature(feature, klass);
         classFeatures.push(parsedFeature);
+        results.push({ class: klass.name, subClass: "", feature: feature.name });
       }
     });
   });
@@ -55,5 +57,6 @@ export async function getClasses(data) {
 
   await updateCompendium("classes", { classes: fiddledClasses }, updateBool);
 
-  return fiddledClasses.concat(fiddledClassFeatures);
+  // return fiddledClasses.concat(fiddledClassFeatures);
+  return results;
 }
