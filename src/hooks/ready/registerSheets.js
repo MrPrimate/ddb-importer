@@ -36,6 +36,7 @@ export default function () {
   const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
   const characterLink = game.settings.get("ddb-importer", "character-link-title");
   const monsterLink = game.settings.get("ddb-importer", "monster-link-title");
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
 
   pcSheetNames.forEach((sheetName) => {
     Hooks.on("render" + sheetName, (app, html, data) => {
@@ -55,7 +56,7 @@ export default function () {
       let button;
 
       if (characterLink) {
-        button = $(`<a class="ddb-open-url" title="DDB Importer"><i class="fab fa-d-and-d-beyond"></i></a>`);
+        button = $(`<a class="ddb-open-url" title="DDB Importer"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
       } else {
         // don't add the button multiple times
         if ($(html).find("#ddbImporterButton").length > 0) return;
@@ -128,7 +129,7 @@ export default function () {
       let button;
 
       if (monsterLink) {
-        button = $(`<a class="ddb-open-url" title="D&D Beyond"><i class="fab fa-d-and-d-beyond"></i></a>`);
+        button = $(`<a class="ddb-open-url" title="D&D Beyond"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
       } else {
         button = $('<button type="button" id="ddbImporterButton"><i class="fab fa-d-and-d-beyond"></button>');
       }

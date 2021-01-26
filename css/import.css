@@ -50,8 +50,13 @@ div.ddbCharacterName {
   align-items: center;
 }
 
-.fa-d-and-d-beyond{
+.fa-d-and-d-beyond {
   color: rgb(228, 7, 18);
+  font-size: 2rem;
+}
+
+.fa-d-and-d-beyond.white {
+  color: rgb(255, 255, 255);
   font-size: 2rem;
 }
 

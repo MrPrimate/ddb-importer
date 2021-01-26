@@ -153,6 +153,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "link-title-colour-white", {
+    name: "ddb-importer.link-title-colour-white.name",
+    hint: "ddb-importer.link-title-colour-white.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "entity-item-compendium", {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",
