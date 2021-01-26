@@ -140,40 +140,40 @@ const applyConstraint = (value, constraint) => {
   // min:1
   // max:3
   const splitConstraint = constraint.split(":");
-  const match = splitConstraint[0];
+  const multiConstraint = splitConstraint[0].split("*");
+  const match = multiConstraint[0];
 
   let result = value;
 
-  if (splitConstraint.length > 1) {
-    switch (match) {
-      case "max": {
-        if (splitConstraint[1] < result) result = splitConstraint[1];
-        break;
-      }
-      case "min": {
-        if (splitConstraint[1] > result) result = splitConstraint[1];
-        break;
-      }
-      default: {
-        utils.log(`Missed match is ${match}`);
-        logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`); // eslint-disable-line no-console
-      }
+  switch (match) {
+    case "max": {
+      if (splitConstraint[1] < result) result = splitConstraint[1];
+      break;
     }
-  } else {
-    switch (match) {
-      case "roundup": {
-        result = Math.ceil(result);
-        break;
-      }
-      case "rounddown":
-      case "roundown": {
-        result = Math.floor(result);
-        break;
-      }
-      default: {
-        logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`); // eslint-disable-line no-console
-      }
+    case "min": {
+      if (splitConstraint[1] > result) result = splitConstraint[1];
+      break;
     }
+    case "roundup": {
+      result = Math.ceil(result);
+      break;
+    }
+    case "rounddown":
+    case "roundown": {
+      result = Math.floor(result);
+      break;
+    }
+    default: {
+      logger.debug(`Missed match is ${match}`);
+      logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`); // eslint-disable-line no-console
+    }
+  }
+
+  if (multiConstraint.length > 1) {
+    const evalStatement = `${result}*${multiConstraint[1]}`;
+    /* eslint-disable no-eval */
+    result = eval(evalStatement);
+    /* eslint-enable no-eval */
   }
 
   return result;
@@ -228,9 +228,9 @@ export default function parseTemplateString(ddb, character, text, feature) {
           result = result.replace(replacePattern, getNumber(evalMatch));
         }
       } catch (err) {
-        utils.log(err);
         result = result.replace(replacePattern, `{{${match}}}`);
-        logger.warn(`ddb-importer does not know about template value {{${match}}}. Please log a bug.`);
+        logger.warn(`ddb-importer does not know about template value {{${match}}}. Please log a bug.`, err);
+        logger.warn(err.stack);
       }
     }
   });
