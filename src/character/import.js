@@ -1035,8 +1035,19 @@ export default class CharacterImport extends FormApplication {
 
   async removeActiveEffects(activeEffectCopy) {
     // remove current active effects
-    const itemEffects = this.actor.data.effects.filter((ae) => ae.origin.includes('OwnedItem'));
-    const charEffects = this.actor.data.effects.filter((ae) => !ae.origin.includes('OwnedItem'));
+    const ignoredItemOrigins = this.actorOriginal.items.filter((item) =>
+      item.effects && item.effects.length > 0 &&
+      item.flags.ddbimporter?.ignoreItemImport
+    ).map((item) => `Actor.${this.actorOriginal._id}.OwnedItem.${item._id}`);
+
+    const itemEffects = this.actor.data.effects.filter((ae) => ae.origin?.includes('OwnedItem') && !ignoredItemOrigins.includes(ae.origin));
+    const ignoredEffects = this.actor.data.effects.filter((ae) =>
+      // is this and ignored item
+      ignoredItemOrigins.includes(ae.origin) ||
+      // is this a core status effect (CUB)
+      ae.flags?.core?.statusId
+    );
+    const charEffects = this.actor.data.effects.filter((ae) => !ae.origin?.includes('OwnedItem'));
 
     // always remove existing active item effects
     await this.actor.deleteEmbeddedEntity("ActiveEffect", itemEffects.map((ae) => ae._id));
@@ -1044,10 +1055,11 @@ export default class CharacterImport extends FormApplication {
     // are we trying to retain existing effects?
     if (activeEffectCopy) {
       // add retained character effects to result
-      this.result.character.effects = charEffects;
+      this.result.character.effects = charEffects.concat(ignoredEffects);
     } else {
       // if not retaining effects remove character effects
       await this.actor.deleteEmbeddedEntity("ActiveEffect", charEffects.map((ae) => ae._id));
+      this.result.character.effects = ignoredEffects;
     }
   }
 
