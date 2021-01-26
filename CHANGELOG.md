@@ -1,3 +1,7 @@
+# 0.3.3
+
+* Monsters with Sneak Attack now parse the feature damage correctly. (Thanks bekriebel!)
+
 # 0.3.2
 
 * Active Effect copy did not copy effects just on the character.
