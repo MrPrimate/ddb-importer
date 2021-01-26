@@ -1,3 +1,9 @@
+# 0.3.4
+
+* Fix some instances of the template parser not parsing correctly, e.g. Arcane Archer.
+* Item screen title bar icon respects white colour choice as well!
+* You can now retain Resource Consumption links on individual items/features/spells during updates.
+
 # 0.3.3
 
 * Monsters with Sneak Attack now parse the feature damage correctly. (Thanks bekriebel!)
