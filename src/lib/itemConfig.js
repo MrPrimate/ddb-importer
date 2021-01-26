@@ -16,18 +16,24 @@ export class DDBItemConfig extends FormApplication {
 
     const icon = item.flags.ddbimporter?.ignoreIcon;
     const itemImport = item.flags.ddbimporter?.ignoreItemImport;
+    const resource = item.flags.ddbimporter?.retainResourceConsumption;
     // const itemSync = item.flags.ddbimporter?.ignoreItemSync;
 
     const settings = [
       {
-        name: "ignoreIcon",
-        isChecked: icon,
-        description: "Ignore icon updates when importing the character",
-      },
-      {
         name: "ignoreItemImport",
         isChecked: itemImport,
-        description: "Ignore this item when when importing the character.",
+        description: "Ignore this item when when importing the character (implies all other settings here).",
+      },
+      {
+        name: "ignoreIcon",
+        isChecked: icon,
+        description: "Ignore icon updates.",
+      },
+      {
+        name: "retainResourceConsumption",
+        isChecked: resource,
+        description: "Retain Resource Consumption linking.",
       },
       // {
       //   name: "ignoreItemSync",
@@ -62,6 +68,7 @@ export class DDBItemConfig extends FormApplication {
     if (!item.flags.ddbimporter) item.flags.ddbimporter = {};
     item.flags.ddbimporter['ignoreIcon'] = formData['ignoreIcon'];
     item.flags.ddbimporter['ignoreItemImport'] = formData['ignoreItemImport'];
+    item.flags.ddbimporter['retainResourceConsumption'] = formData['retainResourceConsumption'];
     // item.flags.ddbimporter['ignoreItemSync'] = formData['ignoreItemSync'];
     this.object.actor.updateEmbeddedEntity("OwnedItem", item);
 

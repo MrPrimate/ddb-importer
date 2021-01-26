@@ -894,12 +894,10 @@ export default class CharacterImport extends FormApplication {
         if (matchedItem) {
           if (!matchedItem.flags.ddbimporter?.ignoreItemImport) {
             item['_id'] = matchedItem['_id'];
-            if (matchedItem.effects?.length > 0 && item.effects?.length === 0) {
-              item.effects = matchedItem.effects;
-            }
-            if (matchedItem.flags.ddbimporter?.ignoreIcon) {
-              item.flags.ddbimporter.matchedImg = matchedItem.img;
-            }
+            if (matchedItem.effects?.length > 0 && item.effects?.length === 0) item.effects = matchedItem.effects;
+            if (matchedItem.flags.ddbimporter?.ignoreIcon) item.flags.ddbimporter.matchedImg = matchedItem.img;
+            if (matchedItem.flags.ddbimporter?.retainResourceConsumption) item.data.consume = matchedItem.data.consume;
+
             matchedItems.push(item);
           }
         } else {
