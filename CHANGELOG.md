@@ -1,6 +1,9 @@
 # 0.3.3
 
 * Monsters with Sneak Attack now parse the feature damage correctly. (Thanks bekriebel!)
+* Ignored items did not transfer Active Effects on import update.
+* Retain condition effects created by CUB.
+* Title bar icon can now be set to white.
 
 # 0.3.2
 
