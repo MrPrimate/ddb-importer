@@ -5,7 +5,8 @@ function initItemSheetHook(app, html) {
   // console.error(app.entity);
   // console.log(data);
   const title = `DDB Importer Item Config`;
-  let button = $(`<a class="open-item-ddb-importer" title="${title}"><i class="fab fa-d-and-d-beyond"></i></a>`);
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  let button = $(`<a class="open-item-ddb-importer" title="${title}"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
   button.click(() => {
     new DDBItemConfig(app.entity, {}).render(true);
   });
