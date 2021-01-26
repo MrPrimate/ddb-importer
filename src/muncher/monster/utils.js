@@ -34,7 +34,7 @@ function getExtendedDamage(description) {
   let hit = description;
   if (hitIndex > 0) hit = description.slice(hitIndex);
   // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
-  const damamgeExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?: plus [^\)]+)?)\)?)? ([\w ]+?) damage(?: when used with | if used with )?(two hands)?/); // eslint-disable-line no-useless-escape
+  const damamgeExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?: plus [^\)]+)?)\)?)? ([\w ]*?)\s*damage(?: when used with | if used with )?(two hands)?/); // eslint-disable-line no-useless-escape
   const matches = reMatchAll(damamgeExpression, hit) || [];
   const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
   const regainMatch = hit.match(regainExpression);
@@ -109,7 +109,7 @@ export function getUses(text) {
   const usesSearch = /\((\d+)\/(\w+)\)/;
   const usesMatch = text.match(usesSearch);
   // console.log(usesMatch);
-  if (usesMatch) {
+  if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
     uses.value = usesMatch[1];
     uses.max = usesMatch[1];
     uses.per = "day";
