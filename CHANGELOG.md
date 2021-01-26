@@ -4,6 +4,7 @@
 * Ignored items did not transfer Active Effects on import update.
 * Retain condition effects created by CUB.
 * Title bar icon can now be set to white.
+* Monsters with a ’ in the name such as Grum’shar would not import if searched for explicitly.
 
 # 0.3.2
 

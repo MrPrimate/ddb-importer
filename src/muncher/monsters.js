@@ -20,7 +20,7 @@ async function getMonsterData() {
     betaKey: betaKey,
     search: searchTerm,
     homebrew: homebrew,
-    searchTerm: searchTerm,
+    searchTerm: encodeURIComponent(searchTerm),
     exactMatch: exactMatch,
     sources: sources,
   };
