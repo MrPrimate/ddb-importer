@@ -1084,6 +1084,7 @@ export default class CharacterImport extends FormApplication {
     // flag as having items ids
     this.result.character.flags.ddbimporter['inPlaceUpdateAvailable'] = true;
     this.result.character.flags.ddbimporter['syncItemReady'] = true;
+    this.result.character.flags.ddbimporter['syncActionReady'] = false;
 
     // basic import
     CharacterImport.showCurrentTask(html, "Updating core character information");
