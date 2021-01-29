@@ -120,7 +120,7 @@ let parseMatch = (ddb, character, match, feature) => {
 
   // limiteduse
   if (result.includes("limiteduse")) {
-    const limitedUse = feature.limitedUse.maxUses;
+    const limitedUse = feature.limitedUse?.maxUses || "";
     result = result.replace("limiteduse", limitedUse);
   }
 
