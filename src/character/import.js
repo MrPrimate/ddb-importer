@@ -556,12 +556,15 @@ export default class CharacterImport extends FormApplication {
       },
     ];
 
+    const syncItemReady = this.actorOriginal.flags.ddbimporter?.syncItemReady;
+    const syncActionReady = this.actorOriginal.flags.ddbimporter?.syncActionReady;
+
     const syncConfig = [
       {
         name: "action-use",
         isChecked: game.settings.get("ddb-importer", "sync-policy-action-use"),
         description: "Action Uses",
-        enabled: false,
+        enabled: syncActionReady,
       },
       {
         name: "currency",
@@ -579,7 +582,7 @@ export default class CharacterImport extends FormApplication {
         name: "equipment",
         isChecked: game.settings.get("ddb-importer", "sync-policy-equipment"),
         description: "Equipment",
-        enabled: false,
+        enabled: syncItemReady,
       },
       {
         name: "condition",
@@ -1080,6 +1083,7 @@ export default class CharacterImport extends FormApplication {
 
     // flag as having items ids
     this.result.character.flags.ddbimporter['inPlaceUpdateAvailable'] = true;
+    this.result.character.flags.ddbimporter['syncItemReady'] = true;
 
     // basic import
     CharacterImport.showCurrentTask(html, "Updating core character information");

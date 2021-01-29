@@ -261,13 +261,47 @@ async function spellsPrepared(actor, characterId, ddbData) {
 
 }
 
+const EQUIPMENT_TYPES = ["weapon", "equipment", "consumable", "tool", "loot", "backpack"];
+
+async function equipment(actor, characterId, ddbData) {
+  const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
+  if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
+  const ddbItems = ddbData.character.inventory;
+
+  const itemsToAdd = actor.data.items.filter((item) =>
+    !item.flags.ddbimporter?.action &&
+    EQUIPMENT_TYPES.includes(item.type) &&
+    !ddbItems.some((s) => s.name === item.name && s.type === item.type)
+  );
+
+  console.warn(itemsToAdd);
+
+  const itemsToRemove = ddbItems.filter((item) =>
+    !actor.data.items.some((s) => (s.name === item.name && s.type === item.type) && !s.flags.ddbimporter?.action) &&
+    EQUIPMENT_TYPES.includes(item.type)
+  );
+
+  console.warn(itemsToRemove);
+
+  let promises = [];
+
+  // preparedSpells.forEach((spellPreparedData) => {
+  //   // console.warn(spellPreparedData);
+  //   // promises.push(spellPreparedData);
+  //   promises.push(updateSpellsPrepared(characterId, spellPreparedData));
+  // });
+
+  return Promise.all(promises);
+
+}
+
 export async function updateDDBCharacter(actor) {
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
   const syncId = actor.data.flags["ddb-importer"]?.syncId ? actor.data.flags["ddb-importer"].syncId + 1 : 0;
   const ddbData = await getCharacterData(characterId, syncId);
 
-  // console.warn(actor.data);
-  // console.warn(ddbData);
+  console.warn(actor.data);
+  console.warn(ddbData);
 
   let singlePromises = []
     .concat(
@@ -283,6 +317,7 @@ export async function updateDDBCharacter(actor) {
     ).flat();
 
   let spellsPreparedResults = await spellsPrepared(actor, characterId, ddbData);
+  let equipmentResults = await equipment(actor, characterId, ddbData);
 
   // for each action, check to see if it has uses, if yes:
   // const actionData = { actionId: "", entityTypeId: "", uses: "" };
