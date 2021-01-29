@@ -303,6 +303,7 @@ function getAttackAction(ddb, character, action) {
       ddbimporter: {
         id: action.id,
         entityTypeId: action.entityTypeId,
+        action: true,
       }
     },
   };
