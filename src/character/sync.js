@@ -320,7 +320,7 @@ async function removeEquipment(actor, characterId, ddbData) {
   let promises = [];
 
   itemsToRemove.forEach((item) => {
-    promises.push(updateCharacterCall(characterId, "equipment/remove", {itemId: parseInt(item.flags.ddbimporter.id)}))
+    promises.push(updateCharacterCall(characterId, "equipment/remove", { itemId: parseInt(item.flags.ddbimporter.id) }));
   });
 
   return Promise.all(promises);
@@ -365,19 +365,19 @@ async function updateEquipmentStatus(actor, characterId, ddbData, addEquipmentRe
   let promises = [];
 
   itemsToEquip.forEach((item) => {
-    const itemData = {itemId: item.flags.ddbimporter.id, value: item.data.equipped};
-    promises.push(updateCharacterCall(characterId, "equipment/equipped", itemData))
+    const itemData = { itemId: item.flags.ddbimporter.id, value: item.data.equipped };
+    promises.push(updateCharacterCall(characterId, "equipment/equipped", itemData));
   });
   itemsToAttune.forEach((item) => {
-    const itemData = {itemId: item.flags.ddbimporter.id, value: (item.data.attunement === 2)};
-    promises.push(updateCharacterCall(characterId, "equipment/attuned", itemData))
+    const itemData = { itemId: item.flags.ddbimporter.id, value: (item.data.attunement === 2) };
+    promises.push(updateCharacterCall(characterId, "equipment/attuned", itemData));
   });
   itemsToCharge.forEach((item) => {
     const itemData = {
       itemId: item.flags.ddbimporter.id,
       charges: parseInt(item.data.uses.max) - parseInt(item.data.uses.value)
     };
-    promises.push(updateCharacterCall(characterId, "equipment/charges", itemData))
+    promises.push(updateCharacterCall(characterId, "equipment/charges", itemData));
   });
 
   return Promise.all(promises);

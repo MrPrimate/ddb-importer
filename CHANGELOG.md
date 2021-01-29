@@ -1,3 +1,9 @@
+# 0.3.5
+
+* New items added to characters from the DDB Item compendium can now be added to characters during sync.
+* Equipment sync will update attunement, equipped status and charges used on items.
+* Before the option to use Equipment sync appears your character will need to be re-imported using version 0.3.5.
+
 # 0.3.4
 
 * Fix some instances of the template parser not parsing correctly, e.g. Arcane Archer.
