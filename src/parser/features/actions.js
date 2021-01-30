@@ -236,7 +236,7 @@ function calculateSaveAttack(action, weapon) {
 function calculateActionAttackAbilities(ddb, character, action, weapon) {
   let defaultAbility;
 
-  if (action.abilityModifierStatId && !([1,2].includes(action.abilityModifierStatId) && action.isMartialArts)) {
+  if (action.abilityModifierStatId && !([1, 2].includes(action.abilityModifierStatId) && action.isMartialArts)) {
     defaultAbility = DICTIONARY.character.abilities.find(
       (stat) => stat.id === action.abilityModifierStatId
     ).value;
