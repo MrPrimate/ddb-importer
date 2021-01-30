@@ -449,6 +449,13 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-import-extras", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register(
     "ddb-importer",
     "character-update-policy-inventory", // = consumable, tool & loot

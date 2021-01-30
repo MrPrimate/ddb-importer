@@ -35,6 +35,7 @@
   <nav class="sheet-tabs tabs">
   {{#if importAllowed}}
     <a class="item active" data-tab="import"><i class="fas fa-arrow-alt-circle-down"></i> Import Character</a>
+    <a class="item" data-tab="extras"><i class="fas fa-pastafarianism"></i> Import Extras</a>
     <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Advanced Settings</a>
   {{/if}}
     <a class="item" data-tab="sync"><i class="fas fa-sync-alt"></i></i> Sync to D&D Beyond</a>
@@ -83,6 +84,35 @@
     </div>
   </div>
 </section>
+
+<!-- Extras section -->
+  <section class="tab" data-tab="extras">
+<div>
+    <h3>Configuration</h3>
+    <div>
+      {{#each extrasConfig}}
+      <div class="extras-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-extras-policy-{{this.name}}" data-section="{{this.name}}"
+          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+      </div>
+      {{/each}}
+    </div>
+    Currently Extras parsing makes a number of assumptions about the configuration. This will be more customisable in the future.
+    <hr>
+    <div class="form-section">
+      <div class="form-description">
+        <div class="form-description"></div>
+        <div>
+          <button type="button" id="dndbeyond-character-extras-start"
+            {{#if syncEnabled}}
+            {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}{{else}}disabled{{/if}}>
+            {{#if tiers.supporter}}[Experimental] Import Extras{{else}}[Experimental] Import Extras Available to Patreon Supporters{{/if}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </section>
 
   <!-- Advanced Configuration Tab -->
   <section class="tab" data-tab="config">

@@ -47,6 +47,44 @@ import { ABILITIES } from "./abilities.js";
 // },
 export function getSkills (skills, monster, DDB_CONFIG) {
   const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
+
+  const keys = Object.keys(skills);
+  keys.forEach((key) => {
+    let skill = skills[key];
+    const ability = ABILITIES.find((ab) => ab.value === skill.ability);
+    const stat = monster.stats.find((stat) => stat.statId === ability.id).value || 10;
+    const mod = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
+    const lookupSkill = SKILLS.find((s) => s.name == key);
+    const monsterSkill = monster.skills.find((s) => s.skillId == lookupSkill.valueId);
+
+    skills[key].mod = mod;
+
+    if (monsterSkill) {
+      skills[key].value = 1;
+      skills[key].prof = proficiencyBonus;
+      skills[key].bonus = monsterSkill.additionalBonus || 0;
+    }
+    const calculatedScore = skills[key].prof + mod + skills[key].bonus;
+    skills[key].total = calculatedScore;
+    skills[key].passive = 10 + calculatedScore;
+
+    if (monsterSkill) {
+      if (monsterSkill.value > calculatedScore) {
+        skills[key].passive += proficiencyBonus;
+        skills[key].value = 2;
+        skills[key].total += proficiencyBonus;
+        skills[key].prof += proficiencyBonus;
+      }
+    }
+
+  });
+
+  return skills;
+}
+
+
+export function getSkillsHTML (skills, monster, DDB_CONFIG) {
+  const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
   //  "skillsHtml": "History + 12, Perception + 10"
   const skillsHTML = monster.skillsHtml.split(',');
   const skillsMaps = skillsHTML.filter((str) => str != '').map((str) => {
