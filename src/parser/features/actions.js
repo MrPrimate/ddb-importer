@@ -232,23 +232,35 @@ function calculateSaveAttack(action, weapon) {
   return weapon;
 }
 
-function calculateActionTypeOne(ddb, character, action, weapon) {
-  weapon.data.actionType = "mwak";
+
+function calculateActionAttackAbilities(ddb, character, action, weapon) {
+  let defaultAbility;
+
+  if (action.abilityModifierStatId) {
+    defaultAbility = DICTIONARY.character.abilities.find(
+      (stat) => stat.id === action.abilityModifierStatId
+    ).value;
+  }
 
   if (action.isMartialArts) {
-    weapon.data.ability =
+    const martialArtsAbility =
       action.isMartialArts && isMartialArtists(ddb.character.classes)
         ? character.data.abilities.dex.value >= character.data.abilities.str.value
           ? "dex"
           : "str"
         : "str";
+    if (defaultAbility &&
+      character.data.abilities[martialArtsAbility].value > character.data.abilities[defaultAbility].value
+    ) {
+      weapon.data.ability = martialArtsAbility;
+    } else {
+      weapon.data.ability = defaultAbility;
+    }
     weapon.data.damage = martialArtsDamage(ddb, action);
   } else {
     // type 3
-    if (action.abilityModifierStatId) {
-      weapon.data.ability = DICTIONARY.character.abilities.find(
-        (stat) => stat.id === action.abilityModifierStatId
-      ).value;
+    if (defaultAbility) {
+      weapon.data.ability = defaultAbility;
     } else {
       weapon.data.ability = "";
     }
@@ -262,7 +274,8 @@ function getAttackType(ddb, character, action, weapon) {
   if (action.saveStatId) {
     weapon = calculateSaveAttack(action, weapon);
   } else if (action.actionType === 1) {
-    weapon = calculateActionTypeOne(ddb, character, action, weapon);
+    weapon.data.actionType = "mwak";
+    weapon = calculateActionAttackAbilities(ddb, character, action, weapon);
   } else {
     if (action.rangeId && action.rangeId === 1) {
       weapon.data.actionType = "mwak";
@@ -271,25 +284,7 @@ function getAttackType(ddb, character, action, weapon) {
     } else {
       weapon.data.actionType = "other";
     }
-
-    if (action.isMartialArts) {
-      weapon.data.ability =
-        action.isMartialArts && isMartialArtists(ddb.character.classes)
-          ? character.data.abilities.dex.value >= character.data.abilities.str.value
-            ? "dex"
-            : "str"
-          : "str";
-      weapon.data.damage = martialArtsDamage(ddb, action);
-    } else {
-      if (action.abilityModifierStatId) {
-        weapon.data.ability = DICTIONARY.character.abilities.find(
-          (stat) => stat.id === action.abilityModifierStatId
-        ).value;
-      } else {
-        weapon.data.ability = "";
-      }
-      weapon.data.damage = getDamage(action);
-    }
+    weapon = calculateActionAttackAbilities(ddb, character, action, weapon);
   }
   return weapon;
 }
