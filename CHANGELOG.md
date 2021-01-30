@@ -1,3 +1,7 @@
+# 0.3.6
+
+* After the next character sync the ability to sync action uses will be available.
+
 # 0.3.5
 
 * New items added to characters from the DDB Item compendium can now be added to characters during sync.

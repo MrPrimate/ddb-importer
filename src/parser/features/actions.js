@@ -440,6 +440,7 @@ function getOtherActions(ddb, character, items) {
         flags: {
           ddbimporter: {
             id: action.id,
+            entityTypeId: action.entityTypeId
           }
         },
       };
