@@ -236,34 +236,24 @@ function calculateSaveAttack(action, weapon) {
 function calculateActionAttackAbilities(ddb, character, action, weapon) {
   let defaultAbility;
 
-  if (action.abilityModifierStatId) {
+  if (action.abilityModifierStatId && !([1,2].includes(action.abilityModifierStatId) && action.isMartialArts)) {
     defaultAbility = DICTIONARY.character.abilities.find(
       (stat) => stat.id === action.abilityModifierStatId
     ).value;
-  }
-
-  if (action.isMartialArts) {
-    const martialArtsAbility =
+    weapon.data.ability = defaultAbility;
+  } else if (action.isMartialArts) {
+    weapon.data.ability =
       action.isMartialArts && isMartialArtists(ddb.character.classes)
         ? character.data.abilities.dex.value >= character.data.abilities.str.value
           ? "dex"
           : "str"
         : "str";
-    if (defaultAbility &&
-      character.data.abilities[martialArtsAbility].value > character.data.abilities[defaultAbility].value
-    ) {
-      weapon.data.ability = martialArtsAbility;
-    } else {
-      weapon.data.ability = defaultAbility;
-    }
+  } else {
+    weapon.data.ability = "";
+  }
+  if (action.isMartialArts) {
     weapon.data.damage = martialArtsDamage(ddb, action);
   } else {
-    // type 3
-    if (defaultAbility) {
-      weapon.data.ability = defaultAbility;
-    } else {
-      weapon.data.ability = "";
-    }
     weapon.data.damage = getDamage(action);
   }
   return weapon;
