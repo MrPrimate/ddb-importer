@@ -34,6 +34,7 @@ export default function () {
     .map((sheet) => sheet.name);
 
   const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
+  const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
   const characterLink = game.settings.get("ddb-importer", "character-link-title");
   const monsterLink = game.settings.get("ddb-importer", "monster-link-title");
   const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
@@ -41,7 +42,7 @@ export default function () {
   pcSheetNames.forEach((sheetName) => {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this character
-      if (!data.owner || !data.actor || (trustedUsersOnly && !game.user.isTrusted)) return;
+      if (!data.owner || !data.actor || (!allowAllSync && trustedUsersOnly && !game.user.isTrusted)) return;
 
       let url = null;
       if (app.entity.data.flags.ddbimporter?.dndbeyond?.url) {

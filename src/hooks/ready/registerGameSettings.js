@@ -135,6 +135,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "allow-all-sync", {
+    name: "ddb-importer.allow-all-sync.name",
+    hint: "ddb-importer.allow-all-sync.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "monster-link-title", {
     name: "ddb-importer.monster-link-title.name",
     hint: "ddb-importer.monster-link-title.hint",

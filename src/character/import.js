@@ -641,6 +641,10 @@ export default class CharacterImport extends FormApplication {
     const tiers = getPatreonTiers(tier);
     const syncEnabled = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId && tiers.supporter;
 
+    const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
+    const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
+    const syncOnly = trustedUsersOnly && allowAllSync && !game.user.isTrusted;
+
     return {
       actor: this.actor,
       importPolicies: importPolicies,
@@ -649,6 +653,7 @@ export default class CharacterImport extends FormApplication {
       dataDirSet: dataDirSet,
       syncConfig: syncConfig,
       syncEnabled: syncEnabled,
+      importAllowed: !syncOnly,
       tiers: tiers,
     };
   }

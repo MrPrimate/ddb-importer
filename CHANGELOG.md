@@ -1,6 +1,7 @@
 # 0.3.6
 
 * After the next character sync the ability to sync action uses will be available.
+* If you have restricted import to trusted users only, you can now allow those users to sync their characters.
 
 # 0.3.5
 

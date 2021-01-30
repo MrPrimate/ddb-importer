@@ -74,6 +74,8 @@
   "ddb-importer.monster-has-vision.hint": "If unticked monsters will not have vision set",
   "ddb-importer.restrict-to-trusted.name": "Restrict to Trusted Users",
   "ddb-importer.restrict-to-trusted.hint": "Restrict character import to Trusted Users",
+  "ddb-importer.allow-all-sync.name": "Allow all users to sync to DDB",
+  "ddb-importer.allow-all-sync.hint": "If character import is restricted, this option will still allow players to sync back to DDB.",
   "ddb-importer.setup.name": "Core setup",
   "ddb-importer.setup.hint": "Core setup options",
   "ddb-importer.compendium-setup.name": "Compendiums",
