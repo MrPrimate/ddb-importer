@@ -626,27 +626,28 @@ let utils = {
     }
   },
 
+  getOrCreateFolder: async (root, entityType, folderName, folderColor="") => {
+    let folder = game.folders.entities.find((f) =>
+      f.data.type === entityType && f.data.name === folderName &&
+      f.data.parent === (root ? root.id : null)
+    );
+    console.warn(`Looking for ${root} ${entityType} ${folderName}`);
+    console.warn(folder);
+    if (folder) return folder;
+    folder = await Folder.create(
+      {
+        name: folderName,
+        type: entityType,
+        color: folderColor,
+        parent: (root) ? root.id : null,
+      },
+      { displaySheet: false }
+    );
+    return folder;
+  },
+
   // eslint-disable-next-line no-unused-vars
-  getFolder: async (kind, type = "", race = "") => {
-    let getOrCreateFolder = async (root, entityType, folderName) => {
-      const baseColor = "#98020a";
-
-      let folder = game.folders.entities.find(
-        (f) => f.data.type === entityType && f.data.name === folderName && f.data.parent === root.id
-      );
-      if (folder) return folder;
-      folder = await Folder.create(
-        {
-          name: folderName,
-          type: entityType,
-          color: baseColor,
-          parent: root.id,
-        },
-        { displaySheet: false }
-      );
-      return folder;
-    };
-
+  getFolder: async (kind, subFolder = "", baseFolderName="D&D Beyond Import", baseColor="#6f0006", subColor="#98020a") => {
     let entityTypes = new Map();
     entityTypes.set("spell", "Item");
     entityTypes.set("equipment", "Item");
@@ -661,32 +662,13 @@ let utils = {
     entityTypes.set("magic-items", "Item");
     entityTypes.set("magic-item-spells", "Item");
 
-    let baseName = "D&D Beyond Import";
-    let baseColor = "#6f0006";
-    let folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
-
-    let entityType = entityTypes.get(kind);
-
-    // get base folder, or create it if it does not exist
-    let baseFolder = game.folders.entities.find(
-      (folder) => folder.data.type === entityType && folder.data.name === baseName
-    );
-    if (!baseFolder) {
-      baseFolder = await Folder.create(
-        {
-          name: baseName,
-          type: entityType,
-          color: baseColor,
-          parent: null,
-          sort: 30000,
-        },
-        { displaySheet: false }
-      );
-    }
-
-    let entityFolder = await getOrCreateFolder(baseFolder, entityType, folderName);
+    const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
+    const entityType = entityTypes.get(kind);
+    const baseFolder = await utils.getOrCreateFolder(null, entityType, baseFolderName, baseColor);
+    const entityFolder = await utils.getOrCreateFolder(baseFolder, entityType, folderName, subColor);
     if (kind === "npc" && type !== "") {
-      let typeFolder = await getOrCreateFolder(entityFolder, "Actor", type.charAt(0).toUpperCase() + type.slice(1));
+      const subFolderName = subFolder.charAt(0).toUpperCase() + subFolder.slice(1);
+      const typeFolder = await utils.getOrCreateFolder(entityFolder, "Actor", subFolderName, subColor);
       return typeFolder;
     } else {
       return entityFolder;
