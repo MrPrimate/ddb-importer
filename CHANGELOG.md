@@ -1,6 +1,7 @@
 # 0.3.7
 
 * Cantrip scaling gave incorrect results if character has Potent Spellcasting or similar.
+* Werewolf processed it's attack actions incorrectly due to inconsistent formatting.
 
 # 0.3.6
 

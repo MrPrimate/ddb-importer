@@ -63,7 +63,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     });
     const query = pDom.querySelector("strong");
     if (!query) return;
-    action.name = query.textContent.trim().replace(/\.$/, '').trim();
+    action.name = query.textContent.trim().replace(/\./g, '').trim();
     action.data.source = getSource(monster, DDB_CONFIG);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
@@ -83,7 +83,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       });
       const query = pDom.querySelector("b");
       if (!query) return;
-      action.name = query.textContent.trim().replace(/\.$/, '').trim();
+      action.name = query.textContent.trim().replace(/\./g, '').trim();
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
@@ -115,7 +115,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     action = dynamicActions[0];
   }
 
-  // console.warn(dynamicActions);
+  console.warn(dynamicActions);
 
   dom.childNodes.forEach((node) => {
     // console.log("***");
@@ -123,8 +123,15 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     // console.log("***");
     // console.log(node.textContent);
     // const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
-    const nodeName = node.textContent.split('.')[0].trim();
-    const switchAction = dynamicActions.find((act) => nodeName === act.name);
+    const nodeContextSplit = node.textContent.split('.');
+    // console.log(nodeContextSplit);
+    const nodeName = nodeContextSplit[0].trim();
+    const longNodeName = (nodeContextSplit.length > 2 && nodeContextSplit[1].trim().startsWith('(')) ?
+      `${nodeName} ${nodeContextSplit[1].trim()}` :
+      nodeName;
+    const switchAction = dynamicActions.find((act) => nodeName === act.name || longNodeName === act.name);
+    // console.warn(nodeName);
+    // console.warn(longNodeName);
     // console.warn(switchAction);
     let startFlag = false;
     if (switchAction) {
