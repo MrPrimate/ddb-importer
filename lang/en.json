@@ -51,6 +51,7 @@
   "ddb-importer.item-type.backpack": "Backpack",
   "ddb-importer.item-type.magic-items": "Magic Items",
   "ddb-importer.item-type.magic-item-spells": "Magic Item Spells",
+  "ddb-importer.item-type.extras": "D&D Beyond Extras",
   "ddb-importer.scenes.player-enable": "Enable Player Map",
   "ddb-importer.scenes.player-enabled": "Player Map",
   "ddb-importer.scenes.gm-enable": "Enable GM Map",

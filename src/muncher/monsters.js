@@ -1,8 +1,8 @@
 // Main module class
-import { srdFiddling, getCompendiumItems, removeItems, getSRDIconLibrary, copySRDIcons } from "./import.js";
+import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
-import { addNPC } from "./importMonster.js";
+import { addNPC, generateIconMap, copyExistingMonsterImages } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 
@@ -63,43 +63,6 @@ async function getMonsterData() {
       })
       .catch((error) => reject(error));
   });
-}
-
-async function generateIconMap(monsters) {
-  let promises = [];
-
-  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
-  // eslint-disable-next-line require-atomic-updates
-  if (srdIcons) {
-    const srdIconLibrary = await getSRDIconLibrary();
-    munchNote(`Updating SRD Icons`, true);
-    let itemMap = [];
-
-    monsters.forEach((monster) => {
-      munchNote(`Processing ${monster.name}`);
-      promises.push(
-        copySRDIcons(monster.items, srdIconLibrary, itemMap).then((items) => {
-          monster.items = items;
-        })
-      );
-    });
-  }
-
-  return Promise.all(promises);
-}
-
-function copyExistingMonsterImages(monsters, existingMonsters) {
-  const updated = monsters.map((monster) => {
-    const existing = existingMonsters.find((m) => monster.name === m.name);
-    if (existing) {
-      monster.img = existing.img;
-      monster.token.img = existing.token.img;
-      return monster;
-    } else {
-      return monster;
-    }
-  });
-  return updated;
 }
 
 export async function parseCritters() {

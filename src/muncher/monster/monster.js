@@ -53,6 +53,10 @@ export function parseMonsters(monsterData) {
         img: (img) ? img : monster.avatarUrl,
         tokenImg: monster.avatarUrl,
       };
+      foundryActor.flags.ddbimporter = {
+        id: monster.id,
+        entityTypeId: monster.entityTypeId,
+      };
 
       // abilities
       foundryActor.data.abilities = getAbilities(foundryActor.data.abilities, monster, DDB_CONFIG);
