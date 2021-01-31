@@ -34,6 +34,16 @@ export function getProficiencies(data) {
     return { name: proficiency.friendlySubtypeName };
   });
 
+  const customProficiencies = [
+    ...getCustomProficiencies(data, "Armor"),
+    ...getCustomProficiencies(data, "Tools"),
+    ...getCustomProficiencies(data, "Weapons"),
+    ...getCustomProficiencies(data, "Languages"),
+  ].map((proficiency) => {
+    return { name: proficiency };
+  });
+  proficiencies = proficiencies.concat(customProficiencies);
+
   return proficiencies;
 }
 

@@ -2,6 +2,7 @@
 
 * Cantrip scaling gave incorrect results if character has Potent Spellcasting or similar.
 * Werewolf processed it's attack actions incorrectly due to inconsistent formatting.
+* Custom proficiencies were not applied to weapons.
 
 # 0.3.6
 
