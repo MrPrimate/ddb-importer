@@ -18,6 +18,67 @@ function addPlayerDescription(monster, action) {
   return playerDescription;
 }
 
+function buildAction(action, actionInfo, textContent, type) {
+  // console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+  // console.log(JSON.stringify(actionInfo, null, 4));
+  // console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+  // console.warn(action.name);
+
+  if (actionInfo.activation) {
+    action.data.activation.cost = actionInfo.activation;
+    action.data.consume.amount = actionInfo.activation;
+  } else {
+    action.data.activation.cost = 1;
+  }
+  action.data.activation.type = getAction(textContent, type);
+
+  action.data.recharge = actionInfo.recharge;
+  action.data.save = actionInfo.save;
+  // assumption - if we have parsed a save dc set action type to save
+  if (action.data.save.dc) {
+    action.data.actionType = "save";
+  }
+
+  action.data.damage = actionInfo.damage;
+  action.data.properties = actionInfo.properties;
+  action.data.proficient = actionInfo.proficient;
+  action.data.ability = actionInfo.baseAbility;
+  action.data.attackBonus = actionInfo.extraAttackBonus;
+
+  if (actionInfo.weaponAttack) {
+    action.data.weaponType = actionInfo.weaponType;
+    action.data.equipped = true;
+    // console.log(actionInfo.weaponAttack);
+    // console.log(actionInfo.meleeAttack);
+    // console.log(actionInfo.rangedAttack);
+    if (actionInfo.meleeAttack) {
+      action.data.actionType = "mwak";
+    } else if (actionInfo.rangedAttack) {
+      action.data.actionType = "rwak";
+    }
+  } else if (actionInfo.spellAttack) {
+    if (actionInfo.meleeAttack) {
+      action.data.actionType = "msak";
+    } else if (actionInfo.rangedAttack) {
+      action.data.actionType = "rsak";
+    } else {
+      action.data.actionType = "save";
+    }
+  } else if (actionInfo.save.dc) {
+    action.data.actionType = "save";
+  }
+
+  if (actionInfo.isAttack) {
+    action.type = "weapon";
+  }
+
+  action.data.range = actionInfo.range;
+  action.data.target = actionInfo.target;
+  action.data.duration = actionInfo.duration;
+  action.data.uses = actionInfo.uses;
+
+  return action;
+}
 
 export function getActions(monster, DDB_CONFIG, type = "action") {
   if (monster.actionsDescription == "") {
@@ -115,8 +176,6 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     action = dynamicActions[0];
   }
 
-  console.warn(dynamicActions);
-
   dom.childNodes.forEach((node) => {
     // console.log("***");
     // console.warn(action);
@@ -126,9 +185,9 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     const nodeContextSplit = node.textContent.split('.');
     // console.log(nodeContextSplit);
     const nodeName = nodeContextSplit[0].trim();
-    const longNodeName = (nodeContextSplit.length > 2 && nodeContextSplit[1].trim().startsWith('(')) ?
-      `${nodeName} ${nodeContextSplit[1].trim()}` :
-      nodeName;
+    const longNodeName = (nodeContextSplit.length > 2 && nodeContextSplit[1].trim().startsWith('('))
+      ? `${nodeName} ${nodeContextSplit[1].trim()}`
+      : nodeName;
     const switchAction = dynamicActions.find((act) => nodeName === act.name || longNodeName === act.name);
     // console.warn(nodeName);
     // console.warn(longNodeName);
@@ -152,7 +211,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     if (node.outerHTML) {
       let outerHTML = node.outerHTML;
       if (switchAction && startFlag) {
-        outerHTML = outerHTML.replace(`${nodeName}.`, "");
+        outerHTML = outerHTML.replace(`${longNodeName}.`, "");
       }
       action.data.description.value += outerHTML;
     }
@@ -161,63 +220,8 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     // do it again!
     if (!startFlag) return;
 
-    // console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-    // console.log(JSON.stringify(actionInfo, null, 4));
-    // console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    // console.warn(action.name);
-
-    if (actionInfo.activation) {
-      action.data.activation.cost = actionInfo.activation;
-      action.data.consume.amount = actionInfo.activation;
-    } else {
-      action.data.activation.cost = 1;
-    }
-    action.data.activation.type = getAction(node.textContent, type);
-
-    action.data.recharge = actionInfo.recharge;
-    action.data.save = actionInfo.save;
-    // assumption - if we have parsed a save dc set action type to save
-    if (action.data.save.dc) {
-      action.data.actionType = "save";
-    }
-
-    action.data.damage = actionInfo.damage;
-    action.data.properties = actionInfo.properties;
-    action.data.proficient = actionInfo.proficient;
-    action.data.ability = actionInfo.baseAbility;
-    action.data.attackBonus = actionInfo.extraAttackBonus;
-
-    if (actionInfo.weaponAttack) {
-      action.data.weaponType = actionInfo.weaponType;
-      action.data.equipped = true;
-      // console.log(actionInfo.weaponAttack);
-      // console.log(actionInfo.meleeAttack);
-      // console.log(actionInfo.rangedAttack);
-      if (actionInfo.meleeAttack) {
-        action.data.actionType = "mwak";
-      } else if (actionInfo.rangedAttack) {
-        action.data.actionType = "rwak";
-      }
-    } else if (actionInfo.spellAttack) {
-      if (actionInfo.meleeAttack) {
-        action.data.actionType = "msak";
-      } else if (actionInfo.rangedAttack) {
-        action.data.actionType = "rsak";
-      } else {
-        action.data.actionType = "save";
-      }
-    } else if (actionInfo.save.dc) {
-      action.data.actionType = "save";
-    }
-
-    if (actionInfo.isAttack) {
-      action.type = "weapon";
-    }
-
-    action.data.range = actionInfo.range;
-    action.data.target = actionInfo.target;
-    action.data.duration = actionInfo.duration;
-    action.data.uses = actionInfo.uses;
+    // if this is the first pass we build the action
+    action = buildAction(action, actionInfo, node.textContent, type);
 
   });
 
