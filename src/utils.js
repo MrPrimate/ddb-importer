@@ -626,13 +626,13 @@ let utils = {
     }
   },
 
-  getOrCreateFolder: async (root, entityType, folderName, folderColor="") => {
+  getOrCreateFolder: async (root, entityType, folderName, folderColor = "") => {
     let folder = game.folders.entities.find((f) =>
       f.data.type === entityType && f.data.name === folderName &&
       f.data.parent === (root ? root.id : null)
     );
-    console.warn(`Looking for ${root} ${entityType} ${folderName}`);
-    console.warn(folder);
+    // console.warn(`Looking for ${root} ${entityType} ${folderName}`);
+    // console.warn(folder);
     if (folder) return folder;
     folder = await Folder.create(
       {
@@ -647,7 +647,7 @@ let utils = {
   },
 
   // eslint-disable-next-line no-unused-vars
-  getFolder: async (kind, subFolder = "", baseFolderName="D&D Beyond Import", baseColor="#6f0006", subColor="#98020a") => {
+  getFolder: async (kind, subFolder = "", baseFolderName = "D&D Beyond Import", baseColor = "#6f0006", subColor = "#98020a") => {
     let entityTypes = new Map();
     entityTypes.set("spell", "Item");
     entityTypes.set("equipment", "Item");
@@ -666,9 +666,9 @@ let utils = {
     const entityType = entityTypes.get(kind);
     const baseFolder = await utils.getOrCreateFolder(null, entityType, baseFolderName, baseColor);
     const entityFolder = await utils.getOrCreateFolder(baseFolder, entityType, folderName, subColor);
-    if (kind === "npc" && type !== "") {
+    if (subFolder !== "") {
       const subFolderName = subFolder.charAt(0).toUpperCase() + subFolder.slice(1);
-      const typeFolder = await utils.getOrCreateFolder(entityFolder, "Actor", subFolderName, subColor);
+      const typeFolder = await utils.getOrCreateFolder(entityFolder, entityType, subFolderName, subColor);
       return typeFolder;
     } else {
       return entityFolder;

@@ -887,6 +887,7 @@ export default class CharacterImport extends FormApplication {
           }
           return false;
         }
+        return true;
       });
 
     $(html)
