@@ -1,3 +1,7 @@
+# 0.3.7
+
+* Cantrip scaling gave incorrect results if character has Potent Spellcasting or similar.
+
 # 0.3.6
 
 * After the next character sync the ability to sync action uses will be available.

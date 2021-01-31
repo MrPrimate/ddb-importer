@@ -133,6 +133,9 @@ export function getSpellScaling(data) {
             } else {
               logger.warn("No definition found for " + data.definition.name);
             }
+          } else if (isHigherLevelDefinitions && mod.atHigherLevels.scaleType === "characterlevel") {
+            // cantrip support, important to set to a fixed vaue if using abilities like potent spellcasting
+            scaleDamage = baseDamage;
           }
 
           scaleType = getScaleType(data.definition.name, mod);
@@ -144,7 +147,7 @@ export function getSpellScaling(data) {
     case "characterlevel":
       return {
         mode: "cantrip",
-        formula: "",
+        formula: scaleDamage,
       };
     case "spellscale":
       return {

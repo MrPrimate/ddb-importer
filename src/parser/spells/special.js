@@ -149,6 +149,9 @@ export function fixSpells(ddb, items) {
         spell.data.scaling = { mode: "cantrip", formula: "1d8" };
         spell.data.actionType = "other";
         break;
+      case "Toll the Dead":
+        spell.data.scaling = { mode: "cantrip", formula: "" };
+        break;
       case "Goodberry":
         spell.data.damage = { parts: [["1", "healing"]], versatile: "", value: "" };
         break;
