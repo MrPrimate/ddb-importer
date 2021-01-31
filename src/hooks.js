@@ -1,6 +1,6 @@
 import utils from "./utils.js";
 
-import EventPort from "./messaging/index.js";
+// import EventPort from "./messaging/index.js";
 
 // init hooks
 import setupLogging from "./hooks/init/setupLogging.js";
@@ -45,9 +45,9 @@ export function onceReady() {
 
   // delay the startup just a tiny little bit
   setTimeout(() => {
-    utils.log("Starting EventPort", "messaging");
-    let port = new EventPort();
-    port.start();
+    // utils.log("Starting EventPort", "messaging");
+    // let port = new EventPort();
+    // port.start();
 
     // let com = OutgoingCommunication(port);
 
