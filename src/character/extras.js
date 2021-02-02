@@ -19,6 +19,20 @@ const MUNCH_DEFAULTS = [
   { name: "munching-policy-dae-copy", needed: false, },
 ];
 
+function getCustomValue(ddb, typeId, valueId, valueTypeId) {
+  const characterValues = ddb.character.characterValues;
+  const customValue = characterValues.find((value) =>
+    value.valueId == valueId &&
+    value.valueTypeId == valueTypeId &&
+    value.typeId == typeId
+  );
+
+  if (customValue) {
+    return customName.value;
+  }
+  return null;
+}
+
 export async function characterExtras(html, characterData, actor) {
 
   console.warn(characterData);
@@ -48,6 +62,7 @@ export async function characterExtras(html, characterData, actor) {
       let mock = creature.definition;
       console.log(mock);
       if (creature.name) mock.name = creature.name;
+
 
       // TODO:
       // get override characterValues for
