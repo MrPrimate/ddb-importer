@@ -20,7 +20,7 @@ const MUNCH_DEFAULTS = [
 ];
 
 function getCustomValue(ddb, typeId, valueId, valueTypeId) {
-  const characterValues = ddb.character.characterValues;
+  const characterValues = ddb.characterValues;
   const customValue = characterValues.find((value) =>
     value.valueId == valueId &&
     value.valueTypeId == valueTypeId &&
@@ -28,7 +28,7 @@ function getCustomValue(ddb, typeId, valueId, valueTypeId) {
   );
 
   if (customValue) {
-    return customName.value;
+    return customValue.value;
   }
   return null;
 }
@@ -63,17 +63,32 @@ export async function characterExtras(html, characterData, actor) {
       console.log(mock);
       if (creature.name) mock.name = creature.name;
 
-
-      // TODO:
-      // get override characterValues for
       // size
-      // hp max
-      // creature type
-      // ac
-      // alignment
-      // notes
+      const sizeChange = getCustomValue(characterData.ddb, 46, creature.id, creature.entityTypeId);
+      if (sizeChange) mock.sizeId = sizeChange;
 
-      //proficiency based changes for things like steel defender
+      // hp
+      const hpMaxChange = getCustomValue(characterData.ddb, 43, creature.id, creature.entityTypeId);
+      if (hpMaxChange) mock.averageHitPoints = hpMaxChange;
+
+      // creature type
+      const typeChange = getCustomValue(characterData.ddb, 44, creature.id, creature.entityTypeId);
+      if (typeChange) mock.typeId = typeChange;
+
+      // ac
+      const acChange = getCustomValue(characterData.ddb, 42, creature.id, creature.entityTypeId);
+      if (acChange) mock.armorClass = acChange;
+
+      // alignment
+      const alignmentChange = getCustomValue(characterData.ddb, 45, creature.id, creature.entityTypeId);
+      if (alignmentChange) mock.alignmentId = alignmentChange;
+
+      // notes
+      const extraNotes = getCustomValue(characterData.ddb, 47, creature.id, creature.entityTypeId);
+      if (extraNotes) mock.characteristicsDescription += `\n\n${extraNotes}`;
+
+      // TODO
+      // proficiency based changes for things like steel defender
 
       // permissions the same as
       mock.permission = actor.data.permission;
