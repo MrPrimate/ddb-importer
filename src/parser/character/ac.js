@@ -241,7 +241,7 @@ export function getArmorClass(data, character) {
   logger.debug("Calculated GearAC: " + gearAC);
   logger.debug("Unarmoured AC Bonus:" + unarmoredACBonus);
   logger.debug("Calculated MiscACBonus: " + miscACBonus);
-  logger.debug("Equipped AC Options: ",equippedArmor);
+  logger.debug("Equipped AC Options: ", equippedArmor);
   logger.debug("Armors: ", armors);
   logger.debug("Shields: ", shields);
 
