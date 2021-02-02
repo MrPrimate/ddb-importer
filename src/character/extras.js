@@ -74,7 +74,9 @@ export async function characterExtras(html, characterData, actor) {
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
     // const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
 
-    const existingExtras = await game.actors.entities.filter((item) => item.data.folder === folder._id);
+    const existingExtras = await game.actors.entities
+      .filter((extra) => extra.data.folder === folder._id)
+      .map((extra) => extra.data);
 
     if (!updateBool || !updateImages) {
       if (!updateImages) {
