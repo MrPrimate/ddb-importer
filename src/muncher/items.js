@@ -145,7 +145,7 @@ export async function parseItems() {
   const finalItems = await daeFiddling(srdItems);
 
   const finalCount = finalItems.length;
-  munchNote(`Please be patient importing ${finalCount} items!`, true);
+  munchNote(`Importing ${finalCount} items!`, true);
 
   return new Promise((resolve) => {
     resolve(updateCompendium("inventory", { inventory: finalItems }, updateBool));

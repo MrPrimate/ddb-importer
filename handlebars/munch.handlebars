@@ -87,13 +87,16 @@
       <div class="form-section">
           <div class="form-description">
               <div class="form-description"></div>
+                  <div>
+                      <h4>These features are experimental. Races and Feats are working well. Class Features are not entirely complete and rough around the edges.</h4>
+                  </div>
                     <div>
-                      <button type="button" id="munch-races-start" class="munch-button"
-                          {{#if tiers.god}}enabled{{else}}disabled{{/if}}>{{#if tiers.god}}[Experimental] Race Munch{{else}}Races BETA for God Tier Supporters{{/if}}</button>
-                      <button type="button" id="munch-classes-start" class="munch-button"
-                          {{#if tiers.god}}enabled{{else}}disabled{{/if}}>{{#if tiers.god}}[Experimental] Class Munch{{else}}Classes BETA for God Tier Supporters{{/if}}</button>
                       <button type="button" id="munch-feats-start" class="munch-button"
-                          {{#if tiers.god}}enabled{{else}}disabled{{/if}}>{{#if tiers.god}}[Experimental] Feat Munch{{else}}Feat BETA for God Tier Supporters{{/if}}</button>
+                          {{#if tiers.source}}enabled{{else}}disabled{{/if}}>{{#if tiers.source}}[Experimental] Feat Munch{{else}}[Experimental] Feat for Undying and God Tier Supporters{{/if}}</button>
+                      <button type="button" id="munch-races-start" class="munch-button"
+                          {{#if tiers.source}}enabled{{else}}disabled{{/if}}>{{#if tiers.source}}[Experimental] Race and Racial Traits Munch{{else}}[Experimental] Races for Undying and God Tier Supporters{{/if}}</button>
+                      <button type="button" id="munch-classes-start" class="munch-button"
+                          {{#if tiers.source}}enabled{{else}}disabled{{/if}}>{{#if tiers.source}}[Experimental] Class and Class Features Munch{{else}}[Experimental] Classes for Undying and God Tier Supporters{{/if}}</button>
                   </div>
 
               </div>

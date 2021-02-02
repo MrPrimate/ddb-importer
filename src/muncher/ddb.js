@@ -176,7 +176,7 @@ export default class DDBMuncher extends Application {
     if (cobalt && betaKey) {
       $('button[id^="munch-monsters-start"]').prop('disabled', false);
     }
-    if (cobalt && tier === "GOD") {
+    if (cobalt && (tier === "GOD" || tier === "UNDYING")) {
       $('button[id^="munch-races-start"]').prop('disabled', false);
       $('button[id^="munch-feats-start"]').prop('disabled', false);
       $('button[id^="munch-classes-start"]').prop('disabled', false);

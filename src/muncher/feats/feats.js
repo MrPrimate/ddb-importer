@@ -67,6 +67,7 @@ export async function getFeats(data) {
   const fiddledFeats = await srdFiddling(feats, "feats");
   const finalFeats = await daeFiddling(fiddledFeats);
 
+  console.error(finalFeats);
   munchNote(`Importing ${finalFeats.length} feats!`, true);
   await updateCompendium("feats", { feats: finalFeats }, updateBool);
 

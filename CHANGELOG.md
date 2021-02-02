@@ -1,3 +1,7 @@
+# 0.3.8
+
+* Feat, Class, and Races munch now available to Undying supporters.
+
 # 0.3.7
 
 * Cantrip scaling gave incorrect results if character has Potent Spellcasting or similar.

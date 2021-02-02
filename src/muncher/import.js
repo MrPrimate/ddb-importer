@@ -1031,7 +1031,6 @@ export async function daeFiddling(items) {
   const installed = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
 
   if (fiddle && installed) {
-    let fiddledItems = await addItemsDAESRD(items);
-    return fiddledItems;
+    return addItemsDAESRD(items);
   } else return items;
 }

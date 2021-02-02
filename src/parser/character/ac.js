@@ -241,9 +241,9 @@ export function getArmorClass(data, character) {
   logger.debug("Calculated GearAC: " + gearAC);
   logger.debug("Unarmoured AC Bonus:" + unarmoredACBonus);
   logger.debug("Calculated MiscACBonus: " + miscACBonus);
-  logger.debug("Equipped AC Options: " + JSON.stringify(equippedArmor));
-  logger.debug("Armors: " + JSON.stringify(armors));
-  logger.debug("Shields: " + JSON.stringify(shields));
+  logger.debug("Equipped AC Options: ",equippedArmor);
+  logger.debug("Armors: ", armors);
+  logger.debug("Shields: ", shields);
 
   // the presumption here is that you can only wear a shield and a single
   // additional 'armor' piece. in DDB it's possible to equip multiple armor
