@@ -121,7 +121,10 @@ export async function characterExtras(html, characterData, actor) {
     const updateExtras = async () => {
       return Promise.all(
         finalExtras
-          .filter((extra) => existingExtras.some((idx) => idx.name === extra.name))
+          .filter((extra) => existingExtras.some((exist) =>
+            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
+            extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+          ))
           .map(async (extra) => {
             const existingExtra = await existingExtras.find((existing) => extra.name === existing.name);
             extra._id = existingExtra._id;
@@ -137,7 +140,10 @@ export async function characterExtras(html, characterData, actor) {
     const createExtras = async () => {
       return Promise.all(
         finalExtras
-          .filter((extra) => !existingExtras.some((idx) => idx.name === extra.name))
+          .filter((extra) => !existingExtras.some((exist) =>
+            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
+            extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+          ))
           .map(async (extra) => {
             if (!game.user.can("ITEM_CREATE")) {
               ui.notifications.warn(`Cannot create Extra ${extra.name} for ${type}`);
