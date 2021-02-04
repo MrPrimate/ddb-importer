@@ -164,6 +164,23 @@ export async function characterExtras(html, characterData, actor) {
         mock.specialTraitsDescription = `${mock.specialTraitsDescription} <p><em><strong>${creatureGroup.specialQualityTitle}.</strong></em> ${creatureGroup.specialQualityText}</p>`;
       }
 
+      // todo:
+
+      // { id: 1, name: "Armor Add Proficiency Bonus", key: "ACPB", value: null, valueContextId: null },
+      // { id: 4, name: "Proficient Skills Add Proficiency Bonus", key: "PSPB", value: null, valueContextId: null },
+      // { id: 6, name: "Max Hit Points Level Multiplier Option", key: "HPLM", value: 4, valueContextId: 5 },
+      // { id: 7, name: "Evaluate Owner Skill Proficiencies", key: "EOSKP", value: null, valueContextId: null },
+      // { id: 8, name: "Evaluate Owner Save Proficiencies", key: "EOSVP", value: null, valueContextId: null },
+      // { id: 10, name: "Cannot Use Legendary Actions", key: "CULGA", value: null, valueContextId: null },
+      // { id: 11, name: "Cannot Use Lair Actions", key: "CULRA", value: null, valueContextId: null },
+      // { id: 12, name: "Evaluate_Updated_Passive_Perception", key: "EUPP", value: null, valueContextId: null },
+      // { id: 13, name: "Evaluate Owner Passive Perception", key: "EOPP", value: null, valueContextId: null },
+      // { id: 14, name: "Artificer HP Multiplier", key: "AHM", value: 5, valueContextId: 252717 },
+      // { id: 15, name: "Max Hit Points Add Int Modifier", key: "MHPAIM", value: null, valueContextId: 4 },
+      // { id: 16, name: "Max Hit Points Add Monster CON Modifier", key: "MHPAMCM", value: null, valueContextId: 3 },
+      // { id: 17, name: "Use Challenge Rating As Level", key: "UCRAL", value: null, valueContextId: null },
+      // { id: 18, name: "Max Hit Points Base Artificer Level", key: "MHPBAL", value: null, valueContextId: 252717 },
+
       console.log(mock);
       return mock;
     });
