@@ -3,6 +3,8 @@ import utils from "../utils.js";
 import { parseMonsters } from "../muncher/monster/monster.js";
 import { copySupportedItemFlags, srdFiddling } from "../muncher/import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../muncher/importMonster.js";
+import { DDB_CONFIG } from "../ddb-config.js";
+import { ABILITIES } from "../muncher/monster/abilities.js";
 
 const MUNCH_DEFAULTS = [
   { name: "munching-policy-update-existing", needed: true, },
@@ -33,6 +35,45 @@ function getCustomValue(ddb, typeId, valueId, valueTypeId) {
   return null;
 }
 
+async function updateExtras(extras, existingExtras) {
+  return Promise.all(
+    extras
+      .filter((extra) => existingExtras.some((exist) =>
+        exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
+        extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+      ))
+      .map(async (extra) => {
+        const existingExtra = await existingExtras.find((existing) => extra.name === existing.name);
+        extra._id = existingExtra._id;
+        logger.info(`Updating extra ${extra.name}`);
+        await copySupportedItemFlags(existingExtra, extra);
+        // await Actor.update(extra);
+        await buildNPC(extra, false, true);
+        return extra;
+      })
+  );
+};
+
+async function createExtras(extras, existingExtras, folderId) {
+  return Promise.all(
+    extras
+      .filter((extra) => !existingExtras.some((exist) =>
+        exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
+        extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+      ))
+      .map(async (extra) => {
+        if (!game.user.can("ITEM_CREATE")) {
+          ui.notifications.warn(`Cannot create Extra ${extra.name} for ${type}`);
+        } else {
+          logger.info(`Creating Extra ${extra.name}`);
+          extra.folder = folderId;
+          await buildNPC(extra, false);
+        }
+        return extra;
+      })
+  );
+};
+
 export async function characterExtras(html, characterData, actor) {
 
   console.warn(characterData);
@@ -60,7 +101,7 @@ export async function characterExtras(html, characterData, actor) {
     let creatures = characterData.ddb.creatures.map((creature) => {
       console.log(creature);
       let mock = creature.definition;
-      console.log(mock);
+
       if (creature.name) mock.name = creature.name;
 
       // size
@@ -90,15 +131,49 @@ export async function characterExtras(html, characterData, actor) {
       // TODO
       // proficiency based changes for things like steel defender
 
+      const creatureGroup = DDB_CONFIG.creatureGroups.find((group) => group.id == creature.groupId);
+      const creatureFlags = creatureGroup.flags;
+
+      if (creatureFlags.includes("ARPB") && creatureFlags.includes("PSPB")) {
+        mock.challengeRatingId = actor.data.flags.ddbimporter.dndbeyond.totalLevels + 4;
+      }
+
+      console.log(creatureGroup.ownerStats);
+      const creatureStats = mock.stats.filter((stat) => !creatureGroup.ownerStats.includes(stat.statId));
+      const characterStats = mock.stats.filter((stat) => creatureGroup.ownerStats.includes(stat.statId))
+        .map((stat) => {
+          const value = actor.data.data.abilities[ABILITIES.find((a) => a.id === stat.statId).value].value
+          return { name: null, statId: stat.statId, value: value}
+        });
+
+      mock.stats = creatureStats.concat(characterStats);
+
       // permissions the same as
       mock.permission = actor.data.permission;
       mock.folder = folder._id;
+
+      if (creatureFlags.includes("DRPB")) {
+        mock.actionsDescription = mock.actionsDescription.replace(/ \+ 2 /g, ` + ${actor.data.data.attributes.prof} `);
+      }
+
+      if (creatureGroup.description !== "") {
+        mock.characteristicsDescription = `${creatureGroup.description }\n\n${mock.characteristicsDescription}`;
+      }
+
+      if (creatureGroup.specialQualityTitle) {
+        mock.specialTraitsDescription = `${mock.specialTraitsDescription} <p><em><strong>${creatureGroup.specialQualityTitle}.</strong></em> ${creatureGroup.specialQualityText}</p>`;
+      }
+
+      console.log(mock);
       return mock;
     });
     let parsedExtras = await parseMonsters(creatures);
     parsedExtras = parsedExtras.actors;
     console.warn(parsedExtras);
     // TODO: deal with hp adjustments here
+
+    //DDB_CONFIG.creatureGroupFlags.find((cr) => cr.id == monster.challengeRatingId);
+    // DDB_CONFIG.creatureGroups.find((group) => group.id == monster.groupId);
 
     const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
@@ -118,49 +193,8 @@ export async function characterExtras(html, characterData, actor) {
     let finalExtras = await srdFiddling(parsedExtras, "monsters");
     await generateIconMap(finalExtras);
 
-    const updateExtras = async () => {
-      return Promise.all(
-        finalExtras
-          .filter((extra) => existingExtras.some((exist) =>
-            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
-            extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
-          ))
-          .map(async (extra) => {
-            const existingExtra = await existingExtras.find((existing) => extra.name === existing.name);
-            extra._id = existingExtra._id;
-            logger.info(`Updating extra ${extra.name}`);
-            await copySupportedItemFlags(existingExtra, extra);
-            // await Actor.update(extra);
-            await buildNPC(extra, false, true);
-            return extra;
-          })
-      );
-    };
-
-    const createExtras = async () => {
-      return Promise.all(
-        finalExtras
-          .filter((extra) => !existingExtras.some((exist) =>
-            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
-            extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
-          ))
-          .map(async (extra) => {
-            if (!game.user.can("ITEM_CREATE")) {
-              ui.notifications.warn(`Cannot create Extra ${extra.name} for ${type}`);
-            } else {
-              logger.info(`Creating Extra ${extra.name}`);
-              extra.folder = folder._id;
-              await buildNPC(extra, false);
-            }
-            return extra;
-          })
-      );
-    };
-
-    if (updateBool) await updateExtras();
-    await createExtras();
-
-
+    if (updateBool) await updateExtras(finalExtras, existingExtras);
+    await createExtras(finalExtras, existingExtras, folder._id);
 
   } catch (err) {
     logger.error("Failure parsing extra", err);
