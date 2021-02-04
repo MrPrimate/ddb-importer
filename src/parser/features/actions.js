@@ -2,7 +2,7 @@ import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
-import { fixFeatures } from "./special.js";
+import { fixFeatures, stripHtml } from "./special.js";
 
 // get actions from ddb.character.customActions
 function getCustomActions(ddb, displayedAsAttack) {
@@ -185,10 +185,14 @@ function getLimitedUse(action, character) {
 }
 
 function getDescription(ddb, character, action) {
-  const snippet = action.snippet ? parseTemplateString(ddb, character, action.snippet, action).text : "";
+  const useFull = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
+  let snippet = action.snippet ? parseTemplateString(ddb, character, action.snippet, action).text : "";
   const description = action.description ? parseTemplateString(ddb, character, action.description, action).text : "";
+  if (stripHtml(description) === snippet) snippet = "";
+  const fullDescription = description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet;
+  const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
   return {
-    value: description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet,
+    value: value,
     chat: snippet,
     unidentified: "",
   };

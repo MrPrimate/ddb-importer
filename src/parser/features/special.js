@@ -1,6 +1,13 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
 
+
+export function stripHtml(html) {
+   let tmp = document.createElement("DIV");
+   tmp.innerHTML = html;
+   return tmp.textContent || tmp.innerText || "";
+}
+
 /**
  * Some features we need to fix up or massage because they are modified
  * in interesting ways

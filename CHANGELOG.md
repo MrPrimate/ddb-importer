@@ -2,6 +2,7 @@
 
 * In some cases healing potions would break import.
 * Improve parsing of abilities that have dice associated with them but are not attacks.
+* Actions now have an option to use the snippet rather than full text during character import.
 
 # 0.3.8/0.3.9
 

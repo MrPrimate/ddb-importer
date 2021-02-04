@@ -1,13 +1,16 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
-import { fixFeatures } from "./special.js";
+import { fixFeatures, stripHtml } from "./special.js";
 
 function getDescription(ddb, character, feat) {
+  // for now none actions probably always want the full text
+  // const useFull = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
+  const useFull = true;
   let snippet = "";
   let description = "";
 
-  if (feat.definition && feat.definition.snippet) {
+  if (feat.definition?.snippet) {
     snippet = parseTemplateString(ddb, character, feat.definition.snippet, feat).text;
   } else if (feat.snippet) {
     snippet = parseTemplateString(ddb, character, feat.snippet, feat).text;
@@ -15,7 +18,7 @@ function getDescription(ddb, character, feat) {
     snippet = "";
   }
 
-  if (feat.definition && feat.definition.description) {
+  if (feat.definition?.description) {
     description = parseTemplateString(ddb, character, feat.definition.description, feat).text;
   } else if (feat.description) {
     description = parseTemplateString(ddb, character, feat.description, feat).text;
@@ -23,8 +26,13 @@ function getDescription(ddb, character, feat) {
     description = "";
   }
 
+  if (stripHtml(description) === snippet) snippet = "";
+
+  const fullDescription = description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet;
+  const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
+
   return {
-    value: description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet,
+    value: value,
     chat: snippet,
     unidentified: "",
   };

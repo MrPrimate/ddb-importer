@@ -401,6 +401,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-use-full-description", {
+    name: "ddb-importer.character-update-policy-full-description.name",
+    hint: "ddb-importer.character-update-policy-full-description.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   // Character update policy
 
   game.settings.register("ddb-importer", "character-update-policy-class", {
