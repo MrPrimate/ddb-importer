@@ -199,21 +199,42 @@ const getNumber = (theNumber) => {
  */
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;
-  let result = text;
+  let result = {
+    id: feature.id,
+    entityTypeId: feature.entityTypeId,
+    componentId: (feature.componentId) ? feature.componentId : null,
+    componentTypeId: (feature.componentTypeId) ? feature.componentTypeId : null,
+    damageTypeId: (feature.damageTypeId) ? feature.damageTypeId : null,
+    text: text,
+    resultString: "",
+    definitions: [],
+  };
 
   const regexp = /{{(.*?)}}/g;
   // creates array from match groups and dedups
-  const matches = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
+  const matches = [...new Set(Array.from(result.text.matchAll(regexp), (m) => m[1]))];
 
   matches.forEach((match) => {
-    const replacePattern = new RegExp(`{{${escapeRegExp(match)}}}`, "g");
+    let entry = {
+      parsed: null,
+      match: match,
+      replacePattern: new RegExp(`{{${escapeRegExp(match)}}}`, "g"),
+      type: null,
+      subType: null,
+    };
+
     const splitRemoveUnsigned = match.split("#")[0];
     const splitMatchAt = splitRemoveUnsigned.split("@");
     const parsedMatch = parseMatch(ddb, character, splitRemoveUnsigned, feature);
     const dicePattern = /\d*d\d\d*/;
+    const typeSplit = splitMatchAt[0].split(':');
+    entry.type = typeSplit[0];
+    if (typeSplit.length > 1) entry.subType = typeSplit[1];
     // do we have a dice string, e.g. sneak attack?
     if (parsedMatch.match(dicePattern)) {
-      result = result.replace(replacePattern, parsedMatch);
+      entry.type = "dice";
+      entry.parsed = parsedMatch;
+      result.text = result.text.replace(entry.replacePattern, entry.parsed);
     } else {
       // we try and eval the expression!
       try {
@@ -223,19 +244,23 @@ export default function parseTemplateString(ddb, character, text, feature) {
         /* eslint-enable no-eval */
         if (splitMatchAt.length > 1) {
           const constraintAdjusted = applyConstraint(evalMatch, splitMatchAt[1]);
-          result = result.replace(replacePattern, getNumber(constraintAdjusted));
+          entry.parsed = getNumber(constraintAdjusted);
         } else {
-          result = result.replace(replacePattern, getNumber(evalMatch));
+          entry.parsed = getNumber(evalMatch);
         }
+        entry.parsed = entry.parsed.replace("+ +", "+");
+        result.text = result.text.replace(entry.replacePattern, entry.parsed);
       } catch (err) {
-        result = result.replace(replacePattern, `{{${match}}}`);
+        result.text = result.text.replace(entry.replacePattern, `{{${match}}}`);
         logger.warn(`ddb-importer does not know about template value {{${match}}}. Please log a bug.`, err);
         logger.warn(err.stack);
       }
     }
+    if (entry.parsed) result.resultString += entry.parsed;
+    result.definitions.push(entry);
   });
 
-  result = result.replace("+ +", "+");
-
+  result.text = result.text.replace("+ +", "+");
+  character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
   return result;
 }

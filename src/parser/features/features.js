@@ -8,17 +8,17 @@ function getDescription(ddb, character, feat) {
   let description = "";
 
   if (feat.definition && feat.definition.snippet) {
-    snippet = parseTemplateString(ddb, character, feat.definition.snippet, feat);
+    snippet = parseTemplateString(ddb, character, feat.definition.snippet, feat).text;
   } else if (feat.snippet) {
-    snippet = parseTemplateString(ddb, character, feat.snippet, feat);
+    snippet = parseTemplateString(ddb, character, feat.snippet, feat).text;
   } else {
     snippet = "";
   }
 
   if (feat.definition && feat.definition.description) {
-    description = parseTemplateString(ddb, character, feat.definition.description, feat);
+    description = parseTemplateString(ddb, character, feat.definition.description, feat).text;
   } else if (feat.description) {
-    description = parseTemplateString(ddb, character, feat.description, feat);
+    description = parseTemplateString(ddb, character, feat.description, feat).text;
   } else {
     description = "";
   }

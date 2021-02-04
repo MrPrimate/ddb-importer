@@ -1,4 +1,9 @@
-# 0.3.8
+# 0.3.10
+
+* In some cases healing potions would break import.
+* Improve parsing of abilities that have dice associated with them but are not attacks.
+
+# 0.3.8/0.3.9
 
 * Feat, Class, and Races munch now available to Undying supporters.
 

@@ -64,6 +64,50 @@ function getDamage(action) {
   return damage;
 }
 
+/**
+ * Some features have actions that use dice and mods that are defined on the character class feature
+ * this attempts to parse out the damage dice and any ability modifier.
+ * This relies on the parsing of templateStrings for the ability modifier detection.
+ * @param {*} ddb
+ * @param {*} character
+ * @param {*} action
+ * @param {*} feat
+ */
+function getLevelScaleDice(ddb, character, action, feat) {
+  let parts = ddb.character.classes
+    .filter((cls) => cls.classFeatures.some((feature) =>
+      feature.definition.id == action.componentId &&
+      feature.definition.entityTypeId == action.componentTypeId &&
+      feature.levelScale?.dice?.diceString
+    ))
+    .map((cls) => {
+      const feature = cls.classFeatures.find((feature) =>
+        feature.definition.id == action.componentId &&
+        feature.definition.entityTypeId == action.componentTypeId
+      );
+      const parsedString = character.flags.ddbimporter.dndbeyond.templateStrings.find((templateString) =>
+        templateString.id == action.id &&
+        templateString.entityTypeId == action.entityTypeId
+      );
+      let part = feature.levelScale.dice.diceString;
+      if (parsedString) {
+        const modifier = parsedString.definitions.find((definition) => definition.type === "modifier");
+        if (modifier) {
+          feat.data.ability = modifier.subType;
+          part = `${part} + @mod`;
+        }
+      }
+      return [part, ""];
+    });
+
+  feat.data.damage = {
+    parts: parts,
+    versatile: "",
+  };
+
+  return feat;
+}
+
 function martialArtsDamage(ddb, action) {
   const damageType = DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name;
 
@@ -141,8 +185,8 @@ function getLimitedUse(action, character) {
 }
 
 function getDescription(ddb, character, action) {
-  const snippet = action.snippet ? parseTemplateString(ddb, character, action.snippet, action) : "";
-  const description = action.description ? parseTemplateString(ddb, character, action.description, action) : "";
+  const snippet = action.snippet ? parseTemplateString(ddb, character, action.snippet, action).text : "";
+  const description = action.description ? parseTemplateString(ddb, character, action.description, action).text : "";
   return {
     value: description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet,
     chat: snippet,
@@ -289,6 +333,8 @@ function getAttackAction(ddb, character, action) {
         id: action.id,
         entityTypeId: action.entityTypeId,
         action: true,
+        componentId: action.componentId,
+        componentTypeId: action.componentTypeId,
       }
     },
   };
@@ -425,7 +471,9 @@ function getOtherActions(ddb, character, items) {
         flags: {
           ddbimporter: {
             id: action.id,
-            entityTypeId: action.entityTypeId
+            entityTypeId: action.entityTypeId,
+            componentId: action.componentId,
+            componentTypeId: action.componentTypeId,
           }
         },
       };
@@ -450,6 +498,11 @@ function getOtherActions(ddb, character, items) {
             }
           }
         };
+      }
+
+      if (!feat.data.damage?.parts) {
+        logger.debug("Running level scale parser");
+        feat = getLevelScaleDice(ddb, character, action, feat);
       }
 
       return feat;
