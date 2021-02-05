@@ -19,7 +19,7 @@ import {
   addItemsDAESRD
 } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
-import { updateDDBCharacter } from "./sync.js";
+import { updateDDBCharacter } from "./update.js";
 import { characterExtras } from "./extras.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
@@ -833,18 +833,18 @@ export default class CharacterImport extends FormApplication {
       });
 
     $(html)
-      .find("#dndbeyond-character-sync")
+      .find("#dndbeyond-character-update")
       .on("click", async () => {
         try {
-          $(html).find("#dndbeyond-character-sync").prop("disabled", true);
+          $(html).find("#dndbeyond-character-update").prop("disabled", true);
           await updateDDBCharacter(this.actor).then((result) => {
             // result.forEach((r) => {
             //   console.warn(r);
             // });
             const updateNotes = result.flat().filter((r) => r !== undefined).map((r) => r.message).join(" ");
             logger.debug(updateNotes);
-            CharacterImport.showCurrentTask(html, "Sync complete", updateNotes);
-            $(html).find("#dndbeyond-character-sync").prop("disabled", false);
+            CharacterImport.showCurrentTask(html, "Update complete", updateNotes);
+            $(html).find("#dndbeyond-character-update").prop("disabled", false);
           });
         } catch (error) {
           logger.error(error);

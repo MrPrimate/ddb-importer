@@ -35,10 +35,10 @@
   <nav class="sheet-tabs tabs">
   {{#if importAllowed}}
     <a class="item active" data-tab="import"><i class="fas fa-arrow-alt-circle-down"></i> Import Character</a>
-    <a class="item" data-tab="extras"><i class="fas fa-pastafarianism"></i> Import Extras</a>
     <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Advanced Settings</a>
+    <a class="item" data-tab="extras"><i class="fas fa-pastafarianism"></i> Import Extras</a>
   {{/if}}
-    <a class="item" data-tab="sync"><i class="fas fa-sync-alt"></i></i> Sync to D&D Beyond</a>
+    <a class="item" data-tab="sync"><i class="fas fa-arrow-alt-circle-up"></i></i> Update D&D Beyond</a>
     <a class="item" data-tab="help"><i class="fas fa-info-circle"></i> Help</a>
   </nav>
 
@@ -85,6 +85,17 @@
   </div>
 </section>
 
+  <!-- Advanced Configuration Tab -->
+  <section class="tab" data-tab="config">
+    <p>If you're using this module for the first time, you probably don't want to enable these.</p>
+    {{#each advancedImportConfig}}
+    <div class="advanced-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+        name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
+        {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b><p>{{{this.description}}}</p>
+    </div>
+    {{/each}}
+</section>
+
 <!-- Extras section -->
   <section class="tab" data-tab="extras">
 <div>
@@ -114,22 +125,11 @@
 
   </section>
 
-  <!-- Advanced Configuration Tab -->
-  <section class="tab" data-tab="config">
-    <p>If you're using this module for the first time, you probably don't want to enable these.</p>
-    {{#each advancedImportConfig}}
-    <div class="advanced-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-        name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
-        {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b><p>{{{this.description}}}</p>
-    </div>
-    {{/each}}
-</section>
-
 <!-- Sync/Upload Tab -->
   <section class="tab" data-tab="sync">
 
-    <h3>Sync selection</h3>
-    <p>Select the changes you wish to D&D Beyond.</p>
+    <h3>Update selection</h3>
+    <p>Select the changes you wish to update on D&D Beyond.</p>
     <div class="sync-policy">
       {{#each syncConfig}}
       {{#if this.enabled}}
@@ -142,13 +142,13 @@
     </div>
   <hr>
   <p>For best results you will need to re-munch spells and items if you did this prior to the 0.3.0 release. If you imported your character with an earlier version some features may not update (such as Hit Dice) until you have reimported.</p>
-  <p>Item sync only works with items imported from DDB into the Item Compendium or via a character.</p>
+  <p>Item update only works with items imported from DDB into the Item Compendium or via a character.</p>
   <div class="form-section">
       <div class="form-description">
         <div class="form-description"></div>
         <div>
-          <button type="button" id="dndbeyond-character-sync"
-            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Sync to D&D Beyond{{else}}Sync Available to Patreon Supporters{{/if}}</button>
+          <button type="button" id="dndbeyond-character-update"
+            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Update D&D Beyond with changes{{else}}D&D Beyond Update Available to Patreon Supporters{{/if}}</button>
         </div>
       </div>
     </div>
