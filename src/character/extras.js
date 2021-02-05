@@ -152,10 +152,6 @@ export async function characterExtras(html, characterData, actor) {
       mock.permission = actor.data.permission;
       mock.folder = folder._id;
 
-      if (creatureFlags.includes("DRPB")) {
-        mock.actionsDescription = mock.actionsDescription.replace(/ \+ 2 /g, ` + ${actor.data.data.attributes.prof} `);
-      }
-
       if (creatureGroup.description !== "") {
         mock.characteristicsDescription = `${creatureGroup.description }\n\n${mock.characteristicsDescription}`;
       }
@@ -164,11 +160,18 @@ export async function characterExtras(html, characterData, actor) {
         mock.specialTraitsDescription = `${mock.specialTraitsDescription} <p><em><strong>${creatureGroup.specialQualityTitle}.</strong></em> ${creatureGroup.specialQualityText}</p>`;
       }
 
-      // todo:
+      if (creatureFlags.includes("ACPB")) {
+        mock.armorClass += actor.data.data.attributes.prof;
+      }
 
-      // { id: 1, name: "Armor Add Proficiency Bonus", key: "ACPB", value: null, valueContextId: null },
-      // { id: 4, name: "Proficient Skills Add Proficiency Bonus", key: "PSPB", value: null, valueContextId: null },
-      // { id: 6, name: "Max Hit Points Level Multiplier Option", key: "HPLM", value: 4, valueContextId: 5 },
+      // assume this is beast master
+      if (creatureFlags.includes("HPLM")) {
+        const ranger = characterData.ddb.classes.find((klass) => klass.definition.id === 5)
+        mock.averageHitPoints = Math.max(mock.averageHitPoints, 4 * ranger.levels);
+      }
+
+
+      // todo:
       // { id: 7, name: "Evaluate Owner Skill Proficiencies", key: "EOSKP", value: null, valueContextId: null },
       // { id: 8, name: "Evaluate Owner Save Proficiencies", key: "EOSVP", value: null, valueContextId: null },
       // { id: 10, name: "Cannot Use Legendary Actions", key: "CULGA", value: null, valueContextId: null },
@@ -188,6 +191,18 @@ export async function characterExtras(html, characterData, actor) {
     parsedExtras = parsedExtras.actors;
     console.warn(parsedExtras);
     // TODO: deal with hp adjustments here
+
+    // if (creatureFlags.includes("DRPB")) {
+    //   if (creatureGroup.id === 3){
+    //   // beast companions add @prof
+    //   } else if (creatureGroup.id === 10) {
+      // artificer battle thing replaces
+    //     mock.actionsDescription = mock.actionsDescription.replace(/ \+ 2 /g, ` + ${actor.data.data.attributes.prof} `);
+    //   } else if (creatureGroup.id === 12) {
+    //     // infusions
+    //     mock.actionsDescription = mock.actionsDescription.replace(/ \+ 2 /g, ` + ${actor.data.data.attributes.prof} `);
+    //   }
+    // }
 
     //DDB_CONFIG.creatureGroupFlags.find((cr) => cr.id == monster.challengeRatingId);
     // DDB_CONFIG.creatureGroups.find((group) => group.id == monster.groupId);
