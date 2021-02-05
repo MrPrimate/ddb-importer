@@ -857,7 +857,7 @@ export default class CharacterImport extends FormApplication {
       .find("#dndbeyond-character-extras-start")
       .on("click", async() => {
         try {
-          $(html).find("#dndbeyond-character-import-start").prop("disabled", true);
+          $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Fetching character data");
           const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
           const characterData = await getCharacterData(characterId);
@@ -869,6 +869,7 @@ export default class CharacterImport extends FormApplication {
           if (characterData.success) {
             await characterExtras(html, characterData, this.actor);
             CharacterImport.showCurrentTask(html, "Loading Extras", "Done.", false);
+            $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
             this.close();
           } else {
             CharacterImport.showCurrentTask(html, characterData.message, null, true);
