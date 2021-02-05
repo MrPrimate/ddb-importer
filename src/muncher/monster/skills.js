@@ -1,4 +1,4 @@
-const SKILLS = [
+export const SKILLS = [
   { name: "acr", label: "Acrobatics", ability: "dex", subType: "acrobatics", valueId: 3 },
   { name: "ani", label: "Animal Handling", ability: "wis", subType: "animal-handling", valueId: 11 },
   { name: "arc", label: "Arcana", ability: "int", subType: "arcana", valueId: 6 },

@@ -5,6 +5,7 @@ import { copySupportedItemFlags, srdFiddling } from "../muncher/import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../muncher/importMonster.js";
 import { DDB_CONFIG } from "../ddb-config.js";
 import { ABILITIES } from "../muncher/monster/abilities.js";
+import { SKILLS } from "../muncher/monster/skills.js";
 
 const MUNCH_DEFAULTS = [
   { name: "munching-policy-update-existing", needed: true, },
@@ -101,6 +102,8 @@ export async function characterExtras(html, characterData, actor) {
     let creatures = characterData.ddb.creatures.map((creature) => {
       console.log(creature);
       let mock = creature.definition;
+      const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == mock.challengeRatingId).proficiencyBonus;
+
 
       if (creature.name) mock.name = creature.name;
 
@@ -170,9 +173,40 @@ export async function characterExtras(html, characterData, actor) {
         mock.averageHitPoints = Math.max(mock.averageHitPoints, 4 * ranger.levels);
       }
 
+      // add owner skill profs
+      if (creatureFlags.includes("EOSKP")) {
+        let newSkills = [];
+
+        SKILLS.forEach((skill) => {
+          const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.value);
+          const characterProficient = characterData.character.character.data.skills[skill.name].value;
+
+          const ability = ABILITIES.find((ab) => ab.value === skill.ability);
+          const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
+          const mod = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
+          // const lookupSkill = SKILLS.find((s) => s.name == key);
+          // const monsterSkill = monster.skills.find((s) => s.skillId == lookupSkill.valueId);
+
+          if (existingSkill && characterProficient === 2) {
+            newSkills.push({
+              skillId: skill.valueId,
+              value: mod + (proficiencyBonus*2),
+              additionalBonus: null,
+            });
+          } else if (existingSkill) {
+            newSkills.push(existingSkill);
+          } else if (characterProficient === 1) {
+            newSkills.push({
+              skillId: skill.valueId,
+              value: mod + proficiencyBonus,
+              additionalBonus: null,
+            });
+          }
+        });
+        mock.skills = newSkills;
+      }
 
       // todo:
-      // { id: 7, name: "Evaluate Owner Skill Proficiencies", key: "EOSKP", value: null, valueContextId: null },
       // { id: 8, name: "Evaluate Owner Save Proficiencies", key: "EOSVP", value: null, valueContextId: null },
       // { id: 10, name: "Cannot Use Legendary Actions", key: "CULGA", value: null, valueContextId: null },
       // { id: 11, name: "Cannot Use Lair Actions", key: "CULRA", value: null, valueContextId: null },
