@@ -8,26 +8,24 @@ import { ABILITIES, getAbilityMods } from "../muncher/monster/abilities.js";
 import { SKILLS } from "../muncher/monster/skills.js";
 
 const MUNCH_DEFAULTS = [
-  { name: "munching-policy-update-existing", needed: true, },
-  { name: "munching-policy-use-srd", needed: false, },
-  { name: "munching-policy-use-inbuilt-icons", needed: true, },
-  { name: "munching-policy-use-srd-icons", needed: false, },
-  { name: "munching-policy-use-iconizer", needed: false, },
-  { name: "munching-policy-download-images", needed: true, },
-  { name: "munching-policy-remote-images", needed: false, },
-  { name: "munching-policy-use-dae-effects", needed: false, },
-  { name: "munching-policy-hide-description", needed: false, },
-  { name: "munching-policy-monster-items", needed: false, },
-  { name: "munching-policy-update-images", needed: false, },
-  { name: "munching-policy-dae-copy", needed: false, },
+  { name: "munching-policy-update-existing", needed: true },
+  { name: "munching-policy-use-srd", needed: false },
+  { name: "munching-policy-use-inbuilt-icons", needed: true },
+  { name: "munching-policy-use-srd-icons", needed: false },
+  { name: "munching-policy-use-iconizer", needed: false },
+  { name: "munching-policy-download-images", needed: true },
+  { name: "munching-policy-remote-images", needed: false },
+  { name: "munching-policy-use-dae-effects", needed: false },
+  { name: "munching-policy-hide-description", needed: false },
+  { name: "munching-policy-monster-items", needed: false },
+  { name: "munching-policy-update-images", needed: false },
+  { name: "munching-policy-dae-copy", needed: false },
 ];
 
 function getCustomValue(ddb, typeId, valueId, valueTypeId) {
   const characterValues = ddb.characterValues;
-  const customValue = characterValues.find((value) =>
-    value.valueId == valueId &&
-    value.valueTypeId == valueTypeId &&
-    value.typeId == typeId
+  const customValue = characterValues.find(
+    (value) => value.valueId == valueId && value.valueTypeId == valueTypeId && value.typeId == typeId
   );
 
   if (customValue) {
@@ -39,14 +37,18 @@ function getCustomValue(ddb, typeId, valueId, valueTypeId) {
 async function updateExtras(extras, existingExtras) {
   return Promise.all(
     extras
-      .filter((extra) => existingExtras.some((exist) =>
-        exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
-        extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
-      ))
+      .filter((extra) =>
+        existingExtras.some(
+          (exist) =>
+            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
+            extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+        )
+      )
       .map(async (extra) => {
-        const existingExtra = await existingExtras.find((exist) =>
-          exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
-          extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+        const existingExtra = await existingExtras.find(
+          (exist) =>
+            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
+            extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
         );
         extra._id = existingExtra._id;
         logger.info(`Updating extra ${extra.name}`);
@@ -56,18 +58,22 @@ async function updateExtras(extras, existingExtras) {
         return extra;
       })
   );
-};
+}
 
 async function createExtras(extras, existingExtras, folderId) {
   return Promise.all(
     extras
-      .filter((extra) => !existingExtras.some((exist) =>
-        exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
-        extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
-      ))
+      .filter(
+        (extra) =>
+          !existingExtras.some(
+            (exist) =>
+              exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
+              extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+          )
+      )
       .map(async (extra) => {
         if (!game.user.can("ITEM_CREATE")) {
-          ui.notifications.warn(`Cannot create Extra ${extra.name} for ${type}`);
+          ui.notifications.warn(`Cannot create Extra ${extra.name}`);
         } else {
           logger.info(`Creating Extra ${extra.name}`);
           extra.folder = folderId;
@@ -76,17 +82,13 @@ async function createExtras(extras, existingExtras, folderId) {
         return extra;
       })
   );
-};
+}
 
 export async function characterExtras(html, characterData, actor) {
-
-  console.warn(characterData);
-  console.warn(actor);
-
   let munchSettings = [];
 
   MUNCH_DEFAULTS.forEach((setting) => {
-    console.warn(setting.name);
+    logger.debug(`Loading extras munch settings ${setting.name}`);
     setting["chosen"] = game.settings.get("ddb-importer", setting.name);
     munchSettings.push(setting);
   });
@@ -96,16 +98,15 @@ export async function characterExtras(html, characterData, actor) {
   });
 
   try {
-    console.warn(characterData.ddb);
-    console.warn(actor);
+    logger.debug(characterData);
     if (characterData.ddb.creatures.length === 0) return;
 
     const folder = await utils.getOrCreateFolder(actor.folder, "Actor", `[Extras] ${actor.name}`);
 
     let creatures = characterData.ddb.creatures.map((creature) => {
-      console.log(creature);
+      logger.debug(creature);
       let mock = JSON.parse(JSON.stringify(creature.definition));
-      let proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == mock.challengeRatingId).proficiencyBonus;
+      const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == mock.challengeRatingId).proficiencyBonus;
       const creatureGroup = DDB_CONFIG.creatureGroups.find((group) => group.id == creature.groupId);
       let creatureFlags = creatureGroup.flags;
 
@@ -115,6 +116,10 @@ export async function characterExtras(html, characterData, actor) {
       if (creature.definition.name === "Homunculus Servant") {
         creatureFlags = creatureFlags.concat(["MHPAMCM", "MHPAIM", "MHPBAL", "ARPB", "PSPB"]);
       }
+      mock.creatureFlags = creatureFlags;
+      mock.removedHitPoints = creature.removedHitPoints;
+      mock.temporaryHitPoints = creature.temporaryHitPoints;
+      mock.creatureGroup = creature.groupId;
 
       if (creature.name) mock.name = creature.name;
 
@@ -142,36 +147,12 @@ export async function characterExtras(html, characterData, actor) {
       const extraNotes = getCustomValue(characterData.ddb, 47, creature.id, creature.entityTypeId);
       if (extraNotes) mock.characteristicsDescription += `\n\n${extraNotes}`;
 
-      if ((creatureFlags.includes("ARPB") && creatureFlags.includes("PSPB"))) {
-        const currentPB = proficiencyBonus;
-        mock.challengeRatingId = actor.data.flags.ddbimporter.dndbeyond.totalLevels + 4;
-        proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == mock.challengeRatingId).proficiencyBonus;
-
-        let newSkills = [];
-
-        SKILLS.forEach((skill) => {
-          const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.skillId);
-          if (existingSkill) {
-            const ability = ABILITIES.find((ab) => ab.value === skill.ability);
-            const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
-            const mod = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
-            const profMulti = (existingSkill.value + existingSkill.additionalBonus > mod + currentPB) ? 2 : 1;
-
-            newSkills.push({
-              skillId: skill.valueId,
-              value: mod + (proficiencyBonus*profMulti),
-              additionalBonus: null,
-            });
-          }
-        });
-        mock.skills = newSkills;
-      }
-
       const creatureStats = mock.stats.filter((stat) => !creatureGroup.ownerStats.includes(stat.statId));
-      const characterStats = mock.stats.filter((stat) => creatureGroup.ownerStats.includes(stat.statId))
+      const characterStats = mock.stats
+        .filter((stat) => creatureGroup.ownerStats.includes(stat.statId))
         .map((stat) => {
-          const value = actor.data.data.abilities[ABILITIES.find((a) => a.id === stat.statId).value].value
-          return { name: null, statId: stat.statId, value: value}
+          const value = actor.data.data.abilities[ABILITIES.find((a) => a.id === stat.statId).value].value;
+          return { name: null, statId: stat.statId, value: value };
         });
 
       mock.stats = creatureStats.concat(characterStats);
@@ -181,7 +162,7 @@ export async function characterExtras(html, characterData, actor) {
       mock.folder = folder._id;
 
       if (creatureGroup.description !== "") {
-        mock.characteristicsDescription = `${creatureGroup.description }\n\n${mock.characteristicsDescription}`;
+        mock.characteristicsDescription = `${creatureGroup.description}\n\n${mock.characteristicsDescription}`;
       }
 
       if (creatureGroup.specialQualityTitle) {
@@ -233,7 +214,7 @@ export async function characterExtras(html, characterData, actor) {
           if (existingSkill && characterProficient === 2) {
             newSkills.push({
               skillId: skill.valueId,
-              value: mod + (proficiencyBonus*2),
+              value: mod + (proficiencyBonus * 2),
               additionalBonus: null,
             });
           } else if (existingSkill) {
@@ -277,31 +258,118 @@ export async function characterExtras(html, characterData, actor) {
         mock.lairDescription = "";
       }
 
-      // todo:
-      // { id: 18, name: "Max Hit Points Base Artificer Level", key: "MHPBAL", value: null, valueContextId: 252717 },
-
-      console.log(mock);
+      logger.debug(mock);
       return mock;
     });
     let parsedExtras = await parseMonsters(creatures);
     parsedExtras = parsedExtras.actors;
-    console.warn(parsedExtras);
-    // TODO: deal with hp adjustments here
+    logger.debug(parsedExtras);
 
-    // if (creatureFlags.includes("DRPB")) {
-    //   if (creatureGroup.id === 3){
-    //   // beast companions add @prof
-    //   } else if (creatureGroup.id === 10) {
-      // artificer battle thing replaces
-    //     mock.actionsDescription = mock.actionsDescription.replace(/ \+ 2 /g, ` + ${actor.data.data.attributes.prof} `);
-    //   } else if (creatureGroup.id === 12) {
-    //     // infusions
-    //     mock.actionsDescription = mock.actionsDescription.replace(/ \+ 2 /g, ` + ${actor.data.data.attributes.prof} `);
-    //   }
-    // }
+    const damageDiceExpression = /(\d*d\d+\s*\+*\s*)+/;
+    const characterProficiencyBonus = actor.data.data.attributes.prof;
+    const artificerBonusGroup = [10, 12];
 
-    //DDB_CONFIG.creatureGroupFlags.find((cr) => cr.id == monster.challengeRatingId);
-    // DDB_CONFIG.creatureGroups.find((group) => group.id == monster.groupId);
+    parsedExtras = parsedExtras.map((extra) => {
+      if (
+        extra.flags?.ddbimporter?.creatureFlags?.includes("ARPB") &&
+        extra.flags?.ddbimporter?.creatureFlags?.includes("PSPB")
+      ) {
+        if (extra.flags?.ddbimporter?.creatureGroup === 3) {
+          // beast master get to add proficiency bonus to current attacks, damage, ac
+          // and saving throws and skills it is proficient in.
+          // extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
+          extra.data.bonuses.rwak.attack = characterProficiencyBonus;
+          extra.data.bonuses.rwak.damage = characterProficiencyBonus;
+          extra.data.bonuses.mwak.attack = characterProficiencyBonus;
+          extra.data.bonuses.mwak.damage = characterProficiencyBonus;
+
+          let effect = {
+            changes: [],
+            duration: {
+              seconds: null,
+              startTime: null,
+              rounds: null,
+              turns: null,
+              startRound: null,
+              startTurn: null,
+            },
+            label: "Beast Companion Effects",
+            tint: "",
+            disabled: false,
+            selectedKey: [],
+          };
+          ABILITIES.filter((ability) => extra.data.abilities[ability.value].proficient >= 1)
+            .forEach((ability) => {
+              const boost = {
+                key: `data.abilities.${ability.value}.save`,
+                mode: 2,
+                value: characterProficiencyBonus,
+                priority: 20,
+              };
+              effect.selectedKey.push(`data.abilities.${ability.value}.save`);
+              effect.changes.push(boost);
+            });
+          SKILLS.filter((skill) => extra.data.skills[skill.name].prof >= 1)
+            .forEach((skill) => {
+              const boost = {
+                key: `data.skills.${skill.name}.mod`,
+                mode: 2,
+                value: characterProficiencyBonus,
+                priority: 20,
+              };
+              effect.selectedKey.push(`data.skills.${skill.name}.mod`);
+              effect.changes.push(boost);
+            });
+          extra.effects = [effect];
+        } else if (artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroup)) {
+          // artificer uses the actors spell attack bonus, so is a bit trickier
+          // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
+          extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
+          extra.data.bonuses.rwak.damage = characterProficiencyBonus;
+          extra.data.bonuses.mwak.damage = characterProficiencyBonus;
+        } else {
+          // who knows!
+          extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
+        }
+      }
+
+      if (extra.flags?.ddbimporter?.creatureFlags?.includes("DRPB") && extra.flags?.ddbimporter?.creatureGroup !== 3) {
+        extra.items = extra.items.map((item) => {
+          if (item.type === "weapon") {
+            let characterAbility;
+
+            item.data.damage.parts = item.data.damage.parts.map((part) => {
+              const match = part[0].match(damageDiceExpression);
+              if (match) {
+                let dice = match[0];
+                // the artificer creatures have the initial prof built in, lets replace it
+                if (artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroup)) {
+                  characterAbility = "int";
+                  dice = match[1].trim().endsWith("+") ? match[1].trim().slice(0, -1) : match[1];
+                }
+                part[0] = `${dice.trim()}`;
+              }
+
+              return part;
+            });
+
+            if (characterAbility) {
+              const ability = item.data.ability;
+              const mod = parseInt(extra.data.abilities[ability].mod);
+              const characterMod = parseInt(actor.data.data.abilities[characterAbility].mod);
+              // eslint-disable-next-line no-eval
+              const globalMod = parseInt(eval(actor.data.data.bonuses.rsak.attack || 0));
+              item.data.attackBonus = characterMod + globalMod - mod;
+            }
+          }
+          return item;
+        });
+      }
+
+      return extra;
+    });
+
+    logger.debug(parsedExtras);
 
     const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
@@ -323,15 +391,13 @@ export async function characterExtras(html, characterData, actor) {
 
     if (updateBool) await updateExtras(finalExtras, existingExtras);
     await createExtras(finalExtras, existingExtras, folder._id);
-
   } catch (err) {
     logger.error("Failure parsing extra", err);
     logger.error(err.stack);
   } finally {
     munchSettings.forEach((setting) => {
-      console.warn(`Returning ${setting.name} to ${setting.chosen}`);
+      logger.debug(`Returning ${setting.name} to ${setting.chosen}`);
       game.settings.set("ddb-importer", setting.name, setting.chosen);
     });
   }
-
 }

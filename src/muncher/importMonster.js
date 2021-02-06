@@ -326,7 +326,7 @@ async function swapItems(data) {
 }
 
 // async function buildNPC(data, srdIconLibrary, iconMap) {
-export async function buildNPC(data, temporary=true, update=false) {
+export async function buildNPC(data, temporary = true, update = false) {
   logger.debug("Importing Images");
   await getNPCImage(data);
   await addSpells(data);
