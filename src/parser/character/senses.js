@@ -80,7 +80,7 @@ export function getSensesMap(data) {
       .filter((sense) => !sense.distance)
       .forEach((sense) => {
         const s = DICTIONARY.character.senses.find((s) => s.id === sense.senseId);
-        if (s) {
+        if (s && sense.distance) {
           senses[s.name.toLowerCase()] = sense.distance;
         } else {
           senses.special += `${sense.distance}; `;
