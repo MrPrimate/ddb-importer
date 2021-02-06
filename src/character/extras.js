@@ -103,6 +103,7 @@ export async function characterExtras(html, characterData, actor) {
 
     const folder = await utils.getOrCreateFolder(actor.folder, "Actor", `[Extras] ${actor.name}`);
 
+    // eslint-disable-next-line complexity
     let creatures = characterData.ddb.creatures.map((creature) => {
       logger.debug(creature);
       let mock = JSON.parse(JSON.stringify(creature.definition));
