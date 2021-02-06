@@ -687,16 +687,34 @@ export async function updateMagicItemImages(items) {
  * @param {*} type
  */
 async function updateFolderItems(type, input, update = true) {
-  const folderLookup = gameFolderLookup.find((c) => c.type == type);
-  const itemsFolder = await utils.getFolder(folderLookup.folder);
-  const existingItems = await game.items.entities.filter(
-    (item) => item.type === folderLookup.itemType && item.data.folder === itemsFolder._id
-  );
-
   if (type === "itemSpells") {
     // eslint-disable-next-line require-atomic-updates
     input[type] = await updateMagicItemImages(input[type]);
   }
+
+  const folderLookup = gameFolderLookup.find((c) => c.type == type);
+  const itemFolderNames = [...new Set(input[type]
+    .filter((item) => item.flags?.ddbimporter?.dndbeyond?.lookupName)
+    .map((item) => item.flags.ddbimporter.dndbeyond.lookupName))];
+
+  const getSubFolders = async () => {
+    return Promise.all(
+      itemFolderNames.map((name) => {
+        return utils.getFolder(folderLookup.folder, name);
+      })
+    );
+  };
+
+  const subFolders = await getSubFolders();
+
+  const defaultItemsFolder = await utils.getFolder(folderLookup.folder);
+  const existingItems = await game.items.entities.filter((item) => {
+    const itemFolder = subFolders.find((folder) =>
+      item.data.flags?.ddbimporter?.dndbeyond?.lookupName &&
+      folder.name === item.data.flags.ddbimporter.dndbeyond.lookupName
+    );
+    return itemFolder && item.type === folderLookup.itemType && item.data.folder === itemFolder._id;
+  });
 
   // update or create folder items
   const updateItems = async () => {
@@ -723,7 +741,11 @@ async function updateFolderItems(type, input, update = true) {
             ui.notifications.warn(`Cannot create ${folderLookup.type} ${item.name} for ${type}`);
           } else {
             logger.info(`Creating ${type} ${item.name}`);
-            item.folder = itemsFolder._id;
+            const itemsFolder = subFolders.find((folder) =>
+              item.flags?.ddbimporter?.dndbeyond?.lookupName &&
+              folder.name === item.flags.ddbimporter.dndbeyond.lookupName
+            );
+            item.folder = (itemsFolder) ? itemsFolder._id : defaultItemsFolder._id;
             await Item.create(item);
           }
           return item;
@@ -736,16 +758,21 @@ async function updateFolderItems(type, input, update = true) {
 
   // lets generate our compendium info like id, pack and img for use
   // by things like magicitems
+  const folderIds = [defaultItemsFolder._id, ...subFolders.map((f) => f._id)];
   const items = Promise.all(
     game.items.entities
-      .filter((item) => item.type === folderLookup.itemType && item.data.folder === itemsFolder._id)
+      .filter((item) => item.type === folderLookup.itemType && folderIds.includes(item.data.folder))
       .map((result) => {
+        const subFolder = (result.data.flags.ddbimporter?.dndbeyond?.lookupName)
+          ? result.data.flags.ddbimporter.dndbeyond.lookupName
+          : null;
         return {
           _id: result._id,
           id: result._id,
           pack: "world",
           img: result.img,
           name: result.name,
+          subFolder: subFolder,
         };
       })
   );
@@ -761,7 +788,9 @@ export async function addMagicItemSpells(input) {
   input.inventory.forEach((item) => {
     if (item.flags.magicitems.spells) {
       for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
-        const itemSpell = itemSpells.find((item) => item.name === spell.name);
+        const itemSpell = itemSpells.find((iSpell) => iSpell.name === spell.name &&
+          iSpell.subFolder === item.name
+        );
         if (itemSpell) {
           for (const [key, value] of Object.entries(itemSpell)) {
             item.flags.magicitems.spells[i][key] = value;

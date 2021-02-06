@@ -36,8 +36,9 @@
   {{#if importAllowed}}
     <a class="item active" data-tab="import"><i class="fas fa-arrow-alt-circle-down"></i> Import Character</a>
     <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Advanced Settings</a>
+    <a class="item" data-tab="extras"><i class="fas fa-pastafarianism"></i> Import Extras</a>
   {{/if}}
-    <a class="item" data-tab="sync"><i class="fas fa-sync-alt"></i></i> Sync to D&D Beyond</a>
+    <a class="item" data-tab="sync"><i class="fas fa-arrow-alt-circle-up"></i></i> Update D&D Beyond</a>
     <a class="item" data-tab="help"><i class="fas fa-info-circle"></i> Help</a>
   </nav>
 
@@ -95,11 +96,41 @@
     {{/each}}
 </section>
 
+<!-- Extras section -->
+  <section class="tab" data-tab="extras">
+<div>
+    <h3>Configuration</h3>
+    <div>
+      {{#each extrasConfig}}
+      <div class="extras-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-extras-policy-{{this.name}}" data-section="{{this.name}}"
+          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+      </div>
+      {{/each}}
+    </div>
+    <p>Extras parsing makes a number of assumptions about the configuration.</p>
+    <p>This will be more customisable in the future.</p>
+    <hr>
+    <div class="form-section">
+      <div class="form-description">
+        <div class="form-description"></div>
+        <div>
+          <button type="button" id="dndbeyond-character-extras-start"
+            {{#if syncEnabled}}
+            {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}{{else}}disabled{{/if}}>
+            {{#if tiers.supporter}}[Experimental] Import Extras{{else}}[Experimental] Import Extras Available to Patreon Supporters{{/if}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </section>
+
 <!-- Sync/Upload Tab -->
   <section class="tab" data-tab="sync">
 
-    <h3>Sync selection</h3>
-    <p>Select the changes you wish to D&D Beyond.</p>
+    <h3>Update selection</h3>
+    <p>Select the changes you wish to update on D&D Beyond.</p>
     <div class="sync-policy">
       {{#each syncConfig}}
       {{#if this.enabled}}
@@ -112,13 +143,13 @@
     </div>
   <hr>
   <p>For best results you will need to re-munch spells and items if you did this prior to the 0.3.0 release. If you imported your character with an earlier version some features may not update (such as Hit Dice) until you have reimported.</p>
-  <p>Item sync only works with items imported from DDB into the Item Compendium or via a character.</p>
+  <p>Item update only works with items imported from DDB into the Item Compendium or via a character.</p>
   <div class="form-section">
       <div class="form-description">
         <div class="form-description"></div>
         <div>
-          <button type="button" id="dndbeyond-character-sync"
-            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Sync to D&D Beyond{{else}}Sync Available to Patreon Supporters{{/if}}</button>
+          <button type="button" id="dndbeyond-character-update"
+            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Update D&D Beyond with changes{{else}}D&D Beyond Update Available to Patreon Supporters{{/if}}</button>
         </div>
       </div>
     </div>

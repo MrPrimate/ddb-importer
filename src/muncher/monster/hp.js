@@ -28,15 +28,15 @@
 // },
 
 
-export function getHitPoints (monster) {
+export function getHitPoints (monster, removedHitPoints, temporaryHitPoints) {
   const hitPointDice = monster.hitPointDice;
   // const maxHP = (hitPointDice.diceCount * hitPointDice.diceValue) + hitPointDice.fixedValue;
 
   const hp = {
-    "value": monster.averageHitPoints,
+    "value": monster.averageHitPoints - removedHitPoints,
     "min": 0,
     "max": monster.averageHitPoints,
-    "temp": 0,
+    "temp": temporaryHitPoints,
     "tempmax": 0,
     "formula": hitPointDice.diceString,
   };

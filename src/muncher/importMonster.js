@@ -1,7 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { updateIcons, getImagePath, getCompendiumItems } from "./import.js";
+import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons } from "./import.js";
 import { munchNote } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
@@ -326,7 +326,7 @@ async function swapItems(data) {
 }
 
 // async function buildNPC(data, srdIconLibrary, iconMap) {
-async function buildNPC(data) {
+export async function buildNPC(data, temporary = true, update = false) {
   logger.debug("Importing Images");
   await getNPCImage(data);
   await addSpells(data);
@@ -347,10 +347,10 @@ async function buildNPC(data) {
   // create the new npc
   logger.debug("Creating NPC actor");
   const options = {
-    temporary: true,
+    temporary: temporary,
     displaySheet: false,
   };
-  let npc = await Actor.create(data, options);
+  let npc = (update) ? await Actor.update(data, options) : await Actor.create(data, options);
   return npc;
 }
 
@@ -375,3 +375,39 @@ export function addNPC(data) {
   });
 }
 
+export async function generateIconMap(monsters) {
+  let promises = [];
+
+  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  // eslint-disable-next-line require-atomic-updates
+  if (srdIcons) {
+    const srdIconLibrary = await getSRDIconLibrary();
+    munchNote(`Updating SRD Icons`, true);
+    let itemMap = [];
+
+    monsters.forEach((monster) => {
+      munchNote(`Processing ${monster.name}`);
+      promises.push(
+        copySRDIcons(monster.items, srdIconLibrary, itemMap).then((items) => {
+          monster.items = items;
+        })
+      );
+    });
+  }
+
+  return Promise.all(promises);
+}
+
+export function copyExistingMonsterImages(monsters, existingMonsters) {
+  const updated = monsters.map((monster) => {
+    const existing = existingMonsters.find((m) => monster.name === m.name);
+    if (existing) {
+      monster.img = existing.img;
+      monster.token.img = existing.token.img;
+      return monster;
+    } else {
+      return monster;
+    }
+  });
+  return updated;
+}

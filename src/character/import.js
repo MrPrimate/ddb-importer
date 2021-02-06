@@ -19,7 +19,8 @@ import {
   addItemsDAESRD
 } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
-import { updateDDBCharacter } from "./sync.js";
+import { updateDDBCharacter } from "./update.js";
+import { characterExtras } from "./extras.js";
 
 const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
@@ -469,6 +470,8 @@ export default class CharacterImport extends FormApplication {
     const daeInstalled =
       utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
 
+    // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
+
     const importConfig = [
       {
         name: "use-inbuilt-icons",
@@ -640,6 +643,82 @@ export default class CharacterImport extends FormApplication {
       },
     ];
 
+    const extrasConfig = [
+      // {
+      //   name: "update-existing",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-update-existing"),
+      //   description: "Update existing things.",
+      //   enabled: true,
+      // },
+      // {
+      //   name: "use-srd",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd"),
+      //   description: "Use SRD compendium things instead of importing.",
+      //   enabled: true,
+      // },
+      // {
+      //   name: "use-inbuilt-icons",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons"),
+      //   description: "Use icons from the inbuilt dictionary. (High coverage of items, feats, and spells).",
+      //   enabled: true,
+      // },
+      // {
+      //   name: "use-srd-icons",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd-icons"),
+      //   description: "Use icons from the SRD compendiums.",
+      //   enabled: true,
+      // },
+      // {
+      //   name: "use-iconizer",
+      //   isChecked: (iconizerInstalled) ? game.settings.get("ddb-importer", "munching-policy-use-iconizer") : false,
+      //   description: "Use Iconizer (if installed).",
+      //   enabled: iconizerInstalled,
+      // },
+      // {
+      //   name: "download-images",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-download-images"),
+      //   description: "Download D&D Beyond images (takes longer and needs space).",
+      //   enabled: true,
+      // },
+      // {
+      //   name: "remote-images",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-remote-images"),
+      //   description: "Use D&D Beyond remote images (a lot quicker)",
+      //   enabled: true,
+      // },
+      // {
+      //   name: "use-dae-effects",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
+      //   description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD module)",
+      //   enabled: daeInstalled,
+      // },
+      // {
+      //   name: "hide-description",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-hide-description"),
+      //   description: "Hide description from players?",
+      //   enabled: true,
+      // },
+      // {
+      //   name: "monster-items",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-monster-items"),
+      //   description: "[Experimental] Load items from DDB compendium instead of parsing action/attack?",
+      //   enabled: true,
+      // },
+      // {
+      //   name: "update-images",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-update-images"),
+      //   description: "Update images on existing items?",
+      //   enabled: true,
+      // },
+      // {
+      //   name: "dae-copy",
+      //   isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
+      //   description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
+      //   enabled: daeInstalled,
+      // },
+
+    ];
+
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
     const badDirs = ["[data]", "[data] ", "", null];
     const dataDirSet = !badDirs.includes(uploadDir);
@@ -655,6 +734,7 @@ export default class CharacterImport extends FormApplication {
       actor: this.actor,
       importPolicies: importPolicies,
       importConfig: importConfig,
+      extrasConfig: extrasConfig,
       advancedImportConfig: advancedImportConfig,
       dataDirSet: dataDirSet,
       syncConfig: syncConfig,
@@ -753,24 +833,62 @@ export default class CharacterImport extends FormApplication {
       });
 
     $(html)
-      .find("#dndbeyond-character-sync")
+      .find("#dndbeyond-character-update")
       .on("click", async () => {
         try {
-          $(html).find("#dndbeyond-character-sync").prop("disabled", true);
+          $(html).find("#dndbeyond-character-update").prop("disabled", true);
           await updateDDBCharacter(this.actor).then((result) => {
             // result.forEach((r) => {
             //   console.warn(r);
             // });
             const updateNotes = result.flat().filter((r) => r !== undefined).map((r) => r.message).join(" ");
             logger.debug(updateNotes);
-            CharacterImport.showCurrentTask(html, "Sync complete", updateNotes);
-            $(html).find("#dndbeyond-character-sync").prop("disabled", false);
+            CharacterImport.showCurrentTask(html, "Update complete", updateNotes);
+            $(html).find("#dndbeyond-character-update").prop("disabled", false);
           });
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
           CharacterImport.showCurrentTask(html, "Error updating character", error, true);
         }
+      });
+
+    $(html)
+      .find("#dndbeyond-character-extras-start")
+      .on("click", async() => {
+        try {
+          $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
+          CharacterImport.showCurrentTask(html, "Fetching character data");
+          const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
+          const characterData = await getCharacterData(characterId);
+          logger.debug("import.js getCharacterData result", characterData);
+          const debugJson = game.settings.get("ddb-importer", "debug-json");
+          if (debugJson) {
+            download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+          }
+          if (characterData.success) {
+            await characterExtras(html, characterData, this.actor);
+            CharacterImport.showCurrentTask(html, "Loading Extras", "Done.", false);
+            $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
+            this.close();
+          } else {
+            CharacterImport.showCurrentTask(html, characterData.message, null, true);
+            return false;
+          }
+        } catch (error) {
+          switch (error) {
+            case "Forbidden":
+              CharacterImport.showCurrentTask(html, "Error retrieving Character: " + error, error, true);
+              break;
+            default:
+              logger.error(error);
+              logger.error(error.stack);
+              CharacterImport.showCurrentTask(html, "Error parsing Character: " + error, error, true);
+              break;
+          }
+          return false;
+        }
+        return true;
       });
 
     $(html)

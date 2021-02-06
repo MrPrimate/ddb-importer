@@ -53,6 +53,15 @@ export function parseMonsters(monsterData) {
         img: (img) ? img : monster.avatarUrl,
         tokenImg: monster.avatarUrl,
       };
+      foundryActor.flags.ddbimporter = {
+        id: monster.id,
+        entityTypeId: monster.entityTypeId,
+        creatureGroup: monster.creatureGroup ? monster.creatureGroup : null,
+        creatureFlags: monster.creatureFlags ? monster.creatureFlags : [],
+      };
+
+      const removedHitPoints = monster.removedHitPoints ? monster.removedHitPoints : 0;
+      const temporaryHitPoints = monster.temporaryHitPoints ? monster.removedHitPoints : 0;
 
       // abilities
       foundryActor.data.abilities = getAbilities(foundryActor.data.abilities, monster, DDB_CONFIG);
@@ -82,7 +91,7 @@ export function parseMonsters(monsterData) {
       foundryActor.data.traits.languages = getLanguages(monster, DDB_CONFIG);
 
       // attributes
-      foundryActor.data.attributes.hp = getHitPoints(monster);
+      foundryActor.data.attributes.hp = getHitPoints(monster, removedHitPoints, temporaryHitPoints);
       const movement = getSpeed(monster, DDB_CONFIG);
       foundryActor.data.attributes.speed = movement['speed'];
       foundryActor.data.attributes.movement = movement['movement'];
