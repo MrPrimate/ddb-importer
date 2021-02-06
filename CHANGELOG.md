@@ -1,3 +1,10 @@
+# 0.4.0
+
+* You can now import Extras, these are attached to characters on D&D Beyond. These are things like Ranger Companions, Wild Shape, pets, sidekicks etc.
+* If using the magicitems modules, spells for magic items now go into subfolders for their item names.
+* Character Sync has been renamed Update D&D Beyond to avoid confusion.
+* In some cases characters wouldn't import because senses default data was incorrect.
+
 # 0.3.10
 
 * In some cases healing potions would break import.
