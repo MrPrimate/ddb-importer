@@ -4,7 +4,7 @@ import { parseMonsters } from "../muncher/monster/monster.js";
 import { copySupportedItemFlags, srdFiddling } from "../muncher/import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../muncher/importMonster.js";
 import { DDB_CONFIG } from "../ddb-config.js";
-import { ABILITIES } from "../muncher/monster/abilities.js";
+import { ABILITIES, getAbilityMods } from "../muncher/monster/abilities.js";
 import { SKILLS } from "../muncher/monster/skills.js";
 
 const MUNCH_DEFAULTS = [
@@ -44,7 +44,10 @@ async function updateExtras(extras, existingExtras) {
         extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
       ))
       .map(async (extra) => {
-        const existingExtra = await existingExtras.find((existing) => extra.name === existing.name);
+        const existingExtra = await existingExtras.find((exist) =>
+          exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
+          extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+        );
         extra._id = existingExtra._id;
         logger.info(`Updating extra ${extra.name}`);
         await copySupportedItemFlags(existingExtra, extra);
@@ -101,9 +104,17 @@ export async function characterExtras(html, characterData, actor) {
 
     let creatures = characterData.ddb.creatures.map((creature) => {
       console.log(creature);
-      let mock = creature.definition;
-      const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == mock.challengeRatingId).proficiencyBonus;
+      let mock = JSON.parse(JSON.stringify(creature.definition));
+      let proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == mock.challengeRatingId).proficiencyBonus;
+      const creatureGroup = DDB_CONFIG.creatureGroups.find((group) => group.id == creature.groupId);
+      let creatureFlags = creatureGroup.flags;
 
+      mock.id = creature.id;
+      mock.entityTypeId = creature.entityTypeId;
+
+      if (creature.definition.name === "Homunculus Servant") {
+        creatureFlags = creatureFlags.concat(["MHPAMCM", "MHPAIM", "MHPBAL", "ARPB", "PSPB"]);
+      }
 
       if (creature.name) mock.name = creature.name;
 
@@ -131,17 +142,31 @@ export async function characterExtras(html, characterData, actor) {
       const extraNotes = getCustomValue(characterData.ddb, 47, creature.id, creature.entityTypeId);
       if (extraNotes) mock.characteristicsDescription += `\n\n${extraNotes}`;
 
-      // TODO
-      // proficiency based changes for things like steel defender
-
-      const creatureGroup = DDB_CONFIG.creatureGroups.find((group) => group.id == creature.groupId);
-      const creatureFlags = creatureGroup.flags;
-
-      if (creatureFlags.includes("ARPB") && creatureFlags.includes("PSPB")) {
+      if ((creatureFlags.includes("ARPB") && creatureFlags.includes("PSPB"))) {
+        const currentPB = proficiencyBonus;
         mock.challengeRatingId = actor.data.flags.ddbimporter.dndbeyond.totalLevels + 4;
+        proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == mock.challengeRatingId).proficiencyBonus;
+
+        let newSkills = [];
+
+        SKILLS.forEach((skill) => {
+          const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.skillId);
+          if (existingSkill) {
+            const ability = ABILITIES.find((ab) => ab.value === skill.ability);
+            const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
+            const mod = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
+            const profMulti = (existingSkill.value + existingSkill.additionalBonus > mod + currentPB) ? 2 : 1;
+
+            newSkills.push({
+              skillId: skill.valueId,
+              value: mod + (proficiencyBonus*profMulti),
+              additionalBonus: null,
+            });
+          }
+        });
+        mock.skills = newSkills;
       }
 
-      console.log(creatureGroup.ownerStats);
       const creatureStats = mock.stats.filter((stat) => !creatureGroup.ownerStats.includes(stat.statId));
       const characterStats = mock.stats.filter((stat) => creatureGroup.ownerStats.includes(stat.statId))
         .map((stat) => {
@@ -169,8 +194,28 @@ export async function characterExtras(html, characterData, actor) {
 
       // assume this is beast master
       if (creatureFlags.includes("HPLM")) {
-        const ranger = characterData.ddb.classes.find((klass) => klass.definition.id === 5)
-        mock.averageHitPoints = Math.max(mock.averageHitPoints, 4 * ranger.levels);
+        const ranger = characterData.ddb.classes.find((klass) => klass.definition.id === 5);
+        mock.averageHitPoints = Math.max(mock.averageHitPoints, 4 * ranger.level);
+      }
+
+      // homunculus servant
+      if (creatureFlags.includes("MHPBAL")) {
+        const artificer = characterData.ddb.classes.find((klass) => klass.definition.name === "Artificer");
+        mock.averageHitPoints = parseInt(artificer.level);
+      }
+
+      if (creatureFlags.includes("AHM")) {
+        const artificer = characterData.ddb.classes.find((klass) => klass.definition.name === "Artificer");
+        mock.averageHitPoints = parseInt(5 * artificer.level);
+      }
+
+      if (creatureFlags.includes("MHPAIM")) {
+        mock.averageHitPoints += parseInt(actor.data.data.abilities.int.mod);
+      }
+
+      if (creatureFlags.includes("MHPAMCM")) {
+        const monsterConModifier = getAbilityMods(mock, DDB_CONFIG);
+        mock.averageHitPoints += parseInt(monsterConModifier.con);
       }
 
       // add owner skill profs
@@ -178,14 +223,12 @@ export async function characterExtras(html, characterData, actor) {
         let newSkills = [];
 
         SKILLS.forEach((skill) => {
-          const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.value);
+          const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.skillId);
           const characterProficient = characterData.character.character.data.skills[skill.name].value;
 
           const ability = ABILITIES.find((ab) => ab.value === skill.ability);
           const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
           const mod = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
-          // const lookupSkill = SKILLS.find((s) => s.name == key);
-          // const monsterSkill = monster.skills.find((s) => s.skillId == lookupSkill.valueId);
 
           if (existingSkill && characterProficient === 2) {
             newSkills.push({
@@ -206,16 +249,35 @@ export async function characterExtras(html, characterData, actor) {
         mock.skills = newSkills;
       }
 
+      // add owner save profs
+      if (creatureFlags.includes("EOSVP")) {
+        let newSaves = [];
+        ABILITIES.forEach((ability) => {
+          const existingProficient = mock.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
+          const characterProficient = characterData.character.character.data.abilities[ability.value].proficient;
+
+          if (existingProficient || characterProficient) {
+            const bonus = {
+              bonusModifier: null,
+              statId: ability.id,
+            };
+            newSaves.push(bonus);
+          }
+        });
+        mock.savingThrows = newSaves;
+      }
+
+      if (creatureFlags.includes("CULGA")) {
+        mock.isLegendary = false;
+        mock.legendaryActionsDescription = "";
+      }
+
+      if (creatureFlags.includes("CULRA")) {
+        mock.hasLair = false;
+        mock.lairDescription = "";
+      }
+
       // todo:
-      // { id: 8, name: "Evaluate Owner Save Proficiencies", key: "EOSVP", value: null, valueContextId: null },
-      // { id: 10, name: "Cannot Use Legendary Actions", key: "CULGA", value: null, valueContextId: null },
-      // { id: 11, name: "Cannot Use Lair Actions", key: "CULRA", value: null, valueContextId: null },
-      // { id: 12, name: "Evaluate_Updated_Passive_Perception", key: "EUPP", value: null, valueContextId: null },
-      // { id: 13, name: "Evaluate Owner Passive Perception", key: "EOPP", value: null, valueContextId: null },
-      // { id: 14, name: "Artificer HP Multiplier", key: "AHM", value: 5, valueContextId: 252717 },
-      // { id: 15, name: "Max Hit Points Add Int Modifier", key: "MHPAIM", value: null, valueContextId: 4 },
-      // { id: 16, name: "Max Hit Points Add Monster CON Modifier", key: "MHPAMCM", value: null, valueContextId: 3 },
-      // { id: 17, name: "Use Challenge Rating As Level", key: "UCRAL", value: null, valueContextId: null },
       // { id: 18, name: "Max Hit Points Base Artificer Level", key: "MHPBAL", value: null, valueContextId: 252717 },
 
       console.log(mock);
