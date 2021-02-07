@@ -1,6 +1,10 @@
+# 0.4.1
+
+* Bug resulted in Optional Class feature modifiers applied, even if not selected. Please let me know if there are missing features and abilities after installing this version.
+
 # 0.4.0
 
-* You can now import Extras, these are attached to characters on D&D Beyond. These are things like Ranger Companions, Wild Shape, pets, sidekicks etc.
+* Supporters can now import Extras, these are attached to characters on D&D Beyond. These are things like Ranger Companions, Wild Shape, pets, sidekicks etc.
 * If using the magicitems modules, spells for magic items now go into subfolders for their item names.
 * Character Sync has been renamed Update D&D Beyond to avoid confusion.
 * In some cases characters wouldn't import because senses default data was incorrect.

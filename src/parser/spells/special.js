@@ -1,11 +1,12 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
+import utils from "../../utils.js";
 
 let getEldritchInvocations = (data) => {
   let damage = 0;
   let range = 0;
 
-  const eldritchBlastMods = data.character.modifiers.class.filter(
+  const eldritchBlastMods = utils.getChosenClassModifiers(data).filter(
     (modifier) => modifier.type === "eldritch-blast" && modifier.isGranted
   );
 

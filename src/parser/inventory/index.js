@@ -83,12 +83,12 @@ function getWarlockFeatures(ddb, weapon) {
 }
 
 function getMonkFeatures(ddb, weapon) {
-  const kenseiWeapon = ddb.character.modifiers.class.some((mod) =>
+  const kenseiWeapon = utils.getChosenClassModifiers(ddb).some((mod) =>
     mod.friendlySubtypeName === weapon.definition.type &&
     mod.type === "kensei"
   );
 
-  const monkWeapon = ddb.character.modifiers.class.some((mod) =>
+  const monkWeapon = utils.getChosenClassModifiers(ddb).some((mod) =>
     mod.friendlySubtypeName === weapon.definition.type &&
     mod.type == "monk-weapon"
   ) || (weapon.definition.isMonkWeapon && isMartialArtists(ddb.character.classes));

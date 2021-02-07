@@ -11,7 +11,7 @@ let isHalfProficiencyRoundedUp = (data, ab) => {
 
 let getProficiency = (data, toolName, ability) => {
   const modifiers = [
-    data.character.modifiers.class,
+    utils.getChosenClassModifiers(data),
     data.character.modifiers.race,
     utils.getActiveItemModifiers(data),
     data.character.modifiers.feat,
@@ -22,7 +22,7 @@ let getProficiency = (data, toolName, ability) => {
     .map((mod) => mod.type);
 
   const halfProficiency =
-    data.character.modifiers.class.find(
+    utils.getChosenClassModifiers(data).find(
       (modifier) =>
         // Jack of All trades/half-rounded down
         (modifier.type === "half-proficiency" && modifier.subType === "ability-checks") ||
