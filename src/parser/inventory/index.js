@@ -136,6 +136,18 @@ function getClassFeatures(ddb, weapon) {
   return warlockFeatures.concat(monkFeatures);
 }
 
+function getCustomValue(data, character, type) {
+  if (!character) return null;
+  const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
+  const customValue = characterValues.filter((value) => value.valueId == data.id && value.valueTypeId == data.entityTypeId);
+
+  if (customValue) {
+    const value = customValue.find((value) => value.typeId == type);
+    if (value) return value.value;
+  }
+  return null;
+}
+
 function getWeaponFlags(ddb, data, character) {
   let flags = {
     damage: {
@@ -233,18 +245,6 @@ function otherGear (ddb, data) {
       logger.warn("Other Gear type missing from " + data.definition.name);
   }
   return item;
-}
-
-function getCustomValue(data, character, type) {
-  if (!character) return null;
-  const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
-  const customValue = characterValues.filter((value) => value.valueId == data.id && value.valueTypeId == data.entityTypeId);
-
-  if (customValue) {
-    const value = customValue.find((value) => value.typeId == type);
-    if (value) return value.value;
-  }
-  return null;
 }
 
 function addCustomValues(ddbItem, foundryItem, character) {
