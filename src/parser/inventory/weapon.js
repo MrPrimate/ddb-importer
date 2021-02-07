@@ -180,12 +180,15 @@ let getDamage = (data, flags, betterRolls5e) => {
   // flags are only added for melee attacks
   const greatWeaponFighting = flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
   const dueling = flags.classFeatures.includes("Dueling") ? " + 2" : "";
+  const offHand = flags.classFeatures.includes("OffHand");
+  const twoWeapon = flags.classFeatures.includes("Two-Weapon Fighting");
+  const mod = (offHand && !twoWeapon) ? "" : " + @mod";
   const versatile = data.definition.properties
     .filter((property) => property.name === "Versatile")
     .map((versatile) => {
       if (versatile && versatile.notes) {
         return (
-          utils.parseDiceString(versatile.notes + `+ ${magicalDamageBonus}`, greatWeaponFighting).diceString + " + @mod"
+          utils.parseDiceString(versatile.notes + `+ ${magicalDamageBonus}`, greatWeaponFighting).diceString + mod
         );
       } else {
         return "";
@@ -215,7 +218,7 @@ let getDamage = (data, flags, betterRolls5e) => {
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
       utils.parseDiceString(diceString + `+ ${magicalDamageBonus}`, fightingStyleMod)
-        .diceString + " + @mod",
+        .diceString + mod,
       data.definition.damageType.toLowerCase(),
     ]);
   }
@@ -375,6 +378,7 @@ export default function parseWeapon(data, character, flags) {
 
   /* activation: { type: '', cost: 0, condition: '' }, */
   weapon.data.activation = { type: "action", cost: 1, condition: "" };
+  if (flags.classFeatures.includes("OffHand")) weapon.data.activation.type = "bonus";
 
   /* duration: { value: null, units: '' }, */
   // we leave that as-is

@@ -83,12 +83,12 @@ function getWarlockFeatures(ddb, weapon) {
 }
 
 function getMonkFeatures(ddb, weapon) {
-  const kenseiWeapon = ddb.character.modifiers.class.some((mod) =>
+  const kenseiWeapon = utils.getChosenClassModifiers(ddb).some((mod) =>
     mod.friendlySubtypeName === weapon.definition.type &&
     mod.type === "kensei"
   );
 
-  const monkWeapon = ddb.character.modifiers.class.some((mod) =>
+  const monkWeapon = utils.getChosenClassModifiers(ddb).some((mod) =>
     mod.friendlySubtypeName === weapon.definition.type &&
     mod.type == "monk-weapon"
   ) || (weapon.definition.isMonkWeapon && isMartialArtists(ddb.character.classes));
@@ -136,7 +136,7 @@ function getClassFeatures(ddb, weapon) {
   return warlockFeatures.concat(monkFeatures);
 }
 
-function getWeaponFlags(ddb, data) {
+function getWeaponFlags(ddb, data, character) {
   let flags = {
     damage: {
       parts: [],
@@ -165,6 +165,13 @@ function getWeaponFlags(ddb, data) {
     // do we have dueling fighting style?
     if (utils.hasChosenCharacterOption(ddb, "Dueling")) {
       flags.classFeatures.push("Dueling");
+    }
+    // do we have dueling fighting style?
+    if (utils.hasChosenCharacterOption(ddb, "Two-Weapon Fighting")) {
+      flags.classFeatures.push("Two-Weapon Fighting");
+    }
+    if (getCustomValue(data, character, 18)) {
+      flags.classFeatures.push("OffHand");
     }
   }
   // ranged fighting style is added as a global modifier elsewhere
@@ -253,6 +260,8 @@ function addCustomValues(ddbItem, foundryItem, character) {
   const silvered = getCustomValue(ddbItem, character, 20);
   // adamantine
   const adamantine = getCustomValue(ddbItem, character, 21);
+  // off-hand
+  // const offHand = getCustomValue(ddbItem, character, 18);
 
   if (toHitBonus) foundryItem.data.attackBonus += toHitBonus;
   if (damageBonus && foundryItem.data.damage.parts.length !== 0) {
@@ -278,7 +287,7 @@ function parseItem(ddb, data, character) {
           if (data.definition.type === "Ammunition" || data.definition.subType === "Ammunition") {
             item = parseAmmunition(data, "Ammunition");
           } else {
-            const flags = getWeaponFlags(ddb, data);
+            const flags = getWeaponFlags(ddb, data, character);
             item = parseWeapon(data, character, flags);
           }
           break;

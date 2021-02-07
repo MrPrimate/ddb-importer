@@ -182,7 +182,7 @@ export function getArmorClass(data, character) {
   // While not wearing armor, lets see if we have special abilities
   if (!isArmored(data)) {
     // unarmored abilities from Class/Race?
-    const unarmoredSources = [data.character.modifiers.class, data.character.modifiers.race];
+    const unarmoredSources = [utils.getChosenClassModifiers(data), data.character.modifiers.race];
     unarmoredSources.forEach((modifiers) => {
       const unarmoredAC = Math.max(getUnarmoredAC(modifiers, character));
       if (unarmoredAC) {
@@ -193,7 +193,7 @@ export function getArmorClass(data, character) {
     });
   } else {
     // check for things like fighters fighting style defense
-    const armorBonusSources = [data.character.modifiers.class, data.character.modifiers.race];
+    const armorBonusSources = [utils.getChosenClassModifiers(data), data.character.modifiers.race];
     armorBonusSources.forEach((modifiers) => {
       const armoredACBonuses = getArmoredACBonuses(modifiers, character);
       miscACBonus += armoredACBonuses.reduce((a, b) => a + b, 0);
@@ -203,7 +203,7 @@ export function getArmorClass(data, character) {
   // Generic AC bonuses like Warforfed Integrated Protection
   // item modifiers are loaded by ac calcs
   const miscModifiers = [
-    data.character.modifiers.class,
+    utils.getChosenClassModifiers(data),
     data.character.modifiers.race,
     data.character.modifiers.background,
     data.character.modifiers.feat,
@@ -307,12 +307,15 @@ export function getArmorClass(data, character) {
           value: armorAC + gearAC + miscACBonus,
         });
         break;
-      case "Medium Armor":
-        armorClassValues.push({
-          name: armors[armor].definition.name,
-          value: armorAC + Math.min(2, character.data.abilities.dex.mod) + gearAC + miscACBonus,
-        });
-        break;
+      case "Medium Armor": {
+          const maxDexMedium = Math.max(...utils.filterBaseModifiers(data, "set", "ac-max-dex-armored-modifier")
+            .map((mod) => mod.value), 2);
+          armorClassValues.push({
+            name: armors[armor].definition.name,
+            value: armorAC + Math.min(maxDexMedium, character.data.abilities.dex.mod) + gearAC + miscACBonus,
+          });
+          break;
+        }
       case "Light Armor":
         armorClassValues.push({
           name: armors[armor].definition.name,
@@ -328,7 +331,7 @@ export function getArmorClass(data, character) {
     }
   }
 
-  // utils.log(armorClassValues);
+  logger.debug("Final AC Choices:", armorClassValues);
   // get the max AC we can use from our various computed values
   const max = Math.max(...armorClassValues.map((type) => type.value));
 

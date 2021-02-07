@@ -83,7 +83,7 @@ export default function parseClasses(ddb) {
       : []);
 
     // const classSkillSubType = `choose-a-${characterClass.definition.name.toLowerCase()}-skill`;
-    // const skillIds = ddb.character.modifiers.class
+    // const skillIds = utils.getChosenClassModifiers(ddb)
     //   .filter((mod) => mod.subType === classSkillSubType && mod.type === "proficiency")
     //   .map((mod) => mod.componentId);
 

@@ -54,7 +54,7 @@ export function getSpeed(data) {
 
   // unarmored movement for barbarians and monks
   if (!isArmored(data)) {
-    data.character.modifiers.class
+    utils.getChosenClassModifiers(data)
       .filter((modifier) => modifier.type === "bonus" && modifier.subType === "unarmored-movement")
       .forEach((bonusSpeed) => {
         for (let type in movementTypes) {

@@ -21,7 +21,7 @@ export function getCharacterSpells(ddb, character) {
     const abilityModifier = utils.calculateModifier(character.data.abilities[spellCastingAbility].value);
 
     const cantripBoost =
-      ddb.character.modifiers.class.filter(
+      utils.getChosenClassModifiers(ddb).filter(
         (mod) =>
           mod.type === "bonus" &&
           mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage` &&
