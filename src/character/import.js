@@ -105,7 +105,7 @@ const getCharacterAPIEndpoint = (characterId) => {
 };
 
 
-const getCharacterUpdatePolicyTypes = (invert=false) => {
+const getCharacterUpdatePolicyTypes = (invert = false) => {
   let itemTypes = [];
 
   if (invert) {
@@ -132,7 +132,7 @@ const getCharacterUpdatePolicyTypes = (invert=false) => {
  * @param {object} result object containing all character items sectioned as individual properties
  * @param {array[string]} sections an array of object properties which should be filtered
  */
-const filterItemsByUserSelection = (result, sections, invert=false) => {
+const filterItemsByUserSelection = (result, sections, invert = false) => {
   let items = [];
   const validItemTypes = getCharacterUpdatePolicyTypes(invert);
 
@@ -145,7 +145,7 @@ const filterItemsByUserSelection = (result, sections, invert=false) => {
 };
 
 
-const filterActorItemsByUserSelection = (actor, invert=false) => {
+const filterActorItemsByUserSelection = (actor, invert = false) => {
   const validItemTypes = getCharacterUpdatePolicyTypes(invert);
 
   const items = actor.items.filter((item) =>

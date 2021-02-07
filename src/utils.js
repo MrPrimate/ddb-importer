@@ -203,7 +203,7 @@ let utils = {
 
   filterBaseModifiers: (data, type, subType = null, restriction = ["", null]) => {
     const modifiers = [
-      //data.character.modifiers.class,
+      // data.character.modifiers.class,
       utils.getChosenClassModifiers(data),
       data.character.modifiers.race,
       data.character.modifiers.background,
