@@ -2,6 +2,7 @@
 
 * Bug resulted in Optional Class feature modifiers applied, even if not selected. Please let me know if there are missing features and abilities after installing this version.
 * Medium Armour Master did not set increased Dex mod for AC.
+* Support for off-hand weapons, dual weilding and two-weapon fighting.
 
 # 0.4.0
 
