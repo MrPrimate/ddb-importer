@@ -1,5 +1,6 @@
 # 0.4.3
 
+* MASSIVE BUG: Characters would not import some choices like ability scores during levelling.
 * Improved Active Effects transfer.
 
 # 0.4.1/0.4.2

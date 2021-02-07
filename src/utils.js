@@ -189,17 +189,21 @@ let utils = {
 
   getChosenClassModifiers: (data) => {
     // get items we are going to interact on
-    const modifiers = data.character.modifiers.class
-      .filter((mod) => data.character.options.class.some((option) =>
-          option.componentId == mod.componentId && option.componentTypeId == mod.componentTypeId
-        ));
+    const modifiers = data.character.modifiers.class.filter((mod) =>
+      data.character.options.class.some((option) =>
+       option.componentId == mod.componentId && option.componentTypeId == mod.componentTypeId
+      ) ||
+      data.character.choices.class.some((choice) =>
+       choice.componentId == mod.componentId && choice.componentTypeId == mod.componentTypeId
+      )
+      );
 
     return modifiers;
   },
 
   filterBaseModifiers: (data, type, subType = null, restriction = ["", null]) => {
     const modifiers = [
-      // data.character.modifiers.class,
+      //data.character.modifiers.class,
       utils.getChosenClassModifiers(data),
       data.character.modifiers.race,
       data.character.modifiers.background,
