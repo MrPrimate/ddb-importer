@@ -1,6 +1,7 @@
 # 0.4.1
 
 * Bug resulted in Optional Class feature modifiers applied, even if not selected. Please let me know if there are missing features and abilities after installing this version.
+* Medium Armour Master did not set increased Dex mod for AC.
 
 # 0.4.0
 

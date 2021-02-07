@@ -307,12 +307,15 @@ export function getArmorClass(data, character) {
           value: armorAC + gearAC + miscACBonus,
         });
         break;
-      case "Medium Armor":
-        armorClassValues.push({
-          name: armors[armor].definition.name,
-          value: armorAC + Math.min(2, character.data.abilities.dex.mod) + gearAC + miscACBonus,
-        });
-        break;
+      case "Medium Armor": {
+          const maxDexMedium = Math.max(...utils.filterBaseModifiers(data, "set", "ac-max-dex-armored-modifier")
+            .map((mod) => mod.value), 2);
+          armorClassValues.push({
+            name: armors[armor].definition.name,
+            value: armorAC + Math.min(maxDexMedium, character.data.abilities.dex.mod) + gearAC + miscACBonus,
+          });
+          break;
+        }
       case "Light Armor":
         armorClassValues.push({
           name: armors[armor].definition.name,
@@ -328,7 +331,7 @@ export function getArmorClass(data, character) {
     }
   }
 
-  // utils.log(armorClassValues);
+  logger.debug("Final AC Choices:", armorClassValues);
   // get the max AC we can use from our various computed values
   const max = Math.max(...armorClassValues.map((type) => type.value));
 
