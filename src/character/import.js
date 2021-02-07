@@ -105,14 +105,25 @@ const getCharacterAPIEndpoint = (characterId) => {
 };
 
 
-const getCharacterUpdatePolicyTypes = () => {
+const getCharacterUpdatePolicyTypes = (invert=false) => {
   let itemTypes = [];
-  if (game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
-  if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
-  if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
-  if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
-    itemTypes = itemTypes.concat(EQUIPMENT_TYPES);
-  if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
+
+  if (invert) {
+    if (!game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
+    if (!game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
+    if (!game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
+    if (!game.settings.get("ddb-importer", "character-update-policy-equipment"))
+      itemTypes = itemTypes.concat(EQUIPMENT_TYPES);
+    if (!game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
+  } else {
+    if (game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
+    if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
+    if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
+    if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
+      itemTypes = itemTypes.concat(EQUIPMENT_TYPES);
+    if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
+
+  }
   return itemTypes;
 };
 
@@ -121,15 +132,26 @@ const getCharacterUpdatePolicyTypes = () => {
  * @param {object} result object containing all character items sectioned as individual properties
  * @param {array[string]} sections an array of object properties which should be filtered
  */
-const filterItemsByUserSelection = (result, sections) => {
+const filterItemsByUserSelection = (result, sections, invert=false) => {
   let items = [];
-  const validItemTypes = getCharacterUpdatePolicyTypes();
+  const validItemTypes = getCharacterUpdatePolicyTypes(invert);
 
   for (const section of sections) {
     items = items.concat(result[section]).filter((item) =>
       validItemTypes.includes(item.type)
     );
   }
+  return items;
+};
+
+
+const filterActorItemsByUserSelection = (actor, invert=false) => {
+  const validItemTypes = getCharacterUpdatePolicyTypes(invert);
+
+  const items = actor.items.filter((item) =>
+    validItemTypes.includes(item.type)
+  );
+
   return items;
 };
 
@@ -1067,7 +1089,7 @@ export default class CharacterImport extends FormApplication {
     const importKeepExistingActorItems = game.settings.get("ddb-importer", "character-update-policy-new");
     // attempt to update existing items
     const updateExistingItems = game.settings.get("ddb-importer", "character-update-policy-inplace");
-    const updateReady = (((this.actorOriginal || {}).flags || {}).ddbimporter || {}).inPlaceUpdateAvailable;
+    const updateReady = this.actorOriginal?.flags?.ddbimporter?.inPlaceUpdateAvailable;
 
     // store all spells in the folder specific for Dynamic Items
     if (magicItemsInstalled && this.result.itemSpells && Array.isArray(this.result.itemSpells)) {
@@ -1165,15 +1187,20 @@ export default class CharacterImport extends FormApplication {
 
   async removeActiveEffects(activeEffectCopy) {
     // remove current active effects
-    const ignoredItemOrigins = this.actorOriginal.items.filter((item) =>
+    const excludedItems = filterActorItemsByUserSelection(this.actorOriginal, true);
+    const ignoredItemIds = this.actorOriginal.items.filter((item) =>
       item.effects && item.effects.length > 0 &&
-      item.flags.ddbimporter?.ignoreItemImport
-    ).map((item) => `Actor.${this.actorOriginal._id}.OwnedItem.${item._id}`);
+      (item.flags.ddbimporter?.ignoreItemImport || excludedItems.some((ei) => ei._id === item._id))
+    ).map((item) => item._id);
+    // `Actor.${this.actorOriginal._id}.OwnedItem.${item._id}`
 
-    const itemEffects = this.actor.data.effects.filter((ae) => ae.origin?.includes('OwnedItem') && !ignoredItemOrigins.includes(ae.origin));
+    const itemEffects = this.actor.data.effects.filter((ae) =>
+      ae.origin?.includes('OwnedItem') &&
+      !ignoredItemIds.includes(ae.origin.split('.').slice(-1)[0])
+    );
     const ignoredEffects = this.actor.data.effects.filter((ae) =>
       // is this and ignored item
-      ignoredItemOrigins.includes(ae.origin) ||
+      ignoredItemIds.includes(ae.origin.split('.').slice(-1)[0]) ||
       // is this a core status effect (CUB)
       ae.flags?.core?.statusId
     );
@@ -1196,6 +1223,8 @@ export default class CharacterImport extends FormApplication {
   async parseCharacterData(html, data) {
     this.result = data.character;
 
+    logger.debug("Current Actor:", this.actorOriginal);
+
     // handle active effects
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
@@ -1217,6 +1246,7 @@ export default class CharacterImport extends FormApplication {
 
     // basic import
     CharacterImport.showCurrentTask(html, "Updating core character information");
+    logger.debug("Character data importing: ", this.result.character);
     await this.actor.update(this.result.character);
 
     // copy existing journal notes

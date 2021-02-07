@@ -1,3 +1,7 @@
+# 0.4.3
+
+* Improved Active Effects transfer.
+
 # 0.4.1/0.4.2
 
 * Bug resulted in Optional Class feature modifiers applied, even if not selected. Please let me know if there are missing features and abilities after installing this version.
