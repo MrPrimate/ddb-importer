@@ -195,7 +195,10 @@ let utils = {
       ) ||
       data.character.choices.class.some((choice) =>
        choice.componentId == mod.componentId && choice.componentTypeId == mod.componentTypeId
-      )
+      ) ||
+      data.character.classes.some((klass) => klass.classFeatures.some((feat) =>
+        feat.definition.id == mod.componentId && feat.definition.entityTypeId == mod.componentTypeId
+      ))
       );
 
     return modifiers;
