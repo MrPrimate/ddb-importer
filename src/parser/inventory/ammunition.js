@@ -113,6 +113,8 @@ export default function parseAmmunition(data, itemType) {
 
   ammunition.data.source = utils.parseSource(data.definition);
 
+  ammunition.data.properties = {};
+
   ammunition.data.quantity = data.quantity ? data.quantity : 1;
 
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
