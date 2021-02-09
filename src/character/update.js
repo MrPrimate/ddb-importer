@@ -271,7 +271,7 @@ async function addEquipment(actor, characterId, ddbData) {
   const itemsToAdd = actor.data.items.filter((item) =>
     !item.flags.ddbimporter?.action &&
     EQUIPMENT_TYPES.includes(item.type) &&
-    !ddbItems.some((s) => s.name === item.name && s.type === item.type && s.data.quantity === item.data.quantity) &&
+    !ddbItems.some((s) => s.name === item.name && s.type === item.type) &&
     item.flags.ddbimporter?.definitionId &&
     item.flags.ddbimporter?.definitionEntityTypeId
   );
@@ -361,6 +361,14 @@ async function updateEquipmentStatus(actor, characterId, ddbData, addEquipmentRe
       ((parseInt(item.data.uses.max) - parseInt(item.data.uses.value)) !== dItem.limitedUse.numberUsed)
     )
   );
+  const itemsToQuantity = actor.data.items.filter((item) =>
+    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
+    ddbItems.some((dItem) =>
+      item.flags.ddbimporter.id === dItem.id &&
+      item.name === dItem.definition.name &&
+      item.data.quantity !== dItem.quantity
+    )
+  );
 
   let promises = [];
 
@@ -375,9 +383,16 @@ async function updateEquipmentStatus(actor, characterId, ddbData, addEquipmentRe
   itemsToCharge.forEach((item) => {
     const itemData = {
       itemId: item.flags.ddbimporter.id,
-      charges: parseInt(item.data.uses.max) - parseInt(item.data.uses.value)
+      charges: parseInt(item.data.uses.max) - parseInt(item.data.uses.value),
     };
     promises.push(updateCharacterCall(characterId, "equipment/charges", itemData));
+  });
+  itemsToQuantity.forEach((item) => {
+    const itemData = {
+      itemId: item.flags.ddbimporter.id,
+      quantity: parseInt(item.data.quantity),
+    };
+    promises.push(updateCharacterCall(characterId, "equipment/quantity", itemData));
   });
 
   return Promise.all(promises);
@@ -420,8 +435,8 @@ export async function updateDDBCharacter(actor) {
   const syncId = actor.data.flags["ddb-importer"]?.syncId ? actor.data.flags["ddb-importer"].syncId + 1 : 0;
   let ddbData = await getCharacterData(characterId, syncId);
 
-  // console.warn(actor.data);
-  // console.warn(ddbData);
+  logger.debug("Current actor:", actor.data);
+  logger.debug("DDB Parsed data:", ddbData);
 
   let singlePromises = []
     .concat(

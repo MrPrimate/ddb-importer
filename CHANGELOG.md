@@ -1,3 +1,9 @@
+# 0.4.5
+
+* Ammunition that had been customised with silvered property failed to import.
+* Some Effects on actors would cause the importer to stumble.
+* Items with changed quantity did not update when Updating D&D Beyond.
+
 # 0.4.4
 
 * Good selection of Class Features Added to icon list. (Thanks @Zac !)
