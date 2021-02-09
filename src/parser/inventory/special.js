@@ -65,9 +65,10 @@ export function fixItems(items) {
         item.data.uses = { value: 1, max: "1", per: "day" };
         item.data.range = { value: 60, long: null, units: "ft" };
         item.data.ability = "dex";
-        item.data.activation = "rwak";
+        item.data.actionType = "rwak";
         item.data.save = { ability: "str", dc: 20, scaling: "flat" };
         item.data.target = { value: 1, width: null, units: "any", type: "creature" };
+        break;
       // no default
     }
   });
