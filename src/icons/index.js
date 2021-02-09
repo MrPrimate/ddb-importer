@@ -22,34 +22,70 @@ const TYPE_MAP = {
   feat: "feats",
 };
 
+const FILE_MAP = {
+  items: ["items.json"],
+  spells: ["spells.json"],
+  feats: ["feats.json", "class-features.json"],
+};
+
+async function loadDataFile(fileName) {
+  logger.debug(`Getting icon mapping for ${fileName}`);
+  const fileExists = await utils.fileExists("[data] modules/ddb-importer/data", fileName);
+
+  let data = [];
+  if (fileExists) {
+    const url = await utils.getFileUrl("[data] modules/ddb-importer/data", fileName);
+    const response = await fetch(url, { method: "GET" });
+    // eslint-disable-next-line require-atomic-updates
+    data = await response.json();
+  }
+  return data;
+}
+
 async function loadIconMap(type) {
   // check to see if dictionary is loaded
   logger.debug(`Loading Inbuilt Icon Map for ${type}`);
   if (iconMap[type]) return;
 
-  // const path = `${BASE_PATH}/modules/ddb-importer/data/${type}.json`;
-  // const fileExists = await utils.serverFileExists(path);
-  const fileExists = await utils.fileExists("[data] modules/ddb-importer/data", `${type}.json`);
-
-  if (fileExists) {
-    let url = await utils.getFileUrl("[data] modules/ddb-importer/data", `${type}.json`);
-    let response = await fetch(url, { method: "GET" });
-    // eslint-disable-next-line require-atomic-updates
-    iconMap[type] = await response.json();
+  let data = [];
+  for (const fileName of FILE_MAP[type]) {
+    // eslint-disable-next-line no-await-in-loop
+    const dataLoad = await loadDataFile(fileName);
+    data = data.concat(dataLoad);
   }
+
+  iconMap[type] = data;
   // console.warn(iconMap);
 }
 
-function getIconPath(name, type) {
+function looseMatch(item, typeValue) {
+  const originalName = item.flags?.ddbimporter?.originalName;
+  if (originalName) {
+    const originalMatch = iconMap[typeValue].find((entry) => entry.name === originalName);
+    if (originalMatch) return originalMatch.path;
+  }
+
+  if (item.name.includes(":")){
+    const nameArray = item.name.split(":");
+    const postMatch = iconMap[typeValue].find((entry) => entry.name === nameArray[1].trim());
+    if (postMatch) return postMatch.path;
+    const subMatch = iconMap[typeValue].find((entry) => entry.name === nameArray[0].trim());
+    if (subMatch) return subMatch.path;
+  }
+
+  return null;
+}
+
+function getIconPath(item, type) {
   // check to see if we are able to load a dic for that type
   const typeValue = TYPE_MAP[type];
   if (!typeValue || !iconMap[typeValue]) return null;
 
-  const iconMatch = iconMap[typeValue].find((entry) => entry.name === name);
+  const iconMatch = iconMap[typeValue].find((entry) => entry.name === item.name);
   if (iconMatch) {
     return iconMatch.path;
   } else {
-    return null;
+    return looseMatch(item, typeValue);
   }
 }
 
@@ -80,7 +116,7 @@ export async function copyInbuiltIcons(items) {
   return new Promise((resolve) => {
     const iconItems = items.map((item) => {
       logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
-      const pathMatched = getIconPath(item.name, item.type);
+      const pathMatched = getIconPath(item, item.type);
       if (pathMatched) item.img = pathMatched;
       return item;
     });
