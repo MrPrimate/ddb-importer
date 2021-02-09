@@ -1196,11 +1196,11 @@ export default class CharacterImport extends FormApplication {
 
     const itemEffects = this.actor.data.effects.filter((ae) =>
       ae.origin?.includes('OwnedItem') &&
-      !ignoredItemIds.includes(ae.origin.split('.').slice(-1)[0])
+      !ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0])
     );
     const ignoredEffects = this.actor.data.effects.filter((ae) =>
       // is this and ignored item
-      ignoredItemIds.includes(ae.origin.split('.').slice(-1)[0]) ||
+      ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0]) ||
       // is this a core status effect (CUB)
       ae.flags?.core?.statusId
     );
