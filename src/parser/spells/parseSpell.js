@@ -27,6 +27,7 @@ export function parseSpell(data, character) {
         definitionId: data.definition.id,
         entityTypeId: data.entityTypeId,
         dndbeyond: data.flags.ddbimporter.dndbeyond,
+        originalName: data.name,
       },
     },
   };

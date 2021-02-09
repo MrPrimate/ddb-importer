@@ -412,12 +412,14 @@ export default function getInventory(ddb, character, itemSpells) {
     : [];
 
   for (let entry of ddb.character.inventory.concat(customItems)) {
+    const originalName = entry.definition.name;
     entry.definition.name = getName(entry, character);
     var item = Object.assign({}, parseItem(ddb, entry, character));
     addCustomValues(entry, item, character);
     enrichFlags(entry, item);
     if (item) {
       item.flags.magicitems = parseMagicItem(entry, itemSpells);
+      item.flags.ddbimporter.originalName = originalName;
       items.push(item);
     }
   }
