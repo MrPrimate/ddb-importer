@@ -1,3 +1,9 @@
+# 0.4.4
+
+* Good selection of Class Features Added to icon list. (Thanks @Zac !)
+* Iron Bands of Binding did not import.
+* Bug fix: some AC mods, typically unarmed fighting were not detected in some cases.
+
 # 0.4.3
 
 * MASSIVE BUG: Characters would not import some choices like ability scores during levelling.

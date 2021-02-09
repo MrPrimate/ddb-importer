@@ -65,7 +65,7 @@ function looseMatch(item, typeValue) {
     if (originalMatch) return originalMatch.path;
   }
 
-  if (item.name.includes(":")){
+  if (item.name.includes(":")) {
     const nameArray = item.name.split(":");
     const postMatch = iconMap[typeValue].find((entry) => entry.name === nameArray[1].trim());
     if (postMatch) return postMatch.path;
