@@ -98,10 +98,10 @@ function getItemData() {
         }
         return data;
       })
-      .then((data)=> {
+      .then((data) => {
         if (sources.length == 0) return data.data;
-        return data.data.filter((item)=>
-          item.sources.some((source)=> sources.includes(source.sourceId))
+        return data.data.filter((item) =>
+          item.sources.some((source) => sources.includes(source.sourceId))
         );
       })
       .then((data) => getCharacterInventory(data))
