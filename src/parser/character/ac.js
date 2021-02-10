@@ -182,7 +182,7 @@ export function getArmorClass(data, character) {
   // While not wearing armor, lets see if we have special abilities
   if (!isArmored(data)) {
     // unarmored abilities from Class/Race?
-    const unarmoredSources = [utils.getChosenClassModifiers(data), data.character.modifiers.race];
+    const unarmoredSources = [utils.getChosenClassModifiers(data), data.character.modifiers.race, data.character.modifiers.feat];
     unarmoredSources.forEach((modifiers) => {
       const unarmoredAC = Math.max(getUnarmoredAC(modifiers, character));
       if (unarmoredAC) {
