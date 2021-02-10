@@ -15,12 +15,10 @@ import { getSave } from "./save.js";
 import { getSpellScaling } from "./scaling.js";
 
 export function parseSpell(data, character) {
-  /**
-   * MAIN parseSpell
-   */
   let spell = {
     type: "spell",
     data: JSON.parse(utils.getTemplate("spell")),
+    name: data.definition.name.replace(/’/g, "'"),
     flags: {
       ddbimporter: {
         id: data.id,
@@ -28,15 +26,11 @@ export function parseSpell(data, character) {
         entityTypeId: data.entityTypeId,
         dndbeyond: data.flags.ddbimporter.dndbeyond,
         originalName: data.name,
+        sources: data.definition.sources,
+        tags: data.definition.tags,
       },
     },
   };
-
-  // spell name
-  spell.name = data.definition.name.replace(/’/g, "'");
-
-  // add tags
-  spell.flags.ddbimporter.dndbeyond.tags = data.definition.tags;
 
   // spell level
   spell.data.level = data.definition.level;

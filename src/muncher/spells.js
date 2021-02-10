@@ -11,6 +11,7 @@ function getSpellData(className) {
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
   const debugJson = game.settings.get("ddb-importer", "debug-json");
+  const sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/class/spells`, {
@@ -31,7 +32,13 @@ function getSpellData(className) {
         }
         return data;
       })
-      .then((data) => getSpells(data.data))
+      .then((data)=> {
+        if (sources.length == 0) return data.data;
+        return data.data.filter((spell)=>
+          spell.definition.sources.some((source)=> sources.includes(source.sourceId))
+        );
+      })
+      .then((data) => getSpells(data))
       .then((data) => resolve(data))
       .catch((error) => reject(error));
     });

@@ -39,6 +39,10 @@
                   data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
           </div>
           {{/each}}
+          <div>
+              <button type="button" id="munch-source-select" class="munch-button"
+                  {{#if tiers.source}}enabled{{else}}disabled{{/if}}>{{#if tiers.source}}Source filter (monsters, spells, items){{else}}Source filter for Undying and God Tier Supporters{{/if}}</button>
+          </div>
       </div>
   </section>
 
@@ -118,10 +122,6 @@
                             data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
                     </div>
                     {{/each}}
-                  <div>
-                      <button type="button" id="munch-source-select" class="munch-button"
-                          {{#if tiers.source}}enabled{{else}}disabled{{/if}}>{{#if tiers.source}}Source filter{{else}}Source filter for Undying and God Tier Supporters{{/if}}</button>
-                  </div>
                   Make sure you have imported spells before Monsters!
                   <div>
                       <button type="button" id="munch-monsters-start" class="munch-button"

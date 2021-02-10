@@ -77,6 +77,7 @@ function getItemData() {
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
   const debugJson = game.settings.get("ddb-importer", "debug-json");
+  const sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/items`, {
@@ -97,7 +98,13 @@ function getItemData() {
         }
         return data;
       })
-      .then((data) => getCharacterInventory(data.data))
+      .then((data)=> {
+        if (sources.length == 0) return data.data;
+        return data.data.filter((item)=>
+          item.sources.some((source)=> sources.includes(source.sourceId))
+        );
+      })
+      .then((data) => getCharacterInventory(data))
       .then((items) => generateImportItems(items))
       .then((data) => resolve(data))
       .catch((error) => reject(error));

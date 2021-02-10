@@ -1,3 +1,9 @@
+# 0.4.6
+
+* Claws added to weapon icons.
+* Dragon Hide feat now detects AC bonus.
+* Munching: source filter is now applied to spells and items.
+
 # 0.4.5
 
 * Ammunition that had been customised with silvered property failed to import.

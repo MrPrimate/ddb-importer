@@ -387,6 +387,7 @@ function enrichFlags(data, item) {
   if (data.entityTypeId) item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
   if (data.id) item.flags.ddbimporter['id'] = data.id;
   if (data.definition?.tags) item.flags.ddbimporter.dndbeyond['tags'] = data.definition.tags;
+  if (data.definition?.sources) item.flags.ddbimporter.dndbeyond['sources'] = data.definition.sources;
 }
 
 export default function getInventory(ddb, character, itemSpells) {
