@@ -76,9 +76,17 @@ let getEquippedAC = (equippedGear) => {
 // returns an array of ac values from provided array of modifiers
 let getUnarmoredAC = (modifiers, character) => {
   let unarmoredACValues = [];
-  const isUnarmored = modifiers.filter(
+  let isUnarmored = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "unarmored-armor-class" && modifier.isGranted
   );
+  // if (isUnarmored.length === 0) {
+  //   // Some items will have an unarmoured bonus, but won't set a base, so if we are in this
+  //   // situation, we add a default base ac
+  //   isUnarmored.push({
+  //     statId: 2,
+  //     value: 0,
+  //   });
+  // }
 
   const maxUnamoredDexMods = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "ac-max-dex-modifier" && modifier.isGranted
@@ -182,7 +190,11 @@ export function getArmorClass(data, character) {
   // While not wearing armor, lets see if we have special abilities
   if (!isArmored(data)) {
     // unarmored abilities from Class/Race?
-    const unarmoredSources = [utils.getChosenClassModifiers(data), data.character.modifiers.race, data.character.modifiers.feat];
+    const unarmoredSources = [
+      utils.getChosenClassModifiers(data),
+      data.character.modifiers.race,
+      data.character.modifiers.feat,
+    ];
     unarmoredSources.forEach((modifiers) => {
       const unarmoredAC = Math.max(getUnarmoredAC(modifiers, character));
       if (unarmoredAC) {
@@ -299,6 +311,12 @@ export function getArmorClass(data, character) {
         armorClassValues.push({
           name: armors[armor].definition.name,
           value: armorAC + gearAC + miscACBonus + unarmoredACBonus,
+        });
+        break;
+      case "Unarmored":
+        armorClassValues.push({
+          name: armors[armor].definition.name,
+          value: armorAC + gearAC + miscACBonus + unarmoredACBonus + character.data.abilities.dex.mod,
         });
         break;
       case "Heavy Armor":

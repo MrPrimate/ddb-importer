@@ -1,3 +1,7 @@
+# 0.4.7
+
+* In some situations the Unarmored AC would not add unarmored bonuses from items.
+
 # 0.4.6
 
 * Claws added to weapon icons.
