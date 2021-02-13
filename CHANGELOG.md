@@ -1,6 +1,7 @@
 # 0.4.7
 
 * In some situations the Unarmored AC would not add unarmored bonuses from items.
+* (Regression) Monsters did not detect expertise skills. (0.4.1-0.4.6).
 
 # 0.4.6
 
