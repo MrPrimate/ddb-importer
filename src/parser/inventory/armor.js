@@ -5,7 +5,7 @@ import utils from "../../utils.js";
  * Supported Types only: Simple/Martial Melee/Ranged and Ammunition (Firearms in D&DBeyond)
  * @param {obj} data item data
  */
-let getArmorType = (data) => {
+let getArmorType = (data, flags) => {
   // get the generic armor type
   const nameEntry = DICTIONARY.equipment.armorType.find((type) => type.name === data.definition.type);
   const idEntry = DICTIONARY.equipment.armorType.find((type) => type.id === data.definition.armorTypeId);
@@ -27,7 +27,7 @@ let getArmorType = (data) => {
       maxDexModifier = 0;
       break;
     case "Medium Armor":
-      maxDexModifier = 2;
+      maxDexModifier = flags.maxMediumArmorDex;
       break;
     default:
       maxDexModifier = null;
@@ -112,7 +112,7 @@ let getEquipped = (data) => {
 //   }
 // };
 
-export default function parseArmor(data, character) {
+export default function parseArmor(data, character, flags) {
   /**
    * MAIN parseEquipment
    */
@@ -135,7 +135,7 @@ export default function parseArmor(data, character) {
   //     "value": 10,
   //     "dex": null
   // }
-  armor.data.armor = getArmorType(data);
+  armor.data.armor = getArmorType(data, flags);
 
   /* "strength": 0 */
   armor.data.strength = getStrength(data);

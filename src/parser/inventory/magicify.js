@@ -42,6 +42,7 @@
 //
 //
 import DICTIONARY from "../../dictionary.js";
+import utils from "../../utils.js";
 
 const MAGICITEMS = {};
 MAGICITEMS.DAILY = "r1";
@@ -189,7 +190,9 @@ function createDefaultItem() {
     tables: {},
     equipped: true,
     attuned: false,
-    destroyFlavorText: "",
+    destroyFlavorText: (utils.isModuleInstalledAndActive("magicitems")) ?
+      game.i18n.localize("MAGICITEMS.MagicItemDestroy") :
+      "reaches 0 charges: it crumbles into ashes and is destroyed.",
     sorting: "l"
   };
 }
