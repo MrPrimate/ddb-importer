@@ -113,6 +113,7 @@ export async function getRaces(data) {
   logger.debug("get races started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
+  let results = [];
   let races = [];
   let racialFeatures = [];
 
@@ -123,6 +124,7 @@ export async function getRaces(data) {
       if (!trait.definition.hideInSheet && !NO_TRAITS.includes(trait.definition.name)) {
         const parsedTrait = getRacialTrait(trait.definition, race.fullName);
         racialFeatures.push(parsedTrait);
+        results.push({ race: race.fullName, trait: trait.definition.name });
       }
     });
   });
@@ -153,5 +155,5 @@ export async function getRaces(data) {
 
   await updateCompendium("races", { races: fiddledRaces }, updateBool);
 
-  return fiddledRaces.concat(fiddledRacialFeatures);
+  return results;
 }

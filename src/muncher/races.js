@@ -38,6 +38,8 @@ function getRaceData() {
 export async function parseRaces() {
   const results = await getRaceData();
 
+  // download(JSON.stringify(results), `races-icon.json`, "application/json");
+
   return results;
 }
 
