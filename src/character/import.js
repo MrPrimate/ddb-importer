@@ -11,6 +11,7 @@ import {
   getDDBEquipmentIcons,
   getDDBSpellSchoolIcons,
   getDDBGenericItemIcons,
+  addEffectIcons,
 } from "../muncher/import.js";
 import { download, getCampaignId, getPatreonTiers } from "../muncher/utils.js";
 import {
@@ -952,6 +953,7 @@ export default class CharacterImport extends FormApplication {
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     const daeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy");
     const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
 
     // if we still have items to add, add them
     if (items.length > 0) {
@@ -992,6 +994,11 @@ export default class CharacterImport extends FormApplication {
         CharacterImport.showCurrentTask(html, "Importing DAE Effects");
         items = await addItemsDAESRD(items);
       }
+
+      if (addEffects) {
+        items = addEffectIcons(items);
+      }
+
 
     }
     return Promise.all(items);
@@ -1232,17 +1239,18 @@ export default class CharacterImport extends FormApplication {
 
     // We loop back over the spell slots to update them to our computed
     // available value as per DDB.
-    let actorUpdates = [];
-    CharacterImport.showCurrentTask(html, "Updating spell slots");
-    for (const [type, info] of Object.entries(this.result.character.data.spells)) {
-      actorUpdates.push(
-        this.actor.update({
-          [`data.spells.${type}.value`]: parseInt(info.value),
-        })
-      );
-    }
+    // let actorUpdates = [];
+    // CharacterImport.showCurrentTask(html, "Updating spell slots");
+    // for (const [type, info] of Object.entries(this.result.character.data.spells)) {
+    //   actorUpdates.push(
+    //     this.actor.update({
+    //       [`data.spells.${type}.value`]: parseInt(info.value),
+    //     })
+    //   );
+    // }
+    // NOt needed anymore
 
-    await Promise.all(actorUpdates);
+    // await Promise.all(actorUpdates);
 
     // copy items whole from DAE
     const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");

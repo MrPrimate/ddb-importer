@@ -976,6 +976,43 @@ async function getIconizerIcons(items) {
   return items;
 }
 
+/**
+ * Add an item to effects, if available
+ * @param {*} items
+ */
+export function addEffectIcons(items) {
+  logger.debug("Adding Icons to effects");
+
+  items.forEach((item) => {
+    if (item.effects && (item.img || item.img !== "" || item.img !== "icons/svg/mystery-man.svg")) {
+      item.effects.forEach((effect) => {
+
+        if (!effect.icon || effect.icon === "" || effect.icon === "icons/svg/mystery-man.svg") {
+          effect.icon = item.img;
+        }
+      });
+    }
+
+  });
+  return items;
+  // const updatedItems = items.map((item) => {
+  //   if (item.effects?.length > 0 && (item.img || item.img !== "" || item.img !== "icons/svg/mystery-man.svg")) {
+  //     console.warn(item);
+  //     item.effects = item.effects.map((effect) => {
+  //       console.log(effect);
+  //       if (!effect.icon || effect.icon === "" || effect.icon === "icons/svg/mystery-man.svg") {
+  //         effect.icon = item.img;
+  //       }
+  //       return effect;
+  //     });
+  //   }
+
+  //   return item;
+  // });
+  console.warn(updatedItems);
+  return Promise.all(updatedItems);
+}
+
 export async function updateIcons(items, srdIconUpdate = true) {
   // this will use ddb spell school icons as a fall back
   const ddbItemIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-item-icons");
@@ -1018,6 +1055,12 @@ export async function updateIcons(items, srdIconUpdate = true) {
   if (ddbGenericItemIcons) {
     logger.debug("DDB Generic Item Icon Match");
     items = await getDDBGenericItemIcons(items, true);
+  }
+
+  // update any generated effects
+  const addEffects = game.settings.get("ddb-importer", "munching-policy-add-effects");
+  if (addEffects) {
+    items = addEffectIcons(items);
   }
 
   return items;

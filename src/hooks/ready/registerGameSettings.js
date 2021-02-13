@@ -356,6 +356,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-add-effects", {
+    name: "ddb-importer.character-update-policy-add-effects.name",
+    hint: "ddb-importer.character-update-policy-add-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-use-existing", {
     name: "ddb-importer.character-update-policy-use-existing.name",
     hint: "ddb-importer.character-update-policy-use-existing.hint",
@@ -644,6 +653,15 @@ export default function () {
   game.settings.register("ddb-importer", "munching-policy-remote-images", {
     name: "ddb-importer.munching-policy-remote-images.name",
     hint: "ddb-importer.munching-policy-remote-images.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "munching-policy-add-effects", {
+    name: "ddb-importer.munching-policy-add-effects.name",
+    hint: "ddb-importer.munching-policy-add-effects.hint",
     scope: "player",
     config: false,
     type: Boolean,
