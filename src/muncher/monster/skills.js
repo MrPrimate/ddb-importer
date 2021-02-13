@@ -59,17 +59,25 @@ export function getSkills (skills, monster, DDB_CONFIG) {
 
     skills[key].mod = mod;
 
+    const calculatedScore = proficiencyBonus + mod;
+
     if (monsterSkill) {
       skills[key].value = 1;
       skills[key].prof = proficiencyBonus;
       skills[key].bonus = monsterSkill.additionalBonus || 0;
     }
-    const calculatedScore = skills[key].prof + mod + skills[key].bonus;
+
     skills[key].total = calculatedScore;
     skills[key].passive = 10 + calculatedScore;
 
-    if (monsterSkill) {
-      if (monsterSkill.value > calculatedScore) {
+    if (monsterSkill && monsterSkill.value != calculatedScore) {
+      if (monsterSkill.value == calculatedScore + proficiencyBonus) {
+        skills[key].passive += proficiencyBonus;
+        skills[key].value = 2;
+        skills[key].total += proficiencyBonus;
+        skills[key].prof += proficiencyBonus;
+        skills[key].bonus = 0;
+      } else if (monsterSkill.value > calculatedScore + proficiencyBonus) {
         skills[key].passive += proficiencyBonus;
         skills[key].value = 2;
         skills[key].total += proficiencyBonus;

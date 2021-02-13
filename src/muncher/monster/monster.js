@@ -7,7 +7,7 @@ import {
   getConditionImmunities,
 } from "./conditions.js";
 import { getAbilities } from "./abilities.js";
-import { getSkills } from "./skills.js";
+import { getSkillsHTML } from "./skills.js";
 import { getLanguages } from "./languages.js";
 import { getHitPoints } from "./hp.js";
 import { getSpeed } from "./movement.js";
@@ -67,7 +67,7 @@ export function parseMonsters(monsterData) {
       foundryActor.data.abilities = getAbilities(foundryActor.data.abilities, monster, DDB_CONFIG);
 
       // skills
-      foundryActor.data.skills = getSkills(foundryActor.data.skills, monster, DDB_CONFIG);
+      foundryActor.data.skills = getSkillsHTML(foundryActor.data.skills, monster, DDB_CONFIG);
 
       // Senses
       foundryActor.data.attributes.senses = getSenses(monster, DDB_CONFIG);
