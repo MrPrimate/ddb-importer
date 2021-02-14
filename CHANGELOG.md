@@ -1,3 +1,8 @@
+# 0.4.8
+
+* Custom languages now import seperately
+* Attempt to correct weirdness with optional feature modifier selection on character imports.
+
 # 0.4.7
 
 * In some situations the Unarmored AC would not add unarmored bonuses from items.
