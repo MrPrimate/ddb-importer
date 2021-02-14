@@ -15,7 +15,7 @@ import logger from "../../logger.js";
  * @param {*} origin
  */
 
-function armorEffectFromFormula(formula, mode, itemData, label, origin) {
+function baseACBonusEffect(formula, mode, itemData, label, origin) {
   return {
     label: label,
     icon: itemData.img,
@@ -35,15 +35,26 @@ function armorEffectFromFormula(formula, mode, itemData, label, origin) {
       startRound: null,
       startTurn: null,
     },
+    // tint: "",
     transfer: true,
-    disabled: true,
+    disabled: false,
     origin: origin,
-    flags: {dae: {transfer: true, armorEffect: true}, "ddb-importer": {disabled: true}}
+    flags: {
+      dae: {
+        transfer: true,
+        stackable: false,
+        // armorEffect: true
+      },
+      ddbimporter: {
+        disabled: false
+      }
+    },
+    //_id: `${randomID()}${randomID()}`,
   };
 }
 
 function generateACBonusEffect(itemData, origin, label, bonus) {
-  let ae = armorEffectFromFormula(`${bonus}`, CONST.ACTIVE_EFFECT_MODES.ADD, itemData, label, origin);
+  let ae = baseACBonusEffect(bonus, CONST.ACTIVE_EFFECT_MODES.ADD, itemData, label, origin);
   ae.changes.forEach(c => c.priority = 11);
   return ae;
 }
@@ -65,22 +76,31 @@ export function addACBonusEffect(ddbItem, foundryItem) {
     if (!ddbItem.definition.canEquip && !ddbItem.definition.canAttune && !ddbItem.definition.isConsumable) {
       // if item just gives a thing and not potion/scroll
       effect.disabled = false;
-      setProperty(effect, "flags.ddb-importer.disabled", false);
+      setProperty(effect, "flags.ddbimporter.disabled", false);
       setProperty(effect, "flags.dae.alwaysActive", true);
     } else if(
       (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
       (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
       (!ddbItem.definition.canAttune && ddbItem.equipped)) // can't attune but is equipped
     {
-      console.log("setting disabled to false")
-      setProperty(effect, "flags.ddb-importer.disabled", false);
+      setProperty(effect, "flags.ddbimporter.disabled", false);
       effect.disabled = false;
+    } else {
+      effect.disabled = true;
+      setProperty(effect, "flags.ddbimporter.disabled", true);
     }
 
+    setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
+    setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
     // set dae flag for active equipped
     if(ddbItem.definition.canEquip || ddbItem.definition.canAttune) {
       setProperty(effect, "flags.dae.activeEquipped", true);
+    } else {
+      setProperty(effect, "flags.dae.activeEquipped", false);
     }
+
+    console.error(JSON.parse(JSON.stringify(effect)));
+    console.warn(effect);
 
     foundryItem.effects.push(effect);
   }
