@@ -189,17 +189,46 @@ let utils = {
 
   getChosenClassModifiers: (data) => {
     // get items we are going to interact on
-    const modifiers = data.character.modifiers.class.filter((mod) =>
-      data.character.options.class.some((option) =>
-       option.componentId == mod.componentId && option.componentTypeId == mod.componentTypeId
-      ) ||
-      data.character.choices.class.some((choice) =>
-       choice.componentId == mod.componentId && choice.componentTypeId == mod.componentTypeId
-      ) ||
-      data.character.classes.some((klass) => klass.classFeatures.some((feat) =>
-        feat.definition.id == mod.componentId && feat.definition.entityTypeId == mod.componentTypeId
-      ))
+    const modifiers = data.character.modifiers.class.filter((mod) =>{
+      const isClassFeature = data.character.classes.some((klass) => klass.classFeatures.some((feat) =>
+        feat.definition.id == mod.componentId && feat.definition.entityTypeId == mod.componentTypeId &&
+        // make sure this class feature is not replaced
+        !data.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id)
+      ));
+      // generate a list to check in option check
+      const classFeatureIds = data.character.classes.map((klass) => klass.classFeatures.map((feat) => feat.definition.id)).flat();
+      const isClassOption = data.character.options.class.some((option) =>
+        // does this class option match a modifier?
+        ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId) ||
+        (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId) ) &&
+        // has this feature set been replacd by an optional class feature?
+        !data.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.componentId) &&
+        // has it been chosen?
+        data.character.choices.class.some((choice) =>
+          choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
+        ) &&
+        // is this option actually part of the class list?
+        classFeatureIds.includes(option.componentId)
       );
+      // if it's been replaced by a class feature lets check that
+      const isOptionalClassOption = data.character.options.class.some((option) =>
+        ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId) ||
+        (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId) ) &&
+        // !data.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.definition.id) &&
+        (
+          data.character.choices.class.some((choice) =>
+            choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
+          ) ||
+          data.character.classOptions.some((classOption) =>
+            classOption.id == option.componentId && classOption.entityTypeId == option.componentTypeId
+          )
+        ) &&
+        data.character.optionalClassFeatures.some((f) => f.classFeatureId == option.componentId)
+      );
+
+
+      return isClassFeature || isClassOption || isOptionalClassOption;
+    });
 
     return modifiers;
   },
