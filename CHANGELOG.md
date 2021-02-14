@@ -1,6 +1,6 @@
 # 0.4.8
 
-* Custom languages now import seperately
+* Custom languages now import separately
 * Attempt to correct weirdness with optional feature modifier selection on character imports.
 
 # 0.4.7
