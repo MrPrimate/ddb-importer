@@ -29,7 +29,7 @@ import logger from "../../logger.js";
 import { fixItems } from "./special.js";
 
 // effects support
-import { addACBonusEffect } from "../effects/effects.js";
+import { generateItemEffects } from "../effects/effects.js";
 
 /**
  * We get extra damage to a weapon attack here, for example Improved
@@ -415,19 +415,21 @@ export default function getInventory(ddb, character, itemSpells) {
     }))
     : [];
 
-  for (let entry of ddb.character.inventory.concat(customItems)) {
-    const originalName = entry.definition.name;
-    entry.definition.name = getName(entry, character);
-    const flags = getItemFlags(ddb, entry, character);
+  for (let ddbItem of ddb.character.inventory.concat(customItems)) {
+    const originalName = ddbItem.definition.name;
+    ddbItem.definition.name = getName(ddbItem, character);
+    const flags = getItemFlags(ddb, ddbItem, character);
 
-    var item = Object.assign({}, parseItem(ddb, entry, character, flags));
-    addCustomValues(entry, item, character);
-    enrichFlags(entry, item);
+    var item = Object.assign({}, parseItem(ddb, ddbItem, character, flags));
+    addCustomValues(ddbItem, item, character);
+    enrichFlags(ddbItem, item);
     if (item) {
-      item.flags.magicitems = parseMagicItem(entry, itemSpells);
+      item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       if (!item.effects) item.effects = [];
-      if (game.settings.get("ddb-importer", "character-update-policy-add-effects")) item = addACBonusEffect(entry, item);
+      if (game.settings.get("ddb-importer", "character-update-policy-add-effects")) {
+        item = generateItemEffects(ddb, character, ddbItem, item);
+      }
       items.push(item);
     }
   }

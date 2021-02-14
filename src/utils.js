@@ -2,12 +2,9 @@ import DirectoryPicker from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";
+import { EFFECT_EXCLUDED_MODIFIERS } from "./parser/effects/effects.js";
 
 var existingFiles = [];
-
-var effectExcludedModifiers = [
-  { modifiers: "item", type: "bonus", subType: "armor-class" },
-];
 
 let utils = {
   debug: () => {
@@ -167,7 +164,7 @@ let utils = {
   getActiveItemModifiers: (data) => {
     // are we adding effects to items?
     const excludedModifiers = (game.settings.get("ddb-importer", "character-update-policy-add-effects")) ?
-      effectExcludedModifiers.filter((exclusions) => exclusions.modifiers === "item") :
+      EFFECT_EXCLUDED_MODIFIERS.filter((exclusions) => exclusions.modifiers === "item") :
       [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
