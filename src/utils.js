@@ -5,6 +5,10 @@ import { DDB_CONFIG } from "./ddb-config.js";
 
 var existingFiles = [];
 
+var effectExcludedModifiers = [
+  { modifiers: "item", type: "bonus", subType: "armor-class" },
+];
+
 let utils = {
   debug: () => {
     return true;
@@ -161,6 +165,10 @@ let utils = {
   },
 
   getActiveItemModifiers: (data) => {
+    // are we adding effects to items?
+    const excludedModifiers = (game.settings.get("ddb-importer", "character-update-policy-add-effects")) ?
+      effectExcludedModifiers.filter((exclusions) => exclusions.modifiers === "item") :
+      [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
       .filter(
@@ -171,7 +179,8 @@ let utils = {
             (!item.definition.canAttune && item.equipped)) && // can't attune but is equipped
           item.definition.grantedModifiers.length > 0
       )
-      .flatMap((item) => item.definition.grantedModifiers);
+      .flatMap((item) => item.definition.grantedModifiers)
+      .filter((mod) => !excludedModifiers.some((exMod) => mod.type === exMod.type && mod.subType === exMod.subType));
 
     return modifiers;
   },
