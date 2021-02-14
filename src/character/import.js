@@ -342,6 +342,8 @@ export default class CharacterImport extends FormApplication {
   }
 
   async importItems(items) {
+    console.warn(JSON.parse(JSON.stringify(items)));
+    // download(JSON.stringify(items),"items.json","application/json");
     return new Promise((resolve) => {
       resolve(this.actor.createEmbeddedEntity("OwnedItem", items, { displaySheet: false }));
     });
@@ -1008,6 +1010,7 @@ export default class CharacterImport extends FormApplication {
     if (items.length > 0) {
       items = await this.enrichCharacterItems(html, items);
       CharacterImport.showCurrentTask(html, "Adding items to character");
+      logger.debug("Adding the following items:", items);
       await this.importItems(items);
     }
   }

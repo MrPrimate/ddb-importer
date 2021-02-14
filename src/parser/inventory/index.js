@@ -427,7 +427,7 @@ export default function getInventory(ddb, character, itemSpells) {
       item.flags.magicitems = parseMagicItem(entry, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       if (!item.effects) item.effects = [];
-      item = addACBonusEffect(entry, item);
+      if (game.settings.get("ddb-importer", "character-update-policy-add-effects")) item = addACBonusEffect(entry, item);
       items.push(item);
     }
   }
