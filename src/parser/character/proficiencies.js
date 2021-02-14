@@ -217,6 +217,6 @@ export function getLanguages(data) {
 
   return {
     value: languages,
-    custom: custom.map((entry) => utils.capitalize(entry)).join(", "),
+    custom: custom.map((entry) => utils.capitalize(entry)).join(";"),
   };
 }
