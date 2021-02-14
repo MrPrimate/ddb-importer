@@ -1,4 +1,4 @@
-# 0.4.8
+# 0.4.8/0.4.9
 
 * Custom languages now import separately
 * Attempt to correct weirdness with optional feature modifier selection on character imports.
