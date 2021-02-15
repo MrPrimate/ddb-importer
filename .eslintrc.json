@@ -31,7 +31,8 @@
     "FormApplication": true,
     "setProperty": true,
     "ForgeAPI": true,
-    "ROUTE_PREFIX": true
+    "ROUTE_PREFIX": true,
+    "CONST": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

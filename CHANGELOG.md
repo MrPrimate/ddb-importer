@@ -1,3 +1,8 @@
+# 0.4.10
+
+* Extras parsing was broken in 0.4.8.
+* Racial Trait Icons added to internal dictionary - all hail @Zac !
+
 # 0.4.8/0.4.9
 
 * Custom languages now import separately
