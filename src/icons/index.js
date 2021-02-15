@@ -20,12 +20,15 @@ const TYPE_MAP = {
   spell: "spells",
   feats: "feats",
   feat: "feats",
+  classes: "classes",
+  class: "classes"
 };
 
 const FILE_MAP = {
   items: ["items.json"],
   spells: ["spells.json"],
-  feats: ["feats.json", "class-features.json"],
+  feats: ["feats.json", "class-features.json", "races.json", "general.json"],
+  classes: ["classes.json"],
 };
 
 async function loadDataFile(fileName) {
@@ -72,6 +75,11 @@ function looseMatch(item, typeValue) {
     const subMatch = iconMap[typeValue].find((entry) => entry.name === nameArray[0].trim());
     if (subMatch) return subMatch.path;
   }
+
+  const startsMatchEntry = iconMap[typeValue].find((entry) => item.name.split(":")[0].trim().startsWith(entry.name.split(":")[0].trim()));
+  if (startsMatchEntry) return startsMatchEntry.path;
+  const startsMatchItem = iconMap[typeValue].find((entry) => entry.name.split(":")[0].trim().startsWith(item.name.split(":")[0].trim()));
+  if (startsMatchItem) return startsMatchItem.path;
 
   return null;
 }
