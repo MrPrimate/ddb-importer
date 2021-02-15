@@ -2,7 +2,7 @@ import DirectoryPicker from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";
-import { EFFECT_EXCLUDED_MODIFIERS } from "./parser/effects/effects.js";
+import { EFFECT_EXCLUDED_ITEM_MODIFIERS } from "./parser/effects/effects.js";
 
 var existingFiles = [];
 
@@ -164,7 +164,7 @@ let utils = {
   getActiveItemModifiers: (data) => {
     // are we adding effects to items?
     const excludedModifiers = (game.settings.get("ddb-importer", "character-update-policy-add-effects")) ?
-      EFFECT_EXCLUDED_MODIFIERS.filter((exclusions) => exclusions.modifiers === "item") :
+      EFFECT_EXCLUDED_ITEM_MODIFIERS :
       [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
@@ -177,7 +177,9 @@ let utils = {
           item.definition.grantedModifiers.length > 0
       )
       .flatMap((item) => item.definition.grantedModifiers)
-      .filter((mod) => !excludedModifiers.some((exMod) => mod.type === exMod.type && mod.subType === exMod.subType));
+      .filter((mod) => !excludedModifiers.some((exMod) => mod.type === exMod.type &&
+        (mod.subType === exMod.subType || !exMod.subType))
+      );
 
     return modifiers;
   },

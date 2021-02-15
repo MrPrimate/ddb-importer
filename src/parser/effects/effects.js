@@ -1,17 +1,35 @@
 import utils from "../../utils.js";
 import logger from "../../logger.js";
+import DICTIONARY from "../../dictionary.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
  * Currently only effects on equipment (i.e. items) are supported.
  */
-export const EFFECT_EXCLUDED_MODIFIERS = [
-  { modifiers: "item", type: "bonus", subType: "armor-class", key: "data.attributes.ac.value" },
-  { modifiers: "item", type: "bonus", subType: "saving-throws", key: "data.bonuses.abilities.save" },
-  { modifiers: "item", type: "bonus", subType: "ability-checks", key: "data.bonuses.abilities.check" },
-  { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
+export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
+  { type: "bonus", subType: "armor-class" },
+  { type: "bonus", subType: "saving-throws" },
+  { type: "bonus", subType: "ability-checks" },
+  { type: "bonus", subType: "skill-checks" },
+  { type: "bonus", subType: "strength-score" },
+  { type: "bonus", subType: "dexterity-score" },
+  { type: "bonus", subType: "constitution-score" },
+  { type: "bonus", subType: "wisdom-score" },
+  { type: "bonus", subType: "intelligence-score" },
+  { type: "bonus", subType: "charisma-score" },
 
-  //
+  // resistances - subType - e.g. poison - lookup from DICTIONARY
+  { type: "resistance", subType: null },
+  { type: "immunity", subType: null },
+  { type: "vulnerability", subType: null },
+
+  // languages - e.g. dwarvish -- lookup from DICTIONARY
+  { type: "language", subType: null },
+
+  // senses
+  { type: "set-base", subType: "darkvision" },
+
+
   // { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
   // data.bonuses.rwak.attack
   // data.bonuses.mwak.attack
@@ -23,16 +41,7 @@ export const EFFECT_EXCLUDED_MODIFIERS = [
   // data.bonuses.heal.damage
   // data.skills.prc.passive
   // data.skills.per.value
-
-  // data.traits.ci.value // condition immunity
-  // data.traits.di.value // damage immunity
-  // data.traits.dr.value // damage resistance
-  // data.traits.dv.value // damage vulnerability
-
-  // data.traits.languages.value // languages
-  // data.attributes.hp.value // hp
-
-  // data.abilities.con.value //
+  // data.attributes.hp.value
 
 ];
 
@@ -40,7 +49,7 @@ export const EFFECT_EXCLUDED_MODIFIERS = [
 // https://gitlab.com/tposney/dae/-/blob/master/src/module/dae.ts
 /**
  *
- * Generate an effect given inputs for AC
+ * Generate a base effect for an Item
  *
  * @param {*} formula
  * @param {*} mode
@@ -80,35 +89,62 @@ function baseItemEffect(foundryItem, label, origin) {
   };
 }
 
-function generateAddBonusChange(bonus, priority, type) {
+/***
+CONST.ACTIVE_EFFECT_MODES.
+ADD: 2
+CUSTOM: 0
+DOWNGRADE: 3
+MULTIPLY: 1
+OVERRIDE: 5
+UPGRADE: 4
+ */
+
+function generateChange(bonus, priority, key, mode) {
   return {
-    key: EFFECT_EXCLUDED_MODIFIERS.find((mod) => mod.subType === type).key,
+    key: key,
     value: bonus,
-    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+    mode: mode,
     priority: priority,
   };
 }
 
-function generateCustomBonusChange(bonus, priority, type) {
-  return {
-    key: EFFECT_EXCLUDED_MODIFIERS.find((mod) => mod.subType === type).key,
-    value: `+${bonus}`,
-    mode: 0,
-    priority: priority,
-  };
+function generateAddChange(bonus, priority, key) {
+  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.ADD);
 }
 
+function generateCustomChange(bonus, priority, key) {
+  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.CUSTOM);
+}
+
+function generateCustomBonusChange(bonus, priority, key) {
+  return generateChange(`+${bonus}`, priority, key, CONST.ACTIVE_EFFECT_MODES.CUSTOM);
+}
+
+function generateUpgradeChange(bonus, priority, key) {
+  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.UPGRADE);
+}
+
+function generateOverrideChange(bonus, priority, key) {
+  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.OVERRIDE);
+}
+
+function generateMultiplyChange(bonus, priority, key) {
+  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.MULTIPLY);
+}
+
+function generateDowngradeChange(bonus, priority, key) {
+  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.DOWNGRADE);
+}
 
 /**
  * Generates an AC bonus for an item
  */
-function addACBonusEffect(ddbItem, foundryItem, type) {
+function addACBonusEffect(modifiers, name, type) {
   let changes = [];
-  if (!ddbItem.definition?.grantedModifiers) return changes;
-  const bonus = utils.filterModifiers(ddbItem.definition.grantedModifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
   if (bonus !== 0) {
-    logger.debug(`Generating ${type} bonus for ${foundryItem.name}`);
-    changes.push(generateAddBonusChange(bonus, 18, type));
+    logger.debug(`Generating ${type} bonus for ${name}`);
+    changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
   }
   return changes;
 }
@@ -116,14 +152,123 @@ function addACBonusEffect(ddbItem, foundryItem, type) {
 /**
  * Generates a global Saving Throw bonus for an item
  */
-function addCustomBonusEffect(ddbItem, foundryItem, type) {
+function addCustomBonusEffect(modifiers, name, type, key) {
   let changes = [];
-  if (!ddbItem.definition?.grantedModifiers) return changes;
-  const bonus = utils.filterModifiers(ddbItem.definition.grantedModifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
   if (bonus !== 0) {
-    logger.debug(`Generating ${type} bonus for ${foundryItem.name}`);
-    changes.push(generateCustomBonusChange(bonus, 18, type));
+    logger.debug(`Generating ${type} bonus for ${name}`);
+    changes.push(generateCustomBonusChange(bonus, 18, key));
   }
+  return changes;
+}
+
+/**
+ * Adds languages, can't handle custom languages
+ */
+function addLanguages(modifiers, name) {
+  let changes = [];
+  const languages = modifiers.filter((mod) => mod.type === "language").map((mod) => mod.friendlySubtypeName);
+
+  languages.forEach((language) => {
+    let result = DICTIONARY.character.languages.find((lang) => lang.name === language);
+    if (result) {
+      logger.debug(`Generating language ${result.value} for ${name}`);
+      changes.push(generateCustomChange(result.value, 0, "data.traits.languages.value"));
+    } else {
+      logger.warn(`Unable to create effect language ${JSON.parse(result)} for ${name}`);
+    }
+  });
+
+  return changes;
+}
+
+/***
+ * Get list of generic conditions/damages
+ */
+
+function getGenericConditionAffect (modifiers, condition, typeId) {
+  const damageTypes = DICTIONARY.character.damageTypes
+    .filter((type) => type.kind === condition && type.type === typeId)
+    .map((type) => type.value);
+
+  let result = modifiers.filter((modifier) => modifier.type === condition &&
+      damageTypes.includes(modifier.subType))
+    .map((modifier) => {
+      const entry = DICTIONARY.character.damageTypes.find(
+        (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
+      );
+      return entry ? entry.foundryValue || entry.value : undefined;
+    });
+
+  return result;
+};
+
+/**
+ * Get  Damage Conditions, and Condition Immunities
+ * @param {*} ddbItem
+ */
+function addDamageConditions(modifiers) {
+  let charges = [];
+
+  const damageImmunities = getGenericConditionAffect(modifiers, "immunity", 2);
+  const damageResistances = getGenericConditionAffect(modifiers, "resistance", 2);
+  const damageVulnerability = getGenericConditionAffect(modifiers, "vulnerability", 2);
+
+  damageImmunities.forEach((type) => {
+    charges.push(generateCustomChange(type, 0, "data.traits.di.value"));
+  });
+  damageResistances.forEach((type) => {
+    charges.push(generateCustomChange(type, 0, "data.traits.dr.value"));
+  });
+  damageVulnerability.forEach((type) => {
+    charges.push(generateCustomChange(type, 0, "data.traits.dv.value"));
+  });
+
+  const conditionImmunities = getGenericConditionAffect(modifiers, "immunity", 1);
+
+  conditionImmunities.forEach((type) => {
+    charges.push(generateCustomChange(type, 20, "data.traits.ci.value"));
+  });
+  return charges;
+}
+
+/***
+ * Generate stat bonuses
+ */
+function addStatBonusEffect(modifiers, name, subType) {
+  const bonus = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType)
+    .reduce((a, b) => a + b.value, 0);
+  if (bonus !== 0) {
+    logger.debug(`Generating ${subType} stat bonus for ${name}`);
+    const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
+    return generateAddChange(bonus, 18, `data.abilities.${ability}.value`);
+  }
+  return null;
+}
+
+function addStatBonuses(modifiers, name) {
+  let changes = [];
+  const stats = ["strength-score","dexterity-score","constitution-score","wisdom-score","intelligence-score","charisma-score"];
+  stats.forEach((stat) => {
+    const result = addStatBonusEffect(modifiers, name, stat);
+    if (result) changes.push(result);
+  });
+
+  return changes;
+}
+
+/***
+ * Senses
+ */
+function addSenseBonus(modifiers, name) {
+  let changes = [];
+
+  const bonus = modifiers.filter((modifier) => modifier.type === "set-base" && modifier.subType === "darkvision").map((mod) => mod.value);
+  if (bonus.length > 0) {
+    logger.debug(`Generating darkvision base for ${name}`);
+    changes.push(generateUpgradeChange(Math.max(bonus), 10,"data.attributes.senses.darkvision"));
+  }
+  //TODO: do other senses
   return changes;
 }
 
@@ -135,8 +280,8 @@ function addCustomBonusEffect(ddbItem, foundryItem, type) {
  * @param {*} foundryItem
  */
 export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
-  console.warn(`Item: ${foundryItem.name}`, ddbItem);
   if (!ddbItem.definition?.grantedModifiers) return foundryItem;
+  console.warn(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`)
 
   // Update -actually might not need this, as it seems to add a value anyway to undefined
@@ -144,11 +289,25 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
   // const origin = `ddb.${ddbItem.id}`;
   let effect = baseItemEffect(foundryItem, foundryItem.name, `OwnedItem.DDB${ddbItem.id}`);
 
-  const acBonus = addACBonusEffect(ddbItem, foundryItem, "armor-class");
-  const globalSaveBonus = addCustomBonusEffect(ddbItem, foundryItem, "saving-throws");
-  const globalAbilityBonus = addCustomBonusEffect(ddbItem, foundryItem, "ability-checks");
-  const globalSkillBonus = addCustomBonusEffect(ddbItem, foundryItem, "skill-checks");
-  effect.changes = [...acBonus, ...globalSaveBonus, ...globalAbilityBonus, ...globalSkillBonus];
+  const acBonus = addACBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "armor-class", "data.attributes.ac.value");
+  const globalSaveBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "saving-throws", "data.bonuses.abilities.save");
+  const globalAbilityBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "ability-checks", "data.bonuses.abilities.check");
+  const globalSkillBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "skill-checks", "data.bonuses.abilities.skill");
+  const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const statBonuses = addStatBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
+
+  effect.changes = [
+    ...acBonus,
+    ...globalSaveBonus,
+    ...globalAbilityBonus,
+    ...globalSkillBonus,
+    ...languages,
+    ...conditions,
+    ...statBonuses,
+    ...senses,
+  ];
 
   // check attunement status etc
 
