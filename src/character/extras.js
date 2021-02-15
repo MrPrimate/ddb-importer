@@ -84,6 +84,114 @@ async function createExtras(extras, existingExtras, folderId) {
   );
 }
 
+function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
+  // beast master get to add proficiency bonus to current attacks, damage, ac
+  // and saving throws and skills it is proficient in.
+  // extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
+
+  let effect = {
+    changes: [
+      {
+        key: "data.bonuses.rwak.attack",
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        value: `+${characterProficiencyBonus}`,
+        priority: 20,
+      },
+      {
+        key: "data.bonuses.rwak.damage",
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        value: `+${characterProficiencyBonus}`,
+        priority: 20,
+      },
+      {
+        key: "data.bonuses.mwak.attack",
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        value: `+${characterProficiencyBonus}`,
+        priority: 20,
+      },
+      {
+        key: "data.bonuses.mwak.damage",
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        value: `+${characterProficiencyBonus}`,
+        priority: 20,
+      },
+    ],
+    duration: {
+      seconds: null,
+      startTime: null,
+      rounds: null,
+      turns: null,
+      startRound: null,
+      startTurn: null,
+    },
+    label: "Beast Companion Effects",
+    tint: "",
+    disabled: false,
+    selectedKey: [],
+  };
+  ABILITIES.filter((ability) => extra.data.abilities[ability.value].proficient >= 1)
+    .forEach((ability) => {
+      const boost = {
+        key: `data.abilities.${ability.value}.save`,
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: characterProficiencyBonus,
+        priority: 20,
+      };
+      effect.selectedKey.push(`data.abilities.${ability.value}.save`);
+      effect.changes.push(boost);
+    });
+  SKILLS.filter((skill) => extra.data.skills[skill.name].prof >= 1)
+    .forEach((skill) => {
+      const boost = {
+        key: `data.skills.${skill.name}.mod`,
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: characterProficiencyBonus,
+        priority: 20,
+      };
+      effect.selectedKey.push(`data.skills.${skill.name}.mod`);
+      effect.changes.push(boost);
+    });
+  extra.effects = [effect];
+  return extra;
+}
+
+function generateArtificerEffects(actor, extra, characterProficiencyBonus) {
+  // artificer uses the actors spell attack bonus, so is a bit trickier
+  // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
+  extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
+
+  let effect = {
+    changes: [
+      {
+        key: "data.bonuses.rwak.damage",
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        value: `+${characterProficiencyBonus}`,
+        priority: 20,
+      },
+      {
+        key: "data.bonuses.mwak.damage",
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        value: `+${characterProficiencyBonus}`,
+        priority: 20,
+      },
+    ],
+    duration: {
+      seconds: null,
+      startTime: null,
+      rounds: null,
+      turns: null,
+      startRound: null,
+      startTurn: null,
+    },
+    label: "Artificer Extra Effects",
+    tint: "",
+    disabled: false,
+    selectedKey: [],
+  };
+  extra.effects = [effect];
+  return extra;
+}
+
 export async function characterExtras(html, characterData, actor) {
   let munchSettings = [];
 
@@ -262,7 +370,7 @@ export async function characterExtras(html, characterData, actor) {
       logger.debug(mock);
       return mock;
     });
-    let parsedExtras = await parseMonsters(creatures);
+    let parsedExtras = await parseMonsters(creatures, true);
     parsedExtras = parsedExtras.actors;
     logger.debug(parsedExtras);
 
@@ -276,65 +384,21 @@ export async function characterExtras(html, characterData, actor) {
         extra.flags?.ddbimporter?.creatureFlags?.includes("PSPB")
       ) {
         if (extra.flags?.ddbimporter?.creatureGroup === 3) {
-          // beast master get to add proficiency bonus to current attacks, damage, ac
-          // and saving throws and skills it is proficient in.
-          // extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
-          extra.data.bonuses.rwak.attack = characterProficiencyBonus;
-          extra.data.bonuses.rwak.damage = characterProficiencyBonus;
-          extra.data.bonuses.mwak.attack = characterProficiencyBonus;
-          extra.data.bonuses.mwak.damage = characterProficiencyBonus;
-
-          let effect = {
-            changes: [],
-            duration: {
-              seconds: null,
-              startTime: null,
-              rounds: null,
-              turns: null,
-              startRound: null,
-              startTurn: null,
-            },
-            label: "Beast Companion Effects",
-            tint: "",
-            disabled: false,
-            selectedKey: [],
-          };
-          ABILITIES.filter((ability) => extra.data.abilities[ability.value].proficient >= 1)
-            .forEach((ability) => {
-              const boost = {
-                key: `data.abilities.${ability.value}.save`,
-                mode: 2,
-                value: characterProficiencyBonus,
-                priority: 20,
-              };
-              effect.selectedKey.push(`data.abilities.${ability.value}.save`);
-              effect.changes.push(boost);
-            });
-          SKILLS.filter((skill) => extra.data.skills[skill.name].prof >= 1)
-            .forEach((skill) => {
-              const boost = {
-                key: `data.skills.${skill.name}.mod`,
-                mode: 2,
-                value: characterProficiencyBonus,
-                priority: 20,
-              };
-              effect.selectedKey.push(`data.skills.${skill.name}.mod`);
-              effect.changes.push(boost);
-            });
-          extra.effects = [effect];
+          extra = generateBeastCompanionEffects(extra, characterProficiencyBonus);
         } else if (artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroup)) {
           // artificer uses the actors spell attack bonus, so is a bit trickier
           // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
-          extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
-          extra.data.bonuses.rwak.damage = characterProficiencyBonus;
-          extra.data.bonuses.mwak.damage = characterProficiencyBonus;
+          extra = generateArtificerEffects(actor, extra, characterProficiencyBonus);
         } else {
           // who knows!
           extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
         }
       }
 
-      if (extra.flags?.ddbimporter?.creatureFlags?.includes("DRPB") && extra.flags?.ddbimporter?.creatureGroup !== 3) {
+      if ((extra.flags?.ddbimporter?.creatureFlags?.includes("DRPB") && extra.flags?.ddbimporter?.creatureGroup !== 3) ||
+      // is this a artificer infusion? the infusion call actually adds this creature group, but we don't fetch that yet.
+      extra.flags?.ddbimporter?.creatureGroup === 12
+      ) {
         extra.items = extra.items.map((item) => {
           if (item.type === "weapon") {
             let characterAbility;
@@ -370,7 +434,7 @@ export async function characterExtras(html, characterData, actor) {
       return extra;
     });
 
-    logger.debug(parsedExtras);
+    logger.debug("Parsed Extras:", parsedExtras);
 
     const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
