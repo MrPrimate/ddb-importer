@@ -17,6 +17,7 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   { type: "bonus", subType: "wisdom-score" },
   { type: "bonus", subType: "intelligence-score" },
   { type: "bonus", subType: "charisma-score" },
+  { type: "bonus", subType: "proficiency-bonus" },
 
   // resistances - subType - e.g. poison - lookup from DICTIONARY
   { type: "resistance", subType: null },
@@ -63,18 +64,19 @@ function baseItemEffect(foundryItem, label, origin) {
     label: label,
     icon: foundryItem.img,
     changes: [],
-    duration: {
-      seconds: null,
-      startTime: null,
-      rounds: null,
-      turns: null,
-      startRound: null,
-      startTurn: null,
-    },
-    // tint: "",
+    duration: {},
+    // duration: {
+    //   seconds: null,
+    //   startTime: null,
+    //   rounds: null,
+    //   turns: null,
+    //   startRound: null,
+    //   startTurn: null,
+    // },
+    tint: "",
     transfer: true,
     disabled: false,
-    origin: origin,
+    // origin: origin,
     flags: {
       dae: {
         transfer: true,
@@ -85,7 +87,7 @@ function baseItemEffect(foundryItem, label, origin) {
         disabled: false
       }
     },
-    //_id: `${randomID()}${randomID()}`,
+   // _id: `${randomID()}${randomID()}`,
   };
 }
 
@@ -281,6 +283,21 @@ function addSenseBonus(modifiers, name) {
 }
 
 /**
+ * Proficiency bonus
+ */
+
+function addProficiencyBonus(modifiers, name) {
+  let changes = [];
+  const bonus = utils.filterModifiers(modifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + b.value, 0);
+  if (bonus) {
+    logger.debug(`Generating proficiency bonus for ${name}`);
+    changes.push(generateCustomChange(bonus, 0, "data.attributes.prof"));
+  }
+  return changes;
+}
+
+
+/**
  * Generate supported effects for items
  * @param {*} ddb
  * @param {*} character
@@ -288,8 +305,8 @@ function addSenseBonus(modifiers, name) {
  * @param {*} foundryItem
  */
 export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
-  if (!ddbItem.definition?.grantedModifiers) return foundryItem;
-  console.warn(`Item: ${foundryItem.name}`, ddbItem);
+  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return foundryItem;
+  console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`)
 
   // Update -actually might not need this, as it seems to add a value anyway to undefined
@@ -305,6 +322,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
   const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
   const statBonuses = addStatBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const proficiencyBonus = addProficiencyBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...acBonus,
@@ -315,6 +333,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
     ...conditions,
     ...statBonuses,
     ...senses,
+  //  ...proficiencyBonus,
   ];
 
   // check attunement status etc
@@ -323,37 +342,35 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
     // if item just gives a thing and not potion/scroll
     effect.disabled = false;
     setProperty(effect, "flags.ddbimporter.disabled", false);
-    setProperty(effect, "flags.dae.alwaysActive", true);
+    setProperty(foundryItem, "flags.dae.alwaysActive", true);
   } else if(
     (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
     (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
     (!ddbItem.definition.canAttune && ddbItem.equipped)) // can't attune but is equipped
   {
+    setProperty(foundryItem, "flags.dae.alwaysActive", false);
     setProperty(effect, "flags.ddbimporter.disabled", false);
     effect.disabled = false;
   } else {
     effect.disabled = true;
     setProperty(effect, "flags.ddbimporter.disabled", true);
+    setProperty(foundryItem, "flags.dae.alwaysActive", false);
   }
 
   setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
   setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
   // set dae flag for active equipped
   if(ddbItem.definition.canEquip || ddbItem.definition.canAttune) {
-    setProperty(effect, "flags.dae.activeEquipped", true);
+    setProperty(foundryItem, "flags.dae.activeEquipped", true);
   } else {
-    setProperty(effect, "flags.dae.activeEquipped", false);
+    setProperty(foundryItem, "flags.dae.activeEquipped", false);
   }
-
-  console.error(JSON.parse(JSON.stringify(effect)));
-  console.warn(effect);
 
   if (effect.changes?.length > 0) {
     foundryItem.effects.push(effect);
   }
 
   console.warn(JSON.parse(JSON.stringify(foundryItem)));
-
   return foundryItem;
 }
 
