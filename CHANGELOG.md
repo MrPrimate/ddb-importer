@@ -1,3 +1,7 @@
+# 0.4.11
+
+* Some users with an expired or no cobalt token could no longer import characters.
+
 # 0.4.10
 
 * Extras parsing was broken in 0.4.8.

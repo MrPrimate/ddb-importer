@@ -244,7 +244,8 @@ export default function parseFeatures(ddb, character) {
   let classItems = parseClassFeatures(ddb, character);
 
   // optional class features
-  ddb.classOptions
+  if(ddb.classOptions) {
+    ddb.classOptions
     .filter((feat) => !ddb.character.actions.class.some((action) => action.name === feat.name))
     .forEach((feat) => {
       logger.debug(`Parsing Optional Feature ${feat.name}`);
@@ -254,6 +255,7 @@ export default function parseFeatures(ddb, character) {
         items.push(item);
       });
     });
+  }
 
   // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
   classItems.forEach((item) => {
