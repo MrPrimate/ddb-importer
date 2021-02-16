@@ -244,7 +244,7 @@ export default function parseFeatures(ddb, character) {
   let classItems = parseClassFeatures(ddb, character);
 
   // optional class features
-  if(ddb.classOptions) {
+  if (ddb.classOptions) {
     ddb.classOptions
     .filter((feat) => !ddb.character.actions.class.some((action) => action.name === feat.name))
     .forEach((feat) => {
