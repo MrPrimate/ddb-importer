@@ -236,14 +236,22 @@ function addDamageConditions(modifiers) {
  * Generate stat bonuses
  */
 function addStatBonusEffect(modifiers, name, subType) {
-  const bonus = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType)
-    .reduce((a, b) => a + b.value, 0);
-  if (bonus !== 0) {
-    logger.debug(`Generating ${subType} stat bonus for ${name}`);
-    const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-    return generateAddChange(bonus, 18, `data.abilities.${ability}.value`);
+  const bonuses = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
+
+  let effects = [];
+  // dwarfen "Maximum of 20"
+  if (bonuses.length > 0) {
+    bonuses.forEach((bonus)=> {
+      const maxMatch = /Maximum of (\d*)/
+      const match = bonus.restriction ? bonus.restriction.match(maxMatch) : false;
+      const max = match ? match[1] : 99;
+      logger.debug(`Generating ${subType} stat bonus for ${name}`);
+      const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
+      const bonusString = `{${max}, @data.abilities.${ability}.value + ${bonus.value}} kl`;
+      effects.push(generateOverrideChange(bonusString, 5, `data.abilities.${ability}.value`));
+    });
   }
-  return null;
+  return effects;
 }
 
 function addStatBonuses(modifiers, name) {
@@ -251,7 +259,7 @@ function addStatBonuses(modifiers, name) {
   const stats = ["strength-score","dexterity-score","constitution-score","wisdom-score","intelligence-score","charisma-score"];
   stats.forEach((stat) => {
     const result = addStatBonusEffect(modifiers, name, stat);
-    if (result) changes.push(result);
+    changes = changes.concat(result);
   });
 
   return changes;
