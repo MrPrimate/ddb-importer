@@ -25,6 +25,10 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   { type: "set", subType: "intelligence-score" },
   { type: "set", subType: "charisma-score" },
 
+  { type: "bonus", subType: "spell-save-dc" },
+  { type: "bonus", subType: "spell-attacks" },
+
+
   // resistances - subType - e.g. poison - lookup from DICTIONARY
   { type: "resistance", subType: null },
   { type: "immunity", subType: null },
@@ -38,6 +42,12 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
 
   // speeds
   { type: "set", subType: "innate-speed-climbing" },
+
+  // ac
+  // e.g. robe of the archm
+  { type: "set", subType: "unarmored-armor-class" },
+
+
 
 
   // { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
@@ -161,7 +171,7 @@ function addACBonusEffect(modifiers, name, type) {
 }
 
 /**
- * Generates a global Saving Throw bonus for an item
+ * Generates a global custom bonus for an item with a +
  */
 function addCustomBonusEffect(modifiers, name, type, key) {
   let changes = [];
@@ -169,6 +179,32 @@ function addCustomBonusEffect(modifiers, name, type, key) {
   if (bonus !== 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
     changes.push(generateCustomBonusChange(bonus, 18, key));
+  }
+  return changes;
+}
+
+/**
+ * Generates a global custom bonus for an item
+ */
+function addCustomEffect(modifiers, name, type, key) {
+  let changes = [];
+  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  if (bonus !== 0) {
+    logger.debug(`Generating ${type} bonus for ${name}`);
+    changes.push(generateCustomChange(bonus, 18, key));
+  }
+  return changes;
+}
+
+/**
+ * Generates a global add for an item
+ */
+function addAddEffect(modifiers, name, type, key) {
+  let changes = [];
+  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  if (bonus !== 0) {
+    logger.debug(`Generating ${type} bonus for ${name}`);
+    changes.push(generateAddChange(bonus, 18, key));
   }
   return changes;
 }
@@ -279,6 +315,33 @@ function addStatBonuses(modifiers, name) {
 /***
  * Generate stat sets
  */
+function addACSetEffect(modifiers, name, subType) {
+  const bonuses = modifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
+
+  let effects = [];
+  // dwarfen "Maximum of 20"
+  if (bonuses.length > 0) {
+    logger.debug(`Generating ${subType} AC set for ${name}`);
+    effects.push(generateUpgradeChange(`${Math.max(bonuses)} + @abilities.dex.mod`, 4,  "data.attributes.ac.value"));
+  }
+  return effects;
+}
+
+function addACSets(modifiers, name) {
+  let changes = [];
+  const stats = ["unarmored-armor-class"];
+  stats.forEach((set) => {
+    const result = addACSetEffect(modifiers, name, set);
+    changes = changes.concat(result);
+  });
+
+  return changes;
+}
+
+
+/***
+ * Generate stat sets
+ */
 function addStatSetEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
 
@@ -286,7 +349,7 @@ function addStatSetEffect(modifiers, name, subType) {
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
     bonuses.forEach((bonus)=> {
-      logger.debug(`Generating ${subType} stat bonus for ${name}`);
+      logger.debug(`Generating ${subType} stat set for ${name}`);
       const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
       effects.push(generateUpgradeChange(bonus.value, 4, `data.abilities.${ability}.value`));
     });
@@ -399,6 +462,9 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
   const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const proficiencyBonus = addProficiencyBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const speedSets = addSetSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const spellAttackBonus = addCustomEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "spell-attacks", "data.bonuses.spell.attack");
+  const spellDCBonus = addAddEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "spell-save-dc", "data.bonuses.spell.dc");
+  const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name)
 
   effect.changes = [
     ...acBonus,
@@ -412,6 +478,9 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
     ...senses,
     ...proficiencyBonus,
     ...speedSets,
+    ...spellAttackBonus,
+    ...spellDCBonus,
+    ...acSets,
   ];
 
   // check attunement status etc
