@@ -18,6 +18,12 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   { type: "bonus", subType: "intelligence-score" },
   { type: "bonus", subType: "charisma-score" },
   { type: "bonus", subType: "proficiency-bonus" },
+  { type: "set", subType: "strength-score" },
+  { type: "set", subType: "dexterity-score" },
+  { type: "set", subType: "constitution-score" },
+  { type: "set", subType: "wisdom-score" },
+  { type: "set", subType: "intelligence-score" },
+  { type: "set", subType: "charisma-score" },
 
   // resistances - subType - e.g. poison - lookup from DICTIONARY
   { type: "resistance", subType: null },
@@ -29,6 +35,9 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
 
   // senses
   { type: "set-base", subType: "darkvision" },
+
+  // speeds
+  { type: "set", subType: "innate-speed-climbing" },
 
 
   // { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
@@ -268,6 +277,36 @@ function addStatBonuses(modifiers, name) {
 }
 
 /***
+ * Generate stat sets
+ */
+function addStatSetEffect(modifiers, name, subType) {
+  const bonuses = modifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
+
+  let effects = [];
+  // dwarfen "Maximum of 20"
+  if (bonuses.length > 0) {
+    bonuses.forEach((bonus)=> {
+      logger.debug(`Generating ${subType} stat bonus for ${name}`);
+      const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
+      effects.push(generateUpgradeChange(bonus.value, 4, `data.abilities.${ability}.value`));
+    });
+  }
+  return effects;
+}
+
+function addStatSets(modifiers, name) {
+  let changes = [];
+  const stats = ["strength-score","dexterity-score","constitution-score","wisdom-score","intelligence-score","charisma-score"];
+  stats.forEach((stat) => {
+    const result = addStatSetEffect(modifiers, name, stat);
+    changes = changes.concat(result);
+  });
+
+  return changes;
+}
+
+
+/***
  * Senses
  */
 function addSenseBonus(modifiers, name) {
@@ -297,6 +336,41 @@ function addProficiencyBonus(modifiers, name) {
 }
 
 
+/***
+ * Generate set speeds
+ */
+function addSetSpeedEffect(modifiers, name, subType) {
+  const bonuses = modifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
+
+  let effects = [];
+  // "Equal to Walking Speed"
+  if (bonuses.length > 0) {
+    bonuses.forEach((bonus)=> {
+      logger.debug(`Generating ${subType} speed set for ${name}`);
+      const innate = subType.split("-").slice(-1)[0];
+      const speedType = DICTIONARY.character.speeds.find((s) => s.innate === innate).type;
+      // current assumption if no speed provided, set to walking speed
+      const speed = (bonus.value) ? bonus.value : "@attributes.movement.walk";
+      effects.push(generateUpgradeChange(speed, 20, `data.attributes.movement.${speedType}`));
+    });
+  }
+  return effects;
+}
+
+/**
+ * Innate Speeds
+ */
+function addSetSpeeds(modifiers, name) {
+  let changes = [];
+  const speedSets = ["innate-speed-climbing","innate-speed-swimming","innate-speed-flying"];
+  speedSets.forEach((speedSet) => {
+    const result = addSetSpeedEffect(modifiers, name, speedSet);
+    changes = changes.concat(result);
+  });
+
+  return changes;
+}
+
 /**
  * Generate supported effects for items
  * @param {*} ddb
@@ -320,9 +394,11 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
   const globalSkillBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "skill-checks", "data.bonuses.abilities.skill");
   const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
   const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const statSets = addStatSets(ddbItem.definition.grantedModifiers, foundryItem.name);
   const statBonuses = addStatBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const proficiencyBonus = addProficiencyBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const speedSets = addSetSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...acBonus,
@@ -331,9 +407,11 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
     ...globalSkillBonus,
     ...languages,
     ...conditions,
+    ...statSets,
     ...statBonuses,
     ...senses,
-  //  ...proficiencyBonus,
+    ...proficiencyBonus,
+    ...speedSets,
   ];
 
   // check attunement status etc
@@ -385,3 +463,6 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
 
 // loop through generated effects and add equipped ones to character
 // also need to update any effect images
+
+// Issues:
+// Con buff does not increase hitpoints

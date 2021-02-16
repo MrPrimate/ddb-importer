@@ -341,15 +341,6 @@ export default class CharacterImport extends FormApplication {
     });
   }
 
-  async importItems(items) {
-    console.warn(JSON.parse(JSON.stringify(items)));
-    // download(JSON.stringify(items),"items.json","application/json");
-    return new Promise((resolve) => {
-      resolve(this.actor.createEmbeddedEntity("OwnedItem", items, { displaySheet: false }));
-    });
-  }
-
-
   /**
    * Deletes items from the inventory bases on which sections a user wants to update
    * Possible sections:
@@ -1011,7 +1002,7 @@ export default class CharacterImport extends FormApplication {
       items = await this.enrichCharacterItems(html, items);
       CharacterImport.showCurrentTask(html, "Adding items to character");
       logger.debug("Adding the following items:", items);
-      await this.importItems(items);
+      await this.actor.createOwnedItem(items);
     }
   }
 
@@ -1033,9 +1024,21 @@ export default class CharacterImport extends FormApplication {
         if (matchedItem) {
           if (!matchedItem.flags.ddbimporter?.ignoreItemImport) {
             item['_id'] = matchedItem['_id'];
-            if (matchedItem.effects?.length > 0 && item.effects?.length === 0) item.effects = matchedItem.effects;
             if (matchedItem.flags.ddbimporter?.ignoreIcon) item.flags.ddbimporter.matchedImg = matchedItem.img;
             if (matchedItem.flags.ddbimporter?.retainResourceConsumption) item.data.consume = matchedItem.data.consume;
+            // update effect ids
+            if (matchedItem.effects?.length > 0 && item.effects?.length === 0) {
+              item.effects = matchedItem.effects;
+            } else if (item.effects?.length >= 0) {
+              item.effects = item.effects.map((ae) => {
+                const matchedEffect = matchedItem.effects.find((me) => me.flags?.ddbimporter?.itemId && ae.flags?.ddbimporter?.itemId && me.flags.ddbimporter.itemId === ae.flags.ddbimporter.itemId);
+                if (matchedEffect) {
+                  ae.origin = matchedEffect.origin;
+                  ae._id = matchedEffect._id;
+                }
+                return ae;
+              });
+            }
 
             matchedItems.push(item);
           }
@@ -1053,7 +1056,7 @@ export default class CharacterImport extends FormApplication {
         return item;
       });
 
-      await this.actor.updateEmbeddedEntity("OwnedItem", enrichedItems);
+      await this.actor.updateOwnedItem(enrichedItems);
 
       return new Promise((resolve) => {
         resolve([nonMatchedItems, enrichedItems]);
@@ -1160,13 +1163,13 @@ export default class CharacterImport extends FormApplication {
     if (useExistingCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing compendium items");
       logger.info("Importing compendium items");
-      await this.importItems(compendiumItems);
+      await this.actor.createOwnedItem(compendiumItems)
     }
 
     if (useSRDCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing SRD compendium items");
       logger.info("Importing SRD compendium items");
-      await this.importItems(srdCompendiumItems);
+      await this.actor.createOwnedItem(srdCompendiumItems)
     }
   }
 
@@ -1184,15 +1187,17 @@ export default class CharacterImport extends FormApplication {
       !ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0])
     );
     const ignoredEffects = this.actor.data.effects.filter((ae) =>
-      // is this and ignored item
+      // is this an ignored item
       ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0]) ||
       // is this a core status effect (CUB)
       ae.flags?.core?.statusId
     );
     const charEffects = this.actor.data.effects.filter((ae) => !ae.origin?.includes('OwnedItem'));
 
-    // always remove existing active item effects
+    // remove existing active item effects
+  //  if (!game.settings.get("ddb-importer", "character-update-policy-add-effects")) {
     await this.actor.deleteEmbeddedEntity("ActiveEffect", itemEffects.map((ae) => ae._id));
+   // }
 
     // are we trying to retain existing effects?
     if (activeEffectCopy) {
@@ -1279,6 +1284,6 @@ export default class CharacterImport extends FormApplication {
       });
     }
 
-    this.close();
+    //this.close();
   }
 }
