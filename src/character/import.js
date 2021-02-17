@@ -945,7 +945,8 @@ export default class CharacterImport extends FormApplication {
     const ddbGenericItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons");
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     const daeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy");
-    const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+    const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+    const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
 
     // if we still have items to add, add them
@@ -983,12 +984,12 @@ export default class CharacterImport extends FormApplication {
         items = await this.copyCharacterItemEffects(items);
       }
 
-      if (daeEffectCopy && daeInstalled) {
+      if (daeEffectCopy && daeInstalled && daeSRDInstalled) {
         CharacterImport.showCurrentTask(html, "Importing DAE Effects");
         items = await addItemsDAESRD(items);
       }
 
-      if (addEffects) {
+      if (daeInstalled && addEffects) {
         items = addEffectIcons(items);
       }
 
@@ -1056,15 +1057,26 @@ export default class CharacterImport extends FormApplication {
         return item;
       });
 
-      await this.actor.updateOwnedItem(enrichedItems);
+      logger.debug("Updating items:", enrichedItems);
+      // await this.actor.updateOwnedItem(enrichedItems);
 
-      return new Promise((resolve) => {
-        resolve([nonMatchedItems, enrichedItems]);
-      });
+      for (const item of enrichedItems) {
+        logger.debug(`Updating ${item.name}`);
+        await this.actor.updateOwnedItem(item);
+      }
+
+
+      logger.debug("Finished updating items");
+      return [nonMatchedItems, enrichedItems];
+      // return new Promise((resolve) => {
+      //   logger.debug("Finished updating items");
+      //   resolve([nonMatchedItems, enrichedItems]);
+      // });
     } else {
-      return new Promise((resolve) => {
-        resolve(items);
-      });
+      return [items, []];
+      // return new Promise((resolve) => {
+      //   resolve(items);
+      // });
     }
   }
 
@@ -1092,9 +1104,11 @@ export default class CharacterImport extends FormApplication {
       let [newItems, updatedItems] = await this.updateExistingIdMatchedItems(html, items);
       items = newItems;
       CharacterImport.showCurrentTask(html, "Clearing remaining items for re-creation");
+      logger.debug("Removing updated items from update list...");
       await this.clearItemsByUserSelection(updatedItems);
+      logger.debug("Items remaining for creation:", newItems);
     } else if (!importKeepExistingActorItems) {
-      logger.debug("Clearing items");
+      logger.debug("Determining items to recreate...");
       CharacterImport.showCurrentTask(html, "Clearing items");
       await this.clearItemsByUserSelection();
     }
@@ -1157,20 +1171,25 @@ export default class CharacterImport extends FormApplication {
     }
 
     // import remaining items to character
-    await this.importCharacterItems(html, items);
+    if (items.length > 0) {
+      logger.debug(`Importing new items`, items);
+      await this.importCharacterItems(html, items);
+    }
 
     // now import any compendium items that we matched
     if (useExistingCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing compendium items");
-      logger.info("Importing compendium items");
+      logger.info("Importing compendium items:", compendiumItems);
       await this.actor.createOwnedItem(compendiumItems)
     }
 
     if (useSRDCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing SRD compendium items");
-      logger.info("Importing SRD compendium items");
+      logger.info("Importing SRD compendium items:", srdCompendiumItems);
       await this.actor.createOwnedItem(srdCompendiumItems)
     }
+
+    logger.debug("Finished importing items");
   }
 
   async removeActiveEffects(activeEffectCopy) {
@@ -1195,9 +1214,7 @@ export default class CharacterImport extends FormApplication {
     const charEffects = this.actor.data.effects.filter((ae) => !ae.origin?.includes('OwnedItem'));
 
     // remove existing active item effects
-  //  if (!game.settings.get("ddb-importer", "character-update-policy-add-effects")) {
     await this.actor.deleteEmbeddedEntity("ActiveEffect", itemEffects.map((ae) => ae._id));
-   // }
 
     // are we trying to retain existing effects?
     if (activeEffectCopy) {
@@ -1215,10 +1232,14 @@ export default class CharacterImport extends FormApplication {
 
     logger.debug("Current Actor:", this.actorOriginal);
 
+    console.warn(JSON.parse(JSON.stringify(this.actor)));
     // handle active effects
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
     await this.removeActiveEffects(activeEffectCopy);
+
+    console.warn(JSON.parse(JSON.stringify(this.actor)));
+    console.warn(JSON.parse(JSON.stringify(this.result.character)));
 
     // update image
     await this.updateImage(html, data.ddb);
@@ -1239,11 +1260,14 @@ export default class CharacterImport extends FormApplication {
     logger.debug("Character data importing: ", this.result.character);
     await this.actor.update(this.result.character);
 
+    console.warn(JSON.parse(JSON.stringify(this.actor)));
     // copy existing journal notes
     this.copyExistingJournalNotes();
 
     // items import
     await this.processCharacterItems(html);
+
+    console.warn(JSON.parse(JSON.stringify(this.actor)));
 
     // We loop back over the spell slots to update them to our computed
     // available value as per DDB.
