@@ -219,11 +219,11 @@ let utils = {
           data.character.choices.class.some((choice) =>
             choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
           ) ||
-          data.character.classOptions.some((classOption) =>
+          data.character.classOptions?.some((classOption) =>
             classOption.id == option.componentId && classOption.entityTypeId == option.componentTypeId
           )
         ) &&
-        data.character.optionalClassFeatures.some((f) => f.classFeatureId == option.componentId)
+        data.character.optionalClassFeatures?.some((f) => f.classFeatureId == option.componentId)
       );
 
 

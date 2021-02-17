@@ -1,3 +1,7 @@
+# 0.4.13
+
+* Some characters would not import.
+
 # 0.4.11/0.4.12
 
 * Some users with an expired or no cobalt token could no longer import characters.
