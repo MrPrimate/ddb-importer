@@ -163,9 +163,9 @@ let utils = {
 
   getActiveItemModifiers: (data) => {
     // are we adding effects to items?
-    const excludedModifiers = (game.settings.get("ddb-importer", "character-update-policy-add-effects")) ?
-      EFFECT_EXCLUDED_ITEM_MODIFIERS :
-      [];
+    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
+    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const excludedModifiers = (addEffects && daeInstalled) ? EFFECT_EXCLUDED_ITEM_MODIFIERS : [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
       .filter(

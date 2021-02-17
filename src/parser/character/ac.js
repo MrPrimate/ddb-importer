@@ -50,7 +50,9 @@ let getEquippedAC = (equippedGear) => {
 
     // magical armor
     const usingEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
-    if (!usingEffects && item.definition.grantedModifiers) {
+    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const daeEffects = usingEffects && daeInstalled;
+    if (!daeEffects && item.definition.grantedModifiers) {
       let isAvailable = false;
       // does an item need attuning
       if (item.definition.canAttune === true) {

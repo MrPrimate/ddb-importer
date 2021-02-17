@@ -427,9 +427,9 @@ export default function getInventory(ddb, character, itemSpells) {
       item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       if (!item.effects) item.effects = [];
-      if (game.settings.get("ddb-importer", "character-update-policy-add-effects")) {
-        item = generateItemEffects(ddb, character, ddbItem, item);
-      }
+      const daeInstalled = utils.isModuleInstalledAndActive("dae");
+      const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
+      if (daeInstalled && addEffects) item = generateItemEffects(ddb, character, ddbItem, item);
       items.push(item);
     }
   }
