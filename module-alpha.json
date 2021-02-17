@@ -1,13 +1,13 @@
 {
   "name": "ddb-importer",
   "author": "MrPrimate",
-  "title": "D&D Beyond Importer",
+  "title": "[Alpha] wD&D Beyond Importer",
   "description": "Import your dndbeyond.com characters, spells and monsters at super speed!",
-  "version": "0.0.0",
-  "download": "https://github.com/mrprimate/ddb-importer/releases/download/debug/ddb-importer-debug.zip",
-  "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/debug/module-debug.json",
+  "version": "0.5.0",
+  "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
+  "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
-  "minimumCoreVersion": "0.7.6",
+  "minimumCoreVersion": "0.7.9",
   "compatibleCoreVersion": "0.7.9",
   "authors": [
     {
