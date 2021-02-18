@@ -45,11 +45,11 @@ build:
     - apt-get update; apt-get -y install zip unzip awscli jq
     - npm ci
     - npm run build
-    - echo "$(node ./.gitlab/build-alpha-module.js | jq)" > module.json
+    - node ./.gitlab/build-alpha-module.js | jq > module.json
     - zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang data vendor LICENSE.md
     - aws s3 cp ./ddb-importer.zip s3://$S3_BUCKET/$S3_PATH/
     - aws s3 cp ./module.json s3://$S3_BUCKET/$S3_PATH/
-    - echo "Manifest located at $(node ./.gitlab/get-manifest-path.js.js)"
+    - echo "Manifest located at $(node ./.gitlab/get-manifest-path.js)"
   artifacts:
     public: false
     paths:
