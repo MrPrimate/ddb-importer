@@ -47,13 +47,13 @@ export function getProficiencies(data) {
   return proficiencies;
 }
 
-export function getArmorProficiencies(data, character) {
+export function getArmorProficiencies(data, proficiencyArray) {
   let values = [];
   let custom = [];
 
   // lookup the characters's proficiencies in the DICT
   let allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Armor");
-  character.flags.ddbimporter.dndbeyond.proficiencies.forEach((prof) => {
+  proficiencyArray.forEach((prof) => {
     if (prof.name === "Light Armor" && !values.includes("lgt")) {
       values.push("lgt");
     }
@@ -71,10 +71,11 @@ export function getArmorProficiencies(data, character) {
     }
   });
 
-  // load custom proficiencies in characterValues
-  const customProfs = getCustomProficiencies(data, "Armor");
-  custom = custom.concat(customProfs);
-
+  if (data) {
+    // load custom proficiencies in characterValues
+    const customProfs = getCustomProficiencies(data, "Armor");
+    custom = custom.concat(customProfs);
+  }
   return {
     value: [...new Set(values)],
     custom: [...new Set(custom)].join(";"),
@@ -95,7 +96,7 @@ export function getArmorProficiencies(data, character) {
 // "vehicle": "Vehicle (Land or Water)"
 // };
 //
-export function getToolProficiencies(data, character) {
+export function getToolProficiencies(data, proficiencyArray) {
   let values = [];
   let custom = [];
 
@@ -106,7 +107,7 @@ export function getToolProficiencies(data, character) {
       return prof.name;
     });
 
-  character.flags.ddbimporter.dndbeyond.proficiencies.forEach((prof) => {
+    proficiencyArray.forEach((prof) => {
     // Some have values we can match too in foundry, others have to be custom imported
     switch (prof.name) {
       case "Artisan's Tools":
@@ -143,17 +144,19 @@ export function getToolProficiencies(data, character) {
     }
   });
 
-  // Custom proficiencies!
-  data.character.customProficiencies.forEach((proficiency) => {
-    if (proficiency.type === 2) {
-      // type 2 is TOOL, 1 is SKILL, 3 is LANGUAGE
-      custom.push(proficiency.name);
-    }
-  });
+  if (data) {
+    // Custom proficiencies!
+    data.character.customProficiencies.forEach((proficiency) => {
+      if (proficiency.type === 2) {
+        // type 2 is TOOL, 1 is SKILL, 3 is LANGUAGE
+        custom.push(proficiency.name);
+      }
+    });
 
-  // load custom proficiencies in characterValues
-  const customProfs = getCustomProficiencies(data, "Tools");
-  custom = custom.concat(customProfs);
+    // load custom proficiencies in characterValues
+    const customProfs = getCustomProficiencies(data, "Tools");
+    custom = custom.concat(customProfs);
+  }
 
   return {
     value: [...new Set(values)],
@@ -161,13 +164,13 @@ export function getToolProficiencies(data, character) {
   };
 }
 
-export function getWeaponProficiencies(data, character) {
+export function getWeaponProficiencies(data, proficiencyArray) {
   let values = [];
   let custom = [];
 
   // lookup the characters's proficiencies in the DICT
   let allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Weapon");
-  character.flags.ddbimporter.dndbeyond.proficiencies.forEach((prof) => {
+  proficiencyArray.forEach((prof) => {
     if (prof.name === "Simple Weapons" && !values.includes("sim")) {
       values.push("sim");
     }
@@ -179,9 +182,11 @@ export function getWeaponProficiencies(data, character) {
     }
   });
 
-  // load custom proficiencies in characterValues
-  const customProfs = getCustomProficiencies(data, "Weapons");
-  custom = custom.concat(customProfs);
+  if (data) {
+    // load custom proficiencies in characterValues
+    const customProfs = getCustomProficiencies(data, "Weapons");
+    custom = custom.concat(customProfs);
+  }
 
   return {
     value: [...new Set(values)],

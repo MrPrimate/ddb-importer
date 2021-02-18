@@ -130,9 +130,9 @@ export default function getCharacter(ddb) {
   character.data.details.race = ddb.character.race.fullName;
 
   // traits
-  character.data.traits.weaponProf = getWeaponProficiencies(ddb, character);
-  character.data.traits.armorProf = getArmorProficiencies(ddb, character);
-  character.data.traits.toolProf = getToolProficiencies(ddb, character);
+  character.data.traits.weaponProf = getWeaponProficiencies(ddb, character.flags.ddbimporter.dndbeyond.proficiencies);
+  character.data.traits.armorProf = getArmorProficiencies(ddb, character.flags.ddbimporter.dndbeyond.proficiencies);
+  character.data.traits.toolProf = getToolProficiencies(ddb, character.flags.ddbimporter.dndbeyond.proficiencies);
   character.data.traits.size = getSize(ddb);
   character.data.traits.senses = getSenses(ddb);
   character.data.traits.languages = getLanguages(ddb);

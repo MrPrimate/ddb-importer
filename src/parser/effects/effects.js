@@ -1,6 +1,7 @@
 import utils from "../../utils.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
+import { getWeaponProficiencies, getArmorProficiencies, getToolProficiencies } from "../character/proficiencies.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -49,6 +50,9 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   // ac
   // e.g. robe of the archm
   { type: "set", subType: "unarmored-armor-class" },
+
+   // profs
+   { type: "proficiency", subType: null }
 
 
 
@@ -436,6 +440,35 @@ function addSetSpeeds(modifiers, name) {
   return changes;
 }
 
+function addProficiencies(modifiers, name) {
+  let changes = [];
+
+  const proficiencies = modifiers.filter((mod) => mod.type === "proficiency")
+    .map((mod) => {return {name: mod.friendlySubtypeName}});
+
+  const toolProf = getToolProficiencies(null, proficiencies);
+  const weaponProf = getWeaponProficiencies(null, proficiencies);
+  const armorProf = getArmorProficiencies(null, proficiencies);
+
+  toolProf.value.forEach((prof) => {
+    logger.debug(`Generating tool proficiencies for ${name}`);
+    changes.push(generateCustomChange(prof,20,"data.traits.toolProf.custom"));
+  });
+  weaponProf.value.forEach((prof) => {
+    logger.debug(`Generating weapon proficiencies for ${name}`);
+    changes.push(generateCustomChange(prof,20,"data.traits.weaponProf.custom"));
+  });
+  armorProf.value.forEach((prof) => {
+    logger.debug(`Generating armor proficiencies for ${name}`);
+    changes.push(generateCustomChange(prof,20,"data.traits.armorProf.custom"));
+  });
+  if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom,20,"data.traits.toolProf.custom"));
+  if (weaponProf?.custom != "") changes.push(generateCustomChange(weaponProf.custom,20,"data.traits.weaponProf.custom"));
+  if (armorProf?.custom != "") changes.push(generateCustomChange(armorProf.custom,20,"data.traits.armorProf.custom"));
+
+  return changes;
+}
+
 /**
  * Generate supported effects for items
  * @param {*} ddb
@@ -466,7 +499,8 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
   const speedSets = addSetSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
   const spellAttackBonus = addCustomEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "spell-attacks", "data.bonuses.spell.attack");
   const spellDCBonus = addAddEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "spell-save-dc", "data.bonuses.spell.dc");
-  const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name)
+  const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...acBonus,
@@ -483,6 +517,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
     ...spellAttackBonus,
     ...spellDCBonus,
     ...acSets,
+    ...profs,
   ];
 
   // check attunement status etc
