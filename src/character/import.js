@@ -474,8 +474,8 @@ export default class CharacterImport extends FormApplication {
       },
     ];
 
-    const daeInstalled =
-      utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
 
     // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
 
@@ -550,18 +550,25 @@ export default class CharacterImport extends FormApplication {
         enabled: true,
       },
       {
+        name: "add-effects",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-add-effects"),
+        title: "[Super Experimental] Dynamically generate DAE effects (items only)",
+        description: "Dynamically generate DAE effects for items only, please only run this on characters you have backups of, or are happy to reimport from scratch. Please log any bugs in the <a href=\"https://discord.gg/nFtquXaAPX\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
+        enabled: daeInstalled,
+      },
+      {
         name: "dae-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy"),
         title: "Copy Active Effect from DAE Compendiums",
         description: "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE and SRD module).",
-        enabled: daeInstalled,
+        enabled: daeInstalled && daeSRDInstalled,
       },
       {
         name: "dae-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy"),
         title: "[Caution] Replace Items using DAE compendiums",
         description: "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE and SRD module). This will remove any effects applied directly to your character/not via features/items.",
-        enabled: daeInstalled,
+        enabled: daeInstalled && daeSRDInstalled,
       },
       {
         name: "active-effect-copy",

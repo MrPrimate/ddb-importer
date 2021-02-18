@@ -275,7 +275,8 @@ export default class DDBMuncher extends Application {
     const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
     const tier = game.settings.get("ddb-importer", "patreon-tier");
     const tiers = getPatreonTiers(tier);
-    const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+    const daeInstalled = utils.isModuleInstalledAndActive("dae")
+    const daeSRDInstall = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
 
     const itemConfig = [
       {
@@ -289,6 +290,12 @@ export default class DDBMuncher extends Application {
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-generic-item-icons"),
         description: "Use D&D Beyond generic item type images, if available (final fallback)",
         enabled: true,
+      },
+      {
+        name: "add-effects",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-add-effects"),
+        description: "[Super Experimental] Dynamically generate DAE effects (items only). (Requires DAE)",
+        enabled: daeInstalled,
       },
     ];
 
@@ -387,7 +394,7 @@ export default class DDBMuncher extends Application {
         name: "use-dae-effects",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
         description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD module)",
-        enabled: daeInstalled,
+        enabled: daeInstalled && daeSRDInstall,
       },
     ];
 
