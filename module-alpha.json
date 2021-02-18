@@ -2,7 +2,7 @@
   "name": "ddb-importer",
   "author": "MrPrimate",
   "title": "[Alpha] D&D Beyond Importer",
-  "description": "DDB Importer alpha version for auto effect generation on items",
+  "description": "ALPHA DDB Importer for auto effect generation on items. This version is unstable, please don't use it on important games.",
   "version": "0.5.0",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
