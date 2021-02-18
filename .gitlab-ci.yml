@@ -1,3 +1,4 @@
+image: node: latest
 
 cache:
   paths:
@@ -39,12 +40,12 @@ build:
   script:
     - npm ci
     - npm run build
+    - node ./.gitlab/build-alpha-module.js > module.json
 
 deploy:
   stage: deploy
   script:
-    - node ./.gitlab/build-alpha-module.js > module.json
-    - apt-get update; apt-get -y install zip unzip
+    - apt-get update; apt-get -y install zip unzip awscli
     - zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang data vendor LICENSE.md
     - aws s3 cp ./ddb-importer.zip s3://$S3_BUCKET/$S3_PATH/
     - aws s3 cp ./module.json s3://$S3_BUCKET/$S3_PATH/
