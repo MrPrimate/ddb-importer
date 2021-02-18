@@ -362,7 +362,7 @@ export default function () {
     scope: "player",
     config: false,
     type: Boolean,
-    default: true,
+    default: false,
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-existing", {
@@ -665,7 +665,7 @@ export default function () {
     scope: "player",
     config: false,
     type: Boolean,
-    default: true,
+    default: false,
   });
 
   game.settings.register("ddb-importer", "munching-policy-download-images", {
