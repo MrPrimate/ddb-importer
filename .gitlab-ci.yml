@@ -35,12 +35,17 @@ prepare:
       dotenv: vars.env
 
 build:
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $ALPHA_BRANCH
+    changes:
+      - module-alpha.json
   stage: build
   script:
-    - apt-get update; apt-get -y install zip unzip awscli
+    - apt-get update; apt-get -y install zip unzip awscli jq
     - npm ci
     - npm run build
-    - echo "$(node ./.gitlab/build-alpha-module.js)" > module.json
+    - echo "$(node ./.gitlab/build-alpha-module.js | jq)" > module.json
     - zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang data vendor LICENSE.md
     - aws s3 cp ./ddb-importer.zip s3://$S3_BUCKET/$S3_PATH/
     - aws s3 cp ./module.json s3://$S3_BUCKET/$S3_PATH/
