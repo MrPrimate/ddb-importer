@@ -50,3 +50,10 @@ build:
     - aws s3 cp ./ddb-importer.zip s3://$S3_BUCKET/$S3_PATH/
     - aws s3 cp ./module.json s3://$S3_BUCKET/$S3_PATH/
     - echo "Manifest located at $(node ./.gitlab/get-manifest-path.js.js)"
+  artifacts:
+    public: false
+    paths:
+      - module.json
+      - ddb-importer.zip
+    untracked: false
+    expire_in: 14 days
