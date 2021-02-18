@@ -41,12 +41,14 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   { type: "set-base", subType: "darkvision" },
 
   // speeds
+  { type: "set", subType: "innate-speed-walking" },
   { type: "set", subType: "innate-speed-climbing" },
+  { type: "set", subType: "innate-speed-swimming" },
+  { type: "set", subType: "innate-speed-flying" },
 
   // ac
   // e.g. robe of the archm
   { type: "set", subType: "unarmored-armor-class" },
-
 
 
 
@@ -425,7 +427,7 @@ function addSetSpeedEffect(modifiers, name, subType) {
  */
 function addSetSpeeds(modifiers, name) {
   let changes = [];
-  const speedSets = ["innate-speed-climbing","innate-speed-swimming","innate-speed-flying"];
+  const speedSets = ["innate-speed-walking","innate-speed-climbing","innate-speed-swimming","innate-speed-flying"];
   speedSets.forEach((speedSet) => {
     const result = addSetSpeedEffect(modifiers, name, speedSet);
     changes = changes.concat(result);
