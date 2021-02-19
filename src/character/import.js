@@ -1069,6 +1069,7 @@ export default class CharacterImport extends FormApplication {
 
       for (const item of enrichedItems) {
         logger.debug(`Updating ${item.name}`);
+        // eslint-disable-next-line no-await-in-loop
         await this.actor.updateOwnedItem(item);
       }
 

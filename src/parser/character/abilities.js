@@ -6,7 +6,7 @@ import utils from "../../utils.js";
  * @param {obj} data JSON Import
  * @param {obj} includeExcludedEffects Include effects from dae added items?
  */
-function parseAbilities(data, includeExcludedEffects=false) {
+function parseAbilities(data, includeExcludedEffects = false) {
   // go through every ability
 
   let result = {};

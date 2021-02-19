@@ -83,7 +83,7 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
  * @param {*} origin
  */
 
-function baseItemEffect(foundryItem, label, origin) {
+function baseItemEffect(foundryItem, label) {
   return {
     label: label,
     icon: foundryItem.img,
@@ -532,8 +532,8 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
     compendiumItem ||
     (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
     (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
-    (!ddbItem.definition.canAttune && ddbItem.equipped)) // can't attune but is equipped
-  {
+    (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
+  ) {
     setProperty(foundryItem, "flags.dae.alwaysActive", false);
     setProperty(effect, "flags.ddbimporter.disabled", false);
     effect.disabled = false;
