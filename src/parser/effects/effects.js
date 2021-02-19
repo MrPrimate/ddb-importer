@@ -55,7 +55,6 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
    { type: "proficiency", subType: null }
 
 
-
   // { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
   // data.bonuses.rwak.attack
   // data.bonuses.mwak.attack
@@ -116,15 +115,15 @@ function baseItemEffect(foundryItem, label, origin) {
   };
 }
 
-/***
-CONST.ACTIVE_EFFECT_MODES.
-ADD: 2
-CUSTOM: 0
-DOWNGRADE: 3
-MULTIPLY: 1
-OVERRIDE: 5
-UPGRADE: 4
- */
+// *
+// CONST.ACTIVE_EFFECT_MODES.
+// ADD: 2
+// CUSTOM: 0
+// DOWNGRADE: 3
+// MULTIPLY: 1
+// OVERRIDE: 5
+// UPGRADE: 4
+// 
 
 function generateChange(bonus, priority, key, mode) {
   return {
@@ -225,19 +224,19 @@ function addLanguages(modifiers, name) {
 
   languages.value.forEach((prof) => {
     logger.debug(`Generating language ${prof} for ${name}`);
-    changes.push(generateCustomChange(prof,0,"data.traits.languages.value"));
+    changes.push(generateCustomChange(prof, 0, "data.traits.languages.value"));
   });
   if (languages?.custom != "") {
     logger.debug(`Generating language ${languages.custom} for ${name}`);
-    changes.push(generateCustomChange(languages.custom,0,"data.traits.languages.custom"));
+    changes.push(generateCustomChange(languages.custom, 0, "data.traits.languages.custom"));
   }
 
   return changes;
 }
 
-/***
- * Get list of generic conditions/damages
- */
+// *
+// Get list of generic conditions/damages
+// 
 
 function getGenericConditionAffect (modifiers, condition, typeId) {
   const damageTypes = DICTIONARY.character.damageTypes
@@ -254,7 +253,7 @@ function getGenericConditionAffect (modifiers, condition, typeId) {
     });
 
   return result;
-};
+}
 
 /**
  * Get  Damage Conditions, and Condition Immunities
@@ -285,17 +284,17 @@ function addDamageConditions(modifiers) {
   return charges;
 }
 
-/***
- * Generate stat bonuses
- */
+// *
+// Generate stat bonuses
+// 
 function addStatBonusEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
 
   let effects = [];
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
-    bonuses.forEach((bonus)=> {
-      const maxMatch = /Maximum of (\d*)/
+    bonuses.forEach((bonus) => {
+      const maxMatch = /Maximum of (\d*)/;
       const match = bonus.restriction ? bonus.restriction.match(maxMatch) : false;
       const max = match ? match[1] : 99;
       logger.debug(`Generating ${subType} stat bonus for ${name}`);
@@ -309,7 +308,7 @@ function addStatBonusEffect(modifiers, name, subType) {
 
 function addStatBonuses(modifiers, name) {
   let changes = [];
-  const stats = ["strength-score","dexterity-score","constitution-score","wisdom-score","intelligence-score","charisma-score"];
+  const stats = ["strength-score", "dexterity-score", "constitution-score", "wisdom-score", "intelligence-score", "charisma-score"];
   stats.forEach((stat) => {
     const result = addStatBonusEffect(modifiers, name, stat);
     changes = changes.concat(result);
@@ -318,9 +317,9 @@ function addStatBonuses(modifiers, name) {
   return changes;
 }
 
-/***
- * Generate stat sets
- */
+// *
+// Generate stat sets
+// 
 function addACSetEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
 
@@ -328,7 +327,7 @@ function addACSetEffect(modifiers, name, subType) {
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
     logger.debug(`Generating ${subType} AC set for ${name}`);
-    effects.push(generateUpgradeChange(`${Math.max(bonuses)} + @abilities.dex.mod`, 4,  "data.attributes.ac.value"));
+    effects.push(generateUpgradeChange(`${Math.max(bonuses)} + @abilities.dex.mod`, 4, "data.attributes.ac.value"));
   }
   return effects;
 }
@@ -345,16 +344,16 @@ function addACSets(modifiers, name) {
 }
 
 
-/***
- * Generate stat sets
- */
+// *
+// Generate stat sets
+// 
 function addStatSetEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
 
   let effects = [];
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
-    bonuses.forEach((bonus)=> {
+    bonuses.forEach((bonus) => {
       logger.debug(`Generating ${subType} stat set for ${name}`);
       const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
       effects.push(generateUpgradeChange(bonus.value, 4, `data.abilities.${ability}.value`));
@@ -365,7 +364,7 @@ function addStatSetEffect(modifiers, name, subType) {
 
 function addStatSets(modifiers, name) {
   let changes = [];
-  const stats = ["strength-score","dexterity-score","constitution-score","wisdom-score","intelligence-score","charisma-score"];
+  const stats = ["strength-score", "dexterity-score", "constitution-score", "wisdom-score", "intelligence-score", "charisma-score"];
   stats.forEach((stat) => {
     const result = addStatSetEffect(modifiers, name, stat);
     changes = changes.concat(result);
@@ -375,18 +374,18 @@ function addStatSets(modifiers, name) {
 }
 
 
-/***
- * Senses
- */
+// *
+// Senses
+// 
 function addSenseBonus(modifiers, name) {
   let changes = [];
 
   const bonus = modifiers.filter((modifier) => modifier.type === "set-base" && modifier.subType === "darkvision").map((mod) => mod.value);
   if (bonus.length > 0) {
     logger.debug(`Generating darkvision base for ${name}`);
-    changes.push(generateUpgradeChange(Math.max(bonus), 10,"data.attributes.senses.darkvision"));
+    changes.push(generateUpgradeChange(Math.max(bonus), 10, "data.attributes.senses.darkvision"));
   }
-  //TODO: do other senses
+  // TODO: do other senses
   return changes;
 }
 
@@ -405,16 +404,16 @@ function addProficiencyBonus(modifiers, name) {
 }
 
 
-/***
- * Generate set speeds
- */
+// *
+// Generate set speeds
+// 
 function addSetSpeedEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
 
   let effects = [];
   // "Equal to Walking Speed"
   if (bonuses.length > 0) {
-    bonuses.forEach((bonus)=> {
+    bonuses.forEach((bonus) => {
       logger.debug(`Generating ${subType} speed set for ${name}`);
       const innate = subType.split("-").slice(-1)[0];
       const speedType = DICTIONARY.character.speeds.find((s) => s.innate === innate).type;
@@ -431,7 +430,7 @@ function addSetSpeedEffect(modifiers, name, subType) {
  */
 function addSetSpeeds(modifiers, name) {
   let changes = [];
-  const speedSets = ["innate-speed-walking","innate-speed-climbing","innate-speed-swimming","innate-speed-flying"];
+  const speedSets = ["innate-speed-walking", "innate-speed-climbing", "innate-speed-swimming", "innate-speed-flying"];
   speedSets.forEach((speedSet) => {
     const result = addSetSpeedEffect(modifiers, name, speedSet);
     changes = changes.concat(result);
@@ -444,7 +443,9 @@ function addProficiencies(modifiers, name) {
   let changes = [];
 
   const proficiencies = modifiers.filter((mod) => mod.type === "proficiency")
-    .map((mod) => {return {name: mod.friendlySubtypeName}});
+    .map((mod) => {
+ return { name: mod.friendlySubtypeName }; 
+});
 
   const toolProf = getToolProficiencies(null, proficiencies);
   const weaponProf = getWeaponProficiencies(null, proficiencies);
@@ -452,19 +453,19 @@ function addProficiencies(modifiers, name) {
 
   toolProf.value.forEach((prof) => {
     logger.debug(`Generating tool proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof,20,"data.traits.toolProf.custom"));
+    changes.push(generateCustomChange(prof, 20, "data.traits.toolProf.custom"));
   });
   weaponProf.value.forEach((prof) => {
     logger.debug(`Generating weapon proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof,20,"data.traits.weaponProf.custom"));
+    changes.push(generateCustomChange(prof, 20, "data.traits.weaponProf.custom"));
   });
   armorProf.value.forEach((prof) => {
     logger.debug(`Generating armor proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof,20,"data.traits.armorProf.custom"));
+    changes.push(generateCustomChange(prof, 20, "data.traits.armorProf.custom"));
   });
-  if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom,20,"data.traits.toolProf.custom"));
-  if (weaponProf?.custom != "") changes.push(generateCustomChange(weaponProf.custom,20,"data.traits.weaponProf.custom"));
-  if (armorProf?.custom != "") changes.push(generateCustomChange(armorProf.custom,20,"data.traits.armorProf.custom"));
+  if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 20, "data.traits.toolProf.custom"));
+  if (weaponProf?.custom != "") changes.push(generateCustomChange(weaponProf.custom, 20, "data.traits.weaponProf.custom"));
+  if (armorProf?.custom != "") changes.push(generateCustomChange(armorProf.custom, 20, "data.traits.armorProf.custom"));
 
   return changes;
 }
@@ -479,7 +480,7 @@ function addProficiencies(modifiers, name) {
 export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return foundryItem;
   console.error(`Item: ${foundryItem.name}`, ddbItem);
-  logger.debug(`Generating supported effects for ${foundryItem.name}`)
+  logger.debug(`Generating supported effects for ${foundryItem.name}`);
 
   // Update -actually might not need this, as it seems to add a value anyway to undefined
   // this item might not have been created yet - we will update these origins later in the character import
@@ -527,7 +528,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
     effect.disabled = false;
     setProperty(effect, "flags.ddbimporter.disabled", false);
     setProperty(foundryItem, "flags.dae.alwaysActive", true);
-  } else if(
+  } else if (
     (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
     (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
     (!ddbItem.definition.canAttune && ddbItem.equipped)) // can't attune but is equipped
@@ -544,7 +545,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
   setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
   setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
   // set dae flag for active equipped
-  if(ddbItem.definition.canEquip || ddbItem.definition.canAttune) {
+  if (ddbItem.definition.canEquip || ddbItem.definition.canAttune) {
     setProperty(foundryItem, "flags.dae.activeEquipped", true);
   } else {
     setProperty(foundryItem, "flags.dae.activeEquipped", false);

@@ -1187,13 +1187,13 @@ export default class CharacterImport extends FormApplication {
     if (useExistingCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing compendium items");
       logger.info("Importing compendium items:", compendiumItems);
-      await this.actor.createOwnedItem(compendiumItems)
+      await this.actor.createOwnedItem(compendiumItems);
     }
 
     if (useSRDCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing SRD compendium items");
       logger.info("Importing SRD compendium items:", srdCompendiumItems);
-      await this.actor.createOwnedItem(srdCompendiumItems)
+      await this.actor.createOwnedItem(srdCompendiumItems);
     }
 
     logger.debug("Finished importing items");
@@ -1315,6 +1315,6 @@ export default class CharacterImport extends FormApplication {
       });
     }
 
-    //this.close();
+    // this.close();
   }
 }

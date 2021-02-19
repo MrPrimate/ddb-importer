@@ -190,9 +190,9 @@ function createDefaultItem() {
     tables: {},
     equipped: true,
     attuned: false,
-    destroyFlavorText: (utils.isModuleInstalledAndActive("magicitems")) ?
-      game.i18n.localize("MAGICITEMS.MagicItemDestroy") :
-      "reaches 0 charges: it crumbles into ashes and is destroyed.",
+    destroyFlavorText: (utils.isModuleInstalledAndActive("magicitems"))
+      ? game.i18n.localize("MAGICITEMS.MagicItemDestroy")
+      : "reaches 0 charges: it crumbles into ashes and is destroyed.",
     sorting: "l"
   };
 }

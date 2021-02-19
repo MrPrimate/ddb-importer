@@ -91,15 +91,15 @@ function armorEffectFromFormula(formula, mode, itemData, label, origin) {
     transfer: true,
     disabled: true,
     origin,
-    flags: {dae: {transfer: true, armorEffect: true}}
+    flags: { dae: { transfer: true, armorEffect: true } }
   };
 }
 
 function generateACBonusEffect(itemData, origin, label, bonus) {
   let ae = armorEffectFromFormula(`${bonus}`, CONST.ACTIVE_EFFECT_MODES.ADD, itemData, label, origin);
-  ae.changes.forEach(c => {
+  ae.changes.forEach((c) => {
     c.priority = 11;
-    //c.icon = "icons/svg/shield.svg";
+    // c.icon = "icons/svg/shield.svg";
   });
   return ae;
 }
@@ -112,10 +112,10 @@ function generateACBonusEffect(itemData, origin, label, bonus) {
  */
 function generateArmorEffect(itemData, origin, armorData) {
   let label = `AC${itemData.data.armor.type === "shield" ? "+" : "="}${itemData.data.armor.value}`;
-  if ("light" === itemData.data.armor?.type) label += "+dex.mod";
-  if ("medium" === itemData.data.armor?.type) label += "+dex.mod|2";
+  if (itemData.data.armor?.type === "light") label += "+dex.mod";
+  if (itemData.data.armor?.type === "medium") label += "+dex.mod|2";
 
-  switch(armorData.type) {
+  switch (armorData.type) {
     case "shield":
       return generateACBonusEffect(itemData, origin, label, armorData.value);
     case "natural":
@@ -141,8 +141,8 @@ function createArmorEffect(actor, itemData) {
   // armor created on actor, screae armor effect.
   const origin = `Actor.${actor.id}.OwnedItem.${itemData._id}`;
   // const origin = actor.items.get(itemData._id).uuid;
-  itemData.effects = itemData.effects?.filter(efData => !efData.flags.dae?.armorEffect) || [];
-  switch(itemData.data.armor?.type) {
+  itemData.effects = itemData.effects?.filter((efData) => !efData.flags.dae?.armorEffect) || [];
+  switch (itemData.data.armor?.type) {
     case "natural":
       setProperty(itemData, "flags.dae.alwaysActive", true);
       itemData.effects.push(generateArmorEffect(itemData, origin, itemData.data.armor));
@@ -177,17 +177,17 @@ export function addACBonusEffect(ddbItem, foundryItem) {
       // if item just gives a thing and not potion/scroll
       effect.disabled = false;
       setProperty(effect, "flags.dae.alwaysActive", true);
-    } else if(
+    } else if (
       (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
       (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
       (!ddbItem.definition.canAttune && ddbItem.equipped)) // can't attune but is equipped
     {
-      console.log("setting disabled to false")
+      console.log("setting disabled to false");
       effect.disabled = false;
     }
 
     // set dae flag for active equipped
-    if(ddbItem.definition.canEquip || ddbItem.definition.canAttune) {
+    if (ddbItem.definition.canEquip || ddbItem.definition.canAttune) {
       setProperty(effect, "flags.dae.activeEquipped", true);
     }
 

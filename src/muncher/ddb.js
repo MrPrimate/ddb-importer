@@ -275,7 +275,7 @@ export default class DDBMuncher extends Application {
     const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
     const tier = game.settings.get("ddb-importer", "patreon-tier");
     const tiers = getPatreonTiers(tier);
-    const daeInstalled = utils.isModuleInstalledAndActive("dae")
+    const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const daeSRDInstall = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
 
     const itemConfig = [
