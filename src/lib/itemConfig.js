@@ -2,7 +2,7 @@ export class DDBItemConfig extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.title = "DDB Owned Item Config";
-    options.template = "modules/ddb-importer/handlebars/item-config.handlebars";
+    options.template = "modules/ddb-importer/handlebars/item-config.hbs";
     options.classes = ["ddbimporter", "sheet"];
     options.width = 500;
     return options;

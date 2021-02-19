@@ -30,7 +30,7 @@ export class DDBSources extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-sources";
-    options.template = "modules/ddb-importer/handlebars/sources.handlebars";
+    options.template = "modules/ddb-importer/handlebars/sources.hbs";
     options.width = 500;
     return options;
   }
@@ -67,7 +67,7 @@ export default class DDBMuncher extends Application {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-monsters";
-    options.template = "modules/ddb-importer/handlebars/munch.handlebars";
+    options.template = "modules/ddb-importer/handlebars/munch.hbs";
     options.resizable = false;
     options.height = "auto";
     options.width = 600;

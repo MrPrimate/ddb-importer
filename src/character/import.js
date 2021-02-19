@@ -250,7 +250,7 @@ export default class CharacterImport extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.title = game.i18n.localize("ddb-importer.module-name");
-    options.template = "modules/ddb-importer/handlebars/character.handlebars";
+    options.template = "modules/ddb-importer/handlebars/character.hbs";
     options.width = 800;
     options.height = 'auto';
     options.classes = ["ddbimporter", "sheet"];

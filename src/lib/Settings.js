@@ -17,7 +17,7 @@ export class DDBKeyChange extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-key-change";
-    options.template = "modules/ddb-importer/handlebars/key-change.handlebars";
+    options.template = "modules/ddb-importer/handlebars/key-change.hbs";
     options.width = 500;
     return options;
   }
@@ -93,7 +93,7 @@ export class DDBSetup extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-settings";
-    options.template = "modules/ddb-importer/handlebars/settings.handlebars";
+    options.template = "modules/ddb-importer/handlebars/settings.hbs";
     options.width = 500;
     return options;
   }
@@ -195,7 +195,7 @@ export class DDBCompendiumSetup extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-settings-compendium";
-    options.template = "modules/ddb-importer/handlebars/compendium.handlebars";
+    options.template = "modules/ddb-importer/handlebars/compendium.hbs";
     options.width = 500;
     return options;
   }
