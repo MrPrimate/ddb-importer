@@ -1,11 +1,12 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
+
 /**
  * Retrieves character abilities, including proficiency on saving throws
  * @param {obj} data JSON Import
- * @param {obj} character Character template
+ * @param {obj} includeExcludedEffects Include effects from dae added items?
  */
-export function getAbilities(data) {
+function parseAbilities(data, includeExcludedEffects=false) {
   // go through every ability
 
   let result = {};
@@ -18,19 +19,19 @@ export function getAbilities(data) {
 
     const stat = data.character.stats.find((stat) => stat.id === ability.id).value || 0;
     const abilityScoreMaxBonus = utils
-      .filterBaseModifiers(data, "bonus", "ability-score-maximum")
+      .filterBaseModifiers(data, "bonus", "ability-score-maximum", [null, ""], includeExcludedEffects)
       .filter((mod) => mod.statId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
     const bonus = utils
-      .filterBaseModifiers(data, "bonus", `${ability.long}-score`)
+      .filterBaseModifiers(data, "bonus", `${ability.long}-score`, [null, ""], includeExcludedEffects)
       .filter((mod) => mod.entityId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
     const setAbilities = utils
-      .filterBaseModifiers(data, "set", `${ability.long}-score`, [null, "", "if not already higher"])
+      .filterBaseModifiers(data, "set", `${ability.long}-score`, [null, "", "if not already higher"], includeExcludedEffects)
       .map((mod) => mod.value);
     const cappedBonusExp = /Maximum of (\d*)/i;
     const cappedBonus = utils
-      .filterBaseModifiers(data, "bonus", `${ability.long}-score`, false)
+      .filterBaseModifiers(data, "bonus", `${ability.long}-score`, false, includeExcludedEffects)
       .filter((mod) => mod.entityId === ability.id && mod.restriction && mod.restriction.startsWith("Maximum of "))
       .reduce(
         (prev, cur) => {
@@ -70,7 +71,7 @@ export function getAbilities(data) {
     // console.log(`setAbilityState ${setAbilityState}`);
     // console.log(`overRiddenStat ${overRiddenStat}`);
 
-    const proficient = utils.filterBaseModifiers(data, "proficiency", `${ability.long}-saving-throws`).length > 0
+    const proficient = utils.filterBaseModifiers(data, "proficiency", `${ability.long}-saving-throws`, [null, ""], includeExcludedEffects).length > 0
         ? 1
         : 0;
 
@@ -80,5 +81,19 @@ export function getAbilities(data) {
     result[ability.value].proficient = proficient;
   });
 
+  return result;
+}
+
+/**
+ * Retrieves character abilities, including proficiency on saving throws
+ * @param {obj} data JSON Import
+ */
+export function getAbilities(data) {
+  // go through every ability
+
+  const result = {
+    base: parseAbilities(data, false),
+    withEffects: parseAbilities(data, true),
+  };
   return result;
 }

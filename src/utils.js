@@ -161,11 +161,11 @@ let utils = {
     return source;
   },
 
-  getActiveItemModifiers: (data) => {
+  getActiveItemModifiers: (data, includeExcludedEffects=false) => {
     // are we adding effects to items?
     const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const excludedModifiers = (addEffects && daeInstalled) ? EFFECT_EXCLUDED_ITEM_MODIFIERS : [];
+    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? EFFECT_EXCLUDED_ITEM_MODIFIERS : [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
       .filter(
@@ -182,6 +182,16 @@ let utils = {
       );
 
     return modifiers;
+  },
+
+  getActiveItemEffectModifiers: (data) => {
+    return getActiveItemModifiers(data, true).filter((mod) => {
+      if (effectModifiersOnly) {
+        return EFFECT_EXCLUDED_ITEM_MODIFIERS.some((exMod) => mod.type === exMod.type &&
+          (mod.subType === exMod.subType || !exMod.subType));
+      }
+      return true;
+    });
   },
 
   filterModifiers: (modifiers, type, subType = null, restriction = ["", null]) => {
@@ -241,14 +251,14 @@ let utils = {
     return modifiers;
   },
 
-  filterBaseModifiers: (data, type, subType = null, restriction = ["", null]) => {
+  filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects=false) => {
     const modifiers = [
       // data.character.modifiers.class,
       utils.getChosenClassModifiers(data),
       data.character.modifiers.race,
       data.character.modifiers.background,
       data.character.modifiers.feat,
-      utils.getActiveItemModifiers(data),
+      utils.getActiveItemModifiers(data, includeExcludedEffects),
     ];
 
     return utils.filterModifiers(modifiers, type, subType, restriction);
