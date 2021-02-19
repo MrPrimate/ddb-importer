@@ -29,3 +29,35 @@
 //   "mode": 5,
 //   "priority": 20
 // }
+
+// Armor of Invulnerability
+// entire action for the special one - this is kind of in the modifiers
+// {
+//   "flags": {
+//     "dae": {
+//       "stackable": false,
+//       "specialDuration": "None",
+//       "transfer": false
+//     }
+//   },
+//   "changes": [
+//     {
+//       "key": "data.traits.di.value",
+//       "value": "physical",
+//       "mode": 2,
+//       "priority": 20
+//     }
+//   ],
+//   "disabled": false,
+//   "duration": {
+//     "startTime": null,
+//     "seconds": 600,
+//     "rounds": null,
+//     "turns": null,
+//     "startRound": null,
+//     "startTurn": null
+//   },
+//   "label": "Armor of Invulnerability",
+//   "tint": "",
+//   "transfer": false
+// }

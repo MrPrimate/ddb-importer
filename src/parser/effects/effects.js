@@ -244,7 +244,7 @@ function getGenericConditionAffect (modifiers, condition, typeId) {
     .map((type) => type.value);
 
   let result = modifiers.filter((modifier) => modifier.type === condition &&
-      damageTypes.includes(modifier.subType))
+      damageTypes.includes(modifier.subType) && (modifier.restriction === "" || !modifier.restriction))
     .map((modifier) => {
       const entry = DICTIONARY.character.damageTypes.find(
         (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
