@@ -10,6 +10,7 @@ export function getHitpoints(data, character) {
 
   // get all hit points features
   const bonusHitPointFeatures = utils.filterBaseModifiers(data, "bonus", "hit-points-per-level");
+  const bonusHitPointFeaturesWithEffects = utils.filterBaseModifiers(data, "bonus", "hit-points-per-level", ["", null], true);
 
   // get their values
   const bonusHitPointValues = bonusHitPointFeatures.map((bonus) => {
@@ -21,8 +22,19 @@ export function getHitpoints(data, character) {
     }
   });
 
+  const bonusHitPointValuesWithEffects = bonusHitPointFeaturesWithEffects.map((bonus) => {
+    const cls = utils.findClassByFeatureId(data, bonus.componentId);
+    if (cls) {
+      return cls.level * bonus.value;
+    } else {
+      return character.flags.ddbimporter.dndbeyond.totalLevels * bonus.value;
+    }
+  });
+
   // sum up the bonus HP per class level
   const totalBonusHitPoints = bonusHitPointValues.reduce((prev, cur) => prev + cur, 0);
+  const totalBonusHPWithEffects = bonusHitPointValuesWithEffects.reduce((prev, cur) => prev + cur, 0);
+  const bonusHPEffectDiff = totalBonusHPWithEffects - totalBonusHitPoints;
 
   // add the result to the base hitpoints
   baseHitPoints += totalBonusHitPoints;
@@ -32,7 +44,7 @@ export function getHitpoints(data, character) {
     : overrideHitPoints;
 
   return {
-    value: totalHitPoints - removedHitPoints,
+    value: totalHitPoints - removedHitPoints + bonusHPEffectDiff,
     min: 0,
     max: totalHitPoints,
     temp: temporaryHitPoints,

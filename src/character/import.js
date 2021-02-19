@@ -1064,15 +1064,19 @@ export default class CharacterImport extends FormApplication {
         return item;
       });
 
-      logger.debug("Updating items:", enrichedItems);
-      // await this.actor.updateOwnedItem(enrichedItems);
+      const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
 
-      for (const item of enrichedItems) {
-        logger.debug(`Updating ${item.name}`);
-        // eslint-disable-next-line no-await-in-loop
-        await this.actor.updateOwnedItem(item);
+      // there is some kind of race condition when updating more than a couple of items with AE on them
+      if (addEffects) {
+        for (const item of enrichedItems) {
+          logger.debug(`Updating ${item.name}`);
+          // eslint-disable-next-line no-await-in-loop
+          await this.actor.updateOwnedItem(item);
+        }
+      } else {
+        logger.debug("Updating items:", enrichedItems);
+        await this.actor.updateOwnedItem(enrichedItems);
       }
-
 
       logger.debug("Finished updating items");
       return [nonMatchedItems, enrichedItems];

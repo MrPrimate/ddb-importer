@@ -29,6 +29,8 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   { type: "bonus", subType: "spell-save-dc" },
   { type: "bonus", subType: "spell-attacks" },
 
+  { type: "bonus", subType: "hit-points-per-level" },
+
 
   // resistances - subType - e.g. poison - lookup from DICTIONARY
   { type: "resistance", subType: null },
@@ -471,6 +473,25 @@ function addProficiencies(modifiers, name) {
 }
 
 /**
+ * Add HP effects
+ * @param {*} modifiers
+ * @param {*} name
+ */
+function addHPEffect(modifiers, name) {
+  let changes = [];
+
+  // HP per level
+  const hpPerLevel = utils.filterModifiers(modifiers, "bonus", "hit-points-per-level").reduce((a, b) => a + b.value, 0);
+  if (hpPerLevel && hpPerLevel > 0) {
+    logger.debug(`Generating HP Per Level effects for ${name}`);
+    changes.push(generateAddChange(`${hpPerLevel} * @details.level`, 20, "data.attributes.hp.max"));
+  }
+
+  return changes;
+}
+
+
+/**
  * Generate supported effects for items
  * @param {*} ddb
  * @param {*} character
@@ -502,6 +523,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
   const spellDCBonus = addAddEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "spell-save-dc", "data.bonuses.spell.dc");
   const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...acBonus,
@@ -519,6 +541,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
     ...spellDCBonus,
     ...acSets,
     ...profs,
+    ...hp,
   ];
 
   // check attunement status etc
