@@ -1,7 +1,7 @@
 import utils from "../../utils.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
-import { getWeaponProficiencies, getArmorProficiencies, getToolProficiencies } from "../character/proficiencies.js";
+import { getWeaponProficiencies, getArmorProficiencies, getToolProficiencies, getLanguagesFromModifiers } from "../character/proficiencies.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -220,17 +220,17 @@ function addAddEffect(modifiers, name, type, key) {
  */
 function addLanguages(modifiers, name) {
   let changes = [];
-  const languages = modifiers.filter((mod) => mod.type === "language").map((mod) => mod.friendlySubtypeName);
 
-  languages.forEach((language) => {
-    let result = DICTIONARY.character.languages.find((lang) => lang.name === language);
-    if (result) {
-      logger.debug(`Generating language ${result.value} for ${name}`);
-      changes.push(generateCustomChange(result.value, 0, "data.traits.languages.value"));
-    } else {
-      logger.warn(`Unable to create effect language ${JSON.parse(result)} for ${name}`);
-    }
+  const languages = getLanguagesFromModifiers(null, modifiers);
+
+  languages.value.forEach((prof) => {
+    logger.debug(`Generating language ${prof} for ${name}`);
+    changes.push(generateCustomChange(prof,0,"data.traits.languages.value"));
   });
+  if (languages?.custom != "") {
+    logger.debug(`Generating language ${languages.custom} for ${name}`);
+    changes.push(generateCustomChange(languages.custom,0,"data.traits.languages.custom"));
+  }
 
   return changes;
 }

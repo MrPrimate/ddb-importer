@@ -194,13 +194,13 @@ export function getWeaponProficiencies(data, proficiencyArray) {
   };
 }
 
-export function getLanguages(data) {
+export function getLanguagesFromModifiers(data, modifiers) {
   let languages = [];
   let custom = [];
 
-  const modifiers = utils.filterBaseModifiers(data, "language");
-
-  modifiers.forEach((language) => {
+  modifiers
+  .filter((mod) => mod.type === "language")
+  .forEach((language) => {
     let result = DICTIONARY.character.languages.find((lang) => lang.name === language.friendlySubtypeName);
     if (result) {
       languages.push(result.value);
@@ -209,19 +209,27 @@ export function getLanguages(data) {
     }
   });
 
-  data.character.customProficiencies.forEach((proficiency) => {
-    if (proficiency.type === 3) {
-      // type 3 is LANGUAGE, 1 is SKILL, 2 is TOOL
-      custom.push(proficiency.name);
-    }
-  });
+  if (data) {
+    data.character.customProficiencies.forEach((proficiency) => {
+      if (proficiency.type === 3) {
+        // type 3 is LANGUAGE, 1 is SKILL, 2 is TOOL
+        custom.push(proficiency.name);
+      }
+    });
 
-  // load custom proficiencies in characterValues
-  const customProfs = getCustomProficiencies(data, "Languages");
-  custom = custom.concat(customProfs);
+    // load custom proficiencies in characterValues
+    const customProfs = getCustomProficiencies(data, "Languages");
+    custom = custom.concat(customProfs);
+  }
 
   return {
     value: languages,
     custom: custom.map((entry) => utils.capitalize(entry)).join(";"),
   };
+}
+
+export function getLanguages(data) {
+  const modifiers = utils.filterBaseModifiers(data, "language");
+
+  return getLanguagesFromModifiers(data, modifiers);
 }
