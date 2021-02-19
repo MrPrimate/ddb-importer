@@ -995,22 +995,6 @@ export function addEffectIcons(items) {
 
   });
   return items;
-  // const updatedItems = items.map((item) => {
-  //   if (item.effects?.length > 0 && (item.img || item.img !== "" || item.img !== "icons/svg/mystery-man.svg")) {
-  //     console.warn(item);
-  //     item.effects = item.effects.map((effect) => {
-  //       console.log(effect);
-  //       if (!effect.icon || effect.icon === "" || effect.icon === "icons/svg/mystery-man.svg") {
-  //         effect.icon = item.img;
-  //       }
-  //       return effect;
-  //     });
-  //   }
-
-  //   return item;
-  // });
-  console.warn(updatedItems);
-  return Promise.all(updatedItems);
 }
 
 export async function updateIcons(items, srdIconUpdate = true) {

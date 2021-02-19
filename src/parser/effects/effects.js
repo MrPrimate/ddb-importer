@@ -123,7 +123,7 @@ function baseItemEffect(foundryItem, label, origin) {
 // MULTIPLY: 1
 // OVERRIDE: 5
 // UPGRADE: 4
-// 
+//
 
 function generateChange(bonus, priority, key, mode) {
   return {
@@ -236,7 +236,7 @@ function addLanguages(modifiers, name) {
 
 // *
 // Get list of generic conditions/damages
-// 
+//
 
 function getGenericConditionAffect (modifiers, condition, typeId) {
   const damageTypes = DICTIONARY.character.damageTypes
@@ -286,7 +286,7 @@ function addDamageConditions(modifiers) {
 
 // *
 // Generate stat bonuses
-// 
+//
 function addStatBonusEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
 
@@ -319,7 +319,7 @@ function addStatBonuses(modifiers, name) {
 
 // *
 // Generate stat sets
-// 
+//
 function addACSetEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
 
@@ -346,7 +346,7 @@ function addACSets(modifiers, name) {
 
 // *
 // Generate stat sets
-// 
+//
 function addStatSetEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
 
@@ -376,7 +376,7 @@ function addStatSets(modifiers, name) {
 
 // *
 // Senses
-// 
+//
 function addSenseBonus(modifiers, name) {
   let changes = [];
 
@@ -406,7 +406,7 @@ function addProficiencyBonus(modifiers, name) {
 
 // *
 // Generate set speeds
-// 
+//
 function addSetSpeedEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
 
@@ -444,7 +444,7 @@ function addProficiencies(modifiers, name) {
 
   const proficiencies = modifiers.filter((mod) => mod.type === "proficiency")
     .map((mod) => {
- return { name: mod.friendlySubtypeName }; 
+ return { name: mod.friendlySubtypeName };
 });
 
   const toolProf = getToolProficiencies(null, proficiencies);
@@ -477,7 +477,7 @@ function addProficiencies(modifiers, name) {
  * @param {*} ddbItem
  * @param {*} foundryItem
  */
-export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
+export function generateItemEffects(ddb, character, ddbItem, foundryItem, compendiumItem) {
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return foundryItem;
   console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`);
@@ -529,6 +529,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem) {
     setProperty(effect, "flags.ddbimporter.disabled", false);
     setProperty(foundryItem, "flags.dae.alwaysActive", true);
   } else if (
+    compendiumItem ||
     (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
     (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
     (!ddbItem.definition.canAttune && ddbItem.equipped)) // can't attune but is equipped

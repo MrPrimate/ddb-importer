@@ -62,7 +62,7 @@ async function generateImportItems(items) {
     }
   };
   let itemSpells = []; // here we need to parse each available spell and build a mock spell parser
-  const inventory = getInventory(mockDDB, mockCharacter, itemSpells);
+  const inventory = getInventory(mockDDB, mockCharacter, itemSpells, true);
   const results = {
     items: inventory,
     itemSpellNames: itemSpells, // this needs to be a list of spells to find

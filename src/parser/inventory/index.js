@@ -393,7 +393,7 @@ function enrichFlags(data, item) {
   if (data.definition?.sources) item.flags.ddbimporter.dndbeyond['sources'] = data.definition.sources;
 }
 
-export default function getInventory(ddb, character, itemSpells) {
+export default function getInventory(ddb, character, itemSpells, compendiumItem=false) {
   let items = [];
   // first, check custom name, price or weight
   ddb.character.characterValues.forEach((cv) => {
@@ -428,8 +428,10 @@ export default function getInventory(ddb, character, itemSpells) {
       item.flags.ddbimporter.originalName = originalName;
       if (!item.effects) item.effects = [];
       const daeInstalled = utils.isModuleInstalledAndActive("dae");
-      const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
-      if (daeInstalled && addEffects) item = generateItemEffects(ddb, character, ddbItem, item);
+      const addEffects = (compendiumItem) ?
+        game.settings.get("ddb-importer", "munching-policy-add-effects") :
+        game.settings.get("ddb-importer", "character-update-policy-add-effects");
+      if (daeInstalled && addEffects) item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
       items.push(item);
     }
   }
