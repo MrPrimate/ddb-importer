@@ -47,6 +47,7 @@ export default function getCharacter(ddb) {
   let character = {
     data: JSON.parse(utils.getTemplate("character")),
     type: "character",
+    effects: [],
     name: (ddb.character.name === "") ? "Hero With No Name" : ddb.character.name,
     // items: [],  // modified to check inventory analysis on update
     token: getToken(ddb),

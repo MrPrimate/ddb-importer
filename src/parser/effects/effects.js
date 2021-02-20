@@ -76,7 +76,7 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
    { type: "bonus", subType: "religion" },
    { type: "bonus", subType: "sleight-of-hand" },
    { type: "bonus", subType: "stealth" },
-   { type: "bonus", subType: "survival"},
+   { type: "bonus", subType: "survival" },
 
   // { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
   // data.bonuses.rwak.attack
@@ -147,6 +147,19 @@ function baseItemEffect(foundryItem, label) {
 // OVERRIDE: 5
 // UPGRADE: 4
 //
+
+export function generateBaseSkillEffect(id) {
+  const mockItem = {
+    img: "icons/svg/up.svg",
+  };
+  const label = "Misc Skill Bonuses";
+  let skillEffect = baseItemEffect(mockItem, label);
+  skillEffect.flags.dae = {};
+  skillEffect.flags.ddbimporter.characterEffect = true,
+  skillEffect.origin = `Actor.${id}`;
+  delete (skillEffect.transfer);
+  return skillEffect;
+}
 
 function generateChange(bonus, priority, key, mode) {
   return {

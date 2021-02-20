@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
+import { generateBaseSkillEffect } from "../effects/effects.js";
 
 let isHalfProficiencyRoundedUp = (data, skill) => {
   const longAbility = DICTIONARY.character.abilities
@@ -83,7 +84,10 @@ let getCustomSkillBonus = (data, skill) => {
 
 export function getSkills(data, character) {
   let result = {};
-  character.flags['skill-customization-5e'] = {};
+
+  const addEffects = utils.isModuleInstalledAndActive("dae");
+
+  if (!addEffects) character.flags['skill-customization-5e'] = {};
   DICTIONARY.character.skills.forEach((skill) => {
     const customProficient = getCustomSkillProficiency(data, skill);
     // we use !== undefined because the return value could be 0, which is falsey
@@ -103,7 +107,24 @@ export function getSkills(data, character) {
     const customSkillBonus = getCustomSkillBonus(data, skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
 
-    if (skillBonus && skillBonus > 0) {
+    if (addEffects && skillBonus && skillBonus > 0) {
+      const change = {
+        key: `data.skills.${skill.name}.mod`,
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: skillBonus,
+        priority: 20
+      };
+
+      const changeIndex = character.effects.findIndex((effect) => effect.label === "Misc Skill Bonuses");
+      if (changeIndex >= 0) {
+        character.effects[changeIndex].changes.push(change);
+      } else {
+        let skillEffect = generateBaseSkillEffect(data.character.id);
+        skillEffect.changes.push(change);
+        character.effects.push(skillEffect);
+      }
+
+    } else if (skillBonus && skillBonus > 0) {
       character.flags['skill-customization-5e'][skill.name] = {
         "skill-bonus": skillBonus
       };

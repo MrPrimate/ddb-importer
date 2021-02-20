@@ -1223,20 +1223,35 @@ export default class CharacterImport extends FormApplication {
       // is this a core status effect (CUB)
       ae.flags?.core?.statusId
     );
-    const charEffects = this.actor.data.effects.filter((ae) => !ae.origin?.includes('OwnedItem'));
+    const charEffects = this.actor.data.effects.filter((ae) =>
+      !ae.origin?.includes('OwnedItem') && !ae.flags.ddbimporter?.characterEffect
+    );
+    const ddbGeneratedCharEffects = this.actor.data.effects.filter((ae) =>
+      !ae.origin?.includes('OwnedItem') && ae.flags.ddbimporter?.characterEffect
+    );
 
     // remove existing active item effects
     await this.actor.deleteEmbeddedEntity("ActiveEffect", itemEffects.map((ae) => ae._id));
+    // clear down ddb generated character effects such as skill bonuses
+    await this.actor.deleteEmbeddedEntity("ActiveEffect", ddbGeneratedCharEffects.map((ae) => ae._id));
 
     // are we trying to retain existing effects?
     if (activeEffectCopy) {
       // add retained character effects to result
-      this.result.character.effects = charEffects.concat(ignoredEffects);
+      this.result.character.effects = this.result.character.effects.concat(charEffects, ignoredEffects);
     } else {
       // if not retaining effects remove character effects
       await this.actor.deleteEmbeddedEntity("ActiveEffect", charEffects.map((ae) => ae._id));
-      this.result.character.effects = ignoredEffects;
+      this.result.character.effects = this.result.character.effects.concat(ignoredEffects);
     }
+  }
+
+  fixUpCharacterEffects(effects) {
+    effects.forEach((effect) => {
+      if (effect.origin === `Actor.${this.actor.data.flags.ddbimporter.dndbeyond.characterId}`) {
+        effect.origin = `Actor.${this.actor._id}`;
+      }
+    });
   }
 
   async parseCharacterData(html, data) {
@@ -1248,6 +1263,7 @@ export default class CharacterImport extends FormApplication {
     // handle active effects
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
+    this.fixUpCharacterEffects(this.result.character.effects);
     await this.removeActiveEffects(activeEffectCopy);
 
     console.warn(JSON.parse(JSON.stringify(this.actor)));
