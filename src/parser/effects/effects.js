@@ -155,7 +155,7 @@ export function generateBaseSkillEffect(id) {
   const label = "Misc Skill Bonuses";
   let skillEffect = baseItemEffect(mockItem, label);
   skillEffect.flags.dae = {};
-  skillEffect.flags.ddbimporter.characterEffect = true,
+  skillEffect.flags.ddbimporter.characterEffect = true;
   skillEffect.origin = `Actor.${id}`;
   delete (skillEffect.transfer);
   return skillEffect;

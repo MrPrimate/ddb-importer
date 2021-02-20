@@ -420,7 +420,7 @@ let utils = {
     return Math.floor((val - 10) / 2);
   },
 
-  parseDiceString: (str, mods = "") => {
+  parseDiceString: (str, mods = "", diceHint = "") => {
     // sanitizing possible inputs a bit
     str = str.toLowerCase().replace(/-–−/g, "-").replace(/\s/g, "");
 
@@ -492,7 +492,7 @@ let utils = {
     const result = {
       dice: dice,
       bonus: bonus,
-      diceString: (diceString + mods + resultBonus).trim(),
+      diceString: (diceString + (diceHint ? diceHint : "") + mods + resultBonus).trim(),
     };
     return result;
   },
@@ -683,7 +683,7 @@ let utils = {
       return result;
     } catch (error) {
       utils.log(error);
-      ui.notifications.warn("Image upload failed. Please check your ddb-importer upload folder setting");
+      ui.notifications.warn(`Image upload failed. Please check your ddb-importer upload folder setting. ${url}`);
       return null;
     }
   },

@@ -182,7 +182,9 @@ let getDamage = (data, flags, betterRolls5e) => {
   const dueling = flags.classFeatures.includes("Dueling") ? " + 2" : "";
   const offHand = flags.classFeatures.includes("OffHand");
   const twoWeapon = flags.classFeatures.includes("Two-Weapon Fighting");
+  const twoHanded = data.definition.properties.find((property) => property.name === "Two-Handed");
   const mod = (offHand && !twoWeapon) ? "" : " + @mod";
+
   const versatile = data.definition.properties
     .filter((property) => property.name === "Versatile")
     .map((versatile) => {
@@ -194,9 +196,10 @@ let getDamage = (data, flags, betterRolls5e) => {
         return "";
       }
     })[0];
-  const twoHanded = data.definition.properties.find((property) => property.name === "Two-Handed");
 
+  let chatFlavor = "";
   let parts = [];
+  let otherFormula = "";
 
   // first damage part
   // blowguns and other weapons rely on ammunition that provides the damage parts
@@ -215,29 +218,47 @@ let getDamage = (data, flags, betterRolls5e) => {
       diceString = martialArtsDie.diceString;
     }
 
+    const damageType = data.definition.damageType.toLowerCase();
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
-      utils.parseDiceString(diceString + `+ ${magicalDamageBonus}`, fightingStyleMod)
+      utils.parseDiceString(diceString + `+ ${magicalDamageBonus}`, fightingStyleMod, `[${damageType}]`)
         .diceString + mod,
-      data.definition.damageType.toLowerCase(),
+        damageType,
     ]);
   }
 
-  // additional damage parts
-  // Note: For the time being, restricted additional bonus parts are not included in the damage
+  // additional damage parts with no restrictions
   data.definition.grantedModifiers
-    .filter((mod) => mod.type === "damage"
-      // && (!mod.restriction || (!!mod.restriction && mod.restriction === ""))
-    )
+    .filter((mod) => mod.type === "damage" && (!mod.restriction || mod.restriction === ""))
     .forEach((mod) => {
-      const attackNum = parts.length;
-      const restriction = (mod.restriction) ? mod.restriction : "";
-      betterRolls5e.quickDamage.context[attackNum] = restriction;
+      const damagePart = (mod.dice) ? mod.dice.diceString : mod.value;
+      if (damagePart) {
+        const damageParsed = utils.parseDiceString(damagePart, `[${mod.subType}]`).diceString;
+        parts.push([damageParsed, mod.subType]);
+      }
+    });
 
-      if (mod.dice) {
-        parts.push([mod.dice.diceString, mod.subType]);
-      } else if (mod.value) {
-        parts.push([mod.value, mod.subType]);
+  // loop over restricted damage types
+  // we do this so we can either break this out for midi users
+  data.definition.grantedModifiers
+    .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
+    .forEach((mod) => {
+      const damagePart = (mod.dice) ? mod.dice.diceString : mod.value;
+      if (damagePart) {
+        const subType = mod.subType ? `[${mod.subType}]` : "";
+        const damageParsed = utils.parseDiceString(damagePart, "", subType).diceString;
+        if (utils.isModuleInstalledAndActive("betterrolls5e")) {
+          const attackNum = parts.length;
+          betterRolls5e.quickDamage.context[attackNum] = mod.restriction;
+          parts.push([damageParsed, mod.subType]);
+        } else {
+          // if (utils.isModuleInstalledAndActive("midi-qol")) {
+          parts.forEach((part) => {
+            otherFormula += (otherFormula === "") ? part[0] : ` + ${part[0]}`;
+          });
+          otherFormula += ` + ${damageParsed}`;
+          chatFlavor = `Use Other damage ${mod.restriction}`;
+        }
       }
     });
 
@@ -253,7 +274,7 @@ let getDamage = (data, flags, betterRolls5e) => {
     versatile: versatile,
   };
 
-  return [result, betterRolls5e];
+  return [result, betterRolls5e, otherFormula, chatFlavor];
 };
 
 let getActionType = (data) => {
@@ -415,17 +436,17 @@ export default function parseWeapon(data, character, flags) {
   /* attackBonus: 0, */
   weapon.data.attackBonus = getMagicalBonus(data, flags);
 
-  /* chatFlavor: '', */
-  // we leave that as-is
-
   /* critical: null, */
   // we leave that as-is
 
   /* damage: { parts: [], versatile: '' }, */
-  [weapon.data.damage, weapon.flags.betterRolls5e] = getDamage(data, flags, weapon.flags.betterRolls5e);
+  [
+    weapon.data.damage,
+    weapon.flags.betterRolls5e,
+    weapon.data.formula,
+    weapon.data.chatFlavor
+  ] = getDamage(data, flags, weapon.flags.betterRolls5e);
 
-  /* formula: '', */
-  // we leave that as-is
 
   /* save: { ability: '', dc: null } */
   // we leave that as-is
