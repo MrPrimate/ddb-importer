@@ -41,6 +41,7 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
 
   // senses
   { type: "set-base", subType: "darkvision" },
+  { type: "sense", subType: "darkvision" },
 
   // speeds
   { type: "set", subType: "innate-speed-walking" },
@@ -360,10 +361,23 @@ function addACSetEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
 
   let effects = [];
+  const maxDexTypes = ["ac-max-dex-unarmored-modifier"]
+
+  let maxDexMod = 99;
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
+    switch(subType) {
+      case "unarmored-armor-class": {
+        const maxDexArray = modifiers.filter((mod) => mod.type === "set" && maxDexTypes.includes(mod.subType))
+          .map((mod) => mod.value);
+        if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
+        break;
+      }
+      // no default
+    }
+
     logger.debug(`Generating ${subType} AC set for ${name}`);
-    effects.push(generateUpgradeChange(`10 + ${Math.max(bonuses)} + @abilities.dex.mod`, 4, "data.attributes.ac.value"));
+    effects.push(generateUpgradeChange(`10 + ${Math.max(bonuses)} + {@abilities.dex.mod, ${maxDexMod}} kl`, 4, "data.attributes.ac.value"));
   }
   return effects;
 }
@@ -570,7 +584,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
   // Update -actually might not need this, as it seems to add a value anyway to undefined
   // this item might not have been created yet - we will update these origins later in the character import
   // const origin = `ddb.${ddbItem.id}`;
-  let effect = baseItemEffect(foundryItem, foundryItem.name, `OwnedItem.DDB${ddbItem.id}`);
+  let effect = baseItemEffect(foundryItem, `${foundryItem.name} - Constant Effects`);
 
   const acBonus = addACBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "armor-class", "data.attributes.ac.value");
   const unarmoredACBonus = addACBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "unarmored-armor-class", "data.attributes.ac.value");
@@ -657,7 +671,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
 // * armour bases
 // * natural armors
 // * unarmoured effects, like monk
-// * add durations for potions
-// skill bonuses
+// * add durations for potions, mark
 // passive skills
 // skill prof
+// addition senses
