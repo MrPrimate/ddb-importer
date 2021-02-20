@@ -243,7 +243,7 @@ let getDamage = (data, flags, betterRolls5e) => {
   data.definition.grantedModifiers
     .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
     .forEach((mod) => {
-      const damagePart = (mod.dice) ? mod.dice.diceString : mod.value;
+      const damagePart = (mod.dice) ? mod.dice.diceString : `${mod.value}`;
       if (damagePart) {
         const subType = mod.subType ? `[${mod.subType}]` : "";
         const damageParsed = utils.parseDiceString(damagePart, "", subType).diceString;
