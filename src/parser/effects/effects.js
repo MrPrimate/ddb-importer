@@ -56,8 +56,27 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   { type: "bonus", subType: "unarmored-armor-class" },
 
    // profs
-   { type: "proficiency", subType: null }
+   { type: "proficiency", subType: null },
 
+   // skills
+   { type: "bonus", subType: "acrobatics" },
+   { type: "bonus", subType: "animal-handling" },
+   { type: "bonus", subType: "arcana" },
+   { type: "bonus", subType: "athletics" },
+   { type: "bonus", subType: "deception" },
+   { type: "bonus", subType: "history" },
+   { type: "bonus", subType: "insight" },
+   { type: "bonus", subType: "intimidation" },
+   { type: "bonus", subType: "investigation" },
+   { type: "bonus", subType: "medicine" },
+   { type: "bonus", subType: "nature" },
+   { type: "bonus", subType: "perception" },
+   { type: "bonus", subType: "performance" },
+   { type: "bonus", subType: "persuasion" },
+   { type: "bonus", subType: "religion" },
+   { type: "bonus", subType: "sleight-of-hand" },
+   { type: "bonus", subType: "stealth" },
+   { type: "bonus", subType: "survival"},
 
   // { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
   // data.bonuses.rwak.attack
@@ -493,6 +512,36 @@ function addHPEffect(modifiers, name) {
 }
 
 
+//
+// Generate skill bonuses
+//
+function addSkillBonusEffect(modifiers, name, skill) {
+  const bonuses = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === skill.subType);
+
+  let effects = [];
+  // dwarfen "Maximum of 20"
+  if (bonuses.length > 0) {
+    logger.debug(`Generating ${skill.subType} skill bonus for ${name}`);
+    const value = utils
+      .filterModifiers(modifiers, "bonus", skill.subType)
+      .map((skl) => skl.value)
+      .reduce((a, b) => a + b, 0) || 0;
+    effects.push(generateAddChange(value, 18, `data.skills.${skill.name}.mod`));
+  }
+  return effects;
+}
+
+function addSkillBonuses(modifiers, name) {
+  let changes = [];
+  DICTIONARY.character.skills.forEach((skill) => {
+    const result = addSkillBonusEffect(modifiers, name, skill);
+    changes = changes.concat(result);
+  });
+
+  return changes;
+}
+
+
 /**
  * Generate supported effects for items
  * @param {*} ddb
@@ -527,6 +576,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
   const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
   const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const skillBonus = addSkillBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...acBonus,
@@ -546,6 +596,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
     ...acSets,
     ...profs,
     ...hp,
+    ...skillBonus,
   ];
 
   // check attunement status etc
@@ -594,10 +645,6 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
 // * natural armors
 // * unarmoured effects, like monk
 // * add durations for potions
-
-
-// loop through generated effects and add equipped ones to character
-// also need to update any effect images
-
-// Issues:
-// Con buff does not increase hitpoints
+// skill bonuses
+// passive skills
+// skill prof

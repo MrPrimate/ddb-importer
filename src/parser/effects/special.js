@@ -61,3 +61,37 @@
 //   "tint": "",
 //   "transfer": false
 // }
+
+// winged boots
+// [
+//   {
+//     "flags": {
+//       "dae": {
+//         "transfer": true,
+//         "stackable": false,
+//         "specialDuration": [],
+//         "macroRepeat": "none"
+//       }
+//     },
+//     "changes": [
+//       {
+//         "key": "data.attributes.speed.special",
+//         "value": "@attributes.speed.value fly",
+//         "mode": 2,
+//         "priority": 20
+//       }
+//     ],
+//     "disabled": true,
+//     "duration": {
+//       "startTime": null,
+//       "seconds": 1200,
+//       "rounds": null,
+//       "turns": null,
+//       "startRound": null,
+//       "startTurn": null
+//     },
+//     "label": "Winged Boots",
+//     "tint": "",
+//     "transfer": true
+//   }
+// ],
