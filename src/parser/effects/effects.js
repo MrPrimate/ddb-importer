@@ -8,7 +8,6 @@ import { getWeaponProficiencies, getArmorProficiencies, getToolProficiencies, ge
  * Currently only effects on equipment (i.e. items) are supported.
  */
 export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
-  { type: "bonus", subType: "armor-class" },
   { type: "bonus", subType: "saving-throws" },
   { type: "bonus", subType: "ability-checks" },
   { type: "bonus", subType: "skill-checks" },
@@ -50,8 +49,11 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   { type: "set", subType: "innate-speed-flying" },
 
   // ac
+  { type: "bonus", subType: "armor-class" },
   // e.g. robe of the archm
   { type: "set", subType: "unarmored-armor-class" },
+  // bracers of defence
+  { type: "bonus", subType: "unarmored-armor-class" },
 
    // profs
    { type: "proficiency", subType: null }
@@ -329,7 +331,7 @@ function addACSetEffect(modifiers, name, subType) {
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
     logger.debug(`Generating ${subType} AC set for ${name}`);
-    effects.push(generateUpgradeChange(`${Math.max(bonuses)} + @abilities.dex.mod`, 4, "data.attributes.ac.value"));
+    effects.push(generateUpgradeChange(`10 + ${Math.max(bonuses)} + @abilities.dex.mod`, 4, "data.attributes.ac.value"));
   }
   return effects;
 }
@@ -509,6 +511,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
   let effect = baseItemEffect(foundryItem, foundryItem.name, `OwnedItem.DDB${ddbItem.id}`);
 
   const acBonus = addACBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "armor-class", "data.attributes.ac.value");
+  const unarmoredACBonus = addACBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "unarmored-armor-class", "data.attributes.ac.value");
   const globalSaveBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "saving-throws", "data.bonuses.abilities.save");
   const globalAbilityBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "ability-checks", "data.bonuses.abilities.check");
   const globalSkillBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "skill-checks", "data.bonuses.abilities.skill");
@@ -527,6 +530,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
 
   effect.changes = [
     ...acBonus,
+    ...unarmoredACBonus,
     ...globalSaveBonus,
     ...globalAbilityBonus,
     ...globalSkillBonus,
