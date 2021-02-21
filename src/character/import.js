@@ -395,7 +395,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   async showErrorMessage(html, error) {
-    logger.info("%c #### PLEASE PASTE TO https://discord.gg/YEnjUHd #####", "color: #ff0000");
+    logger.info("%c #### PLEASE PASTE TO DISCORD #####", "color: #ff0000");
     logger.info("%c #### ", "color: #ff0000");
     logger.info("%c #### --------------- COPY BELOW --------------- #####", "color: #ff0000");
     if (
@@ -423,7 +423,7 @@ export default class CharacterImport extends FormApplication {
       <ul>
         <li>open the console with F12</li>
         <li>search for a block of text starting with <b>#### PLEASE PASTE TO ...</b></li>
-        <li>Copy the designated lines and submit it to the Discord channel <a href='https://discord.gg/YEnjUHd'>#parsing-errors</a></li></ul> Thanks!`,
+        <li>Copy the designated lines and submit it to the Discord channel <a href=">#bugs</a></li></ul> Thanks!`,
       true
     );
   }
@@ -553,7 +553,7 @@ export default class CharacterImport extends FormApplication {
         name: "add-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-effects"),
         title: "[Super Experimental] Dynamically generate DAE effects (items only)",
-        description: "Dynamically generate DAE effects for items only, please only run this on characters you have backups of, or are happy to reimport from scratch. Please log any bugs in the <a href=\"https://discord.gg/nFtquXaAPX\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
+        description: "Dynamically generate DAE effects for items only, please only run this on characters you have backups of, or are happy to reimport from scratch. Please log any bugs in the <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
         enabled: daeInstalled,
       },
       {

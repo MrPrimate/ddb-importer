@@ -395,12 +395,12 @@ function addACSetEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
 
   let effects = [];
-  const maxDexTypes = ["ac-max-dex-unarmored-modifier"]
+  const maxDexTypes = ["ac-max-dex-unarmored-modifier"];
 
   let maxDexMod = 99;
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
-    switch(subType) {
+    switch (subType) {
       case "unarmored-armor-class": {
         const maxDexArray = modifiers.filter((mod) => mod.type === "set" && maxDexTypes.includes(mod.subType))
           .map((mod) => mod.value);
@@ -618,7 +618,7 @@ function addSkillBonusEffect(modifiers, name, skill) {
 //
 // generate skill advantages
 //
-function addSkillMidiEffect(modifiers, name, skill, midiEffect="advantage") {
+function addSkillMidiEffect(modifiers, name, skill, midiEffect = "advantage") {
   const allowedRestrictions = ["", null, "Sound Only", "While the hood is up, checks made to Hide "];
   const advantage = utils.filterModifiers(modifiers, midiEffect, skill.subType, allowedRestrictions);
 
