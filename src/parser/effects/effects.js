@@ -30,13 +30,10 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
 
   { type: "bonus", subType: "hit-points-per-level" },
 
-  // saving throws - foundry doesn't support this
+  // saving throws and ability checks - with midi
+  // not adding these as they are not used elsewhere
   // { type: "advantage", subType: "strength-saving-throws" },
-  // { type: "advantage", subType: "dexterity-saving-throws" },
-  // { type: "advantage", subType: "constitution-saving-throws" },
-  // { type: "advantage", subType: "intelligence-saving-throws" },
-  // { type: "advantage", subType: "wisdom-saving-throws" },
-  // { type: "advantage", subType: "charisma-saving-throws" },
+
 
   // resistances - subType - e.g. poison - lookup from DICTIONARY
   { type: "resistance", subType: null },
@@ -91,24 +88,8 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
    { type: "bonus", subType: "sleight-of-hand" },
    { type: "bonus", subType: "stealth" },
    { type: "bonus", subType: "survival" },
-   { type: "advantage", subType: "acrobatics" },
-   { type: "advantage", subType: "animal-handling" },
-   { type: "advantage", subType: "arcana" },
-   { type: "advantage", subType: "athletics" },
-   { type: "advantage", subType: "deception" },
-   { type: "advantage", subType: "history" },
-   { type: "advantage", subType: "insight" },
-   { type: "advantage", subType: "intimidation" },
-   { type: "advantage", subType: "investigation" },
-   { type: "advantage", subType: "medicine" },
-   { type: "advantage", subType: "nature" },
-   { type: "advantage", subType: "perception" },
-   { type: "advantage", subType: "performance" },
-   { type: "advantage", subType: "persuasion" },
-   { type: "advantage", subType: "religion" },
-   { type: "advantage", subType: "sleight-of-hand" },
-   { type: "advantage", subType: "stealth" },
-   { type: "advantage", subType: "survival" },
+   // advantage on skills - not added here as not used elsewhere in importer.
+   // { type: "advantage", subType: "acrobatics" },
 
    // initiative
    { type: "advantage", subType: "initiative" },
@@ -128,8 +109,6 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
 
 ];
 
-// I used DAE as a reference
-// https://gitlab.com/tposney/dae/-/blob/master/src/module/dae.ts
 /**
  *
  * Generate a base effect for an Item
@@ -314,8 +293,8 @@ function getGenericConditionAffect (modifiers, condition, typeId) {
     .filter((type) => type.kind === condition && type.type === typeId)
     .map((type) => type.value);
 
-  let result = modifiers.filter((modifier) => modifier.type === condition &&
-      damageTypes.includes(modifier.subType) && (modifier.restriction === "" || !modifier.restriction))
+  let result = modifiers
+    .filter((modifier) => modifier.type === condition && damageTypes.includes(modifier.subType))
     .map((modifier) => {
       const entry = DICTIONARY.character.damageTypes.find(
         (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
@@ -446,27 +425,28 @@ function addStatSetEffect(modifiers, name, subType) {
   return effects;
 }
 
-// can't be done right now
-// function addSavingThrowAdvantageEffect(modifiers, name, subType) {
-//   const bonuses = utils.filterModifiers(modifiers, "advantage", subType)
+// requires midi
+// does not add advantages with restrictions - which is most of them
+function addAbilityAdvantageEffect(modifiers, name, subType, type) {
+  const bonuses = utils.filterModifiers(modifiers, "advantage", subType)
 
-//   let effects = [];
-//   if (bonuses.length > 0) {
-//       logger.debug(`Generating ${subType} saving throw advantage for ${name}`);
-//       const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-//       effects.push(generateCustomChange(1, 4, ``));
-//     });
-//   }
-//   return effects;
-// }
+  let effects = [];
+  if (bonuses.length > 0) {
+    logger.debug(`Generating ${subType} saving throw advantage for ${name}`);
+    const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
+    effects.push(generateCustomChange(1, 4, `flags.midi-qol.advantage.ability.${type}.${ability}`));
+  }
+  return effects;
+}
 
 function addStatChanges(modifiers, name) {
   let changes = [];
   const stats = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
   stats.forEach((stat) => {
     const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
-    // const savingThrowAdvantage = addSavingThrowAdvantageEffect(modifiers, name `${stat}-saving-throw`)
-    changes = changes.concat(statEffect);
+    const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name `${stat}-saving-throw`, "save");
+    const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name `${stat}-ability-checks`, "check");
+    changes = changes.concat(statEffect, savingThrowAdvantage, abilityCheckAdvantage);
   });
 
   return changes;
@@ -617,6 +597,7 @@ function addSkillBonusEffect(modifiers, name, skill) {
 
 //
 // generate skill advantages
+// requires midi
 //
 function addSkillMidiEffect(modifiers, name, skill, midiEffect = "advantage") {
   const allowedRestrictions = ["", null, "Sound Only", "While the hood is up, checks made to Hide "];
@@ -776,8 +757,6 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
 // * unarmoured effects, like monk
 // * add durations for potions, mark
 // passive skills
-// skill prof
 
 // midi effects
 
-// things like weapon proficiencies might not show up
