@@ -31,6 +31,7 @@ async function generateImportItems(items) {
         dndbeyond: {
           totalLevels: 0,
           proficiencies: [],
+          proficienciesIncludingEffects: [],
           characterValues: [],
         },
       },

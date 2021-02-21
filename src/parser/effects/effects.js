@@ -488,7 +488,7 @@ function addSenseBonus(modifiers, name) {
       changes.push(generateUpgradeChange(Math.max(base), 10, `data.attributes.senses.${sense}`));
     }
     const bonus = modifiers.filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
-      .map((mod) => mod.value).reduce((a, b) => a + b.value, 0);
+      .reduce((a, b) => a + b.value, 0);
     if (bonus > 0) {
       logger.debug(`Generating ${sense} bonus for ${name}`);
       changes.push(generateAddChange(Math.max(bonus), 15, `data.attributes.senses.${sense}`));
