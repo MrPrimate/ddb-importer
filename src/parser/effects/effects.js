@@ -30,6 +30,13 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
 
   { type: "bonus", subType: "hit-points-per-level" },
 
+  // saving throws - foundry doesn't support this
+  // { type: "advantage", subType: "strength-saving-throws" },
+  // { type: "advantage", subType: "dexterity-saving-throws" },
+  // { type: "advantage", subType: "constitution-saving-throws" },
+  // { type: "advantage", subType: "intelligence-saving-throws" },
+  // { type: "advantage", subType: "wisdom-saving-throws" },
+  // { type: "advantage", subType: "charisma-saving-throws" },
 
   // resistances - subType - e.g. poison - lookup from DICTIONARY
   { type: "resistance", subType: null },
@@ -42,6 +49,12 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   // senses
   { type: "set-base", subType: "darkvision" },
   { type: "sense", subType: "darkvision" },
+  { type: "set-base", subType: "blindsight" },
+  { type: "sense", subType: "blindsight" },
+  { type: "set-base", subType: "tremorsense" },
+  { type: "sense", subType: "tremorsense" },
+  { type: "set-base", subType: "truesight" },
+  { type: "sense", subType: "truesight" },
 
   // speeds
   { type: "set", subType: "innate-speed-walking" },
@@ -78,6 +91,27 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
    { type: "bonus", subType: "sleight-of-hand" },
    { type: "bonus", subType: "stealth" },
    { type: "bonus", subType: "survival" },
+   { type: "advantage", subType: "acrobatics" },
+   { type: "advantage", subType: "animal-handling" },
+   { type: "advantage", subType: "arcana" },
+   { type: "advantage", subType: "athletics" },
+   { type: "advantage", subType: "deception" },
+   { type: "advantage", subType: "history" },
+   { type: "advantage", subType: "insight" },
+   { type: "advantage", subType: "intimidation" },
+   { type: "advantage", subType: "investigation" },
+   { type: "advantage", subType: "medicine" },
+   { type: "advantage", subType: "nature" },
+   { type: "advantage", subType: "perception" },
+   { type: "advantage", subType: "performance" },
+   { type: "advantage", subType: "persuasion" },
+   { type: "advantage", subType: "religion" },
+   { type: "advantage", subType: "sleight-of-hand" },
+   { type: "advantage", subType: "stealth" },
+   { type: "advantage", subType: "survival" },
+
+   // initiative
+   { type: "advantage", subType: "initiative" },
 
   // { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
   // data.bonuses.rwak.attack
@@ -412,12 +446,27 @@ function addStatSetEffect(modifiers, name, subType) {
   return effects;
 }
 
-function addStatSets(modifiers, name) {
+// can't be done right now
+// function addSavingThrowAdvantageEffect(modifiers, name, subType) {
+//   const bonuses = utils.filterModifiers(modifiers, "advantage", subType)
+
+//   let effects = [];
+//   if (bonuses.length > 0) {
+//       logger.debug(`Generating ${subType} saving throw advantage for ${name}`);
+//       const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
+//       effects.push(generateCustomChange(1, 4, ``));
+//     });
+//   }
+//   return effects;
+// }
+
+function addStatChanges(modifiers, name) {
   let changes = [];
-  const stats = ["strength-score", "dexterity-score", "constitution-score", "wisdom-score", "intelligence-score", "charisma-score"];
+  const stats = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
   stats.forEach((stat) => {
-    const result = addStatSetEffect(modifiers, name, stat);
-    changes = changes.concat(result);
+    const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
+    // const savingThrowAdvantage = addSavingThrowAdvantageEffect(modifiers, name `${stat}-saving-throw`)
+    changes = changes.concat(statEffect);
   });
 
   return changes;
@@ -430,12 +479,21 @@ function addStatSets(modifiers, name) {
 function addSenseBonus(modifiers, name) {
   let changes = [];
 
-  const bonus = modifiers.filter((modifier) => modifier.type === "set-base" && modifier.subType === "darkvision").map((mod) => mod.value);
-  if (bonus.length > 0) {
-    logger.debug(`Generating darkvision base for ${name}`);
-    changes.push(generateUpgradeChange(Math.max(bonus), 10, "data.attributes.senses.darkvision"));
-  }
-  // TODO: do other senses
+  const senses = ["darkvision", "blindsight", "tremorsense", "truesight"];
+
+  senses.forEach((sense) => {
+    const base = modifiers.filter((modifier) => modifier.type === "set-base" && modifier.subType === sense).map((mod) => mod.value);
+    if (base.length > 0) {
+      logger.debug(`Generating ${sense} base for ${name}`);
+      changes.push(generateUpgradeChange(Math.max(base), 10, `data.attributes.senses.${sense}`));
+    }
+    const bonus = modifiers.filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
+      .map((mod) => mod.value).reduce((a, b) => a + b.value, 0);
+    if (bonus > 0) {
+      logger.debug(`Generating ${sense} bonus for ${name}`);
+      changes.push(generateAddChange(Math.max(bonus), 15, `data.attributes.senses.${sense}`));
+    }
+  });
   return changes;
 }
 
@@ -543,14 +601,13 @@ function addHPEffect(modifiers, name) {
 // Generate skill bonuses
 //
 function addSkillBonusEffect(modifiers, name, skill) {
-  const bonuses = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === skill.subType);
+  const bonuses = utils.filterModifiers(modifiers, "bonus", skill.subType);
 
   let effects = [];
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
     logger.debug(`Generating ${skill.subType} skill bonus for ${name}`);
-    const value = utils
-      .filterModifiers(modifiers, "bonus", skill.subType)
+    const value = bonuses
       .map((skl) => skl.value)
       .reduce((a, b) => a + b, 0) || 0;
     effects.push(generateAddChange(value, 18, `data.skills.${skill.name}.mod`));
@@ -558,13 +615,42 @@ function addSkillBonusEffect(modifiers, name, skill) {
   return effects;
 }
 
+//
+// generate skill advantages
+//
+function addSkillMidiEffect(modifiers, name, skill, midiEffect="advantage") {
+  const allowedRestrictions = ["", null, "Sound Only", "While the hood is up, checks made to Hide "];
+  const advantage = utils.filterModifiers(modifiers, midiEffect, skill.subType, allowedRestrictions);
+
+  let effects = [];
+  if (advantage.length > 0) {
+    logger.debug(`Generating ${skill.subType} skill ${midiEffect} for ${name}`);
+    effects.push(generateCustomChange(1, 5, `flags.midi-qol.${midiEffect}.skill.${skill.name}`));
+  }
+  return effects;
+}
+
 function addSkillBonuses(modifiers, name) {
   let changes = [];
   DICTIONARY.character.skills.forEach((skill) => {
-    const result = addSkillBonusEffect(modifiers, name, skill);
-    changes = changes.concat(result);
+    const skillBonuses = addSkillBonusEffect(modifiers, name, skill);
+    const skillAdvantages = addSkillMidiEffect(modifiers, name, skill, "advantage");
+    changes = changes.concat(skillBonuses, skillAdvantages);
   });
 
+  return changes;
+}
+
+//
+// initiative
+//
+function addInitiativeBonuses(modifiers, name) {
+  let changes = [];
+  const advantage = utils.filterModifiers(modifiers, "advantage", "initiative");
+  if (advantage.length > 0) {
+    logger.debug(`Generating Intiative advantage for ${name}`);
+    changes.push(generateCustomChange(1, 5, "flags.dnd5e.initiativeAdv"));
+  }
   return changes;
 }
 
@@ -593,7 +679,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
   const globalSkillBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "skill-checks", "data.bonuses.abilities.skill");
   const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
   const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const statSets = addStatSets(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const statSets = addStatChanges(ddbItem.definition.grantedModifiers, foundryItem.name);
   const statBonuses = addStatBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const proficiencyBonus = addProficiencyBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
@@ -604,6 +690,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
   const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
   const skillBonus = addSkillBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const initiative = addInitiativeBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...acBonus,
@@ -624,6 +711,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
     ...profs,
     ...hp,
     ...skillBonus,
+    ...initiative,
   ];
 
   // check attunement status etc
@@ -674,4 +762,5 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
 // * add durations for potions, mark
 // passive skills
 // skill prof
-// addition senses
+
+// midi effects
