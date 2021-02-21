@@ -356,7 +356,7 @@ export default function parseWeapon(data, character, flags) {
   if (flags.classFeatures.some((feat) => proficientFeatures.includes(feat))) {
     weapon.data.proficient = true;
   } else {
-    weapon.data.proficient = getProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficiencies);
+    weapon.data.proficient = getProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
   }
 
   // description: {

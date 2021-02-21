@@ -56,6 +56,7 @@ export default function getCharacter(ddb) {
         dndbeyond: {
           totalLevels: ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0),
           proficiencies: getProficiencies(ddb),
+          proficienciesIncludingEffects: getProficiencies(ddb, true),
           roUrl: ddb.character.readonlyUrl,
           characterValues: ddb.character.characterValues,
           templateStrings: [],

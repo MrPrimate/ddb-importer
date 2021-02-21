@@ -144,7 +144,7 @@ export default function parseArmor(data, character, flags) {
   armor.data.stealth = getStealthPenalty(data);
 
   /* proficient: true, */
-  armor.data.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficiencies);
+  armor.data.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
 
   // description: {
   //        value: '',

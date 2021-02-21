@@ -233,7 +233,7 @@ export default function parseStaff(data, character) {
   weapon.data.properties = getProperties(data);
 
   /* proficient: true, */
-  weapon.data.proficient = getProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficiencies);
+  weapon.data.proficient = getProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
 
   // description: {
   //        value: '',

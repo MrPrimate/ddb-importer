@@ -764,3 +764,5 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
 // skill prof
 
 // midi effects
+
+// things like weapon proficiencies might not show up

@@ -18,19 +18,10 @@ function getCustomProficiencies(data, type) {
   return customProfs;
 }
 
-export function getProficiencies(data) {
-  let sections = [];
-  for (let section in data.character.modifiers) {
-    sections.push(data.character.modifiers[section]);
-  }
-
-  let proficiencies = [];
-  sections.forEach((section) => {
-    let entries = section.filter((entry) => entry.type === "proficiency");
-    proficiencies = proficiencies.concat(entries);
-  });
-
-  proficiencies = proficiencies.map((proficiency) => {
+export function getProficiencies(data, includeItemEffects=false) {
+  const coreProficiencies = utils
+   .filterBaseModifiers(data, "proficiency", null, null, includeItemEffects)
+   .map((proficiency) => {
     return { name: proficiency.friendlySubtypeName };
   });
 
@@ -42,7 +33,7 @@ export function getProficiencies(data) {
   ].map((proficiency) => {
     return { name: proficiency };
   });
-  proficiencies = proficiencies.concat(customProficiencies);
+  const proficiencies = coreProficiencies.concat(customProficiencies);
 
   return proficiencies;
 }
