@@ -649,11 +649,24 @@ function addInitiativeBonuses(modifiers, name) {
   const advantage = utils.filterModifiers(modifiers, "advantage", "initiative");
   if (advantage.length > 0) {
     logger.debug(`Generating Intiative advantage for ${name}`);
-    changes.push(generateCustomChange(1, 5, "flags.dnd5e.initiativeAdv"));
+    changes.push(generateCustomChange(1, 20, "flags.dnd5e.initiativeAdv"));
   }
   return changes;
 }
 
+//
+// attack rolls against you
+// midi only
+//
+function addAttackRollDisadvantage(modifiers, name) {
+  let changes = [];
+  const disadvantage = utils.filterModifiers(modifiers, "disadvantage", "attack-rolls-against-you", false);
+  if (disadvantage.length > 0) {
+    logger.debug(`Generating disadvantage for ${name}`);
+    changes.push(generateCustomChange(1, 5, "flags.midi-qol.grants.disadvantage.attack.all"));
+  }
+  return changes;
+}
 
 /**
  * Generate supported effects for items
@@ -691,6 +704,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
   const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
   const skillBonus = addSkillBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const initiative = addInitiativeBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const disadvantageAgainst = addAttackRollDisadvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...acBonus,
@@ -712,6 +726,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
     ...hp,
     ...skillBonus,
     ...initiative,
+    ...disadvantageAgainst,
   ];
 
   // check attunement status etc
