@@ -649,6 +649,25 @@ function addAttackRollDisadvantage(modifiers, name) {
   return changes;
 }
 
+// midi advantages on saving throws against spells and magical effects
+function addMagicalAdvantage(modifiers, name) {
+  let changes = [];
+  const restrictions = [
+    "against spells and magical effects",
+    "Against Spells and Magical Effects",
+    "Against Spells",
+    "against spells",
+    "Against spells",
+    "Against spells and magical effects within 10 ft. (or 30 ft. at level 17+) while holding the Holy Avenger",
+  ]
+  const advantage = utils.filterModifiers(modifiers, "advantage", "saving-throws", restrictions);
+  if (advantage.length > 0) {
+    logger.debug(`Generating magical advantage on saving throws for ${name}`);
+    changes.push(generateCustomChange("magic-resistant", 5, "data.traits.dr.custom"));
+  }
+  return changes;
+}
+
 /**
  * Generate supported effects for items
  * @param {*} ddb
@@ -708,6 +727,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
     ...skillBonus,
     ...initiative,
     ...disadvantageAgainst,
+    ...addMagicalAdvantage,
   ];
 
   // check attunement status etc
