@@ -76,7 +76,7 @@ let getDamage = (data, actionType) => {
       // damage potion
       const damageModifier = data.definition.grantedModifiers.find((mod) => mod.type === "damage" && mod.dice);
       if (damageModifier && damageModifier.dice) {
-        damage.parts = [[damageModifier.dice.diceString  + `[${damageModifier.subType}] `, damageModifier.subType]];
+        damage.parts = [[damageModifier.dice.diceString + `[${damageModifier.subType}] `, damageModifier.subType]];
       } else if (damageModifier && damageModifier.fixedValue) {
         damage.parts = [[damageModifier.fixedValue + `[${damageModifier.subType}] `, damageModifier.subType]];
       }

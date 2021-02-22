@@ -18,7 +18,7 @@ function getCustomProficiencies(data, type) {
   return customProfs;
 }
 
-export function getProficiencies(data, includeItemEffects=false) {
+export function getProficiencies(data, includeItemEffects = false) {
   const coreProficiencies = utils
    .filterBaseModifiers(data, "proficiency", null, null, includeItemEffects)
    .map((proficiency) => {

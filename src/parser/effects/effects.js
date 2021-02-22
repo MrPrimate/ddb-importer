@@ -204,10 +204,12 @@ function generateOverrideChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.OVERRIDE);
 }
 
+// eslint-disable-next-line no-unused-vars
 function generateMultiplyChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.MULTIPLY);
 }
 
+// eslint-disable-next-line no-unused-vars
 function generateDowngradeChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.DOWNGRADE);
 }
@@ -428,7 +430,7 @@ function addStatSetEffect(modifiers, name, subType) {
 // requires midi
 // does not add advantages with restrictions - which is most of them
 function addAbilityAdvantageEffect(modifiers, name, subType, type) {
-  const bonuses = utils.filterModifiers(modifiers, "advantage", subType)
+  const bonuses = utils.filterModifiers(modifiers, "advantage", subType);
 
   let effects = [];
   if (bonuses.length > 0) {
@@ -445,7 +447,7 @@ function addStatChanges(modifiers, name) {
   stats.forEach((stat) => {
     const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
     const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-saving-throw`, "save");
-    const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name ,`${stat}-ability-checks`, "check");
+    const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-ability-checks`, "check");
     changes = changes.concat(statEffect, savingThrowAdvantage, abilityCheckAdvantage);
   });
 
@@ -659,7 +661,7 @@ function addMagicalAdvantage(modifiers, name) {
     "against spells",
     "Against spells",
     "Against spells and magical effects within 10 ft. (or 30 ft. at level 17+) while holding the Holy Avenger",
-  ]
+  ];
   const advantage = utils.filterModifiers(modifiers, "advantage", "saving-throws", restrictions);
   if (advantage.length > 0) {
     logger.debug(`Generating magical advantage on saving throws for ${name}`);

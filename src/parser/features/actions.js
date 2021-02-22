@@ -134,14 +134,14 @@ function martialArtsDamage(ddb, action) {
 
     // set the weapon damage
     return {
-      parts: [[die + `[${damageType}] ` + " + @mod", damageType]],
+      parts: [[die + `[${damageType}] + @mod`, damageType]],
       versatile: "",
     };
   } else if (action.dice !== null) {
     // The Lizardfolk jaws have a different base damage, its' detailed in
     // dice so lets capture that for actions if it exists
     return {
-      parts: [[action.dice.diceString + `[${damageType}] ` + " + @mod", damageType]],
+      parts: [[action.dice.diceString + `[${damageType}] + @mod`, damageType]],
       versatile: "",
     };
   } else {

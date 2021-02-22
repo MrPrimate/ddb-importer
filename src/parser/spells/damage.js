@@ -29,7 +29,7 @@ export function getDamage(data) {
 
     // This is probably just for Toll the dead.
     const alternativeFormula = getAlternativeFormula(data);
-    result.versatile = cantripBoost ? `${alternativeFormula}[${attack.subType}] + @mod` : alternativeFormula;
+    result.versatile = cantripBoost ? `${alternativeFormula} + @mod` : alternativeFormula;
     return result;
   }
 

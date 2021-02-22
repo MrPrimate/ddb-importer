@@ -800,7 +800,7 @@ export function updateCharacterItemFlags(itemData, replaceData) {
   return replaceData;
 }
 
-async function updateMatchingItems(oldItems, newItems, looseMatch = false, monster = false, keepId=false) {
+async function updateMatchingItems(oldItems, newItems, looseMatch = false, monster = false, keepId = false) {
   let results = [];
 
   for (let item of newItems) {
@@ -852,9 +852,9 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   const index = await compendium.getIndex();
   const firstPassItems = await index.filter((i) =>
     items.some((orig) => {
-      const extraNames = (orig.flags?.ddbimporter?.dndbeyond?.alternativeNames) ?
-        orig.flags.ddbimporter.dndbeyond.alternativeNames :
-        [];
+      const extraNames = (orig.flags?.ddbimporter?.dndbeyond?.alternativeNames)
+        ? orig.flags.ddbimporter.dndbeyond.alternativeNames
+        : [];
       if (looseMatch) {
         const looseNames = getLooseNames(orig.name, extraNames);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
@@ -893,7 +893,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   return results;
 }
 
-export async function getSRDCompendiumItems(items, type, looseMatch = false, keepId=false) {
+export async function getSRDCompendiumItems(items, type, looseMatch = false, keepId = false) {
   // console.error(game.packs.keys());
   const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
   if (!srdPacksLoaded[compendiumName]) await loadSRDPacks(compendiumName);
@@ -901,9 +901,9 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
 
   const loadedItems = await compendiumItems.filter((i) =>
     compendiumItems.some((orig) => {
-      const extraNames = (orig.flags?.ddbimporter?.dndbeyond?.alternativeNames) ?
-        orig.flags.ddbimporter.dndbeyond.alternativeNames :
-        [];
+      const extraNames = (orig.flags?.ddbimporter?.dndbeyond?.alternativeNames)
+        ? orig.flags.ddbimporter.dndbeyond.alternativeNames
+        : [];
       if (looseMatch) {
         const looseNames = getLooseNames(orig.name, extraNames);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
@@ -1088,13 +1088,13 @@ export async function daeFiddling(items) {
   } else return items;
 }
 
-async function getCompendiumItemSpells(spells){
+async function getCompendiumItemSpells(spells) {
   const compendiumSpells = await getCompendiumItems(spells, "spell", null, false, false, true);
   const lessCompendiumSpells = await removeItems(spells, compendiumSpells);
   const srdSpells = await getSRDCompendiumItems(lessCompendiumSpells, "spell", false, true);
   const foundSpells = compendiumSpells.concat(srdSpells);
 
-  const itemSpells = foundSpells.map((result)=> {
+  const itemSpells = foundSpells.map((result) => {
     return {
       magicItem: {
         _id: result._id,
@@ -1109,31 +1109,25 @@ async function getCompendiumItemSpells(spells){
       name: result.name,
       compendium: true,
     };
-  })
+  });
 
-  return [foundSpells,itemSpells];
+  return [foundSpells, itemSpells];
 }
 
 /**
  * This adds magic item spells to an item, by looking in compendium or from a world.
  */
 export async function addMagicItemSpells(input) {
-  console.warn(JSON.parse(JSON.stringify(input)));
   // check for existing spells in spell compendium & srdCompendium
-  // TODO
   const [compendiumSpells, compendiumItemSpells] = await getCompendiumItemSpells(input.itemSpells);
   // if spells not found create world version
   const remainingSpells = {
     itemSpells: await removeItems(input.itemSpells, compendiumSpells),
   };
-  console.warn(JSON.parse(JSON.stringify(compendiumSpells)));
-  console.warn(JSON.parse(JSON.stringify(compendiumItemSpells)));
-  console.warn(JSON.parse(JSON.stringify(remainingSpells)));
-  const worldSpells = remainingSpells.length > 0 ?
-    await updateFolderItems("itemSpells", remainingSpells) :
-    [];
+  const worldSpells = remainingSpells.length > 0
+    ? await updateFolderItems("itemSpells", remainingSpells)
+    : [];
   const itemSpells = worldSpells.concat(compendiumItemSpells);
-  console.warn(JSON.parse(JSON.stringify(itemSpells)));
 
   // scan the inventory for each item with spells and copy the imported data over
   input.inventory.forEach((item) => {
@@ -1144,7 +1138,6 @@ export async function addMagicItemSpells(input) {
         );
         if (itemSpell) {
           for (const [key, value] of Object.entries(itemSpell.magicItem)) {
-            console.warn(key);
             item.flags.magicitems.spells[i][key] = value;
           }
         } else if (!game.user.can("ITEM_CREATE")) {
