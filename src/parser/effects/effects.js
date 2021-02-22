@@ -444,8 +444,8 @@ function addStatChanges(modifiers, name) {
   const stats = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
   stats.forEach((stat) => {
     const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
-    const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name `${stat}-saving-throw`, "save");
-    const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name `${stat}-ability-checks`, "check");
+    const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-saving-throw`, "save");
+    const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name ,`${stat}-ability-checks`, "check");
     changes = changes.concat(statEffect, savingThrowAdvantage, abilityCheckAdvantage);
   });
 
@@ -705,6 +705,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
   const skillBonus = addSkillBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const initiative = addInitiativeBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const disadvantageAgainst = addAttackRollDisadvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const magicalAdvantage = addMagicalAdvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...acBonus,
@@ -727,7 +728,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
     ...skillBonus,
     ...initiative,
     ...disadvantageAgainst,
-    ...addMagicalAdvantage,
+    ...magicalAdvantage,
   ];
 
   // check attunement status etc
