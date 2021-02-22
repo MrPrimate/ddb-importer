@@ -1,3 +1,41 @@
+# 0.5.0 - 0.5.9
+
+* Active Effect Generation Support for ITEMS (Requires DAE, with additional enhancements if using Midi-QOL):
+
+WARNING: It should be noted this is very experimental, and prone to f'ing things up, so please don't blame me if everything goes wrong!
+
+Item effects generated:
+* Armoured AC bonuses
+* Unarmoured AC and bonuses
+* Saving throw bonuses
+* Ability Check bonuses and advantage on saves and checks
+* Skill check bonuses and advantage on saves and checks
+* Ability bonuses
+* Proficiency bonuses
+* Ability score over-rides (e.g. belt of x strength)
+* Spell attack and DC bonuses
+* Damage Resistance, Immunity and Vulnerabilities
+* Condition immunities
+* Languages
+* Darkvision, blindsight base and bonuses
+* Flat speed adjustments
+* Proficiencies
+* HP per level
+* Skill bonuses
+* Advantage on skill checks
+* Advantage on initiative
+* Advantage on saves ms magical attacks
+
+Notes:
+* When importing characters and auto generating effects, the import will be significantly slower due to some race conditions around effect generation when updating characters.
+* Some effects may not come through for some items, these tend to be ones with very specific advantages, e.g. Advantage on Persuasion vs Giants and the like. There are a few exceptions such as the Cloak of Elvenkind, or resistances where you should be holding the item.
+
+Other Improvements:
+* Icons don't use absolute paths
+* Artificer Battle Smith will now use Int for magic weapon attacks
+* Attacks now add damage type hints where possible
+* If DAE is installed it will be used to generate skill bonuses rather than 5e skill customisation module
+
 # 0.4.17
 
 * Monster parsing: some cantrips did not import.

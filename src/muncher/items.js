@@ -29,6 +29,7 @@ async function generateImportItems(items) {
     flags: {
       ddbimporter: {
         dndbeyond: {
+          effectAbilities: [],
           totalLevels: 0,
           proficiencies: [],
           proficienciesIncludingEffects: [],

@@ -97,12 +97,13 @@ let getUnarmoredAC = (modifiers, character) => {
   const maxUnamoredDexMod = Math.min(...maxUnamoredDexMods, 20);
 
   // console.log(`Max Dex: ${maxUnamoredDexMod}`);
+  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   isUnarmored.forEach((unarmored) => {
     let unarmoredACValue = 10;
     // +DEX
     // for a case of setting unarmoured ac, the dex won't detract
-    unarmoredACValue += Math.max(0, Math.min(character.data.abilities.dex.mod, maxUnamoredDexMod));
+    unarmoredACValue += Math.max(0, Math.min(characterAbilities.dex.mod, maxUnamoredDexMod));
     // +WIS or +CON, if monk or barbarian, draconic resilience === null
 
     // console.log(`Unarmoured AC Value: ${unarmoredACValue}`);
@@ -110,7 +111,7 @@ let getUnarmoredAC = (modifiers, character) => {
 
     if (unarmored.statId !== null) {
       let ability = DICTIONARY.character.abilities.find((ability) => ability.id === unarmored.statId);
-      unarmoredACValue += character.data.abilities[ability.value].mod;
+      unarmoredACValue += characterAbilities[ability.value].mod;
     } else {
       // others are picked up here e.g. Draconic Resilience
       unarmoredACValue += unarmored.value;
@@ -127,12 +128,13 @@ let getArmoredACBonuses = (modifiers, character) => {
   const armoredBonuses = modifiers.filter(
     (modifier) => modifier.subType === "armored-armor-class" && modifier.isGranted
   );
+  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   armoredBonuses.forEach((armoredBonus) => {
     let armoredACBonus = 0;
     if (armoredBonus.statId !== null) {
       let ability = DICTIONARY.character.abilities.find((ability) => ability.id === armoredBonus.statId);
-      armoredACBonus += character.data.abilities[ability.value].mod;
+      armoredACBonus += characterAbilities[ability.value].mod;
     } else {
       armoredACBonus += armoredBonus.value;
     }
@@ -160,6 +162,7 @@ function getDualWieldAC(data, modifiers) {
 
 export function getArmorClass(data, character) {
   const overRideAC = data.character.characterValues.find((val) => val.typeId === 1);
+  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   if (overRideAC) {
     return {
@@ -319,7 +322,7 @@ export function getArmorClass(data, character) {
       case "Unarmored":
         armorClassValues.push({
           name: armors[armor].definition.name,
-          value: armorAC + gearAC + miscACBonus + unarmoredACBonus + character.data.abilities.dex.mod,
+          value: armorAC + gearAC + miscACBonus + unarmoredACBonus + characterAbilities.dex.mod,
         });
         break;
       case "Heavy Armor":
@@ -333,20 +336,20 @@ export function getArmorClass(data, character) {
             .map((mod) => mod.value), 2);
           armorClassValues.push({
             name: armors[armor].definition.name,
-            value: armorAC + Math.min(maxDexMedium, character.data.abilities.dex.mod) + gearAC + miscACBonus,
+            value: armorAC + Math.min(maxDexMedium, characterAbilities.dex.mod) + gearAC + miscACBonus,
           });
           break;
         }
       case "Light Armor":
         armorClassValues.push({
           name: armors[armor].definition.name,
-          value: armorAC + character.data.abilities.dex.mod + gearAC + miscACBonus,
+          value: armorAC + characterAbilities.dex.mod + gearAC + miscACBonus,
         });
         break;
       default:
         armorClassValues.push({
           name: armors[armor].definition.name,
-          value: armorAC + character.data.abilities.dex.mod + gearAC + miscACBonus,
+          value: armorAC + characterAbilities.dex.mod + gearAC + miscACBonus,
         });
         break;
     }

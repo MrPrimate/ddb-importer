@@ -27,7 +27,8 @@ export function getSpellCasting(data, character) {
       spellCastingAbility = convertSpellCastingAbilityId(classInfo.subclassDefinition.spellCastingAbilityId);
     }
     if (spellCastingAbility !== undefined) {
-      let abilityModifier = utils.calculateModifier(character.data.abilities[spellCastingAbility].value);
+      const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+      let abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
       result.push({ label: spellCastingAbility, value: abilityModifier });
     }
   });
@@ -49,7 +50,8 @@ export function getSpellDC(data, character) {
   if (character.data.attributes.spellcasting === "") {
     return 10;
   } else {
-    return 8 + character.data.abilities[character.data.attributes.spellcasting].mod + character.data.attributes.prof;
+    const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+    return 8 + characterAbilities[character.data.attributes.spellcasting].mod + character.data.attributes.prof;
   }
 }
 

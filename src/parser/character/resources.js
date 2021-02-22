@@ -12,7 +12,7 @@ export function getResources(data, character) {
         const ability = DICTIONARY.character.abilities.find(
           (ability) => ability.id === action.limitedUse.statModifierUsesId
         ).value;
-        maxUses = character.data.abilities[ability].mod;
+        maxUses = character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
         if (action.limitedUse.maxUses) maxUses += action.limitedUse.maxUses;
       } else if (action.limitedUse.useProficiencyBonus) {
         const multiplier = (action.limitedUse.proficiencyBonusOperator) ? action.limitedUse.proficiencyBonusOperator : 1;

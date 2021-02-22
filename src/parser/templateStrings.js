@@ -25,6 +25,7 @@ const getScalingValue = (feature) => {
 let parseMatch = (ddb, character, match, feature) => {
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
+  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   // scalevalue
   if (result.includes("scalevalue")) {
@@ -44,7 +45,7 @@ let parseMatch = (ddb, character, match, feature) => {
       const saveDCs = saves
         .filter((save) => save)
         .map((save) => {
-          const abilityModifier = utils.calculateModifier(character.data.abilities[save].value);
+          const abilityModifier = utils.calculateModifier(characterAbilities[save].value);
           // not sure if we should add this, probably not.
           // const bonus = utils.getModifierSum(utils.filterBaseModifiers(ddb, "bonus", "spell-save-dc"), character);
           const dc = 8 + character.data.attributes.prof + abilityModifier;
@@ -63,7 +64,7 @@ let parseMatch = (ddb, character, match, feature) => {
     const ability = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
 
     ability.forEach((ab) => {
-      const abilityModifier = character.data.abilities[ab].mod;
+      const abilityModifier = characterAbilities[ab].mod;
       const abRegexp = RegExp(`modifier:${ab}`, "g");
       result = result.replace(abRegexp, abilityModifier);
     });
@@ -112,7 +113,7 @@ let parseMatch = (ddb, character, match, feature) => {
     const ability = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
 
     ability.forEach((ab) => {
-      const abilityModifier = character.data.abilities[ab].value;
+      const abilityModifier = characterAbilities[ab].value;
       const abRegexp = RegExp(`abilityscore:${ab}`, "g");
       result = result.replace(abRegexp, abilityModifier);
     });

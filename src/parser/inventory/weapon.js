@@ -135,7 +135,7 @@ let getRange = (data) => {
 let getAbility = (weaponProperties, weaponRange, abilities) => {
   // finesse weapons can choose freely, so we choose the higher one
   if (weaponProperties.fin) {
-    return abilities.str.value > abilities.dex.value ? "str" : "dex";
+    return abilities.str?.value > abilities.dex?.value ? "str" : "dex";
   }
 
   // thrown, but not finesse weapon: STR
@@ -305,6 +305,7 @@ export default function parseWeapon(data, character, flags) {
   };
 
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+  const characterProficiencies = character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects;
 
     // if using better rolls lets add some useful QOL information.
   // marks context as magical attack and makes alt click a versatile damage click
@@ -358,7 +359,7 @@ export default function parseWeapon(data, character, flags) {
   if (flags.classFeatures.some((feat) => proficientFeatures.includes(feat))) {
     weapon.data.proficient = true;
   } else {
-    weapon.data.proficient = getProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
+    weapon.data.proficient = getProficient(data, weapon.data.weaponType, characterProficiencies);
   }
 
   // description: {

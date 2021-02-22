@@ -23,13 +23,13 @@ export function getDamage(data) {
     const cantripBoost = data.definition.level === 0 && !!data.flags.ddbimporter.dndbeyond.cantripBoost;
     attacks.forEach((attack) => {
       let diceString =
-        attack.usePrimaryStat || cantripBoost ? `${attack.die.diceString} + @mod` : attack.die.diceString;
+        attack.usePrimaryStat || cantripBoost ? `${attack.die.diceString}[${attack.subType}] + @mod` : attack.die.diceString;
       result.parts.push([diceString, attack.subType]);
     });
 
     // This is probably just for Toll the dead.
     const alternativeFormula = getAlternativeFormula(data);
-    result.versatile = cantripBoost ? `${alternativeFormula} + @mod` : alternativeFormula;
+    result.versatile = cantripBoost ? `${alternativeFormula}[${attack.subType}] + @mod` : alternativeFormula;
     return result;
   }
 
@@ -37,7 +37,7 @@ export function getDamage(data) {
   const heals = data.definition.modifiers.filter((mod) => mod.type === "bonus" && mod.subType === "hit-points");
   if (heals.length !== 0) {
     heals.forEach((heal) => {
-      let diceString = heal.usePrimaryStat ? `${heal.die.diceString} + @mod` : heal.die.diceString;
+      let diceString = heal.usePrimaryStat ? `${heal.die.diceString}[healing] + @mod` : heal.die.diceString;
       result.parts.push([diceString, "healing"]);
     });
     return result;

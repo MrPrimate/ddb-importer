@@ -66,9 +66,9 @@ let getDamage = (data, actionType) => {
         (mod) => mod.type === "bonus" && mod.subType === "hit-points"
       );
       if (healingModifier && healingModifier.dice) {
-        damage.parts = [[healingModifier.dice.diceString, "healing"]];
+        damage.parts = [[healingModifier.dice.diceString + "[healing] ", "healing"]];
       } else if (healingModifier && healingModifier.fixedValue) {
-        damage.parts = [[healingModifier.fixedValue, "healing"]];
+        damage.parts = [[healingModifier.fixedValue + "[healing] ", "healing"]];
       }
       break;
     }
@@ -76,9 +76,9 @@ let getDamage = (data, actionType) => {
       // damage potion
       const damageModifier = data.definition.grantedModifiers.find((mod) => mod.type === "damage" && mod.dice);
       if (damageModifier && damageModifier.dice) {
-        damage.parts = [[damageModifier.dice.diceString, damageModifier.subType]];
+        damage.parts = [[damageModifier.dice.diceString  + `[${damageModifier.subType}] `, damageModifier.subType]];
       } else if (damageModifier && damageModifier.fixedValue) {
-        damage.parts = [[damageModifier.fixedValue, damageModifier.subType]];
+        damage.parts = [[damageModifier.fixedValue + `[${damageModifier.subType}] `, damageModifier.subType]];
       }
       break;
     }

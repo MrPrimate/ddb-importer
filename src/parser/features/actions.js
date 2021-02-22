@@ -50,7 +50,7 @@ function getDamage(action) {
   if (action.dice) {
     if (action.dice.diceString) {
       damage = {
-        parts: [[action.dice.diceString + modBonus + fixedBonus, damageType]],
+        parts: [[action.dice.diceString + `[${damageType}] ` + modBonus + fixedBonus, damageType]],
         versatile: "",
       };
     } else if (fixedBonus) {
@@ -134,20 +134,20 @@ function martialArtsDamage(ddb, action) {
 
     // set the weapon damage
     return {
-      parts: [[die + " + @mod", damageType]],
+      parts: [[die + `[${damageType}] ` + " + @mod", damageType]],
       versatile: "",
     };
   } else if (action.dice !== null) {
     // The Lizardfolk jaws have a different base damage, its' detailed in
     // dice so lets capture that for actions if it exists
     return {
-      parts: [[action.dice.diceString + " + @mod", damageType]],
+      parts: [[action.dice.diceString + `[${damageType}] ` + " + @mod", damageType]],
       versatile: "",
     };
   } else {
     // default to basics
     return {
-      parts: [["1 + @mod", damageType]],
+      parts: [[`1[${damageType}] + @mod`, damageType]],
       versatile: "",
     };
   }
@@ -165,7 +165,7 @@ function getLimitedUse(action, character) {
       const ability = DICTIONARY.character.abilities.find(
         (ability) => ability.id === action.limitedUse.statModifierUsesId
       ).value;
-      maxUses = character.data.abilities[ability].mod;
+      maxUses = character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
       if (action.limitedUse.maxUses) maxUses += action.limitedUse.maxUses;
     } else if (action.limitedUse.useProficiencyBonus) {
       const multiplier = action.limitedUse.proficiencyBonusOperator ? action.limitedUse.proficiencyBonusOperator : 1;
@@ -295,7 +295,7 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
   } else if (action.isMartialArts) {
     weapon.data.ability =
       action.isMartialArts && isMartialArtists(ddb.character.classes)
-        ? character.data.abilities.dex.value >= character.data.abilities.str.value
+        ? character.flags.ddbimporter.dndbeyond.effectAbilities.dex.value >= character.flags.ddbimporter.dndbeyond.effectAbilities.str.value
           ? "dex"
           : "str"
         : "str";
