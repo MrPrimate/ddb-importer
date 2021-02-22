@@ -160,6 +160,7 @@ function getItemFlags(ddb, data, character) {
     classFeatures: getClassFeatures(ddb, data),
     martialArtsDie: getMartialArtsDie(ddb),
     maxMediumArmorDex: Math.max(...utils.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier").map((mod) => mod.value), 2),
+    magicItemAttackInt: utils.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0,
   };
 
   if (flags.classFeatures.includes("Lifedrinker")) {

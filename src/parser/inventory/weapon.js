@@ -304,6 +304,8 @@ export default function parseWeapon(data, character, flags) {
     },
   };
 
+  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+
     // if using better rolls lets add some useful QOL information.
   // marks context as magical attack and makes alt click a versatile damage click
   weapon.flags.betterRolls5e = {
@@ -416,17 +418,22 @@ export default function parseWeapon(data, character, flags) {
   // weapon.data.uses = getUses(data);
 
   /* ability: null, */
-  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range, character.data.abilities);
+  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range, characterAbilities);
   // warlocks can use cha for their Hex weapon
   if (flags.classFeatures.includes("hexWarrior")) {
-    if (character.data.abilities.cha.value >= character.data.abilities[weapon.data.ability].value) {
+    if (characterAbilities.cha.value >= characterAbilities[weapon.data.ability].value) {
       weapon.data.ability = "cha";
     }
   }
   // kensai monks
   if (flags.classFeatures.includes("kensaiWeapon") || flags.classFeatures.includes("monkWeapon")) {
-    if (character.data.abilities.dex.value >= character.data.abilities[weapon.data.ability].value) {
+    if (characterAbilities.dex.value >= characterAbilities[weapon.data.ability].value) {
       weapon.data.ability = "dex";
+    }
+  }
+  if (flags.magicItemAttackInt && data.definition.magic) {
+    if (characterAbilities.int.value > characterAbilities[weapon.data.ability].value) {
+      weapon.data.ability = "int";
     }
   }
 
