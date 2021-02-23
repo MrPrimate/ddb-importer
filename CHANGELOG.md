@@ -24,7 +24,7 @@ Item effects generated:
 * Skill bonuses
 * Advantage on skill checks
 * Advantage on initiative
-* Advantage on saves ms magical attacks
+* Advantage on saves vs magical attacks
 
 Notes:
 * When importing characters and auto generating effects, the import will be significantly slower due to some race conditions around effect generation when updating characters.
