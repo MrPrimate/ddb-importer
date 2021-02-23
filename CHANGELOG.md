@@ -35,6 +35,7 @@ Other Improvements:
 * Artificer Battle Smith will now use Int for magic weapon attacks
 * Attacks now add damage type hints where possible
 * If DAE is installed it will be used to generate skill bonuses rather than 5e skill customisation module
+* If using the MagicItems module, spells will try to be found in the DDB Spells compendium -> SRD Compendium and only creating them n the world as a last resort if it can't find the spell allready.
 
 # 0.4.17
 
