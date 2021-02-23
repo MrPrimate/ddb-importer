@@ -977,7 +977,7 @@ async function getIconizerIcons(items) {
  * Add an item to effects, if available
  * @param {*} items
  */
-export function addEffectIcons(items) {
+export function addItemEffectIcons(items) {
   logger.debug("Adding Icons to effects");
 
   items.forEach((item) => {
@@ -992,6 +992,21 @@ export function addEffectIcons(items) {
 
   });
   return items;
+}
+
+/**
+ * TO DO : This function should do something.
+ * @param {*} effects
+ */
+export function addACEffectIcons(effects) {
+  logger.debug("Adding Icons to AC effects");
+
+  // effects.forEach((item) => {
+  //   if (!effect.icon || effect.icon === "" || effect.icon === "icons/svg/mystery-man.svg") {
+  //     effect.icon = item.img;
+  //   }
+  // });
+  return effects;
 }
 
 export async function updateIcons(items, srdIconUpdate = true) {
@@ -1041,7 +1056,7 @@ export async function updateIcons(items, srdIconUpdate = true) {
   // update any generated effects
   const addEffects = game.settings.get("ddb-importer", "munching-policy-add-effects");
   if (addEffects) {
-    items = addEffectIcons(items);
+    items = addItemEffectIcons(items);
   }
 
   return items;

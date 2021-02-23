@@ -53,6 +53,8 @@ export default function getCharacter(ddb) {
     token: getToken(ddb),
     flags: {
       ddbimporter: {
+        acEffects: [],
+        baseAC: 10,
         dndbeyond: {
           totalLevels: ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0),
           proficiencies: getProficiencies(ddb),
@@ -87,7 +89,10 @@ export default function getCharacter(ddb) {
   character.data.attributes.inspiration = ddb.character.inspiration;
 
   // armor class
-  character.data.attributes.ac = getArmorClass(ddb, character);
+  const ac = getArmorClass(ddb, character);
+  character.data.attributes.ac = ac.fixed;
+  character.flags.ddbimporter.acEffects = ac.effects;
+  character.flags.ddbimporter.baseAC = ac.baseAC;
 
   // hitpoints
   character.data.attributes.hp = getHitpoints(ddb, character);

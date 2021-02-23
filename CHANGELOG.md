@@ -1,4 +1,4 @@
-# 0.5.0 - 0.5.9
+# 0.5.0 - 0.5.10
 
 * Active Effect Generation Support for ITEMS (Requires DAE, with additional enhancements if using Midi-QOL):
 
@@ -36,6 +36,7 @@ Other Improvements:
 * Attacks now add damage type hints where possible
 * If DAE is installed it will be used to generate skill bonuses rather than 5e skill customisation module
 * If using the MagicItems module, spells will try to be found in the DDB Spells compendium -> SRD Compendium and only creating them n the world as a last resort if it can't find the spell allready.
+* You can generate a set of Character Effects for each of your equipped AC options.
 
 # 0.4.17
 

@@ -11,7 +11,7 @@ import {
   getDDBEquipmentIcons,
   getDDBSpellSchoolIcons,
   getDDBGenericItemIcons,
-  addEffectIcons,
+  addItemEffectIcons,
 } from "../muncher/import.js";
 import { download, getCampaignId, getPatreonTiers } from "../muncher/utils.js";
 import {
@@ -557,6 +557,13 @@ export default class CharacterImport extends FormApplication {
         enabled: daeInstalled,
       },
       {
+        name: "generate-ac-effects",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-effects"),
+        title: "[Super Experimental] Dynamically generate DAE ACs",
+        description: "Dynamically generate possible AC combinations as dynamic effects. Please log any bugs in the <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
+        enabled: daeInstalled,
+      },
+      {
         name: "dae-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy"),
         title: "Copy Active Effect from DAE Compendiums",
@@ -997,7 +1004,7 @@ export default class CharacterImport extends FormApplication {
       }
 
       if (daeInstalled && addEffects) {
-        items = addEffectIcons(items);
+        items = addItemEffectIcons(items);
       }
 
 
@@ -1234,6 +1241,15 @@ export default class CharacterImport extends FormApplication {
     await this.actor.deleteEmbeddedEntity("ActiveEffect", itemEffects.map((ae) => ae._id));
     // clear down ddb generated character effects such as skill bonuses
     await this.actor.deleteEmbeddedEntity("ActiveEffect", ddbGeneratedCharEffects.map((ae) => ae._id));
+
+    if (game.settings.get("ddb-importer", "character-update-policy-generate-ac-effects")) {
+      const acEffects = this.result.character.flags.ddbimporter.acEffects.map((ae) => {
+        ae.origin = `Actor.${this.actor._id}`;
+        return ae;
+      });
+      this.result.character.effects = this.result.character.effects.concat(acEffects);
+      this.result.character.data.attributes.ac.value = this.result.character.flags.ddbimporter.baseAC;
+    }
 
     // are we trying to retain existing effects?
     if (activeEffectCopy) {

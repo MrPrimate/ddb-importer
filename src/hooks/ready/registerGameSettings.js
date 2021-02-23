@@ -365,6 +365,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-generate-ac-effects", {
+    name: "ddb-importer.character-update-policy-generate-ac-effects.name",
+    hint: "ddb-importer.character-update-policy-generate-ac-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-use-existing", {
     name: "ddb-importer.character-update-policy-use-existing.name",
     hint: "ddb-importer.character-update-policy-use-existing.hint",
