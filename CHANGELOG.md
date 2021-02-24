@@ -1,3 +1,8 @@
+# 0.4.14
+
+* Monster parsing failed due to skills formatting change.
+* Artificer flamethrower added +mod to damage.
+
 # 0.4.13
 
 * Some characters would not import.

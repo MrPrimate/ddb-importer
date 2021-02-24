@@ -98,17 +98,19 @@ export function getSkillsHTML (skills, monster, DDB_CONFIG) {
   const skillsHTML = monster.skillsHtml.split(',');
   const skillsMaps = skillsHTML.filter((str) => str != '').map((str) => {
     const skillMatch = str.match(/(\w+\s*\w*\s*\w*)(?:\s*)([+-])(?:\s*)(\d+)/);
+    let result = {};
     if (skillMatch) {
-      return {
+      result = {
         name: skillMatch[1],
         value: skillMatch[2] + skillMatch[3],
-      }
+      };
     } else {
-      logger.warn(`Skill Parsing failed for ${monster.name}`);
+      logger.error(`Skill Parsing failed for ${monster.name}`);
       logger.debug(skillsHTML);
       logger.debug(str);
       logger.debug(skillMatch);
     }
+    return result;
   });
 
   const keys = Object.keys(skills);
