@@ -29,6 +29,7 @@ Item effects generated:
 Notes:
 * When importing characters and auto generating effects, the import will be significantly slower due to some race conditions around effect generation when updating characters.
 * Some effects may not come through for some items, these tend to be ones with very specific advantages, e.g. Advantage on Persuasion vs Giants and the like. There are a few exceptions such as the Cloak of Elvenkind, or resistances where you should be holding the item.
+* It does not add any time based or limited effects (and if it does this is by accident and they are marked as continuos).
 
 Other Improvements:
 * Icons don't use absolute paths
