@@ -18,7 +18,7 @@ export function fixFeatures(features) {
   features.forEach((feature) => {
     switch (feature.name) {
       case "Channel Divinity: Radiance of the Dawn":
-        feature.data.damage = { parts: [["2d10 + @classes.cleric.levels", "radiant"]], versatile: "", value: "" };
+        feature.data.damage = { parts: [["2d10[radiant] + @classes.cleric.levels", "radiant"]], versatile: "", value: "" };
         break;
       case "Surprise Attack":
         feature.data.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
@@ -32,7 +32,7 @@ export function fixFeatures(features) {
         feature.data.ability = "int";
         feature.data.actionType = "rsak";
         feature.data.chatFlavor = "On hit pushed 5 ft away.";
-        feature.data.damage = { parts: [["2d8", "force"]], versatile: "", value: "" };
+        feature.data.damage = { parts: [["2d8[force]", "force"]], versatile: "", value: "" };
         break;
       case "Eldritch Cannon: Protector":
         feature.data['target']['units'] = "any";
@@ -42,8 +42,11 @@ export function fixFeatures(features) {
         feature.data.actionType = "heal";
         feature.data.damage = { parts: [["1d8 + @mod", "temphp"]], versatile: "", value: "" };
         break;
+      case "Eldritch Cannon: Flamethrower":
+        feature.data.damage = { parts: [["2d8[fire]", "fire"]], versatile: "", value: "" };
+        break;
       case "Second Wind":
-        feature.data.damage = { parts: [["1d10 + @classes.fighter.levels", "healing"]], versatile: "", value: "" };
+        feature.data.damage = { parts: [["1d10[healing] + @classes.fighter.levels", "healing"]], versatile: "", value: "" };
         feature.data.actionType = "heal";
         feature.data['target']['type'] = "self";
         feature.data['range']['type'] = "self";
