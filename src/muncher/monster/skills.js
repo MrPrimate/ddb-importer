@@ -19,6 +19,7 @@ export const SKILLS = [
   { name: "sur", label: "Survival", ability: "wis", subType: "survival", valueId: 15 },
 ];
 
+import logger from "../../logger.js";
 import { ABILITIES } from "./abilities.js";
 
 // skills: [
@@ -96,11 +97,18 @@ export function getSkillsHTML (skills, monster, DDB_CONFIG) {
   //  "skillsHtml": "History + 12, Perception + 10"
   const skillsHTML = monster.skillsHtml.split(',');
   const skillsMaps = skillsHTML.filter((str) => str != '').map((str) => {
-    const skillMatch = str.match(/(\w+\s*\w*\s*\w*) ([+-]) (\d+)/);
-    return {
-      name: skillMatch[1],
-      value: skillMatch[2] + skillMatch[3],
-    };
+    const skillMatch = str.match(/(\w+\s*\w*\s*\w*)(?:\s*)([+-])(?:\s*)(\d+)/);
+    if (skillMatch) {
+      return {
+        name: skillMatch[1],
+        value: skillMatch[2] + skillMatch[3],
+      }
+    } else {
+      logger.warn(`Skill Parsing failed for ${monster.name}`);
+      logger.debug(skillsHTML);
+      logger.debug(str);
+      logger.debug(skillMatch);
+    }
   });
 
   const keys = Object.keys(skills);
