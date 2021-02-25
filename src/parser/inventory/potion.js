@@ -87,6 +87,46 @@ let getDamage = (data, actionType) => {
   return damage;
 };
 
+function getDuration(data) {
+  let duration = {
+    value: null,
+    units: "",
+  };
+
+  if (data.definition.duration) {
+    if (data.definition.duration.durationUnit !== null) {
+      duration.units = data.definition.duration.durationUnit.toLowerCase();
+    } else {
+      duration.units = data.definition.duration.durationType.toLowerCase().substring(0, 4);
+    }
+    if (data.definition.duration.durationInterval) duration.value = data.definition.duration.durationInterval;
+  } else {
+    const durationArray = [
+      { foundryUnit: "day", descriptionMatches: ["day","days"] },
+      { foundryUnit: "hour", descriptionMatches: ["hour","hours"] },
+      { foundryUnit: "inst", descriptionMatches: ["instant","instantaneous"] },
+      { foundryUnit: "minute", descriptionMatches: ["minute","minutes"] },
+      { foundryUnit: "month", descriptionMatches: ["month","months"] },
+      { foundryUnit: "perm", descriptionMatches: ["permanent"] },
+      { foundryUnit: "round", descriptionMatches: ["round","rounds"] },
+     // { foundryUnit: "spec", descriptionMatches: [null] },
+      { foundryUnit: "turn", descriptionMatches: ["turn","turns"] },
+      { foundryUnit: "year", descriptionMatches: ["year","years"] },
+    ];
+    //attempt to parse duration
+    const descriptionUnits = durationArray.map((unit) => unit.descriptionMatches).flat().join("|");
+    const durationExpression = new RegExp(`(\\d*)(?:\\s)(${descriptionUnits})`);
+    const durationMatch = data.definition.description.match(durationExpression);
+
+    if (durationMatch) {
+      duration.units = durationArray.find((duration) => duration.descriptionMatches.includes(durationMatch[2])).foundryUnit;
+      duration.value = durationMatch[1];
+    }
+  }
+  return duration;
+}
+
+
 export default function parsePotion(data, itemType) {
   /**
    * MAIN parseWeapon
@@ -149,7 +189,7 @@ export default function parsePotion(data, itemType) {
   consumable.data.activation = { type: "action", cost: 1, condition: "" };
 
   /* duration: { value: null, units: '' }, */
-  // we leave that as-is
+  consumable.data.duration = getDuration(data);
 
   /* target: { value: null, units: '', type: '' }, */
   // we leave that as-is

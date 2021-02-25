@@ -122,7 +122,7 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
 
 function baseItemEffect(foundryItem, label) {
   return {
-    label: label,
+    label,
     icon: foundryItem.img,
     changes: [],
     duration: {},
@@ -670,6 +670,43 @@ function addMagicalAdvantage(modifiers, name) {
   return changes;
 }
 
+function generateEffectDuration(foundryItem) {
+  let duration = {
+    seconds: null,
+    startTime: null,
+    rounds: null,
+    turns: null,
+    startRound: null,
+    startTurn: null,
+  };
+  switch(foundryItem.data.duration.units) {
+    case "turn":
+      duration.turns = foundryItem.data.duration.value;
+      break;
+    case "round":
+      duration.rounds = foundryItem.data.duration.value;
+      break;
+    case "hour":
+      duration.seconds = foundryItem.data.duration.value * 60 * 60;
+     break;
+    case "minute":
+      duration.rounds = foundryItem.data.duration.value * 10;
+      break;
+    // no-default
+  }
+  return duration;
+}
+
+function consumableEffect(effect,ddbItem, foundryItem) {
+  effect.label = `${foundryItem.name} - Consumable Effects`
+  effect.disabled = false;
+  effect.transfer = false;
+  setProperty(effect, "flags.ddbimporter.disabled", false);
+  setProperty(foundryItem, "flags.dae.transfer", false);
+  effect.duration = generateEffectDuration(foundryItem);
+  return effect;
+}
+
 /**
  * Generate supported effects for items
  * @param {*} ddb
@@ -677,7 +714,7 @@ function addMagicalAdvantage(modifiers, name) {
  * @param {*} ddbItem
  * @param {*} foundryItem
  */
-export function generateItemEffects(ddb, character, ddbItem, foundryItem, compendiumItem) {
+export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return foundryItem;
   console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`);
@@ -741,7 +778,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
     setProperty(effect, "flags.ddbimporter.disabled", false);
     setProperty(foundryItem, "flags.dae.alwaysActive", true);
   } else if (
-    compendiumItem ||
+    isCompendiumItem ||
     (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
     (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
     (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
@@ -762,6 +799,10 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, compen
     setProperty(foundryItem, "flags.dae.activeEquipped", true);
   } else {
     setProperty(foundryItem, "flags.dae.activeEquipped", false);
+  }
+
+  if (ddbItem.definition.filterType === "Potion") {
+    effect = consumableEffect(effect, ddbItem, foundryItem);
   }
 
   if (effect.changes?.length > 0) {
