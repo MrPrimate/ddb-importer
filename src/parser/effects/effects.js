@@ -29,6 +29,7 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   { type: "bonus", subType: "spell-attacks" },
 
   { type: "bonus", subType: "hit-points-per-level" },
+  { type: "bonus", subType: "hit-points" },
 
   // saving throws and ability checks - with midi
   // not adding these as they are not used elsewhere
@@ -212,6 +213,37 @@ function generateMultiplyChange(bonus, priority, key) {
 // eslint-disable-next-line no-unused-vars
 function generateDowngradeChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.DOWNGRADE);
+}
+
+//
+function extractModifierValue(modifier) {
+  let value = "";
+  let modBonus = "";
+
+  if (modifier.statId) {
+    const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId).value;
+    modBonus = `+ @abilities.${ability}.mod`
+  } else if(modifier.abilityModifierStatId) {
+    const ability = DICTIONARY.character.abilities.find((ability) => ability.id === abilityModifierStatId.statId).value;
+    modBonus = `+ @abilities.${ability}.mod`
+  }
+
+  const fixedBonus = modifier.dice?.fixedValue ? ` + ${modifier.dice.fixedValue}` : "";
+
+  if (modifier.dice) {
+    if (modifier.dice.diceString) {
+      value = modifier.dice.diceString + modBonus + fixedBonus;
+    } else if (fixedBonus) {
+      value = fixedBonus + modBonus;
+    }
+  } else if (modifier.fixedValue) {
+    value = modifier.fixedValue;
+  } else if (modifier.value) {
+    value = modifier.value;
+  }
+
+  return value;
+
 }
 
 /**
@@ -565,7 +597,7 @@ function addProficiencies(modifiers, name) {
  * @param {*} modifiers
  * @param {*} name
  */
-function addHPEffect(modifiers, name) {
+function addHPEffect(modifiers, name, consumable) {
   let changes = [];
 
   // HP per level
@@ -573,6 +605,17 @@ function addHPEffect(modifiers, name) {
   if (hpPerLevel && hpPerLevel > 0) {
     logger.debug(`Generating HP Per Level effects for ${name}`);
     changes.push(generateAddChange(`${hpPerLevel} * @details.level`, 20, "data.attributes.hp.max"));
+  }
+
+  const hpBonusModifiers = utils.filterModifiers(modifiers, "bonus", "hit-points");
+  if (hpBonusModifiers.length > 0 && !consumable) {
+    let hpBonus = "";
+    hpBonusModifiers.forEach((modifier) => {
+      let hpParse = extractModifierValue(modifier);
+      if (hpBonus !== "") hpBonus += " + ";
+      hpBonus += hpParse;
+    });
+    changes.push(generateCustomChange(`${hpBonus}`, 19, "data.attributes.hp.max"));
   }
 
   return changes;
@@ -740,7 +783,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
   const spellDCBonus = addAddEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "spell-save-dc", "data.bonuses.spell.dc");
   const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name, ddbItem.definition.isConsumable);
   const skillBonus = addSkillBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const initiative = addInitiativeBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const disadvantageAgainst = addAttackRollDisadvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
