@@ -1,3 +1,7 @@
+# 0.4.15
+
+* Lizard folk bite attack would use a lower martial arts dice if lizard folk was a monk.
+
 # 0.4.14
 
 * Monster parsing failed due to skills formatting change.
