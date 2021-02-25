@@ -119,6 +119,9 @@ function martialArtsDamage(ddb, action) {
         const feature = cls.classFeatures.find((feature) => feature.definition.name === "Martial Arts");
 
         if (feature && feature.levelScale && feature.levelScale.dice && feature.levelScale.dice.diceString) {
+          if (action.dice?.diceValue > feature.levelScale.dice.diceValue) {
+            return action.dice.diceString;
+          }
           return feature.levelScale.dice.diceString;
         } else if (action.dice !== null) {
           // On some races bite is considered a martial art, damage
