@@ -136,8 +136,8 @@ const filterItemsByUserSelection = (result, sections, invert = false) => {
   const validItemTypes = getCharacterUpdatePolicyTypes(invert);
 
   for (const section of sections) {
-    items = items.concat(result[section]).filter(
-      (item) => validItemTypes.includes(item.type)
+    items = items.concat(result[section]).filter((item) =>
+      validItemTypes.includes(item.type)
     );
   }
   return items;
@@ -147,8 +147,8 @@ const filterItemsByUserSelection = (result, sections, invert = false) => {
 const filterActorItemsByUserSelection = (actor, invert = false) => {
   const validItemTypes = getCharacterUpdatePolicyTypes(invert);
 
-  const items = actor.items.filter(
-    (item) => validItemTypes.includes(item.type)
+  const items = actor.items.filter((item) =>
+    validItemTypes.includes(item.type)
   );
 
   return items;
@@ -326,7 +326,7 @@ export default class CharacterImport extends FormApplication {
           (item) =>
             !itemsToRemove.some((originalItem) => {
               const originalNameFlag = ((originalItem.flags || {}).ddbimporter || {}).originalItemName;
-              const originalNameMatch = originalNameFlag ? originalItem.flags.ddbimporter.originalItemName === item.name : false;
+              const originalNameMatch = (originalNameFlag) ? originalItem.flags.ddbimporter.originalItemName === item.name : false;
               const nameMatch = item.name === originalItem.name || originalNameMatch;
               return nameMatch && item.type === originalItem.type;
             })
@@ -1010,7 +1010,7 @@ export default class CharacterImport extends FormApplication {
 
       await items.forEach((item) => {
         let matchedItem = ownedItems
-        .find((owned) =>
+          .find((owned) =>
             item.name === owned.name &&
             item.type === owned.type &&
             item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id
@@ -1159,18 +1159,18 @@ export default class CharacterImport extends FormApplication {
     // remove current active effects
     const excludedItems = filterActorItemsByUserSelection(this.actorOriginal, true);
     const ignoredItemIds = this.actorOriginal.items.filter((item) =>
-          item.effects && item.effects.length > 0 &&
-          (item.flags.ddbimporter?.ignoreItemImport || excludedItems.some((ei) => ei._id === item._id))
+      item.effects && item.effects.length > 0 &&
+      (item.flags.ddbimporter?.ignoreItemImport || excludedItems.some((ei) => ei._id === item._id))
     ).map((item) => item._id);
     // `Actor.${this.actorOriginal._id}.OwnedItem.${item._id}`
 
     const itemEffects = this.actor.data.effects.filter((ae) =>
-      ae.origin?.includes("OwnedItem") &&
-      !ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
+      ae.origin?.includes('OwnedItem') &&
+      !ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0])
     );
     const ignoredEffects = this.actor.data.effects.filter((ae) =>
       // is this and ignored item
-      ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0]) ||
+      ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0]) ||
       // is this a core status effect (CUB)
       ae.flags?.core?.statusId
     );
