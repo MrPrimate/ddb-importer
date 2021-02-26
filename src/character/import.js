@@ -516,7 +516,7 @@ export default class CharacterImport extends FormApplication {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-full-description"),
         description: "For actions use full description and snippets, else use snippets only.",
         enabled: true,
-      },
+      }
     ];
 
     const updateReady = (((this.actorOriginal || {}).flags || {}).ddbimporter || {}).inPlaceUpdateAvailable;
