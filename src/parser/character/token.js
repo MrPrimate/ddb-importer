@@ -64,13 +64,9 @@ export function getToken(data) {
   try {
     const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
 
-    const token = (versionCompare >= 0)
+    return (versionCompare >= 0)
       ? getTokenSensesNew(data)
       : getTokenSensesOld(data);
-
-    return game.settings.get("ddb-importer", "character-update-policy-name")
-      ? token
-      : { ...token, name: undefined };
   } catch (err) {
     logger.error(err);
     logger.error(err.stack);

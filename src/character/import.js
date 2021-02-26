@@ -193,6 +193,11 @@ export async function getCharacterData(characterId, syncId) {
     logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
     try {
       const character = parseJson(ddb);
+      const shouldChangeName = game.settings.get('ddb-importer', 'character-update-policy-name');
+      if (!shouldChangeName) {
+        character.character.name = undefined;
+        character.character.token.name = undefined;
+      }
       data["character"] = character;
       return data;
     } catch (error) {
