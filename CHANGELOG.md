@@ -1,4 +1,8 @@
-# 0.4.15
+# 0.4.17
+
+* Monster parsing: some cantrips did not import.
+
+# 0.4.15/16
 
 * Lizard folk bite attack would use a lower martial arts dice if lizard folk was a monk.
 
