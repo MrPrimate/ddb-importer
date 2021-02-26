@@ -1,4 +1,4 @@
-import DirectoryPicker from "../../lib/DirectoryPicker.js";
+import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
 
 export default function () {

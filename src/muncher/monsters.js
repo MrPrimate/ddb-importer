@@ -95,6 +95,17 @@ export async function parseCritters() {
   munchNote(`Fiddling with the SRD data...`, true);
   const finalMonsters = await srdFiddling(monsters, "monsters");
 
+  // let features = [];
+  // console.warn(finalMonsters);
+  // finalMonsters.forEach((monster) => {
+  //   monster.items.forEach((feature) => {
+  //     features.push({ name: feature.name, monster: monster.name, srdImage: feature.img});
+  //   })
+  // });
+
+  // download(JSON.stringify(features), `monster-features-icon.json`, "application/json");
+  // return 0;
+
   munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);
 
