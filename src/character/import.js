@@ -13,10 +13,7 @@ import {
   getDDBGenericItemIcons,
 } from "../muncher/import.js";
 import { download, getCampaignId, getPatreonTiers } from "../muncher/utils.js";
-import {
-  migrateActorDAESRD,
-  addItemsDAESRD
-} from "../muncher/dae.js";
+import { migrateActorDAESRD, addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
 import { characterExtras } from "./extras.js";
@@ -103,7 +100,6 @@ const getCharacterAPIEndpoint = (characterId) => {
   return characterId !== null ? `https://character-service.dndbeyond.com/character/v4/character/${characterId}` : null;
 };
 
-
 const getCharacterUpdatePolicyTypes = (invert = false) => {
   let itemTypes = [];
 
@@ -121,7 +117,6 @@ const getCharacterUpdatePolicyTypes = (invert = false) => {
     if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
       itemTypes = itemTypes.concat(EQUIPMENT_TYPES);
     if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
-
   }
   return itemTypes;
 };
@@ -136,24 +131,18 @@ const filterItemsByUserSelection = (result, sections, invert = false) => {
   const validItemTypes = getCharacterUpdatePolicyTypes(invert);
 
   for (const section of sections) {
-    items = items.concat(result[section]).filter((item) =>
-      validItemTypes.includes(item.type)
-    );
+    items = items.concat(result[section]).filter((item) => validItemTypes.includes(item.type));
   }
   return items;
 };
 
-
 const filterActorItemsByUserSelection = (actor, invert = false) => {
   const validItemTypes = getCharacterUpdatePolicyTypes(invert);
 
-  const items = actor.items.filter((item) =>
-    validItemTypes.includes(item.type)
-  );
+  const items = actor.items.filter((item) => validItemTypes.includes(item.type));
 
   return items;
 };
-
 
 /**
  * Loads and parses character in the proxy
@@ -168,11 +157,11 @@ export async function getCharacterData(characterId, syncId) {
   const proxyCampaignId = campaignId === "" ? null : campaignId;
   let body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
   if (syncId) {
-    body['updateId'] = syncId;
+    body["updateId"] = syncId;
   }
 
-  return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/character`, {
+  try {
+    const response = await fetch(`${parsingApi}/proxy/character`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -183,39 +172,31 @@ export async function getCharacterData(characterId, syncId) {
       redirect: "follow", // manual, *follow, error
       referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       body: JSON.stringify(body), // body data type must match "Content-Type" header
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) {
-          resolve(data);
-        }
-        return data;
-      })
-      .then((data) => {
-        // construct the expected { character: {...} } object
-        let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;
-        ddb.classOptions = data.ddb.classOptions;
-        logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
-        try {
-          const character = parseJson(ddb);
-          data["character"] = character;
-          return data;
-        } catch (error) {
-          const debugJson = game.settings.get("ddb-importer", "debug-json");
-          if (debugJson) {
-            download(JSON.stringify(data), `${characterId}-raw.json`, "application/json");
-          }
-          throw error;
-        }
-      })
-      .then((data) => resolve(data))
-      .catch((error) => {
-        logger.error("JSON Fetch and Parse Error");
-        logger.error(error);
-        logger.error(error.stack);
-        reject(error);
-      });
-  });
+    });
+    const data = await response.json();
+    if (!data.success) return data;
+
+    // construct the expected { character: {...} } object
+    let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;
+    ddb.classOptions = data.ddb.classOptions;
+    logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
+    try {
+      const character = parseJson(ddb);
+      data["character"] = character;
+      return data;
+    } catch (error) {
+      const debugJson = game.settings.get("ddb-importer", "debug-json");
+      if (debugJson) {
+        download(JSON.stringify(data), `${characterId}-raw.json`, "application/json");
+      }
+      throw error;
+    }
+  } catch (error) {
+    logger.error("JSON Fetch and Parse Error");
+    logger.error(error);
+    logger.error(error.stack);
+    throw error;
+  }
 }
 
 export default class CharacterImport extends FormApplication {
@@ -254,7 +235,7 @@ export default class CharacterImport extends FormApplication {
     options.title = game.i18n.localize("ddb-importer.module-name");
     options.template = "modules/ddb-importer/handlebars/character.handlebars";
     options.width = 800;
-    options.height = 'auto';
+    options.height = "auto";
     options.classes = ["ddbimporter", "sheet"];
     options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "import" }];
 
@@ -302,7 +283,6 @@ export default class CharacterImport extends FormApplication {
     });
   }
 
-
   async copyCharacterItemEffects(items) {
     return new Promise((resolve) => {
       resolve(
@@ -335,7 +315,9 @@ export default class CharacterImport extends FormApplication {
           (item) =>
             !itemsToRemove.some((originalItem) => {
               const originalNameFlag = ((originalItem.flags || {}).ddbimporter || {}).originalItemName;
-              const originalNameMatch = (originalNameFlag) ? originalItem.flags.ddbimporter.originalItemName === item.name : false;
+              const originalNameMatch = originalNameFlag
+                ? originalItem.flags.ddbimporter.originalItemName === item.name
+                : false;
               const nameMatch = item.name === originalItem.name || originalNameMatch;
               return nameMatch && item.type === originalItem.type;
             })
@@ -349,7 +331,6 @@ export default class CharacterImport extends FormApplication {
       resolve(this.actor.createEmbeddedEntity("OwnedItem", items, { displaySheet: false }));
     });
   }
-
 
   /**
    * Deletes items from the inventory bases on which sections a user wants to update
@@ -367,9 +348,8 @@ export default class CharacterImport extends FormApplication {
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
     const toRemove = ownedItems
-      .filter((item) =>
-        includedItems.includes(item.type) &&
-        !excludedList.some((excluded) => excluded._id === item._id)
+      .filter(
+        (item) => includedItems.includes(item.type) && !excludedList.some((excluded) => excluded._id === item._id)
       )
       .filter((item) => !item.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item._id);
@@ -442,6 +422,11 @@ export default class CharacterImport extends FormApplication {
 
   getData() {
     const importPolicies = [
+      {
+        name: "name",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-name"),
+        description: "Name",
+      },
       {
         name: "class",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-class"),
@@ -520,7 +505,7 @@ export default class CharacterImport extends FormApplication {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-full-description"),
         description: "For actions use full description and snippets, else use snippets only.",
         enabled: true,
-      }
+      },
     ];
 
     const updateReady = (((this.actorOriginal || {}).flags || {}).ddbimporter || {}).inPlaceUpdateAvailable;
@@ -762,27 +747,11 @@ export default class CharacterImport extends FormApplication {
     super.activateListeners(html);
     // watch the change of the import-policy-selector checkboxes
     $(html)
-      .find('.import-policy input[type="checkbox"]')
-      .on("change", (event) => {
-        game.settings.set(
-          "ddb-importer",
-          "character-update-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked
-        );
-      });
-
-    $(html)
-      .find('.import-config input[type="checkbox"]')
-      .on("change", (event) => {
-        game.settings.set(
-          "ddb-importer",
-          "character-update-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked
-        );
-      });
-
-    $(html)
-      .find('.advanced-import-config input[type="checkbox"]')
+      .find([
+        '.import-policy input[type="checkbox"]',
+        '.advanced-import-config input[type="checkbox"]',
+        '.import-config input[type="checkbox"]'
+      ].join(','))
       .on("change", (event) => {
         game.settings.set(
           "ddb-importer",
@@ -853,7 +822,11 @@ export default class CharacterImport extends FormApplication {
             // result.forEach((r) => {
             //   console.warn(r);
             // });
-            const updateNotes = result.flat().filter((r) => r !== undefined).map((r) => r.message).join(" ");
+            const updateNotes = result
+              .flat()
+              .filter((r) => r !== undefined)
+              .map((r) => r.message)
+              .join(" ");
             logger.debug(updateNotes);
             CharacterImport.showCurrentTask(html, "Update complete", updateNotes);
             $(html).find("#dndbeyond-character-update").prop("disabled", false);
@@ -867,7 +840,7 @@ export default class CharacterImport extends FormApplication {
 
     $(html)
       .find("#dndbeyond-character-extras-start")
-      .on("click", async() => {
+      .on("click", async () => {
         try {
           $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Fetching character data");
@@ -1029,15 +1002,15 @@ export default class CharacterImport extends FormApplication {
       let matchedItems = [];
 
       await items.forEach((item) => {
-        let matchedItem = ownedItems
-          .find((owned) =>
+        let matchedItem = ownedItems.find(
+          (owned) =>
             item.name === owned.name &&
             item.type === owned.type &&
             item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id
-          );
+        );
         if (matchedItem) {
           if (!matchedItem.flags.ddbimporter?.ignoreItemImport) {
-            item['_id'] = matchedItem['_id'];
+            item["_id"] = matchedItem["_id"];
             if (matchedItem.effects?.length > 0 && item.effects?.length === 0) item.effects = matchedItem.effects;
             if (matchedItem.flags.ddbimporter?.ignoreIcon) item.flags.ddbimporter.matchedImg = matchedItem.img;
             if (matchedItem.flags.ddbimporter?.retainResourceConsumption) item.data.consume = matchedItem.data.consume;
@@ -1178,26 +1151,33 @@ export default class CharacterImport extends FormApplication {
   async removeActiveEffects(activeEffectCopy) {
     // remove current active effects
     const excludedItems = filterActorItemsByUserSelection(this.actorOriginal, true);
-    const ignoredItemIds = this.actorOriginal.items.filter((item) =>
-      item.effects && item.effects.length > 0 &&
-      (item.flags.ddbimporter?.ignoreItemImport || excludedItems.some((ei) => ei._id === item._id))
-    ).map((item) => item._id);
+    const ignoredItemIds = this.actorOriginal.items
+      .filter(
+        (item) =>
+          item.effects &&
+          item.effects.length > 0 &&
+          (item.flags.ddbimporter?.ignoreItemImport || excludedItems.some((ei) => ei._id === item._id))
+      )
+      .map((item) => item._id);
     // `Actor.${this.actorOriginal._id}.OwnedItem.${item._id}`
 
-    const itemEffects = this.actor.data.effects.filter((ae) =>
-      ae.origin?.includes('OwnedItem') &&
-      !ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0])
+    const itemEffects = this.actor.data.effects.filter(
+      (ae) => ae.origin?.includes("OwnedItem") && !ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
     );
-    const ignoredEffects = this.actor.data.effects.filter((ae) =>
-      // is this and ignored item
-      ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0]) ||
-      // is this a core status effect (CUB)
-      ae.flags?.core?.statusId
+    const ignoredEffects = this.actor.data.effects.filter(
+      (ae) =>
+        // is this and ignored item
+        ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0]) ||
+        // is this a core status effect (CUB)
+        ae.flags?.core?.statusId
     );
-    const charEffects = this.actor.data.effects.filter((ae) => !ae.origin?.includes('OwnedItem'));
+    const charEffects = this.actor.data.effects.filter((ae) => !ae.origin?.includes("OwnedItem"));
 
     // always remove existing active item effects
-    await this.actor.deleteEmbeddedEntity("ActiveEffect", itemEffects.map((ae) => ae._id));
+    await this.actor.deleteEmbeddedEntity(
+      "ActiveEffect",
+      itemEffects.map((ae) => ae._id)
+    );
 
     // are we trying to retain existing effects?
     if (activeEffectCopy) {
@@ -1205,7 +1185,10 @@ export default class CharacterImport extends FormApplication {
       this.result.character.effects = charEffects.concat(ignoredEffects);
     } else {
       // if not retaining effects remove character effects
-      await this.actor.deleteEmbeddedEntity("ActiveEffect", charEffects.map((ae) => ae._id));
+      await this.actor.deleteEmbeddedEntity(
+        "ActiveEffect",
+        charEffects.map((ae) => ae._id)
+      );
       this.result.character.effects = ignoredEffects;
     }
   }
@@ -1230,9 +1213,9 @@ export default class CharacterImport extends FormApplication {
     }
 
     // flag as having items ids
-    this.result.character.flags.ddbimporter['inPlaceUpdateAvailable'] = true;
-    this.result.character.flags.ddbimporter['syncItemReady'] = true;
-    this.result.character.flags.ddbimporter['syncActionReady'] = true;
+    this.result.character.flags.ddbimporter["inPlaceUpdateAvailable"] = true;
+    this.result.character.flags.ddbimporter["syncItemReady"] = true;
+    this.result.character.flags.ddbimporter["syncActionReady"] = true;
 
     // basic import
     CharacterImport.showCurrentTask(html, "Updating core character information");
@@ -1272,14 +1255,14 @@ export default class CharacterImport extends FormApplication {
       // find effects with a matching name that existed on previous actor
       // and that have a different active state and activate them
       const targetEffects = this.actor.data.effects.filter((ae) => {
-        const previousEffectDiff = this.actorOriginal.effects.find((oae) =>
-          oae.label === ae.label && oae.disabled !== ae.disabled
+        const previousEffectDiff = this.actorOriginal.effects.find(
+          (oae) => oae.label === ae.label && oae.disabled !== ae.disabled
         );
         if (previousEffectDiff) return true;
         return false;
       });
       targetEffects.forEach((ae) => {
-        this.actor.updateEmbeddedEntity("ActiveEffect", { "_id": ae._id, "disabled": !ae.disabled });
+        this.actor.updateEmbeddedEntity("ActiveEffect", { _id: ae._id, disabled: !ae.disabled });
       });
     }
 

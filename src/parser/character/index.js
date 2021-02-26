@@ -39,6 +39,16 @@ import { getSize } from "./size.js";
 import { getInitiative } from "./initiative.js";
 import { getCurrency } from "./currency.js";
 
+function getCharacterName(ddb) {
+  if (game.settings.get("ddb-importer", "character-update-policy-name")) {
+    return (ddb.character.name === "")
+    ? "Hero With No Name"
+    : ddb.character.name;
+  }
+  // because linting
+  return undefined;
+}
+
 export default function getCharacter(ddb) {
   // *************************************
   // PARSING THE CHARACTER
@@ -47,7 +57,7 @@ export default function getCharacter(ddb) {
   let character = {
     data: JSON.parse(utils.getTemplate("character")),
     type: "character",
-    name: (ddb.character.name === "") ? "Hero With No Name" : ddb.character.name,
+    name: getCharacterName(ddb),
     // items: [],  // modified to check inventory analysis on update
     token: getToken(ddb),
     flags: {
