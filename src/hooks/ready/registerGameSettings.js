@@ -39,6 +39,7 @@ export default function () {
     hint: "ddb-importer.image-upload-directory.hint",
     scope: "world",
     config: false,
+    // In 0.8.0 the custom type requires a collection. Awaiting fix
     type: DirectoryPicker.Directory,
     default: "[data] ",
   });

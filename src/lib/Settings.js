@@ -1,4 +1,4 @@
-import DirectoryPicker from "./DirectoryPicker.js";
+import { DirectoryPicker } from "./DirectoryPicker.js";
 import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 

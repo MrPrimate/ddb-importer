@@ -2,7 +2,7 @@
  * Game Settings: Directory
  */
 
-class DirectoryPicker extends FilePicker {
+export class DirectoryPicker extends FilePicker {
   constructor(options = {}) {
     super(options);
   }
@@ -107,5 +107,3 @@ class DirectoryPicker extends FilePicker {
 Hooks.on("renderSettingsConfig", (app, html, user) => {
   DirectoryPicker.processHtml(html);
 });
-
-export default DirectoryPicker;
