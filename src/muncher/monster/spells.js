@@ -99,7 +99,7 @@ function parseAdditionalAtWill(text) {
 
 function parseSpells(text, spells, spellList) {
     // console.log(text);
-    const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
+    const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|at-will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
     const match = text.match(spellLevelSearch);
     // console.log(match);
 
@@ -125,7 +125,7 @@ function parseSpells(text, spells, spellList) {
       spells[spellLevel]['level'] = warlockMatch[3];
       const spellArray = spellMatches.split(",").map((spell) => spell.trim());
       spellList.pact.push(...spellArray);
-    } else if (slots == "at will") {
+    } else if (["at will", "at-will"].includes(slots)) {
       // at will spells
       const spellArray = spellMatches.replace(/\*/g, '').split(",").map((spell) => spell.trim());
       spellList.atwill.push(...spellArray);
