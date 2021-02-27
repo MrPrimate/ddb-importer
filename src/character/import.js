@@ -171,8 +171,8 @@ export async function getCharacterData(characterId, syncId) {
     body['updateId'] = syncId;
   }
 
-  return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/character`, {
+  try {
+    const response = await fetch(`${parsingApi}/proxy/character`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -183,39 +183,36 @@ export async function getCharacterData(characterId, syncId) {
       redirect: "follow", // manual, *follow, error
       referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       body: JSON.stringify(body), // body data type must match "Content-Type" header
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) {
-          resolve(data);
-        }
-        return data;
-      })
-      .then((data) => {
-        // construct the expected { character: {...} } object
-        let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;
-        ddb.classOptions = data.ddb.classOptions;
-        logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
-        try {
-          const character = parseJson(ddb);
-          data["character"] = character;
-          return data;
-        } catch (error) {
-          const debugJson = game.settings.get("ddb-importer", "debug-json");
-          if (debugJson) {
-            download(JSON.stringify(data), `${characterId}-raw.json`, "application/json");
-          }
-          throw error;
-        }
-      })
-      .then((data) => resolve(data))
-      .catch((error) => {
-        logger.error("JSON Fetch and Parse Error");
-        logger.error(error);
-        logger.error(error.stack);
-        reject(error);
-      });
-  });
+    });
+    const data = await response.json();
+    if (!data.success) return data;
+
+    // construct the expected { character: {...} } object
+    let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;
+    ddb.classOptions = data.ddb.classOptions;
+    logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
+    try {
+      const character = parseJson(ddb);
+      const shouldChangeName = game.settings.get('ddb-importer', 'character-update-policy-name');
+      if (!shouldChangeName) {
+        character.character.name = undefined;
+        character.character.token.name = undefined;
+      }
+      data["character"] = character;
+      return data;
+    } catch (error) {
+      const debugJson = game.settings.get("ddb-importer", "debug-json");
+      if (debugJson) {
+        download(JSON.stringify(data), `${characterId}-raw.json`, "application/json");
+      }
+      throw error;
+    }
+  } catch (error) {
+    logger.error("JSON Fetch and Parse Error");
+    logger.error(error);
+    logger.error(error.stack);
+    throw error;
+  }
 }
 
 export default class CharacterImport extends FormApplication {
@@ -301,7 +298,6 @@ export default class CharacterImport extends FormApplication {
       }
     });
   }
-
 
   async copyCharacterItemEffects(items) {
     return new Promise((resolve) => {
@@ -442,6 +438,11 @@ export default class CharacterImport extends FormApplication {
 
   getData() {
     const importPolicies = [
+      {
+        name: "name",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-name"),
+        description: "Name",
+      },
       {
         name: "class",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-class"),
@@ -762,27 +763,11 @@ export default class CharacterImport extends FormApplication {
     super.activateListeners(html);
     // watch the change of the import-policy-selector checkboxes
     $(html)
-      .find('.import-policy input[type="checkbox"]')
-      .on("change", (event) => {
-        game.settings.set(
-          "ddb-importer",
-          "character-update-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked
-        );
-      });
-
-    $(html)
-      .find('.import-config input[type="checkbox"]')
-      .on("change", (event) => {
-        game.settings.set(
-          "ddb-importer",
-          "character-update-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked
-        );
-      });
-
-    $(html)
-      .find('.advanced-import-config input[type="checkbox"]')
+      .find([
+        '.import-policy input[type="checkbox"]',
+        '.advanced-import-config input[type="checkbox"]',
+        '.import-config input[type="checkbox"]'
+      ].join(','))
       .on("change", (event) => {
         game.settings.set(
           "ddb-importer",

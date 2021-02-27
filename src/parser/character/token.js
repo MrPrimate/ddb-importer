@@ -64,12 +64,9 @@ export function getToken(data) {
   try {
     const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
 
-    if (versionCompare >= 0) {
-      return getTokenSensesNew(data);
-    } else {
-      return getTokenSensesOld(data);
-    }
-
+    return (versionCompare >= 0)
+      ? getTokenSensesNew(data)
+      : getTokenSensesOld(data);
   } catch (err) {
     logger.error(err);
     logger.error(err.stack);

@@ -49,19 +49,19 @@
     <p>Only ticked items will be updated.</p>
     <div class="import-policy-group">
       {{#each importPolicies}}
-      <div class="import-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+      <label class="import-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
           name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.description}}
-      </div>
+      </label>
       {{/each}}
     </div>
     <hr>
     <div>
       <h3>Update configuration</h3>
       {{#each importConfig}}
-      <div class="import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+      <label class="import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
           name="character-import-policy-{{this.name}}" data-section="{{this.name}}"
           {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
-      </div>
+      </label>
       {{/each}}
     </div>
     <hr>
