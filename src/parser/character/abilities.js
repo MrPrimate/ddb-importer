@@ -14,6 +14,7 @@ function parseAbilities(data, includeExcludedEffects = false) {
     result[ability.value] = {
       value: 0,
       min: 3,
+      max: 20,
       proficient: 0,
     };
     // console.warn(ability.value);
@@ -90,6 +91,7 @@ function parseAbilities(data, includeExcludedEffects = false) {
     result[ability.value].value = overRiddenStat;
     result[ability.value].mod = utils.calculateModifier(result[ability.value].value);
     result[ability.value].proficient = proficient;
+    result[ability.value].max = Math.max(cappedBonus.cap, overRiddenStat);
   });
 
   return result;
