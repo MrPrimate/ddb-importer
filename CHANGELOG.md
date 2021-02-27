@@ -29,7 +29,8 @@ Item effects generated:
 Notes:
 * When importing characters and auto generating effects, the import will be significantly slower due to some race conditions around effect generation when updating characters.
 * Some effects may not come through for some items, these tend to be ones with very specific advantages, e.g. Advantage on Persuasion vs Giants and the like. There exceptions such as the Cloak of Elvenkind, or resistances where you should be holding the item.
-* It does not add any time based or limited effects (and if it does this is by accident and there marked as continuous).
+* It adds only a limited number of more specialist effects.
+* You can use this in combination with Copy Effects for DAE SRD.
 
 Other Improvements:
 * Icons don't use absolute paths
@@ -38,6 +39,7 @@ Other Improvements:
 * If DAE is installed it will be used to generate skill bonuses rather than 5e skill customisation module
 * If using the MagicItems module, spells will try to be found in the DDB Spells compendium -> SRD Compendium and only creating them n the world as a last resort if it can't find the spell allready.
 * You can generate a set of Character Effects for each of your equipped AC options. This is similar to the DAE Auto Generate AC option, however, these will over-ride DAE and effects applied by equipping items. AC is quite hard to calculate dynamically in Foundry in edge cases as it requires users to active the correct set of effects that apply. Not all effects (e.g. from class features) are currently generated.
+* Pressing enter in the monster search field no longer reloads the page.
 
 # 0.4.17
 
