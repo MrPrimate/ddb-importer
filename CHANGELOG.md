@@ -1,6 +1,7 @@
 # 0.4.17
 
 * Monster parsing: some cantrips did not import.
+* Updating character/token name is now optional - thanks @Naito!
 
 # 0.4.15/16
 
