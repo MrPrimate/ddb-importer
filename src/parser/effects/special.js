@@ -1,3 +1,4 @@
+import { baseItemEffect } from "./effects.js";
 // Bracers of Archery
 // +2 damage to longbows/shortbows translates to +2 ranged weapon damage
 
@@ -30,43 +31,54 @@
 //   "priority": 20
 // }
 
-// Armor of Invulnerability
-// entire action for the special one - this is kind of in the modifiers
-// {
-//   "flags": {
-//     "dae": {
-//       "stackable": false,
-//       "specialDuration": "None",
-//       "transfer": false
-//     }
-//   },
-//   "changes": [
-//     {
-//       "key": "data.traits.di.value",
-//       "value": "physical",
-//       "mode": 2,
-//       "priority": 20
-//     }
-//   ],
-//   "disabled": false,
-//   "duration": {
-//     "startTime": null,
-//     "seconds": 600,
-//     "rounds": null,
-//     "turns": null,
-//     "startRound": null,
-//     "startTurn": null
-//   },
-//   "label": "Armor of Invulnerability",
-//   "tint": "",
-//   "transfer": false
-// }
-
 /**
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
  */
-export function effectAdjustment(document) {
+export function equipmentEffectAdjustment(document) {
+  switch (document.name) {
+    case "Armor of Invulnerability": {
+      let effect = baseItemEffect(document, `${document.name} - Invulnerability`);
+      effect.changes.push({
+        key: "data.traits.di.value",
+        value: "physical",
+        mode: 2,
+        priority: 20,
+      });
+      effect.duration = {
+        startTime: null,
+        seconds: 600,
+        rounds: null,
+        turns: null,
+        startRound: null,
+        startTurn: null,
+      };
+      effect.transfer = false;
+      effect.disabled = false;
+      effect.flags.dae.transfer = false;
+      effect.flags.dae.stackable = false;
+      effect.flags.dae.specialDuration = "None";
+      document.data.uses = {
+        value: 1,
+        max: "1",
+        per: "day",
+      };
+      document.data.target = {
+        value: null,
+        width: null,
+        units: "",
+        type: "self",
+      };
+      document.data.range = {
+        value: null,
+        long: null,
+        units: "self",
+      };
+      document.effects.push(effect);
+      break;
+    }
+    // no default
+  }
 
   return document;
 }

@@ -7,6 +7,7 @@ import {
   getToolProficiencies,
   getLanguagesFromModifiers,
 } from "../character/proficiencies.js";
+import { equipmentEffectAdjustment } from "./special.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -124,7 +125,7 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
  * @param {*} origin
  */
 
-function baseItemEffect(foundryItem, label) {
+export function baseItemEffect(foundryItem, label) {
   return {
     label,
     icon: foundryItem.img,
@@ -787,7 +788,7 @@ function consumableEffect(effect, ddbItem, foundryItem) {
  * @param {*} foundryItem
  */
 export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return foundryItem;
+  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return equipmentEffectAdjustment(foundryItem);
   console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`);
 
@@ -916,6 +917,7 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
     foundryItem.effects.push(effect);
   }
 
+  foundryItem = equipmentEffectAdjustment(foundryItem);
   console.warn(JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
