@@ -16,6 +16,7 @@ function parseAbilities(data, includeExcludedEffects = false) {
       min: 3,
       proficient: 0,
     };
+    // console.warn(ability.value);
 
     const stat = data.character.stats.find((stat) => stat.id === ability.id).value || 0;
     const abilityScoreMaxBonus = utils
@@ -29,10 +30,17 @@ function parseAbilities(data, includeExcludedEffects = false) {
     const setAbilities = utils
       .filterBaseModifiers(data, "set", `${ability.long}-score`, [null, "", "if not already higher"], includeExcludedEffects)
       .map((mod) => mod.value);
-    const cappedBonusExp = /Maximum of (\d*)/i;
+    const modRestrictions = [
+      "Your maximum is now ",
+      "Maximum of ",
+    ];
+    const cappedBonusExp = new RegExp(`(?:${modRestrictions.join("|")})(\\d*)`);
     const cappedBonus = utils
       .filterBaseModifiers(data, "bonus", `${ability.long}-score`, false, includeExcludedEffects)
-      .filter((mod) => mod.entityId === ability.id && mod.restriction && mod.restriction.startsWith("Maximum of "))
+      .filter((mod) =>
+        mod.entityId === ability.id && mod.restriction &&
+        modRestrictions.some((m) => mod.restriction.startsWith(m))
+      )
       .reduce(
         (prev, cur) => {
           const restricted = cur.restriction ? cappedBonusExp.exec(cur.restriction) : undefined;
@@ -42,7 +50,7 @@ function parseAbilities(data, includeExcludedEffects = false) {
             cap: Math.max(prev.cap, max),
           };
         },
-        { value: 0 + abilityScoreMaxBonus, cap: 20 + abilityScoreMaxBonus }
+        { value: 0, cap: 20 + abilityScoreMaxBonus }
       );
     // applied regardless of cap
     const bonusStat = data.character.bonusStats.find((stat) => stat.id === ability.id).value || 0;
@@ -50,11 +58,14 @@ function parseAbilities(data, includeExcludedEffects = false) {
     const overrideStat = data.character.overrideStats.find((stat) => stat.id === ability.id).value || 0;
 
     // console.log(`stat ${stat}`);
+    // console.log(`bonus ${bonus}`);
     // console.log(`bonusStat ${bonusStat}`);
     // console.log(`overrideStat ${overrideStat}`);
     // console.log(`abilityScoreMaxBonus ${abilityScoreMaxBonus}`);
     // console.log(`setAbilities ${setAbilities}`);
+    // console.log(setAbilities);
     // console.log(`cappedBonus ${cappedBonus}`);
+    // console.log(cappedBonus);
 
     const setAbility = Math.max(...[0, ...setAbilities]);
     const calculatedStat = stat + bonus + cappedBonus.value;
