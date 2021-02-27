@@ -85,9 +85,6 @@ function generateArmorEffect(itemData, origin, armorData) {
   }
 }
 
-// this probably needs breaking out
-// shit do these effects need to go in the item section?
-
 function createArmorEffect(actor, itemData) {
   if (!itemData.effects && itemData.data.effects) itemData = itemData.data;
   if (!calculateArmor || itemData.type !== "equipment") return true;

@@ -351,19 +351,19 @@ function addDamageConditions(modifiers) {
   const damageVulnerability = getGenericConditionAffect(modifiers, "vulnerability", 2);
 
   damageImmunities.forEach((type) => {
-    charges.push(generateCustomChange(type, 0, "data.traits.di.value"));
+    charges.push(generateCustomChange(type, 1, "data.traits.di.value"));
   });
   damageResistances.forEach((type) => {
-    charges.push(generateCustomChange(type, 0, "data.traits.dr.value"));
+    charges.push(generateCustomChange(type, 1, "data.traits.dr.value"));
   });
   damageVulnerability.forEach((type) => {
-    charges.push(generateCustomChange(type, 0, "data.traits.dv.value"));
+    charges.push(generateCustomChange(type, 1, "data.traits.dv.value"));
   });
 
   const conditionImmunities = getGenericConditionAffect(modifiers, "immunity", 1);
 
   conditionImmunities.forEach((type) => {
-    charges.push(generateCustomChange(type, 20, "data.traits.ci.value"));
+    charges.push(generateCustomChange(type, 1, "data.traits.ci.value"));
   });
   return charges;
 }
@@ -424,7 +424,7 @@ function addACSetEffect(modifiers, name, subType) {
     }
 
     logger.debug(`Generating ${subType} AC set for ${name}`);
-    effects.push(generateUpgradeChange(`10 + ${Math.max(bonuses)} + {@abilities.dex.mod, ${maxDexMod}} kl`, 4, "data.attributes.ac.value"));
+    effects.push(generateUpgradeChange(`10 + ${Math.max(bonuses)} + {@abilities.dex.mod, ${maxDexMod}} kl`, 15, "data.attributes.ac.value"));
   }
   return effects;
 }
@@ -453,7 +453,7 @@ function addStatSetEffect(modifiers, name, subType) {
     bonuses.forEach((bonus) => {
       logger.debug(`Generating ${subType} stat set for ${name}`);
       const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-      effects.push(generateUpgradeChange(bonus.value, 4, `data.abilities.${ability}.value`));
+      effects.push(generateUpgradeChange(bonus.value, 3, `data.abilities.${ability}.value`));
     });
   }
   return effects;
@@ -575,19 +575,19 @@ function addProficiencies(modifiers, name) {
 
   toolProf.value.forEach((prof) => {
     logger.debug(`Generating tool proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof, 20, "data.traits.toolProf.custom"));
+    changes.push(generateCustomChange(prof, 8, "data.traits.toolProf.custom"));
   });
   weaponProf.value.forEach((prof) => {
     logger.debug(`Generating weapon proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof, 20, "data.traits.weaponProf.custom"));
+    changes.push(generateCustomChange(prof, 8, "data.traits.weaponProf.custom"));
   });
   armorProf.value.forEach((prof) => {
     logger.debug(`Generating armor proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof, 20, "data.traits.armorProf.custom"));
+    changes.push(generateCustomChange(prof, 8, "data.traits.armorProf.custom"));
   });
-  if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 20, "data.traits.toolProf.custom"));
-  if (weaponProf?.custom != "") changes.push(generateCustomChange(weaponProf.custom, 20, "data.traits.weaponProf.custom"));
-  if (armorProf?.custom != "") changes.push(generateCustomChange(armorProf.custom, 20, "data.traits.armorProf.custom"));
+  if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 8, "data.traits.toolProf.custom"));
+  if (weaponProf?.custom != "") changes.push(generateCustomChange(weaponProf.custom, 8, "data.traits.weaponProf.custom"));
+  if (armorProf?.custom != "") changes.push(generateCustomChange(armorProf.custom, 8, "data.traits.armorProf.custom"));
 
   return changes;
 }
@@ -604,7 +604,7 @@ function addHPEffect(modifiers, name, consumable) {
   const hpPerLevel = utils.filterModifiers(modifiers, "bonus", "hit-points-per-level").reduce((a, b) => a + b.value, 0);
   if (hpPerLevel && hpPerLevel > 0) {
     logger.debug(`Generating HP Per Level effects for ${name}`);
-    changes.push(generateAddChange(`${hpPerLevel} * @details.level`, 20, "data.attributes.hp.max"));
+    changes.push(generateAddChange(`${hpPerLevel} * @details.level`, 14, "data.attributes.hp.max"));
   }
 
   const hpBonusModifiers = utils.filterModifiers(modifiers, "bonus", "hit-points");
@@ -615,7 +615,7 @@ function addHPEffect(modifiers, name, consumable) {
       if (hpBonus !== "") hpBonus += " + ";
       hpBonus += hpParse;
     });
-    changes.push(generateCustomChange(`${hpBonus}`, 19, "data.attributes.hp.max"));
+    changes.push(generateCustomChange(`${hpBonus}`, 14, "data.attributes.hp.max"));
   }
 
   return changes;
@@ -635,7 +635,7 @@ function addSkillBonusEffect(modifiers, name, skill) {
     const value = bonuses
       .map((skl) => skl.value)
       .reduce((a, b) => a + b, 0) || 0;
-    effects.push(generateAddChange(value, 18, `data.skills.${skill.name}.mod`));
+    effects.push(generateAddChange(value, 12, `data.skills.${skill.name}.mod`));
   }
   return effects;
 }
