@@ -105,21 +105,21 @@ let getRange = (data) => {
  * Gets Limited uses information, if any
  * uses: { value: 0, max: 0, per: null }
  */
-// let getUses = (data) => {
-//   if (data.limitedUse !== undefined && data.limitedUse !== null) {
-//     let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
-//     return {
-//       max: data.limitedUse.maxUses,
-//       value: data.limitedUse.numberUsed
-//         ? data.limitedUse.maxUses - data.limitedUse.numberUsed
-//         : data.limitedUse.maxUses,
-//       per: resetType.value,
-//       description: data.limitedUse.resetTypeDescription,
-//     };
-//   } else {
-//     return { value: 0, max: 0, per: null };
-//   }
-// };
+let getUses = (data) => {
+  if (data.limitedUse !== undefined && data.limitedUse !== null) {
+    let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
+    return {
+      max: data.limitedUse.maxUses,
+      value: data.limitedUse.numberUsed
+        ? data.limitedUse.maxUses - data.limitedUse.numberUsed
+        : data.limitedUse.maxUses,
+      per: resetType.value,
+      description: data.limitedUse.resetTypeDescription,
+    };
+  } else {
+    return { value: 0, max: 0, per: null };
+  }
+};
 
 /**
  * Gets the ability which the to hit modifier is baed on
@@ -286,9 +286,6 @@ let getActionType = (data) => {
 };
 
 export default function parseWeapon(data, character, flags) {
-  /**
-   * MAIN parseWeapon
-   */
   let weapon = {
     name: data.definition.name,
     type: "weapon",
@@ -337,7 +334,6 @@ export default function parseWeapon(data, character, flags) {
   };
 
   /* weaponType: { value: 'simpleM' }, */
-  // NOTE: In game, it's `weaponType: 'simpleM'`, checking with Andrew is that is intended (I suppose so, but then the template.json is incorrect)
   weapon.data.weaponType = getWeaponType(data);
   // properties: {
   //        amm: false,
@@ -362,45 +358,21 @@ export default function parseWeapon(data, character, flags) {
     weapon.data.proficient = getProficient(data, weapon.data.weaponType, characterProficiencies);
   }
 
-  // description: {
-  //        value: '',
-  //        chat: '',
-  //        unidentified: ''
-  //    },
   weapon.data.description = {
     value: data.definition.description,
     chat: data.definition.description,
     unidentified: data.definition.type,
   };
-
-  /* source: '', */
   weapon.data.source = utils.parseSource(data.definition);
-
-  /* quantity: 1, */
   weapon.data.quantity = data.quantity ? data.quantity : 1;
-
-  /* weight */
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
-
   weapon.data.weight = totalWeight / bundleSize;
-
-  /* price */
   weapon.data.price = data.definition.cost ? data.definition.cost : 0;
-
-  /* attuned: false, */
   weapon.data.attuned = getAttuned(data);
-
-  /* equipped: false, */
   weapon.data.equipped = getEquipped(data);
-
-  /* rarity: '', */
   weapon.data.rarity = data.definition.rarity;
-
-  /* identified: true, */
   weapon.data.identified = true;
-
-  /* activation: { type: '', cost: 0, condition: '' }, */
   weapon.data.activation = { type: "action", cost: 1, condition: "" };
   if (flags.classFeatures.includes("OffHand")) weapon.data.activation.type = "bonus";
 
@@ -413,10 +385,9 @@ export default function parseWeapon(data, character, flags) {
   /* range: { value: null, long: null, units: '' }, */
   weapon.data.range = getRange(data);
 
-  // we don't parse this because the weapon then becomes a limited use item.
-  // this field is normally reserved on weapons for magic effects. so we handle it there.
+
   /* uses: { value: 0, max: 0, per: null }, */
-  // weapon.data.uses = getUses(data);
+  weapon.data.uses = getUses(data);
 
   /* ability: null, */
   weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range, characterAbilities);
@@ -438,16 +409,9 @@ export default function parseWeapon(data, character, flags) {
     }
   }
 
-  /* actionType: null, */
   weapon.data.actionType = getActionType(data);
-
-  /* attackBonus: 0, */
   weapon.data.attackBonus = getMagicalBonus(data, flags);
 
-  /* critical: null, */
-  // we leave that as-is
-
-  /* damage: { parts: [], versatile: '' }, */
   [
     weapon.data.damage,
     weapon.flags.betterRolls5e,
@@ -456,7 +420,5 @@ export default function parseWeapon(data, character, flags) {
   ] = getDamage(data, flags, weapon.flags.betterRolls5e);
 
 
-  /* save: { ability: '', dc: null } */
-  // we leave that as-is
   return weapon;
 }
