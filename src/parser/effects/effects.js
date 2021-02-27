@@ -391,13 +391,14 @@ function addDamageConditions(modifiers) {
 function addStatBonusEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
 
+  // TODO: account for character and abilities that raise the base Ability - these come in as modifiers
   let effects = [];
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
     bonuses.forEach((bonus) => {
       const maxMatch = /Maximum of (\d*)/;
       const match = bonus.restriction ? bonus.restriction.match(maxMatch) : false;
-      const max = match ? match[1] : 99;
+      const max = match ? match[1] : 20;
       logger.debug(`Generating ${subType} stat bonus for ${name}`);
       const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
       const bonusString = `{${max}, @data.abilities.${ability}.value + ${bonus.value}} kl`;
@@ -434,8 +435,7 @@ function addACSetEffect(modifiers, name, subType) {
   let effects = [];
   const maxDexTypes = ["ac-max-dex-unarmored-modifier"];
 
-  let maxDexMod = 99;
-  // dwarfen "Maximum of 20"
+  let maxDexMod = 5;
   if (bonuses.length > 0) {
     switch (subType) {
       case "unarmored-armor-class": {
