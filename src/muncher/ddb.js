@@ -73,16 +73,20 @@ export default class DDBMuncher extends Application {
     options.width = 600;
     options.title = "MrPrimate's Muncher";
     options.classes = ["ddb-muncher", "sheet"];
-    options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "settings" }];
+    options.tabs = [{ navSelector: ".tabs", contentSelector: "div", initial: "settings" }];
     return options;
+  }
+
+  static startMunch() {
+    munchNote(`Downloading monsters...`, true);
+    $('button[id^="munch-"]').prop('disabled', true);
+    DDBMuncher.parseCritters();
   }
 
   activateListeners(html) {
     super.activateListeners(html);
     html.find("#munch-monsters-start").click(async () => {
-      munchNote(`Downloading monsters...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.parseCritters();
+      DDBMuncher.startMunch();
     });
     html.find("#munch-source-select").click(async () => {
       DDBMuncher.selectSources();
@@ -159,6 +163,12 @@ export default class DDBMuncher extends Application {
         "munching-policy-" + event.currentTarget.dataset.section,
         event.currentTarget.checked
       );
+    });
+
+    html.find("#monster-munch-filter").on("keyup", (event) => {
+      event.preventDefault();
+      if (event.key !== "Enter") return; // Use `.key` instead.
+      DDBMuncher.startMunch();
     });
 
     this.close();
