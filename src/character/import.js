@@ -551,28 +551,35 @@ export default class CharacterImport extends FormApplication {
       },
       {
         name: "add-effects",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-add-effects"),
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-add-effects") && daeInstalled,
         title: "[Super Experimental] Dynamically generate DAE effects (items only)",
-        description: "Dynamically generate DAE effects for items only, please only run this on characters you have backups of, or are happy to reimport from scratch. Please log any bugs in the <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
+        description: "Dynamically generate DAE effects for items only, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
         enabled: daeInstalled,
       },
       {
         name: "generate-ac-effects",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-effects"),
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-effects") && daeInstalled,
         title: "[Super Experimental] Dynamically generate DAE ACs",
-        description: "Dynamically generate possible AC combinations as dynamic effects. Please log any bugs in the <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
+        description: "Dynamically generate possible AC combinations as dynamic effects. (Requires the DAE module)",
         enabled: daeInstalled,
       },
       {
+        name: "generate-base-ac",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-base-ac"),
+        title: "Set AC to base value",
+        description: "Calculate AC base to base value, e.g. 10 +dex mod/natural armor rating.",
+        enabled: true,
+      },
+      {
         name: "dae-effect-copy",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy"),
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDInstalled,
         title: "Copy Active Effect from DAE Compendiums",
         description: "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE and SRD module).",
         enabled: daeInstalled && daeSRDInstalled,
       },
       {
         name: "dae-copy",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy"),
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDInstalled,
         title: "[Caution] Replace Items using DAE compendiums",
         description: "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE and SRD module). This will remove any effects applied directly to your character/not via features/items.",
         enabled: daeInstalled && daeSRDInstalled,
@@ -1248,6 +1255,11 @@ export default class CharacterImport extends FormApplication {
         return ae;
       });
       this.result.character.effects = this.result.character.effects.concat(acEffects);
+    }
+
+    if (game.settings.get("ddb-importer", "character-update-policy-generate-base-ac")) {
+      console.warn(this.result.character.data.attributes.ac);
+      console.warn(this.result.character.flags.ddbimporter.baseAC);
       this.result.character.data.attributes.ac.value = this.result.character.flags.ddbimporter.baseAC;
     }
 

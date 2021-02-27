@@ -375,6 +375,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-generate-base-ac", {
+    name: "ddb-importer.character-update-policy-generate-base-ac.name",
+    hint: "ddb-importer.character-update-policy-generate-base-ac.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-use-existing", {
     name: "ddb-importer.character-update-policy-use-existing.name",
     hint: "ddb-importer.character-update-policy-use-existing.hint",
