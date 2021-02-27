@@ -1,4 +1,4 @@
-import {DirectoryPicker} from "./lib/DirectoryPicker.js";
+import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";

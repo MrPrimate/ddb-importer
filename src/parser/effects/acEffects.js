@@ -34,14 +34,14 @@ function buildBaseEffect(label) {
  * @param {*} origin
  */
 
-export function generateFixedACEffect(formula, label, alwaysActive=false, priority=30, mode=CONST.ACTIVE_EFFECT_MODES.OVERRIDE) {
+export function generateFixedACEffect(formula, label, alwaysActive = false, priority = 30, mode = CONST.ACTIVE_EFFECT_MODES.OVERRIDE) {
   let effect = buildBaseEffect(label);
 
   effect.flags = {
     dae: { transfer: true, armorEffect: true },
     ddbimporter: { disabled: !alwaysActive, itemId: null, entityTypeId: null }
   };
-  //effect.disabled = !alwaysActive;
+  // effect.disabled = !alwaysActive;
   effect.disabled = false;
   effect.origin = "AC";
 

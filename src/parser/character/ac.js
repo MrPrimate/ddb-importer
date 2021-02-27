@@ -161,9 +161,144 @@ function getDualWieldAC(data, modifiers) {
   return dualWieldBonus;
 }
 
+function calculateACOptions(data, character, calculatedArmor) {
+  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+  let actorBase = 10 + characterAbilities.dex.mod;
+  // generated AC effects
+  let effects = [];
+  // array to assemble possible AC values
+  let armorClassValues = [];
+
+  // the presumption here is that you can only wear a shield and a single
+  // additional 'armor' piece. in DDB it's possible to equip multiple armor
+  // types and it works out the best AC for you
+  // we also want to handle unarmored for monks etc.
+  // we might have multiple shields "equipped" by accident, so work out
+  // the best one
+  for (var armor = 0; armor < calculatedArmor.armors.length; armor++) {
+    let armorAC = 0;
+    if (calculatedArmor.shields.length === 0) {
+      // getEquippedAC fetches any magical AC boost on the items passed
+      armorAC = getEquippedAC([calculatedArmor.armors[armor]]);
+    } else {
+      for (var shield = 0; shield < calculatedArmor.shields.length; shield++) {
+        const combinedAC = getEquippedAC([calculatedArmor.armors[armor], calculatedArmor.shields[shield]]);
+        if (combinedAC > armorAC) armorAC = combinedAC;
+      }
+    }
+
+    // Determine final AC values based on AC Type
+    // Light Armor: AC + DEX
+    // Medium Armor: AC + DEX (max 2)
+    // Heavy Armor: AC only
+    // Unarmored Defense: Dex mod already included in calculation
+
+    // sometimes the type field can be blank in DDB
+    if (!calculatedArmor.armors[armor].definition.type || calculatedArmor.armors[armor].definition.type === "") {
+      const armourTypeId = calculatedArmor.armors[armor].definition.armorTypeId;
+      const acType = DICTIONARY.equipment.armorType.find((a) => a.id === armourTypeId);
+      if (acType) calculatedArmor.armors[armor].definition.type = acType.name;
+    }
+    let effect = null;
+
+    switch (calculatedArmor.armors[armor].definition.type) {
+      case "Natural Armor": {
+        let acCalc = 0;
+        // Tortles don't get to add an unarmored ac bonus for their shell
+        const ignoreUnarmouredACBonus = utils.filterBaseModifiers(data, "ignore", "unarmored-dex-ac-bonus");
+        if (ignoreUnarmouredACBonus) {
+          acCalc = armorAC + calculatedArmor.miscACBonus;
+          // console.log(armorAC);
+          // console.log(gearAC);
+          // console.log(miscACBonus);
+        } else {
+          acCalc = armorAC + calculatedArmor.miscACBonus + calculatedArmor.unarmoredACBonus;
+        }
+        armorClassValues.push({
+          name: calculatedArmor.armors[armor].definition.name,
+          value: acCalc + calculatedArmor.gearAC,
+        });
+        if (acCalc > actorBase) actorBase = acCalc;
+        effect = generateFixedACEffect(acCalc + calculatedArmor.gearAC, `AC ${calculatedArmor.armors[armor].definition.name} (Natural): ${acCalc + calculatedArmor.gearAC}`, true);
+        break;
+      }
+      case "Unarmored Defense": {
+        const acCalc = armorAC + calculatedArmor.miscACBonus + calculatedArmor.unarmoredACBonus;
+        armorClassValues.push({
+          name: calculatedArmor.armors[armor].definition.name,
+          value: acCalc + calculatedArmor.gearAC,
+        });
+        if (acCalc > actorBase) actorBase = acCalc;
+        effect = generateFixedACEffect(acCalc + calculatedArmor.gearAC, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored Defense): ${acCalc + calculatedArmor.gearAC}`);
+        break;
+      }
+      case "Unarmored": {
+        const base = armorAC + calculatedArmor.miscACBonus + calculatedArmor.unarmoredACBonus;
+        const acCalc = base + characterAbilities.dex.mod;
+        armorClassValues.push({
+          name: calculatedArmor.armors[armor].definition.name,
+          value: acCalc + calculatedArmor.gearAC,
+        });
+        if (acCalc > actorBase) actorBase = acCalc;
+        effect = generateFixedACEffect(`${base + calculatedArmor.gearAC} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored): ${acCalc + calculatedArmor.gearAC}`, true, 22);
+        break;
+      }
+      case "Heavy Armor": {
+        const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
+        armorClassValues.push({
+          name: calculatedArmor.armors[armor].definition.name,
+          value: acCalc,
+        });
+        effect = generateFixedACEffect(acCalc, `AC ${calculatedArmor.armors[armor].definition.name} (Heavy): ${acCalc}`);
+        break;
+      }
+      case "Medium Armor": {
+        const maxDexMedium = Math.max(...utils.filterBaseModifiers(data, "set", "ac-max-dex-armored-modifier")
+          .map((mod) => mod.value), 2);
+        const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
+        armorClassValues.push({
+          name: calculatedArmor.armors[armor].definition.name,
+          value: acCalc + Math.min(maxDexMedium, characterAbilities.dex.mod),
+        });
+        effect = generateFixedACEffect(`${acCalc} + {@abilities.dex.mod, ${maxDexMedium}}kl`, `AC ${calculatedArmor.armors[armor].definition.name} (Medium): ${acCalc + Math.min(maxDexMedium, characterAbilities.dex.mod)}`);
+        break;
+      }
+      case "Light Armor": {
+        const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
+        armorClassValues.push({
+          name: calculatedArmor.armors[armor].definition.name,
+          value: acCalc + characterAbilities.dex.mod,
+        });
+        effect = generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Light): ${acCalc + characterAbilities.dex.mod}`);
+        break;
+      }
+      default: {
+        const acCalc = armorAC + characterAbilities.dex.mod + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
+        armorClassValues.push({
+          name: calculatedArmor.armors[armor].definition.name,
+          value: armorAC + characterAbilities.dex.mod + calculatedArmor.gearAC + calculatedArmor.miscACBonus,
+        });
+        effects = generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name}: ${acCalc + characterAbilities.dex.mod}`, false, 22);
+        break;
+      }
+    }
+    if (effect) {
+      effect.flags.ddbimporter.itemId = calculatedArmor.armors[armor].id;
+      effect.flags.ddbimporter.entityTypeId = calculatedArmor.armors[armor].entityTypeId;
+      effects.push(effect);
+    }
+  }
+
+  logger.debug("Final AC Choices:", armorClassValues);
+  return {
+    actorBase,
+    armorClassValues,
+    effects,
+  };
+}
+
 export function getArmorClass(data, character) {
   const overRideAC = data.character.characterValues.find((val) => val.typeId === 1);
-  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   if (overRideAC) {
     return {
@@ -173,10 +308,6 @@ export function getArmorClass(data, character) {
     };
   }
 
-  // generated AC effects
-  let effects = [];
-  // array to assemble possible AC values
-  let armorClassValues = [];
   // get a list of equipped armor
   // we make a distinction so we can loop over armor
   let equippedArmor = data.character.inventory.filter(
@@ -266,131 +397,19 @@ export function getArmorClass(data, character) {
   logger.debug("Armors: ", armors);
   logger.debug("Shields: ", shields);
 
-  let actorBase = 10 + characterAbilities.dex.mod;
+  const calculatedArmor = {
+    gearAC,
+    unarmoredACBonus,
+    miscACBonus,
+    equippedArmor,
+    armors,
+    shields,
+  };
+  const results = calculateACOptions(data, character, calculatedArmor);
 
-  // the presumption here is that you can only wear a shield and a single
-  // additional 'armor' piece. in DDB it's possible to equip multiple armor
-  // types and it works out the best AC for you
-  // we also want to handle unarmored for monks etc.
-  // we might have multiple shields "equipped" by accident, so work out
-  // the best one
-  for (var armor = 0; armor < armors.length; armor++) {
-    let armorAC = 0;
-    if (shields.length === 0) {
-      // getEquippedAC fetches any magical AC boost on the items passed
-      armorAC = getEquippedAC([armors[armor]]);
-    } else {
-      for (var shield = 0; shield < shields.length; shield++) {
-        const combinedAC = getEquippedAC([armors[armor], shields[shield]]);
-        if (combinedAC > armorAC) armorAC = combinedAC;
-      }
-    }
-
-    // Determine final AC values based on AC Type
-    // Light Armor: AC + DEX
-    // Medium Armor: AC + DEX (max 2)
-    // Heavy Armor: AC only
-    // Unarmored Defense: Dex mod already included in calculation
-
-    // sometimes the type field can be blank in DDB
-    if (!armors[armor].definition.type || armors[armor].definition.type === "") {
-      const armourTypeId = armors[armor].definition.armorTypeId;
-      const acType = DICTIONARY.equipment.armorType.find((a) => a.id === armourTypeId);
-      if (acType) armors[armor].definition.type = acType.name;
-    }
-    let effect = null;
-
-    switch (armors[armor].definition.type) {
-      case "Natural Armor": {
-        let acCalc = 0;
-        // Tortles don't get to add an unarmored ac bonus for their shell
-        const ignoreUnarmouredACBonus = utils.filterBaseModifiers(data, "ignore", "unarmored-dex-ac-bonus");
-        if (ignoreUnarmouredACBonus) {
-          acCalc = armorAC + miscACBonus;
-          // console.log(armorAC);
-          // console.log(gearAC);
-          // console.log(miscACBonus);
-        } else {
-          acCalc = armorAC + miscACBonus + unarmoredACBonus;
-        }
-        armorClassValues.push({
-          name: armors[armor].definition.name,
-          value: acCalc + gearAC,
-        });
-        if (acCalc > actorBase) actorBase = acCalc;
-        effect = generateFixedACEffect(acCalc + gearAC, `AC ${armors[armor].definition.name} (Natural): ${acCalc + gearAC}`, true);
-        break;
-      }
-      case "Unarmored Defense": {
-        const acCalc = armorAC + miscACBonus + unarmoredACBonus;
-        armorClassValues.push({
-          name: armors[armor].definition.name,
-          value: acCalc + gearAC,
-        });
-        if (acCalc > actorBase) actorBase = acCalc;
-        effect = generateFixedACEffect(acCalc + gearAC, `AC ${armors[armor].definition.name} (Unarmored Defense): ${acCalc + gearAC}`);
-        break;
-      }
-      case "Unarmored": {
-        const base = armorAC + miscACBonus + unarmoredACBonus;
-        const acCalc = base + characterAbilities.dex.mod;
-        armorClassValues.push({
-          name: armors[armor].definition.name,
-          value: acCalc + gearAC,
-        });
-        if (acCalc > actorBase) actorBase = acCalc;
-        effect = generateFixedACEffect(`${base + gearAC} + @abilities.dex.mod`, `AC ${armors[armor].definition.name} (Unarmored): ${acCalc + gearAC}`, true, 22);
-        break;
-      }
-      case "Heavy Armor": {
-        const acCalc = armorAC + gearAC + miscACBonus;
-        armorClassValues.push({
-          name: armors[armor].definition.name,
-          value: acCalc,
-        });
-        effect = generateFixedACEffect(acCalc, `AC ${armors[armor].definition.name} (Heavy): ${acCalc}`);
-        break;
-      }
-      case "Medium Armor": {
-        const maxDexMedium = Math.max(...utils.filterBaseModifiers(data, "set", "ac-max-dex-armored-modifier")
-          .map((mod) => mod.value), 2);
-        const acCalc = armorAC + gearAC + miscACBonus;
-        armorClassValues.push({
-          name: armors[armor].definition.name,
-          value: acCalc + Math.min(maxDexMedium, characterAbilities.dex.mod),
-        });
-        effect = generateFixedACEffect(`${acCalc} + {@abilities.dex.mod, ${maxDexMedium}}kl`, `AC ${armors[armor].definition.name} (Medium): ${acCalc + Math.min(maxDexMedium, characterAbilities.dex.mod)}`);
-        break;
-      }
-      case "Light Armor": {
-        const acCalc = armorAC + gearAC + miscACBonus;
-        armorClassValues.push({
-          name: armors[armor].definition.name,
-          value: acCalc + characterAbilities.dex.mod,
-        });
-        effect = generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${armors[armor].definition.name} (Light): ${acCalc + characterAbilities.dex.mod}`);
-        break;
-      }
-      default:{
-        const acCalc = armorAC + characterAbilities.dex.mod + gearAC + miscACBonus;
-        armorClassValues.push({
-          name: armors[armor].definition.name,
-          value: armorAC + characterAbilities.dex.mod + gearAC + miscACBonus,
-        });
-        effects = generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${armors[armor].definition.name}: ${acCalc + characterAbilities.dex.mod}`, false, 22);
-        break;
-      }
-    }
-    if (effect) {
-      effect.flags.ddbimporter.itemId = armors[armor].id;
-      effect.flags.ddbimporter.entityTypeId = armors[armor].entityTypeId;
-      effects.push(effect);
-    }
-  }
-
-  logger.debug("Final AC Choices:", armorClassValues);
+  logger.debug("Final AC Choices:", results.armorClassValues);
   // get the max AC we can use from our various computed values
-  const max = Math.max(...armorClassValues.map((type) => type.value));
+  const max = Math.max(...results.armorClassValues.map((type) => type.value));
 
   const acResults = {
     fixed: {
@@ -398,9 +417,9 @@ export function getArmorClass(data, character) {
       label: "Armor Class",
       value: max,
     },
-    baseAC: actorBase,
-    effects: effects,
-  }
+    baseAC: results.actorBase,
+    effects: results.effects,
+  };
   logger.debug("AC Results:", acResults);
 
   return acResults;

@@ -102,18 +102,18 @@ function getDuration(data) {
     if (data.definition.duration.durationInterval) duration.value = data.definition.duration.durationInterval;
   } else {
     const durationArray = [
-      { foundryUnit: "day", descriptionMatches: ["day","days"] },
-      { foundryUnit: "hour", descriptionMatches: ["hour","hours"] },
-      { foundryUnit: "inst", descriptionMatches: ["instant","instantaneous"] },
-      { foundryUnit: "minute", descriptionMatches: ["minute","minutes"] },
-      { foundryUnit: "month", descriptionMatches: ["month","months"] },
+      { foundryUnit: "day", descriptionMatches: ["day", "days"] },
+      { foundryUnit: "hour", descriptionMatches: ["hour", "hours"] },
+      { foundryUnit: "inst", descriptionMatches: ["instant", "instantaneous"] },
+      { foundryUnit: "minute", descriptionMatches: ["minute", "minutes"] },
+      { foundryUnit: "month", descriptionMatches: ["month", "months"] },
       { foundryUnit: "perm", descriptionMatches: ["permanent"] },
-      { foundryUnit: "round", descriptionMatches: ["round","rounds"] },
+      { foundryUnit: "round", descriptionMatches: ["round", "rounds"] },
      // { foundryUnit: "spec", descriptionMatches: [null] },
-      { foundryUnit: "turn", descriptionMatches: ["turn","turns"] },
-      { foundryUnit: "year", descriptionMatches: ["year","years"] },
+      { foundryUnit: "turn", descriptionMatches: ["turn", "turns"] },
+      { foundryUnit: "year", descriptionMatches: ["year", "years"] },
     ];
-    //attempt to parse duration
+    // attempt to parse duration
     const descriptionUnits = durationArray.map((unit) => unit.descriptionMatches).flat().join("|");
     const durationExpression = new RegExp(`(\\d*)(?:\\s)(${descriptionUnits})`);
     const durationMatch = data.definition.description.match(durationExpression);

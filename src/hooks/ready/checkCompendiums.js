@@ -24,7 +24,6 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
       package: "world"
     });
     // 0.8.0 this is now done through CompendiumCollections
-    console.log(`DONE - created world.ddb-${game.world.name}-${sanitizedLabel}`)
     await game.settings.set("ddb-importer", settingName, `world.ddb-${game.world.name}-${sanitizedLabel}`);
     return true;
   }

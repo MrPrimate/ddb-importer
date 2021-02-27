@@ -1,7 +1,12 @@
 import utils from "../../utils.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
-import { getWeaponProficiencies, getArmorProficiencies, getToolProficiencies, getLanguagesFromModifiers } from "../character/proficiencies.js";
+import {
+  getWeaponProficiencies,
+  getArmorProficiencies,
+  getToolProficiencies,
+  getLanguagesFromModifiers,
+} from "../character/proficiencies.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -35,7 +40,6 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   // not adding these as they are not used elsewhere
   // { type: "advantage", subType: "strength-saving-throws" },
 
-
   // resistances - subType - e.g. poison - lookup from DICTIONARY
   { type: "resistance", subType: null },
   { type: "immunity", subType: null },
@@ -67,33 +71,33 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   // bracers of defence
   { type: "bonus", subType: "unarmored-armor-class" },
 
-   // profs
-   { type: "proficiency", subType: null },
+  // profs
+  { type: "proficiency", subType: null },
 
-   // skills
-   { type: "bonus", subType: "acrobatics" },
-   { type: "bonus", subType: "animal-handling" },
-   { type: "bonus", subType: "arcana" },
-   { type: "bonus", subType: "athletics" },
-   { type: "bonus", subType: "deception" },
-   { type: "bonus", subType: "history" },
-   { type: "bonus", subType: "insight" },
-   { type: "bonus", subType: "intimidation" },
-   { type: "bonus", subType: "investigation" },
-   { type: "bonus", subType: "medicine" },
-   { type: "bonus", subType: "nature" },
-   { type: "bonus", subType: "perception" },
-   { type: "bonus", subType: "performance" },
-   { type: "bonus", subType: "persuasion" },
-   { type: "bonus", subType: "religion" },
-   { type: "bonus", subType: "sleight-of-hand" },
-   { type: "bonus", subType: "stealth" },
-   { type: "bonus", subType: "survival" },
-   // advantage on skills - not added here as not used elsewhere in importer.
-   // { type: "advantage", subType: "acrobatics" },
+  // skills
+  { type: "bonus", subType: "acrobatics" },
+  { type: "bonus", subType: "animal-handling" },
+  { type: "bonus", subType: "arcana" },
+  { type: "bonus", subType: "athletics" },
+  { type: "bonus", subType: "deception" },
+  { type: "bonus", subType: "history" },
+  { type: "bonus", subType: "insight" },
+  { type: "bonus", subType: "intimidation" },
+  { type: "bonus", subType: "investigation" },
+  { type: "bonus", subType: "medicine" },
+  { type: "bonus", subType: "nature" },
+  { type: "bonus", subType: "perception" },
+  { type: "bonus", subType: "performance" },
+  { type: "bonus", subType: "persuasion" },
+  { type: "bonus", subType: "religion" },
+  { type: "bonus", subType: "sleight-of-hand" },
+  { type: "bonus", subType: "stealth" },
+  { type: "bonus", subType: "survival" },
+  // advantage on skills - not added here as not used elsewhere in importer.
+  // { type: "advantage", subType: "acrobatics" },
 
-   // initiative
-   { type: "advantage", subType: "initiative" },
+  // initiative
+  { type: "advantage", subType: "initiative" },
 
   // { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
   // data.bonuses.rwak.attack
@@ -107,7 +111,6 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   // data.skills.prc.passive
   // data.skills.per.value
   // data.attributes.hp.value
-
 ];
 
 /**
@@ -146,10 +149,10 @@ function baseItemEffect(foundryItem, label) {
         // armorEffect: true
       },
       ddbimporter: {
-        disabled: false
-      }
+        disabled: false,
+      },
     },
-   // _id: `${randomID()}${randomID()}`,
+    // _id: `${randomID()}${randomID()}`,
   };
 }
 
@@ -172,7 +175,7 @@ export function generateBaseSkillEffect(id) {
   skillEffect.flags.dae = {};
   skillEffect.flags.ddbimporter.characterEffect = true;
   skillEffect.origin = `Actor.${id}`;
-  delete (skillEffect.transfer);
+  delete skillEffect.transfer;
   return skillEffect;
 }
 
@@ -222,10 +225,12 @@ function extractModifierValue(modifier) {
 
   if (modifier.statId) {
     const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId).value;
-    modBonus = `+ @abilities.${ability}.mod`
-  } else if(modifier.abilityModifierStatId) {
-    const ability = DICTIONARY.character.abilities.find((ability) => ability.id === abilityModifierStatId.statId).value;
-    modBonus = `+ @abilities.${ability}.mod`
+    modBonus = `+ @abilities.${ability}.mod`;
+  } else if (modifier.abilityModifierStatId) {
+    const ability = DICTIONARY.character.abilities.find(
+      (ability) => ability.id === modifier.abilityModifierStatId.statId
+    ).value;
+    modBonus = `+ @abilities.${ability}.mod`;
   }
 
   const fixedBonus = modifier.dice?.fixedValue ? ` + ${modifier.dice.fixedValue}` : "";
@@ -243,7 +248,6 @@ function extractModifierValue(modifier) {
   }
 
   return value;
-
 }
 
 /**
@@ -321,14 +325,26 @@ function addLanguages(modifiers, name) {
 // *
 // Get list of generic conditions/damages
 //
-
-function getGenericConditionAffect (modifiers, condition, typeId) {
+function getGenericConditionAffect(modifiers, condition, typeId) {
   const damageTypes = DICTIONARY.character.damageTypes
     .filter((type) => type.kind === condition && type.type === typeId)
     .map((type) => type.value);
 
-  let result = modifiers
-    .filter((modifier) => modifier.type === condition && damageTypes.includes(modifier.subType))
+  let restrictions = [
+    "",
+    null,
+    "While within 20 feet",
+    "Dwarf Only",
+    "While Not Incapacitated",
+    // "As an Action", this is a timed/limited effect, dealt with elsewhere
+    "While Staff is Held",
+    "Helm has at least one ruby remaining",
+    "while holding",
+    "While Held",
+  ];
+  let result = utils
+    .filterModifiers(modifiers, condition, null, restrictions)
+    .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType))
     .map((modifier) => {
       const entry = DICTIONARY.character.damageTypes.find(
         (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
@@ -392,7 +408,14 @@ function addStatBonusEffect(modifiers, name, subType) {
 
 function addStatBonuses(modifiers, name) {
   let changes = [];
-  const stats = ["strength-score", "dexterity-score", "constitution-score", "wisdom-score", "intelligence-score", "charisma-score"];
+  const stats = [
+    "strength-score",
+    "dexterity-score",
+    "constitution-score",
+    "wisdom-score",
+    "intelligence-score",
+    "charisma-score",
+  ];
   stats.forEach((stat) => {
     const result = addStatBonusEffect(modifiers, name, stat);
     changes = changes.concat(result);
@@ -415,7 +438,8 @@ function addACSetEffect(modifiers, name, subType) {
   if (bonuses.length > 0) {
     switch (subType) {
       case "unarmored-armor-class": {
-        const maxDexArray = modifiers.filter((mod) => mod.type === "set" && maxDexTypes.includes(mod.subType))
+        const maxDexArray = modifiers
+          .filter((mod) => mod.type === "set" && maxDexTypes.includes(mod.subType))
           .map((mod) => mod.value);
         if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
         break;
@@ -424,7 +448,13 @@ function addACSetEffect(modifiers, name, subType) {
     }
 
     logger.debug(`Generating ${subType} AC set for ${name}`);
-    effects.push(generateUpgradeChange(`10 + ${Math.max(bonuses)} + {@abilities.dex.mod, ${maxDexMod}} kl`, 15, "data.attributes.ac.value"));
+    effects.push(
+      generateUpgradeChange(
+        `10 + ${Math.max(bonuses)} + {@abilities.dex.mod, ${maxDexMod}} kl`,
+        15,
+        "data.attributes.ac.value"
+      )
+    );
   }
   return effects;
 }
@@ -439,7 +469,6 @@ function addACSets(modifiers, name) {
 
   return changes;
 }
-
 
 // *
 // Generate stat sets
@@ -486,7 +515,6 @@ function addStatChanges(modifiers, name) {
   return changes;
 }
 
-
 // *
 // Senses
 //
@@ -496,12 +524,15 @@ function addSenseBonus(modifiers, name) {
   const senses = ["darkvision", "blindsight", "tremorsense", "truesight"];
 
   senses.forEach((sense) => {
-    const base = modifiers.filter((modifier) => modifier.type === "set-base" && modifier.subType === sense).map((mod) => mod.value);
+    const base = modifiers
+      .filter((modifier) => modifier.type === "set-base" && modifier.subType === sense)
+      .map((mod) => mod.value);
     if (base.length > 0) {
       logger.debug(`Generating ${sense} base for ${name}`);
       changes.push(generateUpgradeChange(Math.max(base), 10, `data.attributes.senses.${sense}`));
     }
-    const bonus = modifiers.filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
+    const bonus = modifiers
+      .filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
       .reduce((a, b) => a + b.value, 0);
     if (bonus > 0) {
       logger.debug(`Generating ${sense} bonus for ${name}`);
@@ -525,7 +556,6 @@ function addProficiencyBonus(modifiers, name) {
   return changes;
 }
 
-
 // *
 // Generate set speeds
 //
@@ -540,7 +570,7 @@ function addSetSpeedEffect(modifiers, name, subType) {
       const innate = subType.split("-").slice(-1)[0];
       const speedType = DICTIONARY.character.speeds.find((s) => s.innate === innate).type;
       // current assumption if no speed provided, set to walking speed
-      const speed = (bonus.value) ? bonus.value : "@attributes.movement.walk";
+      const speed = bonus.value ? bonus.value : "@attributes.movement.walk";
       effects.push(generateUpgradeChange(speed, 20, `data.attributes.movement.${speedType}`));
     });
   }
@@ -564,10 +594,11 @@ function addSetSpeeds(modifiers, name) {
 function addProficiencies(modifiers, name) {
   let changes = [];
 
-  const proficiencies = modifiers.filter((mod) => mod.type === "proficiency")
+  const proficiencies = modifiers
+    .filter((mod) => mod.type === "proficiency")
     .map((mod) => {
- return { name: mod.friendlySubtypeName };
-});
+      return { name: mod.friendlySubtypeName };
+    });
 
   const toolProf = getToolProficiencies(null, proficiencies);
   const weaponProf = getWeaponProficiencies(null, proficiencies);
@@ -586,7 +617,8 @@ function addProficiencies(modifiers, name) {
     changes.push(generateCustomChange(prof, 8, "data.traits.armorProf.custom"));
   });
   if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 8, "data.traits.toolProf.custom"));
-  if (weaponProf?.custom != "") changes.push(generateCustomChange(weaponProf.custom, 8, "data.traits.weaponProf.custom"));
+  if (weaponProf?.custom != "")
+    changes.push(generateCustomChange(weaponProf.custom, 8, "data.traits.weaponProf.custom"));
   if (armorProf?.custom != "") changes.push(generateCustomChange(armorProf.custom, 8, "data.traits.armorProf.custom"));
 
   return changes;
@@ -621,7 +653,6 @@ function addHPEffect(modifiers, name, consumable) {
   return changes;
 }
 
-
 //
 // Generate skill bonuses
 //
@@ -632,9 +663,7 @@ function addSkillBonusEffect(modifiers, name, skill) {
   // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
     logger.debug(`Generating ${skill.subType} skill bonus for ${name}`);
-    const value = bonuses
-      .map((skl) => skl.value)
-      .reduce((a, b) => a + b, 0) || 0;
+    const value = bonuses.map((skl) => skl.value).reduce((a, b) => a + b, 0) || 0;
     effects.push(generateAddChange(value, 12, `data.skills.${skill.name}.mod`));
   }
   return effects;
@@ -722,7 +751,7 @@ function generateEffectDuration(foundryItem) {
     startRound: null,
     startTurn: null,
   };
-  switch(foundryItem.data.duration.units) {
+  switch (foundryItem.data.duration.units) {
     case "turn":
       duration.turns = foundryItem.data.duration.value;
       break;
@@ -731,17 +760,17 @@ function generateEffectDuration(foundryItem) {
       break;
     case "hour":
       duration.seconds = foundryItem.data.duration.value * 60 * 60;
-     break;
+      break;
     case "minute":
       duration.rounds = foundryItem.data.duration.value * 10;
       break;
-    // no-default
+    // no default
   }
   return duration;
 }
 
-function consumableEffect(effect,ddbItem, foundryItem) {
-  effect.label = `${foundryItem.name} - Consumable Effects`
+function consumableEffect(effect, ddbItem, foundryItem) {
+  effect.label = `${foundryItem.name} - Consumable Effects`;
   effect.disabled = false;
   effect.transfer = false;
   setProperty(effect, "flags.ddbimporter.disabled", false);
@@ -767,11 +796,36 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
   // const origin = `ddb.${ddbItem.id}`;
   let effect = baseItemEffect(foundryItem, `${foundryItem.name} - Constant Effects`);
 
-  const acBonus = addACBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "armor-class", "data.attributes.ac.value");
-  const unarmoredACBonus = addACBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "unarmored-armor-class", "data.attributes.ac.value");
-  const globalSaveBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "saving-throws", "data.bonuses.abilities.save");
-  const globalAbilityBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "ability-checks", "data.bonuses.abilities.check");
-  const globalSkillBonus = addCustomBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "skill-checks", "data.bonuses.abilities.skill");
+  const acBonus = addACBonusEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "armor-class",
+    "data.attributes.ac.value"
+  );
+  const unarmoredACBonus = addACBonusEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "unarmored-armor-class",
+    "data.attributes.ac.value"
+  );
+  const globalSaveBonus = addCustomBonusEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "saving-throws",
+    "data.bonuses.abilities.save"
+  );
+  const globalAbilityBonus = addCustomBonusEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "ability-checks",
+    "data.bonuses.abilities.check"
+  );
+  const globalSkillBonus = addCustomBonusEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "skill-checks",
+    "data.bonuses.abilities.skill"
+  );
   const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
   const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
   const statSets = addStatChanges(ddbItem.definition.grantedModifiers, foundryItem.name);
@@ -779,8 +833,18 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
   const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const proficiencyBonus = addProficiencyBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
   const speedSets = addSetSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const spellAttackBonus = addCustomEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "spell-attacks", "data.bonuses.spell.attack");
-  const spellDCBonus = addAddEffect(ddbItem.definition.grantedModifiers, foundryItem.name, "spell-save-dc", "data.bonuses.spell.dc");
+  const spellAttackBonus = addCustomEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "spell-attacks",
+    "data.bonuses.spell.attack"
+  );
+  const spellDCBonus = addAddEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "spell-save-dc",
+    "data.bonuses.spell.dc"
+  );
   const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
   const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name, ddbItem.definition.isConsumable);
@@ -866,4 +930,3 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
 // passive skills
 
 // midi effects
-
