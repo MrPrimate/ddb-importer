@@ -180,7 +180,7 @@ export function generateBaseSkillEffect(id) {
   return skillEffect;
 }
 
-function generateChange(bonus, priority, key, mode) {
+export function generateChange(bonus, priority, key, mode) {
   return {
     key: key,
     value: bonus,
@@ -189,33 +189,31 @@ function generateChange(bonus, priority, key, mode) {
   };
 }
 
-function generateAddChange(bonus, priority, key) {
+export function generateAddChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.ADD);
 }
 
-function generateCustomChange(bonus, priority, key) {
+export function generateCustomChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.CUSTOM);
 }
 
-function generateCustomBonusChange(bonus, priority, key) {
+export function generateCustomBonusChange(bonus, priority, key) {
   return generateChange(`+${bonus}`, priority, key, CONST.ACTIVE_EFFECT_MODES.CUSTOM);
 }
 
-function generateUpgradeChange(bonus, priority, key) {
+export function generateUpgradeChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.UPGRADE);
 }
 
-function generateOverrideChange(bonus, priority, key) {
+export function generateOverrideChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.OVERRIDE);
 }
 
-// eslint-disable-next-line no-unused-vars
-function generateMultiplyChange(bonus, priority, key) {
+export function generateMultiplyChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.MULTIPLY);
 }
 
-// eslint-disable-next-line no-unused-vars
-function generateDowngradeChange(bonus, priority, key) {
+export function generateDowngradeChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.DOWNGRADE);
 }
 
@@ -251,18 +249,6 @@ function extractModifierValue(modifier) {
   return value;
 }
 
-/**
- * Generates an AC bonus for an item
- */
-function addACBonusEffect(modifiers, name, type) {
-  let changes = [];
-  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
-  if (bonus !== 0) {
-    logger.debug(`Generating ${type} bonus for ${name}`);
-    changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
-  }
-  return changes;
-}
 
 /**
  * Generates a global custom bonus for an item with a +
@@ -426,50 +412,6 @@ function addStatBonuses(modifiers, name) {
   return changes;
 }
 
-// *
-// Generate stat sets
-//
-function addACSetEffect(modifiers, name, subType) {
-  const bonuses = modifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
-
-  let effects = [];
-  const maxDexTypes = ["ac-max-dex-unarmored-modifier"];
-
-  let maxDexMod = 5;
-  if (bonuses.length > 0) {
-    switch (subType) {
-      case "unarmored-armor-class": {
-        const maxDexArray = modifiers
-          .filter((mod) => mod.type === "set" && maxDexTypes.includes(mod.subType))
-          .map((mod) => mod.value);
-        if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
-        break;
-      }
-      // no default
-    }
-
-    logger.debug(`Generating ${subType} AC set for ${name}`);
-    effects.push(
-      generateUpgradeChange(
-        `10 + ${Math.max(bonuses)} + {@abilities.dex.mod, ${maxDexMod}} kl`,
-        15,
-        "data.attributes.ac.value"
-      )
-    );
-  }
-  return effects;
-}
-
-function addACSets(modifiers, name) {
-  let changes = [];
-  const stats = ["unarmored-armor-class"];
-  stats.forEach((set) => {
-    const result = addACSetEffect(modifiers, name, set);
-    changes = changes.concat(result);
-  });
-
-  return changes;
-}
 
 // *
 // Generate stat sets
@@ -792,23 +734,8 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
   console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`);
 
-  // Update -actually might not need this, as it seems to add a value anyway to undefined
-  // this item might not have been created yet - we will update these origins later in the character import
-  // const origin = `ddb.${ddbItem.id}`;
   let effect = baseItemEffect(foundryItem, `${foundryItem.name} - Constant Effects`);
 
-  const acBonus = addACBonusEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "armor-class",
-    "data.attributes.ac.value"
-  );
-  const unarmoredACBonus = addACBonusEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "unarmored-armor-class",
-    "data.attributes.ac.value"
-  );
   const globalSaveBonus = addCustomBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
@@ -846,7 +773,6 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
     "spell-save-dc",
     "data.bonuses.spell.dc"
   );
-  const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
   const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name, ddbItem.definition.isConsumable);
   const skillBonus = addSkillBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
@@ -855,8 +781,6 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
   const magicalAdvantage = addMagicalAdvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
-    ...acBonus,
-    ...unarmoredACBonus,
     ...globalSaveBonus,
     ...globalAbilityBonus,
     ...globalSkillBonus,
@@ -869,7 +793,6 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
     ...speedSets,
     ...spellAttackBonus,
     ...spellDCBonus,
-    ...acSets,
     ...profs,
     ...hp,
     ...skillBonus,

@@ -30,6 +30,7 @@ import { fixItems } from "./special.js";
 
 // effects support
 import { generateItemEffects } from "../effects/effects.js";
+import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
 /**
  * We get extra damage to a weapon attack here, for example Improved
@@ -432,7 +433,10 @@ export default function getInventory(ddb, character, itemSpells, compendiumItem 
       const addEffects = (compendiumItem)
         ? game.settings.get("ddb-importer", "munching-policy-add-effects")
         : game.settings.get("ddb-importer", "character-update-policy-add-effects");
-      if (daeInstalled && addEffects) item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
+      if (daeInstalled && addEffects) {
+        item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
+        item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
+      }
       items.push(item);
     }
   }

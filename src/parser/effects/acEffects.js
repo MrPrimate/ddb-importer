@@ -1,7 +1,12 @@
 import utils from "../../utils.js";
 import logger from "../../logger.js";
+import { baseItemEffect, generateUpgradeChange, generateOverrideChange, generateAddChange } from "./effects.js";
 
-function buildBaseEffect(label) {
+/**
+ *
+ * @param {*} label
+ */
+function buildBaseACEffect(label) {
   let effect = {
     changes: [],
     duration: {
@@ -26,16 +31,15 @@ function buildBaseEffect(label) {
 /**
  *
  * Generate an effect given inputs for AC
- *
+ * This is a high priority set effect that will typically override all other AE.
  * @param {*} formula
- * @param {*} mode
- * @param {*} itemData
  * @param {*} label
- * @param {*} origin
+ * @param {*} alwaysActive
+ * @param {*} priority
+ * @param {*} mode
  */
-
 export function generateFixedACEffect(formula, label, alwaysActive = false, priority = 30, mode = CONST.ACTIVE_EFFECT_MODES.OVERRIDE) {
-  let effect = buildBaseEffect(label);
+  let effect = buildBaseACEffect(label);
 
   effect.flags = {
     dae: { transfer: true, armorEffect: true },
@@ -57,56 +61,226 @@ export function generateFixedACEffect(formula, label, alwaysActive = false, prio
   return effect;
 }
 
+
 /**
  * Generate effect for Classic Armor
- * @param {*} itemData
- * @param {*} origin
- * @param {*} armorData
+ * @param {*} ddb
+ * @param {*} foundryItem
  */
-function generateArmorEffect(itemData, origin, armorData) {
-  let label = `AC${itemData.data.armor.type === "shield" ? "+" : "="}${itemData.data.armor.value}`;
-  if (itemData.data.armor?.type === "light") label += "+dex.mod";
-  if (itemData.data.armor?.type === "medium") label += "+dex.mod|2";
+function generateArmorItemEffect(ddb, ddbItem, foundryItem) {
+  const maxDexMedium = Math.max(
+    ...utils.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
+    2
+  );
 
-  switch (armorData.type) {
-    case "shield":
-      return generateACBonusEffect(itemData, origin, label, armorData.value);
-    case "natural":
-      return armorEffectFromFormula(`@abilities.dex.mod + ${armorData.value}`, CONST.ACTIVE_EFFECT_MODES.OVERRIDE, itemData, label, origin);
-    case "light":
-      return armorEffectFromFormula(`{@abilities.dex.mod, ${armorData.dex || 99}}kl + ${armorData.value}`, CONST.ACTIVE_EFFECT_MODES.OVERRIDE, itemData, label, origin);
-    case "medium":
-      return armorEffectFromFormula(`{@abilities.dex.mod,2}kl + ${armorData.value}`, CONST.ACTIVE_EFFECT_MODES.OVERRIDE, itemData, label, origin);
-    case "heavy":
-      return armorEffectFromFormula(`${armorData.value}`, CONST.ACTIVE_EFFECT_MODES.OVERRIDE, itemData, label, origin);
-    default:
-      return null;
+  let change;
+  // const foundryACValue = foundryItem.data.armor.value;
+  const baseACValue = ddbItem.definition.armorClass;
+
+  switch (foundryItem.data.armor.type) {
+    case "shield": {
+      change = generateAddChange(baseACValue, 18, "data.attributes.ac.value");
       break;
+    }
+    case "natural": {
+      const key = `@abilities.dex.mod + ${baseACValue}`;
+      change = generateOverrideChange(key, 15, "data.attributes.ac.value");
+      break;
+    }
+    case "light": {
+      const key = `{@abilities.dex.mod, ${foundryItem.data.armor.dex || 99}}kl + ${baseACValue}`;
+      change = generateOverrideChange(key, 15, "data.attributes.ac.value");
+      break;
+    }
+    case "medium": {
+      const key = `{@abilities.dex.mod, ${maxDexMedium}}kl + ${baseACValue}`;
+      change = generateOverrideChange(key, 15, "data.attributes.ac.value");
+      break;
+    }
+    case "heavy": {
+      const key = `${baseACValue}`;
+      change = generateOverrideChange(key, 15, "data.attributes.ac.value");
+      break;
+    }
+    // no default
   }
+  return change;
 }
 
-function createArmorEffect(actor, itemData) {
-  if (!itemData.effects && itemData.data.effects) itemData = itemData.data;
-  if (!calculateArmor || itemData.type !== "equipment") return true;
-  // armor created on actor, screae armor effect.
-  const origin = `Actor.${actor.id}.OwnedItem.${itemData._id}`;
-  // const origin = actor.items.get(itemData._id).uuid;
-  itemData.effects = itemData.effects?.filter((efData) => !efData.flags.dae?.armorEffect) || [];
-  switch (itemData.data.armor?.type) {
-    case "natural":
-      setProperty(itemData, "flags.dae.alwaysActive", true);
-      itemData.effects.push(generateArmorEffect(itemData, origin, itemData.data.armor));
+/**
+ *
+ * @param {*} ddb
+ * @param {*} foundryItem
+ */
+function createBaseArmorItemEffect(ddb, ddbItem, foundryItem) {
+  let changes = [];
+  switch (foundryItem.data.armor?.type) {
+    case "natural": {
+      setProperty(foundryItem, "flags.dae.alwaysActive", true);
+      const effect = generateArmorItemEffect(ddb, ddbItem, foundryItem);
+      if (effect) changes.push(effect);
       break;
+    }
     case "shield":
     case "light":
     case "medium":
-    case "heavy":
-      setProperty(itemData, "flags.dae.activeEquipped", true);
-      itemData.effects.push(generateArmorEffect(itemData, origin, itemData.data.armor));
+    case "heavy": {
+      setProperty(foundryItem, "flags.dae.activeEquipped", true);
+      const effect = generateArmorItemEffect(ddb, ddbItem, foundryItem);
+      if (effect) changes.push(effect);
       break;
-    default:
-      break;
+    }
+    // no default
   }
-  return true;
+  return changes;
 }
 
+/**
+ * Generate stat sets
+ *
+ * @param {*} modifiers
+ * @param {*} name
+ * @param {*} subType
+ */
+function addACSetEffect(modifiers, name, subType) {
+  const bonuses = modifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
+
+  let effects = [];
+  const maxDexTypes = ["ac-max-dex-unarmored-modifier"];
+
+  let maxDexMod = 5;
+  if (bonuses.length > 0) {
+    switch (subType) {
+      case "unarmored-armor-class": {
+        const maxDexArray = modifiers
+          .filter((mod) => mod.type === "set" && maxDexTypes.includes(mod.subType))
+          .map((mod) => mod.value);
+        if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
+        break;
+      }
+      // no default
+    }
+
+    logger.debug(`Generating ${subType} AC set for ${name}`);
+    effects.push(
+      generateUpgradeChange(
+        `10 + ${Math.max(bonuses)} + {@abilities.dex.mod, ${maxDexMod}} kl`,
+        15,
+        "data.attributes.ac.value"
+      )
+    );
+  }
+  return effects;
+}
+
+/**
+ *
+ * @param {*} modifiers
+ * @param {*} name
+ */
+function addACSets(modifiers, name) {
+  let changes = [];
+  const stats = ["unarmored-armor-class"];
+  stats.forEach((set) => {
+    const result = addACSetEffect(modifiers, name, set);
+    changes = changes.concat(result);
+  });
+
+  return changes;
+}
+
+/**
+ * Generates an AC bonus for an item
+ *
+ * @param {*} modifiers
+ * @param {*} name
+ * @param {*} type
+ */
+function addACBonusEffect(modifiers, name, type) {
+  let changes = [];
+  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  if (bonus !== 0) {
+    logger.debug(`Generating ${type} bonus for ${name}`);
+    changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
+  }
+  return changes;
+}
+
+/**
+ *
+ * @param {*} ddb
+ * @param {*} character
+ * @param {*} ddbItem
+ * @param {*} foundryItem
+ * @param {*} isCompendiumItem
+ */
+export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+  const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
+  const noACValue = !foundryItem.data?.armor?.value;
+  if (noModifiers && noACValue) return foundryItem;
+  console.error(`Item: ${foundryItem.name}`, ddbItem);
+  logger.debug(`Generating supported Base AC effects for ${foundryItem.name}`);
+
+  let effect = baseItemEffect(foundryItem, `AC: ${foundryItem.name}`);
+
+  // base ac effect from item value
+  const base = createBaseArmorItemEffect(ddb, ddbItem, foundryItem);
+  // base ac from modifiers
+  const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);
+
+  // ac bonus effects
+  const acBonus = addACBonusEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "armor-class",
+    "data.attributes.ac.value"
+  );
+  const unarmoredACBonus = addACBonusEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "unarmored-armor-class",
+    "data.attributes.ac.value"
+  );
+
+  effect.changes = [
+    ...base,
+    ...acSets,
+    ...acBonus,
+    ...unarmoredACBonus,
+  ];
+
+  if (effect.changes.length === 0) return foundryItem;
+
+  // check attunement status etc
+  if (
+    isCompendiumItem ||
+    (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
+    (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
+    (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
+  ) {
+    setProperty(foundryItem, "flags.dae.alwaysActive", false);
+    setProperty(effect, "flags.ddbimporter.disabled", false);
+    effect.disabled = false;
+  } else {
+    effect.disabled = true;
+    setProperty(effect, "flags.ddbimporter.disabled", true);
+    setProperty(foundryItem, "flags.dae.alwaysActive", false);
+  }
+
+  setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
+  setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
+  // set dae flag for active equipped
+  if (ddbItem.definition.canEquip || ddbItem.definition.canAttune) {
+    setProperty(foundryItem, "flags.dae.activeEquipped", true);
+  } else {
+    setProperty(foundryItem, "flags.dae.activeEquipped", false);
+  }
+
+  if (effect.changes?.length > 0) {
+    foundryItem.effects.push(effect);
+  }
+
+  console.warn(JSON.parse(JSON.stringify(foundryItem)));
+
+  return foundryItem;
+}

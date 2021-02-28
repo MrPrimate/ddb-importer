@@ -253,7 +253,7 @@ function calculateACOptions(data, character, calculatedArmor) {
         break;
       }
       case "Medium Armor": {
-        const maxDexMedium = Math.max(...utils.filterBaseModifiers(data, "set", "ac-max-dex-armored-modifier")
+        const maxDexMedium = Math.max(...utils.filterBaseModifiers(data, "set", "ac-max-dex-armored-modifier", ["", null], true)
           .map((mod) => mod.value), 2);
         const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
         armorClassValues.push({

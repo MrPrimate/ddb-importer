@@ -559,8 +559,8 @@ export default class CharacterImport extends FormApplication {
       {
         name: "generate-ac-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-effects") && daeInstalled,
-        title: "[Super Experimental] Dynamically generate DAE ACs",
-        description: "Dynamically generate possible AC combinations as dynamic effects. (Requires the DAE module)",
+        title: "[Super Experimental] Dynamically generate DAE Override ACs",
+        description: "Dynamically generate possible AC combinations as dynamic effects, these are high priority effects that likely override other effects. Useful if you can't calculate your AC correctly using other effects. (Requires the DAE module)",
         enabled: daeInstalled,
       },
       {
