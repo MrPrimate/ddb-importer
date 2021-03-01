@@ -21,8 +21,8 @@ import {
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
 import { characterExtras } from "./extras.js";
+import DICTIONARY from "../dictionary.js";
 
-const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
 // reference to the D&D Beyond popup
@@ -113,14 +113,14 @@ const getCharacterUpdatePolicyTypes = (invert = false) => {
     if (!game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
     if (!game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
     if (!game.settings.get("ddb-importer", "character-update-policy-equipment"))
-      itemTypes = itemTypes.concat(EQUIPMENT_TYPES);
+      itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
     if (!game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
   } else {
     if (game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
     if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
     if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
     if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
-      itemTypes = itemTypes.concat(EQUIPMENT_TYPES);
+      itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
     if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
 
   }
@@ -251,7 +251,7 @@ export default class CharacterImport extends FormApplication {
     const options = super.defaultOptions;
     options.title = game.i18n.localize("ddb-importer.module-name");
     options.template = "modules/ddb-importer/handlebars/character.hbs";
-    options.width = 800;
+    options.width = 900;
     options.height = 'auto';
     options.classes = ["ddbimporter", "sheet"];
     options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "import" }];
@@ -549,6 +549,9 @@ export default class CharacterImport extends FormApplication {
         description: "Use the <i>SRD compendiums</i>, rather than DDB. Importing using SRD will not include features like fighting style and divine smite in damage calculations. Please consider marking the item you wish to keep as ignored by import instead.",
         enabled: true,
       },
+    ];
+
+    const effectImportConfig = [
       {
         name: "add-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-effects") && daeInstalled,
@@ -764,6 +767,7 @@ export default class CharacterImport extends FormApplication {
       importConfig: importConfig,
       extrasConfig: extrasConfig,
       advancedImportConfig: advancedImportConfig,
+      effectImportConfig: effectImportConfig,
       dataDirSet: dataDirSet,
       syncConfig: syncConfig,
       syncEnabled: syncEnabled,
@@ -781,6 +785,8 @@ export default class CharacterImport extends FormApplication {
       .find([
         '.import-policy input[type="checkbox"]',
         '.advanced-import-config input[type="checkbox"]',
+        '.effect-import-config input[type="checkbox"]',
+        '.extras-import-config input[type="checkbox"]',
         '.import-config input[type="checkbox"]'
       ].join(','))
       .on("change", (event) => {
