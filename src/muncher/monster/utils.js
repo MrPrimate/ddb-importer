@@ -88,6 +88,8 @@ export function getDamage(description) {
 
 export function getAction(text, type = "action") {
   let action = type;
+  // fodunry doesn't support mythic actions
+  if (type === "mythic") action = "special";
   // const actionAction = text.toLowerCase().match(/as an action/);
   const bonusAction = text.toLowerCase().match(/as a bonus action/);
   const reAction = text.toLowerCase().match(/as a reaction/);

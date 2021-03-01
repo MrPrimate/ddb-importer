@@ -6,6 +6,8 @@ import { addNPC, generateIconMap, copyExistingMonsterImages } from "./importMons
 import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 
+window.parseMonsters = parseMonsters;
+
 async function getMonsterData() {
   const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
   const betaKey = game.settings.get("ddb-importer", "beta-key");

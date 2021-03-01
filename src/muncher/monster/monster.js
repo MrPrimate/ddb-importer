@@ -141,6 +141,10 @@ export function parseMonsters(monsterData, extra = false) {
 
       const reactions = getActions(monster, DDB_CONFIG, "reaction");
       items.push(...reactions);
+      const bonus = getActions(monster, DDB_CONFIG, "bonus");
+      items.push(...bonus);
+      const mythic = getActions(monster, DDB_CONFIG, "mythic");
+      items.push(...mythic);
 
       // Spellcasting
       const spellcastingData = getSpells(monster, DDB_CONFIG);

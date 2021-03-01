@@ -48,14 +48,14 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
     action.name = node.textContent.trim().replace(/\.$/, '').trim();
     action.data.source = getSource(monster, DDB_CONFIG);
-    dynamicActions.push(action);
+    if (action.name) dynamicActions.push(action);
   });
 
   if (dynamicActions.length == 0) {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
     action.name = "Special Traits";
     action.data.source = getSource(monster, DDB_CONFIG);
-    dynamicActions.push(action);
+    if (action.name) dynamicActions.push(action);
   }
 
   let action = dynamicActions[0];

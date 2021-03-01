@@ -95,6 +95,12 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     case "reaction":
       actions = monster.reactionsDescription;
       break;
+    case "bonus":
+      actions = monster.bonusActionsDescription;
+      break;
+    case "mythic":
+      actions = monster.mythicActionsDescription;
+      break;
     default:
       actions = "";
   }
@@ -103,6 +109,8 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
   $.parseHTML(actions).forEach((element) => {
     dom.appendChild(element);
   });
+
+  // console.error(`Starting ${type} processing`)
   // console.warn(dom);
   // console.log(actions);
   // console.log(dom.childNodes);
@@ -171,10 +179,34 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
           titleHTML: pDom.outerHTML.split('.')[0],
         };
       }
-      dynamicActions.push(action);
+      if (action.name) dynamicActions.push(action);
     });
     action = dynamicActions[0];
   }
+
+  // homebrew fun
+  if (dynamicActions.length == 0) {
+    dom.querySelectorAll("div").forEach((node) => {
+      let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
+      let pDom = new DocumentFragment();
+      $.parseHTML(node.outerHTML).forEach((element) => {
+        pDom.appendChild(element);
+      });
+      const title = pDom.textContent.split('.')[0];
+      action.name = title.trim();
+      action.data.source = getSource(monster, DDB_CONFIG);
+      if (pDom.outerHTML) {
+        action.flags.monsterMunch = {
+          titleHTML: pDom.outerHTML.split('.')[0],
+        };
+      }
+      if (action.name) dynamicActions.push(action);
+    });
+    action = dynamicActions[0];
+  }
+
+  // console.warn("DYNAMIC ACTIONS");
+  // console.error(dynamicActions);
 
   dom.childNodes.forEach((node) => {
     // console.log("***");
@@ -206,6 +238,9 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       }
     }
 
+    // console.warn(node);
+    // console.warn(action);
+    if (!action) return;
     const actionInfo = getActionInfo(monster, DDB_CONFIG, action.name, node.textContent);
 
     if (node.outerHTML) {
