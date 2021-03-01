@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
-import { fixFeatures, stripHtml } from "./special.js";
+import { fixFeatures, stripHtml, addFeatEffects } from "./special.js";
 
 function getDescription(ddb, character, feat) {
   // for now none actions probably always want the full text
@@ -85,11 +85,13 @@ function parseFeature(feat, ddb, character, source, type) {
       choiceItem.data.description = getDescription(ddb, character, choiceFeat);
       choiceItem.data.source = source;
 
+      choiceItem = addFeatEffects(ddb, character, feat, choiceItem, choice, type);
       features.push(choiceItem);
     });
   } else {
     item.data.description = getDescription(ddb, character, feat);
     item.data.source = source;
+    item = addFeatEffects(ddb, character, feat, item);
 
     features.push(item);
   }

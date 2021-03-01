@@ -5,10 +5,6 @@ import { munchNote } from "./utils.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 
-const EQUIPMENT_TYPES = ["equipment", "consumable", "tool", "loot", "backpack"];
-const INVENTORY_TYPES = EQUIPMENT_TYPES.concat("weapon");
-const MONSTER_TYPES = INVENTORY_TYPES.concat("feat");
-
 // a mapping of compendiums with content type
 const compendiumLookup = [
   { type: "inventory", compendium: "entity-item-compendium" },
@@ -115,7 +111,7 @@ const getCharacterUpdatePolicyTypes = () => {
   if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
   if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
   if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
-    itemTypes = itemTypes.concat(EQUIPMENT_TYPES);
+    itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
   if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
   return itemTypes;
 };
@@ -244,8 +240,8 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
         // console.log(`matchItem ${matchItem.name}`);
         // console.log(monsterNames);
         const monsterMatch = (monsterNames.includes(item.name.toLowerCase())) &&
-          MONSTER_TYPES.includes(matchItem.type) &&
-          INVENTORY_TYPES.includes(item.type);
+          DICTIONARY.types.monster.includes(matchItem.type) &&
+          DICTIONARY.types.inventory.includes(item.type);
         // console.log(monsterMatch);
         return monsterMatch;
       });
@@ -258,8 +254,8 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
     matchingItem = items.find(
       (matchItem) =>
         (looseNames.includes(matchItem.name.toLowerCase()) || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", ""))) &&
-        INVENTORY_TYPES.includes(item.type) &&
-        INVENTORY_TYPES.includes(matchItem.type)
+        DICTIONARY.types.inventory.includes(item.type) &&
+        DICTIONARY.types.inventory.includes(matchItem.type)
     );
 
     // super loose name match!
@@ -629,12 +625,12 @@ export async function getDDBSpellSchoolIcons(items, download) {
 }
 
 export async function getDDBEquipmentIcons(items, download) {
-  const itemImages = await getDDBItemImages(items.filter((item) => INVENTORY_TYPES.includes(item.type)), download);
+  const itemImages = await getDDBItemImages(items.filter((item) => DICTIONARY.types.inventory.includes(item.type)), download);
 
   let updatedItems = items.map((item) => {
     // logger.debug(item.name);
     // logger.debug(item.flags.ddbimporter.dndbeyond);
-    if (INVENTORY_TYPES.includes(item.type)) {
+    if (DICTIONARY.types.inventory.includes(item.type)) {
       if (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg") {
         const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
         if (imageMatch && imageMatch.img) {

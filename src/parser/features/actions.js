@@ -2,7 +2,7 @@ import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
-import { fixFeatures, stripHtml } from "./special.js";
+import { fixFeatures, stripHtml, addFeatEffects } from "./special.js";
 
 // get actions from ddb.character.customActions
 function getCustomActions(ddb, displayedAsAttack) {
@@ -366,6 +366,8 @@ function getAttackAction(ddb, character, action) {
     weapon.data.uses = getLimitedUse(action, character);
     weapon.data.consume = getResource(character, action);
 
+    weapon = addFeatEffects(ddb, character, action, weapon);
+
     if (weapon.data.uses?.max) {
       weapon.flags.betterRolls5e = {
         "quickCharges": {
@@ -511,6 +513,8 @@ function getOtherActions(ddb, character, items) {
         logger.debug("Running level scale parser");
         feat = getLevelScaleDice(ddb, character, action, feat);
       }
+
+      feat = addFeatEffects(ddb, character, action, feat);
 
       return feat;
     });

@@ -332,7 +332,9 @@ let utils = {
           )
           .map((choice) => {
             // console.warn(choice);
-            const result = choice.options.find((opt) => opt.id === choice.optionValue);
+            let result = choice.options.find((opt) => opt.id === choice.optionValue);
+            result.componentId = choice.componentId;
+            result.componentTypeId = choice.componentTypeId;
             // console.log(result);
             return result;
           });

@@ -25,6 +25,10 @@ Item effects generated:
 * Advantage on skill checks
 * Advantage on initiative
 * Advantage on saves vs magical attacks
+* AC base effects on armor items
+
+Character effects generated (very limited):
+* AC base effects on character features
 
 Notes:
 * When importing characters and auto generating effects, the import will be significantly slower due to some race conditions around effect generation when updating characters.
@@ -40,6 +44,7 @@ Other Improvements:
 * If using the MagicItems module, spells will try to be found in the DDB Spells compendium -> SRD Compendium and only creating them n the world as a last resort if it can't find the spell allready.
 * You can generate a set of Character Effects for each of your equipped AC options. This is similar to the DAE Auto Generate AC option, however, these will over-ride DAE and effects applied by equipping items. AC is quite hard to calculate dynamically in Foundry in edge cases as it requires users to active the correct set of effects that apply. Not all effects (e.g. from class features) are currently generated.
 * Pressing enter in the monster search field no longer reloads the page.
+* Homebrew monster parsing improvements.
 
 # 0.4.17
 

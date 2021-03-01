@@ -53,6 +53,7 @@ export default function getCharacter(ddb) {
     token: getToken(ddb),
     flags: {
       ddbimporter: {
+        compendium: true,
         acEffects: [],
         baseAC: 10,
         dndbeyond: {

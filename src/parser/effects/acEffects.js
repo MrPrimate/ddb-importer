@@ -241,12 +241,19 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
     "unarmored-armor-class",
     "data.attributes.ac.value"
   );
+  const armoredACBonus = addACBonusEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "armored-armor-class",
+    "data.attributes.ac.value"
+  );
 
   effect.changes = [
     ...base,
     ...acSets,
     ...acBonus,
     ...unarmoredACBonus,
+    ...armoredACBonus,
   ];
 
   if (effect.changes.length === 0) return foundryItem;
@@ -254,6 +261,7 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
   // check attunement status etc
   if (
     isCompendiumItem ||
+    foundryItem.type === "feat" ||
     (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
     (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
     (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
@@ -270,13 +278,14 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
   setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
   setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
   // set dae flag for active equipped
-  if (ddbItem.definition.canEquip || ddbItem.definition.canAttune) {
+  if (ddbItem.definition?.canEquip || ddbItem.definition?.canAttune) {
     setProperty(foundryItem, "flags.dae.activeEquipped", true);
   } else {
     setProperty(foundryItem, "flags.dae.activeEquipped", false);
   }
 
   if (effect.changes?.length > 0) {
+    if (!foundryItem.effects) foundryItem.effects = [];
     foundryItem.effects.push(effect);
   }
 
