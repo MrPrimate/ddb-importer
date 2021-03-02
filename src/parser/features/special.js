@@ -4,8 +4,8 @@ import utils from "../../utils.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
-  console.warn(ddbItem);
-  console.log(choice);
+  // console.warn(ddbItem);
+  // console.log(choice);
   if (ddbItem.grantedModifiers) return ddbItem;
   let modifierItem = JSON.parse(JSON.stringify(ddbItem));
   const modifiers = [
@@ -15,12 +15,14 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
     ddb.character.modifiers.feat,
   ].flat();
 
-  console.log(ddb.character.options[type]);
-  console.warn("Adding modifiers");
+  // console.log(ddb.character.options[type]);
+  // console.warn("Adding modifiers");
+  // console.log(type);
+
   if (!modifierItem.definition) modifierItem.definition = {};
   modifierItem.definition.grantedModifiers = modifiers.filter((mod) => {
     if (mod.componentId === ddbItem.definition?.id && mod.componentTypeId === ddbItem.definition?.entityTypeId) return true;
-    if (choice) {
+    if (choice && ddb.character.options[type]) {
       // if it is a choice option, try and see if the mod matches
       const choiceMatch = ddb.character.options[type].find((option) =>
         // id match
@@ -34,9 +36,9 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
       );
       if (choiceMatch) return true;
     }
-    // if (mod.componentId === ddbItem.id) {
+    if (mod.componentId === ddbItem.id) {
       if (type === "class") {
-        logger.log("Class check - feat effect parsing");
+        // logger.log("Class check - feature effect parsing");
         const classFeatureMatch = ddb.character.classes.some((klass) =>
           klass.classFeatures.some((f) =>
             f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
@@ -56,10 +58,10 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
           );
         if (traitMatch) return true;
       }
-    // }
+    }
     return false;
   });
-  console.warn(modifierItem);
+  // console.warn(modifierItem);
   return modifierItem;
 }
 

@@ -1,5 +1,6 @@
 import utils from "../../utils.js";
 import logger from "../../logger.js";
+import DICTIONARY from "../../dictionary.js";
 import { baseItemEffect, generateUpgradeChange, generateOverrideChange, generateAddChange } from "./effects.js";
 
 /**
@@ -143,19 +144,43 @@ function createBaseArmorItemEffect(ddb, ddbItem, foundryItem) {
  * @param {*} subType
  */
 function addACSetEffect(modifiers, name, subType) {
-  const bonuses = modifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
+  let bonuses;
+
+  if (modifiers.some((mod) => mod.statId !== null && mod.type === "set" && mod.subType === subType)) {
+    modifiers.filter((mod) => mod.statId !== null && mod.type === "set" && mod.subType === subType)
+      .forEach((mod) => {
+        const ability = DICTIONARY.character.abilities.find((ability) => ability.id === mod.statId);
+        if (bonuses) {
+          bonuses += " ";
+        } else {
+          bonuses = "";
+        }
+        bonuses += `@abilities.${ability.value}.mod`;
+      });
+  } else {
+    // others are picked up here e.g. Draconic Resilience
+    const fixedValues = modifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
+    bonuses = Math.max(fixedValues);
+  }
 
   let effects = [];
   const maxDexTypes = ["ac-max-dex-unarmored-modifier"];
 
-  let maxDexMod = 5;
-  if (bonuses.length > 0) {
+  let dexBonus = "+ @abilities.dex.mod";
+  if (bonuses && bonuses != 0) {
     switch (subType) {
       case "unarmored-armor-class": {
+        let maxDexMod = 99;
+        const ignoreDexMod = modifiers.some((mod) => mod.type === "ignore" && mod.subType === "unarmored-dex-ac-bonus");
         const maxDexArray = modifiers
           .filter((mod) => mod.type === "set" && maxDexTypes.includes(mod.subType))
           .map((mod) => mod.value);
         if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
+        if (ignoreDexMod) {
+          dexBonus = "";
+        } else {
+          dexBonus = `+ {@abilities.dex.mod, ${maxDexMod}} kl`;
+        }
         break;
       }
       // no default
@@ -164,7 +189,7 @@ function addACSetEffect(modifiers, name, subType) {
     logger.debug(`Generating ${subType} AC set for ${name}`);
     effects.push(
       generateUpgradeChange(
-        `10 + ${Math.max(bonuses)} + {@abilities.dex.mod, ${maxDexMod}} kl`,
+        `10 + ${bonuses} ${dexBonus}`,
         15,
         "data.attributes.ac.value"
       )

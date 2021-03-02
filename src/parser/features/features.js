@@ -91,7 +91,7 @@ function parseFeature(feat, ddb, character, source, type) {
   } else {
     item.data.description = getDescription(ddb, character, feat);
     item.data.source = source;
-    item = addFeatEffects(ddb, character, feat, item);
+    item = addFeatEffects(ddb, character, feat, item, undefined, type);
 
     features.push(item);
   }
