@@ -1,5 +1,5 @@
 // import DICTIONARY from "../../dictionary.js";
-import logger from "../../logger.js";
+// import logger from "../../logger.js";
 import utils from "../../utils.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
@@ -28,10 +28,10 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
         // id match
         choice.componentId == option.componentId && // the choice id matches the option componentID
         option.definition.id == mod.componentId && // option id and mod id match
-        (choice.componentTypeId == option.componentTypeId ||  //either the choice componenttype and optiontype match or
-         choice.componentTypeId  == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
+        (choice.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
+         choice.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
 
-        option.definition.entityTypeId == mod.componentTypeId && //mod componentId matches option entity type id
+        option.definition.entityTypeId == mod.componentTypeId && // mod componentId matches option entity type id
         choice.id == mod.componentId // choice id and mod id match
       );
       if (choiceMatch) return true;
@@ -76,7 +76,7 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
   if (daeInstalled && addEffects) {
     // item = generateItemEffects(ddb, character, modifierItem, item, compendiumItem);
     item = generateBaseACItemEffect(ddb, character, modifierItem, item, compendiumItem);
-    console.log(item);
+    // console.log(item);
   }
   return item;
 }
