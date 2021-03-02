@@ -1,5 +1,5 @@
 // import DICTIONARY from "../../dictionary.js";
-// import logger from "../../logger.js";
+import logger from "../../logger.js";
 import utils from "../../utils.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
