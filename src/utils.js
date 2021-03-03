@@ -2,7 +2,7 @@ import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";
-import { EFFECT_EXCLUDED_ITEM_MODIFIERS } from "./parser/effects/effects.js";
+import { EFFECT_EXCLUDED_MODIFIERS } from "./parser/effects/effects.js";
 
 var existingFiles = [];
 
@@ -165,7 +165,7 @@ let utils = {
     // are we adding effects to items?
     const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? EFFECT_EXCLUDED_ITEM_MODIFIERS : [];
+    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? EFFECT_EXCLUDED_MODIFIERS['item'] : [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
       .filter(
@@ -177,7 +177,8 @@ let utils = {
           item.definition.grantedModifiers.length > 0
       )
       .flatMap((item) => item.definition.grantedModifiers)
-      .filter((mod) => !excludedModifiers.some((exMod) => mod.type === exMod.type &&
+      .filter((mod) => !excludedModifiers.some((exMod) =>
+        mod.type === exMod.type &&
         (mod.subType === exMod.subType || !exMod.subType))
       );
 
@@ -186,9 +187,24 @@ let utils = {
 
   getActiveItemEffectModifiers: (data) => {
     return utils.getActiveItemModifiers(data, true).filter((mod) =>
-      EFFECT_EXCLUDED_ITEM_MODIFIERS.some((exMod) => mod.type === exMod.type &&
+      EFFECT_EXCLUDED_MODIFIERS['item'].some((exMod) => mod.type === exMod.type &&
       (mod.subType === exMod.subType || !exMod.subType))
     );
+  },
+
+  getModifiers: (data, type, includeExcludedEffects = false) => {
+    // are we adding effects to items?
+    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
+    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? EFFECT_EXCLUDED_MODIFIERS[type] : [];
+    // get items we are going to interact on
+    const modifiers = data.character.modifiers[type]
+      .filter((mod) => !excludedModifiers.some((exMod) =>
+        mod.type === exMod.type &&
+        (mod.subType === exMod.subType || !exMod.subType))
+      );
+
+    return modifiers;
   },
 
   filterModifiers: (modifiers, type, subType = null, restriction = ["", null]) => {
@@ -202,9 +218,9 @@ let utils = {
       );
   },
 
-  getChosenClassModifiers: (data) => {
+  getChosenClassModifiers: (data, includeExcludedEffects = false) => {
     // get items we are going to interact on
-    const modifiers = data.character.modifiers.class.filter((mod) => {
+    const modifiers = utils.getModifiers(data, 'class', includeExcludedEffects).filter((mod) => {
       const isClassFeature = data.character.classes.some((klass) => klass.classFeatures.some((feat) =>
         feat.definition.id == mod.componentId && feat.definition.entityTypeId == mod.componentTypeId &&
         // make sure this class feature is not replaced
@@ -241,7 +257,6 @@ let utils = {
         data.character.optionalClassFeatures?.some((f) => f.classFeatureId == option.componentId)
       );
 
-
       return isClassFeature || isClassOption || isOptionalClassOption;
     });
 
@@ -251,10 +266,10 @@ let utils = {
   filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false) => {
     const modifiers = [
       // data.character.modifiers.class,
-      utils.getChosenClassModifiers(data),
-      data.character.modifiers.race,
-      data.character.modifiers.background,
-      data.character.modifiers.feat,
+      utils.getChosenClassModifiers(data, includeExcludedEffects),
+      utils.getModifiers(data, "race", includeExcludedEffects),
+      utils.getModifiers(data, "background", includeExcludedEffects),
+      utils.getModifiers(data, "feat", includeExcludedEffects),
       utils.getActiveItemModifiers(data, includeExcludedEffects),
     ];
 

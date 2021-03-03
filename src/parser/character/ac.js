@@ -153,7 +153,7 @@ function getDualWieldAC(data, modifiers) {
   let dualWieldBonus = 0;
 
   if (dualWielding) {
-    utils.filterModifiers(modifiers, "bonus", "dual-wield-armor-class").forEach((bonus) => {
+    utils.filterModifiers(modifiers, "bonus", "dual-wield-armor-class", ["", null], true).forEach((bonus) => {
       dualWieldBonus += bonus.value;
     });
   }
@@ -361,7 +361,7 @@ export function getArmorClass(data, character) {
     data.character.modifiers.feat,
   ];
 
-  utils.filterModifiers(miscModifiers, "bonus", "armor-class").forEach((bonus) => {
+  utils.filterModifiers(miscModifiers, "bonus", "armor-class", ["", null], true).forEach((bonus) => {
     miscACBonus += bonus.value;
   });
 

@@ -7,23 +7,19 @@ import {
   getToolProficiencies,
   getLanguagesFromModifiers,
 } from "../character/proficiencies.js";
-import { equipmentEffectAdjustment } from "./special.js";
+import { equipmentEffectAdjustment } from "./specialEquipment.js";
+import { spellEffectAdjustment } from "./specialSpells.js";
+import { featureEffectAdjustment } from "./specialFeats.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
- * Currently only effects on equipment (i.e. items) are supported.
  */
-export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
+const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "bonus", subType: "saving-throws" },
   { type: "bonus", subType: "ability-checks" },
   { type: "bonus", subType: "skill-checks" },
-  { type: "bonus", subType: "strength-score" },
-  { type: "bonus", subType: "dexterity-score" },
-  { type: "bonus", subType: "constitution-score" },
-  { type: "bonus", subType: "wisdom-score" },
-  { type: "bonus", subType: "intelligence-score" },
-  { type: "bonus", subType: "charisma-score" },
   { type: "bonus", subType: "proficiency-bonus" },
+
   { type: "set", subType: "strength-score" },
   { type: "set", subType: "dexterity-score" },
   { type: "set", subType: "constitution-score" },
@@ -65,13 +61,6 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
   { type: "set", subType: "innate-speed-swimming" },
   { type: "set", subType: "innate-speed-flying" },
 
-  // ac
-  { type: "bonus", subType: "armor-class" },
-  // e.g. robe of the archm
-  { type: "set", subType: "unarmored-armor-class" },
-  // bracers of defence
-  { type: "bonus", subType: "unarmored-armor-class" },
-
   // profs
   { type: "proficiency", subType: null },
 
@@ -99,20 +88,23 @@ export const EFFECT_EXCLUDED_ITEM_MODIFIERS = [
 
   // initiative
   { type: "advantage", subType: "initiative" },
-
-  // { modifiers: "item", type: "bonus", subType: "skill-checks", key: "data.bonuses.abilities.skill" },
-  // data.bonuses.rwak.attack
-  // data.bonuses.mwak.attack
-  // data.bonuses.rwak.damage
-  // data.bonuses.mwak.damage
-  // data.bonuses.spell.attack
-  // data.bonuses.spell.damage
-  // data.bonuses.spell.dc
-  // data.bonuses.heal.damage
-  // data.skills.prc.passive
-  // data.skills.per.value
-  // data.attributes.hp.value
 ];
+const EFFECT_EXCLUDED_ABILITY_BONUSES = [
+  { type: "bonus", subType: "strength-score" },
+  { type: "bonus", subType: "dexterity-score" },
+  { type: "bonus", subType: "constitution-score" },
+  { type: "bonus", subType: "wisdom-score" },
+  { type: "bonus", subType: "intelligence-score" },
+  { type: "bonus", subType: "charisma-score" },
+];
+
+export const EFFECT_EXCLUDED_MODIFIERS = {
+  item: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES),
+  race: EFFECT_EXCLUDED_COMMON_MODIFIERS,
+  class: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES),
+  feat: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES),
+  background: [],
+};
 
 /**
  *
@@ -723,6 +715,56 @@ function consumableEffect(effect, ddbItem, foundryItem) {
 }
 
 /**
+ * This checks attunement status and similar to determine effect state
+ * set disabled flags etc
+ * @param {*} foundryItem
+ * @param {*} effect
+ * @param {*} ddbItem
+ * @param {*} isCompendiumItem
+ */
+function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
+    // check attunement status etc
+
+    if (!ddbItem.definition?.canEquip && !ddbItem.definition?.canAttune && !ddbItem.definition?.isConsumable &&
+      DICTIONARY.types.inventory.includes(foundryItem.type)
+  ) {
+    // if item just gives a thing and not potion/scroll
+    effect.disabled = false;
+    setProperty(effect, "flags.ddbimporter.disabled", false);
+    setProperty(foundryItem, "flags.dae.alwaysActive", true);
+  } else if (
+    isCompendiumItem ||
+    foundryItem.type === "feat" ||
+    (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
+    (ddbItem.isAttuned && !ddbItem.definition?.canEquip) || // if it is attuned but can't equip
+    (!ddbItem.definition?.canAttune && ddbItem.equipped) // can't attune but is equipped
+  ) {
+    setProperty(foundryItem, "flags.dae.alwaysActive", false);
+    setProperty(effect, "flags.ddbimporter.disabled", false);
+    effect.disabled = false;
+  } else {
+    effect.disabled = true;
+    setProperty(effect, "flags.ddbimporter.disabled", true);
+    setProperty(foundryItem, "flags.dae.alwaysActive", false);
+  }
+
+  setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
+  setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
+  // set dae flag for active equipped
+  if (ddbItem.definition?.canEquip || ddbItem.definitio?.canAttune) {
+    setProperty(foundryItem, "flags.dae.activeEquipped", true);
+  } else {
+    setProperty(foundryItem, "flags.dae.activeEquipped", false);
+  }
+
+  if (ddbItem.definition?.filterType === "Potion") {
+    effect = consumableEffect(effect, ddbItem, foundryItem);
+  }
+
+  return [foundryItem, effect];
+}
+
+/**
  * Generate supported effects for items
  * @param {*} ddb
  * @param {*} character
@@ -730,7 +772,17 @@ function consumableEffect(effect, ddbItem, foundryItem) {
  * @param {*} foundryItem
  */
 export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return equipmentEffectAdjustment(foundryItem);
+  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0){
+    if (DICTIONARY.types.inventory.includes(foundryItem.type)){
+      return equipmentEffectAdjustment(foundryItem);
+    } else if (foundryItem.type === "spell") {
+      return spellEffectAdjustment(foundryItem);
+    } else if (foundryItem.type === "feat") {
+      return featureEffectAdjustment(foundryItem);
+    } else {
+      return foundryItem;
+    }
+  }
   console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`);
 
@@ -801,42 +853,16 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
     ...magicalAdvantage,
   ];
 
-  // check attunement status etc
-
-  if (!ddbItem.definition.canEquip && !ddbItem.definition.canAttune && !ddbItem.definition.isConsumable) {
-    // if item just gives a thing and not potion/scroll
-    effect.disabled = false;
-    setProperty(effect, "flags.ddbimporter.disabled", false);
-    setProperty(foundryItem, "flags.dae.alwaysActive", true);
-  } else if (
-    isCompendiumItem ||
-    (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
-    (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
-    (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
-  ) {
-    setProperty(foundryItem, "flags.dae.alwaysActive", false);
-    setProperty(effect, "flags.ddbimporter.disabled", false);
-    effect.disabled = false;
-  } else {
-    effect.disabled = true;
-    setProperty(effect, "flags.ddbimporter.disabled", true);
-    setProperty(foundryItem, "flags.dae.alwaysActive", false);
+  // if we don't have effects, lets return the item
+  if (effect.changes?.length === 0) {
+    return foundryItem;
   }
 
-  setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
-  setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
-  // set dae flag for active equipped
-  if (ddbItem.definition.canEquip || ddbItem.definition.canAttune) {
-    setProperty(foundryItem, "flags.dae.activeEquipped", true);
-  } else {
-    setProperty(foundryItem, "flags.dae.activeEquipped", false);
-  }
-
-  if (ddbItem.definition.filterType === "Potion") {
-    effect = consumableEffect(effect, ddbItem, foundryItem);
-  }
+  // generate flags for effect (e.g. checking attunement and equiped status)
+  [foundryItem, effect] = addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem);
 
   if (effect.changes?.length > 0) {
+    if (!foundryItem.effects) foundryItem.effects = [];
     foundryItem.effects.push(effect);
   }
 

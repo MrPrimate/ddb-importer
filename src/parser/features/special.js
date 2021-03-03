@@ -1,6 +1,7 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
 import utils from "../../utils.js";
+import { generateItemEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
@@ -9,10 +10,10 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
   if (ddbItem.grantedModifiers) return ddbItem;
   let modifierItem = JSON.parse(JSON.stringify(ddbItem));
   const modifiers = [
-    utils.getChosenClassModifiers(ddb),
-    ddb.character.modifiers.race,
-    ddb.character.modifiers.background,
-    ddb.character.modifiers.feat,
+    utils.getChosenClassModifiers(ddb, true),
+    utils.getModifiers(ddb, "race", true),
+    utils.getModifiers(ddb, "background", true),
+    utils.getModifiers(ddb, "feat", true),
   ].flat();
 
   // console.log(ddb.character.options[type]);
@@ -74,7 +75,7 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
     : game.settings.get("ddb-importer", "character-update-policy-add-effects");
   const modifierItem = generateFeatModifiers(ddb, ddbItem, choice, type);
   if (daeInstalled && addEffects) {
-    // item = generateItemEffects(ddb, character, modifierItem, item, compendiumItem);
+    item = generateItemEffects(ddb, character, modifierItem, item, compendiumItem);
     item = generateBaseACItemEffect(ddb, character, modifierItem, item, compendiumItem);
     // console.log(item);
   }

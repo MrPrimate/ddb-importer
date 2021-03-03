@@ -3,6 +3,13 @@ import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { baseItemEffect, generateUpgradeChange, generateOverrideChange, generateAddChange } from "./effects.js";
 
+  // // ac -
+  // { type: "bonus", subType: "armor-class" },
+  // // e.g. robe of the archm
+  // { type: "set", subType: "unarmored-armor-class" },
+  // // bracers of defence
+  // { type: "bonus", subType: "unarmored-armor-class" },
+
 /**
  *
  * @param {*} label
@@ -272,6 +279,12 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
     "armored-armor-class",
     "data.attributes.ac.value"
   );
+  const dualWieldACBonus = addACBonusEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "dual-wield-armor-class",
+    "data.attributes.ac.value"
+  );
 
   effect.changes = [
     ...base,
@@ -279,6 +292,7 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
     ...acBonus,
     ...unarmoredACBonus,
     ...armoredACBonus,
+    ...dualWieldACBonus,
   ];
 
   if (effect.changes.length === 0) return foundryItem;
