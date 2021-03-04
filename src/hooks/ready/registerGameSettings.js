@@ -504,6 +504,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-bio", {
+    name: "ddb-importer.character-update-policy-bio.name",
+    hint: "ddb-importer.character-update-policy-bio.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-import-extras", {
     scope: "player",
     config: false,

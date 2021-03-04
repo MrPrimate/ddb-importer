@@ -472,6 +472,11 @@ export default class CharacterImport extends FormApplication {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-image"),
         description: "Image",
       },
+      {
+        name: "bio",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-bio"),
+        description: "Bio",
+      },
     ];
 
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
@@ -1326,6 +1331,13 @@ export default class CharacterImport extends FormApplication {
     if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
       // revert currency if user didn't select to update it
       this.result.character.data.currency = this.actorOriginal.data.currency;
+    }
+    if (!game.settings.get("ddb-importer", "character-update-policy-bio")) {
+      // revert bio info
+      const bioUpdates = ["alignment", "appearance", "background", "biography", "bond", "flaw", "idea", "trait"];
+      bioUpdates.forEach((option) => {
+        this.result.character.data.details[option] = this.actorOriginal.data.details[option];
+      })
     }
 
     // flag as having items ids

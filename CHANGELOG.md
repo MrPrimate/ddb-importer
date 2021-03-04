@@ -50,6 +50,7 @@ Other Improvements:
 * A handful of monsters had some odd formatting for their special traits which broke special trait and spell parsing. ["Hlam", "Ygorl, Lord of Entropy", "Whymsee (Kraken Priest Variant)", "Strahd Zombie", "Skr’a S’orsk", "Mongrelfolk", "Laeral Silverhand", "Jarlaxle Baenre", "Gar Shatterkeel (Noncore)", "Forlarren", "Fog Giant", "Fhenimore (Kraken Priest Variant)", "Drow Arachnomancer", "Archon of the Triumvirate", "Amble"].
 * Cones and Line area effects were the wrong way around in monster parsing due to late night coding.
 * For monster abilities that have a recharge function (e.g Hell Hounds breath) this now does the correct resource linking for the recharge.
+* Bio updates are now optional during character update.
 
 # 0.4.17
 
