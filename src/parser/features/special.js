@@ -1,12 +1,12 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
 import utils from "../../utils.js";
-import { generateItemEffects } from "../effects/effects.js";
+import { generateFeatEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
-  // console.warn(ddbItem);
-  // console.log(choice);
+  console.warn(ddbItem);
+  console.log(choice);
   if (ddbItem.grantedModifiers) return ddbItem;
   let modifierItem = JSON.parse(JSON.stringify(ddbItem));
   const modifiers = [
@@ -23,9 +23,9 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
   if (!modifierItem.definition) modifierItem.definition = {};
   modifierItem.definition.grantedModifiers = modifiers.filter((mod) => {
     if (mod.componentId === ddbItem.definition?.id && mod.componentTypeId === ddbItem.definition?.entityTypeId) return true;
-    if (choice && ddb.character.options[type]) {
+    if (choice && ddb.character.options[type]?.length > 0) {
       // if it is a choice option, try and see if the mod matches
-      const choiceMatch = ddb.character.options[type].find((option) =>
+      const choiceMatch = ddb.character.options[type].some((option) =>
         // id match
         choice.componentId == option.componentId && // the choice id matches the option componentID
         option.definition.id == mod.componentId && // option id and mod id match
@@ -35,29 +35,38 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
         option.definition.entityTypeId == mod.componentTypeId && // mod componentId matches option entity type id
         choice.id == mod.componentId // choice id and mod id match
       );
+      console.log(`choiceMatch ${choiceMatch}`)
       if (choiceMatch) return true;
-    }
-    if (mod.componentId === ddbItem.id) {
-      if (type === "class") {
-        // logger.log("Class check - feature effect parsing");
-        const classFeatureMatch = ddb.character.classes.some((klass) =>
-          klass.classFeatures.some((f) =>
-            f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
-          )
-        );
-        if (classFeatureMatch) return true;
-      }
-      if (type === "feat") {
-        const featMatch = ddb.character.feats.some((f) =>
-            f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
+    } else if (choice) { // && choice.parentChoiceId
+      const choiceIdSplit = choice.choiceId.split("-").pop();
+      console.warn(mod);
+      console.log(choiceIdSplit);
+      const modIdSplitMatch = mod.id == choiceIdSplit;
+      console.log(modIdSplitMatch);
+      if (modIdSplitMatch) return true;
+    } else {
+      if (mod.componentId === ddbItem.id) {
+        if (type === "class") {
+          // logger.log("Class check - feature effect parsing");
+          const classFeatureMatch = ddb.character.classes.some((klass) =>
+            klass.classFeatures.some((f) =>
+              f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
+            )
           );
-        if (featMatch) return true;
-      }
-      if (type === "race") {
-        const traitMatch = ddb.character.race.racialTraits.some((f) =>
-            f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
-          );
-        if (traitMatch) return true;
+          if (classFeatureMatch) return true;
+        }
+        if (type === "feat") {
+          const featMatch = ddb.character.feats.some((f) =>
+              f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
+            );
+          if (featMatch) return true;
+        }
+        if (type === "race") {
+          const traitMatch = ddb.character.race.racialTraits.some((f) =>
+              f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
+            );
+          if (traitMatch) return true;
+        }
       }
     }
     return false;
@@ -70,12 +79,18 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
   // can we apply any effects to this feature
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
   const compendiumItem = character.flags.ddbimporter.compendium;
-  const addEffects = (compendiumItem)
+  const addCharacterEffects = (compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-    : game.settings.get("ddb-importer", "character-update-policy-add-effects");
+    : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
+  const addACEffects = (compendiumItem)
+    ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects")
   const modifierItem = generateFeatModifiers(ddb, ddbItem, choice, type);
-  if (daeInstalled && addEffects) {
-    item = generateItemEffects(ddb, character, modifierItem, item, compendiumItem);
+  if (daeInstalled && addCharacterEffects) {
+    item = generateFeatEffects(ddb, character, modifierItem, item, compendiumItem);
+    // console.log(item);
+  }
+  if (daeInstalled && addACEffects) {
     item = generateBaseACItemEffect(ddb, character, modifierItem, item, compendiumItem);
     // console.log(item);
   }

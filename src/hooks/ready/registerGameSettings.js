@@ -357,18 +357,36 @@ export default function () {
     default: false,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-add-effects", {
-    name: "ddb-importer.character-update-policy-add-effects.name",
-    hint: "ddb-importer.character-update-policy-add-effects.hint",
+  game.settings.register("ddb-importer", "character-update-policy-add-character-effects", {
+    name: "ddb-importer.character-update-policy-add-character-effects.name",
+    hint: "ddb-importer.character-update-policy-add-character-effects.hint",
     scope: "player",
     config: false,
     type: Boolean,
     default: false,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-generate-ac-effects", {
-    name: "ddb-importer.character-update-policy-generate-ac-effects.name",
-    hint: "ddb-importer.character-update-policy-generate-ac-effects.hint",
+  game.settings.register("ddb-importer", "character-update-policy-add-item-effects", {
+    name: "ddb-importer.character-update-policy-add-item-effects.name",
+    hint: "ddb-importer.character-update-policy-add-item-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-generate-ac-feature-effects", {
+    name: "ddb-importer.character-update-policy-generate-ac-feature-effects.name",
+    hint: "ddb-importer.character-update-policy-generate-ac-feature-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-generate-ac-override-effects", {
+    name: "ddb-importer.character-update-policy-generate-ac-override-effects.name",
+    hint: "ddb-importer.character-update-policy-generate-ac-override-effects.hint",
     scope: "player",
     config: false,
     type: Boolean,

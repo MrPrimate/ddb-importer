@@ -163,7 +163,7 @@ let utils = {
 
   getActiveItemModifiers: (data, includeExcludedEffects = false) => {
     // are we adding effects to items?
-    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
+    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? EFFECT_EXCLUDED_MODIFIERS['item'] : [];
     // get items we are going to interact on
@@ -194,7 +194,7 @@ let utils = {
 
   getModifiers: (data, type, includeExcludedEffects = false) => {
     // are we adding effects to items?
-    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
+    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? EFFECT_EXCLUDED_MODIFIERS[type] : [];
     // get items we are going to interact on
@@ -265,7 +265,6 @@ let utils = {
 
   filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false) => {
     const modifiers = [
-      // data.character.modifiers.class,
       utils.getChosenClassModifiers(data, includeExcludedEffects),
       utils.getModifiers(data, "race", includeExcludedEffects),
       utils.getModifiers(data, "background", includeExcludedEffects),
@@ -350,6 +349,8 @@ let utils = {
             let result = choice.options.find((opt) => opt.id === choice.optionValue);
             result.componentId = choice.componentId;
             result.componentTypeId = choice.componentTypeId;
+            result.choiceId = choice.id;
+            result.parentChoiceId  = choice.parentChoiceId;
             // console.log(result);
             return result;
           });

@@ -2,38 +2,43 @@ import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
 import { generateBaseSkillEffect } from "../effects/effects.js";
 
-let isHalfProficiencyRoundedUp = (data, skill) => {
+let isHalfProficiencyRoundedUp = (data, skill, modifiers=null) => {
   const longAbility = DICTIONARY.character.abilities
     .filter((ability) => skill.ability === ability.value)
     .map((ability) => ability.long)[0];
-  const roundUp = utils.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`);
+
+  const roundUp = (modifiers) ?
+    utils.filterModifiers(modifiers,"half-proficiency-round-up", `${longAbility}-ability-checks`) :
+    utils.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`, ["", null], true);
   return Array.isArray(roundUp) && roundUp.length;
 };
 
-let getSkillProficiency = (data, skill) => {
-  const modifiers = [
-    utils.getChosenClassModifiers(data),
-    data.character.modifiers.race,
-    utils.getActiveItemModifiers(data),
-    data.character.modifiers.feat,
-    data.character.modifiers.background,
-  ]
-    .flat()
+export function getSkillProficiency (data, skill, modifiers=null) {
+  if (!modifiers) {
+    modifiers = [
+      utils.getChosenClassModifiers(data, true),
+      utils.getModifiers(data, "race", true),
+      utils.getModifiers(data, "background", true),
+      utils.getModifiers(data, "feat", true),
+      utils.getActiveItemModifiers(data, true),
+    ].flat();
+  }
+
+  const skillMatches = modifiers
     .filter((modifier) => modifier.friendlySubtypeName === skill.label)
     .map((mod) => mod.type);
 
-  const halfProficiency =
-    utils.getChosenClassModifiers(data).find(
+  const halfProficiency = modifiers.find(
       (modifier) =>
         // Jack of All trades/half-rounded down
         (modifier.type === "half-proficiency" && modifier.subType === "ability-checks") ||
         // e.g. champion for specific ability checks
-        isHalfProficiencyRoundedUp(data, skill)
+        isHalfProficiencyRoundedUp(data, skill, modifiers)
     ) !== undefined
       ? 0.5
       : 0;
 
-  const proficient = modifiers.includes("expertise") ? 2 : modifiers.includes("proficiency") ? 1 : halfProficiency;
+  const proficient = skillMatches.includes("expertise") ? 2 : skillMatches.includes("proficiency") ? 1 : halfProficiency;
 
   return proficient;
 };

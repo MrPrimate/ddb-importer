@@ -7,6 +7,7 @@ import {
   getToolProficiencies,
   getLanguagesFromModifiers,
 } from "../character/proficiencies.js";
+import { getSkillProficiency } from "../character/skills.js";
 import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { featureEffectAdjustment } from "./specialFeats.js";
@@ -37,14 +38,6 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   // not adding these as they are not used elsewhere
   // { type: "advantage", subType: "strength-saving-throws" },
 
-  // resistances - subType - e.g. poison - lookup from DICTIONARY
-  { type: "resistance", subType: null },
-  { type: "immunity", subType: null },
-  { type: "vulnerability", subType: null },
-
-  // languages - e.g. dwarvish -- lookup from DICTIONARY
-  { type: "language", subType: null },
-
   // senses
   { type: "set-base", subType: "darkvision" },
   { type: "sense", subType: "darkvision" },
@@ -60,9 +53,6 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "set", subType: "innate-speed-climbing" },
   { type: "set", subType: "innate-speed-swimming" },
   { type: "set", subType: "innate-speed-flying" },
-
-  // profs
-  { type: "proficiency", subType: null },
 
   // skills
   { type: "bonus", subType: "acrobatics" },
@@ -98,11 +88,24 @@ const EFFECT_EXCLUDED_ABILITY_BONUSES = [
   { type: "bonus", subType: "charisma-score" },
 ];
 
+const EFFECT_EXCLUDED_EXTENDED_BONUSES = [
+  // profs
+  { type: "proficiency", subType: null },
+
+  // languages - e.g. dwarvish -- lookup from DICTIONARY
+  { type: "language", subType: null },
+
+  // resistances - subType - e.g. poison - lookup from DICTIONARY
+  { type: "resistance", subType: null },
+  { type: "immunity", subType: null },
+  { type: "vulnerability", subType: null },
+];
+
 export const EFFECT_EXCLUDED_MODIFIERS = {
-  item: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES),
+  item: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES, EFFECT_EXCLUDED_EXTENDED_BONUSES),
   race: EFFECT_EXCLUDED_COMMON_MODIFIERS,
-  class: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES),
-  feat: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES),
+  class: EFFECT_EXCLUDED_COMMON_MODIFIERS,
+  feat: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES, EFFECT_EXCLUDED_EXTENDED_BONUSES),
   background: [],
 };
 
@@ -526,6 +529,17 @@ function addSetSpeeds(modifiers, name) {
   return changes;
 }
 
+function addSkillProficiencies(modifiers) {
+  let changes = [];
+  DICTIONARY.character.skills.forEach((skill) => {
+    const prof = getSkillProficiency(null, skill, modifiers);
+    if (prof != 0) {
+      changes.push(generateAddChange(prof, 9,`data.skills.${skill.name}.value`))
+    }
+  });
+  return changes;
+}
+
 function addProficiencies(modifiers, name) {
   let changes = [];
 
@@ -535,21 +549,22 @@ function addProficiencies(modifiers, name) {
       return { name: mod.friendlySubtypeName };
     });
 
+  changes = changes.concat(addSkillProficiencies(modifiers));
   const toolProf = getToolProficiencies(null, proficiencies);
   const weaponProf = getWeaponProficiencies(null, proficiencies);
   const armorProf = getArmorProficiencies(null, proficiencies);
 
   toolProf.value.forEach((prof) => {
     logger.debug(`Generating tool proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof, 8, "data.traits.toolProf.custom"));
+    changes.push(generateCustomChange(prof, 8, "data.traits.toolProf.value"));
   });
   weaponProf.value.forEach((prof) => {
     logger.debug(`Generating weapon proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof, 8, "data.traits.weaponProf.custom"));
+    changes.push(generateCustomChange(prof, 8, "data.traits.weaponProf.value"));
   });
   armorProf.value.forEach((prof) => {
     logger.debug(`Generating armor proficiencies for ${name}`);
-    changes.push(generateCustomChange(prof, 8, "data.traits.armorProf.custom"));
+    changes.push(generateCustomChange(prof, 8, "data.traits.armorProf.value"));
   });
   if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 8, "data.traits.toolProf.custom"));
   if (weaponProf?.custom != "")
@@ -771,7 +786,7 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
  * @param {*} ddbItem
  * @param {*} foundryItem
  */
-export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0){
     if (DICTIONARY.types.inventory.includes(foundryItem.type)){
       return equipmentEffectAdjustment(foundryItem);
@@ -871,13 +886,10 @@ export function generateItemEffects(ddb, character, ddbItem, foundryItem, isComp
   return foundryItem;
 }
 
-// TODO:
-// * override ac
-// * item effects
-// * armour bases
-// * natural armors
-// * unarmoured effects, like monk
-// * add durations for potions, mark
-// passive skills
+export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+  return generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+}
 
-// midi effects
+export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+  return generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+}

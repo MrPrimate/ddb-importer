@@ -433,7 +433,7 @@ export default function getInventory(ddb, character, itemSpells) {
       const compendiumItem = character.flags.ddbimporter.compendium;
       const addEffects = (compendiumItem)
         ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-        : game.settings.get("ddb-importer", "character-update-policy-add-effects");
+        : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
       if (daeInstalled && addEffects) {
         item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
         item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);

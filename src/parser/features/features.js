@@ -71,6 +71,8 @@ function parseFeature(feat, ddb, character, source, type) {
       let choiceItem = JSON.parse(JSON.stringify(item));
       let choiceFeat = feat.definition ? JSON.parse(JSON.stringify(feat.definition)) : JSON.parse(JSON.stringify(feat));
 
+     if (item.name === choice.label) return;
+
       choiceItem.name = choice.label ? `${choiceItem.name}: ${choice.label}` : choiceItem.name;
       if (choiceFeat.description) {
         choiceFeat.description = choice.description
@@ -109,9 +111,12 @@ function getNameMatchedFeature(items, item) {
 
 function includedFeatureNameCheck(featName, addEffects) {
   // we add all features when parsing active effects
-  if (addEffects) return true;
+  if (addEffects) {
+    const nameAllowed = !featName.startsWith("Ability Score");
+    return nameAllowed;
+  }
 
-  const nameAllowed = featName !== "Proficiencies" &&
+  const nameAllowed = !featName.startsWith("Proficiencies") &&
     !featName.startsWith("Ability Score") &&
     featName !== "Bonus Proficiency";
 
@@ -230,7 +235,7 @@ export default function parseFeatures(ddb, character) {
   const compendiumItem = character.flags.ddbimporter.compendium;
   const addEffects = (daeInstalled && compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-    : game.settings.get("ddb-importer", "character-update-policy-add-effects");
+    : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
   let items = [];
 

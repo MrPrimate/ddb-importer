@@ -553,16 +553,30 @@ export default class CharacterImport extends FormApplication {
 
     const effectImportConfig = [
       {
-        name: "add-effects",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-add-effects") && daeInstalled,
-        title: "[Super Experimental] Dynamically generate DAE effects (items only)",
-        description: "Dynamically generate DAE effects for items only, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
+        name: "add-item-effects",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-add-item-effects") && daeInstalled,
+        title: "[Experimental] Dynamically generate Active Effects (equipment)",
+        description: "Dynamically generate DAE effects for a characters equipment, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
         enabled: daeInstalled,
       },
       {
-        name: "generate-ac-effects",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-effects") && daeInstalled,
-        title: "[Super Experimental] Dynamically generate DAE Override ACs",
+        name: "add-character-effects",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-add-character-effects") && daeInstalled,
+        title: "[DANGER] Dynamically generate Active Effects (character features/racial traits)",
+        description: "There is a high chance that characters imported won't be perfect. I would love to have detailed bug reports, but fixes maybe slow. Dynamically generate DAE effects for a characters features and racial traits, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
+        enabled: daeInstalled,
+      },
+      {
+        name: "generate-ac-feature-effects",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects") && daeInstalled,
+        title: "Dynamically generate Active Effects ACs from Character Features/Racial Traits",
+        description: "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations or if equipment is equipped in D&DBeyond that is not in use (e.g. multiple shields). (Requires the DAE module)",
+        enabled: daeInstalled,
+      },
+      {
+        name: "generate-ac-override-effects",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects") && daeInstalled,
+        title: "Dynamically generate DAE Override ACs",
         description: "Dynamically generate possible AC combinations as dynamic effects, these are high priority effects that likely override other effects. Useful if you can't calculate your AC correctly using other effects. (Requires the DAE module)",
         enabled: daeInstalled,
       },
@@ -974,7 +988,8 @@ export default class CharacterImport extends FormApplication {
     const daeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy");
     const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
+    const addItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+    const addCharacterEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
     // if we still have items to add, add them
     if (items.length > 0) {
@@ -1016,7 +1031,7 @@ export default class CharacterImport extends FormApplication {
         items = await addItemsDAESRD(items);
       }
 
-      if (daeInstalled && addEffects) {
+      if (daeInstalled && (addItemEffects || addCharacterEffects)) {
         items = addItemEffectIcons(items);
       }
 
@@ -1084,7 +1099,8 @@ export default class CharacterImport extends FormApplication {
         return item;
       });
 
-      const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-effects");
+      const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects") ||
+        game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
       // there is some kind of race condition when updating more than a couple of items with AE on them
       if (addEffects) {
@@ -1255,7 +1271,7 @@ export default class CharacterImport extends FormApplication {
     // clear down ddb generated character effects such as skill bonuses
     await this.actor.deleteEmbeddedEntity("ActiveEffect", ddbGeneratedCharEffects.map((ae) => ae._id));
 
-    if (game.settings.get("ddb-importer", "character-update-policy-generate-ac-effects")) {
+    if (game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects")) {
       const acEffects = this.result.character.flags.ddbimporter.acEffects.map((ae) => {
         ae.origin = `Actor.${this.actor._id}`;
         return ae;
