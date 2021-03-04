@@ -1,6 +1,6 @@
 # 0.5.0 - 0.5.10
 
-* Active Effect Generation Support for ITEMS (Requires DAE, with additional enhancements if using Midi-QOL):
+* Active Effect Generation Support for Characters, and Items (Requires DAE, with additional enhancements if using Midi-QOL):
 
 WARNING: It should be noted this is very experimental, and prone to f'ing things up, so please don't blame me if everything goes wrong!
 
@@ -27,14 +27,16 @@ Item effects generated:
 * Advantage on saves vs magical attacks
 * AC base effects on armor items
 
-Character effects generated (very limited):
+Character effects generated:
 * AC base effects on character features
+* Same as item effects, except several features don't get a feature in foundry (e.g. Ability increases).
 
 Notes:
 * When importing characters and auto generating effects, the import will be significantly slower due to some race conditions around effect generation when updating characters.
 * Some effects may not come through for some items, these tend to be ones with very specific advantages, e.g. Advantage on Persuasion vs Giants and the like. There exceptions such as the Cloak of Elvenkind, or resistances where you should be holding the item.
 * It adds only a limited number of more specialist effects.
 * You can use this in combination with Copy Effects for DAE SRD.
+* Active Effect generation does not work in the Muncher for the experimental features such as feat, class and racial trait parsing.
 
 Other Improvements:
 * Icons don't use absolute paths
@@ -46,6 +48,8 @@ Other Improvements:
 * Pressing enter in the monster search field no longer reloads the page.
 * Homebrew monster parsing improvements.
 * A handful of monsters had some odd formatting for their special traits which broke special trait and spell parsing. ["Hlam", "Ygorl, Lord of Entropy", "Whymsee (Kraken Priest Variant)", "Strahd Zombie", "Skr’a S’orsk", "Mongrelfolk", "Laeral Silverhand", "Jarlaxle Baenre", "Gar Shatterkeel (Noncore)", "Forlarren", "Fog Giant", "Fhenimore (Kraken Priest Variant)", "Drow Arachnomancer", "Archon of the Triumvirate", "Amble"].
+* Cones and Line area effects were the wrong way around in monster parsing due to late night coding.
+* For monster abilities that have a recharge function (e.g Hell Hounds breath) this now does the correct resource linking for the recharge.
 
 # 0.4.17
 
