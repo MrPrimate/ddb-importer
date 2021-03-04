@@ -153,56 +153,23 @@ export function fixFeatures(features) {
         feature.data.actionType = "other";
         break;
       // add a rage effect
-      case "Rage":
-        feature.effects = [
-          {
-            "flags": {
-              "dae": {
-                "transfer": false,
-                "stackable": false
-              }
-            },
-            "changes": [
-              {
-                "key": "data.bonuses.mwak.damage",
-                "value": "2",
-                "mode": 0,
-                "priority": 0
-              },
-              {
-                "key": "data.traits.dr.value",
-                "value": "piercing",
-                "mode": 0,
-                "priority": 0
-              },
-              {
-                "key": "data.traits.dr.value",
-                "value": "slashing",
-                "mode": 0,
-                "priority": 20
-              },
-              {
-                "key": "data.traits.dr.value",
-                "value": "bludgeoning",
-                "mode": 0,
-                "priority": 20
-              }
-            ],
-            "disabled": false,
-            "duration": {
-              "startTime": null,
-              "seconds": null,
-              "rounds": null,
-              "turns": null,
-              "startRound": null,
-              "startTurn": null
-            },
-            "icon": "systems/dnd5e/icons/skills/red_10.jpg",
-            "label": "Rage",
-            "tint": "",
-            "transfer": false
-          }
-        ];
+      case "Starry Form: Archer":
+        feature.data.actionType = "rsak";
+        feature.data['target']['value'] = 1;
+        feature.data['target']['type'] = "creature";
+        feature.data['range']['units'] = "ft";
+        break;
+      case "Starry Form: Chalice":
+        feature.data.damage.parts[0][1] = "healing";
+        feature.data.actionType = "heal";
+        feature.data['target']['value'] = 1;
+        feature.data['target']['type'] = "ally";
+        feature.data['range']['value'] = 30;
+        feature.data['range']['units'] = "ft";
+        feature.data.activation.type = "special";
+        break;
+      case "Starry Form: Dragon":
+        break;
       // no default
     }
   });
