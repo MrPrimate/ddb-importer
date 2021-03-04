@@ -250,8 +250,8 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
   const noACValue = !foundryItem.data?.armor?.value;
   if (noModifiers && noACValue) return foundryItem;
-  console.error(`Item: ${foundryItem.name}`, ddbItem);
-  logger.debug(`Generating supported Base AC effects for ${foundryItem.name}`);
+  // console.error(`Item: ${foundryItem.name}`, ddbItem);
+  logger.debug(`Generating supported AC effects for ${foundryItem.name}`);
 
   let effect = baseItemEffect(foundryItem, `AC: ${foundryItem.name}`);
 
@@ -328,7 +328,7 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
     foundryItem.effects.push(effect);
   }
 
-  console.warn(JSON.parse(JSON.stringify(foundryItem)));
+  // console.warn(JSON.parse(JSON.stringify(foundryItem)));
 
   return foundryItem;
 }

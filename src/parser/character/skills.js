@@ -2,18 +2,18 @@ import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
 import { generateBaseSkillEffect } from "../effects/effects.js";
 
-let isHalfProficiencyRoundedUp = (data, skill, modifiers=null) => {
+let isHalfProficiencyRoundedUp = (data, skill, modifiers = null) => {
   const longAbility = DICTIONARY.character.abilities
     .filter((ability) => skill.ability === ability.value)
     .map((ability) => ability.long)[0];
 
-  const roundUp = (modifiers) ?
-    utils.filterModifiers(modifiers,"half-proficiency-round-up", `${longAbility}-ability-checks`) :
-    utils.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`, ["", null], true);
+  const roundUp = (modifiers)
+    ? utils.filterModifiers(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
+    : utils.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`, ["", null], true);
   return Array.isArray(roundUp) && roundUp.length;
 };
 
-export function getSkillProficiency (data, skill, modifiers=null) {
+export function getSkillProficiency (data, skill, modifiers = null) {
   if (!modifiers) {
     modifiers = [
       utils.getChosenClassModifiers(data, true),
@@ -41,7 +41,7 @@ export function getSkillProficiency (data, skill, modifiers=null) {
   const proficient = skillMatches.includes("expertise") ? 2 : skillMatches.includes("proficiency") ? 1 : halfProficiency;
 
   return proficient;
-};
+}
 
 let getCustomSkillProficiency = (data, skill) => {
   // Overwrite the proficient value with any custom set over rides

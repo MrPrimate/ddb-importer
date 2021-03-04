@@ -350,7 +350,7 @@ let utils = {
             result.componentId = choice.componentId;
             result.componentTypeId = choice.componentTypeId;
             result.choiceId = choice.id;
-            result.parentChoiceId  = choice.parentChoiceId;
+            result.parentChoiceId = choice.parentChoiceId;
             // console.log(result);
             return result;
           });

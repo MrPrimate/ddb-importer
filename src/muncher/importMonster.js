@@ -326,9 +326,8 @@ async function swapItems(data) {
 }
 
 async function linkResourcesConsumption(actor) {
-  console.warn(actor);
   if (actor.items.some((item) => item.data.recharge.value)) {
-    console.warn(`Resource linking for ${actor.name}`);
+    logger.debug(`Resource linking for ${actor.name}`);
     actor.items.forEach((item) => {
       if (item.data.recharge.value) {
         const itemID = randomID(16);

@@ -5,8 +5,8 @@ import { generateFeatEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
-  console.warn(ddbItem);
-  console.log(choice);
+  // console.warn(ddbItem);
+  // console.log(choice);
   if (ddbItem.grantedModifiers) return ddbItem;
   let modifierItem = JSON.parse(JSON.stringify(ddbItem));
   const modifiers = [
@@ -35,17 +35,12 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
         option.definition.entityTypeId == mod.componentTypeId && // mod componentId matches option entity type id
         choice.id == mod.componentId // choice id and mod id match
       );
-      console.log(`choiceMatch ${choiceMatch}`)
+      // console.log(`choiceMatch ${choiceMatch}`);
       if (choiceMatch) return true;
     } else if (choice) { // && choice.parentChoiceId
       const choiceIdSplit = choice.choiceId.split("-").pop();
-      console.warn(mod);
-      console.log(choiceIdSplit);
-      const modIdSplitMatch = mod.id == choiceIdSplit;
-      console.log(modIdSplitMatch);
-      if (modIdSplitMatch) return true;
-    } else {
-      if (mod.componentId === ddbItem.id) {
+      if (mod.id == choiceIdSplit) return true;
+    } else if (mod.componentId === ddbItem.id) {
         if (type === "class") {
           // logger.log("Class check - feature effect parsing");
           const classFeatureMatch = ddb.character.classes.some((klass) =>
@@ -68,7 +63,6 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
           if (traitMatch) return true;
         }
       }
-    }
     return false;
   });
   // console.warn(modifierItem);
@@ -84,7 +78,7 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
     : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
   const addACEffects = (compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-    : game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects");
   const modifierItem = generateFeatModifiers(ddb, ddbItem, choice, type);
   if (daeInstalled && addCharacterEffects) {
     item = generateFeatEffects(ddb, character, modifierItem, item, compendiumItem);

@@ -534,7 +534,7 @@ function addSkillProficiencies(modifiers) {
   DICTIONARY.character.skills.forEach((skill) => {
     const prof = getSkillProficiency(null, skill, modifiers);
     if (prof != 0) {
-      changes.push(generateAddChange(prof, 9,`data.skills.${skill.name}.value`))
+      changes.push(generateAddChange(prof, 9, `data.skills.${skill.name}.value`));
     }
   });
   return changes;
@@ -787,8 +787,8 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
  * @param {*} foundryItem
  */
 function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0){
-    if (DICTIONARY.types.inventory.includes(foundryItem.type)){
+  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) {
+    if (DICTIONARY.types.inventory.includes(foundryItem.type)) {
       return equipmentEffectAdjustment(foundryItem);
     } else if (foundryItem.type === "spell") {
       return spellEffectAdjustment(foundryItem);
