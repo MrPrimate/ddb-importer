@@ -118,7 +118,7 @@
                   </div>
                     {{#each monsterConfig}}
                     <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                            name="munching-policy-{{this.name}}"
+                            name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
                             data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
                     </div>
                     {{/each}}

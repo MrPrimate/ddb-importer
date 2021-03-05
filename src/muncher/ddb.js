@@ -60,6 +60,7 @@ export class DDBSources extends FormApplication {
       if (value) sources.push(parseInt(key));
     }
     await game.settings.set("ddb-importer", "munching-policy-monster-sources", sources);
+    new DDBMuncher().render(true);
   }
 }
 
@@ -148,12 +149,32 @@ export default class DDBMuncher extends Application {
       );
     });
 
+    this.homebrew = html.find("#munching-policy-monster-homebrew");
+    this.homebrewOnly = html.find("#munching-policy-monster-homebrew-only");
+
     html.find('.munching-monster-config input[type="checkbox"]').on("change", (event) => {
       game.settings.set(
         "ddb-importer",
         "munching-policy-" + event.currentTarget.dataset.section,
         event.currentTarget.checked
       );
+      switch(event.currentTarget.dataset.section) {
+        case "monster-homebrew": {
+          if (!event.currentTarget.checked) {
+            game.settings.set("ddb-importer", "munching-policy-monster-homebrew-only", false);
+            this.homebrewOnly.get(0).checked = false;
+          }
+          break;
+        }
+        case "monster-homebrew-only":{
+          if (event.currentTarget.checked) {
+            game.settings.set("ddb-importer", "munching-policy-monster-homebrew", true);
+            this.homebrew.get(0).checked = true;
+          }
+          break;
+        }
+        // no default
+      }
 
     });
 
@@ -304,7 +325,7 @@ export default class DDBMuncher extends Application {
       {
         name: "add-effects",
         isChecked: game.settings.get("ddb-importer", "munching-policy-add-effects"),
-        description: "[Super Experimental] Dynamically generate DAE effects (items only). (Requires DAE)",
+        description: "[Experimental] Dynamically generate DAE effects (equipment only). (Requires DAE)",
         enabled: daeInstalled,
       },
     ];
@@ -317,6 +338,13 @@ export default class DDBMuncher extends Application {
         enabled: true,
       },
     ];
+
+    const sourcesSelected = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat().length > 0;
+    const homebrewDescription = (tiers.homebrew) ?
+      sourcesSelected ?
+        "Homebrew won't be imported with source(s) selected" :
+        "Include homebrew?" :
+      "Include homebrew? [Undying or God tier patreon supporters]";
 
     const monsterConfig = [
       {
@@ -345,9 +373,15 @@ export default class DDBMuncher extends Application {
       },
       {
         name: "monster-homebrew",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew"),
-        description: (tiers.homebrew) ? "Include homebrew?" : "Include homebrew? [Undying or God tier patreon supporters]",
-        enabled: tiers.homebrew,
+        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew") && !sourcesSelected,
+        description: homebrewDescription,
+        enabled: tiers.homebrew && !sourcesSelected,
+      },
+      {
+        name: "monster-homebrew-only",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only") && !sourcesSelected,
+        description: "Homebrew monsters only? (Otherwise both)",
+        enabled: tiers.homebrew && !sourcesSelected,
       },
       {
         name: "monster-exact-match",

@@ -326,7 +326,7 @@ async function swapItems(data) {
 }
 
 async function linkResourcesConsumption(actor) {
-  if (actor.items.some((item) => item.data.recharge.value)) {
+  if (actor.items.some((item) => item.data?.recharge?.value)) {
     logger.debug(`Resource linking for ${actor.name}`);
     actor.items.forEach((item) => {
       if (item.data.recharge.value) {
