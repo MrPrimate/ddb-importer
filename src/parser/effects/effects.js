@@ -545,20 +545,17 @@ function addBonusSpeedEffect(modifiers, name, subType, speedType = null) {
   let effects = [];
   // "Equal to Walking Speed"
   if (bonuses.length > 0) {
-    bonuses.forEach((bonus) => {
-      logger.debug(`Generating ${subType} speed bonus for ${name}`);
-      if (!speedType) {
-        const innate = subType.split("-").slice(-1)[0];
-        speedType = DICTIONARY.character.speeds.find((s) => s.innate === innate).type;
-      }
-      const bonusValue = bonuses.reduce((speed, mod) => speed + mod.value, 0);
-      if (speedType === "all") {
-        effects.push(generateCustomChange(`+ ${bonusValue}`, 9, `data.attributes.movement.${speedType}`));
-      } else {
-        effects.push(generateAddChange(bonusValue, 9, `data.attributes.movement.${speedType}`));
-      }
-
-    });
+    logger.debug(`Generating ${subType} speed bonus for ${name}`);
+    if (!speedType) {
+      const innate = subType.split("-").slice(-1)[0];
+      speedType = DICTIONARY.character.speeds.find((s) => s.innate === innate).type;
+    }
+    const bonusValue = bonuses.reduce((speed, mod) => speed + mod.value, 0);
+    if (speedType === "all") {
+      effects.push(generateCustomChange(`+ ${bonusValue}`, 9, `data.attributes.movement.${speedType}`));
+    } else {
+      effects.push(generateAddChange(bonusValue, 9, `data.attributes.movement.${speedType}`));
+    }
   }
   return effects;
 }
@@ -898,7 +895,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   const initiative = addInitiativeBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const disadvantageAgainst = addAttackRollDisadvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
   const magicalAdvantage = addMagicalAdvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const bonusSpeeds = addBonusSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name)
+  const bonusSpeeds = addBonusSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
     ...globalSaveBonus,

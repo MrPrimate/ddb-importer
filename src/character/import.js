@@ -1337,7 +1337,7 @@ export default class CharacterImport extends FormApplication {
       const bioUpdates = ["alignment", "appearance", "background", "biography", "bond", "flaw", "idea", "trait"];
       bioUpdates.forEach((option) => {
         this.result.character.data.details[option] = this.actorOriginal.data.details[option];
-      })
+      });
     }
 
     // flag as having items ids
