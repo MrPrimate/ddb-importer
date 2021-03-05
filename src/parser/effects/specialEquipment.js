@@ -1,5 +1,4 @@
-import { baseItemEffect } from "./effects.js";
-
+import { baseItemEffect, generateUpgradeChange, generateAddChange, generateMultiplyChange } from "./effects.js";
 
 /**
  * This function is mainly for effects that can't be dynamically generated
@@ -10,12 +9,7 @@ export function equipmentEffectAdjustment(document) {
     case "Armor of Invulnerability": {
       // this effect is 1/day, we have to add it
       let effect = baseItemEffect(document, `${document.name} - Invulnerability`);
-      effect.changes.push({
-        key: "data.traits.di.value",
-        value: "physical",
-        mode: 2,
-        priority: 20,
-      });
+      effect.changes.push(generateAddChange("physical", 20, "data.traits.di.value"));
       effect.duration = {
         startTime: null,
         seconds: 600,
@@ -78,8 +72,50 @@ export function equipmentEffectAdjustment(document) {
           value: "true",
           mode: 5,
           priority: 20,
-        },
+        }
       );
+      break;
+    }
+    case "Belashyrra’s Beholder Crown": {
+      let effect = baseItemEffect(document, `${document.name} - Constant Effects`);
+      effect.changes.push(generateUpgradeChange(120, 10, "data.attributes.senses.darkvision"));
+      document.effects.push(effect);
+      break;
+    }
+    case "Boots of Speed": {
+      let effect = baseItemEffect(document, `${document.name} - Invulnerability`);
+      effect.changes.push(generateMultiplyChange(2, 20, "data.attributes.movement.walk"));
+      effect.duration = {
+        startTime: null,
+        seconds: 600,
+        rounds: null,
+        turns: null,
+        startRound: null,
+        startTurn: null,
+      };
+      effect.transfer = true;
+      effect.disabled = true;
+      effect.flags.dae.transfer = true;
+      effect.flags.dae.stackable = true;
+      effect.flags.dae.specialDuration = "None";
+      document.data.target = {
+        value: null,
+        width: null,
+        units: "",
+        type: "self",
+      };
+      document.data.range = {
+        value: null,
+        long: null,
+        units: "self",
+      };
+      document.data.activation.type = "bonus";
+      document.effects.push(effect);
+      break;
+    }
+    case "Cloak of Displacement": {
+      let effect = baseItemEffect(document, `${document.name} - Constant Effects`);
+      effect.flags.dae.specialDuration = ["isDamaged"];
       break;
     }
     // no default

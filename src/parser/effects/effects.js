@@ -379,18 +379,21 @@ function addDamageConditions(modifiers) {
 function addStatBonusEffect(modifiers, name, subType) {
   const bonuses = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
 
-  // TODO: account for character and abilities that raise the base Ability - these come in as modifiers
   let effects = [];
-  // dwarfen "Maximum of 20"
   if (bonuses.length > 0) {
     bonuses.forEach((bonus) => {
       const maxMatch = /Maximum of (\d*)/;
       const match = bonus.restriction ? bonus.restriction.match(maxMatch) : false;
-      const max = match ? match[1] : 20;
       logger.debug(`Generating ${subType} stat bonus for ${name}`);
-      const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-      const bonusString = `{${max}, @data.abilities.${ability}.value + ${bonus.value}} kl`;
-      effects.push(generateOverrideChange(bonusString, 5, `data.abilities.${ability}.value`));
+      const ability = DICTIONARY.character.abilities.find((ability) => ability.long === subType.split("-")[0]);
+      const abilityScoreMaxBonus = modifiers
+        .filter((modifier) => modifier.type === "bonus" && modifier.subType === "ability-score-maximum")
+        .filter((mod) => mod.statId === ability.id)
+        .reduce((prev, cur) => prev + cur.value, 0);
+      const max = match ? match[1] : 20 + abilityScoreMaxBonus;
+
+      const bonusString = `{${max}, @data.abilities.${ability.value}.value + ${bonus.value}} kl`;
+      effects.push(generateOverrideChange(bonusString, 5, `data.abilities.${ability.value}.value`));
     });
   }
   return effects;
@@ -836,17 +839,7 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
  */
 function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   if (!foundryItem.effects) foundryItem.effects = [];
-  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) {
-    if (DICTIONARY.types.inventory.includes(foundryItem.type)) {
-      return equipmentEffectAdjustment(foundryItem);
-    } else if (foundryItem.type === "spell") {
-      return spellEffectAdjustment(foundryItem);
-    } else if (foundryItem.type === "feat") {
-      return featureEffectAdjustment(foundryItem);
-    } else {
-      return foundryItem;
-    }
-  }
+  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return foundryItem;
   console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`);
 
@@ -931,15 +924,26 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     foundryItem.effects.push(effect);
   }
 
+  return foundryItem;
+}
+
+export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+  foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = equipmentEffectAdjustment(foundryItem);
   console.warn(JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
 
-export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-  return generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+  foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+  foundryItem = featureEffectAdjustment(foundryItem);
+  console.warn(JSON.parse(JSON.stringify(foundryItem)));
+  return foundryItem;
 }
 
-export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-  return generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+export function generateSpellEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+  foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+  foundryItem = spellEffectAdjustment(foundryItem);
+  console.warn(JSON.parse(JSON.stringify(foundryItem)));
+  return foundryItem;
 }
