@@ -1,4 +1,4 @@
-// import { baseItemEffect } from "./effects.js";
+import { baseItemEffect } from "./effects.js";
 
 /**
  * This function is mainly for effects that can't be dynamically generated
@@ -7,7 +7,6 @@
 export function featureEffectAdjustment(document) {
   switch (document.name) {
     case "Rage": {
-      // this effect is 1/day, we have to add it
       let effect = baseItemEffect(document, `${document.name}`);
       effect.changes.push(
         {

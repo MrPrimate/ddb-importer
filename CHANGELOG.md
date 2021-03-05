@@ -18,7 +18,7 @@ Item effects generated:
 * Condition immunities
 * Languages
 * Darkvision, blindsight base and bonuses
-* Flat speed adjustments
+* Speed/movement
 * Proficiencies
 * HP per level
 * Skill bonuses

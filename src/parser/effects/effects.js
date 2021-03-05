@@ -54,6 +54,13 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "set", subType: "innate-speed-swimming" },
   { type: "set", subType: "innate-speed-flying" },
 
+  { type: "bonus", subType: "speed" },
+  { type: "bonus", subType: "unarmored-movement" },
+  { type: "bonus", subType: "speed-walking" },
+  { type: "bonus", subType: "speed-climbing" },
+  { type: "bonus", subType: "speed-swimming" },
+  { type: "bonus", subType: "speed-flying" },
+
   // skills
   { type: "bonus", subType: "acrobatics" },
   { type: "bonus", subType: "animal-handling" },
@@ -509,7 +516,7 @@ function addSetSpeedEffect(modifiers, name, subType) {
       const speedType = DICTIONARY.character.speeds.find((s) => s.innate === innate).type;
       // current assumption if no speed provided, set to walking speed
       const speed = bonus.value ? bonus.value : "@attributes.movement.walk";
-      effects.push(generateUpgradeChange(speed, 20, `data.attributes.movement.${speedType}`));
+      effects.push(generateUpgradeChange(speed, 5, `data.attributes.movement.${speedType}`));
     });
   }
   return effects;
@@ -520,11 +527,55 @@ function addSetSpeedEffect(modifiers, name, subType) {
  */
 function addSetSpeeds(modifiers, name) {
   let changes = [];
-  const speedSets = ["innate-speed-walking", "innate-speed-climbing", "innate-speed-swimming", "innate-speed-flying"];
+  const speedSets = ["innate-speed-walking", "innate-speed-climbing", "innate-speed-swimming", "innate-speed-flying", "innate-speed-burrowing"];
   speedSets.forEach((speedSet) => {
     const result = addSetSpeedEffect(modifiers, name, speedSet);
     changes = changes.concat(result);
   });
+
+  return changes;
+}
+
+// *
+// Generate speed bonus speeds
+//
+function addBonusSpeedEffect(modifiers, name, subType, speedType = null) {
+  const bonuses = modifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
+
+  let effects = [];
+  // "Equal to Walking Speed"
+  if (bonuses.length > 0) {
+    bonuses.forEach((bonus) => {
+      logger.debug(`Generating ${subType} speed bonus for ${name}`);
+      if (!speedType) {
+        const innate = subType.split("-").slice(-1)[0];
+        speedType = DICTIONARY.character.speeds.find((s) => s.innate === innate).type;
+      }
+      const bonusValue = bonuses.reduce((speed, mod) => speed + mod.value, 0);
+      if (speedType === "all") {
+        effects.push(generateCustomChange(`+ ${bonusValue}`, 9, `data.attributes.movement.${speedType}`));
+      } else {
+        effects.push(generateAddChange(bonusValue, 9, `data.attributes.movement.${speedType}`));
+      }
+
+    });
+  }
+  return effects;
+}
+
+/**
+ * Bonus Speeds
+ */
+function addBonusSpeeds(modifiers, name) {
+  let changes = [];
+  const speedBonuses = ["speed-walking", "speed-climbing", "speed-swimming", "speed-flying", "speed-burrowing"];
+  speedBonuses.forEach((speed) => {
+    const result = addBonusSpeedEffect(modifiers, name, speed);
+    changes = changes.concat(result);
+  });
+
+  changes = changes.concat(addBonusSpeedEffect(modifiers, name, "unarmored-movement", "walk"));
+  changes = changes.concat(addBonusSpeedEffect(modifiers, name, "speed", "walk")); // probably all, but doesn't handle cases of where no base speed set, so say fly gets set to 10.
 
   return changes;
 }
@@ -787,6 +838,7 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
  * @param {*} foundryItem
  */
 function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+  if (!foundryItem.effects) foundryItem.effects = [];
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) {
     if (DICTIONARY.types.inventory.includes(foundryItem.type)) {
       return equipmentEffectAdjustment(foundryItem);
@@ -846,6 +898,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   const initiative = addInitiativeBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const disadvantageAgainst = addAttackRollDisadvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
   const magicalAdvantage = addMagicalAdvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const bonusSpeeds = addBonusSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name)
 
   effect.changes = [
     ...globalSaveBonus,
@@ -866,6 +919,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     ...initiative,
     ...disadvantageAgainst,
     ...magicalAdvantage,
+    ...bonusSpeeds,
   ];
 
   // if we don't have effects, lets return the item
@@ -877,7 +931,6 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   [foundryItem, effect] = addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem);
 
   if (effect.changes?.length > 0) {
-    if (!foundryItem.effects) foundryItem.effects = [];
     foundryItem.effects.push(effect);
   }
 
