@@ -1285,8 +1285,8 @@ export default class CharacterImport extends FormApplication {
     }
 
     if (game.settings.get("ddb-importer", "character-update-policy-generate-base-ac")) {
-      console.warn(this.result.character.data.attributes.ac);
-      console.warn(this.result.character.flags.ddbimporter.baseAC);
+      // console.warn(this.result.character.data.attributes.ac);
+      // console.warn(this.result.character.flags.ddbimporter.baseAC);
       this.result.character.data.attributes.ac.value = this.result.character.flags.ddbimporter.baseAC;
     }
 
@@ -1314,15 +1314,15 @@ export default class CharacterImport extends FormApplication {
 
     logger.debug("Current Actor:", this.actorOriginal);
 
-    console.warn(JSON.parse(JSON.stringify(this.actor)));
+    // console.warn(JSON.parse(JSON.stringify(this.actor)));
     // handle active effects
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
     this.fixUpCharacterEffects(this.result.character.effects);
     await this.removeActiveEffects(activeEffectCopy);
 
-    console.warn(JSON.parse(JSON.stringify(this.actor)));
-    console.warn(JSON.parse(JSON.stringify(this.result.character)));
+    // console.warn(JSON.parse(JSON.stringify(this.actor)));
+    // console.warn(JSON.parse(JSON.stringify(this.result.character)));
 
     // update image
     await this.updateImage(html, data.ddb);
@@ -1350,29 +1350,14 @@ export default class CharacterImport extends FormApplication {
     logger.debug("Character data importing: ", this.result.character);
     await this.actor.update(this.result.character);
 
-    console.warn(JSON.parse(JSON.stringify(this.actor)));
+    // console.warn(JSON.parse(JSON.stringify(this.actor)));
     // copy existing journal notes
     this.copyExistingJournalNotes();
 
     // items import
     await this.processCharacterItems(html);
 
-    console.warn(JSON.parse(JSON.stringify(this.actor)));
-
-    // We loop back over the spell slots to update them to our computed
-    // available value as per DDB.
-    // let actorUpdates = [];
-    // CharacterImport.showCurrentTask(html, "Updating spell slots");
-    // for (const [type, info] of Object.entries(this.result.character.data.spells)) {
-    //   actorUpdates.push(
-    //     this.actor.update({
-    //       [`data.spells.${type}.value`]: parseInt(info.value),
-    //     })
-    //   );
-    // }
-    // NOt needed anymore
-
-    // await Promise.all(actorUpdates);
+    // console.warn(JSON.parse(JSON.stringify(this.actor)));
 
     // copy items whole from DAE
     const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
@@ -1397,7 +1382,5 @@ export default class CharacterImport extends FormApplication {
         this.actor.updateEmbeddedEntity("ActiveEffect", { "_id": ae._id, "disabled": !ae.disabled });
       });
     }
-
-    // this.close();
   }
 }
