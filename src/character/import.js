@@ -14,10 +14,7 @@ import {
   addItemEffectIcons,
 } from "../muncher/import.js";
 import { download, getCampaignId, getPatreonTiers } from "../muncher/utils.js";
-import {
-  migrateActorDAESRD,
-  addItemsDAESRD
-} from "../muncher/dae.js";
+import { migrateActorDAESRD, addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
 import { characterExtras } from "./extras.js";
@@ -104,7 +101,6 @@ const getCharacterAPIEndpoint = (characterId) => {
   return characterId !== null ? `https://character-service.dndbeyond.com/character/v4/character/${characterId}` : null;
 };
 
-
 const getCharacterUpdatePolicyTypes = (invert = false) => {
   let itemTypes = [];
 
@@ -122,7 +118,6 @@ const getCharacterUpdatePolicyTypes = (invert = false) => {
     if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
       itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
     if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
-
   }
   return itemTypes;
 };
@@ -137,24 +132,18 @@ const filterItemsByUserSelection = (result, sections, invert = false) => {
   const validItemTypes = getCharacterUpdatePolicyTypes(invert);
 
   for (const section of sections) {
-    items = items.concat(result[section]).filter((item) =>
-      validItemTypes.includes(item.type)
-    );
+    items = items.concat(result[section]).filter((item) => validItemTypes.includes(item.type));
   }
   return items;
 };
 
-
 const filterActorItemsByUserSelection = (actor, invert = false) => {
   const validItemTypes = getCharacterUpdatePolicyTypes(invert);
 
-  const items = actor.items.filter((item) =>
-    validItemTypes.includes(item.type)
-  );
+  const items = actor.items.filter((item) => validItemTypes.includes(item.type));
 
   return items;
 };
-
 
 /**
  * Loads and parses character in the proxy
@@ -169,7 +158,7 @@ export async function getCharacterData(characterId, syncId) {
   const proxyCampaignId = campaignId === "" ? null : campaignId;
   let body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
   if (syncId) {
-    body['updateId'] = syncId;
+    body["updateId"] = syncId;
   }
 
   try {
@@ -194,7 +183,7 @@ export async function getCharacterData(characterId, syncId) {
     logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
     try {
       const character = parseJson(ddb);
-      const shouldChangeName = game.settings.get('ddb-importer', 'character-update-policy-name');
+      const shouldChangeName = game.settings.get("ddb-importer", "character-update-policy-name");
       if (!shouldChangeName) {
         character.character.name = undefined;
         character.character.token.name = undefined;
@@ -252,7 +241,7 @@ export default class CharacterImport extends FormApplication {
     options.title = game.i18n.localize("ddb-importer.module-name");
     options.template = "modules/ddb-importer/handlebars/character.hbs";
     options.width = 900;
-    options.height = 'auto';
+    options.height = "auto";
     options.classes = ["ddbimporter", "sheet"];
     options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "import" }];
 
@@ -332,7 +321,9 @@ export default class CharacterImport extends FormApplication {
           (item) =>
             !itemsToRemove.some((originalItem) => {
               const originalNameFlag = ((originalItem.flags || {}).ddbimporter || {}).originalItemName;
-              const originalNameMatch = (originalNameFlag) ? originalItem.flags.ddbimporter.originalItemName === item.name : false;
+              const originalNameMatch = originalNameFlag
+                ? originalItem.flags.ddbimporter.originalItemName === item.name
+                : false;
               const nameMatch = item.name === originalItem.name || originalNameMatch;
               return nameMatch && item.type === originalItem.type;
             })
@@ -357,9 +348,8 @@ export default class CharacterImport extends FormApplication {
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
     const toRemove = ownedItems
-      .filter((item) =>
-        includedItems.includes(item.type) &&
-        !excludedList.some((excluded) => excluded._id === item._id)
+      .filter(
+        (item) => includedItems.includes(item.type) && !excludedList.some((excluded) => excluded._id === item._id)
       )
       .filter((item) => !item.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item._id);
@@ -520,7 +510,7 @@ export default class CharacterImport extends FormApplication {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-full-description"),
         description: "For actions use full description and snippets, else use snippets only.",
         enabled: true,
-      }
+      },
     ];
 
     const updateReady = (((this.actorOriginal || {}).flags || {}).ddbimporter || {}).inPlaceUpdateAvailable;
@@ -530,28 +520,32 @@ export default class CharacterImport extends FormApplication {
         name: "inplace",
         isChecked: updateReady && game.settings.get("ddb-importer", "character-update-policy-inplace"),
         title: "Update Existing Items",
-        description: "<i>Recommended</i>. Update existing items, rather than deleting and recreating new ones. This will retaining hotbar links for modules like Better Rolls. Matched items won't be replaced by compendium items, to retain a custom item on the sheet mark that item as ignored by ddb-importer in it's settings. If it is greyed out it's not yet available with your existing character data and will be available after your next import.",
+        description:
+          "<i>Recommended</i>. Update existing items, rather than deleting and recreating new ones. This will retaining hotbar links for modules like Better Rolls. Matched items won't be replaced by compendium items, to retain a custom item on the sheet mark that item as ignored by ddb-importer in it's settings. If it is greyed out it's not yet available with your existing character data and will be available after your next import.",
         enabled: updateReady,
       },
       {
         name: "new",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-new"),
         title: "[Deprecated] Import new items only",
-        description: "Doesn't delete or update existing items in Foundry. If this is checked features managed by the Class such as levels and spell progression won't be updated. Attributes such as HP, AC, stats, speeds, skills and special traits are always updated. Please consider marking the item you wish to keep as ignored by import instead.",
+        description:
+          "Doesn't delete or update existing items in Foundry. If this is checked features managed by the Class such as levels and spell progression won't be updated. Attributes such as HP, AC, stats, speeds, skills and special traits are always updated. Please consider marking the item you wish to keep as ignored by import instead.",
         enabled: true,
       },
       {
         name: "use-existing",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
         title: "[Caution] Replace Items using ddb-importer compendiums",
-        description: "Use existing items from <i>ddb-import compendiums</i>, rather than parsing from DDB. This is useful if you have customised the items in the compendium, although you will lose any custom effects applied by this module e.g. Improved Divine Smite. Please consider marking the item you wish to keep as ignored by import instead.",
+        description:
+          "Use existing items from <i>ddb-import compendiums</i>, rather than parsing from DDB. This is useful if you have customised the items in the compendium, although you will lose any custom effects applied by this module e.g. Improved Divine Smite. Please consider marking the item you wish to keep as ignored by import instead.",
         enabled: true,
       },
       {
         name: "use-srd",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd"),
         title: "[Caution] Replace Items using SRD compendiums",
-        description: "Use the <i>SRD compendiums</i>, rather than DDB. Importing using SRD will not include features like fighting style and divine smite in damage calculations. Please consider marking the item you wish to keep as ignored by import instead.",
+        description:
+          "Use the <i>SRD compendiums</i>, rather than DDB. Importing using SRD will not include features like fighting style and divine smite in damage calculations. Please consider marking the item you wish to keep as ignored by import instead.",
         enabled: true,
       },
     ];
@@ -561,28 +555,34 @@ export default class CharacterImport extends FormApplication {
         name: "add-item-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-item-effects") && daeInstalled,
         title: "[Experimental] Generate Active Effects for Equipment",
-        description: "Dynamically generate active effects for a characters equipment, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
+        description:
+          'Dynamically generate active effects for a characters equipment, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)',
         enabled: daeInstalled,
       },
       {
         name: "add-character-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-character-effects") && daeInstalled,
         title: "[Experimental] Generate Active Effects for Character Features/Racial Traits",
-        description: "There is a high chance that characters imported won't be perfect. I would love to have detailed bug reports, but fixes maybe slow. Dynamically generate active effects for a characters features and racial traits, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href=\"https://discord.gg/CpRtdK6wYq\">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)",
+        description:
+          'There is a high chance that characters imported won\'t be perfect. I would love to have detailed bug reports, but fixes maybe slow. Dynamically generate active effects for a characters features and racial traits, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)',
         enabled: daeInstalled,
       },
       {
         name: "generate-ac-feature-effects",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects") && daeInstalled,
+        isChecked:
+          game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects") && daeInstalled,
         title: "[Experimental] Generate Active Effects ACs for Character Features/Racial Traits",
-        description: "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations or if equipment is equipped in D&DBeyond that is not in use (e.g. multiple shields). (Requires the DAE module)",
+        description:
+          "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations or if equipment is equipped in D&DBeyond that is not in use (e.g. multiple shields). (Requires the DAE module)",
         enabled: daeInstalled,
       },
       {
         name: "generate-ac-override-effects",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects") && daeInstalled,
+        isChecked:
+          game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects") && daeInstalled,
         title: "Generate DAE Override ACs",
-        description: "Dynamically generate possible AC combinations as dynamic effects, these are high priority effects that likely override other effects. Useful if you can't calculate your AC correctly using other effects. (Requires the DAE module)",
+        description:
+          "Dynamically generate possible AC combinations as dynamic effects, these are high priority effects that likely override other effects. Useful if you can't calculate your AC correctly using other effects. (Requires the DAE module)",
         enabled: daeInstalled,
       },
       {
@@ -596,14 +596,16 @@ export default class CharacterImport extends FormApplication {
         name: "dae-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDInstalled,
         title: "Copy Active Effect from DAE Compendiums",
-        description: "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE and SRD module).",
+        description:
+          "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE and SRD module).",
         enabled: daeInstalled && daeSRDInstalled,
       },
       {
         name: "dae-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDInstalled,
         title: "[Caution] Replace Items using DAE compendiums",
-        description: "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE and SRD module). This will remove any effects applied directly to your character/not via features/items.",
+        description:
+          "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE and SRD module). This will remove any effects applied directly to your character/not via features/items.",
         enabled: daeInstalled && daeSRDInstalled,
       },
       {
@@ -766,7 +768,6 @@ export default class CharacterImport extends FormApplication {
       //   description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
       //   enabled: daeInstalled,
       // },
-
     ];
 
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
@@ -801,13 +802,15 @@ export default class CharacterImport extends FormApplication {
     super.activateListeners(html);
     // watch the change of the import-policy-selector checkboxes
     $(html)
-      .find([
-        '.import-policy input[type="checkbox"]',
-        '.advanced-import-config input[type="checkbox"]',
-        '.effect-import-config input[type="checkbox"]',
-        '.extras-import-config input[type="checkbox"]',
-        '.import-config input[type="checkbox"]'
-      ].join(','))
+      .find(
+        [
+          '.import-policy input[type="checkbox"]',
+          '.advanced-import-config input[type="checkbox"]',
+          '.effect-import-config input[type="checkbox"]',
+          '.extras-import-config input[type="checkbox"]',
+          '.import-config input[type="checkbox"]',
+        ].join(",")
+      )
       .on("change", (event) => {
         game.settings.set(
           "ddb-importer",
@@ -878,7 +881,11 @@ export default class CharacterImport extends FormApplication {
             // result.forEach((r) => {
             //   console.warn(r);
             // });
-            const updateNotes = result.flat().filter((r) => r !== undefined).map((r) => r.message).join(" ");
+            const updateNotes = result
+              .flat()
+              .filter((r) => r !== undefined)
+              .map((r) => r.message)
+              .join(" ");
             logger.debug(updateNotes);
             CharacterImport.showCurrentTask(html, "Update complete", updateNotes);
             $(html).find("#dndbeyond-character-update").prop("disabled", false);
@@ -892,7 +899,7 @@ export default class CharacterImport extends FormApplication {
 
     $(html)
       .find("#dndbeyond-character-extras-start")
-      .on("click", async() => {
+      .on("click", async () => {
         try {
           $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Fetching character data");
@@ -1039,8 +1046,6 @@ export default class CharacterImport extends FormApplication {
       if (daeInstalled && (addItemEffects || addCharacterEffects)) {
         items = addItemEffectIcons(items);
       }
-
-
     }
     return Promise.all(items);
   }
@@ -1063,15 +1068,15 @@ export default class CharacterImport extends FormApplication {
       let matchedItems = [];
 
       await items.forEach((item) => {
-        let matchedItem = ownedItems
-          .find((owned) =>
+        let matchedItem = ownedItems.find(
+          (owned) =>
             item.name === owned.name &&
             item.type === owned.type &&
             item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id
-          );
+        );
         if (matchedItem) {
           if (!matchedItem.flags.ddbimporter?.ignoreItemImport) {
-            item['_id'] = matchedItem['_id'];
+            item["_id"] = matchedItem["_id"];
             if (matchedItem.flags.ddbimporter?.ignoreIcon) item.flags.ddbimporter.matchedImg = matchedItem.img;
             if (matchedItem.flags.ddbimporter?.retainResourceConsumption) item.data.consume = matchedItem.data.consume;
             // update effect ids
@@ -1079,7 +1084,12 @@ export default class CharacterImport extends FormApplication {
               item.effects = matchedItem.effects;
             } else if (item.effects?.length >= 0) {
               item.effects = item.effects.map((ae) => {
-                const matchedEffect = matchedItem.effects.find((me) => me.flags?.ddbimporter?.itemId && ae.flags?.ddbimporter?.itemId && me.flags.ddbimporter.itemId === ae.flags.ddbimporter.itemId);
+                const matchedEffect = matchedItem.effects.find(
+                  (me) =>
+                    me.flags?.ddbimporter?.itemId &&
+                    ae.flags?.ddbimporter?.itemId &&
+                    me.flags.ddbimporter.itemId === ae.flags.ddbimporter.itemId
+                );
                 if (matchedEffect) {
                   ae.origin = matchedEffect.origin;
                   ae._id = matchedEffect._id;
@@ -1104,7 +1114,8 @@ export default class CharacterImport extends FormApplication {
         return item;
       });
 
-      const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects") ||
+      const addEffects =
+        game.settings.get("ddb-importer", "character-update-policy-add-item-effects") ||
         game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
       // there is some kind of race condition when updating more than a couple of items with AE on them
@@ -1248,33 +1259,43 @@ export default class CharacterImport extends FormApplication {
   async removeActiveEffects(activeEffectCopy) {
     // remove current active effects
     const excludedItems = filterActorItemsByUserSelection(this.actorOriginal, true);
-    const ignoredItemIds = this.actorOriginal.items.filter((item) =>
-      item.effects && item.effects.length > 0 &&
-      (item.flags.ddbimporter?.ignoreItemImport || excludedItems.some((ei) => ei._id === item._id))
-    ).map((item) => item._id);
+    const ignoredItemIds = this.actorOriginal.items
+      .filter(
+        (item) =>
+          item.effects &&
+          item.effects.length > 0 &&
+          (item.flags.ddbimporter?.ignoreItemImport || excludedItems.some((ei) => ei._id === item._id))
+      )
+      .map((item) => item._id);
     // `Actor.${this.actorOriginal._id}.OwnedItem.${item._id}`
 
-    const itemEffects = this.actor.data.effects.filter((ae) =>
-      ae.origin?.includes('OwnedItem') &&
-      !ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0])
+    const itemEffects = this.actor.data.effects.filter(
+      (ae) => ae.origin?.includes("OwnedItem") && !ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
     );
-    const ignoredEffects = this.actor.data.effects.filter((ae) =>
-      // is this an ignored item
-      ignoredItemIds.includes(ae.origin?.split('.').slice(-1)[0]) ||
-      // is this a core status effect (CUB)
-      ae.flags?.core?.statusId
+    const ignoredEffects = this.actor.data.effects.filter(
+      (ae) =>
+        // is this an ignored item
+        ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0]) ||
+        // is this a core status effect (CUB)
+        ae.flags?.core?.statusId
     );
-    const charEffects = this.actor.data.effects.filter((ae) =>
-      !ae.origin?.includes('OwnedItem') && !ae.flags.ddbimporter?.characterEffect
+    const charEffects = this.actor.data.effects.filter(
+      (ae) => !ae.origin?.includes("OwnedItem") && !ae.flags.ddbimporter?.characterEffect
     );
-    const ddbGeneratedCharEffects = this.actor.data.effects.filter((ae) =>
-      !ae.origin?.includes('OwnedItem') && ae.flags.ddbimporter?.characterEffect
+    const ddbGeneratedCharEffects = this.actor.data.effects.filter(
+      (ae) => !ae.origin?.includes("OwnedItem") && ae.flags.ddbimporter?.characterEffect
     );
 
     // remove existing active item effects
-    await this.actor.deleteEmbeddedEntity("ActiveEffect", itemEffects.map((ae) => ae._id));
+    await this.actor.deleteEmbeddedEntity(
+      "ActiveEffect",
+      itemEffects.map((ae) => ae._id)
+    );
     // clear down ddb generated character effects such as skill bonuses
-    await this.actor.deleteEmbeddedEntity("ActiveEffect", ddbGeneratedCharEffects.map((ae) => ae._id));
+    await this.actor.deleteEmbeddedEntity(
+      "ActiveEffect",
+      ddbGeneratedCharEffects.map((ae) => ae._id)
+    );
 
     if (game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects")) {
       const acEffects = this.result.character.flags.ddbimporter.acEffects.map((ae) => {
@@ -1296,7 +1317,10 @@ export default class CharacterImport extends FormApplication {
       this.result.character.effects = this.result.character.effects.concat(charEffects, ignoredEffects);
     } else {
       // if not retaining effects remove character effects
-      await this.actor.deleteEmbeddedEntity("ActiveEffect", charEffects.map((ae) => ae._id));
+      await this.actor.deleteEmbeddedEntity(
+        "ActiveEffect",
+        charEffects.map((ae) => ae._id)
+      );
       this.result.character.effects = this.result.character.effects.concat(ignoredEffects);
     }
   }
@@ -1341,9 +1365,9 @@ export default class CharacterImport extends FormApplication {
     }
 
     // flag as having items ids
-    this.result.character.flags.ddbimporter['inPlaceUpdateAvailable'] = true;
-    this.result.character.flags.ddbimporter['syncItemReady'] = true;
-    this.result.character.flags.ddbimporter['syncActionReady'] = true;
+    this.result.character.flags.ddbimporter["inPlaceUpdateAvailable"] = true;
+    this.result.character.flags.ddbimporter["syncItemReady"] = true;
+    this.result.character.flags.ddbimporter["syncActionReady"] = true;
 
     // basic import
     CharacterImport.showCurrentTask(html, "Updating core character information");
@@ -1372,14 +1396,14 @@ export default class CharacterImport extends FormApplication {
       // find effects with a matching name that existed on previous actor
       // and that have a different active state and activate them
       const targetEffects = this.actor.data.effects.filter((ae) => {
-        const previousEffectDiff = this.actorOriginal.effects.find((oae) =>
-          oae.label === ae.label && oae.disabled !== ae.disabled
+        const previousEffectDiff = this.actorOriginal.effects.find(
+          (oae) => oae.label === ae.label && oae.disabled !== ae.disabled
         );
         if (previousEffectDiff) return true;
         return false;
       });
       targetEffects.forEach((ae) => {
-        this.actor.updateEmbeddedEntity("ActiveEffect", { "_id": ae._id, "disabled": !ae.disabled });
+        this.actor.updateEmbeddedEntity("ActiveEffect", { _id: ae._id, disabled: !ae.disabled });
       });
     }
   }

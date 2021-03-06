@@ -30,6 +30,8 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
 
   { type: "bonus", subType: "spell-save-dc" },
   { type: "bonus", subType: "spell-attacks" },
+  { type: "bonus", subType: "warlock-spell-save-dc" },
+  { type: "bonus", subType: "warlock-spell-attacks" },
 
   { type: "bonus", subType: "hit-points-per-level" },
   { type: "bonus", subType: "hit-points" },
@@ -251,7 +253,6 @@ function extractModifierValue(modifier) {
   return value;
 }
 
-
 /**
  * Generates a global custom bonus for an item with a +
  */
@@ -424,7 +425,6 @@ function addStatBonuses(modifiers, name) {
   return changes;
 }
 
-
 // *
 // Generate stat sets
 //
@@ -537,7 +537,13 @@ function addSetSpeedEffect(modifiers, name, subType) {
  */
 function addSetSpeeds(modifiers, name) {
   let changes = [];
-  const speedSets = ["innate-speed-walking", "innate-speed-climbing", "innate-speed-swimming", "innate-speed-flying", "innate-speed-burrowing"];
+  const speedSets = [
+    "innate-speed-walking",
+    "innate-speed-climbing",
+    "innate-speed-swimming",
+    "innate-speed-flying",
+    "innate-speed-burrowing",
+  ];
   speedSets.forEach((speedSet) => {
     const result = addSetSpeedEffect(modifiers, name, speedSet);
     changes = changes.concat(result);
@@ -682,7 +688,14 @@ function addSkillBonusEffect(modifiers, name, skill) {
 // requires midi
 //
 function addSkillMidiEffect(modifiers, name, skill, midiEffect = "advantage") {
-  const allowedRestrictions = ["", null, "Sound Only", "While the hood is up, checks made to Hide "];
+  const allowedRestrictions = [
+    "",
+    null,
+    "Sound Only",
+    "Sight Only",
+    "that rely on smell",
+    "While the hood is up, checks made to Hide ",
+  ];
   const advantage = utils.filterModifiers(modifiers, midiEffect, skill.subType, allowedRestrictions);
 
   let effects = [];
@@ -789,19 +802,19 @@ function consumableEffect(effect, ddbItem, foundryItem) {
       value: 1,
       width: null,
       units: "",
-      type: "creature"
+      type: "creature",
     };
   }
   if (!foundryItem.data.range?.units) {
     foundryItem.data.range = {
       value: null,
       long: null,
-      units: "touch"
+      units: "touch",
     };
   }
   if (foundryItem.data.uses) {
-    foundryItem.data.uses.autoDestroy =  true;
-    foundryItem.data.uses.autoUse =  true;
+    foundryItem.data.uses.autoDestroy = true;
+    foundryItem.data.uses.autoUse = true;
   }
 
   return effect;
@@ -816,10 +829,13 @@ function consumableEffect(effect, ddbItem, foundryItem) {
  * @param {*} isCompendiumItem
  */
 function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
-    // check attunement status etc
+  // check attunement status etc
 
-    if (!ddbItem.definition?.canEquip && !ddbItem.definition?.canAttune && !ddbItem.definition?.isConsumable &&
-      DICTIONARY.types.inventory.includes(foundryItem.type)
+  if (
+    !ddbItem.definition?.canEquip &&
+    !ddbItem.definition?.canAttune &&
+    !ddbItem.definition?.isConsumable &&
+    DICTIONARY.types.inventory.includes(foundryItem.type)
   ) {
     // if item just gives a thing and not potion/scroll
     effect.disabled = false;
@@ -909,6 +925,19 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     "spell-save-dc",
     "data.bonuses.spell.dc"
   );
+  const warlockSpellAttackBonus = addCustomEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "warlock-spell-attacks",
+    "data.bonuses.spell.attack"
+  );
+  const warlockSpellDCBonus = addAddEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "warlock-spell-save-dc",
+    "data.bonuses.spell.dc"
+  );
+
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
   const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name, ddbItem.definition.isConsumable);
   const skillBonus = addSkillBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
@@ -929,7 +958,9 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     ...proficiencyBonus,
     ...speedSets,
     ...spellAttackBonus,
+    ...warlockSpellAttackBonus,
     ...spellDCBonus,
+    ...warlockSpellDCBonus,
     ...profs,
     ...hp,
     ...skillBonus,
@@ -957,20 +988,20 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
 export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = equipmentEffectAdjustment(foundryItem);
-  logger.debug(JSON.parse(JSON.stringify(foundryItem)));
+  logger.debug(`Item effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
 
 export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = featureEffectAdjustment(foundryItem);
-  logger.debug(JSON.parse(JSON.stringify(foundryItem)));
+  logger.debug(`Feature effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
 
 export function generateSpellEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = spellEffectAdjustment(foundryItem);
-  logger.debug(JSON.parse(JSON.stringify(foundryItem)));
+  logger.debug(`Spell effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
