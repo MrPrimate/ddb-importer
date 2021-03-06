@@ -370,6 +370,13 @@ function addDamageConditions(modifiers) {
   conditionImmunities.forEach((type) => {
     charges.push(generateCustomChange(type, 1, "data.traits.ci.value"));
   });
+
+  // data.traits.di.all
+  const allDamageImmunity = utils.filterModifiers(modifiers, "immunity", "all");
+  if (allDamageImmunity) {
+    charges.push(generateCustomChange(1, 1, "data.traits.di.all"));
+  }
+
   return charges;
 }
 
@@ -777,6 +784,26 @@ function consumableEffect(effect, ddbItem, foundryItem) {
   setProperty(effect, "flags.ddbimporter.disabled", false);
   setProperty(foundryItem, "flags.dae.transfer", false);
   effect.duration = generateEffectDuration(foundryItem);
+  if (!foundryItem.data.target?.value) {
+    foundryItem.data.target = {
+      value: 1,
+      width: null,
+      units: "",
+      type: "creature"
+    };
+  }
+  if (!foundryItem.data.range?.units) {
+    foundryItem.data.range = {
+      value: null,
+      long: null,
+      units: "touch"
+    };
+  }
+  if (foundryItem.data.uses) {
+    foundryItem.data.uses.autoDestroy =  true;
+    foundryItem.data.uses.autoUse =  true;
+  }
+
   return effect;
 }
 
