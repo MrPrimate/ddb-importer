@@ -840,7 +840,7 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
 function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   if (!foundryItem.effects) foundryItem.effects = [];
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return foundryItem;
-  console.error(`Item: ${foundryItem.name}`, ddbItem);
+  logger.debug(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`);
 
   let effect = baseItemEffect(foundryItem, `${foundryItem.name} - Constant Effects`);
@@ -930,20 +930,20 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
 export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = equipmentEffectAdjustment(foundryItem);
-  console.warn(JSON.parse(JSON.stringify(foundryItem)));
+  logger.debug(JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
 
 export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = featureEffectAdjustment(foundryItem);
-  console.warn(JSON.parse(JSON.stringify(foundryItem)));
+  logger.debug(JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
 
 export function generateSpellEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = spellEffectAdjustment(foundryItem);
-  console.warn(JSON.parse(JSON.stringify(foundryItem)));
+  logger.debug(JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
