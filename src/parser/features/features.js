@@ -2,6 +2,7 @@ import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
 import { fixFeatures, stripHtml, addFeatEffects } from "./special.js";
+import { getBackgroundData } from "../character/bio.js";
 
 function getDescription(ddb, character, feat) {
   // for now none actions probably always want the full text
@@ -300,6 +301,14 @@ export default function parseFeatures(ddb, character) {
         items.push(item);
       });
     });
+
+  const backgroundFeature = getBackgroundData(ddb);
+  const backgroundSource = utils.parseSource(backgroundFeature.definition);
+  const backgroundFeat = parseFeature(backgroundFeature, ddb, character, backgroundSource, "feat");
+  backgroundFeat.forEach((item) => {
+    console.warn(item);
+    items.push(item);
+  });
 
   fixFeatures(items);
   return items;
