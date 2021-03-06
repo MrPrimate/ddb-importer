@@ -139,7 +139,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     });
     const query = pDom.querySelector("strong");
     if (!query) return;
-    action.name = query.textContent.trim().replace(/\./g, '').trim();
+    action.name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
     action.data.source = getSource(monster, DDB_CONFIG);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
@@ -159,7 +159,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       });
       const query = pDom.querySelector("b");
       if (!query) return;
-      action.name = query.textContent.trim().replace(/\./g, '').trim();
+      action.name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,

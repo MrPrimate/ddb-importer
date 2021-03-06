@@ -54,6 +54,7 @@ Other Improvements:
 * Monster munch: improved parsing for a handful of monsters where special actions did not parse properly, e.g. Obzedat Ghost.
 * Monster munch: improved parsing for monsters with tables e.g. variant troll.
 * Monster munch: some monsters had their Roleplaying descriptions defined as actions, these now parse into the character biography. e.g. Augrek Brighthelm.
+* Monster munch: some monsters like Worvil “the Weevil” Forkbeard had action names for items that duplicated.
 
 # 0.4.17
 
