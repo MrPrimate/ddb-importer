@@ -28,7 +28,8 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
 
   let dom = new DocumentFragment();
 
-  let fixedLegendaryActionsDescription = monster.legendaryActionsDescription.replace("</strong> <strong>(Cost", " (Cost");
+  let fixedLegendaryActionsDescription = monster.legendaryActionsDescription
+    .replace(/<\/strong> <strong>/g, "").replace(/<\/strong><strong>/g, "");
   $.parseHTML(fixedLegendaryActionsDescription).forEach((element) => {
     dom.appendChild(element);
   });

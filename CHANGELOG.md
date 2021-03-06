@@ -51,6 +51,9 @@ Other Improvements:
 * Cones and Line area effects were the wrong way around in monster parsing due to late night coding.
 * For monster abilities that have a recharge function (e.g Hell Hounds breath) this now does the correct resource linking for the recharge.
 * Bio updates are now optional during character update.
+* Monster munch: improved parsing for a handful of monsters where special actions did not parse properly, e.g. Obzedat Ghost.
+* Monster munch: improved parsing for monsters with tables e.g. variant troll.
+* Monster munch: some monsters had their Roleplaying descriptions defined as actions, these now parse into the character biography. e.g. Augrek Brighthelm.
 
 # 0.4.17
 

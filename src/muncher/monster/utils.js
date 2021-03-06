@@ -343,7 +343,7 @@ function getWeaponAttack(resultData, proficiencyBonus) {
         }
         return 0;
       });
-      logger.debug(filteredAbilities);
+      logger.debug("Filtered abilities", filteredAbilities);
       logger.debug(result.text);
       // fine lets use the first hit
       if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {

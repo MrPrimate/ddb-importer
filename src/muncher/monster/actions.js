@@ -82,28 +82,35 @@ function buildAction(action, actionInfo, textContent, type) {
 
 export function getActions(monster, DDB_CONFIG, type = "action") {
   if (monster.actionsDescription == "") {
-    return [];
+    return [[], null];
   }
 
   const hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
-  let actions = null;
+  let actions;
+  let characterDescription;
 
   switch (type) {
     case "action":
-      actions = monster.actionsDescription;
+      actions = monster.actionsDescription ?? "";
       break;
     case "reaction":
-      actions = monster.reactionsDescription;
+      actions = monster.reactionsDescription ?? "";
       break;
     case "bonus":
-      actions = monster.bonusActionsDescription;
+      actions = monster.bonusActionsDescription ?? "";
       break;
     case "mythic":
-      actions = monster.mythicActionsDescription;
+      actions = monster.mythicActionsDescription ?? "";
       break;
     default:
       actions = "";
   }
+
+  let splitActions = actions.split("<h3>Roleplaying Information</h3>");
+  if (splitActions.length > 1) {
+    characterDescription = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
+  }
+  actions = splitActions[0].replace(/<\/strong> <strong>/g, "").replace(/<\/strong><strong>/g, "");
 
   let dom = new DocumentFragment();
   $.parseHTML(actions).forEach((element) => {
@@ -267,5 +274,5 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
   // console.log(dynamicActions);
   // console.log(JSON.stringify(dynamicActions, null, 4));
 
-  return dynamicActions;
+  return [dynamicActions, characterDescription];
 }

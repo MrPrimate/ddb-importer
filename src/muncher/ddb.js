@@ -60,6 +60,7 @@ export class DDBSources extends FormApplication {
       if (value) sources.push(parseInt(key));
     }
     await game.settings.set("ddb-importer", "munching-policy-monster-sources", sources);
+    // eslint-disable-next-line no-use-before-define
     new DDBMuncher().render(true);
   }
 }
@@ -158,7 +159,7 @@ export default class DDBMuncher extends Application {
         "munching-policy-" + event.currentTarget.dataset.section,
         event.currentTarget.checked
       );
-      switch(event.currentTarget.dataset.section) {
+      switch (event.currentTarget.dataset.section) {
         case "monster-homebrew": {
           if (!event.currentTarget.checked) {
             game.settings.set("ddb-importer", "munching-policy-monster-homebrew-only", false);
@@ -166,7 +167,7 @@ export default class DDBMuncher extends Application {
           }
           break;
         }
-        case "monster-homebrew-only":{
+        case "monster-homebrew-only": {
           if (event.currentTarget.checked) {
             game.settings.set("ddb-importer", "munching-policy-monster-homebrew", true);
             this.homebrew.get(0).checked = true;
@@ -340,11 +341,11 @@ export default class DDBMuncher extends Application {
     ];
 
     const sourcesSelected = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat().length > 0;
-    const homebrewDescription = (tiers.homebrew) ?
-      sourcesSelected ?
-        "Homebrew won't be imported with source(s) selected" :
-        "Include homebrew?" :
-      "Include homebrew? [Undying or God tier patreon supporters]";
+    const homebrewDescription = (tiers.homebrew)
+      ? sourcesSelected
+        ? "Homebrew won't be imported with source(s) selected"
+        : "Include homebrew?"
+      : "Include homebrew? [Undying or God tier patreon supporters]";
 
     const monsterConfig = [
       {

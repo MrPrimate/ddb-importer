@@ -19,6 +19,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
         "max": 0
       },
       specialActions: [],
+      characterDescription: null,
     };
   }
 
@@ -28,11 +29,18 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     value: 0,
     max: 0
   };
+  let characterDescription;
 
   let dom = new DocumentFragment();
-  const fixedDescription = monster.specialTraitsDescription.replace("<strong>I</strong><strong>ncorporeal", "<strong>Incorporeal");
-  const removedBRDescription = fixedDescription.replace(/<br \/>/g, "</p><p>");
-  $.parseHTML(removedBRDescription).forEach((element) => {
+  let splitActions = monster.specialTraitsDescription.split("<h3>Roleplaying Information</h3>");
+  if (splitActions.length > 1) {
+    characterDescription = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
+  }
+
+  const fixedDescription = splitActions[0]
+    .replace(/<\/strong> <strong>/g, "").replace(/<\/strong><strong>/g, "")
+    .replace(/<br \/>/g, "</p><p>");
+  $.parseHTML(fixedDescription).forEach((element) => {
     dom.appendChild(element);
   });
 
@@ -42,15 +50,65 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     }
   });
 
+  // console.error(`Starting special traits processing`)
+  // console.warn(dom);
+  // console.log(fixedDescription);
+  // console.log(dom.childNodes);
+
   let dynamicActions = [];
 
   // build out skeleton actions
-  dom.querySelectorAll("strong").forEach((node) => {
+  dom.querySelectorAll("p").forEach((node) => {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-    action.name = node.textContent.trim().replace(/\.$/, '').trim();
+    let pDom = new DocumentFragment();
+    $.parseHTML(node.outerHTML).forEach((element) => {
+      pDom.appendChild(element);
+    });
+    const query = pDom.querySelector("em");
+    if (!query) return;
+    action.name = query.textContent.trim().replace(/\./g, '').trim();
     action.data.source = getSource(monster, DDB_CONFIG);
+    action.flags.monsterMunch = {
+      titleHTML: query.outerHTML,
+    };
     if (action.name) dynamicActions.push(action);
   });
+
+  if (dynamicActions.length == 0) {
+    dom.querySelectorAll("p").forEach((node) => {
+      let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
+      let pDom = new DocumentFragment();
+      $.parseHTML(node.outerHTML).forEach((element) => {
+        pDom.appendChild(element);
+      });
+      const query = pDom.querySelector("strong");
+      if (!query) return;
+      action.name = query.textContent.trim().replace(/\./g, '').trim();
+      action.data.source = getSource(monster, DDB_CONFIG);
+      action.flags.monsterMunch = {
+        titleHTML: query.outerHTML,
+      };
+      if (action.name) dynamicActions.push(action);
+    });
+  }
+
+  if (dynamicActions.length == 0) {
+    dom.querySelectorAll("em").forEach((node) => {
+      let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
+      action.name = node.textContent.trim().replace(/\.$/, '').trim();
+      action.data.source = getSource(monster, DDB_CONFIG);
+      if (action.name) dynamicActions.push(action);
+    });
+  }
+
+  if (dynamicActions.length == 0) {
+    dom.querySelectorAll("strong").forEach((node) => {
+      let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
+      action.name = node.textContent.trim().replace(/\.$/, '').trim();
+      action.data.source = getSource(monster, DDB_CONFIG);
+      if (action.name) dynamicActions.push(action);
+    });
+  }
 
   if (dynamicActions.length == 0) {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
@@ -137,5 +195,6 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
   return {
     resistance: resistanceResource,
     specialActions: dynamicActions,
+    characterDescription: characterDescription,
   };
 }
