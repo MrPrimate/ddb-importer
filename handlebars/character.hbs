@@ -99,13 +99,22 @@
 
   <!-- Effects Configuration Tab -->
   <section class="tab" data-tab="effects">
-    <p>Active Effect Settings</p>
+    <p>Active Effect Options</p>
     {{#each effectImportConfig}}
     <div class="effect-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
         name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
         {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b><p>{{{this.description}}}</p>
     </div>
     {{/each}}
+    <hr>
+    <p>Active Effects to include for Characters, if character effect generation selected above</p>
+    <div class="effect-policy-group">
+      {{#each effectSelectionConfig}}
+      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+      </label>
+      {{/each}}
+    </div>
   </section>
 
 <!-- Extras section -->

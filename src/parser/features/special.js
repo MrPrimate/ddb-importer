@@ -10,10 +10,10 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
   if (ddbItem.grantedModifiers) return ddbItem;
   let modifierItem = JSON.parse(JSON.stringify(ddbItem));
   const modifiers = [
-    utils.getChosenClassModifiers(ddb, true),
-    utils.getModifiers(ddb, "race", true),
-    utils.getModifiers(ddb, "background", true),
-    utils.getModifiers(ddb, "feat", true),
+    utils.getChosenClassModifiers(ddb),
+    utils.getModifiers(ddb, "race"),
+    utils.getModifiers(ddb, "background"),
+    utils.getModifiers(ddb, "feat"),
   ].flat();
 
   // console.log(ddb.character.options[type]);

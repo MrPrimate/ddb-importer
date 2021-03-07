@@ -1,3 +1,8 @@
+# 0.6.2
+
+* Non GM users got warning message.
+* Effects: skills were additive, rather than upgrades.
+
 # 0.6.1
 
 * Backgrounds broken for some characters.

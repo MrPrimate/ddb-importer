@@ -618,6 +618,57 @@ export default class CharacterImport extends FormApplication {
       },
     ];
 
+    const effectSelectionConfig = [
+      {
+        name: "effect-spell-bonus",
+        title: "Spell Bonuses",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus"),
+        enabled: true,
+      },
+      {
+        name: "effect-speed",
+        title: "Movement",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-speed"),
+        enabled: true,
+      },
+      {
+        name: "effect-senses",
+        title: "Senses",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-senses"),
+        enabled: true,
+      },
+      {
+        name: "effect-hp",
+        title: "HP",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-hp"),
+        enabled: true,
+      },
+      {
+        name: "effect-ability-bonus",
+        title: "Ability Bonuses",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-ability-bonus"),
+        enabled: true,
+      },
+      {
+        name: "effect-proficiencies",
+        title: "Proficiencies",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-proficiencies"),
+        enabled: true,
+      },
+      {
+        name: "effect-languages",
+        title: "Languages",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-languages"),
+        enabled: true,
+      },
+      {
+        name: "effect-damages",
+        title: "Imm/Res/Vuln",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-damages"),
+        enabled: true,
+      },
+    ];
+
     const syncItemReady = this.actorOriginal.flags.ddbimporter?.syncItemReady;
     const syncActionReady = this.actorOriginal.flags.ddbimporter?.syncActionReady;
 
@@ -789,6 +840,7 @@ export default class CharacterImport extends FormApplication {
       extrasConfig: extrasConfig,
       advancedImportConfig: advancedImportConfig,
       effectImportConfig: effectImportConfig,
+      effectSelectionConfig: effectSelectionConfig,
       dataDirSet: dataDirSet,
       syncConfig: syncConfig,
       syncEnabled: syncEnabled,
@@ -807,6 +859,7 @@ export default class CharacterImport extends FormApplication {
         [
           '.import-policy input[type="checkbox"]',
           '.advanced-import-config input[type="checkbox"]',
+          '.effect-policy input[type="checkbox"]',
           '.effect-import-config input[type="checkbox"]',
           '.extras-import-config input[type="checkbox"]',
           '.import-config input[type="checkbox"]',

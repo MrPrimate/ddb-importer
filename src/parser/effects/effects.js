@@ -28,41 +28,6 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "set", subType: "intelligence-score" },
   { type: "set", subType: "charisma-score" },
 
-  { type: "bonus", subType: "spell-save-dc" },
-  { type: "bonus", subType: "spell-attacks" },
-  { type: "bonus", subType: "warlock-spell-save-dc" },
-  { type: "bonus", subType: "warlock-spell-attacks" },
-
-  { type: "bonus", subType: "hit-points-per-level" },
-  { type: "bonus", subType: "hit-points" },
-
-  // saving throws and ability checks - with midi
-  // not adding these as they are not used elsewhere
-  // { type: "advantage", subType: "strength-saving-throws" },
-
-  // senses
-  { type: "set-base", subType: "darkvision" },
-  { type: "sense", subType: "darkvision" },
-  { type: "set-base", subType: "blindsight" },
-  { type: "sense", subType: "blindsight" },
-  { type: "set-base", subType: "tremorsense" },
-  { type: "sense", subType: "tremorsense" },
-  { type: "set-base", subType: "truesight" },
-  { type: "sense", subType: "truesight" },
-
-  // speeds
-  { type: "set", subType: "innate-speed-walking" },
-  { type: "set", subType: "innate-speed-climbing" },
-  { type: "set", subType: "innate-speed-swimming" },
-  { type: "set", subType: "innate-speed-flying" },
-
-  { type: "bonus", subType: "speed" },
-  { type: "bonus", subType: "unarmored-movement" },
-  { type: "bonus", subType: "speed-walking" },
-  { type: "bonus", subType: "speed-climbing" },
-  { type: "bonus", subType: "speed-swimming" },
-  { type: "bonus", subType: "speed-flying" },
-
   // skills
   { type: "bonus", subType: "acrobatics" },
   { type: "bonus", subType: "animal-handling" },
@@ -87,7 +52,51 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
 
   // initiative
   { type: "advantage", subType: "initiative" },
+
+  // saving throws and ability checks - with midi
+  // not adding these as they are not used elsewhere
+  // { type: "advantage", subType: "strength-saving-throws" },
 ];
+
+const EFFECT_EXCLUDED_SPELL_MODIFIERS = [
+  { type: "bonus", subType: "spell-save-dc" },
+  { type: "bonus", subType: "spell-attacks" },
+  { type: "bonus", subType: "warlock-spell-save-dc" },
+  { type: "bonus", subType: "warlock-spell-attacks" },
+];
+
+const EFFECT_EXCLUDED_HP_MODIFIERS = [
+  { type: "bonus", subType: "hit-points-per-level" },
+  { type: "bonus", subType: "hit-points" },
+];
+
+const EFFECT_EXCLUDED_SENSE_MODIFIERS = [
+  // senses
+  { type: "set-base", subType: "darkvision" },
+  { type: "sense", subType: "darkvision" },
+  { type: "set-base", subType: "blindsight" },
+  { type: "sense", subType: "blindsight" },
+  { type: "set-base", subType: "tremorsense" },
+  { type: "sense", subType: "tremorsense" },
+  { type: "set-base", subType: "truesight" },
+  { type: "sense", subType: "truesight" },
+];
+
+const EFFECT_EXCLUDED_SPEED_MODIFIERS = [
+  // speeds
+  { type: "set", subType: "innate-speed-walking" },
+  { type: "set", subType: "innate-speed-climbing" },
+  { type: "set", subType: "innate-speed-swimming" },
+  { type: "set", subType: "innate-speed-flying" },
+
+  { type: "bonus", subType: "speed" },
+  { type: "bonus", subType: "unarmored-movement" },
+  { type: "bonus", subType: "speed-walking" },
+  { type: "bonus", subType: "speed-climbing" },
+  { type: "bonus", subType: "speed-swimming" },
+  { type: "bonus", subType: "speed-flying" },
+];
+
 const EFFECT_EXCLUDED_ABILITY_BONUSES = [
   { type: "bonus", subType: "strength-score" },
   { type: "bonus", subType: "dexterity-score" },
@@ -97,25 +106,87 @@ const EFFECT_EXCLUDED_ABILITY_BONUSES = [
   { type: "bonus", subType: "charisma-score" },
 ];
 
-const EFFECT_EXCLUDED_EXTENDED_BONUSES = [
+const EFFECT_EXCLUDED_PROFICIENCY_BONUSES = [
   // profs
   { type: "proficiency", subType: null },
+];
 
+const EFFECT_EXCLUDED_LANGUAGES_MODIFIERS = [
   // languages - e.g. dwarvish -- lookup from DICTIONARY
   { type: "language", subType: null },
+];
 
+const EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS = [
   // resistances - subType - e.g. poison - lookup from DICTIONARY
   { type: "resistance", subType: null },
   { type: "immunity", subType: null },
   { type: "vulnerability", subType: null },
 ];
 
+// export const EFFECT_EXCLUDED_MODIFIERS = {
+//   item: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES, EFFECT_EXCLUDED_EXTENDED_BONUSES),
+//   race: EFFECT_EXCLUDED_COMMON_MODIFIERS,
+//   class: EFFECT_EXCLUDED_COMMON_MODIFIERS,
+//   feat: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES, EFFECT_EXCLUDED_EXTENDED_BONUSES),
+//   background: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(
+//     EFFECT_EXCLUDED_ABILITY_BONUSES,
+//     EFFECT_EXCLUDED_EXTENDED_BONUSES
+//   ),
+// };
+
 export const EFFECT_EXCLUDED_MODIFIERS = {
-  item: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES, EFFECT_EXCLUDED_EXTENDED_BONUSES),
-  race: EFFECT_EXCLUDED_COMMON_MODIFIERS,
-  class: EFFECT_EXCLUDED_COMMON_MODIFIERS,
-  feat: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES, EFFECT_EXCLUDED_EXTENDED_BONUSES),
-  background: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES, EFFECT_EXCLUDED_EXTENDED_BONUSES),
+  item: () => {
+    return EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(
+      EFFECT_EXCLUDED_ABILITY_BONUSES,
+      EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS,
+      EFFECT_EXCLUDED_LANGUAGES_MODIFIERS,
+      EFFECT_EXCLUDED_PROFICIENCY_BONUSES,
+      EFFECT_EXCLUDED_SPEED_MODIFIERS,
+      EFFECT_EXCLUDED_SENSE_MODIFIERS,
+      EFFECT_EXCLUDED_HP_MODIFIERS,
+      EFFECT_EXCLUDED_SPELL_MODIFIERS
+    );
+  },
+  race: () => {
+    let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
+    return modifiers;
+  },
+  class: () => {
+    let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
+    return modifiers;
+  },
+  feat: () => {
+    let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-ability-bonus")) modifiers.concat(EFFECT_EXCLUDED_ABILITY_BONUSES);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-proficiencies")) modifiers.concat(EFFECT_EXCLUDED_PROFICIENCY_BONUSES);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-languages")) modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-damages")) modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
+    return modifiers;
+  },
+  background: () => {
+    let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-ability-bonus")) modifiers.concat(EFFECT_EXCLUDED_ABILITY_BONUSES);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-proficiencies")) modifiers.concat(EFFECT_EXCLUDED_PROFICIENCY_BONUSES);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-languages")) modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-damages")) modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
+    return modifiers;
+  },
 };
 
 /**
@@ -988,20 +1059,23 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
 export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = equipmentEffectAdjustment(foundryItem);
-  if (foundryItem.effects?.length > 0) logger.debug(`Item effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+  if (foundryItem.effects?.length > 0)
+    logger.debug(`Item effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
 
 export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = featureEffectAdjustment(foundryItem);
-  if (foundryItem.effects?.length > 0) logger.debug(`Feature effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+  if (foundryItem.effects?.length > 0)
+    logger.debug(`Feature effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
 
 export function generateSpellEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = spellEffectAdjustment(foundryItem);
-  if (foundryItem.effects?.length > 0) logger.debug(`Spell effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+  if (foundryItem.effects?.length > 0)
+    logger.debug(`Spell effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
