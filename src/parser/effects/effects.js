@@ -598,7 +598,7 @@ function addSkillProficiencies(modifiers) {
   DICTIONARY.character.skills.forEach((skill) => {
     const prof = getSkillProficiency(null, skill, modifiers);
     if (prof != 0) {
-      changes.push(generateAddChange(prof, 9, `data.skills.${skill.name}.value`));
+      changes.push(generateUpgradeChange(prof, 9, `data.skills.${skill.name}.value`));
     }
   });
   return changes;
