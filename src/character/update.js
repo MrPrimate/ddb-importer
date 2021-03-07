@@ -3,9 +3,10 @@ import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/isequal.js";
 import { getCampaignId } from "../muncher/utils.js";
 import DICTIONARY from "../dictionary.js";
+import { getCobalt } from "../lib/Secrets.js";
 
 async function updateCharacterCall(characterId, path, bodyContent) {
-  const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const cobaltCookie = getCobalt();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();

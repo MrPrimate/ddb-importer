@@ -1,12 +1,13 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
 import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
+import { getCobalt, setCobalt } from "./Secrets.js";
 
 export function isSetupComplete(needsCobalt = true) {
   const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
   const dataDirSet = !BAD_DIRS.includes(uploadDir);
   const campaignId = game.settings.get("ddb-importer", "campaign-id");
-  const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+  const cobalt = getCobalt() != "";
   const campaignIdCorrect = !campaignId.includes("join");
   const setupComplete = dataDirSet && (cobalt || !needsCobalt) && campaignIdCorrect;
   return setupComplete;
@@ -106,7 +107,7 @@ export class DDBSetup extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+    const cobalt = getCobalt() != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     const campaignIdCorrect = !game.settings.get("ddb-importer", "campaign-id").includes("join");
@@ -118,7 +119,7 @@ export class DDBSetup extends FormApplication {
 
     const setupConfig = {
       "image-upload-directory": uploadDir,
-      "cobalt-cookie": game.settings.get("ddb-importer", "cobalt-cookie"),
+      "cobalt-cookie": getCobalt(),
       "campaign-id": game.settings.get("ddb-importer", "campaign-id"),
       "beta-key": game.settings.get("ddb-importer", "beta-key"),
     };
@@ -143,7 +144,7 @@ export class DDBSetup extends FormApplication {
     const campaignId = formData['campaign-id'];
     const cobaltCookie = formData['cobalt-cookie'];
     await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
-    await game.settings.set("ddb-importer", "cobalt-cookie", cobaltCookie);
+    await setCobalt(cobaltCookie);
     await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
     await game.settings.set("ddb-importer", "campaign-id", campaignId);
 

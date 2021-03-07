@@ -9,6 +9,7 @@ import { parseFeats } from "./feats.js";
 import { parseClasses } from "./classes.js";
 import { getPatreonTiers, munchNote } from "./utils.js";
 import { DDB_CONFIG } from "../ddb-config.js";
+import { getCobalt } from "../lib/Secrets.js";
 
 function getSourcesLookups(selected) {
   const selections = DDB_CONFIG.sources
@@ -197,7 +198,7 @@ export default class DDBMuncher extends Application {
   }
 
   static enableButtons() {
-    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+    const cobalt = getCobalt() != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     const tier = game.settings.get("ddb-importer", "patreon-tier");
 
@@ -302,7 +303,7 @@ export default class DDBMuncher extends Application {
 
 
   getData() { // eslint-disable-line class-methods-use-this
-    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+    const cobalt = getCobalt() != "";
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
     const tier = game.settings.get("ddb-importer", "patreon-tier");

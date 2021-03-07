@@ -5,11 +5,12 @@ import logger from "../logger.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
+import { getCobalt } from "../lib/Secrets.js";
 
 window.parseMonsters = parseMonsters;
 
 async function getMonsterData() {
-  const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const cobaltCookie = getCobalt();
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const searchTerm = $("#monster-munch-filter")[0].value;

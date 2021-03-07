@@ -19,6 +19,7 @@ import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
 import { characterExtras } from "./extras.js";
 import DICTIONARY from "../dictionary.js";
+import { getCobalt } from "../lib/Secrets.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -151,7 +152,7 @@ const filterActorItemsByUserSelection = (actor, invert = false) => {
  */
 
 export async function getCharacterData(characterId, syncId) {
-  const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const cobaltCookie = getCobalt();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
