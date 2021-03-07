@@ -1,4 +1,4 @@
-# 0.5.0 - 0.5.18 - 0.6.0
+# 0.5.0 - 0.5.19 - 0.6.0
 
 * Active Effect Generation Support for Characters, and Items (Requires DAE, with additional enhancements if using Midi-QOL):
 
