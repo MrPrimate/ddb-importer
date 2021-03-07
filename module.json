@@ -4,7 +4,7 @@
   "title": "D&D Beyond Importer",
   "description": "Import your dndbeyond.com characters, spells and monsters at super speed!",
   "version": "0.6.0",
-  "download": "https://github.com/mrprimate/ddb-importer/releases/download/0.4.17/ddb-importer.zip",
+  "download": "https://github.com/mrprimate/ddb-importer/releases/download/0.6.0/ddb-importer.zip",
   "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
   "minimumCoreVersion": "0.7.9",
