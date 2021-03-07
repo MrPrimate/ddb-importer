@@ -850,8 +850,8 @@ export default function () {
     default: true,
   });
 
-  // handle
-  if (game.settings.get("ddb-importer", "cobalt-cookie") != "") {
+  if (game.user.isGM && game.settings.get("ddb-importer", "cobalt-cookie-local") &&
+    game.settings.get("ddb-importer", "cobalt-cookie") != "") {
     game.settings.set("ddb-importer", "cobalt-cookie-local", false);
   }
 
