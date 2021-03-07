@@ -132,6 +132,10 @@ export async function addItemsDAESRD(items) {
         if (replaceData) {
           logger.debug(`Adding effects for ${replaceData.data.name}`);
           itemData.effects = replaceData.data.effects;
+          if (replaceData.data.flags.dae) itemData.flags.dae = replaceData.data.flags.dae;
+          if (replaceData.data.flags['midi-qol']) itemData.flags['midi-qol'] = replaceData.data.flags['midi-qol'];
+          if (replaceData.data.flags.itemacro) itemData.flags.itemacro = replaceData.data.flags.itemacro;
+          if (replaceData.data.flags.itemmacro) itemData.flags.itemmacro = replaceData.data.flags.itemmacro;
         }
         return itemData;
       })

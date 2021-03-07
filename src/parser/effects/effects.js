@@ -988,20 +988,20 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
 export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = equipmentEffectAdjustment(foundryItem);
-  logger.debug(`Item effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+  if (foundryItem.effects?.length > 0) logger.debug(`Item effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
 
 export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = featureEffectAdjustment(foundryItem);
-  logger.debug(`Feature effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+  if (foundryItem.effects?.length > 0) logger.debug(`Feature effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
 
 export function generateSpellEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
   foundryItem = spellEffectAdjustment(foundryItem);
-  logger.debug(`Spell effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+  if (foundryItem.effects?.length > 0) logger.debug(`Spell effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }

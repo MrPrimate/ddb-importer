@@ -144,12 +144,14 @@ async function copyFlagGroup(flagGroup, originalItem, targetItem) {
  * @param {*} items
  */
 export async function copySupportedItemFlags(originalItem, item) {
-  copyFlagGroup("dynamiceffects", originalItem, item);
+  //copyFlagGroup("dynamiceffects", originalItem, item);
   copyFlagGroup("dae", originalItem, item);
   copyFlagGroup("maestro", originalItem, item);
   copyFlagGroup("mess", originalItem, item);
   copyFlagGroup("favtab", originalItem, item);
   copyFlagGroup("midi-qol", originalItem, item);
+  copyFlagGroup("itemacro", originalItem, item);
+  copyFlagGroup("itemmacro", originalItem, item);
 }
 
 function getMonsterNames(name) {
