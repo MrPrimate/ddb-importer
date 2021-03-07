@@ -1,7 +1,7 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
 import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
-import { getCobalt, setCobalt } from "./Secrets.js";
+import { getCobalt, setCobalt, moveCobaltToLocal } from "./Secrets.js";
 
 export function isSetupComplete(needsCobalt = true) {
   const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
@@ -108,6 +108,7 @@ export class DDBSetup extends FormApplication {
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
     const cobalt = getCobalt() != "";
+    const cobaltLocal = game.settings.get("ddb-importer", "cobalt-cookie-local");
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     const campaignIdCorrect = !game.settings.get("ddb-importer", "campaign-id").includes("join");
@@ -128,6 +129,7 @@ export class DDBSetup extends FormApplication {
 
     return {
       cobalt: cobalt,
+      cobaltLocal: cobaltLocal,
       beta: betaKey && cobalt,
       setupConfig: setupConfig,
       setupComplete: setupComplete,
@@ -143,14 +145,21 @@ export class DDBSetup extends FormApplication {
     const imageDir = formData['image-upload-directory'];
     const campaignId = formData['campaign-id'];
     const cobaltCookie = formData['cobalt-cookie'];
+    const cobaltCookieLocal = formData['cobalt-cookie-local'];
+    const runCookieMigrate = formData['cobalt-cookie-local'] != game.settings.set("ddb-importer", "cobalt-cookie-local");
     await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
     await setCobalt(cobaltCookie);
     await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
     await game.settings.set("ddb-importer", "campaign-id", campaignId);
+    await game.settings.set("ddb-importer", "cobalt-cookie-local", cobaltCookieLocal);
 
     const imageDirSet = !BAD_DIRS.includes(imageDir);
     const campaignIdCorrect = !campaignId.includes("join");
     await setPatreonTier();
+
+    if (runCookieMigrate && cobaltCookieLocal) {
+      moveCobaltToLocal();
+    }
 
     if (!imageDirSet) {
       $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);

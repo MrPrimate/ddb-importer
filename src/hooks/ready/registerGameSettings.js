@@ -840,6 +840,21 @@ export default function () {
     type: String,
     default: "",
   });
+
+  game.settings.register("ddb-importer", "cobalt-cookie-local", {
+    name: "ddb-importer.cobalt-cookie-local.name",
+    hint: "ddb-importer.cobalt-cookie-local.hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  // handle
+  if (game.settings.get("ddb-importer", "cobalt-cookie") != "") {
+    game.settings.set("ddb-importer", "cobalt-cookie-local", false);
+  }
+
   game.settings.register("ddb-importer", "campaign-id", {
     name: "ddb-importer.campaign-id.name",
     hint: "ddb-importer.campaign-id.hint",
