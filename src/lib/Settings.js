@@ -1,7 +1,7 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
 import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
-import { getCobalt, setCobalt, moveCobaltToLocal } from "./Secrets.js";
+import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings } from "./Secrets.js";
 
 export function isSetupComplete(needsCobalt = true) {
   const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
@@ -159,6 +159,8 @@ export class DDBSetup extends FormApplication {
 
     if (runCookieMigrate && cobaltCookieLocal) {
       moveCobaltToLocal();
+    } else if (runCookieMigrate && !cobaltCookieLocal) {
+      moveCobaltToSettings();
     }
 
     if (!imageDirSet) {
