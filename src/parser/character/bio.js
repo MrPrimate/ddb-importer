@@ -90,7 +90,7 @@ export function getAlignment(data) {
 
 export function getBackgroundData(data) {
   let result = {
-    name: "",
+    name: "Background",
     description: "",
     id: null,
     entityTypeId: null,
@@ -98,7 +98,12 @@ export function getBackgroundData(data) {
     featuresEntityTypeId: null,
     characteristicsId: null,
     characteristicsEntityTypeId: null,
-    definition: {},
+    definition: {
+      name: "Background",
+      description: "",
+      id: null,
+      entityTypeId: null,
+    },
   };
 
   let bg = null;
@@ -106,7 +111,14 @@ export function getBackgroundData(data) {
     bg = data.character.background.customBackground;
   } else if (data.character.background.definition !== null) {
     bg = data.character.background.definition;
+  } else {
+    bg = data.character.background.customBackground;
+    if (bg.id) result.id = bg.id;
+    if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
+    return result;
   }
+
+
   if (bg.id) result.id = bg.id;
   if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
 
