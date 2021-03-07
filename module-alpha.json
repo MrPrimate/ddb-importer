@@ -1,13 +1,13 @@
 {
   "name": "ddb-importer",
   "author": "MrPrimate",
-  "title": "D&D Beyond Importer",
-  "description": "Import your dndbeyond.com characters, spells and monsters at super speed!",
-  "version": "0.0.0",
-  "download": "https://github.com/mrprimate/ddb-importer/releases/download/debug/ddb-importer-debug.zip",
-  "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/debug/module-debug.json",
+  "title": "[ALPHA] D&D Beyond Importer",
+  "description": "ALPHA DDB Importer for auto effect generation on items. This version is unstable, please don't use it on important things. This does the the DAE module installed and active. To revert to stable, uninstall this module and reinstall from the Foundry module installer.",
+  "version": "0.5.19",
+  "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
+  "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
-  "minimumCoreVersion": "0.7.6",
+  "minimumCoreVersion": "0.7.9",
   "compatibleCoreVersion": "0.7.9",
   "authors": [
     {

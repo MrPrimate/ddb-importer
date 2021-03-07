@@ -298,15 +298,21 @@ export function getSpells(monster, DDB_CONFIG) {
 
   // some monsters have poor spell formating, reported and might be able to remove in future
   // https://www.dndbeyond.com/forums/d-d-beyond-general/bugs-support/91228-sir-godfrey-gwilyms-spell-statblock
-  let specialTraits;
-  const specialCases = ["Sir Godfrey Gwilym"];
-  if (specialCases.includes(monster.name)) {
-    specialTraits = monster.specialTraitsDescription.replace(/<br \/>/g, "</p><p>");
-    logger.warn(`Fiddling with ${monster.name} spells due to bad formatting`);
-  } else {
-    specialTraits = monster.specialTraitsDescription;
-  }
+  // let specialTraits = monster.specialTraitsDescription;
+  let specialTraits = monster.specialTraitsDescription.replace(/<br \/>/g, "</p><p>");
+//   const specialCases = ["Sir Godfrey Gwilym", "Hlam", "Ygorl, Lord of Entropy",
+//     "Whymsee (Kraken Priest Variant)", "Strahd Zombie", "Skr’a S’orsk",
+//     "Mongrelfolk", "Laeral Silverhand", "Jarlaxle Baenre", "Gar Shatterkeel (Noncore)", "Forlarren",
+//     "Fog Giant", "Fhenimore (Kraken Priest Variant)", "Drow Arachnomancer",
+//     "Archon of the Triumvirate", "Amble",
+// ];
+//   if (specialCases.includes(monster.name)) {
+//     specialTraits = specialTraits.replace(/<br \/>/g, "</p><p>");
+//     logger.warn(`Fiddling with ${monster.name} spells due to bad formatting`);
+//   }
+//   if (specialTraits.includes("<br />")) console.error(`"SPECIAL CASE ${monster.name}`);
 
+// console.warn(specialTraits);
   $.parseHTML(specialTraits).forEach((element) => {
     dom.appendChild(element);
   });

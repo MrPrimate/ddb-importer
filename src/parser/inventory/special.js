@@ -69,6 +69,17 @@ export function fixItems(items) {
         item.data.save = { ability: "str", dc: 20, scaling: "flat" };
         item.data.target = { value: 1, width: null, units: "any", type: "creature" };
         break;
+      case "Far Realm Shard": {
+        item.data.activation.type = "special";
+        item.data.actionType = "save";
+        item.data.damage = { parts: [["3d6[psychic]", "psychic"]], versatile: "", value: "" };
+        item.data.save = {
+          ability: "cha",
+          dc: null,
+          scaling: "spell",
+        };
+        break;
+      }
       // no default
     }
   });

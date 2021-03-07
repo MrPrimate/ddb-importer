@@ -3,6 +3,7 @@ import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils.js";
+import { getCobalt } from "../lib/Secrets.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -28,9 +29,12 @@ async function generateImportItems(items) {
     name: "",
     flags: {
       ddbimporter: {
+        compendium: true,
         dndbeyond: {
+          effectAbilities: [],
           totalLevels: 0,
           proficiencies: [],
+          proficienciesIncludingEffects: [],
           characterValues: [],
         },
       },
@@ -71,7 +75,7 @@ async function generateImportItems(items) {
 }
 
 function getItemData() {
-  const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");

@@ -325,6 +325,24 @@ async function swapItems(data) {
   }
 }
 
+async function linkResourcesConsumption(actor) {
+  if (actor.items.some((item) => item.data?.recharge?.value)) {
+    logger.debug(`Resource linking for ${actor.name}`);
+    actor.items.forEach((item) => {
+      if (item.data?.recharge?.value) {
+        const itemID = randomID(16);
+        item._id = itemID;
+        item.data.consume = {
+          type: "charges",
+          target: itemID,
+          amount: null,
+        };
+      }
+    });
+  }
+  return actor;
+}
+
 // async function buildNPC(data, srdIconLibrary, iconMap) {
 export async function buildNPC(data, temporary = true, update = false) {
   logger.debug("Importing Images");
@@ -350,6 +368,7 @@ export async function buildNPC(data, temporary = true, update = false) {
     temporary: temporary,
     displaySheet: false,
   };
+  data = await linkResourcesConsumption(data);
   let npc = (update) ? await Actor.update(data, options) : await Actor.create(data, options);
   return npc;
 }

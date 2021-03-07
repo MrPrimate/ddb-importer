@@ -88,6 +88,8 @@ export function getDamage(description) {
 
 export function getAction(text, type = "action") {
   let action = type;
+  // fodunry doesn't support mythic actions
+  if (type === "mythic") action = "special";
   // const actionAction = text.toLowerCase().match(/as an action/);
   const bonusAction = text.toLowerCase().match(/as a bonus action/);
   const reAction = text.toLowerCase().match(/as a reaction/);
@@ -341,7 +343,7 @@ function getWeaponAttack(resultData, proficiencyBonus) {
         }
         return 0;
       });
-      logger.debug(filteredAbilities);
+      logger.debug("Filtered abilities", filteredAbilities);
       logger.debug(result.text);
       // fine lets use the first hit
       if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {
@@ -368,8 +370,8 @@ export function getTarget(text) {
 
   // 90-foot line that is 10 feet wide
   // in a 90-foot cone
-  const coneSearch = /(\d+)-foot line/;
-  const lineSearch = /(\d+)-foot cone/;
+  const lineSearch = /(\d+)-foot line/;
+  const coneSearch = /(\d+)-foot cone/;
 
   const coneMatch = text.match(coneSearch);
   const lineMatch = text.match(lineSearch);

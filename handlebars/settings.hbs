@@ -19,9 +19,13 @@
     </div>
     <hr>
     <h3>[Required] A Cobalt Cookie</h3>
-    <p>Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome extension</a> to get this! Or follow <a href="https://cdn.discordapp.com/attachments/761196994898165781/781176499155238942/manually-find-cookie.png">these manual steps</a>.</p>
+    <p>Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome</a> or the <a href="https://github.com/IamWarHead/ddb-data-grabber">DDB Data Grabber</a> to get this with a click, or follow <a href="https://cdn.discordapp.com/attachments/761196994898165781/781176499155238942/manually-find-cookie.png">these manual steps</a>. Paste into this field with Ctrl-V.</p>
       <input class="setup-config" type="password" name="cobalt-cookie" style="flex: 0 1 auto" ;
         value="{{setupConfig.cobalt-cookie}}" />
+    <h3>Store Cobalt Cookie in browser storage?</h3>
+    <p>If this is checked, the cobalt cookie will be stored in your local browser storage. Only your browser can run the importer.</p>
+       <input {{#if this.cobaltLocal}}checked{{/if}} class="setup-config" type="checkbox" name="cobalt-cookie-local"
+       style="flex: 0 1 auto"> Use local storage?
     <hr>
     <h3>[Optional] Campaign URL/ID</h3>
     <p>Only needed if you're shared content via a Campaign. Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/1234567 or 1234567. Don't enter the URL used to <i>join</i> a campaign.</p>

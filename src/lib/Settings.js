@@ -1,12 +1,13 @@
-import DirectoryPicker from "./DirectoryPicker.js";
+import { DirectoryPicker } from "./DirectoryPicker.js";
 import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
+import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings } from "./Secrets.js";
 
 export function isSetupComplete(needsCobalt = true) {
   const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
   const dataDirSet = !BAD_DIRS.includes(uploadDir);
   const campaignId = game.settings.get("ddb-importer", "campaign-id");
-  const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+  const cobalt = getCobalt() != "";
   const campaignIdCorrect = !campaignId.includes("join");
   const setupComplete = dataDirSet && (cobalt || !needsCobalt) && campaignIdCorrect;
   return setupComplete;
@@ -17,7 +18,7 @@ export class DDBKeyChange extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-key-change";
-    options.template = "modules/ddb-importer/handlebars/key-change.handlebars";
+    options.template = "modules/ddb-importer/handlebars/key-change.hbs";
     options.width = 500;
     return options;
   }
@@ -93,7 +94,7 @@ export class DDBSetup extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-settings";
-    options.template = "modules/ddb-importer/handlebars/settings.handlebars";
+    options.template = "modules/ddb-importer/handlebars/settings.hbs";
     options.width = 500;
     return options;
   }
@@ -106,7 +107,8 @@ export class DDBSetup extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const cobalt = game.settings.get("ddb-importer", "cobalt-cookie") != "";
+    const cobalt = getCobalt() != "";
+    const cobaltLocal = game.settings.get("ddb-importer", "cobalt-cookie-local");
     const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     const campaignIdCorrect = !game.settings.get("ddb-importer", "campaign-id").includes("join");
@@ -118,7 +120,7 @@ export class DDBSetup extends FormApplication {
 
     const setupConfig = {
       "image-upload-directory": uploadDir,
-      "cobalt-cookie": game.settings.get("ddb-importer", "cobalt-cookie"),
+      "cobalt-cookie": getCobalt(),
       "campaign-id": game.settings.get("ddb-importer", "campaign-id"),
       "beta-key": game.settings.get("ddb-importer", "beta-key"),
     };
@@ -127,6 +129,7 @@ export class DDBSetup extends FormApplication {
 
     return {
       cobalt: cobalt,
+      cobaltLocal: cobaltLocal,
       beta: betaKey && cobalt,
       setupConfig: setupConfig,
       setupComplete: setupComplete,
@@ -142,14 +145,23 @@ export class DDBSetup extends FormApplication {
     const imageDir = formData['image-upload-directory'];
     const campaignId = formData['campaign-id'];
     const cobaltCookie = formData['cobalt-cookie'];
+    const cobaltCookieLocal = formData['cobalt-cookie-local'];
+    const runCookieMigrate = cobaltCookieLocal != game.settings.get("ddb-importer", "cobalt-cookie-local");
     await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
-    await game.settings.set("ddb-importer", "cobalt-cookie", cobaltCookie);
+    await setCobalt(cobaltCookie);
     await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
     await game.settings.set("ddb-importer", "campaign-id", campaignId);
+    await game.settings.set("ddb-importer", "cobalt-cookie-local", cobaltCookieLocal);
 
     const imageDirSet = !BAD_DIRS.includes(imageDir);
     const campaignIdCorrect = !campaignId.includes("join");
     await setPatreonTier();
+
+    if (runCookieMigrate && cobaltCookieLocal) {
+      moveCobaltToLocal();
+    } else if (runCookieMigrate && !cobaltCookieLocal) {
+      moveCobaltToSettings();
+    }
 
     if (!imageDirSet) {
       $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);
@@ -195,7 +207,7 @@ export class DDBCompendiumSetup extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-settings-compendium";
-    options.template = "modules/ddb-importer/handlebars/compendium.handlebars";
+    options.template = "modules/ddb-importer/handlebars/compendium.hbs";
     options.width = 500;
     return options;
   }

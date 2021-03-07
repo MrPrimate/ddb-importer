@@ -2,9 +2,11 @@ import logger from "../logger.js";
 import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/isequal.js";
 import { getCampaignId } from "../muncher/utils.js";
+import DICTIONARY from "../dictionary.js";
+import { getCobalt } from "../lib/Secrets.js";
 
 async function updateCharacterCall(characterId, path, bodyContent) {
-  const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const cobaltCookie = getCobalt();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
@@ -261,8 +263,6 @@ async function spellsPrepared(actor, characterId, ddbData) {
 
 }
 
-const EQUIPMENT_TYPES = ["weapon", "equipment", "consumable", "tool", "loot", "backpack"];
-
 async function addEquipment(actor, characterId, ddbData) {
   const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
@@ -270,7 +270,7 @@ async function addEquipment(actor, characterId, ddbData) {
 
   const itemsToAdd = actor.data.items.filter((item) =>
     !item.flags.ddbimporter?.action &&
-    EQUIPMENT_TYPES.includes(item.type) &&
+    DICTIONARY.types.inventory.includes(item.type) &&
     !ddbItems.some((s) => s.name === item.name && s.type === item.type) &&
     item.flags.ddbimporter?.definitionId &&
     item.flags.ddbimporter?.definitionEntityTypeId
@@ -313,7 +313,7 @@ async function removeEquipment(actor, characterId, ddbData) {
 
   const itemsToRemove = ddbItems.filter((item) =>
     !actor.data.items.some((s) => (s.name === item.name && s.type === item.type) && !s.flags.ddbimporter?.action) &&
-    EQUIPMENT_TYPES.includes(item.type) &&
+    DICTIONARY.types.inventory.includes(item.type) &&
     item.flags.ddbimporter?.id
   );
 

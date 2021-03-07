@@ -28,6 +28,10 @@ import logger from "../../logger.js";
 
 import { fixItems } from "./special.js";
 
+// effects support
+import { generateItemEffects } from "../effects/effects.js";
+import { generateBaseACItemEffect } from "../effects/acEffects.js";
+
 /**
  * We get extra damage to a weapon attack here, for example Improved
  * Divine Smite
@@ -148,7 +152,7 @@ function getCustomValue(data, character, type) {
   return null;
 }
 
-function getWeaponFlags(ddb, data, character) {
+function getItemFlags(ddb, data, character) {
   let flags = {
     damage: {
       parts: [],
@@ -156,6 +160,8 @@ function getWeaponFlags(ddb, data, character) {
       // Some features, notably hexblade abilities we scrape out here
     classFeatures: getClassFeatures(ddb, data),
     martialArtsDie: getMartialArtsDie(ddb),
+    maxMediumArmorDex: Math.max(...utils.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier").map((mod) => mod.value), 2),
+    magicItemAttackInt: utils.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0,
   };
 
   if (flags.classFeatures.includes("Lifedrinker")) {
@@ -277,7 +283,7 @@ function addCustomValues(ddbItem, foundryItem, character) {
 }
 
 // the filter type "Other Gear" represents the equipment while the other filters represents the magic items in ddb
-function parseItem(ddb, data, character) {
+function parseItem(ddb, data, character, flags) {
   try {
     // is it a weapon?
     let item = {};
@@ -287,13 +293,12 @@ function parseItem(ddb, data, character) {
           if (data.definition.type === "Ammunition" || data.definition.subType === "Ammunition") {
             item = parseAmmunition(data, "Ammunition");
           } else {
-            const flags = getWeaponFlags(ddb, data, character);
             item = parseWeapon(data, character, flags);
           }
           break;
         }
         case "Armor":
-          item = parseArmor(data, character);
+          item = parseArmor(data, character, flags);
           break;
         case "Wondrous item":
         case "Ring":
@@ -412,15 +417,27 @@ export default function getInventory(ddb, character, itemSpells) {
     }))
     : [];
 
-  for (let entry of ddb.character.inventory.concat(customItems)) {
-    const originalName = entry.definition.name;
-    entry.definition.name = getName(entry, character);
-    var item = Object.assign({}, parseItem(ddb, entry, character));
-    addCustomValues(entry, item, character);
-    enrichFlags(entry, item);
+  for (let ddbItem of ddb.character.inventory.concat(customItems)) {
+    const originalName = ddbItem.definition.name;
+    ddbItem.definition.name = getName(ddbItem, character);
+    const flags = getItemFlags(ddb, ddbItem, character);
+
+    var item = Object.assign({}, parseItem(ddb, ddbItem, character, flags));
+    addCustomValues(ddbItem, item, character);
+    enrichFlags(ddbItem, item);
     if (item) {
-      item.flags.magicitems = parseMagicItem(entry, itemSpells);
+      item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
+      if (!item.effects) item.effects = [];
+      const daeInstalled = utils.isModuleInstalledAndActive("dae");
+      const compendiumItem = character.flags.ddbimporter.compendium;
+      const addEffects = (compendiumItem)
+        ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+        : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+      if (daeInstalled && addEffects) {
+        item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
+        item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
+      }
       items.push(item);
     }
   }

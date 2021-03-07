@@ -35,7 +35,7 @@ export function getItemSpells(ddb, character) {
         spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
       }
 
-      const abilityModifier = utils.calculateModifier(character.data.abilities[spellCastingAbility].value);
+      const abilityModifier = utils.calculateModifier(character.flags.ddbimporter.dndbeyond.effectAbilities[spellCastingAbility].value);
       spellDC = 8 + proficiencyModifier + abilityModifier;
     } else {
       spellDC = null;

@@ -5,7 +5,7 @@ import utils from "../../utils.js";
  * Supported Types only: Simple/Martial Melee/Ranged and Ammunition (Firearms in D&DBeyond)
  * @param {obj} data item data
  */
-let getArmorType = (data) => {
+let getArmorType = (data, flags) => {
   // get the generic armor type
   const nameEntry = DICTIONARY.equipment.armorType.find((type) => type.name === data.definition.type);
   const idEntry = DICTIONARY.equipment.armorType.find((type) => type.id === data.definition.armorTypeId);
@@ -27,7 +27,7 @@ let getArmorType = (data) => {
       maxDexModifier = 0;
       break;
     case "Medium Armor":
-      maxDexModifier = 2;
+      maxDexModifier = flags.maxMediumArmorDex;
       break;
     default:
       maxDexModifier = null;
@@ -94,28 +94,25 @@ let getEquipped = (data) => {
  * Gets Limited uses information, if any
  * uses: { value: 0, max: 0, per: null }
  */
-// let getUses = (data) => {
-//   if (data.limitedUse !== undefined && data.limitedUse !== null) {
-//     let resetType = DICTIONARY.resets.find(
-//       (reset) => reset.id == data.limitedUse.resetType
-//     );
-//     return {
-//       max: data.limitedUse.maxUses,
-//       value: data.limitedUse.numberUsed
-//         ? data.limitedUse.maxUses - data.limitedUse.numberUsed
-//         : data.limitedUse.maxUses,
-//       per: resetType.value,
-//       description: data.limitedUse.resetTypeDescription,
-//     };
-//   } else {
-//     return { value: 0, max: 0, per: null };
-//   }
-// };
+let getUses = (data) => {
+  if (data.limitedUse !== undefined && data.limitedUse !== null) {
+    let resetType = DICTIONARY.resets.find(
+      (reset) => reset.id == data.limitedUse.resetType
+    );
+    return {
+      max: data.limitedUse.maxUses,
+      value: data.limitedUse.numberUsed
+        ? data.limitedUse.maxUses - data.limitedUse.numberUsed
+        : data.limitedUse.maxUses,
+      per: resetType.value,
+      description: data.limitedUse.resetTypeDescription,
+    };
+  } else {
+    return { value: 0, max: 0, per: null };
+  }
+};
 
-export default function parseArmor(data, character) {
-  /**
-   * MAIN parseEquipment
-   */
+export default function parseArmor(data, character, flags) {
   let armor = {
     name: data.definition.name,
     type: "equipment",
@@ -129,63 +126,32 @@ export default function parseArmor(data, character) {
     },
   };
 
-  //
   // "armor": {
   //     "type": "light",
   //     "value": 10,
   //     "dex": null
   // }
-  armor.data.armor = getArmorType(data);
-
-  /* "strength": 0 */
+  armor.data.armor = getArmorType(data, flags);
   armor.data.strength = getStrength(data);
-
-  /* "stealth": false,*/
   armor.data.stealth = getStealthPenalty(data);
-
-  /* proficient: true, */
-  armor.data.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficiencies);
-
-  // description: {
-  //        value: '',
-  //        chat: '',
-  //        unidentified: ''
-  //    },
+  armor.data.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
   armor.data.description = {
     value: data.definition.description,
     chat: data.definition.description,
     unidentified: data.definition.type,
   };
 
-  /* source: '', */
   armor.data.source = utils.parseSource(data.definition);
-
-  /* quantity: 1, */
   armor.data.quantity = data.quantity ? data.quantity : 1;
-
-  /* weight */
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   armor.data.weight = totalWeight / bundleSize;
-
-  /* price */
   armor.data.price = data.definition.cost ? data.definition.cost : 0;
-
-  /* attuned: false, */
   armor.data.attuned = getAttuned(data);
-
-  /* equipped: false, */
   armor.data.equipped = getEquipped(data);
-
-  /* rarity: '', */
   armor.data.rarity = data.definition.rarity;
-
-  /* identified: true, */
   armor.data.identified = true;
-
-  // we don't parse this because the weapon then becomes a limited use item.
-  // this field is normally reserved on weapons for magic effects. so we handle it there.
-  // armor.data.uses = getUses(data);
+  armor.data.uses = getUses(data);
 
   return armor;
 }

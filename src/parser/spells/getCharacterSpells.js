@@ -12,13 +12,14 @@ export function getCharacterSpells(ddb, character) {
   let items = [];
   const proficiencyModifier = character.data.attributes.prof;
   const lookups = getLookups(ddb.character);
+  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   // each class has an entry here, each entry has spells
   // we loop through each class and process
   ddb.character.classSpells.forEach((playerClass) => {
     const classInfo = ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
     const spellCastingAbility = getSpellCastingAbility(classInfo);
-    const abilityModifier = utils.calculateModifier(character.data.abilities[spellCastingAbility].value);
+    const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
 
     const cantripBoost =
       utils.getChosenClassModifiers(ddb).filter(
@@ -103,7 +104,7 @@ export function getCharacterSpells(ddb, character) {
       spellCastingAbility = "wis";
     }
 
-    const abilityModifier = utils.calculateModifier(character.data.abilities[spellCastingAbility].value);
+    const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
 
     // add some data for the parsing of the spells into the data structure
     spell.flags = {
@@ -157,7 +158,7 @@ export function getCharacterSpells(ddb, character) {
       spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
     }
 
-    const abilityModifier = utils.calculateModifier(character.data.abilities[spellCastingAbility].value);
+    const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
 
     let raceInfo = lookups.race.find((rc) => rc.id === spell.componentId);
 
@@ -204,7 +205,7 @@ export function getCharacterSpells(ddb, character) {
       spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
     }
 
-    const abilityModifier = utils.calculateModifier(character.data.abilities[spellCastingAbility].value);
+    const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
 
     let featInfo = lookups.feat.find((ft) => ft.id === spell.componentId);
 

@@ -1,4 +1,9 @@
 const DICTIONARY = {
+  types: {
+    equipment: ["equipment", "consumable", "tool", "loot", "backpack"],
+    inventory: ["equipment", "consumable", "tool", "loot", "backpack", "weapon"],
+    monster: ["equipment", "consumable", "tool", "loot", "backpack", "weapon", "feat"],
+  },
   numbers: [
     { num: 1, natural: "a" },
     { num: 1, natural: "one" },
@@ -182,7 +187,10 @@ const DICTIONARY = {
       { id: 10, type: 2, kind: "resistance", name: "Necrotic", value: "necrotic" },
       { id: 11, type: 2, kind: "resistance", name: "Acid", value: "acid" },
       { id: 12, type: 2, kind: "resistance", name: "Psychic", value: "psychic" },
-      // { id: 13, type: 2, kind: "resistance", name: "Force", value: "force" },
+      { id: 13, type: 2, kind: "resistance", name: "Physical", value: "bludgeoning-piercing-and-slashing-from-nonmagical-weapons", foundryValue: "physical" },
+      { id: 14, type: 2, kind: "resistance", name: "Physical", value: "bludgeoning-piercing-and-slashing-from-nonmagical-attacks-that-arent-silvered", foundryValue: "physical" },
+      { id: 15, type: 2, kind: "resistance", name: "Physical", value: "bludgeoning-piercing-and-slashing-from-nonmagical-attacks-that-arent-adamantine", foundryValue: "physical" },
+      // { id: 16, type: 2, kind: "resistance", name: "Physical", value: "piercing-and-slashing-from-nonmagical-attacks-that-arent-adamantine", foundryValue: "physical" },
       { id: 17, type: 2, kind: "immunity", name: "Bludgeoning", value: "bludgeoning" },
       { id: 18, type: 2, kind: "immunity", name: "Piercing", value: "piercing" },
       { id: 19, type: 2, kind: "immunity", name: "Slashing", value: "slashing" },
@@ -195,6 +203,10 @@ const DICTIONARY = {
       { id: 26, type: 2, kind: "immunity", name: "Necrotic", value: "necrotic" },
       { id: 27, type: 2, kind: "immunity", name: "Acid", value: "acid" },
       { id: 28, type: 2, kind: "immunity", name: "Psychic", value: "psychic" },
+      { id: 29, type: 2, kind: "immunity", name: "Physical", value: "bludgeoning-piercing-and-slashing-from-nonmagical-weapons", foundryValue: "physical" },
+      { id: 30, type: 2, kind: "immunity", name: "Physical", value: "bludgeoning-piercing-and-slashing-from-nonmagical-attacks-that-arent-silvered", foundryValue: "physical" },
+      { id: 31, type: 2, kind: "immunity", name: "Physical", value: "bludgeoning-piercing-and-slashing-from-nonmagical-attacks-that-arent-adamantine", foundryValue: "physical" },
+      // { id: 32, type: 2, kind: "immunity", name: "Physical", value: "piercing-and-slashing-from-nonmagical-attacks-that-arent-adamantine", foundryValue: "physical" },
       { id: 33, type: 2, kind: "vulnerability", name: "Bludgeoning", value: "bludgeoning" },
       { id: 34, type: 2, kind: "vulnerability", name: "Piercing", value: "piercing" },
       { id: 35, type: 2, kind: "vulnerability", name: "Slashing", value: "slashing" },
@@ -207,6 +219,7 @@ const DICTIONARY = {
       { id: 42, type: 2, kind: "vulnerability", name: "Necrotic", value: "necrotic" },
       { id: 43, type: 2, kind: "vulnerability", name: "Acid", value: "acid" },
       { id: 44, type: 2, kind: "vulnerability", name: "Psychic", value: "psychic" },
+
       { id: 47, type: 2, kind: "resistance", name: "Force", value: "force" },
       { id: 48, type: 2, kind: "immunity", name: "Force", value: "force" },
       { id: 49, type: 2, kind: "vulnerability", name: "Force", value: "force" },

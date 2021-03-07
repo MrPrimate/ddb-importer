@@ -2,68 +2,6 @@ import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
 import logger from "../../logger.js";
 
-function getSensesLookupOld(data) {
-  let senses = [];
-  // custom senses
-  if (data.character.customSenses) {
-    data.character.customSenses
-      .filter((sense) => !sense.distance)
-      .forEach((sense) => {
-        const s = DICTIONARY.character.senses.find((s) => s.id === sense.senseId);
-        const senseName = s ? s.name : null;
-        senses.push({ name: senseName, value: sense.distance });
-      });
-  }
-
-  // Darkvision
-  utils.filterBaseModifiers(data, "set-base", "darkvision").forEach((sense) => {
-    let existing = senses.findIndex((s) => s.name === "Darkvision");
-    if (existing !== -1) {
-      if (sense.value > senses[existing].value) {
-        senses[existing].value = sense.value;
-      }
-    } else {
-      senses.push({ name: sense.friendlySubtypeName, value: sense.value });
-    }
-  });
-
-  // Devils Sight gives bright light to 120 foot instead of normal darkvision
-  utils
-    .filterBaseModifiers(data, "set-base", "darkvision", [
-      "You can see normally in darkness, both magical and nonmagical",
-    ])
-    .forEach((sense) => {
-      let existing = senses.findIndex((s) => s.name === "Devils Sight");
-      if (existing !== -1) {
-        if (sense.value > senses[existing].value) {
-          senses[existing].value = sense.value;
-        }
-      } else {
-        senses.push({ name: "Devils Sight", value: sense.value });
-      }
-    });
-
-  // Magical bonuses and additional, e.g. Gloom Stalker
-  utils
-    .filterBaseModifiers(data, "sense", "darkvision", ["", null, "plus 60 feet if wearer already has Darkvision"])
-    .map((mod) => {
-      return {
-        name: DICTIONARY.character.senses.find((s) => s.id === mod.entityId).name,
-        value: mod.value,
-      };
-    })
-    .forEach((mod) => {
-      let sense = senses.find((sense) => sense.name === mod.name);
-      if (sense) {
-        sense.value += mod.value;
-      } else {
-        senses.push({ name: mod.name, value: mod.value });
-      }
-    });
-
-  return senses;
-}
-
 export function getSensesMap(data) {
   let senses = {
     darkvision: 0,
@@ -139,32 +77,16 @@ export function getSensesLookup(data) {
   let senses;
 
   try {
-    const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
-    if (versionCompare >= 0) {
-      senses = getSensesMap(data);
-    } else {
-      senses = getSensesLookupOld(data);
-    }
+    senses = getSensesMap(data);
   } catch (err) {
     logger.error(err);
     logger.error(err.stack);
-    throw new Error("Please update your D&D 5e system to a newer version");
+    throw new Error("Sense parsing failed. You might need to update your D&D 5e system to a newer version");
   }
 
   return senses;
 }
 
 export function getSenses(data) {
-  const versionCompare = utils.versionCompare(game.system.data.version, "1.2.0");
-
-  let senses;
-  if (versionCompare >= 0) {
-    senses = getSensesMap(data);
-    return senses;
-  } else {
-    senses = getSensesLookupOld(data);
-    senses = senses.sort((a, b) => a.name >= b.name);
-    // sort the senses alphabetically
-    return senses.map((e) => e.name + ": " + e.value + " ft.").join(", ");
-  }
+  return getSensesMap(data);
 }

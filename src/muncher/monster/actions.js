@@ -82,27 +82,42 @@ function buildAction(action, actionInfo, textContent, type) {
 
 export function getActions(monster, DDB_CONFIG, type = "action") {
   if (monster.actionsDescription == "") {
-    return [];
+    return [[], null];
   }
 
   const hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
-  let actions = null;
+  let actions;
+  let characterDescription;
 
   switch (type) {
     case "action":
-      actions = monster.actionsDescription;
+      actions = monster.actionsDescription ?? "";
       break;
     case "reaction":
-      actions = monster.reactionsDescription;
+      actions = monster.reactionsDescription ?? "";
+      break;
+    case "bonus":
+      actions = monster.bonusActionsDescription ?? "";
+      break;
+    case "mythic":
+      actions = monster.mythicActionsDescription ?? "";
       break;
     default:
       actions = "";
   }
 
+  let splitActions = actions.split("<h3>Roleplaying Information</h3>");
+  if (splitActions.length > 1) {
+    characterDescription = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
+  }
+  actions = splitActions[0].replace(/<\/strong> <strong>/g, "").replace(/<\/strong><strong>/g, "");
+
   let dom = new DocumentFragment();
   $.parseHTML(actions).forEach((element) => {
     dom.appendChild(element);
   });
+
+  // console.error(`Starting ${type} processing`)
   // console.warn(dom);
   // console.log(actions);
   // console.log(dom.childNodes);
@@ -124,7 +139,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     });
     const query = pDom.querySelector("strong");
     if (!query) return;
-    action.name = query.textContent.trim().replace(/\./g, '').trim();
+    action.name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
     action.data.source = getSource(monster, DDB_CONFIG);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
@@ -144,7 +159,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       });
       const query = pDom.querySelector("b");
       if (!query) return;
-      action.name = query.textContent.trim().replace(/\./g, '').trim();
+      action.name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
@@ -171,10 +186,34 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
           titleHTML: pDom.outerHTML.split('.')[0],
         };
       }
-      dynamicActions.push(action);
+      if (action.name) dynamicActions.push(action);
     });
     action = dynamicActions[0];
   }
+
+  // homebrew fun
+  if (dynamicActions.length == 0) {
+    dom.querySelectorAll("div").forEach((node) => {
+      let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
+      let pDom = new DocumentFragment();
+      $.parseHTML(node.outerHTML).forEach((element) => {
+        pDom.appendChild(element);
+      });
+      const title = pDom.textContent.split('.')[0];
+      action.name = title.trim();
+      action.data.source = getSource(monster, DDB_CONFIG);
+      if (pDom.outerHTML) {
+        action.flags.monsterMunch = {
+          titleHTML: pDom.outerHTML.split('.')[0],
+        };
+      }
+      if (action.name) dynamicActions.push(action);
+    });
+    action = dynamicActions[0];
+  }
+
+  // console.warn("DYNAMIC ACTIONS");
+  // console.error(dynamicActions);
 
   dom.childNodes.forEach((node) => {
     // console.log("***");
@@ -206,6 +245,9 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       }
     }
 
+    // console.warn(node);
+    // console.warn(action);
+    if (!action) return;
     const actionInfo = getActionInfo(monster, DDB_CONFIG, action.name, node.textContent);
 
     if (node.outerHTML) {
@@ -232,5 +274,5 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
   // console.log(dynamicActions);
   // console.log(JSON.stringify(dynamicActions, null, 4));
 
-  return dynamicActions;
+  return [dynamicActions, characterDescription];
 }

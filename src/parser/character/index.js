@@ -47,14 +47,19 @@ export default function getCharacter(ddb) {
   let character = {
     data: JSON.parse(utils.getTemplate("character")),
     type: "character",
+    effects: [],
     name: (ddb.character.name === "") ? "Hero With No Name" : ddb.character.name,
     // items: [],  // modified to check inventory analysis on update
     token: getToken(ddb),
     flags: {
       ddbimporter: {
+        compendium: false,
+        acEffects: [],
+        baseAC: 10,
         dndbeyond: {
           totalLevels: ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0),
           proficiencies: getProficiencies(ddb),
+          proficienciesIncludingEffects: getProficiencies(ddb, true),
           roUrl: ddb.character.readonlyUrl,
           characterValues: ddb.character.characterValues,
           templateStrings: [],
@@ -68,7 +73,9 @@ export default function getCharacter(ddb) {
   character.flags.dnd5e = getSpecialTraits(ddb);
 
   // character abilities
-  character.data.abilities = getAbilities(ddb);
+  const abilityData = getAbilities(ddb);
+  character.data.abilities = abilityData.base;
+  character.flags.ddbimporter.dndbeyond.effectAbilities = abilityData.withEffects;
 
   // Hit Dice
   character.data.attributes.hd = getHitDice(ddb);
@@ -83,7 +90,10 @@ export default function getCharacter(ddb) {
   character.data.attributes.inspiration = ddb.character.inspiration;
 
   // armor class
-  character.data.attributes.ac = getArmorClass(ddb, character);
+  const ac = getArmorClass(ddb, character);
+  character.data.attributes.ac = ac.fixed;
+  character.flags.ddbimporter.acEffects = ac.effects;
+  character.flags.ddbimporter.baseAC = ac.baseAC;
 
   // hitpoints
   character.data.attributes.hp = getHitpoints(ddb, character);
@@ -130,9 +140,9 @@ export default function getCharacter(ddb) {
   character.data.details.race = ddb.character.race.fullName;
 
   // traits
-  character.data.traits.weaponProf = getWeaponProficiencies(ddb, character);
-  character.data.traits.armorProf = getArmorProficiencies(ddb, character);
-  character.data.traits.toolProf = getToolProficiencies(ddb, character);
+  character.data.traits.weaponProf = getWeaponProficiencies(ddb, character.flags.ddbimporter.dndbeyond.proficiencies);
+  character.data.traits.armorProf = getArmorProficiencies(ddb, character.flags.ddbimporter.dndbeyond.proficiencies);
+  character.data.traits.toolProf = getToolProficiencies(ddb, character.flags.ddbimporter.dndbeyond.proficiencies);
   character.data.traits.size = getSize(ddb);
   character.data.traits.senses = getSenses(ddb);
   character.data.traits.languages = getLanguages(ddb);

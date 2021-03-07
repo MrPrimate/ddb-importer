@@ -32,7 +32,8 @@
     "setProperty": true,
     "ForgeAPI": true,
     "ROUTE_PREFIX": true,
-    "CONST": true
+    "CONST": true,
+    "randomID": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

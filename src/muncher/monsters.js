@@ -5,14 +5,18 @@ import logger from "../logger.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
+import { getCobalt } from "../lib/Secrets.js";
+
+window.parseMonsters = parseMonsters;
 
 async function getMonsterData() {
-  const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const cobaltCookie = getCobalt();
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const searchTerm = $("#monster-munch-filter")[0].value;
   const debugJson = game.settings.get("ddb-importer", "debug-json");
   const homebrew = game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
+  const homebrewOnly = game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
   const exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
   const sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
   const body = {
@@ -20,6 +24,7 @@ async function getMonsterData() {
     betaKey: betaKey,
     search: searchTerm,
     homebrew: homebrew,
+    homebrewOnly: homebrewOnly,
     searchTerm: encodeURIComponent(searchTerm),
     exactMatch: exactMatch,
     sources: sources,
@@ -94,6 +99,19 @@ export async function parseCritters() {
   munchNote("");
   munchNote(`Fiddling with the SRD data...`, true);
   const finalMonsters = await srdFiddling(monsters, "monsters");
+
+  // let features = [];
+  // let cr = [];
+  // console.warn(finalMonsters);
+  // finalMonsters.forEach((monster) => {
+  //   cr.push({name: monster.name, cr: monster.data.details.cr, type: monster.data.details.type });
+    // monster.items.forEach((feature) => {
+    //   features.push({ name: feature.name, monster: monster.name, srdImage: feature.img});
+    // })
+  // });
+  // download(JSON.stringify(features), `monster-features.json`, "application/json");
+  // download(JSON.stringify(cr), `monster-details.json`, "application/json");
+  // return 0;
 
   munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);

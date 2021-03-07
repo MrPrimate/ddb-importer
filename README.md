@@ -2,21 +2,22 @@
 
 Import your dndbeyond.com characters into Foundry Virtual Tabletop.
 
-This module is similar to vtta-dndbeyond, in fact I have been a large contributor to the character parser.
-
 This module:
-* Parses characters similar to vtta-dndbeyond but with better accuracy.
-* _Won't_ add items, and spells to the compendiums during character import. There's a new tools to do that! Class features are still added to the Features compendium.
-* Can bulk import spells.
-* Can bulk import items.
-* [Patreon](https://patreon.com/mrprimate) supporters can bulk import monsters. These monsters come from JSON definitions, so parsing is easier.
-* [Not yet available] Can bulk import simple class feature descriptions.
+* Import your DDB characters into Foundry, and sync changes back!
+* Import a characters extras such as Wildshapes or beast companions.
+* Bulk import spells.
+* Bulk import items.
+* [Patreon](https://patreon.com/mrprimate) supporters can bulk import monsters.
+* Can bulk import simple class, race and feat descriptions.
 * When you import a Cleric or Druid it will import _all_ your spells.*
 
 In addition you can:
 
+- Use the built in dictionary to get a large icon coverage during import.
 - Use supplied SRD items where available.
 - Choose to use matching SRD icons.
+- Apply effects from DAE or DAE SRD.
+- Attempt to auto-generate effects for items.
 
 ## Examples
 
@@ -38,7 +39,7 @@ To logout/invalidate these credentials log out of your D&DBeyond Session.
 
 ## Notes
 
-You CAN use this alongside the vtta-dndbeyond extension, two icons will show up. This extension has yellow text on the B symbol.
+You CAN use this alongside the vtta-dndbeyond extension.
 
 ## Support
 
@@ -46,19 +47,12 @@ Where can you support me? See my [Patreon](https://patreon.com/mrprimate).
 
 You can log bugs here, or mention them in the [Discord channel](https://discord.gg/WzPuRuDJVP).
 
-## What's next?
-
-If I get enough support I will work on getting Artificers infusions importing and seeing what active effects can be extracted and automatically added.
-
 ## Pre-requisites and recommendations
 
 I'd recommend installing:
 
-- Iconizer, install it by pasting [this link for now](https://github.com/MrPrimate/vtta-iconizer/releases/download/latest/module.json)
-- [Magic Items](https://foundryvtt.com/packages/magicitems/)
-- [Skill Customization for D&D5E](https://foundryvtt.com/packages/skill-customization-5e/)
-
-These all offer enhancements for your game, and the parser will attempt to add flags to use them.
+- [Magic Items](https://foundryvtt.com/packages/magicitems/) for attaching spells to magic items
+- [DAE](https://foundryvtt.com/packages/dae/) or [Skill Customization for D&D5E](https://foundryvtt.com/packages/skill-customization-5e/) for skill bonuses
 
 ## SRD Import Notes
 
@@ -89,16 +83,6 @@ Examples:
 - `img/uploads` references to `[Foundry]/Data/img/uploads`
 - `uploads` references to `[Foundry]/Data/uploads`
 - `` references to `[Foundry]/Data` - not recommended
-
-# Entity import policy
-
-Three settings are available:
-
-- **Save all entities, overwrite existing ones** - Imported entities will be saved to their designated compendium, which you will set below. Existing entries will be updated/ overwritten. Great if you want to import all your stuff into Foundry
-- **Save new entities only, do not overwrite existing ones** - Import only entities currently not available in the compendiums
-- **Do not save the entities at** all - Just do nothing. If you choose this, you do not need to set the compendium entries below
-
-
 
 # FAQ
 

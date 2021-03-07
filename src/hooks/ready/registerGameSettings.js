@@ -1,4 +1,4 @@
-import DirectoryPicker from "../../lib/DirectoryPicker.js";
+import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
 
 export default function () {
@@ -39,6 +39,7 @@ export default function () {
     hint: "ddb-importer.image-upload-directory.hint",
     scope: "world",
     config: false,
+    // In 0.8.0 the custom type requires a collection. Awaiting fix
     type: DirectoryPicker.Directory,
     default: "[data] ",
   });
@@ -356,6 +357,51 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-add-character-effects", {
+    name: "ddb-importer.character-update-policy-add-character-effects.name",
+    hint: "ddb-importer.character-update-policy-add-character-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-add-item-effects", {
+    name: "ddb-importer.character-update-policy-add-item-effects.name",
+    hint: "ddb-importer.character-update-policy-add-item-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-generate-ac-feature-effects", {
+    name: "ddb-importer.character-update-policy-generate-ac-feature-effects.name",
+    hint: "ddb-importer.character-update-policy-generate-ac-feature-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-generate-ac-override-effects", {
+    name: "ddb-importer.character-update-policy-generate-ac-override-effects.name",
+    hint: "ddb-importer.character-update-policy-generate-ac-override-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-generate-base-ac", {
+    name: "ddb-importer.character-update-policy-generate-base-ac.name",
+    hint: "ddb-importer.character-update-policy-generate-base-ac.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-use-existing", {
     name: "ddb-importer.character-update-policy-use-existing.name",
     hint: "ddb-importer.character-update-policy-use-existing.hint",
@@ -452,6 +498,15 @@ export default function () {
   game.settings.register("ddb-importer", "character-update-policy-equipment", {
     name: "ddb-importer.character-update-policy-equipment.name",
     hint: "ddb-importer.character-update-policy-equipment.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-bio", {
+    name: "ddb-importer.character-update-policy-bio.name",
+    hint: "ddb-importer.character-update-policy-bio.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -650,6 +705,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-add-effects", {
+    name: "ddb-importer.munching-policy-add-effects.name",
+    hint: "ddb-importer.munching-policy-add-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "munching-policy-download-images", {
     name: "ddb-importer.munching-policy-download-images.name",
     hint: "ddb-importer.munching-policy-download-images.hint",
@@ -698,6 +762,15 @@ export default function () {
   game.settings.register("ddb-importer", "munching-policy-monster-homebrew", {
     name: "ddb-importer.munching-policy-monster-homebrew.name",
     hint: "ddb-importer.munching-policy-monster-homebrew.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "munching-policy-monster-homebrew-only", {
+    name: "ddb-importer.munching-policy-monster-homebrew-only.name",
+    hint: "ddb-importer.munching-policy-monster-homebrew-only.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -767,6 +840,21 @@ export default function () {
     type: String,
     default: "",
   });
+
+  game.settings.register("ddb-importer", "cobalt-cookie-local", {
+    name: "ddb-importer.cobalt-cookie-local.name",
+    hint: "ddb-importer.cobalt-cookie-local.hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  // handle
+  if (game.settings.get("ddb-importer", "cobalt-cookie") != "") {
+    game.settings.set("ddb-importer", "cobalt-cookie-local", false);
+  }
+
   game.settings.register("ddb-importer", "campaign-id", {
     name: "ddb-importer.campaign-id.name",
     hint: "ddb-importer.campaign-id.hint",

@@ -1,3 +1,62 @@
+# 0.5.0 - 0.5.19 - 0.6.0
+
+* Active Effect Generation Support for Characters, and Items (Requires DAE, with additional enhancements if using Midi-QOL):
+
+Item effects generated:
+* Armoured AC bonuses
+* Unarmoured AC and bonuses
+* Saving throw bonuses
+* Ability Check bonuses and advantage on saves and checks
+* Skill check bonuses and advantage on saves and checks
+* Ability bonuses
+* Proficiency bonuses
+* Ability score over-rides (e.g. belt of x strength)
+* Spell attack and DC bonuses
+* Damage Resistance, Immunity and Vulnerabilities
+* Condition immunities
+* Languages
+* Darkvision, blindsight base and bonuses
+* Speed/movement
+* Proficiencies
+* HP per level
+* Skill bonuses
+* Advantage on skill checks
+* Advantage on initiative
+* Advantage on saves vs magical attacks
+* AC base effects on armor items
+
+Character, racial traits, and background effects generated:
+* AC base effects on character features
+* Same as item effects, except several features don't get a feature in foundry (e.g. Ability increases).
+
+Notes:
+* When importing characters and auto generating effects, the import will be significantly slower due to some race conditions around effect generation when updating characters.
+* Some effects may not come through for some items, these tend to be ones with very specific advantages, e.g. Advantage on Persuasion vs Giants and the like. There exceptions such as the Cloak of Elvenkind, or resistances where you should be holding the item.
+* It adds only a limited number of more specialist effects.
+* You can use this in combination with Copy Effects for DAE SRD.
+* Active Effect generation does not work in the Muncher for the experimental features such as feat, class and racial trait parsing.
+
+Other Improvements:
+* Icons don't use absolute paths
+* Artificer Battle Smith will now use Int for magic weapon attacks
+* Attacks now add damage type hints where possible
+* If DAE is installed it will be used to generate skill bonuses rather than 5e skill customisation module
+* If using the MagicItems module, spells will try to be found in the DDB Spells compendium -> SRD Compendium and only creating them n the world as a last resort if it can't find the spell allready.
+* You can generate a set of Character Effects for each of your equipped AC options. This is similar to the DAE Auto Generate AC option, however, these will over-ride DAE and effects applied by equipping items. AC is quite hard to calculate dynamically in Foundry in edge cases as it requires users to active the correct set of effects that apply. Not all effects (e.g. from class features) are currently generated.
+* Pressing enter in the monster search field no longer reloads the page.
+* Homebrew monster parsing improvements.
+* A handful of monsters had some odd formatting for their special traits which broke special trait and spell parsing. ["Hlam", "Ygorl, Lord of Entropy", "Whymsee (Kraken Priest Variant)", "Strahd Zombie", "Skr’a S’orsk", "Mongrelfolk", "Laeral Silverhand", "Jarlaxle Baenre", "Gar Shatterkeel (Noncore)", "Forlarren", "Fog Giant", "Fhenimore (Kraken Priest Variant)", "Drow Arachnomancer", "Archon of the Triumvirate", "Amble"].
+* Cones and Line area effects were the wrong way around in monster parsing due to late night coding.
+* For monster abilities that have a recharge function (e.g Hell Hounds breath) this now does the correct resource linking for the recharge.
+* Bio updates are now optional during character update.
+* Monster munch: improved parsing for a handful of monsters where special actions did not parse properly, e.g. Obzedat Ghost.
+* Monster munch: improved parsing for monsters with tables e.g. variant troll.
+* Monster munch: some monsters had their Roleplaying descriptions defined as actions, these now parse into the character biography. e.g. Augrek Brighthelm.
+* Monster munch: some monsters like Worvil “the Weevil” Forkbeard had action names for items that duplicated.
+* Background now imports as a feature.
+* Support for grabbing the Cobalt Cookie using https://github.com/IamWarHead/ddb-data-grabber
+* When copying DAE effects, it will now copy embedded macros on the item.
+
 # 0.4.17
 
 * Monster parsing: some cantrips did not import.

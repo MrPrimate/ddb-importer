@@ -1,6 +1,95 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
+import utils from "../../utils.js";
+import { generateFeatEffects } from "../effects/effects.js";
+import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
+function generateFeatModifiers(ddb, ddbItem, choice, type) {
+  // console.warn(ddbItem);
+  // console.log(choice);
+  if (ddbItem.grantedModifiers) return ddbItem;
+  let modifierItem = JSON.parse(JSON.stringify(ddbItem));
+  const modifiers = [
+    utils.getChosenClassModifiers(ddb, true),
+    utils.getModifiers(ddb, "race", true),
+    utils.getModifiers(ddb, "background", true),
+    utils.getModifiers(ddb, "feat", true),
+  ].flat();
+
+  // console.log(ddb.character.options[type]);
+  // console.warn("Adding modifiers");
+  // console.log(type);
+
+  if (!modifierItem.definition) modifierItem.definition = {};
+  modifierItem.definition.grantedModifiers = modifiers.filter((mod) => {
+    if (mod.componentId === ddbItem.definition?.id && mod.componentTypeId === ddbItem.definition?.entityTypeId) return true;
+    if (choice && ddb.character.options[type]?.length > 0) {
+      // if it is a choice option, try and see if the mod matches
+      const choiceMatch = ddb.character.options[type].some((option) =>
+        // id match
+        choice.componentId == option.componentId && // the choice id matches the option componentID
+        option.definition.id == mod.componentId && // option id and mod id match
+        (choice.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
+         choice.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
+
+        option.definition.entityTypeId == mod.componentTypeId && // mod componentId matches option entity type id
+        choice.id == mod.componentId // choice id and mod id match
+      );
+      // console.log(`choiceMatch ${choiceMatch}`);
+      if (choiceMatch) return true;
+    } else if (choice) { // && choice.parentChoiceId
+      const choiceIdSplit = choice.choiceId.split("-").pop();
+      if (mod.id == choiceIdSplit) return true;
+    } else if (mod.componentId === ddbItem.id) {
+        if (type === "class") {
+          // logger.log("Class check - feature effect parsing");
+          const classFeatureMatch = ddb.character.classes.some((klass) =>
+            klass.classFeatures.some((f) =>
+              f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
+            )
+          );
+          if (classFeatureMatch) return true;
+        }
+        if (type === "feat") {
+          const featMatch = ddb.character.feats.some((f) =>
+              f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
+            );
+          if (featMatch) return true;
+        }
+        if (type === "race") {
+          const traitMatch = ddb.character.race.racialTraits.some((f) =>
+              f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
+            );
+          if (traitMatch) return true;
+        }
+      }
+    return false;
+  });
+  // console.warn(modifierItem);
+  return modifierItem;
+}
+
+export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
+  // can we apply any effects to this feature
+  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const compendiumItem = character.flags.ddbimporter.compendium;
+  const addCharacterEffects = (compendiumItem)
+    ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
+  const addACEffects = (compendiumItem)
+    ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects");
+  const modifierItem = generateFeatModifiers(ddb, ddbItem, choice, type);
+  if (daeInstalled && addCharacterEffects) {
+    item = generateFeatEffects(ddb, character, modifierItem, item, compendiumItem);
+    // console.log(item);
+  }
+  if (daeInstalled && addACEffects) {
+    item = generateBaseACItemEffect(ddb, character, modifierItem, item, compendiumItem);
+    // console.log(item);
+  }
+  return item;
+}
 
 export function stripHtml(html) {
    let tmp = document.createElement("DIV");
@@ -64,56 +153,23 @@ export function fixFeatures(features) {
         feature.data.actionType = "other";
         break;
       // add a rage effect
-      case "Rage":
-        feature.effects = [
-          {
-            "flags": {
-              "dae": {
-                "transfer": false,
-                "stackable": false
-              }
-            },
-            "changes": [
-              {
-                "key": "data.bonuses.mwak.damage",
-                "value": "2",
-                "mode": 0,
-                "priority": 0
-              },
-              {
-                "key": "data.traits.dr.value",
-                "value": "piercing",
-                "mode": 0,
-                "priority": 0
-              },
-              {
-                "key": "data.traits.dr.value",
-                "value": "slashing",
-                "mode": 0,
-                "priority": 20
-              },
-              {
-                "key": "data.traits.dr.value",
-                "value": "bludgeoning",
-                "mode": 0,
-                "priority": 20
-              }
-            ],
-            "disabled": false,
-            "duration": {
-              "startTime": null,
-              "seconds": null,
-              "rounds": null,
-              "turns": null,
-              "startRound": null,
-              "startTurn": null
-            },
-            "icon": "systems/dnd5e/icons/skills/red_10.jpg",
-            "label": "Rage",
-            "tint": "",
-            "transfer": false
-          }
-        ];
+      case "Starry Form: Archer":
+        feature.data.actionType = "rsak";
+        feature.data['target']['value'] = 1;
+        feature.data['target']['type'] = "creature";
+        feature.data['range']['units'] = "ft";
+        break;
+      case "Starry Form: Chalice":
+        feature.data.damage.parts[0][1] = "healing";
+        feature.data.actionType = "heal";
+        feature.data['target']['value'] = 1;
+        feature.data['target']['type'] = "ally";
+        feature.data['range']['value'] = 30;
+        feature.data['range']['units'] = "ft";
+        feature.data.activation.type = "special";
+        break;
+      case "Starry Form: Dragon":
+        break;
       // no default
     }
   });

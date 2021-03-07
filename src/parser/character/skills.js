@@ -1,41 +1,47 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
+import { generateBaseSkillEffect } from "../effects/effects.js";
 
-let isHalfProficiencyRoundedUp = (data, skill) => {
+let isHalfProficiencyRoundedUp = (data, skill, modifiers = null) => {
   const longAbility = DICTIONARY.character.abilities
     .filter((ability) => skill.ability === ability.value)
     .map((ability) => ability.long)[0];
-  const roundUp = utils.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`);
+
+  const roundUp = (modifiers)
+    ? utils.filterModifiers(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
+    : utils.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`, ["", null], true);
   return Array.isArray(roundUp) && roundUp.length;
 };
 
-let getSkillProficiency = (data, skill) => {
-  const modifiers = [
-    utils.getChosenClassModifiers(data),
-    data.character.modifiers.race,
-    utils.getActiveItemModifiers(data),
-    data.character.modifiers.feat,
-    data.character.modifiers.background,
-  ]
-    .flat()
+export function getSkillProficiency (data, skill, modifiers = null) {
+  if (!modifiers) {
+    modifiers = [
+      utils.getChosenClassModifiers(data, true),
+      utils.getModifiers(data, "race", true),
+      utils.getModifiers(data, "background", true),
+      utils.getModifiers(data, "feat", true),
+      utils.getActiveItemModifiers(data, true),
+    ].flat();
+  }
+
+  const skillMatches = modifiers
     .filter((modifier) => modifier.friendlySubtypeName === skill.label)
     .map((mod) => mod.type);
 
-  const halfProficiency =
-    utils.getChosenClassModifiers(data).find(
+  const halfProficiency = modifiers.find(
       (modifier) =>
         // Jack of All trades/half-rounded down
         (modifier.type === "half-proficiency" && modifier.subType === "ability-checks") ||
         // e.g. champion for specific ability checks
-        isHalfProficiencyRoundedUp(data, skill)
+        isHalfProficiencyRoundedUp(data, skill, modifiers)
     ) !== undefined
       ? 0.5
       : 0;
 
-  const proficient = modifiers.includes("expertise") ? 2 : modifiers.includes("proficiency") ? 1 : halfProficiency;
+  const proficient = skillMatches.includes("expertise") ? 2 : skillMatches.includes("proficiency") ? 1 : halfProficiency;
 
   return proficient;
-};
+}
 
 let getCustomSkillProficiency = (data, skill) => {
   // Overwrite the proficient value with any custom set over rides
@@ -83,7 +89,10 @@ let getCustomSkillBonus = (data, skill) => {
 
 export function getSkills(data, character) {
   let result = {};
-  character.flags['skill-customization-5e'] = {};
+
+  const addEffects = utils.isModuleInstalledAndActive("dae");
+
+  if (!addEffects) character.flags['skill-customization-5e'] = {};
   DICTIONARY.character.skills.forEach((skill) => {
     const customProficient = getCustomSkillProficiency(data, skill);
     // we use !== undefined because the return value could be 0, which is falsey
@@ -103,7 +112,24 @@ export function getSkills(data, character) {
     const customSkillBonus = getCustomSkillBonus(data, skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
 
-    if (skillBonus && skillBonus > 0) {
+    if (addEffects && skillBonus && skillBonus > 0) {
+      const change = {
+        key: `data.skills.${skill.name}.mod`,
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: skillBonus,
+        priority: 20
+      };
+
+      const changeIndex = character.effects.findIndex((effect) => effect.label === "Misc Skill Bonuses");
+      if (changeIndex >= 0) {
+        character.effects[changeIndex].changes.push(change);
+      } else {
+        let skillEffect = generateBaseSkillEffect(data.character.id);
+        skillEffect.changes.push(change);
+        character.effects.push(skillEffect);
+      }
+
+    } else if (skillBonus && skillBonus > 0) {
       character.flags['skill-customization-5e'][skill.name] = {
         "skill-bonus": skillBonus
       };

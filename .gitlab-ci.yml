@@ -1,0 +1,60 @@
+image: node:latest
+
+cache:
+  paths:
+  - node_modules/
+
+variables:
+  AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+  AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+  AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+  S3_BUCKET: $S3_BUCKET
+  S3_PATH: $S3_PATH
+  ALPHA_SITE: $ALPHA_SITE
+  ALPHA_PATH: $ALPHA_PATH
+  ALPHA_BRANCH: $ALPHA_BRANCH
+
+#This declares the pipeline stages
+stages:
+  - prepare
+  - build
+
+prepare:
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $ALPHA_BRANCH
+    changes:
+      - module-alpha.json
+
+  stage: prepare
+  script:
+    - echo "BUILD_TIME=$(date +%Y%m%d%H%M%S)" > vars.env
+    - echo "VERSION=$(node ./.gitlab/get-alpha-version.js)" >> vars.env
+  artifacts:
+    reports:
+      dotenv: vars.env
+
+build:
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $ALPHA_BRANCH
+    changes:
+      - module-alpha.json
+  stage: build
+  script:
+    - apt-get update; apt-get -y install zip unzip awscli jq
+    - npm ci
+    - npm run build
+    - echo "$(node ./.gitlab/build-alpha-module.js | jq .)"
+    - node ./.gitlab/build-alpha-module.js | jq . > module.json
+    - zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang data vendor LICENSE.md
+    - aws s3 cp ./ddb-importer.zip s3://$S3_BUCKET/$S3_PATH/ --cache-control no-cache
+    - aws s3 cp ./module.json s3://$S3_BUCKET/$S3_PATH/ --cache-control no-cache
+    - echo "Manifest located at $(node ./.gitlab/get-manifest-path.js)"
+  artifacts:
+    public: false
+    paths:
+      - module.json
+      - ddb-importer.zip
+    untracked: false
+    expire_in: 14 days

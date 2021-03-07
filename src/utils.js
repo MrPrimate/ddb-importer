@@ -1,7 +1,8 @@
-import DirectoryPicker from "./lib/DirectoryPicker.js";
+import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";
+import { EFFECT_EXCLUDED_MODIFIERS } from "./parser/effects/effects.js";
 
 var existingFiles = [];
 
@@ -160,7 +161,11 @@ let utils = {
     return source;
   },
 
-  getActiveItemModifiers: (data) => {
+  getActiveItemModifiers: (data, includeExcludedEffects = false) => {
+    // are we adding effects to items?
+    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? EFFECT_EXCLUDED_MODIFIERS['item'] : [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
       .filter(
@@ -171,7 +176,33 @@ let utils = {
             (!item.definition.canAttune && item.equipped)) && // can't attune but is equipped
           item.definition.grantedModifiers.length > 0
       )
-      .flatMap((item) => item.definition.grantedModifiers);
+      .flatMap((item) => item.definition.grantedModifiers)
+      .filter((mod) => !excludedModifiers.some((exMod) =>
+        mod.type === exMod.type &&
+        (mod.subType === exMod.subType || !exMod.subType))
+      );
+
+    return modifiers;
+  },
+
+  getActiveItemEffectModifiers: (data) => {
+    return utils.getActiveItemModifiers(data, true).filter((mod) =>
+      EFFECT_EXCLUDED_MODIFIERS['item'].some((exMod) => mod.type === exMod.type &&
+      (mod.subType === exMod.subType || !exMod.subType))
+    );
+  },
+
+  getModifiers: (data, type, includeExcludedEffects = false) => {
+    // are we adding effects to items?
+    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
+    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? EFFECT_EXCLUDED_MODIFIERS[type] : [];
+    // get items we are going to interact on
+    const modifiers = data.character.modifiers[type]
+      .filter((mod) => !excludedModifiers.some((exMod) =>
+        mod.type === exMod.type &&
+        (mod.subType === exMod.subType || !exMod.subType))
+      );
 
     return modifiers;
   },
@@ -187,9 +218,9 @@ let utils = {
       );
   },
 
-  getChosenClassModifiers: (data) => {
+  getChosenClassModifiers: (data, includeExcludedEffects = false) => {
     // get items we are going to interact on
-    const modifiers = data.character.modifiers.class.filter((mod) => {
+    const modifiers = utils.getModifiers(data, 'class', includeExcludedEffects).filter((mod) => {
       const isClassFeature = data.character.classes.some((klass) => klass.classFeatures.some((feat) =>
         feat.definition.id == mod.componentId && feat.definition.entityTypeId == mod.componentTypeId &&
         // make sure this class feature is not replaced
@@ -226,21 +257,19 @@ let utils = {
         data.character.optionalClassFeatures?.some((f) => f.classFeatureId == option.componentId)
       );
 
-
       return isClassFeature || isClassOption || isOptionalClassOption;
     });
 
     return modifiers;
   },
 
-  filterBaseModifiers: (data, type, subType = null, restriction = ["", null]) => {
+  filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false) => {
     const modifiers = [
-      // data.character.modifiers.class,
-      utils.getChosenClassModifiers(data),
-      data.character.modifiers.race,
-      data.character.modifiers.background,
-      data.character.modifiers.feat,
-      utils.getActiveItemModifiers(data),
+      utils.getChosenClassModifiers(data, includeExcludedEffects),
+      utils.getModifiers(data, "race", includeExcludedEffects),
+      utils.getModifiers(data, "background", includeExcludedEffects),
+      utils.getModifiers(data, "feat", includeExcludedEffects),
+      utils.getActiveItemModifiers(data, includeExcludedEffects),
     ];
 
     return utils.filterModifiers(modifiers, type, subType, restriction);
@@ -317,7 +346,11 @@ let utils = {
           )
           .map((choice) => {
             // console.warn(choice);
-            const result = choice.options.find((opt) => opt.id === choice.optionValue);
+            let result = choice.options.find((opt) => opt.id === choice.optionValue);
+            result.componentId = choice.componentId;
+            result.componentTypeId = choice.componentTypeId;
+            result.choiceId = choice.id;
+            result.parentChoiceId = choice.parentChoiceId;
             // console.log(result);
             return result;
           });
@@ -405,7 +438,7 @@ let utils = {
     return Math.floor((val - 10) / 2);
   },
 
-  parseDiceString: (str, mods = "") => {
+  parseDiceString: (str, mods = "", diceHint = "") => {
     // sanitizing possible inputs a bit
     str = str.toLowerCase().replace(/-–−/g, "-").replace(/\s/g, "");
 
@@ -477,7 +510,7 @@ let utils = {
     const result = {
       dice: dice,
       bonus: bonus,
-      diceString: (diceString + mods + resultBonus).trim(),
+      diceString: (diceString + (diceHint ? diceHint : "") + mods + resultBonus).trim(),
     };
     return result;
   },
@@ -668,7 +701,7 @@ let utils = {
       return result;
     } catch (error) {
       utils.log(error);
-      ui.notifications.warn("Image upload failed. Please check your ddb-importer upload folder setting");
+      ui.notifications.warn(`Image upload failed. Please check your ddb-importer upload folder setting. ${url}`);
       return null;
     }
   },

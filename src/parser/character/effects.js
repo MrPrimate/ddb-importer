@@ -21,7 +21,8 @@ let getGenericConditionAffect = (data, condition, typeId) => {
 
   let result = utils
     .filterBaseModifiers(data, condition)
-    .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType))
+    .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType) &&
+      (modifier.restriction === "" || !modifier.restriction))
     .map((modifier) => {
       const entry = DICTIONARY.character.damageTypes.find(
         (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType

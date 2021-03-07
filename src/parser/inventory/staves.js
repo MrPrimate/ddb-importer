@@ -233,7 +233,7 @@ export default function parseStaff(data, character) {
   weapon.data.properties = getProperties(data);
 
   /* proficient: true, */
-  weapon.data.proficient = getProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficiencies);
+  weapon.data.proficient = getProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
 
   // description: {
   //        value: '',
@@ -290,7 +290,7 @@ export default function parseStaff(data, character) {
   // weapon.data.uses = getUses(data);
 
   /* ability: null, */
-  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range, character.data.abilities);
+  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range, character.flags.ddbimporter.dndbeyond.effectAbilities);
 
   /* actionType: null, */
   weapon.data.actionType = weapon.data.range.long === 5 ? "mwak" : "rwak";

@@ -105,21 +105,21 @@ let getRange = (data) => {
  * Gets Limited uses information, if any
  * uses: { value: 0, max: 0, per: null }
  */
-// let getUses = (data) => {
-//   if (data.limitedUse !== undefined && data.limitedUse !== null) {
-//     let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
-//     return {
-//       max: data.limitedUse.maxUses,
-//       value: data.limitedUse.numberUsed
-//         ? data.limitedUse.maxUses - data.limitedUse.numberUsed
-//         : data.limitedUse.maxUses,
-//       per: resetType.value,
-//       description: data.limitedUse.resetTypeDescription,
-//     };
-//   } else {
-//     return { value: 0, max: 0, per: null };
-//   }
-// };
+let getUses = (data) => {
+  if (data.limitedUse !== undefined && data.limitedUse !== null) {
+    let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
+    return {
+      max: data.limitedUse.maxUses,
+      value: data.limitedUse.numberUsed
+        ? data.limitedUse.maxUses - data.limitedUse.numberUsed
+        : data.limitedUse.maxUses,
+      per: resetType.value,
+      description: data.limitedUse.resetTypeDescription,
+    };
+  } else {
+    return { value: 0, max: 0, per: null };
+  }
+};
 
 /**
  * Gets the ability which the to hit modifier is baed on
@@ -135,7 +135,7 @@ let getRange = (data) => {
 let getAbility = (weaponProperties, weaponRange, abilities) => {
   // finesse weapons can choose freely, so we choose the higher one
   if (weaponProperties.fin) {
-    return abilities.str.value > abilities.dex.value ? "str" : "dex";
+    return abilities.str?.value > abilities.dex?.value ? "str" : "dex";
   }
 
   // thrown, but not finesse weapon: STR
@@ -182,7 +182,9 @@ let getDamage = (data, flags, betterRolls5e) => {
   const dueling = flags.classFeatures.includes("Dueling") ? " + 2" : "";
   const offHand = flags.classFeatures.includes("OffHand");
   const twoWeapon = flags.classFeatures.includes("Two-Weapon Fighting");
+  const twoHanded = data.definition.properties.find((property) => property.name === "Two-Handed");
   const mod = (offHand && !twoWeapon) ? "" : " + @mod";
+
   const versatile = data.definition.properties
     .filter((property) => property.name === "Versatile")
     .map((versatile) => {
@@ -194,9 +196,10 @@ let getDamage = (data, flags, betterRolls5e) => {
         return "";
       }
     })[0];
-  const twoHanded = data.definition.properties.find((property) => property.name === "Two-Handed");
 
+  let chatFlavor = "";
   let parts = [];
+  let otherFormula = "";
 
   // first damage part
   // blowguns and other weapons rely on ammunition that provides the damage parts
@@ -215,29 +218,47 @@ let getDamage = (data, flags, betterRolls5e) => {
       diceString = martialArtsDie.diceString;
     }
 
+    const damageType = data.definition.damageType.toLowerCase();
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
-      utils.parseDiceString(diceString + `+ ${magicalDamageBonus}`, fightingStyleMod)
+      utils.parseDiceString(diceString + `+ ${magicalDamageBonus}`, fightingStyleMod, `[${damageType}]`)
         .diceString + mod,
-      data.definition.damageType.toLowerCase(),
+        damageType,
     ]);
   }
 
-  // additional damage parts
-  // Note: For the time being, restricted additional bonus parts are not included in the damage
+  // additional damage parts with no restrictions
   data.definition.grantedModifiers
-    .filter((mod) => mod.type === "damage"
-      // && (!mod.restriction || (!!mod.restriction && mod.restriction === ""))
-    )
+    .filter((mod) => mod.type === "damage" && (!mod.restriction || mod.restriction === ""))
     .forEach((mod) => {
-      const attackNum = parts.length;
-      const restriction = (mod.restriction) ? mod.restriction : "";
-      betterRolls5e.quickDamage.context[attackNum] = restriction;
+      const damagePart = (mod.dice) ? mod.dice.diceString : mod.value;
+      if (damagePart) {
+        const damageParsed = utils.parseDiceString(damagePart, `[${mod.subType}]`).diceString;
+        parts.push([damageParsed, mod.subType]);
+      }
+    });
 
-      if (mod.dice) {
-        parts.push([mod.dice.diceString, mod.subType]);
-      } else if (mod.value) {
-        parts.push([mod.value, mod.subType]);
+  // loop over restricted damage types
+  // we do this so we can either break this out for midi users
+  data.definition.grantedModifiers
+    .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
+    .forEach((mod) => {
+      const damagePart = (mod.dice) ? mod.dice.diceString : `${mod.value}`;
+      if (damagePart) {
+        const subType = mod.subType ? `[${mod.subType}]` : "";
+        const damageParsed = utils.parseDiceString(damagePart, "", subType).diceString;
+        if (utils.isModuleInstalledAndActive("betterrolls5e")) {
+          const attackNum = parts.length;
+          betterRolls5e.quickDamage.context[attackNum] = mod.restriction;
+          parts.push([damageParsed, mod.subType]);
+        } else {
+          // if (utils.isModuleInstalledAndActive("midi-qol")) {
+          parts.forEach((part) => {
+            otherFormula += (otherFormula === "") ? part[0] : ` + ${part[0]}`;
+          });
+          otherFormula += ` + ${damageParsed}`;
+          chatFlavor = `Use Other damage ${mod.restriction}`;
+        }
       }
     });
 
@@ -253,7 +274,7 @@ let getDamage = (data, flags, betterRolls5e) => {
     versatile: versatile,
   };
 
-  return [result, betterRolls5e];
+  return [result, betterRolls5e, otherFormula, chatFlavor];
 };
 
 let getActionType = (data) => {
@@ -265,9 +286,6 @@ let getActionType = (data) => {
 };
 
 export default function parseWeapon(data, character, flags) {
-  /**
-   * MAIN parseWeapon
-   */
   let weapon = {
     name: data.definition.name,
     type: "weapon",
@@ -282,6 +300,9 @@ export default function parseWeapon(data, character, flags) {
       },
     },
   };
+
+  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+  const characterProficiencies = character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects;
 
     // if using better rolls lets add some useful QOL information.
   // marks context as magical attack and makes alt click a versatile damage click
@@ -313,7 +334,6 @@ export default function parseWeapon(data, character, flags) {
   };
 
   /* weaponType: { value: 'simpleM' }, */
-  // NOTE: In game, it's `weaponType: 'simpleM'`, checking with Andrew is that is intended (I suppose so, but then the template.json is incorrect)
   weapon.data.weaponType = getWeaponType(data);
   // properties: {
   //        amm: false,
@@ -335,48 +355,24 @@ export default function parseWeapon(data, character, flags) {
   if (flags.classFeatures.some((feat) => proficientFeatures.includes(feat))) {
     weapon.data.proficient = true;
   } else {
-    weapon.data.proficient = getProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficiencies);
+    weapon.data.proficient = getProficient(data, weapon.data.weaponType, characterProficiencies);
   }
 
-  // description: {
-  //        value: '',
-  //        chat: '',
-  //        unidentified: ''
-  //    },
   weapon.data.description = {
     value: data.definition.description,
     chat: data.definition.description,
     unidentified: data.definition.type,
   };
-
-  /* source: '', */
   weapon.data.source = utils.parseSource(data.definition);
-
-  /* quantity: 1, */
   weapon.data.quantity = data.quantity ? data.quantity : 1;
-
-  /* weight */
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
-
   weapon.data.weight = totalWeight / bundleSize;
-
-  /* price */
   weapon.data.price = data.definition.cost ? data.definition.cost : 0;
-
-  /* attuned: false, */
   weapon.data.attuned = getAttuned(data);
-
-  /* equipped: false, */
   weapon.data.equipped = getEquipped(data);
-
-  /* rarity: '', */
   weapon.data.rarity = data.definition.rarity;
-
-  /* identified: true, */
   weapon.data.identified = true;
-
-  /* activation: { type: '', cost: 0, condition: '' }, */
   weapon.data.activation = { type: "action", cost: 1, condition: "" };
   if (flags.classFeatures.includes("OffHand")) weapon.data.activation.type = "bonus";
 
@@ -389,45 +385,40 @@ export default function parseWeapon(data, character, flags) {
   /* range: { value: null, long: null, units: '' }, */
   weapon.data.range = getRange(data);
 
-  // we don't parse this because the weapon then becomes a limited use item.
-  // this field is normally reserved on weapons for magic effects. so we handle it there.
+
   /* uses: { value: 0, max: 0, per: null }, */
-  // weapon.data.uses = getUses(data);
+  weapon.data.uses = getUses(data);
 
   /* ability: null, */
-  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range, character.data.abilities);
+  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range, characterAbilities);
   // warlocks can use cha for their Hex weapon
   if (flags.classFeatures.includes("hexWarrior")) {
-    if (character.data.abilities.cha.value >= character.data.abilities[weapon.data.ability].value) {
+    if (characterAbilities.cha.value >= characterAbilities[weapon.data.ability].value) {
       weapon.data.ability = "cha";
     }
   }
   // kensai monks
   if (flags.classFeatures.includes("kensaiWeapon") || flags.classFeatures.includes("monkWeapon")) {
-    if (character.data.abilities.dex.value >= character.data.abilities[weapon.data.ability].value) {
+    if (characterAbilities.dex.value >= characterAbilities[weapon.data.ability].value) {
       weapon.data.ability = "dex";
     }
   }
+  if (flags.magicItemAttackInt && data.definition.magic) {
+    if (characterAbilities.int.value > characterAbilities[weapon.data.ability].value) {
+      weapon.data.ability = "int";
+    }
+  }
 
-  /* actionType: null, */
   weapon.data.actionType = getActionType(data);
-
-  /* attackBonus: 0, */
   weapon.data.attackBonus = getMagicalBonus(data, flags);
 
-  /* chatFlavor: '', */
-  // we leave that as-is
+  [
+    weapon.data.damage,
+    weapon.flags.betterRolls5e,
+    weapon.data.formula,
+    weapon.data.chatFlavor
+  ] = getDamage(data, flags, weapon.flags.betterRolls5e);
 
-  /* critical: null, */
-  // we leave that as-is
 
-  /* damage: { parts: [], versatile: '' }, */
-  [weapon.data.damage, weapon.flags.betterRolls5e] = getDamage(data, flags, weapon.flags.betterRolls5e);
-
-  /* formula: '', */
-  // we leave that as-is
-
-  /* save: { ability: '', dc: null } */
-  // we leave that as-is
   return weapon;
 }

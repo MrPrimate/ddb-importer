@@ -1,4 +1,4 @@
-<form>
+<div>
       <h2>Munch your content from D&D Beyond</a></h2>
     <p>Read Me!</p>
       <ul>
@@ -118,7 +118,7 @@
                   </div>
                     {{#each monsterConfig}}
                     <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                            name="munching-policy-{{this.name}}"
+                            name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
                             data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
                     </div>
                     {{/each}}
@@ -142,6 +142,7 @@
     </ul>
     <h3>FAQ</h3>
     <ul>
+      <li>Homebrew monsters need to be part of your collection.</li>
       <li>Spells and Items should take only a few minutes at most.</li>
       <li>If it seems to stall wait a while, if it's still stalled you can refresh your browser and try again. As long as "Update existing things." remains unchecked then it will pick up where it left off.</li>
     </ul>
@@ -159,4 +160,4 @@
     </ul>
   </section>
 
-</form>
+</div>

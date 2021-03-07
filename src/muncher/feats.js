@@ -1,9 +1,10 @@
 // Main module class
 import { munchNote, getCampaignId, download } from "./utils.js";
 import { getFeats } from "./feats/feats.js";
+import { getCobalt } from "../lib/Secrets.js";
 
 function getFeatData() {
-  const cobaltCookie = game.settings.get("ddb-importer", "cobalt-cookie");
+  const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");

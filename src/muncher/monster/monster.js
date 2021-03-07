@@ -115,17 +115,20 @@ export function parseMonsters(monsterData, extra = false) {
       foundryActor.data.details.environment = getEnvironments(monster, DDB_CONFIG);
       foundryActor.data.details.biography.value = monster.characteristicsDescription;
 
-      const actions = getActions(monster, DDB_CONFIG);
+      let actions, lairActions, legendaryActions, specialTraits, reactions, bonus, mythic;
+      let characterDescriptionAction, unexpectedDescription;
+
+      [actions, characterDescriptionAction] = getActions(monster, DDB_CONFIG);
       items.push(...actions);
 
       if (monster.hasLair) {
-        const lairActions = getLairActions(monster, DDB_CONFIG);
+        lairActions = getLairActions(monster, DDB_CONFIG);
         items.push(...lairActions.lairActions);
         foundryActor.data.resources["lair"] = lairActions.resource;
       }
 
       if (monster.legendaryActionsDescription != "") {
-        const legendaryActions = getLegendaryActions(monster, DDB_CONFIG, actions);
+        legendaryActions = getLegendaryActions(monster, DDB_CONFIG, actions);
         items.push(...legendaryActions.legendaryActions);
         foundryActor.data.resources["legact"] = legendaryActions.actions;
         foundryActor.token.bar2 = {
@@ -134,13 +137,27 @@ export function parseMonsters(monsterData, extra = false) {
       }
 
       if (monster.specialTraitsDescription != "") {
-        const specialtraits = getSpecialTraits(monster, DDB_CONFIG, actions);
-        items.push(...specialtraits.specialActions);
-        foundryActor.data.resources["legres"] = specialtraits.resistance;
+        specialTraits = getSpecialTraits(monster, DDB_CONFIG, actions);
+        items.push(...specialTraits.specialActions);
+        foundryActor.data.resources["legres"] = specialTraits.resistance;
       }
 
-      const reactions = getActions(monster, DDB_CONFIG, "reaction");
+      [reactions, unexpectedDescription] = getActions(monster, DDB_CONFIG, "reaction");
       items.push(...reactions);
+      [bonus, unexpectedDescription] = getActions(monster, DDB_CONFIG, "bonus");
+      items.push(...bonus);
+      [mythic, unexpectedDescription] = getActions(monster, DDB_CONFIG, "mythic");
+      items.push(...mythic);
+
+      if (unexpectedDescription) {
+        logger.warn(`Unexpected description for ${monster.name}`);
+      }
+      if (characterDescriptionAction) {
+        foundryActor.data.details.biography.value += characterDescriptionAction;
+      }
+      if (specialTraits?.characterDescription) {
+        foundryActor.data.details.biography.value += specialTraits.characterDescription;
+      }
 
       // Spellcasting
       const spellcastingData = getSpells(monster, DDB_CONFIG);

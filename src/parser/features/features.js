@@ -1,7 +1,8 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
-import { fixFeatures, stripHtml } from "./special.js";
+import { fixFeatures, stripHtml, addFeatEffects } from "./special.js";
+import { getBackgroundData } from "../character/bio.js";
 
 function getDescription(ddb, character, feat) {
   // for now none actions probably always want the full text
@@ -71,6 +72,8 @@ function parseFeature(feat, ddb, character, source, type) {
       let choiceItem = JSON.parse(JSON.stringify(item));
       let choiceFeat = feat.definition ? JSON.parse(JSON.stringify(feat.definition)) : JSON.parse(JSON.stringify(feat));
 
+     if (item.name === choice.label) return;
+
       choiceItem.name = choice.label ? `${choiceItem.name}: ${choice.label}` : choiceItem.name;
       if (choiceFeat.description) {
         choiceFeat.description = choice.description
@@ -85,11 +88,13 @@ function parseFeature(feat, ddb, character, source, type) {
       choiceItem.data.description = getDescription(ddb, character, choiceFeat);
       choiceItem.data.source = source;
 
+      choiceItem = addFeatEffects(ddb, character, feat, choiceItem, choice, type);
       features.push(choiceItem);
     });
   } else {
     item.data.description = getDescription(ddb, character, feat);
     item.data.source = source;
+    item = addFeatEffects(ddb, character, feat, item, undefined, type);
 
     features.push(item);
   }
@@ -105,7 +110,21 @@ function getNameMatchedFeature(items, item) {
   return items.find((dup) => dup.name === item.name);
 }
 
-function parseClassFeatures(ddb, character) {
+function includedFeatureNameCheck(featName, addEffects) {
+  // we add all features when parsing active effects
+  if (addEffects) {
+    const nameAllowed = !featName.startsWith("Ability Score");
+    return nameAllowed;
+  }
+
+  const nameAllowed = !featName.startsWith("Proficiencies") &&
+    !featName.startsWith("Ability Score") &&
+    featName !== "Bonus Proficiency";
+
+  return nameAllowed;
+}
+
+function parseClassFeatures(ddb, character, addEffects) {
   // class and subclass traits
   let classItems = [];
   let classesFeatureList = [];
@@ -119,9 +138,7 @@ function parseClassFeatures(ddb, character) {
   ddb.character.classes.forEach((klass) => {
     const classFeatures = klass.definition.classFeatures.filter(
       (feat) =>
-        feat.name !== "Proficiencies" &&
-        feat.name !== "Ability Score Improvement" &&
-        !ddb.character.actions.class.some((action) => action.name === feat.name) &&
+        includedFeatureNameCheck(feat.name, addEffects) &&
         feat.requiredLevel <= klass.level
     );
     const klassName = klass.definition.name;
@@ -161,9 +178,7 @@ function parseClassFeatures(ddb, character) {
       let subClassItems = [];
       const subFeatures = klass.subclassDefinition.classFeatures.filter(
         (feat) =>
-          feat.name !== "Proficiencies" &&
-          feat.name !== "Bonus Proficiency" &&
-          feat.name !== "Ability Score Improvement" &&
+          includedFeatureNameCheck(feat.name, addEffects) &&
           feat.requiredLevel <= klass.level &&
           !ddb.character.actions.class.some((action) => action.name === feat.name) &&
           !excludedFeatures.includes(feat.id)
@@ -217,12 +232,19 @@ function parseClassFeatures(ddb, character) {
 }
 
 export default function parseFeatures(ddb, character) {
+  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const compendiumItem = character.flags.ddbimporter.compendium;
+  const addEffects = (daeInstalled && compendiumItem)
+    ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
+
   let items = [];
 
   // racial traits
   ddb.character.race.racialTraits
     .filter(
       (trait) =>
+        // (!trait.definition.hideInSheet || (trait.definition.hideInSheet && addEffects)) &&
         !trait.definition.hideInSheet &&
         !ddb.character.actions.race.some((action) => action.name === trait.definition.name)
     )
@@ -241,7 +263,7 @@ export default function parseFeatures(ddb, character) {
     });
 
   // class and subclass traits
-  let classItems = parseClassFeatures(ddb, character);
+  let classItems = parseClassFeatures(ddb, character, addEffects);
 
   // optional class features
   if (ddb.classOptions) {
@@ -279,6 +301,13 @@ export default function parseFeatures(ddb, character) {
         items.push(item);
       });
     });
+
+  const backgroundFeature = getBackgroundData(ddb);
+  const backgroundSource = utils.parseSource(backgroundFeature.definition);
+  const backgroundFeat = parseFeature(backgroundFeature, ddb, character, backgroundSource, "background");
+  backgroundFeat.forEach((item) => {
+    items.push(item);
+  });
 
   fixFeatures(items);
   return items;
