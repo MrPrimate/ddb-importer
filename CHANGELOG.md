@@ -54,6 +54,7 @@ Other Improvements:
 * Monster munch: some monsters had their Roleplaying descriptions defined as actions, these now parse into the character biography. e.g. Augrek Brighthelm.
 * Monster munch: some monsters like Worvil “the Weevil” Forkbeard had action names for items that duplicated.
 * Background now imports as a feature.
+* Support for grabbing the Cobalt Cookie using https://github.com/IamWarHead/ddb-data-grabber
 
 # 0.4.17
 
