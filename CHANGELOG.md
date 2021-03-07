@@ -55,6 +55,7 @@ Other Improvements:
 * Monster munch: some monsters like Worvil “the Weevil” Forkbeard had action names for items that duplicated.
 * Background now imports as a feature.
 * Support for grabbing the Cobalt Cookie using https://github.com/IamWarHead/ddb-data-grabber
+* When copying DAE effects, it will now copy embedded macros on the item.
 
 # 0.4.17
 
