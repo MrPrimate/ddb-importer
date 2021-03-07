@@ -1,8 +1,6 @@
-# 0.5.0 - 0.5.14
+# 0.5.0 - 0.5.18 - 0.6.0
 
 * Active Effect Generation Support for Characters, and Items (Requires DAE, with additional enhancements if using Midi-QOL):
-
-WARNING: It should be noted this is very experimental, and prone to f'ing things up, so please don't blame me if everything goes wrong!
 
 Item effects generated:
 * Armoured AC bonuses
@@ -27,7 +25,7 @@ Item effects generated:
 * Advantage on saves vs magical attacks
 * AC base effects on armor items
 
-Character effects generated:
+Character, racial traits, and background effects generated:
 * AC base effects on character features
 * Same as item effects, except several features don't get a feature in foundry (e.g. Ability increases).
 
@@ -55,6 +53,7 @@ Other Improvements:
 * Monster munch: improved parsing for monsters with tables e.g. variant troll.
 * Monster munch: some monsters had their Roleplaying descriptions defined as actions, these now parse into the character biography. e.g. Augrek Brighthelm.
 * Monster munch: some monsters like Worvil “the Weevil” Forkbeard had action names for items that duplicated.
+* Background now imports as a feature.
 
 # 0.4.17
 

@@ -115,7 +115,7 @@ export const EFFECT_EXCLUDED_MODIFIERS = {
   race: EFFECT_EXCLUDED_COMMON_MODIFIERS,
   class: EFFECT_EXCLUDED_COMMON_MODIFIERS,
   feat: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES, EFFECT_EXCLUDED_EXTENDED_BONUSES),
-  background: [],
+  background: EFFECT_EXCLUDED_COMMON_MODIFIERS.concat(EFFECT_EXCLUDED_ABILITY_BONUSES, EFFECT_EXCLUDED_EXTENDED_BONUSES),
 };
 
 /**
@@ -374,7 +374,7 @@ function addDamageConditions(modifiers) {
 
   // data.traits.di.all
   const allDamageImmunity = utils.filterModifiers(modifiers, "immunity", "all");
-  if (allDamageImmunity) {
+  if (allDamageImmunity?.length > 0) {
     charges.push(generateCustomChange(1, 1, "data.traits.di.all"));
   }
 

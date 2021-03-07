@@ -304,7 +304,7 @@ export default function parseFeatures(ddb, character) {
 
   const backgroundFeature = getBackgroundData(ddb);
   const backgroundSource = utils.parseSource(backgroundFeature.definition);
-  const backgroundFeat = parseFeature(backgroundFeature, ddb, character, backgroundSource, "feat");
+  const backgroundFeat = parseFeature(backgroundFeature, ddb, character, backgroundSource, "background");
   backgroundFeat.forEach((item) => {
     console.warn(item);
     items.push(item);
