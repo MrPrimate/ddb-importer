@@ -146,7 +146,7 @@ export class DDBSetup extends FormApplication {
     const campaignId = formData['campaign-id'];
     const cobaltCookie = formData['cobalt-cookie'];
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
-    const runCookieMigrate = formData['cobalt-cookie-local'] != game.settings.set("ddb-importer", "cobalt-cookie-local");
+    const runCookieMigrate = cobaltCookieLocal != game.settings.get("ddb-importer", "cobalt-cookie-local");
     await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
     await setCobalt(cobaltCookie);
     await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
