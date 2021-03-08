@@ -230,7 +230,12 @@ function addACSets(modifiers, name) {
  */
 function addACBonusEffect(modifiers, name, type) {
   let changes = [];
-  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  const restrictions = [
+    "while wearing heavy armor",
+    "",
+    null,
+  ];
+  const bonus = utils.filterModifiers(modifiers, "bonus", type, restrictions).reduce((a, b) => a + b.value, 0);
   if (bonus !== 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
     changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
