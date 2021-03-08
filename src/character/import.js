@@ -563,9 +563,9 @@ export default class CharacterImport extends FormApplication {
       {
         name: "add-character-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-character-effects") && daeInstalled,
-        title: "[Experimental] Generate Active Effects for Character Features/Racial Traits",
+        title: "[Experimental] Generate Active Effects for Character Features/Racial Traits/Feats/Backgrounds",
         description:
-          'There is a high chance that characters imported won\'t be perfect. I would love to have detailed bug reports, but fixes maybe slow. Dynamically generate active effects for a characters features and racial traits, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)',
+          'Dynamically generate active effects for a character. Select the effect generations below, a limited selection are available. Only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)',
         enabled: daeInstalled,
       },
       {
@@ -618,56 +618,172 @@ export default class CharacterImport extends FormApplication {
       },
     ];
 
-    const effectSelectionConfig = [
-      {
-        name: "effect-spell-bonus",
-        title: "Spell Bonuses",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus"),
-        enabled: true,
-      },
-      {
-        name: "effect-speed",
-        title: "Movement",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-speed"),
-        enabled: true,
-      },
-      {
-        name: "effect-senses",
-        title: "Senses",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-senses"),
-        enabled: true,
-      },
-      {
-        name: "effect-hp",
-        title: "HP",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-hp"),
-        enabled: true,
-      },
-      {
-        name: "effect-ability-bonus",
-        title: "Ability Bonuses",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-ability-bonus"),
-        enabled: true,
-      },
-      {
-        name: "effect-proficiencies",
-        title: "Proficiencies",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-proficiencies"),
-        enabled: true,
-      },
-      {
-        name: "effect-languages",
-        title: "Languages",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-languages"),
-        enabled: true,
-      },
-      {
-        name: "effect-damages",
-        title: "Imm/Res/Vuln",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-damages"),
-        enabled: true,
-      },
-    ];
+    const effectSelectionConfig = {
+      class: [
+        {
+          name: "effect-class-spell-bonus",
+          title: "Spell Bonuses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-spell-bonus"),
+          enabled: true,
+        },
+        {
+          name: "effect-class-speed",
+          title: "Movement",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-speed"),
+          enabled: true,
+        },
+        {
+          name: "effect-class-senses",
+          title: "Senses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-senses"),
+          enabled: true,
+        },
+        {
+          name: "effect-class-hp",
+          title: "HP",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-hp"),
+          enabled: true,
+        },
+        {
+          name: "effect-class-damages",
+          title: "Imm/Res/Vuln",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-damages"),
+          enabled: true,
+        },
+      ],
+      race: [
+        {
+          name: "effect-race-spell-bonus",
+          title: "Spell Bonuses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-spell-bonus"),
+          enabled: true,
+        },
+        {
+          name: "effect-race-speed",
+          title: "Movement",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-speed"),
+          enabled: true,
+        },
+        {
+          name: "effect-race-senses",
+          title: "Senses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-senses"),
+          enabled: true,
+        },
+        {
+          name: "effect-race-hp",
+          title: "HP",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-hp"),
+          enabled: true,
+        },
+        {
+          name: "effect-race-damages",
+          title: "Imm/Res/Vuln",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-damages"),
+          enabled: true,
+        },
+      ],
+      background: [
+        {
+          name: "effect-background-spell-bonus",
+          title: "Spell Bonuses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-spell-bonus"),
+          enabled: true,
+        },
+        {
+          name: "effect-background-speed",
+          title: "Movement",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-speed"),
+          enabled: true,
+        },
+        {
+          name: "effect-background-senses",
+          title: "Senses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-senses"),
+          enabled: true,
+        },
+        {
+          name: "effect-background-hp",
+          title: "HP",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-hp"),
+          enabled: true,
+        },
+        {
+          name: "effect-background-ability-bonus",
+          title: "Ability Bonuses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-ability-bonus"),
+          enabled: true,
+        },
+        {
+          name: "effect-background-proficiencies",
+          title: "Proficiencies",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-proficiencies"),
+          enabled: true,
+        },
+        {
+          name: "effect-background-languages",
+          title: "Languages",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-languages"),
+          enabled: true,
+        },
+        {
+          name: "effect-background-damages",
+          title: "Imm/Res/Vuln",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-damages"),
+          enabled: true,
+        },
+      ],
+      feat: [
+        {
+          name: "effect-feat-spell-bonus",
+          title: "Spell Bonuses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-spell-bonus"),
+          enabled: true,
+        },
+        {
+          name: "effect-feat-speed",
+          title: "Movement",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-speed"),
+          enabled: true,
+        },
+        {
+          name: "effect-feat-senses",
+          title: "Senses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-senses"),
+          enabled: true,
+        },
+        {
+          name: "effect-feat-hp",
+          title: "HP",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-hp"),
+          enabled: true,
+        },
+        {
+          name: "effect-feat-ability-bonus",
+          title: "Ability Bonuses",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-ability-bonus"),
+          enabled: true,
+        },
+        {
+          name: "effect-feat-proficiencies",
+          title: "Proficiencies",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-proficiencies"),
+          enabled: true,
+        },
+        {
+          name: "effect-feat-languages",
+          title: "Languages",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-languages"),
+          enabled: true,
+        },
+        {
+          name: "effect-feat-damages",
+          title: "Imm/Res/Vuln",
+          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-damages"),
+          enabled: true,
+        },
+      ],
+    };
 
     const syncItemReady = this.actorOriginal.flags.ddbimporter?.syncItemReady;
     const syncActionReady = this.actorOriginal.flags.ddbimporter?.syncActionReady;

@@ -2,7 +2,7 @@ import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";
-import { EFFECT_EXCLUDED_MODIFIERS } from "./parser/effects/effects.js";
+import { getEffectExcludedModifiers } from "./parser/effects/effects.js";
 
 var existingFiles = [];
 
@@ -165,7 +165,7 @@ let utils = {
     // are we adding effects to items?
     const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? EFFECT_EXCLUDED_MODIFIERS.item() : [];
+    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? getEffectExcludedModifiers("item") : [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
       .filter(
@@ -187,43 +187,19 @@ let utils = {
 
   getActiveItemEffectModifiers: (data) => {
     return utils.getActiveItemModifiers(data, true).filter((mod) =>
-      EFFECT_EXCLUDED_MODIFIERS.item().some((exMod) => mod.type === exMod.type &&
+    getEffectExcludedModifiers("item").some((exMod) => mod.type === exMod.type &&
       (mod.subType === exMod.subType || !exMod.subType))
     );
   },
 
-  getEffectExcludedModifiers: (type)  => {
-    let modifiers = [];
-    switch(type) {
-      case "item":
-        modifiers = EFFECT_EXCLUDED_MODIFIERS.item();
-        break;
-      case "race":
-        modifiers = EFFECT_EXCLUDED_MODIFIERS.race();
-        break;
-        // code block
-      case "class":
-        modifiers = EFFECT_EXCLUDED_MODIFIERS.class();
-        break;
-      case "feat":
-        modifiers = EFFECT_EXCLUDED_MODIFIERS.feat();
-        break;
-      case "background":
-        modifiers = EFFECT_EXCLUDED_MODIFIERS.background();
-        break;
-      //no default
-    }
-    return modifiers;
-  },
-
-  getModifiers: (data, type, includeExcludedEffects = false, effectOnly=false) => {
+  getModifiers: (data, type, includeExcludedEffects = false, effectOnly = false) => {
     // are we adding effects to items?
     const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const excludedModifiers = (addEffects && daeInstalled &&
-      (!includeExcludedEffects || (includeExcludedEffects && effectOnly))) ?
-        utils.getEffectExcludedModifiers(type) :
-        [];
+      (!includeExcludedEffects || (includeExcludedEffects && effectOnly)))
+        ? getEffectExcludedModifiers(type)
+        : [];
     // get items we are going to interact on
     let modifiers = [];
     if (effectOnly) {
@@ -254,7 +230,7 @@ let utils = {
       );
   },
 
-  getChosenClassModifiers: (data, includeExcludedEffects = false, effectOnly=false) => {
+  getChosenClassModifiers: (data, includeExcludedEffects = false, effectOnly = false) => {
     // get items we are going to interact on
     const modifiers = utils.getModifiers(data, 'class', includeExcludedEffects, effectOnly).filter((mod) => {
       const isClassFeature = data.character.classes.some((klass) => klass.classFeatures.some((feat) =>
@@ -299,7 +275,7 @@ let utils = {
     return modifiers;
   },
 
-  filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly=false) => {
+  filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false) => {
     const modifiers = [
       utils.getChosenClassModifiers(data, includeExcludedEffects, effectOnly),
       utils.getModifiers(data, "race", includeExcludedEffects, effectOnly),
@@ -476,7 +452,7 @@ let utils = {
 
   parseDiceString: (str, mods = "", diceHint = "") => {
     // sanitizing possible inputs a bit
-    str = str.toLowerCase().replace(/-–−/g, "-").replace(/\s/g, "");
+    str = `${str}`.toLowerCase().replace(/-–−/g, "-").replace(/\s/g, "");
 
     // all found dice strings, e.g. 1d8, 4d6
     let dice = [];

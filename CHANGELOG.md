@@ -3,6 +3,9 @@
 * Non GM users got warning message.
 * Effects: skills were additive, rather than upgrades.
 * Character effects: choose from certain kind of effects generated.
+* Effects: If character had override AC certain effect generation would fail.
+* Monsters: some skills did not catch expertise prof.
+* Effects: Soul of the Forge, Forge domain now adds AC effect.
 
 # 0.6.1
 

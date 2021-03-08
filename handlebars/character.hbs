@@ -99,7 +99,7 @@
 
   <!-- Effects Configuration Tab -->
   <section class="tab" data-tab="effects">
-    <p>Active Effect Options</p>
+    <h2>Active Effect Options</h2>
     {{#each effectImportConfig}}
     <div class="effect-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
         name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
@@ -107,9 +107,39 @@
     </div>
     {{/each}}
     <hr>
-    <p>Active Effects to include for Characters, if character effect generation selected above</p>
-    <div class="effect-policy-group">
-      {{#each effectSelectionConfig}}
+    <h2>Active Effects to include for Characters</h2>
+    <p>Some common effects are always generated. You can enable/disable other effects below. These are used if character effect generation selected above.</p>
+    <hr>
+    <p><b>Class Features</b></p>
+    <div class="effect-policy-group-class">
+      {{#each effectSelectionConfig.class}}
+      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+      </label>
+      {{/each}}
+    </div>
+    <hr>
+    <p><b>Racial Traits</b></p>
+    <div class="effect-policy-group-race">
+      {{#each effectSelectionConfig.race}}
+      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+      </label>
+      {{/each}}
+    </div>
+    <hr>
+    <p><b>Feats</b></p>
+    <div class="effect-policy-group-feat">
+      {{#each effectSelectionConfig.feat}}
+      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+      </label>
+      {{/each}}
+    </div>
+    <hr>
+    <p><b>Background</b></p>
+    <div class="effect-policy-group-background">
+      {{#each effectSelectionConfig.background}}
       <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
           name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
       </label>

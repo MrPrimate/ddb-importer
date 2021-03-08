@@ -369,62 +369,198 @@ export default function () {
   //
   // Character effect generation options
   //
-  game.settings.register("ddb-importer", "character-update-policy-effect-proficiencies", {
+  // ITEM
+  // N/A
+  // RACE
+  game.settings.register("ddb-importer", "character-update-policy-effect-race-damages", {
     scope: "player",
     config: false,
     type: Boolean,
     default: false,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-effect-languages", {
+  game.settings.register("ddb-importer", "character-update-policy-effect-race-speed", {
     scope: "player",
     config: false,
     type: Boolean,
     default: false,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-effect-damages", {
+  game.settings.register("ddb-importer", "character-update-policy-effect-race-senses", {
     scope: "player",
     config: false,
     type: Boolean,
     default: false,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-effect-speed", {
+  game.settings.register("ddb-importer", "character-update-policy-effect-race-hp", {
     scope: "player",
     config: false,
     type: Boolean,
     default: false,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-effect-senses", {
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register("ddb-importer", "character-update-policy-effect-hp", {
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register("ddb-importer", "character-update-policy-effect-spell-bonus", {
+  game.settings.register("ddb-importer", "character-update-policy-effect-race-spell-bonus", {
     scope: "player",
     config: false,
     type: Boolean,
     default: true,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-effect-ability-bonus", {
+
+  // CLASS
+  game.settings.register("ddb-importer", "character-update-policy-effect-class-damages", {
     scope: "player",
     config: false,
     type: Boolean,
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-effect-class-speed", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-class-senses", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-class-hp", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-class-spell-bonus", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+
+  // FEAT
+  game.settings.register("ddb-importer", "character-update-policy-effect-feat-proficiencies", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-feat-languages", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-feat-damages", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-feat-speed", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-feat-senses", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-feat-hp", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-feat-spell-bonus", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-feat-ability-bonus", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  // BACKGROUND
+  game.settings.register("ddb-importer", "character-update-policy-effect-background-proficiencies", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-background-languages", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-background-damages", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-background-speed", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-background-senses", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-background-hp", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-background-spell-bonus", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-effect-background-ability-bonus", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  //
+  //
   game.settings.register("ddb-importer", "character-update-policy-add-item-effects", {
     name: "ddb-importer.character-update-policy-add-item-effects.name",
     hint: "ddb-importer.character-update-policy-add-item-effects.hint",
