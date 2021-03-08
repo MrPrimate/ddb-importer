@@ -5,8 +5,8 @@ import { generateFeatEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
-  if (type == "background") console.warn(ddbItem);
-  if (type == "background") console.log(choice);
+  // console.warn(ddbItem);
+  // console.log(choice);
   if (ddbItem.grantedModifiers) return ddbItem;
   let modifierItem = JSON.parse(JSON.stringify(ddbItem));
   const modifiers = [
@@ -16,8 +16,7 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
     utils.getModifiers(ddb, "feat", true, true),
   ].flat();
 
-  if (type == "background")  console.warn(modifiers);
-
+  // console.warn(modifiers);
   // console.log(ddb.character.options[type]);
   // console.warn("Adding modifiers");
   // console.log(type);
