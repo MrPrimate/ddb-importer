@@ -5,16 +5,18 @@ import { generateFeatEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
-  // console.warn(ddbItem);
-  // console.log(choice);
+  if (type == "background") console.warn(ddbItem);
+  if (type == "background") console.log(choice);
   if (ddbItem.grantedModifiers) return ddbItem;
   let modifierItem = JSON.parse(JSON.stringify(ddbItem));
   const modifiers = [
-    utils.getChosenClassModifiers(ddb),
-    utils.getModifiers(ddb, "race"),
-    utils.getModifiers(ddb, "background"),
-    utils.getModifiers(ddb, "feat"),
+    utils.getChosenClassModifiers(ddb, true, true),
+    utils.getModifiers(ddb, "race", true, true),
+    utils.getModifiers(ddb, "background", true, true),
+    utils.getModifiers(ddb, "feat", true, true),
   ].flat();
+
+  if (type == "background")  console.warn(modifiers);
 
   // console.log(ddb.character.options[type]);
   // console.warn("Adding modifiers");

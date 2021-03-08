@@ -216,17 +216,29 @@ let utils = {
     return modifiers;
   },
 
-  getModifiers: (data, type, includeExcludedEffects = false) => {
+  getModifiers: (data, type, includeExcludedEffects = false, effectOnly=false) => {
     // are we adding effects to items?
     const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? utils.getEffectExcludedModifiers(type) : [];
+    const excludedModifiers = (addEffects && daeInstalled &&
+      (!includeExcludedEffects || (includeExcludedEffects && effectOnly))) ?
+        utils.getEffectExcludedModifiers(type) :
+        [];
     // get items we are going to interact on
-    const modifiers = data.character.modifiers[type]
+    let modifiers = [];
+    if (effectOnly) {
+      modifiers = data.character.modifiers[type]
+      .filter((mod) => excludedModifiers.some((exMod) =>
+        mod.type === exMod.type &&
+        (mod.subType === exMod.subType || !exMod.subType))
+      );
+    } else {
+      modifiers = data.character.modifiers[type]
       .filter((mod) => !excludedModifiers.some((exMod) =>
         mod.type === exMod.type &&
         (mod.subType === exMod.subType || !exMod.subType))
       );
+    }
 
     return modifiers;
   },
@@ -242,9 +254,9 @@ let utils = {
       );
   },
 
-  getChosenClassModifiers: (data, includeExcludedEffects = false) => {
+  getChosenClassModifiers: (data, includeExcludedEffects = false, effectOnly=false) => {
     // get items we are going to interact on
-    const modifiers = utils.getModifiers(data, 'class', includeExcludedEffects).filter((mod) => {
+    const modifiers = utils.getModifiers(data, 'class', includeExcludedEffects, effectOnly).filter((mod) => {
       const isClassFeature = data.character.classes.some((klass) => klass.classFeatures.some((feat) =>
         feat.definition.id == mod.componentId && feat.definition.entityTypeId == mod.componentTypeId &&
         // make sure this class feature is not replaced
@@ -287,12 +299,12 @@ let utils = {
     return modifiers;
   },
 
-  filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false) => {
+  filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly=false) => {
     const modifiers = [
-      utils.getChosenClassModifiers(data, includeExcludedEffects),
-      utils.getModifiers(data, "race", includeExcludedEffects),
-      utils.getModifiers(data, "background", includeExcludedEffects),
-      utils.getModifiers(data, "feat", includeExcludedEffects),
+      utils.getChosenClassModifiers(data, includeExcludedEffects, effectOnly),
+      utils.getModifiers(data, "race", includeExcludedEffects, effectOnly),
+      utils.getModifiers(data, "background", includeExcludedEffects, effectOnly),
+      utils.getModifiers(data, "feat", includeExcludedEffects, effectOnly),
       utils.getActiveItemModifiers(data, includeExcludedEffects),
     ];
 

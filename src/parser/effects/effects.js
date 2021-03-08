@@ -149,42 +149,43 @@ export const EFFECT_EXCLUDED_MODIFIERS = {
   },
   race: () => {
     let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers = modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
     return modifiers;
   },
   class: () => {
     let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers = modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
     return modifiers;
   },
   feat: () => {
     let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-ability-bonus")) modifiers.concat(EFFECT_EXCLUDED_ABILITY_BONUSES);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-proficiencies")) modifiers.concat(EFFECT_EXCLUDED_PROFICIENCY_BONUSES);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-languages")) modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-damages")) modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers = modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-ability-bonus")) modifiers = modifiers.concat(EFFECT_EXCLUDED_ABILITY_BONUSES);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-proficiencies")) modifiers = modifiers.concat(EFFECT_EXCLUDED_PROFICIENCY_BONUSES);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-languages")) modifiers = modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-damages")) modifiers = modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
     return modifiers;
   },
   background: () => {
     let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-ability-bonus")) modifiers.concat(EFFECT_EXCLUDED_ABILITY_BONUSES);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-proficiencies")) modifiers.concat(EFFECT_EXCLUDED_PROFICIENCY_BONUSES);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-languages")) modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-effect-damages")) modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
+    console.warn(`CHECK ${game.settings.get("ddb-importer", "character-update-policy-effect-proficiencies")}`);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-speed")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-senses")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-hp")) modifiers = modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-spell-bonus")) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-ability-bonus")) modifiers = modifiers.concat(EFFECT_EXCLUDED_ABILITY_BONUSES);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-proficiencies")) modifiers = modifiers.concat(EFFECT_EXCLUDED_PROFICIENCY_BONUSES);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-languages")) modifiers = modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
+    if (game.settings.get("ddb-importer", "character-update-policy-effect-damages")) modifiers = modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
     return modifiers;
   },
 };
