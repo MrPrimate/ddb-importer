@@ -301,10 +301,15 @@ export function getArmorClass(data, character) {
   const overRideAC = data.character.characterValues.find((val) => val.typeId === 1);
 
   if (overRideAC) {
+    const overRideEffect = generateFixedACEffect(overRideAC.value, `AC Override: ${overRideAC.value}`);
     return {
-      type: "Number",
-      label: "Armor Class",
-      value: overRideAC.value,
+      fixed: {
+        type: "Number",
+        label: "Armor Class",
+        value: overRideAC.value,
+      },
+      baseAC: overRideAC.value,
+      effects: [overRideEffect],
     };
   }
 
