@@ -101,7 +101,7 @@ export function getSkillsHTML (skills, monster, DDB_CONFIG) {
     let result = {};
     if (skillMatch) {
       result = {
-        name: skillMatch[1],
+        name: skillMatch[1].trim(),
         value: skillMatch[2] + skillMatch[3],
       };
     } else {
