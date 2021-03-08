@@ -39,6 +39,16 @@ export function featureEffectAdjustment(document) {
       effect.flags.dae.transfer = false;
       effect.flags.dae.stackable = false;
       document.effects.push(effect);
+      document.data.target = {
+        value: null,
+        width: null,
+        units: "",
+        type: "self",
+      };
+      document.duration = {
+        value: 1,
+        units: "minute",
+      };
       break;
     }
     // no default
