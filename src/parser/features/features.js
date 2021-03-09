@@ -124,7 +124,8 @@ function includedFeatureNameCheck(featName, addEffects) {
   return nameAllowed;
 }
 
-function parseClassFeatures(ddb, character, addEffects) {
+
+function parseClassFeatures(ddb, character, addEffects, actionAndFeature) {
   // class and subclass traits
   let classItems = [];
   let classesFeatureList = [];
@@ -180,7 +181,7 @@ function parseClassFeatures(ddb, character, addEffects) {
         (feat) =>
           includedFeatureNameCheck(feat.name, addEffects) &&
           feat.requiredLevel <= klass.level &&
-          !ddb.character.actions.class.some((action) => action.name === feat.name) &&
+          (actionAndFeature || !ddb.character.actions.class.some((action) => action.name === feat.name)) &&
           !excludedFeatures.includes(feat.id)
       );
       const subKlassName = `${klassName} : ${klass.subclassDefinition.name}`;
@@ -237,6 +238,7 @@ export default function parseFeatures(ddb, character) {
   const addEffects = (daeInstalled && compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
+  const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
 
   let items = [];
 
@@ -268,7 +270,7 @@ export default function parseFeatures(ddb, character) {
   // optional class features
   if (ddb.classOptions) {
     ddb.classOptions
-    .filter((feat) => !ddb.character.actions.class.some((action) => action.name === feat.name))
+    .filter((feat) => actionAndFeature || !ddb.character.actions.class.some((action) => action.name === feat.name))
     .forEach((feat) => {
       logger.debug(`Parsing Optional Feature ${feat.name}`);
       const source = utils.parseSource(feat);

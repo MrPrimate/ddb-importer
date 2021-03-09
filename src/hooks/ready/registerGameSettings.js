@@ -624,33 +624,6 @@ export default function () {
     default: false,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-use-inbuilt-icons", {
-    name: "ddb-importer.character-update-policy-use-inbuilt-icons.name",
-    hint: "ddb-importer.character-update-policy-use-inbuilt-icons.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  game.settings.register("ddb-importer", "character-update-policy-use-srd-icons", {
-    name: "ddb-importer.character-update-policy-use-srd-icons.name",
-    hint: "ddb-importer.character-update-policy-use-srd-icons.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  game.settings.register("ddb-importer", "character-update-policy-use-full-description", {
-    name: "ddb-importer.character-update-policy-full-description.name",
-    hint: "ddb-importer.character-update-policy-full-description.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
   // Character update policy
 
   game.settings.register("ddb-importer", "character-update-policy-name", {
@@ -780,6 +753,42 @@ export default function () {
     config: false,
     type: Boolean,
     default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-use-inbuilt-icons", {
+    name: "ddb-importer.character-update-policy-use-inbuilt-icons.name",
+    hint: "ddb-importer.character-update-policy-use-inbuilt-icons.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-use-srd-icons", {
+    name: "ddb-importer.character-update-policy-use-srd-icons.name",
+    hint: "ddb-importer.character-update-policy-use-srd-icons.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-use-full-description", {
+    name: "ddb-importer.character-update-policy-full-description.name",
+    hint: "ddb-importer.character-update-policy-full-description.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-use-action-and-feature", {
+    name: "ddb-importer.character-update-policy-use-action-and-feature.name",
+    hint: "ddb-importer.character-update-policy-use-action-and-feature.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
   });
 
   game.settings.register("ddb-importer", "character-update-policy-dae-copy", {

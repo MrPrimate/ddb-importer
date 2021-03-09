@@ -49,8 +49,9 @@ function getDamage(action) {
 
   if (action.dice) {
     if (action.dice.diceString) {
+      const damageTag = (damageType) ? `[${damageType}] ` : "";
       damage = {
-        parts: [[action.dice.diceString + `[${damageType}] ` + modBonus + fixedBonus, damageType]],
+        parts: [[action.dice.diceString + damageTag + modBonus + fixedBonus, damageType]],
         versatile: "",
       };
     } else if (fixedBonus) {
