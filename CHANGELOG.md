@@ -2,7 +2,7 @@
 
 * On weapons, damage type without dice did not always import correctly.
 * In parsed feature and action blocks text like `[condition]incapacitated[/condition]` is now replaced with an entry linking to the SRD Rules compendium, if one can be found.
-
+* For features parsed as active abilities/attacks, you can now optionally parse it as a passive feature as well. (Note this may cause some oddities).
 
 # 0.6.2
 
