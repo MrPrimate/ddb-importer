@@ -233,7 +233,7 @@ let getDamage = (data, flags, betterRolls5e) => {
     .forEach((mod) => {
       const damagePart = (mod.dice) ? mod.dice.diceString : mod.value;
       if (damagePart) {
-        const damageParsed = utils.parseDiceString(damagePart, `[${mod.subType}]`).diceString;
+        const damageParsed = utils.parseDiceString(damagePart, "", `[${mod.subType}]`).diceString;
         parts.push([damageParsed, mod.subType]);
       }
     });

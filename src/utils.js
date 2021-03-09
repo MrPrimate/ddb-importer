@@ -518,11 +518,12 @@ let utils = {
       );
     }, "");
     const resultBonus = bonus === 0 ? "" : bonus > 0 ? ` + ${bonus}` : ` ${bonus}`;
+    const diceHintAdd = diceHint && diceString && diceString !== "";
 
     const result = {
       dice: dice,
       bonus: bonus,
-      diceString: (diceString + (diceHint ? diceHint : "") + mods + resultBonus).trim(),
+      diceString: (diceString + (diceHintAdd ? diceHint : "") + mods + resultBonus).trim(),
     };
     return result;
   },
