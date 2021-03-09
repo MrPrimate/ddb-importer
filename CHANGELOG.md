@@ -1,3 +1,8 @@
+# 0.6.3
+
+* On weapons, damage type without dice did not always import correctly.
+
+
 # 0.6.2
 
 * Non GM users got warning message.

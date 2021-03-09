@@ -1,6 +1,18 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 
+var srdRules;
+
+export async function loadSRDRules() {
+  if (srdRules) return;
+  try {
+    srdRules = await game.packs.get("dnd5e.rules").getIndex();
+  } catch (err) {
+    logger.error("5e SRD Rules compendium failed to load");
+    srdRules = [];
+  }
+}
+
 /**
  * Gets the levelscaling value for a feature
  * @param {*} feature
@@ -192,6 +204,31 @@ const getNumber = (theNumber) => {
   }
 };
 
+function replaceTag(match, p1, p2, p3, offset, string) {
+  if (!p2) {
+    logger.warn(`Unable to tag parse ${match}`);
+    return match;
+  }
+  const srdMatch = srdRules.find((rule) => rule.name.toLowerCase() === p2.toLowerCase());
+  if (match) {
+    return `@Compendium[dnd5e.rules.${srdMatch._id}]{${p2}}`;
+  } else {
+    logger.warn(`Unable to find tag parse compendium match for ${match}`);
+  }
+  return p2;
+}
+
+async function parseTags(text) {
+  if (!srdRules) await loadSRDRules();
+
+  const tagRegEx = /\[(.*)](.*)\[\/(.*)]/g;
+  const matches = text.match(tagRegEx);
+  if (matches) {
+    return text.replaceAll(tagRegEx, replaceTag);
+  }
+  return text;
+}
+
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.
  * e.g. Each creature in the area must make a DC {{savedc:con}} saving throw.
@@ -262,6 +299,8 @@ export default function parseTemplateString(ddb, character, text, feature) {
   });
 
   result.text = result.text.replace("+ +", "+");
+  // result.text = await parseTags(result.text);
+  result.text = parseTags(result.text);
   character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
   return result;
 }
