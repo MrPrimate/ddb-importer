@@ -6,9 +6,11 @@ var srdRules;
 export async function loadSRDRules() {
   if (srdRules) return;
   try {
+    // eslint-disable-next-line require-atomic-updates
     srdRules = await game.packs.get("dnd5e.rules").getIndex();
   } catch (err) {
     logger.error("5e SRD Rules compendium failed to load");
+    // eslint-disable-next-line require-atomic-updates
     srdRules = [];
   }
 }
@@ -204,13 +206,14 @@ const getNumber = (theNumber) => {
   }
 };
 
+// eslint-disable-next-line no-unused-vars
 function replaceTag(match, p1, p2, p3, offset, string) {
   if (!p2) {
     logger.warn(`Unable to tag parse ${match}`);
     return match;
   }
   const srdMatch = srdRules.find((rule) => rule.name.toLowerCase() === p2.toLowerCase());
-  if (match) {
+  if (srdMatch) {
     return `@Compendium[dnd5e.rules.${srdMatch._id}]{${p2}}`;
   } else {
     logger.warn(`Unable to find tag parse compendium match for ${match}`);
@@ -218,8 +221,8 @@ function replaceTag(match, p1, p2, p3, offset, string) {
   return p2;
 }
 
-async function parseTags(text) {
-  if (!srdRules) await loadSRDRules();
+function parseTags(text) {
+  if (!srdRules) return text;
 
   const tagRegEx = /\[(.*)](.*)\[\/(.*)]/g;
   const matches = text.match(tagRegEx);

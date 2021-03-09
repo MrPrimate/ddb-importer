@@ -20,6 +20,7 @@ import { updateDDBCharacter } from "./update.js";
 import { characterExtras } from "./extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt } from "../lib/Secrets.js";
+import { loadSRDRules } from "../parser/templateStrings.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -177,6 +178,9 @@ export async function getCharacterData(characterId, syncId) {
     });
     const data = await response.json();
     if (!data.success) return data;
+
+    // load some required content
+    await loadSRDRules();
 
     // construct the expected { character: {...} } object
     let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;

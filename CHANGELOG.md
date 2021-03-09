@@ -1,6 +1,7 @@
 # 0.6.3
 
 * On weapons, damage type without dice did not always import correctly.
+* In parsed feature and action blocks text like `[condition]incapacitated[/condition]` is now replaced with an entry linking to the SRD Rules compendium, if one can be found.
 
 
 # 0.6.2
