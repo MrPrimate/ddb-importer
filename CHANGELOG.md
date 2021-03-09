@@ -1,3 +1,7 @@
+# 0.6.4
+
+* Electron app does not support feature used for condition/tag block parsing, will now be ignored in the electron app.
+
 # 0.6.3
 
 * On weapons, damage type without dice did not always import correctly.
