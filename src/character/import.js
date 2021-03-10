@@ -608,7 +608,7 @@ export default class CharacterImport extends FormApplication {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDInstalled,
         title: "Copy Active Effect from DAE Compendiums",
         description:
-          "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE and SRD module).",
+          "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE and SRD module). This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
         enabled: daeInstalled && daeSRDInstalled,
       },
       {
@@ -616,7 +616,7 @@ export default class CharacterImport extends FormApplication {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDInstalled,
         title: "[Caution] Replace Items using DAE compendiums",
         description:
-          "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE and SRD module). This will remove any effects applied directly to your character/not via features/items.",
+          "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE and SRD module). This will remove any effects applied directly to your character/not via features/items. This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
         enabled: daeInstalled && daeSRDInstalled,
       },
       {
