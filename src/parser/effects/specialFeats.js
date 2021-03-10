@@ -8,10 +8,10 @@ export function featureEffectAdjustment(document) {
   switch (document.name) {
     case "Rage": {
       let effect = baseItemEffect(document, `${document.name}`);
-      console.warn(document);
-      let test = document.flags.ddbimporter.dndbeyond.levelScale.fixedValue;
-      const extraDamage = (document.flags?.ddbimporter?.dndbeyond?.levelScale?.fixedValue) ?
-        document.flags.ddbimporter.dndbeyond.levelScale.fixedValue : 2;
+
+      const extraDamage = document.flags?.ddbimporter?.dndbeyond?.levelScale?.fixedValue
+        ? document.flags.ddbimporter.dndbeyond.levelScale.fixedValue
+        : 2;
       effect.changes.push(
         {
           key: "data.bonuses.mwak.damage",
