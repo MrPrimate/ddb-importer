@@ -75,6 +75,10 @@ export function getSpellSlots(data) {
         } else {
           casterLevel = 0;
         }
+        // Blood hunters are weird
+        if (["Blood Hunter"].includes(name)) {
+          casterLevel = cls.level;
+        }
 
         const cantrips =
           cls.definition.spellRules &&
@@ -90,7 +94,11 @@ export function getSpellSlots(data) {
           const maxLevel = levelSpellSlots.indexOf(Math.max(...levelSpellSlots)) + 1;
           const maxSlots = Math.max(...levelSpellSlots);
           const currentSlots = data.character.pactMagic.find((pact) => pact.level === maxLevel).used;
-          spellSlots.pact = { value: maxSlots - currentSlots, max: maxSlots };
+          if (["Blood Hunter"].includes(name)) {
+            spellSlots.pact = { value: maxSlots - currentSlots, max: maxSlots, override: maxSlots };
+          } else {
+            spellSlots.pact = { value: maxSlots - currentSlots, max: maxSlots };
+          }
           return {
             name: name,
             casterLevel: 0,
