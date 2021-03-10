@@ -127,8 +127,11 @@ export function getBackgroundData(data) {
     result.description = `<h1>Background: ${bg.name}</h1>`;
   }
 
-  if (bg.shortDescription) result.description += bg.shortDescription.replace("\r\n", "");
-  if (bg.description) result.description += `<p>${bg.description}</p>`;
+  if (bg.description) {
+    result.description += `<p>${bg.description}</p>`;
+  } else if (bg.shortDescription) {
+    result.description += bg.shortDescription.replace("\r\n", "");
+  }
   if (bg.definition) result.definition = bg.definition;
 
   if (data.character.background.hasCustomBackground === true) {
