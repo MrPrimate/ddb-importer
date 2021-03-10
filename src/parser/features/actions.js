@@ -367,6 +367,14 @@ function getAttackAction(ddb, character, action) {
     weapon.data.uses = getLimitedUse(action, character);
     weapon.data.consume = getResource(character, action);
 
+    // class action
+    const klassAction = utils.findComponentByComponentId(ddb, action.id);
+    if (klassAction) {
+      setProperty(weapon.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
+      setProperty(weapon.flags, "ddbimporter.dndbeyond.levelScales", klassAction.definition?.levelScales);
+      setProperty(weapon.flags, "ddbimporter.dndbeyond.limitedUse", klassAction.definition?.limitedUse);
+    }
+
     weapon = addFeatEffects(ddb, character, action, weapon);
 
     if (weapon.data.uses?.max) {
@@ -513,6 +521,21 @@ function getOtherActions(ddb, character, items) {
       if (!feat.data.damage?.parts) {
         logger.debug("Running level scale parser");
         feat = getLevelScaleDice(ddb, character, action, feat);
+      }
+
+      // class action
+      const klassAction = utils.findComponentByComponentId(ddb, action.id);
+      if (klassAction) {
+        setProperty(feat.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
+        setProperty(feat.flags, "ddbimporter.dndbeyond.levelScales", klassAction.definition?.levelScales);
+        setProperty(feat.flags, "ddbimporter.dndbeyond.limitedUse", klassAction.definition?.limitedUse);
+      } else {
+        const klassByComponentId = utils.findComponentByComponentId(ddb, action.componentId);
+        if (klassByComponentId) {
+          setProperty(feat.flags, "ddbimporter.dndbeyond.levelScale", klassByComponentId.levelScale);
+          setProperty(feat.flags, "ddbimporter.dndbeyond.levelScales", klassByComponentId.definition?.levelScales);
+          setProperty(feat.flags, "ddbimporter.dndbeyond.limitedUse", klassByComponentId.definition?.limitedUse);
+        }
       }
 
       feat = addFeatEffects(ddb, character, action, feat);

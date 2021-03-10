@@ -3,6 +3,7 @@
 * Blood Hunter Spell Slots not set correctly.
 * Backgrounds might import description multiple times.
 * Shadow of Moil action should be other, not attack.
+* Effects: improved rage.
 
 # 0.6.4
 

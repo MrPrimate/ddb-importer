@@ -60,6 +60,13 @@ function parseFeature(feat, ddb, character, source, type) {
     },
   };
 
+  const klassAction = utils.findComponentByComponentId(ddb, feat.id);
+  if (klassAction) {
+    setProperty(item.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
+    setProperty(item.flags, "ddbimporter.dndbeyond.levelScales", klassAction.definition?.levelScales);
+    setProperty(item.flags, "ddbimporter.dndbeyond.limitedUse", klassAction.definition?.limitedUse);
+  }
+
   logger.debug(`Searching for ${name} choices`);
 
   // Add choices to the textual description of that feat
