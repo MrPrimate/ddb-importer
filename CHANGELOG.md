@@ -1,3 +1,9 @@
+# 0.6.5
+
+* Blood Hunter Spell Slots not set correctly.
+* Backgrounds might import description multiple times.
+* Shadow of Moil action should be other, not attack.
+
 # 0.6.4
 
 * Electron app does not support feature used for condition/tag block parsing, will now be ignored in the electron app.
