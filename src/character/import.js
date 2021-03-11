@@ -21,6 +21,7 @@ import { characterExtras } from "./extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { loadSRDRules } from "../parser/templateStrings.js";
+import { abilityOverrideEffects } from "../parser/effects/abilityOverrides.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -1505,8 +1506,13 @@ export default class CharacterImport extends FormApplication {
     }
   }
 
-  fixUpCharacterEffects(effects) {
-    effects.forEach((effect) => {
+  fixUpCharacterEffects(character) {
+    let abilityOverrides = abilityOverrideEffects(character.flags.ddbimporter.dndbeyond.abilityOverrides);
+    if (abilityOverrides.changes.length > 0) {
+      character.effects = character.effects.concat(abilityOverrides);
+    }
+
+    character.effects.forEach((effect) => {
       if (effect.origin === `Actor.${this.actor.data.flags.ddbimporter.dndbeyond.characterId}`) {
         effect.origin = `Actor.${this.actor._id}`;
       }
@@ -1522,7 +1528,7 @@ export default class CharacterImport extends FormApplication {
     // handle active effects
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
-    this.fixUpCharacterEffects(this.result.character.effects);
+    this.fixUpCharacterEffects(this.result.character);
     await this.removeActiveEffects(activeEffectCopy);
 
     // console.warn(JSON.parse(JSON.stringify(this.actor)));

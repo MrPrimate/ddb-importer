@@ -76,6 +76,7 @@ export default function getCharacter(ddb) {
   const abilityData = getAbilities(ddb);
   character.data.abilities = abilityData.base;
   character.flags.ddbimporter.dndbeyond.effectAbilities = abilityData.withEffects;
+  character.flags.ddbimporter.dndbeyond.abilityOverrides = abilityData.overrides;
 
   // Hit Dice
   character.data.attributes.hd = getHitDice(ddb);

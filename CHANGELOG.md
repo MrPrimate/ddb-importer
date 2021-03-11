@@ -1,3 +1,7 @@
+# 0.6.6
+
+* Handle ability overrides in DDB as effects.
+
 # 0.6.5
 
 * Blood Hunter Spell Slots not set correctly.

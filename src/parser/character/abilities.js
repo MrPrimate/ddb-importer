@@ -1,5 +1,14 @@
 import DICTIONARY from "../../dictionary.js";
+// import logger from "../../logger.js";
 import utils from "../../utils.js";
+
+function getOverrides(data) {
+  let result = {};
+  DICTIONARY.character.abilities.forEach((ability) => {
+    result[ability.value] = data.character.overrideStats.find((stat) => stat.id === ability.id).value || 0;
+  });
+  return result;
+}
 
 /**
  * Retrieves character abilities, including proficiency on saving throws
@@ -8,6 +17,7 @@ import utils from "../../utils.js";
  */
 function parseAbilities(data, includeExcludedEffects = false) {
   // go through every ability
+  // console.error(`Abilities effects: ${includeExcludedEffects}`);
 
   let result = {};
   DICTIONARY.character.abilities.forEach((ability) => {
@@ -107,6 +117,7 @@ export function getAbilities(data) {
   const result = {
     base: parseAbilities(data, false),
     withEffects: parseAbilities(data, true),
+    overrides: getOverrides(data),
   };
   return result;
 }
