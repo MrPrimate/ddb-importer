@@ -1513,7 +1513,12 @@ export default class CharacterImport extends FormApplication {
     }
 
     character.effects.forEach((effect) => {
-      if (effect.origin === `Actor.${this.actor.data.flags.ddbimporter.dndbeyond.characterId}`) {
+      const origins = [
+        "Ability.Override",
+        "AC",
+        `Actor.${this.actor.data.flags.ddbimporter.dndbeyond.characterId}`,
+      ]
+      if (origins.includes(effect.origin)) {
         effect.origin = `Actor.${this.actor._id}`;
       }
     });

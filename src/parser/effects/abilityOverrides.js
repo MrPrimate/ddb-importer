@@ -14,7 +14,7 @@ function buildBaseOverrideEffect(label) {
       startRound: null,
       startTurn: null,
     },
-    origin: "Ability Override",
+    origin: "Ability.Override",
     label,
     tint: "",
     disabled: false,
@@ -35,7 +35,7 @@ export function abilityOverrideEffects(overrides) {
 
   DICTIONARY.character.abilities.forEach((ability) => {
     if (overrides[ability.value] === 0) return;
-    effects.changes.push(generateOverrideChange(overrides[ability.value], 50, `data.abilities.${ability}.value`));
+    effects.changes.push(generateOverrideChange(overrides[ability.value], 50, `data.abilities.${ability.value}.value`));
   });
 
   return effects;
