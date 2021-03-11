@@ -47,7 +47,7 @@ let getCustomSkillProficiency = (data, skill) => {
   // Overwrite the proficient value with any custom set over rides
   if (data.character.characterValues) {
     const customProficiency = data.character.characterValues.find(
-      (value) => value.typeId === 26 && value.valueId === skill.valueId
+      (value) => value.typeId === 26 && value.valueId == skill.valueId
     );
     if (customProficiency) {
       return DICTIONARY.character.customSkillProficiencies.find((prof) => prof.value === customProficiency.value)
