@@ -1517,7 +1517,7 @@ export default class CharacterImport extends FormApplication {
         "Ability.Override",
         "AC",
         `Actor.${this.actor.data.flags.ddbimporter.dndbeyond.characterId}`,
-      ]
+      ];
       if (origins.includes(effect.origin)) {
         effect.origin = `Actor.${this.actor._id}`;
       }
