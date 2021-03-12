@@ -1,4 +1,4 @@
-# 0.6.6
+# 0.6.6/0.6.7
 
 * Handle ability overrides in DDB as effects.
 * DDB Skill proficiency override stopped woking due to DDB data change.
