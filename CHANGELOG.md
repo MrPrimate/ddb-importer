@@ -1,3 +1,7 @@
+# 0.6.8
+
+* Muncher: some roleplaying information blocks were in the reactions block. Now parsed correctly.
+
 # 0.6.6/0.6.7
 
 * Handle ability overrides in DDB as effects.
