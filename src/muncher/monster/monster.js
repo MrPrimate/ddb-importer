@@ -116,7 +116,7 @@ export function parseMonsters(monsterData, extra = false) {
       foundryActor.data.details.biography.value = monster.characteristicsDescription;
 
       let actions, lairActions, legendaryActions, specialTraits, reactions, bonus, mythic;
-      let characterDescriptionAction, unexpectedDescription;
+      let characterDescriptionAction, characterDescriptionReaction, unexpectedDescription;
 
       [actions, characterDescriptionAction] = getActions(monster, DDB_CONFIG);
       items.push(...actions);
@@ -142,7 +142,7 @@ export function parseMonsters(monsterData, extra = false) {
         foundryActor.data.resources["legres"] = specialTraits.resistance;
       }
 
-      [reactions, unexpectedDescription] = getActions(monster, DDB_CONFIG, "reaction");
+      [reactions, characterDescriptionReaction] = getActions(monster, DDB_CONFIG, "reaction");
       items.push(...reactions);
       [bonus, unexpectedDescription] = getActions(monster, DDB_CONFIG, "bonus");
       items.push(...bonus);
@@ -154,6 +154,9 @@ export function parseMonsters(monsterData, extra = false) {
       }
       if (characterDescriptionAction) {
         foundryActor.data.details.biography.value += characterDescriptionAction;
+      }
+      if (characterDescriptionReaction) {
+        foundryActor.data.details.biography.value += characterDescriptionReaction;
       }
       if (specialTraits?.characterDescription) {
         foundryActor.data.details.biography.value += specialTraits.characterDescription;
