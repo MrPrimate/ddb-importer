@@ -459,12 +459,12 @@ const utils = {
 
     const diceRegex = /(?<rawSign>[+-]*)(?<count>\d+)(?:d(?<die>\d+))/gu;
 
-    for (const { group } of str.matchAll(diceRegex)) {
+    for (const { groups } of str.matchAll(diceRegex)) {
       const {
         rawSign = '+',
         count,
         die
-      } = group;
+      } = groups;
 
       // sign. We only take the sign standing exactly in front of the dice string
       // so +-1d8 => -1d8. Just as a failsave
