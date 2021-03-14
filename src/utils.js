@@ -4,16 +4,16 @@ import logger from "./logger.js";
 import { DDB_CONFIG } from "./ddb-config.js";
 import { getEffectExcludedModifiers } from "./parser/effects/effects.js";
 
-var existingFiles = [];
+const existingFiles = new Set();
 
-let utils = {
+const utils = {
   debug: () => {
     return true;
   },
 
   findByProperty: (arr, property, searchString) => {
     function levenshtein(a, b) {
-      var tmp;
+      let tmp;
       if (a.length === 0) {
         return b.length;
       }
@@ -26,7 +26,7 @@ let utils = {
         b = tmp;
       }
 
-      var i,
+      let i,
         j,
         res,
         alen = a.length,
@@ -67,10 +67,10 @@ let utils = {
   },
 
   hasChosenCharacterOption: (data, optionName) => {
-    const classOptions = [data.character.options.race, data.character.options.class, data.character.options.feat]
+    const hasClassOptions = [data.character.options.race, data.character.options.class, data.character.options.feat]
       .flat()
-      .find((option) => option.definition.name === optionName);
-    return !!classOptions;
+      .some((option) => option.definition.name === optionName);
+    return hasClassOptions;
   },
 
   getClassFromOptionID: (data, optionId) => {
@@ -96,11 +96,10 @@ let utils = {
    * @param {*} featureId
    */
   findComponentByComponentId: (ddb, componentId) => {
-    let result;
-    ddb.character.classes.forEach((cls) => {
+    const result = ddb.character.classes.reduce((curr, cls) => {
       const feature = cls.classFeatures.find((component) => component.definition.id === componentId);
-      if (feature) result = feature;
-    });
+      return feature ?? curr;
+    }, undefined);
     return result;
   },
 
@@ -111,22 +110,20 @@ let utils = {
    */
   getSourceData: (definition) => {
     const fullSource = game.settings.get("ddb-importer", "use-full-source");
-    let result = {
+    const result = {
       name: null,
       page: null,
     };
-    if (definition.sources) {
-      if (definition.sources.length > 0) {
-        result.name = DDB_CONFIG.sources
-          .filter((source) => definition.sources.some((ds) => source.id === ds.sourceId))
-          .map((source) => {
-            const dSource = definition.sources.find((ds) => source.id === ds.sourceId);
-            const page = dSource.pageNumber ? ` pg ${dSource.pageNumber}` : "";
-            const sourceBook = dSource ? (fullSource ? source.description : source.name) : "Homebrew";
-            return `${sourceBook}${page}`;
-          })
-          .join(", ");
-      }
+    if (definition.sources?.length > 0) {
+      result.name = DDB_CONFIG.sources
+        .filter((source) => definition.sources.some((ds) => source.id === ds.sourceId))
+        .map((source) => {
+          const dSource = definition.sources.find((ds) => source.id === ds.sourceId);
+          const page = dSource.pageNumber ? ` pg ${dSource.pageNumber}` : "";
+          const sourceBook = dSource ? (fullSource ? source.description : source.name) : "Homebrew";
+          return `${sourceBook}${page}`;
+        })
+        .join(", ");
     } else {
       if (definition.sourceIds) {
         result.name = DDB_CONFIG.sources
@@ -136,10 +133,11 @@ let utils = {
       } else if (definition.sourceId) {
         result.name = DDB_CONFIG.sources
           .filter((source) => source.id === definition.sourceId)
-          .map((source) => {
-            const sourceBook = fullSource ? source.description : source.name;
-            return sourceBook;
-          });
+          .map(
+            fullSource
+              ? ({ description }) => description
+              : ({ name }) => name
+          );
       }
 
       // add a page num if available
@@ -450,80 +448,92 @@ let utils = {
     return Math.floor((val - 10) / 2);
   },
 
-  parseDiceString: (str, mods = "", diceHint = "") => {
+  parseDiceString: (inStr, mods = "", diceHint = "") => {
     // sanitizing possible inputs a bit
-    str = `${str}`.toLowerCase().replace(/-–−/g, "-").replace(/\s/g, "");
+    const str = `${inStr}`.toLowerCase().replace(/-–−/gu, "-").replace(/\s+/gu, "");
 
     // all found dice strings, e.g. 1d8, 4d6
     let dice = [];
     // all bonuses, e.g. -1+8
     let bonuses = [];
 
-    while (str.search(/[+-]*\d+d?\d*/) !== -1) {
-      const result = str.match(/([+-]*)(\d+)(d?)(\d*)/);
-      str = str.replace(result[0], "");
+    const diceRegex = /(?<rawSign>[+-]*)(?<count>\d+)(?:d(?<die>\d+))/gu;
+
+    for (const { groups } of str.matchAll(diceRegex)) {
+      const {
+        rawSign = '+',
+        count,
+        die
+      } = groups;
 
       // sign. We only take the sign standing exactly in front of the dice string
       // so +-1d8 => -1d8. Just as a failsave
-      const sign = result[1] === "" ? "+" : result[1].substr(result[1].length - 1, 1);
-      const count = result[2];
-      const die = result[4];
+      const sign = rawSign.slice(-1);
 
-      if (result[3] === "d") {
+      if (die) {
         dice.push({
-          sign: sign,
+          sign,
           count: parseInt(sign + count),
-          die: parseInt(die),
+          die: parseInt(die)
         });
       } else {
         bonuses.push({
-          sign: sign,
-          count: parseInt(sign + count),
+          sign,
+          count: parseInt(sign + count)
         });
       }
-      // sorting dice by die, then by sign
-      dice = dice.sort((a, b) => {
-        if (a.die < b.die) return -1;
-        if (a.die > b.die) return 1;
-        if (a.sign === b.sign) {
-          if (a.count < b.count) return -1;
-          if (a.count > b.count) return 1;
-          return 0;
-        } else {
-          return a.sign === "+" ? -1 : 1;
-        }
-      });
     }
 
     // sum up the bonus
-    let bonus = bonuses.reduce((prev, cur) => prev + cur.count, 0);
+    const bonus = bonuses.reduce((prev, cur) => prev + cur.count, 0);
 
     // group the dice, so that all the same dice are summed up if they have the same sign
     // e.g.
     // +1d8+2d8 => 3d8
     // +1d8-2d8 => +1d8 -2d8 will remain as-is
-    for (let i = 0; i < dice.length - 1; i++) {
-      let cur = dice[i];
-      let next = i <= dice.length - 1 ? dice[i + 1] : { sign: "+", count: 0, die: cur.die };
-      if (cur.die === next.die && cur.sign === next.sign) {
-        cur.count += next.count;
-        dice.splice(i + 1, 1);
-        i--;
+    const endDice = [];
+
+    const groupBySign = utils.groupBy(dice, 'sign');
+    for (const group of groupBySign.values()) {
+      const groupByDie = utils.groupBy(group, 'die');
+
+      for (const dieGroup of groupByDie.values()) {
+        endDice.push(
+          dieGroup.reduce((acc, item) => ({
+            ...acc,
+            count: acc.count + item.count
+          }))
+        );
       }
     }
 
-    const diceString = dice.reduce((prev, cur) => {
-      return (
-        prev + " " + (cur.count >= 0 && prev !== "" ? `${cur.sign}${cur.count}d${cur.die}` : `${cur.count}d${cur.die}`)
-      );
-    }, "");
-    const resultBonus = bonus === 0 ? "" : bonus > 0 ? ` + ${bonus}` : ` ${bonus}`;
+    endDice.sort((a, b) => {
+      if (a.die < b.die) return -1;
+      if (a.die > b.die) return 1;
+      if (a.sign === b.sign) {
+        if (a.count < b.count) return -1;
+        if (a.count > b.count) return 1;
+        return 0;
+      } else {
+        return a.sign === "+" ? -1 : 1;
+      }
+    });
+
+    const diceString = endDice.map(({ sign, count, die }, index) => `${index ? sign : ''}${count}d${die}`).join(' ');
+
+    const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? '+' : ''} ${bonus}`;
+
     const diceHintAdd = diceHint && diceString && diceString !== "";
 
     const result = {
       dice: dice,
       bonus: bonus,
-      diceString: (diceString + (diceHintAdd ? diceHint : "") + mods + resultBonus).trim(),
+      diceString: [
+        diceString,
+        (diceHintAdd ? diceHint : ""),
+        mods,
+        resultBonus
+      ].join('').trim(),
     };
     return result;
   },
@@ -560,8 +570,10 @@ let utils = {
   },
 
   fileExistsUpdate: (fileList) => {
-    const targetFiles = fileList.filter((f) => !existingFiles.includes(f));
-    existingFiles = existingFiles.concat(targetFiles);
+    const targetFiles = fileList.filter((f) => !existingFiles.has(f));
+    for (const file of targetFiles) {
+      existingFiles.add(file);
+    }
   },
 
   generateCurrentFiles: async (directoryPath) => {
@@ -573,7 +585,7 @@ let utils = {
 
   fileExists: async (directoryPath, filename) => {
     const fileUrl = await utils.getFileUrl(directoryPath, filename);
-    let existingFile = existingFiles.includes(fileUrl);
+    let existingFile = existingFiles.has(fileUrl);
     if (existingFile) return true;
 
     logger.debug(`Checking for ${filename} at ${fileUrl}...`);
@@ -582,7 +594,7 @@ let utils = {
 
     if (fileList.files.includes(fileUrl)) {
       logger.debug(`Found ${fileUrl}`);
-      existingFiles.push(fileUrl);
+      existingFiles.add(fileUrl);
       return true;
     } else {
       logger.debug(`Could not find ${fileUrl}`);
@@ -928,10 +940,7 @@ let utils = {
   log: (msg, section = "general") => {
     const LOG_PREFIX = "DDB Importer";
     if (
-      CONFIG &&
-      CONFIG.debug &&
-      CONFIG.debug.ddbimporter &&
-      CONFIG.debug.ddbimporter.dndbeyond &&
+      CONFIG?.debug?.ddbimporter?.dndbeyond &&
       Object.prototype.hasOwnProperty.call(CONFIG.debug.ddbimporter.dndbeyond, section) &&
       CONFIG.debug.ddbimporter.dndbeyond[section]
     )
@@ -1025,6 +1034,20 @@ let utils = {
   isModuleInstalledAndActive: (moduleName) => {
     return game.modules.has(moduleName) && game.modules.get(moduleName).active;
   },
+
+  groupBy(arr, property) {
+    const map = new Map();
+
+    for (const item of arr) {
+      const prop = item[property];
+      const group = map.get(prop) ?? [];
+
+      group.push(item);
+      map.set(prop, group);
+    }
+
+    return map;
+  }
 };
 
 export default utils;
