@@ -519,7 +519,7 @@ const utils = {
       }
     });
 
-    const diceString = endDice.map(({ sign, count, die }, index) => `${index ? sign : ''}${count}${die}`).join(' ');
+    const diceString = endDice.map(({ sign, count, die }, index) => `${index ? sign : ''}${count}d${die}`).join(' ');
 
     const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? '+' : ''} ${bonus}`;
 
