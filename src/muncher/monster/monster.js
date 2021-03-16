@@ -106,7 +106,8 @@ export function parseMonsters(monsterData, extra = false) {
       // details
       const cr = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId);
       foundryActor.data.details.type = DDB_CONFIG.monsterTypes.find((c) => monster.typeId == c.id).name;
-      foundryActor.data.details.alignment = DDB_CONFIG.alignments.find((c) => monster.alignmentId == c.id).name;
+      const alignment = DDB_CONFIG.alignments.find((c) => monster.alignmentId == c.id);
+      foundryActor.data.details.alignment = alignment ? alignment.name : "";
       foundryActor.data.details.cr = cr.value;
       foundryActor.data.details.source = getSource(monster, DDB_CONFIG);
       foundryActor.data.details.xp = {

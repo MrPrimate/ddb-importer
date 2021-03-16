@@ -403,7 +403,7 @@ export default function parseWeapon(data, character, flags) {
       weapon.data.ability = "dex";
     }
   }
-  if (flags.magicItemAttackInt && data.definition.magic) {
+  if (flags.magicItemAttackInt && (data.definition.magic || weapon.data.properties.mgc)) {
     if (characterAbilities.int.value > characterAbilities[weapon.data.ability].value) {
       weapon.data.ability = "int";
     }
