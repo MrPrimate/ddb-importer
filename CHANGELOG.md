@@ -1,6 +1,8 @@
 # 0.6.8
 
 * Muncher: some roleplaying information blocks were in the reactions block. Now parsed correctly.
+* Some code optimisaion/modernisation by @Naito many thanks!
+* Candlekeep monster munch support - monsters can now have no alignment and Skitterwidget language added.
 
 # 0.6.6/0.6.7
 
