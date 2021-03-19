@@ -1,3 +1,8 @@
+# 0.6.9
+
+* Candlekeep: fix some problems munching Sages
+* Icons: massive monster action inbuilt library, thanks @Zac!
+
 # 0.6.8
 
 * Muncher: some roleplaying information blocks were in the reactions block. Now parsed correctly.
