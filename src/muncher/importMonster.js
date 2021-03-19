@@ -361,7 +361,7 @@ export async function buildNPC(data, temporary = true, update = false) {
 
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates
-  data.items = await updateIcons(data.items, false);
+  data.items = await updateIcons(data.items, false, true, data.name);
   // create the new npc
   logger.debug("Creating NPC actor");
   const options = {

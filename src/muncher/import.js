@@ -1007,7 +1007,7 @@ export function addACEffectIcons(effects) {
   return effects;
 }
 
-export async function updateIcons(items, srdIconUpdate = true) {
+export async function updateIcons(items, srdIconUpdate = true, monster = false, monsterName = "") {
   // this will use ddb spell school icons as a fall back
   const ddbItemIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-item-icons");
   if (ddbItemIcons) {
@@ -1018,7 +1018,7 @@ export async function updateIcons(items, srdIconUpdate = true) {
   const inBuiltIcons = game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons");
   if (inBuiltIcons) {
     logger.debug("Inbuilt icon matching");
-    items = await copyInbuiltIcons(items);
+    items = await copyInbuiltIcons(items, monster, monsterName);
   }
 
   // check for SRD icons

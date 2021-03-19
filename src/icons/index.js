@@ -21,7 +21,8 @@ const TYPE_MAP = {
   feats: "feats",
   feat: "feats",
   classes: "classes",
-  class: "classes"
+  class: "classes",
+  monster: "monster",
 };
 
 const FILE_MAP = {
@@ -29,6 +30,7 @@ const FILE_MAP = {
   spells: ["spells.json"],
   feats: ["feats.json", "class-features.json", "races.json", "general.json"],
   classes: ["classes.json"],
+  monster: ["monster-features.json"],
 };
 
 async function loadDataFile(fileName) {
@@ -84,12 +86,17 @@ function looseMatch(item, typeValue) {
   return null;
 }
 
-function getIconPath(item, type) {
+function getIconPath(item, type, monsterName) {
   // check to see if we are able to load a dic for that type
   const typeValue = TYPE_MAP[type];
   if (!typeValue || !iconMap[typeValue]) return null;
 
-  const iconMatch = iconMap[typeValue].find((entry) => entry.name === item.name);
+  const iconMatch = iconMap[typeValue].find((entry) => {
+    if (type === "monster") {
+      return entry.name === item.name.split("(")[0].trim() && entry.monster == monsterName
+    }
+    return entry.name === item.name;
+  });
   if (iconMatch) {
     return iconMatch.path;
   } else {
@@ -113,17 +120,26 @@ async function loadIconMaps(types) {
   return Promise.all(promises);
 }
 
-export async function copyInbuiltIcons(items) {
+export async function copyInbuiltIcons(items, monster=false, monsterName="") {
   // eslint-disable-next-line require-atomic-updates
 
   // get unique array of item types to be matching
   const itemTypes = items.map((item) => item.type).filter((item, i, ar) => ar.indexOf(item) === i);
 
+  if (monster) itemTypes.push("monster");
   await loadIconMaps(itemTypes);
 
   return new Promise((resolve) => {
     const iconItems = items.map((item) => {
       logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
+      // if we have a monster lets check the monster dict first
+      if (monster) {
+        const monsterPath = getIconPath(item, "monster", monsterName);
+        if (monsterPath) {
+          item.img = monsterPath;
+          return item;
+        }
+      }
       const pathMatched = getIconPath(item, item.type);
       if (pathMatched) item.img = pathMatched;
       return item;
