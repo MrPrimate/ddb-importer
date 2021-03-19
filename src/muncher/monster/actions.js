@@ -1,5 +1,5 @@
 import { getSource } from "./source.js";
-import { getActionInfo, getAction } from "./utils.js";
+import { getActionInfo, getAction, getUses } from "./utils.js";
 import { FEAT_TEMPLATE } from "./templates/feat.js";
 
 // "actionsDescription": "<p><em><strong>Multiattack.</strong></em> The dragon can use its Frightful Presence. It then makes three attacks: one with its bite and two with its claws.</p>\r\n<p><em><strong>Bite.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 15 ft., one target. <em>Hit:</em> 19 (2d10 + 8) piercing damage plus 9 (2d8) acid damage.</p>\r\n<p><em><strong>Claw.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 10 ft., one target. <em>Hit:</em> 15 (2d6 + 8) slashing damage.</p>\r\n<p><em><strong>Tail.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 20 ft., one target. <em>Hit:</em> 17 (2d8 + 8) bludgeoning damage.</p>\r\n<p><em><strong>Frightful Presence.</strong></em> Each creature of the dragon's choice that is within 120 feet of the dragon and aware of it must succeed on a DC 19 Wisdom saving throw or become frightened for 1 minute. A creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature is immune to the dragon's Frightful Presence for the next 24 hours.</p>\r\n<p><em><strong>Acid Breath (Recharge 5&ndash;6).</strong></em> The dragon exhales acid in a 90-foot line that is 10 feet wide. Each creature in that line must make a DC 22 Dexterity saving throw, taking 67 (15d8) acid damage on a failed save, or half as much damage on a successful one.</p>",
@@ -139,7 +139,12 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     });
     const query = pDom.querySelector("strong");
     if (!query) return;
-    action.name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
+    let name = query.textContent.trim().replace(/\./g, '');
+    if (name.includes("Spell;")){
+      action.name = name;
+    } else {
+      action.name =name.split(";").pop().trim();
+    }
     action.data.source = getSource(monster, DDB_CONFIG);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
@@ -264,6 +269,10 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
 
     // if this is the first pass we build the action
     action = buildAction(action, actionInfo, node.textContent, type);
+
+    if (action.name.includes("/Day")) {
+      action.data.uses = getUses(action.name, true);
+    }
 
   });
 

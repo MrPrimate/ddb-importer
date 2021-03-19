@@ -299,7 +299,8 @@ export function getSpells(monster, DDB_CONFIG) {
   // some monsters have poor spell formating, reported and might be able to remove in future
   // https://www.dndbeyond.com/forums/d-d-beyond-general/bugs-support/91228-sir-godfrey-gwilyms-spell-statblock
   // let specialTraits = monster.specialTraitsDescription;
-  let specialTraits = monster.specialTraitsDescription.replace(/<br \/>/g, "</p><p>");
+  const possibleSpellSources = monster.specialTraitsDescription + monster.actionsDescription;
+  let specialTraits = possibleSpellSources.replace(/<br \/>/g, "</p><p>");
 //   const specialCases = ["Sir Godfrey Gwilym", "Hlam", "Ygorl, Lord of Entropy",
 //     "Whymsee (Kraken Priest Variant)", "Strahd Zombie", "Skr’a S’orsk",
 //     "Mongrelfolk", "Laeral Silverhand", "Jarlaxle Baenre", "Gar Shatterkeel (Noncore)", "Forlarren",

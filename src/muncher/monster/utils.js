@@ -101,14 +101,14 @@ export function getAction(text, type = "action") {
   return action;
 }
 
-export function getUses(text) {
+export function getUses(text, name=false) {
   let uses = {
     value: 0,
     max: 0,
     per: null,
   };
 
-  const usesSearch = /\((\d+)\/(\w+)\)/;
+  const usesSearch = name ? /(\d+)\/(\w+)\)/ : /\((\d+)\/(\w+)\)/;
   const usesMatch = text.match(usesSearch);
   // console.log(usesMatch);
   if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
