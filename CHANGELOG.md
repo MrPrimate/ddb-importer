@@ -1,3 +1,7 @@
+# 0.6.10
+
+* Character Importer: Some characters did not import due to changes in custom proficiency handling.
+
 # 0.6.9
 
 * Candlekeep: fix some problems munching Sages
