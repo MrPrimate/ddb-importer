@@ -101,7 +101,7 @@ export function getAction(text, type = "action") {
   return action;
 }
 
-export function getUses(text, name=false) {
+export function getUses(text, name = false) {
   let uses = {
     value: 0,
     max: 0,

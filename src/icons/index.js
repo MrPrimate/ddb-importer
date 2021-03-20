@@ -93,7 +93,7 @@ function getIconPath(item, type, monsterName) {
 
   const iconMatch = iconMap[typeValue].find((entry) => {
     if (type === "monster") {
-      return entry.name === item.name.split("(")[0].trim() && entry.monster == monsterName
+      return entry.name === item.name.split("(")[0].trim() && entry.monster == monsterName;
     }
     return entry.name === item.name;
   });
@@ -120,7 +120,7 @@ async function loadIconMaps(types) {
   return Promise.all(promises);
 }
 
-export async function copyInbuiltIcons(items, monster=false, monsterName="") {
+export async function copyInbuiltIcons(items, monster = false, monsterName = "") {
   // eslint-disable-next-line require-atomic-updates
 
   // get unique array of item types to be matching

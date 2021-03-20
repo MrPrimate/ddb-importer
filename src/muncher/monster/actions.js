@@ -140,10 +140,10 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     const query = pDom.querySelector("strong");
     if (!query) return;
     let name = query.textContent.trim().replace(/\./g, '');
-    if (name.includes("Spell;")){
+    if (name.includes("Spell;")) {
       action.name = name;
     } else {
-      action.name =name.split(";").pop().trim();
+      action.name = name.split(";").pop().trim();
     }
     action.data.source = getSource(monster, DDB_CONFIG);
     action.flags.monsterMunch = {
