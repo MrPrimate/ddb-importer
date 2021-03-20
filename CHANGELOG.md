@@ -1,6 +1,7 @@
 # 0.6.10
 
 * Character Importer: Some characters did not import due to changes in custom proficiency handling.
+* Monsters: Xill had inconsistent formatting and Claw attack did not parse. Improvements to parser, might effect some other monsters.
 
 # 0.6.9
 

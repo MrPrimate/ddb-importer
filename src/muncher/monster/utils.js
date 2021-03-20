@@ -391,7 +391,7 @@ export function getTarget(text) {
 
 export function getActionInfo(monster, DDB_CONFIG, name, text) {
   const matches = text.match(
-    /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/
+    /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/i
   );
   const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
   const abilities = getAbilityMods(monster, DDB_CONFIG);
@@ -462,8 +462,8 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
   };
   if (matches) {
     result.isAttack = matches[1] !== undefined;
-    result.weaponAttack = matches[2] === "Weapon" || matches[2] === "";
-    result.spellAttack = matches[2] === "Spell";
+    result.weaponAttack = matches[2].toLowerCase() === "weapon" || matches[2] === "";
+    result.spellAttack = matches[2].toLowerCase() === "spell";
     result.meleeAttack = matches[1].indexOf("Melee") !== -1;
     result.rangedAttack = matches[1].indexOf("Ranged") !== -1;
     result.toHit = parseInt(matches[3]);
