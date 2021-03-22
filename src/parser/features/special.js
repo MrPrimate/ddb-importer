@@ -174,6 +174,19 @@ export function fixFeatures(features) {
         break;
       case "Starry Form: Dragon":
         break;
+      case "Rage": {
+        feature.data.target = {
+          value: null,
+          width: null,
+          units: "",
+          type: "self",
+        };
+        feature.data.duration = {
+          value: 1,
+          units: "minute",
+        };
+        break;
+      }
       // no default
     }
   });
