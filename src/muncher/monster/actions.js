@@ -81,10 +81,6 @@ function buildAction(action, actionInfo, textContent, type) {
 }
 
 export function getActions(monster, DDB_CONFIG, type = "action") {
-  if (monster.actionsDescription == "") {
-    return [[], null];
-  }
-
   const hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
   let actions;
   let characterDescription;
@@ -104,6 +100,10 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       break;
     default:
       actions = "";
+  }
+
+  if (actions == "") {
+    return [[], null];
   }
 
   let splitActions = actions.split("<h3>Roleplaying Information</h3>");
