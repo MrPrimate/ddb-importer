@@ -20,6 +20,7 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
   // console.log(ddb.character.options[type]);
   // console.warn("Adding modifiers");
   // console.log(type);
+  // if (type === "race") console.log(modifiers);
 
   if (!modifierItem.definition) modifierItem.definition = {};
   modifierItem.definition.grantedModifiers = modifiers.filter((mod) => {
@@ -41,7 +42,7 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
     } else if (choice) { // && choice.parentChoiceId
       const choiceIdSplit = choice.choiceId.split("-").pop();
       if (mod.id == choiceIdSplit) return true;
-    } else if (mod.componentId === ddbItem.id) {
+    } else if (mod.componentId === ddbItem.id || mod.componentId === ddbItem.definition?.id) {
         if (type === "class") {
           // logger.log("Class check - feature effect parsing");
           const classFeatureMatch = ddb.character.classes.some((klass) =>
@@ -58,8 +59,10 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
           if (featMatch) return true;
         }
         if (type === "race") {
-          const traitMatch = ddb.character.race.racialTraits.some((f) =>
-              f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
+          const traitMatch = ddb.character.race.racialTraits.some((t) =>
+              t.definition.entityTypeId == mod.componentTypeId &&
+              t.definition.id == mod.componentId &&
+              f.definition.id == ddbItem.definition.id
             );
           if (traitMatch) return true;
         }

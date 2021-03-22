@@ -171,7 +171,7 @@ function addACSetEffect(modifiers, name, subType) {
   }
 
   let effects = [];
-  const maxDexTypes = ["ac-max-dex-unarmored-modifier"];
+  const maxDexTypes = ["ac-max-dex-unarmored-modifier", "ac-max-dex-modifier"];
 
   let dexBonus = "+ @abilities.dex.mod";
   if (bonuses && bonuses != 0) {

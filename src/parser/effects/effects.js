@@ -129,6 +129,8 @@ const AC_EFFECTS = [
   { type: "bonus", subType: "armor-class" },
   { type: "bonus", subType: "armored-armor-class" },
   { type: "bonus", subType: "dual-wield-armor-class" },
+  { type: "ignore", subType: "unarmored-dex-ac-bonus" },
+  { type: "set", subType: "ac-max-dex-modifier" },
 ];
 
 export function getEffectExcludedModifiers(type) {
