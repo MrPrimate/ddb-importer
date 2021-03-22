@@ -1,3 +1,9 @@
+# 0.6.11
+
+* Monsters: some monsters e.g. Shrieker did not parse reactions. This was an issue with all monsters with reactions where actions are not present.
+* Effects: Tortle AC was not calculated properly if it had a DEX bonus.
+* Effects: Rage duration was not set.
+
 # 0.6.10
 
 * Character Importer: Some characters did not import due to changes in custom proficiency handling.
