@@ -62,7 +62,7 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
           const traitMatch = ddb.character.race.racialTraits.some((t) =>
               t.definition.entityTypeId == mod.componentTypeId &&
               t.definition.id == mod.componentId &&
-              f.definition.id == ddbItem.definition.id
+              t.definition.id == ddbItem.definition.id
             );
           if (traitMatch) return true;
         }
