@@ -1,3 +1,7 @@
+# 0.6.12
+
+* Base AC effects no longer multiply if retain effects is selected.
+
 # 0.6.11
 
 * Monsters: some monsters e.g. Shrieker did not parse reactions. This was an issue with all monsters with reactions where actions are not present.

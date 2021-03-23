@@ -51,7 +51,7 @@ export function generateFixedACEffect(formula, label, alwaysActive = false, prio
 
   effect.flags = {
     dae: { transfer: true, armorEffect: true },
-    ddbimporter: { disabled: !alwaysActive, itemId: null, entityTypeId: null }
+    ddbimporter: { disabled: !alwaysActive, itemId: null, entityTypeId: null, characterEffect: true },
   };
   // effect.disabled = !alwaysActive;
   effect.disabled = false;
