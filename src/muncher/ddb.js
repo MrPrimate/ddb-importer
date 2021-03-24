@@ -10,6 +10,9 @@ import { parseClasses } from "./classes.js";
 import { getPatreonTiers, munchNote } from "./utils.js";
 import { DDB_CONFIG } from "../ddb-config.js";
 import { getCobalt } from "../lib/Secrets.js";
+import { generateAdventureConfig } from "./adventure.js";
+
+window.generateAdventureConfig = generateAdventureConfig;
 
 function getSourcesLookups(selected) {
   const selections = DDB_CONFIG.sources
