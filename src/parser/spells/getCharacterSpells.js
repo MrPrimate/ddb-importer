@@ -14,6 +14,8 @@ export function getCharacterSpells(ddb, character) {
   const lookups = getLookups(ddb.character);
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
+  const healingBoost = utils.filterBaseModifiers(ddb, "bonus", "spell-group-healing").reduce((a, b) => a + b.value, 0);
+
   // each class has an entry here, each entry has spells
   // we loop through each class and process
   ddb.character.classSpells.forEach((playerClass) => {
@@ -49,6 +51,7 @@ export function getCharacterSpells(ddb, character) {
             overrideDC: false,
             id: spell.id,
             entityTypeId: spell.entityTypeId,
+            healingBoost: healingBoost,
           },
         }
       };
@@ -121,6 +124,7 @@ export function getCharacterSpells(ddb, character) {
           overrideDC: false,
           id: spell.id,
           entityTypeId: spell.entityTypeId,
+          healingBoost: healingBoost,
         },
       },
     };
@@ -186,6 +190,7 @@ export function getCharacterSpells(ddb, character) {
           overrideDC: false,
           id: spell.id,
           entityTypeId: spell.entityTypeId,
+          healingBoost: healingBoost,
         },
       },
     };
@@ -232,6 +237,7 @@ export function getCharacterSpells(ddb, character) {
           overrideDC: false,
           id: spell.id,
           entityTypeId: spell.entityTypeId,
+          healingBoost: healingBoost,
         },
       },
     };

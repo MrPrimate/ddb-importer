@@ -67,7 +67,7 @@ export function parseSpell(data, character) {
 
   spell.data.actionType = getActionType(data);
 
-  spell.data.damage = getDamage(data);
+  spell.data.damage = getDamage(data, spell);
 
   spell.data.save = getSave(data);
 

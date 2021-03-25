@@ -63,6 +63,7 @@ const EFFECT_EXCLUDED_SPELL_MODIFIERS = [
   { type: "bonus", subType: "spell-attacks" },
   { type: "bonus", subType: "warlock-spell-save-dc" },
   { type: "bonus", subType: "warlock-spell-attacks" },
+  { type: "bonus", subType: "spell-group-healing" } // data.bonuses.heal.damage
 ];
 
 const EFFECT_EXCLUDED_HP_MODIFIERS = [
@@ -982,6 +983,12 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     "warlock-spell-save-dc",
     "data.bonuses.spell.dc"
   );
+  const healingSpellBonus = addCustomEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "spell-group-healing",
+    "data.bonuses.heal.damage"
+  );
 
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
   const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name, ddbItem.definition.isConsumable);
@@ -1013,6 +1020,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     ...disadvantageAgainst,
     ...magicalAdvantage,
     ...bonusSpeeds,
+    ...healingSpellBonus,
   ];
 
   // if we don't have effects, lets return the item

@@ -11,7 +11,7 @@ let getAlternativeFormula = (data) => {
   }
 };
 
-export function getDamage(data) {
+export function getDamage(data, spell) {
   let result = {
     parts: [],
     versatile: "",
@@ -36,8 +36,11 @@ export function getDamage(data) {
   // healing
   const heals = data.definition.modifiers.filter((mod) => mod.type === "bonus" && mod.subType === "hit-points");
   if (heals.length !== 0) {
+    const healingBonus = (spell.flags.ddbimporter.dndbeyond.healingBoost) ? ` + ${spell.flags.ddbimporter.dndbeyond.healingBoost}` : "";
     heals.forEach((heal) => {
-      let diceString = heal.usePrimaryStat ? `${heal.die.diceString}[healing] + @mod` : heal.die.diceString;
+      let diceString = heal.usePrimaryStat ?
+        `${heal.die.diceString}[healing] + @mod${healingBonus}` :
+        `${heal.die.diceString}[healing]${healingBonus}`;
       result.parts.push([diceString, "healing"]);
     });
     return result;
