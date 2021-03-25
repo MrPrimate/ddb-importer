@@ -315,12 +315,12 @@ function addCustomBonusEffect(modifiers, name, type, key) {
 /**
  * Generates a global custom bonus for an item
  */
-function addCustomEffect(modifiers, name, type, key) {
+function addCustomEffect(modifiers, name, type, key, extra) {
   let changes = [];
   const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
   if (bonus !== 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
-    changes.push(generateCustomChange(bonus, 18, key));
+    changes.push(generateCustomChange(`+ ${bonus}${extra}`, 18, key));
   }
   return changes;
 }
@@ -987,7 +987,8 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "spell-group-healing",
-    "data.bonuses.heal.damage"
+    "data.bonuses.heal.damage",
+    " + @item.level"
   );
 
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
