@@ -5,7 +5,7 @@ function linkImages(html) {
   // does this functionality exist from anther module?
   const funcExists = utils.isModuleInstalledAndActive("vtta-dndbeyond") ||
     utils.isModuleInstalledAndActive("vtta-ddb") ||
-    utils.isModuleInstalledAndActive("token-hud-art-button") ;
+    utils.isModuleInstalledAndActive("token-hud-art-button");
 
   if (funcExists) return;
 

@@ -38,9 +38,9 @@ export function getDamage(data, spell) {
   if (heals.length !== 0) {
     const healingBonus = (spell.flags.ddbimporter.dndbeyond.healingBoost) ? ` + ${spell.flags.ddbimporter.dndbeyond.healingBoost} + @item.level` : "";
     heals.forEach((heal) => {
-      let diceString = heal.usePrimaryStat ?
-        `${heal.die.diceString}[healing] + @mod${healingBonus}` :
-        `${heal.die.diceString}[healing]${healingBonus}`;
+      let diceString = heal.usePrimaryStat
+        ? `${heal.die.diceString}[healing] + @mod${healingBonus}`
+        : `${heal.die.diceString}[healing]${healingBonus}`;
       result.parts.push([diceString, "healing"]);
     });
     return result;
