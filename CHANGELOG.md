@@ -1,4 +1,4 @@
-# 0.6.12
+# 0.6.12/13
 
 * Base AC effects no longer multiply if retain effects is selected.
 * Support for Life Domain bonus with and without Active Effects.
