@@ -2,8 +2,12 @@ import utils from "../../utils.js";
 
 function linkImages(html) {
   if (!game.user.isGM) return;
-  const vttaInstalled = utils.isModuleInstalledAndActive("vtta-dndbeyond");
-  if (vttaInstalled) return;
+  // does this functionality exist from anther module?
+  const funcExists = utils.isModuleInstalledAndActive("vtta-dndbeyond") ||
+    utils.isModuleInstalledAndActive("vtta-ddb") ||
+    utils.isModuleInstalledAndActive("token-hud-art-button") ;
+
+  if (funcExists) return;
 
   // mark all images
   $(html)
