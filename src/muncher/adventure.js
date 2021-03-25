@@ -79,9 +79,9 @@ export async function generateAdventureConfig() {
 
   // @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}
 
-  result.monsters = await getMonsterMap();
-  result.spells = await getSpellMap();
-  result.items = await getItemMap();
+  result.lookups.monsters = await getMonsterMap();
+  result.lookups.spells = await getSpellMap();
+  result.lookups.items = await getItemMap();
 
   const rulesCompendium = "dnd5e.rules";
   const srdCompendium = await game.packs.find((pack) => pack.collection === rulesCompendium);
