@@ -182,7 +182,7 @@ export async function generateAdventureConfig() {
       id: v.id,
       url: v.url,
       name: v.name,
-    }
+    };
   });
 
   download(JSON.stringify(result), `adventure-config.json`, "application/json");
