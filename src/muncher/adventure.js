@@ -1,6 +1,39 @@
 import { DDB_CONFIG } from "../ddb-config.js";
-import { download } from "./utils.js";
+import { munchNote, getCampaignId, download } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
+
+function getVehicleData() {
+  const cobaltCookie = getCobalt();
+  const campaignId = getCampaignId();
+  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
+  const debugJson = game.settings.get("ddb-importer", "debug-json");
+
+  return new Promise((resolve, reject) => {
+    fetch(`${parsingApi}/proxy/vehicles`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (debugJson) {
+          download(JSON.stringify(data), `vehicles-raw.json`, "application/json");
+        }
+        if (!data.success) {
+          munchNote(`Failure: ${data.message}`);
+          reject(data.message);
+        }
+        return data;
+      })
+      .then((data) => resolve(data.data))
+      .catch((error) => reject(error));
+  });
+}
+
 
 async function getMonsterMap () {
   // ddb://monsters
@@ -142,6 +175,16 @@ export async function generateAdventureConfig() {
   // await Promise.all(result.lookups.monsters, result.lookups.spells, result.lookups.items);
 
   // vehicles
+  const vehicleData = await getVehicleData();
+
+  result.lookups.vehicles = vehicleData.map((v) => {
+    return {
+      id: v.id,
+      url: v.url,
+      name: v.name,
+    }
+  });
+
   download(JSON.stringify(result), `adventure-config.json`, "application/json");
   return result;
 
