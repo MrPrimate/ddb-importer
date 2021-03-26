@@ -1,3 +1,7 @@
+# 0.6.14
+
+* Some shields with artificer infusions would fail to import.
+
 # 0.6.12/13
 
 * Base AC effects no longer multiply if retain effects is selected.

@@ -67,6 +67,7 @@ const DICTIONARY = {
     { id: "Consumable", value: "charges" },
     { id: "Other", value: "charges" },
     { id: "", value: "" },
+    { id: null, value: "" },
   ],
   character: {
     abilities: [
