@@ -59,10 +59,12 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   dom.querySelectorAll("strong").forEach((node) => {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
     action.name = node.textContent.trim().replace(/\.$/, '').trim();
-    const actionMatch = monsterActions.find((mstAction) => action.name == mstAction.name ||
+    const actionMatch = monsterActions.find((mstAction) =>
+      action.name == mstAction.name ||
       action.name == `${mstAction.name} Attack` ||
       action.name == `${mstAction.name}`.split('(', 1)[0].trim() ||
-      action.name == `${mstAction.name} Attack`.split('(', 1)[0].trim());
+      action.name == `${mstAction.name} Attack`.split('(', 1)[0].trim()
+    );
 
     action.flags.monsterMunch = {};
     if (actionMatch) {

@@ -1,6 +1,7 @@
 # 0.6.14
 
 * Some shields with artificer infusions would fail to import.
+* Monsters: Demilich parsed a blank item.
 
 # 0.6.12/13
 

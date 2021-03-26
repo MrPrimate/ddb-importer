@@ -29,7 +29,7 @@ export function getLairActions(monster, DDB_CONFIG) {
   });
 
   dom.childNodes.forEach((node) => {
-    if (node.textContent == "\n") {
+    if (node.textContent == "\n" || node.textContent == "\r\n") {
       dom.removeChild(node);
     }
   });
@@ -44,8 +44,8 @@ export function getLairActions(monster, DDB_CONFIG) {
 
   dom.querySelectorAll("h4").forEach((node) => {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-    action.name = node.textContent;
-    if (node.textContent == "Lair Actions") {
+    action.name = node.textContent.trim();
+    if (node.textContent == "Lair Actions" || node.textContent == "") {
       return;
     }
     action.data.source = getSource(monster, DDB_CONFIG);
@@ -54,8 +54,8 @@ export function getLairActions(monster, DDB_CONFIG) {
 
   dom.querySelectorAll("h3").forEach((node) => {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-    action.name = node.textContent;
-    if (node.textContent == "Lair Actions") {
+    action.name = node.textContent.trim();
+    if (node.textContent == "Lair Actions" || action.name == "") {
       return;
     }
     action.data.source = getSource(monster, DDB_CONFIG);
