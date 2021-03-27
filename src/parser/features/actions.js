@@ -148,7 +148,7 @@ function martialArtsDamage(ddb, action) {
   } else {
     // default to basics
     return {
-      parts: [[`1[${damageType}] + @mod`, damageType]],
+      parts: [[`1 + @mod`, damageType]],
       versatile: "",
     };
   }
