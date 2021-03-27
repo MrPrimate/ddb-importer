@@ -10,11 +10,11 @@ import { download } from "../../muncher/utils.js";
 const getNotes = (scene) => {
   // get all notes in the Journal related to this scene
   let relatedJournalEntries = game.journal.filter((journal) =>
-    journal.data.flags.ddbId &&
-    journal.data.flags.ddbId === journal.data.flags?.ddbId &&
-    journal.data.flags.cobaltId === journal.data.flags?.cobaltId &&
-    journal.data.flags.parentId === journal.data.flags?.parentId &&
-    journal.data.flags.bookCode === journal.data.flags?.bookCode
+    journal.data.flags.ddb.ddbId &&
+    journal.data.flags.ddb.ddbId === scene.data.flags?.ddbId &&
+    journal.data.flags.ddb.cobaltId === scene.data.flags?.cobaltId &&
+    journal.data.flags.ddb.parentId === scene.data.flags?.parentId &&
+    journal.data.flags.ddb.bookCode === scene.data.flags?.bookCode
   );
 
   // get all notes placed on the map
@@ -24,7 +24,7 @@ const getNotes = (scene) => {
     .filter((note) => {
       const journal = relatedJournalEntries.find((journal) => journal._id === note.entryId);
       if (!journal) return false;
-      const result = !!(journal && journal.data.flags.ddbId);
+      const result = !!(journal && journal.data.flags.ddb.ddbId);
       return result;
     })
     .map((note) => {
@@ -33,7 +33,7 @@ const getNotes = (scene) => {
       return {
         index: index,
         label: journal.data.name.substring(3),
-        name: journal.data.flags.ddbId,
+        name: journal.data.flags.ddb.ddbId,
         x: note.x,
         y: note.y,
       };
@@ -108,15 +108,15 @@ export default (html, contextOptions) => {
       const scene = game.scenes.get(li.data("sceneId"));
       // console.warn(scene);
       const data = collectSceneData(scene);
-      const cobaltId = scene.data.flags.cobaltId ? `-${scene.data.flags.cobaltId}` : "";
-      const parentId = scene.data.flags.parentId ? `-${scene.data.flags.parentId}` : "";
-      const sceneRef = `${scene.data.flags.bookCode}-${scene.data.flags.ddbId}${cobaltId}${parentId}`;
+      const cobaltId = scene.data.flags.ddb.cobaltId ? `-${scene.data.flags.ddb.cobaltId}` : "";
+      const parentId = scene.data.flags.ddb.parentId ? `-${scene.data.flags.ddb.parentId}` : "";
+      const sceneRef = `${scene.data.flags.ddb.bookCode}-${scene.data.flags.ddb.ddbId}${cobaltId}${parentId}`;
       // console.warn(data);
       return download(JSON.stringify(data), `${sceneRef}-scene.json`, "application/json");
     },
     condition: (li) => {
       const scene = game.scenes.get(li.data("sceneId"));
-      return game.user.isGM && !!scene.data.flags.ddbId;
+      return game.user.isGM && !!scene.data.flags.ddb.ddbId;
     },
     icon: '<i class="fas fa-share-alt"></i>',
   });
