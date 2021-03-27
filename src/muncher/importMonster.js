@@ -62,6 +62,11 @@ async function getCompendium() {
   return undefined;
 }
 
+export async function checkCompendium() {
+  monsterCompendium = undefined;
+  return getCompendium();
+}
+
 async function addNPCToCompendium(npc) {
   const compendium = await getCompendium();
   if (compendium) {

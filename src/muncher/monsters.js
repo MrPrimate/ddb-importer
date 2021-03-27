@@ -2,7 +2,7 @@
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
-import { addNPC, generateIconMap, copyExistingMonsterImages } from "./importMonster.js";
+import { addNPC, generateIconMap, copyExistingMonsterImages, checkCompendium } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -71,6 +71,7 @@ async function getMonsterData() {
 }
 
 export async function parseCritters() {
+  await checkCompendium();
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
   const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
