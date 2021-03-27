@@ -1,3 +1,8 @@
+# 0.6.15
+
+* If the monster compendium was changed between munches, the monsters would still import into the old compendium until the page was reloaded.
+* Unarmed strike could not roll damage for characters!
+
 # 0.6.14
 
 * Some shields with artificer infusions would fail to import.
