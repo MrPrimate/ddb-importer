@@ -65,6 +65,7 @@ const collectSceneData = (scene) => {
   const data = {
     flags: scene.data.flags,
     name: scene.data.name,
+    navName: scene.data.navName,
     // dimensions
     width: scene.data.width,
     height: scene.data.height,
@@ -116,7 +117,8 @@ export default (html, contextOptions) => {
     },
     condition: (li) => {
       const scene = game.scenes.get(li.data("sceneId"));
-      return game.user.isGM && !!scene.data.flags.ddb.ddbId;
+      const allowDownload = game.user.isGM && (scene.data.flags.ddb.ddbId || !!scene.data.flags.vtta);
+      return allowDownload;
     },
     icon: '<i class="fas fa-share-alt"></i>',
   });
