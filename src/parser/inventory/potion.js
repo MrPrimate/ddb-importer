@@ -6,7 +6,7 @@ import utils from "../../utils.js";
  * uses: { value: 0, max: 0, per: null, autoUse: false, autoDestroy: false };
  */
 let getUses = (data) => {
-  if (data.limitedUse !== undefined && data.limitedUse !== null) {
+  if (data.limitedUse?.maxUses) {
     let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
     return {
       max: data.limitedUse.maxUses,
@@ -18,7 +18,7 @@ let getUses = (data) => {
       autoDestroy: true,
     };
   } else {
-    return { value: 0, max: 0, per: null, autoUse: false, autoDestroy: false };
+    return { value: 1, max: 1, per: "charges", autoUse: false, autoDestroy: true };
   }
 };
 

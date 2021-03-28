@@ -5,6 +5,7 @@
 * Expired cobalt token now alerts on Update to D&D Beyond.
 * Max HP changes now show on character sheet.
 * Damage type of Sunblade and other such magical weapons which replaced the base damage did not do so correctly.
+* Potions now set to consume on use and charge set.
 
 # 0.6.14
 
