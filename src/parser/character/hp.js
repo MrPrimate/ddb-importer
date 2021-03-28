@@ -48,7 +48,7 @@ export function getHitpoints(data, character) {
     min: 0,
     max: totalHitPoints,
     temp: temporaryHitPoints,
-    tempmax: temporaryHitPoints,
+    tempmax: bonusHitPoints,
   };
 }
 
