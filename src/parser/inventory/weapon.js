@@ -218,7 +218,12 @@ let getDamage = (data, flags, betterRolls5e) => {
       diceString = martialArtsDie.diceString;
     }
 
-    const damageType = data.definition.damageType.toLowerCase();
+    const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>
+      mod.type === "replace-damage-type" &&
+      (!mod.restriction || mod.restriction === "")
+    );
+
+    const damageType = (damageTypeReplace) ? damageTypeReplace.subType.toLowerCase() : data.definition.damageType.toLowerCase();
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
       utils.parseDiceString(diceString + `+ ${magicalDamageBonus}`, fightingStyleMod, `[${damageType}]`)
