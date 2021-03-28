@@ -132,7 +132,8 @@ export default (html, contextOptions) => {
     },
     condition: (li) => {
       const scene = game.scenes.get(li.data("sceneId"));
-      const allowDownload = game.user.isGM && (scene.data.flags.ddb?.ddbId || !!scene.data.flags.vtta);
+      const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download");
+      const allowDownload = game.user.isGM && sceneDownload && (scene.data.flags.ddb?.ddbId || !!scene.data.flags.vtta);
       return allowDownload;
     },
     icon: '<i class="fas fa-share-alt"></i>',
