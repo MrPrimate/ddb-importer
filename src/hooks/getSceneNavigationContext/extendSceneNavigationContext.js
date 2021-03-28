@@ -10,7 +10,7 @@ import { download } from "../../muncher/utils.js";
 const getNotes = (scene) => {
   // get all notes in the Journal related to this scene
   let relatedJournalEntries = game.journal.filter((journal) =>
-    journal.data.flags.ddb.ddbId &&
+    journal.data.flags.ddb?.ddbId &&
     journal.data.flags.ddb.ddbId === scene.data.flags?.ddbId &&
     journal.data.flags.ddb.cobaltId === scene.data.flags?.cobaltId &&
     journal.data.flags.ddb.parentId === scene.data.flags?.parentId &&
@@ -24,8 +24,7 @@ const getNotes = (scene) => {
     .filter((note) => {
       const journal = relatedJournalEntries.find((journal) => journal._id === note.entryId);
       if (!journal) return false;
-      const result = !!(journal && journal.data.flags.ddb.ddbId);
-      return result;
+      return journal && journal.data.flags.ddb.ddbId;
     })
     .map((note) => {
       const journal = relatedJournalEntries.find((journal) => journal._id === note.entryId);
@@ -33,7 +32,7 @@ const getNotes = (scene) => {
       return {
         index: index,
         label: journal.data.name.substring(3),
-        name: journal.data.flags.ddb.ddbId,
+        flags: journal.data.flags.ddb,
         x: note.x,
         y: note.y,
       };
@@ -43,7 +42,7 @@ const getNotes = (scene) => {
       if (idx) {
         idx.positions.push({ x: note.x, y: note.y });
       } else {
-        notes.push({ label: note.name, index: note.index, positions: [{ x: note.x, y: note.y }] });
+        notes.push({ flags: note.flag, index: note.index, positions: [{ x: note.x, y: note.y }] });
       }
       return notes;
     }, [])
@@ -98,6 +97,19 @@ const collectSceneData = (scene) => {
       x: light.x,
       y: light.y,
     })),
+    // tokens
+    tokens: scene.data.tokens.filter((token) => !token.actorLink).map((token) => {
+      return {
+        _id: token._id,
+        name: token.name,
+        width: token.width,
+        height: token.height,
+        scale: token.scale,
+        x: token.x,
+        y: token.y,
+        disposition: token.disposition,
+      };
+    }),
   };
   return data;
 };
@@ -109,15 +121,18 @@ export default (html, contextOptions) => {
       const scene = game.scenes.get(li.data("sceneId"));
       // console.warn(scene);
       const data = collectSceneData(scene);
-      const cobaltId = scene.data.flags.ddb.cobaltId ? `-${scene.data.flags.ddb.cobaltId}` : "";
-      const parentId = scene.data.flags.ddb.parentId ? `-${scene.data.flags.ddb.parentId}` : "";
-      const sceneRef = `${scene.data.flags.ddb.bookCode}-${scene.data.flags.ddb.ddbId}${cobaltId}${parentId}`;
+      const bookCode = scene.data.flags.ddb?.bookCode
+        ? `${scene.data.flags.ddb.bookCode}-${scene.data.flags.ddb.ddbId}`
+        : scene.data.flags.vtta.id.replace("/", "-");
+      const cobaltId = scene.data.flags.ddb?.cobaltId ? `-${scene.data.flags.ddb.cobaltId}` : "";
+      const parentId = scene.data.flags.ddb?.parentId ? `-${scene.data.flags.ddb.parentId}` : "";
+      const sceneRef = `${bookCode}${cobaltId}${parentId}`;
       // console.warn(data);
       return download(JSON.stringify(data), `${sceneRef}-scene.json`, "application/json");
     },
     condition: (li) => {
       const scene = game.scenes.get(li.data("sceneId"));
-      const allowDownload = game.user.isGM && (scene.data.flags.ddb.ddbId || !!scene.data.flags.vtta);
+      const allowDownload = game.user.isGM && (scene.data.flags.ddb?.ddbId || !!scene.data.flags.vtta);
       return allowDownload;
     },
     icon: '<i class="fas fa-share-alt"></i>',

@@ -48,6 +48,7 @@ async function getMonsterMap () {
       _id: monster._id,
       compendium: monsterCompendiumLabel,
       name: monster.name,
+      token: monster.token,
     };
   });
 
