@@ -5,6 +5,40 @@ import { getCampaignId } from "../muncher/utils.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt } from "../lib/Secrets.js";
 
+async function checkCobalt() {
+  const cobaltCookie = getCobalt();
+  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const body = { cobalt: cobaltCookie, betaKey: betaKey };
+
+  return new Promise((resolve, reject) => {
+    fetch(`${parsingApi}/proxy/auth`, {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body), // body data type must match "Content-Type" header
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        logger.debug(data);
+        if (!data.success) {
+          reject(data.message);
+        }
+        logger.debug(`Cobalt checked`);
+        return data;
+      })
+      .then((data) => resolve(data))
+      .catch((error) => {
+        logger.error(`Cobalt cookie expired, please reset`);
+        logger.error(error);
+        logger.error(error.stack);
+        reject(error);
+      });
+  });
+}
+
 async function updateCharacterCall(characterId, path, bodyContent) {
   const cobaltCookie = getCobalt();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
@@ -431,6 +465,7 @@ async function actionUpdate(actor, characterId, ddbData) {
 }
 
 export async function updateDDBCharacter(actor) {
+  await checkCobalt();
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
   const syncId = actor.data.flags["ddb-importer"]?.syncId ? actor.data.flags["ddb-importer"].syncId + 1 : 0;
   let ddbData = await getCharacterData(characterId, syncId);
