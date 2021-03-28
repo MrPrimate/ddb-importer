@@ -2,6 +2,9 @@
 
 * If the monster compendium was changed between munches, the monsters would still import into the old compendium until the page was reloaded.
 * Unarmed strike could not roll damage for characters!
+* Expired cobalt token now alerts on Update to D&D Beyond.
+* Max HP changes now show on character sheet.
+* Damage type of Sunblade and other such magical weapons which replaced the base damage did not do so correctly.
 
 # 0.6.14
 
