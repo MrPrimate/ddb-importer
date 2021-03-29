@@ -1,3 +1,6 @@
+# 0.6.16
+* Optional class features would come in regardless of level.
+
 # 0.6.15
 
 * If the monster compendium was changed between munches, the monsters would still import into the old compendium until the page was reloaded.

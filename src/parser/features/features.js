@@ -67,6 +67,11 @@ function parseFeature(feat, ddb, character, source, type) {
     setProperty(item.flags, "ddbimporter.dndbeyond.limitedUse", klassAction.definition?.limitedUse);
   }
 
+  if (feat?.requiredLevel) {
+    const klass = ddb.character.classes.find((klass) => klass.definition.id === feat.classId);
+    if (klass && feat.requiredLevel > klass.level) return [];
+  }
+
   logger.debug(`Searching for ${name} choices`);
 
   // Add choices to the textual description of that feat
