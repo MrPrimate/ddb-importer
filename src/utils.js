@@ -457,7 +457,7 @@ const utils = {
     // all bonuses, e.g. -1+8
     let bonuses = [];
 
-    const diceRegex = /(?<rawSign>[+-]*)(?<count>\d+)(?:d(?<die>\d+))/gu;
+    const diceRegex = /(?<rawSign>[+-]*)(?<count>\d+)(?:d(?<die>\d+))?/gu;
 
     for (const { groups } of str.matchAll(diceRegex)) {
       const {

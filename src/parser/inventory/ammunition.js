@@ -28,9 +28,9 @@ let getEquipped = (data) => {
 let getRange = (data) => {
   // range: { value: null, long: null, units: '' },
   return {
-    value: data.definition.range ? data.definition.range : 5,
-    long: data.definition.longRange ? data.definition.longRange : 5,
-    units: "ft.",
+    value: data.definition.range ? data.definition.range : null,
+    long: data.definition.longRange ? data.definition.longRange : null,
+    units: (data.definition.range || data.definition.range) ? "ft." : "",
   };
 };
 

@@ -96,7 +96,9 @@ let getRange = (data) => {
   // range: { value: null, long: null, units: '' },
   return {
     value: data.definition.range ? data.definition.range : 5,
-    long: data.definition.longRange ? data.definition.longRange : 5,
+    long: (data.definition.longRange && data.definition.longRange != data.definition.range) ?
+      data.definition.longRange :
+      null,
     units: "ft.",
   };
 };

@@ -1,5 +1,10 @@
 # 0.6.16
+
 * Optional class features would come in regardless of level.
+* Melee weapons without a long range, imported with it set to 5, now empty.
+* Crossbow bolts had range set to 5/5
+* Magic weapons had stopped applying magic bonus to damage
+
 
 # 0.6.15
 
