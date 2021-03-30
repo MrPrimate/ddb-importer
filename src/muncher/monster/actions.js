@@ -148,6 +148,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     action.data.source = getSource(monster, DDB_CONFIG);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
+      fullName: query.textContent,
     };
     dynamicActions.push(action);
   });
@@ -168,6 +169,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
+        fullName: query.textContent,
       };
       dynamicActions.push(action);
     });
@@ -232,7 +234,11 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     const longNodeName = (nodeContextSplit.length > 2 && nodeContextSplit[1].trim().startsWith('('))
       ? `${nodeName} ${nodeContextSplit[1].trim()}`
       : nodeName;
-    const switchAction = dynamicActions.find((act) => nodeName === act.name || longNodeName === act.name);
+    let switchAction = dynamicActions.find((act) => nodeName === act.name || longNodeName === act.name);
+
+    if (!switchAction) {
+      switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.flags.monsterMunch.fullName));
+    }
     // console.warn(nodeName);
     // console.warn(longNodeName);
     // console.warn(switchAction);
@@ -258,7 +264,13 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     if (node.outerHTML) {
       let outerHTML = node.outerHTML;
       if (switchAction && startFlag) {
-        outerHTML = outerHTML.replace(`${longNodeName}.`, "");
+        // const name = new RegExp(`^${nodeName}\.?`);
+        // outerHTML = outerHTML.replace(name, "");
+        if (action.flags.monsterMunch.fullName) {
+          outerHTML = outerHTML.replace(action.flags.monsterMunch.fullName, "");
+        } else {
+          outerHTML = outerHTML.replace(nodeName, "");
+        }
       }
       action.data.description.value += outerHTML;
     }

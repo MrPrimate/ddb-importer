@@ -70,6 +70,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     action.data.source = getSource(monster, DDB_CONFIG);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
+      fullName: query.textContent,
     };
     if (action.name) dynamicActions.push(action);
   });
@@ -87,6 +88,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
+        fullName: query.textContent,
       };
       if (action.name) dynamicActions.push(action);
     });
@@ -97,6 +99,10 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
       let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
       action.name = node.textContent.trim().replace(/\.$/, '').trim();
       action.data.source = getSource(monster, DDB_CONFIG);
+      action.flags.monsterMunch = {
+        titleHTML: node.outerHTML,
+        fullName: node.textContent,
+      };
       if (action.name) dynamicActions.push(action);
     });
   }
@@ -106,6 +112,10 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
       let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
       action.name = node.textContent.trim().replace(/\.$/, '').trim();
       action.data.source = getSource(monster, DDB_CONFIG);
+      action.flags.monsterMunch = {
+        titleHTML: node.outerHTML,
+        fullName: node.textContent,
+      };
       if (action.name) dynamicActions.push(action);
     });
   }
@@ -114,15 +124,23 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
     action.name = "Special Traits";
     action.data.source = getSource(monster, DDB_CONFIG);
+    action.flags.monsterMunch = {};
     if (action.name) dynamicActions.push(action);
   }
 
   let action = dynamicActions[0];
 
+  // console.warn(dynamicActions);
+
   dom.childNodes.forEach((node) => {
+    // console.warn(node.textContent);
     // const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
     const nodeName = node.textContent.split('.')[0].trim();
-    const switchAction = dynamicActions.find((act) => nodeName === act.name);
+    let switchAction = dynamicActions.find((act) => nodeName === act.name);
+    if (!switchAction) {
+      switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.flags.monsterMunch.fullName));
+    }
+    // console.log(switchAction);
     let startFlag = false;
     if (switchAction) {
       if (action.data.description.value !== "" && hideDescription) {
@@ -136,10 +154,15 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
         }
       }
     }
+
     if (node.outerHTML) {
       let outerHTML = node.outerHTML;
       if (switchAction && startFlag) {
-        outerHTML = outerHTML.replace(`${nodeName}.`, "");
+        if (action.flags.monsterMunch.fullName) {
+          outerHTML = outerHTML.replace(action.flags.monsterMunch.fullName, "");
+        } else {
+          outerHTML = outerHTML.replace(`${nodeName}.`, "");
+        }
       }
       action.data.description.value += outerHTML;
     }
