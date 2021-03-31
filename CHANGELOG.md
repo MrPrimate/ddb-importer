@@ -1,4 +1,4 @@
-# 0.6.17
+# 0.6.17/18
 
 * Monsters now use @mod in attack damage instead of fixed value.
 * Melee weapons without a long range, imported with it set to undefined, now empty string.

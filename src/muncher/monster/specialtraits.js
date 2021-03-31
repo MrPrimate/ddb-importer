@@ -158,7 +158,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     if (node.outerHTML) {
       let outerHTML = node.outerHTML;
       if (switchAction && startFlag) {
-        if (action.flags.monsterMunch.fullName) {
+        if (action.flags?.monsterMunch?.fullName) {
           outerHTML = outerHTML.replace(action.flags.monsterMunch.fullName, "");
         } else {
           outerHTML = outerHTML.replace(nodeName, "");

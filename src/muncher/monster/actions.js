@@ -266,7 +266,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       if (switchAction && startFlag) {
         // const name = new RegExp(`^${nodeName}\.?`);
         // outerHTML = outerHTML.replace(name, "");
-        if (action.flags.monsterMunch.fullName) {
+        if (action.flags?.monsterMunch?.fullName) {
           outerHTML = outerHTML.replace(action.flags.monsterMunch.fullName, "");
         } else {
           outerHTML = outerHTML.replace(nodeName, "");
