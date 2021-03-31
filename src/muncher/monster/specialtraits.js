@@ -161,9 +161,15 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
         if (action.flags.monsterMunch.fullName) {
           outerHTML = outerHTML.replace(action.flags.monsterMunch.fullName, "");
         } else {
-          outerHTML = outerHTML.replace(`${nodeName}.`, "");
+          outerHTML = outerHTML.replace(nodeName, "");
+          // outerHTML = outerHTML.replace(`${nodeName}.`, "");
         }
       }
+      const titleDom = new DocumentFragment();
+      $.parseHTML(outerHTML).forEach((element) => {
+        titleDom.appendChild(element);
+      });
+      if (titleDom.textContent.startsWith(". ")) outerHTML = outerHTML.replace(". ", "");
       action.data.description.value += outerHTML;
     }
 

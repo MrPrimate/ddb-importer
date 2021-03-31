@@ -98,7 +98,7 @@ let getRange = (data) => {
     value: data.definition.range ? data.definition.range : 5,
     long: (data.definition.longRange && data.definition.longRange != data.definition.range)
       ? data.definition.longRange
-      : null,
+      : "",
     units: "ft.",
   };
 };
@@ -170,6 +170,22 @@ let getMagicalBonus = (data, flags) => {
   }
 };
 
+const getDamageType = (data) => {
+  if (data.definition.damageType) {
+    const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>
+      mod.type === "replace-damage-type" &&
+      (!mod.restriction || mod.restriction === "")
+    );
+
+    const damageType = (damageTypeReplace)
+      ? damageTypeReplace.subType.toLowerCase()
+      : data.definition.damageType.toLowerCase();
+    return damageType;
+  } else {
+    return undefined;
+  }
+};
+
 /**
  *
  * @param {obj} data item data
@@ -186,13 +202,14 @@ let getDamage = (data, flags, betterRolls5e) => {
   const twoWeapon = flags.classFeatures.includes("Two-Weapon Fighting");
   const twoHanded = data.definition.properties.find((property) => property.name === "Two-Handed");
   const mod = (offHand && !twoWeapon) ? "" : " + @mod";
+  const damageType = getDamageType(data);
 
   const versatile = data.definition.properties
     .filter((property) => property.name === "Versatile")
     .map((versatile) => {
       if (versatile && versatile.notes) {
         return (
-          utils.parseDiceString(versatile.notes + `+ ${magicalDamageBonus}`, greatWeaponFighting).diceString + mod
+          utils.parseDiceString(versatile.notes + ` + ${magicalDamageBonus}`, greatWeaponFighting, `[${damageType}]`).diceString + mod
         );
       } else {
         return "";
@@ -205,7 +222,7 @@ let getDamage = (data, flags, betterRolls5e) => {
 
   // first damage part
   // blowguns and other weapons rely on ammunition that provides the damage parts
-  if (data.definition.damage && data.definition.damage.diceString && data.definition.damageType) {
+  if (data.definition.damage && data.definition.damage.diceString && damageType) {
     // if we have greatweapon fighting style and this is two handed, add the roll tweak
     // else if we have duelling we add the bonus here (assumption- if you have dueling
     // you're going to use it! (DDB also makes this assumption))
@@ -220,15 +237,9 @@ let getDamage = (data, flags, betterRolls5e) => {
       diceString = martialArtsDie.diceString;
     }
 
-    const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>
-      mod.type === "replace-damage-type" &&
-      (!mod.restriction || mod.restriction === "")
-    );
-
-    const damageType = (damageTypeReplace) ? damageTypeReplace.subType.toLowerCase() : data.definition.damageType.toLowerCase();
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
-      utils.parseDiceString(diceString + `+ ${magicalDamageBonus}`, fightingStyleMod, `[${damageType}]`)
+      utils.parseDiceString(diceString + ` + ${magicalDamageBonus}`, fightingStyleMod, `[${damageType}]`)
         .diceString + mod,
         damageType,
     ]);

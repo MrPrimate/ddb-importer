@@ -1,3 +1,9 @@
+# 0.6.17
+
+* Monsters now use @mod in attack damage instead of fixed value.
+* Melee weapons without a long range, imported with it set to undefined, now empty string.
+* Improved parsing of names of actions like orc Aggressive trait.
+
 # 0.6.16
 
 * Optional class features would come in regardless of level.

@@ -448,6 +448,24 @@ const utils = {
     return Math.floor((val - 10) / 2);
   },
 
+  diceStringResultBuild: (diceString, dice, bonus = "", mods = "", diceHint = "") => {
+    const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? '+' : ''} ${bonus}`;
+    const diceHintAdd = diceHint && diceString && diceString !== "";
+
+    const result = {
+      dice: dice,
+      diceMapped: diceString,
+      bonus: bonus,
+      diceString: [
+        diceString,
+        (diceHintAdd ? diceHint : ""),
+        mods,
+        resultBonus
+      ].join('').trim(),
+    };
+    return result;
+  },
+
   parseDiceString: (inStr, mods = "", diceHint = "") => {
     // sanitizing possible inputs a bit
     const str = `${inStr}`.toLowerCase().replace(/-–−/gu, "-").replace(/\s+/gu, "");
@@ -521,20 +539,7 @@ const utils = {
 
     const diceString = endDice.map(({ sign, count, die }, index) => `${index ? sign : ''}${count}d${die}`).join(' ');
 
-    const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? '+' : ''} ${bonus}`;
-
-    const diceHintAdd = diceHint && diceString && diceString !== "";
-
-    const result = {
-      dice: dice,
-      bonus: bonus,
-      diceString: [
-        diceString,
-        (diceHintAdd ? diceHint : ""),
-        mods,
-        resultBonus
-      ].join('').trim(),
-    };
+    const result = utils.diceStringResultBuild(diceString, dice, bonus, mods, diceHint);
     return result;
   },
 

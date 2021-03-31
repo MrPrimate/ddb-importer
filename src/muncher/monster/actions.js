@@ -271,6 +271,11 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
         } else {
           outerHTML = outerHTML.replace(nodeName, "");
         }
+        const titleDom = new DocumentFragment();
+        $.parseHTML(outerHTML).forEach((element) => {
+          titleDom.appendChild(element);
+        });
+        if (titleDom.textContent.startsWith(".")) outerHTML = outerHTML.replace(".", "");
       }
       action.data.description.value += outerHTML;
     }

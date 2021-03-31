@@ -1,6 +1,7 @@
 import DICTIONARY from './dict.js';
 import { getAbilityMods } from "./abilities.js";
 import logger from '../../logger.js';
+import utils from '../../utils.js';
 
 // replaces matchAll, requires a non global regexp
 function reMatchAll(regexp, string) {
@@ -17,8 +18,23 @@ function reMatchAll(regexp, string) {
   return matches;
 }
 
+function damageModReplace(text, attackInfo, damageType) {
+  let result;
+  const diceParse = utils.parseDiceString(text, null, `[${damageType}]`);
+  if (attackInfo.baseAbility) {
+    const baseAbilityMod = attackInfo.abilities[attackInfo.baseAbility];
+    const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
+    const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
+    const reParse = utils.diceStringResultBuild(diceParse.diceMapped, null, bonusMod, useMod, `[${damageType}]`);
+    result = reParse.diceString;
+  } else {
+    result = diceParse.diceString;
+  }
 
-function getExtendedDamage(description) {
+  return result;
+}
+
+function getExtendedDamage(description, attackInfo) {
   let result = {
     damage: {
       parts: [],
@@ -53,17 +69,20 @@ function getExtendedDamage(description) {
     const damage = dmg[3] || dmg[2];
     // Make sure we did match a damage
     if (damage) {
+      const finalDamage = (attackInfo)
+          ? damageModReplace(damage.replace("plus", "+"), attackInfo, dmg[4])
+          : damage.replace("plus", "+");
       // assumption here is that there is just one field added to versatile. this is going to be rare.
       if (versatile) {
         if (result.damage.versatile == "") result.damage.versatile = damage.replace("plus", "+");
       } else {
-        result.damage.parts.push([damage.replace("plus", "+"), dmg[4]]);
+        result.damage.parts.push([finalDamage, dmg[4]]);
       }
     }
   }
 
   if (regainMatch) {
-    result.damage.parts.push([regainMatch[3], 'healing']);
+    result.damage.parts.push([utils.parseDiceString(regainMatch[3], null, 'healing').diceString, 'healing']);
   }
 
   const save = hit.match(/DC ([0-9]+) (.*?) saving throw/);
@@ -469,12 +488,12 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
     result.toHit = parseInt(matches[3]);
   }
 
-  const damage = getExtendedDamage(text);
-  result.damage = damage.damage;
-
   if (result.weaponAttack || result.spellAttack) {
     result = getWeaponAttack(result, proficiencyBonus);
   }
+  const damage = getExtendedDamage(text, result);
+  result.damage = damage.damage;
+
   result.reach = getReach(text);
   result.range = getRange(text);
   if (result.range.value > 5) result.properties.rch = true;
