@@ -448,7 +448,7 @@ const utils = {
     return Math.floor((val - 10) / 2);
   },
 
-  diceStringResultBuild: (diceString, dice, bonus = "", mods = "", diceHint = "", specialFlags="") => {
+  diceStringResultBuild: (diceString, dice, bonus = "", mods = "", diceHint = "", specialFlags = "") => {
     const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? '+' : ''} ${bonus}`;
     const diceHintAdd = diceHint && diceString && diceString !== "";
 
