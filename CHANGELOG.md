@@ -1,3 +1,7 @@
+# 0.6.19
+
+* Great Weapon Fighter ability did not apply dice modifier correctly
+
 # 0.6.17/18
 
 * Monsters now use @mod in attack damage instead of fixed value.

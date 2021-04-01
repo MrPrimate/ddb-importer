@@ -209,7 +209,7 @@ let getDamage = (data, flags, betterRolls5e) => {
     .map((versatile) => {
       if (versatile && versatile.notes) {
         return (
-          utils.parseDiceString(versatile.notes + ` + ${magicalDamageBonus}`, greatWeaponFighting, `[${damageType}]`).diceString + mod
+          utils.parseDiceString(versatile.notes + ` + ${magicalDamageBonus}`, null, `[${damageType}]`, greatWeaponFighting).diceString + mod
         );
       } else {
         return "";
@@ -239,8 +239,8 @@ let getDamage = (data, flags, betterRolls5e) => {
 
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
-      utils.parseDiceString(diceString + ` + ${magicalDamageBonus}`, fightingStyleMod, `[${damageType}]`)
-        .diceString + mod,
+      utils.parseDiceString(diceString + ` + ${magicalDamageBonus}`, mod, `[${damageType}]`, fightingStyleMod)
+        .diceString,
         damageType,
     ]);
   }
