@@ -1,3 +1,7 @@
+# 0.6.20
+
+* Previous update broke Dueling fighting style
+
 # 0.6.19
 
 * Great Weapon Fighter ability did not apply dice modifier correctly

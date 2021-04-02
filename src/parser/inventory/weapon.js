@@ -226,7 +226,7 @@ let getDamage = (data, flags, betterRolls5e) => {
     // if we have greatweapon fighting style and this is two handed, add the roll tweak
     // else if we have duelling we add the bonus here (assumption- if you have dueling
     // you're going to use it! (DDB also makes this assumption))
-    const fightingStyleMod = twoHanded ? greatWeaponFighting : dueling;
+    const fightingStyleDiceMod = twoHanded ? greatWeaponFighting : "";
 
     // if we are a martial artist and the weapon is eligable we may need to use a bigger dice type.
     // this martial arts die info is addedd to the weapon flags before parse weapon is called
@@ -239,7 +239,7 @@ let getDamage = (data, flags, betterRolls5e) => {
 
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
-      utils.parseDiceString(diceString + ` + ${magicalDamageBonus}`, mod, `[${damageType}]`, fightingStyleMod)
+      utils.parseDiceString(diceString + ` + ${magicalDamageBonus}`, `${mod}${dueling}`, `[${damageType}]`, fightingStyleDiceMod)
         .diceString,
         damageType,
     ]);
