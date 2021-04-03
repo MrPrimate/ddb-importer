@@ -5,11 +5,11 @@ Import your dndbeyond.com characters into Foundry Virtual Tabletop.
 This module:
 * Import your DDB characters into Foundry, and sync changes back!
 * Import a characters extras such as Wildshapes or beast companions.
-* Bulk import spells.
-* Bulk import items.
+* Bulk import spells and items.
 * [Patreon](https://patreon.com/mrprimate) supporters can bulk import monsters.
 * Can bulk import simple class, race and feat descriptions.
 * When you import a Cleric or Druid it will import _all_ your spells.*
+* Import character Extras such as Wildshape stats and Ranger companions.
 
 In addition you can:
 
@@ -22,6 +22,7 @@ In addition you can:
 ## Examples
 
 ![](./docs/bulk-spell-import.gif)
+![](./docs/sync.gif)
 
 ## What's the catch?
 
