@@ -1,3 +1,7 @@
+# 0.6.21
+
+* After a first monster munch the monster compendium could no longer be opened.
+
 # 0.6.20
 
 * Previous update broke Dueling fighting style

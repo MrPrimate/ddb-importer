@@ -63,6 +63,7 @@ async function getCompendium() {
 }
 
 export async function checkCompendium() {
+  compendiumLoaded = false;
   monsterCompendium = undefined;
   return getCompendium();
 }
