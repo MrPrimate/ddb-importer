@@ -1,3 +1,7 @@
+# 0.6.22
+
+* Heal spell did not set value correctly
+
 # 0.6.21
 
 * After a first monster munch the monster compendium could no longer be opened.
