@@ -1,9 +1,10 @@
 {
   "name": "ddb-importer",
-  "version": "0.2.0",
+  "version": "0.6.20",
   "private": true,
   "scripts": {
     "lint": "npx eslint src/",
+    "lint-fix": "npx eslint src/ --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack"
   },
