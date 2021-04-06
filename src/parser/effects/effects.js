@@ -315,12 +315,12 @@ function addCustomBonusEffect(modifiers, name, type, key) {
 /**
  * Generates a global custom bonus for an item
  */
-function addCustomEffect(modifiers, name, type, key, extra) {
+function addCustomEffect(modifiers, name, type, key, extra="") {
   let changes = [];
   const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
   if (bonus !== 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
-    changes.push(generateCustomChange(`+ ${bonus}${extra}`, 18, key));
+    changes.push(generateCustomChange(`+ ${bonus}${(extra) ? extra : ""}`, 18, key));
   }
   return changes;
 }

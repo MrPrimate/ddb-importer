@@ -1,3 +1,7 @@
+# 0.6.23
+
+* Some effects did not parse correctly, e.g. Wand of the WarMage.
+
 # 0.6.22
 
 * Heal spell did not set value correctly
