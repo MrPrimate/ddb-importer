@@ -355,7 +355,7 @@ export default class DDBMuncher extends Application {
       {
         name: "hide-description",
         isChecked: game.settings.get("ddb-importer", "munching-policy-hide-description"),
-        description: "Hide description from players?",
+        description: "Hide monster action description from players?",
         enabled: true,
       },
       {
