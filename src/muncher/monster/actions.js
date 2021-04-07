@@ -7,13 +7,13 @@ import { FEAT_TEMPLATE } from "./templates/feat.js";
 function addPlayerDescription(monster, action) {
   let playerDescription = "";
   if (["rwak", "mwak"].includes(action.data.actionType)) {
-    playerDescription = `</section>\nThe ${monster.name} performs a ${action.name} attack!`;
+    playerDescription = `</section>\nThe ${monster.name} attacks with its ${action.name}.`;
   } else if (["rsak", "msak"].includes(action.data.actionType)) {
-    playerDescription = `</section>\nThe ${monster.name} casts ${action.name}!`;
+    playerDescription = `</section>\nThe ${monster.name} casts ${action.name}.`;
   } else if (["save"].includes(action.data.actionType)) {
-    playerDescription = `</section>\nThe ${monster.name} uses ${action.name} and a save is required!`;
+    playerDescription = `</section>\nThe ${monster.name} uses ${action.name} and a save is required.`;
   } else {
-    playerDescription = `</section>\nThe ${monster.name} performs the ${action.name} action`;
+    playerDescription = `</section>\nThe ${monster.name} uses ${action.name}.`;
   }
   return playerDescription;
 }
