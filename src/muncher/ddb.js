@@ -12,8 +12,6 @@ import { DDB_CONFIG } from "../ddb-config.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { generateAdventureConfig } from "./adventure.js";
 
-window.generateAdventureConfig = generateAdventureConfig;
-
 function getSourcesLookups(selected) {
   const selections = DDB_CONFIG.sources
   .filter((source) => source.isReleased)
@@ -123,6 +121,12 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseClasses();
     });
+    html.find("#adventure-config-start").click(async () => {
+      munchNote(`Generating config file...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      $('button[id^="adventure-config-start"]').prop('disabled', true);
+      DDBMuncher.generateAdventureConfig();
+    });
 
     // watch the change of the import-policy-selector checkboxes
     html.find('.munching-generic-config input[type="checkbox"]').on("change", (event) => {
@@ -218,6 +222,9 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-classes-start"]').prop('disabled', false);
       $('button[id^="munch-source-select"]').prop('disabled', false);
     }
+    if (cobalt && (tier === "GOD")) {
+      $('button[id^="adventure-config-start"]').prop('disabled', false);
+    }
   }
 
   static async parseCritters() {
@@ -292,6 +299,19 @@ export default class DDBMuncher extends Application {
       logger.info("Munching classes!");
       const result = await parseClasses();
       munchNote(`Finished importing ${result.length} classes and features!`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
+  }
+
+  static async generateAdventureConfig() {
+    try {
+      logger.info("Generating adventure config!");
+      await generateAdventureConfig();
+      munchNote(`Downloading config file`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
