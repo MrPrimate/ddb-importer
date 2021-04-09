@@ -99,6 +99,7 @@ export async function generateAdventureConfig() {
   const result = {
     cobalt: getCobalt(),
     patreon: game.settings.get("ddb-importer", "beta-key"),
+    campaignId: getCampaignId(),
     version: game.modules.get("ddb-importer").data.version,
     lookups: {
       monsters: [],
