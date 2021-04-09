@@ -13,9 +13,12 @@ export function getMaterials(data) {
   // this is mainly guessing
   if (data.definition.componentsDescription && data.definition.componentsDescription.length > 0) {
     let cost = 0;
-    let matches = data.definition.componentsDescription.toLowerCase().match(/([\d.]+)\s*gp/);
+    let matches = data.definition.componentsDescription.toLowerCase().match(/([\d.,]+)\s*gp/);
     if (matches) {
-      cost = parseInt(matches[1].replace("."));
+      console.warn(data.definition.name);
+      console.warn(matches);
+      cost = parseInt(matches[1].replace(/,|\./g,""));
+      console.log(cost);
     }
 
     return {

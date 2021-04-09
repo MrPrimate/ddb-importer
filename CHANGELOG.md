@@ -1,3 +1,7 @@
+# 0.6.25
+
+* Some spell component gold costs did nor parse correctly.
+
 # 0.6.23
 
 * Some effects did not parse correctly, e.g. Wand of the WarMage.
