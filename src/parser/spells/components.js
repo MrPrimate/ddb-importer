@@ -15,10 +15,7 @@ export function getMaterials(data) {
     let cost = 0;
     let matches = data.definition.componentsDescription.toLowerCase().match(/([\d.,]+)\s*gp/);
     if (matches) {
-      console.warn(data.definition.name);
-      console.warn(matches);
-      cost = parseInt(matches[1].replace(/,|\./g,""));
-      console.log(cost);
+      cost = parseInt(matches[1].replace(/,|\./g, ""));
     }
 
     return {
