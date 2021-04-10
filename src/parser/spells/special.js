@@ -105,6 +105,9 @@ export function fixSpells(ddb, items) {
         spell.data.scaling = { mode: "level", formula: "2d8" };
         break;
       }
+      case "Ray of Enfeeblement":
+        spell.data.actionType = "rsak";
+        break;
       case "Color Spray": {
         spell.data.damage = { parts: [["6d10", ""]], versatile: "", value: "" };
         spell.data.scaling = { mode: "level", formula: "2d10" };
@@ -136,9 +139,14 @@ export function fixSpells(ddb, items) {
         spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
         spell.data.actionType = "other";
         break;
+      case "Pyrotechnics":
+        spell.data['target']['value'] = 15;
+        break;
       case "Absorb Elements":
         spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
-        spell.data.chatFlavor = "Choose one of Acid, Cold, Fire, Lightning, or Poison.";
+        spell.data.chatFlavor = "Uses the damage type of the triggered attack: Acid, Cold, Fire, Lightning, or Poison.";
+        spell.data['target']['value'] = 1;
+        spell.data['target']['type'] = "creature";
         break;
       case "Booming Blade":
         spell.data.damage = { parts: [["0", "thunder"]], versatile: "1d8", value: "" };

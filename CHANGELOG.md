@@ -1,3 +1,7 @@
+# 0.6.26
+
+* Improved parsing of Ray of Enfeeblement, Absorb Elements, and Pyrotechnics.
+
 # 0.6.25
 
 * Some spell component gold costs did nor parse correctly.
