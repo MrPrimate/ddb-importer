@@ -2,6 +2,7 @@
 
 * Improved parsing of Ray of Enfeeblement, Absorb Elements, and Pyrotechnics.
 * Damage hints are now an global option when parsing.
+* Superiority Dice rolled all dice, not just one.
 
 # 0.6.25
 
