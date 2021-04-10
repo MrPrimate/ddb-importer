@@ -1,4 +1,4 @@
-// import { baseItemEffect } from "./effects.js";
+import { baseItemEffect } from "./effects.js";
 
 /**
  * This function is mainly for effects that can't be dynamically generated

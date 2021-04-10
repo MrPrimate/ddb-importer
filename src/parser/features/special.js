@@ -187,6 +187,10 @@ export function fixFeatures(features) {
         };
         break;
       }
+      case "Superiority Dice": {
+        // feature parses as all available dice, rather than 1 per use
+        feature.data.damage.parts[0][0] = `1d${feature.data.damage.parts[0][0].split("d").pop()}`;
+      }
       // no default
     }
   });
