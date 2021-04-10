@@ -86,5 +86,7 @@
   "ddb-importer.character-link-title.name": "Character DDB-Importer button in title bar?",
   "ddb-importer.character-link-title.hint": "Otherwise it's a button next to the name. (Reload to take effect).",
   "ddb-importer.link-title-colour-white.name": "Make title bar icon white?",
-  "ddb-importer.link-title-colour-white.hint": "Default is Red. Reload to take effect."
+  "ddb-importer.link-title-colour-white.hint": "Default is Red. Reload to take effect.",
+  "ddb-importer.use-damage-hints.name": "Use damage type hints?",
+  "ddb-importer.use-damage-hints.hint": "When building damage strings e.g. 1d6[healing]. Useful for MidiQOL etc."
 }

@@ -25,7 +25,9 @@ function damageModReplace(text, attackInfo, damageType) {
     const baseAbilityMod = attackInfo.abilities[attackInfo.baseAbility];
     const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
     const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
-    const reParse = utils.diceStringResultBuild(diceParse.diceMapped, null, bonusMod, useMod, `[${damageType}]`);
+    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
+    const damageHint = globalDamageHints && damageType ? `[${damageType}]` : "";
+    const reParse = utils.diceStringResultBuild(diceParse.diceMapped, null, bonusMod, useMod, damageHint);
     result = reParse.diceString;
   } else {
     result = diceParse.diceString;
@@ -82,7 +84,9 @@ function getExtendedDamage(description, attackInfo) {
   }
 
   if (regainMatch) {
-    result.damage.parts.push([utils.parseDiceString(regainMatch[3], null, 'healing').diceString, 'healing']);
+    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
+    const damageHint = globalDamageHints ? `[healing]` : "";
+    result.damage.parts.push([utils.parseDiceString(regainMatch[3], null, damageHint).diceString, 'healing']);
   }
 
   const save = hit.match(/DC ([0-9]+) (.*?) saving throw/);

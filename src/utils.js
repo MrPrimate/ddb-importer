@@ -449,8 +449,9 @@ const utils = {
   },
 
   diceStringResultBuild: (diceString, dice, bonus = "", mods = "", diceHint = "", specialFlags = "") => {
+    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
     const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? '+' : ''} ${bonus}`;
-    const diceHintAdd = diceHint && diceString && diceString !== "";
+    const diceHintAdd = globalDamageHints && diceHint && diceString && diceString !== "";
 
     const result = {
       dice: dice,

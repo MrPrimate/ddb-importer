@@ -46,10 +46,11 @@ function getDamage(action) {
     : null;
   const modBonus = (action.statId || action.abilityModifierStatId) && !action.isOffhand ? " + @mod" : "";
   const fixedBonus = action.dice?.fixedValue ? ` + ${action.dice.fixedValue}` : "";
+  const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
   if (action.dice) {
     if (action.dice.diceString) {
-      const damageTag = (damageType) ? `[${damageType}] ` : "";
+      const damageTag = (globalDamageHints && damageType) ? `[${damageType}] ` : "";
       damage = {
         parts: [[action.dice.diceString + damageTag + modBonus + fixedBonus, damageType]],
         versatile: "",

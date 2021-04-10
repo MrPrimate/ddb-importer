@@ -125,6 +125,16 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "use-damage-hints", {
+    name: "ddb-importer.use-damage-hints.name",
+    hint: "ddb-importer.use-damage-hints.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+
   game.settings.register("ddb-importer", "monster-has-vision", {
     name: "ddb-importer.monster-has-vision.name",
     hint: "ddb-importer.monster-has-vision.hint",

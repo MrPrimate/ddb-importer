@@ -17,13 +17,15 @@ export function getDamage(data, spell) {
     versatile: "",
   };
 
+  const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
   // damage
   const attacks = data.definition.modifiers.filter((mod) => mod.type === "damage");
   if (attacks.length !== 0) {
     const cantripBoost = data.definition.level === 0 && !!data.flags.ddbimporter.dndbeyond.cantripBoost;
     attacks.forEach((attack) => {
-      let diceString =
-        attack.usePrimaryStat || cantripBoost ? `${attack.die.diceString}[${attack.subType}] + @mod` : attack.die.diceString;
+      const damageHint = globalDamageHints ? `[${attack.subType}]` : "";
+      const addMod = attack.usePrimaryStat || cantripBoost ? " + @mod" : "";
+      let diceString = `${attack.die.diceString}${damageHint}${addMod}`;
       result.parts.push([diceString, attack.subType]);
     });
 
@@ -38,7 +40,8 @@ export function getDamage(data, spell) {
   if (heals.length !== 0) {
     const healingBonus = (spell.flags.ddbimporter.dndbeyond.healingBoost) ? ` + ${spell.flags.ddbimporter.dndbeyond.healingBoost} + @item.level` : "";
     heals.forEach((heal) => {
-      const healValue = (heal.die.diceString) ? `${heal.die.diceString}[healing]` : heal.die.fixedValue;
+      const damageHint = globalDamageHints ? `[healing]` : "";
+      const healValue = (heal.die.diceString) ? `${heal.die.diceString}${damageHint}` : heal.die.fixedValue;
       const diceString = heal.usePrimaryStat
         ? `${healValue} + @mod${healingBonus}`
         : `${healValue}${healingBonus}`;

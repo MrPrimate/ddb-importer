@@ -1,6 +1,7 @@
 # 0.6.26
 
 * Improved parsing of Ray of Enfeeblement, Absorb Elements, and Pyrotechnics.
+* Damage hints are now an global option when parsing.
 
 # 0.6.25
 
