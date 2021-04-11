@@ -101,6 +101,8 @@ export default function () {
 
 
   game.settings.register("ddb-importer", "allow-scene-download", {
+    name: "ddb-importer.allow-scene-download.name",
+    hint: "ddb-importer.allow-scene-download.hint",
     scope: "world",
     config: false,
     type: Boolean,
