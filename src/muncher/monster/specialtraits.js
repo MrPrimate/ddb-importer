@@ -2,7 +2,7 @@
 // handle legendary resistance here
 
 import { getSource } from "./source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses } from "./utils.js";
+import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses, getTarget } from "./utils.js";
 import { FEAT_TEMPLATE } from "./templates/feat.js";
 
 
@@ -39,6 +39,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
 
   const fixedDescription = splitActions[0]
     .replace(/<\/strong> <strong>/g, "").replace(/<\/strong><strong>/g, "")
+    .replace(/&shy;/g, "")
     .replace(/<br \/>/g, "</p><p>");
   $.parseHTML(fixedDescription).forEach((element) => {
     dom.appendChild(element);
@@ -189,6 +190,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     action.data.uses = getUses(node.textContent);
     action.data.recharge = getRecharge(node.textContent);
     action.data.save = getFeatSave(node.textContent, action.data.save);
+    action.data.target = getTarget(node.textContent);
     // assumption - if we have parsed a save dc set action type to save
     if (action.data.save.dc) {
       action.data.actionType = "save";

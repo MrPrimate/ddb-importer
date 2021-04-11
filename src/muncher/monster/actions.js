@@ -110,7 +110,10 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
   if (splitActions.length > 1) {
     characterDescription = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
   }
-  actions = splitActions[0].replace(/<\/strong> <strong>/g, "").replace(/<\/strong><strong>/g, "");
+  actions = splitActions[0]
+    .replace(/<\/strong> <strong>/g, "")
+    .replace(/<\/strong><strong>/g, "")
+    .replace(/&shy;/g, "");
 
   let dom = new DocumentFragment();
   $.parseHTML(actions).forEach((element) => {

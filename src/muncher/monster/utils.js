@@ -52,14 +52,14 @@ function getExtendedDamage(description, attackInfo) {
   let hit = description;
   if (hitIndex > 0) hit = description.slice(hitIndex);
   hit = hit.replace(/[–-–−]/g, "-");
-  console.warn(hit);
+  // console.warn(hit);
   // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
   const damamgeExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(two hands)?/); // eslint-disable-line no-useless-escape
   const matches = reMatchAll(damamgeExpression, hit) || [];
   const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
   const regainMatch = hit.match(regainExpression);
 
-  console.warn(matches);
+  // console.warn(matches);
 
   for (let dmg of matches) {
     let versatile = false;
@@ -118,10 +118,14 @@ export function getAction(text, type = "action") {
   // const actionAction = text.toLowerCase().match(/as an action/);
   const bonusAction = text.toLowerCase().match(/as a bonus action/);
   const reAction = text.toLowerCase().match(/as a reaction/);
+  // e.g. mephit death
+  const specialDie = text.toLowerCase().match(/dies/);
   if (bonusAction) {
     action = "bonus";
   } else if (reAction) {
     action = "reaction";
+  } else if (specialDie) {
+    action = "special";
   }
   return action;
 }
@@ -148,9 +152,9 @@ export function getUses(text, name = false) {
 }
 
 export function getRecharge(text) {
-  const matches = text.toLowerCase().match(/\(recharge ([0-9–-–−]+)\)/);
+  const matches = text.toLowerCase().match(/\(recharge ([0-9––−-]+)\)/);
   if (matches) {
-    const value = matches[1].replace(/–-–−/, "-").split("-").shift();
+    const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
     return {
       value: parseInt(value),
       charged: true
@@ -395,11 +399,22 @@ export function getTarget(text) {
 
   // 90-foot line that is 10 feet wide
   // in a 90-foot cone
+  const matchText = text.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
+  // console.warn(matchText);
   const lineSearch = /(\d+)-foot line/;
   const coneSearch = /(\d+)-foot cone/;
+  const cubeSearch = /(\d+)-foot cube/;
+  const sphereSearch = /(\d+)-foot-radius sphere/;
 
-  const coneMatch = text.match(coneSearch);
-  const lineMatch = text.match(lineSearch);
+  const coneMatch = matchText.match(coneSearch);
+  const lineMatch = matchText.match(lineSearch);
+  const cubeMatch = matchText.match(cubeSearch);
+  const sphereMatch = matchText.match(sphereSearch);
+
+  // console.log(coneMatch);
+  // console.log(lineMatch);
+  // console.log(cubeMatch);
+  // console.log(sphereMatch);
 
   if (coneMatch) {
     target.value = coneMatch[1];
@@ -409,6 +424,14 @@ export function getTarget(text) {
     target.value = lineMatch[1];
     target.units = "ft";
     target.type = "line";
+  } else if (cubeMatch) {
+    target.value = cubeMatch[1];
+    target.units = "ft";
+    target.type = "cube";
+  } else if (sphereMatch) {
+    target.value = sphereMatch[1];
+    target.units = "ft";
+    target.type = "sphere";
   }
 
   return target;
@@ -502,7 +525,7 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
 
   result.reach = getReach(text);
   result.range = getRange(text);
-  if (result.range.value > 5) result.properties.rch = true;
+  if (result.reach != "") result.properties.rch = true;
   result.recharge = getRecharge(text);
   result.activation = getActivation(text);
   result.save = getFeatSave(text, result.save);
