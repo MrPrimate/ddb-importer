@@ -1,3 +1,11 @@
+# 0.6.27
+
+* Some monsters did not parse attacks for negative damage modifier, e.g. Baboon.
+* Improved munching of actions like a Smoke Mephit's Death Burst.
+* Cleaned up some missed damage tag additions during monster parsing.
+* Improved detection of cone/line/etc weapons when there were more than 1 dash, e.g. Ancient Blue Dragon.
+* Some monster attacks could set the reach property even when they were not reach.
+
 # 0.6.26
 
 * Improved parsing of Ray of Enfeeblement, Absorb Elements, and Pyrotechnics.
