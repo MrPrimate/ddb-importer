@@ -20,13 +20,13 @@ function reMatchAll(regexp, string) {
 
 function damageModReplace(text, attackInfo, damageType) {
   let result;
-  const diceParse = utils.parseDiceString(text, null, `[${damageType}]`);
+  const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
+  const damageHint = globalDamageHints && damageType ? `[${damageType}]` : "";
+  const diceParse = utils.parseDiceString(text, null, damageHint);
   if (attackInfo.baseAbility) {
     const baseAbilityMod = attackInfo.abilities[attackInfo.baseAbility];
     const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
     const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
-    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-    const damageHint = globalDamageHints && damageType ? `[${damageType}]` : "";
     const reParse = utils.diceStringResultBuild(diceParse.diceMapped, null, bonusMod, useMod, damageHint);
     result = reParse.diceString;
   } else {
@@ -51,13 +51,15 @@ function getExtendedDamage(description, attackInfo) {
   const hitIndex = description.indexOf("Hit:");
   let hit = description;
   if (hitIndex > 0) hit = description.slice(hitIndex);
+  hit = hit.replace(/[–-–−]/g, "-");
+  console.warn(hit);
   // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
-  const damamgeExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?: plus [^\)]+)?)\)?)? ([\w ]*?)\s*damage(?: when used with | if used with )?(two hands)?/); // eslint-disable-line no-useless-escape
+  const damamgeExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(two hands)?/); // eslint-disable-line no-useless-escape
   const matches = reMatchAll(damamgeExpression, hit) || [];
   const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
   const regainMatch = hit.match(regainExpression);
 
-  // logger.info(matches);
+  console.warn(matches);
 
   for (let dmg of matches) {
     let versatile = false;

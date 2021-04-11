@@ -470,7 +470,7 @@ const utils = {
 
   parseDiceString: (inStr, mods = "", diceHint = "", specialFlags = "") => {
     // sanitizing possible inputs a bit
-    const str = `${inStr}`.toLowerCase().replace(/-–−/gu, "-").replace(/\s+/gu, "");
+    const str = `${inStr}`.toLowerCase().replace(/[–-–−]/gu, "-").replace(/\s+/gu, "");
 
     // all found dice strings, e.g. 1d8, 4d6
     let dice = [];
