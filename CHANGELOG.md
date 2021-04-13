@@ -1,4 +1,4 @@
-# 0.6.28
+# 0.6.28/29
 
 * Ranged weapons did not import feet distance correctly.
 
