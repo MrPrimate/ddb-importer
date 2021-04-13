@@ -113,10 +113,10 @@ const collectSceneData = (scene) => {
   };
   // removed un-needed userdata
   if (data.flags.ddb?.userData) {
-    if (data.flags.ddb.userData.status) delete(data.flags.ddb.userData.status);
-    if (data.flags.ddb.userData.userId) delete(data.flags.ddb.userData.userId);
-    if (data.flags.ddb.userData.twitchUserName) delete(data.flags.ddb.userData.twitchUserName);
-    if (data.flags.ddb.userData.AvatarUrl) delete(data.flags.ddb.userData.AvatarUrl);
+    if (data.flags.ddb.userData.status) delete (data.flags.ddb.userData.status);
+    if (data.flags.ddb.userData.userId) delete (data.flags.ddb.userData.userId);
+    if (data.flags.ddb.userData.twitchUserName) delete (data.flags.ddb.userData.twitchUserName);
+    if (data.flags.ddb.userData.AvatarUrl) delete (data.flags.ddb.userData.AvatarUrl);
   }
 
   return data;
