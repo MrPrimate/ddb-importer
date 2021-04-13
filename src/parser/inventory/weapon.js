@@ -99,7 +99,7 @@ let getRange = (data) => {
     long: (data.definition.longRange && data.definition.longRange != data.definition.range)
       ? data.definition.longRange
       : "",
-    units: "ft.",
+    units: "ft",
   };
 };
 

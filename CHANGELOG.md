@@ -1,3 +1,7 @@
+# 0.6.28
+
+* Ranged weapons did not import feet distance correctly.
+
 # 0.6.27
 
 * Some monsters did not parse attacks for negative damage modifier, e.g. Baboon.
