@@ -113,6 +113,11 @@ export function fixSpells(ddb, items) {
         spell.data.scaling = { mode: "level", formula: "2d10" };
         break;
       }
+      // these spells do attacks, and when automating with MidiQOL they want to be creature rather than self really
+      case "Shadow Blade":
+      case "Flame Blade":
+        spell.data.target.type = "creature";
+        break;
       case "Produce Flame":
         spell.data.range = { value: 30, units: "ft", long: null };
         spell.data.target.type = "creature";
