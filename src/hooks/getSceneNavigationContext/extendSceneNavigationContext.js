@@ -119,7 +119,7 @@ const collectSceneData = (scene) => {
     if (data.flags.ddb.userData.AvatarUrl) delete (data.flags.ddb.userData.AvatarUrl);
   }
 
-  if(data.flags.vtta && !data.flags.vtta.code) {
+  if (data.flags.vtta && !data.flags.vtta.code) {
     data.flags.vtta.code = scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
   }
 
@@ -135,9 +135,9 @@ export default (html, contextOptions) => {
       const data = collectSceneData(scene);
       const bookCode = scene.data.flags.ddb?.bookCode
         ? `${scene.data.flags.ddb.bookCode}-${scene.data.flags.ddb.ddbId}`
-        : (scene.data.flags.vtta?.id) ?
-          scene.data.flags.vtta.id.replace("/", "-"):
-          scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
+        : (scene.data.flags.vtta?.id)
+          ? scene.data.flags.vtta.id.replace("/", "-")
+          : scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
       const cobaltId = scene.data.flags.ddb?.cobaltId ? `-${scene.data.flags.ddb.cobaltId}` : "";
       const parentId = scene.data.flags.ddb?.parentId ? `-${scene.data.flags.ddb.parentId}` : "";
       const vttaId = scene.data.flags.vtta?.sceneId ? `-${scene.data.flags.vtta.sceneId}` : "";
