@@ -119,6 +119,10 @@ const collectSceneData = (scene) => {
     if (data.flags.ddb.userData.AvatarUrl) delete (data.flags.ddb.userData.AvatarUrl);
   }
 
+  if(!data.flags.vtta.code) {
+    data.flags.vtta.code = scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
+  }
+
   return data;
 };
 
@@ -131,17 +135,20 @@ export default (html, contextOptions) => {
       const data = collectSceneData(scene);
       const bookCode = scene.data.flags.ddb?.bookCode
         ? `${scene.data.flags.ddb.bookCode}-${scene.data.flags.ddb.ddbId}`
-        : scene.data.flags.vtta.id.replace("/", "-");
+        : (scene.data.flags.vtta?.id) ?
+          scene.data.flags.vtta.id.replace("/", "-"):
+          scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
       const cobaltId = scene.data.flags.ddb?.cobaltId ? `-${scene.data.flags.ddb.cobaltId}` : "";
       const parentId = scene.data.flags.ddb?.parentId ? `-${scene.data.flags.ddb.parentId}` : "";
-      const sceneRef = `${bookCode}${cobaltId}${parentId}`;
+      const vttaId = scene.data.flags.vtta?.sceneId ? `-${scene.data.flags.vtta.sceneId}` : "";
+      const sceneRef = `${bookCode}${cobaltId}${parentId}${vttaId}`;
       // console.warn(data);
       return download(JSON.stringify(data), `${sceneRef}-scene.json`, "application/json");
     },
     condition: (li) => {
       const scene = game.scenes.get(li.data("sceneId"));
       const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download");
-      const allowDownload = game.user.isGM && sceneDownload && (scene.data.flags.ddb?.ddbId || !!scene.data.flags.vtta?.id);
+      const allowDownload = game.user.isGM && sceneDownload && (scene.data.flags.ddb?.ddbId || scene.data.flags.vtta?.code || scene.data.flags.vtta?.thumb);
       return allowDownload;
     },
     icon: '<i class="fas fa-share-alt"></i>',
