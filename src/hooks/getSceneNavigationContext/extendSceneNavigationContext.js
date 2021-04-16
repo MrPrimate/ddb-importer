@@ -119,7 +119,7 @@ const collectSceneData = (scene) => {
     if (data.flags.ddb.userData.AvatarUrl) delete (data.flags.ddb.userData.AvatarUrl);
   }
 
-  if(!data.flags.vtta.code) {
+  if(data.flags.vtta && !data.flags.vtta.code) {
     data.flags.vtta.code = scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
   }
 
