@@ -50,9 +50,10 @@ function getDamage(action) {
 
   if (action.dice) {
     if (action.dice.diceString) {
-      const damageTag = (globalDamageHints && damageType) ? `[${damageType}] ` : "";
+      const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
+      const damageString = utils.parseDiceString(action.dice.diceString, modBonus + fixedBonus, damageTag).diceString;
       damage = {
-        parts: [[action.dice.diceString + damageTag + modBonus + fixedBonus, damageType]],
+        parts: [[damageString, damageType]],
         versatile: "",
       };
     } else if (fixedBonus) {
@@ -112,6 +113,7 @@ function getLevelScaleDice(ddb, character, action, feat) {
 
 function martialArtsDamage(ddb, action) {
   const damageType = DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name;
+  const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
   // are we dealing with martial arts?
   if (action.isMartialArts && isMartialArtists(ddb.character.classes)) {
@@ -134,16 +136,21 @@ function martialArtsDamage(ddb, action) {
         }
       });
 
+    const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
+    const damageString = utils.parseDiceString(die, " + @mod", damageTag).diceString;
+
     // set the weapon damage
     return {
-      parts: [[die + `[${damageType}] + @mod`, damageType]],
+      parts: [[damageString, damageType]],
       versatile: "",
     };
   } else if (action.dice !== null) {
     // The Lizardfolk jaws have a different base damage, its' detailed in
     // dice so lets capture that for actions if it exists
+    const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
+    const damageString = utils.parseDiceString(action.dice.diceString, " + @mod", damageTag).diceString;
     return {
-      parts: [[action.dice.diceString + `[${damageType}] + @mod`, damageType]],
+      parts: [[damageString, damageType]],
       versatile: "",
     };
   } else {

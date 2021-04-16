@@ -1,3 +1,4 @@
+import utils from "../../utils.js";
 
 let getAlternativeFormula = (data) => {
   // this might be specificially for Toll the Dead only, but it's better than nothing
@@ -25,7 +26,7 @@ export function getDamage(data, spell) {
     attacks.forEach((attack) => {
       const damageHint = globalDamageHints ? `[${attack.subType}]` : "";
       const addMod = attack.usePrimaryStat || cantripBoost ? " + @mod" : "";
-      let diceString = `${attack.die.diceString}${damageHint}${addMod}`;
+      let diceString = utils.parseDiceString(attack.die.diceString, addMod, damageHint).diceString;
       result.parts.push([diceString, attack.subType]);
     });
 
