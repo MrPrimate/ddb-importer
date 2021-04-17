@@ -1,3 +1,7 @@
+# 0.6.31
+
+* Some optional class feature edge cases prevented some modifiers from being used. e.g. Skills from a Barbarian's Primal Knowledge option.
+
 # 0.6.30
 
 * Some spells and actions did not respect correct damage hint rules.

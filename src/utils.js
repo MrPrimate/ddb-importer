@@ -267,7 +267,14 @@ const utils = {
         data.character.optionalClassFeatures?.some((f) => f.classFeatureId == option.componentId)
       );
 
-      return isClassFeature || isClassOption || isOptionalClassOption;
+      // new class feature choice
+      const isOptionalClassChoice = data.character.choices.class.some((choice) =>
+        choice.componentTypeId == mod.componentTypeId &&
+        choice.componentId == mod.componentId &&
+        data.character.optionalClassFeatures?.some((f) => f.classFeatureId == choice.componentId)
+      );
+
+      return isClassFeature || isClassOption || isOptionalClassOption || isOptionalClassChoice;
     });
 
     return modifiers;
