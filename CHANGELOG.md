@@ -1,6 +1,7 @@
 # 0.6.31
 
 * Some optional class feature edge cases prevented some modifiers from being used. e.g. Skills from a Barbarian's Primal Knowledge option.
+* Active Effects: Base AC option did not calculate correctly, if a shield was equipped.
 
 # 0.6.30
 

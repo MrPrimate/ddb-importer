@@ -177,13 +177,17 @@ function calculateACOptions(data, character, calculatedArmor) {
   // the best one
   for (var armor = 0; armor < calculatedArmor.armors.length; armor++) {
     let armorAC = 0;
+    let shieldMod = 0;
     if (calculatedArmor.shields.length === 0) {
       // getEquippedAC fetches any magical AC boost on the items passed
       armorAC = getEquippedAC([calculatedArmor.armors[armor]]);
     } else {
       for (var shield = 0; shield < calculatedArmor.shields.length; shield++) {
         const combinedAC = getEquippedAC([calculatedArmor.armors[armor], calculatedArmor.shields[shield]]);
-        if (combinedAC > armorAC) armorAC = combinedAC;
+        if (combinedAC > armorAC) {
+          armorAC = combinedAC;
+          shieldMod = combinedAC - armorAC;
+        }
       }
     }
 
@@ -218,7 +222,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           name: calculatedArmor.armors[armor].definition.name,
           value: acCalc + calculatedArmor.gearAC,
         });
-        if (acCalc > actorBase) actorBase = acCalc;
+        if (acCalc > actorBase) actorBase = acCalc - shieldMod;
         effect = generateFixedACEffect(acCalc + calculatedArmor.gearAC, `AC ${calculatedArmor.armors[armor].definition.name} (Natural): ${acCalc + calculatedArmor.gearAC}`, true);
         break;
       }
@@ -228,7 +232,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           name: calculatedArmor.armors[armor].definition.name,
           value: acCalc + calculatedArmor.gearAC,
         });
-        if (acCalc > actorBase) actorBase = acCalc;
+        if (acCalc > actorBase) actorBase = acCalc - shieldMod;
         effect = generateFixedACEffect(acCalc + calculatedArmor.gearAC, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored Defense): ${acCalc + calculatedArmor.gearAC}`);
         break;
       }
@@ -239,7 +243,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           name: calculatedArmor.armors[armor].definition.name,
           value: acCalc + calculatedArmor.gearAC,
         });
-        if (acCalc > actorBase) actorBase = acCalc;
+        if (acCalc > actorBase) actorBase = acCalc - shieldMod;
         effect = generateFixedACEffect(`${base + calculatedArmor.gearAC} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored): ${acCalc + calculatedArmor.gearAC}`, true, 22);
         break;
       }
