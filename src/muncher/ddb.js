@@ -367,7 +367,7 @@ export default class DDBMuncher extends Application {
     const sourcesSelected = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat().length > 0;
     const homebrewDescription = (tiers.homebrew)
       ? sourcesSelected
-        ? "Homebrew won't be imported with source(s) selected"
+        ? "SOURCES SELECTED! You can't import homebrew with a source filter selected"
         : "Include homebrew?"
       : "Include homebrew? [Undying or God tier patreon supporters]";
 
