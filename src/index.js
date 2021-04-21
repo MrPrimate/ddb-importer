@@ -15,3 +15,4 @@ Hooks.on("ready", onReady);
 Hooks.on("renderSidebarTab", renderSidebarTab);
 Hooks.on("renderJournalSheet", renderJournalSheet);
 Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
+Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);

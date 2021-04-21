@@ -146,7 +146,8 @@ export default (html, contextOptions) => {
       return download(JSON.stringify(data), `${sceneRef}-scene.json`, "application/json");
     },
     condition: (li) => {
-      const scene = game.scenes.get(li.data("sceneId"));
+      const sceneId = $(li).attr("data-scene-id") ? $(li).attr("data-scene-id") : $(li).attr("data-entity-id");
+      const scene = game.scenes.get(sceneId);
       const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download");
       const allowDownload = game.user.isGM && sceneDownload && (scene.data.flags.ddb?.ddbId || scene.data.flags.vtta?.code || scene.data.flags.vtta?.thumb);
       return allowDownload;
