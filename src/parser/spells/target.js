@@ -62,9 +62,11 @@ export function getTarget(data) {
       units = "touch";
       if (creatures) type = "creature";
       break;
-    case "Self":
-      type = "self";
+    case "Self": {
+      const dmgSpell = data.definition.modifiers.some((mod) => mod.type === "damage");
+      type = (dmgSpell) ? "creature" : "self";
       break;
+    }
     case "None":
       type = "none";
       break;

@@ -91,7 +91,7 @@ export function fixSpells(ddb, items) {
         spell.data.range.value += eldritchBlastMods["range"];
         break;
       }
-      // The target/range input data are incorrect on some AOE spells centreted
+      // The target/range input data are incorrect on some AOE spells centred
       // on self.
       // Range is self with an AoE target of 15 ft cube
       // i.e. affects all creatures within 5 ft of caster
@@ -113,14 +113,8 @@ export function fixSpells(ddb, items) {
         spell.data.scaling = { mode: "level", formula: "2d10" };
         break;
       }
-      // these spells do attacks, and when automating with MidiQOL they want to be creature rather than self really
-      case "Shadow Blade":
-      case "Flame Blade":
-        spell.data.target.type = "creature";
-        break;
       case "Produce Flame":
         spell.data.range = { value: 30, units: "ft", long: null };
-        spell.data.target.type = "creature";
         break;
       case "Cloud of Daggers":
       case "Magic Missile":
@@ -151,7 +145,6 @@ export function fixSpells(ddb, items) {
         spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
         spell.data.chatFlavor = "Uses the damage type of the triggered attack: Acid, Cold, Fire, Lightning, or Poison.";
         spell.data['target']['value'] = 1;
-        spell.data['target']['type'] = "creature";
         break;
       case "Booming Blade":
         spell.data.damage = { parts: [["0", "thunder"]], versatile: "1d8", value: "" };

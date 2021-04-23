@@ -1,3 +1,7 @@
+# 0.6.32
+
+* Spells that have a target of self, but do damage, now set themselves to target creature instead.
+
 # 0.6.31
 
 * Some optional class feature edge cases prevented some modifiers from being used. e.g. Skills from a Barbarian's Primal Knowledge option.
