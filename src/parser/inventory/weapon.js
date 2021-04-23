@@ -344,11 +344,11 @@ export default function parseWeapon(data, character, flags) {
     },
     quickCharges: {
       value: {
-        use: true,
+        use: false,
         resource: true
       },
       altValue: {
-        use: true,
+        use: false,
         resource: true
       }
     },
