@@ -1,6 +1,7 @@
 # 0.6.32
 
 * Spells that have a target of self, but do damage, now set themselves to target creature instead.
+* Default Better Rolls config will no longer auto-consume charges on Weapons when you attack with them.
 
 # 0.6.31
 
