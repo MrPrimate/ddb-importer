@@ -128,7 +128,7 @@ const collectSceneData = (scene) => {
     data.flags.vtta.code = scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
   }
 
-  flags.ddb.notes = notes;
+  data.flags.ddb.notes = notes;
 
   return data;
 };
