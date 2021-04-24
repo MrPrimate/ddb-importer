@@ -84,8 +84,6 @@ const collectSceneData = (scene) => {
     shiftY: scene.data.shiftY,
     // customization
     backgroundColor: scene.data.backgroundColor,
-    // notes
-    notes: notes,
     walls: scene.data.walls.map((wall) => ({
       c: wall.c,
       door: wall.door,
@@ -129,6 +127,8 @@ const collectSceneData = (scene) => {
   if (data.flags.vtta && !data.flags.vtta.code) {
     data.flags.vtta.code = scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
   }
+
+  flags.ddb.notes = notes;
 
   return data;
 };
