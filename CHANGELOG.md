@@ -2,6 +2,7 @@
 
 * Spells that have a target of self, but do damage, now set themselves to target creature instead.
 * Default Better Rolls config will no longer auto-consume charges on Weapons when you attack with them.
+* Support for exporting Adventure Muncher Note Pins for scenes imported from Adventure Muncher 0.0.15.
 
 # 0.6.31
 
