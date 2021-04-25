@@ -90,15 +90,20 @@ export function getPatreonTiers(tier) {
   const godTier = tier === "GOD";
   const undyingTier = tier === "UNDYING";
   const coffeeTier = tier === "COFFEE";
+  // a custom proxy is treated as Undying
+  const customProxy = game.settings.get("ddb-importer", "custom-proxy");
 
   const tiers = {
     god: godTier,
     undying: undyingTier,
+    custom: customProxy,
     coffee: coffeeTier,
-    source: godTier || undyingTier,
-    homebrew: godTier || undyingTier,
+    source: godTier || undyingTier || customProxy,
+    experimentalMid: godTier || undyingTier,
+    homebrew: godTier || undyingTier || customProxy,
+    all: godTier || undyingTier || coffeeTier || customProxy,
     supporter: godTier || undyingTier || coffeeTier,
-    not: !godTier && !undyingTier && !coffeeTier,
+    not: !godTier && !undyingTier && !coffeeTier && !customProxy,
   };
 
   return tiers;

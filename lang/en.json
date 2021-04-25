@@ -63,6 +63,8 @@
   "ddb-importer.scene-format.hint": "Sets the scene image format. WEBP is recommended due to smaller file size and faster loading speeds.",
   "ddb-importer.scene-format.0": "WEBP (smaller file sizes)",
   "ddb-importer.scene-format.1": "PNG/JPEG (original, larger file sizes)",
+  "ddb-importer.custom-proxy.name": "Use a custom proxy?",
+  "ddb-importer.custom-proxy.hint": "Tick if using a custom proxy and enter the proxy URL's below",
   "ddb-importer.cobalt-cookie.name": "DDB Cobalt Cookie",
   "ddb-importer.cobalt-cookie.hint": "You can get this using my Chrome extension https://github.com/MrPrimate/ddb-importer-chrome",
   "ddb-importer.campaign-id.name": "DDB Campaign URL or ID",

@@ -316,10 +316,14 @@ export default function () {
     default: "https://ddb.mrprimate.co.uk",
   });
 
-  // const PROXY = "https://proxy.vttassets.com/?url=";
-  // const URL_ENCODE = false;
-  // const PROXY = "https://i.vtta.io/dl/";
-  // const URL_ENCODE = true;
+  game.settings.register("ddb-importer", "custom-proxy", {
+    name: "ddb-importer.custom-proxy.name",
+    hint: "ddb-importer.custom-proxy.hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
 
   game.settings.register("ddb-importer", "cors-endpoint", {
     name: "ddb-importer.cors-endpoint.name",
