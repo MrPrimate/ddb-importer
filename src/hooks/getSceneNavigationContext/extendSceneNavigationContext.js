@@ -11,7 +11,7 @@ const getNotes = (scene) => {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
     journal.data.flags.ddb?.slug && scene.data.flags.ddb?.slug &&
-    journal.data.flags.ddb.slug.split("#")[0] === scene.data.flags.ddb.slug.split("#")[0]
+    journal.data.flags.ddb.slug === scene.data.flags.ddb.slug
   );
 
   // get all notes placed on the map
@@ -137,7 +137,8 @@ export default (html, contextOptions) => {
   contextOptions.push({
     name: "ddb-importer.scenes.download",
     callback: (li) => {
-      const scene = game.scenes.get(li.data("sceneId"));
+      const sceneId = $(li).attr("data-scene-id") ? $(li).attr("data-scene-id") : $(li).attr("data-entity-id");
+      const scene = game.scenes.get(sceneId);
       // console.warn(scene);
       const data = collectSceneData(scene);
       const bookCode = scene.data.flags.ddb?.bookCode
