@@ -87,9 +87,6 @@ Examples:
 
 # FAQ
 
-## Why do my compendium features not get updated on import?
-
-This is a different feature to vtta-dndbeyond, use the bulk import tool to import features, spells and items.
 
 ## The import buttons are greyed out!
 

@@ -954,7 +954,7 @@ export default class CharacterImport extends FormApplication {
     const dataDirSet = !badDirs.includes(uploadDir);
     const tier = game.settings.get("ddb-importer", "patreon-tier");
     const tiers = getPatreonTiers(tier);
-    const syncEnabled = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId && tiers.supporter;
+    const syncEnabled = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId && tiers.all;
 
     const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
     const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
