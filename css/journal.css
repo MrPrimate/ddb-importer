@@ -131,6 +131,7 @@ p.Table-Styles_Table-Title {
   margin-top: 19.5px;
   margin-bottom: 6.5px;
 }
+
 .compendium-left-aligned-table th:nth-child(1) {
   text-align: center !important;
   width: 80px !important;
@@ -141,6 +142,12 @@ p.Table-Styles_Table-Title {
   padding: 8px 20px !important;
   line-height: 1.4 !important;
   text-align: center !important;
+}
+
+.table-compendium.table--generic-dice td:first-child, .table-compendium.table--generic-dice th:first-child {
+  width: 12% !important;
+  text-align: center !important;
+  vertical-align: middle !important;
 }
 
 blockquote.adventure-read-aloud-text::before, blockquote.adventure-read-aloud-text::after {
