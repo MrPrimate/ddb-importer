@@ -1,3 +1,7 @@
+# 0.6.33
+
+* Improved Journal formatting for imported adventures.
+
 # 0.6.32
 
 * Spells that have a target of self, but do damage, now set themselves to target creature instead.

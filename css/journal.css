@@ -42,3 +42,194 @@ div.ddbimporter-image-popout img {
   width: 90%;
   height: 90%;
 }
+
+aside.block-torn-paper, aside.epigraph, aside.epigraph--with-author {
+  overflow: auto;
+  background: var(--theme-quote-bg-color,#fff);
+  color: var(--theme-quote-fg-color,#242527);
+  margin: 40px 0;
+  line-height: 1.6;
+  font-size: 14px;
+  border: solid transparent;
+  border-width: 20px 10px;
+  border-image-source: var(--theme-quote-border,url(https://media.dndbeyond.com/ddb-compendium-client/5f1f1d66d16be68cf09d6ca172f8df92.png));
+  border-image-repeat: repeat;
+  border-image-slice: 20 10 20 10 fill;
+  padding: 10px;
+  position: relative;
+}
+
+aside.rules-text {
+  overflow: auto;
+  display: block;
+  margin: 30px 0;
+  line-height: 1.6;
+  font-size: 14px;
+  color: var(--theme-rules-text-fg-color,#242527);
+  border-color: transparent;
+  border-style: solid;
+  border-width: 15px 20px;
+  border-image-repeat: repeat;
+  border-image-slice: 20 30 20 30 fill;
+  background-color: transparent;
+  padding: 20px 10px 10px;
+  position: relative;
+  border-image-source: var(--theme-rules-text-border,url(https://media.dndbeyond.com/ddb-compendium-client/463d4668370589a1a73886611645df7e.png));
+  -webkit-filter: drop-shadow(0 5px 8px #ccc);
+  filter: drop-shadow(0 5px 8px #ccc);
+}
+
+aside.read-aloud-text {
+  overflow: auto;
+  display: block;
+  margin: 30px 0;
+  line-height: 1.6;
+  font-size: 14px;
+  color: var(--theme-read-aloud-fg-color,#242527);
+  border: 8px solid transparent;
+  border-image-repeat: repeat;
+  border-image-slice: 8 8 8 8 fill;
+  background-color: transparent;
+  padding: 20px 20px 10px !important;
+  position: relative;
+  border-image-source: var(--theme-read-aloud-border,url(https://media.dndbeyond.com/ddb-compendium-client/146117d0758df55ed5ff299b916e9bd1.png));
+}
+
+.stat-block-background {
+  background-repeat: no-repeat;
+  -webkit-box-shadow: 0px 5px 8px 0px #aaa;
+  -moz-box-shadow: 0px 5px 8px 0px #aaa;
+  box-shadow: 0px 5px 8px 0px #aaa;
+  background-position: top center !important;
+  background-image: url(https://media.dndbeyond.com/compendium-images/tcoe/0gqawlEa2tjXGxpc/mm_statbg_sm.jpg) !important;
+}
+
+h2.compendium-hr {
+  font-weight: bold;
+}
+
+h3.compendium-hr {
+  font-weight: bold;
+}
+
+h4.compendium-hr {
+  font-weight: bold;
+}
+
+.compendium-image-subtitle, .compendium-image > figcaption {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  font-style: italic;
+  text-transform: uppercase;
+  margin: 10px 0;
+}
+
+p.Table-Styles_Table-Title {
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 19.5px;
+  margin-bottom: 6.5px;
+}
+.compendium-left-aligned-table th:nth-child(1) {
+  text-align: center !important;
+  width: 80px !important;
+}
+
+.summoning-creatures-table td:nth-child(1), .compendium-left-aligned-table td:nth-child(1) {
+  vertical-align: middle !important;
+  padding: 8px 20px !important;
+  line-height: 1.4 !important;
+  text-align: center !important;
+}
+
+blockquote.adventure-read-aloud-text::before, blockquote.adventure-read-aloud-text::after {
+  background-image: url("../images/icons/dot.svg"),url("../images/icons/dot.svg") !important;
+  background-position: left,right;
+  background-size: contain !important;
+  background-repeat: no-repeat;
+  height: 8px !important;
+  left: -4px !important;
+  right: -4px !important;
+}
+
+body:not(.body-forum):not(.section-posts):not(.section-changelog):not(.body-privatemessage-details) blockquote {
+  background: white;
+  padding: 20px;
+  position: relative;
+  width: auto;
+  /* display: -webkit-flex; */
+  /* display: -ms-flexbox; */
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  border-left: 1px solid #e0dcdc;
+  border-right: 1px solid #e0dcdc;
+  border-top: 0;
+  border-bottom: 0;
+  overflow: visible;
+  border-radius: 0;
+  color: #242527;
+  margin: 40px 0;
+  line-height: 1.6;
+}
+
+blockquote.adventure-read-aloud-text {
+  display: block !important;
+}
+blockquote.adventure-read-aloud-text {
+  background-color: #e6e7ec !important;
+  border-color: #979aa4 !important;
+}
+
+.Flowchart-Block {
+  border-width: 16px 16px 16px 16px !important;
+  border-style: solid !important;
+  border-color: transparent !important;
+  border-image-repeat: repeat !important;
+  border-image-slice: 16 16 16 16 fill !important;
+  background-color: transparent !important;
+  padding: 10px !important;
+  position: relative !important;
+  border-image-source: url(https://media-waterdeep.cursecdn.com/attachments/7/571/blockquote-flowchart.png) !important;
+  font-size: 14px;
+  line-height: 1.6 !important;
+  margin: 50px 0px 20px 0px !important;
+}
+
+.Flowchart-Heading {
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 16px;
+}
+
+.Flowchart-Block {
+  font-size: 14px;
+  line-height: 1.6 !important;
+}
+
+.Flowchart-Subheading {
+  font-style: italic;
+  text-align: center;
+  font-size: 16px;
+}
+
+.Flowchart-Block-Linked::before {
+  content: '';
+  border-left: 3px solid #cdb078;
+  height: 100px;
+  left: 50%;
+  position: absolute;
+  margin-top: -80px;
+  z-index: -1;
+}
+
+.Core-Styles_Core-Metadata, .Serif-Character-Style_Inline-Subhead-Serif, .Serif-Character-Style_Italic-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Italic-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif  {
+  font-style: italic;
+}
+
+.Serif-Character-Style_Bold-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Bold-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif  {
+  font-weight: bold;
+}
