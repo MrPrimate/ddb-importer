@@ -82,6 +82,8 @@ const collectSceneData = (scene) => {
     gridUnits: scene.data.gridUnits,
     shiftX: scene.data.shiftX,
     shiftY: scene.data.shiftY,
+    // initial
+    initial: scene.data.initial,
     // customization
     backgroundColor: scene.data.backgroundColor,
     walls: scene.data.walls.map((wall) => ({
@@ -113,6 +115,7 @@ const collectSceneData = (scene) => {
         x: token.x,
         y: token.y,
         disposition: token.disposition,
+        flags: token.flags,
       };
     }),
   };
