@@ -13,7 +13,7 @@ function linkImages(html) {
   $(html)
     .find('div[data-edit="content"] img, div[data-edit="content"] video')
     .each((index, element) => {
-      const showPlayersButton = $("<a class='vtta-button'><i class='fas fa-eye'></i>&nbsp;Show Players</a>");
+      const showPlayersButton = $("<a class='ddb-button'><i class='fas fa-eye'></i>&nbsp;Show Players</a>");
       $(showPlayersButton).click(() => {
         const src = $(element).attr("src");
         game.socket.emit("module.ddb-importer", { sender: game.user.data._id, action: "showImage", src: src });

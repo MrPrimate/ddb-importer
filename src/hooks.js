@@ -10,7 +10,6 @@ import registerSheets from "./hooks/ready/registerSheets.js";
 import checkCompendiums from "./hooks/ready/checkCompendiums.js";
 import registerGameSettings from "./hooks/ready/registerGameSettings.js";
 import { itemSheets } from "./hooks/ready/items.js";
-import { adventureSheets } from "./hooks/ready/adventure.js";
 
 // other hooks
 import addFolderLabel from "./hooks/renderSidebarTab/addFolderLabel.js";
@@ -23,6 +22,7 @@ import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
 
 // image hooks
 import linkImages from "./hooks/renderJournalSheet/linkImages.js";
+import adventureFlags from "./hooks/renderJournalSheet/adventure.js";
 
 import registerNotifications from "./lib/Notification.js";
 
@@ -55,7 +55,6 @@ export function onceReady() {
     // register the D&DBeyond Button on the character sheets
     registerSheets();
     itemSheets();
-    adventureSheets();
 
   }, 500);
 }
@@ -81,4 +80,5 @@ export function renderSidebarTab(app, html) {
 // eslint-disable-next-line no-unused-vars
 export function renderJournalSheet(sheet, html, data) {
   linkImages(html);
+  adventureFlags(sheet, html, data);
 }

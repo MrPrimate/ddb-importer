@@ -1,4 +1,5 @@
 import { DDBAdventureFlags } from "../../lib/adventureFlags.js";
+import buildNotes from "./buildNotes.js";
 
 const POPUPS = {
   json: null,
@@ -21,7 +22,7 @@ const renderPopup = (type, url) => {
   return true;
 };
 
-function initAdventureSheetHook(app, html) {
+function adventureFlags(app, html, data) {
   if (!app.entity.data.flags.ddb) return;
 
   const title = `DDB Adventure Import Flags`;
@@ -40,9 +41,12 @@ function initAdventureSheetHook(app, html) {
   html.closest('.app').find('.open-adventure-ddb-importer').remove();
   let titleElement = html.closest('.app').find('.window-title');
   button.insertAfter(titleElement);
+  buildNotes(html, data);
 }
 
-export function adventureSheets() {
-  Hooks.on('renderJournalSheet', initAdventureSheetHook);
-}
+
+export default adventureFlags;
+// export function adventureSheets() {
+//   Hooks.on('renderJournalSheet', initAdventureSheetHook);
+// }
 

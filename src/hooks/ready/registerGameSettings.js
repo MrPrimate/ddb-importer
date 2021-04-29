@@ -109,6 +109,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "allow-note-generation", {
+    name: "ddb-importer.allow-note-generation.name",
+    hint: "ddb-importer.allow-note-generation.hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "auto-create-compendium", {
     name: "ddb-importer.auto-create-compendium.name",
     hint: "ddb-importer.auto-create-compendium.hint",
