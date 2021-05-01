@@ -1,6 +1,7 @@
 # 0.6.33
 
 * Improved Journal formatting for imported adventures.
+* Improved scene note icons.
 
 # 0.6.32
 
