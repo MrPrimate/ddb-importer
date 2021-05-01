@@ -67,4 +67,4 @@ jobs:
         DISCORD_USERNAME: "Release-O-Bot"
       uses: Ilshidur/action-discord@0.0.2
       with:
-        args: 'DDB Importer ${{ steps.get-version.outputs.version }} has been created.'
+        args: 'DDB Importer ${{ steps.get-version.outputs.version }} has been published!'
