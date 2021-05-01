@@ -1,15 +1,14 @@
 # D&D Beyond Importer
 
-Import your dndbeyond.com characters into Foundry Virtual Tabletop.
+Integrate your dndbeyond.com characters into Foundry Virtual Tabletop.
 
 This module:
 * Import your DDB characters into Foundry, and sync changes back!
 * Import a characters extras such as Wildshapes or beast companions.
 * Bulk import spells and items.
 * [Patreon](https://patreon.com/mrprimate) supporters can bulk import monsters.
-* Can bulk import simple class, race and feat descriptions.
-* When you import a Cleric or Druid it will import _all_ your spells.*
-* Import character Extras such as Wildshape stats and Ranger companions.
+* [Patreon](https://patreon.com/mrprimate) supporters can bulk import simple class, race and feat descriptions.
+* [Patreon](https://patreon.com/mrprimate) supporters can sync limited character changes back to DDB.
 
 In addition you can:
 
@@ -37,6 +36,8 @@ Do **NOT** give your cookie to other people, this is like handing out a password
 We do not store your cobalt cookie on the server.
 
 To logout/invalidate these credentials log out of your D&DBeyond Session.
+
+If you wish to host your own proxy, please see [ddb-proxy](https://github.com/mrprimate/ddb-proxy), help is not available for this mode, and not all functionality is available.
 
 ## Notes
 
