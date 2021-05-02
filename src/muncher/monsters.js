@@ -7,7 +7,7 @@ import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 
-window.parseMonsters = parseMonsters;
+window.ddbParseMonsters = parseMonsters;
 
 async function getMonsterData() {
   const cobaltCookie = getCobalt();

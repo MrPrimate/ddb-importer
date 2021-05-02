@@ -3,6 +3,9 @@ import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from ".
 import DDBMuncher from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings } from "./Secrets.js";
 
+window.ddbGetPatreonTiers = getPatreonTiers;
+window.ddbSetPatreonTier = setPatreonTier;
+
 export function isSetupComplete(needsCobalt = true) {
   const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
   const dataDirSet = !BAD_DIRS.includes(uploadDir);
