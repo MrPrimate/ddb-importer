@@ -3,7 +3,7 @@ name: ddb-importer CI
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - 'module.json'
 
