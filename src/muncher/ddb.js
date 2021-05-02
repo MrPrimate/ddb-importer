@@ -397,6 +397,12 @@ export default class DDBMuncher extends Application {
         enabled: true,
       },
       {
+        name: "use-full-token-image",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-full-token-image"),
+        description: "Use avatar image for token rather than token image",
+        enabled: true,
+      },
+      {
         name: "dae-copy",
         isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
         description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",

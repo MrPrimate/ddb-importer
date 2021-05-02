@@ -1,3 +1,7 @@
+# 0.6.34
+
+* You can now import the full/avater art as the token art, rather than the square token image.
+
 # 0.6.33
 
 * Improved Journal formatting for imported adventures.

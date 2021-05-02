@@ -932,6 +932,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-use-full-token-image", {
+    name: "ddb-importer.munching-policy-use-full-token-image.name",
+    hint: "ddb-importer.munching-policy-use-full-token-image.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "munching-policy-remote-images", {
     name: "ddb-importer.munching-policy-remote-images.name",
     hint: "ddb-importer.munching-policy-remote-images.hint",
