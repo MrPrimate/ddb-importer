@@ -233,10 +233,11 @@ blockquote.adventure-read-aloud-text {
   z-index: -1;
 }
 
-.Core-Styles_Core-Metadata, .Serif-Character-Style_Inline-Subhead-Serif, .Serif-Character-Style_Italic-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Italic-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif  {
+.Core-Styles_Core-Metadata, .Serif-Character-Style_Inline-Subhead-Serif, .Serif-Character-Style_Italic-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Italic-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif, .Serif-Character-Style_Bold-Italic-Serif  {
   font-style: italic;
 }
 
-.Serif-Character-Style_Bold-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Bold-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif  {
+.Serif-Character-Style_Bold-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Bold-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif, .Serif-Character-Style_Bold-Italic-Serif {
   font-weight: bold;
 }
+
