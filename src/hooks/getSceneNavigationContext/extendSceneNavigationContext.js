@@ -93,6 +93,14 @@ const collectSceneData = (scene) => {
       move: wall.move,
       sense: wall.sense,
     })),
+    //
+    drawings: scene.data.drawings,
+    weather: scene.data.weather,
+    // lights
+    darkness: scene.data.darkness,
+    tokenVision: scene.data.tokenVision,
+    globalLight: scene.data.globalLight,
+    globalLightThreshold: scene.data.globalLightThreshold,
     lights: scene.data.lights.map((light) => ({
       angle: light.angle,
       bright: light.bright,
