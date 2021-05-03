@@ -1,7 +1,9 @@
-# 0.6.34
+# 1.0.0
 
 * You can now import the full/avatar art as the token art, rather than the square token image.
 * Better scene data extraction for adventure-muncher.
+* Patreon restrictions relaxed, source filter and homebrew imports now available to Coffee Tier.
+* Fixed CSS issue which effected all blockquotes.
 
 # 0.6.33
 
