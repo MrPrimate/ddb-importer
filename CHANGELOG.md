@@ -1,6 +1,7 @@
 # 0.6.34
 
-* You can now import the full/avater art as the token art, rather than the square token image.
+* You can now import the full/avatar art as the token art, rather than the square token image.
+* Better scene data extraction for adventure-muncher.
 
 # 0.6.33
 
