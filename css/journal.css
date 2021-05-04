@@ -104,7 +104,7 @@ aside.read-aloud-text {
   background-image: url(https://media.dndbeyond.com/compendium-images/tcoe/0gqawlEa2tjXGxpc/mm_statbg_sm.jpg) !important;
 }
 
-h2.compendium-hr, h3.compendium-hr, h4.compendium-hr, h4.Core-Styles_Core-Body, h4.quick-menu-exclude.Table_Table-Title, h4.ddb, h5.ddb {
+h2.compendium-hr, h3.compendium-hr, h4.compendium-hr, h4.Core-Styles_Core-Body, h4.quick-menu-exclude.Table_Table-Title, .ddb-book-header{
   font-weight: bold;
 }
 
@@ -152,7 +152,7 @@ blockquote.adventure-read-aloud-text::before, blockquote.adventure-read-aloud-te
   right: -4px !important;
 }
 
-blockquote.adventure-read-aloud-text, blockquote.compendium-parchment-blockquote, blockquote.ddb {
+blockquote.adventure-read-aloud-text, blockquote.compendium-parchment-blockquote, blockquote.ddb-blockquote {
   background: white;
   padding: 20px;
   position: relative;
