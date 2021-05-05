@@ -438,6 +438,7 @@ export default function getInventory(ddb, character, itemSpells) {
         item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
         item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
       }
+      if (!item.name || item.name === "") item.name = "Item";
       items.push(item);
     }
   }

@@ -1,3 +1,9 @@
+# 1.0.1
+
+* Items with no names no longer cause the importer to fail
+* More CSS tweaks.
+* Scene export now captures note icon scale and light animations.
+
 # 1.0.0
 
 * You can now import the full/avatar art as the token art, rather than the square token image.

@@ -34,6 +34,10 @@ const getNotes = (scene) => {
         index: idx,
         label: journal.data.name,
         flags: flags,
+        iconSize: note.iconSize,
+        iconTint: note.iconTint,
+        textColor: note.textColor,
+        textAnchor: note.textAnchor,
         x: note.x,
         y: note.y,
       };
@@ -47,6 +51,10 @@ const getNotes = (scene) => {
           label: note.label,
           flags: note.flags,
           index: note.index,
+          iconSize: note.iconSize,
+          iconTint: note.iconTint,
+          textColor: note.textColor,
+          textAnchor: note.textAnchor,
           positions: [{ x: note.x, y: note.y }]
         };
         notes.push(n);
@@ -56,7 +64,15 @@ const getNotes = (scene) => {
     .sort((a, b) => {
       return a.index - b.index;
     })
-    .map((note) => ({ label: note.label, flags: note.flags, positions: note.positions }));
+    .map((note) => ({
+      label: note.label,
+      flags: note.flags,
+      positions: note.positions,
+      iconSize: note.iconSize,
+      iconTint: note.iconTint,
+      textColor: note.textColor,
+      textAnchor: note.textAnchor,
+    }));
 
   return notes;
 };
@@ -111,6 +127,8 @@ const collectSceneData = (scene) => {
       tintAlpha: light.tintAlpha,
       x: light.x,
       y: light.y,
+      lightAnimation: light.lightAnimation,
+      hidden: light.hidden,
     })),
     // tokens
     tokens: scene.data.tokens.filter((token) => !token.actorLink).map((token) => {
@@ -140,6 +158,9 @@ const collectSceneData = (scene) => {
   }
 
   data.flags.ddb.notes = notes;
+  data.flags.ddbimporter = {
+    version: game.modules.get("ddb-importer").data.version,
+  };
 
   return data;
 };
