@@ -1,3 +1,7 @@
+# 1.0.2
+
+* Scene export improvements.
+
 # 1.0.1
 
 * Items with no names no longer cause the importer to fail.
