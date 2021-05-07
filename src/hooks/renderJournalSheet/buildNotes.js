@@ -24,21 +24,14 @@ function buildNotes(html, data) {
   $(html)
     .find("h1, h2, h3, h4, h5, figure, p")
     .each((index, element) => {
-      // const showStartButton = $(
-      //   "<a id='ddb-note-start' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy start </a>"
-      // );
-      // const showEndButton = $(
-      //   "<a id='ddb-note-end' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy end </a>"
-      // );
-
       $(element).wrap("<div class='ddbimporter-note-container'></div>");
       // show the button on mouseenter
       $(element)
         .parent()
         .mouseenter(function Hovering() {
           const tagName = $(element).prop("tagName");
-          $(this).append(getButton("start",tagName));
-          $(this).append(getButton("end",tagName));
+          const showStartButton = $(this).append(getButton("start", tagName));
+          const showEndButton = $(this).append(getButton("end", tagName));
           $(showStartButton).click(() => {
             // const src = $(element).attr("src");
             clippy = {
