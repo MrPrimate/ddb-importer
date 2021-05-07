@@ -16,7 +16,7 @@ function buildNotes(html, data) {
 
   // mark all headers
   $(html)
-    .find("h2, h3, h4")
+    .find("h1, h2, h3, h4, h5, figure, p")
     .each((index, element) => {
       const showStartButton = $(
         "<a id='ddb-note-start' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy start</a>"
