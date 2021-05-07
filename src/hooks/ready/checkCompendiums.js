@@ -9,7 +9,7 @@ let sanitize = (text) => {
 
 let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => {
   const compendiumName = game.settings.get("ddb-importer", settingName);
-  const compendium = await game.packs.find((pack) => pack.collection === compendiumName);
+  const compendium = await game.packs.get(compendiumName);
   if (compendium) {
     logger.info(`Compendium '${compendiumName}' found, will not create compendium.`);
     return false;
@@ -17,14 +17,14 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
     logger.info(`Compendium for ${compendiumLabel}, was not found, creating it now.`);
     const sanitizedLabel = sanitize(compendiumLabel);
     // create a compendium for the user
-    await Compendium.create({
+    const result = await CompendiumCollection.createCompendium({
       entity: compendiumType,
       label: `DDB ${compendiumLabel}`,
-      name: `ddb-${game.world.name}-${sanitizedLabel}`,
+      name: `ddb-${game.world.data.name}-${sanitizedLabel}`,
       package: "world"
     });
     // 0.8.0 this is now done through CompendiumCollections
-    await game.settings.set("ddb-importer", settingName, `world.ddb-${game.world.name}-${sanitizedLabel}`);
+    await game.settings.set("ddb-importer", settingName, `world.ddb-${game.world.data.name}-${sanitizedLabel}`);
     return true;
   }
 };
