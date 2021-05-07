@@ -25,6 +25,12 @@ import { abilityOverrideEffects } from "../parser/effects/abilityOverrides.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
+const DISABLE_FOUNDRY_UPGRADE = {
+  applyFeatures: false,
+  promptAddFeatures: false,
+};
+
+
 // reference to the D&D Beyond popup
 const POPUPS = {
   json: null,
@@ -352,15 +358,15 @@ export default class CharacterImport extends FormApplication {
     const includedItems = getCharacterUpdatePolicyTypes();
 
     // collect all items belonging to one of those inventory item categories
-    const ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
-    const toRemove = ownedItems
+    const ownedItems = this.actor.getEmbeddedCollection("Item");
+    const toRemove = ownedItems._source
       .filter(
         (item) => includedItems.includes(item.type) && !excludedList.some((excluded) => excluded._id === item._id)
       )
       .filter((item) => !item.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item._id);
 
-    if (toRemove.length > 0) await this.actor.deleteEmbeddedEntity("OwnedItem", toRemove);
+    if (toRemove.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toRemove);
     return toRemove;
   }
 
@@ -1236,14 +1242,14 @@ export default class CharacterImport extends FormApplication {
       items = await this.enrichCharacterItems(html, items);
       CharacterImport.showCurrentTask(html, "Adding items to character");
       logger.debug("Adding the following items:", items);
-      await this.actor.createOwnedItem(items);
+      await this.actor.createEmbeddedDocuments("Item",items,DISABLE_FOUNDRY_UPGRADE);
     }
   }
 
   // returns items not updated
   async updateExistingIdMatchedItems(html, items) {
     if (this.actorOriginal.flags.ddbimporter && this.actorOriginal.flags.ddbimporter.inPlaceUpdateAvailable) {
-      const ownedItems = this.actor.getEmbeddedCollection("OwnedItem");
+      const ownedItems = this.actor.getEmbeddedCollection("Item")._source;
 
       let nonMatchedItems = [];
       let matchedItems = [];
@@ -1304,11 +1310,11 @@ export default class CharacterImport extends FormApplication {
         for (const item of enrichedItems) {
           logger.debug(`Updating ${item.name}`);
           // eslint-disable-next-line no-await-in-loop
-          await this.actor.updateOwnedItem(item);
+          await this.actor.updateEmbeddedDocuments("Item",item);
         }
       } else {
         logger.debug("Updating items:", enrichedItems);
-        await this.actor.updateOwnedItem(enrichedItems);
+        await this.actor.updateEmbeddedDocuments("Item",enrichedItems);
       }
 
       logger.debug("Finished updating items");
@@ -1425,13 +1431,13 @@ export default class CharacterImport extends FormApplication {
     if (useExistingCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing compendium items");
       logger.info("Importing compendium items:", compendiumItems);
-      await this.actor.createOwnedItem(compendiumItems);
+      await this.actor.createEmbeddedDocuments("Item",compendiumItems,DISABLE_FOUNDRY_UPGRADE);
     }
 
     if (useSRDCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing SRD compendium items");
       logger.info("Importing SRD compendium items:", srdCompendiumItems);
-      await this.actor.createOwnedItem(srdCompendiumItems);
+      await this.actor.createEmbeddedDocuments("Item",srdCompendiumItems,DISABLE_FOUNDRY_UPGRADE);
     }
 
     logger.debug("Finished importing items");
@@ -1468,12 +1474,12 @@ export default class CharacterImport extends FormApplication {
     );
 
     // remove existing active item effects
-    await this.actor.deleteEmbeddedEntity(
+    await this.actor.deleteEmbeddedDocuments(
       "ActiveEffect",
       itemEffects.map((ae) => ae._id)
     );
     // clear down ddb generated character effects such as skill bonuses
-    await this.actor.deleteEmbeddedEntity(
+    await this.actor.deleteEmbeddedDocuments(
       "ActiveEffect",
       ddbGeneratedCharEffects.map((ae) => ae._id)
     );
@@ -1498,7 +1504,7 @@ export default class CharacterImport extends FormApplication {
       this.result.character.effects = this.result.character.effects.concat(charEffects, ignoredEffects);
     } else {
       // if not retaining effects remove character effects
-      await this.actor.deleteEmbeddedEntity(
+      await this.actor.deleteEmbeddedDocuments(
         "ActiveEffect",
         charEffects.map((ae) => ae._id)
       );
@@ -1594,7 +1600,7 @@ export default class CharacterImport extends FormApplication {
         return false;
       });
       targetEffects.forEach((ae) => {
-        this.actor.updateEmbeddedEntity("ActiveEffect", { _id: ae._id, disabled: !ae.disabled });
+        this.actor.updateEmbeddedDocument("ActiveEffect", { _id: ae._id, disabled: !ae.disabled });
       });
     }
   }
