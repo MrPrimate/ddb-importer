@@ -157,6 +157,7 @@ const collectSceneData = (scene) => {
     data.flags.vtta.code = scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
   }
 
+  if (!data.flags.ddb) data.flags.ddb = {};
   data.flags.ddb.notes = notes;
   data.flags.ddbimporter = {
     version: game.modules.get("ddb-importer").data.version,
