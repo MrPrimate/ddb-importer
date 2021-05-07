@@ -9,6 +9,12 @@ function copyToClipboard(text) {
 
 var clippy = {};
 
+function getButton(name, type) {
+  return $(
+    `<a id='ddb-note-${name}' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy ${type} ${name} </a>`
+  );
+}
+
 function buildNotes(html, data) {
   if (!game.user.isGM) return;
   const allow = game.settings.get("ddb-importer", "allow-note-generation");
@@ -18,27 +24,28 @@ function buildNotes(html, data) {
   $(html)
     .find("h1, h2, h3, h4, h5, figure, p")
     .each((index, element) => {
-      const showStartButton = $(
-        "<a id='ddb-note-start' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy start</a>"
-      );
-      const showEndButton = $(
-        "<a id='ddb-note-end' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy end</a>"
-      );
+      // const showStartButton = $(
+      //   "<a id='ddb-note-start' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy start </a>"
+      // );
+      // const showEndButton = $(
+      //   "<a id='ddb-note-end' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy end </a>"
+      // );
 
       $(element).wrap("<div class='ddbimporter-note-container'></div>");
       // show the button on mouseenter
       $(element)
         .parent()
         .mouseenter(function Hovering() {
-          $(this).append(showStartButton);
-          $(this).append(showEndButton);
+          const tagName = $(element).prop("tagName");
+          $(this).append(getButton("start",tagName));
+          $(this).append(getButton("end",tagName));
           $(showStartButton).click(() => {
             // const src = $(element).attr("src");
             clippy = {
               ddbId: data.entity.flags.ddb.ddbId,
               cobaltId: data.entity.flags.ddb.cobaltId,
               parentId: data.entity.flags.ddb.parentId,
-              splitTag: $(element).prop("tagName").toLowerCase(),
+              splitTag: tagName.toLowerCase(),
               slug: data.entity.flags.ddb.slug,
               tagIdFirst: $(element).prop("id"),
               contentChunkIdStart: $(element).attr("data-content-chunk-id"),
