@@ -1,6 +1,6 @@
 # 1.0.3
 
-* Items will add cost/price if available.
+* Tomes did not add stat bonuses correctly.
 
 # 1.0.2
 
