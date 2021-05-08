@@ -103,9 +103,6 @@ export default function parseWonderous(data) {
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   item.data.weight = totalWeight / bundleSize;
 
-  /* price */
-  item.data.price = data.definition.cost ? data.definition.cost : 0;
-
   /* attuned: false, */
   item.data.attuned = getAttuned(data);
 

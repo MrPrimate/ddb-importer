@@ -257,9 +257,6 @@ export default function parseStaff(data, character) {
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   weapon.data.weight = totalWeight / bundleSize;
 
-  /* price */
-  weapon.data.price = data.definition.cost ? data.definition.cost : 0;
-
   /* attuned: false, */
   weapon.data.attuned = getAttuned(data);
 

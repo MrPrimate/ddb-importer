@@ -128,9 +128,6 @@ export default function parseTool(ddb, data, itemType) {
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   tool.data.weight = totalWeight / bundleSize;
 
-  /* price */
-  tool.data.price = data.definition.cost ? data.definition.cost : 0;
-
   /* attuned: false, */
   tool.data.attuned = getAttuned(data);
 

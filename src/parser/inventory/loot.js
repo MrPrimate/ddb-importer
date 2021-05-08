@@ -114,9 +114,6 @@ export default function parseLoot(data, itemType) {
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   loot.data.weight = totalWeight / bundleSize;
 
-  /* price */
-  loot.data.price = data.definition.cost ? data.definition.cost : 0;
-
   /* attuned: false, */
   loot.data.attuned = getAttuned(data);
 

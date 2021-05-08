@@ -170,9 +170,6 @@ export default function parsePotion(data, itemType) {
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   consumable.data.weight = totalWeight / bundleSize;
 
-  /* price */
-  consumable.data.price = data.definition.cost ? data.definition.cost : 0;
-
   /* attuned: false, */
   consumable.data.attuned = getAttuned(data);
 

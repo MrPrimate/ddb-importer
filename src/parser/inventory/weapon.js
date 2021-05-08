@@ -389,7 +389,6 @@ export default function parseWeapon(data, character, flags) {
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   weapon.data.weight = totalWeight / bundleSize;
-  weapon.data.price = data.definition.cost ? data.definition.cost : 0;
   weapon.data.attuned = getAttuned(data);
   weapon.data.equipped = getEquipped(data);
   weapon.data.rarity = data.definition.rarity;

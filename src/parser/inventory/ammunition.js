@@ -121,8 +121,6 @@ export default function parseAmmunition(data, itemType) {
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   ammunition.data.weight = (totalWeight / bundleSize) * (ammunition.data.quantity / bundleSize);
 
-  ammunition.data.price = data.definition.cost ? data.definition.cost : 0;
-
   ammunition.data.attuned = getAttuned(data);
 
   ammunition.data.equipped = getEquipped(data);

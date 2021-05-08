@@ -146,7 +146,6 @@ export default function parseArmor(data, character, flags) {
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   armor.data.weight = totalWeight / bundleSize;
-  armor.data.price = data.definition.cost ? data.definition.cost : 0;
   armor.data.attuned = getAttuned(data);
   armor.data.equipped = getEquipped(data);
   armor.data.rarity = data.definition.rarity;
