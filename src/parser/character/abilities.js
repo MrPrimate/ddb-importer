@@ -35,7 +35,7 @@ function parseAbilities(data, includeExcludedEffects = false) {
       .filter((mod) => mod.statId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
     const bonus = utils
-      .filterBaseModifiers(data, "bonus", `${ability.long}-score`, [null, ""], includeExcludedEffects)
+      .filterBaseModifiers(data, "bonus", `${ability.long}-score`, [null, "", "+2 to score maximum", "+4 to score maximum"], includeExcludedEffects)
       .filter((mod) => mod.entityId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
     const setAbilities = utils
@@ -68,6 +68,7 @@ function parseAbilities(data, includeExcludedEffects = false) {
     // over rides all other calculations if present
     const overrideStat = data.character.overrideStats.find((stat) => stat.id === ability.id).value || 0;
 
+    // console.warn(`${ability.value} - Include active effects: ${includeExcludedEffects}`);
     // console.log(`stat ${stat}`);
     // console.log(`bonus ${bonus}`);
     // console.log(`bonusStat ${bonusStat}`);

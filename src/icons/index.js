@@ -131,7 +131,7 @@ export async function copyInbuiltIcons(items, monster = false, monsterName = "")
 
   return new Promise((resolve) => {
     const iconItems = items.map((item) => {
-      logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
+      // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
       // if we have a monster lets check the monster dict first
       if (monster) {
         const monsterPath = getIconPath(item, "monster", monsterName);

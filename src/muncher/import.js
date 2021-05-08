@@ -802,7 +802,7 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
   let results = [];
 
   for (let item of newItems) {
-    logger.debug(`checking ${item.name}`);
+    // logger.debug(`checking ${item.name}`);
     const matched = await looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
 
     // logger.debug(`matched? ${JSON.stringify(matched)}`);
