@@ -1,3 +1,7 @@
+# 1.0.3
+
+* Items will add cost/price if available.
+
 # 1.0.2
 
 * Scene export improvements.

@@ -336,6 +336,8 @@ function parseItem(ddb, data, character, flags) {
     item.flags.ddbimporter['id'] = data.id;
     item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
 
+    if (data.definition.cost) item.data.price = data.definition.cost
+
     return item;
   } catch (err) {
     logger.warn(
