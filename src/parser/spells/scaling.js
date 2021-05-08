@@ -24,7 +24,7 @@ let getScaleType = (name, mod) => {
     if (definition) {
       scaleType = modScaleType;
     } else {
-      utils.log("No definition found for " + name); // eslint-disable-line no-console
+      logger.warn("No spell definition found for " + name);
     }
   } else if (modScaleType === "spellscale") {
     // lets handle cases where there is a spellscale type but no damage
@@ -59,7 +59,7 @@ let getScaleType = (name, mod) => {
     // examples include: hex, shadowblade, magic weapon, bestow curse
     scaleType = modScaleType;
   } else {
-    utils.log(name + " parse failed: " + JSON.stringify(modScaleType));
+    logger.warn(`${name} parse failed: `, modScaleType);
     scaleType = modScaleType; // if this is new/unknow will use default
   }
 

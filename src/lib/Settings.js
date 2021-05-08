@@ -193,7 +193,7 @@ export class DDBSetup extends FormApplication {
 
 function getCompendiumLookups(type, selected) {
   const selections = game.packs
-  .filter((pack) => pack.entity === type)
+  .filter((pack) => pack.documentClass.documentName === type)
   .reduce((choices, pack) => {
     choices[pack.collection] = {
       label: `[${pack.metadata.package}] ${pack.metadata.label}`,

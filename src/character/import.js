@@ -220,7 +220,7 @@ export async function getCharacterData(characterId, syncId) {
 export default class CharacterImport extends FormApplication {
   constructor(options, actor) {
     super(options);
-    this.actor = game.actors.entities.find((a) => a.id === actor._id);
+    this.actor = game.actors.get(actor._id);
     this.migrateMetadata();
     this.actorOriginal = JSON.parse(JSON.stringify(this.actor));
     this.result = {};
@@ -311,7 +311,7 @@ export default class CharacterImport extends FormApplication {
           if (originalItem) {
             if (item.effects === undefined) item.effects = [];
             if (originalItem.effects) {
-              utils.log(`Copying Effects for ${originalItem.name}`);
+              logger.info(`Copying Effects for ${originalItem.name}`);
               item.effects = originalItem.effects;
             }
           }
@@ -1314,7 +1314,7 @@ export default class CharacterImport extends FormApplication {
         }
       } else {
         logger.debug("Updating items:", enrichedItems);
-        await this.actor.updateEmbeddedDocuments("Item",enrichedItems);
+        await this.actor.updateEmbeddedDocuments("Item", enrichedItems);
       }
 
       logger.debug("Finished updating items");
@@ -1396,7 +1396,7 @@ export default class CharacterImport extends FormApplication {
      * If SRD is selected, we prefer this
      */
     if (useSRDCompendiumItems) {
-      utils.log("Removing compendium items");
+      logger.info("Removing compendium items");
       const compendiumFeatureItems = await getSRDCompendiumItems(items, "features");
       const compendiumInventoryItems = await getSRDCompendiumItems(items, "inventory");
       const compendiumSpellItems = await getSRDCompendiumItems(items, "spells");

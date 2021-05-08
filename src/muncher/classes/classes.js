@@ -36,7 +36,7 @@ export async function getClasses(data) {
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
   const compendiumLabel = getCompendiumLabel("features");
-  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
+  const compendium = await game.packs.get(compendiumLabel);
   const index = await compendium.getIndex();
   const firstPassFeatures = await index.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
   let compendiumClassFeatures = [];

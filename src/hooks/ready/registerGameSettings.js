@@ -3,14 +3,14 @@ import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
 
 export default function () {
   const actorCompendiums = game.packs
-    .filter((pack) => pack.entity === "Actor")
+    .filter((pack) => pack.documentClass.documentName === "Actor")
     .reduce((choices, pack) => {
       choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
       return choices;
     }, {});
 
   const itemCompendiums = game.packs
-    .filter((pack) => pack.entity === "Item")
+    .filter((pack) => pack.documentClass.documentName === "Item")
     .reduce((choices, pack) => {
       choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
       return choices;
@@ -43,54 +43,6 @@ export default function () {
     type: DirectoryPicker.Directory,
     default: "[data] ",
   });
-
-  // game.settings.register("ddb-importer", "scene-upload-directory", {
-  //   name: "ddb-importer.scene-upload-directory.name",
-  //   hint: "ddb-importer.scene-upload-directory.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: DirectoryPicker.Directory,
-  //   default: "[data] ",
-  // });
-
-  // game.settings.register("ddb-importer", "scene-format", {
-  //   name: "ddb-importer.scene-format.name",
-  //   hint: "ddb-importer.scene-format.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: String,
-  //   choices: ["ddb-importer.scene-format.0", "ddb-importer.scene-format.1"],
-  //   default: 0,
-  // });
-
-  game.settings.register("ddb-importer", "entity-import-policy", {
-    name: "ddb-importer.entity-import-policy.name",
-    hint: "ddb-importer.entity-import-policy.hint",
-    scope: "world",
-    config: false,
-    type: Number,
-    default: 1,
-    choices: [
-      "ddb-importer.entity-import-policy.0",
-      "ddb-importer.entity-import-policy.1",
-      "ddb-importer.entity-import-policy.2",
-    ],
-  });
-
-  // game.settings.register("ddb-importer", "entity-cleanup-policy", {
-  //   name: "ddb-importer.entity-cleanup-policy.name",
-  //   hint: "ddb-importer.entity-cleanup-policy.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: Number,
-  //   default: 0,
-  //   choices: [
-  //     "ddb-importer.entity-cleanup-policy.0",
-  //     "ddb-importer.entity-cleanup-policy.1",
-  //     "ddb-importer.entity-cleanup-policy.2",
-  //     "ddb-importer.entity-cleanup-policy.3",
-  //   ],
-  // });
 
   game.settings.register("ddb-importer", "settings-call-muncher", {
     scope: "world",

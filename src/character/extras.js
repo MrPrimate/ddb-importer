@@ -268,7 +268,7 @@ export async function characterExtras(html, characterData, actor) {
 
       // permissions the same as
       mock.permission = actor.data.permission;
-      mock.folder = folder._id;
+      mock.folder = folder.id;
 
       if (creatureGroup.description !== "") {
         mock.characteristicsDescription = `${creatureGroup.description}\n\n${mock.characteristicsDescription}`;
@@ -440,8 +440,8 @@ export async function characterExtras(html, characterData, actor) {
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
     // const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
 
-    const existingExtras = await game.actors.entities
-      .filter((extra) => extra.data.folder === folder._id)
+    const existingExtras = await game.actors.contents
+      .filter((extra) => extra.data.folder === folder.id)
       .map((extra) => extra.data);
 
     if (!updateBool || !updateImages) {
@@ -455,7 +455,7 @@ export async function characterExtras(html, characterData, actor) {
     await generateIconMap(finalExtras);
 
     if (updateBool) await updateExtras(finalExtras, existingExtras);
-    await createExtras(finalExtras, existingExtras, folder._id);
+    await createExtras(finalExtras, existingExtras, folder.id);
   } catch (err) {
     logger.error("Failure parsing extra", err);
     logger.error(err.stack);

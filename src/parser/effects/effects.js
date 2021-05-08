@@ -204,7 +204,6 @@ export function baseItemEffect(foundryItem, label) {
         disabled: false,
       },
     },
-    // _id: `${randomID()}${randomID()}`,
   };
 }
 

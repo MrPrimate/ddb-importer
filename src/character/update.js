@@ -366,7 +366,7 @@ async function updateEquipmentStatus(actor, characterId, ddbData, addEquipmentRe
   // reload the actor following potential updates to equipment
   let ddbItems = ddbData.ddb.inventory;
   if (addEquipmentResults?.data) {
-    actor = game.actors.entities.find((a) => a.id === actor._id);
+    actor = game.actors.get(actor._id);
     ddbItems = ddbItems.concat(addEquipmentResults.data.addItems);
   }
 

@@ -52,7 +52,7 @@ async function getCompendium() {
   if (compendiumLoaded) return monsterCompendium;
   const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
   if (compendiumName && compendiumName !== "") {
-    monsterCompendium = await game.packs.find((pack) => pack.collection === compendiumName);
+    monsterCompendium = await game.packs.get(compendiumName);
     if (monsterCompendium) {
       // eslint-disable-next-line require-atomic-updates
       compendiumLoaded = true;
@@ -72,29 +72,29 @@ async function addNPCToCompendium(npc) {
   const compendium = await getCompendium();
   if (compendium) {
     // unlock the compendium for update/create
-    compendium.locked = false;
+    compendium.configure({ locked: false });
 
     const index = await compendium.getIndex();
-    const entity = index.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
-    if (entity) {
+    const npcMatch = index.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
+    if (npcMatch) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
-        const compendiumNPC = JSON.parse(JSON.stringify(npc));
-        const existingNPC = await compendium.getEntry(entity._id);
+        const newNPC = JSON.parse(JSON.stringify(npc));
+        const existingNPC = await compendium.getDocument(npcMatch._id);
 
         const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
         if (!updateImages && existingNPC.img !== "icons/svg/mystery-man.svg") {
-          compendiumNPC.img = existingNPC.img;
+          newNPC.img = existingNPC.img;
         }
         if (!updateImages && existingNPC.token.img !== "icons/svg/mystery-man.svg") {
-          compendiumNPC.token.img = existingNPC.token.img;
+          newNPC.token.img = existingNPC.token.img;
         }
 
-        compendiumNPC._id = entity._id;
+        newNPC._id = npcMatch._id;
 
-        await compendium.updateEntity(compendiumNPC);
+        await existingNPC.update(newNPC);
       }
     } else {
-      await compendium.createEntity(npc);
+      await compendium.importDocument(npc);
     }
   } else {
     logger.error("Error opening compendium, check your settings");

@@ -1,6 +1,4 @@
-import utils from "./utils.js";
-
-// import EventPort from "./messaging/index.js";
+import logger from "./logger.js";
 
 // init hooks
 import setupLogging from "./hooks/init/setupLogging.js";
@@ -10,12 +8,6 @@ import registerSheets from "./hooks/ready/registerSheets.js";
 import checkCompendiums from "./hooks/ready/checkCompendiums.js";
 import registerGameSettings from "./hooks/ready/registerGameSettings.js";
 import { itemSheets } from "./hooks/ready/items.js";
-
-// other hooks
-import addFolderLabel from "./hooks/renderSidebarTab/addFolderLabel.js";
-
-// socket messaging
-import onSocketMessage from "./hooks/socket/onSocketMessage.js";
 
 // monster muncher
 import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
@@ -30,7 +22,7 @@ import registerNotifications from "./lib/Notification.js";
 // foundry is initializing
 export function init() {
   setupLogging();
-  utils.log("Init");
+  logger.info("Init");
 }
 
 // foundry is ready
@@ -46,12 +38,6 @@ export function onceReady() {
 
   // delay the startup just a tiny little bit
   setTimeout(() => {
-    // utils.log("Starting EventPort", "messaging");
-    // let port = new EventPort();
-    // port.start();
-
-    // let com = OutgoingCommunication(port);
-
     // register the D&DBeyond Button on the character sheets
     registerSheets();
     itemSheets();
@@ -59,21 +45,7 @@ export function onceReady() {
   }, 500);
 }
 
-export function onReady() {
-  game.socket.on("module.ddb-importer", (data) => {
-    if (data.sender === game.user.data._id) {
-      return;
-    }
-
-    const sender = game.users.get(data.sender);
-    delete data.sender;
-    onSocketMessage(sender, data);
-  });
-}
-
-
 export function renderSidebarTab(app, html) {
-  addFolderLabel(html);
   addMuncher(app, html);
 }
 

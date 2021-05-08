@@ -38,7 +38,7 @@ function getVehicleData() {
 async function getMonsterMap () {
   // ddb://monsters
   const monsterCompendiumLabel = await game.settings.get("ddb-importer", "entity-monster-compendium");
-  const monsterCompendium = await game.packs.find((pack) => pack.collection === monsterCompendiumLabel);
+  const monsterCompendium = await game.packs.get(monsterCompendiumLabel);
   const monsterIndex = await monsterCompendium.getIndex();
 
   const results = monsterIndex.map(async (i) => {
@@ -120,7 +120,7 @@ export async function generateAdventureConfig() {
   result.lookups.items = await getItemMap();
 
   const rulesCompendium = "dnd5e.rules";
-  const srdCompendium = await game.packs.find((pack) => pack.collection === rulesCompendium);
+  const srdCompendium = await game.packs.get(rulesCompendium);
   const srdIndex = await srdCompendium.getIndex();
 
   const skillEntry = srdIndex.find((i) => i.name === "Using Each Ability");

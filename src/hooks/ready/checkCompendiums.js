@@ -17,11 +17,12 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
     logger.info(`Compendium for ${compendiumLabel}, was not found, creating it now.`);
     const sanitizedLabel = sanitize(compendiumLabel);
     // create a compendium for the user
-    const result = await CompendiumCollection.createCompendium({
+    await CompendiumCollection.createCompendium({
       entity: compendiumType,
       label: `DDB ${compendiumLabel}`,
       name: `ddb-${game.world.data.name}-${sanitizedLabel}`,
-      package: "world"
+      package: "world",
+      sort: "a"
     });
     // 0.8.0 this is now done through CompendiumCollections
     await game.settings.set("ddb-importer", settingName, `world.ddb-${game.world.data.name}-${sanitizedLabel}`);

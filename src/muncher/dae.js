@@ -36,11 +36,11 @@ var magicItemsPack;
 
 export async function loadPacks() {
   if (packsLoaded) return;
-  itemPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Items").getContent();
-  spellPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Spells").getContent();
-  featsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Feats").getContent();
-  midiPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Midi-collection").getContent();
-  magicItemsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Magic Items").getContent();
+  itemPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Items").getDocuments();
+  spellPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Spells").getDocuments();
+  featsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Feats").getDocuments();
+  midiPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Midi-collection").getDocuments();
+  magicItemsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Magic Items").getDocuments();
   // eslint-disable-next-line require-atomic-updates
   packsLoaded = true;
 }

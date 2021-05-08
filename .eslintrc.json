@@ -33,7 +33,8 @@
     "ForgeAPI": true,
     "ROUTE_PREFIX": true,
     "CONST": true,
-    "randomID": true
+    "randomID": true,
+    "CompendiumCollection": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,
