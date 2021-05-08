@@ -142,7 +142,6 @@ export async function copyInbuiltIcons(items, monster = false, monsterName = "")
       }
       const pathMatched = getIconPath(item, item.type);
       if (pathMatched) {
-        console.log(item);
         item.img = pathMatched;
       }
       return item;
