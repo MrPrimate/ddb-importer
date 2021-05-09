@@ -1242,7 +1242,7 @@ export default class CharacterImport extends FormApplication {
       items = await this.enrichCharacterItems(html, items);
       CharacterImport.showCurrentTask(html, "Adding items to character");
       logger.debug("Adding the following items:", items);
-      await this.actor.createEmbeddedDocuments("Item",items,DISABLE_FOUNDRY_UPGRADE);
+      await this.actor.createEmbeddedDocuments("Item", items, DISABLE_FOUNDRY_UPGRADE);
     }
   }
 
@@ -1310,7 +1310,7 @@ export default class CharacterImport extends FormApplication {
         for (const item of enrichedItems) {
           logger.debug(`Updating ${item.name}`);
           // eslint-disable-next-line no-await-in-loop
-          await this.actor.updateEmbeddedDocuments("Item",item);
+          await this.actor.updateEmbeddedDocuments("Item", item);
         }
       } else {
         logger.debug("Updating items:", enrichedItems);
@@ -1431,13 +1431,13 @@ export default class CharacterImport extends FormApplication {
     if (useExistingCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing compendium items");
       logger.info("Importing compendium items:", compendiumItems);
-      await this.actor.createEmbeddedDocuments("Item",compendiumItems,DISABLE_FOUNDRY_UPGRADE);
+      await this.actor.createEmbeddedDocuments("Item", compendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
 
     if (useSRDCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Importing SRD compendium items");
       logger.info("Importing SRD compendium items:", srdCompendiumItems);
-      await this.actor.createEmbeddedDocuments("Item",srdCompendiumItems,DISABLE_FOUNDRY_UPGRADE);
+      await this.actor.createEmbeddedDocuments("Item", srdCompendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
 
     logger.debug("Finished importing items");
