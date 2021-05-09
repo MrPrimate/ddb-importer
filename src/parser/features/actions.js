@@ -168,24 +168,36 @@ function getLimitedUse(action, character) {
     (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus)
   ) {
     const resetType = DICTIONARY.resets.find((type) => type.id === action.limitedUse.resetType);
-    let maxUses;
+    let maxUses = (action.limitedUse.maxUses && action.limitedUse.maxUses !== -1) ? action.limitedUse.maxUses : 0;
 
     if (action.limitedUse.statModifierUsesId) {
       const ability = DICTIONARY.character.abilities.find(
         (ability) => ability.id === action.limitedUse.statModifierUsesId
       ).value;
-      maxUses = character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
-      if (action.limitedUse.maxUses) maxUses += action.limitedUse.maxUses;
-    } else if (action.limitedUse.useProficiencyBonus) {
-      const multiplier = action.limitedUse.proficiencyBonusOperator ? action.limitedUse.proficiencyBonusOperator : 1;
-      if (action.limitedUse.operator === 1) {
-        maxUses = (character.data.attributes.prof * multiplier) + action.limitedUse.maxUses;
-      } else {
-        maxUses = character.data.attributes.prof;
+
+      switch (action.limitedUse.operator) {
+        case 2: {
+          maxUses *= character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
+          break;
+        }
+        case 1:
+        default:
+          maxUses += character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
       }
-    } else {
-      maxUses = action.limitedUse.maxUses;
     }
+
+    if (action.limitedUse.useProficiencyBonus) {
+      switch (action.limitedUse.proficiencyBonusOperator) {
+        case 2: {
+          maxUses *= character.data.attributes.prof;
+          break;
+        }
+        case 1:
+        default:
+          maxUses += character.data.attributes.prof;
+      }
+    }
+
     return {
       value: maxUses - action.limitedUse.numberUsed,
       max: (maxUses) ? parseInt(maxUses) : null,

@@ -1,3 +1,7 @@
+# 1.0.5
+
+* Correct proficiency modifier multipliers on action and resource useage.
+
 # 1.0.4
 
 * Remove bug where actions such as Sneak Attack imported the feature and action when action only option was selected.
