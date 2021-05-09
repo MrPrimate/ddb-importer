@@ -122,7 +122,6 @@ function getDivineSmite() {
  * @param {*} characterJSON
  */
 export default function special(characterJSON) {
-  console.warn(characterJSON);
   const divineSmite = characterJSON.features.concat(characterJSON.actions)
     .some((f) => f.name === "Divine Smite" && f.type === "feat");
   if (divineSmite) {
