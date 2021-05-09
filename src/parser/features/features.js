@@ -294,7 +294,9 @@ export default function parseFeatures(ddb, character) {
   }
 
   // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
-  classItems.forEach((item) => {
+  classItems
+  .filter((item) => actionAndFeature || !ddb.character.actions.class.some((action) => action.name === item.name))
+  .forEach((item) => {
     const existingFeature = getNameMatchedFeature(items, item);
     const duplicateFeature = isDuplicateFeature(items, item);
     if (existingFeature && !duplicateFeature) {

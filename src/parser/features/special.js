@@ -187,9 +187,18 @@ export function fixFeatures(features) {
         };
         break;
       }
+      case "Sneak Attack": {
+        console.warn(feature);
+        feature.data.damage = { parts: [["(ceil(@classes.rogue.levels /2))d6", ""]], versatile: "", value: "" };
+        if (!feature.flags.ddbimporter.action) {
+          feature.data.actionType = "other";
+        }
+        break;
+      }
       case "Superiority Dice": {
         // feature parses as all available dice, rather than 1 per use
         feature.data.damage.parts[0][0] = `1d${feature.data.damage.parts[0][0].split("d").pop()}`;
+        break;
       }
       // no default
     }

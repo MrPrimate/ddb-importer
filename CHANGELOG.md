@@ -1,3 +1,7 @@
+# 1.0.4
+
+* Remove bug where actions such as Sneak Attack imported the feature and action when action only option was selected.
+
 # 1.0.3
 
 * Tomes did not add stat bonuses correctly.
