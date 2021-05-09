@@ -122,8 +122,10 @@ function getDivineSmite() {
  * @param {*} characterJSON
  */
 export default function special(characterJSON) {
-    const divineSmite = characterJSON.features.some((f) => f.name === "Divine Smite" && f.type === "feat");
-    if (divineSmite) {
-        characterJSON.spells.push(getDivineSmite());
-    }
+  console.warn(characterJSON);
+  const divineSmite = characterJSON.features.concat(characterJSON.actions)
+    .some((f) => f.name === "Divine Smite" && f.type === "feat");
+  if (divineSmite) {
+      characterJSON.spells.push(getDivineSmite());
+  }
 }
