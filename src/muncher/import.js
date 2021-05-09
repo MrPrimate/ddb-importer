@@ -872,7 +872,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
 
   let loadedItems = [];
   for (const i of firstPassItems) {
-    let item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
+    let item = await compendium.getDocument(i._id); // eslint-disable-line no-await-in-loop
     if (item.flags.ddbimporter) {
       item.flags.ddbimporter["pack"] = compendiumLabel;
     } else {
@@ -912,6 +912,8 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
     } else {
       i.flags.ddbimporter = { pack: compendiumName };
     }
+    // delete i._id;
+    // delete i.id;
     return i;
   });
   logger.debug(`SRD ${type} loaded items:`, loadedItems);

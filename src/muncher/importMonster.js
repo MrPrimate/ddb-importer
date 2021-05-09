@@ -34,8 +34,10 @@ async function retrieveCompendiumItems(items, compendiumName) {
  */
 async function retrieveSpells(spells) {
   const compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
+  const compendiumItems = await retrieveCompendiumItems(spells, compendiumName);
+  const itemData = compendiumItems.map((i) => i.toJSON());
 
-  return retrieveCompendiumItems(spells, compendiumName);
+  return itemData;
 }
 
 // /**
@@ -75,7 +77,7 @@ async function addNPCToCompendium(npc) {
     compendium.configure({ locked: false });
 
     const index = await compendium.getIndex();
-    const npcMatch = index.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
+    const npcMatch = index.contents.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
     if (npcMatch) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
         const newNPC = JSON.parse(JSON.stringify(npc));
@@ -317,7 +319,8 @@ async function swapItems(data) {
   if (swap) {
     logger.debug("Replacing items...");
     // console.info(data.items);
-    const updatedItems = await getCompendiumItems(data.items, "inventory", null, false, true);
+    const rawUpdatedItems = await getCompendiumItems(data.items, "inventory", null, false, true);
+    const updatedItems = rawUpdatedItems.map((i) => i.toJSON());
     const itemsToRemove = updatedItems.map((item) => {
       logger.debug(`${item.name} to ${item.flags.ddbimporter.originalItemName}`);
       return { name: item.flags.ddbimporter.originalItemName, type: item.type };
