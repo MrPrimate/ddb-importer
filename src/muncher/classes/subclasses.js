@@ -115,7 +115,7 @@ export async function getSubClasses(data) {
 
   await Promise.allSettled(firstPassFeatures.map(async (f) => {
     const feature = await compendium.getDocument(f._id);
-    compendiumClassFeatures.push(feature);
+    compendiumClassFeatures.push(feature.toJSON());
   }));
 
   // get base class
@@ -124,7 +124,7 @@ export async function getSubClasses(data) {
   // const classIndex = await classCompendium.getIndex();
   const content = await classCompendium.getDocuments();
 
-  await Promise.allSettled(data.map(async (subClass) => {
+  await Promise.all(data.map(async (subClass) => {
     const classMatch = content.find((i) => i.data.flags.ddbimporter['id'] == subClass.parentClassId);
     const builtClass = await buildSubClass(classMatch.data, subClass, compendiumClassFeatures, compendiumLabel);
     subClasses.push(builtClass);

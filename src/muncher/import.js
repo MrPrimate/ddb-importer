@@ -1076,7 +1076,7 @@ export async function srdFiddling(items, type) {
     logger.debug("Removing compendium items");
     const srdItems = await getSRDCompendiumItems(items, type);
     let itemMap = {};
-    itemMap[type] = srdItems;
+    itemMap[type] = srdItems.map((i) => i.toJSON());
     logger.debug("Adding SRD compendium items");
     updateCompendium(type, itemMap, updateBool);
     // removed existing items from those to be imported

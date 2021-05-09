@@ -41,12 +41,12 @@ export async function getClasses(data) {
   const firstPassFeatures = await index.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
   let compendiumClassFeatures = [];
 
-  await Promise.allSettled(firstPassFeatures.map(async (f) => {
-    const feature = await compendium.getEntry(f._id);
-    compendiumClassFeatures.push(feature);
+  await Promise.all(firstPassFeatures.map(async (f) => {
+    const feature = await compendium.getDocument(f._id);
+    compendiumClassFeatures.push(feature.toJSON());
   }));
 
-  await Promise.allSettled(data.map(async (klass) => {
+  await Promise.all(data.map(async (klass) => {
     logger.debug(`${klass.name} class parsing started...`);
     const builtClass = await buildClass(klass, compendiumClassFeatures, compendiumLabel);
     klasses.push(builtClass);
