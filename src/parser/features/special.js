@@ -188,7 +188,6 @@ export function fixFeatures(features) {
         break;
       }
       case "Sneak Attack": {
-        console.warn(feature);
         feature.data.damage = { parts: [["(ceil(@classes.rogue.levels /2))d6", ""]], versatile: "", value: "" };
         if (!feature.flags.ddbimporter.action) {
           feature.data.actionType = "other";
