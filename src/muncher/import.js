@@ -847,6 +847,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
     compendiumLabel = getCompendiumLabel(type);
   }
   const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
+  if (!compendium) return [];
   const index = await compendium.getIndex();
   const firstPassItems = await index.filter((i) =>
     items.some((orig) => {
