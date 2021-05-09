@@ -1,6 +1,8 @@
 # 1.0.4
 
 * Remove bug where actions such as Sneak Attack imported the feature and action when action only option was selected.
+* Sneak attack now uses auto-scaling formula rather than fixed value.
+* Divine Smite helper spell was no longer added.
 
 # 1.0.3
 
