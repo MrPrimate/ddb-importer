@@ -122,6 +122,13 @@ export default function parseClasses(ddb) {
       choices: skillChoices,
     };
 
+    item.data.saves = [];
+    DICTIONARY.character.abilities.forEach((ability) => {
+      const mods = utils.getChosenClassModifiers(ddb, true);
+      const save = utils.filterModifiers(mods, "proficiency", `${ability.long}-saving-throws`, [null, ""], true).length > 0;
+      if (save) item.data.saves.push(ability.value);
+    });
+
     const castSpells = (characterClass.definition.canCastSpells ||
       (characterClass.subclassDefinition && characterClass.subclassDefinition.canCastSpells));
 
