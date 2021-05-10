@@ -122,7 +122,7 @@ async function getNPCImage(data) {
     dndBeyondTokenImageUrl = dndBeyondImageUrl;
   }
 
-  const npcType = data.data.details.type;
+  const npcType = data.data.details.type.value;
   const genericNPCName = npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
   const npcName = data.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
 

@@ -1064,14 +1064,14 @@ export async function srdFiddling(items, type) {
   const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
 
   if (useSrd && type == "monsters") {
-    const srdItems = await getSRDCompendiumItems(items, type);
+    const rawSrdItems = await getSRDCompendiumItems(items, type);
+    const srdItems = rawSrdItems.map((i) => i.toJSON());
     // removed existing items from those to be imported
     logger.debug("Removing compendium items");
     const lessSrdItems = await removeItems(items, srdItems);
     const newIcons = lessSrdItems.concat(srdItems);
-    const iconItems = await updateIcons(newIcons);
-    const jsonItems = iconItems.map((i) => i.toJSON());
-    return jsonItems;
+    const iconedItems = await updateIcons(newIcons);
+    return iconedItems;
   } else if (useSrd) {
     logger.debug("Removing compendium items");
     const srdItems = await getSRDCompendiumItems(items, type);
