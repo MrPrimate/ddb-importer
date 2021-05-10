@@ -108,7 +108,6 @@ export default function getCharacter(ddb) {
 
   // speeds
   const movement = getSpeed(ddb);
-  character.data.attributes.speed = movement['speed'];
   character.data.attributes.movement = movement['movement'];
   character.data.attributes.senses = getSensesMap(ddb);
 

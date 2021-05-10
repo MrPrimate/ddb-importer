@@ -1,5 +1,6 @@
 import DICTIONARY from '../../dictionary.js';
 import utils from '../../utils.js';
+import { getSpellCastingAbility } from "../spells/ability.js";
 
 /**
  * Fetches the sources and pages for class and subclass
@@ -124,12 +125,16 @@ export default function parseClasses(ddb) {
     const castSpells = (characterClass.definition.canCastSpells ||
       (characterClass.subclassDefinition && characterClass.subclassDefinition.canCastSpells));
 
-    let spellcasting = "";
     if (castSpells) {
       const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === characterClass.definition.name);
-      if (spellProgression) spellcasting = spellProgression.value;
+      const spellCastingAbility = getSpellCastingAbility(characterClass);
+      if (spellProgression) {
+        item.data.spellcasting = {
+          progression: spellProgression.value,
+          ability: spellCastingAbility,
+        };
+      }
     }
-    item.data.spellcasting = spellcasting;
 
     items.push(item);
   });
