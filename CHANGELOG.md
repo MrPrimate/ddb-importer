@@ -1,6 +1,7 @@
 # 1.0.5
 
 * Correct proficiency modifier multipliers on action and resource useage.
+* Some abilities (e.g. Astaral monk Summon bonus action) added `+ @mod` incorrectly.
 
 # 1.0.4
 

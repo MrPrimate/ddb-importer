@@ -44,7 +44,7 @@ function getDamage(action) {
   const damageType = action.damageTypeId
     ? DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name
     : null;
-  const modBonus = (action.statId || action.abilityModifierStatId) && !action.isOffhand ? " + @mod" : "";
+  const modBonus = (action.statId || action.abilityModifierStatId) && !action.isOffhand && action.actionType != 3 ? " + @mod" : "";
   const fixedBonus = action.dice?.fixedValue ? ` + ${action.dice.fixedValue}` : "";
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
