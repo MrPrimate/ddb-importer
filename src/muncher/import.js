@@ -60,9 +60,14 @@ var srdPacks = {};
 
 async function loadSRDPacks(compendiumName) {
   if (srdPacksLoaded[compendiumName]) return;
-  srdPacks[compendiumName] = await game.packs.get(compendiumName).getContent().then((data) => data.map((i) => i.data));
-  // eslint-disable-next-line require-atomic-updates
-  srdPacksLoaded[compendiumName] = true;
+  const srdPack = await game.packs.get(compendiumName);
+  if (!srdPack) {
+    logger.error(`Failed to load SRDPack ${compendiumName}`);
+  } else {
+    srdPacks[compendiumName] = await srdPack.getContent().then((data) => data.map((i) => i.data));
+    // eslint-disable-next-line require-atomic-updates
+    srdPacksLoaded[compendiumName] = true;
+  }
 }
 
 const gameFolderLookup = [
