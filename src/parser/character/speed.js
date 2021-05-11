@@ -12,7 +12,7 @@ export function getSpeed(data) {
   }
 
   // get bonus speed mods
-  let restriction = ["", null];
+  let restriction = ["", null, "unless your speed is already higher"];
   // Check for equipped Heavy Armor
   const wearingHeavy = data.character.inventory.some((item) => item.equipped && item.definition.type === "Heavy Armor");
   // Accounts for Barbarian Class Feature - Fast Movement

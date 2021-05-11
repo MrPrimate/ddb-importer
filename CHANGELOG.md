@@ -1,3 +1,7 @@
+# 1.0.6
+
+* Boots of Striding and Springing did not set speed adjustment correctly.
+
 # 1.0.5
 
 * Correct proficiency modifier multipliers on action and resource useage.
