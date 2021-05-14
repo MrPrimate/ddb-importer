@@ -44,7 +44,10 @@ function getDamage(action) {
   const damageType = action.damageTypeId
     ? DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name
     : null;
-  const modBonus = (action.statId || action.abilityModifierStatId) && !action.isOffhand && action.actionType != 3 ? " + @mod" : "";
+
+  // when the action type is not set to melee or ranged we don't apply the mod to damage
+  const meleeOrRangedAction = action.attackTypeRange || action.rangeId;
+  const modBonus = (action.statId || action.abilityModifierStatId) && !action.isOffhand && meleeOrRangedAction ? " + @mod" : "";
   const fixedBonus = action.dice?.fixedValue ? ` + ${action.dice.fixedValue}` : "";
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
@@ -198,13 +201,19 @@ function getLimitedUse(action, character) {
       }
     }
 
+    const finalMaxUses = (maxUses) ? parseInt(maxUses) : null;
+
     return {
-      value: maxUses - action.limitedUse.numberUsed,
-      max: (maxUses) ? parseInt(maxUses) : null,
+      value: (finalMaxUses !== null && finalMaxUses != 0) ? maxUses - action.limitedUse.numberUsed : null,
+      max: (finalMaxUses != 0) ? finalMaxUses : null,
       per: resetType ? resetType.value : "",
     };
   } else {
-    return {};
+    return {
+      value: null,
+      max: null,
+      per: "",
+    };
   }
 }
 

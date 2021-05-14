@@ -1,6 +1,8 @@
 # 1.0.6
 
 * Boots of Striding and Springing did not set speed adjustment correctly.
+* Previous ability adjustment for monk actions was not correct and had impacted Polearm master. This should now calculate correctly.
+* Actions with 0 uses will now import blank rather than with a 0.
 
 # 1.0.5
 
