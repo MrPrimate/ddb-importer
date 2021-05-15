@@ -11,6 +11,8 @@ import { getPatreonTiers, munchNote } from "./utils.js";
 import { DDB_CONFIG } from "../ddb-config.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { generateAdventureConfig } from "./adventure.js";
+import AdventureModuleImport from "./adventure/adventure-import.js";
+
 
 function getSourcesLookups(selected) {
   const selections = DDB_CONFIG.sources
@@ -49,7 +51,9 @@ export class DDBSources extends FormApplication {
     const sources = getSourcesLookups(existingSelection);
 
     return {
-      sources: sources,
+      sources: sources.sort((a, b) => {
+        return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+      }),
     };
   }
 
@@ -74,7 +78,7 @@ export default class DDBMuncher extends Application {
     options.template = "modules/ddb-importer/handlebars/munch.hbs";
     options.resizable = false;
     options.height = "auto";
-    options.width = 600;
+    options.width = 700;
     options.title = "MrPrimate's Muncher";
     options.classes = ["ddb-muncher", "sheet"];
     options.tabs = [{ navSelector: ".tabs", contentSelector: "div", initial: "settings" }];
@@ -100,38 +104,35 @@ export default class DDBMuncher extends Application {
     html.find("#munch-spells-start").click(async () => {
       munchNote(`Downloading spells...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
-      $('button[id^="adventure-config-start"]').prop('disabled', true);
       DDBMuncher.parseSpells();
     });
     html.find("#munch-items-start").click(async () => {
       munchNote(`Downloading items...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
-      $('button[id^="adventure-config-start"]').prop('disabled', true);
       DDBMuncher.parseItems();
     });
     html.find("#munch-races-start").click(async () => {
       munchNote(`Downloading races...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
-      $('button[id^="adventure-config-start"]').prop('disabled', true);
       DDBMuncher.parseRaces();
     });
     html.find("#munch-feats-start").click(async () => {
       munchNote(`Downloading feats...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
-      $('button[id^="adventure-config-start"]').prop('disabled', true);
       DDBMuncher.parseFeats();
     });
     html.find("#munch-classes-start").click(async () => {
       munchNote(`Downloading classes...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
-      $('button[id^="adventure-config-start"]').prop('disabled', true);
       DDBMuncher.parseClasses();
     });
-    html.find("#adventure-config-start").click(async () => {
+    html.find("#munch-adventure-config-start").click(async () => {
       munchNote(`Generating config file...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
-      $('button[id^="adventure-config-start"]').prop('disabled', true);
       DDBMuncher.generateAdventureConfig();
+    });
+    html.find("#munch-adventure-import-start").click(async () => {
+      DDBMuncher.importAdventure();
     });
 
     // watch the change of the import-policy-selector checkboxes
@@ -212,24 +213,24 @@ export default class DDBMuncher extends Application {
 
   static enableButtons() {
     const cobalt = getCobalt() != "";
-    const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
     const tier = game.settings.get("ddb-importer", "patreon-tier");
+    const tiers = getPatreonTiers(tier);
 
     if (cobalt) {
       $('button[id^="munch-spells-start"]').prop('disabled', false);
       $('button[id^="munch-items-start"]').prop('disabled', false);
-    }
-    if (cobalt && betaKey) {
-      $('button[id^="munch-monsters-start"]').prop('disabled', false);
-    }
-    if (cobalt && (tier === "GOD" || tier === "UNDYING")) {
-      $('button[id^="munch-races-start"]').prop('disabled', false);
-      $('button[id^="munch-feats-start"]').prop('disabled', false);
-      $('button[id^="munch-classes-start"]').prop('disabled', false);
-      $('button[id^="munch-source-select"]').prop('disabled', false);
-    }
-    if (cobalt && (tier === "GOD")) {
-      $('button[id^="adventure-config-start"]').prop('disabled', false);
+      $('button[id^="munch-adventure-config-start"]').prop('disabled', false);
+      $('button[id^="munch-adventure-import-start"]').prop('disabled', false);
+
+      if (tiers.all) {
+        $('button[id^="munch-monsters-start"]').prop('disabled', false);
+      }
+      if (tiers.experimentalMid) {
+        $('button[id^="munch-races-start"]').prop('disabled', false);
+        $('button[id^="munch-feats-start"]').prop('disabled', false);
+        $('button[id^="munch-classes-start"]').prop('disabled', false);
+        $('button[id^="munch-source-select"]').prop('disabled', false);
+      }
     }
   }
 
@@ -330,6 +331,9 @@ export default class DDBMuncher extends Application {
     new DDBSources().render(true);
   }
 
+  static async importAdventure() {
+    new AdventureModuleImport().render(true);
+  }
 
   getData() { // eslint-disable-line class-methods-use-this
     const cobalt = getCobalt() != "";

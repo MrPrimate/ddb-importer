@@ -1,5 +1,5 @@
 
-import { getTextSenses, getTokenSenses, getSenses } from "./senses.js";
+import { getTokenSenses, getSenses } from "./senses.js";
 import {
   getDamageImmunities,
   getDamageResistances,

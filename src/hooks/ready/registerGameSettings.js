@@ -1,6 +1,12 @@
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
 
+CONFIG.DDBI = {
+  module: "DDB Muncher",
+  schemaVersion: "1.1",
+  ADVENTURE: {},
+};
+
 export default function () {
   const actorCompendiums = game.packs
     .filter((pack) => pack.documentClass.documentName === "Actor")
@@ -39,7 +45,6 @@ export default function () {
     hint: "ddb-importer.image-upload-directory.hint",
     scope: "world",
     config: false,
-    // In 0.8.0 the custom type requires a collection. Awaiting fix
     type: DirectoryPicker.Directory,
     default: "[data] ",
   });
@@ -222,16 +227,6 @@ export default function () {
     choices: itemCompendiums,
   });
 
-  // game.settings.register("ddb-importer", "entity-item-spell-compendium", {
-  //   name: "ddb-importer.entity-item-spell-compendium.name",
-  //   hint: "ddb-importer.entity-item-spell-compendium.hint",
-  //   scope: "world",
-  //   config: false,
-  //   type: String,
-  //   isSelect: true,
-  //   choices: itemCompendiums,
-  // });
-
   game.settings.register("ddb-importer", "entity-monster-compendium", {
     name: "ddb-importer.entity-monster-compendium.name",
     hint: "ddb-importer.entity-monster-compendium.hint",
@@ -242,15 +237,23 @@ export default function () {
     choices: actorCompendiums,
   });
 
-  // game.settings.register("ddb-importer", "entity-monster-feature-compendium", {
-  //   name: "ddb-importer.entity-monster-feature-compendium.name",
-  //   hint: "ddb-importer.entity-monster-feature-compendium.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: String,
-  //   isSelect: true,
-  //   choices: itemCompendiums,
-  // });
+  game.settings.register("ddb-importer", "adventure-import-path", {
+    name: "Adventure Import Path",
+    hint: "Location where the module will look for adventure data files to import",
+    scope: "world",
+    config: true,
+    default: "adventures/import",
+    type: DirectoryPicker.Directory
+  });
+
+  game.settings.register("ddb-importer", "adventure-upload-path", {
+    name: "Adventure Upload Path",
+    hint: "Location where the module will look for adventure data files to import",
+    scope: "world",
+    config: true,
+    default: `worlds/${game.world.id}/adventures`,
+    type: DirectoryPicker.Directory
+  });
 
   game.settings.register("ddb-importer", "log-level", {
     name: "ddb-importer.log-level.name",

@@ -93,3 +93,7 @@ div.journal-sheet section.window-content div.rolltable span.rolltable-link {
 h2.task-name.error {
   color: red;
 }
+
+li.context-item i.active {
+  color: #c5b631;
+}

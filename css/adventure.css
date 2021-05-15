@@ -1,0 +1,232 @@
+.ddb-adventure-import {
+  /* Style the buttons that are used to open and close the ddb-accordion panel */
+  /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+  /* Style the ddb-accordion panel. Note: hidden by default */
+}
+
+.ddb-adventure-import .grid,
+.ddb-adventure-import .grid-2col {
+  display: grid;
+  grid-column: span 2 / span 2;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+  padding: 0;
+}
+
+.ddb-adventure-import .grid-3col {
+  grid-column: span 3 / span 3;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .grid-4col {
+  grid-column: span 4 / span 4;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .grid-5col {
+  grid-column: span 5 / span 5;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .grid-6col {
+  grid-column: span 6 / span 6;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .grid-7col {
+  grid-column: span 7 / span 7;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .grid-8col {
+  grid-column: span 8 / span 8;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .grid-9col {
+  grid-column: span 9 / span 9;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .grid-10col {
+  grid-column: span 10 / span 10;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .grid-11col {
+  grid-column: span 11 / span 11;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .grid-12col {
+  grid-column: span 12 / span 12;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.ddb-adventure-import .flex-group-center,
+.ddb-adventure-import .flex-group-left,
+.ddb-adventure-import .flex-group-right {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 5px;
+  border: 1px solid #999;
+}
+
+.ddb-adventure-import .flex-group-left {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.ddb-adventure-import .flex-group-right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.ddb-adventure-import .flex-center {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.ddb-adventure-import .flex-between {
+  justify-content: space-between;
+}
+
+.ddb-adventure-import .ddb-accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s;
+}
+
+.ddb-adventure-import .active, .ddb-adventure-import .ddb-accordion:hover {
+  background-color: #ccc;
+}
+
+.ddb-adventure-import .panel {
+  padding: 0 18px;
+  background-color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+.ddb-adventure-import .panel div {
+  padding-top: 10px;
+  padding-bottom: 15px;
+}
+
+.ddb-adventure-import .ddb-accordion::after {
+  content: '\02795';
+  /* Unicode character for "plus" sign (+) */
+  font-size: 13px;
+  color: #777;
+  float: right;
+  margin-left: 5px;
+}
+
+.ddb-adventure-import .active::after {
+  content: "\2796";
+  /* Unicode character for "minus" sign (-) */
+}
+
+.ddb-adventure-import label {
+  display: block;
+  padding-left: 15px;
+  text-indent: -15px;
+}
+
+.ddb-adventure-import input[type=checkbox] {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin: 0;
+  vertical-align: bottom;
+  position: relative;
+  top: 2px;
+  *overflow: hidden;
+}
+
+.ddb-adventure-import .import-invalid {
+  display: none;
+}
+
+.ddb-adventure-import .import-hidden {
+  visibility: hidden;
+}
+
+.ddb-adventure-import .import-progress {
+  background-color: #f1f1f1;
+  margin: 5px 0;
+  width: 100%;
+}
+
+.ddb-adventure-import .import-progress .import-progress-bar {
+  max-width: 100%;
+  height: 24px;
+  background-color: green;
+  text-align: center;
+}
+
+.ddb-adventure-import .import-progress .import-progress-bar span {
+  white-space: nowrap;
+  line-height: 24px;
+}
+
+.ddb-adventure-import .ddb-overlay {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.ddb-adventure-import .ddb-working {
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 135px;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.ddb-adventure-import .ddb-working i {
+  transform: rotate(360deg);
+  -webkit-animation: roll 3s infinite;
+  animation: roll 3s infinite;
+}
+
+@-webkit-keyframes roll {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes roll {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.ddb-adventure-import .warnings {
+  margin: 10px 0;
+}
+
+.ddb-adventure-import .warnings h3 {
+  color: #910000;
+  font-weight: bold;
+}

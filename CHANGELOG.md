@@ -1,3 +1,8 @@
+# 2.0.x
+
+* Foundry 0.8.3 support
+* Integrated adventure importer tool
+
 # 1.0.9
 
 * Barrier Tattoos did not appear in AC calculations when not using active effects.

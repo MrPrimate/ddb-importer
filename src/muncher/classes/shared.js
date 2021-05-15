@@ -153,9 +153,9 @@ export async function buildBaseClass(klass) {
   let spellcasting = {};
   if (klass.canCastSpells) {
     const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name == klass.name);
-    const spellCastingAbility = klass.spellCastingAbilityId ?
-      DICTIONARY.character.abilities.find((a) => a.id == klass.spellCastingAbilityId).value:
-      null;
+    const spellCastingAbility = klass.spellCastingAbilityId
+      ? DICTIONARY.character.abilities.find((a) => a.id == klass.spellCastingAbilityId).value
+      : null;
     if (spellProgression) {
       spellcasting = {
         progression: spellProgression.value,

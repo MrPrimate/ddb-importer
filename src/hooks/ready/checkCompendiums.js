@@ -24,7 +24,6 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
       package: "world",
       sort: "a"
     });
-    // 0.8.0 this is now done through CompendiumCollections
     await game.settings.set("ddb-importer", settingName, `world.ddb-${game.world.data.name}-${sanitizedLabel}`);
     return true;
   }
@@ -37,7 +36,6 @@ export default async function () {
   if (autoCreate) {
     let results = await Promise.allSettled([
       createIfNotExists("entity-spell-compendium", "Item", "Spells"),
-      // createIfNotExists("entity-item-spell-compendium", "Item", "Magic Item Spells"),
       createIfNotExists("entity-item-compendium", "Item", "Items"),
       createIfNotExists("entity-feature-compendium", "Item", "Class Features"),
       createIfNotExists("entity-class-compendium", "Item", "Classes"),
@@ -45,10 +43,14 @@ export default async function () {
       createIfNotExists("entity-feat-compendium", "Item", "Feats"),
       createIfNotExists("entity-race-compendium", "Item", "Races"),
       createIfNotExists("entity-monster-compendium", "Actor", "Monsters"),
-      // createIfNotExists("entity-monster-feature-compendium", "Item", "Monster Features")
     ]);
 
-    if (results.some((result) => result.value)) location.reload();
+    const reload = results.some((result) => result.value);
+
+    if (reload) {
+      logger.warn("RELOADING!");
+      location.reload();
+    }
   }
 
 }

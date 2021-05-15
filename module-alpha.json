@@ -3,7 +3,7 @@
   "author": "MrPrimate",
   "title": "[ALPHA] D&D Beyond Importer",
   "description": "ALPHA DDB Importer for Foundry v0.8.3. This version is unstable.",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
@@ -29,18 +29,17 @@
     }
   ],
   "systems": ["dnd5e"],
+  "scripts": [
+    "./vendor/jszip/jszip.min.js"
+  ],
   "esmodules": ["dist/main.js"],
   "styles": [
-    "./css/module-settings.css",
     "./css/default.css",
     "./css/import.css",
-    "./css/sidebar.css",
     "./css/journal.css",
     "./css/notifications.css",
-    "./css/scene-navigation.css",
-    "./css/statblock.css",
-    "./css/monster-muncher.css",
-    "./css/spell-muncher.css"
+    "./css/muncher.css",
+    "./css/adventure.css"
   ],
   "packs": [],
   "socket": true

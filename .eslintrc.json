@@ -16,6 +16,8 @@
     "CONFIG": true,
     "FilePicker": true,
     "Folder": true,
+    "Macro": true,
+    "Playlist": true,
     "game": true,
     "Hooks": true,
     "Item": true,
@@ -34,7 +36,11 @@
     "ROUTE_PREFIX": true,
     "CONST": true,
     "randomID": true,
-    "CompendiumCollection": true
+    "CompendiumCollection": true,
+    "JSZip": true,
+    "Dialog": true,
+    "fromUuid": true,
+    "ForgeVTT": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,
