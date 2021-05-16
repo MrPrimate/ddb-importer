@@ -242,7 +242,7 @@ export default function () {
     hint: "Location where the module will look for adventure data files to import",
     scope: "world",
     config: true,
-    default: "adventures/import",
+    default: "[data] adventures/import",
     type: DirectoryPicker.Directory
   });
 
@@ -251,7 +251,7 @@ export default function () {
     hint: "Location where the module will look for adventure data files to import",
     scope: "world",
     config: true,
-    default: `worlds/${game.world.id}/adventures`,
+    default: `[data] worlds/${game.world.id}/adventures`,
     type: DirectoryPicker.Directory
   });
 

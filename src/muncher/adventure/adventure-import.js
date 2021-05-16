@@ -1,18 +1,20 @@
 import Helpers from "./common.js";
 import logger from "../../logger.js";
+import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 
 export default class AdventureModuleImport extends FormApplication {
   /** @override */
   constructor(object = {}, options = {}) {
     super(object, options);
     this._itemsToRevisit = [];
+    const importPathData = game.settings.get("ddb-importer", "adventure-import-path");
+    this._importPathData = DirectoryPicker.parse(importPathData);
   }
 
   /** @override */
   static get defaultOptions() {
     this.pattern = /(@[a-z]*)(\[)([a-z0-9]*|[a-z0-9.]*)(\])(\{)(.*?)(\})/gmi;
     this.altpattern = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gmi;
-    this._itemsToRevisit = [];
 
     return mergeObject(super.defaultOptions, {
       id: "ddb-adventure-import",
@@ -26,13 +28,13 @@ export default class AdventureModuleImport extends FormApplication {
   /** @override */
   // eslint-disable-next-line class-methods-use-this
   async getData() {
-    const importPath = game.settings.get("ddb-importer", "adventure-import-path");
     let data;
     let files = [];
 
     try {
-      if (Helpers.verifyPath("data", importPath)) {
-        data = await Helpers.BrowseFiles("data", importPath, { bucket: null, extensions: [".fvttadv", ".FVTTADV"], wildcard: false });
+      if (Helpers.verifyPath(this._importPathData)) {
+        const options = { bucket: this._importPathData.bucket, extensions: [".fvttadv", ".FVTTADV"], wildcard: false };
+        data = await Helpers.BrowseFiles(this._importPathData.activeSource, this._importPathData.current, options);
         files = data.files.map((file) => {
           const filename = decodeURIComponent(file).replace(/^.*[\\/]/, '');
 
@@ -127,7 +129,7 @@ export default class AdventureModuleImport extends FormApplication {
                   name: adventure.name,
                   parent: null,
                   type: importType
-                });
+                }, { keepId: true });
               }
 
               CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[importType] = itemFolder.data._id;
@@ -176,8 +178,8 @@ export default class AdventureModuleImport extends FormApplication {
 
         try {
           if (this._itemsToRevisit.length > 0) {
-            let totalcount = this._itemsToRevisit.length;
-            let currentcount = 0;
+            let totalCount = this._itemsToRevisit.length;
+            let currentCount = 0;
 
             await Helpers.asyncForEach(this._itemsToRevisit, async (item) => {
               const toTimer = setTimeout(() => {
@@ -206,7 +208,7 @@ export default class AdventureModuleImport extends FormApplication {
                 const obj = await fromUuid(item);
                 let rawData;
                 let updatedData = {};
-                switch (obj.entity) {
+                switch (obj.documentName) {
                   case "Scene": {
                     // this is a scene we need to update links to all items
                     await Helpers.asyncForEach(obj.data.tokens, async (token) => {
@@ -233,6 +235,13 @@ export default class AdventureModuleImport extends FormApplication {
                     if (scenePlaylist) {
                       updatedData["playlist"] = scenePlaylist?._id;
                     }
+                    // In 0.8.3 the thumbs don't seem to be generated.
+                    // This code would embed the thumbnail.
+                    // Consider writing this out.
+                    // if (!obj.data.thumb) {
+                    //   const thumbData = await obj.createThumbnail();
+                    //   updatedData["thumb"] = thumbData.thumb;
+                    // }
                     await obj.update(updatedData);
                     break;
                   }
@@ -420,7 +429,7 @@ export default class AdventureModuleImport extends FormApplication {
                     const updatedDataUpdates = JSON.parse(secondPassRawData);
                     const diff = Helpers.diff(obj.data, updatedDataUpdates);
 
-                    if (diff.items && obj.entity === "Actor" && diff.items.length > 0) {
+                    if (diff.items && obj.documentName === "Actor" && diff.items.length > 0) {
                       // the object has embedded items that need to be updated seperately.
 
                       /* eslint-disable max-depth */
@@ -446,8 +455,8 @@ export default class AdventureModuleImport extends FormApplication {
               } catch (err) {
                 logger.warn(`Error updating references for object ${item}`, err);
               }
-              currentcount += 1;
-              AdventureModuleImport._updateProgress(totalcount, currentcount, "References");
+              currentCount += 1;
+              AdventureModuleImport._updateProgress(totalCount, currentCount, "References");
               clearTimeout(toTimer);
             });
           }
@@ -582,7 +591,7 @@ export default class AdventureModuleImport extends FormApplication {
         }
 
         if (!entry) {
-          let compendiumItem = await pack.importEntity(obj);
+          let compendiumItem = await pack.importDocument(obj);
 
           if (JSON.stringify(item).match(this.pattern) || JSON.stringify(item).match(this.altpattern)) {
             this._itemsToRevisit.push(`Compendium.${pack.metadata.package}.${pack.metadata.name}.${compendiumItem.data._id}`);
@@ -620,13 +629,13 @@ export default class AdventureModuleImport extends FormApplication {
             tile.img = await Helpers.importImage(tile.img, zip, adventure);
           });
 
-          let scene = await Scene.create(data);
+          let scene = await Scene.create(data, { keepId: true });
           this._itemsToRevisit.push(`Scene.${scene.data._id}`);
         }
       break;
       case "Actor":
         if (!Helpers.findEntityByImportId("actors", data._id)) {
-          let actor = await Actor.create(data);
+          let actor = await Actor.create(data, { keepId: true });
           await actor.update({ [`data.token.actorId`]: actor.data._id });
           if (needRevisit) {
             this._itemsToRevisit.push(`Actor.${actor.data._id}`);
@@ -635,7 +644,7 @@ export default class AdventureModuleImport extends FormApplication {
       break;
       case "Item":
         if (!Helpers.findEntityByImportId("items", data._id)) {
-          let item = await Item.create(data);
+          let item = await Item.create(data, { keepId: true });
           if (needRevisit) {
             this._itemsToRevisit.push(`Item.${item.data._id}`);
           }
@@ -643,7 +652,7 @@ export default class AdventureModuleImport extends FormApplication {
       break;
       case "Journal":
         if (!Helpers.findEntityByImportId("journal", data._id)) {
-          let journal = await JournalEntry.create(data);
+          let journal = await JournalEntry.create(data, { keepId: true });
           if (needRevisit) {
             this._itemsToRevisit.push(`JournalEntry.${journal.data._id}`);
           }
@@ -651,7 +660,7 @@ export default class AdventureModuleImport extends FormApplication {
       break;
       case "Table":
         if (!Helpers.findEntityByImportId("tables", data._id)) {
-          let rolltable = await RollTable.create(data);
+          let rolltable = await RollTable.create(data, { keepId: true });
           if (needRevisit) {
             this._itemsToRevisit.push(`RollTable.${rolltable.data._id}`);
           }
@@ -660,12 +669,12 @@ export default class AdventureModuleImport extends FormApplication {
       case "Playlist":
         if (!Helpers.findEntityByImportId("playlists", data._id)) {
           data.name = `${adventure.name}.${data.name}`;
-          await Playlist.create(data);
+          await Playlist.create(data, { keepId: true });
         }
       break;
       case "Macro":
         if (!Helpers.findEntityByImportId("macros", data._id)) {
-          let macro = await Macro.create(data);
+          let macro = await Macro.create(data, { keepId: true });
           if (needRevisit) {
             this._itemsToRevisit.push(`Macro.${macro.data._id}`);
           }
@@ -723,7 +732,7 @@ export default class AdventureModuleImport extends FormApplication {
 
           let adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
 
-          data.token.img = `worlds/${game.world.id}/adventures/${adventurePath}/${data.token.img}`;
+          data.token.img = `${this._importPathData.current}/${adventurePath}/${data.token.img}`;
 
           if (filesToUpload.length > 0) {
             totalCount += filesToUpload.length;

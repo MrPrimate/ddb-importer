@@ -6,13 +6,13 @@ export default class Helpers {
   /**
    * Verifies server path exists, and if it doesn't creates it.
    *
-   * @param  {string} startingSource - Source
-   * @param  {string} path - Server path to verify
+   * @param  {object} parsedPath - output from DirectoryPicker,parse
+   * @param  {string} targetPath - if set will check this path, else check parsedPath.current
    * @returns {boolean} - true if verfied, false if unable to create/verify
    */
-  static async verifyPath(startingSource, path) {
+  static async verifyPath(parsedPath, targetPath = null) {
     try {
-      const paths = path.split("/");
+      const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
       let currentSource = paths[0];
 
       for (let i = 0; i < paths.length; i += 1) {
@@ -21,10 +21,10 @@ export default class Helpers {
             currentSource = `${currentSource}/${paths[i]}`;
           }
           // eslint-disable-next-line no-await-in-loop
-          await Helpers.CreateDirectory(startingSource, `${currentSource}`, { bucket: null });
+          await Helpers.CreateDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
 
         } catch (err) {
-          logger.debug(`Error trying to verify path ${startingSource}, ${path}`, err);
+          logger.debug(`Error trying to verify path ${parsedPath.activeSource}, ${parsedPath.current}`, err);
         }
       }
     } catch (err) {
@@ -51,15 +51,15 @@ export default class Helpers {
         const targetPath = path.replace(/[\\/][^\\/]+$/, '');
         const filename = path.replace(/^.*[\\/]/, '').replace(/\?(.*)/, '');
         const baseUploadPath = game.settings.get("ddb-importer", "adventure-upload-path");
-        const options = DirectoryPicker.parse(baseUploadPath);
-        const uploadPath = `${options.current}/${adventurePath}/${targetPath}`;
+        const parsedBaseUploadPath = DirectoryPicker.parse(baseUploadPath);
+        const uploadPath = `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
         const filePath = `${uploadPath}/${filename}`;
 
         if (!CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path]) {
-          await Helpers.verifyPath(options.activeSource, `${uploadPath}`);
+          await Helpers.verifyPath(parsedBaseUploadPath, `${uploadPath}`);
           const img = await zip.file(path).async("uint8array");
           const fileData = new File([img], filename);
-          await Helpers.UploadFile(options.activeSource, `${uploadPath}`, fileData, { bucket: options.bucket });
+          await Helpers.UploadFile(parsedBaseUploadPath.activeSource, `${uploadPath}`, fileData, { bucket: parsedBaseUploadPath.bucket });
           // eslint-disable-next-line require-atomic-updates
           CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path] = true;
         } else {
@@ -100,7 +100,7 @@ export default class Helpers {
     });
 
     if (!pack) {
-      pack = await Compendium.create({ entity: type, label: name });
+      pack = await Compendium.create({ entity: type, label: name }, { keepId: true });
     }
 
     return pack;
@@ -177,6 +177,7 @@ export default class Helpers {
     var result = {};
     for (const key in obj1) {
         if (obj2[key] != obj1[key]) result[key] = obj2[key];
+        // eslint-disable-next-line valid-typeof
         if (typeof obj2[key] == 'array' && typeof obj1[key] == 'array')
             result[key] = this.diff(obj1[key], obj2[key]);
         if (typeof obj2[key] == 'object' && typeof obj1[key] == 'object')
@@ -208,11 +209,11 @@ export default class Helpers {
     await this.asyncForEach(folders, async (f) => {
       let folderData = f;
 
-      let newfolder = game.folders.find((folder) => {
+      let newFolder = game.folders.find((folder) => {
         return (folder.data._id === folderData._id || folder.data.flags.importid === folderData._id) && folder.data.type === folderData.type;
       });
 
-      if (!newfolder) {
+      if (!newFolder) {
         if (folderData.parent !== null) {
           folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.parent];
         } else if (adventure?.options?.folders) {
@@ -221,19 +222,19 @@ export default class Helpers {
             folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.type];
           }
 
-        newfolder = await Folder.create(folderData);
-        logger.debug(`Created new folder ${newfolder.data._id} with data:`, folderData, newfolder);
+        newFolder = await Folder.create(folderData, { keepId: true });
+        logger.debug(`Created new folder ${newFolder.data._id} with data:`, folderData, newFolder);
       }
 
       // eslint-disable-next-line require-atomic-updates
-      CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.flags.importid] = newfolder.data._id;
+      CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.flags.importid] = newFolder.data._id;
 
       let childFolders = folderList.filter((folder) => {
         return folder.parent === folderData._id;
       });
 
       if (childFolders.length > 0) {
-        await this.importFolder(newfolder, childFolders, adventure, folderList);
+        await this.importFolder(newFolder, childFolders, adventure, folderList);
       }
     });
   }
@@ -267,7 +268,7 @@ export default class Helpers {
    */
   static async UploadFile(source, path, file, options) {
     if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
-      return Helpers.ForgeUploadFile("forgevtt", path, file, options);
+      return Helpers.ForgeUploadFile(path, file);
     }
 
     const fd = new FormData();
@@ -282,6 +283,7 @@ export default class Helpers {
     } else if (request.status !== 200) {
       return ui.notifications.error(game.i18n.localize("FILES.ErrorSomethingWrong"));
     }
+    return undefined;
   }
 
   /**
@@ -291,7 +293,7 @@ export default class Helpers {
    * @param  {blog} file
    * @param  {object} options
    */
-  static async ForgeUploadFile(source, path, file, options) {
+  static async ForgeUploadFile(path, file) {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("path", `${path}/${file.name}`);
@@ -342,7 +344,7 @@ export default class Helpers {
         ui.notifications.error(response ? response.error : "An unknown error occured accessing The Forge API");
         return { target, dirs: [], files: [], gridSize: null, private: false, privateDirs: [], extensions: options.extensions };
     }
-    // TODO: Should be decodeURIComponent but FilePicker's _onPick needs to do encodeURIComponent too, but on each separate path.
+    // Should be decodeURIComponent but FilePicker's _onPick needs to do encodeURIComponent too, but on each separate path.
     response.target = decodeURI(response.folder);
     delete response.folder;
     response.dirs = response.dirs.map((d) => d.path.slice(0, -1));
@@ -355,23 +357,27 @@ export default class Helpers {
     return response;
   }
 
-  /**
+  static async ForgeCreateDirectory(target) {
+    if (!target) return;
+    const response = await ForgeAPI.call('assets/new-folder', { path: target });
+    if (!response || response.error) {
+      throw new Error(response ? response.error : "Unknown error while creating directory.");
+    }
+  }
+
+    /**
    * @param  {string} source
    * @param  {string} target
    * @param  {object} options={}
    */
-  static async CreateDirectory(source, target, options = {}) {
-    if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
-      return Helpers.ForgeCreateDirectory("forgevtt", target, options);
+     static async CreateDirectory(source, target, options = {}) {
+      if (!target) {
+        throw new Error("Tried to create a directory with no name!");
+      }
+      if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
+        return Helpers.ForgeCreateDirectory(target);
+      }
+      return FilePicker.createDirectory(source, target, options);
     }
-    return FilePicker.createDirectory(source, target, options);
-  }
-
-  static async ForgeCreateDirectory(source, target, options = {}) {
-    if (!target) return;
-    const response = await ForgeAPI.call('assets/new-folder', { path: target });
-    if (!response || response.error)
-      throw new Error(response ? response.error : "Unknown error while creating directory.");
-  }
 
 }
