@@ -1,3 +1,7 @@
+# 1.0.7
+
+* Adventure Scene exporter now captures more information for token placement.
+
 # 1.0.6
 
 * Boots of Striding and Springing did not set speed adjustment correctly.
