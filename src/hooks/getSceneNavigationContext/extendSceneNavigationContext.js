@@ -132,17 +132,40 @@ const collectSceneData = (scene) => {
     })),
     // tokens
     tokens: scene.data.tokens.filter((token) => !token.actorLink).map((token) => {
-      return {
-        _id: token._id,
-        name: token.name,
-        width: token.width,
-        height: token.height,
-        scale: token.scale,
-        x: token.x,
-        y: token.y,
-        disposition: token.disposition,
-        flags: token.flags,
+      // 0.7.9 or 0.8.3
+      let tokenData = token.data ? token.data : token;
+
+      let result = {
+        _id: tokenData._id,
+        name: tokenData.name,
+        width: tokenData.width,
+        height: tokenData.height,
+        scale: tokenData.scale,
+        x: tokenData.x,
+        y: tokenData.y,
+        disposition: tokenData.disposition,
+        flags: tokenData.flags,
+        actorLink: false,
+        bar1: { attribute: "attributes.hp" },
+        bar2: {},
+        displayName: tokenData.displayName,
+        effects: [],
+        elevation: tokenData.elevation,
+        hidden: tokenData.hidden,
+        lightAlpha: tokenData.lightAlpha,
+        lightAngle: tokenData.lightAngle,
+        lightAnimation: tokenData.lightAnimation,
+        tint: tokenData.tint,
       };
+
+      if (token.actor) {
+        if (token.actor.data.flags.ddbimporter) result.flags.ddbActorFlags = token.actor.data.flags.ddbimporter;
+      } else {
+        const actor = game.actors.get(token.actorId);
+        if (actor.data.flags.ddbimporter) result.flags.ddbActorFlags = actor.data.flags.ddbimporter;
+      }
+
+      return result;
     }),
   };
   // removed un-needed userdata
