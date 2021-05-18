@@ -1,3 +1,7 @@
+# 1.0.8
+
+* Source filter for VRGtR
+
 # 1.0.7
 
 * Adventure Scene exporter now captures more information for token placement.
