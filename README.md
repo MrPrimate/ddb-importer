@@ -5,9 +5,8 @@ Integrate your dndbeyond.com characters into Foundry Virtual Tabletop.
 This module:
 * Import your DDB characters into Foundry, and sync changes back!
 * Import a characters extras such as Wildshapes or beast companions.
-* Bulk import spells and items.
-* [Patreon](https://patreon.com/mrprimate) supporters can bulk import monsters.
-* [Patreon](https://patreon.com/mrprimate) supporters can bulk import simple class, race and feat descriptions.
+* Import spells and items.
+* Import Monsters and NPCs.
 * [Patreon](https://patreon.com/mrprimate) supporters can sync limited character changes back to DDB.
 
 In addition you can:
@@ -38,10 +37,6 @@ We do not store your cobalt cookie on the server.
 To logout/invalidate these credentials log out of your D&DBeyond Session.
 
 If you wish to host your own proxy, please see [ddb-proxy](https://github.com/mrprimate/ddb-proxy), help is not available for this mode, and not all functionality is available.
-
-## Notes
-
-You CAN use this alongside the vtta-dndbeyond extension.
 
 ## Support
 
@@ -88,21 +83,4 @@ Examples:
 
 # FAQ
 
-
-## The import buttons are greyed out!
-
-They require the cobalt token setting to be set.
-Remember don't share this token with anyone, it can be used to access your DDB account.
-
-## Clerics and Druids don't get their un-prepared spells
-
-You need to have the cobalt token set to get these spells.
-
-# Known Issues
-
-
-## Magic Items don't have spells attached
-
-When you use the Magic Items module and Munch Items the spells are not attached to the Item.
-This is a tricky issue and parsing these things out of the item text takes time as they are not exposed as an attached object to the item.
-
+See [FAQ!](./FAQ.md)
