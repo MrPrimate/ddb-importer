@@ -684,6 +684,20 @@ export default class AdventureModuleImport extends FormApplication {
     }
   }
 
+  async _transferActorsToWorld(scene) {
+    // for token in flags:
+    //   find npc in compendium using:
+    //     if ddbid flag use ddbid
+    //     else use flag name
+
+    //   if token:
+    //     create folder in world for noc based on adventure -> chapter -> scene name
+
+    //   import npc into folder if not exist
+
+    //   generate token data and link to importer actor
+  }
+
   async _importFile(type, zip, adventure) {
     let totalCount = 0;
     let currentCount = 0;
