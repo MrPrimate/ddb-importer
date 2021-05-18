@@ -18,9 +18,9 @@ const getNotes = (scene) => {
   const notes = scene.data.notes
     // the user might have placed a note, unless it is based on an imported Journal Entry, we will not carry
     // that one over
-    .filter((note) => relatedJournalEntries.some((journal) => journal._id === note.entryId))
+    .filter((note) => relatedJournalEntries.some((journal) => journal._id === note.data.entryId))
     .map((note) => {
-      const journal = relatedJournalEntries.find((journal) => journal._id === note.entryId);
+      const journal = relatedJournalEntries.find((journal) => journal._id === note.data.entryId);
       const idx = parseInt(journal.data.flags.ddb.ddbId);
         // removed un-needed userdata
       const flags = journal.data.flags.ddb;
@@ -34,12 +34,12 @@ const getNotes = (scene) => {
         index: idx,
         label: journal.data.name,
         flags: flags,
-        iconSize: note.iconSize,
-        iconTint: note.iconTint,
-        textColor: note.textColor,
-        textAnchor: note.textAnchor,
-        x: note.x,
-        y: note.y,
+        iconSize: note.data.iconSize,
+        iconTint: note.data.iconTint,
+        textColor: note.data.textColor,
+        textAnchor: note.data.textAnchor,
+        x: note.data.x,
+        y: note.data.y,
       };
     })
     .reduce((notes, note) => {
@@ -103,11 +103,11 @@ const collectSceneData = (scene) => {
     // customization
     backgroundColor: scene.data.backgroundColor,
     walls: scene.data.walls.map((wall) => ({
-      c: wall.c,
-      door: wall.door,
-      ds: wall.ds,
-      move: wall.move,
-      sense: wall.sense,
+      c: wall.data.c,
+      door: wall.data.door,
+      ds: wall.data.ds,
+      move: wall.data.move,
+      sense: wall.data.sense,
     })),
     //
     drawings: scene.data.drawings,
@@ -118,52 +118,45 @@ const collectSceneData = (scene) => {
     globalLight: scene.data.globalLight,
     globalLightThreshold: scene.data.globalLightThreshold,
     lights: scene.data.lights.map((light) => ({
-      angle: light.angle,
-      bright: light.bright,
-      darknessThreshold: light.darknessThreshold,
-      dim: light.dim,
-      rotation: light.rotation,
-      t: light.t,
-      tintAlpha: light.tintAlpha,
-      x: light.x,
-      y: light.y,
-      lightAnimation: light.lightAnimation,
-      hidden: light.hidden,
+      angle: light.data.angle,
+      bright: light.data.bright,
+      darknessThreshold: light.data.darknessThreshold,
+      dim: light.data.dim,
+      rotation: light.data.rotation,
+      t: light.data.t,
+      tintAlpha: light.data.tintAlpha,
+      x: light.data.x,
+      y: light.data.y,
+      lightAnimation: light.data.lightAnimation,
+      hidden: light.data.hidden,
     })),
     // tokens
     tokens: scene.data.tokens.filter((token) => !token.actorLink).map((token) => {
-      // 0.7.9 or 0.8.3
-      let tokenData = token.data ? token.data : token;
-
       let result = {
-        _id: tokenData._id,
-        name: tokenData.name,
-        width: tokenData.width,
-        height: tokenData.height,
-        scale: tokenData.scale,
-        x: tokenData.x,
-        y: tokenData.y,
-        disposition: tokenData.disposition,
-        flags: tokenData.flags,
+        _id: token.data._id,
+        name: token.data.name,
+        width: token.data.width,
+        height: token.data.height,
+        scale: token.data.scale,
+        x: token.data.x,
+        y: token.data.y,
+        disposition: token.data.disposition,
+        flags: token.data.flags,
         actorLink: false,
         bar1: { attribute: "attributes.hp" },
         bar2: {},
-        displayName: tokenData.displayName,
+        displayName: token.data.displayName,
         effects: [],
-        elevation: tokenData.elevation,
-        hidden: tokenData.hidden,
-        lightAlpha: tokenData.lightAlpha,
-        lightAngle: tokenData.lightAngle,
-        lightAnimation: tokenData.lightAnimation,
-        tint: tokenData.tint,
-        actorData: tokenData.actorData,
+        elevation: token.data.elevation,
+        hidden: token.data.hidden,
+        lightAlpha: token.data.lightAlpha,
+        lightAngle: token.data.lightAngle,
+        lightAnimation: token.data.lightAnimation,
+        tint: token.data.tint,
       };
 
       if (token.actor) {
         if (token.actor.data.flags.ddbimporter) result.flags.ddbActorFlags = token.actor.data.flags.ddbimporter;
-      } else {
-        const actor = game.actors.get(token.actorId);
-        if (actor.data.flags.ddbimporter) result.flags.ddbActorFlags = actor.data.flags.ddbimporter;
       }
 
       return result;
