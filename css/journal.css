@@ -231,3 +231,13 @@ blockquote.adventure-read-aloud-text {
   font-weight: bold;
 }
 
+aside.vrgtr-flowchart--1 {
+  background-image: url(https://media.dndbeyond.com/compendium-images/vrgtr/U9mBj5XfiTD1mHie/flowchart-box-01.png);
+}
+aside.vrgtr-flowchart {
+  text-align: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  padding: 30px 20% !important;
+  margin: 0px 0px;
+}
