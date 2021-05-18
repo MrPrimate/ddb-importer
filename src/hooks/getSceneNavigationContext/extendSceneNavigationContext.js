@@ -153,6 +153,7 @@ const collectSceneData = (scene) => {
         lightAngle: token.data.lightAngle,
         lightAnimation: token.data.lightAnimation,
         tint: token.data.tint,
+        actorData: token.data.actorData,
       };
 
       if (token.actor) {
