@@ -3140,7 +3140,7 @@ export const DDB_CONFIG = {
     },
     { id: 67, name: "TCoE", description: "Tasha’s Cauldron of Everything", sourceCategoryId: 1, isReleased: true },
     { id: 68, name: "CM", description: "Candlekeep Mysteries", sourceCategoryId: 1, isReleased: true },
-    { id: 69, name: "VRGtR", description: "Van Richten’s Guide to Ravenloft", sourceCategoryId: 1, isReleased: false },
+    { id: 69, name: "VRGtR", description: "Van Richten’s Guide to Ravenloft", sourceCategoryId: 1, isReleased: true },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
