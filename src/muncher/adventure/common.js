@@ -113,9 +113,8 @@ export default class Helpers {
    * @returns {object} - Entity Object Data
    */
   static findEntityByImportId(type, id) {
-    return game.data[type].find((item) => {
-      return item.flags.importid === id;
-    });
+    return game.data[type].find((item) => item._id === id);
+      // item.flags.importid === id
   }
 
   /**

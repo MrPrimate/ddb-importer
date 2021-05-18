@@ -215,7 +215,7 @@ export default class AdventureModuleImport extends FormApplication {
                       if (token.actorId) {
                         const actor = Helpers.findEntityByImportId("actors", token.actorId);
                         if (actor) {
-                          await obj.updateEmbeddedEntity("Token", { _id: token._id, actorId: actor._id });
+                          await obj.updateEmbeddedDocuments("Token", { _id: token._id, actorId: actor._id }, { keepId: true });
                         }
                       }
                     });
@@ -223,7 +223,7 @@ export default class AdventureModuleImport extends FormApplication {
                       if (note.entryId) {
                         const journalEntry = Helpers.findEntityByImportId("journal", note.entryId);
                         if (journalEntry) {
-                          await obj.updateEmbeddedEntity("Note", { _id: note._id, entryId: journalEntry._id });
+                          await obj.updateEmbeddedDocuments("Note", { _id: note._id, entryId: journalEntry._id }, { keepId: true });
                         }
                       }
                     });
@@ -440,7 +440,7 @@ export default class AdventureModuleImport extends FormApplication {
                           if (Object.keys(itemUpdateDate).length > 0) {
                             logger.debug(`Updating Owned item ${updatedDataUpdates.items[i]._id} for ${item} with: `, itemUpdateDate);
                             // eslint-disable-next-line no-await-in-loop
-                            await obj.updateEmbeddedEntity("OwnedItem", { _id: updatedDataUpdates.items[i]._id, ...itemUpdateDate });
+                            await obj.updateEmbeddedDocuments("OwnedItem", { _id: updatedDataUpdates.items[i]._id, ...itemUpdateDate }, { keepId: true });
                           }
                         }
                       }
