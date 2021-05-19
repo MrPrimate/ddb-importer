@@ -1,6 +1,6 @@
 # 2.0.x
 
-* Foundry 0.8.3 support
+* Foundry 0.8.4 support
 * Integrated adventure importer tool
 * You can now specify an Override compendium to import character items/spells/features from.
 * New only option has been removed.
