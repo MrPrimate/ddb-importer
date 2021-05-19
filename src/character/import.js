@@ -359,12 +359,12 @@ export default class CharacterImport extends FormApplication {
 
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("Item");
-    const toRemove = ownedItems._source
+    const toRemove = ownedItems
       .filter(
-        (item) => includedItems.includes(item.type) && !excludedList.some((excluded) => excluded._id === item._id)
+        (item) => includedItems.includes(item.type) && !excludedList.some((excluded) => excluded._id === item.id)
       )
-      .filter((item) => !item.flags.ddbimporter?.ignoreItemImport)
-      .map((item) => item._id);
+      .filter((item) => !item.data.flags.ddbimporter?.ignoreItemImport)
+      .map((item) => item.id);
 
     if (toRemove.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toRemove);
     return toRemove;
@@ -543,11 +543,11 @@ export default class CharacterImport extends FormApplication {
         enabled: updateReady,
       },
       {
-        name: "new",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-new"),
-        title: "[Deprecated] Import new items only",
+        name: "use-override",
+        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-override"),
+        title: "Replace Items using those in your Override compendium",
         description:
-          "Doesn't delete or update existing items in Foundry. If this is checked features managed by the Class such as levels and spell progression won't be updated. Attributes such as HP, AC, stats, speeds, skills and special traits are always updated. Please consider marking the item you wish to keep as ignored by import instead.",
+          "Use existing items from <i>ddb-import Override compendium</i>, rather than parsing from DDB. This is useful if you want to place customised items into the compendium for use by characters.",
         enabled: true,
       },
       {
@@ -1234,6 +1234,12 @@ export default class CharacterImport extends FormApplication {
         items = addItemEffectIcons(items);
       }
     }
+
+    items = items.map((item) => {
+      if (!item.effects) item.effects = [];
+      return item;
+    });
+
     return Promise.all(items);
   }
 
@@ -1242,14 +1248,19 @@ export default class CharacterImport extends FormApplication {
       items = await this.enrichCharacterItems(html, items);
       CharacterImport.showCurrentTask(html, "Adding items to character");
       logger.debug("Adding the following items:", items);
-      await this.actor.createEmbeddedDocuments("Item", items, DISABLE_FOUNDRY_UPGRADE);
+      // await this.actor.createEmbeddedDocuments("Item", items, DISABLE_FOUNDRY_UPGRADE);
+      for (const item of items) {
+        logger.debug(`Creating ${item.name}`);
+        // eslint-disable-next-line no-await-in-loop
+        await this.actor.createEmbeddedDocuments("Item", [item], DISABLE_FOUNDRY_UPGRADE);
+      }
     }
   }
 
   // returns items not updated
   async updateExistingIdMatchedItems(html, items) {
     if (this.actorOriginal.flags.ddbimporter && this.actorOriginal.flags.ddbimporter.inPlaceUpdateAvailable) {
-      const ownedItems = this.actor.getEmbeddedCollection("Item")._source;
+      const ownedItems = this.actor.getEmbeddedCollection("Item");
 
       let nonMatchedItems = [];
       let matchedItems = [];
@@ -1257,29 +1268,29 @@ export default class CharacterImport extends FormApplication {
       await items.forEach((item) => {
         let matchedItem = ownedItems.find(
           (owned) =>
-            item.name === owned.name &&
-            item.type === owned.type &&
-            item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id
+            item.name === owned.data.name &&
+            item.type === owned.data.type &&
+            item.flags?.ddbimporter?.id === owned.data.flags?.ddbimporter?.id
         );
         if (matchedItem) {
-          if (!matchedItem.flags.ddbimporter?.ignoreItemImport) {
-            item["_id"] = matchedItem["_id"];
-            if (matchedItem.flags.ddbimporter?.ignoreIcon) item.flags.ddbimporter.matchedImg = matchedItem.img;
-            if (matchedItem.flags.ddbimporter?.retainResourceConsumption) item.data.consume = matchedItem.data.consume;
+          if (!matchedItem.data.flags.ddbimporter?.ignoreItemImport) {
+            item["_id"] = matchedItem["id"];
+            if (matchedItem.data.flags.ddbimporter?.ignoreIcon) item.flags.ddbimporter.matchedImg = matchedItem.data.img;
+            if (matchedItem.data.flags.ddbimporter?.retainResourceConsumption) item.data.consume = matchedItem.data.data.consume;
             // update effect ids
-            if (matchedItem.effects?.length > 0 && item.effects?.length === 0) {
-              item.effects = matchedItem.effects;
+            if (matchedItem.data.effects?.length > 0 && item.effects?.length === 0) {
+              item.effects = matchedItem.data.effects;
             } else if (item.effects?.length >= 0) {
               item.effects = item.effects.map((ae) => {
                 const matchedEffect = matchedItem.effects.find(
                   (me) =>
-                    me.flags?.ddbimporter?.itemId &&
+                    me.data.flags?.ddbimporter?.itemId &&
                     ae.flags?.ddbimporter?.itemId &&
-                    me.flags.ddbimporter.itemId === ae.flags.ddbimporter.itemId
+                    me.data.flags.ddbimporter.itemId === ae.flags.ddbimporter.itemId
                 );
                 if (matchedEffect) {
-                  ae.origin = matchedEffect.origin;
-                  ae._id = matchedEffect._id;
+                  ae.origin = matchedEffect.data.origin;
+                  ae._id = matchedEffect.id;
                 }
                 return ae;
               });
@@ -1305,16 +1316,19 @@ export default class CharacterImport extends FormApplication {
         game.settings.get("ddb-importer", "character-update-policy-add-item-effects") ||
         game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
-      // there is some kind of race condition when updating more than a couple of items with AE on them
+      // there is some kind of race condition when updating more than a
+      // couple of items with AE on them, so need to add individually
+      logger.debug("Updating items:", enrichedItems);
       if (addEffects) {
+        logger.debug("Single item update");
         for (const item of enrichedItems) {
           logger.debug(`Updating ${item.name}`);
           // eslint-disable-next-line no-await-in-loop
-          await this.actor.updateEmbeddedDocuments("Item", item);
+          await this.actor.updateEmbeddedDocuments("Item", [item], { keepId: true });
         }
       } else {
-        logger.debug("Updating items:", enrichedItems);
-        await this.actor.updateEmbeddedDocuments("Item", enrichedItems);
+        logger.debug("Bulk update");
+        await this.actor.updateEmbeddedDocuments("Item", enrichedItems, { keepId: true });
       }
 
       logger.debug("Finished updating items");
@@ -1336,8 +1350,6 @@ export default class CharacterImport extends FormApplication {
     const magicItemsInstalled = utils.isModuleInstalledAndActive("magicitems");
     // items for actor
     let items = [];
-    // should we try and keep existing actor items?
-    const importKeepExistingActorItems = game.settings.get("ddb-importer", "character-update-policy-new");
     // attempt to update existing items
     const updateExistingItems = game.settings.get("ddb-importer", "character-update-policy-inplace");
     const updateReady = this.actorOriginal?.flags?.ddbimporter?.inPlaceUpdateAvailable;
@@ -1358,7 +1370,7 @@ export default class CharacterImport extends FormApplication {
       logger.debug("Removing updated items from update list...");
       await this.clearItemsByUserSelection(updatedItems);
       logger.debug("Items remaining for creation:", newItems);
-    } else if (!importKeepExistingActorItems) {
+    } else {
       logger.debug("Determining items to recreate...");
       CharacterImport.showCurrentTask(html, "Clearing items");
       await this.clearItemsByUserSelection();
@@ -1382,16 +1394,23 @@ export default class CharacterImport extends FormApplication {
       items = items.flat();
     }
 
-    if (importKeepExistingActorItems) {
-      // removed existing items from those to be imported
-      items = await CharacterImport.removeItems(items, this.actorOriginal.items);
-    }
-
     let compendiumItems = [];
     let srdCompendiumItems = [];
+    let overrideCompendiumItems = [];
     const useExistingCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-existing");
     const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
+    const useOverrideCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-override");
 
+    /**
+     * First choice is override compendium
+     */
+    if (useOverrideCompendiumItems) {
+      logger.info("Removing matching Override compendium items");
+      const compendiumOverrideItems = await getCompendiumItems(items, "custom");
+      overrideCompendiumItems = compendiumOverrideItems;
+      // removed existing items from those to be imported
+      items = await CharacterImport.removeItems(items, overrideCompendiumItems);
+    }
     /**
      * If SRD is selected, we prefer this
      */
@@ -1429,7 +1448,7 @@ export default class CharacterImport extends FormApplication {
 
     // now import any compendium items that we matched
     if (useExistingCompendiumItems) {
-      CharacterImport.showCurrentTask(html, "Importing compendium items");
+      CharacterImport.showCurrentTask(html, "Importing DDB compendium items");
       logger.info("Importing compendium items:", compendiumItems);
       await this.actor.createEmbeddedDocuments("Item", compendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
@@ -1438,6 +1457,12 @@ export default class CharacterImport extends FormApplication {
       CharacterImport.showCurrentTask(html, "Importing SRD compendium items");
       logger.info("Importing SRD compendium items:", srdCompendiumItems);
       await this.actor.createEmbeddedDocuments("Item", srdCompendiumItems, DISABLE_FOUNDRY_UPGRADE);
+    }
+
+    if (useOverrideCompendiumItems) {
+      CharacterImport.showCurrentTask(html, "Importing Override compendium items");
+      logger.info("Importing Override compendium items:", overrideCompendiumItems);
+      await this.actor.createEmbeddedDocuments("Item", overrideCompendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
 
     logger.debug("Finished importing items");
@@ -1454,39 +1479,38 @@ export default class CharacterImport extends FormApplication {
           (item.flags.ddbimporter?.ignoreItemImport || excludedItems.some((ei) => ei._id === item._id))
       )
       .map((item) => item._id);
-    // `Actor.${this.actorOriginal._id}.OwnedItem.${item._id}`
 
-    const itemEffects = this.actor.data.effects.filter(
-      (ae) => ae.origin?.includes("OwnedItem") && !ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
+    const itemEffects = this.actor.effects.filter(
+      (ae) => ae.data.origin?.includes(".Item.") && !ignoredItemIds.includes(ae.data.origin?.split(".").slice(-1)[0])
     );
-    const ignoredEffects = this.actor.data.effects.filter(
+    const ignoredEffects = this.actor.effects.filter(
       (ae) =>
         // is this an ignored item
-        ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0]) ||
+        ignoredItemIds.includes(ae.data.origin?.split(".").slice(-1)[0]) ||
         // is this a core status effect (CUB)
-        ae.flags?.core?.statusId
+        ae.data.flags?.core?.statusId
     );
-    const charEffects = this.actor.data.effects.filter(
-      (ae) => !ae.origin?.includes("OwnedItem") && !ae.flags.ddbimporter?.characterEffect
+    const charEffects = this.actor.effects.filter(
+      (ae) => !ae.data.origin?.includes(".Item.") && !ae.data.flags.ddbimporter?.characterEffect
     );
-    const ddbGeneratedCharEffects = this.actor.data.effects.filter(
-      (ae) => !ae.origin?.includes("OwnedItem") && ae.flags.ddbimporter?.characterEffect
+    const ddbGeneratedCharEffects = this.actor.effects.filter(
+      (ae) => !ae.data.origin?.includes(".Item.") && ae.data.flags.ddbimporter?.characterEffect
     );
 
     // remove existing active item effects
     await this.actor.deleteEmbeddedDocuments(
       "ActiveEffect",
-      itemEffects.map((ae) => ae._id)
+      itemEffects.map((ae) => ae.id)
     );
     // clear down ddb generated character effects such as skill bonuses
     await this.actor.deleteEmbeddedDocuments(
       "ActiveEffect",
-      ddbGeneratedCharEffects.map((ae) => ae._id)
+      ddbGeneratedCharEffects.map((ae) => ae.id)
     );
 
     if (game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects")) {
       const acEffects = this.result.character.flags.ddbimporter.acEffects.map((ae) => {
-        ae.origin = `Actor.${this.actor._id}`;
+        ae.origin = `Actor.${this.actor.id}`;
         return ae;
       });
       this.result.character.effects = this.result.character.effects.concat(acEffects);
@@ -1506,7 +1530,7 @@ export default class CharacterImport extends FormApplication {
       // if not retaining effects remove character effects
       await this.actor.deleteEmbeddedDocuments(
         "ActiveEffect",
-        charEffects.map((ae) => ae._id)
+        charEffects.map((ae) => ae.id)
       );
       this.result.character.effects = this.result.character.effects.concat(ignoredEffects);
     }
@@ -1525,7 +1549,7 @@ export default class CharacterImport extends FormApplication {
         `Actor.${this.actor.data.flags.ddbimporter.dndbeyond.characterId}`,
       ];
       if (origins.includes(effect.origin)) {
-        effect.origin = `Actor.${this.actor._id}`;
+        effect.origin = `Actor.${this.actor.id}`;
       }
     });
   }
@@ -1603,5 +1627,10 @@ export default class CharacterImport extends FormApplication {
         this.actor.updateEmbeddedDocument("ActiveEffect", { _id: ae._id, disabled: !ae.disabled });
       });
     }
+
+    // this.actor.prepareDerivedData();
+    // this.actor.prepareEmbeddedEntities();
+    this.actor.applyActiveEffects();
+    this.actor.render();
   }
 }

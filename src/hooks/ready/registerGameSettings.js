@@ -227,6 +227,16 @@ export default function () {
     choices: itemCompendiums,
   });
 
+  game.settings.register("ddb-importer", "entity-override-compendium", {
+    name: "ddb-importer.entity-custom-compendium.name",
+    hint: "ddb-importer.entity-custom-compendium.hint",
+    scope: "world",
+    config: false,
+    type: String,
+    isSelect: true,
+    choices: itemCompendiums,
+  });
+
   game.settings.register("ddb-importer", "entity-monster-compendium", {
     name: "ddb-importer.entity-monster-compendium.name",
     hint: "ddb-importer.entity-monster-compendium.hint",
@@ -335,15 +345,6 @@ export default function () {
   });
 
   /** Character update settings, stored per user and non-configurable in the settings screen */
-  game.settings.register("ddb-importer", "character-update-policy-new", {
-    name: "ddb-importer.character-update-policy-new.name",
-    hint: "ddb-importer.character-update-policy-new.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
   game.settings.register("ddb-importer", "character-update-policy-add-character-effects", {
     name: "ddb-importer.character-update-policy-add-character-effects.name",
     hint: "ddb-importer.character-update-policy-add-character-effects.hint",
@@ -587,6 +588,15 @@ export default function () {
   game.settings.register("ddb-importer", "character-update-policy-use-existing", {
     name: "ddb-importer.character-update-policy-use-existing.name",
     hint: "ddb-importer.character-update-policy-use-existing.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-use-override", {
+    name: "ddb-importer.character-update-policy-use-custom.name",
+    hint: "ddb-importer.character-update-policy-use-custom.hint",
     scope: "player",
     config: false,
     type: Boolean,

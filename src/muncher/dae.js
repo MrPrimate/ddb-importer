@@ -148,27 +148,5 @@ export async function addItemsDAESRD(items) {
  * @param {*} actor
  */
 export async function migrateActorDAESRD(actor, includeSRD = false) {
-  // if (!packsLoaded) await loadPacks();
-  // const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
-
-  // const items = actor.data.items;
-  // let replaceItems = [];
-  // let count = 0;
-  // items.forEach((itemData) => {
-  //   let replaceData = matchItem(itemData, midiInstalled);
-
-  //   if (replaceData) {
-  //     logger.debug(`migrating ${actor.name} ${replaceData.name}`);
-  //     setProperty(replaceData.data.flags, "dae.migrated", true);
-  //     replaceItems.push(dataSwap(itemData, replaceData.data));
-  //     count++;
-  //   } else replaceItems.push(itemData);
-  // });
-  // let removeItems = actor.items.map((i) => i.id);
-  // await actor.deleteOwnedItem(removeItems);
-  // console.warn(actor.effects.map((ae) => ae.id));
-  // await actor.deleteEmbeddedEntity("ActiveEffect", actor.effects.map((ae) => ae.id));
-  // await actor.createOwnedItem(replaceItems);
-  // logger.debug(`${actor.name} replaced ${count} out of ${replaceItems.length} items from the DAE SRD`);
   await DAE.migrateActorDAESRD(actor, includeSRD);
 }

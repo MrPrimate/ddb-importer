@@ -22,7 +22,6 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
       label: `DDB ${compendiumLabel}`,
       name: `ddb-${game.world.data.name}-${sanitizedLabel}`,
       package: "world",
-      sort: "a"
     });
     await game.settings.set("ddb-importer", settingName, `world.ddb-${game.world.data.name}-${sanitizedLabel}`);
     return true;
@@ -43,6 +42,7 @@ export default async function () {
       createIfNotExists("entity-feat-compendium", "Item", "Feats"),
       createIfNotExists("entity-race-compendium", "Item", "Races"),
       createIfNotExists("entity-monster-compendium", "Actor", "Monsters"),
+      createIfNotExists("entity-override-compendium", "Item", "Override"),
     ]);
 
     const reload = results.some((result) => result.value);

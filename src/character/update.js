@@ -332,7 +332,7 @@ async function addEquipment(actor, characterId, ddbData) {
       updatedItem.flags.ddbimporter.id = addedItem.id;
       return updatedItem;
     });
-    await actor.updateEmbeddedEntity("OwnedItem", itemUpdates);
+    await actor.updateEmbeddedDocuments("Item", itemUpdates);
 
     return itemResults;
   } else {

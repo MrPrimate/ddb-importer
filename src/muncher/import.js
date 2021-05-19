@@ -30,6 +30,7 @@ const compendiumLookup = [
   { type: "spell", name: "entity-spell-compendium" },
   { type: "equipment", name: "entity-item-compendium" },
   { type: "monsterfeatures", name: "entity-feature-compendium" },
+  { type: "custom", name: "entity-override-compendium" },
 ];
 
 const srdCompendiumLookup = [
@@ -355,7 +356,7 @@ export async function updateCompendium(type, input, updateExisting = false, matc
   const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
   const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
   const compendium = await game.packs.get(compendiumLabel);
-  compendium.configure({ locked: false, sort: "a" });
+  compendium.configure({ locked: false });
 
   if (game.user.isGM) {
     const initialIndex = await compendium.getIndex();

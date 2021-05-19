@@ -289,6 +289,13 @@ export class DDBCompendiumSetup extends FormApplication {
         current: game.settings.get("ddb-importer", "entity-monster-compendium"),
         compendiums: getCompendiumLookups("Actor", game.settings.get("ddb-importer", "entity-monster-compendium")),
       },
+      {
+        setting: "entity-override-compendium",
+        name: "Override",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-override-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-override-compendium")),
+      },
     ];
 
     return {
