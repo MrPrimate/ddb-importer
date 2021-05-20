@@ -317,6 +317,10 @@ export function getArmorClass(data, character) {
     };
   }
 
+  const usingEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const daeEffects = usingEffects && daeInstalled;
+
   // get a list of equipped armor
   // we make a distinction so we can loop over armor
   let equippedArmor = data.character.inventory.filter(
@@ -343,6 +347,7 @@ export function getArmorClass(data, character) {
       utils.getChosenClassModifiers(data),
       data.character.modifiers.race,
       data.character.modifiers.feat,
+      utils.getActiveItemModifiers(data, !daeEffects),
     ];
     unarmoredSources.forEach((modifiers) => {
       const unarmoredAC = Math.max(getUnarmoredAC(modifiers, character));

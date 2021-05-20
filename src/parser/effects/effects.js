@@ -158,7 +158,8 @@ export function getEffectExcludedModifiers(type) {
       EFFECT_EXCLUDED_SPEED_MODIFIERS,
       EFFECT_EXCLUDED_SENSE_MODIFIERS,
       EFFECT_EXCLUDED_HP_MODIFIERS,
-      EFFECT_EXCLUDED_SPELL_MODIFIERS
+      EFFECT_EXCLUDED_SPELL_MODIFIERS,
+      AC_EFFECTS
     );
   }
   return modifiers;
