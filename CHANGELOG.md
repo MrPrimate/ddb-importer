@@ -1,3 +1,7 @@
+# 1.0.9
+
+* Barrier Tattoos did not appear in AC calculations when not using active effects.
+
 # 1.0.8
 
 * Source filter for VRGtR
