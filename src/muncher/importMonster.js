@@ -81,7 +81,7 @@ async function addNPCToCompendium(npc) {
     if (npcMatch) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
         const newNPC = JSON.parse(JSON.stringify(npc));
-        const existingNPC = await compendium.getDocument(npcMatch._id);
+        const existingNPC = await compendium.getDocument(npcMatch._id).then((doc) => doc.data);
 
         const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
         if (!updateImages && existingNPC.img !== "icons/svg/mystery-man.svg") {

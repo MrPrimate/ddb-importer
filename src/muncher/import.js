@@ -296,7 +296,7 @@ async function getFilteredItems(compendium, item, index, matchFlags) {
   const indexEntries = index.filter((idx) => idx.name === item.name);
 
   const mapped = await Promise.all(indexEntries.map((idx) => {
-    const entry = compendium.getDocument(idx._id);
+    const entry = compendium.getDocument(idx._id).then((doc) => doc.data);
     return entry;
   }));
 
@@ -873,7 +873,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
 
   let loadedItems = [];
   for (const i of firstPassItems) {
-    let item = await compendium.getDocument(i._id); // eslint-disable-line no-await-in-loop
+    let item = await compendium.getDocument(i.id).then((doc) => doc.data); // eslint-disable-line no-await-in-loop
     if (item.flags.ddbimporter) {
       item.flags.ddbimporter["pack"] = compendiumLabel;
     } else {

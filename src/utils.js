@@ -876,7 +876,7 @@ const utils = {
               compendium.getDocument(entry._id).then((entity) => {
                 entity.data.name = entry.name; // transfer restrictions over, if any
                 // remove redudant info
-                delete entity.data._id;
+                delete entity.data.id;
                 delete entity.data.permission;
                 resolve(entity.data);
               });

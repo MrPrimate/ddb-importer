@@ -63,14 +63,17 @@ export class DDBItemConfig extends FormApplication {
   async _updateObject(event, formData) {
     event.preventDefault();
 
-    let item = this.object.data;
+    let item = {
+      _id: this.object.data._id,
+      flags: this.object.data.flags,
+    };
 
     if (!item.flags.ddbimporter) item.flags.ddbimporter = {};
     item.flags.ddbimporter['ignoreIcon'] = formData['ignoreIcon'];
     item.flags.ddbimporter['ignoreItemImport'] = formData['ignoreItemImport'];
     item.flags.ddbimporter['retainResourceConsumption'] = formData['retainResourceConsumption'];
     // item.flags.ddbimporter['ignoreItemSync'] = formData['ignoreItemSync'];
-    this.object.actor.updateEmbeddedEntity("OwnedItem", item);
+    this.object.actor.updateEmbeddedDocuments("Item", [item]);
 
   }
 }
