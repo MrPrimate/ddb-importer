@@ -50,7 +50,7 @@ async function retrieveSpells(spells) {
 //   return retrieveCompendiumItems(items, compendiumName);
 // }
 
-async function getCompendium() {
+async function getMonsterCompendium() {
   if (compendiumLoaded) return monsterCompendium;
   const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
   if (compendiumName && compendiumName !== "") {
@@ -64,14 +64,14 @@ async function getCompendium() {
   return undefined;
 }
 
-export async function checkCompendium() {
+export async function checkMonsterCompendium() {
   compendiumLoaded = false;
   monsterCompendium = undefined;
-  return getCompendium();
+  return getMonsterCompendium();
 }
 
 async function addNPCToCompendium(npc) {
-  const compendium = await getCompendium();
+  const compendium = await getMonsterCompendium();
   if (compendium) {
     // unlock the compendium for update/create
     compendium.configure({ locked: false });
