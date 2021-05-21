@@ -1,8 +1,9 @@
 import Helpers from "./common.js";
 import logger from "../../logger.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
+import { checkMonsterCompendium } from "../importMonster.js";
 
-export default class AdventureModuleImport extends FormApplication {
+export default class AdventureMunch extends FormApplication {
   /** @override */
   constructor(object = {}, options = {}) {
     super(object, options);
@@ -51,6 +52,41 @@ export default class AdventureModuleImport extends FormApplication {
       cssClass: "ddb-importer-window"
     };
 
+  }
+
+  static async _createFolders(adventure, folders) {
+    if (folders) {
+      const maintainFolders = adventure?.options?.folders;
+      let itemFolder = null;
+      if (!maintainFolders) {
+        const importTypes = ["Scene", "Actor", "Item", "JournalEntry", "RollTable"];
+        await Helpers.asyncForEach(importTypes, async (importType) => {
+          itemFolder = game.folders.find((folder) => {
+            return folder.data.name === adventure.name && folder.data.type === importType;
+          });
+
+          if (!itemFolder) {
+            logger.debug(`Creating folder ${adventure.name} - ${importType}`);
+
+            // eslint-disable-next-line require-atomic-updates
+            itemFolder = await Folder.create({
+              color: adventure.folderColour ? adventure.folderColour : "#FF0000",
+              name: adventure.name,
+              parent: null,
+              type: importType
+            }, { keepId: true });
+          }
+
+          CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[importType] = itemFolder.data._id;
+        });
+      } else {
+        CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
+      }
+
+      // the folder list could be out of order, we need to create all folders with parent null first
+      const firstLevelFolders = folders.filter((folder) => folder.parent === null);
+      await Helpers.importFolder(itemFolder, firstLevelFolders, adventure, folders);
+    }
   }
 
   /** @override */
@@ -107,71 +143,41 @@ export default class AdventureModuleImport extends FormApplication {
 
         CONFIG.DDBI.ADVENTURE.TEMPORARY = {
           folders: {},
-          import: {}
+          import: {},
+          actors: {},
         };
 
-        if (folders) {
-          const maintainFolders = adventure?.options?.folders;
-          let itemFolder = null;
-          if (!maintainFolders) {
-            const importTypes = ["Scene", "Actor", "Item", "JournalEntry", "RollTable"];
-            await Helpers.asyncForEach(importTypes, async (importType) => {
-              itemFolder = game.folders.find((folder) => {
-                return folder.data.name === adventure.name && folder.data.type === importType;
-              });
+        await AdventureMunch._createFolders(adventure, folders);
 
-              if (!itemFolder) {
-                logger.debug(`Creating folder ${adventure.name} - ${importType}`);
-
-                // eslint-disable-next-line require-atomic-updates
-                itemFolder = await Folder.create({
-                  color: "#FF0000",
-                  name: adventure.name,
-                  parent: null,
-                  type: importType
-                }, { keepId: true });
-              }
-
-              CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[importType] = itemFolder.data._id;
-            });
-          } else {
-            CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
-          }
-
-          // the folder list could be out of order, we need to create all folders with parent null first
-          const firstLevelFolders = folders.filter((folder) => folder.parent === null);
-          await Helpers.importFolder(itemFolder, firstLevelFolders, adventure, folders);
-        }
-
-        if (AdventureModuleImport._folderExists("scene", zip)) {
+        if (AdventureMunch._folderExists("scene", zip)) {
           logger.debug(`${adventure.name} - Loading scenes`);
           await this._importFile("scene", zip, adventure, folders);
         }
-        if (AdventureModuleImport._folderExists("actor", zip)) {
+        if (AdventureMunch._folderExists("actor", zip)) {
           logger.debug(`${adventure.name} - Loading actors`);
           await this._importFile("actor", zip, adventure, folders);
         }
-        if (AdventureModuleImport._folderExists("item", zip)) {
+        if (AdventureMunch._folderExists("item", zip)) {
           logger.debug(`${adventure.name} - Loading item`);
           await this._importFile("item", zip, adventure, folders);
         }
-        if (AdventureModuleImport._folderExists("journal", zip)) {
+        if (AdventureMunch._folderExists("journal", zip)) {
           logger.debug(`${adventure.name} - Loading journal`);
           await this._importFile("journal", zip, adventure, folders);
         }
-        if (AdventureModuleImport._folderExists("table", zip)) {
+        if (AdventureMunch._folderExists("table", zip)) {
           logger.debug(`${adventure.name} - Loading table`);
           await this._importFile("table", zip, adventure, folders);
         }
-        if (AdventureModuleImport._folderExists("playlist", zip)) {
+        if (AdventureMunch._folderExists("playlist", zip)) {
           logger.debug(`${adventure.name} - Loading playlist`);
           await this._importFile("playlist", zip, adventure, folders);
         }
-        if (AdventureModuleImport._folderExists("compendium", zip)) {
+        if (AdventureMunch._folderExists("compendium", zip)) {
           logger.debug(`${adventure.name} - Loading compendium`);
           await this._importCompendium("compendium", zip, adventure, folders);
         }
-        if (AdventureModuleImport._folderExists("macro", zip)) {
+        if (AdventureMunch._folderExists("macro", zip)) {
           logger.debug(`${adventure.name} - Loading macro`);
           await this._importFile("macro", zip, adventure, folders);
         }
@@ -204,259 +210,261 @@ export default class AdventureModuleImport extends FormApplication {
                 ).render(true);
                 this.close();
               }, 60000);
-              try {
-                const obj = await fromUuid(item);
-                let rawData;
-                let updatedData = {};
-                switch (obj.documentName) {
-                  case "Scene": {
-                    // this is a scene we need to update links to all items
-                    await Helpers.asyncForEach(obj.data.tokens, async (token) => {
-                      if (token.actorId) {
-                        const actor = Helpers.findEntityByImportId("actors", token.actorId);
-                        if (actor) {
-                          await obj.updateEmbeddedDocuments("Token", { _id: token._id, actorId: actor._id }, { keepId: true });
-                        }
-                      }
-                    });
-                    await Helpers.asyncForEach(obj.data.notes, async (note) => {
-                      if (note.entryId) {
-                        const journalEntry = Helpers.findEntityByImportId("journal", note.entryId);
-                        if (journalEntry) {
-                          await obj.updateEmbeddedDocuments("Note", { _id: note._id, entryId: journalEntry._id }, { keepId: true });
-                        }
-                      }
-                    });
-                    let sceneJournal = Helpers.findEntityByImportId("journal", obj.data.journal);
-                    if (sceneJournal) {
-                      updatedData["journal"] = sceneJournal?._id;
-                    }
-                    let scenePlaylist = Helpers.findEntityByImportId("playlists", obj.data.playlist);
-                    if (scenePlaylist) {
-                      updatedData["playlist"] = scenePlaylist?._id;
-                    }
-                    // In 0.8.3 the thumbs don't seem to be generated.
-                    // This code would embed the thumbnail.
-                    // Consider writing this out.
-                    // if (!obj.data.thumb) {
-                    //   const thumbData = await obj.createThumbnail();
-                    //   updatedData["thumb"] = thumbData.thumb;
-                    // }
-                    await obj.update(updatedData);
-                    break;
-                  }
-                  case "RollTable": {
-                    updatedData = {
-                      results: obj.results
-                    };
-                    await Helpers.asyncForEach(obj.results, async (result, index) => {
-                      switch (result.type) {
-                        case 1: {
-                          let refType = "";
-                          switch (result.collection.toLowerCase()) {
-                            // this is a world obj, type denoted by collection
-                            case "scene":
-                              refType = "scenes";
-                              break;
-                            case "journalentry":
-                              refType = "journal";
-                              break;
-                            case "rolltable":
-                              refType = "tables";
-                              break;
-                            case "actor":
-                              refType = "actors";
-                              break;
-                            case "item":
-                              refType = "items";
-                              break;
-                            // no default
-                          }
-                          let rolltableresultitem = Helpers.findEntityByImportId(refType, result.resultId);
-                          if (rolltableresultitem) {
-                            updatedData.results[index].resultId = rolltableresultitem?._id;
-                          }
-                          break;
-                        }
-                        case 2: {
-                          // this is a compendium obj, pack denoted by collection
-                          const pack = await game.packs.get(obj.data.collection);
-                          if (!pack.locked && !pack.private) {
-                            let content = await pack.getContent();
+              // try {
+              //   const obj = await fromUuid(item);
+              //   let rawData;
+              //   let updatedData = {};
+              //   switch (obj.documentName) {
+              //     case "Scene": {
+              //       // this is a scene we need to update links to all items
+              //       await Helpers.asyncForEach(obj.data.tokens, async (token) => {
+              //         if (token.actorId) {
+              //           const actor = Helpers.findEntityByImportId("actors", token.actorId);
+              //           if (actor) {
+              //             const updateData = { _id: token._id, actorId: actor._id };
+              //             await obj.updateEmbeddedDocuments("Token", updateData, { keepId: true });
+              //           }
+              //         }
+              //       });
+              //       await Helpers.asyncForEach(obj.data.notes, async (note) => {
+              //         if (note.entryId) {
+              //           const journalEntry = Helpers.findEntityByImportId("journal", note.entryId);
+              //           if (journalEntry) {
+              //             const updateData = { _id: note._id, entryId: journalEntry._id };
+              //             await obj.updateEmbeddedDocuments("Note", updateData, { keepId: true });
+              //           }
+              //         }
+              //       });
+              //       let sceneJournal = Helpers.findEntityByImportId("journal", obj.data.journal);
+              //       if (sceneJournal) {
+              //         updatedData["journal"] = sceneJournal?._id;
+              //       }
+              //       let scenePlaylist = Helpers.findEntityByImportId("playlists", obj.data.playlist);
+              //       if (scenePlaylist) {
+              //         updatedData["playlist"] = scenePlaylist?._id;
+              //       }
+              //       // In 0.8.3 the thumbs don't seem to be generated.
+              //       // This code would embed the thumbnail.
+              //       // Consider writing this out.
+              //       // if (!obj.data.thumb) {
+              //       //   const thumbData = await obj.createThumbnail();
+              //       //   updatedData["thumb"] = thumbData.thumb;
+              //       // }
+              //       await obj.update(updatedData);
+              //       break;
+              //     }
+              //     case "RollTable": {
+              //       updatedData = {
+              //         results: obj.results
+              //       };
+              //       await Helpers.asyncForEach(obj.results, async (result, index) => {
+              //         switch (result.type) {
+              //           case 1: {
+              //             let refType = "";
+              //             switch (result.collection.toLowerCase()) {
+              //               // this is a world obj, type denoted by collection
+              //               case "scene":
+              //                 refType = "scenes";
+              //                 break;
+              //               case "journalentry":
+              //                 refType = "journal";
+              //                 break;
+              //               case "rolltable":
+              //                 refType = "tables";
+              //                 break;
+              //               case "actor":
+              //                 refType = "actors";
+              //                 break;
+              //               case "item":
+              //                 refType = "items";
+              //                 break;
+              //               // no default
+              //             }
+              //             let rolltableresultitem = Helpers.findEntityByImportId(refType, result.resultId);
+              //             if (rolltableresultitem) {
+              //               updatedData.results[index].resultId = rolltableresultitem?._id;
+              //             }
+              //             break;
+              //           }
+              //           case 2: {
+              //             // this is a compendium obj, pack denoted by collection
+              //             const pack = await game.packs.get(obj.data.collection);
+              //             if (!pack.locked && !pack.private) {
+              //               let content = await pack.getContent();
 
-                            let compendiumItem = content.find((contentItem) => {
-                              return contentItem.data.flags.importid === obj.data.resultId;
-                            });
+              //               let compendiumItem = content.find((contentItem) => {
+              //                 return contentItem.data.flags.importid === obj.data.resultId;
+              //               });
 
-                            if (compendiumItem) {
-                              updatedData.results[index].resultId = compendiumItem.data._id;
-                            }
-                          }
-                          break;
-                        }
-                        default:
-                        // no default
-                        // this is straight text
-                      }
-                      // no default
-                    });
+              //               if (compendiumItem) {
+              //                 updatedData.results[index].resultId = compendiumItem.data._id;
+              //               }
+              //             }
+              //             break;
+              //           }
+              //           default:
+              //           // no default
+              //           // this is straight text
+              //         }
+              //         // no default
+              //       });
 
-                    break;
-                    // no default
-                  }
-                  default: {
-                    // this is where there is reference in one of the fields
-                    rawData = JSON.stringify(obj.data);
-                    const pattern = /(@[a-z]*)(\[)([a-z0-9]*|[a-z0-9.]*)(\])(\{)(.*?)(\})/gmi;
-                    const altpattern = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gmi;
+              //       break;
+              //       // no default
+              //     }
+              //     default: {
+              //       // this is where there is reference in one of the fields
+              //       rawData = JSON.stringify(obj.data);
+              //       const pattern = /(@[a-z]*)(\[)([a-z0-9]*|[a-z0-9.]*)(\])(\{)(.*?)(\})/gmi;
+              //       const altpattern = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gmi;
 
-                    const referenceUpdater = async (match, p1, p2, p3, p4, p5, p6, p7) => {
-                      let refType;
-                      switch (p1.replace("@", "").toLowerCase()) {
-                        case "scene":
-                          refType = "scenes";
-                          break;
-                        case "journalentry":
-                          refType = "journal";
-                          break;
-                        case "rolltable":
-                          refType = "tables";
-                          break;
-                        case "actor":
-                          refType = "actors";
-                          break;
-                        case "item":
-                          refType = "items";
-                          break;
-                        // no default
-                      }
+              //       const referenceUpdater = async (match, p1, p2, p3, p4, p5, p6, p7) => {
+              //         let refType;
+              //         switch (p1.replace("@", "").toLowerCase()) {
+              //           case "scene":
+              //             refType = "scenes";
+              //             break;
+              //           case "journalentry":
+              //             refType = "journal";
+              //             break;
+              //           case "rolltable":
+              //             refType = "tables";
+              //             break;
+              //           case "actor":
+              //             refType = "actors";
+              //             break;
+              //           case "item":
+              //             refType = "items";
+              //             break;
+              //           // no default
+              //         }
 
-                      let newObj = { _id: p3 };
+              //         let newObj = { _id: p3 };
 
-                      if (p1 !== "@Compendium") {
-                        let nonCompendiumItem = Helpers.findEntityByImportId(refType, p3);
-                        if (nonCompendiumItem) {
-                          newObj = nonCompendiumItem;
-                        }
-                      } else {
-                        newObj = { _id: p3 };
-                        const [p, name, entryid] = p3.split(".");
-                        try {
-                          const pack = await game.packs.get(`${p}.${name}`);
-                          if (!pack.locked && !pack.private) {
-                            let content = await pack.getContent();
+              //         if (p1 !== "@Compendium") {
+              //           let nonCompendiumItem = Helpers.findEntityByImportId(refType, p3);
+              //           if (nonCompendiumItem) {
+              //             newObj = nonCompendiumItem;
+              //           }
+              //         } else {
+              //           newObj = { _id: p3 };
+              //           const [p, name, entryid] = p3.split(".");
+              //           try {
+              //             const pack = await game.packs.get(`${p}.${name}`);
+              //             if (!pack.locked && !pack.private) {
+              //               let content = await pack.getContent();
 
-                            let compendiumItem = content.find((contentItem) => {
-                              return contentItem.data.flags.importid === entryid;
-                            });
+              //               let compendiumItem = content.find((contentItem) => {
+              //                 return contentItem.data.flags.importid === entryid;
+              //               });
 
-                            if (!compendiumItem) {
-                              await pack.getIndex();
-                              compendiumItem = pack.index.find((e) => e.name === p6);
-                              // eslint-disable-next-line max-depth
-                              if (compendiumItem) newObj["_id"] = `${p}.${name}.${compendiumItem._id}`;
-                            } else {
-                              newObj["_id"] = `${p}.${name}.${compendiumItem.data._id}`;
-                            }
-                          }
-                        } catch (err) {
-                          logger.warn(`Unable to find find compendium item ${match} to fix link.  If the compendium referenced is part of the system, this warning can be ignored, otherwise please make sure compendiums are unlocked and visible during import.`, err);
-                        }
-                      }
+              //               if (!compendiumItem) {
+              //                 await pack.getIndex();
+              //                 compendiumItem = pack.index.find((e) => e.name === p6);
+              //                 // eslint-disable-next-line max-depth
+              //                 if (compendiumItem) newObj["_id"] = `${p}.${name}.${compendiumItem._id}`;
+              //               } else {
+              //                 newObj["_id"] = `${p}.${name}.${compendiumItem.data._id}`;
+              //               }
+              //             }
+              //           } catch (err) {
+              //             logger.warn(`Unable to find find compendium item ${match} to fix link.  If the compendium referenced is part of the system, this warning can be ignored, otherwise please make sure compendiums are unlocked and visible during import.`, err);
+              //           }
+              //         }
 
-                      return [p1, p2, newObj._id, p4, p5, p6, p7].join("");
-                    };
+              //         return [p1, p2, newObj._id, p4, p5, p6, p7].join("");
+              //       };
 
-                    const altReferenceUpdater = async (match, p1, p2, p3, p4, p5, p6, p7) => {
-                      logger.debug(match);
-                      let refType;
-                      let newObj = { _id: p6 };
-                      if (p2 && p2.toLowerCase() === "data-entity") {
-                        switch (p3.toLowerCase()) {
-                          case "scene":
-                            refType = "scenes";
-                            break;
-                          case "journalentry":
-                            refType = "journal";
-                            break;
-                          case "rolltable":
-                            refType = "tables";
-                            break;
-                          case "actor":
-                            refType = "actors";
-                            break;
-                          case "item":
-                            refType = "items";
-                            break;
-                          // no default
-                        }
-                        let nonCompendiumItem = Helpers.findEntityByImportId(refType, p6);
-                        if (nonCompendiumItem) {
-                          newObj = nonCompendiumItem;
-                        } else {
-                          logger.warn(`Unable to find item ${match} to fix link.`);
-                        }
-                      } else if (p4.toLowerCase() === "data-pack") {
-                        try {
-                          const pack = await game.packs.get(p5);
-                          if (!pack.locked && !pack.private) {
-                            let content = await pack.getContent();
+              //       const altReferenceUpdater = async (match, p1, p2, p3, p4, p5, p6, p7) => {
+              //         logger.debug(match);
+              //         let refType;
+              //         let newObj = { _id: p6 };
+              //         if (p2 && p2.toLowerCase() === "data-entity") {
+              //           switch (p3.toLowerCase()) {
+              //             case "scene":
+              //               refType = "scenes";
+              //               break;
+              //             case "journalentry":
+              //               refType = "journal";
+              //               break;
+              //             case "rolltable":
+              //               refType = "tables";
+              //               break;
+              //             case "actor":
+              //               refType = "actors";
+              //               break;
+              //             case "item":
+              //               refType = "items";
+              //               break;
+              //             // no default
+              //           }
+              //           let nonCompendiumItem = Helpers.findEntityByImportId(refType, p6);
+              //           if (nonCompendiumItem) {
+              //             newObj = nonCompendiumItem;
+              //           } else {
+              //             logger.warn(`Unable to find item ${match} to fix link.`);
+              //           }
+              //         } else if (p4.toLowerCase() === "data-pack") {
+              //           try {
+              //             const pack = await game.packs.get(p5);
+              //             if (!pack.locked && !pack.private) {
+              //               let content = await pack.getContent();
 
-                            let compendiumItem = content.find((contentItem) => {
-                              return contentItem.data.flags.importid === p6;
-                            });
+              //               let compendiumItem = content.find((contentItem) => {
+              //                 return contentItem.data.flags.importid === p6;
+              //               });
 
-                            if (!compendiumItem) {
-                              await pack.getIndex();
-                              compendiumItem = pack.index.find((e) => e.name === p7);
-                              // eslint-disable-next-line max-depth
-                              if (compendiumItem) newObj["_id"] = compendiumItem._id;
-                            } else {
-                              newObj["_id"] = compendiumItem.data._id;
-                            }
-                          }
-                        } catch (err) {
-                          logger.warn(`Unable to find compendium item ${match} to fix link.  If the compendium referenced is part of the system, this warning can be ignored, otherwise please make sure compendiums are unlocked and visible during import.`, err);
-                        }
+              //               if (!compendiumItem) {
+              //                 await pack.getIndex();
+              //                 compendiumItem = pack.index.find((e) => e.name === p7);
+              //                 // eslint-disable-next-line max-depth
+              //                 if (compendiumItem) newObj["_id"] = compendiumItem._id;
+              //               } else {
+              //                 newObj["_id"] = compendiumItem.data._id;
+              //               }
+              //             }
+              //           } catch (err) {
+              //             logger.warn(`Unable to find compendium item ${match} to fix link.  If the compendium referenced is part of the system, this warning can be ignored, otherwise please make sure compendiums are unlocked and visible during import.`, err);
+              //           }
 
-                        logger.info(`Replacing ${p6} with ${newObj._id} for ${p7}`);
-                      }
-                      return [p1, " data-id='", newObj._id, "'>", p7, "</a>"].join("");
-                    };
+              //           logger.info(`Replacing ${p6} with ${newObj._id} for ${p7}`);
+              //         }
+              //         return [p1, " data-id='", newObj._id, "'>", p7, "</a>"].join("");
+              //       };
 
-                    const updatedRawData = await Helpers.replaceAsync(rawData, pattern, referenceUpdater);
-                    const secondPassRawData = await Helpers.replaceAsync(updatedRawData, altpattern, altReferenceUpdater);
-                    const updatedDataUpdates = JSON.parse(secondPassRawData);
-                    const diff = Helpers.diff(obj.data, updatedDataUpdates);
+              //       const updatedRawData = await Helpers.replaceAsync(rawData, pattern, referenceUpdater);
+              //       const secondPassRawData = await Helpers.replaceAsync(updatedRawData, altpattern, altReferenceUpdater);
+              //       const updatedDataUpdates = JSON.parse(secondPassRawData);
+              //       const diff = Helpers.diff(obj.data, updatedDataUpdates);
 
-                    if (diff.items && obj.documentName === "Actor" && diff.items.length > 0) {
-                      // the object has embedded items that need to be updated seperately.
+              //       if (diff.items && obj.documentName === "Actor" && diff.items.length > 0) {
+              //         // the object has embedded items that need to be updated seperately.
 
-                      /* eslint-disable max-depth */
-                      for (let i = 0; i < updatedDataUpdates.items.length; i += 1) {
-                        if (diff.items[i] && Object.keys(diff.items[i].data).length > 0) {
-                          const itemUpdateDate = Helpers.buildUpdateData({ data: diff.items[i].data });
+              //         /* eslint-disable max-depth */
+              //         for (let i = 0; i < updatedDataUpdates.items.length; i += 1) {
+              //           if (diff.items[i] && Object.keys(diff.items[i].data).length > 0) {
+              //             const itemUpdateDate = Helpers.buildUpdateData({ data: diff.items[i].data });
 
-                          if (Object.keys(itemUpdateDate).length > 0) {
-                            logger.debug(`Updating Owned item ${updatedDataUpdates.items[i]._id} for ${item} with: `, itemUpdateDate);
-                            // eslint-disable-next-line no-await-in-loop
-                            await obj.updateEmbeddedDocuments("OwnedItem", { _id: updatedDataUpdates.items[i]._id, ...itemUpdateDate }, { keepId: true });
-                          }
-                        }
-                      }
-                      /* eslint-enable max-depth */
-                    }
-                    delete diff.items;
-                    logger.debug(`Updating object ${item}`, diff);
-                    updatedData = Helpers.buildUpdateData(diff);
-                    await obj.update(updatedData);
-                  }
-                }
-              } catch (err) {
-                logger.warn(`Error updating references for object ${item}`, err);
-              }
+              //             if (Object.keys(itemUpdateDate).length > 0) {
+              //               logger.debug(`Updating Owned item ${updatedDataUpdates.items[i]._id} for ${item} with: `, itemUpdateDate);
+              //               // eslint-disable-next-line no-await-in-loop
+              //               await obj.updateEmbeddedDocuments("OwnedItem", { _id: updatedDataUpdates.items[i]._id, ...itemUpdateDate }, { keepId: true });
+              //             }
+              //           }
+              //         }
+              //         /* eslint-enable max-depth */
+              //       }
+              //       delete diff.items;
+              //       logger.debug(`Updating object ${item}`, diff);
+              //       updatedData = Helpers.buildUpdateData(diff);
+              //       await obj.update(updatedData);
+              //     }
+              //   }
+              // } catch (err) {
+              //   logger.warn(`Error updating references for object ${item}`, err);
+              // }
               currentCount += 1;
-              AdventureModuleImport._updateProgress(totalCount, currentCount, "References");
+              AdventureMunch._updateProgress(totalCount, currentCount, "References");
               clearTimeout(toTimer);
             });
           }
@@ -517,7 +525,7 @@ export default class AdventureModuleImport extends FormApplication {
     let totalCount = 0;
     let currentCount = 0;
     const typeName = type[0].toUpperCase() + type.slice(1);
-    const dataFiles = AdventureModuleImport._getFiles(type, zip);
+    const dataFiles = AdventureMunch._getFiles(type, zip);
     logger.info(`Importing ${adventure.name} - ${typeName} (${dataFiles.length} items)`);
     totalCount = dataFiles.length;
 
@@ -598,10 +606,10 @@ export default class AdventureModuleImport extends FormApplication {
           }
         }
         currentCount += 1;
-        AdventureModuleImport._updateProgress(totalCount, currentCount, typeName);
+        AdventureMunch._updateProgress(totalCount, currentCount, typeName);
       });
       currentCount += 1;
-      AdventureModuleImport._updateProgress(totalCount, currentCount, typeName);
+      AdventureMunch._updateProgress(totalCount, currentCount, typeName);
     });
   }
 
@@ -684,18 +692,58 @@ export default class AdventureModuleImport extends FormApplication {
     }
   }
 
-  async _transferActorsToWorld(scene) {
-    // for token in flags:
-    //   find npc in compendium using:
-    //     if ddbid flag use ddbid
-    //     else use flag name
+  static async _transferActorsToWorld(scene) {
+    const monsterCompendium = await checkMonsterCompendium();
+
+    const neededActors = scene.tokens
+      .filter((token) => !CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[token.actorId])
+      .map((token) => {
+        return { ddbId: token.flags.ddbActorFlags.id, actorId: token.actorId, compendiumId: token.flags.compendiumActorId, folderId: token.flags.actorFolderId };
+      })
+      .filter((obj, pos, arr) => {
+        // we only need to create 1 actor per actorId
+        return arr.map((mapObj) => mapObj["actorId"]).indexOf(obj["actorId"]) === pos;
+      });
+
+    await Helpers.asyncForEach(neededActors, async (actor) => {
+      let worldActor = game.actors.get(actor.actorId);
+      if (!worldActor) {
+        logger.info(`Importing actor ${actor.ddbId}`);
+        worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, { keepId: true });
+      }
+      CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[actor.actorId] = await worldActor.getTokenData();
+    });
+
+    scene.tokens = scene.tokens
+      .filter((token) => CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[token.actorId])
+      .map((token) => {
+        token = mergeObject(CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[token.actorId], token);
+        return token;
+      });
+
+    console.log(JSON.parse(JSON.stringify(scene)));
+    console.warn(scene);
 
     //   if token:
     //     create folder in world for noc based on adventure -> chapter -> scene name
 
     //   import npc into folder if not exist
 
-    //   generate token data and link to importer actor
+    //   generate token data and link to importer actor##
+
+  //   let actorId = "ssqczjzpEHmnmsw0";
+  //   let actor = game.actors.get(actorId);
+  //   let tokenData = actor.getTokenData();
+
+  //   let s = game.scenes.getName("Map 1.1: Fortress Level");
+  //   s.createEmbeddedDocuments("Token", [tokenData]);
+
+  //   token.flags.ddbActorFlags?.id
+
+
+  //   WorldCollection.importFromCompendium(p, "6okPFAutUONK6eJ3", {_id: "66666666UONK6eJ3"}, {keepId: true});
+  //   game.actors.importFromCompendium(p, "6okPFAutUONK6eJ3", {_id: "66666666UONK6eJ3"}, {keepId: true});
+
   }
 
   async _importFile(type, zip, adventure) {
@@ -709,7 +757,7 @@ export default class AdventureModuleImport extends FormApplication {
     importType = type === "journal" ? "JournalEntry" : importType;
     importType = type === "table" ? "RollTable" : importType;
 
-    const dataFiles = AdventureModuleImport._getFiles(type, zip);
+    const dataFiles = AdventureMunch._getFiles(type, zip);
 
     logger.info(`Importing ${adventure.name} - ${typeName} (${dataFiles.length} items)`);
 
@@ -754,7 +802,7 @@ export default class AdventureModuleImport extends FormApplication {
             await Helpers.asyncForEach(filesToUpload, async (file) => {
               await Helpers.importImage(file.name, zip, adventure);
               currentCount += 1;
-              AdventureModuleImport._updateProgress(totalCount, currentCount, importType);
+              AdventureMunch._updateProgress(totalCount, currentCount, importType);
             });
           }
 
@@ -771,6 +819,12 @@ export default class AdventureModuleImport extends FormApplication {
             item.img = await Helpers.importImage(item.img, zip, adventure);
           }
         });
+      }
+
+      if (typeName === "Scene") {
+        if (data.tokens) {
+          await AdventureMunch._transferActorsToWorld(data);
+        }
       }
 
       if (typeName === "Playlist") {
@@ -821,7 +875,7 @@ export default class AdventureModuleImport extends FormApplication {
       await this._importRenderedFile(adventure, typeName, data, zip, needRevisit);
 
       currentCount += 1;
-      AdventureModuleImport._updateProgress(totalCount, currentCount, importType);
+      AdventureMunch._updateProgress(totalCount, currentCount, importType);
     });
 
 
