@@ -131,7 +131,9 @@ const collectSceneData = (scene) => {
       hidden: light.data.hidden,
     })),
     // tokens
-    tokens: scene.data.tokens.filter((token) => !token.actorLink).map((token) => {
+    tokens: scene.data.tokens
+    .filter((token) => !token.actorLink)
+    .map((token) => {
       let result = {
         _id: token.data._id,
         name: token.data.name,
@@ -144,8 +146,6 @@ const collectSceneData = (scene) => {
         flags: token.data.flags,
         actorLink: false,
         bar1: { attribute: "attributes.hp" },
-        bar2: {},
-        displayName: token.data.displayName,
         effects: [],
         elevation: token.data.elevation,
         hidden: token.data.hidden,
