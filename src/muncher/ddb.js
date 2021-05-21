@@ -11,7 +11,7 @@ import { getPatreonTiers, munchNote } from "./utils.js";
 import { DDB_CONFIG } from "../ddb-config.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { generateAdventureConfig } from "./adventure.js";
-import AdventureModuleImport from "./adventure/adventure-import.js";
+import AdventureMunch from "./adventure/import.js";
 
 
 function getSourcesLookups(selected) {
@@ -332,7 +332,7 @@ export default class DDBMuncher extends Application {
   }
 
   static async importAdventure() {
-    new AdventureModuleImport().render(true);
+    new AdventureMunch().render(true);
   }
 
   getData() { // eslint-disable-line class-methods-use-this
