@@ -42,7 +42,7 @@ async function getMonsterMap () {
   const monsterIndex = await monsterCompendium.getIndex();
 
   const results = monsterIndex.map(async (i) => {
-    const monster = await monsterCompendium.getEntry(i._id);
+    const monster = await monsterCompendium.getDocument(i._id);
     return {
       id: monster.flags.ddbimporter?.id,
       _id: monster._id,
@@ -143,9 +143,9 @@ export async function generateAdventureConfig() {
       };
     });
 
-  result.lookups.conditions = DDB_CONFIG.conditions.filter((condition) => srdIndex.some((i) => i.name === condition.definition.name))
+  result.lookups.conditions = DDB_CONFIG.conditions.filter((condition) => srdIndex.some((i) => i.name.trim() === condition.definition.name.trim()))
     .map((condition) => {
-      const entry = srdIndex.find((i) => i.name === condition.definition.name);
+      const entry = srdIndex.find((i) => i.name.trim() === condition.definition.name.trim());
       return {
         id: condition.definition.id,
         _id: entry._id,
