@@ -309,14 +309,14 @@ async function getFilteredItems(compendium, item, index, matchFlags) {
   return flagFiltered;
 }
 
-async function getFlaggedItems(compendium, items, index, matchFlags) {
-  let results = [];
-  items.forEach((item) => {
-    const flagged = getFilteredItems(compendium, item, index, matchFlags);
-    results.push(flagged);
-  });
-  return Promise.all(results);
-}
+// async function getFlaggedItems(compendium, items, index, matchFlags) {
+//   let results = [];
+//   items.forEach((item) => {
+//     const flagged = getFilteredItems(compendium, item, index, matchFlags);
+//     results.push(flagged);
+//   });
+//   return Promise.all(results);
+// }
 
 async function updateCompendiumItems(compendium, compendiumItems, index, matchFlags) {
   let promises = [];
@@ -363,33 +363,16 @@ export async function updateCompendium(type, input, updateExisting = false, matc
     // remove duplicate items based on name and type
     const compendiumItems = [...new Map(input[type].map((item) => [item["name"] + item["type"], item])).values()];
 
+    let updateResults = [];
     // update existing items
     if (updateExisting) {
-      await updateCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
+      updateResults = await updateCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
     }
 
     // create new items
-    await createCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
+    const createResults = await createCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
 
-    const updatedIndex = await compendium.getIndex();
-    const updateItems = getFlaggedItems(compendium, compendiumItems, updatedIndex, matchFlags);
-
-
-    // lets generate our compendium info like id, pack and img for use
-    // by things like magicitems
-    const items = updateItems.then((entries) => {
-      const results = entries.flat().map((result) => {
-        return {
-          _id: result.id,
-          pack: compendium.collection,
-          img: result.img,
-          name: result.name,
-        };
-      });
-      return results;
-    });
-
-    return items;
+    return createResults.concat(updateResults);
   }
   return [];
 }
