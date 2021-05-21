@@ -190,10 +190,16 @@ export class DDBSetup extends FormApplication {
   }
 }
 
-
 function getCompendiumLookups(type, selected) {
+  const excludedCompendiumPackages = [
+    "dnd5e", "dae", "midiqol", "magicitems",
+  ];
+
   const selections = game.packs
-  .filter((pack) => pack.documentClass.documentName === type)
+  .filter((pack) =>
+    pack.documentClass.documentName === type &&
+    !excludedCompendiumPackages.includes(pack.metadata.package)
+  )
   .reduce((choices, pack) => {
     choices[pack.collection] = {
       label: `[${pack.metadata.package}] ${pack.metadata.label}`,

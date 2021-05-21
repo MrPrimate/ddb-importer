@@ -8,19 +8,22 @@ CONFIG.DDBI = {
 };
 
 export default function () {
-  const actorCompendiums = game.packs
-    .filter((pack) => pack.documentClass.documentName === "Actor")
-    .reduce((choices, pack) => {
-      choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-      return choices;
-    }, {});
+  // const excludedCompediumPackages = [
+  //   "dnd5e", "dae", "midiqol", "magicitems",
+  // ];
+  // const actorCompendiums = game.packs
+  //   .filter((pack) => pack.documentClass.documentName === "Actor" && !excludedCompediumPackages.includes(pack.metadata.package))
+  //   .reduce((choices, pack) => {
+  //     choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
+  //     return choices;
+  //   }, {});
 
-  const itemCompendiums = game.packs
-    .filter((pack) => pack.documentClass.documentName === "Item")
-    .reduce((choices, pack) => {
-      choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-      return choices;
-    }, {});
+  // const itemCompendiums = game.packs
+  //   .filter((pack) => pack.documentClass.documentName === "Item" && !excludedCompediumPackages.includes(pack.metadata.package))
+  //   .reduce((choices, pack) => {
+  //     choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
+  //     return choices;
+  //   }, {});
 
   game.settings.registerMenu("ddb-importer", 'setupMenu', {
     name: "ddb-importer.setup.name",
@@ -163,8 +166,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-feature-compendium", {
@@ -173,8 +176,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-class-compendium", {
@@ -183,8 +186,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-race-compendium", {
@@ -193,8 +196,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-trait-compendium", {
@@ -203,8 +206,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-feat-compendium", {
@@ -213,8 +216,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-spell-compendium", {
@@ -223,8 +226,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-override-compendium", {
@@ -233,8 +236,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-monster-compendium", {
@@ -243,8 +246,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: actorCompendiums,
+    // isSelect: true,
+    // choices: actorCompendiums,
   });
 
   game.settings.register("ddb-importer", "adventure-import-path", {
