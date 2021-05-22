@@ -49,8 +49,27 @@ export default function () {
     scope: "world",
     config: false,
     type: DirectoryPicker.Directory,
-    default: "[data] ",
+    default: "[data] ddb-images/characters",
   });
+
+  game.settings.register("ddb-importer", "other-image-upload-directory", {
+    name: "ddb-importer.image-upload-directory.name",
+    hint: "ddb-importer.image-upload-directory.hint",
+    scope: "world",
+    config: false,
+    type: DirectoryPicker.Directory,
+    default: "[data] ddb-images/other",
+  });
+
+  const characterUploads = game.settings.get("ddb-importer", "image-upload-directory");
+  const otherUploads = game.settings.get("ddb-importer", "other-image-upload-directory");
+  if (characterUploads !== "[data] ddb-images/characters" && otherUploads === "[data] ddb-images/other") {
+    game.settings.set("ddb-importer", "other-image-upload-directory", characterUploads);
+  } else {
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
+  }
+  DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
+
 
   game.settings.register("ddb-importer", "settings-call-muncher", {
     scope: "world",
@@ -270,7 +289,7 @@ export default function () {
 
   game.settings.register("ddb-importer", "adventure-upload-path", {
     name: "Adventure Upload Path",
-    hint: "Location where the module will look for adventure data files to import",
+    hint: "Location where the module will upload adventure images and data",
     scope: "world",
     config: true,
     default: `[data] worlds/${game.world.id}/adventures`,

@@ -74,7 +74,7 @@ export async function parseCritters() {
   await checkMonsterCompendium();
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-  const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+  const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
   // to speed up file checking we pregenerate existing files now.
   await utils.generateCurrentFiles(uploadDirectory);

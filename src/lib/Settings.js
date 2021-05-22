@@ -121,8 +121,11 @@ export class DDBSetup extends FormApplication {
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
     const dataDirSet = !BAD_DIRS.includes(uploadDir);
 
+    const otherUploadDir = game.settings.get("ddb-importer", "other-image-upload-directory");
+
     const setupConfig = {
       "image-upload-directory": uploadDir,
+      "other-image-upload-directory": otherUploadDir,
       "cobalt-cookie": getCobalt(),
       "campaign-id": game.settings.get("ddb-importer", "campaign-id"),
       "beta-key": game.settings.get("ddb-importer", "beta-key"),
@@ -150,13 +153,16 @@ export class DDBSetup extends FormApplication {
     const cobaltCookie = formData['cobalt-cookie'];
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
     const runCookieMigrate = cobaltCookieLocal != game.settings.get("ddb-importer", "cobalt-cookie-local");
+    const otherImageDir = formData['other-image-upload-directory'];
     await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
     await setCobalt(cobaltCookie);
     await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
     await game.settings.set("ddb-importer", "campaign-id", campaignId);
     await game.settings.set("ddb-importer", "cobalt-cookie-local", cobaltCookieLocal);
+    await game.settings.set("ddb-importer", "other-image-upload-directory", otherImageDir);
 
     const imageDirSet = !BAD_DIRS.includes(imageDir);
+    const otherImageDirSet = !BAD_DIRS.includes(otherImageDir);
     const campaignIdCorrect = !campaignId.includes("join");
     await setPatreonTier();
 
@@ -166,7 +172,7 @@ export class DDBSetup extends FormApplication {
       moveCobaltToSettings();
     }
 
-    if (!imageDirSet) {
+    if (!imageDirSet || !otherImageDirSet) {
       $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);
       $('#ddb-importer-settings').css("height", "auto");
       throw new Error(`Please set the image upload directory to something other than the root.`);
@@ -180,6 +186,9 @@ export class DDBSetup extends FormApplication {
       throw new Error(`Incorrect CampaignID/URL! You have used the campaign join URL, please change`);
     } else {
       const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
+
+      DirectoryPicker.verifyPath(DirectoryPicker.parse(imageDir));
+      DirectoryPicker.verifyPath(DirectoryPicker.parse(otherImageDir));
 
       if (callMuncher) {
         game.settings.set("ddb-importer", "settings-call-muncher", false);

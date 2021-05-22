@@ -34,7 +34,7 @@ export default class AdventureMunch extends FormApplication {
 
     try {
       if (Helpers.verifyPath(this._importPathData)) {
-        const options = { bucket: this._importPathData.bucket, extensions: [".fvttadv", ".FVTTADV"], wildcard: false };
+        const options = { bucket: this._importPathData.bucket, extensions: [".fvttadv", ".FVTTADV", ".zip"], wildcard: false };
         data = await Helpers.BrowseFiles(this._importPathData.activeSource, this._importPathData.current, options);
         files = data.files.map((file) => {
           const filename = decodeURIComponent(file).replace(/^.*[\\/]/, '');

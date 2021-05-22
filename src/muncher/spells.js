@@ -47,7 +47,7 @@ function getSpellData(className) {
 
 export async function parseSpells() {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+  const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
   // to speed up file checking we pregenerate existing files now.
   await utils.generateCurrentFiles(uploadDirectory);

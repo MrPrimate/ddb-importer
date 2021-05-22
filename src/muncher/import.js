@@ -379,7 +379,7 @@ export async function updateCompendium(type, input, updateExisting = false, matc
 
 
 export async function getImagePath(imageUrl, type = "ddb", name = "", download = false, remoteImages = false) {
-  const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+  const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
   const downloadImage = (download) ? download : game.settings.get("ddb-importer", "munching-policy-download-images");
   const remoteImage = (remoteImages) ? remoteImages : game.settings.get("ddb-importer", "munching-policy-remote-images");
 

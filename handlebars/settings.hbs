@@ -13,9 +13,15 @@
     <hr>
     <h3>[Required] A location for image uploads</h3>
     <p>These can't be stored in your root data folder, create a place for them to live.</p>
+    <p>Player Character Images:</p>
     <div class="form-content" style="display: flex">
       <input class="setup-config" type="text" data-dtype="Directory" name="image-upload-directory" style="flex: 0 1 auto" ;
         value="{{setupConfig.image-upload-directory}}" />
+    </div>
+    <p>Other Images:</p>
+    <div class="form-content" style="display: flex">
+      <input class="setup-config" type="text" data-dtype="Directory" name="other-image-upload-directory" style="flex: 0 1 auto" ;
+        value="{{setupConfig.other-image-upload-directory}}" />
     </div>
     <hr>
     <h3>[Required] A Cobalt Cookie</h3>

@@ -6,6 +6,8 @@
 * You can now specify an Override compendium to import character items/spells/features from.
 * New only option has been removed.
 * The munch button is now at the top of the page (option to put at bottom in settings).
+* PC images can now be uploaded to separate folders to other images.
+* Image upload directory is now set and created to a sensible default.
 
 # 1.0.9
 

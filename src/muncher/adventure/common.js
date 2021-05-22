@@ -4,37 +4,6 @@ import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 export default class Helpers {
 
   /**
-   * Verifies server path exists, and if it doesn't creates it.
-   *
-   * @param  {object} parsedPath - output from DirectoryPicker,parse
-   * @param  {string} targetPath - if set will check this path, else check parsedPath.current
-   * @returns {boolean} - true if verfied, false if unable to create/verify
-   */
-  static async verifyPath(parsedPath, targetPath = null) {
-    try {
-      const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
-      let currentSource = paths[0];
-
-      for (let i = 0; i < paths.length; i += 1) {
-        try {
-          if (currentSource !== paths[i]) {
-            currentSource = `${currentSource}/${paths[i]}`;
-          }
-          // eslint-disable-next-line no-await-in-loop
-          await Helpers.CreateDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
-
-        } catch (err) {
-          if (!err.startsWith("EEXIST")) logger.error(`Error trying to verify path ${parsedPath.activeSource}, ${parsedPath.current}`, err);
-        }
-      }
-    } catch (err) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
    * Imports binary file, by extracting from zip file and uploading to path.
    *
    * @param  {string} path - Path to image within zip file
@@ -56,7 +25,7 @@ export default class Helpers {
         const filePath = `${uploadPath}/${filename}`;
 
         if (!CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path]) {
-          await Helpers.verifyPath(parsedBaseUploadPath, `${uploadPath}`);
+          await DirectoryPicker.verifyPath(parsedBaseUploadPath, `${uploadPath}`);
           const img = await zip.file(path).async("uint8array");
           const fileData = new File([img], filename);
           await Helpers.UploadFile(parsedBaseUploadPath.activeSource, `${uploadPath}`, fileData, { bucket: parsedBaseUploadPath.bucket });
@@ -355,28 +324,5 @@ export default class Helpers {
     response.extensions = options.extensions;
     return response;
   }
-
-  static async ForgeCreateDirectory(target) {
-    if (!target) return;
-    const response = await ForgeAPI.call('assets/new-folder', { path: target });
-    if (!response || response.error) {
-      throw new Error(response ? response.error : "Unknown error while creating directory.");
-    }
-  }
-
-    /**
-   * @param  {string} source
-   * @param  {string} target
-   * @param  {object} options={}
-   */
-     static async CreateDirectory(source, target, options = {}) {
-      if (!target) {
-        throw new Error("Tried to create a directory with no name!");
-      }
-      if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
-        return Helpers.ForgeCreateDirectory(target);
-      }
-      return FilePicker.createDirectory(source, target, options);
-    }
 
 }
