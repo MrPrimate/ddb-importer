@@ -1,9 +1,11 @@
 # 2.0.x
 
-* Foundry 0.8.4 support
-* Integrated adventure importer tool
+* Foundry 0.8.5. support
+* Integrated adventure importer tool into muncher pane.
+* If tokens are present in your adventure import scene, adventure muncher will attempt to import and link them.
 * You can now specify an Override compendium to import character items/spells/features from.
 * New only option has been removed.
+* The munch button is now at the top of the page.
 
 # 1.0.9
 

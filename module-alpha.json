@@ -3,12 +3,12 @@
   "author": "MrPrimate",
   "title": "[ALPHA] D&D Beyond Importer",
   "description": "ALPHA DDB Importer for Foundry v0.8.4. This version is unstable.",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
-  "minimumCoreVersion": "0.8.4",
-  "compatibleCoreVersion": "0.8.4",
+  "minimumCoreVersion": "0.8.5",
+  "compatibleCoreVersion": "0.8.5",
   "authors": [
     {
       "name": "MrPrimate",
