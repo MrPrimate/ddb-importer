@@ -24,7 +24,7 @@ export default class Helpers {
           await Helpers.CreateDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
 
         } catch (err) {
-          logger.debug(`Error trying to verify path ${parsedPath.activeSource}, ${parsedPath.current}`, err);
+          if (!err.startsWith("EEXIST")) logger.error(`Error trying to verify path ${parsedPath.activeSource}, ${parsedPath.current}`, err);
         }
       }
     } catch (err) {

@@ -145,6 +145,7 @@ export default class AdventureMunch extends FormApplication {
           folders: {},
           import: {},
           actors: {},
+          sceneTokens: {},
         };
 
         await AdventureMunch._createFolders(adventure, folders);
@@ -210,259 +211,266 @@ export default class AdventureMunch extends FormApplication {
                 ).render(true);
                 this.close();
               }, 60000);
-              // try {
-              //   const obj = await fromUuid(item);
-              //   let rawData;
-              //   let updatedData = {};
-              //   switch (obj.documentName) {
-              //     case "Scene": {
-              //       // this is a scene we need to update links to all items
-              //       await Helpers.asyncForEach(obj.data.tokens, async (token) => {
-              //         if (token.actorId) {
-              //           const actor = Helpers.findEntityByImportId("actors", token.actorId);
-              //           if (actor) {
-              //             const updateData = { _id: token._id, actorId: actor._id };
-              //             await obj.updateEmbeddedDocuments("Token", updateData, { keepId: true });
-              //           }
-              //         }
-              //       });
-              //       await Helpers.asyncForEach(obj.data.notes, async (note) => {
-              //         if (note.entryId) {
-              //           const journalEntry = Helpers.findEntityByImportId("journal", note.entryId);
-              //           if (journalEntry) {
-              //             const updateData = { _id: note._id, entryId: journalEntry._id };
-              //             await obj.updateEmbeddedDocuments("Note", updateData, { keepId: true });
-              //           }
-              //         }
-              //       });
-              //       let sceneJournal = Helpers.findEntityByImportId("journal", obj.data.journal);
-              //       if (sceneJournal) {
-              //         updatedData["journal"] = sceneJournal?._id;
-              //       }
-              //       let scenePlaylist = Helpers.findEntityByImportId("playlists", obj.data.playlist);
-              //       if (scenePlaylist) {
-              //         updatedData["playlist"] = scenePlaylist?._id;
-              //       }
-              //       // In 0.8.3 the thumbs don't seem to be generated.
-              //       // This code would embed the thumbnail.
-              //       // Consider writing this out.
-              //       // if (!obj.data.thumb) {
-              //       //   const thumbData = await obj.createThumbnail();
-              //       //   updatedData["thumb"] = thumbData.thumb;
-              //       // }
-              //       await obj.update(updatedData);
-              //       break;
-              //     }
-              //     case "RollTable": {
-              //       updatedData = {
-              //         results: obj.results
-              //       };
-              //       await Helpers.asyncForEach(obj.results, async (result, index) => {
-              //         switch (result.type) {
-              //           case 1: {
-              //             let refType = "";
-              //             switch (result.collection.toLowerCase()) {
-              //               // this is a world obj, type denoted by collection
-              //               case "scene":
-              //                 refType = "scenes";
-              //                 break;
-              //               case "journalentry":
-              //                 refType = "journal";
-              //                 break;
-              //               case "rolltable":
-              //                 refType = "tables";
-              //                 break;
-              //               case "actor":
-              //                 refType = "actors";
-              //                 break;
-              //               case "item":
-              //                 refType = "items";
-              //                 break;
-              //               // no default
-              //             }
-              //             let rolltableresultitem = Helpers.findEntityByImportId(refType, result.resultId);
-              //             if (rolltableresultitem) {
-              //               updatedData.results[index].resultId = rolltableresultitem?._id;
-              //             }
-              //             break;
-              //           }
-              //           case 2: {
-              //             // this is a compendium obj, pack denoted by collection
-              //             const pack = await game.packs.get(obj.data.collection);
-              //             if (!pack.locked && !pack.private) {
-              //               let content = await pack.getContent();
+              try {
+                const obj = await fromUuid(item);
+                // let rawData;
+                let updatedData = {};
+                switch (obj.documentName) {
+                  case "Scene": {
+                    const scene = JSON.parse(JSON.stringify(obj.data));
+                    // this is a scene we need to update links to all items
+                    logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
+                    await Helpers.asyncForEach(scene.tokens, async (token) => {
+                      if (token.actorId) {
+                        const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
+                        const tokenTemplate = CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[token.actorId];
+                        if (tokenTemplate) {
+                          const updateData = mergeObject(tokenTemplate, sceneToken);
+                          await obj.updateEmbeddedDocuments("Token", [updateData], { keepId: true });
+                        }
+                      }
+                    });
 
-              //               let compendiumItem = content.find((contentItem) => {
-              //                 return contentItem.data.flags.importid === obj.data.resultId;
-              //               });
+                    // await Helpers.asyncForEach(obj.data.notes, async (note) => {
+                    //   if (note.entryId) {
+                    //     const journalEntry = Helpers.findEntityByImportId("journal", note.entryId);
+                    //     if (journalEntry) {
+                    //       const updateData = { _id: note._id, entryId: journalEntry._id };
+                    //       await obj.updateEmbeddedDocuments("Note", updateData, { keepId: true });
+                    //     }
+                    //   }
+                    // });
+                    // let sceneJournal = Helpers.findEntityByImportId("journal", obj.data.journal);
+                    // if (sceneJournal) {
+                    //   updatedData["journal"] = sceneJournal?._id;
+                    // }
+                    // let scenePlaylist = Helpers.findEntityByImportId("playlists", obj.data.playlist);
+                    // if (scenePlaylist) {
+                    //   updatedData["playlist"] = scenePlaylist?._id;
+                    // }
+                    // In 0.8.x the thumbs don't seem to be generated.
+                    // This code would embed the thumbnail.
+                    // Consider writing this out.
+                    if (!obj.data.thumb) {
+                      const thumbData = await obj.createThumbnail();
+                      updatedData["thumb"] = thumbData.thumb;
+                    }
+                    await obj.update(updatedData);
+                    break;
+                  }
+                  // the introduction of keepId means we don't need to update these references
+                  // as ddb-adventure-muncher figures out and maintains ids for us
+                  // case "RollTable": {
+                  //   updatedData = {
+                  //     results: obj.results
+                  //   };
+                  //   await Helpers.asyncForEach(obj.results, async (result, index) => {
+                  //     switch (result.type) {
+                  //       case 1: {
+                  //         let refType = "";
+                  //         switch (result.collection.toLowerCase()) {
+                  //           // this is a world obj, type denoted by collection
+                  //           case "scene":
+                  //             refType = "scenes";
+                  //             break;
+                  //           case "journalentry":
+                  //             refType = "journal";
+                  //             break;
+                  //           case "rolltable":
+                  //             refType = "tables";
+                  //             break;
+                  //           case "actor":
+                  //             refType = "actors";
+                  //             break;
+                  //           case "item":
+                  //             refType = "items";
+                  //             break;
+                  //           // no default
+                  //         }
+                  //         let rolltableresultitem = Helpers.findEntityByImportId(refType, result.resultId);
+                  //         if (rolltableresultitem) {
+                  //           updatedData.results[index].resultId = rolltableresultitem?._id;
+                  //         }
+                  //         break;
+                  //       }
+                  //       case 2: {
+                  //         // this is a compendium obj, pack denoted by collection
+                  //         const pack = await game.packs.get(obj.data.collection);
+                  //         if (!pack.locked && !pack.private) {
+                  //           let content = await pack.getContent();
 
-              //               if (compendiumItem) {
-              //                 updatedData.results[index].resultId = compendiumItem.data._id;
-              //               }
-              //             }
-              //             break;
-              //           }
-              //           default:
-              //           // no default
-              //           // this is straight text
-              //         }
-              //         // no default
-              //       });
+                  //           let compendiumItem = content.find((contentItem) => {
+                  //             return contentItem.data.flags.importid === obj.data.resultId;
+                  //           });
 
-              //       break;
-              //       // no default
-              //     }
-              //     default: {
-              //       // this is where there is reference in one of the fields
-              //       rawData = JSON.stringify(obj.data);
-              //       const pattern = /(@[a-z]*)(\[)([a-z0-9]*|[a-z0-9.]*)(\])(\{)(.*?)(\})/gmi;
-              //       const altpattern = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gmi;
+                  //           if (compendiumItem) {
+                  //             updatedData.results[index].resultId = compendiumItem.data._id;
+                  //           }
+                  //         }
+                  //         break;
+                  //       }
+                  //       default:
+                  //       // no default
+                  //       // this is straight text
+                  //     }
+                  //     // no default
+                  //   });
 
-              //       const referenceUpdater = async (match, p1, p2, p3, p4, p5, p6, p7) => {
-              //         let refType;
-              //         switch (p1.replace("@", "").toLowerCase()) {
-              //           case "scene":
-              //             refType = "scenes";
-              //             break;
-              //           case "journalentry":
-              //             refType = "journal";
-              //             break;
-              //           case "rolltable":
-              //             refType = "tables";
-              //             break;
-              //           case "actor":
-              //             refType = "actors";
-              //             break;
-              //           case "item":
-              //             refType = "items";
-              //             break;
-              //           // no default
-              //         }
+                  //   break;
+                  //   // no default
+                  // }
+                  // default: {
+                  //   // this is where there is reference in one of the fields
+                  //   rawData = JSON.stringify(obj.data);
+                  //   const pattern = /(@[a-z]*)(\[)([a-z0-9]*|[a-z0-9.]*)(\])(\{)(.*?)(\})/gmi;
+                  //   const altpattern = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gmi;
 
-              //         let newObj = { _id: p3 };
+                  //   const referenceUpdater = async (match, p1, p2, p3, p4, p5, p6, p7) => {
+                  //     let refType;
+                  //     switch (p1.replace("@", "").toLowerCase()) {
+                  //       case "scene":
+                  //         refType = "scenes";
+                  //         break;
+                  //       case "journalentry":
+                  //         refType = "journal";
+                  //         break;
+                  //       case "rolltable":
+                  //         refType = "tables";
+                  //         break;
+                  //       case "actor":
+                  //         refType = "actors";
+                  //         break;
+                  //       case "item":
+                  //         refType = "items";
+                  //         break;
+                  //       // no default
+                  //     }
 
-              //         if (p1 !== "@Compendium") {
-              //           let nonCompendiumItem = Helpers.findEntityByImportId(refType, p3);
-              //           if (nonCompendiumItem) {
-              //             newObj = nonCompendiumItem;
-              //           }
-              //         } else {
-              //           newObj = { _id: p3 };
-              //           const [p, name, entryid] = p3.split(".");
-              //           try {
-              //             const pack = await game.packs.get(`${p}.${name}`);
-              //             if (!pack.locked && !pack.private) {
-              //               let content = await pack.getContent();
+                  //     let newObj = { _id: p3 };
 
-              //               let compendiumItem = content.find((contentItem) => {
-              //                 return contentItem.data.flags.importid === entryid;
-              //               });
+                  //     if (p1 !== "@Compendium") {
+                  //       let nonCompendiumItem = Helpers.findEntityByImportId(refType, p3);
+                  //       if (nonCompendiumItem) {
+                  //         newObj = nonCompendiumItem;
+                  //       }
+                  //     } else {
+                  //       newObj = { _id: p3 };
+                  //       const [p, name, entryid] = p3.split(".");
+                  //       try {
+                  //         const pack = await game.packs.get(`${p}.${name}`);
+                  //         if (!pack.locked && !pack.private) {
+                  //           let content = await pack.getContent();
 
-              //               if (!compendiumItem) {
-              //                 await pack.getIndex();
-              //                 compendiumItem = pack.index.find((e) => e.name === p6);
-              //                 // eslint-disable-next-line max-depth
-              //                 if (compendiumItem) newObj["_id"] = `${p}.${name}.${compendiumItem._id}`;
-              //               } else {
-              //                 newObj["_id"] = `${p}.${name}.${compendiumItem.data._id}`;
-              //               }
-              //             }
-              //           } catch (err) {
-              //             logger.warn(`Unable to find find compendium item ${match} to fix link.  If the compendium referenced is part of the system, this warning can be ignored, otherwise please make sure compendiums are unlocked and visible during import.`, err);
-              //           }
-              //         }
+                  //           let compendiumItem = content.find((contentItem) => {
+                  //             return contentItem.data.flags.importid === entryid;
+                  //           });
 
-              //         return [p1, p2, newObj._id, p4, p5, p6, p7].join("");
-              //       };
+                  //           if (!compendiumItem) {
+                  //             await pack.getIndex();
+                  //             compendiumItem = pack.index.find((e) => e.name === p6);
+                  //             // eslint-disable-next-line max-depth
+                  //             if (compendiumItem) newObj["_id"] = `${p}.${name}.${compendiumItem._id}`;
+                  //           } else {
+                  //             newObj["_id"] = `${p}.${name}.${compendiumItem.data._id}`;
+                  //           }
+                  //         }
+                  //       } catch (err) {
+                  //         logger.warn(`Unable to find find compendium item ${match} to fix link.  If the compendium referenced is part of the system, this warning can be ignored, otherwise please make sure compendiums are unlocked and visible during import.`, err);
+                  //       }
+                  //     }
 
-              //       const altReferenceUpdater = async (match, p1, p2, p3, p4, p5, p6, p7) => {
-              //         logger.debug(match);
-              //         let refType;
-              //         let newObj = { _id: p6 };
-              //         if (p2 && p2.toLowerCase() === "data-entity") {
-              //           switch (p3.toLowerCase()) {
-              //             case "scene":
-              //               refType = "scenes";
-              //               break;
-              //             case "journalentry":
-              //               refType = "journal";
-              //               break;
-              //             case "rolltable":
-              //               refType = "tables";
-              //               break;
-              //             case "actor":
-              //               refType = "actors";
-              //               break;
-              //             case "item":
-              //               refType = "items";
-              //               break;
-              //             // no default
-              //           }
-              //           let nonCompendiumItem = Helpers.findEntityByImportId(refType, p6);
-              //           if (nonCompendiumItem) {
-              //             newObj = nonCompendiumItem;
-              //           } else {
-              //             logger.warn(`Unable to find item ${match} to fix link.`);
-              //           }
-              //         } else if (p4.toLowerCase() === "data-pack") {
-              //           try {
-              //             const pack = await game.packs.get(p5);
-              //             if (!pack.locked && !pack.private) {
-              //               let content = await pack.getContent();
+                  //     return [p1, p2, newObj._id, p4, p5, p6, p7].join("");
+                  //   };
 
-              //               let compendiumItem = content.find((contentItem) => {
-              //                 return contentItem.data.flags.importid === p6;
-              //               });
+                  //   const altReferenceUpdater = async (match, p1, p2, p3, p4, p5, p6, p7) => {
+                  //     logger.debug(match);
+                  //     let refType;
+                  //     let newObj = { _id: p6 };
+                  //     if (p2 && p2.toLowerCase() === "data-entity") {
+                  //       switch (p3.toLowerCase()) {
+                  //         case "scene":
+                  //           refType = "scenes";
+                  //           break;
+                  //         case "journalentry":
+                  //           refType = "journal";
+                  //           break;
+                  //         case "rolltable":
+                  //           refType = "tables";
+                  //           break;
+                  //         case "actor":
+                  //           refType = "actors";
+                  //           break;
+                  //         case "item":
+                  //           refType = "items";
+                  //           break;
+                  //         // no default
+                  //       }
+                  //       let nonCompendiumItem = Helpers.findEntityByImportId(refType, p6);
+                  //       if (nonCompendiumItem) {
+                  //         newObj = nonCompendiumItem;
+                  //       } else {
+                  //         logger.warn(`Unable to find item ${match} to fix link.`);
+                  //       }
+                  //     } else if (p4.toLowerCase() === "data-pack") {
+                  //       try {
+                  //         const pack = await game.packs.get(p5);
+                  //         if (!pack.locked && !pack.private) {
+                  //           let content = await pack.getContent();
 
-              //               if (!compendiumItem) {
-              //                 await pack.getIndex();
-              //                 compendiumItem = pack.index.find((e) => e.name === p7);
-              //                 // eslint-disable-next-line max-depth
-              //                 if (compendiumItem) newObj["_id"] = compendiumItem._id;
-              //               } else {
-              //                 newObj["_id"] = compendiumItem.data._id;
-              //               }
-              //             }
-              //           } catch (err) {
-              //             logger.warn(`Unable to find compendium item ${match} to fix link.  If the compendium referenced is part of the system, this warning can be ignored, otherwise please make sure compendiums are unlocked and visible during import.`, err);
-              //           }
+                  //           let compendiumItem = content.find((contentItem) => {
+                  //             return contentItem.data.flags.importid === p6;
+                  //           });
 
-              //           logger.info(`Replacing ${p6} with ${newObj._id} for ${p7}`);
-              //         }
-              //         return [p1, " data-id='", newObj._id, "'>", p7, "</a>"].join("");
-              //       };
+                  //           if (!compendiumItem) {
+                  //             await pack.getIndex();
+                  //             compendiumItem = pack.index.find((e) => e.name === p7);
+                  //             // eslint-disable-next-line max-depth
+                  //             if (compendiumItem) newObj["_id"] = compendiumItem._id;
+                  //           } else {
+                  //             newObj["_id"] = compendiumItem.data._id;
+                  //           }
+                  //         }
+                  //       } catch (err) {
+                  //         logger.warn(`Unable to find compendium item ${match} to fix link.  If the compendium referenced is part of the system, this warning can be ignored, otherwise please make sure compendiums are unlocked and visible during import.`, err);
+                  //       }
 
-              //       const updatedRawData = await Helpers.replaceAsync(rawData, pattern, referenceUpdater);
-              //       const secondPassRawData = await Helpers.replaceAsync(updatedRawData, altpattern, altReferenceUpdater);
-              //       const updatedDataUpdates = JSON.parse(secondPassRawData);
-              //       const diff = Helpers.diff(obj.data, updatedDataUpdates);
+                  //       logger.info(`Replacing ${p6} with ${newObj._id} for ${p7}`);
+                  //     }
+                  //     return [p1, " data-id='", newObj._id, "'>", p7, "</a>"].join("");
+                  //   };
 
-              //       if (diff.items && obj.documentName === "Actor" && diff.items.length > 0) {
-              //         // the object has embedded items that need to be updated seperately.
+                  //   const updatedRawData = await Helpers.replaceAsync(rawData, pattern, referenceUpdater);
+                  //   const secondPassRawData = await Helpers.replaceAsync(updatedRawData, altpattern, altReferenceUpdater);
+                  //   const updatedDataUpdates = JSON.parse(secondPassRawData);
+                  //   const diff = Helpers.diff(obj.data, updatedDataUpdates);
 
-              //         /* eslint-disable max-depth */
-              //         for (let i = 0; i < updatedDataUpdates.items.length; i += 1) {
-              //           if (diff.items[i] && Object.keys(diff.items[i].data).length > 0) {
-              //             const itemUpdateDate = Helpers.buildUpdateData({ data: diff.items[i].data });
+                  //   if (diff.items && obj.documentName === "Actor" && diff.items.length > 0) {
+                  //     // the object has embedded items that need to be updated seperately.
 
-              //             if (Object.keys(itemUpdateDate).length > 0) {
-              //               logger.debug(`Updating Owned item ${updatedDataUpdates.items[i]._id} for ${item} with: `, itemUpdateDate);
-              //               // eslint-disable-next-line no-await-in-loop
-              //               await obj.updateEmbeddedDocuments("OwnedItem", { _id: updatedDataUpdates.items[i]._id, ...itemUpdateDate }, { keepId: true });
-              //             }
-              //           }
-              //         }
-              //         /* eslint-enable max-depth */
-              //       }
-              //       delete diff.items;
-              //       logger.debug(`Updating object ${item}`, diff);
-              //       updatedData = Helpers.buildUpdateData(diff);
-              //       await obj.update(updatedData);
-              //     }
-              //   }
-              // } catch (err) {
-              //   logger.warn(`Error updating references for object ${item}`, err);
-              // }
+                  //     /* eslint-disable max-depth */
+                  //     for (let i = 0; i < updatedDataUpdates.items.length; i += 1) {
+                  //       if (diff.items[i] && Object.keys(diff.items[i].data).length > 0) {
+                  //         const itemUpdateDate = Helpers.buildUpdateData({ data: diff.items[i].data });
+
+                  //         if (Object.keys(itemUpdateDate).length > 0) {
+                  //           logger.debug(`Updating Owned item ${updatedDataUpdates.items[i]._id} for ${item} with: `, itemUpdateDate);
+                  //           // eslint-disable-next-line no-await-in-loop
+                  //           await obj.updateEmbeddedDocuments("OwnedItem", { _id: updatedDataUpdates.items[i]._id, ...itemUpdateDate }, { keepId: true });
+                  //         }
+                  //       }
+                  //     }
+                  //     /* eslint-enable max-depth */
+                  //   }
+                  //   delete diff.items;
+                  //   logger.debug(`Updating object ${item}`, diff);
+                  //   updatedData = Helpers.buildUpdateData(diff);
+                  //   await obj.update(updatedData);
+                  // }
+                  // no default
+                }
+              } catch (err) {
+                logger.warn(`Error updating references for object ${item}`, err);
+              }
               currentCount += 1;
               AdventureMunch._updateProgress(totalCount, currentCount, "References");
               clearTimeout(toTimer);
@@ -692,7 +700,7 @@ export default class AdventureMunch extends FormApplication {
     }
   }
 
-  static async _transferActorsToWorld(scene) {
+  static async _generateTokenActors(scene) {
     const monsterCompendium = await checkMonsterCompendium();
 
     const neededActors = scene.tokens
@@ -711,38 +719,13 @@ export default class AdventureMunch extends FormApplication {
         logger.info(`Importing actor ${actor.ddbId}`);
         worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, { keepId: true });
       }
-      CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[actor.actorId] = await worldActor.getTokenData();
+      const tokenData = await worldActor.getTokenData();
+      delete tokenData.y;
+      delete tokenData.x;
+      CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[actor.actorId] = JSON.parse(JSON.stringify(tokenData));
     });
 
-    scene.tokens = scene.tokens
-      .filter((token) => CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[token.actorId])
-      .map((token) => {
-        token = mergeObject(CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[token.actorId], token);
-        return token;
-      });
-
-    console.log(JSON.parse(JSON.stringify(scene)));
-    console.warn(scene);
-
-    //   if token:
-    //     create folder in world for noc based on adventure -> chapter -> scene name
-
-    //   import npc into folder if not exist
-
-    //   generate token data and link to importer actor##
-
-  //   let actorId = "ssqczjzpEHmnmsw0";
-  //   let actor = game.actors.get(actorId);
-  //   let tokenData = actor.getTokenData();
-
-  //   let s = game.scenes.getName("Map 1.1: Fortress Level");
-  //   s.createEmbeddedDocuments("Token", [tokenData]);
-
-  //   token.flags.ddbActorFlags?.id
-
-
-  //   WorldCollection.importFromCompendium(p, "6okPFAutUONK6eJ3", {_id: "66666666UONK6eJ3"}, {keepId: true});
-  //   game.actors.importFromCompendium(p, "6okPFAutUONK6eJ3", {_id: "66666666UONK6eJ3"}, {keepId: true});
+    logger.debug("Actors transferred from compendium to world.");
 
   }
 
@@ -823,7 +806,7 @@ export default class AdventureMunch extends FormApplication {
 
       if (typeName === "Scene") {
         if (data.tokens) {
-          await AdventureMunch._transferActorsToWorld(data);
+          await AdventureMunch._generateTokenActors(data);
         }
       }
 
