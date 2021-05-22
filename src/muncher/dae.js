@@ -51,6 +51,8 @@ function findDAEItem(itemData, packs) {
       pd.name === itemData.name &&
       pd.type === itemData.type
     );
+    console.warn(itemData.name);
+    console.warn(matchItem);
     if (matchItem) return matchItem;
   }
   return undefined;
@@ -130,12 +132,13 @@ export async function addItemsDAESRD(items) {
       items.map((itemData) => {
         let replaceData = matchItem(itemData, midiInstalled);
         if (replaceData) {
-          logger.debug(`Adding effects for ${replaceData.data.name}`);
-          itemData.effects = replaceData.data.effects;
-          if (replaceData.data.flags.dae) itemData.flags.dae = replaceData.data.flags.dae;
-          if (replaceData.data.flags['midi-qol']) itemData.flags['midi-qol'] = replaceData.data.flags['midi-qol'];
-          if (replaceData.data.flags.itemacro) itemData.flags.itemacro = replaceData.data.flags.itemacro;
-          if (replaceData.data.flags.itemmacro) itemData.flags.itemmacro = replaceData.data.flags.itemmacro;
+          replaceData = replaceData.data.toObject();
+          logger.debug(`Adding effects for ${replaceData.name}`);
+          itemData.effects = replaceData.effects;
+          if (replaceData.flags.dae) itemData.flags.dae = replaceData.flags.dae;
+          if (replaceData.flags['midi-qol']) itemData.flags['midi-qol'] = replaceData.flags['midi-qol'];
+          if (replaceData.flags.itemacro) itemData.flags.itemacro = replaceData.flags.itemacro;
+          if (replaceData.flags.itemmacro) itemData.flags.itemmacro = replaceData.flags.itemmacro;
         }
         return itemData;
       })
