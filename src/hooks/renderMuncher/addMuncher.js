@@ -20,6 +20,21 @@ export function addMuncher (app, html) {
       }
     });
 
-    $(html).find(".directory-header").append(button);
+    game.settings.register("ddb-importer", "show-munch-top", {
+      name: "ddb-importer.show-munch-top.name",
+      hint: "ddb-importer.show-munch-top.hint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: true,
+    });
+
+    const top = game.settings.get("ddb-importer", "show-munch-top");
+    if (top) {
+      $(html).find(".directory-header").append(button);
+    } else {
+      $(html).find(".directory-footer").append(button);
+    }
+
   }
 }

@@ -116,5 +116,7 @@
   "dbb-importer.label.ExportOptions": "Export Options",
   "dbb-importer.label.References": "Updating References",
   "dbb-importer.label.RollTable": "Roll Table",
-  "dbb-importer.label.Macros": "Macros"
+  "dbb-importer.label.Macros": "Macros",
+  "ddb-importer.show-munch-top.name": "Munch button be at the top?",
+  "ddb-importer.show-munch-top.hint": "Else button at bottom."
 }
