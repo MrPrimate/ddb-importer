@@ -5,7 +5,7 @@
 * If tokens are present in your adventure import scene, adventure muncher will attempt to import and link them.
 * You can now specify an Override compendium to import character items/spells/features from.
 * New only option has been removed.
-* The munch button is now at the top of the page.
+* The munch button is now at the top of the page (option to put at bottom in settings).
 
 # 1.0.9
 

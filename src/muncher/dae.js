@@ -51,8 +51,8 @@ function findDAEItem(itemData, packs) {
       pd.name === itemData.name &&
       pd.type === itemData.type
     );
-    console.warn(itemData.name);
-    console.warn(matchItem);
+    // console.warn(itemData.name);
+    // console.warn(matchItem);
     if (matchItem) return matchItem;
   }
   return undefined;
