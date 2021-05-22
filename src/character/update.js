@@ -226,7 +226,7 @@ async function hitDice(actor, characterId, ddbData) {
     const ddbClasses = ddbData.character.classes;
 
     const klasses = actor.data.items.filter(
-      (item) => item.type === "class" && item.flags.ddbimporter.id && item.flags.ddbimporter.definitionId
+      (item) => item.type === "class" && item.data.flags.ddbimporter.id && item.data.flags.ddbimporter.definitionId
     );
 
     let hitDiceData = {
@@ -235,9 +235,9 @@ async function hitDice(actor, characterId, ddbData) {
     };
 
     klasses.forEach((klass) => {
-      const classMatch = ddbClasses.find((ddbClass) => ddbClass.flags.ddbimporter.id === klass.flags.ddbimporter.id);
-      if (classMatch && classMatch.data.hitDiceUsed !== klass.data.hitDiceUsed) {
-        hitDiceData.classHitDiceUsed[klass.flags.ddbimporter.id] = klass.data.hitDiceUsed;
+      const classMatch = ddbClasses.find((ddbClass) => ddbClass.flags.ddbimporter.id === klass.data.flags.ddbimporter.id);
+      if (classMatch && classMatch.data.hitDiceUsed !== klass.data.data.hitDiceUsed) {
+        hitDiceData.classHitDiceUsed[klass.data.flags.ddbimporter.id] = klass.data.data.hitDiceUsed;
       }
     });
 
@@ -263,26 +263,26 @@ async function spellsPrepared(actor, characterId, ddbData) {
   const preparedSpells = actor.data.items.filter((item) => {
     const spellMatch = ddbSpells.find((s) =>
       s.name === item.name &&
-      item.data.preparation?.mode === "prepared" &&
-      item.flags.ddbimporter?.dndbeyond?.characterClassId &&
-      item.flags.ddbimporter?.dndbeyond?.characterClassId === s.flags.ddbimporter?.dndbeyond?.characterClassId
+      item.data.data.preparation?.mode === "prepared" &&
+      item.data.flags.ddbimporter?.dndbeyond?.characterClassId &&
+      item.data.flags.ddbimporter?.dndbeyond?.characterClassId === s.flags.ddbimporter?.dndbeyond?.characterClassId
     );
     if (!spellMatch) return false;
     const select = item.type === "spell" &&
-      item.data.preparation?.mode === "prepared" &&
-      item.data.preparation.prepared !== spellMatch.data.preparation?.prepared;
+      item.data.data.preparation?.mode === "prepared" &&
+      item.data.data.preparation.prepared !== spellMatch.data.preparation?.prepared;
     return spellMatch && select;
   }).map((spell) => {
     let spellPreparedData = {
         spellInfo: {
-          spellId: spell.flags.ddbimporter.definitionId,
-          characterClassId: spell.flags.ddbimporter.dndbeyond.characterClassId,
-          entityTypeId: spell.flags.ddbimporter.entityTypeId,
-          id: spell.flags.ddbimporter.id,
+          spellId: spell.data.flags.ddbimporter.definitionId,
+          characterClassId: spell.data.flags.ddbimporter.dndbeyond.characterClassId,
+          entityTypeId: spell.data.flags.ddbimporter.entityTypeId,
+          id: spell.data.flags.ddbimporter.id,
           prepared: false,
         }
     };
-    if (spell.data.preparation.prepared) spellPreparedData.spellInfo.prepared = true;
+    if (spell.data.data.preparation.prepared) spellPreparedData.spellInfo.prepared = true;
     return spellPreparedData;
   });
 
@@ -303,11 +303,11 @@ async function addEquipment(actor, characterId, ddbData) {
   const ddbItems = ddbData.character.inventory;
 
   const itemsToAdd = actor.data.items.filter((item) =>
-    !item.flags.ddbimporter?.action &&
+    !item.data.flags.ddbimporter?.action &&
     DICTIONARY.types.inventory.includes(item.type) &&
     !ddbItems.some((s) => s.name === item.name && s.type === item.type) &&
-    item.flags.ddbimporter?.definitionId &&
-    item.flags.ddbimporter?.definitionEntityTypeId
+    item.data.flags.ddbimporter?.definitionId &&
+    item.data.flags.ddbimporter?.definitionEntityTypeId
   );
 
   let addItemData = {
@@ -316,9 +316,9 @@ async function addEquipment(actor, characterId, ddbData) {
 
   itemsToAdd.forEach((item) => {
     addItemData.equipment.push({
-      entityId: parseInt(item.flags.ddbimporter.definitionId),
-      entityTypeId: parseInt(item.flags.ddbimporter.definitionEntityTypeId),
-      quantity: parseInt(item.data.quantity),
+      entityId: parseInt(item.data.flags.ddbimporter.definitionId),
+      entityTypeId: parseInt(item.data.flags.ddbimporter.definitionEntityTypeId),
+      quantity: parseInt(item.data.data.quantity),
     });
   });
 
@@ -326,13 +326,19 @@ async function addEquipment(actor, characterId, ddbData) {
     const itemResults = await updateCharacterCall(characterId, "equipment/add", addItemData);
     const itemUpdates = itemResults.data.addItems.map((addedItem) => {
       let updatedItem = itemsToAdd.find((i) =>
-        i.flags.ddbimporter.definitionId === addedItem.definition.id &&
-        i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
+        i.data.flags.ddbimporter.definitionId === addedItem.definition.id &&
+        i.data.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
       );
-      updatedItem.flags.ddbimporter.id = addedItem.id;
+      updatedItem.data.flags.ddbimporter.id = addedItem.id;
       return updatedItem;
     });
-    await actor.updateEmbeddedDocuments("Item", itemUpdates);
+    try {
+      await actor.updateEmbeddedDocuments("Item", itemUpdates);
+    } catch (err) {
+      logger.error(`Unable to update character with equipment, got the error:`, err);
+      logger.info(`Update payload:`, itemUpdates);
+    }
+
 
     return itemResults;
   } else {
@@ -346,7 +352,7 @@ async function removeEquipment(actor, characterId, ddbData) {
   const ddbItems = ddbData.character.inventory;
 
   const itemsToRemove = ddbItems.filter((item) =>
-    !actor.data.items.some((s) => (s.name === item.name && s.type === item.type) && !s.flags.ddbimporter?.action) &&
+    !actor.data.items.some((s) => (s.name === item.name && s.type === item.type) && !s.data.flags.ddbimporter?.action) &&
     DICTIONARY.types.inventory.includes(item.type) &&
     item.flags.ddbimporter?.id
   );
@@ -366,65 +372,65 @@ async function updateEquipmentStatus(actor, characterId, ddbData, addEquipmentRe
   // reload the actor following potential updates to equipment
   let ddbItems = ddbData.ddb.inventory;
   if (addEquipmentResults?.data) {
-    actor = game.actors.get(actor._id);
+    actor = game.actors.get(actor.id);
     ddbItems = ddbItems.concat(addEquipmentResults.data.addItems);
   }
 
   const itemsToEquip = actor.data.items.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
+    !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id &&
+      item.data.flags.ddbimporter.id === dItem.id &&
       item.name === dItem.definition.name &&
-      item.data.equipped !== dItem.equipped
+      item.data.data.equipped !== dItem.equipped
     )
   );
   const itemsToAttune = actor.data.items.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
+    !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id &&
+      item.data.flags.ddbimporter.id === dItem.id &&
       item.name === dItem.definition.name &&
-      ((item.data.attunement === 2) !== dItem.isAttuned)
+      ((item.data.data.attunement === 2) !== dItem.isAttuned)
     )
   );
   const itemsToCharge = actor.data.items.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
+    !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id &&
+      item.data.flags.ddbimporter.id === dItem.id &&
       item.name === dItem.definition.name &&
-      item.data.uses?.max && dItem.limitedUse?.numberUsed &&
-      ((parseInt(item.data.uses.max) - parseInt(item.data.uses.value)) !== dItem.limitedUse.numberUsed)
+      item.data.data.uses?.max && dItem.limitedUse?.numberUsed &&
+      ((parseInt(item.data.data.uses.max) - parseInt(item.data.data.uses.value)) !== dItem.limitedUse.numberUsed)
     )
   );
   const itemsToQuantity = actor.data.items.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
+    !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id &&
+      item.data.flags.ddbimporter.id === dItem.id &&
       item.name === dItem.definition.name &&
-      item.data.quantity !== dItem.quantity
+      item.data.data.quantity !== dItem.quantity
     )
   );
 
   let promises = [];
 
   itemsToEquip.forEach((item) => {
-    const itemData = { itemId: item.flags.ddbimporter.id, value: item.data.equipped };
+    const itemData = { itemId: item.data.flags.ddbimporter.id, value: item.data.data.equipped };
     promises.push(updateCharacterCall(characterId, "equipment/equipped", itemData));
   });
   itemsToAttune.forEach((item) => {
-    const itemData = { itemId: item.flags.ddbimporter.id, value: (item.data.attunement === 2) };
+    const itemData = { itemId: item.data.flags.ddbimporter.id, value: (item.data.data.attunement === 2) };
     promises.push(updateCharacterCall(characterId, "equipment/attuned", itemData));
   });
   itemsToCharge.forEach((item) => {
     const itemData = {
-      itemId: item.flags.ddbimporter.id,
-      charges: parseInt(item.data.uses.max) - parseInt(item.data.uses.value),
+      itemId: item.data.flags.ddbimporter.id,
+      charges: parseInt(item.data.data.uses.max) - parseInt(item.data.data.uses.value),
     };
     promises.push(updateCharacterCall(characterId, "equipment/charges", itemData));
   });
   itemsToQuantity.forEach((item) => {
     const itemData = {
-      itemId: item.flags.ddbimporter.id,
-      quantity: parseInt(item.data.quantity),
+      itemId: item.data.flags.ddbimporter.id,
+      quantity: parseInt(item.data.data.quantity),
     };
     promises.push(updateCharacterCall(characterId, "equipment/quantity", itemData));
   });
@@ -439,14 +445,14 @@ async function actionUpdate(actor, characterId, ddbData) {
   let ddbActions = ddbData.character.actions;
 
   const actionsToCharge = actor.data.items.filter((item) =>
-    (item.flags.ddbimporter?.action || item.type === "feat") &&
-    item.flags.ddbimporter?.id && item.flags.ddbimporter?.entityTypeId &&
+    (item.data.flags.ddbimporter?.action || item.type === "feat") &&
+    item.data.flags.ddbimporter?.id && item.data.flags.ddbimporter?.entityTypeId &&
     ddbActions.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.flags.ddbimporter.id &&
-      item.flags.ddbimporter.entityTypeId === dItem.flags.ddbimporter.entityTypeId &&
+      item.data.flags.ddbimporter.id === dItem.flags.ddbimporter.id &&
+      item.data.flags.ddbimporter.entityTypeId === dItem.flags.ddbimporter.entityTypeId &&
       item.name === dItem.name && item.type === dItem.type &&
-      item.data.uses?.value &&
-      item.data.uses.value !== dItem.data.uses.value
+      item.data.data.uses?.value &&
+      item.data.data.uses.value !== dItem.data.uses.value
     )
   );
 
@@ -454,9 +460,9 @@ async function actionUpdate(actor, characterId, ddbData) {
 
   actionsToCharge.forEach((action) => {
     const actionData = {
-      actionId: action.flags.ddbimporter.id,
-      entityTypeId: action.flags.ddbimporter.entityTypeId,
-      uses: parseInt(action.data.uses.max) - parseInt(action.data.uses.value)
+      actionId: action.data.flags.ddbimporter.id,
+      entityTypeId: action.data.flags.ddbimporter.entityTypeId,
+      uses: parseInt(action.data.data.uses.max) - parseInt(action.data.data.uses.value)
     };
     promises.push(updateCharacterCall(characterId, "action/use", actionData));
   });
