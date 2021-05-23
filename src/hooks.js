@@ -12,8 +12,12 @@ import { itemSheets } from "./hooks/ready/items.js";
 // monster muncher
 import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
 
+// socket messaging
+import { onSocketMessage } from "./hooks/socket/onSocketMessage.js";
+
 // image hooks
-import linkImages from "./hooks/renderJournalSheet/linkImages.js";
+import { linkTables } from "./hooks/renderJournalSheet/linkTables.js";
+import { linkImages } from "./hooks/renderJournalSheet/linkImages.js";
 import adventureFlags from "./hooks/renderJournalSheet/adventure.js";
 
 import registerNotifications from "./lib/Notification.js";
@@ -45,12 +49,25 @@ export function onceReady() {
   }, 500);
 }
 
+export function onReady() {
+  game.socket.on("module.ddb-importer", (data) => {
+    if (data.sender === game.user.data._id) {
+      return;
+    }
+
+    const sender = game.users.get(data.sender);
+    delete data.sender;
+    onSocketMessage(sender, data);
+  });
+}
+
 export function renderSidebarTab(app, html) {
   addMuncher(app, html);
 }
 
 // eslint-disable-next-line no-unused-vars
 export function renderJournalSheet(sheet, html, data) {
+  linkTables(html);
   linkImages(html);
   adventureFlags(sheet, html, data);
 }

@@ -5,7 +5,8 @@ div.journal-sheet div.ddbimporter-image-container {
 div.journal-sheet div.ddbimporter-image-container a.ddbimporter-button {
   max-width: 255px;
   background: #2f0000d6;
-  box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
+          box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
   border-radius: 3px;
   margin-left: 10px;
   display: block;
@@ -13,12 +14,28 @@ div.journal-sheet div.ddbimporter-image-container a.ddbimporter-button {
   cursor: pointer;
   color: white;
   font-weight: bold;
-
   position: absolute;
   top: 0;
   right: 0;
   width: auto;
-  transform: translate(-20px, 20px);
+  -webkit-transform: translate(-20px, 20px);
+          transform: translate(-20px, 20px);
+}
+
+div.journal-sheet a.ddbimporter.roll {
+  font-family: "Signika", sans-serif;
+  font-size: 14px;
+  color: #191813;
+  -webkit-user-drag: element;
+  box-sizing: border-box;
+  cursor: pointer;
+  user-select: text;
+  background: #DDD;
+  padding: 1px 4px;
+  border: 1px solid #4b4a44;
+  border-radius: 2px;
+  white-space: nowrap;
+  word-break: break-all;
 }
 
 div.ddbimporter-image-popout {
