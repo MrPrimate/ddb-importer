@@ -44,11 +44,11 @@ async function getMonsterMap () {
   const results = monsterIndex.map(async (i) => {
     const monster = await monsterCompendium.getDocument(i._id);
     return {
-      id: monster.flags.ddbimporter?.id,
-      _id: monster._id,
+      id: monster.data.flags.ddbimporter?.id,
+      _id: monster.id,
       compendium: monsterCompendiumLabel,
       name: monster.name,
-      token: monster.token,
+      token: monster.data.token,
     };
   });
 
@@ -63,10 +63,10 @@ async function getSpellMap() {
   const spellIndex = await spellCompendium.getIndex();
 
   const results = spellIndex.map(async (i) => {
-    const spell = await spellCompendium.getEntry(i._id);
+    const spell = await spellCompendium.getDocument(i._id);
     return {
-      id: spell.flags.ddbimporter?.definitionId,
-      _id: spell._id,
+      id: spell.data.flags.ddbimporter?.definitionId,
+      _id: spell.id,
       compendium: spellCompendiumLabel,
       name: spell.name,
     };
@@ -82,10 +82,10 @@ async function getItemMap() {
   const itemIndex = await itemCompendium.getIndex();
 
   const results = itemIndex.map(async (i) => {
-    const item = await itemCompendium.getEntry(i._id);
+    const item = await itemCompendium.getDocument(i._id);
     return {
-      id: item.flags.ddbimporter?.definitionId,
-      _id: item._id,
+      id: item.data.flags.ddbimporter?.definitionId,
+      _id: item.id,
       compendium: itemCompendiumLabel,
       name: item.name,
     };
@@ -127,7 +127,7 @@ export async function generateAdventureConfig() {
   result.lookups.skills = DDB_CONFIG.abilitySkills.map((skill) => {
     return {
       id: skill.id,
-      _id: skillEntry._id,
+      _id: skillEntry.id,
       name: skill.name,
       compendium: rulesCompendium,
     };
@@ -137,7 +137,7 @@ export async function generateAdventureConfig() {
       const entry = srdIndex.find((i) => i.name === sense.name);
       return {
         id: sense.id,
-        _id: entry._id,
+        _id: entry.id,
         name: sense.name,
         compendium: rulesCompendium,
       };
@@ -148,7 +148,7 @@ export async function generateAdventureConfig() {
       const entry = srdIndex.find((i) => i.name.trim() === condition.definition.name.trim());
       return {
         id: condition.definition.id,
-        _id: entry._id,
+        _id: entry.id,
         name: condition.definition.name,
         compendium: rulesCompendium,
         slug: condition.definition.slug,
@@ -159,7 +159,7 @@ export async function generateAdventureConfig() {
   result.lookups.actions = DDB_CONFIG.basicActions.map((action) => {
     return {
       id: action.id,
-      _id: actionEntry._id,
+      _id: actionEntry.id,
       name: action.name,
       compendium: rulesCompendium,
     };
@@ -169,7 +169,7 @@ export async function generateAdventureConfig() {
   result.lookups.weaponproperties = DDB_CONFIG.weaponProperties.map((prop) => {
     return {
       id: prop.id,
-      _id: weaponPropertiesEntry._id,
+      _id: weaponPropertiesEntry.id,
       name: prop.name,
       compendium: rulesCompendium,
     };
