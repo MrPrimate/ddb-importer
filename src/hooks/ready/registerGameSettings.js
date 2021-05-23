@@ -61,15 +61,16 @@ export default function () {
     default: "[data] ddb-images/other",
   });
 
-  const characterUploads = game.settings.get("ddb-importer", "image-upload-directory");
-  const otherUploads = game.settings.get("ddb-importer", "other-image-upload-directory");
-  if (characterUploads !== "[data] ddb-images/characters" && otherUploads === "[data] ddb-images/other") {
-    game.settings.set("ddb-importer", "other-image-upload-directory", characterUploads);
-  } else {
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
+  if (game.user.isTrusted) {
+    const characterUploads = game.settings.get("ddb-importer", "image-upload-directory");
+    const otherUploads = game.settings.get("ddb-importer", "other-image-upload-directory");
+    if (characterUploads !== "[data] ddb-images/characters" && otherUploads === "[data] ddb-images/other") {
+      game.settings.set("ddb-importer", "other-image-upload-directory", characterUploads);
+    } else {
+      DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
+    }
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
   }
-  DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
-
 
   game.settings.register("ddb-importer", "settings-call-muncher", {
     scope: "world",
