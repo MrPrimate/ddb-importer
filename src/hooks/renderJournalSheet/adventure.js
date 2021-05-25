@@ -23,17 +23,17 @@ const renderPopup = (type, url) => {
 };
 
 function adventureFlags(app, html, data) {
-  if (!app.entity.data.flags.ddb) return;
+  if (!app.document.data.flags.ddb) return;
 
   const title = `DDB Adventure Import Flags`;
   const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
   let button = $(`<a class="open-adventure-ddb-importer" title="${title}"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
   button.click((event) => {
     if (event.shiftKey) {
-      new DDBAdventureFlags(app.entity, {}).render(true);
+      new DDBAdventureFlags(app.document, {}).render(true);
     } else {
       event.preventDefault();
-      const flags = app.entity.data.flags.ddb;
+      const flags = app.document.data.flags.ddb;
       return renderPopup("web", `https://www.dndbeyond.com/sources/${flags.bookCode}/${flags.slug}`);
     }
     return true;
