@@ -2,9 +2,32 @@ import { DirectoryPicker } from "./DirectoryPicker.js";
 import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings } from "./Secrets.js";
+import logger from "../logger.js";
 
 window.ddbGetPatreonTiers = getPatreonTiers;
 window.ddbSetPatreonTier = setPatreonTier;
+
+const POPUPS = {
+  json: null,
+  web: null,
+};
+
+function renderPopup(type, url) {
+  if (POPUPS[type] && !POPUPS[type].close) {
+    POPUPS[type].focus();
+    POPUPS[type].location.href = url;
+  } else {
+    const ratio = window.innerWidth / window.innerHeight;
+    const width = Math.round(window.innerWidth * 0.5);
+    const height = Math.round(window.innerWidth * 0.5 * ratio);
+    POPUPS[type] = window.open(
+      url,
+      "ddb_sheet_popup",
+      `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`
+    );
+  }
+  return true;
+}
 
 export function isSetupComplete(needsCobalt = true) {
   const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
@@ -16,6 +39,51 @@ export function isSetupComplete(needsCobalt = true) {
   return setupComplete;
 }
 
+async function linkToPatreon() {
+
+  const proxy = game.settings.get("ddb-importer", "api-endpoint");
+  const patreonId = "oXQUxnRAbV6mq2DXlsXY2uDYQpU-Ea2ds0G_5hIdi0Bou33ZRJgvV8Ub3zsEQcHp";
+  const patreonAuthUrl = `${proxy}/patreon/auth`;
+  const patreonScopes = encodeURI("identity identity[email]");
+
+  const socket = io(`${proxy}/`, { transports: ['websocket', 'polling', 'flashsocket'] });
+
+  socket.on("connect", () => {
+    logger.debug("DDB Muncher socketID", socket.id);
+    const serverDetails = {
+      id: socket.id,
+      world: game.world.data.title,
+      userId: game.userId,
+    };
+    socket.emit("register", serverDetails);
+
+  });
+
+  socket.on('registered', (data) => {
+    logger.info(`Foundry instance registered with DDB Muncher Proxy`);
+    logger.debug(data);
+    renderPopup("web", `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${patreonId}&redirect_uri=${patreonAuthUrl}&state=${data.userHash}&scope=${patreonScopes}`);
+  });
+
+  socket.on('auth', (data) => {
+    logger.debug(`Response from auth socket!`, data);
+
+    POPUPS["web"].close();
+
+    game.settings.set("ddb-importer", "beta-key", data.key);
+    game.settings.set("ddb-importer", "patreon-user", data.email);
+    game.settings.set("ddb-importer", "patreon-tier", data.tier);
+
+    $('#ddb-patreon-user').text(data.email);
+    $('#ddb-patreon-tier').text(data.tier);
+    $('#ddb-patreon-valid').text("True");
+    $('#ddb-beta-key').val(data.key);
+  });
+
+  socket.on('error', (data) => {
+    logger.error(`Error Response from socket!`, data);
+  });
+}
 
 export class DDBKeyChange extends FormApplication {
   static get defaultOptions() {
@@ -32,18 +100,29 @@ export class DDBKeyChange extends FormApplication {
     return "DDB Importer Key Expiry";
   }
 
+  activateListeners(html) {
+    super.activateListeners(html);
+    html.find("#patreon-button").click(async (event) => {
+      event.preventDefault();
+      linkToPatreon();
+    });
+  }
+
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
     const key = game.settings.get("ddb-importer", "beta-key");
     const setupConfig = {
       "beta-key": key,
     };
+    const patreonUser = game.settings.get("ddb-importer", "patreon-user");
     const check = await getPatreonValidity(key);
 
     return {
       success: (check && check.success) ? check.success : false,
       message: (check && check.message) ? check.message : "Unable to check patreon key status",
       setupConfig: setupConfig,
+      patreonLinked: patreonUser && patreonUser != "",
+      patreonUser: patreonUser,
     };
   }
 
@@ -51,8 +130,11 @@ export class DDBKeyChange extends FormApplication {
   // eslint-disable-next-line no-unused-vars
   async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
-    await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
-    await setPatreonTier();
+    const currentKey = game.settings.get("ddb-importer", "beta-key");
+    if (currentKey !== formData['beta-key']) {
+      await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
+      await setPatreonTier();
+    }
 
     const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
 
@@ -112,23 +194,28 @@ export class DDBSetup extends FormApplication {
   async getData() { // eslint-disable-line class-methods-use-this
     const cobalt = getCobalt() != "";
     const cobaltLocal = game.settings.get("ddb-importer", "cobalt-cookie-local");
-    const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
+    const hasKey = game.settings.get("ddb-importer", "beta-key") != "";
+    const key = game.settings.get("ddb-importer", "beta-key");
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
     const campaignIdCorrect = !game.settings.get("ddb-importer", "campaign-id").includes("join");
     const tier = game.settings.get("ddb-importer", "patreon-tier");
-    const tiers = getPatreonTiers(tier);
 
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
     const dataDirSet = !BAD_DIRS.includes(uploadDir);
 
     const otherUploadDir = game.settings.get("ddb-importer", "other-image-upload-directory");
 
+    const patreonUser = game.settings.get("ddb-importer", "patreon-user");
+    const validKeyObject = hasKey ? await getPatreonValidity(key) : false;
+    console.warn(validKeyObject);
+    const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
+
     const setupConfig = {
       "image-upload-directory": uploadDir,
       "other-image-upload-directory": otherUploadDir,
       "cobalt-cookie": getCobalt(),
       "campaign-id": game.settings.get("ddb-importer", "campaign-id"),
-      "beta-key": game.settings.get("ddb-importer", "beta-key"),
+      "beta-key": key,
     };
 
     const setupComplete = dataDirSet && cobalt && campaignIdCorrect;
@@ -136,12 +223,22 @@ export class DDBSetup extends FormApplication {
     return {
       cobalt: cobalt,
       cobaltLocal: cobaltLocal,
-      beta: betaKey && cobalt,
       setupConfig: setupConfig,
       setupComplete: setupComplete,
       campaignIdCorrect: campaignIdCorrect,
-      tiers: tiers,
+      tier: tier,
+      patreonLinked: patreonUser && patreonUser != "",
+      patreonUser: patreonUser,
+      validKey: validKey,
     };
+  }
+
+  activateListeners(html) {
+    super.activateListeners(html);
+    html.find("#patreon-button").click(async (event) => {
+      event.preventDefault();
+      linkToPatreon();
+    });
   }
 
   /** @override */
@@ -154,9 +251,14 @@ export class DDBSetup extends FormApplication {
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
     const runCookieMigrate = cobaltCookieLocal != game.settings.get("ddb-importer", "cobalt-cookie-local");
     const otherImageDir = formData['other-image-upload-directory'];
+    const currentKey = game.settings.get("ddb-importer", "beta-key");
+    if (currentKey !== formData['beta-key']) {
+      await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
+      await setPatreonTier();
+    }
+
     await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
     await setCobalt(cobaltCookie);
-    await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
     await game.settings.set("ddb-importer", "campaign-id", campaignId);
     await game.settings.set("ddb-importer", "cobalt-cookie-local", cobaltCookieLocal);
     await game.settings.set("ddb-importer", "other-image-upload-directory", otherImageDir);
@@ -164,7 +266,6 @@ export class DDBSetup extends FormApplication {
     const imageDirSet = !BAD_DIRS.includes(imageDir);
     const otherImageDirSet = !BAD_DIRS.includes(otherImageDir);
     const campaignIdCorrect = !campaignId.includes("join");
-    await setPatreonTier();
 
     if (runCookieMigrate && cobaltCookieLocal) {
       moveCobaltToLocal();
