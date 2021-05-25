@@ -49,6 +49,7 @@ async function getMonsterMap () {
       compendium: monsterCompendiumLabel,
       name: monster.name,
       token: monster.data.token,
+      documentName: monster.name,
     };
   });
 
@@ -69,6 +70,7 @@ async function getSpellMap() {
       _id: spell.id,
       compendium: spellCompendiumLabel,
       name: spell.name,
+      documentName: spell.name,
     };
   });
 
@@ -88,6 +90,7 @@ async function getItemMap() {
       _id: item.id,
       compendium: itemCompendiumLabel,
       name: item.name,
+      documentName: item.name,
     };
   });
 
@@ -130,6 +133,7 @@ export async function generateAdventureConfig() {
       _id: skillEntry.id,
       name: skill.name,
       compendium: rulesCompendium,
+      documentName: skillEntry.name,
     };
   });
   result.lookups.senses = DDB_CONFIG.senses.filter((sense) => srdIndex.some((i) => i.name === sense.name))
@@ -140,6 +144,7 @@ export async function generateAdventureConfig() {
         _id: entry.id,
         name: sense.name,
         compendium: rulesCompendium,
+        documentName: entry.name,
       };
     });
 
@@ -152,6 +157,7 @@ export async function generateAdventureConfig() {
         name: condition.definition.name,
         compendium: rulesCompendium,
         slug: condition.definition.slug,
+        documentName: entry.name,
       };
     });
 
@@ -162,6 +168,7 @@ export async function generateAdventureConfig() {
       _id: actionEntry.id,
       name: action.name,
       compendium: rulesCompendium,
+      documentName: actionEntry.name,
     };
   });
 
@@ -172,6 +179,7 @@ export async function generateAdventureConfig() {
       _id: weaponPropertiesEntry.id,
       name: prop.name,
       compendium: rulesCompendium,
+      documentName: weaponPropertiesEntry.name,
     };
   });
 
