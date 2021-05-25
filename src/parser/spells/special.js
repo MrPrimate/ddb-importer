@@ -168,6 +168,9 @@ export function fixSpells(ddb, items) {
       case "Shadow of Moil":
         spell.data.actionType = "other";
         break;
+      case "Heat Metal":
+        spell.data.actionType = "save";
+        break;
       case "Spirit Guardians": {
         if (!ddb) break;
         const radiantAlignments = [1, 2, 3, 4, 5, 6, 10, 14];
