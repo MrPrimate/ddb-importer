@@ -9,6 +9,7 @@
 * PC images can now be uploaded to separate folders to other images.
 * Image upload directory is now set and created to a sensible default.
 * Adventure Importer Journals with tables now offer a Roll on Table button.
+* Heat Metal spell parsed as a spell attack.
 
 # 1.0.9
 
