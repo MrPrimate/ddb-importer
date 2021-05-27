@@ -2,6 +2,7 @@ import logger from "./logger.js";
 
 // init hooks
 import setupLogging from "./hooks/init/setupLogging.js";
+import checkVersion from "./hooks/init/checkVersion.js";
 
 // ready hooks
 import registerSheets from "./hooks/ready/registerSheets.js";
@@ -31,6 +32,8 @@ export function init() {
 
 // foundry is ready
 export function onceReady() {
+  checkVersion();
+
   // register the game settings
   registerGameSettings();
 
