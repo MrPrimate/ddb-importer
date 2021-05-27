@@ -79,6 +79,12 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "update-check", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
 
   game.settings.register("ddb-importer", "allow-scene-download", {
     name: "ddb-importer.allow-scene-download.name",
@@ -125,6 +131,14 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "add-damage-restrictions-to-hints", {
+    name: "ddb-importer.add-damage-restrictions-to-hints.name",
+    hint: "ddb-importer.add-damage-restrictions-to-hints.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
 
   game.settings.register("ddb-importer", "monster-has-vision", {
     name: "ddb-importer.monster-has-vision.name",

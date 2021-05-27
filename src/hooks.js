@@ -2,13 +2,13 @@ import logger from "./logger.js";
 
 // init hooks
 import setupLogging from "./hooks/init/setupLogging.js";
-import checkVersion from "./hooks/init/checkVersion.js";
 
 // ready hooks
 import registerSheets from "./hooks/ready/registerSheets.js";
 import checkCompendiums from "./hooks/ready/checkCompendiums.js";
 import registerGameSettings from "./hooks/ready/registerGameSettings.js";
 import { itemSheets } from "./hooks/ready/items.js";
+import checkVersion from "./hooks/ready/checkVersion.js";
 
 // monster muncher
 import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
@@ -32,8 +32,6 @@ export function init() {
 
 // foundry is ready
 export function onceReady() {
-  checkVersion();
-
   // register the game settings
   registerGameSettings();
 
@@ -48,6 +46,7 @@ export function onceReady() {
     // register the D&DBeyond Button on the character sheets
     registerSheets();
     itemSheets();
+    checkVersion();
 
   }, 500);
 }
