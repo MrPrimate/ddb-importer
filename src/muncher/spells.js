@@ -3,6 +3,7 @@ import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 import utils from "../utils.js";
+import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 
 function getSpellData(className) {
@@ -41,7 +42,10 @@ function getSpellData(className) {
       })
       .then((data) => getSpells(data))
       .then((data) => resolve(data))
-      .catch((error) => reject(error));
+      .catch((error) => {
+        logger.warn(error);
+        reject(error);
+      });
     });
 }
 

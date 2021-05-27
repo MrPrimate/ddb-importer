@@ -93,6 +93,8 @@
   "ddb-importer.link-title-colour-white.hint": "Default is Red. Reload to take effect.",
   "ddb-importer.use-damage-hints.name": "Use damage type hints?",
   "ddb-importer.use-damage-hints.hint": "When building damage strings e.g. 1d6[healing]. Useful for MidiQOL etc.",
+  "ddb-importer.add-damage-restrictions-to-hints.name": "Add restrictions to damage hint?",
+  "ddb-importer.add-damage-restrictions-to-hints.hint": "If a damage restriction is in place, add this to the damage hint",
   "dbb-importer.adventure-import-button": "Import Adventure",
   "dbb-importer.label.Scene": "Scene",
   "dbb-importer.label.Scenes": "Scenes",

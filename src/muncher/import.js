@@ -296,13 +296,13 @@ async function getFilteredItems(compendium, item, index, matchFlags) {
   const indexEntries = index.filter((idx) => idx.name === item.name);
 
   const mapped = await Promise.all(indexEntries.map((idx) => {
-    const entry = compendium.getDocument(idx._id).then((doc) => doc.data);
+    const entry = compendium.getDocument(idx._id).then((doc) => doc);
     return entry;
   }));
 
   const flagFiltered = mapped.filter((idx) => {
     const nameMatch = idx.name === item.name;
-    const flagMatched = flagMatch(idx, item, matchFlags);
+    const flagMatched = flagMatch(idx.data, item, matchFlags);
     return nameMatch && flagMatched;
   });
 
@@ -325,10 +325,9 @@ async function updateCompendiumItems(compendium, compendiumItems, index, matchFl
     // we have a match, update first match
     if (existingItems.length >= 1) {
       const existing = existingItems[0];
-      // eslint-disable-next-line require-atomic-updates
-      item._id = existing.id;
+      delete item._id;
       munchNote(`Updating ${item.name}`);
-      await copySupportedItemFlags(existing, item);
+      await copySupportedItemFlags(existing, item.data);
       promises.push(existing.update(item));
     }
   });

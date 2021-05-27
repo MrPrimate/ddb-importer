@@ -251,8 +251,8 @@ export default class DDBMuncher extends Application {
   static async parseSpells() {
     try {
       logger.info("Munching spells!");
-      const result = await parseSpells();
-      munchNote(`Finished importing ${result.length} spells!`, true);
+      await parseSpells();
+      munchNote(`Finished importing spells!`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
@@ -264,8 +264,8 @@ export default class DDBMuncher extends Application {
   static async parseItems() {
     try {
       logger.info("Munching items!");
-      const result = await parseItems();
-      munchNote(`Finished importing ${result.length} items!`, true);
+      await parseItems();
+      munchNote(`Finished importing items!`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {

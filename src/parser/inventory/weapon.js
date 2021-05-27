@@ -203,15 +203,20 @@ let getDamage = (data, flags, betterRolls5e) => {
   const twoHanded = data.definition.properties.find((property) => property.name === "Two-Handed");
   const mod = (offHand && !twoWeapon) ? "" : " + @mod";
   const damageType = getDamageType(data);
+
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-  const damageHint = damageType && globalDamageHints ? `[${damageType}]` : "";
+  const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints");
+  const hintOrRestriction = globalDamageHints || damageRestrictionHints;
+
+  const damageHint = damageType && globalDamageHints ? damageType : "";
+  const damageTag = hintOrRestriction ? `[${damageHint}]` : "";
 
   const versatile = data.definition.properties
     .filter((property) => property.name === "Versatile")
     .map((versatile) => {
       if (versatile && versatile.notes) {
         return (
-          utils.parseDiceString(versatile.notes + ` + ${magicalDamageBonus}`, null, damageHint, greatWeaponFighting).diceString + mod
+          utils.parseDiceString(versatile.notes + ` + ${magicalDamageBonus}`, null, damageTag, greatWeaponFighting).diceString + mod
         );
       } else {
         return "";
@@ -241,7 +246,7 @@ let getDamage = (data, flags, betterRolls5e) => {
 
     // if there is a magical damage bonus, it probably should only be included into the first damage part.
     parts.push([
-      utils.parseDiceString(diceString + ` + ${magicalDamageBonus}`, `${mod}${dueling}`, damageHint, fightingStyleDiceMod)
+      utils.parseDiceString(diceString + ` + ${magicalDamageBonus}`, `${mod}${dueling}`, damageTag, fightingStyleDiceMod)
         .diceString,
         damageType,
     ]);
@@ -266,8 +271,11 @@ let getDamage = (data, flags, betterRolls5e) => {
     .forEach((mod) => {
       const damagePart = (mod.dice) ? mod.dice.diceString : `${mod.value}`;
       if (damagePart) {
-        const subType = mod.subType && globalDamageHints ? `[${mod.subType}]` : "";
-        const damageParsed = utils.parseDiceString(damagePart, "", subType).diceString;
+        const subType = mod.subType && globalDamageHints ? mod.subType : "";
+        const hintAndRestriction = globalDamageHints && mod.restriction !== "" ? " - " : "";
+        const subTypeDamageTag = hintOrRestriction ? `[${subType}${hintAndRestriction}${mod.restriction}]` : "";
+        const damageParsed = utils.parseDiceString(damagePart, "", subTypeDamageTag).diceString;
+
         if (utils.isModuleInstalledAndActive("betterrolls5e")) {
           const attackNum = parts.length;
           betterRolls5e.quickDamage.context[attackNum] = mod.restriction;
