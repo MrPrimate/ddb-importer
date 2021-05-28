@@ -11,6 +11,7 @@
 * Adventure Importer Journals with tables now offer a Roll on Table button.
 * Heat Metal spell parsed as a spell attack.
 * Option to add damage restrictions to damage hint tag.
+* Bardic Inspiration is now a Utility action to help when using automation.
 
 # 1.0.9
 
