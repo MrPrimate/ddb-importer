@@ -12,6 +12,7 @@
 * Heat Metal spell parsed as a spell attack.
 * Option to add damage restrictions to damage hint tag.
 * Bardic Inspiration is now a Utility action to help when using automation.
+* You can now use a button to connect to Patreon to verify your patreon tier rather than entering a key.
 
 # 1.0.9
 
