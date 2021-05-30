@@ -366,7 +366,10 @@ export default class CharacterImport extends FormApplication {
       .filter((item) => !item.data.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item.id);
 
-    if (toRemove.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toRemove);
+    // if (toRemove.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toRemove);
+    toRemove.forEach(async (item) => {
+      await this.actor.deleteEmbeddedDocuments("Item", [item]);
+    });
     return toRemove;
   }
 
@@ -572,7 +575,7 @@ export default class CharacterImport extends FormApplication {
       {
         name: "add-item-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-item-effects") && daeInstalled,
-        title: "[Experimental] Generate Active Effects for Equipment",
+        title: "Generate Active Effects for Equipment",
         description:
           'Dynamically generate active effects for a characters equipment, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)',
         enabled: daeInstalled,
@@ -586,12 +589,21 @@ export default class CharacterImport extends FormApplication {
         enabled: daeInstalled,
       },
       {
+        name: "generate-ac-armor-effects",
+        isChecked:
+          game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects") && daeInstalled,
+        title: "Generate Active Effects ACs for Armor",
+        description:
+          "Dynamically add AC values as dynamic effects to armor items, it might be useful to untick this if you wish to use DAE auto calculate AC feature. (Requires the DAE module)",
+        enabled: daeInstalled,
+      },
+      {
         name: "generate-ac-feature-effects",
         isChecked:
           game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects") && daeInstalled,
-        title: "[Experimental] Generate Active Effects ACs for Character Features/Racial Traits",
+        title: "Generate Active Effects ACs for Character Features & Racial Traits",
         description:
-          "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations or if equipment is equipped in D&DBeyond that is not in use (e.g. multiple shields). (Requires the DAE module)",
+          "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations. (Requires the DAE module)",
         enabled: daeInstalled,
       },
       {
@@ -1188,6 +1200,7 @@ export default class CharacterImport extends FormApplication {
     const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const addItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+    const addItemACEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
     const addCharacterEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
     // if we still have items to add, add them
@@ -1230,7 +1243,7 @@ export default class CharacterImport extends FormApplication {
         items = await addItemsDAESRD(items);
       }
 
-      if (daeInstalled && (addItemEffects || addCharacterEffects)) {
+      if (daeInstalled && (addItemEffects || addItemACEffects || addCharacterEffects)) {
         items = addItemEffectIcons(items);
       }
     }
@@ -1248,11 +1261,13 @@ export default class CharacterImport extends FormApplication {
       items = await this.enrichCharacterItems(html, items);
       CharacterImport.showCurrentTask(html, "Adding items to character");
       logger.debug("Adding the following items:", items);
-      // await this.actor.createEmbeddedDocuments("Item", items, DISABLE_FOUNDRY_UPGRADE);
+      const options = DISABLE_FOUNDRY_UPGRADE;
+      // DISABLE_FOUNDRY_UPGRADE["keepId"] = true;
+      // await this.actor.createEmbeddedDocuments("Item", items, options);
       for (const item of items) {
         logger.debug(`Creating ${item.name}`);
         // eslint-disable-next-line no-await-in-loop
-        await this.actor.createEmbeddedDocuments("Item", [item], DISABLE_FOUNDRY_UPGRADE);
+        await this.actor.createEmbeddedDocuments("Item", [item], options);
       }
     }
   }
@@ -1278,8 +1293,8 @@ export default class CharacterImport extends FormApplication {
             if (matchedItem.data.flags.ddbimporter?.ignoreIcon) item.flags.ddbimporter.matchedImg = matchedItem.data.img;
             if (matchedItem.data.flags.ddbimporter?.retainResourceConsumption) item.data.consume = matchedItem.data.data.consume;
             // update effect ids
-            if (matchedItem.data.effects?.length > 0 && item.effects?.length === 0) {
-              item.effects = matchedItem.data.effects;
+            if (matchedItem.data.toObject().effects?.length > 0 && item.effects?.length === 0) {
+              item.effects = [];
             } else if (item.effects?.length >= 0) {
               item.effects = item.effects.map((ae) => {
                 const matchedEffect = matchedItem.effects.find(
@@ -1333,15 +1348,8 @@ export default class CharacterImport extends FormApplication {
 
       logger.debug("Finished updating items");
       return [nonMatchedItems, enrichedItems];
-      // return new Promise((resolve) => {
-      //   logger.debug("Finished updating items");
-      //   resolve([nonMatchedItems, enrichedItems]);
-      // });
     } else {
       return [items, []];
-      // return new Promise((resolve) => {
-      //   resolve(items);
-      // });
     }
   }
 

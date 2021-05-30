@@ -614,6 +614,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-generate-ac-armor-effects", {
+    name: "ddb-importer.character-update-policy-generate-ac-armor-effects.name",
+    hint: "ddb-importer.character-update-policy-generate-ac-armor-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-generate-ac-feature-effects", {
     name: "ddb-importer.character-update-policy-generate-ac-feature-effects.name",
     hint: "ddb-importer.character-update-policy-generate-ac-feature-effects.hint",
@@ -974,6 +983,13 @@ export default function () {
   game.settings.register("ddb-importer", "munching-policy-add-effects", {
     name: "ddb-importer.munching-policy-add-effects.name",
     hint: "ddb-importer.munching-policy-add-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "munching-policy-add-ac-armor-effects", {
     scope: "player",
     config: false,
     type: Boolean,

@@ -363,6 +363,12 @@ export default class DDBMuncher extends Application {
         description: "[Experimental] Dynamically generate DAE effects (equipment only). (Requires DAE)",
         enabled: daeInstalled,
       },
+      {
+        name: "add-ac-armor-effects",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects"),
+        description: "[Experimental] Dynamically generate DAE AC effects on armor equipment. (Requires DAE)",
+        enabled: daeInstalled,
+      },
     ];
 
     const spellConfig = [
