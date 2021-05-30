@@ -207,7 +207,6 @@ export class DDBSetup extends FormApplication {
 
     const patreonUser = game.settings.get("ddb-importer", "patreon-user");
     const validKeyObject = hasKey ? await getPatreonValidity(key) : false;
-    console.warn(validKeyObject);
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
 
     const setupConfig = {
