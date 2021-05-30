@@ -13,6 +13,7 @@
 * Option to add damage restrictions to damage hint tag.
 * Bardic Inspiration is now a Utility action to help when using automation.
 * You can now use a button to connect to Patreon to verify your patreon tier rather than entering a key.
+* DAE AC effects on Armor is now a separate option.
 
 # 1.0.9
 
