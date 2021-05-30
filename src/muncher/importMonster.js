@@ -80,23 +80,30 @@ async function addNPCToCompendium(npc) {
     const npcMatch = index.contents.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
     if (npcMatch) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
-        const newNPC = JSON.parse(JSON.stringify(npc));
-        const existingNPC = await compendium.getDocument(npcMatch._id).then((doc) => doc.data);
+        const newNPC = npc;
+        const existingNPC = await compendium.getDocument(npcMatch._id);
 
         const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-        if (!updateImages && existingNPC.img !== "icons/svg/mystery-man.svg") {
-          newNPC.img = existingNPC.img;
+        if (!updateImages && existingNPC.data.img !== "icons/svg/mystery-man.svg") {
+          newNPC.img = existingNPC.data.img;
         }
-        if (!updateImages && existingNPC.token.img !== "icons/svg/mystery-man.svg") {
-          newNPC.token.img = existingNPC.token.img;
+        if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
+          newNPC.token.img = existingNPC.data.token.img;
         }
 
         newNPC._id = npcMatch._id;
-
+        await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         await existingNPC.update(newNPC);
       }
     } else {
-      await compendium.importDocument(npc);
+      // create the new npc
+      logger.debug("Creating NPC actor");
+      const options = {
+        temporary: true,
+        displaySheet: false,
+      };
+      const newNPC = await Actor.create(npc, options);
+      await compendium.importDocument(newNPC);
     }
   } else {
     logger.error("Error opening compendium, check your settings");
@@ -358,7 +365,7 @@ async function linkResourcesConsumption(actor) {
 }
 
 // async function buildNPC(data, srdIconLibrary, iconMap) {
-export async function buildNPC(data, temporary = true, update = false) {
+export async function buildNPC(data, temporary = true, update = false, handleBuild = false) {
   logger.debug("Importing Images");
   await getNPCImage(data);
   await addSpells(data);
@@ -376,15 +383,29 @@ export async function buildNPC(data, temporary = true, update = false) {
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates
   data.items = await updateIcons(data.items, false, true, data.name);
-  // create the new npc
-  logger.debug("Creating NPC actor");
-  const options = {
-    temporary: temporary,
-    displaySheet: false,
-  };
   data = await linkResourcesConsumption(data);
-  let npc = (update) ? await Actor.update(data, options) : await Actor.create(data, options);
-  return npc;
+
+  if (handleBuild) {
+    // create the new npc
+    logger.debug("Creating NPC actor");
+    const options = {
+      temporary: temporary,
+      displaySheet: false,
+    };
+    if (update) {
+      const npc = game.actors.get(data._id);
+      await npc.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
+      await Actor.updateDocuments([data]);
+      return npc;
+    } else {
+      const npc = await Actor.create(data, options);
+      return npc;
+    }
+
+  } else {
+    return data;
+  }
+
 }
 
 async function parseNPC (data) {

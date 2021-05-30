@@ -54,7 +54,7 @@ async function updateExtras(extras, existingExtras) {
         logger.info(`Updating extra ${extra.name}`);
         await copySupportedItemFlags(existingExtra, extra);
         // await Actor.update(extra);
-        await buildNPC(extra, false, true);
+        await buildNPC(extra, false, true, true);
         return extra;
       })
   );
@@ -77,7 +77,7 @@ async function createExtras(extras, existingExtras, folderId) {
         } else {
           logger.info(`Creating Extra ${extra.name}`);
           extra.folder = folderId;
-          await buildNPC(extra, false);
+          await buildNPC(extra, false, false, true);
         }
         return extra;
       })
