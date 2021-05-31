@@ -49,7 +49,7 @@ export default async function () {
 
     if (reload) {
       logger.warn("RELOADING!");
-      location.reload();
+      // location.reload();
     }
   }
 
