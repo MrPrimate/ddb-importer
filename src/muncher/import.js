@@ -855,7 +855,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
 
   let loadedItems = [];
   for (const i of firstPassItems) {
-    let item = await compendium.getDocument(i.id).then((doc) => doc.data); // eslint-disable-line no-await-in-loop
+    let item = await compendium.getDocument(i._id).then((doc) => doc.data); // eslint-disable-line no-await-in-loop
     if (item.flags.ddbimporter) {
       item.flags.ddbimporter["pack"] = compendiumLabel;
     } else {
