@@ -1,3 +1,9 @@
+# 2.1.2
+
+* Unarmored defense imported an effect with incorrect formatting resulting in the AC adjustment not being applied.
+* Class Features would be applied from SRD rather than DDB.
+* When importing characters with active effects some error messages would appear. For now if importing using active effects, untick "Update Existing Items" in advanced settings.
+
 # 2.1.1
 
 * PC imports failed in 0.8.6

@@ -27,6 +27,7 @@ const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"
 
 const DISABLE_FOUNDRY_UPGRADE = {
   applyFeatures: false,
+  addFeatures: false,
   promptAddFeatures: false,
 };
 
@@ -366,10 +367,10 @@ export default class CharacterImport extends FormApplication {
       .filter((item) => !item.data.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item.id);
 
-    // if (toRemove.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toRemove);
-    toRemove.forEach(async (item) => {
-      await this.actor.deleteEmbeddedDocuments("Item", [item]);
-    });
+    if (toRemove.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toRemove);
+    // toRemove.forEach(async (item) => {
+    //   await this.actor.deleteEmbeddedDocuments("Item", [item]);
+    // });
     return toRemove;
   }
 
@@ -1263,12 +1264,12 @@ export default class CharacterImport extends FormApplication {
       logger.debug("Adding the following items:", items);
       const options = DISABLE_FOUNDRY_UPGRADE;
       // DISABLE_FOUNDRY_UPGRADE["keepId"] = true;
-      // await this.actor.createEmbeddedDocuments("Item", items, options);
-      for (const item of items) {
-        logger.debug(`Creating ${item.name}`);
-        // eslint-disable-next-line no-await-in-loop
-        await this.actor.createEmbeddedDocuments("Item", [item], options);
-      }
+      await this.actor.createEmbeddedDocuments("Item", items, options);
+      // for (const item of items) {
+      //   logger.debug(`Creating ${item.name}`);
+      //   // eslint-disable-next-line no-await-in-loop
+      //   await this.actor.createEmbeddedDocuments("Item", [item], options);
+      // }
     }
   }
 
@@ -1339,11 +1340,11 @@ export default class CharacterImport extends FormApplication {
         for (const item of enrichedItems) {
           logger.debug(`Updating ${item.name}`);
           // eslint-disable-next-line no-await-in-loop
-          await this.actor.updateEmbeddedDocuments("Item", [item], { keepId: true });
+          await this.actor.updateEmbeddedDocuments("Item", [item], DISABLE_FOUNDRY_UPGRADE);
         }
       } else {
         logger.debug("Bulk update");
-        await this.actor.updateEmbeddedDocuments("Item", enrichedItems, { keepId: true });
+        await this.actor.updateEmbeddedDocuments("Item", enrichedItems, DISABLE_FOUNDRY_UPGRADE);
       }
 
       logger.debug("Finished updating items");
@@ -1505,11 +1506,16 @@ export default class CharacterImport extends FormApplication {
       (ae) => !ae.data.origin?.includes(".Item.") && ae.data.flags.ddbimporter?.characterEffect
     );
 
+    // console.warn(JSON.parse(JSON.stringify(this.actor)));
+    // console.log(itemEffects.map((ae) => ae.id));
+
     // remove existing active item effects
     await this.actor.deleteEmbeddedDocuments(
       "ActiveEffect",
       itemEffects.map((ae) => ae.id)
     );
+    // console.warn(JSON.parse(JSON.stringify(this.actor)));
+    // console.log(ddbGeneratedCharEffects.map((ae) => ae.id));
     // clear down ddb generated character effects such as skill bonuses
     await this.actor.deleteEmbeddedDocuments(
       "ActiveEffect",
@@ -1536,12 +1542,17 @@ export default class CharacterImport extends FormApplication {
       this.result.character.effects = this.result.character.effects.concat(charEffects, ignoredEffects);
     } else {
       // if not retaining effects remove character effects
+      // console.warn(JSON.parse(JSON.stringify(this.actor)));
+      // console.log(charEffects.map((ae) => ae.id));
+
       await this.actor.deleteEmbeddedDocuments(
         "ActiveEffect",
         charEffects.map((ae) => ae.id)
       );
       this.result.character.effects = this.result.character.effects.concat(ignoredEffects);
     }
+    // console.warn(JSON.parse(JSON.stringify(this.actor)));
+
   }
 
   fixUpCharacterEffects(character) {
@@ -1638,7 +1649,7 @@ export default class CharacterImport extends FormApplication {
 
     // this.actor.prepareDerivedData();
     // this.actor.prepareEmbeddedEntities();
-    this.actor.applyActiveEffects();
+    // this.actor.applyActiveEffects();
     this.actor.render();
   }
 }
