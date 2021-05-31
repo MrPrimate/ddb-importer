@@ -186,7 +186,7 @@ function addACSetEffect(modifiers, name, subType) {
         if (ignoreDexMod) {
           dexBonus = "";
         } else {
-          dexBonus = `+ {@abilities.dex.mod, ${maxDexMod}} kl`;
+          dexBonus = `+ {@abilities.dex.mod, ${maxDexMod}}kl`;
         }
         break;
       }
