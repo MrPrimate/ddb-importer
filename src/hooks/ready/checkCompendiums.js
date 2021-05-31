@@ -33,7 +33,7 @@ export default async function () {
   const autoCreate = game.settings.get("ddb-importer", "auto-create-compendium");
 
   if (autoCreate) {
-    let results = await Promise.allSettled([
+    let results = await Promise.all([
       createIfNotExists("entity-spell-compendium", "Item", "Spells"),
       createIfNotExists("entity-item-compendium", "Item", "Items"),
       createIfNotExists("entity-feature-compendium", "Item", "Class Features"),
