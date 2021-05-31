@@ -1,4 +1,4 @@
-# 2.0.x
+# 2.1.0
 
 * Foundry 0.8.5. support
 * Integrated adventure importer tool into muncher pane.
