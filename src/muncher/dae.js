@@ -36,11 +36,11 @@ var magicItemsPack;
 
 export async function loadPacks() {
   if (packsLoaded) return;
-  itemPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Items").getContent();
-  spellPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Spells").getContent();
-  featsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Feats").getContent();
-  midiPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Midi-collection").getContent();
-  magicItemsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Magic Items").getContent();
+  itemPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Items").getDocuments();
+  spellPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Spells").getDocuments();
+  featsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Feats").getDocuments();
+  midiPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Midi-collection").getDocuments();
+  magicItemsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Magic Items").getDocuments();
   // eslint-disable-next-line require-atomic-updates
   packsLoaded = true;
 }
@@ -51,6 +51,8 @@ function findDAEItem(itemData, packs) {
       pd.name === itemData.name &&
       pd.type === itemData.type
     );
+    // console.warn(itemData.name);
+    // console.warn(matchItem);
     if (matchItem) return matchItem;
   }
   return undefined;
@@ -130,12 +132,13 @@ export async function addItemsDAESRD(items) {
       items.map((itemData) => {
         let replaceData = matchItem(itemData, midiInstalled);
         if (replaceData) {
-          logger.debug(`Adding effects for ${replaceData.data.name}`);
-          itemData.effects = replaceData.data.effects;
-          if (replaceData.data.flags.dae) itemData.flags.dae = replaceData.data.flags.dae;
-          if (replaceData.data.flags['midi-qol']) itemData.flags['midi-qol'] = replaceData.data.flags['midi-qol'];
-          if (replaceData.data.flags.itemacro) itemData.flags.itemacro = replaceData.data.flags.itemacro;
-          if (replaceData.data.flags.itemmacro) itemData.flags.itemmacro = replaceData.data.flags.itemmacro;
+          replaceData = replaceData.data.toObject();
+          logger.debug(`Adding effects for ${replaceData.name}`);
+          itemData.effects = replaceData.effects;
+          if (replaceData.flags.dae) itemData.flags.dae = replaceData.flags.dae;
+          if (replaceData.flags['midi-qol']) itemData.flags['midi-qol'] = replaceData.flags['midi-qol'];
+          if (replaceData.flags.itemacro) itemData.flags.itemacro = replaceData.flags.itemacro;
+          if (replaceData.flags.itemmacro) itemData.flags.itemmacro = replaceData.flags.itemmacro;
         }
         return itemData;
       })
@@ -148,27 +151,5 @@ export async function addItemsDAESRD(items) {
  * @param {*} actor
  */
 export async function migrateActorDAESRD(actor, includeSRD = false) {
-  // if (!packsLoaded) await loadPacks();
-  // const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
-
-  // const items = actor.data.items;
-  // let replaceItems = [];
-  // let count = 0;
-  // items.forEach((itemData) => {
-  //   let replaceData = matchItem(itemData, midiInstalled);
-
-  //   if (replaceData) {
-  //     logger.debug(`migrating ${actor.name} ${replaceData.name}`);
-  //     setProperty(replaceData.data.flags, "dae.migrated", true);
-  //     replaceItems.push(dataSwap(itemData, replaceData.data));
-  //     count++;
-  //   } else replaceItems.push(itemData);
-  // });
-  // let removeItems = actor.items.map((i) => i.id);
-  // await actor.deleteOwnedItem(removeItems);
-  // console.warn(actor.effects.map((ae) => ae.id));
-  // await actor.deleteEmbeddedEntity("ActiveEffect", actor.effects.map((ae) => ae.id));
-  // await actor.createOwnedItem(replaceItems);
-  // logger.debug(`${actor.name} replaced ${count} out of ${replaceItems.length} items from the DAE SRD`);
   await DAE.migrateActorDAESRD(actor, includeSRD);
 }

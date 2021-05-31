@@ -21,10 +21,14 @@ const SIZES = [
   { name: "Gargantuan", value: "grg", size: 4 },
 ];
 
-export function getSize (monster, DDB_CONFIG) {
-  const sizeConfig = DDB_CONFIG.creatureSizes;
-  const size = sizeConfig.find((s) => s.id == monster.sizeId).name;
+export function getSizeFromId(sizeId, DDB_CONFIG) {
+  const size = DDB_CONFIG.creatureSizes.find((s) => s.id == sizeId).name;
   const sizeData = SIZES.find((s) => size == s.name);
+  return sizeData;
+}
+
+export function getSize (monster, DDB_CONFIG) {
+  const sizeData = getSizeFromId(monster.sizeId, DDB_CONFIG);
   let token = {
     scale: 1,
     value: sizeData.size,

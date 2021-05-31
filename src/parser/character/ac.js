@@ -50,7 +50,7 @@ let getEquippedAC = (equippedGear) => {
     }
 
     // magical armor
-    const usingEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+    const usingEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const daeEffects = usingEffects && daeInstalled;
     if (!daeEffects && item.definition.grantedModifiers) {
@@ -317,7 +317,7 @@ export function getArmorClass(data, character) {
     };
   }
 
-  const usingEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+  const usingEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
   const daeEffects = usingEffects && daeInstalled;
 

@@ -9,14 +9,14 @@
     "build": "webpack"
   },
   "devDependencies": {
-    "eslint": "^7.17.0",
+    "eslint": "^7.27.0",
     "jest": "^25.5.4",
     "prettier": "2.0.5",
-    "webpack": "^5.12.1",
-    "webpack-cli": "^4.3.1"
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.9"
   }
 }

@@ -2,13 +2,13 @@
   "name": "ddb-importer",
   "author": "MrPrimate",
   "title": "[ALPHA] D&D Beyond Importer",
-  "description": "ALPHA DDB Importer for auto effect generation on items. This version is unstable, please don't use it on important things. This does the the DAE module installed and active. To revert to stable, uninstall this module and reinstall from the Foundry module installer.",
-  "version": "0.5.19",
+  "description": "ALPHA DDB Importer for Foundry v0.8.5. This version is unstable.",
+  "version": "2.0.11",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
-  "minimumCoreVersion": "0.7.9",
-  "compatibleCoreVersion": "0.7.9",
+  "minimumCoreVersion": "0.8.5",
+  "compatibleCoreVersion": "0.8.5",
   "authors": [
     {
       "name": "MrPrimate",
@@ -29,18 +29,17 @@
     }
   ],
   "systems": ["dnd5e"],
+  "scripts": [
+    "./vendor/jszip/jszip.min.js"
+  ],
   "esmodules": ["dist/main.js"],
   "styles": [
-    "./css/module-settings.css",
     "./css/default.css",
     "./css/import.css",
-    "./css/sidebar.css",
     "./css/journal.css",
     "./css/notifications.css",
-    "./css/scene-navigation.css",
-    "./css/statblock.css",
-    "./css/monster-muncher.css",
-    "./css/spell-muncher.css"
+    "./css/muncher.css",
+    "./css/adventure.css"
   ],
   "packs": [],
   "socket": true

@@ -1,20 +1,29 @@
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
 
-export default function () {
-  const actorCompendiums = game.packs
-    .filter((pack) => pack.entity === "Actor")
-    .reduce((choices, pack) => {
-      choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-      return choices;
-    }, {});
+CONFIG.DDBI = {
+  module: "DDB Muncher",
+  schemaVersion: "1.1",
+  ADVENTURE: {},
+};
 
-  const itemCompendiums = game.packs
-    .filter((pack) => pack.entity === "Item")
-    .reduce((choices, pack) => {
-      choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-      return choices;
-    }, {});
+export default function () {
+  // const excludedCompediumPackages = [
+  //   "dnd5e", "dae", "midiqol", "magicitems",
+  // ];
+  // const actorCompendiums = game.packs
+  //   .filter((pack) => pack.documentClass.documentName === "Actor" && !excludedCompediumPackages.includes(pack.metadata.package))
+  //   .reduce((choices, pack) => {
+  //     choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
+  //     return choices;
+  //   }, {});
+
+  // const itemCompendiums = game.packs
+  //   .filter((pack) => pack.documentClass.documentName === "Item" && !excludedCompediumPackages.includes(pack.metadata.package))
+  //   .reduce((choices, pack) => {
+  //     choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
+  //     return choices;
+  //   }, {});
 
   game.settings.registerMenu("ddb-importer", 'setupMenu', {
     name: "ddb-importer.setup.name",
@@ -39,58 +48,29 @@ export default function () {
     hint: "ddb-importer.image-upload-directory.hint",
     scope: "world",
     config: false,
-    // In 0.8.0 the custom type requires a collection. Awaiting fix
     type: DirectoryPicker.Directory,
-    default: "[data] ",
+    default: "[data] ddb-images/characters",
   });
 
-  // game.settings.register("ddb-importer", "scene-upload-directory", {
-  //   name: "ddb-importer.scene-upload-directory.name",
-  //   hint: "ddb-importer.scene-upload-directory.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: DirectoryPicker.Directory,
-  //   default: "[data] ",
-  // });
-
-  // game.settings.register("ddb-importer", "scene-format", {
-  //   name: "ddb-importer.scene-format.name",
-  //   hint: "ddb-importer.scene-format.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: String,
-  //   choices: ["ddb-importer.scene-format.0", "ddb-importer.scene-format.1"],
-  //   default: 0,
-  // });
-
-  game.settings.register("ddb-importer", "entity-import-policy", {
-    name: "ddb-importer.entity-import-policy.name",
-    hint: "ddb-importer.entity-import-policy.hint",
+  game.settings.register("ddb-importer", "other-image-upload-directory", {
+    name: "ddb-importer.image-upload-directory.name",
+    hint: "ddb-importer.image-upload-directory.hint",
     scope: "world",
     config: false,
-    type: Number,
-    default: 1,
-    choices: [
-      "ddb-importer.entity-import-policy.0",
-      "ddb-importer.entity-import-policy.1",
-      "ddb-importer.entity-import-policy.2",
-    ],
+    type: DirectoryPicker.Directory,
+    default: "[data] ddb-images/other",
   });
 
-  // game.settings.register("ddb-importer", "entity-cleanup-policy", {
-  //   name: "ddb-importer.entity-cleanup-policy.name",
-  //   hint: "ddb-importer.entity-cleanup-policy.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: Number,
-  //   default: 0,
-  //   choices: [
-  //     "ddb-importer.entity-cleanup-policy.0",
-  //     "ddb-importer.entity-cleanup-policy.1",
-  //     "ddb-importer.entity-cleanup-policy.2",
-  //     "ddb-importer.entity-cleanup-policy.3",
-  //   ],
-  // });
+  if (game.user.isTrusted) {
+    const characterUploads = game.settings.get("ddb-importer", "image-upload-directory");
+    const otherUploads = game.settings.get("ddb-importer", "other-image-upload-directory");
+    if (characterUploads !== "[data] ddb-images/characters" && otherUploads === "[data] ddb-images/other") {
+      game.settings.set("ddb-importer", "other-image-upload-directory", characterUploads);
+    } else {
+      DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
+    }
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
+  }
 
   game.settings.register("ddb-importer", "settings-call-muncher", {
     scope: "world",
@@ -99,6 +79,12 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "update-check", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
 
   game.settings.register("ddb-importer", "allow-scene-download", {
     name: "ddb-importer.allow-scene-download.name",
@@ -145,6 +131,14 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "add-damage-restrictions-to-hints", {
+    name: "ddb-importer.add-damage-restrictions-to-hints.name",
+    hint: "ddb-importer.add-damage-restrictions-to-hints.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
 
   game.settings.register("ddb-importer", "monster-has-vision", {
     name: "ddb-importer.monster-has-vision.name",
@@ -200,14 +194,23 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "show-munch-top", {
+    name: "ddb-importer.show-munch-top.name",
+    hint: "ddb-importer.show-munch-top.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "entity-item-compendium", {
     name: "ddb-importer.entity-item-compendium.name",
     hint: "ddb-importer.entity-item-compendium.hint",
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-feature-compendium", {
@@ -216,8 +219,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-class-compendium", {
@@ -226,8 +229,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-race-compendium", {
@@ -236,8 +239,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-trait-compendium", {
@@ -246,8 +249,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-feat-compendium", {
@@ -256,8 +259,8 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-spell-compendium", {
@@ -266,19 +269,19 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: itemCompendiums,
+    // isSelect: true,
+    // choices: itemCompendiums,
   });
 
-  // game.settings.register("ddb-importer", "entity-item-spell-compendium", {
-  //   name: "ddb-importer.entity-item-spell-compendium.name",
-  //   hint: "ddb-importer.entity-item-spell-compendium.hint",
-  //   scope: "world",
-  //   config: false,
-  //   type: String,
-  //   isSelect: true,
-  //   choices: itemCompendiums,
-  // });
+  game.settings.register("ddb-importer", "entity-override-compendium", {
+    name: "ddb-importer.entity-custom-compendium.name",
+    hint: "ddb-importer.entity-custom-compendium.hint",
+    scope: "world",
+    config: false,
+    type: String,
+    // isSelect: true,
+    // choices: itemCompendiums,
+  });
 
   game.settings.register("ddb-importer", "entity-monster-compendium", {
     name: "ddb-importer.entity-monster-compendium.name",
@@ -286,19 +289,27 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    isSelect: true,
-    choices: actorCompendiums,
+    // isSelect: true,
+    // choices: actorCompendiums,
   });
 
-  // game.settings.register("ddb-importer", "entity-monster-feature-compendium", {
-  //   name: "ddb-importer.entity-monster-feature-compendium.name",
-  //   hint: "ddb-importer.entity-monster-feature-compendium.hint",
-  //   scope: "world",
-  //   config: true,
-  //   type: String,
-  //   isSelect: true,
-  //   choices: itemCompendiums,
-  // });
+  game.settings.register("ddb-importer", "adventure-import-path", {
+    name: "Adventure Import Path",
+    hint: "Location where the module will look for adventure data files to import",
+    scope: "world",
+    config: true,
+    default: "[data] adventures/import",
+    type: DirectoryPicker.Directory
+  });
+
+  game.settings.register("ddb-importer", "adventure-upload-path", {
+    name: "Adventure Upload Path",
+    hint: "Location where the module will upload adventure images and data",
+    scope: "world",
+    config: true,
+    default: `[data] worlds/${game.world.id}/adventures`,
+    type: DirectoryPicker.Directory
+  });
 
   game.settings.register("ddb-importer", "log-level", {
     name: "ddb-importer.log-level.name",
@@ -322,8 +333,13 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    default: "https://ddb.mrprimate.co.uk",
+    default: "https://proxy.ddb.mrprimate.co.uk",
   });
+
+  const ddbProxy = game.settings.get("ddb-importer", "api-endpoint");
+  if (ddbProxy === "https://ddb.mrprimate.co.uk") {
+    game.settings.set("ddb-importer", "api-endpoint", "https://proxy.ddb.mrprimate.co.uk");
+  }
 
   game.settings.register("ddb-importer", "custom-proxy", {
     name: "ddb-importer.custom-proxy.name",
@@ -361,9 +377,14 @@ export default function () {
     default: "",
   });
 
+  game.settings.register("ddb-importer", "patreon-user", {
+    scope: "world",
+    config: false,
+    type: String,
+    default: null,
+  });
+
   game.settings.register("ddb-importer", "patreon-tier", {
-    name: "ddb-importer.patreon-tier.name",
-    hint: "ddb-importer.patreon-tier.hint",
     scope: "world",
     config: false,
     type: String,
@@ -380,15 +401,6 @@ export default function () {
   });
 
   /** Character update settings, stored per user and non-configurable in the settings screen */
-  game.settings.register("ddb-importer", "character-update-policy-new", {
-    name: "ddb-importer.character-update-policy-new.name",
-    hint: "ddb-importer.character-update-policy-new.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
   game.settings.register("ddb-importer", "character-update-policy-add-character-effects", {
     name: "ddb-importer.character-update-policy-add-character-effects.name",
     hint: "ddb-importer.character-update-policy-add-character-effects.hint",
@@ -602,6 +614,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-generate-ac-armor-effects", {
+    name: "ddb-importer.character-update-policy-generate-ac-armor-effects.name",
+    hint: "ddb-importer.character-update-policy-generate-ac-armor-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-generate-ac-feature-effects", {
     name: "ddb-importer.character-update-policy-generate-ac-feature-effects.name",
     hint: "ddb-importer.character-update-policy-generate-ac-feature-effects.hint",
@@ -632,6 +653,15 @@ export default function () {
   game.settings.register("ddb-importer", "character-update-policy-use-existing", {
     name: "ddb-importer.character-update-policy-use-existing.name",
     hint: "ddb-importer.character-update-policy-use-existing.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-use-override", {
+    name: "ddb-importer.character-update-policy-use-custom.name",
+    hint: "ddb-importer.character-update-policy-use-custom.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -953,6 +983,13 @@ export default function () {
   game.settings.register("ddb-importer", "munching-policy-add-effects", {
     name: "ddb-importer.munching-policy-add-effects.name",
     hint: "ddb-importer.munching-policy-add-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "munching-policy-add-ac-armor-effects", {
     scope: "player",
     config: false,
     type: Boolean,

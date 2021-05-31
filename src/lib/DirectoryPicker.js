@@ -2,6 +2,8 @@
  * Game Settings: Directory
  */
 
+import logger from "../logger.js";
+
 export class DirectoryPicker extends FilePicker {
   constructor(options = {}) {
     super(options);
@@ -99,6 +101,60 @@ export class DirectoryPicker extends FilePicker {
     $(html).find("ol.files-list").remove();
     $(html).find("footer div").remove();
     $(html).find("footer button").text("Select Directory");
+  }
+
+  static async forgeCreateDirectory(target) {
+    if (!target) return;
+    const response = await ForgeAPI.call('assets/new-folder', { path: target });
+    if (!response || response.error) {
+      throw new Error(response ? response.error : "Unknown error while creating directory.");
+    }
+  }
+
+  /**
+   * @param  {string} source
+   * @param  {string} target
+   * @param  {object} options={}
+   */
+  static async createDirectory(source, target, options = {}) {
+    if (!target) {
+      throw new Error("No directory name provided");
+    }
+    if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
+      return DirectoryPicker.forgeCreateDirectory(target);
+    }
+    return FilePicker.createDirectory(source, target, options);
+  }
+
+  /**
+   * Verifies server path exists, and if it doesn't creates it.
+   *
+   * @param  {object} parsedPath - output from DirectoryPicker,parse
+   * @param  {string} targetPath - if set will check this path, else check parsedPath.current
+   * @returns {boolean} - true if verfied, false if unable to create/verify
+   */
+  static async verifyPath(parsedPath, targetPath = null) {
+    try {
+      const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
+      let currentSource = paths[0];
+
+      for (let i = 0; i < paths.length; i += 1) {
+        try {
+          if (currentSource !== paths[i]) {
+            currentSource = `${currentSource}/${paths[i]}`;
+          }
+          // eslint-disable-next-line no-await-in-loop
+          await DirectoryPicker.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
+
+        } catch (err) {
+          if (!err.startsWith("EEXIST")) logger.error(`Error trying to verify path [${parsedPath.activeSource}], ${parsedPath.current}`, err);
+        }
+      }
+    } catch (err) {
+      return false;
+    }
+
+    return true;
   }
 }
 

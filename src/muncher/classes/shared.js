@@ -150,11 +150,17 @@ export async function buildBaseClass(klass) {
   // eslint-disable-next-line require-atomic-updates
   result.data.hitDice = `d${klass.hitDice}`;
 
-  let spellcasting = "";
+  let spellcasting = {};
   if (klass.canCastSpells) {
     const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name == klass.name);
+    const spellCastingAbility = klass.spellCastingAbilityId
+      ? DICTIONARY.character.abilities.find((a) => a.id == klass.spellCastingAbilityId).value
+      : null;
     if (spellProgression) {
-      spellcasting = spellProgression.value;
+      spellcasting = {
+        progression: spellProgression.value,
+        ability: spellCastingAbility,
+      };
     }
   }
   // eslint-disable-next-line require-atomic-updates

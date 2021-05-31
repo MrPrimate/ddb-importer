@@ -42,9 +42,9 @@ export function getCampaignId() {
 async function getPatreonTier() {
   const customProxy = game.settings.get("ddb-importer", "custom-proxy");
   if (customProxy) return { success: true, message: "custom proxy", data: "CUSTOM" };
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const key = game.settings.get("ddb-importer", "beta-key");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const body = { betaKey: betaKey };
+  const body = { betaKey: key };
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/patreon/tier`, {
@@ -53,7 +53,7 @@ async function getPatreonTier() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body), // body data type must match "Content-Type" header
+      body: JSON.stringify(body),
     })
       .then((response) => response.json())
       .then((data) => {

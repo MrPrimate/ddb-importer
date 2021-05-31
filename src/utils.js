@@ -78,7 +78,7 @@ const utils = {
     // componentId on spells.class[0].componentId = options.class[0].definition.id
     // options.class[0].definition.componentId = classes[0].classFeatures[0].definition.id
     const option = data.character.options.class.find((option) => option.definition.id === optionId);
-    // utils.log(option);
+
     if (option) {
       const klass = data.character.classes.find((klass) =>
         klass.classFeatures.some((feature) => feature.definition.id === option.componentId)
@@ -707,7 +707,7 @@ const utils = {
             resolve(result.path);
           })
           .catch((error) => {
-            utils.log(`error uploading file: ${error}`);
+            logger.error("error uploading file: ", error);
             reject(error);
           });
       });
@@ -739,14 +739,14 @@ const utils = {
       let result = await process(url, targetDirectory, filename + "." + ext);
       return result;
     } catch (error) {
-      utils.log(error);
+      logger.error("Image upload error", error);
       ui.notifications.warn(`Image upload failed. Please check your ddb-importer upload folder setting. ${url}`);
       return null;
     }
   },
 
   getOrCreateFolder: async (root, entityType, folderName, folderColor = "") => {
-    let folder = game.folders.entities.find((f) =>
+    let folder = game.folders.contents.find((f) =>
       f.data.type === entityType && f.data.name === folderName &&
       f.data.parent === (root ? root.id : null)
     );
@@ -800,35 +800,35 @@ const utils = {
   },
 
   /**
-   * Queries a compendium for a single entity
-   * Returns either the entry from the index, or the complete entity from the compendium
+   * Queries a compendium for a single document
+   * Returns either the entry from the index, or the complete document from the compendium
    */
-  queryCompendiumEntry: async (compendiumName, entityName, getEntity = false) => {
-    // normalize the entity name for comparision
-    entityName = utils.normalizeString(entityName);
+  queryCompendiumEntry: async (compendiumName, documentName, getDocument = false) => {
+    // normalize the entity name for comparison
+    documentName = utils.normalizeString(documentName);
 
     // get the compendium
-    let compendium = game.packs.find((pack) => pack.collection === compendiumName);
+    const compendium = game.packs.get(compendiumName);
     if (!compendium) return null;
 
     // retrieve the compendium index
-    let index = await compendium.getIndex();
+    const index = await compendium.getIndex();
 
-    let id = index.find((entity) => utils.normalizeString(entity.name) === entityName);
-    if (id && getEntity) {
-      let entity = await compendium.getEntity(id._id);
+    let id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
+    if (id && getDocument) {
+      let entity = await compendium.getDocument(id._id);
       return entity;
     }
     return id ? id : null;
   },
 
   /**
-   * Queries a compendium for a single entity
-   * Returns either the entry from the index, or the complete entity from the compendium
+   * Queries a compendium for a single document
+   * Returns either the entry from the index, or the complete document from the compendium
    */
-  queryCompendiumEntries: async (compendiumName, entityNames, getEntities = false) => {
+  queryCompendiumEntries: async (compendiumName, documentNames, getDocuments = false) => {
     // get the compendium
-    let compendium = game.packs.find((pack) => pack.collection === compendiumName);
+    let compendium = game.packs.get(compendiumName);
     if (!compendium) return null;
 
     // retrieve the compendium index
@@ -839,7 +839,7 @@ const utils = {
     });
 
     // get the indices of all the entitynames, filter un
-    let indices = entityNames
+    let indices = documentNames
       .map((entityName) => {
         // sometimes spells do have restricted use in paranthesis after the name. Let's try to find those restrictions and add them later
         if (entityName.search(/(.+)\(([^()]+)\)*/) !== -1) {
@@ -867,16 +867,16 @@ const utils = {
         }
       });
 
-    if (getEntities) {
+    if (getDocuments) {
       // replace non-null values with the complete entity from the compendium
       let entities = await Promise.all(
         indices.map((entry) => {
           return new Promise((resolve) => {
             if (entry) {
-              compendium.getEntity(entry._id).then((entity) => {
+              compendium.getDocument(entry._id).then((entity) => {
                 entity.data.name = entry.name; // transfer restrictions over, if any
                 // remove redudant info
-                delete entity.data._id;
+                delete entity.data.id;
                 delete entity.data.permission;
                 resolve(entity.data);
               });
@@ -892,81 +892,21 @@ const utils = {
   },
 
   /**
-   * Queries a compendium for a given entity name
+   * Queries a compendium for a given document name
    * @returns the index entries of all matches, otherwise an empty array
    */
-  queryCompendium: async (compendiumName, entityName, getEntity = false) => {
-    entityName = utils.normalizeString(entityName);
+  queryCompendium: async (compendiumName, documentName, getDocument = false) => {
+    documentName = utils.normalizeString(documentName);
 
-    let compendium = game.packs.find((pack) => pack.collection === compendiumName);
+    let compendium = game.packs.get(compendiumName);
     if (!compendium) return null;
     let index = await compendium.getIndex();
-    let id = index.find((entity) => utils.normalizeString(entity.name) === entityName);
-    if (id && getEntity) {
+    let id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
+    if (id && getDocument) {
       let entity = await compendium.getEntity(id._id);
       return entity;
     }
     return id ? id : null;
-  },
-
-  /**
-   * Creates or updates a given entity
-   */
-  createCompendiumEntry: async (compendiumName, entity, updateExistingEntry = false) => {
-    let compendium = game.packs.find((pack) => pack.collection === compendiumName);
-
-    if (!compendium) return null;
-
-    let existingEntry = await utils.queryCompendium(compendiumName, entity.name);
-    if (existingEntry) {
-      if (updateExistingEntry) {
-        // update all existing entries
-        existingEntry = await compendium.updateEntity({
-          ...entity.data,
-          _id: existingEntry._id,
-        });
-
-        return {
-          _id: existingEntry._id,
-          img: existingEntry.img,
-          name: existingEntry.name,
-        };
-      } else {
-        return existingEntry;
-      }
-    } else {
-      let compendiumEntry = await compendium.createEntity(entity.data);
-      return {
-        _id: compendiumEntry._id,
-        img: compendiumEntry.img,
-        name: compendiumEntry.name,
-      };
-    }
-  },
-
-  getFolderHierarchy: (folder) => {
-    if (!folder || !folder._parent) return "/";
-    return folder._parent._id !== null
-      ? `${utils.getFolderHierarchy(folder._parent)}/${folder.name}`
-      : `/${folder.name}`;
-  },
-
-  log: (msg, section = "general") => {
-    const LOG_PREFIX = "DDB Importer";
-    if (
-      CONFIG?.debug?.ddbimporter?.dndbeyond &&
-      Object.prototype.hasOwnProperty.call(CONFIG.debug.ddbimporter.dndbeyond, section) &&
-      CONFIG.debug.ddbimporter.dndbeyond[section]
-    )
-      switch (typeof msg) {
-        case "object":
-        case "array":
-          console.log(`${LOG_PREFIX} | ${section} > ${typeof msg}`); // eslint-disable-line no-console
-          console.log(msg); // eslint-disable-line no-console
-          break;
-        default:
-          console.log(`${LOG_PREFIX} | ${section} > ${msg}`); // eslint-disable-line no-console
-      }
   },
 
   getFileUrl: async (directoryPath, filename) => {

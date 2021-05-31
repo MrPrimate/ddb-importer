@@ -436,9 +436,19 @@ export default function getInventory(ddb, character, itemSpells) {
       const addEffects = (compendiumItem)
         ? game.settings.get("ddb-importer", "munching-policy-add-effects")
         : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
-      if (daeInstalled && addEffects) {
-        item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
-        item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
+      const generateArmorACEffect = (compendiumItem)
+        ? game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects")
+        : game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
+      if (daeInstalled) {
+        if (addEffects) item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
+        // if this is a piece of armor and not generating effects don't generate ac
+        if (item.type === "equipment" && item.data.armor?.type) {
+
+          // eslint-disable-next-line max-depth
+          if (generateArmorACEffect) item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
+        } else {
+          item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
+        }
       }
       if (!item.name || item.name === "") item.name = "Item";
       items.push(item);

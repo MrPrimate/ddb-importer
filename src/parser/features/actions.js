@@ -421,7 +421,7 @@ function getAttackAction(ddb, character, action) {
       };
     }
   } catch (err) {
-    utils.log(
+    logger.warn(
       `Unable to Import Attack Action: ${action.name}, please log a bug report. Err: ${err.message}`,
       "extension"
     );

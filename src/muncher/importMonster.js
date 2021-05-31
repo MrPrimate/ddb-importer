@@ -34,8 +34,10 @@ async function retrieveCompendiumItems(items, compendiumName) {
  */
 async function retrieveSpells(spells) {
   const compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
+  const compendiumItems = await retrieveCompendiumItems(spells, compendiumName);
+  const itemData = compendiumItems.map((i) => i.toJSON());
 
-  return retrieveCompendiumItems(spells, compendiumName);
+  return itemData;
 }
 
 // /**
@@ -48,11 +50,11 @@ async function retrieveSpells(spells) {
 //   return retrieveCompendiumItems(items, compendiumName);
 // }
 
-async function getCompendium() {
+async function getMonsterCompendium() {
   if (compendiumLoaded) return monsterCompendium;
   const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
   if (compendiumName && compendiumName !== "") {
-    monsterCompendium = await game.packs.find((pack) => pack.collection === compendiumName);
+    monsterCompendium = await game.packs.get(compendiumName);
     if (monsterCompendium) {
       // eslint-disable-next-line require-atomic-updates
       compendiumLoaded = true;
@@ -62,39 +64,46 @@ async function getCompendium() {
   return undefined;
 }
 
-export async function checkCompendium() {
+export async function checkMonsterCompendium() {
   compendiumLoaded = false;
   monsterCompendium = undefined;
-  return getCompendium();
+  return getMonsterCompendium();
 }
 
 async function addNPCToCompendium(npc) {
-  const compendium = await getCompendium();
+  const compendium = await getMonsterCompendium();
   if (compendium) {
     // unlock the compendium for update/create
-    compendium.locked = false;
+    compendium.configure({ locked: false });
 
     const index = await compendium.getIndex();
-    const entity = index.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
-    if (entity) {
+    const npcMatch = index.contents.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
+    if (npcMatch) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
-        const compendiumNPC = JSON.parse(JSON.stringify(npc));
-        const existingNPC = await compendium.getEntry(entity._id);
+        const newNPC = npc;
+        const existingNPC = await compendium.getDocument(npcMatch._id);
 
         const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-        if (!updateImages && existingNPC.img !== "icons/svg/mystery-man.svg") {
-          compendiumNPC.img = existingNPC.img;
+        if (!updateImages && existingNPC.data.img !== "icons/svg/mystery-man.svg") {
+          newNPC.img = existingNPC.data.img;
         }
-        if (!updateImages && existingNPC.token.img !== "icons/svg/mystery-man.svg") {
-          compendiumNPC.token.img = existingNPC.token.img;
+        if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
+          newNPC.token.img = existingNPC.data.token.img;
         }
 
-        compendiumNPC._id = entity._id;
-
-        await compendium.updateEntity(compendiumNPC);
+        newNPC._id = npcMatch._id;
+        await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
+        await existingNPC.update(newNPC);
       }
     } else {
-      await compendium.createEntity(npc);
+      // create the new npc
+      logger.debug("Creating NPC actor");
+      const options = {
+        temporary: true,
+        displaySheet: false,
+      };
+      const newNPC = await Actor.create(npc, options);
+      await compendium.importDocument(newNPC);
     }
   } else {
     logger.error("Error opening compendium, check your settings");
@@ -120,7 +129,7 @@ async function getNPCImage(data) {
     dndBeyondTokenImageUrl = dndBeyondImageUrl;
   }
 
-  const npcType = data.data.details.type;
+  const npcType = data.data.details.type.value;
   const genericNPCName = npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
   const npcName = data.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
 
@@ -317,7 +326,8 @@ async function swapItems(data) {
   if (swap) {
     logger.debug("Replacing items...");
     // console.info(data.items);
-    const updatedItems = await getCompendiumItems(data.items, "inventory", null, false, true);
+    const rawUpdatedItems = await getCompendiumItems(data.items, "inventory", null, false, true);
+    const updatedItems = rawUpdatedItems.map((i) => i.toJSON());
     const itemsToRemove = updatedItems.map((item) => {
       logger.debug(`${item.name} to ${item.flags.ddbimporter.originalItemName}`);
       return { name: item.flags.ddbimporter.originalItemName, type: item.type };
@@ -355,7 +365,7 @@ async function linkResourcesConsumption(actor) {
 }
 
 // async function buildNPC(data, srdIconLibrary, iconMap) {
-export async function buildNPC(data, temporary = true, update = false) {
+export async function buildNPC(data, temporary = true, update = false, handleBuild = false) {
   logger.debug("Importing Images");
   await getNPCImage(data);
   await addSpells(data);
@@ -373,15 +383,29 @@ export async function buildNPC(data, temporary = true, update = false) {
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates
   data.items = await updateIcons(data.items, false, true, data.name);
-  // create the new npc
-  logger.debug("Creating NPC actor");
-  const options = {
-    temporary: temporary,
-    displaySheet: false,
-  };
   data = await linkResourcesConsumption(data);
-  let npc = (update) ? await Actor.update(data, options) : await Actor.create(data, options);
-  return npc;
+
+  if (handleBuild) {
+    // create the new npc
+    logger.debug("Creating NPC actor");
+    const options = {
+      temporary: temporary,
+      displaySheet: false,
+    };
+    if (update) {
+      const npc = game.actors.get(data._id);
+      await npc.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
+      await Actor.updateDocuments([data]);
+      return npc;
+    } else {
+      const npc = await Actor.create(data, options);
+      return npc;
+    }
+
+  } else {
+    return data;
+  }
+
 }
 
 async function parseNPC (data) {

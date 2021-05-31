@@ -29,18 +29,17 @@
     }
   ],
   "systems": ["dnd5e"],
+  "scripts": [
+    "./vendor/jszip/jszip.min.js"
+  ],
   "esmodules": ["src/index.js"],
   "styles": [
-    "./css/module-settings.css",
     "./css/default.css",
     "./css/import.css",
-    "./css/sidebar.css",
     "./css/journal.css",
     "./css/notifications.css",
-    "./css/scene-navigation.css",
-    "./css/statblock.css",
-    "./css/monster-muncher.css",
-    "./css/spell-muncher.css"
+    "./css/muncher.css",
+    "./css/adventure.css"
   ],
   "packs": [],
   "socket": true

@@ -5,7 +5,8 @@ div.journal-sheet div.ddbimporter-image-container {
 div.journal-sheet div.ddbimporter-image-container a.ddbimporter-button {
   max-width: 255px;
   background: #2f0000d6;
-  box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
+          box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
   border-radius: 3px;
   margin-left: 10px;
   display: block;
@@ -13,12 +14,28 @@ div.journal-sheet div.ddbimporter-image-container a.ddbimporter-button {
   cursor: pointer;
   color: white;
   font-weight: bold;
-
   position: absolute;
   top: 0;
   right: 0;
   width: auto;
-  transform: translate(-20px, 20px);
+  -webkit-transform: translate(-20px, 20px);
+          transform: translate(-20px, 20px);
+}
+
+div.journal-sheet a.ddbimporter.roll {
+  font-family: "Signika", sans-serif;
+  font-size: 14px;
+  color: #191813;
+  -webkit-user-drag: element;
+  box-sizing: border-box;
+  cursor: pointer;
+  user-select: text;
+  background: #DDD;
+  padding: 1px 4px;
+  border: 1px solid #4b4a44;
+  border-radius: 2px;
+  white-space: nowrap;
+  word-break: break-all;
 }
 
 div.ddbimporter-image-popout {
@@ -223,14 +240,6 @@ blockquote.adventure-read-aloud-text {
   z-index: -1;
 }
 
-.Core-Styles_Core-Metadata, .Serif-Character-Style_Inline-Subhead-Serif, .Serif-Character-Style_Italic-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Italic-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif, .Serif-Character-Style_Bold-Italic-Serif  {
-  font-style: italic;
-}
-
-.Serif-Character-Style_Bold-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Bold-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif, .Serif-Character-Style_Bold-Italic-Serif {
-  font-weight: bold;
-}
-
 aside.vrgtr-flowchart--1 {
   background-image: url(https://media.dndbeyond.com/compendium-images/vrgtr/U9mBj5XfiTD1mHie/flowchart-box-01.png);
 }
@@ -240,4 +249,87 @@ aside.vrgtr-flowchart {
   background-repeat: no-repeat;
   padding: 30px 20% !important;
   margin: 0px 0px;
+}
+
+.Core-Styles_Core-Metadata, .Serif-Character-Style_Inline-Subhead-Serif, .Serif-Character-Style_Italic-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Italic-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif, .Serif-Character-Style_Bold-Italic-Serif  {
+  font-style: italic;
+}
+
+.Serif-Character-Style_Bold-Serif, .Serif-Character-Style_Inline-Subhead-Serif, .Sans-Serif-Character-Styles_Bold-Sans-Serif, .Sans-Serif-Character-Styles_Bold-Italic-Sans-Serif, .Serif-Character-Style_Bold-Italic-Serif {
+  font-weight: bold;
+}
+
+.Basic-Text-Frame {
+  clear: both;
+  position: relative;
+  box-shadow: 0 0 5px #979aa4;
+  border: 1px solid #d4d0ce;
+  background: #ffffff66;
+  padding: 10px;
+  margin: 10px 0 10px 0;
+}
+
+.Stat-Block-Styles_Stat-Block-Title {
+  font-size: 18px !important;
+  font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
+  line-height: 1.4 !important;
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+}
+
+.Stat-Block-Styles_Stat-Block-Metadata {
+  font-style: italic;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  margin-bottom: 8px !important;
+}
+
+.Stat-Block-Styles_Stat-Block-Data,
+.Stat-Block-Styles_Stat-Block-Data-Last,
+.Stat-Block-Styles_Stat-Block-Body,
+.Stat-Block-Styles_Stat-Block-Hanging,
+.Stat-Block-Styles_Stat-Block-Hanging-Last,
+.Stat-Block-Styles_Stat-Block-Body-Last--apply-before-heading- {
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  margin-bottom: 10px !important;
+}
+
+.stat-block-ability-scores {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  border-top: 2px solid #bc0f0f;
+  border-bottom: 2px solid #bc0f0f;
+  margin: 10px 0;
+}
+
+.stat-block-ability-scores-stat {
+  width: 33.33333%;
+  padding: 10px 5px;
+  text-align: center;
+}
+
+.stat-block-ability-scores-stat {
+  width: 16.66667%;
+}
+
+.stat-block-ability-scores-heading {
+  font-weight: bold;
+}
+
+.stat-block-ability-scores-modifier {
+  margin-left: 5px;
+}
+
+.Stat-Block-Styles_Stat-Block-Heading,
+.Stat-Block-Styles_Stat-Block-Heading--after-last-bar- {
+  font-size: 16px !important;
+  font-weight: bold;
+  font-family: "Roboto Condensed", Roboto, Helvetica, sans-serif;
 }

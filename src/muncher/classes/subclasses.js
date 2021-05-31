@@ -107,24 +107,24 @@ export async function getSubClasses(data) {
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
   const compendiumLabel = getCompendiumLabel("features");
-  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
+  const compendium = await game.packs.get(compendiumLabel);
   const index = await compendium.getIndex();
   const firstPassFeatures = await index.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
 
   let compendiumClassFeatures = [];
 
   await Promise.allSettled(firstPassFeatures.map(async (f) => {
-    const feature = await compendium.getEntry(f._id);
-    compendiumClassFeatures.push(feature);
+    const feature = await compendium.getDocument(f._id);
+    compendiumClassFeatures.push(feature.toJSON());
   }));
 
   // get base class
   const classCompendiumLabel = getCompendiumLabel("class");
-  const classCompendium = await game.packs.find((pack) => pack.collection === classCompendiumLabel);
+  const classCompendium = await game.packs.get(classCompendiumLabel);
   // const classIndex = await classCompendium.getIndex();
-  const content = await classCompendium.getContent();
+  const content = await classCompendium.getDocuments();
 
-  await Promise.allSettled(data.map(async (subClass) => {
+  await Promise.all(data.map(async (subClass) => {
     const classMatch = content.find((i) => i.data.flags.ddbimporter['id'] == subClass.parentClassId);
     const builtClass = await buildSubClass(classMatch.data, subClass, compendiumClassFeatures, compendiumLabel);
     subClasses.push(builtClass);

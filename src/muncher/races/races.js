@@ -134,7 +134,7 @@ export async function getRaces(data) {
   await updateCompendium("traits", { traits: fiddledRacialFeatures }, updateBool);
 
   const compendiumLabel = getCompendiumLabel("traits");
-  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
+  const compendium = await game.packs.get(compendiumLabel);
   const index = await compendium.getIndex();
   const firstPassTraits = await index.filter((i) => fiddledRacialFeatures.some((orig) => i.name === orig.name));
   let compendiumRacialTraits = [];

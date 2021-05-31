@@ -30,6 +30,7 @@ const compendiumLookup = [
   { type: "spell", name: "entity-spell-compendium" },
   { type: "equipment", name: "entity-item-compendium" },
   { type: "monsterfeatures", name: "entity-feature-compendium" },
+  { type: "custom", name: "entity-override-compendium" },
 ];
 
 const srdCompendiumLookup = [
@@ -64,7 +65,7 @@ async function loadSRDPacks(compendiumName) {
   if (!srdPack) {
     logger.error(`Failed to load SRDPack ${compendiumName}`);
   } else {
-    srdPacks[compendiumName] = await srdPack.getContent().then((data) => data.map((i) => i.data));
+    srdPacks[compendiumName] = await srdPack.getDocuments().then((data) => data.map((i) => i.data));
     // eslint-disable-next-line require-atomic-updates
     srdPacksLoaded[compendiumName] = true;
   }
@@ -295,27 +296,27 @@ async function getFilteredItems(compendium, item, index, matchFlags) {
   const indexEntries = index.filter((idx) => idx.name === item.name);
 
   const mapped = await Promise.all(indexEntries.map((idx) => {
-    const entry = compendium.getEntity(idx._id);
+    const entry = compendium.getDocument(idx._id).then((doc) => doc);
     return entry;
   }));
 
   const flagFiltered = mapped.filter((idx) => {
     const nameMatch = idx.name === item.name;
-    const flagMatched = flagMatch(idx, item, matchFlags);
+    const flagMatched = flagMatch(idx.data, item, matchFlags);
     return nameMatch && flagMatched;
   });
 
   return flagFiltered;
 }
 
-async function getFlaggedItems(compendium, items, index, matchFlags) {
-  let results = [];
-  items.forEach((item) => {
-    const flagged = getFilteredItems(compendium, item, index, matchFlags);
-    results.push(flagged);
-  });
-  return Promise.all(results);
-}
+// async function getFlaggedItems(compendium, items, index, matchFlags) {
+//   let results = [];
+//   items.forEach((item) => {
+//     const flagged = getFilteredItems(compendium, item, index, matchFlags);
+//     results.push(flagged);
+//   });
+//   return Promise.all(results);
+// }
 
 async function updateCompendiumItems(compendium, compendiumItems, index, matchFlags) {
   let promises = [];
@@ -324,11 +325,10 @@ async function updateCompendiumItems(compendium, compendiumItems, index, matchFl
     // we have a match, update first match
     if (existingItems.length >= 1) {
       const existing = existingItems[0];
-      // eslint-disable-next-line require-atomic-updates
-      item._id = existing._id;
+      delete item._id;
       munchNote(`Updating ${item.name}`);
-      await copySupportedItemFlags(existing, item);
-      promises.push(compendium.updateEntity(item));
+      await copySupportedItemFlags(existing, item.data);
+      promises.push(existing.update(item));
     }
   });
   return Promise.all(promises);
@@ -345,65 +345,40 @@ async function createCompendiumItems(compendium, compendiumItems, index, matchFl
         displaySheet: false,
       });
       munchNote(`Creating ${item.name}`);
-      promises.push(compendium.importEntity(newItem));
+      promises.push(compendium.importDocument(newItem));
     }
   });
   return Promise.all(promises);
 }
 
-export async function updateCompendium(type, input, update = null, matchFlags = []) {
-  let importPolicy = game.settings.get("ddb-importer", "entity-import-policy");
-  if (update !== null) {
-    if (update == true) {
-      importPolicy = 0;
-    } else {
-      importPolicy = 1;
-    }
-  }
+export async function updateCompendium(type, input, updateExisting = false, matchFlags = []) {
   const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
   const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
-  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
-  compendium.locked = false;
+  const compendium = await game.packs.get(compendiumLabel);
+  compendium.configure({ locked: false });
 
-  if (game.user.isGM && importPolicy !== 2) {
+  if (game.user.isGM) {
     const initialIndex = await compendium.getIndex();
     // remove duplicate items based on name and type
     const compendiumItems = [...new Map(input[type].map((item) => [item["name"] + item["type"], item])).values()];
 
+    let updateResults = [];
     // update existing items
-    if (importPolicy === 0) {
-      await updateCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
+    if (updateExisting) {
+      updateResults = await updateCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
     }
 
     // create new items
-    await createCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
+    const createResults = await createCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
 
-    const updatedIndex = await compendium.getIndex();
-    const updateItems = getFlaggedItems(compendium, compendiumItems, updatedIndex, matchFlags);
-
-
-    // lets generate our compendium info like id, pack and img for use
-    // by things like magicitems
-    const items = updateItems.then((entries) => {
-      const results = entries.flat().map((result) => {
-        return {
-          _id: result._id,
-          pack: compendium.collection,
-          img: result.img,
-          name: result.name,
-        };
-      });
-      return results;
-    });
-
-    return items;
+    return createResults.concat(updateResults);
   }
   return [];
 }
 
 
 export async function getImagePath(imageUrl, type = "ddb", name = "", download = false, remoteImages = false) {
-  const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+  const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
   const downloadImage = (download) ? download : game.settings.get("ddb-importer", "munching-policy-download-images");
   const remoteImage = (remoteImages) ? remoteImages : game.settings.get("ddb-importer", "munching-policy-remote-images");
 
@@ -851,7 +826,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   if (!compendiumLabel) {
     compendiumLabel = getCompendiumLabel(type);
   }
-  const compendium = await game.packs.find((pack) => pack.collection === compendiumLabel);
+  const compendium = await game.packs.get(compendiumLabel);
   if (!compendium) return [];
   const index = await compendium.getIndex();
   const firstPassItems = await index.filter((i) =>
@@ -880,7 +855,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
 
   let loadedItems = [];
   for (const i of firstPassItems) {
-    let item = await compendium.getEntry(i._id); // eslint-disable-line no-await-in-loop
+    let item = await compendium.getDocument(i.id).then((doc) => doc.data); // eslint-disable-line no-await-in-loop
     if (item.flags.ddbimporter) {
       item.flags.ddbimporter["pack"] = compendiumLabel;
     } else {
@@ -898,7 +873,6 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
 }
 
 export async function getSRDCompendiumItems(items, type, looseMatch = false, keepId = false) {
-  // console.error(game.packs.keys());
   const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
   if (!srdPacksLoaded[compendiumName]) await loadSRDPacks(compendiumName);
   const compendiumItems = srdPacks[compendiumName];
@@ -921,6 +895,8 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
     } else {
       i.flags.ddbimporter = { pack: compendiumName };
     }
+    // delete i._id;
+    // delete i.id;
     return i;
   });
   logger.debug(`SRD ${type} loaded items:`, loadedItems);
@@ -1071,18 +1047,19 @@ export async function srdFiddling(items, type) {
   const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
 
   if (useSrd && type == "monsters") {
-    const srdItems = await getSRDCompendiumItems(items, type);
+    const rawSrdItems = await getSRDCompendiumItems(items, type);
+    const srdItems = rawSrdItems.map((i) => i.toJSON());
     // removed existing items from those to be imported
     logger.debug("Removing compendium items");
     const lessSrdItems = await removeItems(items, srdItems);
     const newIcons = lessSrdItems.concat(srdItems);
-    const iconItems = await updateIcons(newIcons);
-    return iconItems;
+    const iconedItems = await updateIcons(newIcons);
+    return iconedItems;
   } else if (useSrd) {
     logger.debug("Removing compendium items");
     const srdItems = await getSRDCompendiumItems(items, type);
     let itemMap = {};
-    itemMap[type] = srdItems;
+    itemMap[type] = srdItems.map((i) => i.toJSON());
     logger.debug("Adding SRD compendium items");
     updateCompendium(type, itemMap, updateBool);
     // removed existing items from those to be imported

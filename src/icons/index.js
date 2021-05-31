@@ -141,7 +141,9 @@ export async function copyInbuiltIcons(items, monster = false, monsterName = "")
         }
       }
       const pathMatched = getIconPath(item, item.type);
-      if (pathMatched) item.img = pathMatched;
+      if (pathMatched) {
+        item.img = pathMatched;
+      }
       return item;
     });
     resolve(iconItems);

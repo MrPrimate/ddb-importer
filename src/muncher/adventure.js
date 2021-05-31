@@ -38,17 +38,18 @@ function getVehicleData() {
 async function getMonsterMap () {
   // ddb://monsters
   const monsterCompendiumLabel = await game.settings.get("ddb-importer", "entity-monster-compendium");
-  const monsterCompendium = await game.packs.find((pack) => pack.collection === monsterCompendiumLabel);
+  const monsterCompendium = await game.packs.get(monsterCompendiumLabel);
   const monsterIndex = await monsterCompendium.getIndex();
 
   const results = monsterIndex.map(async (i) => {
-    const monster = await monsterCompendium.getEntry(i._id);
+    const monster = await monsterCompendium.getDocument(i._id);
     return {
-      id: monster.flags.ddbimporter?.id,
-      _id: monster._id,
+      id: monster.data.flags.ddbimporter?.id,
+      _id: monster.id,
       compendium: monsterCompendiumLabel,
       name: monster.name,
-      token: monster.token,
+      token: monster.data.token,
+      documentName: monster.name,
     };
   });
 
@@ -63,12 +64,13 @@ async function getSpellMap() {
   const spellIndex = await spellCompendium.getIndex();
 
   const results = spellIndex.map(async (i) => {
-    const spell = await spellCompendium.getEntry(i._id);
+    const spell = await spellCompendium.getDocument(i._id);
     return {
-      id: spell.flags.ddbimporter?.definitionId,
-      _id: spell._id,
+      id: spell.data.flags.ddbimporter?.definitionId,
+      _id: spell.id,
       compendium: spellCompendiumLabel,
       name: spell.name,
+      documentName: spell.name,
     };
   });
 
@@ -82,12 +84,13 @@ async function getItemMap() {
   const itemIndex = await itemCompendium.getIndex();
 
   const results = itemIndex.map(async (i) => {
-    const item = await itemCompendium.getEntry(i._id);
+    const item = await itemCompendium.getDocument(i._id);
     return {
-      id: item.flags.ddbimporter?.definitionId,
-      _id: item._id,
+      id: item.data.flags.ddbimporter?.definitionId,
+      _id: item.id,
       compendium: itemCompendiumLabel,
       name: item.name,
+      documentName: item.name,
     };
   });
 
@@ -120,16 +123,17 @@ export async function generateAdventureConfig() {
   result.lookups.items = await getItemMap();
 
   const rulesCompendium = "dnd5e.rules";
-  const srdCompendium = await game.packs.find((pack) => pack.collection === rulesCompendium);
+  const srdCompendium = await game.packs.get(rulesCompendium);
   const srdIndex = await srdCompendium.getIndex();
 
   const skillEntry = srdIndex.find((i) => i.name === "Using Each Ability");
   result.lookups.skills = DDB_CONFIG.abilitySkills.map((skill) => {
     return {
       id: skill.id,
-      _id: skillEntry._id,
+      _id: skillEntry.id,
       name: skill.name,
       compendium: rulesCompendium,
+      documentName: skillEntry.name,
     };
   });
   result.lookups.senses = DDB_CONFIG.senses.filter((sense) => srdIndex.some((i) => i.name === sense.name))
@@ -137,21 +141,23 @@ export async function generateAdventureConfig() {
       const entry = srdIndex.find((i) => i.name === sense.name);
       return {
         id: sense.id,
-        _id: entry._id,
+        _id: entry.id,
         name: sense.name,
         compendium: rulesCompendium,
+        documentName: entry.name,
       };
     });
 
-  result.lookups.conditions = DDB_CONFIG.conditions.filter((condition) => srdIndex.some((i) => i.name === condition.definition.name))
+  result.lookups.conditions = DDB_CONFIG.conditions.filter((condition) => srdIndex.some((i) => i.name.trim() === condition.definition.name.trim()))
     .map((condition) => {
-      const entry = srdIndex.find((i) => i.name === condition.definition.name);
+      const entry = srdIndex.find((i) => i.name.trim() === condition.definition.name.trim());
       return {
         id: condition.definition.id,
-        _id: entry._id,
+        _id: entry.id,
         name: condition.definition.name,
         compendium: rulesCompendium,
         slug: condition.definition.slug,
+        documentName: entry.name,
       };
     });
 
@@ -159,9 +165,10 @@ export async function generateAdventureConfig() {
   result.lookups.actions = DDB_CONFIG.basicActions.map((action) => {
     return {
       id: action.id,
-      _id: actionEntry._id,
+      _id: actionEntry.id,
       name: action.name,
       compendium: rulesCompendium,
+      documentName: actionEntry.name,
     };
   });
 
@@ -169,9 +176,10 @@ export async function generateAdventureConfig() {
   result.lookups.weaponproperties = DDB_CONFIG.weaponProperties.map((prop) => {
     return {
       id: prop.id,
-      _id: weaponPropertiesEntry._id,
+      _id: weaponPropertiesEntry.id,
       name: prop.name,
       compendium: rulesCompendium,
+      documentName: weaponPropertiesEntry.name,
     };
   });
 

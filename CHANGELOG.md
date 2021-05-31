@@ -1,3 +1,20 @@
+# 2.1.0
+
+* Foundry 0.8.5. support
+* Integrated adventure importer tool into muncher pane.
+* If tokens are present in your adventure import scene, adventure muncher will attempt to import and link them.
+* You can now specify an Override compendium to import character items/spells/features from.
+* New only option has been removed.
+* The munch button is now at the top of the page (option to put at bottom in settings).
+* PC images can now be uploaded to separate folders to other images.
+* Image upload directory is now set and created to a sensible default.
+* Adventure Importer Journals with tables now offer a Roll on Table button.
+* Heat Metal spell parsed as a spell attack.
+* Option to add damage restrictions to damage hint tag.
+* Bardic Inspiration is now a Utility action to help when using automation.
+* You can now use a button to connect to Patreon to verify your patreon tier rather than entering a key.
+* DAE AC effects on Armor is now a separate option.
+
 # 1.0.9
 
 * Barrier Tattoos did not appear in AC calculations when not using active effects.

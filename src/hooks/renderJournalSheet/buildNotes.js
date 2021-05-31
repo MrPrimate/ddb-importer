@@ -32,26 +32,31 @@ function buildNotes(html, data) {
           const tagName = $(element).prop("tagName");
           const showStartButton = $(this).append(getButton("start", tagName));
           const showEndButton = $(this).append(getButton("end", tagName));
-          $(showStartButton).click(() => {
+          $(showStartButton).click((e) => {
             // const src = $(element).attr("src");
-            clippy = {
-              ddbId: data.entity.flags.ddb.ddbId,
-              cobaltId: data.entity.flags.ddb.cobaltId,
-              parentId: data.entity.flags.ddb.parentId,
-              splitTag: tagName.toLowerCase(),
-              slug: data.entity.flags.ddb.slug,
-              tagIdFirst: $(element).prop("id"),
-              contentChunkIdStart: $(element).attr("data-content-chunk-id"),
-              tagIdLast: "",
-              contentChunkIdStop: "EOF",
-              sceneName: data.entity.name,
-            };
-            copyToClipboard(JSON.stringify(clippy, null, 2));
+            // In 0.8.x for some reason I need to now wrap these in the target id check?
+            if (e.target.id === "ddb-note-start") {
+              clippy = {
+                ddbId: data.data.flags.ddb.ddbId,
+                cobaltId: data.data.flags.ddb.cobaltId,
+                parentId: data.data.flags.ddb.parentId,
+                splitTag: tagName.toLowerCase(),
+                slug: data.data.flags.ddb.slug,
+                tagIdFirst: $(element).prop("id"),
+                contentChunkIdStart: $(element).attr("data-content-chunk-id"),
+                tagIdLast: "",
+                contentChunkIdStop: "EOF",
+                sceneName: data.data.name,
+              };
+              copyToClipboard(JSON.stringify(clippy, null, 2));
+            }
           });
-          $(showEndButton).click(() => {
-            clippy.tagIdLast = $(element).prop("id");
-            clippy.contentChunkIdStop = $(element).attr("data-content-chunk-id");
-            copyToClipboard(JSON.stringify(clippy, null, 2));
+          $(showEndButton).click((e) => {
+            if (e.target.id === "ddb-note-end") {
+              clippy.tagIdLast = $(element).prop("id");
+              clippy.contentChunkIdStop = $(element).attr("data-content-chunk-id");
+              copyToClipboard(JSON.stringify(clippy, null, 2));
+            }
           });
         });
       $(element)

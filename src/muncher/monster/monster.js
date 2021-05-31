@@ -1,5 +1,5 @@
 
-import { getTextSenses, getTokenSenses, getSenses } from "./senses.js";
+import { getTokenSenses, getSenses } from "./senses.js";
 import {
   getDamageImmunities,
   getDamageResistances,
@@ -19,6 +19,7 @@ import { getLegendaryActions } from "./legendary.js";
 import { getActions } from "./actions.js";
 import { getSpecialTraits } from "./specialtraits.js";
 import { getSpells } from "./spells.js";
+import { getType } from "./type.js";
 
 import { DDB_CONFIG } from "../../ddb-config.js";
 import { MONSTER_TEMPLATE } from "./templates/monster.js";
@@ -73,7 +74,6 @@ export function parseMonsters(monsterData, extra = false) {
 
       // Senses
       foundryActor.data.attributes.senses = getSenses(monster, DDB_CONFIG);
-      foundryActor.data.traits.senses = getTextSenses(monster);
       foundryActor.token = getTokenSenses(foundryActor.token, monster, DDB_CONFIG);
       foundryActor.token.vision = setVision;
 
@@ -95,7 +95,6 @@ export function parseMonsters(monsterData, extra = false) {
       // attributes
       foundryActor.data.attributes.hp = getHitPoints(monster, removedHitPoints, temporaryHitPoints);
       const movement = getSpeed(monster, DDB_CONFIG);
-      foundryActor.data.attributes.speed = movement['speed'];
       foundryActor.data.attributes.movement = movement['movement'];
 
       foundryActor.data.attributes.prof = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
@@ -105,7 +104,7 @@ export function parseMonsters(monsterData, extra = false) {
 
       // details
       const cr = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId);
-      foundryActor.data.details.type = DDB_CONFIG.monsterTypes.find((c) => monster.typeId == c.id).name;
+      foundryActor.data.details.type = getType(monster, DDB_CONFIG);
       const alignment = DDB_CONFIG.alignments.find((c) => monster.alignmentId == c.id);
       foundryActor.data.details.alignment = alignment ? alignment.name : "";
       foundryActor.data.details.cr = cr.value;

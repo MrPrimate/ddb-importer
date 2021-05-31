@@ -26,3 +26,32 @@ button.monster-muncher {
   flex: 0 1 100%;
   font-size: 0.9rem;
 }
+
+button.spell-muncher {
+  flex-shrink: 1 !important;
+  flex: unset !important;
+  margin: 5px 4px 0px 3px !important;
+  clear: both;
+}
+
+.spell-muncher .form-group {
+  margin: 10px
+}
+
+.spell-muncher div.form-section {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.spell-muncher div.form-caption {
+  flex: 0 1 15%;
+  font-family: "Roboto Condensed";
+}
+.spell-muncher div.form-content {
+  flex: 0 1 85%;
+}
+.spell-muncher div.form-description {
+  flex: 0 1 100%;
+  font-size: 0.9rem;
+}
