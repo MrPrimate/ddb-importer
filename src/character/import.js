@@ -535,17 +535,7 @@ export default class CharacterImport extends FormApplication {
       },
     ];
 
-    const updateReady = (((this.actorOriginal || {}).flags || {}).ddbimporter || {}).inPlaceUpdateAvailable;
-
     const advancedImportConfig = [
-      {
-        name: "inplace",
-        isChecked: updateReady && game.settings.get("ddb-importer", "character-update-policy-inplace"),
-        title: "Update Existing Items",
-        description:
-          "<i>Recommended</i>. Update existing items, rather than deleting and recreating new ones. This will retaining hotbar links for modules like Better Rolls. Matched items won't be replaced by compendium items, to retain a custom item on the sheet mark that item as ignored by ddb-importer in it's settings. If it is greyed out it's not yet available with your existing character data and will be available after your next import.",
-        enabled: updateReady,
-      },
       {
         name: "use-override",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-use-override"),
@@ -1257,13 +1247,19 @@ export default class CharacterImport extends FormApplication {
     return Promise.all(items);
   }
 
-  async importCharacterItems(html, items) {
+  async importCharacterItems(html, items, keepIds = false) {
     if (items.length > 0) {
-      items = await this.enrichCharacterItems(html, items);
       CharacterImport.showCurrentTask(html, "Adding items to character");
-      logger.debug("Adding the following items:", items);
-      const options = DISABLE_FOUNDRY_UPGRADE;
-      // DISABLE_FOUNDRY_UPGRADE["keepId"] = true;
+      const options = JSON.parse(JSON.stringify(DISABLE_FOUNDRY_UPGRADE));
+      if (keepIds) options["keepId"] = true;
+      // some items come with a null in _id
+      items = items.map((i) => {
+        if (i._id === null) delete i._id;
+        return i;
+      });
+      console.warn(JSON.parse(JSON.stringify(items)));
+      console.log(options);
+      logger.debug(`Adding the following items, keep Ids? ${keepIds}`, items);
       await this.actor.createEmbeddedDocuments("Item", items, options);
       // for (const item of items) {
       //   logger.debug(`Creating ${item.name}`);
@@ -1274,7 +1270,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   // returns items not updated
-  async updateExistingIdMatchedItems(html, items) {
+  async mergeExistingItems(html, items) {
     if (this.actorOriginal.flags.ddbimporter && this.actorOriginal.flags.ddbimporter.inPlaceUpdateAvailable) {
       const ownedItems = this.actor.getEmbeddedCollection("Item");
 
@@ -1293,24 +1289,6 @@ export default class CharacterImport extends FormApplication {
             item["_id"] = matchedItem["id"];
             if (matchedItem.data.flags.ddbimporter?.ignoreIcon) item.flags.ddbimporter.matchedImg = matchedItem.data.img;
             if (matchedItem.data.flags.ddbimporter?.retainResourceConsumption) item.data.consume = matchedItem.data.data.consume;
-            // update effect ids
-            if (matchedItem.data.toObject().effects?.length > 0 && item.effects?.length === 0) {
-              item.effects = [];
-            } else if (item.effects?.length >= 0) {
-              item.effects = item.effects.map((ae) => {
-                const matchedEffect = matchedItem.effects.find(
-                  (me) =>
-                    me.data.flags?.ddbimporter?.itemId &&
-                    ae.flags?.ddbimporter?.itemId &&
-                    me.data.flags.ddbimporter.itemId === ae.flags.ddbimporter.itemId
-                );
-                if (matchedEffect) {
-                  ae.origin = matchedEffect.data.origin;
-                  ae._id = matchedEffect.id;
-                }
-                return ae;
-              });
-            }
 
             matchedItems.push(item);
           }
@@ -1328,25 +1306,6 @@ export default class CharacterImport extends FormApplication {
         return item;
       });
 
-      const addEffects =
-        game.settings.get("ddb-importer", "character-update-policy-add-item-effects") ||
-        game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
-
-      // there is some kind of race condition when updating more than a
-      // couple of items with AE on them, so need to add individually
-      logger.debug("Updating items:", enrichedItems);
-      if (addEffects) {
-        logger.debug("Single item update");
-        for (const item of enrichedItems) {
-          logger.debug(`Updating ${item.name}`);
-          // eslint-disable-next-line no-await-in-loop
-          await this.actor.updateEmbeddedDocuments("Item", [item], DISABLE_FOUNDRY_UPGRADE);
-        }
-      } else {
-        logger.debug("Bulk update");
-        await this.actor.updateEmbeddedDocuments("Item", enrichedItems, DISABLE_FOUNDRY_UPGRADE);
-      }
-
       logger.debug("Finished updating items");
       return [nonMatchedItems, enrichedItems];
     } else {
@@ -1360,7 +1319,6 @@ export default class CharacterImport extends FormApplication {
     // items for actor
     let items = [];
     // attempt to update existing items
-    const updateExistingItems = game.settings.get("ddb-importer", "character-update-policy-inplace");
     const updateReady = this.actorOriginal?.flags?.ddbimporter?.inPlaceUpdateAvailable;
 
     // store all spells in the folder specific for Dynamic Items
@@ -1369,24 +1327,21 @@ export default class CharacterImport extends FormApplication {
       await addMagicItemSpells(this.result);
     }
 
-    if (updateExistingItems && updateReady) {
+    if (updateReady) {
       logger.debug("Loading items for update");
       items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
       CharacterImport.showCurrentTask(html, "Attempting existing item update");
-      let [newItems, updatedItems] = await this.updateExistingIdMatchedItems(html, items);
+      let [newItems, updatedItems] = await this.mergeExistingItems(html, items);
       items = newItems;
       CharacterImport.showCurrentTask(html, "Clearing remaining items for re-creation");
       logger.debug("Removing updated items from update list...");
-      await this.clearItemsByUserSelection(updatedItems);
+      await this.clearItemsByUserSelection();
       logger.debug("Items remaining for creation:", newItems);
+      await this.importCharacterItems(html, updatedItems, true);
     } else {
       logger.debug("Determining items to recreate...");
       CharacterImport.showCurrentTask(html, "Clearing items");
       await this.clearItemsByUserSelection();
-    }
-
-    if (!updateExistingItems || !updateReady) {
-      logger.debug("Non-update item load");
       items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
     }
 
@@ -1452,6 +1407,7 @@ export default class CharacterImport extends FormApplication {
     // import remaining items to character
     if (items.length > 0) {
       logger.debug(`Importing new items`, items);
+      items = await this.enrichCharacterItems(html, items);
       await this.importCharacterItems(html, items);
     }
 
@@ -1587,6 +1543,7 @@ export default class CharacterImport extends FormApplication {
 
     // console.warn(JSON.parse(JSON.stringify(this.actor)));
     // console.warn(JSON.parse(JSON.stringify(this.result.character)));
+    // console.warn(JSON.parse(JSON.stringify(this.result)));
 
     // update image
     await this.updateImage(html, data.ddb);

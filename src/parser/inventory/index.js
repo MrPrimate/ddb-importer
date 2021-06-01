@@ -427,23 +427,25 @@ export default function getInventory(ddb, character, itemSpells) {
     var item = Object.assign({}, parseItem(ddb, ddbItem, character, flags));
     addCustomValues(ddbItem, item, character);
     enrichFlags(ddbItem, item);
+
+    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const compendiumItem = character.flags.ddbimporter.compendium;
+    const addEffects = (compendiumItem)
+      ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+      : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+    const generateArmorACEffect = (compendiumItem)
+      ? game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects")
+      : game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
+
     if (item) {
       item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       if (!item.effects) item.effects = [];
-      const daeInstalled = utils.isModuleInstalledAndActive("dae");
-      const compendiumItem = character.flags.ddbimporter.compendium;
-      const addEffects = (compendiumItem)
-        ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-        : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
-      const generateArmorACEffect = (compendiumItem)
-        ? game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects")
-        : game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
+
       if (daeInstalled) {
         if (addEffects) item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
         // if this is a piece of armor and not generating effects don't generate ac
         if (item.type === "equipment" && item.data.armor?.type) {
-
           // eslint-disable-next-line max-depth
           if (generateArmorACEffect) item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
         } else {
