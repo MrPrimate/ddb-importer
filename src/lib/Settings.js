@@ -46,7 +46,12 @@ async function linkToPatreon() {
   const patreonAuthUrl = `${proxy}/patreon/auth`;
   const patreonScopes = encodeURI("identity identity[email]");
 
-  const socket = io(`${proxy}/`, { transports: ['websocket', 'polling', 'flashsocket'] });
+  const socketOptions = {
+    transports: ['websocket', 'polling', 'flashsocket'],
+    // reconnection: false,
+    // reconnectionAttempts: 10,
+  };
+  const socket = io(`${proxy}/`, socketOptions);
 
   socket.on("connect", () => {
     logger.debug("DDB Muncher socketID", socket.id);
@@ -78,10 +83,13 @@ async function linkToPatreon() {
     $('#ddb-patreon-tier').text(data.tier);
     $('#ddb-patreon-valid').text("True");
     $('#ddb-beta-key').val(data.key);
+
+    socket.disconnect();
   });
 
   socket.on('error', (data) => {
     logger.error(`Error Response from socket!`, data);
+    socket.disconnect();
   });
 }
 
