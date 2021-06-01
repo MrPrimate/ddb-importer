@@ -1,3 +1,9 @@
+# 2.1.3
+
+* Bug could cause Patreon authentication window to repeatedly open.
+* S3 bucket support for adventure imports @ayyrickay
+* Rewrite of effect generation and character updates, now working with DAE properly (Note: Replace Items using DAE compendiums is not yet working)
+
 # 2.1.2
 
 * Unarmored defense imported an effect with incorrect formatting resulting in the AC adjustment not being applied.
