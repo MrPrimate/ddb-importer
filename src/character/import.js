@@ -1257,8 +1257,6 @@ export default class CharacterImport extends FormApplication {
         if (i._id === null) delete i._id;
         return i;
       });
-      console.warn(JSON.parse(JSON.stringify(items)));
-      console.log(options);
       logger.debug(`Adding the following items, keep Ids? ${keepIds}`, items);
       await this.actor.createEmbeddedDocuments("Item", items, options);
       // for (const item of items) {
