@@ -1,4 +1,5 @@
 import logger from "../../logger.js";
+import utils from "../../utils.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 
 export default class Helpers {
@@ -22,7 +23,6 @@ export default class Helpers {
         const baseUploadPath = game.settings.get("ddb-importer", "adventure-upload-path");
         const parsedBaseUploadPath = DirectoryPicker.parse(baseUploadPath);
         const uploadPath = `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
-        const filePath = `${uploadPath}/${filename}`;
 
         if (!CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path]) {
           await DirectoryPicker.verifyPath(parsedBaseUploadPath, `${uploadPath}`);
@@ -35,7 +35,11 @@ export default class Helpers {
           logger.debug(`File already imported ${path}`);
         }
 
-        return `${filePath}`;
+        const returnFilePath = `${adventurePath}/${targetPath}/${filename}`;
+        const returnPath = await utils.getFileUrl(baseUploadPath, returnFilePath);
+
+        // console.warn(returnPath);
+        return `${returnPath}`;
       }
     } catch (err) {
       logger.error(`Error importing image file ${path} : ${err.message}`);

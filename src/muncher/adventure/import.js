@@ -33,7 +33,9 @@ export default class AdventureMunch extends FormApplication {
     let files = [];
 
     try {
-      if (Helpers.verifyPath(this._importPathData)) {
+      const parsedDirectory = DirectoryPicker.parse(this._importPathData);
+      const verifiedDirectory = await DirectoryPicker.verifyPath(parsedDirectory);
+      if (verifiedDirectory) {
         const options = { bucket: this._importPathData.bucket, extensions: [".fvttadv", ".FVTTADV", ".zip"], wildcard: false };
         data = await Helpers.BrowseFiles(this._importPathData.activeSource, this._importPathData.current, options);
         files = data.files.map((file) => {
@@ -43,7 +45,7 @@ export default class AdventureMunch extends FormApplication {
         });
       }
     } catch (err) {
-      logger.error(`Unable to verify import path, this may be due to permissions on the server.`);
+      logger.warn(`Unable to verify import path, this may be due to permissions on the server. You may be able to ignore this message.`);
     }
 
     return {
