@@ -270,9 +270,9 @@ function addCustomValues(ddbItem, foundryItem, character) {
   // const offHand = getCustomValue(ddbItem, character, 18);
 
   if (toHitBonus) foundryItem.data.attackBonus += toHitBonus;
-  if (damageBonus && foundryItem.data.damage.parts.length !== 0) {
+  if (damageBonus && foundryItem.data?.damage?.parts && foundryItem.data?.damage?.parts.length !== 0) {
     foundryItem.data.damage.parts[0][0] = foundryItem.data.damage.parts[0][0].concat(` +${damageBonus}`);
-  } else if (damageBonus) {
+  } else if (damageBonus && foundryItem.data?.damage?.parts) {
     const part = [`+${damageBonus}`, ""];
     foundryItem.data.damage.parts.push(part);
   }
