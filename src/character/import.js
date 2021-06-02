@@ -367,7 +367,7 @@ export default class CharacterImport extends FormApplication {
       .filter((item) => !item.data.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item.id);
 
-    console.warn(JSON.parse(JSON.stringify(this.actor)));
+    // console.warn(JSON.parse(JSON.stringify(this.actor)));
     logger.debug("Removing the following character items", toRemove);
     if (toRemove.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toRemove);
     // toRemove.forEach(async (item) => {
