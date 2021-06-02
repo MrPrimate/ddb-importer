@@ -1,6 +1,8 @@
 # 2.1.4
 
 * Compendium loading, especially from Override, did not work well. Further streamling of character import process to take advantage of new methods in 0.8.x.
+* kl and kh active effect modifies had a space that caused a failure.
+* Account for items that have a damage bonus, but provide not weapon stats from DDB.
 
 # 2.1.3
 
