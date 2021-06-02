@@ -313,7 +313,10 @@ export default class CharacterImport extends FormApplication {
             if (item.effects === undefined) item.effects = [];
             if (originalItem.effects) {
               logger.info(`Copying Effects for ${originalItem.name}`);
-              item.effects = originalItem.effects;
+              item.effects = originalItem.effects.map((m) => {
+                delete m._id;
+                return m;
+              });
             }
           }
           return item;
@@ -1252,7 +1255,7 @@ export default class CharacterImport extends FormApplication {
   async createCharacterItems(items, keepIds) {
     const options = JSON.parse(JSON.stringify(DISABLE_FOUNDRY_UPGRADE));
     if (keepIds) options["keepId"] = true;
-    logger.debug(`Adding the following items, keep Ids? ${keepIds}`, items);
+    logger.debug(`Adding the following items, keep Ids? ${keepIds}`, JSON.parse(JSON.stringify(items)));
     await this.actor.createEmbeddedDocuments("Item", items, options);
   }
 
