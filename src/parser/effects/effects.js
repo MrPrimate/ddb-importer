@@ -446,7 +446,7 @@ function addStatBonusEffect(modifiers, name, subType) {
         .reduce((prev, cur) => prev + cur.value, 0);
       const max = match ? match[1] : 20 + abilityScoreMaxBonus;
 
-      const bonusString = `{${max}, @data.abilities.${ability.value}.value + ${bonus.value}} kl`;
+      const bonusString = `{${max}, @data.abilities.${ability.value}.value + ${bonus.value}}kl`;
       effects.push(generateOverrideChange(bonusString, 5, `data.abilities.${ability.value}.value`));
     });
   }
