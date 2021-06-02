@@ -1,3 +1,7 @@
+# 2.1.4
+
+* Compendium loading, especially from Override, did not work well. Further streamling of character import process to take advantage of new methods in 0.8.x.
+
 # 2.1.3
 
 * Bug could cause Patreon authentication window to repeatedly open.

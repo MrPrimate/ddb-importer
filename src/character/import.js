@@ -367,6 +367,8 @@ export default class CharacterImport extends FormApplication {
       .filter((item) => !item.data.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item.id);
 
+    console.warn(JSON.parse(JSON.stringify(this.actor)));
+    logger.debug("Removing the following character items", toRemove);
     if (toRemove.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toRemove);
     // toRemove.forEach(async (item) => {
     //   await this.actor.deleteEmbeddedDocuments("Item", [item]);
@@ -1247,29 +1249,28 @@ export default class CharacterImport extends FormApplication {
     return Promise.all(items);
   }
 
+  async createCharacterItems(items, keepIds) {
+    const options = JSON.parse(JSON.stringify(DISABLE_FOUNDRY_UPGRADE));
+    if (keepIds) options["keepId"] = true;
+    logger.debug(`Adding the following items, keep Ids? ${keepIds}`, items);
+    await this.actor.createEmbeddedDocuments("Item", items, options);
+  }
+
   async importCharacterItems(html, items, keepIds = false) {
     if (items.length > 0) {
       CharacterImport.showCurrentTask(html, "Adding items to character");
-      const options = JSON.parse(JSON.stringify(DISABLE_FOUNDRY_UPGRADE));
-      if (keepIds) options["keepId"] = true;
-      // some items come with a null in _id
-      items = items.map((i) => {
-        if (i._id === null) delete i._id;
-        return i;
-      });
-      logger.debug(`Adding the following items, keep Ids? ${keepIds}`, items);
-      await this.actor.createEmbeddedDocuments("Item", items, options);
-      // for (const item of items) {
-      //   logger.debug(`Creating ${item.name}`);
-      //   // eslint-disable-next-line no-await-in-loop
-      //   await this.actor.createEmbeddedDocuments("Item", [item], options);
-      // }
+
+      const newItems = items.filter((i) => !i._id || i._id === null || i._id === undefined);
+      const updateItems = items.filter((i) => i._id && i._id !== null && i._id !== undefined);
+
+      await this.createCharacterItems(newItems, false);
+      await this.createCharacterItems(updateItems, keepIds);
     }
   }
 
   // returns items not updated
   async mergeExistingItems(html, items) {
-    if (this.actorOriginal.flags.ddbimporter && this.actorOriginal.flags.ddbimporter.inPlaceUpdateAvailable) {
+    if (this.actorOriginal.flags.ddbimporter) {
       const ownedItems = this.actor.getEmbeddedCollection("Item");
 
       let nonMatchedItems = [];
@@ -1305,43 +1306,36 @@ export default class CharacterImport extends FormApplication {
       });
 
       logger.debug("Finished updating items");
-      return [nonMatchedItems, enrichedItems];
+      return nonMatchedItems.concat(enrichedItems);
     } else {
-      return [items, []];
+      return items;
     }
   }
 
   async processCharacterItems(html) {
-    // is magicitems installed
     const magicItemsInstalled = utils.isModuleInstalledAndActive("magicitems");
     // items for actor
     let items = [];
-    // attempt to update existing items
-    const updateReady = this.actorOriginal?.flags?.ddbimporter?.inPlaceUpdateAvailable;
 
-    // store all spells in the folder specific for Dynamic Items
+    // process spells for magic items
     if (magicItemsInstalled && this.result.itemSpells && Array.isArray(this.result.itemSpells)) {
       CharacterImport.showCurrentTask(html, "Preparing magicitem spells");
       await addMagicItemSpells(this.result);
     }
 
-    if (updateReady) {
-      logger.debug("Loading items for update");
-      items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
-      CharacterImport.showCurrentTask(html, "Attempting existing item update");
-      let [newItems, updatedItems] = await this.mergeExistingItems(html, items);
-      items = newItems;
-      CharacterImport.showCurrentTask(html, "Clearing remaining items for re-creation");
-      logger.debug("Removing updated items from update list...");
-      await this.clearItemsByUserSelection();
-      logger.debug("Items remaining for creation:", newItems);
-      await this.importCharacterItems(html, updatedItems, true);
-    } else {
-      logger.debug("Determining items to recreate...");
-      CharacterImport.showCurrentTask(html, "Clearing items");
-      await this.clearItemsByUserSelection();
-      items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
-    }
+    logger.debug("Calculating items to create and update...");
+    CharacterImport.showCurrentTask(html, "Calculating items to create and update...");
+    items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
+
+    logger.debug("Checking existing items for details...");
+    CharacterImport.showCurrentTask(html, "Checking existing items for details...");
+
+    items = await this.mergeExistingItems(html, items);
+
+    logger.debug("Removing found items...");
+    CharacterImport.showCurrentTask(html, "Clearing items for recreation...");
+    await this.clearItemsByUserSelection();
+
 
     // If there is no magicitems module fall back to importing the magic
     // item spells as normal spells fo the character
@@ -1370,7 +1364,7 @@ export default class CharacterImport extends FormApplication {
       logger.info("Removing matching Override compendium items");
       const compendiumOverrideItems = await getCompendiumItems(items, "custom");
       overrideCompendiumItems = compendiumOverrideItems;
-      // removed existing items from those to be imported
+      // remove existing items from those to be imported
       items = await CharacterImport.removeItems(items, overrideCompendiumItems);
     }
     /**
@@ -1387,7 +1381,7 @@ export default class CharacterImport extends FormApplication {
         compendiumSpellItems,
         compendiumFeatureItems
       );
-      // removed existing items from those to be imported
+      // remove existing items from those to be imported
       items = await CharacterImport.removeItems(items, srdCompendiumItems);
     }
 
@@ -1398,33 +1392,34 @@ export default class CharacterImport extends FormApplication {
       const compendiumSpellItems = await getCompendiumItems(items, "spells");
 
       compendiumItems = compendiumItems.concat(compendiumInventoryItems, compendiumSpellItems, compendiumFeatureItems);
-      // removed existing items from those to be imported
+      // remove existing items from those to be imported
       items = await CharacterImport.removeItems(items, compendiumItems);
     }
 
     // import remaining items to character
     if (items.length > 0) {
-      logger.debug(`Importing new items`, items);
+      CharacterImport.showCurrentTask(html, "Adding DDB generated items");
+      logger.debug(`Adding DDB generated items...`, items);
       items = await this.enrichCharacterItems(html, items);
-      await this.importCharacterItems(html, items);
+      await this.importCharacterItems(html, items, true);
     }
 
     // now import any compendium items that we matched
     if (useExistingCompendiumItems) {
-      CharacterImport.showCurrentTask(html, "Importing DDB compendium items");
-      logger.info("Importing compendium items:", compendiumItems);
+      CharacterImport.showCurrentTask(html, "Adding DDB compendium items");
+      logger.info("Adding DDB compendium items:", compendiumItems);
       await this.actor.createEmbeddedDocuments("Item", compendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
 
     if (useSRDCompendiumItems) {
-      CharacterImport.showCurrentTask(html, "Importing SRD compendium items");
-      logger.info("Importing SRD compendium items:", srdCompendiumItems);
+      CharacterImport.showCurrentTask(html, "Adding SRD compendium items");
+      logger.info("Adding SRD compendium items:", srdCompendiumItems);
       await this.actor.createEmbeddedDocuments("Item", srdCompendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
 
     if (useOverrideCompendiumItems) {
-      CharacterImport.showCurrentTask(html, "Importing Override compendium items");
-      logger.info("Importing Override compendium items:", overrideCompendiumItems);
+      CharacterImport.showCurrentTask(html, "Adding Override compendium items");
+      logger.info("Adding Override compendium items:", overrideCompendiumItems);
       await this.actor.createEmbeddedDocuments("Item", overrideCompendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
 
@@ -1560,7 +1555,6 @@ export default class CharacterImport extends FormApplication {
     }
 
     // flag as having items ids
-    this.result.character.flags.ddbimporter["inPlaceUpdateAvailable"] = true;
     this.result.character.flags.ddbimporter["syncItemReady"] = true;
     this.result.character.flags.ddbimporter["syncActionReady"] = true;
 

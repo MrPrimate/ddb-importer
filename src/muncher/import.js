@@ -21,6 +21,7 @@ const compendiumLookup = [
   { type: "race", compendium: "entity-race-compendium" },
   { type: "npc", compendium: "entity-monster-compendium" },
   { type: "monsters", compendium: "entity-monster-compendium" },
+  { type: "custom", compendium: "entity-override-compendium" },
   { type: "feat", name: "entity-feature-compendium" },
   { type: "weapon", name: "entity-item-compendium" },
   { type: "consumable", name: "entity-item-compendium" },
@@ -30,7 +31,6 @@ const compendiumLookup = [
   { type: "spell", name: "entity-spell-compendium" },
   { type: "equipment", name: "entity-item-compendium" },
   { type: "monsterfeatures", name: "entity-feature-compendium" },
-  { type: "custom", name: "entity-override-compendium" },
 ];
 
 const srdCompendiumLookup = [
@@ -855,7 +855,12 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
 
   let loadedItems = [];
   for (const i of firstPassItems) {
-    let item = await compendium.getDocument(i._id).then((doc) => doc.data); // eslint-disable-line no-await-in-loop
+    // eslint-disable-next-line no-await-in-loop
+    let item = await compendium.getDocument(i._id).then((doc) => {
+      const docData = doc.toObject();
+      delete docData._id;
+      return docData;
+    });
     if (item.flags.ddbimporter) {
       item.flags.ddbimporter["pack"] = compendiumLabel;
     } else {
