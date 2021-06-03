@@ -13,7 +13,7 @@ async function buildSubClassBase(klass, subClass) {
   let portraitAvatarUrl;
 
   if (subClass.portraitAvatarUrl) {
-    portraitAvatarUrl = await getImagePath(subClass.portraitAvatarUrl, "class-portrait", subClass.fullName, true);
+    portraitAvatarUrl = await getImagePath(subClass.portraitAvatarUrl, "class-portrait", subClass.fullName);
     // eslint-disable-next-line require-atomic-updates
     klass.img = portraitAvatarUrl;
     // eslint-disable-next-line require-atomic-updates
@@ -21,7 +21,7 @@ async function buildSubClassBase(klass, subClass) {
   }
 
   if (subClass.avatarUrl) {
-    avatarUrl = await getImagePath(subClass.avatarUrl, "class-avatar", subClass.fullName, true);
+    avatarUrl = await getImagePath(subClass.avatarUrl, "class-avatar", subClass.fullName);
     // eslint-disable-next-line require-atomic-updates
     klass.flags.ddbimporter['avatarUrl'] = subClass.avatarUrl;
     if (!klass.img) {
@@ -31,7 +31,7 @@ async function buildSubClassBase(klass, subClass) {
   }
 
   if (subClass.largeAvatarUrl) {
-    largeAvatarUrl = await getImagePath(subClass.largeAvatarUrl, "class-large", subClass.fullName, true);
+    largeAvatarUrl = await getImagePath(subClass.largeAvatarUrl, "class-large", subClass.fullName);
     // eslint-disable-next-line require-atomic-updates
     klass.flags.ddbimporter['largeAvatarUrl'] = subClass.largeAvatarUrl;
     if (!klass.img) {
