@@ -107,13 +107,13 @@ export async function buildBaseClass(klass) {
   let portraitAvatarUrl;
 
   if (klass.portraitAvatarUrl) {
-    portraitAvatarUrl = await getImagePath(klass.portraitAvatarUrl, "class-portrait", klass.fullName, true);
+    portraitAvatarUrl = await getImagePath(klass.portraitAvatarUrl, "class-portrait", klass.fullName);
     result.img = portraitAvatarUrl;
     result.flags.ddbimporter['portraitAvatarUrl'] = klass.portraitAvatarUrl;
   }
 
   if (klass.avatarUrl) {
-    avatarUrl = await getImagePath(klass.avatarUrl, "class-avatar", klass.fullName, true);
+    avatarUrl = await getImagePath(klass.avatarUrl, "class-avatar", klass.fullName);
     result.flags.ddbimporter['avatarUrl'] = klass.avatarUrl;
     if (!result.img) {
       result.img = avatarUrl;
@@ -121,7 +121,7 @@ export async function buildBaseClass(klass) {
   }
 
   if (klass.largeAvatarUrl) {
-    largeAvatarUrl = await getImagePath(klass.largeAvatarUrl, "class-large", klass.fullName, true);
+    largeAvatarUrl = await getImagePath(klass.largeAvatarUrl, "class-large", klass.fullName);
     // eslint-disable-next-line require-atomic-updates
     result.flags.ddbimporter['largeAvatarUrl'] = klass.largeAvatarUrl;
     if (!result.img) {

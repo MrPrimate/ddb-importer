@@ -50,13 +50,13 @@ async function buildRace(race, compendiumRacialTraits, compendiumLabel) {
   let portraitAvatarUrl;
 
   if (race.portraitAvatarUrl) {
-    portraitAvatarUrl = await getImagePath(race.portraitAvatarUrl, "race-portrait", race.fullName, true);
+    portraitAvatarUrl = await getImagePath(race.portraitAvatarUrl, "race-portrait", race.fullName);
     result.img = portraitAvatarUrl;
     result.flags.ddbimporter['portraitAvatarUrl'] = race.portraitAvatarUrl;
   }
 
   if (race.avatarUrl) {
-    avatarUrl = await getImagePath(race.avatarUrl, "race-avatar", race.fullName, true);
+    avatarUrl = await getImagePath(race.avatarUrl, "race-avatar", race.fullName);
     result.flags.ddbimporter['avatarUrl'] = race.avatarUrl;
     if (!result.img) {
       result.img = avatarUrl;
@@ -64,7 +64,7 @@ async function buildRace(race, compendiumRacialTraits, compendiumLabel) {
   }
 
   if (race.largeAvatarUrl) {
-    largeAvatarUrl = await getImagePath(race.largeAvatarUrl, "race-large", race.fullName, true);
+    largeAvatarUrl = await getImagePath(race.largeAvatarUrl, "race-large", race.fullName);
     // eslint-disable-next-line require-atomic-updates
     result.flags.ddbimporter['largeAvatarUrl'] = race.largeAvatarUrl;
     if (!result.img) {
