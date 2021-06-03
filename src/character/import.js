@@ -54,6 +54,12 @@ const renderPopup = (type, url) => {
   return true;
 };
 
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 /**
  * Retrieves the character ID from a given URL, which can be one of the following:
  * - regular character sheet
@@ -372,10 +378,13 @@ export default class CharacterImport extends FormApplication {
 
     // console.warn(JSON.parse(JSON.stringify(this.actor)));
     logger.debug("Removing the following character items", toRemove);
-    if (toRemove.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toRemove);
-    // toRemove.forEach(async (item) => {
-    //   await this.actor.deleteEmbeddedDocuments("Item", [item]);
-    // });
+    if (toRemove.length > 0) {
+      await this.actor.deleteEmbeddedDocuments("Item", toRemove);
+      // there is a race condition somewhere, when using active effects
+      // a delete doesn't always seem to finish processing removal
+      // lets take a few seconds to contemplate your character choices
+      await sleep(1000);
+    }
     return toRemove;
   }
 
