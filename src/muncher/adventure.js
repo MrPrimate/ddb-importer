@@ -102,6 +102,7 @@ export async function generateAdventureConfig() {
   const result = {
     cobalt: getCobalt(),
     campaignId: getCampaignId(),
+    generateTokens: true,
     version: game.modules.get("ddb-importer").data.version,
     lookups: {
       monsters: [],

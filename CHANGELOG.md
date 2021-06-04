@@ -1,6 +1,7 @@
 # 2.1.5
 
 * Don't always download images for experimental functions.
+* Adventure munch config file will now generate tokens on import for scenes with appropriate information.
 
 # 2.1.4
 
