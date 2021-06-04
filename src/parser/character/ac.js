@@ -244,7 +244,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           value: acCalc + calculatedArmor.gearAC,
         });
         if (acCalc > actorBase) actorBase = acCalc - shieldMod;
-        effect = generateFixedACEffect(`${base + calculatedArmor.gearAC} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored): ${acCalc + calculatedArmor.gearAC}`, true, 22);
+        effect = generateFixedACEffect(`${base + calculatedArmor.gearAC} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name} (Unarmored): ${acCalc + calculatedArmor.gearAC}`, true, 15);
         break;
       }
       case "Heavy Armor": {
