@@ -77,8 +77,9 @@ export async function parseCritters() {
   const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
   // to speed up file checking we pregenerate existing files now.
+  logger.info("Checking for existing files...");
   await utils.generateCurrentFiles(uploadDirectory);
-
+  logger.info("Check complete getting monster data...");
   let monsters = await getMonsterData();
 
   if (!updateBool || !updateImages) {

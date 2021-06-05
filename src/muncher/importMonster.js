@@ -326,8 +326,7 @@ async function swapItems(data) {
   if (swap) {
     logger.debug("Replacing items...");
     // console.info(data.items);
-    const rawUpdatedItems = await getCompendiumItems(data.items, "inventory", null, false, true);
-    const updatedItems = rawUpdatedItems.map((i) => i.toJSON());
+    const updatedItems = await getCompendiumItems(data.items, "inventory", null, false, true);
     const itemsToRemove = updatedItems.map((item) => {
       logger.debug(`${item.name} to ${item.flags.ddbimporter.originalItemName}`);
       return { name: item.flags.ddbimporter.originalItemName, type: item.type };

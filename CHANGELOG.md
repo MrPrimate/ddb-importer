@@ -2,7 +2,7 @@
 
 * Don't always download images for experimental functions.
 * Active Effect generation tweaked for changes in latest DAE module.
-
+* Fix monster munch experimental option to load items from compendium.
 
 # 2.1.4
 
