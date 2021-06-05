@@ -1,7 +1,8 @@
 # 2.1.5
 
 * Don't always download images for experimental functions.
-* Adventure munch config file will now generate tokens on import for scenes with appropriate information.
+* Active Effect generation tweaked for changes in latest DAE module.
+
 
 # 2.1.4
 

@@ -96,12 +96,13 @@ function generateArmorItemEffect(ddb, ddbItem, foundryItem) {
       break;
     }
     case "light": {
-      const key = `{@abilities.dex.mod, ${foundryItem.data.armor.dex || 99}}kl + ${baseACValue}`;
+      const dexCap = foundryItem.data.armor.dex || 99;
+      const key = `@abilities.dex.mod > ${dexCap} ? ${dexCap + baseACValue} : @abilities.dex.mod + ${baseACValue}`;
       change = generateOverrideChange(key, 15, "data.attributes.ac.value");
       break;
     }
     case "medium": {
-      const key = `{@abilities.dex.mod, ${maxDexMedium}}kl + ${baseACValue}`;
+      const key = `@abilities.dex.mod > ${maxDexMedium} ? ${maxDexMedium + baseACValue} : @abilities.dex.mod + ${baseACValue}`;
       change = generateOverrideChange(key, 15, "data.attributes.ac.value");
       break;
     }
@@ -173,8 +174,8 @@ function addACSetEffect(modifiers, name, subType) {
   let effects = [];
   const maxDexTypes = ["ac-max-dex-unarmored-modifier", "ac-max-dex-modifier"];
 
-  let dexBonus = "+ @abilities.dex.mod";
   if (bonuses && bonuses != 0) {
+    let effectString = "";
     switch (subType) {
       case "unarmored-armor-class": {
         let maxDexMod = 99;
@@ -184,19 +185,21 @@ function addACSetEffect(modifiers, name, subType) {
           .map((mod) => mod.value);
         if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
         if (ignoreDexMod) {
-          dexBonus = "";
+          effectString = `10 + ${bonuses}`;
         } else {
-          dexBonus = `+ {@abilities.dex.mod, ${maxDexMod}}kl`;
+          effectString = `@abilities.dex.mod > ${maxDexMod} ? 10 + ${bonuses} + ${maxDexMod} : 10 + ${bonuses} + @abilities.dex.mod`;
         }
         break;
       }
-      // no default
+      default: {
+        effectString = `10 + ${bonuses} + @abilities.dex.mod`;
+      }
     }
 
-    logger.debug(`Generating ${subType} AC set for ${name}`);
+    logger.debug(`Generating ${subType} AC set for ${name}: ${effectString}`);
     effects.push(
       generateUpgradeChange(
-        `10 + ${bonuses} ${dexBonus}`,
+        effectString,
         15,
         "data.attributes.ac.value"
       )
