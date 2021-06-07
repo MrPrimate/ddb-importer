@@ -172,8 +172,10 @@ export function fixSpells(ddb, items) {
         spell.data.actionType = "save";
         break;
       case "Searing Smite": {
-        spell.data.formula = spell.data.damage.parts[1][0];
-        spell.data.damage.parts = [spell.data.damage.parts[0]];
+        if (spell.data.damage.parts.length > 1) {
+          spell.data.formula = spell.data.damage.parts[1][0];
+          spell.data.damage.parts = [spell.data.damage.parts[0]];
+        }
         spell.data.scaling = { mode: "level", formula: "1d6" };
         break;
       }
