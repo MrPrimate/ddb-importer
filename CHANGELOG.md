@@ -1,3 +1,8 @@
+# 2.1.6
+
+* Searing Smite spell failed for people with custom spell named the same.
+* Adventure importing no longer crashes when actor expected in Compendium is not there.
+
 # 2.1.5
 
 * Don't always download images for experimental functions.

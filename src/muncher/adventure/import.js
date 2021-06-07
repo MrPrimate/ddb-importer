@@ -719,12 +719,17 @@ export default class AdventureMunch extends FormApplication {
       let worldActor = game.actors.get(actor.actorId);
       if (!worldActor) {
         logger.info(`Importing actor ${actor.ddbId}`);
-        worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, { keepId: true });
+        const compendiumActor = monsterCompendium.get(actor.compendiumId);
+        if (compendiumActor) {
+          worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, { keepId: true });
+          const tokenData = await worldActor.getTokenData();
+          delete tokenData.y;
+          delete tokenData.x;
+          CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[actor.actorId] = JSON.parse(JSON.stringify(tokenData));
+        } else {
+          console.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
+        }
       }
-      const tokenData = await worldActor.getTokenData();
-      delete tokenData.y;
-      delete tokenData.x;
-      CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[actor.actorId] = JSON.parse(JSON.stringify(tokenData));
     });
 
     logger.debug("Actors transferred from compendium to world.");
