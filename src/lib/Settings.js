@@ -1,7 +1,7 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
 import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
-import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings } from "./Secrets.js";
+import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
 
 window.ddbGetPatreonTiers = getPatreonTiers;
@@ -172,6 +172,57 @@ export async function isValidKey() {
   }
   return validKey;
 }
+
+export class DDBCookie extends FormApplication {
+  static get defaultOptions() {
+    const options = super.defaultOptions;
+    options.id = "ddb-importer-cobalt-change";
+    options.template = "modules/ddb-importer/handlebars/cobalt.hbs";
+    options.width = 500;
+    return options;
+  }
+
+  get title() { // eslint-disable-line class-methods-use-this
+    // improve localisation
+    // game.i18n.localize("")
+    return "DDB Importer Cobalt Cookie";
+  }
+
+  /** @override */
+  async getData() { // eslint-disable-line class-methods-use-this
+    const cobalt = getCobalt();
+    const cobaltStatus = cobalt == "" ? { success: true } : await checkCobalt();
+    const expired = !cobaltStatus.success;
+
+    return {
+      expired: expired,
+      cobaltCookie: cobalt,
+    };
+  }
+
+  /** @override */
+  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
+    event.preventDefault();
+    const currentToken = getCobalt();
+    const newToken = formData['cobalt-cookie'];
+    if (currentToken !== newToken) {
+      await setCobalt(newToken);
+    }
+
+    const cobaltStatus = await checkCobalt();
+    if (!cobaltStatus.success) {
+      new DDBCookie().render(true);
+    } else {
+      const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
+
+      if (callMuncher) {
+        game.settings.set("ddb-importer", "settings-call-muncher", false);
+        new DDBMuncher().render(true);
+      }
+    }
+  }
+}
+
 
 // eslint-disable-next-line no-unused-vars
 Hooks.on("renderDDBSetup", (app, html, user) => {

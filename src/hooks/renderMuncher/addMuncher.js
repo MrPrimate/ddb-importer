@@ -1,5 +1,6 @@
 import DDBMuncher from "../../muncher/ddb.js";
-import { DDBSetup, isSetupComplete, isValidKey } from "../../lib/Settings.js";
+import { DDBSetup, DDBCookie, isSetupComplete, isValidKey } from "../../lib/Settings.js";
+import { checkCobalt } from "../../lib/Secrets.js";
 
 
 export function addMuncher (app, html) {
@@ -10,9 +11,14 @@ export function addMuncher (app, html) {
       const setupComplete = isSetupComplete();
 
       if (setupComplete) {
-        let validKey = await isValidKey();
-        if (validKey) {
-          new DDBMuncher().render(true);
+        const cobaltStatus = await checkCobalt();
+        if (cobaltStatus.success) {
+          let validKey = await isValidKey();
+          if (validKey) {
+            new DDBMuncher().render(true);
+          }
+        } else {
+          new DDBCookie().render(true);
         }
       } else {
         game.settings.set("ddb-importer", "settings-call-muncher", true);

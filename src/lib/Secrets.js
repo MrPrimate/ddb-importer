@@ -1,3 +1,5 @@
+import logger from "../logger.js";
+
 function isJSON(str) {
   try {
       return (JSON.parse(str) && !!str && str !== null);
@@ -44,4 +46,30 @@ export async function moveCobaltToLocal() {
 export async function moveCobaltToSettings() {
   game.settings.set("ddb-importer", "cobalt-cookie", localStorage.getItem('ddb-cobalt-cookie'));
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
+}
+
+export async function checkCobalt() {
+  const cobaltCookie = getCobalt();
+  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const body = { cobalt: cobaltCookie, betaKey: betaKey };
+
+  return new Promise((resolve, reject) => {
+    fetch(`${parsingApi}/proxy/auth`, {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body), // body data type must match "Content-Type" header
+    })
+      .then((response) => response.json())
+      .then((data) => resolve(data))
+      .catch((error) => {
+        logger.error(`Cobalt cookie check error`);
+        logger.error(error);
+        logger.error(error.stack);
+        reject(error);
+      });
+  });
 }
