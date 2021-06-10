@@ -95,6 +95,15 @@
         {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b><p>{{{this.description}}}</p>
     </div>
     {{/each}}
+    <hr>
+    <h2>Actor Specific Cobalt Cookie</h2>
+    <p>You can save a Cobalt Cookie to use just for this character. This is saved in your browser and can only be used by you, on the current machine.</p>
+    <div>
+      <button type="button" id="delete-local-cobalt" {{#if cobaltSet}}enabled{{else}}disabled{{/if}}>Delete local Cobalt Cookie</button>
+    </div>
+    <div>
+      <button type="button" id="set-local-cobalt">Update Cobalt Cookie</button>
+    </div>
   </section>
 
   <!-- Effects Configuration Tab -->

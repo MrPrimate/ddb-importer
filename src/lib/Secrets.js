@@ -8,12 +8,20 @@ function isJSON(str) {
   }
 }
 
-export function getCobalt() {
+export function isLocalCobalt(keyPostfix) {
+  return keyPostfix && keyPostfix !== "" && localStorage.getItem(`ddb-cobalt-cookie-${keyPostfix}`) !== null;
+}
+
+export function getCobalt(keyPostfix = "") {
   let cobalt;
   const localCookie = game.settings.get("ddb-importer", "cobalt-cookie-local");
+  const characterCookie = isLocalCobalt(keyPostfix);
 
-  if (localCookie) {
-    cobalt = localStorage.getItem('ddb-cobalt-cookie');
+  logger.debug(`Getting Cookie: Key postfix? "${keyPostfix}" -  Local? ${localCookie} - Character? ${characterCookie}`);
+  if (characterCookie) {
+    cobalt = localStorage.getItem(`ddb-cobalt-cookie-${keyPostfix}`);
+  } else if (localCookie) {
+    cobalt = localStorage.getItem("ddb-cobalt-cookie");
   } else {
     cobalt = game.settings.get("ddb-importer", "cobalt-cookie");
   }
@@ -21,20 +29,31 @@ export function getCobalt() {
   return cobalt;
 }
 
-export async function setCobalt(value) {
+export async function setCobalt(value, keyPostfix = "") {
   const localCookie = game.settings.get("ddb-importer", "cobalt-cookie-local");
+  const characterCookie = keyPostfix && keyPostfix !== "";
 
   let cobaltValue = value;
   if (isJSON(value)) {
     cobaltValue = JSON.parse(value).cbt;
   }
 
-  if (localCookie) {
-    localStorage.setItem('ddb-cobalt-cookie', cobaltValue);
+  logger.debug(`Setting Cookie: Key postfix? "${keyPostfix}" -  Local? ${localCookie} - Character? ${characterCookie}`);
+  if (characterCookie) {
+    localStorage.setItem(`ddb-cobalt-cookie-${keyPostfix}`, cobaltValue);
+  } else if (localCookie) {
+    localStorage.setItem("ddb-cobalt-cookie", cobaltValue);
   } else {
     await game.settings.set("ddb-importer", "cobalt-cookie", cobaltValue);
   }
+}
 
+export function deleteLocalCobalt(keyPostfix) {
+  const localCookie = isLocalCobalt(keyPostfix);
+
+  if (localCookie) {
+    localStorage.removeItem(`ddb-cobalt-cookie-${keyPostfix}`);
+  }
 }
 
 export async function moveCobaltToLocal() {
@@ -48,8 +67,8 @@ export async function moveCobaltToSettings() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
 }
 
-export async function checkCobalt() {
-  const cobaltCookie = getCobalt();
+export async function checkCobalt(keyPostfix = "") {
+  const cobaltCookie = getCobalt(keyPostfix);
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const body = { cobalt: cobaltCookie, betaKey: betaKey };

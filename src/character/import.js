@@ -19,7 +19,8 @@ import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
 import { characterExtras } from "./extras.js";
 import DICTIONARY from "../dictionary.js";
-import { getCobalt } from "../lib/Secrets.js";
+import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
+import { DDBCookie } from "../lib/Settings.js";
 import { loadSRDRules } from "../parser/templateStrings.js";
 import { abilityOverrideEffects } from "../parser/effects/abilityOverrides.js";
 
@@ -160,8 +161,8 @@ const filterActorItemsByUserSelection = (actor, invert = false) => {
  * @param {*} characterId
  */
 
-export async function getCharacterData(characterId, syncId) {
-  const cobaltCookie = getCobalt();
+export async function getCharacterData(characterId, syncId, localCobaltPostFix = "") {
+  const cobaltCookie = getCobalt(localCobaltPostFix);
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
@@ -228,7 +229,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   migrateMetadata() {
-    if (this.actor.data.flags && this.actor.data.flags.ddbimporter && this.actor.data.flags.ddbimporter.dndbeyond) {
+    if (this.actor.data.flags?.ddbimporter?.dndbeyond) {
       const url = this.actor.data.flags.ddbimporter.dndbeyond.url || this.actor.data.flags.ddbimporter.dndbeyond.roUrl;
 
       if (url && !this.actor.data.flags.ddbimporter.characterId) {
@@ -967,14 +968,21 @@ export default class CharacterImport extends FormApplication {
     const dataDirSet = !badDirs.includes(uploadDir);
     const tier = game.settings.get("ddb-importer", "patreon-tier");
     const tiers = getPatreonTiers(tier);
-    const syncEnabled = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId && tiers.all;
+    const characterId = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId;
+    const syncEnabled = characterId && tiers.all;
 
     const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
     const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
     const syncOnly = trustedUsersOnly && allowAllSync && !game.user.isTrusted;
 
+    const localCobalt = isLocalCobalt(this.actor.id);
+    const cobaltCookie = getCobalt(this.actor.id);
+    const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
+
     return {
       actor: this.actor,
+      localCobalt: localCobalt,
+      cobaltSet: cobaltSet,
       importPolicies: importPolicies,
       importConfig: importConfig,
       extrasConfig: extrasConfig,
@@ -1033,7 +1041,7 @@ export default class CharacterImport extends FormApplication {
           $(html).find("#dndbeyond-character-import-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Getting Character data");
           const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
-          const characterData = await getCharacterData(characterId);
+          const characterData = await getCharacterData(characterId, null, this.actor.id);
           logger.debug("import.js getCharacterData result", characterData);
           const debugJson = game.settings.get("ddb-importer", "debug-json");
           if (debugJson) {
@@ -1092,13 +1100,39 @@ export default class CharacterImport extends FormApplication {
       });
 
     $(html)
+      .find("#delete-local-cobalt")
+      .on("click", async () => {
+        try {
+          deleteLocalCobalt(this.actor.id);
+          $(html).find("#delete-local-cobalt").prop("disabled", true);
+        } catch (error) {
+          logger.error(error);
+          logger.error(error.stack);
+          CharacterImport.showCurrentTask(html, "Error deleting local cookie", error, true);
+        }
+      });
+
+    $(html)
+      .find("#set-local-cobalt")
+      .on("click", async () => {
+        try {
+          new DDBCookie({}, this.actor, true).render(true);
+          $(html).find("#delete-local-cobalt").prop("disabled", false);
+        } catch (error) {
+          logger.error(error);
+          logger.error(error.stack);
+          CharacterImport.showCurrentTask(html, "Error updating character", error, true);
+        }
+      });
+
+    $(html)
       .find("#dndbeyond-character-extras-start")
       .on("click", async () => {
         try {
           $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Fetching character data");
           const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
-          const characterData = await getCharacterData(characterId);
+          const characterData = await getCharacterData(characterId, null, this.actor.id);
           logger.debug("import.js getCharacterData result", characterData);
           const debugJson = game.settings.get("ddb-importer", "debug-json");
           if (debugJson) {

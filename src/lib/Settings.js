@@ -174,6 +174,13 @@ export async function isValidKey() {
 }
 
 export class DDBCookie extends FormApplication {
+
+  constructor(options, actor = null, localCobalt = false) {
+    super(options);
+    this.localCobalt = localCobalt;
+    this.actor = actor;
+  }
+
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-cobalt-change";
@@ -189,25 +196,25 @@ export class DDBCookie extends FormApplication {
   }
 
   /** @override */
-  async getData() { // eslint-disable-line class-methods-use-this
-    const cobalt = getCobalt();
+  async getData() {
+    const keyPostFix = this.localCobalt && this.actor ? this.actor.id : null;
+    const cobalt = getCobalt(keyPostFix);
     const cobaltStatus = cobalt == "" ? { success: true } : await checkCobalt();
     const expired = !cobaltStatus.success;
 
     return {
       expired: expired,
       cobaltCookie: cobalt,
+      localCobalt: this.localCobalt && this.actor,
+      actor: this.actor,
     };
   }
 
   /** @override */
-  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
+  async _updateObject(event, formData) {
     event.preventDefault();
-    const currentToken = getCobalt();
-    const newToken = formData['cobalt-cookie'];
-    if (currentToken !== newToken) {
-      await setCobalt(newToken);
-    }
+    const keyPostFix = this.localCobalt && this.actor ? this.actor.id : null;
+    await setCobalt(formData['cobalt-cookie'], keyPostFix);
 
     const cobaltStatus = await checkCobalt();
     if (!cobaltStatus.success) {
