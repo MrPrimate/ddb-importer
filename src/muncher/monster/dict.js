@@ -47,6 +47,8 @@ const DICTIONARY = {
     { name: "Wing", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Slam", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Rake", actionType: "mwak", weaponType: "natural", properties: {} },
+    { name: "Beak", actionType: "mwak", weaponType: "natural", properties: {} },
+    { name: "Tentacles", actionType: "mwak", weaponType: "natural", properties: {} },
   ],
   resets: [
     { id: 1, value: "sr" },
