@@ -1,5 +1,5 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
-import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity } from "../muncher/utils.js";
+import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
@@ -91,6 +91,32 @@ async function linkToPatreon() {
     logger.error(`Error Response from socket!`, data);
     socket.disconnect();
   });
+}
+
+function getCampaigns() {
+  const cobaltCookie = getCobalt();
+  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+  const body = { cobalt: cobaltCookie };
+
+  return new Promise((resolve, reject) => {
+    fetch(`${parsingApi}/proxy/campaigns`, {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body), // body data type must match "Content-Type" header
+    })
+      .then((response) => response.json())
+      .then((data) => resolve(data))
+      .catch((error) => {
+        logger.error(`Cobalt cookie check error`);
+        logger.error(error);
+        logger.error(error.stack);
+        reject(error);
+      });
+  });
+
 }
 
 export class DDBKeyChange extends FormApplication {
@@ -303,6 +329,10 @@ export class DDBSetup extends FormApplication {
     html.find("#patreon-button").click(async (event) => {
       event.preventDefault();
       linkToPatreon();
+    });
+    html.find("#campaigns-button").click(async (event) => {
+      event.preventDefault();
+      getCampaigns();
     });
   }
 
