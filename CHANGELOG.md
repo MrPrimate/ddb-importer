@@ -3,6 +3,8 @@
 * Searing Smite spell failed for people with custom spell named the same.
 * Adventure importing no longer crashes when actor expected in Compendium is not there.
 * Better detection and management of invalid cobalt cookie.
+* Characters can now use their own Cobalt Cookie stored locally in the browser, useful for players.
+* Added more natural attacks to monster parsing.
 
 # 2.1.5
 
