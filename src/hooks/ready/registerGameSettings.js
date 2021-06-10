@@ -8,22 +8,6 @@ CONFIG.DDBI = {
 };
 
 export default function () {
-  // const excludedCompediumPackages = [
-  //   "dnd5e", "dae", "midiqol", "magicitems",
-  // ];
-  // const actorCompendiums = game.packs
-  //   .filter((pack) => pack.documentClass.documentName === "Actor" && !excludedCompediumPackages.includes(pack.metadata.package))
-  //   .reduce((choices, pack) => {
-  //     choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-  //     return choices;
-  //   }, {});
-
-  // const itemCompendiums = game.packs
-  //   .filter((pack) => pack.documentClass.documentName === "Item" && !excludedCompediumPackages.includes(pack.metadata.package))
-  //   .reduce((choices, pack) => {
-  //     choices[pack.collection] = `[${pack.metadata.package}] ${pack.metadata.label}`;
-  //     return choices;
-  //   }, {});
 
   game.settings.registerMenu("ddb-importer", 'setupMenu', {
     name: "ddb-importer.setup.name",

@@ -46,7 +46,3 @@ function adventureFlags(app, html, data) {
 
 
 export default adventureFlags;
-// export function adventureSheets() {
-//   Hooks.on('renderJournalSheet', initAdventureSheetHook);
-// }
-
