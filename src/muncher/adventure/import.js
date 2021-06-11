@@ -727,7 +727,7 @@ export default class AdventureMunch extends FormApplication {
           delete tokenData.x;
           CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[actor.actorId] = JSON.parse(JSON.stringify(tokenData));
         } else {
-          console.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
+          logger.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
         }
       }
     });

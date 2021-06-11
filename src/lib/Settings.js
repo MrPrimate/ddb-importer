@@ -379,7 +379,6 @@ export class DDBSetup extends FormApplication {
       event.preventDefault();
       const cookie = html.find("#cobalt-cookie-input");
       const campaigns = await getCampaigns(cookie[0].value);
-      console.warn(campaigns);
       let campaignList = `<option value="">Select campaign:</option>`;
       campaigns.forEach((campaign) => {
         campaignList += `<option value="${campaign.id}">${campaign.name} (${campaign.dmUsername}) - ${campaign.id}</option>\n`;
@@ -393,7 +392,6 @@ export class DDBSetup extends FormApplication {
       if (cookie[0].value === undefined) throw new Error("undefined");
       const cobaltStatus = await checkCobalt("", cookie[0].value);
       const button = html.find("#check-cobalt-button");
-      console.warn(button);
       if (cobaltStatus.success) {
         button[0].innerHTML = "Check Cobalt Cookie - Success!";
       } else {
