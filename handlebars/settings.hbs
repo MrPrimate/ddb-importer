@@ -41,12 +41,10 @@
       <select name="campaign-select" class="form-select" id="campaign-select">
         <option value="">Select campaign:</option>
         {{#each setupConfig.available-campaigns}}
-        <option value="{{this.id}}">{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
+        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
         {{/each}}
       </select>
     </div>
-    <p><b>Campaign Name:</b> <i id="campaign-name-label">{{setupConfig.campaign-label}}</i></p>
-    <p><b>Campaign ID:</b> <i id="campaign-id-label">{{setupConfig.campaign-id}}</i></p>
     <hr>
     <h3>[Optional] Patreon Link</h3>
     <p>Link your <a href="https://www.patreon.com/MrPrimate">Patreon account</a> by clicking the button, or enter a provided key</p>

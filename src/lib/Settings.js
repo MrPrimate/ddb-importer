@@ -140,7 +140,7 @@ async function getCampaigns(cobalt = null) {
 async function setCobaltCookie(value, local) {
   await checkCobaltCookie(value);
   await setCobalt(value);
-  await game.settings.set("ddb-importer", "cobalt-cookie-local", local)
+  await game.settings.set("ddb-importer", "cobalt-cookie-local", local);
   const runCookieMigrate = local != game.settings.get("ddb-importer", "cobalt-cookie-local");
   if (runCookieMigrate && local) {
     moveCobaltToLocal();
@@ -322,6 +322,7 @@ export class DDBSetup extends FormApplication {
     const hasKey = game.settings.get("ddb-importer", "beta-key") != "";
     const key = game.settings.get("ddb-importer", "beta-key");
     // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
+    const parsedCampaignId = getCampaignId();
     const campaignIdCorrect = !game.settings.get("ddb-importer", "campaign-id").includes("join");
     const tier = game.settings.get("ddb-importer", "patreon-tier");
 
@@ -335,8 +336,13 @@ export class DDBSetup extends FormApplication {
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
 
     const availableCampaigns = isCobalt && cobaltStatus.success ? await getCampaigns() : [];
-    const campaignId = campaignIdCorrect ? game.settings.get("ddb-importer", "campaign-id") : "";
+    const campaignId = campaignIdCorrect ? parsedCampaignId : "";
     const campaignLabel = campaignId !== "" ? "A label" : "";
+
+    availableCampaigns.forEach((campaign) => {
+      const selected = campaign.id == campaignId;
+      campaign.selected = selected;
+    });
 
     const setupConfig = {
       "image-upload-directory": uploadDir,
@@ -374,6 +380,12 @@ export class DDBSetup extends FormApplication {
       const cookie = html.find("#cobalt-cookie-input");
       const campaigns = await getCampaigns(cookie[0].value);
       console.warn(campaigns);
+      let campaignList = `<option value="">Select campaign:</option>`;
+      campaigns.forEach((campaign) => {
+        campaignList += `<option value="${campaign.id}">${campaign.name} (${campaign.dmUsername}) - ${campaign.id}</option>\n`;
+      });
+      const list = html.find("#campaign-select");
+      list[0].innerHTML = campaignList;
     });
     html.find("#check-cobalt-button").click(async (event) => {
       event.preventDefault();
@@ -397,7 +409,7 @@ export class DDBSetup extends FormApplication {
     event.preventDefault();
     const imageDir = formData['image-upload-directory'];
     const campaignSelect = formData['campaign-select'];
-    console.warn(formData);
+    // console.warn(formData);
     const campaignId = campaignSelect == 0 ? "" : campaignSelect;
     const cobaltCookie = formData['cobalt-cookie'];
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
@@ -414,27 +426,9 @@ export class DDBSetup extends FormApplication {
     await game.settings.set("ddb-importer", "campaign-id", campaignId);
 
     await setCobaltCookie(cobaltCookie, cobaltCookieLocal);
-    // const cookieCorrect = checkCobalt(cobaltCookie);
-
-    // if (cobaltCookie !== "" || !cookieCorrect.success) {
-    //   $('#munching-task-setup').text(`Your Cobalt Cookie is invalid, please check that you pasted the right information.`);
-    //   $('#ddb-importer-settings').css("height", "auto");
-    //   throw new Error(`Your Cobalt Cookie is invalid, please check that you pasted the right information.`);
-    // }
-
-    // await setCobalt("", cobaltCookie);
 
     const imageDirSet = !BAD_DIRS.includes(imageDir);
     const otherImageDirSet = !BAD_DIRS.includes(otherImageDir);
-    const campaignIdCorrect = !campaignId.includes("join");
-
-    // await game.settings.set("ddb-importer", "cobalt-cookie-local", cobaltCookieLocal)
-    // const runCookieMigrate = cobaltCookieLocal != game.settings.get("ddb-importer", "cobalt-cookie-local");;
-    // if (runCookieMigrate && cobaltCookieLocal) {
-    //   moveCobaltToLocal();
-    // } else if (runCookieMigrate && !cobaltCookieLocal) {
-    //   moveCobaltToSettings();
-    // }
 
     const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
 
@@ -446,10 +440,6 @@ export class DDBSetup extends FormApplication {
       $('#munching-task-setup').text(`To use Muncher you need to set a Cobalt Cookie value!`);
       $('#ddb-importer-settings').css("height", "auto");
       throw new Error(`To use Muncher you need to set a Cobalt Cookie value!`);
-    } else if (!campaignIdCorrect) {
-      $('#munching-task-setup').text(`Incorrect CampaignID/URL! You have used the campaign join URL, please change`);
-      $('#ddb-importer-settings').css("height", "auto");
-      throw new Error(`Incorrect CampaignID/URL! You have used the campaign join URL, please change`);
     } else {
       DirectoryPicker.verifyPath(DirectoryPicker.parse(imageDir));
       DirectoryPicker.verifyPath(DirectoryPicker.parse(otherImageDir));
