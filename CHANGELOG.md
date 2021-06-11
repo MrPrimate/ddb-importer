@@ -1,3 +1,7 @@
+# 2.1.7
+
+* Adventure muncher did not find files in uploaded path.
+
 # 2.1.6
 
 * Searing Smite spell failed for people with custom spell named the same.
