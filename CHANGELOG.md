@@ -9,6 +9,7 @@
 * Items copied from SRD now include DDB metadata for use when generating an adventure muncher config file.
 * Cobalt Cookie can now be checked on the settings page.
 * Campaigns are now detected based on Cobalt Cookie and drop down list presented.
+* Adventure Scene Config download now include any pins from book, not just the scene.
 
 # 2.1.5
 
