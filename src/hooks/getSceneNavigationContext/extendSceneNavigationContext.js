@@ -10,8 +10,8 @@ import { download } from "../../muncher/utils.js";
 const getNotes = (scene) => {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
-    journal.data.flags.ddb?.slug && scene.data.flags.ddb?.slug &&
-    journal.data.flags.ddb.slug === scene.data.flags.ddb.slug
+    journal.data.flags.ddb?.bookCode && scene.data.flags.ddb?.bookCode &&
+    journal.data.flags.ddb.bookCode === scene.data.flags.ddb.bookCode
   );
 
   // get all notes placed on the map
