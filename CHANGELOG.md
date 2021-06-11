@@ -6,6 +6,7 @@
 * Characters can now use their own Cobalt Cookie stored locally in the browser, useful for players.
 * Added more natural attacks to monster parsing.
 * Better support for spaces in file paths.
+* Items copied from SRD now include DDB metadata for use when generating an adventure muncher config file.
 
 # 2.1.5
 

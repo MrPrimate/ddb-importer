@@ -67,8 +67,8 @@ export async function moveCobaltToSettings() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
 }
 
-export async function checkCobalt(keyPostfix = "") {
-  const cobaltCookie = getCobalt(keyPostfix);
+export async function checkCobalt(keyPostfix = "", alternativeKey = null) {
+  const cobaltCookie = alternativeKey ? alternativeKey : getCobalt(keyPostfix);
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const body = { cobalt: cobaltCookie, betaKey: betaKey };
@@ -80,7 +80,7 @@ export async function checkCobalt(keyPostfix = "") {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body), // body data type must match "Content-Type" header
+      body: JSON.stringify(body),
     })
       .then((response) => response.json())
       .then((data) => resolve(data))

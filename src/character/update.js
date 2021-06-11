@@ -9,7 +9,6 @@ import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 async function updateCharacterCall(actor, path, bodyContent) {
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
   const cobaltCookie = getCobalt(actor.id);
-  console.error(cobaltCookie);
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
