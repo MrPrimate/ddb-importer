@@ -794,11 +794,14 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
     // );
 
     if (matched) {
-      if (item.flags.ddbimporter) {
-        item.flags.ddbimporter["originalItemName"] = matched.name;
-      } else {
-        item.flags.ddbimporter = { originalItemName: matched.name };
+      if (!item.flags.ddbimporter) {
+        item.flags.ddbimporter = matched.flags.ddbimporter;
       }
+      if (!item.flags.monsterMunch && matched.flags.monsterMunch) {
+        item.flags.monsterMunch = matched.flags.monsterMunch;
+      }
+      item.flags.ddbimporter["originalItemName"] = matched.name;
+      item.flags.ddbimporter["replaced"] = true;
 
       updateCharacterItemFlags(matched, item);
       // do we want to enrich the compendium item with our parsed flag data?
