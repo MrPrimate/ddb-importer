@@ -938,7 +938,7 @@ const utils = {
         'Unable to determine file URL for directoryPath"' + directoryPath + '" and filename"' + filename + '"'
       );
     }
-    return uri;
+    return encodeURI(uri);
   },
 
   versionCompare: (v1, v2, options) => {

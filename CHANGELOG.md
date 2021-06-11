@@ -5,6 +5,7 @@
 * Better detection and management of invalid cobalt cookie.
 * Characters can now use their own Cobalt Cookie stored locally in the browser, useful for players.
 * Added more natural attacks to monster parsing.
+* Better support for spaces in file paths.
 
 # 2.1.5
 
