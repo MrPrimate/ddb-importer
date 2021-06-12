@@ -709,27 +709,33 @@ export default class AdventureMunch extends FormApplication {
     const neededActors = scene.tokens
       .filter((token) => !CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[token.actorId])
       .map((token) => {
-        return { ddbId: token.flags.ddbActorFlags.id, actorId: token.actorId, compendiumId: token.flags.compendiumActorId, folderId: token.flags.actorFolderId };
+        return { name: token.name, ddbId: token.flags.ddbActorFlags.id, actorId: token.actorId, compendiumId: token.flags.compendiumActorId, folderId: token.flags.actorFolderId };
       })
       .filter((obj, pos, arr) => {
         // we only need to create 1 actor per actorId
         return arr.map((mapObj) => mapObj["actorId"]).indexOf(obj["actorId"]) === pos;
       });
 
+    logger.debug("Trying to import actors from compendium", neededActors);
     await Helpers.asyncForEach(neededActors, async (actor) => {
       let worldActor = game.actors.get(actor.actorId);
       if (!worldActor) {
-        logger.info(`Importing actor ${actor.ddbId}`);
-        const compendiumActor = monsterCompendium.get(actor.compendiumId);
-        if (compendiumActor) {
+        logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with id ${actor.compendiumId}`);
+        try {
           worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, { keepId: true });
-          const tokenData = await worldActor.getTokenData();
-          delete tokenData.y;
-          delete tokenData.x;
-          CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[actor.actorId] = JSON.parse(JSON.stringify(tokenData));
-        } else {
+        } catch (err) {
+          logger.error(err);
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
+          logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.compendiumId}", { _id: "${actor.actorId}", folder: "${actor.folderId}" }, { keepId: true });`);
         }
+      }
+      if (worldActor) {
+        const tokenData = await worldActor.getTokenData();
+        delete tokenData.y;
+        delete tokenData.x;
+        const jsonTokenData = JSON.parse(JSON.stringify(tokenData));
+        CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[actor.actorId] = jsonTokenData;
+        logger.debug(`${actor.name} token data for id ${actor.actorId}`, jsonTokenData);
       }
     });
 
