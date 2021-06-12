@@ -1,3 +1,8 @@
+# 2.1.8
+
+* Scene exports should include padding value.
+* Improved token and actor importing for adventure importer.
+
 # 2.1.7
 
 * Adventure muncher did not find files in uploaded path.
