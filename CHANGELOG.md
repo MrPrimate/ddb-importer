@@ -3,6 +3,7 @@
 * Scene exports should include padding value.
 * Improved token and actor importing for adventure importer.
 * Munched items/spells that were updated would gain duplicate active effects in 0.8.6.
+* Eldritch Claw Tattoo will now parse damage and attack bonus to unarmed attacks.
 
 # 2.1.7
 

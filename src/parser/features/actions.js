@@ -118,8 +118,15 @@ function martialArtsDamage(ddb, action) {
   const damageType = DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name;
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
+  let damageBonus = utils.filterBaseModifiers(ddb, "damage", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
+  if (damageBonus === 0) {
+    damageBonus = "";
+  } else {
+    damageBonus = ` + ${damageBonus}`;
+  }
+
   // are we dealing with martial arts?
-  if (action.isMartialArts && isMartialArtists(ddb.character.classes)) {
+  if (isMartialArtists(ddb.character.classes)) {
     const die = ddb.character.classes
       .filter((cls) => isMartialArtists([cls]))
       .map((cls) => {
@@ -140,7 +147,7 @@ function martialArtsDamage(ddb, action) {
       });
 
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-    const damageString = utils.parseDiceString(die, " + @mod", damageTag).diceString;
+    const damageString = utils.parseDiceString(die, `${damageBonus} + @mod`, damageTag).diceString;
 
     // set the weapon damage
     return {
@@ -151,7 +158,7 @@ function martialArtsDamage(ddb, action) {
     // The Lizardfolk jaws have a different base damage, its' detailed in
     // dice so lets capture that for actions if it exists
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-    const damageString = utils.parseDiceString(action.dice.diceString, " + @mod", damageTag).diceString;
+    const damageString = utils.parseDiceString(action.dice.diceString, `${damageBonus} + @mod`, damageTag).diceString;
     return {
       parts: [[damageString, damageType]],
       versatile: "",
@@ -159,7 +166,7 @@ function martialArtsDamage(ddb, action) {
   } else {
     // default to basics
     return {
-      parts: [[`1 + @mod`, damageType]],
+      parts: [[`1${damageBonus} + @mod`, damageType]],
       versatile: "",
     };
   }
@@ -334,6 +341,7 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
   }
   if (action.isMartialArts) {
     weapon.data.damage = martialArtsDamage(ddb, action);
+    weapon.data.attackBonus = utils.filterBaseModifiers(ddb, "bonus", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
   } else {
     weapon.data.damage = getDamage(action);
   }
