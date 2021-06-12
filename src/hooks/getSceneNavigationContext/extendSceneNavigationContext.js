@@ -98,6 +98,7 @@ const collectSceneData = (scene) => {
     gridUnits: scene.data.gridUnits,
     shiftX: scene.data.shiftX,
     shiftY: scene.data.shiftY,
+    padding: scene.data.padding,
     // initial
     initial: scene.data.initial,
     // customization
