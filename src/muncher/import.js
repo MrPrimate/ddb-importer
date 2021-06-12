@@ -327,6 +327,8 @@ async function updateCompendiumItems(compendium, compendiumItems, index, matchFl
       const existing = existingItems[0];
       delete item._id;
       munchNote(`Updating ${item.name}`);
+      // purge existing active effects on this item
+      await existing.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
       await copySupportedItemFlags(existing, item.data);
       promises.push(existing.update(item));
     }
