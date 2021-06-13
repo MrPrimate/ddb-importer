@@ -164,6 +164,7 @@ const collectSceneData = (scene) => {
       return result;
     }),
   };
+  if (data.flags.ddb?.tokens) delete data.flags.ddb.tokens;
   // removed un-needed userdata
   if (data.flags.ddb?.userData) {
     if (data.flags.ddb.userData.status) delete (data.flags.ddb.userData.status);
@@ -181,6 +182,7 @@ const collectSceneData = (scene) => {
   data.flags.ddbimporter = {
     version: game.modules.get("ddb-importer").data.version,
   };
+
 
   return data;
 };
