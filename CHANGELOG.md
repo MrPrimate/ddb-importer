@@ -1,3 +1,7 @@
+# 2.1.9
+
+* Some NPC spells casters (e.g. Evil Mage) used a different syntax and did not parse spellcasting ability. (Thanks @m42e for a quick fix).
+
 # 2.1.8
 
 * Scene exports should include padding value.
