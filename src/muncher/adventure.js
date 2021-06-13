@@ -98,6 +98,7 @@ async function getItemMap() {
 }
 
 export async function generateAdventureConfig() {
+  const customProxy = game.settings.get("ddb-importer", "custom-proxy");
 
   const result = {
     cobalt: getCobalt(),
@@ -184,18 +185,18 @@ export async function generateAdventureConfig() {
     };
   });
 
-  // await Promise.all(result.lookups.monsters, result.lookups.spells, result.lookups.items);
-
   // vehicles
-  const vehicleData = await getVehicleData();
+  if (!customProxy) {
+    const vehicleData = await getVehicleData();
 
-  result.lookups.vehicles = vehicleData.map((v) => {
-    return {
-      id: v.id,
-      url: v.url,
-      name: v.name,
-    };
-  });
+    result.lookups.vehicles = vehicleData.map((v) => {
+      return {
+        id: v.id,
+        url: v.url,
+        name: v.name,
+      };
+    });
+  }
 
   download(JSON.stringify(result), `adventure-config.json`, "application/json");
   return result;
