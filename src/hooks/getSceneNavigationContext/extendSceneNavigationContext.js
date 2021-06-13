@@ -18,9 +18,9 @@ const getNotes = (scene) => {
   const notes = scene.data.notes
     // the user might have placed a note, unless it is based on an imported Journal Entry, we will not carry
     // that one over
-    .filter((note) => relatedJournalEntries.some((journal) => journal._id === note.data.entryId))
+    .filter((note) => relatedJournalEntries.some((journal) => journal.id === note.data.entryId))
     .map((note) => {
-      const journal = relatedJournalEntries.find((journal) => journal._id === note.data.entryId);
+      const journal = relatedJournalEntries.find((journal) => journal.id === note.data.entryId);
       const idx = parseInt(journal.data.flags.ddb.ddbId);
         // removed un-needed userdata
       const flags = journal.data.flags.ddb;
