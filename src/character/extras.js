@@ -213,7 +213,7 @@ export async function characterExtras(html, characterData, actor) {
 
     // eslint-disable-next-line complexity
     let creatures = characterData.ddb.creatures.map((creature) => {
-      logger.debug(creature);
+      logger.debug("Extra data", creature);
       let mock = JSON.parse(JSON.stringify(creature.definition));
       const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == mock.challengeRatingId).proficiencyBonus;
       const creatureGroup = DDB_CONFIG.creatureGroups.find((group) => group.id == creature.groupId);
@@ -285,7 +285,8 @@ export async function characterExtras(html, characterData, actor) {
       // assume this is beast master
       if (creatureFlags.includes("HPLM")) {
         const ranger = characterData.ddb.classes.find((klass) => klass.definition.id === 5);
-        mock.averageHitPoints = Math.max(mock.averageHitPoints, 4 * ranger.level);
+        const level = ranger ? ranger.level : 0;
+        mock.averageHitPoints = Math.max(mock.averageHitPoints, 4 * level);
       }
 
       // homunculus servant
