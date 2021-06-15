@@ -211,18 +211,18 @@ export function getRange(text) {
   const reachMatch = text.match(reachSearch);
 
   if (matches1) {
-    range.value = matches1[1];
-    range.long = matches1[2];
+    range.value = parseInt(matches1[1]);
+    range.long = parseInt(matches1[2]);
     range.units = "ft";
   } else if (matches2) {
-    range.value = matches2[1];
-    range.long = matches2[2];
+    range.value = parseInt(matches2[1]);
+    range.long = parseInt(matches2[2]);
     range.units = "ft";
   } else if (matches3) {
-    range.value = matches3[1];
+    range.value = parseInt(matches3[1]);
     range.units = "ft";
   } else if (reachMatch) {
-    range.value = reachMatch[1];
+    range.value = parseInt(reachMatch[1]);
     range.units = "ft";
   }
 
@@ -417,19 +417,19 @@ export function getTarget(text) {
   // console.log(sphereMatch);
 
   if (coneMatch) {
-    target.value = coneMatch[1];
+    target.value = parseInt(coneMatch[1]);
     target.units = "ft";
     target.type = "cone";
   } else if (lineMatch) {
-    target.value = lineMatch[1];
+    target.value = parseInt(lineMatch[1]);
     target.units = "ft";
     target.type = "line";
   } else if (cubeMatch) {
-    target.value = cubeMatch[1];
+    target.value = parseInt(cubeMatch[1]);
     target.units = "ft";
     target.type = "cube";
   } else if (sphereMatch) {
-    target.value = sphereMatch[1];
+    target.value = parseInt(sphereMatch[1]);
     target.units = "ft";
     target.type = "sphere";
   }
