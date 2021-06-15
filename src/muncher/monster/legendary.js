@@ -1,5 +1,5 @@
 import { getSource } from "./source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage } from "./utils.js";
+import { getRecharge, getActivation, getFeatSave, getDamage, getRange, getTarget } from "./utils.js";
 import { FEAT_TEMPLATE } from "./templates/feat.js";
 
 function addPlayerDescription(monster, action) {
@@ -140,6 +140,8 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
           action.data.actionType = "save";
           // action.type = "weapon";
         }
+        action.data.range = getRange(node.textContent);
+        action.data.target = getTarget(node.textContent);
         action.data.damage = getDamage(node.textContent);
       }
     }
