@@ -3,6 +3,7 @@
 * Monster with a cone/line/are effect weapon did not parse the size correctly anymore in Foundry 0.8.6. If you have munched monsters in 0.8.* then a full re-munch should be performed.
 * Adding an extra as a Beast Companion when you have no ranger levels would break import.
 * Tiamat's head legendary actions did not parse correctly.
+* Adventure Scene exporter did not export wall direction.
 
 
 # 2.1.9

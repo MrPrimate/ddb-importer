@@ -33,7 +33,9 @@ const getNotes = (scene) => {
       return {
         index: idx,
         label: journal.data.name,
-        flags: flags,
+        flags: {
+          ddb: flags,
+        },
         iconSize: note.data.iconSize,
         iconTint: note.data.iconTint,
         textColor: note.data.textColor,
@@ -109,6 +111,8 @@ const collectSceneData = (scene) => {
       ds: wall.data.ds,
       move: wall.data.move,
       sense: wall.data.sense,
+      sound: wall.data.sound,
+      dir: wall.data.dir,
     })),
     //
     drawings: scene.data.drawings,
@@ -131,40 +135,48 @@ const collectSceneData = (scene) => {
       lightAnimation: light.data.lightAnimation,
       hidden: light.data.hidden,
     })),
-    // tokens
-    tokens: scene.data.tokens
-    .filter((token) => !token.actorLink)
-    .map((token) => {
-      let result = {
-        _id: token.data._id,
-        name: token.data.name,
-        width: token.data.width,
-        height: token.data.height,
-        scale: token.data.scale,
-        x: token.data.x,
-        y: token.data.y,
-        disposition: token.data.disposition,
-        flags: token.data.flags,
-        actorLink: false,
-        bar1: { attribute: "attributes.hp" },
-        effects: [],
-        elevation: token.data.elevation,
-        hidden: token.data.hidden,
-        lightAlpha: token.data.lightAlpha,
-        lightAngle: token.data.lightAngle,
-        lightAnimation: token.data.lightAnimation,
-        tint: token.data.tint,
-        actorData: token.data.actorData,
-      };
-
-      if (token.actor) {
-        if (token.actor.data.flags.ddbimporter) result.flags.ddbActorFlags = token.actor.data.flags.ddbimporter;
-      }
-
-      return result;
-    }),
   };
-  if (data.flags.ddb?.tokens) delete data.flags.ddb.tokens;
+
+  if (!data.flags.ddb) data.flags.ddb = {};
+
+  if (data.flags.ddb.tokens) delete data.flags.ddb.tokens;
+  data.flags.ddb.tokens = scene.data.tokens
+  .filter((token) => !token.actorLink)
+  .map((token) => {
+    let result = {
+      _id: token.data._id,
+      name: token.data.name,
+      width: token.data.width,
+      height: token.data.height,
+      scale: token.data.scale,
+      x: token.data.x,
+      y: token.data.y,
+      disposition: token.data.disposition,
+      flags: token.data.flags,
+      actorLink: false,
+      bar1: { attribute: "attributes.hp" },
+      effects: [],
+      elevation: token.data.elevation,
+      hidden: token.data.hidden,
+      lightAlpha: token.data.lightAlpha,
+      lightAngle: token.data.lightAngle,
+      lightAnimation: token.data.lightAnimation,
+      tint: token.data.tint,
+      actorData: token.data.actorData,
+    };
+
+    // the token actor flags here help us match up actors using the DDB ID
+    if (token.actor) {
+      if (token.actor.data.flags.ddbimporter) {
+        result.flags.ddbActorFlags = token.actor.data.flags.ddbimporter;
+        result.flags.ddbActorFlags.name = token.actor.data.name;
+      }
+    }
+
+    return result;
+  });
+
+
   // removed un-needed userdata
   if (data.flags.ddb?.userData) {
     if (data.flags.ddb.userData.status) delete (data.flags.ddb.userData.status);
@@ -173,16 +185,10 @@ const collectSceneData = (scene) => {
     if (data.flags.ddb.userData.AvatarUrl) delete (data.flags.ddb.userData.AvatarUrl);
   }
 
-  if (data.flags.vtta && !data.flags.vtta.code) {
-    data.flags.vtta.code = scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
-  }
-
-  if (!data.flags.ddb) data.flags.ddb = {};
   data.flags.ddb.notes = notes;
   data.flags.ddbimporter = {
     version: game.modules.get("ddb-importer").data.version,
   };
-
 
   return data;
 };
@@ -195,23 +201,18 @@ export default (html, contextOptions) => {
       const scene = game.scenes.get(sceneId);
       // console.warn(scene);
       const data = collectSceneData(scene);
-      const bookCode = scene.data.flags.ddb?.bookCode
-        ? `${scene.data.flags.ddb.bookCode}-${scene.data.flags.ddb.ddbId}`
-        : (scene.data.flags.vtta?.id)
-          ? scene.data.flags.vtta.id.replace("/", "-")
-          : scene.data.flags.vtta.thumb.split("/")[0].toLowerCase();
+      const bookCode = `${scene.data.flags.ddb.bookCode}-${scene.data.flags.ddb.ddbId}`;
       const cobaltId = scene.data.flags.ddb?.cobaltId ? `-${scene.data.flags.ddb.cobaltId}` : "";
       const parentId = scene.data.flags.ddb?.parentId ? `-${scene.data.flags.ddb.parentId}` : "";
-      const vttaId = scene.data.flags.vtta?.sceneId ? `-${scene.data.flags.vtta.sceneId}` : "";
-      const sceneRef = `${bookCode}${cobaltId}${parentId}${vttaId}`;
+      const sceneRef = `${bookCode}${cobaltId}${parentId}`;
       // console.warn(data);
-      return download(JSON.stringify(data), `${sceneRef}-scene.json`, "application/json");
+      return download(JSON.stringify(data, null, 4), `${sceneRef}-scene.json`, "application/json");
     },
     condition: (li) => {
       const sceneId = $(li).attr("data-scene-id") ? $(li).attr("data-scene-id") : $(li).attr("data-entity-id");
       const scene = game.scenes.get(sceneId);
       const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download");
-      const allowDownload = game.user.isGM && sceneDownload && (scene.data.flags.ddb?.ddbId || scene.data.flags.vtta?.code || scene.data.flags.vtta?.thumb);
+      const allowDownload = game.user.isGM && sceneDownload && scene.data.flags.ddb?.ddbId;
       return allowDownload;
     },
     icon: '<i class="fas fa-share-alt"></i>',
