@@ -1288,8 +1288,17 @@ export default class CharacterImport extends FormApplication {
   async createCharacterItems(items, keepIds) {
     const options = JSON.parse(JSON.stringify(DISABLE_FOUNDRY_UPGRADE));
     if (keepIds) options["keepId"] = true;
-    logger.debug(`Adding the following items, keep Ids? ${keepIds}`, JSON.parse(JSON.stringify(items)));
-    await this.actor.createEmbeddedDocuments("Item", items, options);
+
+    // we have to break these out into class and non-class because of
+    // https://gitlab.com/foundrynet/foundryvtt/-/issues/5312
+    const klassItems = items.filter((item) => item.type === "class");
+    const nonKlassItems = items.filter((item) => item.type !== "class");
+
+    logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, JSON.parse(JSON.stringify(klassItems)));
+    await this.actor.createEmbeddedDocuments("Item", klassItems, options);
+
+    logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, JSON.parse(JSON.stringify(nonKlassItems)));
+    await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
   }
 
   async importCharacterItems(html, items, keepIds = false) {
@@ -1444,19 +1453,22 @@ export default class CharacterImport extends FormApplication {
     if (useExistingCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Adding DDB compendium items");
       logger.info("Adding DDB compendium items:", compendiumItems);
-      await this.actor.createEmbeddedDocuments("Item", compendiumItems, DISABLE_FOUNDRY_UPGRADE);
+      await this.createCharacterItems(compendiumItems, false);
+      // await this.actor.createEmbeddedDocuments("Item", compendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
 
     if (useSRDCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Adding SRD compendium items");
       logger.info("Adding SRD compendium items:", srdCompendiumItems);
-      await this.actor.createEmbeddedDocuments("Item", srdCompendiumItems, DISABLE_FOUNDRY_UPGRADE);
+      await this.createCharacterItems(srdCompendiumItems, false);
+      // await this.actor.createEmbeddedDocuments("Item", srdCompendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
 
     if (useOverrideCompendiumItems) {
       CharacterImport.showCurrentTask(html, "Adding Override compendium items");
       logger.info("Adding Override compendium items:", overrideCompendiumItems);
-      await this.actor.createEmbeddedDocuments("Item", overrideCompendiumItems, DISABLE_FOUNDRY_UPGRADE);
+      await this.createCharacterItems(overrideCompendiumItems, false);
+      // await this.actor.createEmbeddedDocuments("Item", overrideCompendiumItems, DISABLE_FOUNDRY_UPGRADE);
     }
 
     logger.debug("Finished importing items");

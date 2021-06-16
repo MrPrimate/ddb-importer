@@ -1,3 +1,7 @@
+# 2.1.11
+
+* Attempt to reduce likelyhood of `The key xxxx does not exist in the EmbeddedCollection Collection` messages when creating actors with Effects.
+
 # 2.1.10
 
 * Monster with a cone/line/are effect weapon did not parse the size correctly anymore in Foundry 0.8.6. If you have munched monsters in 0.8.* then a full re-munch should be performed.
