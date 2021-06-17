@@ -204,7 +204,9 @@ export default (html, contextOptions) => {
       const bookCode = `${scene.data.flags.ddb.bookCode}-${scene.data.flags.ddb.ddbId}`;
       const cobaltId = scene.data.flags.ddb?.cobaltId ? `-${scene.data.flags.ddb.cobaltId}` : "";
       const parentId = scene.data.flags.ddb?.parentId ? `-${scene.data.flags.ddb.parentId}` : "";
-      const sceneRef = `${bookCode}${cobaltId}${parentId}`;
+      const contentChunkId = scene.data.flags.ddb?.contentChunkId ? `-${scene.data.flags.ddb.contentChunkId}` : "";
+      const name = scene.data.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+      const sceneRef = `${bookCode}${cobaltId}${parentId}${contentChunkId}-${name}`;
       // console.warn(data);
       return download(JSON.stringify(data, null, 4), `${sceneRef}-scene.json`, "application/json");
     },
