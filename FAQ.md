@@ -11,6 +11,7 @@ Open the Browser Developer Console (F12) and run the following:
 ```javascript
 game.settings.set("ddb-importer", "cobalt-cookie-local", false);
 game.settings.set("ddb-importer", "cobalt-cookie", "");
+game.settings.set("ddb-importer", "campaign-id", "");
 ```
 
 
