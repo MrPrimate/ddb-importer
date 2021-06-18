@@ -1,3 +1,7 @@
+# 2.1.12
+
+* Better handling of bad campaign id caused the ddb importer core settings screen to not open.
+
 # 2.1.11
 
 * Attempt to reduce likelyhood of `The key xxxx does not exist in the EmbeddedCollection Collection` messages when creating actors with Effects.

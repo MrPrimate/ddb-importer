@@ -1,3 +1,5 @@
+import logger from "../logger.js";
+
 export const BAD_DIRS = ["[data]", "[data] ", "", null];
 
 export function download(content, fileName, contentType) {
@@ -30,11 +32,13 @@ export function getCampaignId() {
   const campaignId = game.settings.get("ddb-importer", "campaign-id").split('/').pop();
 
   if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
-    munchNote(`Campaign Id is invalid! ${campaignId}`, true);
-    throw new Error(`Campaign Id is invalid! ${campaignId}`);
+    munchNote(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
+    logger.error(`Campaign Id is invalid! Set to "${campaignId}", using empty string`);
+    return "";
   } else if (campaignId.includes("join")) {
-    munchNote(`Campaign URL is a join campaign link, please change it! ${campaignId}`, true);
-    throw new Error(`Campaign URL is a join campaign link, please change it! ${campaignId}`);
+    munchNote(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`, true);
+    logger.error(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`);
+    return "";
   }
   return campaignId;
 }

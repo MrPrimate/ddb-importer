@@ -32,10 +32,8 @@ function renderPopup(type, url) {
 export function isSetupComplete(needsCobalt = true) {
   const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
   const dataDirSet = !BAD_DIRS.includes(uploadDir);
-  const campaignId = game.settings.get("ddb-importer", "campaign-id");
   const cobalt = getCobalt() != "";
-  const campaignIdCorrect = !campaignId.includes("join");
-  const setupComplete = dataDirSet && (cobalt || !needsCobalt) && campaignIdCorrect;
+  const setupComplete = dataDirSet && (cobalt || !needsCobalt);
   return setupComplete;
 }
 
@@ -321,23 +319,15 @@ export class DDBSetup extends FormApplication {
     const cobaltLocal = game.settings.get("ddb-importer", "cobalt-cookie-local");
     const hasKey = game.settings.get("ddb-importer", "beta-key") != "";
     const key = game.settings.get("ddb-importer", "beta-key");
-    // const daeInstalled = utils.isModuleInstalledAndActive('dae') && utils.isModuleInstalledAndActive('Dynamic-Effects-SRD');
-    const parsedCampaignId = getCampaignId();
-    const campaignIdCorrect = !game.settings.get("ddb-importer", "campaign-id").includes("join");
+    const campaignId = getCampaignId();
     const tier = game.settings.get("ddb-importer", "patreon-tier");
-
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
-    const dataDirSet = !BAD_DIRS.includes(uploadDir);
-
     const otherUploadDir = game.settings.get("ddb-importer", "other-image-upload-directory");
-
+    const dataDirSet = !BAD_DIRS.includes(uploadDir) && !BAD_DIRS.includes(otherUploadDir);
     const patreonUser = game.settings.get("ddb-importer", "patreon-user");
     const validKeyObject = hasKey ? await getPatreonValidity(key) : false;
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
-
     const availableCampaigns = isCobalt && cobaltStatus.success ? await getCampaigns() : [];
-    const campaignId = campaignIdCorrect ? parsedCampaignId : "";
-    const campaignLabel = campaignId !== "" ? "A label" : "";
 
     availableCampaigns.forEach((campaign) => {
       const selected = campaign.id == campaignId;
@@ -350,18 +340,16 @@ export class DDBSetup extends FormApplication {
       "cobalt-cookie": cobalt,
       "available-campaigns": availableCampaigns,
       "campaign-id": campaignId,
-      "campaign-label": campaignLabel,
       "beta-key": key,
     };
 
-    const setupComplete = dataDirSet && isCobalt && campaignIdCorrect;
+    const setupComplete = dataDirSet && isCobalt;
 
     return {
       cobalt: isCobalt,
       cobaltLocal: cobaltLocal,
       setupConfig: setupConfig,
       setupComplete: setupComplete,
-      campaignIdCorrect: campaignIdCorrect,
       tier: tier,
       patreonLinked: patreonUser && patreonUser != "",
       patreonUser: patreonUser,
