@@ -45,6 +45,22 @@ export class DDBSources extends FormApplication {
     return "Monster Muncher Sauce Selection";
   }
 
+  activateListeners(html) {
+    super.activateListeners(html);
+
+    html.find("#toggle-sources").click(async (event) => {
+      event.preventDefault();
+      if ($('.munching-sources input:checked').length && $('.munching-sources input').not(':checked').length) {
+        $('.munching-sources input').prop('checked', false);
+      } else {
+        $('.munching-sources input').each(function() {
+          // eslint-disable-next-line no-invalid-this
+          $(this).prop('checked', !$(this).prop('checked'));
+        });
+      }
+    });
+  }
+
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
     const existingSelection = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
