@@ -15,10 +15,10 @@ async function getMonsterData() {
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const searchTerm = $("#monster-munch-filter")[0].value;
   const debugJson = game.settings.get("ddb-importer", "debug-json");
-  const homebrew = game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
-  const homebrewOnly = game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
-  const exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
   const sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
+  const homebrew = sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
+  const homebrewOnly = sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
+  const exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
   const body = {
     cobalt: cobaltCookie,
     betaKey: betaKey,
@@ -107,9 +107,9 @@ export async function parseCritters() {
   // console.warn(finalMonsters);
   // finalMonsters.forEach((monster) => {
   //   cr.push({name: monster.name, cr: monster.data.details.cr, type: monster.data.details.type });
-    // monster.items.forEach((feature) => {
-    //   features.push({ name: feature.name, monster: monster.name, srdImage: feature.img});
-    // })
+  // monster.items.forEach((feature) => {
+  //   features.push({ name: feature.name, monster: monster.name, srdImage: feature.img});
+  // })
   // });
   // download(JSON.stringify(features), `monster-features.json`, "application/json");
   // download(JSON.stringify(cr), `monster-details.json`, "application/json");
