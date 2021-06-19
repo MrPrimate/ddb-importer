@@ -462,12 +462,6 @@ export default class DDBMuncher extends Application {
         enabled: true,
       },
       {
-        name: "use-srd",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd"),
-        description: "Use SRD compendium things instead of importing.",
-        enabled: true,
-      },
-      {
         name: "use-inbuilt-icons",
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons"),
         description: "Use icons from the inbuilt dictionary. (High coverage, recommended, fast).",
@@ -502,6 +496,12 @@ export default class DDBMuncher extends Application {
         isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
         description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD module)",
         enabled: daeInstalled && daeSRDInstall,
+      },
+      {
+        name: "use-srd",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd"),
+        description: "[CAUTION] Use SRD compendium things instead of importing. This is not recommended, and may break adventure munching functionality.",
+        enabled: true,
       },
     ];
 
