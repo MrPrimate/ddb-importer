@@ -280,3 +280,22 @@ export function getBiography(data) {
     value: background.description + backstory,
   };
 }
+
+export function getDescription(data) {
+  const result = {
+    "gender": data.character.gender || "",
+    "age": data.character.age || "",
+    "height": data.character.height || "",
+    "weight": data.character.weight || "",
+    "eyes": data.character.eyes || "",
+    "skin": data.character.skin || "",
+    "hair": data.character.hair || "",
+  };
+
+  return result;
+}
+
+
+// "attunedItemsMax": "3",
+// "attunedItemsCount": 0,
+// "maxPreparedSpells": null,

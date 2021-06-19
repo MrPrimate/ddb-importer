@@ -14,6 +14,7 @@ import {
   getAlignment,
   getBiography,
   getAppearance,
+  getDescription,
 } from "./bio.js";
 import { getBonusAbilities, getBonusSpellAttacks, getBonusSpellDC, getBonusWeaponAttacks } from "./globalBonuses.js";
 import {
@@ -132,6 +133,8 @@ export default function getCharacter(ddb) {
   character.data.details.bond = getBond(ddb);
   character.data.details.flaw = getFlaw(ddb);
   character.data.details.appearance = getAppearance(ddb);
+
+  Object.assign(character.data.details, getDescription(ddb));
 
   character.data.details.alignment = getAlignment(ddb);
 

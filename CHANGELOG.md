@@ -4,6 +4,7 @@
 * Monster munch: Better parsing of Gelatinous Cube. This may also impact parsing of monsters where abilities are broken out over several paragraphs of text. This _may_ have impacted other monster parsing in unexpected ways, so please raise any oddities in #monster-parsing-fail.
 * A button to toggle source status on/off.
 * Monsters: Ensure that when sources are selected homebrew only command is not processed.
+* Copy more description details for Tidy sheet.
 
 # 2.1.11
 
