@@ -2,6 +2,7 @@
 
 * Better handling of bad campaign id caused the ddb importer core settings screen to not open.
 * Monster munch: Better parsing of Gelatinous Cube. This may also impact parsing of monsters where abilities are broken out over several paragraphs of text. This _may_ have impacted other monster parsing in unexpected ways, so please raise any oddities in #monster-parsing-fail.
+* A button to toggle source status on/off.
 
 # 2.1.11
 
