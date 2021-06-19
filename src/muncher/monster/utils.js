@@ -36,6 +36,7 @@ function damageModReplace(text, attackInfo, damageType) {
   return result;
 }
 
+// eslint-disable-next-line complexity
 function getExtendedDamage(description, attackInfo) {
   let result = {
     damage: {
@@ -46,6 +47,7 @@ function getExtendedDamage(description, attackInfo) {
       dc: null,
       ability: null
     },
+    formula: "",
   };
 
   const hitIndex = description.indexOf("Hit:");
@@ -54,15 +56,16 @@ function getExtendedDamage(description, attackInfo) {
   hit = hit.replace(/[–-–−]/g, "-");
   // console.warn(hit);
   // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
-  const damageExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(two hands)?/); // eslint-disable-line no-useless-escape
+  // eslint-disable-next-line no-useless-escape
+  const damageExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of)?/);
   const matches = reMatchAll(damageExpression, hit) || [];
   const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
   const regainMatch = hit.match(regainExpression);
 
   // console.warn(matches);
-
+  let versatile = false;
   for (let dmg of matches) {
-    let versatile = false;
+    let other = false;
     if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
         continue; // eslint-disable-line no-continue
     }
@@ -70,6 +73,8 @@ function getExtendedDamage(description, attackInfo) {
     if (dmg[1] == "or " || dmg[5] == "two hands") {
       versatile = true;
     }
+    // check for other
+    if (dmg[5] && dmg[5].trim() == "at the start of") other = true;
     const damage = dmg[3] || dmg[2];
     // Make sure we did match a damage
     if (damage) {
@@ -77,8 +82,14 @@ function getExtendedDamage(description, attackInfo) {
           ? damageModReplace(damage.replace("plus", "+"), attackInfo, dmg[4])
           : damage.replace("plus", "+");
       // assumption here is that there is just one field added to versatile. this is going to be rare.
-      if (versatile) {
-        if (result.damage.versatile == "") result.damage.versatile = damage.replace("plus", "+");
+      if (other) {
+        if (result.formula == "") result.formula = finalDamage;
+      } else if (versatile) {
+        if (result.damage.versatile == "") result.damage.versatile = finalDamage;
+        // so things like the duergar mind master have oddity where we might want to use a different thing
+        // } else {
+        //   result.damage.versatile += ` + ${finalDamage}`;
+        // }
       } else {
         result.damage.parts.push([finalDamage, dmg[4]]);
       }
@@ -522,6 +533,7 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
   }
   const damage = getExtendedDamage(text, result);
   result.damage = damage.damage;
+  result.formula = damage.formula;
 
   result.reach = getReach(text);
   result.range = getRange(text);
@@ -535,3 +547,8 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
   return result;
 }
 
+export function stripHtml(html) {
+   let tmp = document.createElement("DIV");
+   tmp.innerHTML = html;
+   return tmp.textContent || tmp.innerText || "";
+}

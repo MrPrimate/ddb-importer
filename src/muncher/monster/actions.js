@@ -1,19 +1,19 @@
 import { getSource } from "./source.js";
-import { getActionInfo, getAction, getUses } from "./utils.js";
+import { getActionInfo, getAction, getUses, stripHtml } from "./utils.js";
 import { FEAT_TEMPLATE } from "./templates/feat.js";
 
 // "actionsDescription": "<p><em><strong>Multiattack.</strong></em> The dragon can use its Frightful Presence. It then makes three attacks: one with its bite and two with its claws.</p>\r\n<p><em><strong>Bite.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 15 ft., one target. <em>Hit:</em> 19 (2d10 + 8) piercing damage plus 9 (2d8) acid damage.</p>\r\n<p><em><strong>Claw.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 10 ft., one target. <em>Hit:</em> 15 (2d6 + 8) slashing damage.</p>\r\n<p><em><strong>Tail.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 20 ft., one target. <em>Hit:</em> 17 (2d8 + 8) bludgeoning damage.</p>\r\n<p><em><strong>Frightful Presence.</strong></em> Each creature of the dragon's choice that is within 120 feet of the dragon and aware of it must succeed on a DC 19 Wisdom saving throw or become frightened for 1 minute. A creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature is immune to the dragon's Frightful Presence for the next 24 hours.</p>\r\n<p><em><strong>Acid Breath (Recharge 5&ndash;6).</strong></em> The dragon exhales acid in a 90-foot line that is 10 feet wide. Each creature in that line must make a DC 22 Dexterity saving throw, taking 67 (15d8) acid damage on a failed save, or half as much damage on a successful one.</p>",
 
-function addPlayerDescription(monster, action) {
-  let playerDescription = "";
+function generatePlayerDescription(monster, action) {
+  let playerDescription = `<section class="secret">\n${action.data.description.value}`;
   if (["rwak", "mwak"].includes(action.data.actionType)) {
-    playerDescription = `</section>\nThe ${monster.name} attacks with its ${action.name}.`;
+    playerDescription += `\n</section>\nThe ${monster.name} attacks with its ${action.name}.`;
   } else if (["rsak", "msak"].includes(action.data.actionType)) {
-    playerDescription = `</section>\nThe ${monster.name} casts ${action.name}.`;
+    playerDescription += `\n</section>\nThe ${monster.name} casts ${action.name}.`;
   } else if (["save"].includes(action.data.actionType)) {
-    playerDescription = `</section>\nThe ${monster.name} uses ${action.name} and a save is required.`;
+    playerDescription += `\n</section>\nThe ${monster.name} uses ${action.name} and a save is required.`;
   } else {
-    playerDescription = `</section>\nThe ${monster.name} uses ${action.name}.`;
+    playerDescription += `\n</section>\nThe ${monster.name} uses ${action.name}.`;
   }
   return playerDescription;
 }
@@ -40,6 +40,7 @@ function buildAction(action, actionInfo, textContent, type) {
   }
 
   action.data.damage = actionInfo.damage;
+  action.data.formula = actionInfo.formula;
   action.data.properties = actionInfo.properties;
   action.data.proficient = actionInfo.proficient;
   action.data.ability = actionInfo.baseAbility;
@@ -76,6 +77,10 @@ function buildAction(action, actionInfo, textContent, type) {
   action.data.target = actionInfo.target;
   action.data.duration = actionInfo.duration;
   action.data.uses = actionInfo.uses;
+
+  if (action.name.includes("/Day")) {
+    action.data.uses = getUses(action.name, true);
+  }
 
   return action;
 }
@@ -222,7 +227,6 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     action = dynamicActions[0];
   }
 
-  // console.warn("DYNAMIC ACTIONS");
   // console.error(dynamicActions);
 
   dom.childNodes.forEach((node) => {
@@ -247,22 +251,15 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     // console.warn(switchAction);
     let startFlag = false;
     if (switchAction) {
-      if (action.data.description.value !== "" && hideDescription) {
-        action.data.description.value += addPlayerDescription(monster, action);
-      }
       action = switchAction;
       if (action.data.description.value === "") {
         startFlag = true;
-        if (hideDescription) {
-          action.data.description.value = "<section class=\"secret\">\n";
-        }
       }
     }
 
     // console.warn(node);
     // console.warn(action);
     if (!action) return;
-    const actionInfo = getActionInfo(monster, DDB_CONFIG, action.name, node.textContent);
 
     if (node.outerHTML) {
       let outerHTML = node.outerHTML;
@@ -282,25 +279,19 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       }
       action.data.description.value += outerHTML;
     }
-
-    // If we have already parsed bits of this action, we probably don't want to
-    // do it again!
-    if (!startFlag) return;
-
-    // if this is the first pass we build the action
-    action = buildAction(action, actionInfo, node.textContent, type);
-
-    if (action.name.includes("/Day")) {
-      action.data.uses = getUses(action.name, true);
-    }
-
   });
 
-  if (action && action.data.description.value !== "" && hideDescription) {
-    action.data.description.value += addPlayerDescription(monster, action);
-  }
+  dynamicActions = dynamicActions.map((da) => {
+    const actionDescription = stripHtml(da.data.description.value);
+    const actionInfo = getActionInfo(monster, DDB_CONFIG, da.name, actionDescription);
+    const result = buildAction(da, actionInfo, actionDescription, type);
+    if (hideDescription) {
+      da.data.description.value = generatePlayerDescription(monster, da);
+    }
+    return result;
+  });
 
-  // console.log(dynamicActions);
+  // console.warn(dynamicActions);
   // console.log(JSON.stringify(dynamicActions, null, 4));
 
   return [dynamicActions, characterDescription];
