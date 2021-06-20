@@ -1,3 +1,8 @@
+# 2.1.13
+
+* Multiclass characters with special traits could loose special traits depending on the order classes were parsed. @Incanter#8172
+* Monster will now parse Resistance/Immunity/Vulnerability of "Non-magical Physical" damage as the provided flag rather than other.
+
 # 2.1.12
 
 * Better handling of bad campaign id caused the ddb importer core settings screen to not open.
