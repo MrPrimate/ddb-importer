@@ -203,6 +203,10 @@ export function fixFeatures(features) {
         feature.data.damage.parts[0][0] = `1d${feature.data.damage.parts[0][0].split("d").pop()}`;
         break;
       }
+      case "Deflect Missiles": {
+        feature.data.damage = { parts: [["1d10 + @mod + @classes.monk.levels"]], versatile: "", value: "" };
+        break;
+      }
       // no default
     }
   });
