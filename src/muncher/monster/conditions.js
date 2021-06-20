@@ -69,6 +69,8 @@ function getDamageAdjustments(monster, type, DDB_CONFIG) {
     const adjustment = config.find((cadj) => adj === cadj.id);
     if (adjustment && DAMAGE_TYPES.includes(adjustment.name.toLowerCase())) {
       values.push(adjustment.name.toLowerCase());
+    } else if (adjustment && adjustment.slug === "bludgeoning-piercing-and-slashing-from-nonmagical-attacks") {
+      values.push("physical");
     } else if (adjustment) {
       custom.push(adjustment.name);
     }
