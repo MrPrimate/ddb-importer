@@ -2,6 +2,7 @@
 
 * Multiclass characters with special traits could loose special traits depending on the order classes were parsed. @Incanter#8172
 * Monster will now parse Resistance/Immunity/Vulnerability of "Non-magical Physical" damage as the provided flag rather than other.
+* Deflect Missiles now has a damage roll associated with it.
 
 # 2.1.12
 
