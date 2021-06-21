@@ -6,6 +6,22 @@ import { baseItemEffect } from "./effects.js";
  */
 export function featureEffectAdjustment(document) {
   switch (document.name) {
+    // if using active auras add the aura effect
+    case "Aura of Courage":
+    case "Aura of Protection": {
+      document.effects.forEach((effect) => {
+        if (effect.label.includes("Constant Effects")) {
+          effect.flags.ActiveAuras = {
+            aura: "Allies",
+            radius: 10,
+            isAura: true,
+            inactive: false,
+            hidden: false,
+          };
+        }
+      });
+      break;
+    }
     case "Rage": {
       let effect = baseItemEffect(document, `${document.name}`);
 

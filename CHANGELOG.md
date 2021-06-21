@@ -1,3 +1,9 @@
+# 2.1.14
+
+* Compendium dropdowns now align.
+* If use DAE Paladins Auras are now added as an effect.
+* If using Active Effect Auras, the Paladin auras will have the appropriate metadata set.
+
 # 2.1.13
 
 * Multiclass characters with special traits could loose special traits depending on the order classes were parsed. @Incanter#8172

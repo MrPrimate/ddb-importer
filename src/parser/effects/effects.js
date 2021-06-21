@@ -272,14 +272,15 @@ function extractModifierValue(modifier) {
   let value = "";
   let modBonus = "";
 
-  if (modifier.statId) {
+  let statBonus = (modifier.statId)
+    ? modifier.statId
+    : modifier.abilityModifierStatId
+      ? modifier.abilityModifierStatId
+      : null;
+
+  if (statBonus) {
     const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId).value;
-    modBonus = `+ @abilities.${ability}.mod`;
-  } else if (modifier.abilityModifierStatId) {
-    const ability = DICTIONARY.character.abilities.find(
-      (ability) => ability.id === modifier.abilityModifierStatId.statId
-    ).value;
-    modBonus = `+ @abilities.${ability}.mod`;
+    modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `+ @abilities.${ability}.mod`;
   }
 
   const fixedBonus = modifier.dice?.fixedValue ? ` + ${modifier.dice.fixedValue}` : "";
@@ -294,6 +295,8 @@ function extractModifierValue(modifier) {
     value = modifier.fixedValue;
   } else if (modifier.value) {
     value = modifier.value;
+  } else if (modBonus) {
+    value = modBonus;
   }
 
   return value;
@@ -304,11 +307,20 @@ function extractModifierValue(modifier) {
  */
 function addCustomBonusEffect(modifiers, name, type, key) {
   let changes = [];
-  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
-  if (bonus !== 0) {
+  const bonusEffects = utils.filterModifiers(modifiers, "bonus", type);
+
+  if (bonusEffects.length > 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
-    changes.push(generateCustomBonusChange(bonus, 18, key));
+    let bonuses = "";
+    bonusEffects.forEach((modifier) => {
+      let bonusParse = extractModifierValue(modifier);
+      if (bonuses !== "") bonuses += " + ";
+      bonuses += bonusParse;
+    });
+    changes.push(generateCustomChange(`${bonuses}`, 18, key));
+    logger.debug(`Changes for ${type} bonus for ${name}`, changes);
   }
+
   return changes;
 }
 
@@ -938,19 +950,19 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "saving-throws",
-    "data.bonuses.abilities.save"
+    "data.bonuses.abilities.save",
   );
   const globalAbilityBonus = addCustomBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "ability-checks",
-    "data.bonuses.abilities.check"
+    "data.bonuses.abilities.check",
   );
   const globalSkillBonus = addCustomBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "skill-checks",
-    "data.bonuses.abilities.skill"
+    "data.bonuses.abilities.skill",
   );
   const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
   const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
