@@ -8,7 +8,7 @@
       {{#each compendiums}}
       <div class="form-group">
         <h3><label for="cars">{{this.name}}</label></h3>
-        <select name="{{this.setting}}" id="{{this.setting}}" style="flex: 0 1 auto">
+        <select name="{{this.setting}}" id="{{this.setting}}" style="flex: 55%">
           {{#each this.compendiums}}
             <option value="{{@key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
           {{/each}}
