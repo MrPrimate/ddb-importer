@@ -4,6 +4,8 @@
 * If use DAE Paladins Auras are now added as an effect.
 * If using Active Effect Auras, the Paladin auras will have the appropriate metadata set.
 * If using wildcards in monster token images, adventure importer will now respect the random token generation.
+* Adventure import will now respect scales that have been changed on monster tokens in your compendium.
+* Scene config for adventure muncher will now capture some missing fields for lights, as well as capturing light and wall flags allowing meta-data for modules like community lighting to be captured.
 
 # 2.1.13
 
