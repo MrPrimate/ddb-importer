@@ -226,9 +226,14 @@ export default class AdventureMunch extends FormApplication {
                     await Helpers.asyncForEach(scene.tokens, async (token) => {
                       if (token.actorId) {
                         const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
-                        const tokenTemplate = CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[token.actorId];
-                        if (tokenTemplate) {
-                          const updateData = mergeObject(tokenTemplate, sceneToken);
+                        const worldActor = game.actors.get(token.actorId);
+                        if (worldActor) {
+                          const tokenData = await worldActor.getTokenData();
+                          delete tokenData.y;
+                          delete tokenData.x;
+                          const jsonTokenData = JSON.parse(JSON.stringify(tokenData));
+                          const updateData = mergeObject(jsonTokenData, sceneToken);
+                          logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
                           await obj.updateEmbeddedDocuments("Token", [updateData], { keepId: true });
                         }
                       }
@@ -707,7 +712,6 @@ export default class AdventureMunch extends FormApplication {
     const monsterCompendium = await checkMonsterCompendium();
 
     const neededActors = scene.tokens
-      .filter((token) => !CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[token.actorId])
       .map((token) => {
         return { name: token.name, ddbId: token.flags.ddbActorFlags.id, actorId: token.actorId, compendiumId: token.flags.compendiumActorId, folderId: token.flags.actorFolderId };
       })
@@ -728,14 +732,6 @@ export default class AdventureMunch extends FormApplication {
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
           logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.compendiumId}", { _id: "${actor.actorId}", folder: "${actor.folderId}" }, { keepId: true });`);
         }
-      }
-      if (worldActor) {
-        const tokenData = await worldActor.getTokenData();
-        delete tokenData.y;
-        delete tokenData.x;
-        const jsonTokenData = JSON.parse(JSON.stringify(tokenData));
-        CONFIG.DDBI.ADVENTURE.TEMPORARY.actors[actor.actorId] = jsonTokenData;
-        logger.debug(`${actor.name} token data for id ${actor.actorId}`, jsonTokenData);
       }
     });
 

@@ -3,6 +3,7 @@
 * Compendium dropdowns now align.
 * If use DAE Paladins Auras are now added as an effect.
 * If using Active Effect Auras, the Paladin auras will have the appropriate metadata set.
+* If using wildcards in monster token images, adventure importer will now respect the random token generation.
 
 # 2.1.13
 
