@@ -226,6 +226,7 @@ export default class AdventureMunch extends FormApplication {
                     await Helpers.asyncForEach(scene.tokens, async (token) => {
                       if (token.actorId) {
                         const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
+                        delete sceneToken.scale;
                         const worldActor = game.actors.get(token.actorId);
                         if (worldActor) {
                           const tokenData = await worldActor.getTokenData();
