@@ -827,7 +827,7 @@ export function getCompendiumLabel(type) {
  * gets items from compendium
  * @param {*} items
  */
-export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false, monsterMatch = false, keepId = false) {
+export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true) {
   if (!compendiumLabel) {
     compendiumLabel = getCompendiumLabel(type);
   }
@@ -863,7 +863,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
     // eslint-disable-next-line no-await-in-loop
     let item = await compendium.getDocument(i._id).then((doc) => {
       const docData = doc.toObject();
-      delete docData._id;
+      if (deleteCompendiumId) delete docData._id;
       return docData;
     });
     if (item.flags.ddbimporter) {
@@ -1095,7 +1095,7 @@ export async function daeFiddling(items) {
 }
 
 async function getCompendiumItemSpells(spells) {
-  const compendiumSpells = await getCompendiumItems(spells, "spell", null, false, false, true);
+  const compendiumSpells = await getCompendiumItems(spells, "spell", null, false, false, true, false);
   const lessCompendiumSpells = await removeItems(spells, compendiumSpells);
   const srdSpells = await getSRDCompendiumItems(lessCompendiumSpells, "spell", false, true);
   const foundSpells = compendiumSpells.concat(srdSpells);

@@ -1,3 +1,7 @@
+# 2.1.15
+
+* MagicItems module support: will now link spells to compendium items again.
+
 # 2.1.14
 
 * Compendium dropdowns now align.
