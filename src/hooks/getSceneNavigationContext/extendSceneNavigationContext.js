@@ -105,15 +105,11 @@ const collectSceneData = (scene) => {
     initial: scene.data.initial,
     // customization
     backgroundColor: scene.data.backgroundColor,
-    walls: scene.data.walls.map((wall) => ({
-      c: wall.data.c,
-      door: wall.data.door,
-      ds: wall.data.ds,
-      move: wall.data.move,
-      sense: wall.data.sense,
-      sound: wall.data.sound,
-      dir: wall.data.dir,
-    })),
+    walls: scene.data.walls.map((wall) => {
+      const w = wall.toObject();
+      delete w._id;
+      return w;
+    }),
     //
     drawings: scene.data.drawings,
     weather: scene.data.weather,
@@ -122,19 +118,11 @@ const collectSceneData = (scene) => {
     tokenVision: scene.data.tokenVision,
     globalLight: scene.data.globalLight,
     globalLightThreshold: scene.data.globalLightThreshold,
-    lights: scene.data.lights.map((light) => ({
-      angle: light.data.angle,
-      bright: light.data.bright,
-      darknessThreshold: light.data.darknessThreshold,
-      dim: light.data.dim,
-      rotation: light.data.rotation,
-      t: light.data.t,
-      tintAlpha: light.data.tintAlpha,
-      x: light.data.x,
-      y: light.data.y,
-      lightAnimation: light.data.lightAnimation,
-      hidden: light.data.hidden,
-    })),
+    lights: scene.data.lights.map((light) => {
+      const l = light.toObject();
+      delete l._id;
+      return l;
+    }),
   };
 
   if (!data.flags.ddb) data.flags.ddb = {};
