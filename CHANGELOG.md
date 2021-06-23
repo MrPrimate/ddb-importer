@@ -1,3 +1,7 @@
+# 2.1.16
+
+* If Agonising Blast was granted through the Feat Eldritch Adept it would not apply.
+
 # 2.1.15
 
 * MagicItems module support: will now link spells to compendium items again.

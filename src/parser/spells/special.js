@@ -6,8 +6,8 @@ let getEldritchInvocations = (data) => {
   let damage = 0;
   let range = 0;
 
-  const eldritchBlastMods = utils.getChosenClassModifiers(data).filter(
-    (modifier) => modifier.type === "eldritch-blast" && modifier.isGranted
+  const eldritchBlastMods = utils.filterBaseModifiers(data, "eldritch-blast").filter(
+    (modifier) => modifier.isGranted
   );
 
   eldritchBlastMods.forEach((mod) => {
