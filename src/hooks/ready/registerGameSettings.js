@@ -56,6 +56,20 @@ export default function () {
     DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
   }
 
+  game.settings.register("ddb-importer", "frame-image-upload-directory", {
+    name: "ddb-importer.frame-upload-directory.name",
+    hint: "ddb-importer.frame-upload-directory.hint",
+    scope: "world",
+    config: false,
+    type: DirectoryPicker.Directory,
+    default: "[data] ddb-images/frames",
+  });
+
+  if (game.user.isTrusted) {
+    const frameUploads = game.settings.get("ddb-importer", "frame-image-upload-directory");
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(frameUploads));
+  }
+
   game.settings.register("ddb-importer", "settings-call-muncher", {
     scope: "world",
     config: false,

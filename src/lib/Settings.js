@@ -323,6 +323,7 @@ export class DDBSetup extends FormApplication {
     const tier = game.settings.get("ddb-importer", "patreon-tier");
     const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
     const otherUploadDir = game.settings.get("ddb-importer", "other-image-upload-directory");
+    const frameUploadDir = game.settings.get("ddb-importer", "frame-image-upload-directory");
     const dataDirSet = !BAD_DIRS.includes(uploadDir) && !BAD_DIRS.includes(otherUploadDir);
     const patreonUser = game.settings.get("ddb-importer", "patreon-user");
     const validKeyObject = hasKey ? await getPatreonValidity(key) : false;
@@ -337,6 +338,7 @@ export class DDBSetup extends FormApplication {
     const setupConfig = {
       "image-upload-directory": uploadDir,
       "other-image-upload-directory": otherUploadDir,
+      "frame-image-upload-directory": frameUploadDir,
       "cobalt-cookie": cobalt,
       "available-campaigns": availableCampaigns,
       "campaign-id": campaignId,
@@ -400,6 +402,7 @@ export class DDBSetup extends FormApplication {
     const cobaltCookie = formData['cobalt-cookie'];
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
     const otherImageDir = formData['other-image-upload-directory'];
+    const frameImageDir = formData['frame-image-upload-directory'];
     const currentKey = game.settings.get("ddb-importer", "beta-key");
 
     if (currentKey !== formData['beta-key']) {
@@ -409,6 +412,7 @@ export class DDBSetup extends FormApplication {
 
     await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
     await game.settings.set("ddb-importer", "other-image-upload-directory", otherImageDir);
+    await game.settings.set("ddb-importer", "frame-image-upload-directory", frameImageDir);
     await game.settings.set("ddb-importer", "campaign-id", campaignId);
 
     await setCobaltCookie(cobaltCookie, cobaltCookieLocal);
@@ -418,8 +422,8 @@ export class DDBSetup extends FormApplication {
 
     const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
 
-    if (!imageDirSet || !otherImageDirSet) {
-      $('#munching-task-setup').text(`Please set the image upload directory to something other than the root.`);
+    if (!imageDirSet || !otherImageDirSet || !frameImageDir) {
+      $('#munching-task-setup').text(`Please set the image upload directory(s) to something other than the root.`);
       $('#ddb-importer-settings').css("height", "auto");
       throw new Error(`Please set the image upload directory to something other than the root.`);
     } else if (callMuncher && cobaltCookie === "") {
@@ -429,6 +433,7 @@ export class DDBSetup extends FormApplication {
     } else {
       DirectoryPicker.verifyPath(DirectoryPicker.parse(imageDir));
       DirectoryPicker.verifyPath(DirectoryPicker.parse(otherImageDir));
+      DirectoryPicker.verifyPath(DirectoryPicker.parse(frameImageDir));
 
       if (callMuncher) {
         game.settings.set("ddb-importer", "settings-call-muncher", false);

@@ -7,6 +7,7 @@ import { parseCritters } from "./monsters.js";
 import { parseRaces } from "./races.js";
 import { parseFeats } from "./feats.js";
 import { parseClasses } from "./classes.js";
+import { parseFrames } from "./frames.js";
 import { getPatreonTiers, munchNote } from "./utils.js";
 import { DDB_CONFIG } from "../ddb-config.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -141,6 +142,11 @@ export default class DDBMuncher extends Application {
       munchNote(`Downloading classes...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseClasses();
+    });
+    html.find("#munch-frames-start").click(async () => {
+      munchNote(`Downloading frames...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.parseFrames();
     });
     html.find("#munch-adventure-config-start").click(async () => {
       munchNote(`Generating config file...`, true);
@@ -322,6 +328,19 @@ export default class DDBMuncher extends Application {
       logger.info("Munching classes!");
       const result = await parseClasses();
       munchNote(`Finished importing ${result.length} classes and features!`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
+  }
+
+  static async parseFrames() {
+    try {
+      logger.info("Munching frames!");
+      const result = await parseFrames();
+      munchNote(`Finished importing ${result.length} frames!`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
