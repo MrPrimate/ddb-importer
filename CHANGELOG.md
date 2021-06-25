@@ -1,6 +1,10 @@
 # 2.1.16
 
 * If Agonising Blast was granted through the Feat Eldritch Adept it would not apply.
+* Experimental feature: download all your character frames to a folder. This is useful for the new frame folder option in Tokenizer.
+* Fighting Style: Interception now parses correct formula.
+* Character Import: Custom senses adjustments now import again.
+* Character Import: Stunning Strike correctly parses save requirement again.
 
 # 2.1.15
 
