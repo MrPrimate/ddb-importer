@@ -2,13 +2,13 @@
   "name": "ddb-importer",
   "author": "MrPrimate",
   "title": "D&D Beyond Importer",
-  "description": "Import your dndbeyond.com characters, spells and monsters at super speed!",
-  "version": "2.1.15",
-  "download": "https://github.com/mrprimate/ddb-importer/releases/download/2.1.15/ddb-importer.zip",
+  "description": "Import your dndbeyond.com characters, spells, monsters, and adventures at super speed!",
+  "version": "2.1.16",
+  "download": "https://github.com/mrprimate/ddb-importer/releases/download/2.1.16/ddb-importer.zip",
   "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
   "minimumCoreVersion": "0.8.6",
-  "compatibleCoreVersion": "0.8.7",
+  "compatibleCoreVersion": "0.8.8",
   "authors": [
     {
       "name": "MrPrimate",
