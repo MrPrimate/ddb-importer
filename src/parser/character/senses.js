@@ -15,7 +15,7 @@ export function getSensesMap(data) {
   // custom senses
   if (data.character.customSenses) {
     data.character.customSenses
-      .filter((sense) => !sense.distance)
+      .filter((sense) => sense.distance)
       .forEach((sense) => {
         const s = DICTIONARY.character.senses.find((s) => s.id === sense.senseId);
         if (s && sense.distance) {
