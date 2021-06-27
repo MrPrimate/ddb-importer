@@ -23,9 +23,10 @@ const renderPopup = (type, url) => {
 };
 
 function adventureFlags(app, html, data) {
-  if (!app.document.data.flags.ddb) return;
+  if (!game.user.isGM || !app.document.data.flags.ddb) return;
+  // html.closest('.app').find('.open-adventure-ddb-importer').remove();
 
-  const title = `DDB Adventure Import Flags`;
+  const title = `Go to DDB`;
   const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
   let button = $(`<a class="open-adventure-ddb-importer" title="${title}"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
   button.click((event) => {
@@ -38,7 +39,7 @@ function adventureFlags(app, html, data) {
     }
     return true;
   });
-  html.closest('.app').find('.open-adventure-ddb-importer').remove();
+
   let titleElement = html.closest('.app').find('.window-title');
   button.insertAfter(titleElement);
   buildNotes(html, data);

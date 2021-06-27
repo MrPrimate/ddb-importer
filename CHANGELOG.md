@@ -1,3 +1,7 @@
+# 2.1.17
+
+* Don't expose DDB Links and info to players when using "Show to players" option in journal.
+
 # 2.1.16
 
 * If Agonising Blast was granted through the Feat Eldritch Adept it would not apply.
