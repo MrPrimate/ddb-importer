@@ -98,7 +98,8 @@ export function getPatreonTiers(tier) {
   const godTier = tier === "GOD";
   const undyingTier = tier === "UNDYING";
   const coffeeTier = tier === "COFFEE";
-  const custom = tier === "CUSTOM";
+  const customProxy = game.settings.get("ddb-importer", "custom-proxy");
+  const custom = tier === "CUSTOM" || customProxy;
 
   const tiers = {
     god: godTier,

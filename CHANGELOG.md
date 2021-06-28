@@ -1,6 +1,7 @@
 # 2.1.17
 
 * Don't expose DDB Links and info to players when using "Show to players" option in journal.
+* Proxy endpoint detection improvements.
 
 # 2.1.16
 

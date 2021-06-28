@@ -524,7 +524,7 @@ export default class DDBMuncher extends Application {
       },
     ];
 
-    return {
+    const resultData = {
       cobalt: cobalt,
       genericConfig: genericConfig,
       monsterConfig: monsterConfig,
@@ -533,5 +533,9 @@ export default class DDBMuncher extends Application {
       beta: betaKey && cobalt,
       tiers: tiers,
     };
+
+    // console.warn(resultData);
+
+    return resultData;
   }
 }
