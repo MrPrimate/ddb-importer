@@ -1,3 +1,7 @@
+# 2.1.18
+
+* Copy from SRD retains prepared spell status and other useful characteristics again.
+
 # 2.1.17
 
 * Don't expose DDB Links and info to players when using "Show to players" option in journal.

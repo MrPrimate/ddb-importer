@@ -800,6 +800,8 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
     if (matched) {
       if (!item.flags.ddbimporter) {
         item.flags.ddbimporter = matched.flags.ddbimporter;
+      } else {
+        item.flags.ddbimporter = mergeObject(matched.flags.ddbimporter, item.flags.ddbimporter);
       }
       if (!item.flags.monsterMunch && matched.flags.monsterMunch) {
         item.flags.monsterMunch = matched.flags.monsterMunch;
@@ -807,7 +809,7 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
       item.flags.ddbimporter["originalItemName"] = matched.name;
       item.flags.ddbimporter["replaced"] = true;
 
-      updateCharacterItemFlags(matched, item);
+      item = updateCharacterItemFlags(matched, item);
       // do we want to enrich the compendium item with our parsed flag data?
       // item.flags = { ...matched.flags, ...item.flags };
       if (!keepId) delete item["_id"];
@@ -902,14 +904,13 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
       }
     })
   ).map((i) => {
-    if (i.flags.ddbimporter) {
-      i.flags.ddbimporter["pack"] = compendiumName;
+    const item = i.toObject();
+    if (item.flags.ddbimporter) {
+      item.flags.ddbimporter["pack"] = compendiumName;
     } else {
-      i.flags.ddbimporter = { pack: compendiumName };
+      item.flags.ddbimporter = { pack: compendiumName };
     }
-    // delete i._id;
-    // delete i.id;
-    return i;
+    return item;
   });
   logger.debug(`SRD ${type} loaded items:`, loadedItems);
 
@@ -1059,8 +1060,7 @@ export async function srdFiddling(items, type) {
   const useSrd = game.settings.get("ddb-importer", "munching-policy-use-srd");
 
   if (useSrd && type == "monsters") {
-    const rawSrdItems = await getSRDCompendiumItems(items, type);
-    const srdItems = rawSrdItems.map((i) => i.toJSON());
+    const srdItems = await getSRDCompendiumItems(items, type);
     // removed existing items from those to be imported
     logger.debug("Removing compendium items");
     const lessSrdItems = await removeItems(items, srdItems);
@@ -1069,9 +1069,9 @@ export async function srdFiddling(items, type) {
     return iconedItems;
   } else if (useSrd) {
     logger.debug("Removing compendium items");
-    const srdItems = await getSRDCompendiumItems(items, type);
     let itemMap = {};
-    itemMap[type] = srdItems.map((i) => i.toJSON());
+    const srdItems = await getSRDCompendiumItems(items, type);
+    itemMap[type] = srdItems;
     logger.debug("Adding SRD compendium items");
     updateCompendium(type, itemMap, updateBool);
     // removed existing items from those to be imported
