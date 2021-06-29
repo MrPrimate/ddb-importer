@@ -1,6 +1,7 @@
 # 2.1.19
 
 * Eldritch blast now gets bonus damage values from custom items.
+* Crash could happen when trying to use items during monster munch.
 
 # 2.1.18
 

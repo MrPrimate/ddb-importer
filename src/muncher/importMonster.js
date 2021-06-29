@@ -331,7 +331,7 @@ async function swapItems(data) {
       logger.debug(`${item.name} to ${item.flags.ddbimporter.originalItemName}`);
       return { name: item.flags.ddbimporter.originalItemName, type: item.type };
     });
-    logger.debug(`Swapping items ${JSON.stringify(itemsToRemove)}`);
+    logger.debug("Swapping items", itemsToRemove);
     // console.warn(itemsToRemove);
     const lessUpdatedItems = data.items.filter((item) =>
       !itemsToRemove.some((target) => item.name === target.name && item.type === target.type)

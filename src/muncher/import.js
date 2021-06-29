@@ -800,7 +800,7 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
     if (matched) {
       if (!item.flags.ddbimporter) {
         item.flags.ddbimporter = matched.flags.ddbimporter;
-      } else {
+      } else if (matched.flags.ddbimporter && item.flags.ddbimporter) {
         item.flags.ddbimporter = mergeObject(matched.flags.ddbimporter, item.flags.ddbimporter);
       }
       if (!item.flags.monsterMunch && matched.flags.monsterMunch) {
