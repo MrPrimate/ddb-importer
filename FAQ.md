@@ -14,6 +14,16 @@ game.settings.set("ddb-importer", "cobalt-cookie", "");
 game.settings.set("ddb-importer", "campaign-id", "");
 ```
 
+## I get a key does not exist error!
+
+I get an error along the lines of:
+
+```
+The key xxxx does not exist in the EmbeddedCollection Collection
+```
+
+This is a core Foundry bug and will hopefully be fixed in version 9 of the software. You can find out more [here](https://gitlab.com/foundrynet/foundryvtt/-/issues/5309)
+
 
 ## Clerics and Druids don't get their un-prepared spells
 
