@@ -1,3 +1,7 @@
+# 2.1.19
+
+* Eldritch blast now gets bonus damage values from custom items.
+
 # 2.1.18
 
 * Copy from SRD retains prepared spell status and other useful characteristics again.

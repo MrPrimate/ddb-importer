@@ -3,7 +3,7 @@ import logger from "../../logger.js";
 import utils from "../../utils.js";
 
 let getEldritchInvocations = (data) => {
-  let damage = 0;
+  let damage = "";
   let range = 0;
 
   const eldritchBlastMods = utils.filterBaseModifiers(data, "eldritch-blast").filter(
@@ -14,8 +14,14 @@ let getEldritchInvocations = (data) => {
     switch (mod.subType) {
       case "bonus-damage": {
         // almost certainly CHA :D
-        const abilityModifier = DICTIONARY.character.abilities.find((ability) => ability.id === mod.statId).value;
-        damage = `@abilities.${abilityModifier}.mod`;
+        const abilityModifierLookup = DICTIONARY.character.abilities.find((ability) => ability.id === mod.statId);
+        if (abilityModifierLookup) {
+          if (damage !== "") damage += " + ";
+          damage += `@abilities.${abilityModifierLookup.value}.mod`;
+        } else if (mod.fixedValue) {
+          if (damage !== "") damage += " + ";
+          damage += `${mod.fixedValue}`;
+        }
         break;
       }
       case "bonus-range":
