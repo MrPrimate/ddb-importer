@@ -252,6 +252,7 @@ export default class DDBMuncher extends Application {
         $('button[id^="munch-feats-start"]').prop('disabled', false);
         $('button[id^="munch-classes-start"]').prop('disabled', false);
         $('button[id^="munch-source-select"]').prop('disabled', false);
+        $('button[id^="munch-frames-start"]').prop('disabled', false);
       }
     }
   }
