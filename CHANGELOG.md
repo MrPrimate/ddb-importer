@@ -1,3 +1,7 @@
+# 2.1.20
+
+* If using S3 for adventure asset uploads, icons for notes will always be uploaded to a local folder.
+
 # 2.1.19
 
 * Eldritch blast now gets bonus damage values from custom items.

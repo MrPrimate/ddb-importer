@@ -11,7 +11,7 @@ export default class Helpers {
    * @param  {object} zip - Zip file
    * @returns {string} - Path to file within VTT
    */
-  static async importImage(path, zip, adventure) {
+  static async importImage(path, zip, adventure, misc = false) {
     try {
       if (path[0] === "*") {
         // this file was flagged as core data, just replace name.
@@ -20,9 +20,13 @@ export default class Helpers {
         const adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
         const targetPath = path.replace(/[\\/][^\\/]+$/, '');
         const filename = path.replace(/^.*[\\/]/, '').replace(/\?(.*)/, '');
-        const baseUploadPath = game.settings.get("ddb-importer", "adventure-upload-path");
+        const baseUploadPath = misc
+          ? game.settings.get("ddb-importer", "adventure-misc-path")
+          : game.settings.get("ddb-importer", "adventure-upload-path");
         const parsedBaseUploadPath = DirectoryPicker.parse(baseUploadPath);
-        const uploadPath = `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
+        const uploadPath = misc
+         ? `${parsedBaseUploadPath.current}/${targetPath}`
+         : `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
 
         if (!CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path]) {
           await DirectoryPicker.verifyPath(parsedBaseUploadPath, `${uploadPath}`);
@@ -35,10 +39,11 @@ export default class Helpers {
           logger.debug(`File already imported ${path}`);
         }
 
-        const returnFilePath = `${adventurePath}/${targetPath}/${filename}`;
+        const returnFilePath = misc
+          ? `${targetPath}/${filename}`
+          : `${adventurePath}/${targetPath}/${filename}`;
         const returnPath = await utils.getFileUrl(baseUploadPath, returnFilePath);
 
-        // console.warn(returnPath);
         return `${returnPath}`;
       }
     } catch (err) {

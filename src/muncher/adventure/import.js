@@ -636,7 +636,7 @@ export default class AdventureMunch extends FormApplication {
         if (!Helpers.findEntityByImportId("scenes", data._id)) {
           await Helpers.asyncForEach(data.tokens, async (token) => {
             // eslint-disable-next-line require-atomic-updates
-            token.img = await Helpers.importImage(token.img, zip, adventure);
+            if (token.img) token.img = await Helpers.importImage(token.img, zip, adventure);
           });
 
           await Helpers.asyncForEach(data.sounds, async (sound) => {
@@ -646,7 +646,7 @@ export default class AdventureMunch extends FormApplication {
 
           await Helpers.asyncForEach(data.notes, async (note) => {
             // eslint-disable-next-line require-atomic-updates
-            note.icon = await Helpers.importImage(note.icon, zip, adventure);
+            note.icon = await Helpers.importImage(note.icon, zip, adventure, true);
           });
 
           await Helpers.asyncForEach(data.tiles, async (tile) => {

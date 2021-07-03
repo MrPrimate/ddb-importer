@@ -1,5 +1,6 @@
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
+import logger from "../../logger.js";
 
 CONFIG.DDBI = {
   module: "DDB Muncher",
@@ -292,8 +293,8 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "adventure-import-path", {
-    name: "Adventure Import Path",
-    hint: "Location where the module will look for adventure data files to import",
+    name: "ddb-importer.adventure-import-path.name",
+    hint: "ddb-importer.adventure-import-path.hint",
     scope: "world",
     config: true,
     default: "[data] adventures/import",
@@ -301,13 +302,56 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "adventure-upload-path", {
-    name: "Adventure Upload Path",
-    hint: "Location where the module will upload adventure images and data",
+    name: "ddb-importer.adventure-upload-path.name",
+    hint: "ddb-importer.adventure-upload-path.hint",
     scope: "world",
     config: true,
-    default: `[data] worlds/${game.world.id}/adventures`,
+    default: "[data] ddb-images/adventures",
     type: DirectoryPicker.Directory
   });
+
+  const adventureUploads = game.settings.get("ddb-importer", "adventure-upload-path");
+
+  if (game.user.isTrusted) {
+    const oldDirPath = `[data] worlds/${game.world.id}/adventures`;
+    const oldDir = DirectoryPicker.parse(oldDirPath);
+
+    if (adventureUploads === "[data] ddb-images/adventures") {
+      DirectoryPicker.browse(oldDir.activeSource, oldDir.current, { bucket: oldDir.bucket }).then((uploadFileList) => {
+        if (uploadFileList.dirs.length !== 0 || uploadFileList.files.length !== 0) {
+          logger.warn("Updating adventure uploads to historic default");
+          game.settings.set("ddb-importer", "adventure-upload-path", oldDirPath);
+        }
+      }).catch((e) => {
+        if (
+          e.startsWith("The requested file storage undefined does not exist!") ||
+          e.includes("does not exist or is not accessible in this storage location")
+        ) {
+          logger.debug("Adventure directory check successful");
+        }
+      });
+    }
+
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(adventureUploads));
+  }
+
+  const baseAdventureMiscPath = adventureUploads.startsWith("[data]")
+    ? `${adventureUploads}/misc`
+    : "[data] ddb-images/adventures/misc";
+
+  game.settings.register("ddb-importer", "adventure-misc-path", {
+    name: "ddb-importer.adventure-misc-path.name",
+    hint: "ddb-importer.adventure-misc-path.hints",
+    scope: "world",
+    config: true,
+    default: baseAdventureMiscPath,
+    type: DirectoryPicker.Directory
+  });
+
+  if (game.user.isTrusted) {
+    const iconUploads = game.settings.get("ddb-importer", "adventure-misc-path");
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(iconUploads));
+  }
 
   game.settings.register("ddb-importer", "log-level", {
     name: "ddb-importer.log-level.name",
