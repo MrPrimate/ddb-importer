@@ -194,7 +194,7 @@ function getSpellEdgeCase(spell, type, spellList) {
     const diceSearch = /(\d+)d(\d+)/;
     const diceMatch = edgeCase.edge.match(diceSearch);
     if (diceMatch) {
-      spell.data.damage.parts[0][0] = edgeCase.edge;
+      spell.data.damage.parts[0][0] = diceMatch[0];
     }
 
     // save DC 12

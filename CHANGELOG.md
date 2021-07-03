@@ -1,6 +1,7 @@
 # 2.1.20
 
 * If using S3 for adventure asset uploads, icons for notes will always be uploaded to a local folder.
+* Monsters like Anchorite of Talos would import custom damage adjustments to spells incorrectly.
 
 # 2.1.19
 
