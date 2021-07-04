@@ -20,6 +20,10 @@ const getClassInfo = (data) => {
       level: cls.level,
       isStartingClass: cls.isStartingClass,
       modifiers: [],
+      classId: cls.is,
+      subClassId: cls.subclassDefinition
+        ? cls.cls.subclassDefinition.id
+        : undefined,
     };
   });
 };

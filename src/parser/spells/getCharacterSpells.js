@@ -12,6 +12,8 @@ export function getCharacterSpells(ddb, character) {
   let items = [];
   const proficiencyModifier = character.data.attributes.prof;
   const lookups = getLookups(ddb.character);
+
+  logger.debug("Character spell lookups", lookups);
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   const healingBoost = utils.filterBaseModifiers(ddb, "bonus", "spell-group-healing").reduce((a, b) => a + b.value, 0);
@@ -22,6 +24,8 @@ export function getCharacterSpells(ddb, character) {
     const classInfo = ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
     const spellCastingAbility = getSpellCastingAbility(classInfo);
     const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
+
+    logger.debug("Spell parsing, class info", classInfo);
 
     const cantripBoost =
       utils.getChosenClassModifiers(ddb).filter(
@@ -86,6 +90,8 @@ export function getCharacterSpells(ddb, character) {
     let spellCastingAbility = undefined;
     const featureId = utils.determineActualFeatureId(ddb, spell.componentId);
     const classInfo = lookups.classFeature.find((clsFeature) => clsFeature.id == featureId);
+
+    logger.debug("Class spell parsing, class info", classInfo);
     // Sometimes there are spells here which don't have an class Info
     // this seems to be part of the optional tasha's rules, lets not parse for now
     // as ddb implementation is not yet finished
@@ -94,7 +100,11 @@ export function getCharacterSpells(ddb, character) {
       logger.warn(`Unable to add ${spell.definition.name}`);
     }
     if (!classInfo) return;
-    const klass = utils.getClassFromOptionID(ddb, spell.componentId);
+    let klass = utils.getClassFromOptionID(ddb, spell.componentId);
+
+    if (!klass) klass = utils.findClassByFeatureId(ddb, spell.componentId);
+
+    logger.debug("Class spell, class found?", klass);
 
     if (hasSpellCastingAbility(spell.spellCastingAbilityId)) {
       spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);

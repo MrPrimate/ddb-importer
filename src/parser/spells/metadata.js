@@ -38,6 +38,7 @@ export function getLookups(character) {
         lookups.classFeature.push({
           id: trait.definition.id,
           name: trait.definition.name,
+          classId: trait.definition.classId,
           componentId: trait.definition.componentId,
         });
       });
