@@ -1,3 +1,8 @@
+# 2.1.21
+
+* Tomes/items that applied ability mods did not work if active effects was not enabled.
+* You can no longer generate the following effects dynamically for backgrounds and feats: "Ability bonuses, proficiencies, languages".
+
 # 2.1.20
 
 * If using S3 for adventure asset uploads, icons for notes will always be uploaded to a local folder.

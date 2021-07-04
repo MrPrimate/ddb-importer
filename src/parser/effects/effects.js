@@ -136,11 +136,12 @@ const AC_EFFECTS = [
 
 export function getEffectExcludedModifiers(type) {
   let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
-  if (["feat", "background"].includes(type)) {
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-ability-bonus`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_ABILITY_BONUSES);
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-proficiencies`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_PROFICIENCY_BONUSES);
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-languages`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
-  }
+  // these should never really have been enabled as options, they are never dynamic
+  // if (["feat", "background"].includes(type)) {
+  //   if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-ability-bonus`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_ABILITY_BONUSES);
+  //   if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-proficiencies`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_PROFICIENCY_BONUSES);
+  //   if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-languages`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
+  // }
   if (["feat", "background", "race", "class"].includes(type)) {
     if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
     if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-senses`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
