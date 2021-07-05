@@ -30,12 +30,6 @@ export const NO_TRAITS = [
   "Languages",
   "Hit Points",
   "Proficiencies",
-  "Bonus Proficiencies",
-  "Bonus Proficiency",
-  "Extra Attack",
-  "Tool Proficiency",
-  "Bonus Cantrip",
-  "Bonus Cantrips",
 ];
 
 export const FEATURE_DUP = [
@@ -56,6 +50,14 @@ export const FEATURE_DUP = [
   "Psionic Power",
   "Psychic Blades",
   "Spellcasting",
+  "Primal Companion",
+  "Domain Spells",
+  "Bonus Cantrip",
+  "Bonus Cantrips",
+  "Bonus Proficiencies",
+  "Bonus Proficiency",
+  "Extra Attack",
+  "Tool Proficiency",
 ];
 
 function buildBase(data) {

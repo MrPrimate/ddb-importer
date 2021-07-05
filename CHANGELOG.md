@@ -3,6 +3,7 @@
 * Tomes/items that applied ability mods did not work if active effects was not enabled.
 * You can no longer generate the following effects dynamically for backgrounds and feats: "Ability bonuses, proficiencies, languages".
 * Additional Bardic Sercret spells did not come in prepared correctly.
+* Slight improvement to parse a few missing class features such as Channel Divinity which are subclass specific.
 
 # 2.1.20
 
