@@ -1,3 +1,8 @@
+# 2.1.22
+
+* Barbarian Beast Sense from Spirit Seeker no longer importer properly and caused character import to fail.
+* Try and prevent multiple D&DBeyond icons appearing on journal entries when the Scene Note button is clicked while the journal entry is open.
+
 # 2.1.21
 
 * Tomes/items that applied ability mods did not work if active effects was not enabled.
