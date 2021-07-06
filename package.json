@@ -1,6 +1,6 @@
 {
   "name": "ddb-importer",
-  "version": "2.1.21",
+  "version": "2.1.22",
   "private": true,
   "scripts": {
     "lint": "npx eslint src/",
