@@ -34,7 +34,7 @@ jobs:
       id: get-version
       run: echo "::set-output name=version::$(node ./.github/workflows/get-version.js)"
     - name: Build module.json
-      run: node ./.github/workflow/build-module-json.js | jq . > module.json
+      run: node ./.github/workflows/build-module-json.js | jq . > module.json
     - run: npm ci
     - name: Webpack
       run: npm run build
