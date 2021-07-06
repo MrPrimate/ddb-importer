@@ -2,6 +2,7 @@
   "name": "ddb-importer",
   "version": "2.1.22",
   "author": "MrPrimate",
+  "description": "Foundry module for integrating DDB content",
   "private": true,
   "scripts": {
     "lint": "npx eslint src/",
