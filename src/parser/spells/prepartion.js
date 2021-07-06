@@ -7,11 +7,14 @@ function classSpell(data, result) {
     DICTIONARY.spell.preparationModes,
     "name",
     data.flags.ddbimporter.dndbeyond.class
-  ).value;
-  if (data.alwaysPrepared) {
+  );
+  if (data.restriction === "As Ritual Only") {
+    result.mode = "prepared";
+    result.prepared = false;
+  } else if (data.alwaysPrepared) {
     result.mode = "always";
-  } else if (result.mode) {
-    result.mode = classPrepMode;
+  } else if (result.mode && classPrepMode) {
+    result.mode = classPrepMode.value;
   }
   // Warlocks should use Pact spells
   // but lets mark level 0 as regular spells so they show up as cantrips
