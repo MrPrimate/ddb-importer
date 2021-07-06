@@ -1,3 +1,7 @@
+# 2.1.23
+
+* Update notifier broke.
+
 # 2.1.22
 
 * Barbarian Beast Sense from Spirit Seeker no longer importer properly and caused character import to fail.
