@@ -24,7 +24,8 @@ const renderPopup = (type, url) => {
 
 function adventureFlags(app, html, data) {
   if (!game.user.isGM || !app.document.data.flags.ddb) return;
-  // html.closest('.app').find('.open-adventure-ddb-importer').remove();
+  const existingLink = html.closest('.app').find('.open-adventure-ddb-importer');
+  if (existingLink.length > 0) return;
 
   const title = `Go to DDB`;
   const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
