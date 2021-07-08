@@ -35,6 +35,7 @@ let getTargetValues = (data) => {
 /**
  * Spell targets
  */
+// eslint-disable-next-line complexity
 export function getTarget(data) {
   // if spell is an AOE effect get some details
   if (data.definition.range.aoeType && data.definition.range.aoeValue) {
@@ -90,6 +91,20 @@ export function getTarget(data) {
       type = null;
       break;
     // no default
+  }
+
+  if (data.definition.name.includes("Wall")) {
+    type = "wall";
+    units = "ft";
+    if (data.definition.description.includes("ten 10-foot-")) {
+      value = 100;
+    } else {
+      const wallReg = new RegExp(/ (\d*) feet long/);
+      const matches = data.definition.description.match(wallReg);
+      if (matches) {
+        value = matches[1];
+      }
+    }
   }
 
   return {

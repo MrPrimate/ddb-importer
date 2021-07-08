@@ -1,3 +1,7 @@
+# 2.1.25
+
+* "Wall" spells now set target correctly.
+
 # 2.1.24
 
 * Retain customised Animations placed via Otigon's Automated Animations.
