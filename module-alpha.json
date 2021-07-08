@@ -28,7 +28,7 @@
       "path": "lang/de.json"
     }
   ],
-  "systems": ["dnd5e"],
+  "system": ["dnd5e"],
   "scripts": [
     "./vendor/jszip/jszip.min.js"
   ],

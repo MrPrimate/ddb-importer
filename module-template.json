@@ -2,6 +2,7 @@
   "name": "ddb-importer",
   "author": "MrPrimate",
   "title": "D&D Beyond Importer",
+  "license": "MIT License",
   "description": "Import your dndbeyond.com characters, spells, monsters, and adventures at super speed!",
   "version": "VERSION",
   "download": "https://github.com/mrprimate/ddb-importer/releases/download/VERSION/ddb-importer.zip",
@@ -28,7 +29,7 @@
       "path": "lang/de.json"
     }
   ],
-  "systems": ["dnd5e"],
+  "system": ["dnd5e"],
   "scripts": [
     "./vendor/jszip/jszip.min.js"
   ],
