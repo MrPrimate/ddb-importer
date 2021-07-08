@@ -1004,7 +1004,7 @@ export function addACEffectIcons(effects) {
 }
 
 export async function updateIcons(items, srdIconUpdate = true, monster = false, monsterName = "") {
-  // this will use ddb spell school icons as a fall back
+  // this will use ddb item icons as a fall back
   const ddbItemIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-item-icons");
   if (ddbItemIcons) {
     logger.debug("DDB Equipment Icon Match");
@@ -1040,7 +1040,7 @@ export async function updateIcons(items, srdIconUpdate = true, monster = false, 
     items = await getDDBSpellSchoolIcons(items, true);
   }
 
-  // this will use ddb spell school icons as a fall back
+  // this will use ddb generic icons as a fall back
   const ddbGenericItemIcons = game.settings.get("ddb-importer", "munching-policy-use-ddb-generic-item-icons");
   if (ddbGenericItemIcons) {
     logger.debug("DDB Generic Item Icon Match");
