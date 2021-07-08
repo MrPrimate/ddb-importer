@@ -1,3 +1,7 @@
+# 2.1.24
+
+* Retain customised Animations placed via Otigon's Automated Animations.
+
 # 2.1.23
 
 * Update notifier broke.

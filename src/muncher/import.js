@@ -158,6 +158,7 @@ export async function copySupportedItemFlags(originalItem, item) {
   copyFlagGroup("midi-qol", originalItem, item);
   copyFlagGroup("itemacro", originalItem, item);
   copyFlagGroup("itemmacro", originalItem, item);
+  copyFlagGroup("autoanimations", originalItem, item);
 }
 
 function getMonsterNames(name) {
