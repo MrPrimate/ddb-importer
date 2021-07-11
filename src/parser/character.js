@@ -1,6 +1,7 @@
 import getCharacter from "./character/index.js";
 import getActions from "./features/actions.js";
 import getFeatures from "./features/features.js";
+import { removeActionFeatures } from "./features/special.js";
 import getClasses from "./classes/index.js";
 import { getCharacterSpells } from "./spells/getCharacterSpells.js";
 import { getItemSpells } from "./spells/getItemSpells.js";
@@ -25,6 +26,8 @@ export function parseJson(ddb) {
     logger.debug("Item Spells parse complete");
     let inventory = getInventory(ddb, character, itemSpells);
     logger.debug("Inventory parse complete");
+
+    [actions, features] = removeActionFeatures(actions, features);
 
     let characterJSON = {
       character: character,

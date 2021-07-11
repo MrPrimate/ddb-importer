@@ -60,6 +60,8 @@ function parseFeature(feat, ddb, character, source, type) {
     },
   };
 
+  logger.debug(`Getting Feature ${item.name}`);
+
   const klassAction = utils.findComponentByComponentId(ddb, feat.id);
   if (klassAction) {
     setProperty(item.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
@@ -250,18 +252,13 @@ export default function parseFeatures(ddb, character) {
   const addEffects = (daeInstalled && compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
-  const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
 
   let items = [];
 
   // racial traits
   ddb.character.race.racialTraits
     .filter(
-      (trait) =>
-        // (!trait.definition.hideInSheet || (trait.definition.hideInSheet && addEffects)) &&
-        !trait.definition.hideInSheet &&
-        !ddb.character.actions.race.some((action) => action.name === trait.definition.name)
-    )
+      (trait) => !trait.definition.hideInSheet)
     .forEach((feat) => {
       const source = utils.parseSource(feat.definition);
       let features = parseFeature(feat, ddb, character, source, "race");
@@ -282,7 +279,6 @@ export default function parseFeatures(ddb, character) {
   // optional class features
   if (ddb.classOptions) {
     ddb.classOptions
-    .filter((feat) => actionAndFeature || !ddb.character.actions.class.some((action) => action.name === feat.name))
     .forEach((feat) => {
       logger.debug(`Parsing Optional Feature ${feat.name}`);
       const source = utils.parseSource(feat);
@@ -295,21 +291,19 @@ export default function parseFeatures(ddb, character) {
 
   // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
   classItems
-  .filter((item) => actionAndFeature || !ddb.character.actions.class.some((action) => action.name === item.name))
-  .forEach((item) => {
-    const existingFeature = getNameMatchedFeature(items, item);
-    const duplicateFeature = isDuplicateFeature(items, item);
-    if (existingFeature && !duplicateFeature) {
-      const klassAdjustment = `<h3>${item.flags.ddbimporter.dndbeyond.class}</h3>${item.data.description.value}`;
-      existingFeature.data.description.value += klassAdjustment;
-    } else if (!existingFeature) {
-      items.push(item);
-    }
-  });
+    .forEach((item) => {
+      const existingFeature = getNameMatchedFeature(items, item);
+      const duplicateFeature = isDuplicateFeature(items, item);
+      if (existingFeature && !duplicateFeature) {
+        const klassAdjustment = `<h3>${item.flags.ddbimporter.dndbeyond.class}</h3>${item.data.description.value}`;
+        existingFeature.data.description.value += klassAdjustment;
+      } else if (!existingFeature) {
+        items.push(item);
+      }
+    });
 
   // add feats
   ddb.character.feats
-    .filter((feat) => !ddb.character.actions.feat.some((action) => action.name === feat.name))
     .forEach((feat) => {
       const source = utils.parseSource(feat.definition);
       let feats = parseFeature(feat, ddb, character, source, "feat");
@@ -326,5 +320,7 @@ export default function parseFeatures(ddb, character) {
   });
 
   fixFeatures(items);
+  // console.log("FEATURES");
+  // console.error(JSON.parse(JSON.stringify(items)));
   return items;
 }

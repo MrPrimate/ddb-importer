@@ -621,5 +621,7 @@ export default function parseActions(ddb, character) {
   });
 
   fixFeatures(actions);
+  // console.log("ACTIONS");
+  // console.error(JSON.parse(JSON.stringify(actions)));
   return actions;
 }

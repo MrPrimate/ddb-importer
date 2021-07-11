@@ -53,14 +53,12 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
           )
         );
         if (classFeatureMatch) return true;
-      }
-      if (type === "feat") {
+      } else if (type === "feat") {
         const featMatch = ddb.character.feats.some(
           (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == ddbItem.id
         );
         if (featMatch) return true;
-      }
-      if (type === "race") {
+      } else if (type === "race") {
         const traitMatch = ddb.character.race.racialTraits.some(
           (t) =>
             t.definition.entityTypeId == mod.componentTypeId &&
@@ -96,6 +94,31 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
     // console.log(item);
   }
   return item;
+}
+
+export function removeActionFeatures(actions, features) {
+  const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
+
+  actions = actions.map((action) => {
+    const featureMatch = features.find((feature) => feature.name === action.name);
+    if (featureMatch &&
+      action.effects && action.effects.length === 0 &&
+      featureMatch.effects && featureMatch.effects.length > 0
+    ) {
+      action.effects = featureMatch.effects;
+    }
+    return action;
+  });
+
+  features = features
+  .filter((feature) => actionAndFeature || !actions.some((action) => feature.name === action.name))
+  .map((feature) => {
+    const actionMatch = actionAndFeature && actions.some((action) => feature.name === action.name);
+    if (actionMatch) feature.effects = [];
+    return feature;
+  });
+
+  return [actions, features];
 }
 
 export function stripHtml(html) {
