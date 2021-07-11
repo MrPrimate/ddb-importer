@@ -92,12 +92,15 @@ let getEquipped = (data) => {
 /**
  * Gets the range(s) of a given weapon
  */
-let getRange = (data) => {
+let getRange = (data, weaponProperties) => {
   // range: { value: null, long: null, units: '' },
+  // sometimes reach weapons have their range set as 5. it's not clear why.
+  const shortRange = data.definition.range ? data.definition.range : 5;
+  const reach = weaponProperties.rch && data.definition.range == 5 ? 5 : 0;
   return {
-    value: data.definition.range ? data.definition.range : 5,
+    value: shortRange + reach,
     long: (data.definition.longRange && data.definition.longRange != data.definition.range)
-      ? data.definition.longRange
+      ? data.definition.longRange + reach
       : "",
     units: "ft",
   };
@@ -411,7 +414,7 @@ export default function parseWeapon(data, character, flags) {
   // we leave that as-is
 
   /* range: { value: null, long: null, units: '' }, */
-  weapon.data.range = getRange(data);
+  weapon.data.range = getRange(data, weapon.data.properties);
 
 
   /* uses: { value: 0, max: 0, per: null }, */

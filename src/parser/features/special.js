@@ -253,6 +253,11 @@ export function fixFeatures(features) {
         feature.data.damage = { parts: [["1d10 + @mod + @classes.monk.levels"]], versatile: "", value: "" };
         break;
       }
+      case "Polearm Master - Bonus Attack": {
+        feature.data.actionType = "mwak";
+        feature.data.range = { value: 10, long: null, units: "ft" };
+        break;
+      }
       // no default
     }
   });

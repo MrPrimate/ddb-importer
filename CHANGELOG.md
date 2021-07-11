@@ -4,6 +4,7 @@
 * Generating effects for items always adds AC bonus for items such as Rings of Protection.
 * Rewording of Active Effects screen for better clarity, as well as toggling some ptions which are exclusive correctly.
 * Reset effects to "best default use" style option.
+* Polearm master bonus attack now is an attack!
 
 # 2.1.25
 
