@@ -445,7 +445,7 @@ export default function getInventory(ddb, character, itemSpells) {
       if (daeInstalled) {
         if (addEffects) item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
         // if this is a piece of armor and not generating effects don't generate ac
-        if (item.type === "equipment" && item.data.armor?.type) {
+        if (item.type === "equipment" && item.data.armor?.type && !["trinket", "clothing"].includes(item.data.armor.type)) {
           // eslint-disable-next-line max-depth
           if (generateArmorACEffect) item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
         } else {
