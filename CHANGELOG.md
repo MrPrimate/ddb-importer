@@ -1,3 +1,10 @@
+# 2.1.26
+
+* Active Effects: now handles attack and damage bonuses such as Fighting Style Archery and Improved Divine Smite.
+* Generating effects for items always adds AC bonus for items such as Rings of Protection.
+* Rewording of Active Effects screen for better clarity, as well as toggling some ptions which are exclusive correctly.
+* Reset effects to "best default use" style option.
+
 # 2.1.25
 
 * "Wall" spells now set target correctly.

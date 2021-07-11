@@ -109,6 +109,9 @@
 
   <!-- Effects Configuration Tab -->
   <section class="tab" data-tab="effects">
+    <p>Dynamic effects are difficult to calculate and require you to have a grasp of how they work, and what you want to achieve. Please read the descriptions carefully. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module).</p>
+    <button type="button" id="default-effects">Apply Recommended Active Effect Settings</button>
+    <hr>
     <h2>Active Effect Options</h2>
     {{#each effectImportConfig}}
     <div class="effect-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
@@ -125,7 +128,7 @@
     <div class="effect-policy-group-class">
       {{#each effectSelectionConfig.class}}
       <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-          name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
       </label>
       {{/each}}
     </div>
@@ -134,7 +137,7 @@
     <div class="effect-policy-group-race">
       {{#each effectSelectionConfig.race}}
       <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-          name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
       </label>
       {{/each}}
     </div>
@@ -143,7 +146,7 @@
     <div class="effect-policy-group-feat">
       {{#each effectSelectionConfig.feat}}
       <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-          name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
       </label>
       {{/each}}
     </div>
@@ -152,7 +155,7 @@
     <div class="effect-policy-group-background">
       {{#each effectSelectionConfig.background}}
       <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-          name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
       </label>
       {{/each}}
     </div>

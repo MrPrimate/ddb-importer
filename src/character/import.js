@@ -311,7 +311,7 @@ export default class CharacterImport extends FormApplication {
             (originalItem) => item.name === originalItem.name && item.type === originalItem.type
           );
           if (originalItem) {
-            if (item.effects === undefined) item.effects = [];
+            if (!item.effects) item.effects = [];
             if (originalItem.effects) {
               logger.info(`Copying Effects for ${originalItem.name}`);
               item.effects = originalItem.effects.map((m) => {
@@ -573,15 +573,15 @@ export default class CharacterImport extends FormApplication {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-item-effects") && daeInstalled,
         title: "Generate Active Effects for Equipment",
         description:
-          'Dynamically generate active effects for a characters equipment, please only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)',
+          "Dynamically generate active effects for a characters equipment, doesn't include AC effects on armor, but will for things like the Ring of Protection.",
         enabled: daeInstalled,
       },
       {
         name: "add-character-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-character-effects") && daeInstalled,
-        title: "[Experimental] Generate Active Effects for Character Features/Racial Traits/Feats/Backgrounds",
+        title: "Generate Active Effects for Character Features/Racial Traits/Feats/Backgrounds",
         description:
-          'Dynamically generate active effects for a character. Select the effect generations below, a limited selection are available. Only run this on characters you have backups of, or are happy to reimport from scratch. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module)',
+          'Dynamically generate active effects for a character. Some effects are always generated, some are optional (see below).',
         enabled: daeInstalled,
       },
       {
@@ -590,7 +590,7 @@ export default class CharacterImport extends FormApplication {
           game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects") && daeInstalled,
         title: "Generate Active Effects ACs for Armor",
         description:
-          "Dynamically add AC values as dynamic effects to armor items, it might be useful to untick this if you wish to use DAE auto calculate AC feature. (Requires the DAE module)",
+          "Dynamically add AC values as dynamic effects to armor items. If you're using DAE to auto-calculate AC, you don't need this.",
         enabled: daeInstalled,
       },
       {
@@ -599,31 +599,31 @@ export default class CharacterImport extends FormApplication {
           game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects") && daeInstalled,
         title: "Generate Active Effects ACs for Character Features & Racial Traits",
         description:
-          "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations. (Requires the DAE module)",
-        enabled: daeInstalled,
-      },
-      {
-        name: "generate-ac-override-effects",
-        isChecked:
-          game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects") && daeInstalled,
-        title: "Generate DAE Override ACs",
-        description:
-          "Dynamically generate possible AC combinations as dynamic effects, these are high priority effects that likely override other effects. Useful if you can't calculate your AC correctly using other effects. (Requires the DAE module)",
+          "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations.",
         enabled: daeInstalled,
       },
       {
         name: "generate-base-ac",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-base-ac"),
         title: "Set AC to base value",
-        description: "Calculate AC base to base value, e.g. 10 +dex mod/natural armor rating.",
+        description: "Calculate AC base to base value, e.g. 10 +dex mod/natural armor rating. Useful if you want the AC to be correct when Armor is unequipped.",
         enabled: true,
+      },
+      {
+        name: "generate-ac-override-effects",
+        isChecked:
+          game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects") && daeInstalled,
+        title: "[Caution] Generate DAE Override ACs",
+        description:
+          "Generate possible AC combinations as dynamic effects, these are high priority effects that override other effects. Useful if you can't calculate your AC correctly using other effects.",
+        enabled: daeInstalled,
       },
       {
         name: "dae-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDInstalled,
         title: "Copy Active Effect from DAE Compendiums",
         description:
-          "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE and SRD module). This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
+          "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug.",
         enabled: daeInstalled && daeSRDInstalled,
       },
       {
@@ -631,14 +631,14 @@ export default class CharacterImport extends FormApplication {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDInstalled,
         title: "[Caution] Replace Items using DAE compendiums",
         description:
-          "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE and SRD module). This will remove any effects applied directly to your character/not via features/items. This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
+          "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE SRD module). This will remove any effects applied directly to your character/not via features/items. This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
         enabled: daeInstalled && daeSRDInstalled,
       },
       {
         name: "active-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
         title: "Retain Active Effects",
-        description: "Retain existing Active Effects, if you're using active effects, you probably want this checked.",
+        description: "Retain existing Active Effects, this will try and transfer any existing effects on the actor. Untick this option if you experience <i>odd</i> behaviour.",
         enabled: true,
       },
     ];
@@ -1019,6 +1019,66 @@ export default class CharacterImport extends FormApplication {
           "character-update-policy-" + event.currentTarget.dataset.section,
           event.currentTarget.checked
         );
+
+        if (event.currentTarget.dataset.section === "dae-copy" && event.currentTarget.checked) {
+          $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
+          game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", false);
+        } else if (event.currentTarget.dataset.section === "dae-effect-copy" && event.currentTarget.checked) {
+          $(html).find("#character-import-policy-dae-copy").prop("checked", false);
+          game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
+          $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
+          game.settings.set("ddb-importer", "character-update-policy-add-item-effects", true);
+          $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
+          game.settings.set("ddb-importer", "character-update-policy-add-character-effects", true);
+        } else if (
+          (event.currentTarget.dataset.section === "generate-ac-armor-effects" ||
+            event.currentTarget.dataset.section === "generate-ac-feature-effects"
+          ) &&
+          event.currentTarget.checked
+        ) {
+          game.settings.set("dae", "calculateArmor", false);
+          game.settings.set("dae", "applyBaseAC", false);
+        }
+
+      });
+
+    $(html)
+      .find("#default-effects")
+      .on("click", async (event) => {
+        // retrieve the character data from the proxy
+        event.preventDefault();
+        $(html).find("#character-import-policy-dae-copy").prop("checked", false);
+        game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
+        $(html).find("#character-import-policy-dae-effect-copy").prop("checked", true);
+        game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", true);
+        $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
+        game.settings.set("ddb-importer", "character-update-policy-add-item-effects", true);
+        $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
+        game.settings.set("ddb-importer", "character-update-policy-add-character-effects", true);
+        $(html).find("#character-import-policy-generate-ac-armor-effects").prop("checked", true);
+        game.settings.set("ddb-importer", "character-update-policy-generate-ac-armor-effects", true);
+        $(html).find("#character-import-policy-generate-ac-feature-effects").prop("checked", true);
+        game.settings.set("ddb-importer", "character-update-policy-generate-ac-feature-effects", true);
+        $(html).find("#character-import-policy-generate-base-ac").prop("checked", true);
+        game.settings.set("ddb-importer", "character-update-policy-generate-base-ac", true);
+        $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
+        game.settings.set("ddb-importer", "character-update-policy-active-effect-copy", false);
+        $(html).find("#character-import-policy-generate-ac-override-effects").prop("checked", false);
+        game.settings.set("ddb-importer", "character-update-policy-generate-ac-override-effects", false);
+
+        ["class", "race", "background", "feat"].forEach((type) => {
+          $(html).find(`#character-import-policy-effect-${type}-spell-bonus`).prop("checked", true);
+          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-spell-bonus`, true);
+          $(html).find(`#character-import-policy-effect-${type}-speed`).prop("checked", false);
+          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-speed`, false);
+          $(html).find(`#character-import-policy-effect-${type}-senses`).prop("checked", false);
+          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-senses`, false);
+          $(html).find(`#character-import-policy-effect-${type}-hp`).prop("checked", false);
+          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-hp`, false);
+          $(html).find(`#character-import-policy-effect-${type}-damages`).prop("checked", false);
+          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-damages`, false);
+        });
+
       });
 
     $(html)
