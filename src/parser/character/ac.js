@@ -15,7 +15,7 @@ export function isArmored(data) {
   );
 }
 
-let getMinimumBaseAC = (modifiers) => {
+function getMinimumBaseAC(modifiers) {
   let hasBaseArmor = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "minimum-base-armor" && modifier.isGranted
   );
@@ -24,9 +24,9 @@ let getMinimumBaseAC = (modifiers) => {
     baseAC.push(base.value);
   });
   return baseAC;
-};
+}
 
-let getBaseArmor = (ac, armorType, name = "Racial") => {
+function getBaseArmor(ac, armorType, name = "Racial") {
   return {
     definition: {
       name: `Base Armor - ${name}`,
@@ -39,9 +39,9 @@ let getBaseArmor = (ac, armorType, name = "Racial") => {
     },
     isAttuned: false,
   };
-};
+}
 
-let getEquippedAC = (equippedGear) => {
+function getEquippedAC(equippedGear) {
   return equippedGear.reduce((prev, item) => {
     let ac = 0;
     // regular armor
@@ -50,10 +50,15 @@ let getEquippedAC = (equippedGear) => {
     }
 
     // magical armor
-    const usingEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
+    const usingArmorACEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
+    const usingItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+
+    const daeItemEffects = (usingItemEffects &&
+      item.equipped && item.definition.filterType !== "Armor"
+    );
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const daeEffects = usingEffects && daeInstalled;
-    if (!daeEffects && item.definition.grantedModifiers) {
+    const daeArmorACEffects = usingArmorACEffects && daeInstalled;
+    if ((!daeArmorACEffects && !daeItemEffects) && item.definition.grantedModifiers) {
       let isAvailable = false;
       // does an item need attuning
       if (item.definition.canAttune === true) {
@@ -75,10 +80,10 @@ let getEquippedAC = (equippedGear) => {
     }
     return prev + ac;
   }, 0);
-};
+}
 
 // returns an array of ac values from provided array of modifiers
-let getUnarmoredAC = (modifiers, character) => {
+function getUnarmoredAC(modifiers, character) {
   let unarmoredACValues = [];
   let isUnarmored = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "unarmored-armor-class" && modifier.isGranted
@@ -121,10 +126,10 @@ let getUnarmoredAC = (modifiers, character) => {
   });
   // console.warn(unarmoredACValues);
   return unarmoredACValues;
-};
+}
 
 // returns an array of ac values from provided array of modifiers
-let getArmoredACBonuses = (modifiers, character) => {
+function getArmoredACBonuses(modifiers, character) {
   let armoredACBonuses = [];
   const armoredBonuses = modifiers.filter(
     (modifier) => modifier.subType === "armored-armor-class" && modifier.isGranted
@@ -142,7 +147,7 @@ let getArmoredACBonuses = (modifiers, character) => {
     armoredACBonuses.push(armoredACBonus);
   });
   return armoredACBonuses;
-};
+}
 
 function getDualWieldAC(data, modifiers) {
   const dualWielding = data.character.characterValues.some((cv) => {
