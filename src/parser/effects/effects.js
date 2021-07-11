@@ -56,6 +56,15 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   // saving throws and ability checks - with midi
   // not adding these as they are not used elsewhere
   // { type: "advantage", subType: "strength-saving-throws" },
+// ];
+
+// const EFFECT_EXCLUDED_ATTACK_MODIFIERS = [
+  { type: "bonus", subType: "weapon-attacks" },
+  { type: "bonus", subType: "melee-attacks" },
+  { type: "bonus", subType: "ranged-attacks" },
+  { type: "bonus", subType: "melee-weapon-attacks" },
+  { type: "bonus", subType: "ranged-weapon-attacks" },
+  { type: "damage", subType: null },
 ];
 
 const EFFECT_EXCLUDED_SPELL_MODIFIERS = [
@@ -333,7 +342,7 @@ function addCustomEffect(modifiers, name, type, key, extra = "") {
   const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
   if (bonus !== 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
-    changes.push(generateCustomChange(`+ ${bonus}${(extra) ? extra : ""}`, 18, key));
+    changes.push(generateCustomChange(`${bonus}${(extra) ? extra : ""}`, 18, key));
   }
   return changes;
 }
@@ -368,6 +377,57 @@ function addLanguages(modifiers, name) {
     changes.push(generateCustomChange(languages.custom, 0, "data.traits.languages.custom"));
   }
 
+  return changes;
+}
+
+
+/**
+ * Generate global damage bonuses
+*/
+function addGlobalDamageBonus(modifiers, name) {
+  const meleeRestrictions = ["Melee Weapon Attacks"];
+  let changes = [];
+  const meleeBonus = utils.filterModifiers(modifiers, "damage", null, meleeRestrictions)
+    .filter((mod) => mod.dice || mod.value)
+    .map((mod) => {
+      if (mod.dice) {
+        return utils.parseDiceString(mod.dice.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+      } else {
+        return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+      }
+    });
+  if (meleeBonus && meleeBonus.length > 0) {
+    logger.debug(`Generating melee damage for ${name}`);
+    changes.push(generateCustomChange(`${meleeBonus.join(" + ")}`, 18, "data.bonuses.mwak.damage"));
+  }
+  const rangedRestrictions = ["Ranged Weapon Attacks"];
+  const rangedBonus = utils.filterModifiers(modifiers, "damage", null, rangedRestrictions)
+    .filter((mod) => mod.dice || mod.value)
+    .map((mod) => {
+      if (mod.dice) {
+        return utils.parseDiceString(mod.dice.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+      } else {
+        return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+      }
+    });
+  if (rangedBonus && rangedBonus.length > 0) {
+    logger.debug(`Generating ranged damage for ${name}`);
+    changes.push(generateCustomChange(`${rangedBonus.join(" + ")}`, 18, "data.bonuses.rwak.damage"));
+  }
+  const bonus = utils.filterModifiers(modifiers, "damage", null)
+    .filter((mod) => mod.dice || mod.value)
+    .map((mod) => {
+      if (mod.dice) {
+        return utils.parseDiceString(mod.dice.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+      } else {
+        return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+      }
+    });
+  if (bonus && bonus.length > 0) {
+    logger.debug(`Generating all damage for ${name}`);
+    changes.push(generateCustomChange(`${bonus.join(" + ")}`, 18, "data.bonuses.mwak.damage"));
+    changes.push(generateCustomChange(`${bonus.join(" + ")}`, 18, "data.bonuses.rwak.damage"));
+  }
   return changes;
 }
 
@@ -1012,6 +1072,45 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   const magicalAdvantage = addMagicalAdvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
   const bonusSpeeds = addBonusSpeeds(ddbItem.definition.grantedModifiers, foundryItem.name);
 
+  const meleeAttackBonus = addCustomEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "melee-attacks",
+    "data.bonuses.mwak.attack"
+  );
+  const rangedAttackBonus = addCustomEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "ranged-attacks",
+    "data.bonuses.rwak.attack"
+  );
+  const meleeWeaponAttackBonus = addCustomEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "melee-weapon-attacks",
+    "data.bonuses.mwak.attack"
+  );
+  const rangedWeaponAttackBonus = addCustomEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "ranged-weapon-attacks",
+    "data.bonuses.rwak.attack"
+  );
+  const weaponAttackMeleeBonus = addCustomEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "weapon-attacks",
+    "data.bonuses.mwak.attack"
+  );
+  const weaponAttackRangedBonus = addCustomEffect(
+    ddbItem.definition.grantedModifiers,
+    foundryItem.name,
+    "weapon-attacks",
+    "data.bonuses.rwak.attack"
+  );
+
+  const globalDamageBonus = addGlobalDamageBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
+
   effect.changes = [
     ...globalSaveBonus,
     ...globalAbilityBonus,
@@ -1035,6 +1134,13 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
     ...magicalAdvantage,
     ...bonusSpeeds,
     ...healingSpellBonus,
+    ...meleeAttackBonus,
+    ...rangedAttackBonus,
+    ...meleeWeaponAttackBonus,
+    ...rangedWeaponAttackBonus,
+    ...weaponAttackMeleeBonus,
+    ...weaponAttackRangedBonus,
+    ...globalDamageBonus,
   ];
 
   // if we don't have effects, lets return the item
