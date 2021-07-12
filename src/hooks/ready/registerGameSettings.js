@@ -312,7 +312,7 @@ export default function () {
 
   const adventureUploads = game.settings.get("ddb-importer", "adventure-upload-path");
 
-  if (game.user.isTrusted) {
+  if (game.user.isGM) {
     const oldDirPath = `[data] worlds/${game.world.id}/adventures`;
     const oldDir = DirectoryPicker.parse(oldDirPath);
 
@@ -348,7 +348,7 @@ export default function () {
     type: DirectoryPicker.Directory
   });
 
-  if (game.user.isTrusted) {
+  if (game.user.isGM) {
     const iconUploads = game.settings.get("ddb-importer", "adventure-misc-path");
     DirectoryPicker.verifyPath(DirectoryPicker.parse(iconUploads));
   }

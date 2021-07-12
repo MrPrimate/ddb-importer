@@ -1,3 +1,7 @@
+# 2.1.26
+
+* Only try to check default directories for GM users.
+
 # 2.1.25
 
 * "Wall" spells now set target correctly.
