@@ -638,7 +638,7 @@ export default class CharacterImport extends FormApplication {
         name: "active-effect-copy",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
         title: "Retain Active Effects",
-        description: "Retain existing Active Effects, this will try and transfer any existing effects on the actor. Untick this option if you experience <i>odd</i> behaviour.",
+        description: "Retain existing Active Effects, this will try and transfer any existing effects on the actor such as custom effects, effects from conditions or existing spells. Untick this option if you experience <i>odd</i> behaviour, especially around AC.",
         enabled: true,
       },
     ];
