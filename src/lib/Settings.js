@@ -1,11 +1,8 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
-import { getPatreonTiers, setPatreonTier, BAD_DIRS, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
+import { setPatreonTier, BAD_DIRS, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
-
-window.ddbGetPatreonTiers = getPatreonTiers;
-window.ddbSetPatreonTier = setPatreonTier;
 
 const POPUPS = {
   json: null,

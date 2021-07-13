@@ -54,10 +54,10 @@ export default async () => {
       let text = $(
         `<h2>${MODULE_TITLE} Update!</h2><p>A new <b>${MODULE_NAME}</b> version is available. Please update to <b>v${latestVersion}</b> if you are experiencing issues and before reporting a bug.</p>`
       );
-      window.ddbimporter.notification.show(text, null);
+      window.DDBImporter.notification.show(text, null);
     }
   } catch (error) {
     logger.warn(error);
-    window.ddbimporter.notification.show(`Could not retrieve latest ${MODULE_NAME} version`);
+    window.DDBImporter.notification.show(`Could not retrieve latest ${MODULE_NAME} version`);
   }
 };

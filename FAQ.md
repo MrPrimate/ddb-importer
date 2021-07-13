@@ -9,9 +9,15 @@ They require the cobalt token setting to be set.
 Open the Browser Developer Console (F12) and run the following:
 
 ```javascript
-game.settings.set("ddb-importer", "cobalt-cookie-local", false);
-game.settings.set("ddb-importer", "cobalt-cookie", "");
-game.settings.set("ddb-importer", "campaign-id", "");
+DDBImporter.resetSecrets();
+```
+
+# I tried the custom proxy and want to reset to use yours
+
+Open the Browser Developer Console (F12) and run the following:
+
+```javascript
+DDBImporter.resetProxy();
 ```
 
 ## I get a key does not exist error!
@@ -80,13 +86,8 @@ Setup a shared compendium module. [Read](https://www.reddit.com/r/FoundryVTT/com
 
 ### I've upgraded to a new major Foundry version how do I migrate my shared compendium content to the new model?
 
-Run the following script macro:
+Open the Browser Developer Console (F12) and run the following:
 
 ```javascript
-function migrateAllCompendiums(value, key, map) {
-    if(!value.locked)
-        game.dnd5e.migrations.migrateCompendium(value);
-}
-
-game.packs.forEach(migrateAllCompendiums);
+DDBImporter.migrateCompendiums();
 ```

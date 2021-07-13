@@ -43,7 +43,7 @@ export function getCampaignId() {
   return campaignId;
 }
 
-async function getPatreonTier() {
+export async function getPatreonTier() {
   const customProxy = game.settings.get("ddb-importer", "custom-proxy");
   if (customProxy) return { success: true, message: "custom proxy", data: "CUSTOM" };
   const key = game.settings.get("ddb-importer", "beta-key");
@@ -114,6 +114,12 @@ export function getPatreonTiers(tier) {
     not: !godTier && !undyingTier && !coffeeTier && !custom,
   };
 
+  return tiers;
+}
+
+export async function checkPatreon() {
+  const tier = await getPatreonTier();
+  const tiers = getPatreonTiers(tier);
   return tiers;
 }
 

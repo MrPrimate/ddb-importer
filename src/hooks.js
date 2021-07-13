@@ -2,6 +2,7 @@ import logger from "./logger.js";
 
 // init hooks
 import setupLogging from "./hooks/init/setupLogging.js";
+import { registerWindow } from "./hooks/init/window.js";
 
 // ready hooks
 import registerSheets from "./hooks/ready/registerSheets.js";
@@ -27,6 +28,7 @@ import registerNotifications from "./lib/Notification.js";
 // foundry is initializing
 export function init() {
   setupLogging();
+  registerWindow();
   logger.info("Init");
 }
 

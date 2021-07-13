@@ -7,8 +7,6 @@ import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 
-window.ddbParseMonsters = parseMonsters;
-
 async function getMonsterData() {
   const cobaltCookie = getCobalt();
   const betaKey = game.settings.get("ddb-importer", "beta-key");
