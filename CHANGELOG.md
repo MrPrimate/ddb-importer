@@ -1,3 +1,8 @@
+# 2.1.27
+
+* Better handling of some exceptions when updating characters on DDB. These are around trying to sync items with a quantity of 0 or currency with non-numeric values.
+* Armor of Agathys now does temphp rather than attack roll.
+
 # 2.1.26
 
 * Only try to check default directories for GM users.
