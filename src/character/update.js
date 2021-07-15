@@ -89,10 +89,19 @@ async function spellSlots(actor, ddbData) {
 async function currency(actor, ddbData) {
   return new Promise((resolve) => {
     if (!game.settings.get("ddb-importer", "sync-policy-currency")) resolve();
-    const same = isEqual(ddbData.character.character.data.currency, actor.data.data.currency);
+
+    const value = {
+      pp: Number.isInteger(actor.data.data.currency.pp) ? actor.data.data.currency.pp : 0,
+      gp: Number.isInteger(actor.data.data.currency.gp) ? actor.data.data.currency.gp : 0,
+      ep: Number.isInteger(actor.data.data.currency.ep) ? actor.data.data.currency.ep : 0,
+      sp: Number.isInteger(actor.data.data.currency.sp) ? actor.data.data.currency.sp : 0,
+      cp: Number.isInteger(actor.data.data.currency.cp) ? actor.data.data.currency.cp : 0,
+    };
+
+    const same = isEqual(ddbData.character.character.data.currency, value);
 
     if (!same) {
-      resolve(updateCharacterCall(actor, "currency", actor.data.data.currency));
+      resolve(updateCharacterCall(actor, "currency", value));
     }
 
     resolve();
@@ -272,6 +281,7 @@ async function addEquipment(actor, ddbData) {
 
   const itemsToAdd = actor.data.items.filter((item) =>
     !item.data.flags.ddbimporter?.action &&
+    !item.data.data.quantity == 0 &&
     DICTIONARY.types.inventory.includes(item.type) &&
     !ddbItems.some((s) => s.name === item.name && s.type === item.type) &&
     item.data.flags.ddbimporter?.definitionId &&
@@ -320,7 +330,8 @@ async function removeEquipment(actor, ddbData) {
   const ddbItems = ddbData.character.inventory;
 
   const itemsToRemove = ddbItems.filter((item) =>
-    !actor.data.items.some((s) => (s.name === item.name && s.type === item.type) && !s.data.flags.ddbimporter?.action) &&
+    (!actor.data.items.some((s) => (s.name === item.name && s.type === item.type) && !s.data.flags.ddbimporter?.action) ||
+    actor.data.items.some((s) => (s.name === item.name && s.type === item.type) && !s.data.flags.ddbimporter?.action && s.data.data.quantity == 0)) &&
     DICTIONARY.types.inventory.includes(item.type) &&
     item.flags.ddbimporter?.id
   );
@@ -371,6 +382,7 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
   );
   const itemsToQuantity = actor.data.items.filter((item) =>
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
+    !item.data.data.quantity == 0 &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
       item.name === dItem.definition.name &&
