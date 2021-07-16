@@ -1,3 +1,7 @@
+# 2.1.28
+
+* Adventure journal links to DDB improved for books like ATG.
+
 # 2.1.27
 
 * Better handling of some exceptions when updating characters on DDB. These are around trying to sync items with a quantity of 0 or currency with non-numeric values.
