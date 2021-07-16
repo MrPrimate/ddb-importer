@@ -1,7 +1,7 @@
 import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
-import { DDB_CONFIG } from "./ddb-config.js";
+import { DDB_CONFIG } from "./ddbConfig.js";
 import { getEffectExcludedModifiers } from "./parser/effects/effects.js";
 
 const existingFiles = new Set();

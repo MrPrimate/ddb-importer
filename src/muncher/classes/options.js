@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import { DDB_CONFIG } from "../../ddb-config.js";
+import { DDB_CONFIG } from "../../ddbConfig.js";
 
 import { getClassFeature, NO_TRAITS } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";

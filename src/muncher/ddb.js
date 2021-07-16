@@ -9,13 +9,14 @@ import { parseFeats } from "./feats.js";
 import { parseClasses } from "./classes.js";
 import { parseFrames } from "./frames.js";
 import { getPatreonTiers, munchNote } from "./utils.js";
-import { DDB_CONFIG } from "../ddb-config.js";
+import { DDB_CONFIG } from "../ddbConfig.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { generateAdventureConfig } from "./adventure.js";
 import AdventureMunch from "./adventure/import.js";
 
 
 function getSourcesLookups(selected) {
+  console.warn(DDB_CONFIG);
   const selections = DDB_CONFIG.sources
   .filter((source) => source.isReleased)
   .map((source) => {

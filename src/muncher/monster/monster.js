@@ -21,7 +21,7 @@ import { getSpecialTraits } from "./specialtraits.js";
 import { getSpells } from "./spells.js";
 import { getType } from "./type.js";
 
-import { DDB_CONFIG } from "../../ddb-config.js";
+import { DDB_CONFIG } from "../../ddbConfig.js";
 import { MONSTER_TEMPLATE } from "./templates/monster.js";
 
 import logger from '../../logger.js';

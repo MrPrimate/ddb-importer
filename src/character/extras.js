@@ -3,7 +3,7 @@ import utils from "../utils.js";
 import { parseMonsters } from "../muncher/monster/monster.js";
 import { copySupportedItemFlags, srdFiddling } from "../muncher/import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../muncher/importMonster.js";
-import { DDB_CONFIG } from "../ddb-config.js";
+import { DDB_CONFIG } from "../ddbConfig.js";
 import { ABILITIES, getAbilityMods } from "../muncher/monster/abilities.js";
 import { SKILLS } from "../muncher/monster/skills.js";
 

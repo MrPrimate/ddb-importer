@@ -10,6 +10,7 @@ import checkCompendiums from "./hooks/ready/checkCompendiums.js";
 import registerGameSettings from "./hooks/ready/registerGameSettings.js";
 import { itemSheets } from "./hooks/ready/items.js";
 import checkVersion from "./hooks/ready/checkVersion.js";
+import { loadDDBConfig } from "./ddbConfig.js";
 
 // monster muncher
 import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
@@ -49,6 +50,7 @@ export function onceReady() {
     registerSheets();
     itemSheets();
     checkVersion();
+    loadDDBConfig();
 
   }, 500);
 }

@@ -7,6 +7,7 @@
   "version": "VERSION",
   "download": "https://github.com/mrprimate/ddb-importer/releases/download/VERSION/ddb-importer.zip",
   "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module.json",
+  "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "url": "https://github.com/mrprimate/ddb-importer",
   "minimumCoreVersion": "0.8.6",
   "compatibleCoreVersion": "0.8.8",

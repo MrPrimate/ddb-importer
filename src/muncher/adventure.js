@@ -1,4 +1,4 @@
-import { DDB_CONFIG } from "../ddb-config.js";
+import { DDB_CONFIG } from "../ddbConfig.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 

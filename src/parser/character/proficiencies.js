@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
 
-import { DDB_CONFIG } from "../../ddb-config.js";
+import { DDB_CONFIG } from "../../ddbConfig.js";
 
 function getCustomProficiencies(data, type) {
   const profGroup = DDB_CONFIG.proficiencyGroups.find((group) => group.label == type);
