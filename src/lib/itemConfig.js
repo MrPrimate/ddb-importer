@@ -23,7 +23,7 @@ export class DDBItemConfig extends FormApplication {
       {
         name: "ignoreItemImport",
         isChecked: itemImport,
-        description: "Ignore this item when when importing the character (implies all other settings here).",
+        description: "Ignore this item when importing the character (implies all other settings here).",
       },
       {
         name: "ignoreIcon",
