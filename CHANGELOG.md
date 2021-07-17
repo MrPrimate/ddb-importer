@@ -1,6 +1,7 @@
 # 2.1.28
 
 * Adventure journal links to DDB improved for books like ATG.
+* Healing Light now parses use and dice more logically.
 
 # 2.1.27
 

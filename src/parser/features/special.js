@@ -258,6 +258,9 @@ export function fixFeatures(features) {
         feature.data.range = { value: 10, long: null, units: "ft" };
         break;
       }
+      case "Healing Light": {
+        feature.data.damage = { parts: [["1d6"]], versatile: "", value: "" };
+      }
       // no default
     }
   });
