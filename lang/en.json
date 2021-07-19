@@ -102,6 +102,7 @@
   "ddb-importer.add-damage-restrictions-to-hints.name": "Add restrictions to damage hint?",
   "ddb-importer.add-damage-restrictions-to-hints.hint": "If a damage restriction is in place, add this to the damage hint",
   "dbb-importer.adventure-import-button": "Import Adventure",
+  "dbb-importer.adventure-import-confirm": "Confirm choice.",
   "dbb-importer.label.Scene": "Scene",
   "dbb-importer.label.Scenes": "Scenes",
   "dbb-importer.label.Actor": "Actor",

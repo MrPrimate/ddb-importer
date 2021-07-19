@@ -153,37 +153,42 @@ export default class AdventureMunch extends FormApplication {
 
         await AdventureMunch._createFolders(adventure, folders);
 
+        // (data.flags?.ddb?.version && confirm(`New version of Scene with name ${data.name} is ${data.flags?.ddb?.version}, current one is ${foundScene.flags?.ddb?.version}`))
+
         if (AdventureMunch._folderExists("scene", zip)) {
           logger.debug(`${adventure.name} - Loading scenes`);
-          await this._importFile("scene", zip, adventure, folders);
+          await this._checkForDataUpdates("scene", zip, adventure);
+          // await this._importFile("scene", zip, adventure);
         }
         if (AdventureMunch._folderExists("actor", zip)) {
           logger.debug(`${adventure.name} - Loading actors`);
-          await this._importFile("actor", zip, adventure, folders);
+          // let idsToUpdate = await this._checkForDataUpdates("actor", zip, adventure);
+          // logger.info(`The following ids of type "actor" should be updated to their newer version: ${idsToUpdate.toString()}.`);
+          await this._importFile("actor", zip, adventure);
         }
         if (AdventureMunch._folderExists("item", zip)) {
           logger.debug(`${adventure.name} - Loading item`);
-          await this._importFile("item", zip, adventure, folders);
+          await this._importFile("item", zip, adventure);
         }
         if (AdventureMunch._folderExists("journal", zip)) {
           logger.debug(`${adventure.name} - Loading journal`);
-          await this._importFile("journal", zip, adventure, folders);
+          await this._importFile("journal", zip, adventure);
         }
         if (AdventureMunch._folderExists("table", zip)) {
           logger.debug(`${adventure.name} - Loading table`);
-          await this._importFile("table", zip, adventure, folders);
+          await this._importFile("table", zip, adventure);
         }
         if (AdventureMunch._folderExists("playlist", zip)) {
           logger.debug(`${adventure.name} - Loading playlist`);
-          await this._importFile("playlist", zip, adventure, folders);
+          await this._importFile("playlist", zip, adventure);
         }
         if (AdventureMunch._folderExists("compendium", zip)) {
           logger.debug(`${adventure.name} - Loading compendium`);
-          await this._importCompendium("compendium", zip, adventure, folders);
+          await this._importCompendium("compendium", zip, adventure);
         }
         if (AdventureMunch._folderExists("macro", zip)) {
           logger.debug(`${adventure.name} - Loading macro`);
-          await this._importFile("macro", zip, adventure, folders);
+          await this._importFile("macro", zip, adventure);
         }
 
         try {
@@ -738,6 +743,59 @@ export default class AdventureMunch extends FormApplication {
 
     logger.debug("Actors transferred from compendium to world.");
 
+  }
+
+  async _checkForDataUpdates(type, zip, adventure) {
+    let totalCount = 0;
+    let currentCount = 0;
+
+    const typeName = type[0].toUpperCase() + type.slice(1);
+    let importType = typeName;
+
+    // handle the compound word, were we only pass single.
+    importType = type === "journal" ? "JournalEntry" : importType;
+    importType = type === "table" ? "RollTable" : importType;
+
+    const dataFiles = AdventureMunch._getFiles(type, zip);
+
+    logger.info(`Parsing ${adventure.name} - ${typeName} (${dataFiles.length} items)`);
+
+    totalCount = dataFiles.length;
+
+    let fileData = [];
+
+    logger.info(`The current type is ${typeName} and contains the following entries:`);
+    await Helpers.asyncForEach(dataFiles, async (file) => {
+      let raw = await zip.file(file.name).async("text");
+      let json = JSON.parse(raw);
+      // json.oldVersion = game.data["scenes"].find((item) => item._id === json._id)?.flags?.ddb-importer?.version;
+      json.oldVersion = await game.scenes.find((item) => item._id === json._id).getFlag("ddb-importer", "oldVersion");
+      fileData.push(json);
+    });
+
+    new Dialog(
+      {
+        title: `${typeName} updates`,
+        content: {
+          "dataType": typeName,
+          "fileData": fileData
+        },
+        buttons: {
+          confirm: {
+            label: "Confirm",
+            callback: async () => {
+              logger.info(`The following ids of type ${typeName} should be updated to their newer version (data): ` + $('.import-data-updates').serialize());
+              await this._importFile('scene', zip, adventure);
+            }
+          },
+        },
+        default: "confirm",
+      },
+      {
+        classes: ["dialog", "adventure-import-updates"],
+        template: "modules/ddb-importer/handlebars/adventure/import-updates.hbs",
+      }
+    ).render(true);
   }
 
   async _importFile(type, zip, adventure) {
