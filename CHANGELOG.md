@@ -1,3 +1,8 @@
+# 2.1.29
+
+* "Wall" spells now definitely set target correctly.
+* "Gust of Wind" spell now definitely set target correctly.
+
 # 2.1.28
 
 * Adventure journal links to DDB improved for books like ATG.
