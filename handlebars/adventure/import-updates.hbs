@@ -4,9 +4,13 @@
     <div>
       <div class="form-group">
         {{#each content.fileData}}
-          {{#if this.flags.ddb-importer.version}}
-            <label for="new_{{this._id}}">{{this.flags.ddb-importer.version}} (from: {{#if this.oldVersion}}{{this.oldVersion}}{{else}}unknown{{/if}})</label>
-            <input id="new_{{this._id}}" name="new_{{this._id}}" type="checkbox" value="{{this.flags.ddb-importer.version}}">
+          {{#if this.flags.ddb.versions}}
+            {{#if this.metaVersionChanged}}
+              <label for="new_{{this._id}}">{{this.name}}&nbsp;version&nbsp;{{this.flags.ddb.versions.ddbMetaData}} (from: {{#if this.oldVersions.ddbMetaData}}{{this.oldVersions.ddbMetaData}}{{else}}unknown{{/if}})</label>
+            {{else}}
+              <label for="new_{{this._id}}">{{this.name}}&nbsp;version&nbsp;{{this.flags.ddb.versions.ddbMetaData}}&nbsp;<i class="fa fa-info" title="Changed versions:&#10;{{#if this.importerVersionChanged}}DDB-Importer {{this.flags.ddb.versions.ddbImporter}} (before: {{#if this.oldVersionsddb-importer}}{{this.oldVersions.ddbImporter}}{{else}}unknown{{/if}})&#10;{{/if}}{{#if this.muncherVersionChanged}}DDB Adventure Muncher {{this.flags.ddb.versions.adventureMuncher}} (before: {{#if this.oldVersions.adventureMuncher}}{{this.oldVersions.adventureMuncher}}{{else}}unknown{{/if}}){{/if}}"></i></label>
+            {{/if}}
+            <input id="new_{{this._id}}" name="new_{{this._id}}" type="checkbox" value="">
           {{/if}}
         {{/each}}
       </div>

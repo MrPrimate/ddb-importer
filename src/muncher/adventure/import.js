@@ -655,17 +655,11 @@ export default class AdventureMunch extends FormApplication {
             tile.img = await Helpers.importImage(tile.img, zip, adventure);
           });
 
-          let scene;
           if (overwriteEntity) {
             await Scene.delete([data._id]);
-            scene = await Scene.create(data, { keepId: true });
-          } else {
-            scene = await Scene.create(data, { keepId: true });
           }
-          const sceneVersion = data?.flags?.["ddb-importer"]?.version;
-          if (sceneVersion) {
-            await scene.setFlag("ddb-importer", "version", sceneVersion);
-          }
+          let scene;
+          scene = await Scene.create(data, { keepId: true });
           this._itemsToRevisit.push(`Scene.${scene.data._id}`);
         }
       break;
@@ -765,21 +759,34 @@ export default class AdventureMunch extends FormApplication {
 
     let fileData = [];
     let hasVersions = false;
+    const moduleInfo = game.modules.get("ddb-importer").data;
+    const installedVersion = moduleInfo.version;
 
     await Helpers.asyncForEach(dataFiles, async (file) => {
       let raw = await zip.file(file.name).async("text");
       let json = JSON.parse(raw);
-      if (!hasVersions && json?.flags?.["ddb-importer"]?.version) {
+      if (!hasVersions && json?.flags?.ddb?.versions) {
         hasVersions = true;
       }
       let existingScene = await game.scenes.find((item) => item.data._id === json._id);
       if (existingScene) {
-        let oldVersion = existingScene.getFlag("ddb-importer", "version");
-        // eslint-disable-next-line no-undef
-        if (!oldVersion || isNewerVersion(json?.flags?.["ddb-importer"]?.version, oldVersion)) {
-          // eslint-disable-next-line require-atomic-updates
-          json.oldVersion = oldVersion;
-          fileData.push(json);
+        let oldVersions = existingScene.data?.flags?.ddb?.versions;
+        let newVersions = json?.flags?.ddb?.versions;
+        if (newVersions) {
+          // eslint-disable-next-line no-undef
+          let importerVersionChanged = oldVersions ? isNewerVersion(installedVersion, oldVersions["ddbImporter"]) : true;
+          // eslint-disable-next-line no-undef
+          let metaVersionChanged = oldVersions ? isNewerVersion(newVersions["ddbMetaData"], oldVersions["ddbMetaData"]) : true;
+          // eslint-disable-next-line no-undef
+          let muncherVersionChanged = oldVersions ? isNewerVersion(newVersions["adventureMuncher"], oldVersions["adventureMuncher"]) : true;
+          if (!oldVersions || importerVersionChanged || metaVersionChanged || muncherVersionChanged) {
+            // eslint-disable-next-line require-atomic-updates
+            json.oldVersions = oldVersions;
+            json.importerVersionChanged = importerVersionChanged;
+            json.metaVersionChanged = metaVersionChanged;
+            json.muncherVersionChanged = muncherVersionChanged;
+            fileData.push(json);
+          }
         }
       }
     });
