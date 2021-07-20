@@ -104,7 +104,7 @@ export function fixSpells(ddb, items) {
       case "Thunderclap":
       case "Word of Radiance":
         spell.data.range = { value: null, units: "self", long: null };
-        spell.data.target = { value: "15", units: "ft", type: "cube" };
+        spell.data.target = { value: 15, units: "ft", type: "cube" };
         break;
       case "Sleep": {
         spell.data.damage = { parts: [["5d8", ""]], versatile: "", value: "" };
@@ -119,6 +119,9 @@ export function fixSpells(ddb, items) {
         spell.data.scaling = { mode: "level", formula: "2d10" };
         break;
       }
+      case "Gust of Wind":
+        spell.data.target = { value: 60, units: "ft", type: "line", width: null };
+        break;
       case "Produce Flame":
         spell.data.range = { value: 30, units: "ft", long: null };
         break;

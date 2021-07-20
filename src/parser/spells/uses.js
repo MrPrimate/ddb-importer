@@ -18,8 +18,8 @@ export function getUses(data) {
 
   if (resetType !== null && resetType !== undefined) {
     return {
-      value: limitedUse.numberUsed ? limitedUse.maxUses - limitedUse.numberUsed : limitedUse.maxUses,
-      max: limitedUse.maxUses,
+      value: limitedUse.numberUsed ? limitedUse.maxUses - limitedUse.numberUsed : parseInt(limitedUse.maxUses),
+      max: parseInt(limitedUse.maxUses),
       per: resetType.value,
     };
   } else {

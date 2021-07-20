@@ -37,79 +37,83 @@ let getTargetValues = (data) => {
  */
 // eslint-disable-next-line complexity
 export function getTarget(data) {
+  const result = {
+    value: null,
+    units: null,
+    type: null,
+    width: null,
+  };
+
   // if spell is an AOE effect get some details
   if (data.definition.range.aoeType && data.definition.range.aoeValue) {
-    return {
-      value: data.definition.range.aoeValue,
-      type: data.definition.range.aoeType.toLowerCase(),
-      units: "ft",
-    };
+    result.value = parseInt(data.definition.range.aoeValue);
+    result.type = data.definition.range.aoeType.toLowerCase();
+    result.units = "ft";
+    return result;
   }
-
-  // else lets try and fill in some target details
-  let type = null;
-  let units = null;
-  let value = null;
 
   // does the spell target a creature?
   const creatures = doesTargetCreature(data);
 
   if (creatures) {
-    value = getTargetValues(data);
+    result.value = getTargetValues(data);
   }
 
   switch (data.definition.range.origin) {
     case "Touch":
-      units = "touch";
-      if (creatures) type = "creature";
+      result.units = "touch";
+      if (creatures) result.type = "creature";
       break;
     case "Self": {
       const dmgSpell = data.definition.modifiers.some((mod) => mod.type === "damage");
-      type = (dmgSpell) ? "creature" : "self";
+      result.type = (dmgSpell) ? "creature" : "self";
       break;
     }
     case "None":
-      type = "none";
+      result.type = "none";
       break;
     case "Ranged":
-      if (creatures) type = "creature";
+      if (creatures) result.type = "creature";
       break;
     case "Feet":
-      if (creatures) type = "creature";
+      if (creatures) result.type = "creature";
       break;
     case "Miles":
-      if (creatures) type = "creature";
+      if (creatures) result.type = "creature";
       break;
     case "Sight":
     case "Special":
-      units = "special";
+      result.units = "special";
       break;
     case "Any":
-      units = "any";
+      result.units = "any";
       break;
     case undefined:
-      type = null;
+      result.type = null;
       break;
     // no default
   }
 
+  // wall type spell?
   if (data.definition.name.includes("Wall")) {
-    type = "wall";
-    units = "ft";
+    result.type = "wall";
+    result.units = "ft";
+
     if (data.definition.description.includes("ten 10-foot-")) {
-      value = 100;
+      result.value = 100;
     } else {
       const wallReg = new RegExp(/ (\d*) feet long/);
       const matches = data.definition.description.match(wallReg);
       if (matches) {
-        value = matches[1];
+        result.value = parseInt(matches[1]);
       }
+    }
+    const thickReg = new RegExp(/ (\d*) foot (thick|wide)/);
+    const thickMatch = data.definition.description.match(thickReg);
+    if (thickMatch && thickMatch[1] > 5) {
+      result.width = parseInt(thickMatch[1]);
     }
   }
 
-  return {
-    value: value,
-    units: units,
-    type: type,
-  };
+  return result;
 }
