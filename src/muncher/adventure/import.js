@@ -153,17 +153,12 @@ export default class AdventureMunch extends FormApplication {
 
         await AdventureMunch._createFolders(adventure, folders);
 
-        // (data.flags?.ddb?.version && confirm(`New version of Scene with name ${data.name} is ${data.flags?.ddb?.version}, current one is ${foundScene.flags?.ddb?.version}`))
-
         if (AdventureMunch._folderExists("scene", zip)) {
           logger.debug(`${adventure.name} - Loading scenes`);
           await this._checkForDataUpdates("scene", zip, adventure);
-          // await this._importFile("scene", zip, adventure);
         }
         if (AdventureMunch._folderExists("actor", zip)) {
           logger.debug(`${adventure.name} - Loading actors`);
-          // let idsToUpdate = await this._checkForDataUpdates("actor", zip, adventure);
-          // logger.info(`The following ids of type "actor" should be updated to their newer version: ${idsToUpdate.toString()}.`);
           await this._importFile("actor", zip, adventure);
         }
         if (AdventureMunch._folderExists("item", zip)) {
@@ -635,10 +630,11 @@ export default class AdventureMunch extends FormApplication {
     });
   }
 
-  async _importRenderedFile(adventure, typeName, data, zip, needRevisit) {
+  async _importRenderedFile(adventure, typeName, data, zip, needRevisit, overwriteIds) {
+    const overwriteEntity = overwriteIds.includes(data._id);
     switch (typeName) {
       case "Scene":
-        if (!Helpers.findEntityByImportId("scenes", data._id)) {
+        if (!Helpers.findEntityByImportId("scenes", data._id) || overwriteEntity) {
           await Helpers.asyncForEach(data.tokens, async (token) => {
             // eslint-disable-next-line require-atomic-updates
             if (token.img) token.img = await Helpers.importImage(token.img, zip, adventure);
@@ -659,7 +655,14 @@ export default class AdventureMunch extends FormApplication {
             tile.img = await Helpers.importImage(tile.img, zip, adventure);
           });
 
-          let scene = await Scene.create(data, { keepId: true });
+          let scene;
+          if (overwriteEntity) {
+            await Scene.delete([data._id]);
+            scene = await Scene.create(data, { keepId: true });
+            await scene.setFlag("ddb-importer", "version", data.flags["ddb-importer"].version);
+          } else {
+            scene = await Scene.create(data, { keepId: true });
+          }
           this._itemsToRevisit.push(`Scene.${scene.data._id}`);
         }
       break;
@@ -746,9 +749,6 @@ export default class AdventureMunch extends FormApplication {
   }
 
   async _checkForDataUpdates(type, zip, adventure) {
-    let totalCount = 0;
-    let currentCount = 0;
-
     const typeName = type[0].toUpperCase() + type.slice(1);
     let importType = typeName;
 
@@ -760,47 +760,73 @@ export default class AdventureMunch extends FormApplication {
 
     logger.info(`Parsing ${adventure.name} - ${typeName} (${dataFiles.length} items)`);
 
-    totalCount = dataFiles.length;
-
     let fileData = [];
+    let hasVersions = false;
 
-    logger.info(`The current type is ${typeName} and contains the following entries:`);
     await Helpers.asyncForEach(dataFiles, async (file) => {
       let raw = await zip.file(file.name).async("text");
       let json = JSON.parse(raw);
-      // json.oldVersion = game.data["scenes"].find((item) => item._id === json._id)?.flags?.ddb-importer?.version;
-      json.oldVersion = await game.scenes.find((item) => item._id === json._id).getFlag("ddb-importer", "oldVersion");
-      fileData.push(json);
+      if (!hasVersions && json?.flags?.["ddb-importer"]?.version) {
+        hasVersions = true;
+      }
+      let existingScene = await game.scenes.find((item) => item.data._id === json._id);
+      if (existingScene) {
+        let oldVersion = existingScene.getFlag("ddb-importer", "version");
+        // eslint-disable-next-line no-undef
+        if (!oldVersion || isNewerVersion(json?.flags?.["ddb-importer"]?.version, oldVersion)) {
+          // eslint-disable-next-line require-atomic-updates
+          json.oldVersion = oldVersion;
+          fileData.push(json);
+        }
+      }
     });
 
-    new Dialog(
-      {
-        title: `${typeName} updates`,
-        content: {
-          "dataType": typeName,
-          "fileData": fileData
-        },
-        buttons: {
-          confirm: {
-            label: "Confirm",
-            callback: async () => {
-              logger.info(`The following ids of type ${typeName} should be updated to their newer version (data): ` + $('.import-data-updates').serialize());
-              await this._importFile('scene', zip, adventure);
-            }
+    if (hasVersions && fileData.length > 0) {
+      new Dialog(
+        {
+          title: `${typeName} updates`,
+          content: {
+            "dataType": type,
+            "dataTypeDisplay": importType,
+            "fileData": fileData,
+            "cssClass": "import-data-updates"
           },
+          buttons: {
+            confirm: {
+              label: "Confirm",
+              callback: async () => {
+                let formData = $('.import-data-updates').serializeArray();
+                let ids = [];
+                let dataType = "";
+                for (let i = 0; i < formData.length; i++) {
+                  let key = formData[i].name;
+                  if (key.startsWith("new_")) {
+                    ids.push(key.substr(4));
+                  } else if (key === "type") {
+                    dataType = formData[i].value;
+                  }
+                }
+                await this._importFile(dataType, zip, adventure, ids);
+              }
+            },
+          },
+          default: "confirm",
         },
-        default: "confirm",
-      },
-      {
-        classes: ["dialog", "adventure-import-updates"],
-        template: "modules/ddb-importer/handlebars/adventure/import-updates.hbs",
-      }
-    ).render(true);
+        {
+          classes: ["dialog", "adventure-import-updates"],
+          template: "modules/ddb-importer/handlebars/adventure/import-updates.hbs",
+        }
+      ).render(true);
+    } else {
+      await this._importFile(type, zip, adventure);
+    }
   }
 
-  async _importFile(type, zip, adventure) {
+  async _importFile(type, zip, adventure, overwriteIds = []) {
     let totalCount = 0;
     let currentCount = 0;
+
+    logger.info(`IDs to overwrite of type ${type}: ${JSON.stringify(overwriteIds)}`);
 
     const typeName = type[0].toUpperCase() + type.slice(1);
     let importType = typeName;
@@ -924,7 +950,7 @@ export default class AdventureMunch extends FormApplication {
         }
       }
 
-      await this._importRenderedFile(adventure, typeName, data, zip, needRevisit);
+      await this._importRenderedFile(adventure, typeName, data, zip, needRevisit, overwriteIds);
 
       currentCount += 1;
       AdventureMunch._updateProgress(totalCount, currentCount, importType);

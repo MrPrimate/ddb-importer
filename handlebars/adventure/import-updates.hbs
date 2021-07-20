@@ -1,16 +1,17 @@
-<form class="{{cssClass}}" autocomplete="off" onsubmit="event.preventDefault();">
-  <div class="import-data-updates">
-    <p class="notes">The following data has updates available, please choose which ones you want to apply by ticking the corresponding checkbox.</p>
+<form class="{{content.cssClass}}" autocomplete="off" onsubmit="event.preventDefault();">
+  <div>
+    <p class="notes">The following {{content.dataTypeDisplay}} data has updates available, please choose which ones you want to apply by ticking the corresponding checkbox.</p>
     <div>
       <div class="form-group">
         {{#each content.fileData}}
-          {{#if this.flags.ddb.version}}
-            <label for="new_{{content.dataType}}_{{this._id}}">{{this.flags.ddb.version}} (from: {{#if this.oldVersion}}{{this.oldVersion}}{{else}}unknown{{/if}})</label>
-            <input id="new_{{content.dataType}}_{{this._id}}" type="checkbox" value="{{this.flags.ddb.version}}">
+          {{#if this.flags.ddb-importer.version}}
+            <label for="new_{{this._id}}">{{this.flags.ddb-importer.version}} (from: {{#if this.oldVersion}}{{this.oldVersion}}{{else}}unknown{{/if}})</label>
+            <input id="new_{{this._id}}" name="new_{{this._id}}" type="checkbox" value="{{this.flags.ddb-importer.version}}">
           {{/if}}
         {{/each}}
       </div>
     </div>
+    <input type="hidden" name="type" value="{{content.dataType}}">
     <div class="dialog-buttons">
       <button class="dialog-button" data-button="confirm">
         <i class="fas fa-check"></i>
