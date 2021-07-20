@@ -659,9 +659,12 @@ export default class AdventureMunch extends FormApplication {
           if (overwriteEntity) {
             await Scene.delete([data._id]);
             scene = await Scene.create(data, { keepId: true });
-            await scene.setFlag("ddb-importer", "version", data.flags["ddb-importer"].version);
           } else {
             scene = await Scene.create(data, { keepId: true });
+          }
+          const sceneVersion = data?.flags?.["ddb-importer"]?.version;
+          if (sceneVersion) {
+            await scene.setFlag("ddb-importer", "version", sceneVersion);
           }
           this._itemsToRevisit.push(`Scene.${scene.data._id}`);
         }
