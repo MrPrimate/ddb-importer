@@ -1,7 +1,9 @@
 # 2.1.29
 
+* Scene import for adventure muncher will now offer a selection dialogue to allow replacement of updated scenes - many thanks to @kid2407 / Tobias#6450 for this excellent contribution.
 * "Wall" spells now definitely set target correctly.
 * "Gust of Wind" spell now definitely set target correctly.
+* "Divine Favor" now targets self and is a utility.
 
 # 2.1.28
 
