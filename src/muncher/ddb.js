@@ -16,7 +16,6 @@ import AdventureMunch from "./adventure/import.js";
 
 
 function getSourcesLookups(selected) {
-  console.warn(DDB_CONFIG);
   const selections = DDB_CONFIG.sources
   .filter((source) => source.isReleased)
   .map((source) => {
