@@ -206,6 +206,11 @@ export function fixSpells(ddb, items) {
         spell.data.scaling = { mode: "level", formula: "5d1" };
         break;
       }
+      case "Divine Favor": {
+        spell.data.actionType = "util";
+        spell.data['target']['type'] = "self";
+        break;
+      }
       // no default
     }
 
