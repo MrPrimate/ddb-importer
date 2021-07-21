@@ -41,7 +41,8 @@
     "Dialog": true,
     "fromUuid": true,
     "ForgeVTT": true,
-    "io": true
+    "io": true,
+    "isNewerVersion": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,
