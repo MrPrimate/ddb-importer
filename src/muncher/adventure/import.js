@@ -155,35 +155,35 @@ export default class AdventureMunch extends FormApplication {
 
         if (AdventureMunch._folderExists("scene", zip)) {
           logger.debug(`${adventure.name} - Loading scenes`);
-          await this._importFile("scene", zip, adventure, folders);
+          await this._checkForDataUpdates("scene", zip, adventure);
         }
         if (AdventureMunch._folderExists("actor", zip)) {
           logger.debug(`${adventure.name} - Loading actors`);
-          await this._importFile("actor", zip, adventure, folders);
+          await this._importFile("actor", zip, adventure);
         }
         if (AdventureMunch._folderExists("item", zip)) {
           logger.debug(`${adventure.name} - Loading item`);
-          await this._importFile("item", zip, adventure, folders);
+          await this._importFile("item", zip, adventure);
         }
         if (AdventureMunch._folderExists("journal", zip)) {
           logger.debug(`${adventure.name} - Loading journal`);
-          await this._importFile("journal", zip, adventure, folders);
+          await this._importFile("journal", zip, adventure);
         }
         if (AdventureMunch._folderExists("table", zip)) {
           logger.debug(`${adventure.name} - Loading table`);
-          await this._importFile("table", zip, adventure, folders);
+          await this._importFile("table", zip, adventure);
         }
         if (AdventureMunch._folderExists("playlist", zip)) {
           logger.debug(`${adventure.name} - Loading playlist`);
-          await this._importFile("playlist", zip, adventure, folders);
+          await this._importFile("playlist", zip, adventure);
         }
         if (AdventureMunch._folderExists("compendium", zip)) {
           logger.debug(`${adventure.name} - Loading compendium`);
-          await this._importCompendium("compendium", zip, adventure, folders);
+          await this._importCompendium("compendium", zip, adventure);
         }
         if (AdventureMunch._folderExists("macro", zip)) {
           logger.debug(`${adventure.name} - Loading macro`);
-          await this._importFile("macro", zip, adventure, folders);
+          await this._importFile("macro", zip, adventure);
         }
 
         try {
@@ -405,34 +405,42 @@ export default class AdventureMunch extends FormApplication {
     });
   }
 
-  async _importRenderedFile(adventure, typeName, data, zip, needRevisit) {
+  // import a scene file
+  async _importRenderedSceneFile(adventure, typeName, data, zip, needRevisit, overwriteIds, overwriteEntity) {
+    if (!Helpers.findEntityByImportId("scenes", data._id) || overwriteEntity) {
+      await Helpers.asyncForEach(data.tokens, async (token) => {
+        // eslint-disable-next-line require-atomic-updates
+        if (token.img) token.img = await Helpers.importImage(token.img, zip, adventure);
+      });
+
+      await Helpers.asyncForEach(data.sounds, async (sound) => {
+        // eslint-disable-next-line require-atomic-updates
+        sound.path = await Helpers.importImage(sound.path, zip, adventure);
+      });
+
+      await Helpers.asyncForEach(data.notes, async (note) => {
+        // eslint-disable-next-line require-atomic-updates
+        note.icon = await Helpers.importImage(note.icon, zip, adventure, true);
+      });
+
+      await Helpers.asyncForEach(data.tiles, async (tile) => {
+        // eslint-disable-next-line require-atomic-updates
+        tile.img = await Helpers.importImage(tile.img, zip, adventure);
+      });
+
+      if (overwriteEntity) await Scene.delete([data._id]);
+      const scene = await Scene.create(data, { keepId: true });
+      this._itemsToRevisit.push(`Scene.${scene.data._id}`);
+    }
+  }
+
+  async _importRenderedFile(adventure, typeName, data, zip, needRevisit, overwriteIds) {
+    const overwriteEntity = overwriteIds.includes(data._id);
     switch (typeName) {
-      case "Scene":
-        if (!Helpers.findEntityByImportId("scenes", data._id)) {
-          await Helpers.asyncForEach(data.tokens, async (token) => {
-            // eslint-disable-next-line require-atomic-updates
-            if (token.img) token.img = await Helpers.importImage(token.img, zip, adventure);
-          });
-
-          await Helpers.asyncForEach(data.sounds, async (sound) => {
-            // eslint-disable-next-line require-atomic-updates
-            sound.path = await Helpers.importImage(sound.path, zip, adventure);
-          });
-
-          await Helpers.asyncForEach(data.notes, async (note) => {
-            // eslint-disable-next-line require-atomic-updates
-            note.icon = await Helpers.importImage(note.icon, zip, adventure, true);
-          });
-
-          await Helpers.asyncForEach(data.tiles, async (tile) => {
-            // eslint-disable-next-line require-atomic-updates
-            tile.img = await Helpers.importImage(tile.img, zip, adventure);
-          });
-
-          let scene = await Scene.create(data, { keepId: true });
-          this._itemsToRevisit.push(`Scene.${scene.data._id}`);
-        }
-      break;
+      case "Scene": {
+        await this._importRenderedSceneFile(adventure, typeName, data, zip, needRevisit, overwriteIds, overwriteEntity);
+        break;
+      }
       case "Actor":
         if (!Helpers.findEntityByImportId("actors", data._id)) {
           let actor = await Actor.create(data, { keepId: true });
@@ -450,7 +458,7 @@ export default class AdventureMunch extends FormApplication {
           }
         }
       break;
-      case "Journal":
+      case "JournalEntry":
         if (!Helpers.findEntityByImportId("journal", data._id)) {
           let journal = await JournalEntry.create(data, { keepId: true });
           if (needRevisit) {
@@ -458,7 +466,7 @@ export default class AdventureMunch extends FormApplication {
           }
         }
       break;
-      case "Table":
+      case "RollTable":
         if (!Helpers.findEntityByImportId("tables", data._id)) {
           let rolltable = await RollTable.create(data, { keepId: true });
           if (needRevisit) {
@@ -515,20 +523,155 @@ export default class AdventureMunch extends FormApplication {
 
   }
 
-  async _importFile(type, zip, adventure) {
-    let totalCount = 0;
-    let currentCount = 0;
-
+  static getImportType(type) {
     const typeName = type[0].toUpperCase() + type.slice(1);
     let importType = typeName;
 
-    // handle the compound word, were we only pass single.
-    importType = type === "journal" ? "JournalEntry" : importType;
-    importType = type === "table" ? "RollTable" : importType;
+    switch (type) {
+      case "journal":
+        importType = "JournalEntry";
+        break;
+      case "table":
+        importType = "RollTable";
+        break;
+      default:
+        importType = typeName;
+        break;
+    }
 
+    return importType;
+  }
+
+  // check the document for version data and for update info to see if we can replace it
+  static _extractDocumentVersionData(newDoc, existingDoc, ddbIVersion) {
+    // do we have versioned metadata?
+    if (newDoc?.flags?.ddb?.versions?.ddbMetaData?.lastUpdate) {
+      // check old data, it might not exist
+      const oldDDBMetaDataVersions = existingDoc.data?.flags?.ddb?.versions?.ddbMetaData?.lastUpdate
+        ? existingDoc.data.flags.ddb.versions.ddbMetaData
+        : {
+          lastUpdate: "0.0.1",
+          drawings: "0.0.1",
+          notes: "0.0.1",
+          tokens: "0.0.1",
+          walls: "0.0.1",
+          lights: "0.0.1",
+        };
+      const oldDDBImporterVersion = existingDoc.data?.flags?.ddb?.versions?.ddbImporter
+      ? existingDoc.data.flags.ddb.versions.ddbImporter
+      : "2.0.1";
+      const oldAdventureMuncherVersion = existingDoc.data?.flags?.ddb?.versions?.adventureMuncher
+      ? existingDoc.data.flags.ddb.versions.adventureMuncher
+      : "0.3.0";
+      const oldVersions = { ddbImporter: oldDDBImporterVersion, ddbMetaData: oldDDBMetaDataVersions, adventureMuncher: oldAdventureMuncherVersion };
+
+      const documentVersions = newDoc.flags.ddb.versions;
+      const importerVersionChanged = isNewerVersion(ddbIVersion, oldVersions["ddbImporter"]);
+      const metaVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["lastUpdate"], oldVersions["ddbMetaData"]["lastUpdate"]);
+      const muncherVersionChanged = isNewerVersion(documentVersions["adventureMuncher"], oldVersions["adventureMuncher"]);
+
+      if (importerVersionChanged || metaVersionChanged || muncherVersionChanged) {
+        newDoc.oldVersions = oldVersions;
+        newDoc.importerVersionChanged = importerVersionChanged;
+        newDoc.metaVersionChanged = metaVersionChanged;
+        newDoc.muncherVersionChanged = muncherVersionChanged;
+        newDoc.drawingVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["drawings"], oldVersions["ddbMetaData"]["drawings"]);
+        newDoc.noteVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["notes"], oldVersions["ddbMetaData"]["notes"]);
+        newDoc.tokenVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["tokens"], oldVersions["ddbMetaData"]["tokens"]);
+        newDoc.wallVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["walls"], oldVersions["ddbMetaData"]["walls"]);
+        newDoc.lightVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["lights"], oldVersions["ddbMetaData"]["lights"]);
+      }
+    }
+    return newDoc;
+  }
+
+  async _checkForDataUpdates(type, zip, adventure) {
+    const importType = AdventureMunch.getImportType(type);
     const dataFiles = AdventureMunch._getFiles(type, zip);
 
-    logger.info(`Importing ${adventure.name} - ${typeName} (${dataFiles.length} items)`);
+    logger.info(`Checking ${adventure.name} - ${importType} (${dataFiles.length} for updates)`);
+
+    let fileData = [];
+    let hasVersions = false;
+    const moduleInfo = game.modules.get("ddb-importer").data;
+    const installedVersion = moduleInfo.version;
+
+    await Helpers.asyncForEach(dataFiles, async (file) => {
+      const raw = await zip.file(file.name).async("text");
+      const json = JSON.parse(raw);
+      if (!hasVersions && json?.flags?.ddb?.versions) {
+        hasVersions = true;
+      }
+      switch (importType) {
+        case "Scene": {
+          const existingScene = await game.scenes.find((item) => item.data._id === json._id);
+          if (existingScene) {
+            const scene = AdventureMunch._extractDocumentVersionData(json, existingScene, installedVersion);
+            if (scene.importerVersionChanged || scene.metaVersionChanged || scene.muncherVersionChanged) {
+              fileData.push(scene);
+            }
+          }
+          break;
+        }
+        // no default
+      }
+    });
+
+    return new Promise((resolve) => {
+      if (hasVersions && fileData.length > 0) {
+        new Dialog(
+          {
+            title: `${importType} updates`,
+            content: {
+              "dataType": type,
+              "dataTypeDisplay": importType,
+              "fileData": fileData,
+              "cssClass": "import-data-updates"
+            },
+            buttons: {
+              confirm: {
+                label: "Confirm",
+                callback: async () => {
+                  const formData = $('.import-data-updates').serializeArray();
+                  let ids = [];
+                  let dataType = "";
+                  for (let i = 0; i < formData.length; i++) {
+                    const key = formData[i].name;
+                    if (key.startsWith("new_")) {
+                      ids.push(key.substr(4));
+                    } else if (key === "type") {
+                      dataType = formData[i].value;
+                    }
+                  }
+                  resolve(this._importFile(dataType, zip, adventure, ids));
+                }
+              },
+            },
+            default: "confirm",
+          },
+          {
+            width: 700,
+            classes: ["dialog", "adventure-import-updates"],
+            template: "modules/ddb-importer/handlebars/adventure/import-updates.hbs",
+          }
+        ).render(true);
+      } else {
+        resolve(this._importFile(type, zip, adventure));
+      }
+    });
+
+  }
+
+  async _importFile(type, zip, adventure, overwriteIds = []) {
+    let totalCount = 0;
+    let currentCount = 0;
+
+    logger.info(`IDs to overwrite of type ${type}: ${JSON.stringify(overwriteIds)}`);
+
+    const importType = AdventureMunch.getImportType(type);
+    const dataFiles = AdventureMunch._getFiles(type, zip);
+
+    logger.info(`Importing ${adventure.name} - ${importType} (${dataFiles.length} items)`);
 
     totalCount = dataFiles.length;
 
@@ -590,21 +733,18 @@ export default class AdventureMunch extends FormApplication {
         });
       }
 
-      if (typeName === "Scene") {
+      if (importType === "Scene") {
         if (data.tokens) {
           await AdventureMunch._generateTokenActors(data);
         }
-      }
-
-      if (typeName === "Playlist") {
+      } else if (importType === "Playlist") {
         await Helpers.asyncForEach(data.sounds, async (sound) => {
           if (sound.path) {
             // eslint-disable-next-line require-atomic-updates
             sound.path = await Helpers.importImage(sound.path, zip, adventure);
           }
         });
-      }
-      if (typeName === "Table") {
+      } else if (importType === "RollTable") {
         await Helpers.asyncForEach(data.results, async (result) => {
           if (result.img) {
             // eslint-disable-next-line require-atomic-updates
@@ -614,8 +754,7 @@ export default class AdventureMunch extends FormApplication {
             needRevisit = true;
           }
         });
-      }
-      if (typeName === "Journal" && data.content) {
+      } else if (importType === "JournalEntry" && data.content) {
         const journalImages = Helpers.reMatchAll(/(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/, data.content);
         if (journalImages) {
           await Helpers.asyncForEach(journalImages, async (result) => {
@@ -627,7 +766,7 @@ export default class AdventureMunch extends FormApplication {
 
       data.flags.importid = data._id;
 
-      if (typeName !== "Playlist" && typeName !== "Compendium") {
+      if (importType !== "Playlist" && importType !== "Compendium") {
         if (CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder]) {
           logger.debug(`Adding data to subfolder importkey = ${data.folder}, folder = ${CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder]}`);
           data.folder = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder];
@@ -641,7 +780,7 @@ export default class AdventureMunch extends FormApplication {
         }
       }
 
-      await this._importRenderedFile(adventure, typeName, data, zip, needRevisit);
+      await this._importRenderedFile(adventure, importType, data, zip, needRevisit, overwriteIds);
 
       currentCount += 1;
       AdventureMunch._updateProgress(totalCount, currentCount, importType);

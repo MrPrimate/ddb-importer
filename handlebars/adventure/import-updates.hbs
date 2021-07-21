@@ -1,0 +1,31 @@
+<form class="{{content.cssClass}}" autocomplete="off" onsubmit="event.preventDefault();">
+  <div>
+    <p class="notes">The following {{content.dataTypeDisplay}} data has updates available, please choose which ones you want to apply by ticking the corresponding checkbox.</p>
+    <p class="notes">Meta Data changes effect scenes, walls and tokens on the scene. Adventure Muncher Update can effect a wide variety of resources. DDB Importer version change is unlikely to effect anything.</p>
+    <div>
+      <div class="form-description">
+        {{#each content.fileData}}
+          {{#if this.flags.ddb.versions}}
+          <div>
+            <input id="new_{{this._id}}" name="new_{{this._id}}" type="checkbox" value="">
+            {{#if this.metaVersionChanged}}
+              <label for="new_{{this._id}}">{{this.name}} : <i>from {{#if this.oldVersions.ddbMetaData.lastUpdate}}v{{this.oldVersions.ddbMetaData.lastUpdate}}{{else}}unknown version{{/if}} to v{{this.flags.ddb.versions.ddbMetaData.lastUpdate}}</i>{{#if this.tokenVersionChanged}} <i class="fa fa-pastafarianism" title="Tokens changed"></i>{{/if}}{{#if this.wallVersionChanged}} <i class="fa fa-door-closed" title="Walls changed"></i>{{/if}}{{#if this.noteVersionChanged}} <i class="fa fa-map-pin" title="Note pins changed"></i>{{/if}}{{#if this.lightVersionChanged}} <i class="fa fa-lightbulb" title="Lights changed"></i>{{/if}}{{#if this.drawingVersionChanged}} <i class="fa fa-pen" title="Drawings changed"></i>{{/if}}</label>
+            {{else}}
+              <label for="new_{{this._id}}">{{this.name}} : <i>v{{this.flags.ddb.versions.ddbMetaData.lastUpdate}}</i> <i class="fa fa-info" title="Previous versions:&#10;{{#if this.importerVersionChanged}}DDB-Importer {{this.flags.ddb.versions.ddbImporter}} (previous: {{#if this.oldVersions.ddb-importer}}v{{this.oldVersions.ddbImporter}}{{else}}unknown{{/if}})&#10;{{/if}}{{#if this.muncherVersionChanged}}DDB Adventure Muncher {{this.flags.ddb.versions.adventureMuncher}} (previous: {{#if this.oldVersions.adventureMuncher}}v{{this.oldVersions.adventureMuncher}}{{else}}unknown{{/if}}){{/if}}"></i></label>
+            {{/if}}
+          </div>
+          {{/if}}
+        {{/each}}
+      </div>
+    </div>
+    <input type="hidden" name="type" value="{{content.dataType}}">
+    <div class="dialog-buttons">
+      <button class="dialog-button" data-button="confirm">
+        <i class="fas fa-check"></i>
+        {{localize "dbb-importer.adventure-import-confirm"}}
+      </button>
+    </div>
+  </div>
+</form>
+
+
