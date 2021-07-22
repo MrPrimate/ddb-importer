@@ -1,3 +1,7 @@
+# 2.1.30
+
+* Gust of wind width.
+
 # 2.1.29
 
 * Scene import for adventure muncher will now offer a selection dialogue to allow replacement of updated scenes - many thanks to @kid2407 / Tobias#6450 for this excellent contribution.

@@ -120,7 +120,7 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Gust of Wind":
-        spell.data.target = { value: 60, units: "ft", type: "line", width: null };
+        spell.data.target = { value: 60, units: "ft", type: "line", width: 10 };
         break;
       case "Produce Flame":
         spell.data.range = { value: 30, units: "ft", long: null };
