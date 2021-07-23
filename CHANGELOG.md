@@ -1,6 +1,7 @@
 # 2.1.30
 
 * Gust of wind width.
+* Fighting Style: Dueling would add the effect twice if using active effects.
 
 # 2.1.29
 
