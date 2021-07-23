@@ -28,7 +28,7 @@ I get an error along the lines of:
 The key xxxx does not exist in the EmbeddedCollection Collection
 ```
 
-This is a core Foundry bug and will hopefully be fixed in version 9 of the software. You can find out more [here](https://gitlab.com/foundrynet/foundryvtt/-/issues/5309)
+This is a core Foundry bug and will hopefully be fixed in version 9 of the software. You can find out more [here](https://gitlab.com/foundrynet/foundryvtt/-/issues/5312) and [here](https://gitlab.com/foundrynet/foundryvtt/-/issues/5309).
 
 
 ## Clerics and Druids don't get their un-prepared spells
