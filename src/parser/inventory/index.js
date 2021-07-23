@@ -167,6 +167,8 @@ function getItemFlags(ddb, data, character) {
   if (flags.classFeatures.includes("Lifedrinker")) {
     flags.damage.parts.push(["@mod", "necrotic"]);
   }
+  // const addItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+  const addCharacterEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
   // for melee attacks get extras
   if (data.definition.attackType === 1) {
@@ -181,7 +183,7 @@ function getItemFlags(ddb, data, character) {
       flags.classFeatures.push("greatWeaponFighting");
     }
     // do we have dueling fighting style?
-    if (utils.hasChosenCharacterOption(ddb, "Dueling")) {
+    if (utils.hasChosenCharacterOption(ddb, "Dueling") && !addCharacterEffects) {
       flags.classFeatures.push("Dueling");
     }
     // do we have dueling fighting style?
