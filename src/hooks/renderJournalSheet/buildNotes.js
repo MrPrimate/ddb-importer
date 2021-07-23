@@ -8,6 +8,7 @@ function copyToClipboard(text) {
 }
 
 var clippy = {};
+var tableInUse = false;
 
 function getNoteButton(name, type) {
   return $(
@@ -35,6 +36,7 @@ function buildNotes(html, data) {
       $(element)
         .parent()
         .mouseenter(function Hovering() {
+          if (tableInUse) return;
           const tagName = $(element).prop("tagName");
           const showStartButton = $(this).append(getNoteButton("start", tagName));
           const showEndButton = $(this).append(getNoteButton("end", tagName));
@@ -82,6 +84,7 @@ function buildNotes(html, data) {
       $(element)
         .parent()
         .mouseenter(function Hovering() {
+          tableInUse = true;
           const showButton = $(this).append(getTableButton());
           $(showButton).click((e) => {
             if (e.target.id === "ddb-table-name") {
@@ -103,6 +106,7 @@ function buildNotes(html, data) {
         .parent()
         .mouseleave(function Unhovering() {
           $(this).find("#ddb-table-name").remove();
+          tableInUse = false;
         });
     });
 }
