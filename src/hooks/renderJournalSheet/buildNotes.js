@@ -9,9 +9,15 @@ function copyToClipboard(text) {
 
 var clippy = {};
 
-function getButton(name, type) {
+function getNoteButton(name, type) {
   return $(
     `<a id='ddb-note-${name}' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy ${type} ${name} </a>`
+  );
+}
+
+function getTableButton() {
+  return $(
+    `<a id='ddb-table-name' class='ddb-button'><i class='fas fa-clipboard-check'></i>&nbsp;Copy table details </a>`
   );
 }
 
@@ -30,8 +36,8 @@ function buildNotes(html, data) {
         .parent()
         .mouseenter(function Hovering() {
           const tagName = $(element).prop("tagName");
-          const showStartButton = $(this).append(getButton("start", tagName));
-          const showEndButton = $(this).append(getButton("end", tagName));
+          const showStartButton = $(this).append(getNoteButton("start", tagName));
+          const showEndButton = $(this).append(getNoteButton("end", tagName));
           $(showStartButton).click((e) => {
             // const src = $(element).attr("src");
             // In 0.8.x for some reason I need to now wrap these in the target id check?
@@ -64,6 +70,39 @@ function buildNotes(html, data) {
         .mouseleave(function Unhovering() {
           $(this).find("#ddb-note-start").remove();
           $(this).find("#ddb-note-end").remove();
+        });
+    });
+
+  // mark all headers
+  $(html)
+    .find("table")
+    .each((index, element) => {
+      $(element).wrap("<div class='ddbimporter-table-container'></div>");
+      // show the button on mouseenter
+      $(element)
+        .parent()
+        .mouseenter(function Hovering() {
+          const showButton = $(this).append(getTableButton());
+          $(showButton).click((e) => {
+            if (e.target.id === "ddb-table-name") {
+              clippy = {
+                ddbId: data.data.flags.ddb.ddbId,
+                cobaltId: data.data.flags.ddb.cobaltId,
+                parentId: data.data.flags.ddb.parentId,
+                slug: data.data.flags.ddb.slug,
+                tagIdFirst: $(element).prop("id"),
+                contentChunkId: $(element).attr("data-content-chunk-id"),
+                sceneName: data.data.name,
+                tableName: "",
+              };
+              copyToClipboard(JSON.stringify(clippy, null, 2));
+            }
+          });
+        });
+      $(element)
+        .parent()
+        .mouseleave(function Unhovering() {
+          $(this).find("#ddb-table-name").remove();
         });
     });
 }

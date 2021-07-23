@@ -8,7 +8,7 @@ export function linkTables(html) {
     .each((_, link) => {
       const data = $(link).data();
       const table = game.tables.get(data.id);
-      if (table.data.flags.ddb.contentChunkId) {
+      if (table?.data?.flags?.ddb?.contentChunkId) {
         const button = $(
           `<a title="Click: Roll | Shift-Click: Self Roll" class="ddbimporter roll"><i class="fas fa-dice-d20"></i>  Roll!</a>`
         );
