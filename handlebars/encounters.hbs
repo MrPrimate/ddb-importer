@@ -1,0 +1,30 @@
+<h3>DDB Encounter Muncher</h3>
+
+<div class="form-description">
+  <form id="ddb-encounter-muncher-detail" autocomplete="off" onsubmit="event.preventDefault();">
+    <h3>Filter by Campaign?</h3>
+    <p>If content is shared with you via a campaign select it here.</p>
+    <button id="campaign-button" class="campaign-button">Fetch My Campaigns</button>
+    <div class="form-group">
+      <select name="campaign-select" class="form-select" id="encounter-campaign-select">
+        <option value="">Select campaign:</option>
+        {{#each setupConfig.available-campaigns}}
+        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <hr>
+    <h3>Select Encounter?</h3>
+    <p>Select an encounter to import.</p>
+    <button id="encounter-button" class="encounter-button">Fetch My Encounters</button>
+    <div class="form-group">
+      <select name="encounter-select" class="form-select" id="encounter-select">
+        <option value="">Select encounter:</option>
+      </select>
+    </div>
+    <div class="munching-task-setup" id="munching-task-setup" style="color: red">
+    </div>
+    <button id="encounter-munch" class="munch-button" type="submit">Munch!</button>
+  </form>
+</div>
+
