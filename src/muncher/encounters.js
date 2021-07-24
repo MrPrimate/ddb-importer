@@ -101,3 +101,8 @@ function parseEncounter(id) {
   // missing characters
 
 }
+
+
+export default class DDBEncounterMunch extends Application {
+
+}
