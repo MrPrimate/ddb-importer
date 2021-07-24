@@ -223,8 +223,8 @@ function replaceTag(match, p1, p2, p3, offset, string) {
 
 function parseTags(text) {
   if (!srdRules) return text;
-  // electron app does not support replaceAll
-  if ((/electron/i).test(navigator.userAgent)) {
+  // older chrome/chromium and electron app do not support replaceAll
+  if (typeof text.replaceAll !== "function") {
     return text;
   }
   const tagRegEx = /\[(.*)](.*)\[\/(.*)]/g;
