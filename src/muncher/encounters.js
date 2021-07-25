@@ -116,9 +116,9 @@ export class DDBEncounterMunch extends Application {
       const id = monster.id;
       const monsterInPack = monsterPack.index.find((f) => f.flags.ddbimporter.id == id);
       if (monsterInPack) {
-        goodMonsterIds.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack.id });
+        goodMonsterIds.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack.id, quantity: monster.quantity });
       } else {
-        missingMonsterIds.push({ ddbId: id });
+        missingMonsterIds.push({ ddbId: id, quantity: monster.quantity });
       }
     });
 
@@ -207,6 +207,21 @@ export class DDBEncounterMunch extends Application {
       difficultyHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Difficulty:</b> <span style="color: ${encounter.difficulty.color}">${encounter.difficulty.name}</span>`;
 
       $('#ddb-importer-encounters').css("height", "auto");
+    });
+
+    // import encounter
+    html.find("#encounter-button").click(async (event) => {
+      event.preventDefault();
+      // to do:
+      // create a new scene
+      // create a folder for scene actors
+      // import missing monsters?
+      // import missing characters?
+      // move monsters to actors folder
+      // adjust monsters hp?
+      // add monsters to scene
+      // add characters to scene
+      //
     });
 
     // html.find("#munch-source-select").click(async () => {
