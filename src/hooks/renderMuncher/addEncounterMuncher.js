@@ -1,11 +1,11 @@
-import { DDBEncounterMunch } from "../../muncher/encounter.js";
+import { DDBEncounterMunch } from "../../muncher/encounters.js";
 import { DDBSetup, DDBCookie, isSetupComplete, isValidKey } from "../../lib/Settings.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 
 
 export function addEncounterMuncher (app, html) {
-  if (app.options.id == "actor" && game.user.isGM) {
-    let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher'><i class='fas fa-pastafarianism'></i> DDB Encounter Muncher</button></div>");
+  if (app.options.id == "actors" && game.user.isGM) {
+    let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher'><i class='fas fa-sword'></i> DDB Encounter Muncher</button></div>");
 
     button.click(async () => {
       const setupComplete = isSetupComplete();

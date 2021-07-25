@@ -1,6 +1,6 @@
 // Main module class
 import { getImagePath } from "./import.js";
-import { getMonsterCompendium } from "./importMonster";
+import { checkMonsterCompendium } from "./importMonster.js";
 import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -60,9 +60,10 @@ export async function parseEncounters() {
   return encounters.length;
 }
 
-function parseEncounter(id) {
+async function parseEncounter(id) {
   if (!CONFIG.DDBI.ENCOUNTERS) return undefined;
-  const monsterPack = await getMonsterCompendium();
+  const monsterPack = await checkMonsterCompendium();
+
   await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
   const encounter = CONFIG.DDBI.ENCOUNTERS.find((e) => e.id === id);
@@ -103,6 +104,6 @@ function parseEncounter(id) {
 }
 
 
-export default class DDBEncounterMunch extends Application {
+export class DDBEncounterMunch extends Application {
 
 }
