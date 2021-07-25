@@ -383,15 +383,6 @@ export default function () {
     game.settings.set("ddb-importer", "api-endpoint", "https://proxy.ddb.mrprimate.co.uk");
   }
 
-  game.settings.register("ddb-importer", "custom-proxy", {
-    name: "ddb-importer.custom-proxy.name",
-    hint: "ddb-importer.custom-proxy.hint",
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
   game.settings.register("ddb-importer", "cors-endpoint", {
     name: "ddb-importer.cors-endpoint.name",
     hint: "ddb-importer.cors-endpoint.hint",
@@ -420,13 +411,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "patreon-user", {
-    scope: "world",
-    config: false,
-    type: String,
-    default: null,
-  });
-
-  game.settings.register("ddb-importer", "patreon-tier", {
     scope: "world",
     config: false,
     type: String,

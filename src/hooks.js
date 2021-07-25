@@ -13,6 +13,7 @@ import checkVersion from "./hooks/ready/checkVersion.js";
 import { loadDDBConfig } from "./ddbConfig.js";
 
 // monster muncher
+import { earlySettings } from "./hooks/renderMuncher/settings.js";
 import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
 import { addEncounterMuncher } from "./hooks/renderMuncher/addEncounterMuncher.js";
 
@@ -69,6 +70,7 @@ export function onReady() {
 }
 
 export function renderSidebarTab(app, html) {
+  earlySettings();
   addEncounterMuncher(app, html);
   addMuncher(app, html);
 }

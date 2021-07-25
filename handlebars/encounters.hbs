@@ -3,28 +3,36 @@
 <div class="form-description">
   <form id="ddb-encounter-muncher-detail" autocomplete="off" onsubmit="event.preventDefault();">
     <h3>Filter by Campaign?</h3>
-    <p>If content is shared with you via a campaign select it here.</p>
-    <button id="campaign-button" class="campaign-button">Fetch My Campaigns</button>
     <div class="form-group">
-      <select name="campaign-select" class="form-select" id="encounter-campaign-select">
+      <select name="encounter-campaign-select" class="form-select" id="encounter-campaign-select">
         <option value="">Select campaign:</option>
-        {{#each setupConfig.available-campaigns}}
+        {{#each availableCampaigns}}
         <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
         {{/each}}
       </select>
     </div>
+    <button id="campaign-filter-button" class="campaign-filter-button">Filter by Campaign</button>
     <hr>
-    <h3>Select Encounter?</h3>
+    <h3>Select Encounter</h3>
     <p>Select an encounter to import.</p>
-    <button id="encounter-button" class="encounter-button">Fetch My Encounters</button>
     <div class="form-group">
       <select name="encounter-select" class="form-select" id="encounter-select">
         <option value="">Select encounter:</option>
+        {{#each availableEncounters}}
+        <option value="{{this.id}}">{{this.name}} ({{this.campaign.name}})</option>
+        {{/each}}
       </select>
     </div>
+    <div class="form-description" id="campaign-details">
+      <p id="ddb-encounter-name"><i class='fas fa-question'></i> <b>Encounter:</b></p>
+      <p id="ddb-encounter-characters"><i class='fas fa-question'></i> <b>Characters:</b></p>
+      <p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>
+      <p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>
+    </div>
+
     <div class="munching-task-setup" id="munching-task-setup" style="color: red">
     </div>
-    <button id="encounter-munch" class="munch-button" type="submit">Munch!</button>
+    <button id="encounter-button" class="encounter-button" disabled>Import Encounters</button>
   </form>
 </div>
 

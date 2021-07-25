@@ -125,12 +125,26 @@ async function checkCobaltCookie(value) {
   return cookieStatus;
 }
 
-async function getCampaigns(cobalt = null) {
+async function refreshCampaigns(cobalt = null) {
   await checkCobaltCookie(cobalt);
-  const campaigns = await getDDBCampaigns(cobalt);
-  return campaigns;
+  CONFIG.DDBI.CAMPAIGNS = await getDDBCampaigns(cobalt);
+  return CONFIG.DDBI.CAMPAIGNS;
 }
 
+export async function getAvailableCampaigns() {
+  if (CONFIG.DDBI.CAMPAIGNS) return CONFIG.DDBI.CAMPAIGNS;
+  const campaignId = getCampaignId();
+  // eslint-disable-next-line require-atomic-updates
+  CONFIG.DDBI.CAMPAIGNS = await getDDBCampaigns();
+
+  if (!CONFIG.DDBI.CAMPAIGNS) return [];
+
+  CONFIG.DDBI.CAMPAIGNS.forEach((campaign) => {
+    const selected = campaign.id == campaignId;
+    campaign.selected = selected;
+  });
+  return CONFIG.DDBI.CAMPAIGNS;
+}
 
 async function setCobaltCookie(value, local) {
   await checkCobaltCookie(value);
@@ -325,7 +339,7 @@ export class DDBSetup extends FormApplication {
     const patreonUser = game.settings.get("ddb-importer", "patreon-user");
     const validKeyObject = hasKey ? await getPatreonValidity(key) : false;
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
-    const availableCampaigns = isCobalt && cobaltStatus.success ? await getCampaigns() : [];
+    const availableCampaigns = isCobalt && cobaltStatus.success ? await getAvailableCampaigns() : [];
 
     availableCampaigns.forEach((campaign) => {
       const selected = campaign.id == campaignId;
@@ -365,7 +379,7 @@ export class DDBSetup extends FormApplication {
     html.find("#campaign-button").click(async (event) => {
       event.preventDefault();
       const cookie = html.find("#cobalt-cookie-input");
-      const campaigns = await getCampaigns(cookie[0].value);
+      const campaigns = await refreshCampaigns(cookie[0].value);
       let campaignList = `<option value="">Select campaign:</option>`;
       campaigns.forEach((campaign) => {
         campaignList += `<option value="${campaign.id}">${campaign.name} (${campaign.dmUsername}) - ${campaign.id}</option>\n`;

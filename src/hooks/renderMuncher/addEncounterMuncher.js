@@ -1,10 +1,14 @@
 import { DDBEncounterMunch } from "../../muncher/encounters.js";
 import { DDBSetup, DDBCookie, isSetupComplete, isValidKey } from "../../lib/Settings.js";
 import { checkCobalt } from "../../lib/Secrets.js";
+import { getPatreonTiers } from "../../muncher/utils.js";
 
 
 export function addEncounterMuncher (app, html) {
-  if (app.options.id == "actors" && game.user.isGM) {
+  const tier = game.settings.get("ddb-importer", "patreon-tier");
+  const tiers = getPatreonTiers(tier);
+
+  if (app.options.id == "actors" && game.user.isGM && tiers.god) {
     let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher'><i class='fas fa-dungeon'></i> DDB Encounter Muncher</button></div>");
 
     button.click(async () => {
@@ -24,15 +28,6 @@ export function addEncounterMuncher (app, html) {
         game.settings.set("ddb-importer", "settings-call-muncher", true);
         new DDBSetup().render(true);
       }
-    });
-
-    game.settings.register("ddb-importer", "show-munch-top", {
-      name: "ddb-importer.show-munch-top.name",
-      hint: "ddb-importer.show-munch-top.hint",
-      scope: "world",
-      config: true,
-      type: Boolean,
-      default: true,
     });
 
     const top = game.settings.get("ddb-importer", "show-munch-top");
