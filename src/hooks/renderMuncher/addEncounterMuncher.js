@@ -5,7 +5,7 @@ import { checkCobalt } from "../../lib/Secrets.js";
 
 export function addEncounterMuncher (app, html) {
   if (app.options.id == "actors" && game.user.isGM) {
-    let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher'><i class='fas fa-sword'></i> DDB Encounter Muncher</button></div>");
+    let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher'><i class='fas fa-dungeon'></i> DDB Encounter Muncher</button></div>");
 
     button.click(async () => {
       const setupComplete = isSetupComplete();
@@ -37,7 +37,7 @@ export function addEncounterMuncher (app, html) {
 
     const top = game.settings.get("ddb-importer", "show-munch-top");
     if (top) {
-      $(html).find(".directory-header").append(button);
+      $(html).find(".directory-header").prepend(button);
     } else {
       $(html).find(".directory-footer").append(button);
     }
