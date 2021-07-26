@@ -91,6 +91,7 @@ export class DDBEncounterMunch extends Application {
 
   static get defaultOptions() {
     const options = super.defaultOptions;
+    options.baseApplication = "DDBEncounterMuncher";
     options.id = "ddb-importer-encounters";
     options.template = "modules/ddb-importer/handlebars/encounters.hbs";
     options.resizable = false;
@@ -103,15 +104,22 @@ export class DDBEncounterMunch extends Application {
   }
 
   async parseEncounter(id) {
+    logger.debug(`Looking for Encounter "${id}"`);
     if (!CONFIG.DDBI.ENCOUNTERS) return this.encounter;
     const monsterPack = await checkMonsterCompendium();
 
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
-    const encounter = CONFIG.DDBI.ENCOUNTERS.find((e) => e.id === id);
+
+    console.warn(CONFIG.DDBI.ENCOUNTERS);
+    const encounter = CONFIG.DDBI.ENCOUNTERS.find((e) => e.id == id.trim());
+    console.warn(encounter);
+
+    // if (!encounter) return this.encounter;
 
     let goodMonsterIds = [];
     let missingMonsterIds = [];
+    logger.debug("Parsing encounter", encounter);
     encounter.monsters.forEach((monster) => {
       const id = monster.id;
       const monsterInPack = monsterPack.index.find((f) => f.flags.ddbimporter.id == id);
@@ -140,6 +148,9 @@ export class DDBEncounterMunch extends Application {
     this.encounter = {
       name: encounter.name,
       difficulty,
+      description: encounter.description,
+      rewards: encounter.rewards,
+      summary: encounter.flavorText,
       campaign: encounter.campaign,
       goodMonsterIds,
       missingMonsterIds,
@@ -153,28 +164,49 @@ export class DDBEncounterMunch extends Application {
 
   }
 
+  resetEncounterLabels(html) {
+    const nameHtml = html.find("#ddb-encounter-name");
+    const summaryHtml = html.find("#ddb-encounter-summary");
+    const charactersHtml = html.find("#ddb-encounter-characters");
+    const monstersHtml = html.find("#ddb-encounter-monsters");
+    const difficultyHtml = html.find("#ddb-encounter-difficulty");
+    const rewardsHtml = html.find("#ddb-encounter-rewards");
+
+    nameHtml[0].innerHTML = `<p id="ddb-encounter-name"><i class='fas fa-question'></i> <b>Encounter:</b></p>`;
+    summaryHtml[0].innerHTML = `<p id="ddb-encounter-summary"><i class='fas fa-question'></i> <b>Summary:</b></p>`;
+    charactersHtml[0].innerHTML = `<p id="ddb-encounter-characters"><i class='fas fa-question'></i> <b>Characters:</b></p>`;
+    monstersHtml[0].innerHTML = `<p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>`;
+    difficultyHtml[0].innerHTML = `<p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>`;
+    rewardsHtml[0].innerHTML = `<p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>`;
+
+    $('#ddb-importer-encounters').css("height", "auto");
+    this.encounter = {};
+  }
+
   activateListeners(html) {
     super.activateListeners(html);
 
     // filter campaigns
-    html.find("#campaign-filter-button").click(async (event) => {
-      event.preventDefault();
+    html.find("#encounter-campaign-select").on("change", async () => {
       const campaignSelection = html.find("#encounter-campaign-select");
       // get selected campaign from html selection
       const campaignId = campaignSelection[0].selectedOptions[0]
         ? campaignSelection[0].selectedOptions[0].value
         : undefined;
       const encounters = await filterEncounters(campaignId);
+      const campaignSelected = campaignId && campaignId !== "";
       let encounterList = `<option value="">Select encounter:</option>`;
       encounters.forEach((encounter) => {
-        encounterList += `<option value="${encounter.id}}">${encounter.name} (${encounter.campaign.name})</option>\n`;
+        encounterList += `<option value="${encounter.id}">${encounter.name}${campaignSelected ? "" : ` (${encounter.campaign.name})`}</option>\n`;
       });
       const list = html.find("#encounter-select");
       list[0].innerHTML = encounterList;
+      this.resetEncounterLabels(html);
     });
 
     // encounter change
-    html.find('#encounter-select').on("change", async (event) => {
+    html.find('#encounter-select').on("change", async () => {
+      this.resetEncounterLabels(html);
       const encounterSelection = html.find("#encounter-select");
       const encounterId = encounterSelection[0].selectedOptions[0]
         ? encounterSelection[0].selectedOptions[0].value
@@ -184,9 +216,11 @@ export class DDBEncounterMunch extends Application {
       console.warn(encounter);
 
       const nameHtml = html.find("#ddb-encounter-name");
+      const summaryHtml = html.find("#ddb-encounter-summary");
       const charactersHtml = html.find("#ddb-encounter-characters");
       const monstersHtml = html.find("#ddb-encounter-monsters");
       const difficultyHtml = html.find("#ddb-encounter-difficulty");
+      const rewardsHtml = html.find("#ddb-encounter-rewards");
 
       const missingCharacters = encounter.missingCharacters ? `fa-times-circle' style='color: red` : `fa-check-circle' style='color: green`;
       const missingMonsters = encounter.missingMonsters ? `fa-times-circle' style='color: red` : `fa-check-circle' style='color: green`;
@@ -202,9 +236,15 @@ export class DDBEncounterMunch extends Application {
         : "";
 
       nameHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Encounter:</b> ${encounter.name}`;
-      charactersHtml[0].innerHTML = `<i class='fas ${missingCharacters}'></i> <b>Characters:</b> ${goodCharacters}${neededCharactersHTML}`;
-      monstersHtml[0].innerHTML = `<i class='fas ${missingMonsters}'></i> <b>Monsters:</b> ${goodMonsters}${neededMonstersHTML}`;
+      if (encounter.summary && encounter.summary.trim() !== "") summaryHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Summary:</b> ${encounter.summary}`;
+      if (encounter.goodCharacterData.length > 0 || encounter.missingCharacterData.length > 0) {
+        charactersHtml[0].innerHTML = `<i class='fas ${missingCharacters}'></i> <b>Characters:</b> ${goodCharacters}${neededCharactersHTML}`;
+      }
+      if (encounter.goodMonsterIds.length > 0 || encounter.missingMonsterIds.length > 0) {
+        monstersHtml[0].innerHTML = `<i class='fas ${missingMonsters}'></i> <b>Monsters:</b> ${goodMonsters}${neededMonstersHTML}`;
+      }
       difficultyHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Difficulty:</b> <span style="color: ${encounter.difficulty.color}">${encounter.difficulty.name}</span>`;
+      if (encounter.rewards && encounter.rewards.trim() !== "") rewardsHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Rewards:</b> ${encounter.rewards}`;
 
       $('#ddb-importer-encounters').css("height", "auto");
     });
@@ -341,6 +381,7 @@ export class DDBEncounterMunch extends Application {
     // });
 
     // this.close();
+
   }
 
   static enableButtons() {

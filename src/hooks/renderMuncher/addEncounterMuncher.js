@@ -9,9 +9,12 @@ export function addEncounterMuncher (app, html) {
   const tiers = getPatreonTiers(tier);
 
   if (app.options.id == "actors" && game.user.isGM && tiers.god) {
-    let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher'><i class='fas fa-dungeon'></i> DDB Encounter Muncher</button></div>");
+    let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher' id='ddb-encounter-munch-open'><i class='fas fa-dungeon'></i> DDB Encounter Muncher</button></div>");
 
+    const actualButton = button.find('#ddb-encounter-munch-open');
     button.click(async () => {
+      actualButton.prop('disabled', true);
+      ui.notifications.info("Fetching your DDB Encounter Information, this might take a few seconds!");
       const setupComplete = isSetupComplete();
 
       if (setupComplete) {
@@ -22,10 +25,11 @@ export function addEncounterMuncher (app, html) {
             new DDBEncounterMunch().render(true);
           }
         } else {
+          actualButton.prop('disabled', false);
           new DDBCookie().render(true);
         }
       } else {
-        game.settings.set("ddb-importer", "settings-call-muncher", true);
+        actualButton.prop('disabled', false);
         new DDBSetup().render(true);
       }
     });
@@ -36,6 +40,13 @@ export function addEncounterMuncher (app, html) {
     } else {
       $(html).find(".directory-footer").append(button);
     }
+
+    Hooks.on("closeApplication", (app) => {
+      console.warn(app);
+      if (app instanceof DDBEncounterMunch) {
+        actualButton.prop('disabled', false);
+      }
+    });
 
   }
 }

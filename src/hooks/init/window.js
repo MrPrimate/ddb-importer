@@ -3,7 +3,7 @@ import { parseMonsters } from "../../muncher/monster/monster.js";
 import { parseSpells } from "../../muncher/spells.js";
 import { parseItems } from "../../muncher/items.js";
 import { parseCritters } from "../../muncher/monsters.js";
-import { parseEncounters } from "../../muncher/encounters.js";
+import { parseEncounters, DDBEncounterMunch } from "../../muncher/encounters.js";
 import { generateAdventureConfig } from "../../muncher/adventure.js";
 import { updateDDBCharacter } from "../../character/update.js";
 import { getPatreonTier, getPatreonTiers, setPatreonTier, checkPatreon } from "../../muncher/utils.js";
@@ -47,5 +47,6 @@ export function registerWindow() {
     setPatreonTier,
     checkPatreon,
     checkCobalt,
+    DDBEncounterMunch,
   };
 }

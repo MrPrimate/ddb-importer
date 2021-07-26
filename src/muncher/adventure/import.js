@@ -648,6 +648,9 @@ export default class AdventureMunch extends FormApplication {
               },
             },
             default: "confirm",
+            close: async () => {
+              resolve(this._importFile(type, zip, adventure));
+            },
           },
           {
             width: 700,
