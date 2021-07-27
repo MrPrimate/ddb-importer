@@ -23,7 +23,7 @@ import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import { DDBCookie } from "../lib/Settings.js";
 import { loadSRDRules } from "../parser/templateStrings.js";
 import { abilityOverrideEffects } from "../parser/effects/abilityOverrides.js";
-import { getCharacterImportCoreSettings, updateActorSettings, setRecommendedCharacterActiveEffectSettings } from "../muncher/settings.js";
+import { getCharacterImportSettings, updateActorSettings, setRecommendedCharacterActiveEffectSettings } from "../muncher/settings.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -445,7 +445,7 @@ export default class CharacterImport extends FormApplication {
   getData() {
 
     // loads settings for actor
-    const importSettings = getCharacterImportCoreSettings();
+    const importSettings = getCharacterImportSettings();
 
     const characterId = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId;
     const syncEnabled = characterId && importSettings.tiers.all;

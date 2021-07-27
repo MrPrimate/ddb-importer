@@ -37,7 +37,7 @@ export function setRecommendedCharacterActiveEffectSettings(html) {
   });
 }
 
-export function getCharacterImportCoreSettings() {
+export function getCharacterImportSettings() {
   const importPolicies = [
     {
       name: "name",

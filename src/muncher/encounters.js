@@ -5,6 +5,7 @@ import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getAvailableCampaigns } from "../lib/Settings.js";
 import { DDB_CONFIG } from "../ddbConfig.js";
+import { getCharacterImportSettings, getMuncherSettings, updateActorSettings, updateMuncherSettings } from "./settings.js";
 
 const DIFFICULTY_LEVELS = [
   { id: null, name: "No challenge", color: "grey" },
@@ -96,10 +97,10 @@ export class DDBEncounterMunch extends Application {
     options.template = "modules/ddb-importer/handlebars/encounters.hbs";
     options.resizable = false;
     options.height = "auto";
-    options.width = 700;
+    options.width = 800;
     options.title = "MrPrimate's DDB Encounter Muncher";
     options.classes = ["ddb-muncher", "sheet"];
-   // options.tabs = [{ navSelector: ".tabs", contentSelector: "div", initial: "settings" }];
+    options.tabs = [{ navSelector: ".tabs", contentSelector: "div", initial: "settings" }];
     return options;
   }
 
@@ -180,6 +181,7 @@ export class DDBEncounterMunch extends Application {
     rewardsHtml[0].innerHTML = `<p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>`;
 
     $('#ddb-importer-encounters').css("height", "auto");
+    $('#encounter-button').prop("disabled", true);
     this.encounter = {};
   }
 
@@ -247,6 +249,7 @@ export class DDBEncounterMunch extends Application {
       if (encounter.rewards && encounter.rewards.trim() !== "") rewardsHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Rewards:</b> ${encounter.rewards}`;
 
       $('#ddb-importer-encounters').css("height", "auto");
+      $('#encounter-button').prop("disabled", false);
     });
 
     // import encounter
@@ -261,153 +264,16 @@ export class DDBEncounterMunch extends Application {
       // adjust monsters hp?
       // add monsters to scene
       // add characters to scene
-      //
+      // add journal entry with details about players, monsters, description and treasure
+      // handle the removal and addition of:
+      // - homebrew settings (might not need this?)
+      // - source filter (might not need this?)
+      // - extra import?
+      // - attempt to find magic items and add them to the world?
+
     });
 
-    // html.find("#munch-source-select").click(async () => {
-    //   DDBMuncher.selectSources();
-    // });
-
-    // html.find("#munch-spells-start").click(async () => {
-    //   munchNote(`Downloading spells...`, true);
-    //   $('button[id^="munch-"]').prop('disabled', true);
-    //   DDBMuncher.parseSpells();
-    // });
-    // html.find("#munch-items-start").click(async () => {
-    //   munchNote(`Downloading items...`, true);
-    //   $('button[id^="munch-"]').prop('disabled', true);
-    //   DDBMuncher.parseItems();
-    // });
-    // html.find("#munch-races-start").click(async () => {
-    //   munchNote(`Downloading races...`, true);
-    //   $('button[id^="munch-"]').prop('disabled', true);
-    //   DDBMuncher.parseRaces();
-    // });
-    // html.find("#munch-feats-start").click(async () => {
-    //   munchNote(`Downloading feats...`, true);
-    //   $('button[id^="munch-"]').prop('disabled', true);
-    //   DDBMuncher.parseFeats();
-    // });
-    // html.find("#munch-classes-start").click(async () => {
-    //   munchNote(`Downloading classes...`, true);
-    //   $('button[id^="munch-"]').prop('disabled', true);
-    //   DDBMuncher.parseClasses();
-    // });
-    // html.find("#munch-frames-start").click(async () => {
-    //   munchNote(`Downloading frames...`, true);
-    //   $('button[id^="munch-"]').prop('disabled', true);
-    //   DDBMuncher.parseFrames();
-    // });
-    // html.find("#munch-adventure-config-start").click(async () => {
-    //   munchNote(`Generating config file...`, true);
-    //   $('button[id^="munch-"]').prop('disabled', true);
-    //   DDBMuncher.generateAdventureConfig();
-    // });
-    // html.find("#munch-adventure-import-start").click(async () => {
-    //   DDBMuncher.importAdventure();
-    // });
-
-    // // watch the change of the import-policy-selector checkboxes
-    // html.find('.munching-generic-config input[type="checkbox"]').on("change", (event) => {
-    //   const selection = event.currentTarget.dataset.section;
-    //   const checked = event.currentTarget.checked;
-    //   game.settings.set("ddb-importer", "munching-policy-" + selection, checked);
-    //   if (selection == "remote-images" && checked) {
-    //     game.settings.set("ddb-importer", "munching-policy-download-images", false);
-    //     $('#munching-generic-policy-download-images').prop('checked', false);
-    //   } else if (selection == "download-images" && checked) {
-    //     game.settings.set("ddb-importer", "munching-policy-remote-images", false);
-    //     $('#munching-generic-policy-remote-images').prop('checked', false);
-    //   }
-    // });
-
-    // html.find('.munching-spell-config input[type="checkbox"]').on("change", (event) => {
-    //   game.settings.set(
-    //     "ddb-importer",
-    //     "munching-policy-" + event.currentTarget.dataset.section,
-    //     event.currentTarget.checked
-    //   );
-    // });
-
-    // html.find('.munching-item-config input[type="checkbox"]').on("change", (event) => {
-    //   game.settings.set(
-    //     "ddb-importer",
-    //     "munching-policy-" + event.currentTarget.dataset.section,
-    //     event.currentTarget.checked
-    //   );
-    // });
-
-    // this.homebrew = html.find("#munching-policy-monster-homebrew");
-    // this.homebrewOnly = html.find("#munching-policy-monster-homebrew-only");
-
-    // html.find('.munching-monster-config input[type="checkbox"]').on("change", (event) => {
-    //   game.settings.set(
-    //     "ddb-importer",
-    //     "munching-policy-" + event.currentTarget.dataset.section,
-    //     event.currentTarget.checked
-    //   );
-    //   switch (event.currentTarget.dataset.section) {
-    //     case "monster-homebrew": {
-    //       if (!event.currentTarget.checked) {
-    //         game.settings.set("ddb-importer", "munching-policy-monster-homebrew-only", false);
-    //         this.homebrewOnly.get(0).checked = false;
-    //       }
-    //       break;
-    //     }
-    //     case "monster-homebrew-only": {
-    //       if (event.currentTarget.checked) {
-    //         game.settings.set("ddb-importer", "munching-policy-monster-homebrew", true);
-    //         this.homebrew.get(0).checked = true;
-    //       }
-    //       break;
-    //     }
-    //     // no default
-    //   }
-
-    // });
-
-    // html.find('.munching-item-config input[type="checkbox"]').on("change", (event) => {
-    //   game.settings.set(
-    //     "ddb-importer",
-    //     "munching-policy-" + event.currentTarget.dataset.section,
-    //     event.currentTarget.checked
-    //   );
-    // });
-
-    // html.find("#monster-munch-filter").on("keyup", (event) => {
-    //   event.preventDefault();
-    //   if (event.key !== "Enter") return; // Use `.key` instead.
-    //   DDBMuncher.startMunch();
-    // });
-
-    // this.close();
-
   }
-
-  static enableButtons() {
-    const cobalt = getCobalt() != "";
-    const tier = game.settings.get("ddb-importer", "patreon-tier");
-    const tiers = getPatreonTiers(tier);
-
-    if (cobalt) {
-      $('button[id^="munch-spells-start"]').prop('disabled', false);
-      $('button[id^="munch-items-start"]').prop('disabled', false);
-      $('button[id^="munch-adventure-config-start"]').prop('disabled', false);
-      $('button[id^="munch-adventure-import-start"]').prop('disabled', false);
-
-      if (tiers.all) {
-        $('button[id^="munch-monsters-start"]').prop('disabled', false);
-      }
-      if (tiers.experimentalMid) {
-        $('button[id^="munch-races-start"]').prop('disabled', false);
-        $('button[id^="munch-feats-start"]').prop('disabled', false);
-        $('button[id^="munch-classes-start"]').prop('disabled', false);
-        $('button[id^="munch-source-select"]').prop('disabled', false);
-        $('button[id^="munch-frames-start"]').prop('disabled', false);
-      }
-    }
-  }
-
 
   // eslint-disable-next-line class-methods-use-this
   async getData() {
@@ -416,12 +282,45 @@ export class DDBEncounterMunch extends Application {
     const availableCampaigns = await getAvailableCampaigns();
     const availableEncounters = await filterEncounters();
 
-    const resultData = {
+    const characterSettings = getCharacterImportSettings();
+    const muncherSettings = getMuncherSettings(false);
+
+    const importSettings = mergeObject(characterSettings, muncherSettings);
+
+    const encounterConfig = [
+      {
+        name: "create-scene",
+        isChecked: true,
+        description: "Create a scene to use, and add available characters and NPC's?",
+      },
+      {
+        name: "missing-characters",
+        isChecked: true,
+        description: "Import missing characters?",
+      },
+      {
+        name: "missing-monsters",
+        isChecked: true,
+        description: "Import missing monsters?",
+      },
+      {
+        name: "create-journal",
+        isChecked: true,
+        description: "Create encounter journal entry?",
+      },
+    ];
+    // TODO: add game settings and save and load
+
+    const encounterSettings = {
       tiers,
       availableCampaigns,
       availableEncounters,
+      encounterConfig,
     };
 
-    return resultData;
+    const data = mergeObject(importSettings, encounterSettings);
+    logger.debug("Encounter muncher form data", data);
+
+    return data;
   }
 }

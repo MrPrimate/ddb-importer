@@ -1,38 +1,163 @@
-<h3>DDB Encounter Muncher</h3>
+<div>
+  <h3>DDB Encounter Muncher</h3>
 
-<div class="form-description">
-  <form id="ddb-encounter-muncher-detail" autocomplete="off" onsubmit="event.preventDefault();">
-    <div class="form-group">
-      <select name="encounter-campaign-select" class="form-select" id="encounter-campaign-select">
-        <option value="">Filter encounters by Campaign?</option>
-        {{#each availableCampaigns}}
-        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
-        {{/each}}
-      </select>
+  <!-- Muncher Configuration Tabs -->
+  <nav class="sheet-tabs tabs">
+    <a class="item active" data-tab="encounter"><i class="fas fa-dungeon"></i> Import</a>
+    <a class="item" data-tab="characters"><i class="fas fa-users-cog"></i> Character Settings</a>
+    <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Compendium Settings</a>
+    <a class="item" data-tab="effects"><i class="fas fa-dna"></i> Active Effect Settings</a>
+    <a class="item" data-tab="monsters"><i class="fas fa-pastafarianism"></i> Monster Settings</a>
+  </nav>
+
+ <!-- Encounters Tab -->
+  <section class="tab" data-tab="encounter">
+    <div class="form-section">
+      <div class="form-group">
+        <select name="encounter-campaign-select" class="form-select" id="encounter-campaign-select">
+          <option value="">Filter encounters by Campaign?</option>
+          {{#each availableCampaigns}}
+          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <hr>
+      <div class="form-group">
+        <select name="encounter-select" class="form-select" id="encounter-select">
+          <option value="">Choose your encounter here!</option>
+          {{#each availableEncounters}}
+          <option value="{{this.id}}">{{this.name}} ({{this.campaign.name}})</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="form-description" id="campaign-details">
+        <p id="ddb-encounter-name"><i class='fas fa-question'></i> <b>Encounter:</b></p>
+        <p id="ddb-encounter-summary"><i class='fas fa-question'></i> <b>Summary:</b></p>
+        <p id="ddb-encounter-characters"><i class='fas fa-question'></i> <b>Characters:</b></p>
+        <p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>
+        <p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>
+        <p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>
+      </div>
+      <hr>
+      {{#each encounterConfig}}
+      <div class="encounter-import-config">
+      <label class="encounter-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="encounter-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.description}}
+      </label>
+      </div>
+      {{/each}}
+      <hr>
+      <div class="munching-task-setup" id="munching-task-setup" style="color: red">
+      </div>
+      <button id="encounter-button" class="encounter-button" disabled>Import Encounters</button>
+    </div>
+  </section>
+
+ <!-- Characters Tab -->
+  <section class="tab" data-tab="characters">
+  <div class="form-section">
+      <div class="form-group">
+      <h2>Character import settings</h2>
+      {{#each importConfig}}
+      <div class="character-import-config">
+      <label class="import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" data-section="{{this.name}}"
+          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+      </label>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</section>
+
+  <!-- Compendium Tab -->
+  <section class="tab" data-tab="config">
+    <h2>Compendium Choices</h2>
+    <p>Would you like to use entries from your compendiums rather than importing?</p>
+    {{#each advancedImportConfig}}
+    <div class="advanced-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+        name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
+        {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b><p>{{{this.description}}}</p>
+    </div>
+    {{/each}}
+  </section>
+
+  <!-- Effects Configuration Tab -->
+  <section class="tab" data-tab="effects">
+    <p>Dynamic effects are difficult to calculate and require you to have a grasp of how they work, and what you want to achieve. Please read the descriptions carefully. Bugs to <a href="https://discord.gg/CpRtdK6wYq">Discord #auto-effect-bugs channel.</a> (Requires the DAE module).</p>
+    <button type="button" id="default-effects">Apply Recommended Active Effect Settings</button>
+    <hr>
+    <h2>Active Effect Options</h2>
+    {{#each effectImportConfig}}
+    <div class="effect-import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+        name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}"
+        {{#if this.enabled}}enabled{{else}}disabled{{/if}}><b>{{this.title}}</b><p>{{{this.description}}}</p>
+    </div>
+    {{/each}}
+    <hr>
+    <h2>Active Effects to include for Characters</h2>
+    <p>Some common effects are always generated. You can enable/disable other effects below. These are used if character effect generation selected above.</p>
+    <p>Please consider if you need effects on the character, each effect adds an overhead. Sense effects are not added to tokens without additional modules. You probably don't need an effect if the ability is always applied.</p>
+    <hr>
+    <p><b>Class Features</b></p>
+    <div class="effect-policy-group-class">
+      {{#each effectSelectionConfig.class}}
+      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+      </label>
+      {{/each}}
     </div>
     <hr>
-    <div class="form-group">
-      <select name="encounter-select" class="form-select" id="encounter-select">
-        <option value="">Choose your encounter here!</option>
-        {{#each availableEncounters}}
-        <option value="{{this.id}}">{{this.name}} ({{this.campaign.name}})</option>
-        {{/each}}
-      </select>
-    </div>
-    <div class="form-description" id="campaign-details">
-      <p id="ddb-encounter-name"><i class='fas fa-question'></i> <b>Encounter:</b></p>
-      <p id="ddb-encounter-summary"><i class='fas fa-question'></i> <b>Summary:</b></p>
-      <p id="ddb-encounter-characters"><i class='fas fa-question'></i> <b>Characters:</b></p>
-      <p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>
-      <p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>
-      <p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>
+    <p><b>Racial Traits</b></p>
+    <div class="effect-policy-group-race">
+      {{#each effectSelectionConfig.race}}
+      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+      </label>
+      {{/each}}
     </div>
     <hr>
-
-
-    <div class="munching-task-setup" id="munching-task-setup" style="color: red">
+    <p><b>Feats</b></p>
+    <div class="effect-policy-group-feat">
+      {{#each effectSelectionConfig.feat}}
+      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+      </label>
+      {{/each}}
     </div>
-    <button id="encounter-button" class="encounter-button" disabled>Import Encounters</button>
-  </form>
+    <hr>
+    <p><b>Background</b></p>
+    <div class="effect-policy-group-background">
+      {{#each effectSelectionConfig.background}}
+      <label class="effect-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" id="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.title}}
+      </label>
+      {{/each}}
+    </div>
+  </section>
+
+    <!-- Monsters Tab -->
+  <section class="tab" data-tab="monsters">
+  <div class="form-section">
+      <div class="form-description">
+        <h2>Monster Import Config</h2>
+              {{#each genericConfig}}
+              <div class="munching-generic-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                      id="munching-generic-policy-{{this.name}}"
+                      name="munching-policy-{{this.name}}"
+                      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+              </div>
+              {{/each}}
+              {{#each monsterConfig}}
+              <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                      name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
+                      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+              </div>
+              {{/each}}
+              <hr>
+          </div>
+      </div>
+  </section>
+
+
 </div>
-
