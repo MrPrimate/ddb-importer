@@ -1,6 +1,5 @@
 // Main module class
 import logger from "../logger.js";
-import utils from "../utils.js";
 import { parseItems } from "./items.js";
 import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
@@ -13,6 +12,7 @@ import { DDB_CONFIG } from "../ddbConfig.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { generateAdventureConfig } from "./adventure.js";
 import AdventureMunch from "./adventure/import.js";
+import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 
 
 function getSourcesLookups(selected) {
@@ -158,71 +158,19 @@ export default class DDBMuncher extends Application {
     });
 
     // watch the change of the import-policy-selector checkboxes
-    html.find('.munching-generic-config input[type="checkbox"]').on("change", (event) => {
-      const selection = event.currentTarget.dataset.section;
-      const checked = event.currentTarget.checked;
-      game.settings.set("ddb-importer", "munching-policy-" + selection, checked);
-      if (selection == "remote-images" && checked) {
-        game.settings.set("ddb-importer", "munching-policy-download-images", false);
-        $('#munching-generic-policy-download-images').prop('checked', false);
-      } else if (selection == "download-images" && checked) {
-        game.settings.set("ddb-importer", "munching-policy-remote-images", false);
-        $('#munching-generic-policy-remote-images').prop('checked', false);
-      }
+    $(html)
+    .find(
+      [
+        '.munching-generic-config input[type="checkbox"]',
+        '.munching-spell-config input[type="checkbox"]',
+        '.munching-item-config input[type="checkbox"]',
+        '.munching-monster-config input[type="checkbox"]',
+      ].join(",")
+    )
+    .on("change", (event) => {
+      updateMuncherSettings(html, event);
     });
 
-    html.find('.munching-spell-config input[type="checkbox"]').on("change", (event) => {
-      game.settings.set(
-        "ddb-importer",
-        "munching-policy-" + event.currentTarget.dataset.section,
-        event.currentTarget.checked
-      );
-    });
-
-    html.find('.munching-item-config input[type="checkbox"]').on("change", (event) => {
-      game.settings.set(
-        "ddb-importer",
-        "munching-policy-" + event.currentTarget.dataset.section,
-        event.currentTarget.checked
-      );
-    });
-
-    this.homebrew = html.find("#munching-policy-monster-homebrew");
-    this.homebrewOnly = html.find("#munching-policy-monster-homebrew-only");
-
-    html.find('.munching-monster-config input[type="checkbox"]').on("change", (event) => {
-      game.settings.set(
-        "ddb-importer",
-        "munching-policy-" + event.currentTarget.dataset.section,
-        event.currentTarget.checked
-      );
-      switch (event.currentTarget.dataset.section) {
-        case "monster-homebrew": {
-          if (!event.currentTarget.checked) {
-            game.settings.set("ddb-importer", "munching-policy-monster-homebrew-only", false);
-            this.homebrewOnly.get(0).checked = false;
-          }
-          break;
-        }
-        case "monster-homebrew-only": {
-          if (event.currentTarget.checked) {
-            game.settings.set("ddb-importer", "munching-policy-monster-homebrew", true);
-            this.homebrew.get(0).checked = true;
-          }
-          break;
-        }
-        // no default
-      }
-
-    });
-
-    html.find('.munching-item-config input[type="checkbox"]').on("change", (event) => {
-      game.settings.set(
-        "ddb-importer",
-        "munching-policy-" + event.currentTarget.dataset.section,
-        event.currentTarget.checked
-      );
-    });
 
     html.find("#monster-munch-filter").on("keyup", (event) => {
       event.preventDefault();
@@ -372,168 +320,7 @@ export default class DDBMuncher extends Application {
   }
 
   getData() { // eslint-disable-line class-methods-use-this
-    const cobalt = getCobalt() != "";
-    const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
-    const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
-    const tier = game.settings.get("ddb-importer", "patreon-tier");
-    const tiers = getPatreonTiers(tier);
-    const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const daeSRDInstall = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-
-    const itemConfig = [
-      {
-        name: "use-ddb-item-icons",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-item-icons"),
-        description: "Use D&D Beyond item images, if available",
-        enabled: true,
-      },
-      {
-        name: "use-ddb-generic-item-icons",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-generic-item-icons"),
-        description: "Use D&D Beyond generic item type images, if available (final fallback)",
-        enabled: true,
-      },
-      {
-        name: "add-effects",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-add-effects"),
-        description: "[Experimental] Dynamically generate DAE effects (equipment only). (Requires DAE)",
-        enabled: daeInstalled,
-      },
-      {
-        name: "add-ac-armor-effects",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects"),
-        description: "[Experimental] Dynamically generate DAE AC effects on armor equipment. (Requires DAE)",
-        enabled: daeInstalled,
-      },
-    ];
-
-    const spellConfig = [
-      {
-        name: "use-ddb-spell-icons",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-spell-icons"),
-        description: "If no other icon, use the D&DBeyond spell school icon.",
-        enabled: true,
-      },
-    ];
-
-    const sourcesSelected = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat().length > 0;
-    const homebrewDescription = (tiers.homebrew)
-      ? sourcesSelected
-        ? "SOURCES SELECTED! You can't import homebrew with a source filter selected"
-        : "Include homebrew?"
-      : "Include homebrew? [Undying or God tier patreon supporters]";
-
-    const monsterConfig = [
-      {
-        name: "hide-description",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-hide-description"),
-        description: "Hide monster action description from players?",
-        enabled: true,
-      },
-      {
-        name: "monster-items",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-items"),
-        description: "[Experimental] Load items from DDB compendium instead of parsing action/attack?",
-        enabled: true,
-      },
-      {
-        name: "update-images",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-update-images"),
-        description: "Update Monster images on existing items?",
-        enabled: true,
-      },
-      {
-        name: "use-full-token-image",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-full-token-image"),
-        description: "Use avatar image for token rather than token image",
-        enabled: true,
-      },
-      {
-        name: "dae-copy",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
-        description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
-        enabled: daeInstalled,
-      },
-      {
-        name: "monster-homebrew",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew") && !sourcesSelected,
-        description: homebrewDescription,
-        enabled: tiers.homebrew && !sourcesSelected,
-      },
-      {
-        name: "monster-homebrew-only",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only") && !sourcesSelected,
-        description: "Homebrew monsters only? (Otherwise both)",
-        enabled: tiers.homebrew && !sourcesSelected,
-      },
-      {
-        name: "monster-exact-match",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exact-match"),
-        description: (tiers.homebrew) ? "Exact name match? (case insensitive)" : "Exact name match? [Undying or God tier patreon supporters]",
-        enabled: tiers.homebrew,
-      },
-    ];
-
-    const genericConfig = [
-      {
-        name: "update-existing",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-update-existing"),
-        description: "Update existing things.",
-        enabled: true,
-      },
-      {
-        name: "use-inbuilt-icons",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons"),
-        description: "Use icons from the inbuilt dictionary. (High coverage, recommended, fast).",
-        enabled: true,
-      },
-      {
-        name: "use-srd-icons",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd-icons"),
-        description: "Use icons from the SRD compendiums.",
-        enabled: true,
-      },
-      {
-        name: "use-iconizer",
-        isChecked: (iconizerInstalled) ? game.settings.get("ddb-importer", "munching-policy-use-iconizer") : false,
-        description: "Use Iconizer (if installed).",
-        enabled: iconizerInstalled,
-      },
-      {
-        name: "download-images",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-download-images"),
-        description: "Download D&D Beyond images (takes longer and needs space).",
-        enabled: true,
-      },
-      {
-        name: "remote-images",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-remote-images"),
-        description: "Use D&D Beyond remote images (a lot quicker)",
-        enabled: true,
-      },
-      {
-        name: "use-dae-effects",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
-        description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD module)",
-        enabled: daeInstalled && daeSRDInstall,
-      },
-      {
-        name: "use-srd",
-        isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd"),
-        description: "[CAUTION] Use SRD compendium things instead of importing. This is not recommended, and may break adventure munching functionality.",
-        enabled: true,
-      },
-    ];
-
-    const resultData = {
-      cobalt: cobalt,
-      genericConfig: genericConfig,
-      monsterConfig: monsterConfig,
-      spellConfig: spellConfig,
-      itemConfig: itemConfig,
-      beta: betaKey && cobalt,
-      tiers: tiers,
-    };
+    const resultData = getMuncherSettings();
 
     // console.warn(resultData);
 

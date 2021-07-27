@@ -13,7 +13,7 @@ import {
   getDDBGenericItemIcons,
   addItemEffectIcons,
 } from "../muncher/import.js";
-import { download, getCampaignId, getPatreonTiers } from "../muncher/utils.js";
+import { download, getCampaignId } from "../muncher/utils.js";
 import { migrateActorDAESRD, addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
@@ -23,6 +23,7 @@ import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import { DDBCookie } from "../lib/Settings.js";
 import { loadSRDRules } from "../parser/templateStrings.js";
 import { abilityOverrideEffects } from "../parser/effects/abilityOverrides.js";
+import { getCharacterImportCoreSettings, updateActorSettings, setRecommendedCharacterActiveEffectSettings } from "../muncher/settings.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -442,534 +443,12 @@ export default class CharacterImport extends FormApplication {
   /* -------------------------------------------- */
 
   getData() {
-    const importPolicies = [
-      {
-        name: "name",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-name"),
-        description: "Name",
-      },
-      {
-        name: "class",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-class"),
-        description: "Classes",
-      },
-      {
-        name: "feat",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-feat"),
-        description: "Features",
-      },
-      {
-        name: "weapon",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-weapon"),
-        description: "Weapons",
-      },
-      {
-        name: "equipment",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-equipment"),
-        description: "Other Equipment",
-      },
-      {
-        name: "currency",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-currency"),
-        description: "Currency",
-      },
-      {
-        name: "spell",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-spell"),
-        description: "Spells",
-      },
-      {
-        name: "image",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-image"),
-        description: "Image",
-      },
-      {
-        name: "bio",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-bio"),
-        description: "Bio",
-      },
-    ];
 
-    const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+    // loads settings for actor
+    const importSettings = getCharacterImportCoreSettings();
 
-    // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
-
-    const importConfig = [
-      {
-        name: "use-inbuilt-icons",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons"),
-        description: "Use icons from the inbuilt dictionary. (High coverage of items, feats, and spells).",
-        enabled: true,
-      },
-      {
-        name: "use-srd-icons",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd-icons"),
-        description: "Use icons from the SRD compendium. (This can take a while).",
-        enabled: true,
-      },
-      {
-        name: "use-ddb-spell-icons",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-ddb-spell-icons"),
-        description: "Use spell school icons from D&DBeyond.",
-        enabled: true,
-      },
-      {
-        name: "use-ddb-item-icons",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-ddb-item-icons"),
-        description: "Use equipment icons from D&DBeyond (where they exist).",
-        enabled: true,
-      },
-      {
-        name: "use-ddb-generic-item-icons",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons"),
-        description: "Use D&D Beyond generic item type images, if available (final fallback)",
-        enabled: true,
-      },
-      {
-        name: "use-full-description",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-full-description"),
-        description: "For actions use full description and snippets, else use snippets only.",
-        enabled: true,
-      },
-      {
-        name: "use-action-and-feature",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature"),
-        description: "[CAUTION] If a feature is marked as an action, import both the action and the feature. This might lead to some weird behaviour.",
-        enabled: true,
-      },
-    ];
-
-    const advancedImportConfig = [
-      {
-        name: "use-override",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-override"),
-        title: "Replace Items using those in your Override compendium",
-        description:
-          "Use existing items from <i>ddb-import Override compendium</i>, rather than parsing from DDB. This is useful if you want to place customised items into the compendium for use by characters.",
-        enabled: true,
-      },
-      {
-        name: "use-existing",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
-        title: "[Caution] Replace Items using ddb-importer compendiums",
-        description:
-          "Use existing items from <i>ddb-import compendiums</i>, rather than parsing from DDB. This is useful if you have customised the items in the compendium, although you will lose any custom effects applied by this module e.g. Improved Divine Smite. Please consider marking the item you wish to keep as ignored by import instead.",
-        enabled: true,
-      },
-      {
-        name: "use-srd",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-use-srd"),
-        title: "[Caution] Replace Items using SRD compendiums",
-        description:
-          "Use the <i>SRD compendiums</i>, rather than DDB. Importing using SRD will not include features like fighting style and divine smite in damage calculations. Please consider marking the item you wish to keep as ignored by import instead.",
-        enabled: true,
-      },
-    ];
-
-    const effectImportConfig = [
-      {
-        name: "add-item-effects",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-add-item-effects") && daeInstalled,
-        title: "Generate Active Effects for Equipment",
-        description:
-          "Dynamically generate active effects for a characters equipment, doesn't include AC effects on armor, but will for things like the Ring of Protection.",
-        enabled: daeInstalled,
-      },
-      {
-        name: "add-character-effects",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-add-character-effects") && daeInstalled,
-        title: "Generate Active Effects for Character Features/Racial Traits/Feats/Backgrounds",
-        description:
-          'Dynamically generate active effects for a character. Some effects are always generated, some are optional (see below).',
-        enabled: daeInstalled,
-      },
-      {
-        name: "generate-ac-armor-effects",
-        isChecked:
-          game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects") && daeInstalled,
-        title: "Generate Active Effects ACs for Armor",
-        description:
-          "Dynamically add AC values as dynamic effects to armor items. If you're using DAE to auto-calculate AC, you don't need this.",
-        enabled: daeInstalled,
-      },
-      {
-        name: "generate-ac-feature-effects",
-        isChecked:
-          game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects") && daeInstalled,
-        title: "Generate Active Effects ACs for Character Features & Racial Traits",
-        description:
-          "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations.",
-        enabled: daeInstalled,
-      },
-      {
-        name: "generate-base-ac",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-base-ac"),
-        title: "Set AC to base value",
-        description: "Calculate AC base to base value, e.g. 10 +dex mod/natural armor rating. Useful if you want the AC to be correct when Armor is unequipped.",
-        enabled: true,
-      },
-      {
-        name: "generate-ac-override-effects",
-        isChecked:
-          game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects") && daeInstalled,
-        title: "[Caution] Generate DAE Override ACs",
-        description:
-          "Generate possible AC combinations as dynamic effects, these are high priority effects that override other effects. Useful if you can't calculate your AC correctly using other effects.",
-        enabled: daeInstalled,
-      },
-      {
-        name: "dae-effect-copy",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDInstalled,
-        title: "Copy Active Effect from DAE Compendiums",
-        description:
-          "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug.",
-        enabled: daeInstalled && daeSRDInstalled,
-      },
-      {
-        name: "dae-copy",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDInstalled,
-        title: "[Caution] Replace Items using DAE compendiums",
-        description:
-          "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE SRD module). This will remove any effects applied directly to your character/not via features/items. This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
-        enabled: daeInstalled && daeSRDInstalled,
-      },
-      {
-        name: "active-effect-copy",
-        isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
-        title: "Retain Active Effects",
-        description: "Retain existing Active Effects, this will try and transfer any existing effects on the actor such as custom effects, effects from conditions or existing spells. Untick this option if you experience <i>odd</i> behaviour, especially around AC.",
-        enabled: true,
-      },
-    ];
-
-    const effectSelectionConfig = {
-      class: [
-        {
-          name: "effect-class-spell-bonus",
-          title: "Spell Bonuses",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-spell-bonus"),
-          enabled: true,
-        },
-        {
-          name: "effect-class-speed",
-          title: "Movement",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-speed"),
-          enabled: true,
-        },
-        {
-          name: "effect-class-senses",
-          title: "Senses",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-class-hp",
-          title: "HP",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-hp"),
-          enabled: true,
-        },
-        {
-          name: "effect-class-damages",
-          title: "Imm/Res/Vuln",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-class-damages"),
-          enabled: true,
-        },
-      ],
-      race: [
-        {
-          name: "effect-race-spell-bonus",
-          title: "Spell Bonuses",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-spell-bonus"),
-          enabled: true,
-        },
-        {
-          name: "effect-race-speed",
-          title: "Movement",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-speed"),
-          enabled: true,
-        },
-        {
-          name: "effect-race-senses",
-          title: "Senses",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-race-hp",
-          title: "HP",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-hp"),
-          enabled: true,
-        },
-        {
-          name: "effect-race-damages",
-          title: "Imm/Res/Vuln",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-race-damages"),
-          enabled: true,
-        },
-      ],
-      background: [
-        {
-          name: "effect-background-spell-bonus",
-          title: "Spell Bonuses",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-spell-bonus"),
-          enabled: true,
-        },
-        {
-          name: "effect-background-speed",
-          title: "Movement",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-speed"),
-          enabled: true,
-        },
-        {
-          name: "effect-background-senses",
-          title: "Senses",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-background-hp",
-          title: "HP",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-hp"),
-          enabled: true,
-        },
-        // {
-        //   name: "effect-background-ability-bonus",
-        //   title: "Ability Bonuses",
-        //   isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-ability-bonus"),
-        //   enabled: true,
-        // },
-        // {
-        //   name: "effect-background-proficiencies",
-        //   title: "Proficiencies",
-        //   isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-proficiencies"),
-        //   enabled: true,
-        // },
-        // {
-        //   name: "effect-background-languages",
-        //   title: "Languages",
-        //   isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-languages"),
-        //   enabled: true,
-        // },
-        {
-          name: "effect-background-damages",
-          title: "Imm/Res/Vuln",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-background-damages"),
-          enabled: true,
-        },
-      ],
-      feat: [
-        {
-          name: "effect-feat-spell-bonus",
-          title: "Spell Bonuses",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-spell-bonus"),
-          enabled: true,
-        },
-        {
-          name: "effect-feat-speed",
-          title: "Movement",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-speed"),
-          enabled: true,
-        },
-        {
-          name: "effect-feat-senses",
-          title: "Senses",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-senses"),
-          enabled: true,
-        },
-        {
-          name: "effect-feat-hp",
-          title: "HP",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-hp"),
-          enabled: true,
-        },
-        // {
-        //   name: "effect-feat-ability-bonus",
-        //   title: "Ability Bonuses",
-        //   isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-ability-bonus"),
-        //   enabled: true,
-        // },
-        // {
-        //   name: "effect-feat-proficiencies",
-        //   title: "Proficiencies",
-        //   isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-proficiencies"),
-        //   enabled: true,
-        // },
-        // {
-        //   name: "effect-feat-languages",
-        //   title: "Languages",
-        //   isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-languages"),
-        //   enabled: true,
-        // },
-        {
-          name: "effect-feat-damages",
-          title: "Imm/Res/Vuln",
-          isChecked: game.settings.get("ddb-importer", "character-update-policy-effect-feat-damages"),
-          enabled: true,
-        },
-      ],
-    };
-
-    const syncItemReady = this.actorOriginal.flags.ddbimporter?.syncItemReady;
-    const syncActionReady = this.actorOriginal.flags.ddbimporter?.syncActionReady;
-
-    const syncConfig = [
-      {
-        name: "action-use",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-action-use"),
-        description: "Action Uses",
-        enabled: syncActionReady,
-      },
-      {
-        name: "currency",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-currency"),
-        description: "Currency",
-        enabled: true,
-      },
-      {
-        name: "deathsaves",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-deathsaves"),
-        description: "Death Saves",
-        enabled: true,
-      },
-      {
-        name: "equipment",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-equipment"),
-        description: "Equipment",
-        enabled: syncItemReady,
-      },
-      {
-        name: "condition",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-condition"),
-        description: "Exhaustion",
-        enabled: true,
-      },
-      {
-        name: "hitdice",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-hitdice"),
-        description: "Hit Dice/Short Rest",
-        enabled: true,
-      },
-      {
-        name: "hitpoints",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-hitpoints"),
-        description: "Hit Points",
-        enabled: true,
-      },
-      {
-        name: "inspiration",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-inspiration"),
-        description: "Inspiration",
-        enabled: true,
-      },
-      {
-        name: "spells-prepared",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-spells-prepared"),
-        description: "Spells Prepared",
-        enabled: true,
-      },
-      {
-        name: "spells-slots",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-spells-slots"),
-        description: "Spell Slots",
-        enabled: true,
-      },
-      {
-        name: "spells-sync",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-spells-sync"),
-        description: "Spells Known",
-        enabled: false,
-      },
-      {
-        name: "xp",
-        isChecked: game.settings.get("ddb-importer", "sync-policy-xp"),
-        description: "XP",
-        enabled: true,
-      },
-    ];
-
-    const extrasConfig = [
-      // {
-      //   name: "update-existing",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-update-existing"),
-      //   description: "Update existing things.",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "use-srd",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd"),
-      //   description: "Use SRD compendium things instead of importing.",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "use-inbuilt-icons",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons"),
-      //   description: "Use icons from the inbuilt dictionary. (High coverage of items, feats, and spells).",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "use-srd-icons",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd-icons"),
-      //   description: "Use icons from the SRD compendiums.",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "use-iconizer",
-      //   isChecked: (iconizerInstalled) ? game.settings.get("ddb-importer", "munching-policy-use-iconizer") : false,
-      //   description: "Use Iconizer (if installed).",
-      //   enabled: iconizerInstalled,
-      // },
-      // {
-      //   name: "download-images",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-download-images"),
-      //   description: "Download D&D Beyond images (takes longer and needs space).",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "remote-images",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-remote-images"),
-      //   description: "Use D&D Beyond remote images (a lot quicker)",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "use-dae-effects",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
-      //   description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD module)",
-      //   enabled: daeInstalled,
-      // },
-      // {
-      //   name: "hide-description",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-hide-description"),
-      //   description: "Hide description from players?",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "monster-items",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-monster-items"),
-      //   description: "[Experimental] Load items from DDB compendium instead of parsing action/attack?",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "update-images",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-update-images"),
-      //   description: "Update images on existing items?",
-      //   enabled: true,
-      // },
-      // {
-      //   name: "dae-copy",
-      //   isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
-      //   description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
-      //   enabled: daeInstalled,
-      // },
-    ];
-
-    const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
-    const badDirs = ["[data]", "[data] ", "", null];
-    const dataDirSet = !badDirs.includes(uploadDir);
-    const tier = game.settings.get("ddb-importer", "patreon-tier");
-    const tiers = getPatreonTiers(tier);
     const characterId = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId;
-    const syncEnabled = characterId && tiers.all;
+    const syncEnabled = characterId && importSettings.tiers.all;
 
     const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
     const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
@@ -979,22 +458,15 @@ export default class CharacterImport extends FormApplication {
     const cobaltCookie = getCobalt(this.actor.id);
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
 
-    return {
+    const actorSettings = {
       actor: this.actor,
       localCobalt: localCobalt,
       cobaltSet: cobaltSet,
-      importPolicies: importPolicies,
-      importConfig: importConfig,
-      extrasConfig: extrasConfig,
-      advancedImportConfig: advancedImportConfig,
-      effectImportConfig: effectImportConfig,
-      effectSelectionConfig: effectSelectionConfig,
-      dataDirSet: dataDirSet,
-      syncConfig: syncConfig,
       syncEnabled: syncEnabled,
       importAllowed: !syncOnly,
-      tiers: tiers,
     };
+
+    return mergeObject(importSettings, actorSettings);
   }
 
   /* -------------------------------------------- */
@@ -1014,70 +486,15 @@ export default class CharacterImport extends FormApplication {
         ].join(",")
       )
       .on("change", (event) => {
-        game.settings.set(
-          "ddb-importer",
-          "character-update-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked
-        );
-
-        if (event.currentTarget.dataset.section === "dae-copy" && event.currentTarget.checked) {
-          $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
-          game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", false);
-        } else if (event.currentTarget.dataset.section === "dae-effect-copy" && event.currentTarget.checked) {
-          $(html).find("#character-import-policy-dae-copy").prop("checked", false);
-          game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
-          $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
-          game.settings.set("ddb-importer", "character-update-policy-add-item-effects", true);
-          $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
-          game.settings.set("ddb-importer", "character-update-policy-add-character-effects", true);
-        } else if (
-          (event.currentTarget.dataset.section === "generate-ac-armor-effects" ||
-            event.currentTarget.dataset.section === "generate-ac-feature-effects"
-          ) &&
-          event.currentTarget.checked
-        ) {
-          game.settings.set("dae", "calculateArmor", false);
-          game.settings.set("dae", "applyBaseAC", false);
-        }
+        updateActorSettings(html, event);
 
       });
 
     $(html)
       .find("#default-effects")
       .on("click", async (event) => {
-        // retrieve the character data from the proxy
         event.preventDefault();
-        $(html).find("#character-import-policy-dae-copy").prop("checked", false);
-        game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
-        $(html).find("#character-import-policy-dae-effect-copy").prop("checked", true);
-        game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", true);
-        $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
-        game.settings.set("ddb-importer", "character-update-policy-add-item-effects", true);
-        $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
-        game.settings.set("ddb-importer", "character-update-policy-add-character-effects", true);
-        $(html).find("#character-import-policy-generate-ac-armor-effects").prop("checked", true);
-        game.settings.set("ddb-importer", "character-update-policy-generate-ac-armor-effects", true);
-        $(html).find("#character-import-policy-generate-ac-feature-effects").prop("checked", true);
-        game.settings.set("ddb-importer", "character-update-policy-generate-ac-feature-effects", true);
-        $(html).find("#character-import-policy-generate-base-ac").prop("checked", true);
-        game.settings.set("ddb-importer", "character-update-policy-generate-base-ac", true);
-        $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
-        game.settings.set("ddb-importer", "character-update-policy-active-effect-copy", false);
-        $(html).find("#character-import-policy-generate-ac-override-effects").prop("checked", false);
-        game.settings.set("ddb-importer", "character-update-policy-generate-ac-override-effects", false);
-
-        ["class", "race", "background", "feat"].forEach((type) => {
-          $(html).find(`#character-import-policy-effect-${type}-spell-bonus`).prop("checked", true);
-          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-spell-bonus`, true);
-          $(html).find(`#character-import-policy-effect-${type}-speed`).prop("checked", false);
-          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-speed`, false);
-          $(html).find(`#character-import-policy-effect-${type}-senses`).prop("checked", false);
-          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-senses`, false);
-          $(html).find(`#character-import-policy-effect-${type}-hp`).prop("checked", false);
-          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-hp`, false);
-          $(html).find(`#character-import-policy-effect-${type}-damages`).prop("checked", false);
-          game.settings.set("ddb-importer", `character-update-policy-effect-${type}-damages`, false);
-        });
+        setRecommendedCharacterActiveEffectSettings(html);
 
       });
 
@@ -1140,9 +557,6 @@ export default class CharacterImport extends FormApplication {
         try {
           $(html).find("#dndbeyond-character-update").prop("disabled", true);
           await updateDDBCharacter(this.actor).then((result) => {
-            // result.forEach((r) => {
-            //   console.warn(r);
-            // });
             const updateNotes = result
               .flat()
               .filter((r) => r !== undefined)
