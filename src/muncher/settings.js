@@ -761,6 +761,7 @@ export function getMuncherSettings(includeHomebrew = true) {
   ];
 
   const resultData = {
+    cobalt: cobalt,
     genericConfig: genericConfig,
     monsterConfig: monsterConfig,
     spellConfig: spellConfig,

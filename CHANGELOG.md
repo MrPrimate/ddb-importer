@@ -1,6 +1,10 @@
+# 2.2.1
+
+* Bug stopped spell and items muncher unlocking properly.
+
 # 2.2.0
 
-* Support for new AC in D&D5e 1.4.
+* Support for new AC calculation in D&D5e 1.4.1
 ** Monsters will continue to use flat AC values
 ** Hopefully correct values will be generated for most character/race combos. Exotic creatures like the Tortle will need "Generate Active Effects AC's for Character Features and Racial Traits" ticked until better support for custom calculations in implemented in the DDB Importer.
 
