@@ -2,7 +2,7 @@
 
 * Support for new AC in D&D5e 1.4.
 ** Monsters will continue to use flat AC values
-** Hopefully correct values will be generated for most character/race combos. Exotic creatures like the Tortle will likely need "Generate Active Effects Acs for Character Features and Racial Traits ticked until better support for custom calculations in implemented in the DDB Importer.
+** Hopefully correct values will be generated for most character/race combos. Exotic creatures like the Tortle will need "Generate Active Effects AC's for Character Features and Racial Traits" ticked until better support for custom calculations in implemented in the DDB Importer.
 
 # 2.1.30
 
