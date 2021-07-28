@@ -1,4 +1,4 @@
-name: ddb-importer CI
+name: ddb-importer build
 
 on:
   push:
@@ -72,3 +72,13 @@ jobs:
       uses: Ilshidur/action-discord@0.0.2
       with:
         args: 'DDB Importer ${{ steps.get-version.outputs.version }} has been published by our development Kobolds!'
+
+    # - name: FoundryVTT AutoPublish
+    #   uses: Varriount/fvtt-autopublish@v1.0.2a
+    #   with:
+    #     username: ${{ secrets.FOUNDRY_ADMIN_USER }}
+    #     password: ${{ secrets.FOUNDRY_ADMIN_PW }}
+    #     module-id: ${{ secrets.FOUNDRY_MODULE_ID }}
+    #     manifest-url: https://github.com/${{ github.repository }}/releases/download/${{ steps.get-version.outputs.version }} /module.json
+    #     manifest-file: ./module.json
+
