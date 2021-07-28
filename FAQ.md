@@ -91,3 +91,7 @@ Open the Browser Developer Console (F12) and run the following:
 ```javascript
 DDBImporter.migrateCompendiums();
 ```
+
+Okay so I have migrated to D&D 5e sytem version 1.4.0/1 and now none of my shared compendium monster AC's are right!
+
+Answer: run the above migration command.

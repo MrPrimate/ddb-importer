@@ -32,4 +32,12 @@ export function earlySettings() {
     default: false,
   });
 
+  // for D&D 5e 1.4 ac migrtion
+  game.settings.register("ddb-importer", "ac-migration-complete-v1-4", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
 }

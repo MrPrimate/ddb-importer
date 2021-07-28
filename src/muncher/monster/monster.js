@@ -22,6 +22,7 @@ import { getSpells } from "./spells.js";
 import { getType } from "./type.js";
 
 import { DDB_CONFIG } from "../../ddbConfig.js";
+import utils from "../../utils.js";
 import { MONSTER_TEMPLATE } from "./templates/monster.js";
 
 import logger from '../../logger.js';
@@ -100,7 +101,22 @@ export function parseMonsters(monsterData, extra = false) {
       foundryActor.data.attributes.prof = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
 
       // ac
-      foundryActor.data.attributes.ac.value = monster.armorClass;
+      const autoAC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
+      // place holder for D&D5e v1.4.0
+      if (autoAC) {
+        foundryActor.data.attributes.ac = {
+          "flat": monster.armorClass,
+          "calc": "default",
+          "formula": "",
+          "value": monster.armorClass,
+          "min": 0,
+          "label": monster.armorClassDescription.replace("(", "").replace(")", ""),
+        };
+        foundryActor.flags.ddbimporter.flatAC = true;
+      } else {
+        foundryActor.data.attributes.ac.value = monster.armorClass;
+        foundryActor.flags.ddbimporter.flatAC = false;
+      }
 
       // details
       const cr = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId);

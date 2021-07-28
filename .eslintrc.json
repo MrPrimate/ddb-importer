@@ -42,7 +42,8 @@
     "fromUuid": true,
     "ForgeVTT": true,
     "io": true,
-    "isNewerVersion": true
+    "isNewerVersion": true,
+    "renderTemplate": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

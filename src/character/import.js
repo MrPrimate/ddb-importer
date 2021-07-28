@@ -1001,7 +1001,8 @@ export default class CharacterImport extends FormApplication {
       this.result.character.effects = this.result.character.effects.concat(acEffects);
     }
 
-    if (game.settings.get("ddb-importer", "character-update-policy-generate-base-ac")) {
+    const autoAC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
+    if (!autoAC && game.settings.get("ddb-importer", "character-update-policy-generate-base-ac")) {
       // console.warn(this.result.character.data.attributes.ac);
       // console.warn(this.result.character.flags.ddbimporter.baseAC);
       this.result.character.data.attributes.ac.value = this.result.character.flags.ddbimporter.baseAC;

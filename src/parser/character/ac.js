@@ -2,6 +2,7 @@ import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import { generateFixedACEffect } from "../effects/acEffects.js";
+import { getAllClassFeatures } from "./filterModifiers.js";
 
 /**
  * This excludes shields
@@ -306,8 +307,8 @@ function calculateACOptions(data, character, calculatedArmor) {
   };
 }
 
-export function getArmorClass(data, character) {
-  const overRideAC = data.character.characterValues.find((val) => val.typeId === 1);
+export function getArmorClass(ddb, character) {
+  const overRideAC = ddb.character.characterValues.find((val) => val.typeId === 1);
 
   if (overRideAC) {
     const overRideEffect = generateFixedACEffect(overRideAC.value, `AC Override: ${overRideAC.value}`);
@@ -317,8 +318,18 @@ export function getArmorClass(data, character) {
         label: "Armor Class",
         value: overRideAC.value,
       },
-      baseAC: overRideAC.value,
+      base: overRideAC.value,
       effects: [overRideEffect],
+      override: {
+        flat: overRideAC.value,
+        calc: "default",
+        formula: "",
+      },
+      auto: {
+        flat: overRideAC.value,
+        calc: "default",
+        formula: "",
+      },
     };
   }
 
@@ -328,31 +339,31 @@ export function getArmorClass(data, character) {
 
   // get a list of equipped armor
   // we make a distinction so we can loop over armor
-  let equippedArmor = data.character.inventory.filter(
+  let equippedArmor = ddb.character.inventory.filter(
     (item) => item.equipped && item.definition.filterType === "Armor"
   );
   let baseAC = 10;
   // for things like fighters fighting style
   let miscACBonus = 0;
   // lets get equipped gear
-  const equippedGear = data.character.inventory.filter(
+  const equippedGear = ddb.character.inventory.filter(
     (item) => item.equipped && item.definition.filterType !== "Armor"
   );
   const unarmoredACBonus = utils
-    .filterBaseModifiers(data, "bonus", "unarmored-armor-class")
+    .filterBaseModifiers(ddb, "bonus", "unarmored-armor-class")
     .reduce((prev, cur) => prev + cur.value, 0);
 
   // lets get the AC for all our non-armored gear, we'll add this later
   const gearAC = getEquippedAC(equippedGear);
 
   // While not wearing armor, lets see if we have special abilities
-  if (!isArmored(data)) {
+  if (!isArmored(ddb)) {
     // unarmored abilities from Class/Race?
     const unarmoredSources = [
-      utils.getChosenClassModifiers(data),
-      data.character.modifiers.race,
-      data.character.modifiers.feat,
-      utils.getActiveItemModifiers(data, !daeEffects),
+      utils.getChosenClassModifiers(ddb),
+      ddb.character.modifiers.race,
+      ddb.character.modifiers.feat,
+      utils.getActiveItemModifiers(ddb, !daeEffects),
     ];
     unarmoredSources.forEach((modifiers) => {
       const unarmoredAC = Math.max(getUnarmoredAC(modifiers, character));
@@ -364,7 +375,7 @@ export function getArmorClass(data, character) {
     });
   } else {
     // check for things like fighters fighting style defense
-    const armorBonusSources = [utils.getChosenClassModifiers(data), data.character.modifiers.race];
+    const armorBonusSources = [utils.getChosenClassModifiers(ddb), ddb.character.modifiers.race];
     armorBonusSources.forEach((modifiers) => {
       const armoredACBonuses = getArmoredACBonuses(modifiers, character);
       miscACBonus += armoredACBonuses.reduce((a, b) => a + b, 0);
@@ -374,32 +385,32 @@ export function getArmorClass(data, character) {
   // Generic AC bonuses like Warforfed Integrated Protection
   // item modifiers are loaded by ac calcs
   const miscModifiers = [
-    utils.getChosenClassModifiers(data),
-    data.character.modifiers.race,
-    data.character.modifiers.background,
-    data.character.modifiers.feat,
+    utils.getChosenClassModifiers(ddb),
+    ddb.character.modifiers.race,
+    ddb.character.modifiers.background,
+    ddb.character.modifiers.feat,
   ];
 
   utils.filterModifiers(miscModifiers, "bonus", "armor-class", ["", null], true).forEach((bonus) => {
     miscACBonus += bonus.value;
   });
 
-  miscACBonus += data.character.characterValues.filter((value) =>
+  miscACBonus += ddb.character.characterValues.filter((value) =>
     value.typeId === 3 || value.typeId === 2
   ).map((val) => val.value).reduce((a, b) => a + b, 0);
 
-  miscACBonus += getDualWieldAC(data, miscModifiers);
+  miscACBonus += getDualWieldAC(ddb, miscModifiers);
 
   // Each racial armor appears to be slightly different!
   // We care about Tortles and Lizardfolk here as they can use shields, but their
   // modifier is set differently
-  switch (data.character.race.fullName) {
+  switch (ddb.character.race.fullName) {
     case "Lizardfolk":
-      baseAC = Math.max(getUnarmoredAC(data.character.modifiers.race, character));
+      baseAC = Math.max(getUnarmoredAC(ddb.character.modifiers.race, character));
       equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", "Lizardfolk"));
       break;
     case "Tortle":
-      baseAC = Math.max(getMinimumBaseAC(data.character.modifiers.race, character));
+      baseAC = Math.max(getMinimumBaseAC(ddb.character.modifiers.race, character));
       equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", "Tortle"));
       break;
     default:
@@ -424,11 +435,61 @@ export function getArmorClass(data, character) {
     armors,
     shields,
   };
-  const results = calculateACOptions(data, character, calculatedArmor);
+  const results = calculateACOptions(ddb, character, calculatedArmor);
 
   logger.debug("Final AC Choices:", results.armorClassValues);
   // get the max AC we can use from our various computed values
   const max = Math.max(...results.armorClassValues.map((type) => type.value));
+
+  //
+  // DND5E.armorClasses = {
+  //   "default": {
+  //     "label": "DND5E.ArmorClassDefault",
+  //     "formula": "@attributes.ac.base + @abilities.dex.mod"
+  //   },
+  //   "mage": {
+  //     "label": "DND5E.ArmorClassMage",
+  //     "formula": "13 + @abilities.dex.mod"
+  //   },
+  //   "draconic": {
+  //     "label": "DND5E.ArmorClassDraconic",
+  //     "formula": "13 + @abilities.dex.mod"
+  //   },
+  //   "unarmoredMonk": {
+  //     "label": "DND5E.ArmorClassUnarmoredMonk",
+  //     "formula": "10 + @abilities.dex.mod + @abilities.wis.mod"
+  //   },
+  //   "unarmoredBarb": {
+  //     "label": "DND5E.ArmorClassUnarmoredBarbarian",
+  //     "formula": "10 + @abilities.dex.mod + @abilities.con.mod"
+  //   },
+  //   "custom": {
+  //     "label": "DND5E.ArmorClassCustom"
+  //   }
+  // };
+
+  // const draconic = ddb.classes[0].classFeatures[1].definition
+  const classFeatures = getAllClassFeatures(ddb.character);
+  logger.debug("Class features", classFeatures);
+
+  let calc = "default";
+  if (classFeatures.some((kf) =>
+    kf.className === "Sorcerer" &&
+    kf.subclassName === "Draconic Bloodline" &&
+    kf.name === "Draconic Resilience"
+  )) calc = "draconic";
+
+  if (classFeatures.some((kf) =>
+    kf.className === "Monk" &&
+    kf.subclassName === null &&
+    kf.name === "Unarmored Defense"
+  )) calc = "unarmoredMonk";
+
+  if (classFeatures.some((kf) =>
+    kf.className === "Barbarian" &&
+    kf.subclassName === null &&
+    kf.name === "Unarmored Defense"
+  )) calc = "unarmoredBarb";
 
   const acResults = {
     fixed: {
@@ -436,8 +497,18 @@ export function getArmorClass(data, character) {
       label: "Armor Class",
       value: max,
     },
-    baseAC: results.actorBase,
+    base: results.actorBase,
     effects: results.effects,
+    override: {
+      flat: max,
+      calc: "default",
+      formula: "",
+    },
+    auto: {
+      flat: null,
+      calc: calc,
+      formula: "",
+    },
   };
   logger.debug("AC Results:", acResults);
 

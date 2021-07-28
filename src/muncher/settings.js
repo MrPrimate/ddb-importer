@@ -3,6 +3,15 @@ import utils from "../utils.js";
 import { getPatreonTiers } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 
+function autoACDisableEffects() {
+  const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
+  if (AUTO_AC) {
+    game.settings.set("ddb-importer", "character-update-policy-generate-ac-armor-effects", false);
+    game.settings.set("ddb-importer", "character-update-policy-generate-base-ac", false);
+    game.settings.set("ddb-importer", "character-update-policy-generate-ac-override-effects", false);
+  }
+}
+
 export function setRecommendedCharacterActiveEffectSettings(html) {
   $(html).find("#character-import-policy-dae-copy").prop("checked", false);
   game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
@@ -12,16 +21,22 @@ export function setRecommendedCharacterActiveEffectSettings(html) {
   game.settings.set("ddb-importer", "character-update-policy-add-item-effects", true);
   $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
   game.settings.set("ddb-importer", "character-update-policy-add-character-effects", true);
-  $(html).find("#character-import-policy-generate-ac-armor-effects").prop("checked", true);
-  game.settings.set("ddb-importer", "character-update-policy-generate-ac-armor-effects", true);
   $(html).find("#character-import-policy-generate-ac-feature-effects").prop("checked", true);
   game.settings.set("ddb-importer", "character-update-policy-generate-ac-feature-effects", true);
-  $(html).find("#character-import-policy-generate-base-ac").prop("checked", true);
-  game.settings.set("ddb-importer", "character-update-policy-generate-base-ac", true);
   $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
   game.settings.set("ddb-importer", "character-update-policy-active-effect-copy", false);
-  $(html).find("#character-import-policy-generate-ac-override-effects").prop("checked", false);
-  game.settings.set("ddb-importer", "character-update-policy-generate-ac-override-effects", false);
+
+  const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
+  if (AUTO_AC) {
+    autoACDisableEffects();
+  } else {
+    $(html).find("#character-import-policy-generate-ac-armor-effects").prop("checked", true);
+    game.settings.set("ddb-importer", "character-update-policy-generate-ac-armor-effects", true);
+    $(html).find("#character-import-policy-generate-base-ac").prop("checked", true);
+    game.settings.set("ddb-importer", "character-update-policy-generate-base-ac", true);
+    $(html).find("#character-import-policy-generate-ac-override-effects").prop("checked", false);
+    game.settings.set("ddb-importer", "character-update-policy-generate-ac-override-effects", false);
+  }
 
   ["class", "race", "background", "feat"].forEach((type) => {
     $(html).find(`#character-import-policy-effect-${type}-spell-bonus`).prop("checked", true);
@@ -38,6 +53,9 @@ export function setRecommendedCharacterActiveEffectSettings(html) {
 }
 
 export function getCharacterImportSettings() {
+  const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
+  autoACDisableEffects();
+
   const importPolicies = [
     {
       name: "name",
@@ -164,7 +182,7 @@ export function getCharacterImportSettings() {
     },
   ];
 
-  const effectImportConfig = [
+  const effectImportConfig1 = [
     {
       name: "add-item-effects",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-add-item-effects") && daeInstalled,
@@ -181,14 +199,20 @@ export function getCharacterImportSettings() {
         "Dynamically generate active effects for a character. Some effects are always generated, some are optional (see below).",
       enabled: daeInstalled,
     },
+  ];
+  const effectImportConfig2 = AUTO_AC
+  ? []
+  : [
     {
       name: "generate-ac-armor-effects",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects") && daeInstalled,
       title: "Generate Active Effects ACs for Armor",
       description:
         "Dynamically add AC values as dynamic effects to armor items. If you're using DAE to auto-calculate AC, you don't need this.",
-      enabled: daeInstalled,
+      enabled: daeInstalled && !AUTO_AC,
     },
+  ];
+  const effectImportConfig3 = [
     {
       name: "generate-ac-feature-effects",
       isChecked:
@@ -198,13 +222,17 @@ export function getCharacterImportSettings() {
         "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations.",
       enabled: daeInstalled,
     },
+  ];
+  const effectImportConfig4 = AUTO_AC
+  ? []
+  : [
     {
       name: "generate-base-ac",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-generate-base-ac"),
       title: "Set AC to base value",
       description:
         "Calculate AC base to base value, e.g. 10 +dex mod/natural armor rating. Useful if you want the AC to be correct when Armor is unequipped.",
-      enabled: true,
+      enabled: !AUTO_AC,
     },
     {
       name: "generate-ac-override-effects",
@@ -213,8 +241,10 @@ export function getCharacterImportSettings() {
       title: "[Caution] Generate DAE Override ACs",
       description:
         "Generate possible AC combinations as dynamic effects, these are high priority effects that override other effects. Useful if you can't calculate your AC correctly using other effects.",
-      enabled: daeInstalled,
+      enabled: daeInstalled && !AUTO_AC,
     },
+  ];
+  const effectImportConfig5 = [
     {
       name: "dae-effect-copy",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDInstalled,
@@ -240,6 +270,8 @@ export function getCharacterImportSettings() {
       enabled: true,
     },
   ];
+
+  const effectImportConfig = [...effectImportConfig1, ...effectImportConfig2, ...effectImportConfig3, ...effectImportConfig4, ...effectImportConfig5];
 
   const effectSelectionConfig = {
     class: [

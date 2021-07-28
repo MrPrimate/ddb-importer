@@ -39,12 +39,14 @@ import { getResources } from "./resources.js";
 import { getSize } from "./size.js";
 import { getInitiative } from "./initiative.js";
 import { getCurrency } from "./currency.js";
+// import { fixCharacterLevels } from "./filterModifiers.js";
 
 export default function getCharacter(ddb) {
   // *************************************
   // PARSING THE CHARACTER
   // **************************************
   //
+  // ddb = fixCharacterLevels(ddb);
   let character = {
     data: JSON.parse(utils.getTemplate("character")),
     type: "character",
@@ -92,10 +94,18 @@ export default function getCharacter(ddb) {
   character.data.attributes.inspiration = ddb.character.inspiration;
 
   // armor class
+  const autoAC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
   const ac = getArmorClass(ddb, character);
-  character.data.attributes.ac = ac.fixed;
+  // D&D5e v1.4.0 AC features
+  if (autoAC) {
+    character.data.attributes.ac = ac.auto;
+  } else {
+    character.data.attributes.ac = ac.fixed;
+  }
   character.flags.ddbimporter.acEffects = ac.effects;
-  character.flags.ddbimporter.baseAC = ac.baseAC;
+  character.flags.ddbimporter.baseAC = ac.base;
+  character.flags.ddbimporter.autoAC = ac.auto;
+  character.flags.ddbimporter.overrideAC = ac.override;
 
   // hitpoints
   character.data.attributes.hp = getHitpoints(ddb, character);
