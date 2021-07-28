@@ -4,7 +4,8 @@ import { munchNote, download, getPatreonTiers } from "./utils.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getAvailableCampaigns } from "../lib/Settings.js";
-import { DDB_CONFIG } from "../ddbConfig.js";
+
+// eslint-disable-next-line no-unused-vars
 import { getCharacterImportSettings, getMuncherSettings, updateActorSettings, updateMuncherSettings } from "./settings.js";
 
 const DIFFICULTY_LEVELS = [
@@ -111,10 +112,9 @@ export class DDBEncounterMunch extends Application {
 
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
-
-    console.warn(CONFIG.DDBI.ENCOUNTERS);
+    // console.warn(CONFIG.DDBI.ENCOUNTERS);
     const encounter = CONFIG.DDBI.ENCOUNTERS.find((e) => e.id == id.trim());
-    console.warn(encounter);
+    // console.warn(encounter);
 
     // if (!encounter) return this.encounter;
 
@@ -215,7 +215,7 @@ export class DDBEncounterMunch extends Application {
         : undefined;
 
       const encounter = await this.parseEncounter(encounterId);
-      console.warn(encounter);
+      // console.warn(encounter);
 
       const nameHtml = html.find("#ddb-encounter-name");
       const summaryHtml = html.find("#ddb-encounter-summary");
@@ -229,7 +229,6 @@ export class DDBEncounterMunch extends Application {
 
       const goodCharacters = encounter.goodCharacterData.map((character) => `${character.name}`).join(", ");
       const goodMonsters = encounter.goodMonsterIds.map((monster) => `${monster.name}`).join(", ");
-      // const neededCharacters = encounterDetails.missingCharacterData.map((character) => `${character.name}`).join(", ");
       const neededCharactersHTML = encounter.missingCharacters
         ? ` <span style="color: red"> Missing ${encounter.missingCharacterData.length}: ${encounter.missingCharacterData.map((character) => character.name).join(", ")}</span>`
         : "";
@@ -309,7 +308,7 @@ export class DDBEncounterMunch extends Application {
         description: "Create encounter journal entry?",
       },
     ];
-    // TODO: add game settings and save and load
+    // TO DO: add game settings and save and load
 
     const encounterSettings = {
       tiers,

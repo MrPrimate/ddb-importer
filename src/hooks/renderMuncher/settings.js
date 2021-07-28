@@ -25,4 +25,11 @@ export function earlySettings() {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "encounter-muncher-enabled", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
 }
