@@ -38,6 +38,8 @@ function buildBase(data) {
 
   result.data.source = utils.parseSource(data);
 
+  if (data.isSubRace && data.baseRaceName) result.data.requirements = data.baseRaceName;
+
   return result;
 }
 

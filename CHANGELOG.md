@@ -1,3 +1,7 @@
+# 2.2.2
+
+* Race import now adds parent race into Requirement field as per SRD races.
+
 # 2.2.1
 
 * Bug stopped spell and items muncher unlocking properly.
