@@ -1,6 +1,7 @@
 # 2.2.2
 
 * Race import now adds parent race into Requirement field as per SRD races.
+* Active Effect AC bonuses now applied to magical ac bonus field.
 
 # 2.2.1
 

@@ -243,9 +243,8 @@ function addACBonusEffect(modifiers, name, type) {
     logger.debug(`Generating ${type} bonus for ${name}`);
     const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
     if (AUTO_AC) {
-      changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
-      // should use below but getting bad results right now.
-      // changes.push(generateAddChange(bonus, 18, "data.attributes.ac.bonus"));
+      // changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
+      changes.push(generateAddChange(bonus, 18, "data.attributes.ac.bonus"));
     } else {
       changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
     }
