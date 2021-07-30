@@ -35,7 +35,10 @@ let getGenericConditionAffect = (data, condition, typeId) => {
       .filter((adjustment) => adjustment.type === typeId)
       .map((adjustment) => {
         const entry = DICTIONARY.character.damageTypes.find(
-          (type) => type.id === adjustment.id && type.type === adjustment.type && type.kind === condition
+          (type) =>
+            (type.id === adjustment.id || type.id === adjustment.adjustmentId) &&
+            type.type === adjustment.type &&
+            type.kind === condition
         );
         return entry ? entry.foundryValue || entry.value : undefined;
       })

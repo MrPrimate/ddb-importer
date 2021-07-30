@@ -1,3 +1,7 @@
+# 2.2.3
+
+* Custom Defenses were not parsing due to change in DDB schema.
+
 # 2.2.2
 
 * Race import now adds parent race into Requirement field as per SRD races.
