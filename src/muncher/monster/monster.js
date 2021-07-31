@@ -34,6 +34,7 @@ export function parseMonsters(monsterData, extra = false) {
 
   const setVision = game.settings.get("ddb-importer", "monster-has-vision");
 
+  // eslint-disable-next-line complexity
   monsterData.forEach((monster) => {
     try {
       let foundryActor = JSON.parse(JSON.stringify(MONSTER_TEMPLATE));
@@ -110,7 +111,7 @@ export function parseMonsters(monsterData, extra = false) {
           "formula": "",
           "value": monster.armorClass,
           "min": 0,
-          "label": monster.armorClassDescription.replace("(", "").replace(")", ""),
+          "label": monster.armorClassDescription ? monster.armorClassDescription.replace("(", "").replace(")", "") : "",
         };
         foundryActor.flags.ddbimporter.flatAC = true;
       } else {

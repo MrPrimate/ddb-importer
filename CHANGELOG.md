@@ -1,6 +1,10 @@
+# 2.2.3
+
+* Fix Giant Fly parsing. @Aeristoka#6038
+
 # 2.2.2
 
-* Custom Defenses were not parsing due to change in DDB schema.
+* Custom Defenses were not parsing due to change in DDB schema. @blackntan#0069
 * Improvements for homebrew monsters with a Lair action but no regional action @Sayshal#0110
 * Race import now adds parent race into Requirement field as per SRD races.
 * Active Effect AC bonuses now applied to magical ac bonus field.
