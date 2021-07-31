@@ -1,6 +1,7 @@
 # 2.2.3
 
 * Custom Defenses were not parsing due to change in DDB schema.
+* Improvements for homebrew monsters with a Lair action but no regional action @Sayshal#0110
 
 # 2.2.2
 

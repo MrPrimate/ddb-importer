@@ -49,7 +49,7 @@ export function getLairActions(monster, DDB_CONFIG) {
       return;
     }
     action.data.source = getSource(monster, DDB_CONFIG);
-    dynamicActions.push(action);
+    if (action.name !== "") dynamicActions.push(action);
   });
 
   dom.querySelectorAll("h3").forEach((node) => {
@@ -59,7 +59,7 @@ export function getLairActions(monster, DDB_CONFIG) {
       return;
     }
     action.data.source = getSource(monster, DDB_CONFIG);
-    dynamicActions.push(action);
+    if (action.name !== "") dynamicActions.push(action);
   });
 
   let actionType = "Lair Actions";
