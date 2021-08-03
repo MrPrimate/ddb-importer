@@ -370,7 +370,7 @@ function getAttackType(ddb, character, action, weapon) {
 
 function getAttackAction(ddb, character, action) {
   let weapon = {
-    name: action.name,
+    name: utils.getName(action, character),
     type: "weapon",
     data: JSON.parse(utils.getTemplate("weapon")),
     flags: {
@@ -520,7 +520,7 @@ function getOtherActions(ddb, character, items) {
     .map((action) => {
       logger.debug(`Getting Other Action ${action.name}`);
       let feat = {
-        name: action.name,
+        name: utils.getName(action, character),
         type: "feat",
         data: JSON.parse(utils.getTemplate("feat")),
         flags: {

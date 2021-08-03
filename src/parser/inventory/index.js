@@ -140,18 +140,6 @@ function getClassFeatures(ddb, weapon) {
   return warlockFeatures.concat(monkFeatures);
 }
 
-function getCustomValue(data, character, type) {
-  if (!character) return null;
-  const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
-  const customValue = characterValues.filter((value) => value.valueId == data.id && value.valueTypeId == data.entityTypeId);
-
-  if (customValue) {
-    const value = customValue.find((value) => value.typeId == type);
-    if (value) return value.value;
-  }
-  return null;
-}
-
 function getItemFlags(ddb, data, character) {
   let flags = {
     damage: {
@@ -190,7 +178,7 @@ function getItemFlags(ddb, data, character) {
     if (utils.hasChosenCharacterOption(ddb, "Two-Weapon Fighting")) {
       flags.classFeatures.push("Two-Weapon Fighting");
     }
-    if (getCustomValue(data, character, 18)) {
+    if (utils.getCustomValue(data, character, 18)) {
       flags.classFeatures.push("OffHand");
     }
   }
@@ -257,19 +245,19 @@ function otherGear (ddb, data) {
 
 function addCustomValues(ddbItem, foundryItem, character) {
   // to hit override requires a lot of crunching
-  // const toHitOverride = getCustomValue(item, character, 13);
-  const toHitBonus = getCustomValue(ddbItem, character, 12);
-  const damageBonus = getCustomValue(ddbItem, character, 10);
-  // const displayAsAttack = getCustomValue(item, character, 16);
-  const costOverride = getCustomValue(ddbItem, character, 19);
-  const weightOverride = getCustomValue(ddbItem, character, 22);
+  // const toHitOverride = utils.getCustomValue(item, character, 13);
+  const toHitBonus = utils.getCustomValue(ddbItem, character, 12);
+  const damageBonus = utils.getCustomValue(ddbItem, character, 10);
+  // const displayAsAttack = utils.getCustomValue(item, character, 16);
+  const costOverride = utils.getCustomValue(ddbItem, character, 19);
+  const weightOverride = utils.getCustomValue(ddbItem, character, 22);
   // dual wield 18
   // silvered
-  const silvered = getCustomValue(ddbItem, character, 20);
+  const silvered = utils.getCustomValue(ddbItem, character, 20);
   // adamantine
-  const adamantine = getCustomValue(ddbItem, character, 21);
+  const adamantine = utils.getCustomValue(ddbItem, character, 21);
   // off-hand
-  // const offHand = getCustomValue(ddbItem, character, 18);
+  // const offHand = utils.getCustomValue(ddbItem, character, 18);
 
   if (toHitBonus) foundryItem.data.attackBonus += toHitBonus;
   if (damageBonus && foundryItem.data?.damage?.parts && foundryItem.data?.damage?.parts.length !== 0) {
@@ -359,16 +347,6 @@ function parseItem(ddb, data, character, flags) {
   }
 }
 
-function getName(data, character) {
-  // spell name
-  const customName = getCustomValue(data, character, 8);
-  if (customName) {
-    return customName;
-  } else {
-    return data.definition.name;
-  }
-}
-
 function enrichFlags(data, item) {
   if (data.definition.magic) {
     if (item.data.properties) {
@@ -423,7 +401,7 @@ export default function getInventory(ddb, character, itemSpells) {
 
   for (let ddbItem of ddb.character.inventory.concat(customItems)) {
     const originalName = ddbItem.definition.name;
-    ddbItem.definition.name = getName(ddbItem, character);
+    ddbItem.definition.name = utils.getName(ddbItem, character);
     const flags = getItemFlags(ddb, ddbItem, character);
 
     var item = Object.assign({}, parseItem(ddb, ddbItem, character, flags));

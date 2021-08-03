@@ -260,6 +260,7 @@ export function fixFeatures(features) {
       }
       case "Healing Light": {
         feature.data.damage = { parts: [["1d6"]], versatile: "", value: "" };
+        break;
       }
       // no default
     }

@@ -1,3 +1,7 @@
+# 2.2.4
+
+* Character Import: Attack actions that are not weapons will now import customised names.
+
 # 2.2.3
 
 * Fix Giant Fly parsing. @Aeristoka#6038

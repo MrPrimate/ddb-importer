@@ -1001,6 +1001,33 @@ const utils = {
     }
 
     return map;
+  },
+
+  getCustomValue(data, character, type) {
+    if (!character) return null;
+    const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
+    const customValue = characterValues.filter((value) => value.valueId == data.id && value.valueTypeId == data.entityTypeId);
+
+    if (customValue) {
+      const value = customValue.find((value) => value.typeId == type);
+      if (value) return value.value;
+    }
+    return null;
+  },
+
+  getName(data, character) {
+    // spell name
+    const customName = utils.getCustomValue(data, character, 8);
+    if (customName) {
+      return customName;
+    } else if (data.definition?.name) {
+      return data.definition.name;
+    } else if (data.name) {
+      return data.name;
+    } else {
+      logger.error("Unable to determine name for:", data);
+      return "Unknown thing.";
+    }
   }
 };
 
