@@ -436,7 +436,7 @@
   { "name": "Investiture of Ice", "path": "systems/dnd5e/icons/skills/blue_28.jpg", "type": "systems" },
   { "name": "Investiture of Stone", "path": "icons/commodities/stone/stone-pile-grey.webp", "type": "core" },
   { "name": "Investiture of Wind", "path": "systems/dnd5e/icons/spells/wind-sky-2.jpg", "type": "systems" },
-  { "name": "Magic Jar", "path": "icons/containers/kitchenware/vase-011.webp", "type": "core" },
+  { "name": "Magic Jar", "path": "icons/containers/kitchenware/vase-clay-cracked-white.webp", "type": "core" },
   { "name": "Mass Suggestion", "path": "systems/dnd5e/icons/spells/air-burst-magenta-3.jpg", "type": "systems" },
   { "name": "Mental Prison", "path": "systems/dnd5e/icons/spells/shielding-eerie-2.jpg", "type": "systems" },
   { "name": "Move Earth", "path": "systems/dnd5e/icons/spells/rock-orange-3.jpg", "type": "systems" },

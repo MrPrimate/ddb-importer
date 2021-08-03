@@ -1,6 +1,7 @@
 # 2.2.4
 
 * Character Import: Attack actions that are not weapons will now import customised names.
+* Replace some icon names that changed between v7 and v8 of Foundry.
 
 # 2.2.3
 

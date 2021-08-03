@@ -631,8 +631,8 @@
   },
   { "name": "Tail", "monster": "Orcus", "type": "core", "path": "icons/commodities/biological/tail-scaled-green.webp" },
   { "name": "Tail", "monster": "Orcus", "type": "core", "path": "icons/commodities/biological/tail-scaled-green.webp" },
-  { "name": "Wand of Orcus", "monster": "Orcus", "type": "core", "path": "icons/weapons/staves/staff-orb-red-02.webp" },
-  { "name": "Wand of Orcus", "monster": "Orcus", "type": "core", "path": "icons/weapons/staves/staff-orb-red-02.webp" },
+  { "name": "Wand of Orcus", "monster": "Orcus", "type": "core", "path": "icons/weapons/staves/staff-ornate-orb-steel-red.webp" },
+  { "name": "Wand of Orcus", "monster": "Orcus", "type": "core", "path": "icons/weapons/staves/staff-ornate-orb-steel-red.webp" },
   {
     "name": "Amphibious",
     "monster": "Tromokratis",
@@ -7457,7 +7457,7 @@
     "type": "systems",
     "path": "systems/dnd5e/icons/spells/beam-magenta-3.jpg"
   },
-  { "name": "Staff", "monster": "Nagpa", "type": "core", "path": "icons/weapons/staves/staff-orb-red-02.webp" },
+  { "name": "Staff", "monster": "Nagpa", "type": "core", "path": "icons/weapons/staves/staff-ornate-orb-steel-red.webp" },
   {
     "name": "Hellfire Orb",
     "monster": "Zalthar Shadowdusk",
@@ -43804,7 +43804,7 @@
     "name": "Thrown Urn",
     "monster": "Reduced-threat Wight",
     "type": "core",
-    "path": "icons/containers/kitchenware/vase-004.webp"
+    "path": "icons/containers/kitchenware/jug-wrapped-red.webp"
   },
   {
     "name": "Divine Eminence",
@@ -50154,7 +50154,7 @@
     "name": "Clay Jug",
     "monster": "Piggy Wiggle Butt",
     "type": "core",
-    "path": "icons/containers/kitchenware/vase-001.webp"
+    "path": "icons/containers/kitchenware/jug-terracotta-orange.webp"
   },
   {
     "name": "Cargo Hauler",

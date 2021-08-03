@@ -131,7 +131,7 @@
   { "name": "Stake (Wooden)", "path": "systems/dnd5e/icons/items/inventory/stake.jpg", "type": "systems" },
   { "name": "String", "path": "icons/tools/fishing/reel-simple-string-tan.webp", "type": "core" },
   { "name": "Tangler Grenade", "path": "icons/weapons/thrown/grenade-round.webp", "type": "core" },
-  { "name": "Tej", "path": "icons/containers/kitchenware/vase-001.webp", "type": "core" },
+  { "name": "Tej", "path": "icons/containers/kitchenware/jug-terracotta-orange.webp", "type": "core" },
   { "name": "Tent, Two-Person", "path": "icons/environment/settlement/tent.webp", "type": "core" },
   { "name": "Tinderbox", "path": "icons/containers/boxes/crate-worn-brown.webp", "type": "core" },
   { "name": "Torch", "path": "icons/sundries/lights/torch-white.webp", "type": "core" },
@@ -424,17 +424,17 @@
     "path": "icons/equipment/chest/breastplate-layered-leather-studded-brown.webp",
     "type": "core"
   },
-  { "name": "Armor of Gleaming", "path": "icons/equipment/chest/breastplate-metal-white-02.webp", "type": "core" },
+  { "name": "Armor of Gleaming", "path": "icons/equipment/chest/breastplate-gorget-steel.webp", "type": "core" },
   {
     "name": "Armor of Gleaming, Breastplate",
-    "path": "icons/equipment/chest/breastplate-metal-white-02.webp",
+    "path": "icons/equipment/chest/breastplate-gorget-steel.webp",
     "type": "core"
   },
   { "name": "Armor of Gleaming, Chain Mail", "path": "icons/commodities/metal/mail-chain-steel.webp", "type": "core" },
   { "name": "Armor of Gleaming, Chain Shirt", "path": "icons/commodities/metal/mail-chain-steel.webp", "type": "core" },
   {
     "name": "Armor of Gleaming, Half Plate",
-    "path": "icons/equipment/chest/breastplate-metal-white-02.webp",
+    "path": "icons/equipment/chest/breastplate-gorget-steel.webp",
     "type": "core"
   },
   {
@@ -444,7 +444,7 @@
   },
   {
     "name": "Armor of Gleaming, Plate",
-    "path": "icons/equipment/chest/breastplate-metal-white-02.webp",
+    "path": "icons/equipment/chest/breastplate-gorget-steel.webp",
     "type": "core"
   },
   { "name": "Armor of Gleaming, Ring Mail", "path": "icons/commodities/leather/ring-leather.webp", "type": "core" },
@@ -530,7 +530,7 @@
   },
   {
     "name": "Armor of Necrotic Resistance, Breastplate",
-    "path": "icons/equipment/chest/breastplate-pieced-black-01.webp",
+    "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp",
     "type": "core"
   },
   {
@@ -545,7 +545,7 @@
   },
   {
     "name": "Armor of Necrotic Resistance, Half Plate",
-    "path": "icons/equipment/chest/breastplate-pieced-black-01.webp",
+    "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp",
     "type": "core"
   },
   {
@@ -565,7 +565,7 @@
   },
   {
     "name": "Armor of Necrotic Resistance, Plate",
-    "path": "icons/equipment/chest/breastplate-pieced-black-01.webp",
+    "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp",
     "type": "core"
   },
   {
@@ -944,7 +944,7 @@
   { "name": "Last Stand Armor, Chain Shirt", "path": "icons/commodities/metal/mail-chain-steel.webp", "type": "core" },
   {
     "name": "Last Stand Armor, Half Plate",
-    "path": "icons/equipment/chest/breastplate-pieced-black-01.webp",
+    "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp",
     "type": "core"
   },
   {
@@ -964,7 +964,7 @@
   },
   {
     "name": "Last Stand Armor, Plate",
-    "path": "icons/equipment/chest/breastplate-pieced-black-01.webp",
+    "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp",
     "type": "core"
   },
   { "name": "Last Stand Armor, Ring Mail", "path": "icons/commodities/leather/ring-leather.webp", "type": "core" },
@@ -1056,13 +1056,13 @@
   },
   { "name": "Mind Carapace Ring Mail", "path": "icons/commodities/leather/ring-leather.webp", "type": "core" },
   { "name": "Mind Carapace Splint", "path": "icons/equipment/chest/breastplate-scale-leather.webp", "type": "core" },
-  { "name": "Mithral Armor", "path": "icons/equipment/chest/breastplate-metal-white-01.webp", "type": "core" },
-  { "name": "Mithral Breastplate", "path": "icons/equipment/chest/breastplate-metal-white-01.webp", "type": "core" },
+  { "name": "Mithral Armor", "path": "icons/equipment/chest/breastplate-gorget-steel-white.webp", "type": "core" },
+  { "name": "Mithral Breastplate", "path": "icons/equipment/chest/breastplate-gorget-steel-white.webp", "type": "core" },
   { "name": "Mithral Chain Mail", "path": "icons/commodities/metal/mail-chain-steel.webp", "type": "core" },
   { "name": "Mithral Chain Shirt", "path": "icons/commodities/metal/mail-chain-steel.webp", "type": "core" },
-  { "name": "Mithral Half Plate", "path": "icons/equipment/chest/breastplate-metal-white-01.webp", "type": "core" },
-  { "name": "Mithral Half Plate, +1", "path": "icons/equipment/chest/breastplate-metal-white-01.webp", "type": "core" },
-  { "name": "Mithral Plate", "path": "icons/equipment/chest/breastplate-metal-white-01.webp", "type": "core" },
+  { "name": "Mithral Half Plate", "path": "icons/equipment/chest/breastplate-gorget-steel-white.webp", "type": "core" },
+  { "name": "Mithral Half Plate, +1", "path": "icons/equipment/chest/breastplate-gorget-steel-white.webp", "type": "core" },
+  { "name": "Mithral Plate", "path": "icons/equipment/chest/breastplate-gorget-steel-white.webp", "type": "core" },
   { "name": "Mithral Ring Mail", "path": "icons/commodities/leather/ring-leather.webp", "type": "core" },
   { "name": "Mithral Scale Mail", "path": "systems/dnd5e/icons/items/armor/scale.png", "type": "systems" },
   { "name": "Mithral Splint", "path": "icons/equipment/chest/breastplate-metal-scaled-grey.webp", "type": "core" },
@@ -1115,14 +1115,14 @@
   },
   {
     "name": "Obsidian Flint Dragon Plate",
-    "path": "icons/equipment/chest/breastplate-pieced-black-01.webp",
+    "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp",
     "type": "core"
   },
   { "name": "Padded", "path": "icons/equipment/chest/breastplate-quilted-brown.webp", "type": "core" },
   { "name": "Padded, +1", "path": "icons/equipment/chest/breastplate-quilted-brown.webp", "type": "core" },
   { "name": "Padded, +2", "path": "icons/equipment/chest/breastplate-quilted-brown.webp", "type": "core" },
   { "name": "Padded, +3", "path": "icons/equipment/chest/breastplate-quilted-brown.webp", "type": "core" },
-  { "name": "Plate", "path": "icons/equipment/chest/breastplate-pieced-black-02.webp", "type": "core" },
+  { "name": "Plate", "path": "icons/equipment/chest/breastplate-layered-steel-black.webp", "type": "core" },
   { "name": "Plate Armor of Etherealness", "path": "systems/dnd5e/icons/items/armor/plate.png", "type": "systems" },
   { "name": "Plate, +1", "path": "systems/dnd5e/icons/items/armor/plate.png", "type": "systems" },
   { "name": "Plate, +2", "path": "systems/dnd5e/icons/items/armor/plate.png", "type": "systems" },
@@ -1678,7 +1678,7 @@
     "path": "icons/weapons/staves/staff-skull-feathers-brown.webp",
     "type": "core"
   },
-  { "name": "Dragonstaff of Ahghairon", "path": "icons/weapons/staves/staff-orb-red-02.webp", "type": "core" },
+  { "name": "Dragonstaff of Ahghairon", "path": "icons/weapons/staves/staff-ornate-orb-steel-red.webp", "type": "core" },
   { "name": "Gulthias Staff", "path": "icons/weapons/staves/staff-forest-hooked.webp", "type": "core" },
   { "name": "Hellfire Quarterstaff", "path": "systems/dnd5e/icons/items/weapons/staff.png", "type": "systems" },
   { "name": "Skyblinder Staff", "path": "icons/weapons/staves/staff-winged-red.webp", "type": "core" },
@@ -1715,7 +1715,7 @@
   { "name": "Staff of the Python", "path": "icons/weapons/staves/staff-forest-spiral.webp", "type": "core" },
   { "name": "Staff of the Woodlands", "path": "icons/weapons/staves/staff-vines-green.webp", "type": "core" },
   { "name": "Staff of Thunder and Lightning", "path": "icons/weapons/staves/staff-ornate-blue.webp", "type": "core" },
-  { "name": "Staff of Tor", "path": "icons/weapons/staves/staff-orb-red-02.webp", "type": "core" },
+  { "name": "Staff of Tor", "path": "icons/weapons/staves/staff-ornate-orb-steel-red.webp", "type": "core" },
   { "name": "Staff of Withering", "path": "systems/dnd5e/icons/items/weapons/staff-skull.jpg", "type": "systems" },
   { "name": "Staff the Novice Necromancer", "path": "icons/weapons/staves/staff-skull-feathers.webp", "type": "core" },
   { "name": "Voyager Staff", "path": "icons/weapons/staves/staff-ornate-banded-purple.webp", "type": "core" },
@@ -1901,7 +1901,7 @@
   { "name": "Foot of the Crow", "path": "icons/commodities/bones/bone-foot-bird-brown.webp", "type": "core" },
   { "name": "Fork of Bees", "path": "icons/weapons/staves/staff-forked-wood.webp", "type": "core" },
   { "name": "Friendly Wizard Hat", "path": "icons/equipment/head/hat-pointed-leather-purple.webp", "type": "core" },
-  { "name": "Galder’s Bubble Pipe", "path": "icons/sundries/misc/pipe-wooden-02.webp", "type": "core" },
+  { "name": "Galder’s Bubble Pipe", "path": "icons/sundries/misc/pipe-wooden-curved-oak.webp", "type": "core" },
   {
     "name": "Gauntlets of Flaming Fury",
     "path": "icons/equipment/hand/gauntlet-armored-red-gold.webp",
@@ -1911,7 +1911,7 @@
   { "name": "Gavel of the Venn Rune", "path": "icons/weapons/hammers/hammer-mallet-gold.webp", "type": "core" },
   { "name": "Ghost Lantern", "path": "icons/sundries/lights/lantern-steel.webp", "type": "core" },
   { "name": "Gnomengarde Grenade", "path": "icons/weapons/thrown/bomb-fuse-cloth-pink.webp", "type": "core" },
-  { "name": "Goggles of Object Reading", "path": "icons/equipment/head/goggles-03.webp", "type": "core" },
+  { "name": "Goggles of Object Reading", "path": "icons/equipment/head/goggles-leather-tan.webp", "type": "core" },
   { "name": "Golgari Guild Signet", "path": "icons/equipment/finger/ring-eye-silver-brown.webp", "type": "core" },
   { "name": "Golgari Keyrune", "path": "icons/commodities/treasure/token-runed-circle-green.webp", "type": "core" },
   { "name": "Green Dragon Mask", "path": "icons/equipment/head/mask-carved-bird-grey-pink.webp", "type": "core" },
@@ -2105,7 +2105,7 @@
   { "name": "Night Caller", "path": "icons/commodities/treasure/figurine-snail.webp", "type": "core" },
   { "name": "Nightfall Pearl", "path": "icons/commodities/gems/pearl-water.webp", "type": "core" },
   { "name": "Nine Lives Stealer", "path": "icons/weapons/swords/greatsword-flamberge.webp", "type": "core" },
-  { "name": "Obviator’s Lenses", "path": "icons/equipment/head/goggles-03.webp", "type": "core" },
+  { "name": "Obviator’s Lenses", "path": "icons/equipment/head/goggles-leather-tan.webp", "type": "core" },
   { "name": "Occultant Abacus", "path": "icons/commodities/currency/coins-engraved-hole-gold.webp", "type": "core" },
   { "name": "Opal of the Ild Rune", "path": "icons/commodities/gems/gem-rough-oval-orange.webp", "type": "core" },
   { "name": "Orb of Gonging", "path": "icons/commodities/materials/glass-orb.webp", "type": "core" },
@@ -2218,7 +2218,7 @@
   { "name": "Slippers of the Cloud", "path": "icons/equipment/feet/boots-collared-blue-gold.webp", "type": "core" },
   { "name": "Smokepowder", "path": "icons/commodities/materials/powder-grey.webp", "type": "core" },
   { "name": "Soul Coin", "path": "icons/commodities/currency/coin-embossed-skull-silver.webp", "type": "core" },
-  { "name": "Spell Bottle", "path": "icons/containers/kitchenware/vase-005.webp", "type": "core" },
+  { "name": "Spell Bottle", "path": "icons/containers/kitchenware/vase-clay-painted-blue-gold.webp", "type": "core" },
   { "name": "Spell Gem", "path": "icons/commodities/gems/gem-faceted-radiant-teal.webp", "type": "core" },
   { "name": "Spell Gem (Amber)", "path": "icons/commodities/gems/gem-amber-insect-orange.webp", "type": "core" },
   { "name": "Spell Gem (Bloodstone)", "path": "icons/commodities/gems/gem-rough-can-red.webp", "type": "core" },
@@ -2286,7 +2286,7 @@
   { "name": "Vox Seeker", "path": "icons/environment/creatures/crustacean-crab-yellow.webp", "type": "core" },
   { "name": "Wave", "path": "icons/weapons/polearms/trident-ornate-red.webp", "type": "core" },
   { "name": "Waythe", "path": "icons/weapons/swords/greatsword-guard-gold-worn.webp", "type": "core" },
-  { "name": "Weird Tank", "path": "icons/containers/kitchenware/vase-008.webp", "type": "core" },
+  { "name": "Weird Tank", "path": "icons/containers/kitchenware/vase-clay-painted-brown-white.webp", "type": "core" },
   { "name": "Wheel of Stars", "path": "icons/equipment/finger/ring-band-engraved-teal.webp", "type": "core" },
   { "name": "Whelm", "path": "icons/weapons/hammers/hammer-drilling-spiked.webp", "type": "core" },
   { "name": "Whisper Jar", "path": "systems/dnd5e/icons/items/inventory/bottle-empty.jpg", "type": "systems" },
@@ -3611,7 +3611,7 @@
     "path": "systems/dnd5e/icons/items/inventory/skull-bird.jpg",
     "type": "systems"
   },
-  { "name": "Finder’s Goggles", "path": "icons/equipment/head/goggles-03.webp", "type": "core" },
+  { "name": "Finder’s Goggles", "path": "icons/equipment/head/goggles-leather-tan.webp", "type": "core" },
   { "name": "Fochlucan Bandore", "path": "systems/dnd5e/icons/items/inventory/lute.jpg", "type": "systems" },
   { "name": "Folding Boat", "path": "systems/dnd5e/icons/items/inventory/cage.jpg", "type": "systems" },
   {
@@ -3631,7 +3631,7 @@
     "type": "core"
   },
   { "name": "Gloves of Thievery", "path": "icons/equipment/hand/glove-cuffed-leather-purple.webp", "type": "core" },
-  { "name": "Goggles of Night", "path": "icons/equipment/head/goggles-03.webp", "type": "core" },
+  { "name": "Goggles of Night", "path": "icons/equipment/head/goggles-leather-tan.webp", "type": "core" },
   { "name": "Guardian Emblem", "path": "icons/commodities/treasure/trinket-totem-bone-green.webp", "type": "core" },
   { "name": "Hand of Vecna", "path": "icons/commodities/biological/hand-clawed-blue.webp", "type": "core" },
   { "name": "Handy Haversack", "path": "systems/dnd5e/icons/items/inventory/backpack.jpg", "type": "systems" },
@@ -4119,5 +4119,12 @@
   { "name": "Wings of Flying", "path": "icons/commodities/treasure/trinket-wing-white.webp", "type": "core" },
   { "name": "Xorian Wenge Focus", "path": "icons/weapons/staves/staff-simple-knotted.webp", "type": "core" },
   { "name": "Claws", "path": "icons/commodities/claws/claws-white.webp", "type": "core" },
-  { "name": "Polearm Master - Bonus Attack", "path": "icons/weapons/polearms/pike-flared-brown.webp", "type": "core" }
+  { "name": "Polearm Master - Bonus Attack", "path": "icons/weapons/polearms/pike-flared-brown.webp", "type": "core" },
+  { "name": "Cracked Driftglobe", "path": "icons/commodities/gems/pearl-storm.webp", "type": "core" },
+  { "name": "Gloves of Soul Catching", "path": "icons/equipment/hand/glove-tooled-leather-green.webp", "type": "core" },
+  { "name": "Radiance", "path": "icons/weapons/wands/wand-crook-yellow.webp", "type": "core" },
+  { "name": "Serpent Scale Armor", "path": "icons/commodities/leather/scales-green.webp", "type": "core" },
+  { "name": "Serpent’s Fang", "path": "icons/creatures/reptiles/snake-fangs-bite-green.webp", "type": "core" },
+  { "name": "Stonky’s ring", "path": "icons/equipment/finger/ring-band-gold.webp", "type": "core" },
+  { "name": "Watchful Helm", "path": "icons/equipment/head/helm-barbute-white.webp", "type": "core" }
 ]
