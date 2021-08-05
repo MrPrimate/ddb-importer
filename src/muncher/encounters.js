@@ -2,11 +2,12 @@
 import { checkMonsterCompendium } from "./importMonster.js";
 import { munchNote, download, getPatreonTiers } from "./utils.js";
 import logger from "../logger.js";
+import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getAvailableCampaigns } from "../lib/Settings.js";
-
-// eslint-disable-next-line no-unused-vars
-import { getCharacterImportSettings, getMuncherSettings, updateActorSettings, updateMuncherSettings } from "./settings.js";
+import { parseCritters } from "./monsters.js";
+import { getCharacterImportSettings, getMuncherSettings, updateActorSettings, updateMuncherSettings, setRecommendedCharacterActiveEffectSettings } from "./settings.js";
+import Helpers from "./adventure/common.js";
 
 const DIFFICULTY_LEVELS = [
   { id: null, name: "No challenge", color: "grey" },
@@ -125,7 +126,7 @@ export class DDBEncounterMunch extends Application {
       const id = monster.id;
       const monsterInPack = monsterPack.index.find((f) => f.flags.ddbimporter.id == id);
       if (monsterInPack) {
-        goodMonsterIds.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack.id, quantity: monster.quantity });
+        goodMonsterIds.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack._id, quantity: monster.quantity });
       } else {
         missingMonsterIds.push({ ddbId: id, quantity: monster.quantity });
       }
@@ -153,6 +154,7 @@ export class DDBEncounterMunch extends Application {
       rewards: encounter.rewards,
       summary: encounter.flavorText,
       campaign: encounter.campaign,
+      monsters: encounter.monsters,
       goodMonsterIds,
       missingMonsterIds,
       goodCharacterData,
@@ -160,6 +162,8 @@ export class DDBEncounterMunch extends Application {
       missingMonsters: missingMonsterIds.length !== 0,
       missingCharacters: missingCharacterData.length !== 0,
     };
+
+    logger.debug("Current encounter", this.encounter);
 
     return this.encounter;
 
@@ -182,11 +186,68 @@ export class DDBEncounterMunch extends Application {
 
     $('#ddb-importer-encounters').css("height", "auto");
     $('#encounter-button').prop("disabled", true);
+    $('#encounter-button').prop("innerText", "Import Encounter");
     this.encounter = {};
   }
 
   activateListeners(html) {
     super.activateListeners(html);
+
+    $(html)
+      .find(
+        [
+          '.munching-generic-config input[type="checkbox"]',
+          '.munching-monster-config input[type="checkbox"]',
+        ].join(",")
+      )
+      .on("change", (event) => {
+        updateMuncherSettings(html, event);
+      });
+
+    $(html)
+      .find(
+        [
+          '.import-policy input[type="checkbox"]',
+          '.advanced-import-config input[type="checkbox"]',
+          '.effect-policy input[type="checkbox"]',
+          '.effect-import-config input[type="checkbox"]',
+          '.extras-import-config input[type="checkbox"]',
+          '.import-config input[type="checkbox"]',
+        ].join(",")
+      )
+      .on("change", (event) => {
+        updateActorSettings(html, event);
+
+      });
+
+    $(html)
+      .find("#default-effects")
+      .on("click", async (event) => {
+        event.preventDefault();
+        setRecommendedCharacterActiveEffectSettings(html);
+
+      });
+
+    $(html)
+      .find('.sync-policy input[type="checkbox"]')
+      .on("change", (event) => {
+        game.settings.set(
+          "ddb-importer",
+          "sync-policy-" + event.currentTarget.dataset.section,
+          event.currentTarget.checked
+        );
+      });
+
+
+    $(html)
+      .find('.encounter-config input[type="checkbox"]')
+      .on("change", (event) => {
+        game.settings.set(
+          "ddb-importer",
+          "encounter-import-policy-" + event.currentTarget.dataset.section,
+          event.currentTarget.checked
+        );
+      });
 
     // filter campaigns
     html.find("#encounter-campaign-select").on("change", async () => {
@@ -233,7 +294,7 @@ export class DDBEncounterMunch extends Application {
         ? ` <span style="color: red"> Missing ${encounter.missingCharacterData.length}: ${encounter.missingCharacterData.map((character) => character.name).join(", ")}</span>`
         : "";
       const neededMonstersHTML = encounter.missingMonsters
-        ? ` <span style="color: red"> Missing ${encounter.missingMonsterIds.length}: ${encounter.missingMonsterIds.map((monster) => monster.id).join(", ")}</span>`
+        ? ` <span style="color: red"> Missing ${encounter.missingMonsterIds.length}. DDB Id's: ${encounter.missingMonsterIds.map((monster) => monster.ddbId).join(", ")}</span>`
         : "";
 
       nameHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Encounter:</b> ${encounter.name}`;
@@ -254,22 +315,57 @@ export class DDBEncounterMunch extends Application {
     // import encounter
     html.find("#encounter-button").click(async (event) => {
       event.preventDefault();
+      $('#encounter-button').prop("disabled", true);
+
+
+      const encounterMonsterFolder = await utils.getFolder("npc", this.encounter.name, "D&D Beyond Encounters");
+      // const campaignName = encounter.campaign?.name ? `${encounter.campaign.name}` : undefined;
+      // const encounterPlayerFolder = await utils.getFolder("npc", campaignName, "Characters");
+
+      const importMonsters = game.settings.get("ddb-importer", "encounter-import-policy-missing-monsters");
+
+      if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
+        await parseCritters(this.encounter.missingMonsterIds.map((monster) => monster.ddbId));
+      }
+
+      const monsterPack = await checkMonsterCompendium();
+
+      let monstersToAddToWorld = [];
+      this.encounter.monsters.forEach((monster) => {
+        const id = monster.id;
+        const monsterInPack = monsterPack.index.find((f) => f.flags.ddbimporter.id == id);
+        if (monsterInPack) {
+          monstersToAddToWorld.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack._id, quantity: monster.quantity });
+        }
+      });
+
+      logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
+      await Helpers.asyncForEach(monstersToAddToWorld, async (actor) => {
+        let worldActor = game.actors.find((a) => a.data.flags.folder == encounterMonsterFolder.id && a.data.flags.ddb.id == actor.ddbId);
+        if (!worldActor) {
+          logger.info(`Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`);
+          try {
+            worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, { folder: encounterMonsterFolder.id });
+          } catch (err) {
+            logger.error(err);
+            logger.warn(`Unable to import actor ${actor.name} with id ${actor.id} from DDB Compendium`);
+            logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.id}", { folder: "${encounterMonsterFolder.id}" });`);
+          }
+        }
+      });
+
       // to do:
       // create a new scene
-      // create a folder for scene actors
-      // import missing monsters?
+      // create a folder for characters?
       // import missing characters?
-      // move monsters to actors folder
       // adjust monsters hp?
       // add monsters to scene
       // add characters to scene
       // add journal entry with details about players, monsters, description and treasure
-      // handle the removal and addition of:
-      // - homebrew settings (might not need this?)
-      // - source filter (might not need this?)
       // - extra import?
       // - attempt to find magic items and add them to the world?
 
+      $('#encounter-button').prop("innerText", "Encounter Munched");
     });
 
   }
@@ -289,26 +385,25 @@ export class DDBEncounterMunch extends Application {
     const encounterConfig = [
       {
         name: "create-scene",
-        isChecked: true,
+        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-create-scene"),
         description: "Create a scene to use, and add available characters and NPC's?",
       },
       {
         name: "missing-characters",
-        isChecked: true,
+        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-missing-characters"),
         description: "Import missing characters?",
       },
       {
         name: "missing-monsters",
-        isChecked: true,
+        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-missing-monsters"),
         description: "Import missing monsters?",
       },
       {
         name: "create-journal",
-        isChecked: true,
+        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-create-journal"),
         description: "Create encounter journal entry?",
       },
     ];
-    // TO DO: add game settings and save and load
 
     const encounterSettings = {
       tiers,

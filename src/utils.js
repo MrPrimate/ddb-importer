@@ -781,6 +781,7 @@ const utils = {
     entityTypes.set("magic-items", "Item");
     entityTypes.set("magic-item-spells", "Item");
     entityTypes.set("extras", "Actor");
+    entityTypes.set("scene", "Scene");
 
     const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
     const entityType = entityTypes.get(kind);

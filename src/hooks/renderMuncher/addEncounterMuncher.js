@@ -2,6 +2,7 @@ import { DDBEncounterMunch } from "../../muncher/encounters.js";
 import { DDBSetup, DDBCookie, isSetupComplete, isValidKey } from "../../lib/Settings.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 import { getPatreonTiers } from "../../muncher/utils.js";
+import logger from "../../logger.js";
 
 
 export function addEncounterMuncher (app, html) {
@@ -16,22 +17,27 @@ export function addEncounterMuncher (app, html) {
     button.click(async () => {
       actualButton.prop('disabled', true);
       ui.notifications.info("Fetching your DDB Encounter Information, this might take a few seconds!");
-      const setupComplete = isSetupComplete();
+      try {
+        const setupComplete = isSetupComplete();
 
-      if (setupComplete) {
-        const cobaltStatus = await checkCobalt();
-        if (cobaltStatus.success) {
-          let validKey = await isValidKey();
-          if (validKey) {
-            new DDBEncounterMunch().render(true);
+        if (setupComplete) {
+          const cobaltStatus = await checkCobalt();
+          if (cobaltStatus.success) {
+            let validKey = await isValidKey();
+            if (validKey) {
+              new DDBEncounterMunch().render(true);
+            }
+          } else {
+            actualButton.prop('disabled', false);
+            new DDBCookie().render(true);
           }
         } else {
           actualButton.prop('disabled', false);
-          new DDBCookie().render(true);
+          new DDBSetup().render(true);
         }
-      } else {
+      } catch (e) {
+        logger.error(e);
         actualButton.prop('disabled', false);
-        new DDBSetup().render(true);
       }
     });
 

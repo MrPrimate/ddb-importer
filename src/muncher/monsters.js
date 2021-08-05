@@ -7,29 +7,37 @@ import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 
-async function getMonsterData() {
+async function getMonsterData(ids) {
   const cobaltCookie = getCobalt();
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const searchTerm = $("#monster-munch-filter")[0].value;
-  const debugJson = game.settings.get("ddb-importer", "debug-json");
-  const sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
-  const homebrew = sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
-  const homebrewOnly = sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
-  const exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
+
   const body = {
     cobalt: cobaltCookie,
     betaKey: betaKey,
-    search: searchTerm,
-    homebrew: homebrew,
-    homebrewOnly: homebrewOnly,
-    searchTerm: encodeURIComponent(searchTerm),
-    exactMatch: exactMatch,
-    sources: sources,
   };
 
+  if (ids && ids.length > 0) {
+    body.ids = ids;
+  } else {
+    const searchTerm = $("#monster-munch-filter")[0].value;
+    body.sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
+    body.search = $("#monster-munch-filter")[0].value;
+    body.homebrew = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
+    body.homebrewOnly = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
+    body.searchTerm = encodeURIComponent(searchTerm);
+    body.exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
+    body.sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
+  }
+
+  const debugJson = game.settings.get("ddb-importer", "debug-json");
+
+  const url = ids && ids.length > 0
+    ? `${parsingApi}/proxy/monstersById`
+    : `${parsingApi}/proxy/monster`;
+
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/monster`, {
+    fetch(url, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -68,7 +76,7 @@ async function getMonsterData() {
   });
 }
 
-export async function parseCritters() {
+export async function parseCritters(ids = null) {
   await checkMonsterCompendium();
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
@@ -78,7 +86,7 @@ export async function parseCritters() {
   logger.info("Checking for existing files...");
   await utils.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete getting monster data...");
-  let monsters = await getMonsterData();
+  let monsters = await getMonsterData(ids);
 
   if (!updateBool || !updateImages) {
     munchNote(`Calculating which monsters to update...`, true);

@@ -1262,4 +1262,32 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "encounter-import-policy-create-scene", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "encounter-import-policy-missing-characters", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "encounter-import-policy-missing-monsters", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "encounter-import-policy-create-journal", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
 }
