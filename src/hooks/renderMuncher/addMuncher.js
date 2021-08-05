@@ -8,6 +8,7 @@ export function addMuncher (app, html) {
     let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher'><i class='fas fa-pastafarianism'></i> DDB Muncher</button></div>");
 
     button.click(async () => {
+      ui.notifications.info("Checking your DDB details - this might take a few seconds!");
       const setupComplete = isSetupComplete();
 
       if (setupComplete) {
