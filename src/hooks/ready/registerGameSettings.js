@@ -934,15 +934,6 @@ export default function () {
     default: true,
   });
 
-  game.settings.register("ddb-importer", "munching-policy-use-iconizer", {
-    name: "ddb-importer.munching-policy-use-iconizer.name",
-    hint: "ddb-importer.munching-policy-use-iconizer.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
   game.settings.register("ddb-importer", "munching-policy-use-inbuilt-icons", {
     name: "ddb-importer.munching-policy-use-inbuilt-icons.name",
     hint: "ddb-importer.munching-policy-use-inbuilt-icons.hint",

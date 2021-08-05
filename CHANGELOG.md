@@ -1,3 +1,7 @@
+# 2.2.5
+
+* Removed Iconizer support. RIP Iconizer.
+
 # 2.2.4
 
 * Character Import: Attack actions that are not weapons will now import customised names.

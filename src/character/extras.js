@@ -12,7 +12,6 @@ const MUNCH_DEFAULTS = [
   { name: "munching-policy-use-srd", needed: false },
   { name: "munching-policy-use-inbuilt-icons", needed: true },
   { name: "munching-policy-use-srd-icons", needed: false },
-  { name: "munching-policy-use-iconizer", needed: false },
   { name: "munching-policy-download-images", needed: true },
   { name: "munching-policy-remote-images", needed: false },
   { name: "munching-policy-use-dae-effects", needed: false },

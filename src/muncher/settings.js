@@ -505,12 +505,6 @@ export function getCharacterImportSettings() {
     //   enabled: true,
     // },
     // {
-    //   name: "use-iconizer",
-    //   isChecked: (iconizerInstalled) ? game.settings.get("ddb-importer", "munching-policy-use-iconizer") : false,
-    //   description: "Use Iconizer (if installed).",
-    //   enabled: iconizerInstalled,
-    // },
-    // {
     //   name: "download-images",
     //   isChecked: game.settings.get("ddb-importer", "munching-policy-download-images"),
     //   description: "Download D&D Beyond images (takes longer and needs space).",
@@ -599,7 +593,6 @@ export function updateActorSettings(html, event) {
 export function getMuncherSettings(includeHomebrew = true) {
   const cobalt = getCobalt() != "";
   const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
-  const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
   const tier = game.settings.get("ddb-importer", "patreon-tier");
   const tiers = getPatreonTiers(tier);
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
@@ -642,11 +635,9 @@ export function getMuncherSettings(includeHomebrew = true) {
   ];
 
   const sourcesSelected = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat().length > 0;
-  const homebrewDescription = tiers.homebrew
-    ? sourcesSelected
+  const homebrewDescription = sourcesSelected
       ? "SOURCES SELECTED! You can't import homebrew with a source filter selected"
-      : "Include homebrew?"
-    : "Include homebrew? [Undying or God tier patreon supporters]";
+      : "Include homebrew?";
 
   const basicMonsterConfig = [
     {
@@ -698,9 +689,7 @@ export function getMuncherSettings(includeHomebrew = true) {
         {
           name: "monster-exact-match",
           isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exact-match"),
-          description: tiers.homebrew
-            ? "Exact name match? (case insensitive)"
-            : "Exact name match? [Undying or God tier patreon supporters]",
+          description: "Exact name match? (case insensitive)",
           enabled: tiers.homebrew,
         }
       ]
@@ -726,12 +715,6 @@ export function getMuncherSettings(includeHomebrew = true) {
       isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd-icons"),
       description: "Use icons from the SRD compendiums.",
       enabled: true,
-    },
-    {
-      name: "use-iconizer",
-      isChecked: iconizerInstalled ? game.settings.get("ddb-importer", "munching-policy-use-iconizer") : false,
-      description: "Use Iconizer (if installed).",
-      enabled: iconizerInstalled,
     },
     {
       name: "download-images",

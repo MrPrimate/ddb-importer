@@ -922,52 +922,6 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
 }
 
 /**
- * Sends a event request to Iconizer to add the correct icons
- * @param {*} names
- */
-function queryIconizer(names) {
-  return new Promise((resolve, reject) => {
-    let listener = (event) => {
-      resolve(event.detail);
-      // cleaning up
-      document.removeEventListener("deliverIcon", listener);
-    };
-
-    setTimeout(() => {
-      document.removeEventListener("deliverIcon", listener);
-      reject("Tokenizer not responding");
-    }, 500);
-    document.addEventListener("deliverIcon", listener);
-    document.dispatchEvent(new CustomEvent("queryIcons", { detail: { names: names } }));
-  });
-}
-
-async function getIconizerIcons(items) {
-  // replace icons by iconizer, if available
-  const itemNames = items.map((item) => {
-    return {
-      name: item.name,
-    };
-  });
-  try {
-    logger.debug("Querying iconizer for icons");
-    const icons = await queryIconizer(itemNames);
-    // logger.debug("Icons found", icons);
-
-    // replace the icons
-    items.forEach((item) => {
-      const icon = icons.find((icon) => icon.name === item.name);
-      if (icon && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
-        item.img = icon.img || "icons/svg/mystery-man.svg";
-      }
-    });
-  } catch (exception) {
-    logger.debug("Iconizer not responding");
-  }
-  return items;
-}
-
-/**
  * Add an item to effects, if available
  * @param {*} items
  */
@@ -1023,14 +977,6 @@ export async function updateIcons(items, srdIconUpdate = true, monster = false, 
   if (srdIcons && srdIconUpdate) {
     logger.debug("SRD Icon Matching");
     items = await copySRDIcons(items);
-  }
-
-  // use iconizer
-  const iconizerInstalled = utils.isModuleInstalledAndActive("vtta-iconizer");
-  const useIconizer = game.settings.get("ddb-importer", "munching-policy-use-iconizer");
-  if (iconizerInstalled && useIconizer) {
-    logger.debug("Iconizer Matching");
-    items = await getIconizerIcons(items);
   }
 
   // this will use ddb spell school icons as a fall back
