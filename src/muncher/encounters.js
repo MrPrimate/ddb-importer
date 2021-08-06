@@ -8,6 +8,7 @@ import { getAvailableCampaigns } from "../lib/Settings.js";
 import { parseCritters } from "./monsters.js";
 import { getCharacterImportSettings, getMuncherSettings, updateActorSettings, updateMuncherSettings, setRecommendedCharacterActiveEffectSettings } from "./settings.js";
 import Helpers from "./adventure/common.js";
+import { importCharacterById } from "../character/import.js";
 
 const DIFFICULTY_LEVELS = [
   { id: null, name: "No challenge", color: "grey" },
@@ -190,6 +191,51 @@ export class DDBEncounterMunch extends Application {
     this.encounter = {};
   }
 
+  async importMonsters() {
+    const encounterMonsterFolder = await utils.getFolder("npc", this.encounter.name, "D&D Beyond Encounters", "#6f0006", "#98020a", false);
+    const importMonsters = game.settings.get("ddb-importer", "encounter-import-policy-missing-monsters");
+
+    if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
+      await parseCritters(this.encounter.missingMonsterIds.map((monster) => monster.ddbId));
+    }
+
+    const monsterPack = await checkMonsterCompendium();
+
+    let monstersToAddToWorld = [];
+    this.encounter.monsters.forEach((monster) => {
+      const id = monster.id;
+      const monsterInPack = monsterPack.index.find((f) => f.flags.ddbimporter.id == id);
+      if (monsterInPack) {
+        monstersToAddToWorld.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack._id, quantity: monster.quantity });
+      }
+    });
+
+    logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
+    await Helpers.asyncForEach(monstersToAddToWorld, async (actor) => {
+      let worldActor = game.actors.find((a) => a.data.folder == encounterMonsterFolder.id && a.data.flags?.ddbimporter?.id == actor.ddbId);
+      if (!worldActor) {
+        logger.info(`Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`);
+        try {
+          worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, { folder: encounterMonsterFolder.id });
+        } catch (err) {
+          logger.error(err);
+          logger.warn(`Unable to import actor ${actor.name} with id ${actor.id} from DDB Compendium`);
+          logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.id}", { folder: "${encounterMonsterFolder.id}" });`);
+        }
+      }
+    });
+
+  }
+
+  async importCharacters(html) {
+    const importCharacters = game.settings.get("ddb-importer", "encounter-import-policy-missing-characters");
+    if (importCharacters && this.encounter.missingCharacters) {
+      await Helpers.asyncForEach(this.encounter.missingCharacterData, async (character) => {
+        await importCharacterById(html, character.ddbId);
+      });
+    }
+  }
+
   activateListeners(html) {
     super.activateListeners(html);
 
@@ -316,48 +362,18 @@ export class DDBEncounterMunch extends Application {
     html.find("#encounter-button").click(async (event) => {
       event.preventDefault();
       $('#encounter-button').prop("disabled", true);
+      $('#encounter-button').prop("innerText", "Munching...");
 
 
-      const encounterMonsterFolder = await utils.getFolder("npc", this.encounter.name, "D&D Beyond Encounters");
+      await this.importMonsters();
       // const campaignName = encounter.campaign?.name ? `${encounter.campaign.name}` : undefined;
       // const encounterPlayerFolder = await utils.getFolder("npc", campaignName, "Characters");
 
-      const importMonsters = game.settings.get("ddb-importer", "encounter-import-policy-missing-monsters");
-
-      if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
-        await parseCritters(this.encounter.missingMonsterIds.map((monster) => monster.ddbId));
-      }
-
-      const monsterPack = await checkMonsterCompendium();
-
-      let monstersToAddToWorld = [];
-      this.encounter.monsters.forEach((monster) => {
-        const id = monster.id;
-        const monsterInPack = monsterPack.index.find((f) => f.flags.ddbimporter.id == id);
-        if (monsterInPack) {
-          monstersToAddToWorld.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack._id, quantity: monster.quantity });
-        }
-      });
-
-      logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
-      await Helpers.asyncForEach(monstersToAddToWorld, async (actor) => {
-        let worldActor = game.actors.find((a) => a.data.flags.folder == encounterMonsterFolder.id && a.data.flags.ddb.id == actor.ddbId);
-        if (!worldActor) {
-          logger.info(`Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`);
-          try {
-            worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, { folder: encounterMonsterFolder.id });
-          } catch (err) {
-            logger.error(err);
-            logger.warn(`Unable to import actor ${actor.name} with id ${actor.id} from DDB Compendium`);
-            logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.id}", { folder: "${encounterMonsterFolder.id}" });`);
-          }
-        }
-      });
+      await this.importCharacters(html);
 
       // to do:
       // create a new scene
       // create a folder for characters?
-      // import missing characters?
       // adjust monsters hp?
       // add monsters to scene
       // add characters to scene

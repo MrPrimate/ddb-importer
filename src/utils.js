@@ -766,7 +766,7 @@ const utils = {
   },
 
   // eslint-disable-next-line no-unused-vars
-  getFolder: async (kind, subFolder = "", baseFolderName = "D&D Beyond Import", baseColor = "#6f0006", subColor = "#98020a") => {
+  getFolder: async (kind, subFolder = "", baseFolderName = "D&D Beyond Import", baseColor = "#6f0006", subColor = "#98020a", typeFolder = true) => {
     let entityTypes = new Map();
     entityTypes.set("spell", "Item");
     entityTypes.set("equipment", "Item");
@@ -786,7 +786,7 @@ const utils = {
     const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
     const entityType = entityTypes.get(kind);
     const baseFolder = await utils.getOrCreateFolder(null, entityType, baseFolderName, baseColor);
-    const entityFolder = await utils.getOrCreateFolder(baseFolder, entityType, folderName, subColor);
+    const entityFolder = typeFolder ? await utils.getOrCreateFolder(baseFolder, entityType, folderName, subColor) : baseFolder;
     if (subFolder !== "") {
       const subFolderName = subFolder.charAt(0).toUpperCase() + subFolder.slice(1);
       const typeFolder = await utils.getOrCreateFolder(entityFolder, entityType, subFolderName, subColor);

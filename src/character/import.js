@@ -1125,3 +1125,46 @@ export default class CharacterImport extends FormApplication {
     this.actor.render();
   }
 }
+
+
+export async function importCharacterById(html, characterId) {
+  try {
+    let actor = await Actor.create({
+      name: "New Actor",
+      type: "character",
+      flags: {
+        ddbimporter: {
+          dndbeyond: {
+            characterId: characterId,
+            url: `https://www.dndbeyond.com/characters/${characterId}`,
+          }
+        }
+      }
+    });
+
+    const characterData = await getCharacterData(characterId, null, actor.id);
+    const debugJson = game.settings.get("ddb-importer", "debug-json");
+    if (debugJson) {
+      download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+    }
+    if (characterData.success) {
+      const importer = new CharacterImport(CharacterImport.defaultOptions, actor);
+      await importer.parseCharacterData(html, characterData);
+      return actor;
+    } else {
+      logger.error("ERROR:", characterData.message);
+      return undefined;
+    }
+  } catch (error) {
+    switch (error) {
+      case "Forbidden":
+        logger.error("Error retrieving Character: ", error);
+        break;
+      default:
+        logger.error("Error parsing Character: ", error);
+        logger.error(error.stack);
+        break;
+    }
+    return undefined;
+  }
+}
