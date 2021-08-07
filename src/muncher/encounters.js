@@ -213,7 +213,7 @@ export class DDBEncounterMunch extends Application {
           name: monsterInPack.name,
           id: monsterInPack._id,
           quantity: monster.quantity,
-          journalLink:`@Compendium[${compendiumName}.${monsterInPack.name}]{${monsterInPack.name}}`,
+          journalLink: `@Compendium[${compendiumName}.${monsterInPack.name}]{${monsterInPack.name}}`,
         };
         monstersToAddToWorld.push(monsterData);
         this.encounter.monsterData.push(monsterData);
@@ -274,7 +274,7 @@ export class DDBEncounterMunch extends Application {
         journal.content += `</ul>`;
       }
       if (this.encounter.difficulty && this.encounter.difficulty != "") {
-        journal.content += `<h2>Difficulty: ${this.encounter.difficulty}</h2>`;
+        journal.content += `<h2>Difficulty: ${this.encounter.difficulty.name}</h2>`;
       }
       if (this.encounter.description && this.encounter.description != "") {
         journal.content += `<h2>Description</h2>${this.encounter.description}`;
@@ -283,11 +283,11 @@ export class DDBEncounterMunch extends Application {
         journal.content += `<h2>Rewards</h2>${this.encounter.rewards}`;
       }
 
-      let worldJournal = game.actors.find((a) => a.data.folder == journalFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id);
+      let worldJournal = game.journal.find((a) => a.data.folder == journalFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id);
       if (!worldJournal) {
         logger.info(`Importing journal ${journal.name}`);
         try {
-          worldJournal = new JournalEntry(journal);
+          worldJournal = await JournalEntry.create(journal);
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to create journal ${journal.name}`);
