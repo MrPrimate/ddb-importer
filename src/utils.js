@@ -775,13 +775,15 @@ const utils = {
     entityTypes.set("loot", "Item");
     entityTypes.set("class", "Item");
     entityTypes.set("backpack", "Item");
-    entityTypes.set("npc", "Actor");
-    entityTypes.set("character", "Actor");
-    entityTypes.set("page", "JournalEntry");
     entityTypes.set("magic-items", "Item");
     entityTypes.set("magic-item-spells", "Item");
+    entityTypes.set("npc", "Actor");
+    entityTypes.set("character", "Actor");
     entityTypes.set("extras", "Actor");
     entityTypes.set("scene", "Scene");
+    entityTypes.set("page", "JournalEntry");
+    entityTypes.set("journal", "JournalEntry");
+    entityTypes.set("journalEntry", "JournalEntry");
 
     const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
     const entityType = entityTypes.get(kind);

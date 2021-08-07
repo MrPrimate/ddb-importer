@@ -149,6 +149,7 @@ export class DDBEncounterMunch extends Application {
     const difficulty = DIFFICULTY_LEVELS.find((level) => level.id == encounter.difficulty);
 
     this.encounter = {
+      id,
       name: encounter.name,
       difficulty,
       description: encounter.description,
@@ -192,7 +193,6 @@ export class DDBEncounterMunch extends Application {
   }
 
   async importMonsters() {
-    const encounterMonsterFolder = await utils.getFolder("npc", this.encounter.name, "D&D Beyond Encounters", "#6f0006", "#98020a", false);
     const importMonsters = game.settings.get("ddb-importer", "encounter-import-policy-missing-monsters");
 
     if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
@@ -200,15 +200,27 @@ export class DDBEncounterMunch extends Application {
     }
 
     const monsterPack = await checkMonsterCompendium();
+    const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
 
     let monstersToAddToWorld = [];
+    this.encounter.monsterData = [];
     this.encounter.monsters.forEach((monster) => {
       const id = monster.id;
       const monsterInPack = monsterPack.index.find((f) => f.flags.ddbimporter.id == id);
       if (monsterInPack) {
-        monstersToAddToWorld.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack._id, quantity: monster.quantity });
+        const monsterData = {
+          ddbId: id,
+          name: monsterInPack.name,
+          id: monsterInPack._id,
+          quantity: monster.quantity,
+          journalLink:`@Compendium[${compendiumName}.${monsterInPack.name}]{${monsterInPack.name}}`,
+        };
+        monstersToAddToWorld.push(monsterData);
+        this.encounter.monsterData.push(monsterData);
       }
     });
+
+    const encounterMonsterFolder = await utils.getFolder("npc", this.encounter.name, "D&D Beyond Encounters", "#6f0006", "#98020a", false);
 
     logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
     await Helpers.asyncForEach(monstersToAddToWorld, async (actor) => {
@@ -234,6 +246,59 @@ export class DDBEncounterMunch extends Application {
         await importCharacterById(html, character.ddbId);
       });
     }
+  }
+
+  async createJournalEntry() {
+    const journal = {
+      name: this.encounter.name,
+      flags: {
+        ddbimporter: {
+         encounterId: this.encounter.id,
+        },
+      },
+    };
+
+    const importJournal = game.settings.get("ddb-importer", "encounter-import-policy-create-journal");
+    if (importJournal) {
+      const journalFolder = await utils.getFolder("journal", "D&D Beyond Encounters", "#6f0006", "#98020a", false);
+      journal.folder = journalFolder.id;
+      journal.content = `<h2>${this.encounter.name}</h3>`;
+      if (this.encounter.summary && this.encounter.summary != "") {
+        journal.content += `<h2>Summary</h2>${this.encounter.summary}`;
+      }
+      if (this.encounter.monsterData && this.encounter.monsterData.length > 0) {
+        journal.content += `<h2>Monsters</h2><ul>`;
+        this.encounter.monsterData.forEach((monster) => {
+          journal.content += `<li><p>${monster.journalLink} x${monster.quantity}</p></li>`;
+        });
+        journal.content += `</ul>`;
+      }
+      if (this.encounter.difficulty && this.encounter.difficulty != "") {
+        journal.content += `<h2>Difficulty: ${this.encounter.difficulty}</h2>`;
+      }
+      if (this.encounter.description && this.encounter.description != "") {
+        journal.content += `<h2>Description</h2>${this.encounter.description}`;
+      }
+      if (this.encounter.rewards && this.encounter.rewards != "") {
+        journal.content += `<h2>Rewards</h2>${this.encounter.rewards}`;
+      }
+
+      let worldJournal = game.actors.find((a) => a.data.folder == journalFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id);
+      if (!worldJournal) {
+        logger.info(`Importing journal ${journal.name}`);
+        try {
+          worldJournal = new JournalEntry(journal);
+        } catch (err) {
+          logger.error(err);
+          logger.warn(`Unable to create journal ${journal.name}`);
+        }
+      } else {
+        journal._id = worldJournal.id;
+        await worldJournal.update(journal);
+      }
+    }
+    return journal;
+
   }
 
   activateListeners(html) {
@@ -366,10 +431,8 @@ export class DDBEncounterMunch extends Application {
 
 
       await this.importMonsters();
-      // const campaignName = encounter.campaign?.name ? `${encounter.campaign.name}` : undefined;
-      // const encounterPlayerFolder = await utils.getFolder("npc", campaignName, "Characters");
-
       await this.importCharacters(html);
+      await this.createJournalEntry();
 
       // to do:
       // create a new scene
