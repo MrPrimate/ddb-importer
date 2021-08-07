@@ -1,3 +1,7 @@
+# 2.2.6
+
+* Move back to using `value` rather than `bonus` field for Active Effect AC bonus additions. This is due to items like to Robe of the Archmagi not working with Bracers of Defence. The Defence would add a +1 to the bonus field, but this is only applied to base calculation, not the final result after active effects.
+
 # 2.2.5
 
 * Removed Iconizer support. RIP Iconizer.
