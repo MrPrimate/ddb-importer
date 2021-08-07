@@ -262,7 +262,7 @@ export class DDBEncounterMunch extends Application {
     if (importJournal) {
       const journalFolder = await utils.getFolder("journal", this.encounter.name, "D&D Beyond Encounters", "#6f0006", "#98020a", false);
       journal.folder = journalFolder.id;
-      journal.content = `<h2>${this.encounter.name}</h3>`;
+      journal.content = `<h1>${this.encounter.name}</h1>`;
       if (this.encounter.summary && this.encounter.summary != "") {
         journal.content += `<h2>Summary</h2>${this.encounter.summary}`;
       }
@@ -274,7 +274,7 @@ export class DDBEncounterMunch extends Application {
         journal.content += `</ul>`;
       }
       if (this.encounter.difficulty && this.encounter.difficulty != "") {
-        journal.content += `<h2>Difficulty: ${this.encounter.difficulty.name}</h2>`;
+        journal.content += `<h2>Difficulty: <span style="color: ${this.encounter.difficulty.color}">${this.encounter.difficulty.name}</span></h3>`;
       }
       if (this.encounter.description && this.encounter.description != "") {
         journal.content += `<h2>Description</h2>${this.encounter.description}`;
@@ -293,6 +293,7 @@ export class DDBEncounterMunch extends Application {
           logger.warn(`Unable to create journal ${journal.name}`);
         }
       } else {
+        logger.info(`Updating journal ${journal.name}`);
         journal._id = worldJournal.id;
         await worldJournal.update(journal);
       }
