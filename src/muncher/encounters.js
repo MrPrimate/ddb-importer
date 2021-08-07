@@ -260,7 +260,7 @@ export class DDBEncounterMunch extends Application {
 
     const importJournal = game.settings.get("ddb-importer", "encounter-import-policy-create-journal");
     if (importJournal) {
-      const journalFolder = await utils.getFolder("journal", "D&D Beyond Encounters", "#6f0006", "#98020a", false);
+      const journalFolder = await utils.getFolder("journal", this.encounter.name, "D&D Beyond Encounters", "#6f0006", "#98020a", false);
       journal.folder = journalFolder.id;
       journal.content = `<h2>${this.encounter.name}</h3>`;
       if (this.encounter.summary && this.encounter.summary != "") {
