@@ -32,15 +32,35 @@ var spellPack;
 var featsPack;
 var midiPack;
 var magicItemsPack;
+var midiItemsPack;
+var midiSpellsPack;
+var midiFeatsPack;
 
 
 export async function loadPacks() {
   if (packsLoaded) return;
-  itemPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Items").getDocuments();
-  spellPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Spells").getDocuments();
-  featsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Feats").getDocuments();
-  midiPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Midi-collection").getDocuments();
-  magicItemsPack = await game.packs.get("Dynamic-Effects-SRD.DAE SRD Magic Items").getDocuments();
+  const items = game.packs.get("Dynamic-Effects-SRD.DAE SRD Items");
+  itemPack = items ? await items.getDocuments() : [];
+
+  const spells = game.packs.get("Dynamic-Effects-SRD.DAE SRD Spells");
+  spellPack = spells ? await spells.getDocuments() : [];
+
+  const magicItems = game.packs.get("Dynamic-Effects-SRD.DAE SRD Magic Items");
+  magicItemsPack = magicItems ? await magicItems.getDocuments() : [];
+
+  const feats = game.packs.get("Dynamic-Effects-SRD.DAE SRD Feats");
+  featsPack = feats ? await feats.getDocuments() : [];
+
+  const srdMidi = game.packs.get("Dynamic-Effects-SRD.DAE SRD Midi-collection");
+  midiPack = srdMidi ? await srdMidi.getDocuments() : [];
+
+  const midiItems = game.packs.get("Midi-SRD.MIDI SRD Items");
+  midiItemsPack = midiItems ? await midiItems.getDocuments() : [];
+  const midiSpells = game.packs.get("Midi-SRD.MIDI SRD Spells");
+  midiSpellsPack = midiSpells ? await midiSpells.getDocuments() : [];
+  const midiFeats = game.packs.get("Midi-SRD.MIDI SRD Feats");
+  midiFeatsPack = midiFeats ? await midiFeats.getDocuments() : [];
+
   // eslint-disable-next-line require-atomic-updates
   packsLoaded = true;
 }
@@ -66,15 +86,16 @@ function dataSwap(itemData, replaceData) {
 }
 
 function matchItem(itemData, midiInstalled) {
+  // we only add the midi packs if midi is actually installed
   let returnItem = null;
   switch (itemData.type) {
     case "feat": {
-      const featPacks = (midiInstalled) ? [midiPack, featsPack] : [featsPack];
+      const featPacks = (midiInstalled) ? [midiFeatsPack, midiPack, featsPack] : [featsPack];
       returnItem = findDAEItem(itemData, featPacks);
       break;
     }
     case "spell": {
-      const spellPacks = (midiInstalled) ? [midiPack, spellPack] : [spellPack];
+      const spellPacks = (midiInstalled) ? [midiSpellsPack, midiPack, spellPack] : [spellPack];
       returnItem = findDAEItem(itemData, spellPacks);
       break;
     }
@@ -84,7 +105,7 @@ function matchItem(itemData, midiInstalled) {
     case "consumable":
     case "tool":
     case "backpack": {
-      const equipmentPacks = (midiInstalled) ? [midiPack, itemPack, magicItemsPack] : [itemPack, magicItemsPack];
+      const equipmentPacks = (midiInstalled) ? [midiItemsPack, midiPack, itemPack, magicItemsPack] : [itemPack, magicItemsPack];
       returnItem = findDAEItem(itemData, equipmentPacks);
       break;
     }

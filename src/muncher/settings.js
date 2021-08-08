@@ -106,6 +106,8 @@ export function getCharacterImportSettings() {
 
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+  const midiSRDInstalled = utils.isModuleInstalledAndActive("Midi-SRD");
+  const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
 
   // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
 
@@ -247,19 +249,19 @@ export function getCharacterImportSettings() {
   const effectImportConfig5 = [
     {
       name: "dae-effect-copy",
-      isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDInstalled,
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDContentAvailable,
       title: "Copy Active Effect from DAE Compendiums",
       description:
-        "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug.",
-      enabled: daeInstalled && daeSRDInstalled,
+        "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug.",
+      enabled: daeInstalled && daeSRDContentAvailable,
     },
     {
       name: "dae-copy",
-      isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDInstalled,
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDContentAvailable,
       title: "[Caution] Replace Items using DAE compendiums",
       description:
-        "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE SRD module). This will remove any effects applied directly to your character/not via features/items. This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
-      enabled: daeInstalled && daeSRDInstalled,
+        "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This will remove any effects applied directly to your character/not via features/items. This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
+      enabled: daeInstalled && daeSRDContentAvailable,
     },
     {
       name: "active-effect-copy",
@@ -596,7 +598,9 @@ export function getMuncherSettings(includeHomebrew = true) {
   const tier = game.settings.get("ddb-importer", "patreon-tier");
   const tiers = getPatreonTiers(tier);
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
-  const daeSRDInstall = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+  const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+  const midiSRDInstalled = utils.isModuleInstalledAndActive("Midi-SRD");
+  const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
 
   const itemConfig = [
     {
@@ -731,8 +735,8 @@ export function getMuncherSettings(includeHomebrew = true) {
     {
       name: "use-dae-effects",
       isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
-      description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD module)",
-      enabled: daeInstalled && daeSRDInstall,
+      description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD or Midi content module)",
+      enabled: daeInstalled && daeSRDContentAvailable,
     },
     {
       name: "use-srd",

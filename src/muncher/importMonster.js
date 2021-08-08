@@ -371,7 +371,8 @@ export async function buildNPC(data, temporary = true, update = false, handleBui
   await swapItems(data);
 
   // DAE
-  const daeInstalled = utils.isModuleInstalledAndActive("dae") && utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
+  const daeInstalled = utils.isModuleInstalledAndActive("dae") &&
+    (utils.isModuleInstalledAndActive("Dynamic-Effects-SRD") || utils.isModuleInstalledAndActive("Midi-SRD"));
   const daeCopy = game.settings.get("ddb-importer", "munching-policy-dae-copy");
   if (daeInstalled && daeCopy) {
     munchNote(`Importing DAE Item for ${data.name}`);
