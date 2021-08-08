@@ -29,7 +29,7 @@ export function earlySettings() {
     scope: "world",
     config: false,
     type: Boolean,
-    default: false,
+    default: true,
   });
 
   // for D&D 5e 1.4 ac migrtion

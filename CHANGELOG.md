@@ -1,10 +1,9 @@
-# 2.2.6
+# 2.3.0
+
+* New Feature: God Tier Supporters now have access to Encounter Muncher! This tool allows you to bring in Encounters from D&DBeyond. Import missing characters, monsters, create scenes and a combat tracker! It will even keep existing monster HP and all initiative rolls! This is available to God Tier for feedback, rolling out to everyone over the next couple of weeks as bugs are ironed out.
 
 * Move back to using `value` rather than `bonus` field for Active Effect AC bonus additions. This is due to items like to Robe of the Archmagi not working with Bracers of Defence. The Defence would add a +1 to the bonus field, but this is only applied to base calculation, not the final result after active effects.
 * Support new Midi-SRD module packs/compendiums for active effects.
-
-# 2.2.5
-
 * Removed Iconizer support. RIP Iconizer.
 
 # 2.2.4
