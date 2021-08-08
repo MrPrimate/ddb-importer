@@ -44,7 +44,8 @@
     "io": true,
     "isNewerVersion": true,
     "renderTemplate": true,
-    "Combat": true
+    "Combat": true,
+    "deepClone": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

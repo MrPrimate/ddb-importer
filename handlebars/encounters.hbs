@@ -37,12 +37,15 @@
         <p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>
         <p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>
         <p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>
+        <p id="ddb-encounter-progress"><i class='fas fa-question'></i> <b>In Progress:</b></p>
       </div>
       <hr>
       {{#each encounterConfig}}
       <div class="encounter-import-config">
       <label class="encounter-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-          name="encounter-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.description}}
+          name="encounter-import-policy-{{this.name}}" data-section="{{this.name}}"
+          id="encounter-import-policy-{{this.name}}"
+          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
       </label>
       </div>
       {{/each}}
