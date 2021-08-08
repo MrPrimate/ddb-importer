@@ -6,7 +6,13 @@ import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getAvailableCampaigns } from "../lib/Settings.js";
 import { parseCritters } from "./monsters.js";
-import { getCharacterImportSettings, getMuncherSettings, updateActorSettings, updateMuncherSettings, setRecommendedCharacterActiveEffectSettings } from "./settings.js";
+import {
+  getCharacterImportSettings,
+  getMuncherSettings,
+  updateActorSettings,
+  updateMuncherSettings,
+  setRecommendedCharacterActiveEffectSettings,
+} from "./settings.js";
 import Helpers from "./adventure/common.js";
 import { importCharacterById } from "../character/import.js";
 
@@ -76,13 +82,10 @@ export async function parseEncounters() {
   return CONFIG.DDBI.ENCOUNTERS;
 }
 
-
 async function filterEncounters(campaignId) {
   const campaigns = await getAvailableCampaigns();
   const campaignIds = campaigns.map((c) => c.id);
-  const allEncounters = CONFIG.DDBI.ENCOUNTERS
-     ? CONFIG.DDBI.ENCOUNTERS
-     : await parseEncounters();
+  const allEncounters = CONFIG.DDBI.ENCOUNTERS ? CONFIG.DDBI.ENCOUNTERS : await parseEncounters();
 
   logger.debug(`${allEncounters.length} encounters`, allEncounters);
   logger.debug("CampaignIds", campaignIds);
@@ -91,9 +94,7 @@ async function filterEncounters(campaignId) {
   const filteredEncounters = allEncounters.filter((encounter) => encounter.campaign.id == campaignId);
   logger.debug(`${filteredEncounters.length} filtered encounters`, filteredEncounters);
   return filteredEncounters;
-
 }
-
 
 export class DDBEncounterMunch extends Application {
   constructor(options = {}) {
@@ -148,15 +149,19 @@ export class DDBEncounterMunch extends Application {
     let goodCharacterData = [];
     let missingCharacterData = [];
     encounter.players
-    .filter((character) => !character.hidden)
-    .forEach((character) => {
-      const characterInGame = game.actors.find((actor) => actor.data.flags?.ddbimporter?.dndbeyond?.characterId && actor.data.flags.ddbimporter.dndbeyond.characterId == character.id);
-      if (characterInGame) {
-        goodCharacterData.push({ id: characterInGame.id, name: characterInGame.name, ddbId: character.id });
-      } else {
-        missingCharacterData.push({ ddbId: character.id, name: character.name });
-      }
-    });
+      .filter((character) => !character.hidden)
+      .forEach((character) => {
+        const characterInGame = game.actors.find(
+          (actor) =>
+            actor.data.flags?.ddbimporter?.dndbeyond?.characterId &&
+            actor.data.flags.ddbimporter.dndbeyond.characterId == character.id
+        );
+        if (characterInGame) {
+          goodCharacterData.push({ id: characterInGame.id, name: characterInGame.name, ddbId: character.id });
+        } else {
+          missingCharacterData.push({ ddbId: character.id, name: character.name });
+        }
+      });
 
     const difficulty = DIFFICULTY_LEVELS.find((level) => level.id == encounter.difficulty);
 
@@ -184,7 +189,6 @@ export class DDBEncounterMunch extends Application {
     logger.debug("Current encounter", this.encounter);
 
     return this.encounter;
-
   }
 
   resetEncounter(html) {
@@ -204,10 +208,10 @@ export class DDBEncounterMunch extends Application {
     rewardsHtml[0].innerHTML = `<p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>`;
     progressHtml[0].innerHTML = `<p id="ddb-encounter-progress"><i class='fas fa-question'></i> <b>In Progress:</b></p>`;
 
-    $('#ddb-importer-encounters').css("height", "auto");
-    $('#encounter-button').prop("disabled", true);
-    $('#encounter-button').prop("innerText", "Import Encounter");
-    $('#encounter-import-policy-use-ddb-save').prop("disabled", true);
+    $("#ddb-importer-encounters").css("height", "auto");
+    $("#encounter-button").prop("disabled", true);
+    $("#encounter-button").prop("innerText", "Import Encounter");
+    $("#encounter-import-policy-use-ddb-save").prop("disabled", true);
     this.encounter = {};
     this.journal = undefined;
     this.combat = undefined;
@@ -263,19 +267,34 @@ export class DDBEncounterMunch extends Application {
     });
     this.encounter.monsterData = Object.values(journalMonsterInfo);
 
-    const encounterMonsterFolder = await utils.getFolder("npc", this.encounter.name, "D&D Beyond Encounters", "#6f0006", "#98020a", false);
+    const encounterMonsterFolder = await utils.getFolder(
+      "npc",
+      this.encounter.name,
+      "D&D Beyond Encounters",
+      "#6f0006",
+      "#98020a",
+      false
+    );
 
     logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
     await Helpers.asyncForEach(monstersToAddToWorld, async (actor) => {
-      let worldActor = game.actors.find((a) => a.data.folder == encounterMonsterFolder.id && a.data.flags?.ddbimporter?.id == actor.ddbId);
+      let worldActor = game.actors.find(
+        (a) => a.data.folder == encounterMonsterFolder.id && a.data.flags?.ddbimporter?.id == actor.ddbId
+      );
       if (!worldActor) {
-        logger.info(`Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`);
+        logger.info(
+          `Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`
+        );
         try {
-          worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, { folder: encounterMonsterFolder.id });
+          worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, {
+            folder: encounterMonsterFolder.id,
+          });
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.id} from DDB Compendium`);
-          logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.id}", { folder: "${encounterMonsterFolder.id}" });`);
+          logger.debug(
+            `Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.id}", { folder: "${encounterMonsterFolder.id}" });`
+          );
         }
       }
       this.encounter.worldMonsters.push(mergeObject(actor, { id: worldActor.id }));
@@ -284,7 +303,6 @@ export class DDBEncounterMunch extends Application {
     return new Promise((resolve) => {
       resolve(this.encounter.worldMonsters);
     });
-
   }
 
   async importCharacters(html) {
@@ -302,14 +320,21 @@ export class DDBEncounterMunch extends Application {
       name: this.encounter.name,
       flags: {
         ddbimporter: {
-         encounterId: this.encounter.id,
+          encounterId: this.encounter.id,
         },
       },
     };
 
     const importJournal = game.settings.get("ddb-importer", "encounter-import-policy-create-journal");
     if (importJournal) {
-      const journalFolder = await utils.getFolder("journal", this.encounter.name, "D&D Beyond Encounters", "#6f0006", "#98020a", false);
+      const journalFolder = await utils.getFolder(
+        "journal",
+        this.encounter.name,
+        "D&D Beyond Encounters",
+        "#6f0006",
+        "#98020a",
+        false
+      );
       journal.folder = journalFolder.id;
       journal.content = `<h1>${this.encounter.name}</h1>`;
       if (this.encounter.summary && this.encounter.summary != "") {
@@ -332,7 +357,9 @@ export class DDBEncounterMunch extends Application {
         journal.content += `<h2>Rewards</h2>${this.encounter.rewards}`;
       }
 
-      let worldJournal = game.journal.find((a) => a.data.folder == journalFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id);
+      let worldJournal = game.journal.find(
+        (a) => a.data.folder == journalFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id
+      );
       if (!worldJournal) {
         logger.info(`Importing journal ${journal.name}`);
         try {
@@ -352,7 +379,6 @@ export class DDBEncounterMunch extends Application {
     return new Promise((resolve) => {
       resolve(journal);
     });
-
   }
 
   async createScene() {
@@ -360,7 +386,7 @@ export class DDBEncounterMunch extends Application {
       name: this.encounter.name,
       flags: {
         ddbimporter: {
-         encounterId: this.encounter.id,
+          encounterId: this.encounter.id,
         },
       },
       width: 1000,
@@ -370,7 +396,7 @@ export class DDBEncounterMunch extends Application {
       initial: {
         x: 500,
         y: 500,
-        scale: 0.57
+        scale: 0.57,
       },
       tokens: [],
       img: this.img,
@@ -382,22 +408,27 @@ export class DDBEncounterMunch extends Application {
     if (importScene) {
       let tokenData = [];
       logger.debug(`Creating scene for encounter ${this.encounter.name}`);
-      const useDDBSave = this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
+      const useDDBSave =
+        this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
       const xSquares = sceneData.width / sceneData.grid;
       const ySquares = sceneData.height / sceneData.grid;
-      const xStartPixelMonster = (sceneData.width * sceneData.padding) + (sceneData.grid / 2);
-      const xStartPixelPC = xStartPixelMonster + (sceneData.grid * (xSquares - 1));
-      const yStartPixel = (sceneData.height * sceneData.padding) + (sceneData.grid / 2);
+      const xStartPixelMonster = sceneData.width * sceneData.padding + sceneData.grid / 2;
+      const xStartPixelPC = xStartPixelMonster + sceneData.grid * (xSquares - 1);
+      const yStartPixel = sceneData.height * sceneData.padding + sceneData.grid / 2;
       let characterCount = 0;
       this.encounter.characters
         .filter((character) => !character.hidden)
         .forEach(async (character) => {
           logger.info(`Generating token ${character.name} for ${this.encounter.name}`);
-          const characterInGame = game.actors.find((actor) => actor.data.flags?.ddbimporter?.dndbeyond?.characterId && actor.data.flags.ddbimporter.dndbeyond.characterId == character.id);
+          const characterInGame = game.actors.find(
+            (actor) =>
+              actor.data.flags?.ddbimporter?.dndbeyond?.characterId &&
+              actor.data.flags.ddbimporter.dndbeyond.characterId == character.id
+          );
           if (characterInGame) {
             const linkedToken = JSON.parse(JSON.stringify(await characterInGame.getTokenData()));
             linkedToken.x = xStartPixelPC;
-            linkedToken.y = yStartPixel + (characterCount * sceneData.grid);
+            linkedToken.y = yStartPixel + characterCount * sceneData.grid;
             tokenData.push(linkedToken);
             characterCount++;
           }
@@ -406,46 +437,57 @@ export class DDBEncounterMunch extends Application {
       let monsterDepth = 0;
       let monsterRows = 0;
       let rowMonsterWidth = 1;
-      this.encounter.worldMonsters
-        .forEach(async (worldMonster) => {
-          logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.encounter.name}`);
-          const monster = game.actors.get(worldMonster.id);
-          const linkedToken = JSON.parse(JSON.stringify(await monster.getTokenData()));
-          if (monsterDepth + linkedToken.height > ySquares) {
-            monsterDepth = 0;
-            monsterRows += rowMonsterWidth;
-            rowMonsterWidth = 1;
-          }
+      this.encounter.worldMonsters.forEach(async (worldMonster) => {
+        logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.encounter.name}`);
+        const monster = game.actors.get(worldMonster.id);
+        const linkedToken = JSON.parse(JSON.stringify(await monster.getTokenData()));
+        if (monsterDepth + linkedToken.height > ySquares) {
+          monsterDepth = 0;
+          monsterRows += rowMonsterWidth;
+          rowMonsterWidth = 1;
+        }
 
-          setProperty(linkedToken, "name", worldMonster.ddbName);
-          setProperty(linkedToken, "actorData.name", worldMonster.ddbName);
-          setProperty(linkedToken, "flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
-          setProperty(linkedToken, "actorData.flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
-          linkedToken.x = xStartPixelMonster + (sceneData.grid * (monsterRows));
-          linkedToken.y = yStartPixel + (monsterDepth * sceneData.grid);
-          if (useDDBSave) {
-            setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", worldMonster.initiative);
-            // if no hp changes have been made on a monster on ddb it says 0 here
-            if (worldMonster.maximumHitPoints !== 0) {
-              setProperty(linkedToken, "actorData.data.attributes.hp.max", worldMonster.maximumHitPoints);
-              setProperty(linkedToken, "actorData.data.attributes.hp.value", worldMonster.currentHitPoints + worldMonster.temporaryHitPoints);
-            }
+        setProperty(linkedToken, "name", worldMonster.ddbName);
+        setProperty(linkedToken, "actorData.name", worldMonster.ddbName);
+        setProperty(linkedToken, "flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
+        setProperty(linkedToken, "actorData.flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
+        linkedToken.x = xStartPixelMonster + sceneData.grid * monsterRows;
+        linkedToken.y = yStartPixel + monsterDepth * sceneData.grid;
+        if (useDDBSave) {
+          setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", worldMonster.initiative);
+          // if no hp changes have been made on a monster on ddb it says 0 here
+          if (worldMonster.maximumHitPoints !== 0) {
+            setProperty(linkedToken, "actorData.data.attributes.hp.max", worldMonster.maximumHitPoints);
+            setProperty(
+              linkedToken,
+              "actorData.data.attributes.hp.value",
+              worldMonster.currentHitPoints + worldMonster.temporaryHitPoints
+            );
           }
+        }
 
-          tokenData.push(linkedToken);
-          monsterDepth += linkedToken.height;
-          if (linkedToken.width > rowMonsterWidth) rowMonsterWidth = linkedToken.width;
-        });
+        tokenData.push(linkedToken);
+        monsterDepth += linkedToken.height;
+        if (linkedToken.width > rowMonsterWidth) rowMonsterWidth = linkedToken.width;
+      });
 
       if (this.journal?.id) sceneData.journal = this.journal.id;
 
-      const sceneFolder = await utils.getFolder("scene", this.encounter.name, "D&D Beyond Encounters", "#6f0006", "#98020a", false);
+      const sceneFolder = await utils.getFolder(
+        "scene",
+        this.encounter.name,
+        "D&D Beyond Encounters",
+        "#6f0006",
+        "#98020a",
+        false
+      );
       // eslint-disable-next-line require-atomic-updates
       sceneData.folder = sceneFolder.id;
 
-      let worldScene = game.scenes.find((a) => a.data.folder == sceneFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id);
+      let worldScene = game.scenes.find(
+        (a) => a.data.folder == sceneFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id
+      );
       if (!worldScene) {
-
         logger.info(`Importing scene ${sceneData.name}`);
         try {
           // eslint-disable-next-line require-atomic-updates
@@ -484,7 +526,8 @@ export class DDBEncounterMunch extends Application {
     if (!importCombat) return undefined;
     logger.debug(`Creating combat for encounter ${this.encounter.name}`);
 
-    const useDDBSave = this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
+    const useDDBSave =
+      this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
 
     await this.scene.view();
     this.combat = await Combat.create({ scene: this.scene.id });
@@ -495,12 +538,16 @@ export class DDBEncounterMunch extends Application {
     if (tokens.length) {
       tokens.forEach((t) => {
         let combatant = { tokenId: t.id, actorId: t.data.actorId, hidden: t.data.hidden };
-        if (useDDBSave && t.data.flags.ddbimporter?.dndbeyond?.initiative) combatant.initiative = t.data.flags.ddbimporter.dndbeyond.initiative;
+        if (useDDBSave && t.data.flags.ddbimporter?.dndbeyond?.initiative)
+          combatant.initiative = t.data.flags.ddbimporter.dndbeyond.initiative;
         if (!t.inCombat) toCreate.push(combatant);
       });
       const combatants = await this.combat.createEmbeddedDocuments("Combatant", toCreate);
 
-      const rollMonsterInitiative = game.settings.get("ddb-importer", "encounter-import-policy-roll-monster-initiative");
+      const rollMonsterInitiative = game.settings.get(
+        "ddb-importer",
+        "encounter-import-policy-roll-monster-initiative"
+      );
       combatants
         .filter((c) => rollMonsterInitiative && c.actor.type === "npc" && c.initiative === null)
         .forEach(async (c) => {
@@ -516,10 +563,7 @@ export class DDBEncounterMunch extends Application {
 
     $(html)
       .find(
-        [
-          '.munching-generic-config input[type="checkbox"]',
-          '.munching-monster-config input[type="checkbox"]',
-        ].join(",")
+        ['.munching-generic-config input[type="checkbox"]', '.munching-monster-config input[type="checkbox"]'].join(",")
       )
       .on("change", (event) => {
         updateMuncherSettings(html, event);
@@ -538,7 +582,6 @@ export class DDBEncounterMunch extends Application {
       )
       .on("change", (event) => {
         updateActorSettings(html, event);
-
       });
 
     $(html)
@@ -546,7 +589,6 @@ export class DDBEncounterMunch extends Application {
       .on("click", async (event) => {
         event.preventDefault();
         setRecommendedCharacterActiveEffectSettings(html);
-
       });
 
     $(html)
@@ -558,7 +600,6 @@ export class DDBEncounterMunch extends Application {
           event.currentTarget.checked
         );
       });
-
 
     $(html)
       .find('.encounter-config input[type="checkbox"]')
@@ -573,9 +614,7 @@ export class DDBEncounterMunch extends Application {
     // img change
     html.find("#encounter-scene-img-select").on("change", async () => {
       const imgSelect = html.find("#encounter-scene-img-select");
-      this.img = imgSelect[0].selectedOptions[0]
-        ? imgSelect[0].selectedOptions[0].value
-        : "";
+      this.img = imgSelect[0].selectedOptions[0] ? imgSelect[0].selectedOptions[0].value : "";
     });
 
     // filter campaigns
@@ -589,7 +628,9 @@ export class DDBEncounterMunch extends Application {
       const campaignSelected = campaignId && campaignId !== "";
       let encounterList = `<option value="">Select encounter:</option>`;
       encounters.forEach((encounter) => {
-        encounterList += `<option value="${encounter.id}">${encounter.name}${campaignSelected ? "" : ` (${encounter.campaign.name})`}</option>\n`;
+        encounterList += `<option value="${encounter.id}">${encounter.name}${
+          campaignSelected ? "" : ` (${encounter.campaign.name})`
+        }</option>\n`;
       });
       const list = html.find("#encounter-select");
       list[0].innerHTML = encounterList;
@@ -597,7 +638,7 @@ export class DDBEncounterMunch extends Application {
     });
 
     // encounter change
-    html.find('#encounter-select').on("change", async () => {
+    html.find("#encounter-select").on("change", async () => {
       this.resetEncounter(html);
       const encounterSelection = html.find("#encounter-select");
       const encounterId = encounterSelection[0].selectedOptions[0]
@@ -615,20 +656,30 @@ export class DDBEncounterMunch extends Application {
       const rewardsHtml = html.find("#ddb-encounter-rewards");
       const progressHtml = html.find("#ddb-encounter-progress");
 
-      const missingCharacters = encounter.missingCharacters ? `fa-times-circle' style='color: red` : `fa-check-circle' style='color: green`;
-      const missingMonsters = encounter.missingMonsters ? `fa-times-circle' style='color: red` : `fa-check-circle' style='color: green`;
+      const missingCharacters = encounter.missingCharacters
+        ? `fa-times-circle' style='color: red`
+        : `fa-check-circle' style='color: green`;
+      const missingMonsters = encounter.missingMonsters
+        ? `fa-times-circle' style='color: red`
+        : `fa-check-circle' style='color: green`;
 
       const goodCharacters = encounter.goodCharacterData.map((character) => `${character.name}`).join(", ");
       const goodMonsters = encounter.goodMonsterIds.map((monster) => `${monster.name}`).join(", ");
       const neededCharactersHTML = encounter.missingCharacters
-        ? ` <span style="color: red"> Missing ${encounter.missingCharacterData.length}: ${encounter.missingCharacterData.map((character) => character.name).join(", ")}</span>`
+        ? ` <span style="color: red"> Missing ${
+            encounter.missingCharacterData.length
+          }: ${encounter.missingCharacterData.map((character) => character.name).join(", ")}</span>`
         : "";
       const neededMonstersHTML = encounter.missingMonsters
-        ? ` <span style="color: red"> Missing ${encounter.missingMonsterIds.length}. DDB Id's: ${encounter.missingMonsterIds.map((monster) => monster.ddbId).join(", ")}</span>`
+        ? ` <span style="color: red"> Missing ${
+            encounter.missingMonsterIds.length
+          }. DDB Id's: ${encounter.missingMonsterIds.map((monster) => monster.ddbId).join(", ")}</span>`
         : "";
 
       nameHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Encounter:</b> ${encounter.name}`;
-      if (encounter.summary && encounter.summary.trim() !== "") summaryHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Summary:</b> ${encounter.summary}`;
+      if (encounter.summary && encounter.summary.trim() !== "") {
+        summaryHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Summary:</b> ${encounter.summary}`;
+      }
       if (encounter.goodCharacterData.length > 0 || encounter.missingCharacterData.length > 0) {
         charactersHtml[0].innerHTML = `<i class='fas ${missingCharacters}'></i> <b>Characters:</b> ${goodCharacters}${neededCharactersHTML}`;
       }
@@ -636,23 +687,24 @@ export class DDBEncounterMunch extends Application {
         monstersHtml[0].innerHTML = `<i class='fas ${missingMonsters}'></i> <b>Monsters:</b> ${goodMonsters}${neededMonstersHTML}`;
       }
       difficultyHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Difficulty:</b> <span style="color: ${encounter.difficulty.color}">${encounter.difficulty.name}</span>`;
-      if (encounter.rewards && encounter.rewards.trim() !== "") rewardsHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Rewards:</b> ${encounter.rewards}`;
+      if (encounter.rewards && encounter.rewards.trim() !== "") {
+        rewardsHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Rewards:</b> ${encounter.rewards}`;
+      }
 
       progressHtml[0].innerHTML = encounter.inProgress
         ? `<i class='fas fa-times-circle' style='color: red'></i> <b>In Progress:</b> <span style="color: red"> Encounter in progress on <a href="https://www.dndbeyond.com/combat-tracker/${this.encounter.id}">D&D Beyond!</a></span>`
         : `<i class='fas fa-check-circle' style='color: green'></i> <b>In Progress:</b> No`;
 
-      $('#encounter-import-policy-use-ddb-save').prop("disabled", !encounter.inProgress);
-      $('#ddb-importer-encounters').css("height", "auto");
-      $('#encounter-button').prop("disabled", false);
+      $("#encounter-import-policy-use-ddb-save").prop("disabled", !encounter.inProgress);
+      $("#ddb-importer-encounters").css("height", "auto");
+      $("#encounter-button").prop("disabled", false);
     });
 
     // import encounter
     html.find("#encounter-button").click(async (event) => {
       event.preventDefault();
-      $('#encounter-button').prop("disabled", true);
-      $('#encounter-button').prop("innerText", "Munching...");
-
+      $("#encounter-button").prop("disabled", true);
+      $("#encounter-button").prop("innerText", "Munching...");
 
       await this.importMonsters();
       await this.importCharacters(html);
@@ -666,13 +718,11 @@ export class DDBEncounterMunch extends Application {
       // - extra import?
       // - attempt to find magic items and add them to the world?
 
-      $('#encounter-button').prop("innerText", "Encounter Munched");
-      const campaignFluff = this.encounter.campaign?.name && this.encounter.campaign.name.trim() !== ""
-        ? ` of ${this.encounter.name}`
-        : "";
+      $("#encounter-button").prop("innerText", "Encounter Munched");
+      const campaignFluff =
+        this.encounter.campaign?.name && this.encounter.campaign.name.trim() !== "" ? ` of ${this.encounter.name}` : "";
       ui.notifications.warn(`Prepare to battle heroes${campaignFluff}, your doom awaits in ${this.encounter.name}!`);
     });
-
   }
 
   // eslint-disable-next-line class-methods-use-this
