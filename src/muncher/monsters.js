@@ -18,7 +18,7 @@ async function getMonsterData(ids) {
   };
 
   if (ids && ids.length > 0) {
-    body.ids = ids;
+    body.ids = [...new Set(ids)];
   } else {
     const searchTerm = $("#monster-munch-filter")[0].value;
     body.sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
