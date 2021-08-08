@@ -46,6 +46,14 @@
       </label>
       </div>
       {{/each}}
+      <div class="form-group">
+        <select name="encounter-scene-img-select" class="form-select" id="encounter-scene-img-select">
+          <option value="">No scene background image</option>
+          {{#each sceneImg}}
+          <option value="{{this.img}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
       <hr>
       <div class="munching-task-setup" id="munching-task-setup" style="color: red">
       </div>

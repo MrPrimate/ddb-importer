@@ -18,6 +18,14 @@ const DIFFICULTY_LEVELS = [
   { id: 4, name: "Deadly", color: "red" },
 ];
 
+const SCENE_IMG = [
+  { name: "Cobbles", img: "modules/ddb-importer/img/encounters/cobbles.webp" },
+  { name: "Dungeon", img: "modules/ddb-importer/img/encounters/dungeon.png" },
+  { name: "Grass", img: "modules/ddb-importer/img/encounters/grass.webp" },
+  { name: "Snow", img: "modules/ddb-importer/img/encounters/snow.webp" },
+  { name: "Stone", img: "modules/ddb-importer/img/encounters/stone.webp" },
+  { name: "Void", img: "modules/ddb-importer/img/encounters/void.webp" },
+];
 
 async function getEncounterData() {
   const cobaltCookie = getCobalt();
@@ -91,6 +99,8 @@ export class DDBEncounterMunch extends Application {
   constructor(options = {}) {
     super(options);
     this.encounter = {};
+    this.img = "";
+    this.journal = undefined;
   }
 
   static get defaultOptions() {
@@ -138,9 +148,9 @@ export class DDBEncounterMunch extends Application {
     encounter.players
     .filter((character) => !character.hidden)
     .forEach((character) => {
-      const characterInPack = game.actors.find((actor) => actor.data.flags?.ddbimporter?.dndbeyond?.characterId && actor.data.flags.ddbimporter.dndbeyond.characterId == character.id);
-      if (characterInPack) {
-        goodCharacterData.push({ id: characterInPack.id, name: characterInPack.name, ddbId: character.id });
+      const characterInGame = game.actors.find((actor) => actor.data.flags?.ddbimporter?.dndbeyond?.characterId && actor.data.flags.ddbimporter.dndbeyond.characterId == character.id);
+      if (characterInGame) {
+        goodCharacterData.push({ id: characterInGame.id, name: characterInGame.name, ddbId: character.id });
       } else {
         missingCharacterData.push({ ddbId: character.id, name: character.name });
       }
@@ -157,6 +167,7 @@ export class DDBEncounterMunch extends Application {
       summary: encounter.flavorText,
       campaign: encounter.campaign,
       monsters: encounter.monsters,
+      characters: encounter.players,
       goodMonsterIds,
       missingMonsterIds,
       goodCharacterData,
@@ -171,7 +182,7 @@ export class DDBEncounterMunch extends Application {
 
   }
 
-  resetEncounterLabels(html) {
+  resetEncounter(html) {
     const nameHtml = html.find("#ddb-encounter-name");
     const summaryHtml = html.find("#ddb-encounter-summary");
     const charactersHtml = html.find("#ddb-encounter-characters");
@@ -190,33 +201,40 @@ export class DDBEncounterMunch extends Application {
     $('#encounter-button').prop("disabled", true);
     $('#encounter-button').prop("innerText", "Import Encounter");
     this.encounter = {};
+    this.journal = undefined;
   }
 
   async importMonsters() {
     const importMonsters = game.settings.get("ddb-importer", "encounter-import-policy-missing-monsters");
 
     if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
+      logger.debug("Importing missing monsters from DDB");
       await parseCritters(this.encounter.missingMonsterIds.map((monster) => monster.ddbId));
+      console.warn("Finised Importing missing monsters from DDB");
     }
 
     const monsterPack = await checkMonsterCompendium();
+    await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
     const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
 
     let monstersToAddToWorld = [];
     this.encounter.monsterData = [];
+    this.encounter.worldMonsters = [];
     this.encounter.monsters.forEach((monster) => {
       const id = monster.id;
-      const monsterInPack = monsterPack.index.find((f) => f.flags.ddbimporter.id == id);
+      const monsterInPack = monsterPack.index.find((f) => f.flags?.ddbimporter?.id == id);
       if (monsterInPack) {
-        const monsterData = {
-          ddbId: id,
-          name: monsterInPack.name,
-          id: monsterInPack._id,
-          quantity: monster.quantity,
-          journalLink: `@Compendium[${compendiumName}.${monsterInPack.name}]{${monsterInPack.name}}`,
-        };
-        monstersToAddToWorld.push(monsterData);
-        this.encounter.monsterData.push(monsterData);
+        for (let i = 0; i < monster.quantity; i++) {
+          const monsterData = {
+            ddbId: id,
+            name: monsterInPack.name,
+            id: monsterInPack._id,
+            quantity: 1,
+            journalLink: `@Compendium[${compendiumName}.${monsterInPack.name}]{${monsterInPack.name}}`,
+          };
+          this.encounter.monsterData.push(monsterData);
+          monstersToAddToWorld.push(monsterData);
+        }
       }
     });
 
@@ -229,12 +247,18 @@ export class DDBEncounterMunch extends Application {
         logger.info(`Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`);
         try {
           worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, { folder: encounterMonsterFolder.id });
+          console.error(worldActor);
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.id} from DDB Compendium`);
           logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.id}", { folder: "${encounterMonsterFolder.id}" });`);
         }
       }
+      this.encounter.worldMonsters.push({ id: worldActor.id, name: worldActor.name, quantity: actor.quantity });
+    });
+
+    return new Promise((resolve) => {
+      resolve(true);
     });
 
   }
@@ -249,6 +273,7 @@ export class DDBEncounterMunch extends Application {
   }
 
   async createJournalEntry() {
+    logger.debug(`Creating journal entry`);
     const journal = {
       name: this.encounter.name,
       flags: {
@@ -297,9 +322,120 @@ export class DDBEncounterMunch extends Application {
         journal._id = worldJournal.id;
         await worldJournal.update(journal);
       }
+      this.journal = worldJournal;
     }
     return journal;
 
+  }
+
+  async createScene() {
+    logger.debug(`Creating scene for encounter ${this.encounter.name}`);
+    let sceneData = {
+      name: this.encounter.name,
+      flags: {
+        ddbimporter: {
+         encounterId: this.encounter.id,
+        },
+      },
+      width: 1000,
+      height: 1000,
+      grid: 100,
+      padding: 0.25,
+      initial: {
+        x: 500,
+        y: 500,
+        scale: 0.57
+      },
+      tokens: [],
+      img: this.img,
+      tokenVision: false,
+      fogExploration: false,
+    };
+
+    const importScene = game.settings.get("ddb-importer", "encounter-import-policy-create-scene");
+    if (importScene) {
+      const xSquares = sceneData.width / sceneData.grid;
+      const ySquares = sceneData.height / sceneData.grid;
+      const xStartPixelMonster = (sceneData.width * sceneData.padding) + (sceneData.grid / 2);
+      const xStartPixelPC = xStartPixelMonster + (sceneData.grid * (xSquares - 1));
+      const yStartPixel = (sceneData.height * sceneData.padding) + (sceneData.grid / 2);
+      let characterCount = 0;
+      this.encounter.characters
+        .filter((character) => !character.hidden)
+        .forEach(async (character) => {
+          const characterInGame = game.actors.find((actor) => actor.data.flags?.ddbimporter?.dndbeyond?.characterId && actor.data.flags.ddbimporter.dndbeyond.characterId == character.id);
+          if (characterInGame) {
+            const linkedToken = JSON.parse(JSON.stringify(await characterInGame.getTokenData()));
+            linkedToken.x = xStartPixelPC;
+            linkedToken.y = yStartPixel + (characterCount * sceneData.grid);
+            sceneData.tokens.push(linkedToken);
+            characterCount++;
+          }
+        });
+
+      let monsterDepth = 0;
+      let monsterRows = 0;
+      let rowMonsterWidth = 1;
+      this.encounter.worldMonsters
+        .forEach(async (worldMonster) => {
+          console.warn(`Adding ${worldMonster.name}`);
+          const monster = game.actors.get(worldMonster.id);
+          const linkedToken = JSON.parse(JSON.stringify(await monster.getTokenData()));
+          if (monsterDepth + linkedToken.height > ySquares) {
+            monsterDepth = 0;
+            monsterRows += rowMonsterWidth;
+            rowMonsterWidth = 1;
+          }
+          linkedToken.x = xStartPixelMonster + (sceneData.grid * (monsterRows));
+          linkedToken.y = yStartPixel + (monsterDepth * sceneData.grid);
+          sceneData.tokens.push(linkedToken);
+          monsterDepth += linkedToken.height;
+          if (linkedToken.width > rowMonsterWidth) rowMonsterWidth = linkedToken.width;
+        });
+
+      if (this.journal?.id) sceneData.journal = this.journal.id;
+
+      const sceneFolder = await utils.getFolder("scene", this.encounter.name, "D&D Beyond Encounters", "#6f0006", "#98020a", false);
+      // eslint-disable-next-line require-atomic-updates
+      sceneData.folder = sceneFolder.id;
+
+      let worldScene = game.scenes.find((a) => a.data.folder == sceneFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id);
+      if (!worldScene) {
+
+        logger.info(`Importing scene ${sceneData.name}`);
+        try {
+          worldScene = await Scene.create(sceneData);
+        } catch (err) {
+          logger.error(err);
+          logger.warn(`Unable to create scene ${sceneData.name}`);
+        }
+      } else {
+        logger.info(`Updating scene ${sceneData.name}`);
+        sceneData._id = worldScene.id;
+        await Scene.delete([worldScene.id]);
+        try {
+          worldScene = await Scene.create(sceneData, { keepId: true });
+        } catch (err) {
+          logger.error(err);
+          logger.warn(`Unable to create scene ${sceneData.name}`);
+        }
+      }
+
+      if (!worldScene.data.thumb) {
+        const thumbData = await worldScene.createThumbnail();
+        // eslint-disable-next-line require-atomic-updates
+        sceneData["thumb"] = thumbData.thumb;
+      }
+      await worldScene.update(sceneData);
+      this.scene = worldScene;
+    }
+    return sceneData;
+  }
+
+  async createCombatEncounter() {
+    let combatants = new Collection();
+
+    const importCombat = game.settings.get("ddb-importer", "encounter-import-policy-create-combat");
   }
 
   activateListeners(html) {
@@ -361,6 +497,14 @@ export class DDBEncounterMunch extends Application {
         );
       });
 
+    // img change
+    html.find("#encounter-scene-img-select").on("change", async () => {
+      const imgSelect = html.find("#encounter-scene-img-select");
+      this.img = imgSelect[0].selectedOptions[0]
+        ? imgSelect[0].selectedOptions[0].value
+        : "";
+    });
+
     // filter campaigns
     html.find("#encounter-campaign-select").on("change", async () => {
       const campaignSelection = html.find("#encounter-campaign-select");
@@ -376,12 +520,12 @@ export class DDBEncounterMunch extends Application {
       });
       const list = html.find("#encounter-select");
       list[0].innerHTML = encounterList;
-      this.resetEncounterLabels(html);
+      this.resetEncounter(html);
     });
 
     // encounter change
     html.find('#encounter-select').on("change", async () => {
-      this.resetEncounterLabels(html);
+      this.resetEncounter(html);
       const encounterSelection = html.find("#encounter-select");
       const encounterId = encounterSelection[0].selectedOptions[0]
         ? encounterSelection[0].selectedOptions[0].value
@@ -435,6 +579,8 @@ export class DDBEncounterMunch extends Application {
       await this.importCharacters(html);
       await this.createJournalEntry();
 
+      await this.createScene();
+
       // to do:
       // create a new scene
       // create a folder for characters?
@@ -464,11 +610,6 @@ export class DDBEncounterMunch extends Application {
 
     const encounterConfig = [
       {
-        name: "create-scene",
-        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-create-scene"),
-        description: "Create a scene to use, and add available characters and NPC's?",
-      },
-      {
         name: "missing-characters",
         isChecked: game.settings.get("ddb-importer", "encounter-import-policy-missing-characters"),
         description: "Import missing characters?",
@@ -483,6 +624,11 @@ export class DDBEncounterMunch extends Application {
         isChecked: game.settings.get("ddb-importer", "encounter-import-policy-create-journal"),
         description: "Create encounter journal entry?",
       },
+      {
+        name: "create-scene",
+        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-create-scene"),
+        description: "Create/update a scene to use, and add available characters and NPC's?",
+      },
     ];
 
     const encounterSettings = {
@@ -490,6 +636,7 @@ export class DDBEncounterMunch extends Application {
       availableCampaigns,
       availableEncounters,
       encounterConfig,
+      sceneImg: SCENE_IMG,
     };
 
     const data = mergeObject(importSettings, encounterSettings);
