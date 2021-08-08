@@ -849,7 +849,7 @@ export default function () {
     scope: "player",
     config: false,
     type: Boolean,
-    default: true,
+    default: false,
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-full-description", {
@@ -931,7 +931,7 @@ export default function () {
     scope: "player",
     config: false,
     type: Boolean,
-    default: true,
+    default: false,
   });
 
   game.settings.register("ddb-importer", "munching-policy-use-inbuilt-icons", {
