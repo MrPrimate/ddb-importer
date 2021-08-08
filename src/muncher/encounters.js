@@ -101,6 +101,8 @@ export class DDBEncounterMunch extends Application {
     this.encounter = {};
     this.img = "";
     this.journal = undefined;
+    this.combat = undefined;
+    this.tokens = [];
   }
 
   static get defaultOptions() {
@@ -203,6 +205,7 @@ export class DDBEncounterMunch extends Application {
     this.encounter = {};
     this.journal = undefined;
     this.combat = undefined;
+    this.tokens = [];
   }
 
   async importMonsters() {
@@ -211,7 +214,7 @@ export class DDBEncounterMunch extends Application {
     if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
       logger.debug("Importing missing monsters from DDB");
       await parseCritters(this.encounter.missingMonsterIds.map((monster) => monster.ddbId));
-      console.warn("Finised Importing missing monsters from DDB");
+      logger.debug("Finised Importing missing monsters from DDB");
     }
 
     const monsterPack = await checkMonsterCompendium();
@@ -248,7 +251,6 @@ export class DDBEncounterMunch extends Application {
         logger.info(`Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`);
         try {
           worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, { folder: encounterMonsterFolder.id });
-          console.error(worldActor);
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.id} from DDB Compendium`);
@@ -259,7 +261,7 @@ export class DDBEncounterMunch extends Application {
     });
 
     return new Promise((resolve) => {
-      resolve(true);
+      resolve(this.encounter.worldMonsters);
     });
 
   }
@@ -325,7 +327,10 @@ export class DDBEncounterMunch extends Application {
       }
       this.journal = worldJournal;
     }
-    return journal;
+
+    return new Promise((resolve) => {
+      resolve(journal);
+    });
 
   }
 
@@ -354,6 +359,7 @@ export class DDBEncounterMunch extends Application {
 
     const importScene = game.settings.get("ddb-importer", "encounter-import-policy-create-scene");
     if (importScene) {
+      let tokenData = [];
       logger.debug(`Creating scene for encounter ${this.encounter.name}`);
       const xSquares = sceneData.width / sceneData.grid;
       const ySquares = sceneData.height / sceneData.grid;
@@ -364,12 +370,13 @@ export class DDBEncounterMunch extends Application {
       this.encounter.characters
         .filter((character) => !character.hidden)
         .forEach(async (character) => {
+          logger.info(`Generating token ${character.name} for ${this.encounter.name}`);
           const characterInGame = game.actors.find((actor) => actor.data.flags?.ddbimporter?.dndbeyond?.characterId && actor.data.flags.ddbimporter.dndbeyond.characterId == character.id);
           if (characterInGame) {
             const linkedToken = JSON.parse(JSON.stringify(await characterInGame.getTokenData()));
             linkedToken.x = xStartPixelPC;
             linkedToken.y = yStartPixel + (characterCount * sceneData.grid);
-            sceneData.tokens.push(linkedToken);
+            tokenData.push(linkedToken);
             characterCount++;
           }
         });
@@ -379,7 +386,7 @@ export class DDBEncounterMunch extends Application {
       let rowMonsterWidth = 1;
       this.encounter.worldMonsters
         .forEach(async (worldMonster) => {
-          logger.info(`Adding ${worldMonster.name} for ${this.encounter.name}`);
+          logger.info(`Generating token ${worldMonster.name} for ${this.encounter.name}`);
           const monster = game.actors.get(worldMonster.id);
           const linkedToken = JSON.parse(JSON.stringify(await monster.getTokenData()));
           if (monsterDepth + linkedToken.height > ySquares) {
@@ -389,7 +396,7 @@ export class DDBEncounterMunch extends Application {
           }
           linkedToken.x = xStartPixelMonster + (sceneData.grid * (monsterRows));
           linkedToken.y = yStartPixel + (monsterDepth * sceneData.grid);
-          sceneData.tokens.push(linkedToken);
+          tokenData.push(linkedToken);
           monsterDepth += linkedToken.height;
           if (linkedToken.width > rowMonsterWidth) rowMonsterWidth = linkedToken.width;
         });
@@ -405,6 +412,7 @@ export class DDBEncounterMunch extends Application {
 
         logger.info(`Importing scene ${sceneData.name}`);
         try {
+          // eslint-disable-next-line require-atomic-updates
           worldScene = await Scene.create(sceneData);
         } catch (err) {
           logger.error(err);
@@ -413,24 +421,25 @@ export class DDBEncounterMunch extends Application {
       } else {
         logger.info(`Updating scene ${sceneData.name}`);
         sceneData._id = worldScene.id;
-        await Scene.deleteDocuments([worldScene.id]);
-        try {
-          worldScene = await Scene.create(sceneData, { keepId: true });
-        } catch (err) {
-          logger.error(err);
-          logger.warn(`Unable to create scene ${sceneData.name}`);
-        }
+        await Combat.deleteDocuments(game.combats.filter((c) => c.scene.id == worldScene.id).map((c) => c.id));
+        await worldScene.deleteEmbeddedDocuments("Token", [], { deleteAll: true });
       }
 
       const thumbData = await worldScene.createThumbnail();
-      // eslint-disable-next-line require-atomic-updates
-      sceneData["thumb"] = thumbData.thumb;
+      const thumbScene = worldScene.data.toObject();
+      thumbScene["thumb"] = thumbData.thumb;
 
-      await worldScene.update(sceneData);
-      await worldScene.view();
+      // eslint-disable-next-line require-atomic-updates
+      worldScene = await worldScene.update(thumbScene, { keepId: true });
+
+      await worldScene.createEmbeddedDocuments("Token", tokenData);
+
       this.scene = worldScene;
     }
-    return sceneData;
+
+    return new Promise((resolve) => {
+      resolve(this.scene);
+    });
   }
 
   async createCombatEncounter() {
@@ -438,19 +447,28 @@ export class DDBEncounterMunch extends Application {
 
     if (!importCombat) return undefined;
     logger.debug(`Creating combat for encounter ${this.encounter.name}`);
-    const combat = await Combat.create({ scene: this.scene.id });
 
-    this.scene.tokens.forEach((token) => {
-      combat.createEmbeddedDocuments("Combatant", [{
-        tokenId: token.id,
-        hidden: token.data.hidden,
-      }]);
-    });
+    await this.scene.view();
+    this.combat = await Combat.create({ scene: this.scene.id });
+    await this.combat.activate();
 
-    await combat.activate();
+    let toCreate = [];
+    const tokens = canvas.tokens.placeables;
+    if (tokens.length) {
+      tokens.forEach((t) => {
+        if (!t.inCombat) toCreate.push({ tokenId: t.id, actorId: t.data.actorId, hidden: t.data.hidden });
+      });
+      const combatants = await this.combat.createEmbeddedDocuments("Combatant", toCreate);
 
-    this.combat = combat;
-    return combat;
+      const rollMonsterInitiative = game.settings.get("ddb-importer", "encounter-import-policy-roll-monster-initiative");
+      combatants
+        .filter((c) => rollMonsterInitiative && c.actor.type === "npc" && c.initiative === null)
+        .forEach(async (c) => {
+          if (c.initiative === null) await this.combat.rollInitiative(c.id);
+        });
+    }
+
+    return this.combat;
   }
 
   activateListeners(html) {

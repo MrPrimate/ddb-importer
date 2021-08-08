@@ -10,7 +10,7 @@ export function addEncounterMuncher (app, html) {
   const tiers = getPatreonTiers(tier);
   const enabled = game.settings.get("ddb-importer", "encounter-muncher-enabled");
 
-  if (enabled && app.options.id == "actors" && game.user.isGM && tiers.god) {
+  if (enabled && app.options.id == "scenes" && game.user.isGM && tiers.god) {
     let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher' id='ddb-encounter-munch-open'><i class='fas fa-dungeon'></i> DDB Encounter Muncher</button></div>");
 
     const actualButton = button.find('#ddb-encounter-munch-open');

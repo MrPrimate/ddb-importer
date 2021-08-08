@@ -1290,4 +1290,19 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "encounter-import-policy-roll-monster-initiative", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "encounter-import-policy-use-ddb-save", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+
 }
