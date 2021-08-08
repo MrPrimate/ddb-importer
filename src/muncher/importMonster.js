@@ -179,6 +179,7 @@ function getSpellEdgeCase(spell, type, spellList) {
   const edgeCase = edgeCases.find((edge) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
 
   if (edgeCase) {
+    logger.debug(`Spell edge case for ${spell.name}`);
     switch (edgeCase.edge.toLowerCase()) {
       case "self":
       case "self only":
@@ -227,6 +228,7 @@ async function addSpells(data) {
   }
 
   const spellList = data.flags.monsterMunch.spellList;
+  logger.debug(`Spell List for edgecases`, spellList);
   const atWill = spellList.atwill;
   const klass = spellList.class;
   const innate = spellList.innate;
@@ -367,7 +369,9 @@ async function linkResourcesConsumption(actor) {
 export async function buildNPC(data, temporary = true, update = false, handleBuild = false) {
   logger.debug("Importing Images");
   await getNPCImage(data);
+  logger.debug("Importing Spells");
   await addSpells(data);
+  logger.debug("Checking Items");
   await swapItems(data);
 
   // DAE

@@ -349,7 +349,7 @@ export function getSpells(monster, DDB_CONFIG) {
   spellList = getEdgeCases(spellList);
 
   // console.warn(spellList);
-  logger.debug(JSON.stringify(spellList));
+  logger.debug("Parsed spell list", spellList);
 
   // console.log("*****")
 
