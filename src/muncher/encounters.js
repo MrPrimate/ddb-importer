@@ -202,6 +202,7 @@ export class DDBEncounterMunch extends Application {
     $('#encounter-button').prop("innerText", "Import Encounter");
     this.encounter = {};
     this.journal = undefined;
+    this.combat = undefined;
   }
 
   async importMonsters() {
@@ -329,7 +330,6 @@ export class DDBEncounterMunch extends Application {
   }
 
   async createScene() {
-    logger.debug(`Creating scene for encounter ${this.encounter.name}`);
     let sceneData = {
       name: this.encounter.name,
       flags: {
@@ -354,6 +354,7 @@ export class DDBEncounterMunch extends Application {
 
     const importScene = game.settings.get("ddb-importer", "encounter-import-policy-create-scene");
     if (importScene) {
+      logger.debug(`Creating scene for encounter ${this.encounter.name}`);
       const xSquares = sceneData.width / sceneData.grid;
       const ySquares = sceneData.height / sceneData.grid;
       const xStartPixelMonster = (sceneData.width * sceneData.padding) + (sceneData.grid / 2);
@@ -378,7 +379,7 @@ export class DDBEncounterMunch extends Application {
       let rowMonsterWidth = 1;
       this.encounter.worldMonsters
         .forEach(async (worldMonster) => {
-          console.warn(`Adding ${worldMonster.name}`);
+          logger.info(`Adding ${worldMonster.name} for ${this.encounter.name}`);
           const monster = game.actors.get(worldMonster.id);
           const linkedToken = JSON.parse(JSON.stringify(await monster.getTokenData()));
           if (monsterDepth + linkedToken.height > ySquares) {
@@ -412,7 +413,7 @@ export class DDBEncounterMunch extends Application {
       } else {
         logger.info(`Updating scene ${sceneData.name}`);
         sceneData._id = worldScene.id;
-        await Scene.delete([worldScene.id]);
+        await Scene.deleteDocuments([worldScene.id]);
         try {
           worldScene = await Scene.create(sceneData, { keepId: true });
         } catch (err) {
@@ -421,21 +422,35 @@ export class DDBEncounterMunch extends Application {
         }
       }
 
-      if (!worldScene.data.thumb) {
-        const thumbData = await worldScene.createThumbnail();
-        // eslint-disable-next-line require-atomic-updates
-        sceneData["thumb"] = thumbData.thumb;
-      }
+      const thumbData = await worldScene.createThumbnail();
+      // eslint-disable-next-line require-atomic-updates
+      sceneData["thumb"] = thumbData.thumb;
+
       await worldScene.update(sceneData);
+      await worldScene.view();
       this.scene = worldScene;
     }
     return sceneData;
   }
 
   async createCombatEncounter() {
-    let combatants = new Collection();
+    const importCombat = game.settings.get("ddb-importer", "encounter-import-policy-create-scene");
 
-    const importCombat = game.settings.get("ddb-importer", "encounter-import-policy-create-combat");
+    if (!importCombat) return undefined;
+    logger.debug(`Creating combat for encounter ${this.encounter.name}`);
+    const combat = await Combat.create({ scene: this.scene.id });
+
+    this.scene.tokens.forEach((token) => {
+      combat.createEmbeddedDocuments("Combatant", [{
+        tokenId: token.id,
+        hidden: token.data.hidden,
+      }]);
+    });
+
+    await combat.activate();
+
+    this.combat = combat;
+    return combat;
   }
 
   activateListeners(html) {
@@ -578,20 +593,20 @@ export class DDBEncounterMunch extends Application {
       await this.importMonsters();
       await this.importCharacters(html);
       await this.createJournalEntry();
-
       await this.createScene();
+      await this.createCombatEncounter();
 
       // to do:
-      // create a new scene
-      // create a folder for characters?
       // adjust monsters hp?
-      // add monsters to scene
-      // add characters to scene
-      // add journal entry with details about players, monsters, description and treasure
+      // add initiative if combat in progress?
       // - extra import?
       // - attempt to find magic items and add them to the world?
 
       $('#encounter-button').prop("innerText", "Encounter Munched");
+      const campaignFluff = this.encounter.campaign?.name && this.encounter.campaign.name.trim() !== ""
+        ? ` of ${this.encounter.name}`
+        : "";
+      ui.notifications.warn(`Prepare to battle heroes${campaignFluff}, your doom awaits in ${this.encounter.name}!`);
     });
 
   }

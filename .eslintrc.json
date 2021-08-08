@@ -43,7 +43,8 @@
     "ForgeVTT": true,
     "io": true,
     "isNewerVersion": true,
-    "renderTemplate": true
+    "renderTemplate": true,
+    "Combat": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,
