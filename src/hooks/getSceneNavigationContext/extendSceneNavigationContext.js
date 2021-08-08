@@ -157,7 +157,7 @@ const collectSceneData = (scene) => {
     if (token.actor) {
       if (token.actor.data.flags.ddbimporter) {
         result.flags.ddbActorFlags = token.actor.data.flags.ddbimporter;
-        result.flags.ddbActorFlags.name = token.actor.data.name;
+        result.flags.ddbActorFlags.name = token.actor.data.token?.name ? token.actor.data.token.name : token.actor.data.name;
       }
     }
 
