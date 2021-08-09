@@ -1,3 +1,10 @@
+# 2.3.1
+
+* Encounter Muncher could hang if Compendium contained non DDB monsters.
+* Encounter Muncher Bar map.
+* Encounter Muncher will update map if changed between imports.
+* Spell Munch now captures unique artificer spells in homebrew.
+
 # 2.3.0
 
 * New Feature: God Tier Supporters now have access to Encounter Muncher! This tool allows you to bring in Encounters from D&DBeyond. Import missing characters, monsters, create scenes and a combat tracker! It will even keep existing monster HP and all initiative rolls! This is available to God Tier for feedback, rolling out to everyone over the next couple of weeks as bugs are ironed out.
