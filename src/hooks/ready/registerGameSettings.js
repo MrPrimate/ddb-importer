@@ -341,7 +341,7 @@ export default function () {
 
   game.settings.register("ddb-importer", "adventure-misc-path", {
     name: "ddb-importer.adventure-misc-path.name",
-    hint: "ddb-importer.adventure-misc-path.hints",
+    hint: "ddb-importer.adventure-misc-path.hint",
     scope: "world",
     config: true,
     default: baseAdventureMiscPath,
