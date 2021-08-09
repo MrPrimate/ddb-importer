@@ -25,6 +25,7 @@ const DIFFICULTY_LEVELS = [
 ];
 
 const SCENE_IMG = [
+  { name: "Bar", img: "modules/ddb-importer/img/encounters/bar.webp" },
   { name: "Cobbles", img: "modules/ddb-importer/img/encounters/cobbles.webp" },
   { name: "Dungeon", img: "modules/ddb-importer/img/encounters/dungeon.png" },
   { name: "Grass", img: "modules/ddb-importer/img/encounters/grass.webp" },
@@ -138,7 +139,7 @@ export class DDBEncounterMunch extends Application {
     logger.debug("Parsing encounter", encounter);
     encounter.monsters.forEach((monster) => {
       const id = monster.id;
-      const monsterInPack = monsterPack.index.find((f) => f.flags.ddbimporter.id == id);
+      const monsterInPack = monsterPack.index.find((f) => f.flags?.ddbimporter?.id == id);
       if (monsterInPack) {
         goodMonsterIds.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack._id, quantity: monster.quantity });
       } else {
@@ -398,7 +399,6 @@ export class DDBEncounterMunch extends Application {
         y: 500,
         scale: 0.57,
       },
-      tokens: [],
       img: this.img,
       tokenVision: false,
       fogExploration: false,
@@ -504,6 +504,7 @@ export class DDBEncounterMunch extends Application {
         sceneData._id = worldScene.id;
         await Combat.deleteDocuments(game.combats.filter((c) => c.scene.id == worldScene.id).map((c) => c.id));
         await worldScene.deleteEmbeddedDocuments("Token", [], { deleteAll: true });
+        await Scene.update(mergeObject(worldScene.data.toObject(), sceneData));
       }
 
       const thumbData = await worldScene.createThumbnail();
