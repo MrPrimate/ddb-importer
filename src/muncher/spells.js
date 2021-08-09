@@ -67,6 +67,7 @@ export async function parseSpells() {
     getSpellData("Bard"),
     getSpellData("Graviturgy"),
     getSpellData("Chronurgy"),
+    getSpellData("Artificer"),
   ]);
 
   const spells = results.map((r) => r.value).flat().flat()
