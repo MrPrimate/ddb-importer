@@ -412,9 +412,13 @@ export class DDBEncounterMunch extends Application {
         this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
       const xSquares = sceneData.width / sceneData.grid;
       const ySquares = sceneData.height / sceneData.grid;
-      const xStartPixelMonster = (sceneData.width * sceneData.padding) + (sceneData.grid / 2);
-      const xStartPixelPC = xStartPixelMonster + (sceneData.grid * (xSquares - 1));
-      const yStartPixel = (sceneData.height * sceneData.padding) + (sceneData.grid / 2);
+      const midSquareOffset = sceneData.grid / 2;
+      const widthPaddingOffset = sceneData.width * sceneData.padding;
+      const heightPaddingOffset = sceneData.height * sceneData.padding;
+      const xPCOffset = sceneData.grid * (xSquares - 1);
+      const xStartPixelMonster = widthPaddingOffset + midSquareOffset;
+      const xStartPixelPC = xStartPixelMonster + xPCOffset;
+      const yStartPixel = heightPaddingOffset + midSquareOffset;
       let characterCount = 0;
       this.encounter.characters
         .filter((character) => !character.hidden)
@@ -431,7 +435,8 @@ export class DDBEncounterMunch extends Application {
               setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
             }
             linkedToken.x = xStartPixelPC;
-            linkedToken.y = yStartPixel + (characterCount * sceneData.grid);
+            const yOffsetChange = characterCount * sceneData.grid;
+            linkedToken.y = yStartPixel + yOffsetChange;
             tokenData.push(linkedToken);
             characterCount++;
           }
@@ -454,8 +459,10 @@ export class DDBEncounterMunch extends Application {
         setProperty(linkedToken, "actorData.name", worldMonster.ddbName);
         setProperty(linkedToken, "flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
         setProperty(linkedToken, "actorData.flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
-        linkedToken.x = xStartPixelMonster + (sceneData.grid * monsterRows);
-        linkedToken.y = yStartPixel + (monsterDepth * sceneData.grid);
+        const xOffsetChange = sceneData.grid * monsterRows;
+        const yOffsetChange = monsterDepth * sceneData.grid;
+        linkedToken.x = xStartPixelMonster + xOffsetChange;
+        linkedToken.y = yStartPixel + yOffsetChange;
         if (useDDBSave) {
           setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", worldMonster.initiative);
           // if no hp changes have been made on a monster on ddb it says 0 here
