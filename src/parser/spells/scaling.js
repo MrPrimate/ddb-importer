@@ -6,13 +6,13 @@ import logger from "../../logger.js";
  * @param {*} name
  * @param {*} mod
  */
-let getScaleType = (name, mod) => {
+let getScaleType = (name, data, mod) => {
   // scaleTypes:
   // SPELLSCALE - typical spells that scale
   // SPELLLEVEL - these spells have benefits that come in at particular levels e.g. bestow curse, hex. typically  duration changes
   // CHARACTERLEVEL - typical cantrip based levelling, some expections (eldritch blast)
   let scaleType = null;
-  const modScaleType = mod.atHigherLevels.scaleType;
+  const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : data.definition.scaleType;
   const isHigherLevelDefinitions =
     mod.atHigherLevels.higherLevelDefinitions &&
     Array.isArray(mod.atHigherLevels.higherLevelDefinitions) &&
@@ -75,6 +75,7 @@ export function getSpellScaling(data) {
     // iterate over each spell modifier
     data.definition.modifiers
       .filter((mod) => mod.type === "damage" || (mod.type === "bonus" && mod.subType === "hit-points"))
+      // eslint-disable-next-line complexity
       .forEach((mod) => {
         // if the modifier has a die for damage, lets use the string or fixed value
         // for the base damage
@@ -104,7 +105,8 @@ export function getSpellScaling(data) {
             mod.atHigherLevels.higherLevelDefinitions.length >= 1;
 
           // lets handle normal spell leveling first
-          if (isHigherLevelDefinitions && mod.atHigherLevels.scaleType === "spellscale") {
+          const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : data.definition.scaleType;
+          if (isHigherLevelDefinitions && modScaleType === "spellscale") {
             const definition = mod.atHigherLevels.higherLevelDefinitions[0];
             if (definition) {
               const modScaleDamage =
@@ -132,12 +134,12 @@ export function getSpellScaling(data) {
             } else {
               logger.warn("No definition found for " + data.definition.name);
             }
-          } else if (isHigherLevelDefinitions && mod.atHigherLevels.scaleType === "characterlevel") {
+          } else if (isHigherLevelDefinitions && modScaleType === "characterlevel") {
             // cantrip support, important to set to a fixed vaue if using abilities like potent spellcasting
             scaleDamage = baseDamage;
           }
 
-          scaleType = getScaleType(data.definition.name, mod);
+          scaleType = getScaleType(data.definition.name, data, mod);
         }
       });
   }

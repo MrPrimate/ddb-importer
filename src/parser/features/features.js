@@ -86,7 +86,7 @@ function parseFeature(feat, ddb, character, source, type) {
       let choiceItem = JSON.parse(JSON.stringify(item));
       let choiceFeat = feat.definition ? JSON.parse(JSON.stringify(feat.definition)) : JSON.parse(JSON.stringify(feat));
 
-     if (item.name === choice.label) return;
+      if (item.name === choice.label) return;
 
       choiceItem.name = choice.label ? `${choiceItem.name}: ${choice.label}` : choiceItem.name;
       if (choiceFeat.description) {
@@ -255,13 +255,17 @@ export default function parseFeatures(ddb, character) {
 
   let items = [];
 
+  const excludedOriginFeatures = ddb.character.optionalOrigins
+    .filter((f) => f.affectedRacialTraitId)
+    .map((f) => f.affectedRacialTraitId);
+
   // racial traits
   ddb.character.race.racialTraits
     .filter(
-      (trait) => !trait.definition.hideInSheet)
+      (trait) => !trait.definition.hideInSheet && !excludedOriginFeatures.includes(trait.definition.id))
     .forEach((feat) => {
       const source = utils.parseSource(feat.definition);
-      let features = parseFeature(feat, ddb, character, source, "race");
+      const features = parseFeature(feat, ddb, character, source, "race");
       features.forEach((item) => {
         const existingFeature = getNameMatchedFeature(items, item);
         const duplicateFeature = isDuplicateFeature(items, item);
@@ -282,7 +286,7 @@ export default function parseFeatures(ddb, character) {
     .forEach((feat) => {
       logger.debug(`Parsing Optional Feature ${feat.name}`);
       const source = utils.parseSource(feat);
-      let feats = parseFeature(feat, ddb, character, source, "feat");
+      const feats = parseFeature(feat, ddb, character, source, "feat");
       feats.forEach((item) => {
         items.push(item);
       });
@@ -306,7 +310,7 @@ export default function parseFeatures(ddb, character) {
   ddb.character.feats
     .forEach((feat) => {
       const source = utils.parseSource(feat.definition);
-      let feats = parseFeature(feat, ddb, character, source, "feat");
+      const feats = parseFeature(feat, ddb, character, source, "feat");
       feats.forEach((item) => {
         items.push(item);
       });

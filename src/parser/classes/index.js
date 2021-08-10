@@ -93,19 +93,23 @@ export default function parseClasses(ddb) {
 
     let skillsChosen = [];
     let skillChoices = [];
+    const choiceDefinitions = ddb.character.choices.choiceDefinitions;
     ddb.character.choices.class.filter((choice) =>
       classProficiencyFeatureIds.includes(choice.componentId) &&
       choice.subType === 1 &&
       choice.type === 2
     ).forEach((choice) => {
-      const option = choice.options.find((option) => option.id === choice.optionValue);
+      const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!optionChoice) return;
+      const option = optionChoice.options.find((option) => option.id === choice.optionValue);
       if (!option) return;
       const smallChosen = DICTIONARY.character.skills.find((skill) => skill.label === option.label);
       if (smallChosen && !skillsChosen.includes(smallChosen.name)) {
         skillsChosen.push(smallChosen.name);
       }
-      const optionNames = choice.options.filter((option) =>
-        DICTIONARY.character.skills.some((skill) => skill.label === option.label)
+      const optionNames = optionChoice.options.filter((option) =>
+        DICTIONARY.character.skills.some((skill) => skill.label === option.label) &&
+        choice.optionIds.includes(option.id)
       ).map((option) =>
         DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
       );

@@ -47,7 +47,7 @@ function getClassOptionsData(className) {
   const debugJson = game.settings.get("ddb-importer", "debug-json");
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/classes/options`, {
+    fetch(`${parsingApi}/proxy/v5/classes/options`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

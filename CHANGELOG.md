@@ -1,3 +1,7 @@
+# 2.3.2
+
+* Use new v5 api endpoints from DDB, to allow future container work, and to fulfil the rentless march of progress.
+
 # 2.3.1
 
 * Encounter Muncher could hang if Compendium contained non DDB monsters.

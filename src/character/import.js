@@ -92,7 +92,7 @@ const getCharacterId = (url) => {
       return null;
     },
     () => {
-      const PATTERN = /character-service.dndbeyond.com\/character\/v4\/character\/(\d+)/;
+      const PATTERN = /character-service.dndbeyond.com\/character\/v\d+\/character\/(\d+)/;
       matches = url.match(PATTERN);
       if (matches) {
         return matches[1];
@@ -110,7 +110,7 @@ const getCharacterId = (url) => {
  * @returns {string|null} The API endpoint
  */
 const getCharacterAPIEndpoint = (characterId) => {
-  return characterId !== null ? `https://character-service.dndbeyond.com/character/v4/character/${characterId}` : null;
+  return characterId !== null ? `https://character-service.dndbeyond.com/character/v5/character/${characterId}` : null;
 };
 
 const getCharacterUpdatePolicyTypes = (invert = false) => {
@@ -174,7 +174,7 @@ export async function getCharacterData(characterId, syncId, localCobaltPostFix =
   }
 
   try {
-    const response = await fetch(`${parsingApi}/proxy/character`, {
+    const response = await fetch(`${parsingApi}/proxy/v5/character`, {
       method: "POST",
       mode: "cors", // no-cors, *cors, same-origin
       cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -386,8 +386,8 @@ export default class CharacterImport extends FormApplication {
     const userHasPermission = !(game.settings.get("ddb-importer", "restrict-to-trusted") && !game.user.isTrusted);
     if (
       userHasPermission &&
-      data.avatarUrl &&
-      data.avatarUrl !== "" &&
+      data.decorations?.avatarUrl &&
+      data.decorations.avatarUrl !== "" &&
       (imagePath.indexOf("mystery-man") !== -1 || game.settings.get("ddb-importer", "character-update-policy-image"))
     ) {
       CharacterImport.showCurrentTask(html, "Uploading avatar image");
@@ -397,10 +397,10 @@ export default class CharacterImport extends FormApplication {
         .trim();
 
       const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
-      imagePath = await utils.uploadImage(data.avatarUrl, uploadDirectory, filename);
+      imagePath = await utils.uploadImage(data.decorations.avatarUrl, uploadDirectory, filename);
       this.result.character.img = imagePath;
-      if (data.frameAvatarUrl && data.frameAvatarUrl !== "") {
-        const framePath = await utils.uploadImage(data.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
+      if (data.decorations?.frameAvatarUrl && data.decorations.frameAvatarUrl !== "") {
+        const framePath = await utils.uploadImage(data.decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
         this.result.character.flags.ddbimporter["framePath"] = framePath;
       }
     }
@@ -417,7 +417,7 @@ export default class CharacterImport extends FormApplication {
     ) {
       const characterId = this.actor.data.flags.ddbimporter.dndbeyond.url.split("/").pop();
       if (characterId) {
-        const jsonUrl = "https://character-service.dndbeyond.com/character/v4/character/" + characterId;
+        const jsonUrl = "https://character-service.dndbeyond.com/character/v5/character/" + characterId;
         logger.info("%c **Character JSON          :** " + jsonUrl, "color: #ff0000");
       }
     }

@@ -2,7 +2,7 @@ import CharacterImport from "../../character/import.js";
 import logger from "../../logger.js";
 import { DDBSetup, isSetupComplete } from "../../lib/Settings.js";
 
-const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v4/character/";
+const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v5/character/";
 // reference to the D&D Beyond popup
 const POPUPS = {
   json: null,

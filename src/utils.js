@@ -280,6 +280,8 @@ const utils = {
     return modifiers;
   },
 
+  // I need to getChosenOriginFeatures from data.optionalOriginFeatures
+
   filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false) => {
     const modifiers = [
       utils.getChosenClassModifiers(data, includeExcludedEffects, effectOnly),
@@ -328,24 +330,6 @@ const utils = {
   getChoices: (ddb, type, feat) => {
     const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
 
-    /**
-     * EXAMPLE: Totem Spirit: Bear
-      componentId: 100
-      componentTypeId: 12168134
-      defaultSubtypes: []
-      id: "3-0-43966541"
-      isInfinite: false
-      isOptional: false
-      label: null
-      optionValue: 177
-      options: Array(5)
-        0: {id: 177, label: "Bear", description: "<p>While raging, you have resistance to all damage…u tough enough to stand up to any punishment.</p>"}
-        1: {id: 178, label: "Eagle", description: "<p>While you’re raging, other creatures have disad…tor who can weave through the fray with ease.</p>"}
-        2: {id: 179, label: "Wolf", description: "<p>While you’re raging, your friends have advantag…it of the wolf makes you a leader of hunters.</p>"}
-        3: {id: 180, label: "Elk", description: "<p>While you are raging and aren't wearing heavy a…t of the elk makes you extraordinarily swift.</p>"}
-        4: {id: 181, label: "Tiger", description: "<p>While raging, you can add 10 feet to your long … The spirit of the tiger empowers your leaps.</p>"}
-  */
-
     if (ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
       // find a choice in the related choices-array
       const choices = ddb.character.choices[type].filter(
@@ -353,17 +337,19 @@ const utils = {
       );
 
       if (choices) {
+        const choiceDefinitions = ddb.character.choices.choiceDefinitions;
+
         const options = choices
           .filter(
-            (choice) =>
-              choice.options &&
-              Array.isArray(choice.options) &&
-              choice.optionValue &&
-              choice.options.find((opt) => opt.id === choice.optionValue)
-          )
+            (choice) => {
+              const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+              const validOption = optionChoice && optionChoice.options.find((option) => option.id === choice.optionValue);
+              return validOption;
+            })
           .map((choice) => {
             // console.warn(choice);
-            let result = choice.options.find((opt) => opt.id === choice.optionValue);
+            const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
+            let result = optionChoice.options.find((option) => option.id === choice.optionValue);
             result.componentId = choice.componentId;
             result.componentTypeId = choice.componentTypeId;
             result.choiceId = choice.id;

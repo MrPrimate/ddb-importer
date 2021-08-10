@@ -33,7 +33,7 @@ async function getMonsterData(ids) {
   const debugJson = game.settings.get("ddb-importer", "debug-json");
 
   const url = ids && ids.length > 0
-    ? `${parsingApi}/proxy/monstersById`
+    ? `${parsingApi}/proxy/monsters/ids`
     : `${parsingApi}/proxy/monster`;
 
   return new Promise((resolve, reject) => {
