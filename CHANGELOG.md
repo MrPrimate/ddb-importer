@@ -1,3 +1,7 @@
+# 2.3.3
+
+* Unarmored Movement now works correctly (again) with Active Effect generation when using DAE SRD.
+
 # 2.3.2
 
 * Use new v5 api endpoints from DDB, to allow future container work, and to fulfil the rentless march of progress.

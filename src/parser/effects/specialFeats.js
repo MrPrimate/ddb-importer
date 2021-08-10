@@ -22,6 +22,19 @@ export function featureEffectAdjustment(document) {
       });
       break;
     }
+    case "Unarmored Movement": {
+      document.effects.forEach((effect) => {
+        if (effect.label.includes("Constant Effects")) {
+          effect.changes = [{
+            key: "data.attributes.movement.walk",
+            value: "max(10+(ceil(((@classes.monk.levels)-5)/4))*5,10)",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            priority: 20,
+          }];
+        }
+      });
+      break;
+    }
     case "Rage": {
       let effect = baseItemEffect(document, `${document.name}`);
 

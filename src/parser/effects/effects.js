@@ -92,20 +92,29 @@ const EFFECT_EXCLUDED_SENSE_MODIFIERS = [
   { type: "sense", subType: "truesight" },
 ];
 
-const EFFECT_EXCLUDED_SPEED_MODIFIERS = [
+const EFFECT_EXCLUDED_SPEED_SET_MODIFIERS = [
   // speeds
   { type: "set", subType: "innate-speed-walking" },
   { type: "set", subType: "innate-speed-climbing" },
   { type: "set", subType: "innate-speed-swimming" },
   { type: "set", subType: "innate-speed-flying" },
+];
 
+const EFFECT_EXCLUDED_SPEED_BONUS_MODIFIERS = [
   { type: "bonus", subType: "speed" },
-  { type: "bonus", subType: "unarmored-movement" },
   { type: "bonus", subType: "speed-walking" },
   { type: "bonus", subType: "speed-climbing" },
   { type: "bonus", subType: "speed-swimming" },
   { type: "bonus", subType: "speed-flying" },
 ];
+
+const EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS = EFFECT_EXCLUDED_SPEED_SET_MODIFIERS.concat(EFFECT_EXCLUDED_SPEED_BONUS_MODIFIERS);
+
+const EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS = [
+  { type: "bonus", subType: "unarmored-movement" },
+];
+
+const EFFECT_EXCLUDED_ALL_SPEED_MODIFIERS = EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
 
 const EFFECT_EXCLUDED_ABILITY_BONUSES = [
   { type: "bonus", subType: "strength-score" },
@@ -152,20 +161,25 @@ export function getEffectExcludedModifiers(type) {
   //   if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-languages`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
   // }
   if (["feat", "background", "race", "class"].includes(type)) {
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPEED_MODIFIERS);
+    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
     if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-senses`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
     if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-hp`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
     if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-spell-bonus`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
     if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-damages`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
     if (game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects")) modifiers = modifiers.concat(AC_EFFECTS);
   }
+  if (["class"].includes(type)) {
+    modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
+  } else if (["feat", "background", "race"].includes(type)) {
+    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
+  };
   if (type === "item") {
     modifiers = modifiers.concat(
       EFFECT_EXCLUDED_ABILITY_BONUSES,
       EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS,
       EFFECT_EXCLUDED_LANGUAGES_MODIFIERS,
       EFFECT_EXCLUDED_PROFICIENCY_BONUSES,
-      EFFECT_EXCLUDED_SPEED_MODIFIERS,
+      EFFECT_EXCLUDED_ALL_SPEED_MODIFIERS,
       EFFECT_EXCLUDED_SENSE_MODIFIERS,
       EFFECT_EXCLUDED_HP_MODIFIERS,
       EFFECT_EXCLUDED_SPELL_MODIFIERS,
@@ -679,6 +693,7 @@ function addBonusSpeedEffect(modifiers, name, subType, speedType = null) {
 
   let effects = [];
   // "Equal to Walking Speed"
+  // max(10+(ceil(((@classes.monk.levels)-5)/4))*5,10)
   if (bonuses.length > 0) {
     logger.debug(`Generating ${subType} speed bonus for ${name}`);
     if (!speedType) {
