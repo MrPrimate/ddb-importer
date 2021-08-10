@@ -1,6 +1,6 @@
 # 2.3.3
 
-* Unarmored Movement now works correctly (again) with Active Effect generation when using DAE SRD.
+* Unarmored Movement now works correctly (again) with Active Effect generation when using DAE SRD. (@miromonti)
 
 # 2.3.2
 
