@@ -1,3 +1,7 @@
+# 2.3.4
+
+* Retain Argon - Combat HUD settings on reimport.
+
 # 2.3.3
 
 * Unarmored Movement now works correctly (again) with Active Effect generation when using DAE SRD. (@miromonti)
