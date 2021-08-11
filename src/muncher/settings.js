@@ -106,7 +106,7 @@ export function getCharacterImportSettings() {
 
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-  const midiSRDInstalled = utils.isModuleInstalledAndActive("Midi-SRD");
+  const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
   const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
 
   // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
@@ -599,7 +599,7 @@ export function getMuncherSettings(includeHomebrew = true) {
   const tiers = getPatreonTiers(tier);
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-  const midiSRDInstalled = utils.isModuleInstalledAndActive("Midi-SRD");
+  const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
   const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
 
   const itemConfig = [
@@ -672,7 +672,7 @@ export function getMuncherSettings(includeHomebrew = true) {
       name: "dae-copy",
       isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
       description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
-      enabled: daeInstalled,
+      enabled: daeInstalled && daeSRDContentAvailable,
     },
   ];
 

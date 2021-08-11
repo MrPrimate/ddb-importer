@@ -1037,7 +1037,7 @@ export async function srdFiddling(items, type) {
 export async function daeFiddling(items) {
   const fiddle = game.settings.get("ddb-importer", "munching-policy-use-dae-effects");
   const installed = utils.isModuleInstalledAndActive("dae") &&
-    (utils.isModuleInstalledAndActive("Dynamic-Effects-SRD") || utils.isModuleInstalledAndActive("Midi-SRD"));
+    (utils.isModuleInstalledAndActive("Dynamic-Effects-SRD") || utils.isModuleInstalledAndActive("midi-srd"));
 
   if (fiddle && installed) {
     return addItemsDAESRD(items);

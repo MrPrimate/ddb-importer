@@ -701,7 +701,7 @@ export default class CharacterImport extends FormApplication {
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     const daeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy");
     const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-    const daeMidiInstalled = utils.isModuleInstalledAndActive("Midi-SRD");
+    const daeMidiInstalled = utils.isModuleInstalledAndActive("midi-srd");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const addItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
     const addItemACEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
@@ -1099,7 +1099,7 @@ export default class CharacterImport extends FormApplication {
     // copy items whole from DAE
     const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
     const daeInstalled =
-      utils.isModuleInstalledAndActive("dae") && (utils.isModuleInstalledAndActive("Dynamic-Effects-SRD") || utils.isModuleInstalledAndActive("Midi-SRD"));
+      utils.isModuleInstalledAndActive("dae") && (utils.isModuleInstalledAndActive("Dynamic-Effects-SRD") || utils.isModuleInstalledAndActive("midi-srd"));
     if (daeCopy && daeInstalled) {
       CharacterImport.showCurrentTask(html, "Importing DAE SRD");
       await migrateActorDAESRD(this.actor);

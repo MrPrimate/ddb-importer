@@ -1,6 +1,7 @@
 # 2.3.3
 
 * Unarmored Movement now works correctly (again) with Active Effect generation when using DAE SRD. (@miromonti)
+* Midi-SRD module name was incorrect during module detection.
 
 # 2.3.2
 
