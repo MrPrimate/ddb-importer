@@ -23,7 +23,6 @@
 // SOFTWARE.
 
 import logger from "../logger.js";
-import utils from "../utils.js";
 import { updateCharacterItemFlags } from "./import.js";
 
 var packsLoaded = false;
