@@ -1,6 +1,7 @@
 # 2.3.4
 
 * Retain Argon - Combat HUD settings on reimport.
+* Actually commit code to allow Midi-SRD compendiums to load.
 
 # 2.3.3
 

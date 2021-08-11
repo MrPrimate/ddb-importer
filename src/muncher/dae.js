@@ -54,11 +54,11 @@ export async function loadPacks() {
   const srdMidi = game.packs.get("Dynamic-Effects-SRD.DAE SRD Midi-collection");
   midiPack = srdMidi ? await srdMidi.getDocuments() : [];
 
-  const midiItems = game.packs.get("Midi-SRD.MIDI SRD Items");
+  const midiItems = game.packs.get("midi-srd.Midi SRD Items");
   midiItemsPack = midiItems ? await midiItems.getDocuments() : [];
-  const midiSpells = game.packs.get("Midi-SRD.MIDI SRD Spells");
+  const midiSpells = game.packs.get("midi-srd.Midi SRD Spells");
   midiSpellsPack = midiSpells ? await midiSpells.getDocuments() : [];
-  const midiFeats = game.packs.get("Midi-SRD.MIDI SRD Feats");
+  const midiFeats = game.packs.get("midi-srd.Midi SRD Feats");
   midiFeatsPack = midiFeats ? await midiFeats.getDocuments() : [];
 
   // eslint-disable-next-line require-atomic-updates
@@ -85,17 +85,17 @@ function dataSwap(itemData, replaceData) {
   return replaceData;
 }
 
-function matchItem(itemData, midiInstalled) {
+function matchItem(itemData) {
   // we only add the midi packs if midi is actually installed
   let returnItem = null;
   switch (itemData.type) {
     case "feat": {
-      const featPacks = (midiInstalled) ? [midiFeatsPack, midiPack, featsPack] : [featsPack];
+      const featPacks = [midiFeatsPack, midiPack, featsPack];
       returnItem = findDAEItem(itemData, featPacks);
       break;
     }
     case "spell": {
-      const spellPacks = (midiInstalled) ? [midiSpellsPack, midiPack, spellPack] : [spellPack];
+      const spellPacks = [midiSpellsPack, midiPack, spellPack];
       returnItem = findDAEItem(itemData, spellPacks);
       break;
     }
@@ -105,7 +105,7 @@ function matchItem(itemData, midiInstalled) {
     case "consumable":
     case "tool":
     case "backpack": {
-      const equipmentPacks = (midiInstalled) ? [midiItemsPack, midiPack, itemPack, magicItemsPack] : [itemPack, magicItemsPack];
+      const equipmentPacks = [midiItemsPack, midiPack, itemPack, magicItemsPack];
       returnItem = findDAEItem(itemData, equipmentPacks);
       break;
     }
@@ -122,12 +122,11 @@ function matchItem(itemData, midiInstalled) {
  */
 export async function migrateItemsDAESRD(items) {
   if (!packsLoaded) await loadPacks();
-  const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
 
   return new Promise((resolve) => {
     resolve(
       items.map((itemData) => {
-        let replaceData = matchItem(itemData, midiInstalled);
+        let replaceData = matchItem(itemData);
         if (replaceData) {
           logger.debug(`migrating ${replaceData.data.name}`);
           setProperty(replaceData.data.flags, "dae.migrated", true);
@@ -146,12 +145,11 @@ export async function migrateItemsDAESRD(items) {
 export async function addItemsDAESRD(items) {
   // eslint-disable-next-line require-atomic-updates
   if (!packsLoaded) await loadPacks();
-  const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
 
   return new Promise((resolve) => {
     resolve(
       items.map((itemData) => {
-        let replaceData = matchItem(itemData, midiInstalled);
+        let replaceData = matchItem(itemData);
         if (replaceData) {
           replaceData = replaceData.data.toObject();
           logger.debug(`Adding effects for ${replaceData.name}`);
