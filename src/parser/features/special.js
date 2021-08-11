@@ -179,6 +179,22 @@ export function fixFeatures(features) {
         feature.data["target"]["type"] = "self";
         feature.data["range"]["type"] = "self";
         break;
+      case "Healing Hands": {
+        feature.data.damage = {
+          parts: [["@details.level[healing]", "healing"]],
+          versatile: "",
+          value: "",
+        };
+        feature.data.actionType = "heal";
+        feature.data["target"]["type"] = "creature";
+        feature.data["range"] = {
+          type: "touch",
+          value: null,
+          long: null,
+          units: "touch"
+        };
+        break;
+      }
       case "Stone's Endurance":
       case "Stone’s Endurance":
         feature.data.damage = { parts: [["1d12 + @mod", ""]], versatile: "", value: "" };
