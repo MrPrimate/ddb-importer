@@ -925,6 +925,14 @@ export default function () {
     default: false,
   });
 
+  // build compendium folers?
+  game.settings.register("ddb-importer", "munching-policy-use-compendium-folders-monster", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "munching-policy-use-srd-icons", {
     name: "ddb-importer.munching-policy-use-srd-icons.name",
     hint: "ddb-importer.munching-policy-use-srd-icons.hint",

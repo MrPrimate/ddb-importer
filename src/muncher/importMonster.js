@@ -4,6 +4,7 @@ import DICTIONARY from "../dictionary.js";
 import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons } from "./import.js";
 import { munchNote } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
+import { addToCompendiumFolder } from "./compendiumFolders.js";
 
 var compendiumLoaded = false;
 var monsterCompendium;
@@ -78,22 +79,24 @@ async function addNPCToCompendium(npc) {
 
     const index = await compendium.getIndex();
     const npcMatch = index.contents.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
+
+    let compendiumNPC;
     if (npcMatch) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
-        const newNPC = npc;
+        compendiumNPC = npc;
         const existingNPC = await compendium.getDocument(npcMatch._id);
 
         const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
         if (!updateImages && existingNPC.data.img !== "icons/svg/mystery-man.svg") {
-          newNPC.img = existingNPC.data.img;
+          compendiumNPC.img = existingNPC.data.img;
         }
         if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
-          newNPC.token.img = existingNPC.data.token.img;
+          compendiumNPC.token.img = existingNPC.data.token.img;
         }
 
-        newNPC._id = npcMatch._id;
+        compendiumNPC._id = npcMatch._id;
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-        await existingNPC.update(newNPC);
+        await existingNPC.update(compendiumNPC);
       }
     } else {
       // create the new npc
@@ -103,8 +106,10 @@ async function addNPCToCompendium(npc) {
         displaySheet: false,
       };
       const newNPC = await Actor.create(npc, options);
-      await compendium.importDocument(newNPC);
+      compendiumNPC = await compendium.importDocument(newNPC);
     }
+    // check compendium stiff
+    await addToCompendiumFolder("npc", compendiumNPC);
   } else {
     logger.error("Error opening compendium, check your settings");
   }
