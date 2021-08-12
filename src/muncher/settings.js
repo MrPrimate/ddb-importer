@@ -693,7 +693,7 @@ export function getMuncherSettings(includeHomebrew = true) {
         {
           name: "monster-exact-match",
           isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exact-match"),
-          description: "Exact name match? (case insensitive)",
+          description: "Exact name match?",
           enabled: tiers.homebrew,
         }
       ]
