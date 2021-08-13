@@ -1,5 +1,6 @@
-import utils from "../../utils.js";
+import utils from "../utils.js";
 import { getCompendiumLabel } from "./import.js";
+import { DDB_CONFIG } from "../ddbConfig.js";
 
 // The API parses the folders in the compendium and stores them in a FICFolder object.
 // The class doesn't have many methods, but the most important one for you would
@@ -41,18 +42,77 @@ async function loadCompendiumFolders(packCode) {
   return compendiumFolders;
 }
 
-async function createCompendiumFolder(packName, type, name) {
-  // createFolderAtRoot(packCode,name,color,fontColor)
-  await game.CF.FICFolderAPI.createFolderAtRoot(packName, name);
-}
-
-// create compendium folders for existing things
-export async function createCompendiumFoldersExisting(type) {
+// create compendium folder structure
+async function createCompendiumFolderStructure(type) {
   // loop through all existing monts/etc and generate a folder and move documents to it
   const packName = await getCompendiumLabel(type);
   await loadCompendiumFolders(packName);
 
+  switch (type) {
+    case "monsters":
+    case "npc":
+    case "monster": {
+      DDB_CONFIG.monsterTypes.forEach(async (monsterType) => {
+        console.warn(`Creating compedium folder ${monsterType.name}`);
+        const folderName = monsterType.name;
+        const existingFolder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == folderName);
+        if (!existingFolder) {
+          // createFolderAtRoot(packCode,name,color,fontColor)
+          await game.CF.FICFolderAPI.createFolderAtRoot(packName, monsterType.name);
+        }
+      });
+      break;
+    }
+    // no default
+  }
+
 }
+
+// create compendium folders for existing things
+export async function migrateExistingCompendium(type) {
+  // loop through all existing monts/etc and generate a folder and move documents to it
+  const packName = await getCompendiumLabel(type);
+  await loadCompendiumFolders(packName);
+  await createCompendiumFolderStructure(type);
+
+  const compendium = game.packs.get(packName);
+  if (!compendium) return undefined;
+  const indexFields = [
+    "name",
+    "data.details.type.value",
+    "data.flags.cf",
+  ];
+  const index = await compendium.getIndex({ fields: indexFields });
+
+  switch (type) {
+    case "monsters":
+    case "npc":
+    case "monster": {
+      // loop through all existing monsters and move them to their type
+      index
+      .filter((monster) => monster.name !== "#[CF_tempEntity]" && monster.data?.details?.type?.value)
+      .forEach(async (monster) => {
+        console.warn(`Checking ${monster.name}`);
+        const type = monster.data.details.type.value;
+        const ddbType = DDB_CONFIG.monsterTypes.find((c) => type.toLowerCase() == c.name.toLowerCase());
+        if (ddbType) {
+          console.warn(`Moving ${monster.name}`);
+          const existingNPC = await compendium.getDocument(monster._id);
+          const folder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == ddbType.name);
+          console.log(`Monster ${monster.name} folder:`, folder);
+          await game.CF.FICFolderAPI.moveDocumentToFolder(packName, existingNPC, folder);
+        }
+      });
+      break;
+    }
+    // no default
+  }
+
+  return true;
+
+}
+
+window.migrateExistingCompendium = migrateExistingCompendium;
 
 export async function addToCompendiumFolder(type, document) {
   const addToCompendium = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders-monster");
@@ -66,4 +126,27 @@ export async function addToCompendiumFolder(type, document) {
     // move object to folder
   }
 
+
 }
+
+// await game.CF.FICFolderAPI.createFolderAtRoot("world.ddb-monsters-2", "Official!");
+// await game.CF.FICFolderAPI.createFolderAtRoot("world.ddb-monsters-2", "Homebrew!");
+
+
+
+// let packCode = "world.ddb-monsters-2";
+// let folderName = "Official!";
+
+// let compendium = game.packs.getName(packCode);
+// let index = await compendium.getIndex();
+// let npc = {
+//   "name": "Dave",
+// }
+
+
+// let npcMatch = index.contents.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
+// let existingNPC = await compendium.getDocument(npcMatch._id);
+
+// let folder = game.customFolders.fic.folders.find((f) => f.packCode === packCode && f.name == folderName);
+
+// game.CF.FICFolderAPI.moveDocumentToFolder(packCode, existingNPC, folder);

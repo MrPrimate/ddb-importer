@@ -21,6 +21,7 @@ const compendiumLookup = [
   { type: "race", compendium: "entity-race-compendium" },
   { type: "npc", compendium: "entity-monster-compendium" },
   { type: "monsters", compendium: "entity-monster-compendium" },
+  { type: "monster", compendium: "entity-monster-compendium" },
   { type: "custom", compendium: "entity-override-compendium" },
   { type: "feat", name: "entity-feature-compendium" },
   { type: "weapon", name: "entity-item-compendium" },
