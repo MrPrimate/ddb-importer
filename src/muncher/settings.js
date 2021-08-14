@@ -601,6 +601,8 @@ export function getMuncherSettings(includeHomebrew = true) {
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
   const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
   const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
+  const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders-monster");
+  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
 
   const itemConfig = [
     {
@@ -674,6 +676,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
       enabled: daeInstalled && daeSRDContentAvailable,
     },
+    {
+      name: "use-compendium-folders-monster",
+      isChecked: compendiumFolderAdd,
+      description: "Generate compendium folders based on creature type (requires Compendium Folders module). You can migrate an existing import in the Tools tab.",
+      enabled: compendiumFoldersInstalled && compendiumFolderAdd,
+    }
   ];
 
   const homebrewMonsterConfig = includeHomebrew
@@ -748,13 +756,14 @@ export function getMuncherSettings(includeHomebrew = true) {
   ];
 
   const resultData = {
-    cobalt: cobalt,
-    genericConfig: genericConfig,
-    monsterConfig: monsterConfig,
-    spellConfig: spellConfig,
-    itemConfig: itemConfig,
+    cobalt,
+    genericConfig,
+    monsterConfig,
+    spellConfig,
+    itemConfig,
     beta: betaKey && cobalt,
-    tiers: tiers,
+    tiers,
+    compendiumFoldersInstalled,
   };
 
   // console.warn(resultData);

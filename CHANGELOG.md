@@ -1,3 +1,9 @@
+# 2.3.6
+
+* Support for Compendium Folders in Monster Muncher.
+* Feat, race, and frame munch are now available to all Patreon supporters.
+* Encounter Muncher is now available to Undying Patreon Supporters.
+
 # 2.3.4/5
 
 * Retain Argon - Combat HUD settings on reimport.

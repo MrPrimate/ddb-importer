@@ -13,6 +13,7 @@ import { getCobalt } from "../lib/Secrets.js";
 import { generateAdventureConfig } from "./adventure.js";
 import AdventureMunch from "./adventure/import.js";
 import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
+import { migrateExistingCompendium } from "./compendiumFolders.js";
 
 
 function getSourcesLookups(selected) {
@@ -95,7 +96,7 @@ export default class DDBMuncher extends Application {
     options.template = "modules/ddb-importer/handlebars/munch.hbs";
     options.resizable = false;
     options.height = "auto";
-    options.width = 700;
+    options.width = 800;
     options.title = "MrPrimate's Muncher";
     options.classes = ["ddb-muncher", "sheet"];
     options.tabs = [{ navSelector: ".tabs", contentSelector: "div", initial: "settings" }];
@@ -156,6 +157,11 @@ export default class DDBMuncher extends Application {
     html.find("#munch-adventure-import-start").click(async () => {
       DDBMuncher.importAdventure();
     });
+    html.find("#munch-migrate-compendium-monster").click(async () => {
+      munchNote(`Migrating monster compendium...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.migrateCompendiumFolders("monsters");
+    });
 
     // watch the change of the import-policy-selector checkboxes
     $(html)
@@ -191,16 +197,19 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-items-start"]').prop('disabled', false);
       $('button[id^="munch-adventure-config-start"]').prop('disabled', false);
       $('button[id^="munch-adventure-import-start"]').prop('disabled', false);
+      $('button[id^="munch-migrate-compendium-monster"]').prop('disabled', false);
 
       if (tiers.all) {
         $('button[id^="munch-monsters-start"]').prop('disabled', false);
       }
-      if (tiers.experimentalMid) {
+      if (tiers.supporter) {
         $('button[id^="munch-races-start"]').prop('disabled', false);
         $('button[id^="munch-feats-start"]').prop('disabled', false);
-        $('button[id^="munch-classes-start"]').prop('disabled', false);
         $('button[id^="munch-source-select"]').prop('disabled', false);
         $('button[id^="munch-frames-start"]').prop('disabled', false);
+      }
+      if (tiers.experimentalMid) {
+        $('button[id^="munch-classes-start"]').prop('disabled', false);
       }
     }
   }
@@ -309,6 +318,13 @@ export default class DDBMuncher extends Application {
       logger.error(error);
       logger.error(error.stack);
     }
+  }
+
+  static async migrateCompendiumFolders(type) {
+    logger.info(`Migrating ${type} compendium`);
+    await migrateExistingCompendium(type);
+    munchNote(`Migrating complete.`, true);
+    DDBMuncher.enableButtons();
   }
 
   static async selectSources() {

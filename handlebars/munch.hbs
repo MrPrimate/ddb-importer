@@ -25,6 +25,7 @@
     <a class="item" data-tab="items"><i class="fas fa-shield-alt"></i> Items</a>
     <a class="item" data-tab="monsters"><i class="fas fa-pastafarianism"></i> Monsters</a>
     <a class="item" data-tab="adventures"><i class="fas fa-book-reader"></i> Adventures</a>
+    <a class="item" data-tab="tools"><i class="fas fa-tools"></i> Tools</a>
     <a class="item" data-tab="experimental"><i class="fas fa-flask"></i> Experimental</a>
     <a class="item" data-tab="help"><i class="fas fa-info-circle"></i> Help</a>
   </nav>
@@ -99,27 +100,6 @@
       </div>
   </div>
   </section>
-  <section class="tab" data-tab="experimental">
-  <div class="form-section">
-      <div class="form-description">
-          <div class="form-description"></div>
-              <div>
-                  <h4>These features are experimental. Races and Feats are working well. Class Features are not entirely complete and rough around the edges.</h4>
-              </div>
-                <div>
-                  <button type="button" id="munch-feats-start" class="munch-button"
-                      {{#if tiers.experimentalMid}}enabled{{else}}disabled{{/if}}>{{#if tiers.experimentalMid}}[Experimental] Feat Munch{{else}}[Experimental] Feat for Undying and God Tier Supporters{{/if}}</button>
-                  <button type="button" id="munch-races-start" class="munch-button"
-                      {{#if tiers.experimentalMid}}enabled{{else}}disabled{{/if}}>{{#if tiers.experimentalMid}}[Experimental] Race and Racial Traits Munch{{else}}[Experimental] Races for Undying and God Tier Supporters{{/if}}</button>
-                  <button type="button" id="munch-classes-start" class="munch-button"
-                      {{#if tiers.experimentalMid}}enabled{{else}}disabled{{/if}}>{{#if tiers.experimentalMid}}[Experimental] Class and Class Features Munch{{else}}[Experimental] Classes for Undying and God Tier Supporters{{/if}}</button>
-                  <button type="button" id="munch-frames-start" class="munch-button"
-                      {{#if tiers.experimentalMid}}enabled{{else}}disabled{{/if}}>{{#if tiers.experimentalMid}}[Experimental] Token Frame Munch{{else}}[Experimental] Token Frames for Undying and God Tier Supporters{{/if}}</button>
-              </div>
-
-          </div>
-      </div>
-  </section>
   <section class="tab" data-tab="monsters">
   <div class="form-section">
       <div class="form-description">
@@ -144,6 +124,44 @@
                       {{#if tiers.all}}enabled{{else}}disabled{{/if}}>{{#if tiers.all}}Monster Munch!{{else}}Monster Munch for Patreon Supporters!{{/if}}</button>
               </div>
               <i>Make sure you have imported spells before Monsters!</i>
+
+          </div>
+      </div>
+  </section>
+<!-- Tools -->
+  <section class="tab" data-tab="tools">
+  <div class="form-section">
+      <div class="form-description">
+          <div class="form-description"></div>
+              <div>
+                  <h4>Tools.</h4>
+              </div>
+                <div>
+                  <button type="button" id="munch-migrate-compendium-monster" class="munch-button" {{#if compendiumFoldersInstalled}}enabled{{else}}disabled{{/if}}
+                  >Migrate Monster Compendium to Compendium Folders Layout</button>
+              </div>
+
+          </div>
+      </div>
+  </section>
+<!-- Experimental -->
+  <section class="tab" data-tab="experimental">
+  <div class="form-section">
+      <div class="form-description">
+          <div class="form-description"></div>
+              <div>
+                  <h4>These features are experimental. Races and Feats are working well. Class Features are not entirely complete and rough around the edges.</h4>
+              </div>
+                <div>
+                  <button type="button" id="munch-classes-start" class="munch-button"
+                      {{#if tiers.experimentalMid}}enabled{{else}}disabled{{/if}}>{{#if tiers.experimentalMid}}[Experimental] Class and Class Features Munch{{else}}[Experimental] Classes for Undying and God Tier Supporters{{/if}}</button>
+                  <button type="button" id="munch-feats-start" class="munch-button"
+                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Feat Munch{{else}} Feat for Patreon Supporters{{/if}}</button>
+                  <button type="button" id="munch-races-start" class="munch-button"
+                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Race and Racial Traits Munch{{else}}Races for Patreon Supporters{{/if}}</button>
+                  <button type="button" id="munch-frames-start" class="munch-button"
+                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Token Frame Munch{{else}}Token Frames for Undying and God Tier Supporters{{/if}}</button>
+              </div>
 
           </div>
       </div>
