@@ -216,7 +216,7 @@ function replaceTag(match, p1, p2, p3, offset, string) {
   if (srdMatch) {
     return `@Compendium[dnd5e.rules.${srdMatch._id}]{${p2}}`;
   } else {
-    logger.warn(`Unable to find tag parse compendium match for ${match}`);
+    logger.info(`Unable to find tag parse compendium match for ${match}`);
   }
   return p2;
 }
