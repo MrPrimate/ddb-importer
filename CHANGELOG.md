@@ -1,6 +1,6 @@
 # 2.3.6
 
-* Support for Compendium Folders in Monster Muncher.
+* Support for Compendium Folders in Monster Muncher. (Requires compendium folders v2.3.5).
 * Feat, race, and frame munch are now available to all Patreon supporters.
 * Encounter Muncher is now available to Undying Patreon Supporters.
 
