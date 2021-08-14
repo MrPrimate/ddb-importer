@@ -50,7 +50,7 @@ export async function createCompendiumFolderStructure(type) {
           if (!existingFolder) {
             logger.info(`Creating compedium folder ${monsterType.name}`);
             // createFolderAtRoot(packCode,name,color,fontColor)
-            await game.CF.FICFolderAPI.createFolderAtRoot(packName, monsterType.name);
+            await game.CF.FICFolderAPI.createFolderAtRoot(packName, monsterType.name, "#6f0006");
           }
         });
         break;
@@ -58,15 +58,17 @@ export async function createCompendiumFolderStructure(type) {
       // no default
     }
     // reload folders
-    await game.CF.FICFolderAPI.loadFolders(packName);
+    return game.CF.FICFolderAPI.loadFolders(packName);
   }
 
+  return undefined;
 }
 
-export async function addToCompendiumFolder(type, document) {
+export async function addToCompendiumFolder(type, document, folders) {
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
 
   if (compendiumFoldersInstalled) {
+    if (!folders) folders = game.customFolders.fic.folders;
     const packName = await getCompendiumLabel(type);
     logger.debug(`Checking ${document.name} in ${packName}`);
 
@@ -79,10 +81,15 @@ export async function addToCompendiumFolder(type, document) {
           : "Unknown";
         const ddbType = DDB_CONFIG.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
         if (ddbType) {
-          const folder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == ddbType.name);
-          logger.info(`Moving monster ${document.name} to folder ${folder.name}`);
+          const folder = folders.find((f) => f.packCode === packName && f.name == ddbType.name);
           if (document?.data?.flags?.cf?.id) setProperty(document, "data.flags.cf.id", undefined);
-          await game.CF.FICFolderAPI.moveDocumentToFolder(packName, document, folder);
+          if (folder) {
+            logger.info(`Moving monster ${document.name} (${ddbType.name}) to folder ${folder.name}`);
+            await game.CF.FICFolderAPI.moveDocumentToFolder(packName, document, folder);
+          } else {
+            logger.error(`Unable to find folder "${ddbType.name}" in ${packName}`);
+            // console.warn(game.customFolders.fic.folders);
+          }
         }
       }
       // no default
@@ -92,17 +99,19 @@ export async function addToCompendiumFolder(type, document) {
 
 // create compendium folders for existing things
 export async function migrateExistingCompendium(type) {
-
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
 
   if (!compendiumFoldersInstalled) {
     logger.warn("Compendium Folders module is not installed");
-    return false;
+    return new Promise((resolve) => {
+      resolve(false);
+    });
   }
   // loop through all existing monts/etc and generate a folder and move documents to it
   const packName = await getCompendiumLabel(type);
-  await game.CF.FICFolderAPI.loadFolders(packName);
-  await createCompendiumFolderStructure(type);
+  const folders = await createCompendiumFolderStructure(type);
+
+  logger.debug("Compendium Folders", folders);
 
   const compendium = game.packs.get(packName);
   if (!compendium) return undefined;
@@ -113,18 +122,21 @@ export async function migrateExistingCompendium(type) {
     case "npc":
     case "monster": {
       // loop through all existing monsters and move them to their type
-      index
-      .filter((monster) => monster.name !== game.CF.TEMP_ENTITY_NAME)
-      .forEach(async (monster) => {
-        const existingNPC = await compendium.getDocument(monster._id);
-        addToCompendiumFolder(type, existingNPC);
-      });
+      await index
+        .filter((monster) => monster.name !== game.CF.TEMP_ENTITY_NAME)
+        .forEach(async (monster) => {
+          const existingNPC = await compendium.getDocument(monster._id);
+          await addToCompendiumFolder(type, existingNPC, folders);
+        });
       break;
     }
     // no default
   }
 
+  const newFolders = await game.CF.FICFolderAPI.loadFolders(packName);
 
-  return true;
+  return new Promise((resolve) => {
+    resolve(newFolders);
+  });
 
 }
