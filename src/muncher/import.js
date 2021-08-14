@@ -55,6 +55,19 @@ const srdCompendiumLookup = [
   { type: "monsterfeatures", name: "dnd5e.monsterfeatures" },
 ];
 
+const SUPPORTED_FLAG_GROUPS = [
+  "dae",
+  "maestro",
+  "mess",
+  "favtab",
+  "midi-qol",
+  "itemacro",
+  "itemmacro",
+  "autoanimations",
+  "enhancedcombathud",
+  "cf",
+];
+
 var srdIconMapLoaded = false;
 var srdIconMap = {};
 var srdPacksLoaded = {};
@@ -151,16 +164,9 @@ async function copyFlagGroup(flagGroup, originalItem, targetItem) {
  * @param {*} items
  */
 export async function copySupportedItemFlags(originalItem, item) {
-  // copyFlagGroup("dynamiceffects", originalItem, item);
-  copyFlagGroup("dae", originalItem, item);
-  copyFlagGroup("maestro", originalItem, item);
-  copyFlagGroup("mess", originalItem, item);
-  copyFlagGroup("favtab", originalItem, item);
-  copyFlagGroup("midi-qol", originalItem, item);
-  copyFlagGroup("itemacro", originalItem, item);
-  copyFlagGroup("itemmacro", originalItem, item);
-  copyFlagGroup("autoanimations", originalItem, item);
-  copyFlagGroup("enhancedcombathud", originalItem, item);
+  SUPPORTED_FLAG_GROUPS.forEach((flagGroup) => {
+    copyFlagGroup(flagGroup, originalItem, item);
+  });
 }
 
 function getMonsterNames(name) {

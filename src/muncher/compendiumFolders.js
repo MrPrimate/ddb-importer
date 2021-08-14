@@ -1,4 +1,5 @@
 import utils from "../utils.js";
+import logger from "../logger.js";
 import { getCompendiumLabel } from "./import.js";
 import { DDB_CONFIG } from "../ddbConfig.js";
 
@@ -29,60 +30,83 @@ import { DDB_CONFIG } from "../ddbConfig.js";
 // will move the provided document into the provided folder.
 // This method doesn't return anything at the moment.
 
-var compendiumFolders;
-var compendiumFoldersLoadedPackCode;
-
-async function loadCompendiumFolders(packCode) {
-  if (compendiumFoldersLoadedPackCode == packCode) {
-     return compendiumFolders;
-  }
-  compendiumFolders = await game.CF.FICFolderAPI.loadFolders(packCode);
-  // eslint-disable-next-line require-atomic-updates
-  compendiumFoldersLoadedPackCode = packCode;
-  return compendiumFolders;
-}
 
 // create compendium folder structure
-async function createCompendiumFolderStructure(type) {
-  // loop through all existing monts/etc and generate a folder and move documents to it
-  const packName = await getCompendiumLabel(type);
-  await loadCompendiumFolders(packName);
+export async function createCompendiumFolderStructure(type) {
+  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
 
-  switch (type) {
-    case "monsters":
-    case "npc":
-    case "monster": {
-      DDB_CONFIG.monsterTypes.forEach(async (monsterType) => {
-        console.warn(`Creating compedium folder ${monsterType.name}`);
-        const folderName = monsterType.name;
-        const existingFolder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == folderName);
-        if (!existingFolder) {
-          // createFolderAtRoot(packCode,name,color,fontColor)
-          await game.CF.FICFolderAPI.createFolderAtRoot(packName, monsterType.name);
-        }
-      });
-      break;
+  if (compendiumFoldersInstalled) {
+    // generate compendium folders for type
+    const packName = await getCompendiumLabel(type);
+    await game.CF.FICFolderAPI.loadFolders(packName);
+
+    switch (type) {
+      case "monsters":
+      case "npc":
+      case "monster": {
+        DDB_CONFIG.monsterTypes.forEach(async (monsterType) => {
+          const folderName = monsterType.name;
+          const existingFolder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == folderName);
+          if (!existingFolder) {
+            logger.info(`Creating compedium folder ${monsterType.name}`);
+            // createFolderAtRoot(packCode,name,color,fontColor)
+            await game.CF.FICFolderAPI.createFolderAtRoot(packName, monsterType.name);
+          }
+        });
+        break;
+      }
+      // no default
     }
-    // no default
+    // reload folders
+    await game.CF.FICFolderAPI.loadFolders(packName);
   }
 
+}
+
+export async function addToCompendiumFolder(type, document) {
+  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+
+  if (compendiumFoldersInstalled) {
+    const packName = await getCompendiumLabel(type);
+    logger.debug(`Checking ${document.name} in ${packName}`);
+
+    switch (type) {
+      case "monsters":
+      case "npc":
+      case "monster": {
+        const creatureType = document.data.data?.details?.type?.value
+          ? document.data.data?.details?.type?.value
+          : "Unknown";
+        const ddbType = DDB_CONFIG.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
+        if (ddbType) {
+          const folder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == ddbType.name);
+          logger.info(`Moving monster ${document.name} to folder ${folder.name}`);
+          if (document?.data?.flags?.cf?.id) setProperty(document, "data.flags.cf.id", undefined);
+          await game.CF.FICFolderAPI.moveDocumentToFolder(packName, document, folder);
+        }
+      }
+      // no default
+    }
+  }
 }
 
 // create compendium folders for existing things
 export async function migrateExistingCompendium(type) {
+
+  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+
+  if (!compendiumFoldersInstalled) {
+    logger.warn("Compendium Folders module is not installed");
+    return false;
+  }
   // loop through all existing monts/etc and generate a folder and move documents to it
   const packName = await getCompendiumLabel(type);
-  await loadCompendiumFolders(packName);
+  await game.CF.FICFolderAPI.loadFolders(packName);
   await createCompendiumFolderStructure(type);
 
   const compendium = game.packs.get(packName);
   if (!compendium) return undefined;
-  const indexFields = [
-    "name",
-    "data.details.type.value",
-    "data.flags.cf",
-  ];
-  const index = await compendium.getIndex({ fields: indexFields });
+  const index = await compendium.getIndex();
 
   switch (type) {
     case "monsters":
@@ -90,63 +114,17 @@ export async function migrateExistingCompendium(type) {
     case "monster": {
       // loop through all existing monsters and move them to their type
       index
-      .filter((monster) => monster.name !== "#[CF_tempEntity]" && monster.data?.details?.type?.value)
+      .filter((monster) => monster.name !== game.CF.TEMP_ENTITY_NAME)
       .forEach(async (monster) => {
-        console.warn(`Checking ${monster.name}`);
-        const type = monster.data.details.type.value;
-        const ddbType = DDB_CONFIG.monsterTypes.find((c) => type.toLowerCase() == c.name.toLowerCase());
-        if (ddbType) {
-          console.warn(`Moving ${monster.name}`);
-          const existingNPC = await compendium.getDocument(monster._id);
-          const folder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == ddbType.name);
-          console.log(`Monster ${monster.name} folder:`, folder);
-          await game.CF.FICFolderAPI.moveDocumentToFolder(packName, existingNPC, folder);
-        }
+        const existingNPC = await compendium.getDocument(monster._id);
+        addToCompendiumFolder(type, existingNPC);
       });
       break;
     }
     // no default
   }
 
+
   return true;
 
 }
-
-window.migrateExistingCompendium = migrateExistingCompendium;
-
-export async function addToCompendiumFolder(type, document) {
-  const addToCompendium = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders-monster");
-  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
-
-  if (addToCompendium && compendiumFoldersInstalled) {
-    const packName = await getCompendiumLabel(type);
-    await loadCompendiumFolders(packName);
-    // check compendium folder exists
-    // if not create
-    // move object to folder
-  }
-
-
-}
-
-// await game.CF.FICFolderAPI.createFolderAtRoot("world.ddb-monsters-2", "Official!");
-// await game.CF.FICFolderAPI.createFolderAtRoot("world.ddb-monsters-2", "Homebrew!");
-
-
-
-// let packCode = "world.ddb-monsters-2";
-// let folderName = "Official!";
-
-// let compendium = game.packs.getName(packCode);
-// let index = await compendium.getIndex();
-// let npc = {
-//   "name": "Dave",
-// }
-
-
-// let npcMatch = index.contents.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
-// let existingNPC = await compendium.getDocument(npcMatch._id);
-
-// let folder = game.customFolders.fic.folders.find((f) => f.packCode === packCode && f.name == folderName);
-
-// game.CF.FICFolderAPI.moveDocumentToFolder(packCode, existingNPC, folder);

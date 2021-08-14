@@ -1,7 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons } from "./import.js";
+import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, copySupportedItemFlags } from "./import.js";
 import { munchNote } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";
@@ -83,24 +83,24 @@ async function addNPCToCompendium(npc) {
     let compendiumNPC;
     if (npcMatch) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
-        compendiumNPC = npc;
         const existingNPC = await compendium.getDocument(npcMatch._id);
 
         const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
         if (!updateImages && existingNPC.data.img !== "icons/svg/mystery-man.svg") {
-          compendiumNPC.img = existingNPC.data.img;
+          npc.img = existingNPC.data.img;
         }
         if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
-          compendiumNPC.token.img = existingNPC.data.token.img;
+          npc.token.img = existingNPC.data.token.img;
         }
+        npc._id = npcMatch._id;
+        await copySupportedItemFlags(existingNPC.data, npc);
 
-        compendiumNPC._id = npcMatch._id;
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-        await existingNPC.update(compendiumNPC);
+        compendiumNPC = await existingNPC.update(npc);
       }
     } else {
       // create the new npc
-      logger.debug("Creating NPC actor");
+      logger.debug(`Creating NPC actor ${npc.name}`);
       const options = {
         temporary: true,
         displaySheet: false,
@@ -108,8 +108,15 @@ async function addNPCToCompendium(npc) {
       const newNPC = await Actor.create(npc, options);
       compendiumNPC = await compendium.importDocument(newNPC);
     }
-    // check compendium stiff
-    await addToCompendiumFolder("npc", compendiumNPC);
+
+    // using compendium folders?
+    const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders-monster");
+    const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+    if (compendiumFolderAdd && compendiumFoldersInstalled) {
+      // we create the compendium folder before import
+      logger.debug(`Adding ${compendiumNPC.name} to compendium folder`);
+      await addToCompendiumFolder("npc", compendiumNPC);
+    }
   } else {
     logger.error("Error opening compendium, check your settings");
   }
@@ -419,7 +426,7 @@ export async function buildNPC(data, temporary = true, update = false, handleBui
 
 async function parseNPC (data) {
   let npc = await buildNPC(data);
-  logger.debug("Adding actor to compendium");
+  logger.debug(`Adding actor ${npc.name} to compendium`);
   await addNPCToCompendium(npc);
   return npc;
 }

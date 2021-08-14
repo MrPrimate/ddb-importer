@@ -6,6 +6,7 @@ import { addNPC, generateIconMap, copyExistingMonsterImages, checkMonsterCompend
 import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
+import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 
 async function getMonsterData(ids) {
   const cobaltCookie = getCobalt();
@@ -123,6 +124,14 @@ export async function parseCritters(ids = null) {
 
   munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);
+
+
+  const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders-monster");
+  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  if (addToCompendiumFolder && compendiumFoldersInstalled) {
+    munchNote(`Checking compendium folders..`, true);
+    await createCompendiumFolderStructure("monsters");
+  }
 
   let currentMonster = 1;
   const monsterCount = finalMonsters.length;
