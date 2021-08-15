@@ -1,6 +1,7 @@
 # 2.3.8
 
 * Recharge successfully detected on Monster actions again. @kuchrk24#3751
+* Suport Natural AC for D&D 5e 1.4.2.
 
 # 2.3.7
 
