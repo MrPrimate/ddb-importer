@@ -1,3 +1,7 @@
+# 2.3.7
+
+* Improve adventure config generation speed.
+
 # 2.3.6
 
 * Support for Compendium Folders in Monster Muncher. (Requires compendium folders v2.3.5).

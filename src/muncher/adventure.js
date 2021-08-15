@@ -39,19 +39,20 @@ async function getMonsterMap () {
   // ddb://monsters
   const monsterCompendiumLabel = await game.settings.get("ddb-importer", "entity-monster-compendium");
   const monsterCompendium = await game.packs.get(monsterCompendiumLabel);
-  const monsterIndex = await monsterCompendium.getIndex();
+  const monsterIndices = ["name", "flags.ddbimporter.id"];
+  const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices });
 
-  const results = monsterIndex.map(async (i) => {
-    const monster = await monsterCompendium.getDocument(i._id);
-    return {
-      id: monster.data.flags.ddbimporter?.id,
-      _id: monster.id,
-      compendium: monsterCompendiumLabel,
-      name: monster.name,
-      token: monster.data.token,
-      documentName: monster.name,
-    };
-  });
+  const results = monsterIndex
+    .filter((monster) => monster.flags?.ddbimporter?.id)
+    .map((monster) => {
+      return {
+        id: monster.flags.ddbimporter.id,
+        _id: monster._id,
+        compendium: monsterCompendiumLabel,
+        name: monster.name,
+        documentName: monster.name,
+      };
+    });
 
   return Promise.all(results);
 }
@@ -61,18 +62,20 @@ async function getSpellMap() {
   // mm 2176
   const spellCompendiumLabel = await game.settings.get("ddb-importer", "entity-spell-compendium");
   const spellCompendium = await game.packs.find((pack) => pack.collection === spellCompendiumLabel);
-  const spellIndex = await spellCompendium.getIndex();
+  const spellIndices = ["name", "flags.ddbimporter.definitionId"];
+  const spellIndex = await spellCompendium.getIndex({ fields: spellIndices });
 
-  const results = spellIndex.map(async (i) => {
-    const spell = await spellCompendium.getDocument(i._id);
-    return {
-      id: spell.data.flags.ddbimporter?.definitionId,
-      _id: spell.id,
-      compendium: spellCompendiumLabel,
-      name: spell.name,
-      documentName: spell.name,
-    };
-  });
+  const results = spellIndex
+    .filter((spell) => spell.flags?.ddbimporter?.definitionId)
+    .map((spell) => {
+      return {
+        id: spell.flags.ddbimporter.definitionId,
+        _id: spell._id,
+        compendium: spellCompendiumLabel,
+        name: spell.name,
+        documentName: spell.name,
+      };
+    });
 
   return Promise.all(results);
 }
@@ -81,18 +84,20 @@ async function getItemMap() {
   // ddb://magicitems
   const itemCompendiumLabel = await game.settings.get("ddb-importer", "entity-item-compendium");
   const itemCompendium = await game.packs.find((pack) => pack.collection === itemCompendiumLabel);
-  const itemIndex = await itemCompendium.getIndex();
+  const itemIndices = ["name", "flags.ddbimporter.definitionId"];
+  const itemIndex = await itemCompendium.getIndex({ fields: itemIndices });
 
-  const results = itemIndex.map(async (i) => {
-    const item = await itemCompendium.getDocument(i._id);
-    return {
-      id: item.data.flags.ddbimporter?.definitionId,
-      _id: item.id,
-      compendium: itemCompendiumLabel,
-      name: item.name,
-      documentName: item.name,
-    };
-  });
+  const results = itemIndex
+    .filter((item) => item.flags?.ddbimporter?.definitionId)
+    .map((item) => {
+      return {
+        id: item.flags.ddbimporter.definitionId,
+        _id: item._id,
+        compendium: itemCompendiumLabel,
+        name: item.name,
+        documentName: item.name,
+      };
+    });
 
   return Promise.all(results);
 }
@@ -198,7 +203,7 @@ export async function generateAdventureConfig() {
     });
   }
 
-  download(JSON.stringify(result), `adventure-config.json`, "application/json");
+  download(JSON.stringify(result, null, 4), `adventure-config.json`, "application/json");
   return result;
 
 }
