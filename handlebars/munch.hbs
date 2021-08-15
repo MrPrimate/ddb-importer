@@ -135,7 +135,17 @@
           <div class="form-description"></div>
               <div>
                   <h4>Tools.</h4>
+                  Compendium folder migration can take a while against big compendiums.
               </div>
+              <div class="form-group">
+                <h3><label for="compendium-folder-style-monster">Monster Compendium Folder Style</label></h3>
+                <select name="compendium-folder-style" id="compendium-folder-style-monster" style="flex: 55%">
+                  {{#each compendiumFolderMonsterStyles}}
+                    <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+                  {{/each}}
+                </select>
+              </div>
+              <hr>
                 <div>
                   <button type="button" id="munch-migrate-compendium-monster" class="munch-button" {{#if compendiumFoldersInstalled}}enabled{{else}}disabled{{/if}}
                   >Migrate Monster Compendium to Compendium Folders Layout</button>

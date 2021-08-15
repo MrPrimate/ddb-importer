@@ -925,12 +925,26 @@ export default function () {
     default: false,
   });
 
-  // build compendium folers?
+  // build compendium folders?
   game.settings.register("ddb-importer", "munching-policy-use-compendium-folders-monster", {
     scope: "player",
     config: false,
     type: Boolean,
     default: false,
+  });
+
+  game.settings.register("ddb-importer", "munching-selection-compendium-folders-monster", {
+    name: "ddb-importer.munching-selection-compendium-folders-monster.name",
+    hint: "ddb-importer.munching-selection-compendium-folders-monster.hint",
+    scope: "world",
+    config: true,
+    type: String,
+    choices: {
+      TYPE: "Creature type, e.g. Undead",
+      CR: "Challenge Rating",
+      ALPHA: "Alphabetical",
+    },
+    default: "TYPE",
   });
 
   game.settings.register("ddb-importer", "munching-policy-use-srd-icons", {

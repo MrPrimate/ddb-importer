@@ -592,6 +592,22 @@ export function updateActorSettings(html, event) {
   }
 }
 
+function getCompendiumFolderLookups(type) {
+  const compendiumFolderSetting = game.settings.settings.get(`ddb-importer.munching-selection-compendium-folders-${type}`);
+  const settingValue = game.settings.get("ddb-importer", `munching-selection-compendium-folders-${type}`);
+
+  let selections = [];
+  for (const [key, value] of Object.entries(compendiumFolderSetting.choices)) {
+    selections.push({
+      key: key,
+      label: value,
+      selected: key === settingValue,
+    });
+  }
+
+  return selections;
+}
+
 export function getMuncherSettings(includeHomebrew = true) {
   const cobalt = getCobalt() != "";
   const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
@@ -603,6 +619,7 @@ export function getMuncherSettings(includeHomebrew = true) {
   const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
   const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders-monster");
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  const compendiumFolderMonsterStyles = getCompendiumFolderLookups("monster");
 
   const itemConfig = [
     {
@@ -764,6 +781,7 @@ export function getMuncherSettings(includeHomebrew = true) {
     beta: betaKey && cobalt,
     tiers,
     compendiumFoldersInstalled,
+    compendiumFolderMonsterStyles,
   };
 
   // console.warn(resultData);

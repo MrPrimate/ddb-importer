@@ -184,6 +184,13 @@ export default class DDBMuncher extends Application {
       DDBMuncher.startMunch();
     });
 
+    // img change
+    html.find("#compendium-folder-style-monster").on("change", async () => {
+      const style = html.find("#compendium-folder-style-monster");
+      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "TYPE";
+      game.settings.set("ddb-importer", "munching-selection-compendium-folders-monster", importStyle);
+    });
+
     this.close();
   }
 

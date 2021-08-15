@@ -1,5 +1,6 @@
 # 2.3.7
 
+* Compendium Folder support can now create folders based on creature type, CR, or first letter. You can also migrate between the different styles without re-importing. (This can take a while!).
 * Improve adventure config generation speed.
 
 # 2.3.6

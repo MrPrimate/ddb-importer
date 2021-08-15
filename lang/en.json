@@ -128,5 +128,7 @@
   "dbb-importer.label.RollTable": "Roll Table",
   "dbb-importer.label.Macros": "Macros",
   "ddb-importer.show-munch-top.name": "Munch button be at the top?",
-  "ddb-importer.show-munch-top.hint": "Else button at bottom."
+  "ddb-importer.show-munch-top.hint": "Else button at bottom.",
+  "ddb-importer.munching-selection-compendium-folders-monster.name": "Compendium Folders Style (Monster)",
+  "ddb-importer.munching-selection-compendium-folders-monster.hint": "If using compendium folders, what kind of folders do you want the muncher to create?"
 }

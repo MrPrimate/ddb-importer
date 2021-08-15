@@ -30,12 +30,66 @@ import { DDB_CONFIG } from "../ddbConfig.js";
 // will move the provided document into the provided folder.
 // This method doesn't return anything at the moment.
 
+var compendiumFolderTypeMonster;
+
+async function createCompendiumFolder(packName, folderName, color = "#6f0006") {
+  const existingFolder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == folderName);
+  return new Promise((resolve) => {
+    if (!existingFolder) {
+      logger.info(`Creating compendium folder ${folderName}`);
+      // createFolderAtRoot(packCode,name,color,fontColor)
+      resolve(game.CF.FICFolderAPI.createFolderAtRoot(packName, folderName, color));
+    } else {
+      resolve(existingFolder);
+    }
+  });
+}
+
+// assume type is monster compendium
+async function createCreatureTypeCompendiumFolders(packName) {
+  return new Promise((resolve) => {
+    let promises = [];
+    DDB_CONFIG.monsterTypes.forEach(async (monsterType) => {
+      const folder = await createCompendiumFolder(packName, monsterType.name, "#6f0006");
+      promises.push(folder);
+    });
+    resolve(promises);
+  });
+}
+
+// challenge rating
+async function createChallengeRatingCompendiumFolders(packName) {
+  return new Promise((resolve) => {
+    let promises = [];
+    DDB_CONFIG.challengeRatings.forEach(async (cr) => {
+      const folder = await createCompendiumFolder(packName, `CR ${cr.value}`, "#6f0006");
+      promises.push(folder);
+    });
+    resolve(promises);
+  });
+}
+
+// alphabetical
+async function createAlphabeticalCompendiumFolders(packName) {
+  return new Promise((resolve) => {
+    let promises = [];
+    for (let i = 9; ++i < 36;) {
+      const folderName = i.toString(36).toUpperCase();
+      // eslint-disable-next-line no-await-in-loop
+      createCompendiumFolder(packName, folderName, "#6f0006").then((folder) => {
+        promises.push(folder);
+      });
+    }
+    resolve(promises);
+  });
+}
 
 // create compendium folder structure
 export async function createCompendiumFolderStructure(type) {
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
 
   if (compendiumFoldersInstalled) {
+    compendiumFolderTypeMonster = game.settings.get("ddb-importer", "munching-selection-compendium-folders-monster");
     // generate compendium folders for type
     const packName = await getCompendiumLabel(type);
     await game.CF.FICFolderAPI.loadFolders(packName);
@@ -44,15 +98,21 @@ export async function createCompendiumFolderStructure(type) {
       case "monsters":
       case "npc":
       case "monster": {
-        DDB_CONFIG.monsterTypes.forEach(async (monsterType) => {
-          const folderName = monsterType.name;
-          const existingFolder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == folderName);
-          if (!existingFolder) {
-            logger.info(`Creating compedium folder ${monsterType.name}`);
-            // createFolderAtRoot(packCode,name,color,fontColor)
-            await game.CF.FICFolderAPI.createFolderAtRoot(packName, monsterType.name, "#6f0006");
+        switch (compendiumFolderTypeMonster) {
+          case "TYPE": {
+            await createCreatureTypeCompendiumFolders(packName);
+            break;
           }
-        });
+          case "ALPHA": {
+            await createAlphabeticalCompendiumFolders(packName);
+            break;
+          }
+          case "CR": {
+            await createChallengeRatingCompendiumFolders(packName);
+            break;
+          }
+          // no default
+        }
         break;
       }
       // no default
@@ -62,6 +122,39 @@ export async function createCompendiumFolderStructure(type) {
   }
 
   return undefined;
+}
+
+function getCompendiumFolderName(type, document) {
+  let name;
+  switch (type) {
+    case "monsters":
+    case "npc":
+    case "monster": {
+      switch (compendiumFolderTypeMonster) {
+        case "TYPE": {
+          const creatureType = document.data.data?.details?.type?.value
+            ? document.data.data?.details?.type?.value
+            : "Unknown";
+          const ddbType = DDB_CONFIG.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
+          if (ddbType) name = ddbType.name;
+          break;
+        }
+        case "ALPHA": {
+          name = document.name.replace(/[^a-z]/gi, '').charAt(0).toUpperCase();
+          break;
+        }
+        case "CR": {
+          if (document.data.data.details.cr !== undefined || document.data.data.details.cr !== "") {
+            name = `CR ${document.data.data.details.cr}`;
+          }
+        }
+        // no default
+      }
+      break;
+    }
+    // no default
+  }
+  return name;
 }
 
 export async function addToCompendiumFolder(type, document, folders) {
@@ -76,19 +169,15 @@ export async function addToCompendiumFolder(type, document, folders) {
       case "monsters":
       case "npc":
       case "monster": {
-        const creatureType = document.data.data?.details?.type?.value
-          ? document.data.data?.details?.type?.value
-          : "Unknown";
-        const ddbType = DDB_CONFIG.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
-        if (ddbType) {
-          const folder = folders.find((f) => f.packCode === packName && f.name == ddbType.name);
+        const folderName = getCompendiumFolderName(type, document);
+        if (folderName) {
+          const folder = folders.find((f) => f.packCode === packName && f.name == folderName);
           if (document?.data?.flags?.cf?.id) setProperty(document, "data.flags.cf.id", undefined);
           if (folder) {
-            logger.info(`Moving monster ${document.name} (${ddbType.name}) to folder ${folder.name}`);
+            logger.info(`Moving monster ${document.name} to folder ${folder.name}`);
             await game.CF.FICFolderAPI.moveDocumentToFolder(packName, document, folder);
           } else {
-            logger.error(`Unable to find folder "${ddbType.name}" in ${packName}`);
-            // console.warn(game.customFolders.fic.folders);
+            logger.error(`Unable to find folder "${folderName}" in "${packName}"`);
           }
         }
       }
@@ -109,6 +198,11 @@ export async function migrateExistingCompendium(type) {
   }
   // loop through all existing monts/etc and generate a folder and move documents to it
   const packName = await getCompendiumLabel(type);
+
+  if (game.CF.cleanupCompendium) {
+    await game.CF.cleanupCompendium(packName);
+  }
+
   const folders = await createCompendiumFolderStructure(type);
 
   logger.debug("Compendium Folders", folders);
