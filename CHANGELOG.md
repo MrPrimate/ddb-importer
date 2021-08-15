@@ -1,3 +1,7 @@
+# 2.3.8
+
+* Recharge successfully detected on Monster actions again. @kuchrk24#3751
+
 # 2.3.7
 
 * Compendium Folder support can now create folders based on creature type, CR, or first letter. You can also migrate between the different styles without re-importing. (This can take a while!).

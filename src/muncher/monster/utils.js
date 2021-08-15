@@ -538,7 +538,7 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
   result.reach = getReach(text);
   result.range = getRange(text);
   if (result.reach != "") result.properties.rch = true;
-  result.recharge = getRecharge(text);
+  result.recharge = getRecharge(name);
   result.activation = getActivation(text);
   result.save = getFeatSave(text, result.save);
   result.target = getTarget(text);
