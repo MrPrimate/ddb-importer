@@ -1,6 +1,6 @@
 {
   "name": "ddb-importer",
-  "version": "2.3.9",
+  "version": "2.3.10",
   "author": "MrPrimate",
   "description": "Foundry module for integrating DDB content",
   "private": true,

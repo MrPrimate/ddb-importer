@@ -697,7 +697,7 @@ export function getMuncherSettings(includeHomebrew = true) {
       name: "use-compendium-folders-monster",
       isChecked: compendiumFolderAdd,
       description: "Generate compendium folders based on creature type (requires Compendium Folders module). You can migrate an existing import in the Tools tab.",
-      enabled: compendiumFoldersInstalled && compendiumFolderAdd,
+      enabled: compendiumFoldersInstalled,
     }
   ];
 

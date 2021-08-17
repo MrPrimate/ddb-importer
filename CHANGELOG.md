@@ -1,3 +1,7 @@
+# 2.3.10
+
+* Compendium folders checkbox could become disabled.
+
 # 2.3.9
 
 * Support AC in D&D 5e 1.4.2 for things like Cloak of Prtoection when Dynamic Active Effects is not installed.
