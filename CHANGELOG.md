@@ -1,3 +1,8 @@
+# 2.3.9
+
+* Support AC in D&D 5e 1.4.2 for things like Cloak of Prtoection when Dynamic Active Effects is not installed.
+* Monsters import with correct AC in D&D 5e 1.4.2.
+
 # 2.3.8
 
 * Recharge successfully detected on Monster actions again. @kuchrk24#3751

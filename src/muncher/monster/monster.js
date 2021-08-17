@@ -107,10 +107,8 @@ export function parseMonsters(monsterData, extra = false) {
       if (autoAC) {
         foundryActor.data.attributes.ac = {
           "flat": monster.armorClass,
-          "calc": "default",
+          "calc": "",
           "formula": "",
-          "value": monster.armorClass,
-          "min": 0,
           "label": monster.armorClassDescription ? monster.armorClassDescription.replace("(", "").replace(")", "") : "",
         };
         foundryActor.flags.ddbimporter.flatAC = true;

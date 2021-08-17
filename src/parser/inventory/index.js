@@ -399,39 +399,41 @@ export default function getInventory(ddb, character, itemSpells) {
     }))
     : [];
 
+  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const compendiumItem = character.flags.ddbimporter.compendium;
+  const addEffects = (compendiumItem)
+    ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
+  const generateArmorACEffect = (compendiumItem)
+    ? game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
+  const autoAC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
+
   for (let ddbItem of ddb.character.inventory.concat(customItems)) {
     const originalName = ddbItem.definition.name;
     ddbItem.definition.name = utils.getName(ddbItem, character);
     const flags = getItemFlags(ddb, ddbItem, character);
 
-    var item = Object.assign({}, parseItem(ddb, ddbItem, character, flags));
+    let item = Object.assign({}, parseItem(ddb, ddbItem, character, flags));
     addCustomValues(ddbItem, item, character);
     enrichFlags(ddbItem, item);
-
-    const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const compendiumItem = character.flags.ddbimporter.compendium;
-    const addEffects = (compendiumItem)
-      ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-      : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
-    const generateArmorACEffect = (compendiumItem)
-      ? game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects")
-      : game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
 
     if (item) {
       item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       if (!item.effects) item.effects = [];
 
-      if (daeInstalled) {
-        if (addEffects) item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
-        // if this is a piece of armor and not generating effects don't generate ac
-        if (item.type === "equipment" && item.data.armor?.type && !["trinket", "clothing"].includes(item.data.armor.type)) {
-          // eslint-disable-next-line max-depth
-          if (generateArmorACEffect) item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
-        } else {
+      if (daeInstalled && addEffects) item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
+      // if this is a piece of armor and not generating effects don't generate ac
+      if (item.type === "equipment" && item.data.armor?.type && !["trinket", "clothing"].includes(item.data.armor.type)) {
+        if (daeInstalled && generateArmorACEffect) {
           item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
         }
+      } else if (autoAC || daeInstalled) {
+        // always generate other item ac effects
+        item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
       }
+
       if (!item.name || item.name === "") item.name = "Item";
       items.push(item);
     }

@@ -243,11 +243,16 @@ function addACBonusEffect(modifiers, name, type) {
     logger.debug(`Generating ${type} bonus for ${name}`);
     const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
     if (AUTO_AC) {
-      changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
+      const daeInstalled = utils.isModuleInstalledAndActive("dae");
       // using bonus here adds them to the bonus field, but then items that add a bonsu don't get applied
       // (e.g. bracers of defense) if wearing something like robi of archmage.
       // this is set to value, and show up as separate line in ac calculation.
-      // changes.push(generateAddChange(bonus, 18, "data.attributes.ac.bonus"));
+      // we set this to bonus if dae is not installed as itherwise it is not applied.
+      if (daeInstalled) {
+        changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
+      } else {
+        changes.push(generateAddChange(bonus, 18, "data.attributes.ac.bonus"));
+      }
     } else {
       changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
     }
