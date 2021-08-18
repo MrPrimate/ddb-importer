@@ -1,3 +1,7 @@
+# 2.3.11
+
+* Fix Rarity for D&D 5e 1.4.2
+
 # 2.3.10
 
 * Compendium folders checkbox could become disabled.
