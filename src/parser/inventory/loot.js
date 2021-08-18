@@ -1,28 +1,7 @@
 import utils from "../../utils.js";
+import { getItemRarity, getAttuned, getEquipped, getConsumableUses } from "./common.js";
 
-/**
- * Checks if the character can attune to an item and if yes, if he is attuned to it.
- */
-let getAttuned = (data) => {
-  if (data.definition.canAttune !== undefined && data.definition.canAttune === true) {
-    return data.isAttuned;
-  } else {
-    return false;
-  }
-};
-
-/**
- * Checks if the character can equip an item and if yes, if he is has it currently equipped.
- */
-let getEquipped = (data) => {
-  if (data.definition.canEquip !== undefined && data.definition.canEquip === true) {
-    return data.equipped;
-  } else {
-    return false;
-  }
-};
-
-const getItemType = (data) => {
+function getItemType(data) {
   let result = {
     type: "loot"
   };
@@ -68,13 +47,11 @@ const getItemType = (data) => {
   }
 
   return result;
-};
+}
 
 export default function parseLoot(data, itemType) {
-  /**
-   * MAIN parseLoot
-   */
   const type = getItemType(data);
+
   let loot = {
     name: data.definition.name,
     type: type.type,
@@ -90,40 +67,24 @@ export default function parseLoot(data, itemType) {
 
   if (type.consumableType) {
     loot.data.consumableType = type.consumableType;
+    loot.data.uses = getConsumableUses(data);
   }
 
-  // description: {
-  //     value: '',
-  //     chat: '',
-  //     unidentified: ''
-  // },
   loot.data.description = {
     value: data.definition.description,
     chat: data.definition.description,
     unidentified: data.definition.type,
   };
 
-  /* source: '', */
   loot.data.source = utils.parseSource(data.definition);
-
-  /* quantity: 1, */
   loot.data.quantity = data.quantity ? data.quantity : 1;
 
-  /* weight */
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   loot.data.weight = totalWeight / bundleSize;
-
-  /* attuned: false, */
   loot.data.attuned = getAttuned(data);
-
-  /* equipped: false, */
   loot.data.equipped = getEquipped(data);
-
-  /* rarity: '', */
-  loot.data.rarity = data.definition.rarity;
-
-  /* identified: true, */
+  loot.data.rarity = getItemRarity(data);
   loot.data.identified = true;
 
   return loot;

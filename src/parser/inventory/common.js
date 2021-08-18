@@ -34,6 +34,7 @@ export function getEquipped(data) {
   }
 }
 
+
 /**
  * Gets Limited uses information, if any
  * uses: { value: 0, max: 0, per: null }
@@ -52,4 +53,52 @@ export function getEquipped(data) {
   } else {
     return { value: 0, max: 0, per: null };
   }
+}
+
+export function getConsumableUses(data) {
+  if (data.limitedUse) {
+    let uses = getUses(data);
+    if (uses.per === "") uses.per = "charges";
+    uses.autoUse = false;
+    uses.autoDestroy = true;
+    return uses;
+  } else {
+    // default
+    return { value: 1, max: 1, per: "charges", autoUse: false, autoDestroy: true };
+  }
+}
+
+/**
+ * Checks the proficiency of the character with this specific weapon
+ * @param {obj} data Item data
+ * @param {string} weaponType The DND5E weaponType
+ * @param {array} proficiencies The character's proficiencies as an array of `{ name: 'PROFICIENCYNAME' }` objects
+ */
+export function getWeaponProficient(data, weaponType, proficiencies) {
+  // if it's a simple weapon and the character is proficient in simple weapons:
+  if (
+    proficiencies.find((proficiency) => proficiency.name === "Simple Weapons") &&
+    weaponType.indexOf("simple") !== -1
+  ) {
+    return true;
+  } else if (
+    proficiencies.find((proficiency) => proficiency.name === "Martial Weapons") &&
+    weaponType.indexOf("martial") !== -1
+  ) {
+    return true;
+  } else {
+    return proficiencies.find((proficiency) => proficiency.name === data.definition.type) !== undefined;
+  }
+};
+
+/**
+ * Searches for a magical attack bonus granted by this weapon
+ * @param {obj} data item data
+ */
+export function getMagicalBonus(data) {
+  let boni = data.definition.grantedModifiers.filter(
+    (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0
+  );
+  let bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
+  return bonus;
 }

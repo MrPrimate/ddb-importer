@@ -80,6 +80,32 @@ export function fixItems(items) {
         };
         break;
       }
+      case "Acid (vial)": {
+        item.data.activation = { type: "action", cost: 1, condition: "" };
+        item.data.target = { value: 1, width: null, units: "any", type: "creature" };
+        item.data.range = { value: 20, long: null, units: "ft" };
+        item.data.ability = "dex";
+        item.data.actionType = "rwak";
+        item.data.chatFlavor = "improvised weapon";
+        item.data.damage = { parts: [["2d6[acid]", "acid"]], versatile: "", value: "" };
+        break;
+      }
+      case "Alchemist's Fire (flask)":
+      case "Alchemist's Fire": {
+        item.data.activation = { type: "action", cost: 1, condition: "" };
+        item.data.target = { value: 1, width: null, units: "any", type: "creature" };
+        item.data.range = { value: 20, long: null, units: "ft" };
+        item.data.ability = "dex";
+        item.data.actionType = "rwak";
+        item.data.chatFlavor = "improvised weapon";
+        item.data.damage = { parts: [["1d4[fire]", "fire"]], versatile: "", value: "" };
+        item.data.save = {
+          ability: "dex",
+          dc: 10,
+          scaling: "flat",
+        };
+        break;
+      }
       // no default
     }
   });
