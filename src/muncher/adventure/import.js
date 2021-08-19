@@ -2,6 +2,22 @@ import Helpers from "./common.js";
 import logger from "../../logger.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { checkMonsterCompendium } from "../importMonster.js";
+import { parseCritters } from "../monsters.js";
+import { generateAdventureConfig } from "../adventure.js";
+
+const COMPENDIUM_MAP = {
+  "skills": "skills",
+  "senses": "senses",
+  "conditions": "conditions",
+  "spells": "spells",
+  "magicitems": "items",
+  "weapons": "items",
+  "armor": "items",
+  "adventuring-gear": "items",
+  "monsters": "monsters",
+  "actions": "actions",
+  "weaponproperties": "weaponproperties",
+};
 
 export default class AdventureMunch extends FormApplication {
   /** @override */
@@ -492,10 +508,130 @@ export default class AdventureMunch extends FormApplication {
     }
   }
 
+  static async _loadMissingActors(actorIds) {
+    return new Promise((resolve) => {
+      if (actorIds && actorIds.length > 0) {
+        logger.debug("Importing missing monsters from DDB", actorIds);
+        const monsters = parseCritters(actorIds);
+        resolve(monsters);
+      } else {
+        resolve([]);
+      }
+    });
+  }
+
+  static async _linkExistingActorTokens(tokens) {
+    const monsterCompendiumLabel = await game.settings.get("ddb-importer", "entity-monster-compendium");
+    const monsterCompendium = await game.packs.get(monsterCompendiumLabel);
+    const monsterIndices = ["name", "flags.ddbimporter.id"];
+    const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices });
+
+    const newTokens = tokens.map((token) => {
+      const monsterHit = monsterIndex.find((monster) =>
+        monster.flags?.ddbimporter?.id && token.flags.ddbActorFlags?.id &&
+        monster.flags.ddbimporter.id === token.flags.ddbActorFlags.id);
+      if (monsterHit) {
+        token.flags.compendiumActorId = monsterHit._id;
+      }
+      return token;
+    });
+
+    return newTokens;
+  }
+
+  static _foundryCompendiumReplace(text) {
+    // replace the ddb:// entries with known compendium look ups if we have them
+    // ddb://spells
+    // ddb://magicitems || weapons || adventuring-gear || armor
+    // ddb://monsters
+    // skills
+    // senses
+    // conditions
+    // armor
+    // actions
+    // weaponproperties
+
+    const dom = document.createElement("body");
+    document.body.innerHTML = text;
+
+    const lookups = generateAdventureConfig();
+
+    for (const lookupKey in COMPENDIUM_MAP) {
+      const compendiumLinks = dom.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
+      const lookupRegExp = new RegExp(`ddb://${lookupKey}/([0-9]*)`);
+      compendiumLinks.forEach((node) => {
+        const lookupMatch = node.outerHTML.match(lookupRegExp);
+        const lookupValue = lookups[COMPENDIUM_MAP[lookupKey]];
+        if (lookupValue) {
+          const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
+          if (lookupEntry) {
+            const documentRef = lookupEntry.documentName ? lookupEntry.documentName : lookupEntry._id;
+            document.body.innerHTML = document.body.innerHTML.replace(node.outerHTML, `@Compendium[${lookupEntry.compendium}.${documentRef}]{${node.textContent}}`);
+          } else {
+            console.log(`NO Lookup Compendium Entry for ${node.outerHTML}`);
+          }
+        }
+      });
+    }
+
+    // vehicles - not yet handled
+    const compendiumLinks = dom.querySelectorAll("a[href*=\"ddb://vehicles\/\"]");
+    const lookupRegExp = /ddb:\/\/vehicles\/([0-9]*)/g;
+    compendiumLinks.forEach((node) => {
+      const target = node.outerHTML;
+      const lookupMatch = node.outerHTML.match(lookupRegExp);
+      const lookupValue = lookups["vehicles"];
+      if (lookupMatch) {
+        const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
+        if (lookupEntry) {
+          node.setAttribute("href", `https://www.dndbeyond.com${lookupEntry.url}`);
+          document.body.innerHTML = document.body.innerHTML.replace(target, node.outerHTML);
+        } else {
+          console.log(`NO Vehicle Lookup Entry for ${node.outerHTML}`);
+        }
+      } else {
+        console.log(`NO Vehicle Lookup Match for ${node.outerHTML}`);
+      }
+    });
+
+
+
+    return document.body.innerHTML;
+  }
+
+  static async _linkDDBActors(tokens) {
+    const linkedExistingTokens = await AdventureMunch._linkExistingActorTokens(tokens);
+
+    const missingActors = linkedExistingTokens
+      .filter((token) => token.flags.ddbActorFlags?.id && !token.flags.compendiumActorId)
+      .map((token) => token.flags.ddbActorFlags.id);
+
+    const loadedActors = await AdventureMunch._loadMissingActors(missingActors);
+
+    const newTokens = linkedExistingTokens
+      .filter((token) => token.flags.ddbActorFlags?.id)
+      .map((token) => {
+        if (!token.flags.compendiumActorId) {
+          const compendiumActor = loadedActors.find((actor) => actor.flags.ddbimporter.id === token.flags.ddbActorFlags.id);
+          if (compendiumActor) {
+            token.flags.compendiumActorId = compendiumActor._id;
+          } else {
+            logger.warn(`Could not find monster ${token.flags.ddbActorFlags.id}`);
+          }
+        }
+        return token;
+      })
+      .filter((token) => token.flags.compendiumActorId);
+
+    return Promise.all(newTokens);
+  }
+
   static async _generateTokenActors(scene) {
     const monsterCompendium = await checkMonsterCompendium();
 
-    const neededActors = scene.tokens
+    const tokens = await AdventureMunch._linkDDBActors(scene.tokens);
+
+    const neededActors = tokens
       .map((token) => {
         return { name: token.name, ddbId: token.flags.ddbActorFlags.id, actorId: token.actorId, compendiumId: token.flags.compendiumActorId, folderId: token.flags.actorFolderId };
       })

@@ -10,7 +10,7 @@ import { parseFrames } from "./frames.js";
 import { getPatreonTiers, munchNote } from "./utils.js";
 import { DDB_CONFIG } from "../ddbConfig.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { generateAdventureConfig } from "./adventure.js";
+import { downloadAdventureConfig } from "./adventure.js";
 import AdventureMunch from "./adventure/import.js";
 import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
@@ -339,7 +339,7 @@ export default class DDBMuncher extends Application {
   static async generateAdventureConfig() {
     try {
       logger.info("Generating adventure config!");
-      await generateAdventureConfig();
+      await downloadAdventureConfig();
       munchNote(`Downloading config file`, true);
       munchNote("");
       DDBMuncher.enableButtons();

@@ -6,7 +6,7 @@
 
 # 2.3.11
 
-* Fix Rarity for D&D 5e 1.4.2
+* Fix Rarity for items in D&D 5e 1.4.2
 
 # 2.3.10
 

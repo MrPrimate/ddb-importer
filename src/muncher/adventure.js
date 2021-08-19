@@ -203,7 +203,12 @@ export async function generateAdventureConfig() {
     });
   }
 
-  download(JSON.stringify(result, null, 4), `adventure-config.json`, "application/json");
   return result;
 
+}
+
+export async function downloadAdventureConfig() {
+  const result = await generateAdventureConfig();
+  download(JSON.stringify(result, null, 4), `adventure-config.json`, "application/json");
+  return result;
 }

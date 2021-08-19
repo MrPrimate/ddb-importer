@@ -133,6 +133,7 @@ export async function parseCritters(ids = null) {
     await createCompendiumFolderStructure("monsters");
   }
 
+  let monstersParsed = [];
   let currentMonster = 1;
   const monsterCount = finalMonsters.length;
   munchNote(`Importing ${monsterCount} monsters!`, true);
@@ -140,9 +141,14 @@ export async function parseCritters(ids = null) {
     munchNote(`Importing ${monster.name} (${currentMonster}/${monsterCount})`, false, true);
     logger.debug(`Importing ${monster.name}`);
     // eslint-disable-next-line no-await-in-loop
-    await addNPC(monster);
+    const munched = await addNPC(monster);
+    monstersParsed.push(munched);
     currentMonster += 1;
   }
   munchNote("", false, true);
+
+  if (ids !== null) {
+    return Promise.all(monstersParsed);
+  }
   return monsterCount;
 }
