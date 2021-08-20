@@ -16,6 +16,10 @@ export default class Helpers {
       if (path[0] === "*") {
         // this file was flagged as core data, just replace name.
         return path.replace(/\*/g, "");
+      } else if (path.startsWith("icons/") || path.startsWith("systems/dnd5e/icons/") || path.startsWith("ddb://")) {
+        // these are core icons, ignore
+        // or are ddb:// paths that will be replaced by muncher
+        return path;
       } else {
         const adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
         const targetPath = path.replace(/[\\/][^\\/]+$/, '');

@@ -3,20 +3,17 @@ import logger from "../../logger.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { checkMonsterCompendium } from "../importMonster.js";
 import { parseCritters } from "../monsters.js";
+import { parseSpells } from "../spells.js";
+import { parseItems } from "../items.js";
 import { generateAdventureConfig } from "../adventure.js";
 
 const COMPENDIUM_MAP = {
-  "skills": "skills",
-  "senses": "senses",
-  "conditions": "conditions",
   "spells": "spells",
   "magicitems": "items",
   "weapons": "items",
   "armor": "items",
   "adventuring-gear": "items",
   "monsters": "monsters",
-  "actions": "actions",
-  "weaponproperties": "weaponproperties",
 };
 
 export default class AdventureMunch extends FormApplication {
@@ -115,6 +112,7 @@ export default class AdventureMunch extends FormApplication {
     html.find(".dialog-button").on("click", this._dialogButton.bind(this));
   }
 
+  // eslint-disable-next-line complexity
   async _dialogButton(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -168,6 +166,22 @@ export default class AdventureMunch extends FormApplication {
         };
 
         await AdventureMunch._createFolders(adventure, folders);
+
+        if (adventure.required?.monsters && adventure.required.monsters.length > 0) {
+          logger.debug(`${adventure.name} - monsters required`, adventure.required.monsters);
+          AdventureMunch._progressNote(`Checking for missing monsters from DDB`);
+          await AdventureMunch._checkForMissingDocuments("monster", adventure.required.monsters);
+        }
+        if (adventure.required?.spells && adventure.required.spells.length > 0) {
+          logger.debug(`${adventure.name} - spells required`, adventure.required.spells);
+          AdventureMunch._progressNote(`Checking for missing spells from DDB`);
+          await AdventureMunch._checkForMissingDocuments("spell", adventure.required.spells);
+        }
+        if (adventure.required?.items && adventure.required.items.length > 0) {
+          logger.debug(`${adventure.name} - items required`, adventure.required.items);
+          AdventureMunch._progressNote(`Checking for missing items from DDB`);
+          await AdventureMunch._checkForMissingDocuments("item", adventure.required.items);
+        }
 
         if (AdventureMunch._folderExists("scene", zip)) {
           logger.debug(`${adventure.name} - Loading scenes`);
@@ -508,23 +522,64 @@ export default class AdventureMunch extends FormApplication {
     }
   }
 
-  static async _loadMissingActors(actorIds) {
+  static async _loadMissingDocuments(type, docIds) {
     return new Promise((resolve) => {
-      if (actorIds && actorIds.length > 0) {
-        logger.debug("Importing missing monsters from DDB", actorIds);
-        const monsters = parseCritters(actorIds);
-        resolve(monsters);
+      if (docIds && docIds.length > 0) {
+        logger.debug(`Importing missing ${type}s from DDB`, docIds);
+        AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
+        switch (type) {
+          case "item":
+            resolve(parseItems(docIds));
+            break;
+          case "monster":
+            resolve(parseCritters(docIds));
+            break;
+          case "spell":
+            resolve(parseSpells(docIds));
+            break;
+          // no default
+        }
       } else {
         resolve([]);
       }
     });
   }
 
+  static async _getCompendiumIndex(type) {
+    return new Promise((resolve) => {
+      const compendiumLabel = game.settings.get("ddb-importer", `entity-${type}-compendium`);
+      const compendium = game.packs.get(compendiumLabel);
+      const fields = (type === "monster")
+        ? ["flags.ddbimporter.id"]
+        : ["flags.ddbimporter.definitionId"];
+
+      const compendiumIndex = compendium.getIndex({ fields: fields });
+      resolve(compendiumIndex);
+    });
+  }
+
+  static async _checkForMissingDocuments(type, ids) {
+    const index = await AdventureMunch._getCompendiumIndex(type);
+    console.warn(index);
+    return new Promise((resolve) => {
+      const missingIds = ids.filter((id) => {
+        switch (type) {
+          case "monster":
+            return !index.some((i) => i.flags?.ddbimporter?.id && String(i.flags.ddbimporter.id) == id);
+          case "spell":
+          case "item":
+            return !index.some((i) => i.flags?.ddbimporter?.definitionId && String(i.flags.ddbimporter.definitionId) == id);
+          // no default
+        }
+        return false;
+      });
+      const missingDocuments = AdventureMunch._loadMissingDocuments(type, missingIds);
+      resolve(missingDocuments);
+    });
+  }
+
   static async _linkExistingActorTokens(tokens) {
-    const monsterCompendiumLabel = await game.settings.get("ddb-importer", "entity-monster-compendium");
-    const monsterCompendium = await game.packs.get(monsterCompendiumLabel);
-    const monsterIndices = ["name", "flags.ddbimporter.id"];
-    const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices });
+    const monsterIndex = await AdventureMunch._getCompendiumIndex("monster");
 
     const newTokens = tokens.map((token) => {
       const monsterHit = monsterIndex.find((monster) =>
@@ -544,15 +599,10 @@ export default class AdventureMunch extends FormApplication {
     // ddb://spells
     // ddb://magicitems || weapons || adventuring-gear || armor
     // ddb://monsters
-    // skills
-    // senses
-    // conditions
-    // armor
-    // actions
-    // weaponproperties
 
-    const dom = document.createElement("body");
-    document.body.innerHTML = text;
+    const doc = document.implementation.createHTMLDocument("DDB Replacer");
+    const dom = doc.createElement("body");
+    doc.body.innerHTML = text;
 
     const lookups = generateAdventureConfig();
 
@@ -566,7 +616,7 @@ export default class AdventureMunch extends FormApplication {
           const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
           if (lookupEntry) {
             const documentRef = lookupEntry.documentName ? lookupEntry.documentName : lookupEntry._id;
-            document.body.innerHTML = document.body.innerHTML.replace(node.outerHTML, `@Compendium[${lookupEntry.compendium}.${documentRef}]{${node.textContent}}`);
+            doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@Compendium[${lookupEntry.compendium}.${documentRef}]{${node.textContent}}`);
           } else {
             console.log(`NO Lookup Compendium Entry for ${node.outerHTML}`);
           }
@@ -585,7 +635,7 @@ export default class AdventureMunch extends FormApplication {
         const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
         if (lookupEntry) {
           node.setAttribute("href", `https://www.dndbeyond.com${lookupEntry.url}`);
-          document.body.innerHTML = document.body.innerHTML.replace(target, node.outerHTML);
+          doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
         } else {
           console.log(`NO Vehicle Lookup Entry for ${node.outerHTML}`);
         }
@@ -594,34 +644,13 @@ export default class AdventureMunch extends FormApplication {
       }
     });
 
-
-
-    return document.body.innerHTML;
+    return doc.body.innerHTML;
   }
 
   static async _linkDDBActors(tokens) {
     const linkedExistingTokens = await AdventureMunch._linkExistingActorTokens(tokens);
-
-    const missingActors = linkedExistingTokens
-      .filter((token) => token.flags.ddbActorFlags?.id && !token.flags.compendiumActorId)
-      .map((token) => token.flags.ddbActorFlags.id);
-
-    const loadedActors = await AdventureMunch._loadMissingActors(missingActors);
-
     const newTokens = linkedExistingTokens
-      .filter((token) => token.flags.ddbActorFlags?.id)
-      .map((token) => {
-        if (!token.flags.compendiumActorId) {
-          const compendiumActor = loadedActors.find((actor) => actor.flags.ddbimporter.id === token.flags.ddbActorFlags.id);
-          if (compendiumActor) {
-            token.flags.compendiumActorId = compendiumActor._id;
-          } else {
-            logger.warn(`Could not find monster ${token.flags.ddbActorFlags.id}`);
-          }
-        }
-        return token;
-      })
-      .filter((token) => token.flags.compendiumActorId);
+      .filter((token) => token.flags.ddbActorFlags?.id && token.flags.compendiumActorId);
 
     return Promise.all(newTokens);
   }
@@ -892,6 +921,7 @@ export default class AdventureMunch extends FormApplication {
           if (result.resultId) {
             needRevisit = true;
           }
+          data.text = AdventureMunch._foundryCompendiumReplace(data.text);
         });
       } else if (importType === "JournalEntry" && data.content) {
         const journalImages = Helpers.reMatchAll(/(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/, data.content);
@@ -901,6 +931,7 @@ export default class AdventureMunch extends FormApplication {
             data.content = data.content.replace(result[0], `${result[1]}="${path}"`);
           });
         }
+        data.content = AdventureMunch._foundryCompendiumReplace(data.content);
       }
 
       data.flags.importid = data._id;
@@ -933,5 +964,10 @@ export default class AdventureMunch extends FormApplication {
     $(".import-progress-bar")
       .width(`${Math.trunc((count / total) * 100)}%`)
       .html(`<span>${game.i18n.localize("dbb-importer.label.Working")} (${game.i18n.localize(localizedType)})...</span>`);
+  }
+
+  static _progressNote(note) {
+    $(".import-progress-bar")
+      .html(`<span>${game.i18n.localize("dbb-importer.label.Working")} (${note})...</span>`);
   }
 }

@@ -75,7 +75,7 @@ async function generateImportItems(items) {
   return results;
 }
 
-function getItemData() {
+function getItemData(sourceFilter) {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
@@ -104,7 +104,7 @@ function getItemData() {
         return data;
       })
       .then((data) => {
-        if (sources.length == 0) return data.data;
+        if (sources.length == 0 || !sourceFilter) return data.data;
         return data.data.filter((item) =>
           item.sources.some((source) => sources.includes(source.sourceId))
         );
@@ -134,7 +134,7 @@ export async function addMagicItemSpells(items, spells, updateBool) {
   });
 }
 
-export async function parseItems() {
+export async function parseItems(ids = null) {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const magicItemsInstalled = !!game.modules.get("magicitems");
   const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -143,7 +143,10 @@ export async function parseItems() {
   logger.info("Checking for existing files...");
   await utils.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete, getting ItemData.");
-  const results = await getItemData();
+
+  // disable source filter if ids provided
+  const sourceFilter = !(ids !== null && ids.length > 0);
+  const results = await getItemData(sourceFilter);
   let items = results.items;
 
   // Items Spell addition is currently not done, parsing out spells needs to be addded
@@ -156,7 +159,10 @@ export async function parseItems() {
   }
 
   const srdItems = await srdFiddling(items, "inventory");
-  const finalItems = await daeFiddling(srdItems);
+  const filteredItems = (ids !== null && ids.length > 0)
+    ? srdItems.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
+    : srdItems;
+  const finalItems = await daeFiddling(filteredItems);
 
   const finalCount = finalItems.length;
   munchNote(`Importing ${finalCount} items!`, true);

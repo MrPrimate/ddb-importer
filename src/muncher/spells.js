@@ -6,7 +6,7 @@ import utils from "../utils.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 
-function getSpellData(className) {
+function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
@@ -35,7 +35,7 @@ function getSpellData(className) {
         return data;
       })
       .then((data) => {
-        if (sources.length == 0) return data.data;
+        if (sources.length == 0 || !sourceFilter) return data.data;
         return data.data.filter((spell) =>
           spell.definition.sources.some((source) => sources.includes(source.sourceId))
         );
@@ -49,25 +49,27 @@ function getSpellData(className) {
     });
 }
 
-export async function parseSpells() {
+export async function parseSpells(ids = null) {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
   // to speed up file checking we pregenerate existing files now.
   await utils.generateCurrentFiles(uploadDirectory);
 
+  // disable source filter if ids provided
+  const sourceFilter = !(ids !== null && ids.length > 0);
   const results = await Promise.allSettled([
-    getSpellData("Cleric"),
-    getSpellData("Druid"),
-    getSpellData("Sorcerer"),
-    getSpellData("Warlock"),
-    getSpellData("Wizard"),
-    getSpellData("Paladin"),
-    getSpellData("Ranger"),
-    getSpellData("Bard"),
-    getSpellData("Graviturgy"),
-    getSpellData("Chronurgy"),
-    getSpellData("Artificer"),
+    getSpellData("Cleric", sourceFilter),
+    getSpellData("Druid", sourceFilter),
+    getSpellData("Sorcerer", sourceFilter),
+    getSpellData("Warlock", sourceFilter),
+    getSpellData("Wizard", sourceFilter),
+    getSpellData("Paladin", sourceFilter),
+    getSpellData("Ranger", sourceFilter),
+    getSpellData("Bard", sourceFilter),
+    getSpellData("Graviturgy", sourceFilter),
+    getSpellData("Chronurgy", sourceFilter),
+    getSpellData("Artificer", sourceFilter),
   ]);
 
   const spells = results.map((r) => r.value).flat().flat()
@@ -77,7 +79,10 @@ export async function parseSpells() {
   });
   let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
   const srdSpells = await srdFiddling(uniqueSpells, "spells");
-  const finalSpells = await daeFiddling(srdSpells);
+  const filteredSpells = (ids !== null && ids.length > 0)
+    ? srdSpells.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
+    : srdSpells;
+  const finalSpells = await daeFiddling(filteredSpells);
 
   const finalCount = finalSpells.length;
   munchNote(`Importing ${finalCount} spells...`, true);
