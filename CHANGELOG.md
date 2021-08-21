@@ -1,6 +1,8 @@
 # 2.3.12
 
 * Better AC support for things like Warforged when using D&D 5e v 1.4.* system and not using DAE module.
+* Compendium Folders: CR rating is now zero padded for better sorting.
+* Compendium Folders: Now has Spell Level, Spell School, and Item Type sorting. (Thanks @Erceron#0370)
 
 # 2.3.11
 

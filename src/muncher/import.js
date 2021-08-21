@@ -9,6 +9,7 @@ import { copyInbuiltIcons } from "../icons/index.js";
 const compendiumLookup = [
   { type: "inventory", compendium: "entity-item-compendium" },
   { type: "item", compendium: "entity-item-compendium" },
+  { type: "items", compendium: "entity-item-compendium" },
   { type: "spells", compendium: "entity-spell-compendium" },
   { type: "feats", compendium: "entity-feat-compendium" },
   { type: "spell", compendium: "entity-spell-compendium" },

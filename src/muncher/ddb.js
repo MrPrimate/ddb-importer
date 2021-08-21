@@ -162,6 +162,16 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.migrateCompendiumFolders("monsters");
     });
+    html.find("#munch-migrate-compendium-spell").click(async () => {
+      munchNote(`Migrating spell compendium...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.migrateCompendiumFolders("spells");
+    });
+    html.find("#munch-migrate-compendium-item").click(async () => {
+      munchNote(`Migrating item compendium...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.migrateCompendiumFolders("items");
+    });
 
     // watch the change of the import-policy-selector checkboxes
     $(html)
@@ -184,11 +194,21 @@ export default class DDBMuncher extends Application {
       DDBMuncher.startMunch();
     });
 
-    // img change
+    // compendium style migrations
     html.find("#compendium-folder-style-monster").on("change", async () => {
       const style = html.find("#compendium-folder-style-monster");
       const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "TYPE";
       game.settings.set("ddb-importer", "munching-selection-compendium-folders-monster", importStyle);
+    });
+    html.find("#compendium-folder-style-spell").on("change", async () => {
+      const style = html.find("#compendium-folder-style-spell");
+      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "SCHOOL";
+      game.settings.set("ddb-importer", "munching-selection-compendium-folders-spell", importStyle);
+    });
+    html.find("#compendium-folder-style-item").on("change", async () => {
+      const style = html.find("#compendium-folder-style-item");
+      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "TYPE";
+      game.settings.set("ddb-importer", "munching-selection-compendium-folders-item", importStyle);
     });
 
     this.close();
@@ -205,6 +225,8 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-adventure-config-start"]').prop('disabled', false);
       $('button[id^="munch-adventure-import-start"]').prop('disabled', false);
       $('button[id^="munch-migrate-compendium-monster"]').prop('disabled', false);
+      $('button[id^="munch-migrate-compendium-spell"]').prop('disabled', false);
+      $('button[id^="munch-migrate-compendium-item"]').prop('disabled', false);
 
       if (tiers.all) {
         $('button[id^="munch-monsters-start"]').prop('disabled', false);

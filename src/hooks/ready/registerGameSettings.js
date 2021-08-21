@@ -947,6 +947,31 @@ export default function () {
     default: "TYPE",
   });
 
+  game.settings.register("ddb-importer", "munching-selection-compendium-folders-spell", {
+    name: "ddb-importer.munching-selection-compendium-folders-spell.name",
+    hint: "ddb-importer.munching-selection-compendium-folders-spell.hint",
+    scope: "world",
+    config: true,
+    type: String,
+    choices: {
+      SCHOOL: "School of Magic",
+      LEVEL: "Level",
+    },
+    default: "SCHOOL",
+  });
+
+  game.settings.register("ddb-importer", "munching-selection-compendium-folders-item", {
+    name: "ddb-importer.munching-selection-compendium-folders-item.name",
+    hint: "ddb-importer.munching-selection-compendium-folders-item.hint",
+    scope: "world",
+    config: true,
+    type: String,
+    choices: {
+      TYPE: "Item Type",
+    },
+    default: "TYPE",
+  });
+
   game.settings.register("ddb-importer", "munching-policy-use-srd-icons", {
     name: "ddb-importer.munching-policy-use-srd-icons.name",
     hint: "ddb-importer.munching-policy-use-srd-icons.hint",

@@ -1,36 +1,68 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
+import DICTIONARY from "../dictionary.js";
 import { getCompendiumLabel } from "./import.js";
 import { DDB_CONFIG } from "../ddbConfig.js";
 
-// The API parses the folders in the compendium and stores them in a FICFolder object.
-// The class doesn't have many methods, but the most important one for you would
-// likely be save() which is fairly self explanatory. If you modify the name of a
-// FICFolder object and call save, it will update the folder in the compendium.
-
-// The main API class is located in game.CF.FICFolderAPI.
-
-// loadFolders(packCode)
-// will populate a WorldCollection of FICFolder objects -
-// making it easier to manipulate folders.
-// It returns this populated list but it's also accessible at
-//  game.customFolders.fic.folders.
-// Note that every time you use this it will wipe the previous result.
-
-// createFolderAtRoot(packCode,name,color,fontColor)
-// will create a new folder in the compendium without a parent.
-// It also returns a FICFolder object and should update the existing list.
-
-// createFolderWithParent(parent,name,color,fontColor)
-// will create a new folder in the compendium with the parent provided.
-// The parent argument is a FICFolder object, so you will need to call
-// loadFolders() or createFolderAtRoot() first
-
-// Finally moveDocumentToFolder(packCode,document,folder)
-// will move the provided document into the provided folder.
-// This method doesn't return anything at the moment.
-
 var compendiumFolderTypeMonster;
+var compendiumFolderTypeSpell;
+var compendiumFolderTypeItem;
+
+var rootItemFolders = {};
+var equipmentFolders = {};
+var weaponFolders = {};
+var trinketFolders = {};
+var consumableFolders = {};
+var lootFolders = {};
+var backpackFolders = {};
+
+const spellLevelFolderNames = [
+  "0th Level (Cantrip)",
+  "1st Level",
+  "2nd Level",
+  "3rd Level",
+  "4th Level",
+  "5th Level",
+  "6th Level",
+  "7th Level",
+  "8th Level",
+  "9th Level",
+];
+
+const rootItemFolderNames = {
+  equipment: "Equipment",
+  tool: "Tools",
+  loot: "Loot",
+  weapon: "Weapon",
+  backpack: "Backpack",
+  consumable: "Consumable",
+};
+
+const equipmentFolderNames = {
+  heavy: "Heavy Armor",
+  medium: "Medium Armor",
+  light: "Light Armor",
+  trinket: "Trinket",
+  shield: "Shield",
+};
+const weaponFolderNames = {
+  simpleM: "Simple Melee",
+  simpleR: "Simple Ranged",
+  martialM: "Martial Melee",
+  martialR: "Martial Ranged",
+};
+const trinketFolderNames = ["Wand", "Wondrous item", "Ring", "Rod"];
+const consumableFolderNames = ["Ammunition", "Potion", "Scroll", "Poison", "Adventuring Gear"];
+const lootFolderNames = [
+  "Adventuring Gear",
+  "Vehicle",
+  "Gemstone",
+  "Mount",
+  "Arcane Focus",
+  "Holy Symbol",
+  "Druidic Focus",
+];
+const backpackFolderNames = ["Equipment Pack", "Adventuring Gear"];
 
 async function createCompendiumFolder(packName, folderName, color = "#6f0006") {
   const existingFolder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == folderName);
@@ -39,6 +71,20 @@ async function createCompendiumFolder(packName, folderName, color = "#6f0006") {
       logger.info(`Creating compendium folder ${folderName}`);
       // createFolderAtRoot(packCode,name,color,fontColor)
       resolve(game.CF.FICFolderAPI.createFolderAtRoot(packName, folderName, color));
+    } else {
+      resolve(existingFolder);
+    }
+  });
+}
+
+async function createCompendiumFolderWithParent(packName, folderName, parentFolder, color = "#6f0006") {
+  const existingFolder = game.customFolders.fic.folders.find(
+    (f) => f.packCode === packName && f.name == folderName && f.parentId == parentFolder.id
+  );
+  return new Promise((resolve) => {
+    if (!existingFolder) {
+      logger.info(`Creating compendium folder ${folderName} in ${parentFolder.name}`);
+      resolve(game.CF.FICFolderAPI.createFolderWithParent(parentFolder, folderName, color));
     } else {
       resolve(existingFolder);
     }
@@ -62,7 +108,8 @@ async function createChallengeRatingCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
     DDB_CONFIG.challengeRatings.forEach(async (cr) => {
-      const folder = await createCompendiumFolder(packName, `CR ${cr.value}`, "#6f0006");
+      const paddedCR = String(cr.value).padStart(2, "0");
+      const folder = await createCompendiumFolder(packName, `CR ${paddedCR}`, "#6f0006");
       promises.push(folder);
     });
     resolve(promises);
@@ -84,15 +131,110 @@ async function createAlphabeticalCompendiumFolders(packName) {
   });
 }
 
+// spell level
+async function createSpellLevelCompendiumFolders(packName) {
+  return new Promise((resolve) => {
+    let promises = [];
+    spellLevelFolderNames.forEach(async (levelName) => {
+      logger.info(`Creating folder '${levelName}'`);
+      const newFolder = await game.CF.FICFolderAPI.createFolderAtRoot(packName, levelName);
+      promises.push(newFolder);
+    });
+    resolve(promises);
+  });
+}
+
+// spell school
+async function createSpellSchoolCompendiumFolders(packName) {
+  return new Promise((resolve) => {
+    let promises = [];
+    DICTIONARY.spell.schools.forEach(async (school) => {
+      const schoolName = utils.capitalize(school.name);
+      logger.info(`Creating folder '${schoolName}'`);
+      const newFolder = await game.CF.FICFolderAPI.createFolderAtRoot(packName, schoolName);
+      promises.push(newFolder);
+    });
+    resolve(promises);
+  });
+}
+
+// item type folder
+async function createItemTypeCompendiumFolders(packName) {
+  let promises = [];
+
+  for (const [key, value] of Object.entries(rootItemFolderNames)) {
+    logger.info(`Creating root folder '${value}' with key '${key}'`);
+    // eslint-disable-next-line no-await-in-loop
+    const folder = await createCompendiumFolder(packName, value);
+    rootItemFolders[key] = folder;
+    promises.push(folder);
+  }
+
+  for (const [key, value] of Object.entries(equipmentFolderNames)) {
+    logger.info(`Creating Equipment folder '${value}' with key '${key}'`);
+    // eslint-disable-next-line no-await-in-loop
+    const folder = await createCompendiumFolderWithParent(packName, value, rootItemFolders["equipment"], "#222222");
+    equipmentFolders[key] = folder;
+    promises.push(folder);
+  }
+
+  for (const [key, value] of Object.entries(weaponFolderNames)) {
+    logger.info(`Creating Weapon folder '${value}' with key '${key}'`);
+    // eslint-disable-next-line no-await-in-loop
+    const folder = await createCompendiumFolderWithParent(packName, value, rootItemFolders["weapon"], "#222222");
+    weaponFolders[key] = folder;
+    promises.push(folder);
+  }
+
+  trinketFolderNames.forEach((folderName) => {
+    logger.info(`Creating Equipment\\Trinket folder '${folderName}'`);
+    createCompendiumFolderWithParent(packName, folderName, equipmentFolders["trinket"], "#444444").then((folder) => {
+      trinketFolders[folderName] = folder;
+      promises.push(folder);
+    });
+  });
+
+  consumableFolderNames.forEach((folderName) => {
+    logger.info(`Creating Consumable folder '${folderName}'`);
+    createCompendiumFolderWithParent(packName, folderName, rootItemFolders["consumable"], "#222222").then((folder) => {
+      consumableFolders[folderName] = folder;
+      promises.push(folder);
+    });
+  });
+
+  lootFolderNames.forEach((folderName) => {
+    logger.info(`Creating Loot folder '${folderName}'`);
+    createCompendiumFolderWithParent(packName, folderName, rootItemFolders["loot"], "#222222").then((folder) => {
+      lootFolders[folderName] = folder;
+      promises.push(folder);
+    });
+  });
+
+  backpackFolderNames.forEach((folderName) => {
+    logger.info(`Creating Backpack folder '${folderName}'`);
+    createCompendiumFolderWithParent(packName, folderName, rootItemFolders["backpack"], "#222222").then((folder) => {
+      backpackFolders[folderName] = folder;
+      promises.push(folder);
+    });
+  });
+
+  return new Promise((resolve) => {
+    resolve(promises);
+  });
+}
+
 // create compendium folder structure
 export async function createCompendiumFolderStructure(type) {
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
 
   if (compendiumFoldersInstalled) {
     compendiumFolderTypeMonster = game.settings.get("ddb-importer", "munching-selection-compendium-folders-monster");
+    compendiumFolderTypeSpell = game.settings.get("ddb-importer", "munching-selection-compendium-folders-spell");
+    compendiumFolderTypeItem = game.settings.get("ddb-importer", "munching-selection-compendium-folders-item");
     // generate compendium folders for type
     const packName = await getCompendiumLabel(type);
     await game.CF.FICFolderAPI.loadFolders(packName);
+    logger.debug(`Creating Compendium folder structure for ${type}`);
 
     switch (type) {
       case "monsters":
@@ -115,6 +257,36 @@ export async function createCompendiumFolderStructure(type) {
         }
         break;
       }
+      case "spell":
+      case "spells": {
+        switch (compendiumFolderTypeSpell) {
+          case "SCHOOL":
+            await createSpellSchoolCompendiumFolders(packName);
+            break;
+          case "LEVEL":
+            await createSpellLevelCompendiumFolders(packName);
+            break;
+          // no default
+        }
+        break;
+      }
+      case "item":
+      case "items": {
+        rootItemFolders = {};
+        equipmentFolders = {};
+        weaponFolders = {};
+        trinketFolders = {};
+        consumableFolders = {};
+        lootFolders = {};
+        backpackFolders = {};
+        switch (compendiumFolderTypeItem) {
+          case "TYPE":
+            await createItemTypeCompendiumFolders(packName);
+            break;
+          // no default
+        }
+        break;
+      }
       // no default
     }
     // reload folders
@@ -122,6 +294,64 @@ export async function createCompendiumFolderStructure(type) {
   }
 
   return undefined;
+}
+
+function getItemCompendiumFolderName(document) {
+  let name;
+  switch (compendiumFolderTypeItem) {
+    case "TYPE": {
+      switch (document.data.type) {
+        case "equipment": {
+          switch (document.data.data?.armor?.type) {
+            case "trinket": {
+              const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+              if (ddbType) {
+                name = trinketFolders[ddbType].name;
+              }
+              break;
+            }
+            default: {
+              name = equipmentFolders[document.data.data.armor.type].name;
+              break;
+            }
+          }
+          break;
+        }
+        case "weapon": {
+          name = weaponFolders[document.data.data.weaponType].name;
+          break;
+        }
+        case "consumable": {
+          const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+          if (ddbType) {
+            name = consumableFolders[ddbType].name;
+          }
+          break;
+        }
+        case "loot": {
+          const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+          if (ddbType) {
+            name = lootFolders[ddbType].name;
+          }
+          break;
+        }
+        case "backpack": {
+          const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+          if (ddbType) {
+            name = backpackFolders[ddbType].name;
+          }
+          break;
+        }
+        default: {
+          name = rootItemFolders[document.data.type].name;
+          break;
+        }
+      }
+      break;
+    }
+    // no default
+  }
+  return name;
 }
 
 function getCompendiumFolderName(type, document) {
@@ -140,22 +370,115 @@ function getCompendiumFolderName(type, document) {
           break;
         }
         case "ALPHA": {
-          name = document.name.replace(/[^a-z]/gi, '').charAt(0).toUpperCase();
+          name = document.name
+            .replace(/[^a-z]/gi, "")
+            .charAt(0)
+            .toUpperCase();
           break;
         }
         case "CR": {
           if (document.data.data.details.cr !== undefined || document.data.data.details.cr !== "") {
-            name = `CR ${document.data.data.details.cr}`;
+            const paddedCR = String(document.data.data.details.cr).padStart(2, "0");
+            name = `CR ${paddedCR}`;
           }
         }
         // no default
       }
       break;
     }
+    case "spell":
+    case "spells": {
+      switch (compendiumFolderTypeSpell) {
+        case "SCHOOL": {
+          const school = document.data.data?.school;
+          if (school) {
+            name = utils.capitalize(DICTIONARY.spell.schools.find((sch) => school == sch.id).name);
+          }
+          break;
+        }
+        case "LEVEL": {
+          const levelFolder = spellLevelFolderNames[document.data.data?.level];
+          if (levelFolder) {
+            name = levelFolder;
+          }
+          break;
+        }
+        // no default
+      }
+      break;
+    }
+    case "item":
+    case "items": {
+      name = getItemCompendiumFolderName(document);
+    }
     // no default
   }
   return name;
 }
+
+// function addItemToCompendiumFolder(packName, document, folders) {
+//   const folderName = getCompendiumFolderName("item", document);
+//   if (folderName) {
+//     switch (compendiumFolderTypeItems) {
+//       case "TYPE": {
+//         switch (document.data.type) {
+//           case "equipment": {
+//             switch (document.data.data?.armor?.type) {
+//               case "trinket": {
+//                 const folder = trinketFolders[document.data.flags?.ddbimporter?.dndbeyond?.type];
+//                 const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+//                 if (ddbType) {
+//                   name = trinketFolders[ddbType].name;
+//                   logger.info(`Moving ${type} ${document.name} to folder ${folder.name}`);
+//                   await game.CF.FICFolderAPI.moveDocumentToFolder(packName, document, folder);
+//                 }
+//                 break;
+//               }
+//               default: {
+//                 name = equipmentFolders[document.data.armor.type].name;
+//                 break;
+//               }
+//             }
+//             break;
+//           }
+//           case "weapon": {
+//             name = weaponFolders[document.data.weaponType].name;
+//             break;
+//           }
+//           case "consumable": {
+//             const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+//             if (ddbType) {
+//               name = consumableFolders[ddbType].name;
+//             }
+//             break;
+//           }
+//           case "loot": {
+//             const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+//             if (ddbType) {
+//               name = lootFolders[ddbType].name;
+//             }
+//             break;
+//           }
+//           case "backpack": {
+//             const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+//             if (ddbType) {
+//               name = backpackFolders[ddbType].name;
+//             }
+//             break;
+//           }
+//           default: {
+//             name = rootItemFolders[document.data.type].name;
+//             break;
+//           }
+//         }
+//         break;
+//       }
+//       // no default
+//     }
+//   } else {
+//     logger.error(`Unable to find folder "${folderName}" in "${packName}" for Item`);
+//   }
+// }
 
 export async function addToCompendiumFolder(type, document, folders) {
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
@@ -166,6 +489,10 @@ export async function addToCompendiumFolder(type, document, folders) {
     logger.debug(`Checking ${document.name} in ${packName}`);
 
     switch (type) {
+      case "items":
+      case "item":
+      case "spells":
+      case "spell":
       case "monsters":
       case "npc":
       case "monster": {
@@ -174,10 +501,10 @@ export async function addToCompendiumFolder(type, document, folders) {
           const folder = folders.find((f) => f.packCode === packName && f.name == folderName);
           if (document?.data?.flags?.cf?.id) setProperty(document, "data.flags.cf.id", undefined);
           if (folder) {
-            logger.info(`Moving monster ${document.name} to folder ${folder.name}`);
+            logger.info(`Moving ${type} ${document.name} to folder ${folder.name}`);
             await game.CF.FICFolderAPI.moveDocumentToFolder(packName, document, folder);
           } else {
-            logger.error(`Unable to find folder "${folderName}" in "${packName}"`);
+            logger.error(`Unable to find folder "${folderName}" in "${packName}" for ${type}`);
           }
         }
       }
@@ -209,18 +536,44 @@ export async function migrateExistingCompendium(type) {
 
   const compendium = game.packs.get(packName);
   if (!compendium) return undefined;
-  const index = await compendium.getIndex();
+  let indexFields = ["name"];
+  switch (type) {
+    case "spells":
+    case "spell": {
+      indexFields = ["name", "flags.cf", "data.level"];
+      break;
+    }
+    case "items":
+    case "item": {
+      indexFields = [
+        "name",
+        "type",
+        "flags.cf",
+        "flags.ddbimporter.dndbeyond.type",
+        "data.armor.type",
+        "data.weaponType",
+      ];
+      break;
+    }
+    // no default
+  }
+
+  const index = await compendium.getIndex({ fields: indexFields });
 
   switch (type) {
+    case "items":
+    case "item":
+    case "spells":
+    case "spell":
     case "monsters":
     case "npc":
     case "monster": {
       // loop through all existing monsters and move them to their type
       await index
-        .filter((monster) => monster.name !== game.CF.TEMP_ENTITY_NAME)
-        .forEach(async (monster) => {
-          const existingNPC = await compendium.getDocument(monster._id);
-          await addToCompendiumFolder(type, existingNPC, folders);
+        .filter((i) => i.name !== game.CF.TEMP_ENTITY_NAME)
+        .forEach(async (i) => {
+          const existing = await compendium.getDocument(i._id);
+          await addToCompendiumFolder(type, existing, folders);
         });
       break;
     }
@@ -232,5 +585,4 @@ export async function migrateExistingCompendium(type) {
   return new Promise((resolve) => {
     resolve(newFolders);
   });
-
 }

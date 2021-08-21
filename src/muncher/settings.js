@@ -624,6 +624,8 @@ export function getMuncherSettings(includeHomebrew = true) {
   const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders-monster");
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
   const compendiumFolderMonsterStyles = getCompendiumFolderLookups("monster");
+  const compendiumFolderSpellStyles = getCompendiumFolderLookups("spell");
+  const compendiumFolderItemStyles = getCompendiumFolderLookups("item");
 
   const itemConfig = [
     {
@@ -786,6 +788,8 @@ export function getMuncherSettings(includeHomebrew = true) {
     tiers,
     compendiumFoldersInstalled,
     compendiumFolderMonsterStyles,
+    compendiumFolderItemStyles,
+    compendiumFolderSpellStyles,
   };
 
   // console.warn(resultData);
