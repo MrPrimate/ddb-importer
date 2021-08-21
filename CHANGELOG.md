@@ -1,3 +1,7 @@
+# 2.3.12
+
+* Better AC support for things like Warforged when using D&D 5e v 1.4.* system and not using DAE module.
+
 # 2.3.11
 
 * Fix Rarity for D&D 5e 1.4.2
