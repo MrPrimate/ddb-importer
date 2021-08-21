@@ -163,7 +163,7 @@ const utils = {
     // are we adding effects to items?
     const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? getEffectExcludedModifiers("item") : [];
+    const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? getEffectExcludedModifiers("item", true, true) : [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
       .filter(
@@ -185,19 +185,20 @@ const utils = {
 
   getActiveItemEffectModifiers: (data) => {
     return utils.getActiveItemModifiers(data, true).filter((mod) =>
-    getEffectExcludedModifiers("item").some((exMod) => mod.type === exMod.type &&
+    getEffectExcludedModifiers("item", true, true).some((exMod) => mod.type === exMod.type &&
       (mod.subType === exMod.subType || !exMod.subType))
     );
   },
 
   getModifiers: (data, type, includeExcludedEffects = false, effectOnly = false) => {
     // are we adding effects to items?
-    const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
+    const featureEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
+    const acEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const excludedModifiers = (addEffects && daeInstalled &&
+    const excludedModifiers = ((featureEffects || acEffects) && daeInstalled &&
       (!includeExcludedEffects || (includeExcludedEffects && effectOnly)))
-        ? getEffectExcludedModifiers(type)
-        : [];
+        ? getEffectExcludedModifiers(type, featureEffects, acEffects)
+        : getEffectExcludedModifiers(type, false, false);
     // get items we are going to interact on
     let modifiers = [];
     if (effectOnly) {

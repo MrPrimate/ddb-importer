@@ -1,5 +1,6 @@
 // import logger from "../logger.js";
 import utils from "../utils.js";
+import logger from "../logger.js";
 import { getPatreonTiers } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 
@@ -219,9 +220,9 @@ export function getCharacterImportSettings() {
       name: "generate-ac-feature-effects",
       isChecked:
         game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects") && daeInstalled,
-      title: "Generate Active Effects ACs for Character Features & Racial Traits",
+      title: "Generate DAE Active Effects ACs for Character Features & Racial Traits",
       description:
-        "Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations.",
+        "Use extras in DAE to Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations. If unticked some ac bonuses will still be generated.",
       enabled: daeInstalled,
     },
   ];
@@ -574,6 +575,9 @@ export function getCharacterImportSettings() {
 export function updateActorSettings(html, event) {
   const selection = event.currentTarget.dataset.section;
   const checked = event.currentTarget.checked;
+  const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
+
+  logger.debug(`Updating munching-policy-${selection} to ${checked}`);
   game.settings.set("ddb-importer", "character-update-policy-" + selection, checked);
 
   if (selection === "dae-copy" && checked) {
@@ -586,7 +590,7 @@ export function updateActorSettings(html, event) {
     game.settings.set("ddb-importer", "character-update-policy-add-item-effects", true);
     $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
     game.settings.set("ddb-importer", "character-update-policy-add-character-effects", true);
-  } else if ((selection === "generate-ac-armor-effects" || selection === "generate-ac-feature-effects") && checked) {
+  } else if (!AUTO_AC && (selection === "generate-ac-armor-effects" || selection === "generate-ac-feature-effects") && checked) {
     game.settings.set("dae", "calculateArmor", false);
     game.settings.set("dae", "applyBaseAC", false);
   }
@@ -792,6 +796,8 @@ export function getMuncherSettings(includeHomebrew = true) {
 export function updateMuncherSettings(html, event) {
   const selection = event.currentTarget.dataset.section;
   const checked = event.currentTarget.checked;
+
+  logger.debug(`Updating munching-policy-${selection} to ${checked}`);
 
   game.settings.set("ddb-importer", "munching-policy-" + selection, checked);
 

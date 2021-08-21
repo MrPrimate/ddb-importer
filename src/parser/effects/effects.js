@@ -142,37 +142,56 @@ const EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS = [
   { type: "vulnerability", subType: null },
 ];
 
-const AC_EFFECTS = [
-  { type: "set", subType: "unarmored-armor-class" },
+const AC_BONUS_MODIFIERS = [
   { type: "bonus", subType: "unarmored-armor-class" },
   { type: "bonus", subType: "armor-class" },
   { type: "bonus", subType: "armored-armor-class" },
   { type: "bonus", subType: "dual-wield-armor-class" },
+];
+
+const AC_EFFECTS = [
+  { type: "set", subType: "unarmored-armor-class" },
   { type: "ignore", subType: "unarmored-dex-ac-bonus" },
   { type: "set", subType: "ac-max-dex-modifier" },
 ];
 
-export function getEffectExcludedModifiers(type) {
-  let modifiers = EFFECT_EXCLUDED_COMMON_MODIFIERS;
-  // these should never really have been enabled as options, they are never dynamic
-  // if (["feat", "background"].includes(type)) {
-  //   if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-ability-bonus`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_ABILITY_BONUSES);
-  //   if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-proficiencies`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_PROFICIENCY_BONUSES);
-  //   if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-languages`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_LANGUAGES_MODIFIERS);
-  // }
-  if (["feat", "background", "race", "class"].includes(type)) {
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-senses`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-hp`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-spell-bonus`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-damages`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
-    if (game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects")) modifiers = modifiers.concat(AC_EFFECTS);
+export function getEffectExcludedModifiers(type, features, ac) {
+  let modifiers = [];
+
+  if (type !== "item") {
+    // these are the effect tweaks, and mostly excessive
+    const speedEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`);
+    const senseEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-senses`);
+    const hpEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-hp`);
+    const spellBonusEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-spell-bonus`);
+    const damageEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-damages`);
+
+    // features represent core non ac features
+    if (features) {
+      modifiers = modifiers.concat(EFFECT_EXCLUDED_COMMON_MODIFIERS);
+      if (["feat", "background", "race", "class"].includes(type)) {
+        if (speedEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
+        if (senseEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
+        if (hpEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
+        if (spellBonusEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
+        if (damageEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
+      }
+      if (["class"].includes(type)) {
+        modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
+      } else if (["feat", "background", "race"].includes(type)) {
+        if (speedEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
+      }
+    }
+    // here ac represents the more exotic ac effects that set limits and change base
+    const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
+    // if using D&D 1.4.* then we need to add in some ac bonuses off the bat regardless
+    if (AUTO_AC || ac) modifiers = modifiers.concat(AC_BONUS_MODIFIERS);
+    if (ac) {
+      modifiers = modifiers.concat(AC_EFFECTS);
+    }
   }
-  if (["class"].includes(type)) {
-    modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
-  } else if (["feat", "background", "race"].includes(type)) {
-    if (game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`)) modifiers = modifiers.concat(EFFECT_EXCLUDED_MONK_SPEED_MODIFIERS);
-  };
+
+  // items are basically their own thing, all or nuffin
   if (type === "item") {
     modifiers = modifiers.concat(
       EFFECT_EXCLUDED_ABILITY_BONUSES,
@@ -183,7 +202,8 @@ export function getEffectExcludedModifiers(type) {
       EFFECT_EXCLUDED_SENSE_MODIFIERS,
       EFFECT_EXCLUDED_HP_MODIFIERS,
       EFFECT_EXCLUDED_SPELL_MODIFIERS,
-      AC_EFFECTS
+      AC_EFFECTS,
+      AC_BONUS_MODIFIERS,
     );
   }
   return modifiers;

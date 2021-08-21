@@ -271,6 +271,9 @@ function addACBonusEffect(modifiers, name, type) {
 export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
   const noACValue = !foundryItem.data?.armor?.value;
+  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const daeBonusField = daeInstalled ? "data.attributes.ac.value" : "data.attributes.ac.bonus";
+
   if (noModifiers && noACValue) return foundryItem;
   // console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported AC effects for ${foundryItem.name}`);
@@ -278,34 +281,34 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
   let effect = baseItemEffect(foundryItem, `AC: ${foundryItem.name}`);
 
   // base ac effect from item value
-  const base = createBaseArmorItemEffect(ddb, ddbItem, foundryItem);
+  const base = daeInstalled ? createBaseArmorItemEffect(ddb, ddbItem, foundryItem) : [];
   // base ac from modifiers
-  const acSets = addACSets(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const acSets = daeInstalled ? addACSets(ddbItem.definition.grantedModifiers, foundryItem.name) : [];
 
   // ac bonus effects
   const acBonus = addACBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "armor-class",
-    "data.attributes.ac.value"
+    daeBonusField
   );
   const unarmoredACBonus = addACBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "unarmored-armor-class",
-    "data.attributes.ac.value"
+    daeBonusField
   );
   const armoredACBonus = addACBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "armored-armor-class",
-    "data.attributes.ac.value"
+    daeBonusField
   );
   const dualWieldACBonus = addACBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "dual-wield-armor-class",
-    "data.attributes.ac.value"
+    daeBonusField
   );
 
   effect.changes = [
