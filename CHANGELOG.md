@@ -1,3 +1,7 @@
+# 2.4.0
+
+* Adventure Muncher imports will now find and import missing monsters, spells, and items from DDB. You no longer need to munch these prior to generating a config file. This requires adventure muncher 0.4.0.
+
 # 2.3.12
 
 * Better AC support for things like Warforged when using D&D 5e v 1.4.* system and not using DAE module.
