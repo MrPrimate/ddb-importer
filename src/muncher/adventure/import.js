@@ -566,7 +566,7 @@ export default class AdventureMunch extends FormApplication {
 
   static async _checkForMissingDocuments(type, ids) {
     const index = await AdventureMunch._getCompendiumIndex(type);
-    console.warn(index);
+
     return new Promise((resolve) => {
       const missingIds = ids.filter((id) => {
         switch (type) {
