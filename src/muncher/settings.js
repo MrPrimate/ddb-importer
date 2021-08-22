@@ -256,14 +256,14 @@ export function getCharacterImportSettings() {
         "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug.",
       enabled: daeInstalled && daeSRDContentAvailable,
     },
-    {
-      name: "dae-copy",
-      isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDContentAvailable,
-      title: "[Caution] Replace Items using DAE compendiums",
-      description:
-        "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This will remove any effects applied directly to your character/not via features/items. This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
-      enabled: daeInstalled && daeSRDContentAvailable,
-    },
+    // {
+    //   name: "dae-copy",
+    //   isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDContentAvailable,
+    //   title: "[Caution] Replace Items using DAE compendiums",
+    //   description:
+    //     "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This will remove any effects applied directly to your character/not via features/items. This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
+    //   enabled: daeInstalled && daeSRDContentAvailable,
+    // },
     {
       name: "active-effect-copy",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
@@ -273,6 +273,12 @@ export function getCharacterImportSettings() {
       enabled: true,
     },
   ];
+
+  // dae migration function no longer sound
+  if (game.settings.get("ddb-importer", "character-update-policy-dae-copy")) {
+    game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
+    game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", true);
+  }
 
   const effectImportConfig = [...effectImportConfig1, ...effectImportConfig2, ...effectImportConfig3, ...effectImportConfig4, ...effectImportConfig5];
 

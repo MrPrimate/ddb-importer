@@ -1,3 +1,7 @@
+# 2.4.1
+
+* "Replace Items using DAE compendiums" has been removed in favour of just "Copy Active Effect from DAE Compendiums". It was not working following recent changes to the DAE SRD module.
+
 # 2.4.0
 
 * Adventure Muncher imports will now find and import missing monsters, spells, and items from DDB. You no longer need to munch these prior to generating a config file. This requires adventure muncher 0.4.0.
