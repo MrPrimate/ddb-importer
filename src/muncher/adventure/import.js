@@ -97,6 +97,7 @@ export default class AdventureMunch extends FormApplication {
         });
       } else {
         CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
+        CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = null;
       }
 
       // the folder list could be out of order, we need to create all folders with parent null first
@@ -182,6 +183,10 @@ export default class AdventureMunch extends FormApplication {
           AdventureMunch._progressNote(`Checking for missing items from DDB`);
           await AdventureMunch._checkForMissingDocuments("item", adventure.required.items);
         }
+
+        // now we have imported all missing data, generate the lookup data
+        CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig();
+        logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
         if (AdventureMunch._folderExists("scene", zip)) {
           logger.debug(`${adventure.name} - Loading scenes`);
@@ -316,6 +321,7 @@ export default class AdventureMunch extends FormApplication {
           }
         ).render(true);
 
+        // eslint-disable-next-line require-atomic-updates
         CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
         this.close();
       } catch (err) {
@@ -594,38 +600,48 @@ export default class AdventureMunch extends FormApplication {
     return newTokens;
   }
 
+  static _htmlToDoc(text) {
+    const parser = new DOMParser();
+    return parser.parseFromString(text, "text/html");
+  }
+
   static _foundryCompendiumReplace(text) {
     // replace the ddb:// entries with known compendium look ups if we have them
     // ddb://spells
     // ddb://magicitems || weapons || adventuring-gear || armor
     // ddb://monsters
 
-    const doc = document.implementation.createHTMLDocument("DDB Replacer");
-    const dom = doc.createElement("body");
-    doc.body.innerHTML = text;
+    // const doc = document.implementation.createHTMLDocument("DDB Replacer");
+    // const dom = doc.createElement("body");
+    // doc.body.innerHTML = text;
 
-    const lookups = generateAdventureConfig();
+    let doc = AdventureMunch._htmlToDoc(text);
+
+    const lookups = CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups;
 
     for (const lookupKey in COMPENDIUM_MAP) {
-      const compendiumLinks = dom.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
+      const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
+      logger.debug(`replacing ${lookupKey} references`, compendiumLinks);
+
       const lookupRegExp = new RegExp(`ddb://${lookupKey}/([0-9]*)`);
       compendiumLinks.forEach((node) => {
         const lookupMatch = node.outerHTML.match(lookupRegExp);
         const lookupValue = lookups[COMPENDIUM_MAP[lookupKey]];
+
         if (lookupValue) {
           const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
           if (lookupEntry) {
             const documentRef = lookupEntry.documentName ? lookupEntry.documentName : lookupEntry._id;
             doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@Compendium[${lookupEntry.compendium}.${documentRef}]{${node.textContent}}`);
           } else {
-            console.log(`NO Lookup Compendium Entry for ${node.outerHTML}`);
+            logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}`);
           }
         }
       });
     }
 
     // vehicles - not yet handled
-    const compendiumLinks = dom.querySelectorAll("a[href*=\"ddb://vehicles\/\"]");
+    const compendiumLinks = doc.querySelectorAll("a[href*=\"ddb://vehicles/\"]");
     const lookupRegExp = /ddb:\/\/vehicles\/([0-9]*)/g;
     compendiumLinks.forEach((node) => {
       const target = node.outerHTML;
@@ -637,10 +653,10 @@ export default class AdventureMunch extends FormApplication {
           node.setAttribute("href", `https://www.dndbeyond.com${lookupEntry.url}`);
           doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
         } else {
-          console.log(`NO Vehicle Lookup Entry for ${node.outerHTML}`);
+          logger.warn(`NO Vehicle Lookup Entry for ${node.outerHTML}`);
         }
       } else {
-        console.log(`NO Vehicle Lookup Match for ${node.outerHTML}`);
+        logger.warn(`NO Vehicle Lookup Match for ${node.outerHTML}`);
       }
     });
 
@@ -921,6 +937,8 @@ export default class AdventureMunch extends FormApplication {
           if (result.resultId) {
             needRevisit = true;
           }
+          logger.debug(`Updating DDB links for ${data.name}`);
+          // eslint-disable-next-line require-atomic-updates
           data.text = AdventureMunch._foundryCompendiumReplace(data.text);
         });
       } else if (importType === "JournalEntry" && data.content) {
@@ -931,6 +949,7 @@ export default class AdventureMunch extends FormApplication {
             data.content = data.content.replace(result[0], `${result[1]}="${path}"`);
           });
         }
+        logger.debug(`Updating DDB links for ${data.name}`);
         data.content = AdventureMunch._foundryCompendiumReplace(data.content);
       }
 
