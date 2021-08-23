@@ -659,7 +659,7 @@ function addProficiencyBonus(modifiers, name) {
   const bonus = utils.filterModifiers(modifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + b.value, 0);
   if (bonus) {
     logger.debug(`Generating proficiency bonus for ${name}`);
-    changes.push(generateCustomChange(bonus, 0, "data.attributes.prof"));
+    changes.push(generateAddChange(bonus, 0, "data.attributes.prof"));
   }
   return changes;
 }

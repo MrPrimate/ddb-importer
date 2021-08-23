@@ -1,6 +1,7 @@
 # 2.4.1
 
 * "Replace Items using DAE compendiums" has been removed in favour of just "Copy Active Effect from DAE Compendiums". It was not working following recent changes to the DAE SRD module.
+* Items like the Ioun Stone of Mastery had stopped adding to proficiency bonus. @kid2407 / Tobias#6450
 
 # 2.4.0
 
