@@ -1,3 +1,7 @@
+# 2.4.2
+
+* Adventure Muncher will work again if you try to import an adventure without monsters in the compendium, and you don't have a patreon link or proxy setup. @cam443#9999
+
 # 2.4.1
 
 * "Replace Items using DAE compendiums" has been removed in favour of just "Copy Active Effect from DAE Compendiums". It was not working following recent changes to the DAE SRD module.

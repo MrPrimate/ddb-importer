@@ -6,6 +6,7 @@ import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
 import { generateAdventureConfig } from "../adventure.js";
+import { getPatreonTiers } from "../utils.js";
 
 const COMPENDIUM_MAP = {
   "spells": "spells",
@@ -13,6 +14,15 @@ const COMPENDIUM_MAP = {
   "weapons": "items",
   "armor": "items",
   "adventuring-gear": "items",
+  "monsters": "monsters",
+};
+
+const DDB_MAP = {
+  "spells": "spells",
+  "magicitems": "magic-items",
+  "weapons": "equipment",
+  "armor": "equipment",
+  "adventuring-gear": "equipment",
   "monsters": "monsters",
 };
 
@@ -537,9 +547,17 @@ export default class AdventureMunch extends FormApplication {
           case "item":
             resolve(parseItems(docIds));
             break;
-          case "monster":
-            resolve(parseCritters(docIds));
+          case "monster": {
+            const tier = game.settings.get("ddb-importer", "patreon-tier");
+            const tiers = getPatreonTiers(tier);
+            if (tiers.all) {
+
+              resolve(parseCritters(docIds));
+            } else {
+              resolve([]);
+            }
             break;
+          }
           case "spell":
             resolve(parseSpells(docIds));
             break;
@@ -611,10 +629,6 @@ export default class AdventureMunch extends FormApplication {
     // ddb://magicitems || weapons || adventuring-gear || armor
     // ddb://monsters
 
-    // const doc = document.implementation.createHTMLDocument("DDB Replacer");
-    // const dom = doc.createElement("body");
-    // doc.body.innerHTML = text;
-
     let doc = AdventureMunch._htmlToDoc(text);
 
     const lookups = CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups;
@@ -640,7 +654,7 @@ export default class AdventureMunch extends FormApplication {
       });
     }
 
-    // vehicles - not yet handled
+    // vehicles - not yet handled, links to DDB
     const compendiumLinks = doc.querySelectorAll("a[href*=\"ddb://vehicles/\"]");
     const lookupRegExp = /ddb:\/\/vehicles\/([0-9]*)/g;
     compendiumLinks.forEach((node) => {
@@ -659,6 +673,24 @@ export default class AdventureMunch extends FormApplication {
         logger.warn(`NO Vehicle Lookup Match for ${node.outerHTML}`);
       }
     });
+
+    // final replace in case of failure
+    // there is a chance that the adventure references items or monsters we don't have access to
+    // in this case attempt to link to DDB instead of compendium doc
+    for (const lookupKey in COMPENDIUM_MAP) {
+      const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
+      logger.debug(`final replace for missing ${lookupKey} references`, compendiumLinks);
+
+      compendiumLinks.forEach((node) => {
+        const target = node.outerHTML;
+        const ddbStub = DDB_MAP[lookupKey];
+        const ddbNameGuess = node.textContent.toLowerCase().replace(" ", "-").replace(/[^0-9a-z-]/gi, '');
+        logger.warn(`No Compendium Entry for ${node.outerHTML} attempting to guess a link to DDB`);
+
+        node.setAttribute("href", `https://www.dndbeyond.com/${ddbStub}/${ddbNameGuess}`);
+        doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
+      });
+    }
 
     return doc.body.innerHTML;
   }
