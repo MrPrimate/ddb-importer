@@ -1,3 +1,8 @@
+# 2.4.3
+
+* Handle Homebrew Monster edge cases with damage variations in spell names.
+
+
 # 2.4.2
 
 * Adventure Muncher will work again if you try to import an adventure without monsters in the compendium, and you don't have a patreon link or proxy setup. @cam443#9999
