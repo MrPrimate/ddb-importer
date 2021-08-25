@@ -11,6 +11,11 @@
   font-family: "Roboto Condensed", Helvetica, sans-serif;
 }
 
+.actions-buttons button {
+  min-width: max-content;
+  white-space: nowrap;
+}
+
 /* roboto-regular - latin */
 @font-face {
   font-family: "Roboto";

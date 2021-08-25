@@ -1,7 +1,7 @@
 # 2.4.3
 
 * Handle Homebrew Monster edge cases with damage variations in spell names.
-
+* Automated Evocations - Companion Module support - when using this module and importing Extras, it will add a characters extras to this modules settings for that character to pre-populate the list.
 
 # 2.4.2
 

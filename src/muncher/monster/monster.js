@@ -61,6 +61,7 @@ export function parseMonsters(monsterData, extra = false) {
         entityTypeId: monster.entityTypeId,
         creatureGroup: monster.creatureGroup ? monster.creatureGroup : null,
         creatureFlags: monster.creatureFlags ? monster.creatureFlags : [],
+        automatedEvcoationAnimation: monster.automatedEvcoationAnimation ? monster.automatedEvcoationAnimation : undefined,
       };
 
       const removedHitPoints = monster.removedHitPoints ? monster.removedHitPoints : 0;

@@ -67,6 +67,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "autoanimations",
   "enhancedcombathud",
   "cf",
+  "automated-evocations",
 ];
 
 var srdIconMapLoaded = false;

@@ -1077,6 +1077,13 @@ export default class CharacterImport extends FormApplication {
     // flag as having items ids
     this.result.character.flags.ddbimporter["syncItemReady"] = true;
     this.result.character.flags.ddbimporter["syncActionReady"] = true;
+    // remove unneeded flags (used for character parsing)
+    this.result.character.flags.ddbimporter.dndbeyond["templateStrings"] = null;
+    this.result.character.flags.ddbimporter.dndbeyond["characterValues"] = null;
+    this.result.character.flags.ddbimporter.dndbeyond["proficiencies"] = null;
+    this.result.character.flags.ddbimporter.dndbeyond["proficienciesIncludingEffects"] = null;
+    this.result.character.flags.ddbimporter.dndbeyond["effectAbilities"] = null;
+    this.result.character.flags.ddbimporter.dndbeyond["abilityOverrides"] = null;
 
     // basic import
     CharacterImport.showCurrentTask(html, "Updating core character information");

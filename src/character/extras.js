@@ -76,7 +76,8 @@ async function createExtras(extras, existingExtras, folderId) {
         } else {
           logger.info(`Creating Extra ${extra.name}`);
           extra.folder = folderId;
-          await buildNPC(extra, false, false, true);
+          const importedExtra = await buildNPC(extra, false, false, true);
+          return importedExtra;
         }
         return extra;
       })
@@ -128,28 +129,26 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
     disabled: false,
     selectedKey: [],
   };
-  ABILITIES.filter((ability) => extra.data.abilities[ability.value].proficient >= 1)
-    .forEach((ability) => {
-      const boost = {
-        key: `data.abilities.${ability.value}.save`,
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        value: characterProficiencyBonus,
-        priority: 20,
-      };
-      effect.selectedKey.push(`data.abilities.${ability.value}.save`);
-      effect.changes.push(boost);
-    });
-  SKILLS.filter((skill) => extra.data.skills[skill.name].prof >= 1)
-    .forEach((skill) => {
-      const boost = {
-        key: `data.skills.${skill.name}.mod`,
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        value: characterProficiencyBonus,
-        priority: 20,
-      };
-      effect.selectedKey.push(`data.skills.${skill.name}.mod`);
-      effect.changes.push(boost);
-    });
+  ABILITIES.filter((ability) => extra.data.abilities[ability.value].proficient >= 1).forEach((ability) => {
+    const boost = {
+      key: `data.abilities.${ability.value}.save`,
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      value: characterProficiencyBonus,
+      priority: 20,
+    };
+    effect.selectedKey.push(`data.abilities.${ability.value}.save`);
+    effect.changes.push(boost);
+  });
+  SKILLS.filter((skill) => extra.data.skills[skill.name].prof >= 1).forEach((skill) => {
+    const boost = {
+      key: `data.skills.${skill.name}.mod`,
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      value: characterProficiencyBonus,
+      priority: 20,
+    };
+    effect.selectedKey.push(`data.skills.${skill.name}.mod`);
+    effect.changes.push(boost);
+  });
   extra.effects = [effect];
   return extra;
 }
@@ -191,6 +190,107 @@ function generateArtificerEffects(actor, extra, characterProficiencyBonus) {
   return extra;
 }
 
+const creatureGroupMatrix = [
+  {
+    id: 1,
+    name: "Wildshape",
+    animation: "fourelements",
+  },
+  {
+    id: 2,
+    name: "Familiar",
+    animation: "magic1",
+  },
+  {
+    id: 3,
+    name: "Beast Companion",
+    animation: "fourelements",
+  },
+  {
+    id: 4,
+    name: "Mount",
+    animation: "heart",
+  },
+  {
+    id: 5,
+    name: "Pet",
+    animation: "heart",
+  },
+  {
+    id: 6,
+    name: "Summoned",
+    animation: "magic1",
+  },
+  {
+    id: 7,
+    name: "Misc",
+    animation: "magic1",
+  },
+  {
+    id: 10,
+    name: "Battle Smith Defender",
+    animation: "energy1",
+  },
+  {
+    id: 11,
+    name: "Sidekick",
+    animation: "energy1",
+  },
+  {
+    id: 12,
+    name: "Infusion",
+    animation: "energy1",
+  },
+];
+
+function getCreatureAnimationType(name, creatureGroup) {
+  // "fire":
+  // "air":
+  // "lightning":
+  // "water":
+  // "energy1":
+  // "magic1":
+  // "heart":
+  // "music":
+  // "fourelements":
+  const checkName = name.toLowerCase();
+  let animation = "magic1";
+  switch (name) {
+    case checkName.includes("flame"):
+    case checkName.includes("fire"):
+      animation = "fire";
+      break;
+    case checkName.includes("air"):
+    case checkName.includes("wind"):
+      animation = "air";
+      break;
+    case checkName.includes("lightning"):
+    case checkName.includes("thunder"):
+      animation = "lightning";
+      break;
+    case checkName.includes("water"):
+    case checkName.includes("aqua"):
+      animation = "water";
+      break;
+    case checkName.includes("energy"):
+    case checkName.includes("construct"):
+      animation = "energy1";
+      break;
+    case checkName.includes("magic"):
+    case checkName.includes("arcane"):
+      animation = "magic1";
+      break;
+    default: {
+      const match = creatureGroupMatrix.find((group) => group.id === creatureGroup.id);
+      if (match) {
+        animation = match.animation;
+      }
+    }
+  }
+
+  return animation;
+}
+
 export async function characterExtras(html, characterData, actor) {
   let munchSettings = [];
 
@@ -214,7 +314,9 @@ export async function characterExtras(html, characterData, actor) {
     let creatures = characterData.ddb.creatures.map((creature) => {
       logger.debug("Extra data", creature);
       let mock = JSON.parse(JSON.stringify(creature.definition));
-      const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == mock.challengeRatingId).proficiencyBonus;
+      const proficiencyBonus = DDB_CONFIG.challengeRatings.find(
+        (cr) => cr.id == mock.challengeRatingId
+      ).proficiencyBonus;
       const creatureGroup = DDB_CONFIG.creatureGroups.find((group) => group.id == creature.groupId);
       let creatureFlags = creatureGroup.flags;
 
@@ -230,6 +332,9 @@ export async function characterExtras(html, characterData, actor) {
       mock.creatureGroup = creature.groupId;
 
       if (creature.name) mock.name = creature.name;
+
+      // creature group
+      mock.automatedEvcoationAnimation = getCreatureAnimationType(mock.name, creatureGroup);
 
       // size
       const sizeChange = getCustomValue(characterData.ddb, 46, creature.id, creature.entityTypeId);
@@ -321,9 +426,10 @@ export async function characterExtras(html, characterData, actor) {
           const mod = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
 
           if (existingSkill && characterProficient === 2) {
+            const doubleProf = proficiencyBonus * 2;
             newSkills.push({
               skillId: skill.valueId,
-              value: mod + (proficiencyBonus * 2),
+              value: mod + doubleProf,
               additionalBonus: null,
             });
           } else if (existingSkill) {
@@ -395,9 +501,10 @@ export async function characterExtras(html, characterData, actor) {
         }
       }
 
-      if ((extra.flags?.ddbimporter?.creatureFlags?.includes("DRPB") && extra.flags?.ddbimporter?.creatureGroup !== 3) ||
-      // is this a artificer infusion? the infusion call actually adds this creature group, but we don't fetch that yet.
-      extra.flags?.ddbimporter?.creatureGroup === 12
+      if (
+        (extra.flags?.ddbimporter?.creatureFlags?.includes("DRPB") && extra.flags?.ddbimporter?.creatureGroup !== 3) ||
+        // is this a artificer infusion? the infusion call actually adds this creature group, but we don't fetch that yet.
+        extra.flags?.ddbimporter?.creatureGroup === 12
       ) {
         extra.items = extra.items.map((item) => {
           if (item.type === "weapon") {
@@ -455,7 +562,30 @@ export async function characterExtras(html, characterData, actor) {
     await generateIconMap(finalExtras);
 
     if (updateBool) await updateExtras(finalExtras, existingExtras);
-    await createExtras(finalExtras, existingExtras, folder.id);
+    const importedExtras = await createExtras(finalExtras, existingExtras, folder.id);
+
+    const currentAutomatedEvocationSettings = {
+      isLocal: actor.getFlag("automated-evocations", "isLocal"),
+      companions: actor.getFlag("automated-evocations", "isLocal"),
+    };
+
+    const companions = existingExtras.concat(importedExtras).map((extra) => {
+      return {
+        id: extra.id ? extra.id : extra._id,
+        number: 1,
+        animation: extra.data.flags?.ddbimporter?.automatedEvcoationAnimation
+          ? extra.data.flags?.ddbimporter?.automatedEvcoationAnimation
+          : "magic1",
+      };
+    });
+    const newAutomatedEvocationSettings = {
+      isLocal: true,
+      companions,
+    };
+    const mergedSettings = mergeObject(currentAutomatedEvocationSettings, newAutomatedEvocationSettings);
+
+    actor.setFlag("automated-evocations", "isLocal", mergedSettings.isLocal);
+    actor.setFlag("automated-evocations", "companions", mergedSettings.companions);
   } catch (err) {
     logger.error("Failure parsing extra", err);
     logger.error(err.stack);
