@@ -43,6 +43,7 @@ export default async function () {
       createIfNotExists("entity-race-compendium", "Item", "Races"),
       createIfNotExists("entity-monster-compendium", "Actor", "Monsters"),
       createIfNotExists("entity-override-compendium", "Item", "Override"),
+      createIfNotExists("entity-table-compendium", "RollTable", "Tables"),
     ]);
 
     const reload = results.some((result) => result.value);

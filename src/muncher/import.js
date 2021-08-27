@@ -33,6 +33,8 @@ const compendiumLookup = [
   { type: "spell", name: "entity-spell-compendium" },
   { type: "equipment", name: "entity-item-compendium" },
   { type: "monsterfeatures", name: "entity-feature-compendium" },
+  { type: "table", compendium: "entity-table-compendium" },
+  { type: "tables", compendium: "entity-table-compendium" },
 ];
 
 const srdCompendiumLookup = [
@@ -347,16 +349,26 @@ async function updateCompendiumItems(compendium, compendiumItems, index, matchFl
   return Promise.all(promises);
 }
 
-async function createCompendiumItems(compendium, compendiumItems, index, matchFlags) {
+async function createCompendiumItems(type, compendium, compendiumItems, index, matchFlags) {
   let promises = [];
   compendiumItems.forEach(async (item) => {
     const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
     // we have a single match
     if (existingItems.length === 0) {
-      const newItem = await Item.create(item, {
-        temporary: true,
-        displaySheet: false,
-      });
+      let newItem;
+      switch (type) {
+        case "table":
+        case "tables": {
+          newItem = new RollTable(item);
+          break;
+        }
+        default: {
+          newItem = await Item.create(item, {
+            temporary: true,
+            displaySheet: false,
+          });
+        }
+      }
       munchNote(`Creating ${item.name}`);
       promises.push(compendium.importDocument(newItem));
     }
@@ -382,7 +394,7 @@ export async function updateCompendium(type, input, updateExisting = false, matc
     }
 
     // create new items
-    const createResults = await createCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
+    const createResults = await createCompendiumItems(type, compendium, compendiumItems, initialIndex, matchFlags);
 
     return createResults.concat(updateResults);
   }

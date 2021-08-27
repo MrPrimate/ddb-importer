@@ -32,6 +32,9 @@ import { fixItems } from "./special.js";
 import { generateItemEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 
+// tables
+import { generateTable } from "../../muncher/table.js";
+
 /**
  * We get extra damage to a weapon attack here, for example Improved
  * Divine Smite
@@ -419,6 +422,7 @@ export default function getInventory(ddb, character, itemSpells) {
     enrichFlags(ddbItem, item);
 
     if (item) {
+      if (item.data.description.value.includes("<table")) console.warn(`TABLE IN ${item.name}`);
       item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       if (!item.effects) item.effects = [];
@@ -435,6 +439,11 @@ export default function getInventory(ddb, character, itemSpells) {
       }
 
       if (!item.name || item.name === "") item.name = "Item";
+
+      const updateExisting = compendiumItem
+       ? game.settings.get("ddb-importer", "munching-policy-update-existing")
+       : false;
+      generateTable(item.name, item.data.description.value, updateExisting);
       items.push(item);
     }
   }

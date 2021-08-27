@@ -544,6 +544,11 @@ const utils = {
     return s.charAt(0).toUpperCase() + s.slice(1);
   },
 
+  htmlToDoc: (text) => {
+    const parser = new DOMParser();
+    return parser.parseFromString(text, "text/html");
+  },
+
   // DEVELOPMENT FUNCTION
   // loads a character.json from a file in the file system
   // loadFromFile: (filename) => {

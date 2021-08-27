@@ -1,6 +1,6 @@
 import logger from "../logger.js";
 import { getCharacterData } from "./import.js";
-import { isEqual } from "../../vendor/isequal.js";
+import { isEqual } from "../../vendor/lowdash/isequal.js";
 import { getCampaignId } from "../muncher/utils.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";

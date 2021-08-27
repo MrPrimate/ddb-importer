@@ -1,5 +1,6 @@
 import Helpers from "./common.js";
 import logger from "../../logger.js";
+import utils from "../../utils.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { checkMonsterCompendium } from "../importMonster.js";
 import { parseCritters } from "../monsters.js";
@@ -618,18 +619,13 @@ export default class AdventureMunch extends FormApplication {
     return newTokens;
   }
 
-  static _htmlToDoc(text) {
-    const parser = new DOMParser();
-    return parser.parseFromString(text, "text/html");
-  }
-
   static _foundryCompendiumReplace(text) {
     // replace the ddb:// entries with known compendium look ups if we have them
     // ddb://spells
     // ddb://magicitems || weapons || adventuring-gear || armor
     // ddb://monsters
 
-    let doc = AdventureMunch._htmlToDoc(text);
+    let doc = utils.htmlToDoc(text);
 
     const lookups = CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups;
 

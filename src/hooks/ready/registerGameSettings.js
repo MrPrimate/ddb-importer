@@ -208,8 +208,6 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    // isSelect: true,
-    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-feature-compendium", {
@@ -218,8 +216,6 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    // isSelect: true,
-    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-class-compendium", {
@@ -228,8 +224,6 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    // isSelect: true,
-    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-race-compendium", {
@@ -238,8 +232,6 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    // isSelect: true,
-    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-trait-compendium", {
@@ -248,8 +240,6 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    // isSelect: true,
-    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-feat-compendium", {
@@ -258,8 +248,6 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    // isSelect: true,
-    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-spell-compendium", {
@@ -268,8 +256,6 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    // isSelect: true,
-    // choices: itemCompendiums,
   });
 
   game.settings.register("ddb-importer", "entity-override-compendium", {
@@ -278,8 +264,14 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    // isSelect: true,
-    // choices: itemCompendiums,
+  });
+
+  game.settings.register("ddb-importer", "entity-table-compendium", {
+    name: "ddb-importer.entity-table-compendium.name",
+    hint: "ddb-importer.entity-table-compendium.hint",
+    scope: "world",
+    config: false,
+    type: String,
   });
 
   game.settings.register("ddb-importer", "entity-monster-compendium", {
@@ -288,8 +280,6 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    // isSelect: true,
-    // choices: actorCompendiums,
   });
 
   game.settings.register("ddb-importer", "adventure-import-path", {

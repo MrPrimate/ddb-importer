@@ -566,6 +566,13 @@ export class DDBCompendiumSetup extends FormApplication {
         current: game.settings.get("ddb-importer", "entity-override-compendium"),
         compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-override-compendium")),
       },
+      {
+        setting: "entity-table-compendium",
+        name: "Tables",
+        type: "RollTable",
+        current: game.settings.get("ddb-importer", "entity-table-compendium"),
+        compendiums: getCompendiumLookups("RollTable", game.settings.get("ddb-importer", "entity-table-compendium")),
+      },
     ];
 
     return {
