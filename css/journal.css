@@ -22,9 +22,8 @@ div.journal-sheet div.ddbimporter-image-container a.ddbimporter-button {
           transform: translate(-20px, 20px);
 }
 
-div.journal-sheet a.ddbimporter.roll {
+a.ddbimporter.roll{
   font-family: "Signika", sans-serif;
-  font-size: 14px;
   color: #191813;
   -webkit-user-drag: element;
   box-sizing: border-box;

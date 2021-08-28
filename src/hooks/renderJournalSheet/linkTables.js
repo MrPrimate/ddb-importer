@@ -1,14 +1,35 @@
-export function linkTables(html) {
+export function linkTables(type, html) {
 
-  const content = $(html).find(`div[data-edit="content"]`);
+  // if journal
+  let content;
+  let findString;
+  switch (type) {
+    case "journal":
+      content = $(html).find(`div[data-edit="content"]`);
+      findString = "a.entity-link[data-entity='RollTable']";
+      break;
+    case "item": {
+      const tableCompendium = game.settings.get("ddb-importer", "entity-table-compendium");
+      content = $(html).find(`div[data-edit="data.description.value"]`);
+      findString = `a.entity-link[data-pack='${tableCompendium}']`;
+      break;
+    }
+    // no default
+  }
+
 
   // Add a direct roll button into DDB-imported rolltables
   $(content)
-    .find("a.entity-link[data-entity='RollTable']")
-    .each((_, link) => {
+    .find(findString)
+    .each(async (_, link) => {
       const data = $(link).data();
-      const table = game.tables.get(data.id);
-      if (table?.data?.flags?.ddb?.contentChunkId) {
+      const pack = game.packs.get(data.pack);
+
+      const table = pack
+        ? await pack.getDocument(data.id)
+        : game.tables.get(data.id);
+
+      if (table?.data?.flags?.ddb?.contentChunkId || pack) {
         const button = $(
           `<a title="Click: Roll | Shift-Click: Self Roll" class="ddbimporter roll"><i class="fas fa-dice-d20"></i>  Roll!</a>`
         );

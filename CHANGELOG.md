@@ -1,7 +1,7 @@
 # 2.4.4
 
 * Handle edge cases in spell parsing which could causes parser to fail.
-*
+* Table Compendium. Items and spells with tables will now create a table in the DDB Tables compendium and link to it to allow easy rolling.
 
 # 2.4.3
 

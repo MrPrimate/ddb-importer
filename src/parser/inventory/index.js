@@ -417,12 +417,16 @@ export default function getInventory(ddb, character, itemSpells) {
     ddbItem.definition.name = utils.getName(ddbItem, character);
     const flags = getItemFlags(ddb, ddbItem, character);
 
+    const updateExisting = compendiumItem
+      ? game.settings.get("ddb-importer", "munching-policy-update-existing")
+      : false;
+    ddbItem.definition.description = generateTable(ddbItem.definition.name, ddbItem.definition.description, updateExisting);
+
     let item = Object.assign({}, parseItem(ddb, ddbItem, character, flags));
     addCustomValues(ddbItem, item, character);
     enrichFlags(ddbItem, item);
 
     if (item) {
-      if (item.data.description.value.includes("<table")) console.warn(`TABLE IN ${item.name}`);
       item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       if (!item.effects) item.effects = [];
@@ -439,11 +443,6 @@ export default function getInventory(ddb, character, itemSpells) {
       }
 
       if (!item.name || item.name === "") item.name = "Item";
-
-      const updateExisting = compendiumItem
-       ? game.settings.get("ddb-importer", "munching-policy-update-existing")
-       : false;
-      generateTable(item.name, item.data.description.value, updateExisting);
       items.push(item);
     }
   }

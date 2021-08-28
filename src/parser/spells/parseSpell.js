@@ -13,6 +13,7 @@ import { getActionType } from "./action.js";
 import { getDamage } from "./damage.js";
 import { getSave } from "./save.js";
 import { getSpellScaling } from "./scaling.js";
+import { generateTable } from "../../muncher/table.js";
 
 export function parseSpell(data, character) {
   let spell = {
@@ -48,6 +49,11 @@ export function parseSpell(data, character) {
   spell.data.materials = getMaterials(data);
 
   spell.data.preparation = getSpellPreparationMode(data);
+
+  const updateExisting = data.flags.ddbimporter.generic
+    ? game.settings.get("ddb-importer", "munching-policy-update-existing")
+    : false;
+  data.definition.description = generateTable(spell.name, data.definition.description, updateExisting);
 
   spell.data.description = {
     value: data.definition.description,

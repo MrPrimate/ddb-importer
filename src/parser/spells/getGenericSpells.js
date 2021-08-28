@@ -18,6 +18,7 @@ export function getSpells(spells) {
 
     spell.flags = {
       ddbimporter: {
+        generic: true,
         dndbeyond: {
           lookup: "generic",
           lookupName: "generic",

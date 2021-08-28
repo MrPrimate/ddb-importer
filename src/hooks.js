@@ -75,9 +75,13 @@ export function renderSidebarTab(app, html) {
   addMuncher(app, html);
 }
 
-// eslint-disable-next-line no-unused-vars
+export function renderItemSheet(sheet, html) {
+  linkTables("item", html);
+  linkImages(html);
+}
+
 export function renderJournalSheet(sheet, html, data) {
-  linkTables(html);
+  linkTables("journal", html);
   linkImages(html);
   adventureFlags(sheet, html, data);
 }

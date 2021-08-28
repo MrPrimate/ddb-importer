@@ -40,7 +40,6 @@ function getSpellData(className, sourceFilter) {
           spell.definition.sources.some((source) => sources.includes(source.sourceId))
         );
       })
-      .then((data) => getSpells(data))
       .then((data) => resolve(data))
       .catch((error) => {
         logger.warn(error);
@@ -73,12 +72,24 @@ export async function parseSpells(ids = null) {
   ]);
 
   // replace smart quotes and filter out duplicates
-  const spells = results.map((r) => r.value).flat().flat()
-    .filter((spell) => spell.name)
+  const filteredResults = results
+    .filter((r) => r.status === "fulfilled")
+    .map((r) => r.value).flat().flat();
+
+  const rawSpells = getSpells(filteredResults);
+
+  const spells = rawSpells
+    .filter((spell) => spell?.name)
     .map((spell) => {
       spell.name = spell.name.replace(/’/g, "'");
       return spell;
     });
+
+  if (results.some((r) => r.status === "rejected")) {
+    munchNote("Some spell parsing failed to parse, see developer console for details.");
+    logger.error("Failed spell parsing", results);
+  }
+
   let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
   const srdSpells = await srdFiddling(uniqueSpells, "spells");
   const filteredSpells = (ids !== null && ids.length > 0)
