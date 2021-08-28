@@ -72,11 +72,13 @@ export async function parseSpells(ids = null) {
     getSpellData("Artificer", sourceFilter),
   ]);
 
+  // replace smart quotes and filter out duplicates
   const spells = results.map((r) => r.value).flat().flat()
-  .map((spell) => {
-    spell.name = spell.name.replace(/’/g, "'");
-    return spell;
-  });
+    .filter((spell) => spell.name)
+    .map((spell) => {
+      spell.name = spell.name.replace(/’/g, "'");
+      return spell;
+    });
   let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
   const srdSpells = await srdFiddling(uniqueSpells, "spells");
   const filteredSpells = (ids !== null && ids.length > 0)

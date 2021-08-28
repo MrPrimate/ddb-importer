@@ -1,3 +1,8 @@
+# 2.4.4
+
+* Handle edge cases in spell parsing which could causes parser to fail.
+*
+
 # 2.4.3
 
 * Handle Homebrew Monster edge cases with damage variations in spell names.
