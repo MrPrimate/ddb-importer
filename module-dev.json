@@ -8,8 +8,8 @@
   "download": "https://github.com/mrprimate/ddb-importer/releases/download/latest/ddb-importer.zip",
   "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
-  "minimumCoreVersion": "0.7.9",
-  "compatibleCoreVersion": "0.8.7",
+  "minimumCoreVersion": "0.8.8",
+  "compatibleCoreVersion": "0.8.9",
   "authors": [
     {
       "name": "MrPrimate",
