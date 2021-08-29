@@ -1,3 +1,7 @@
+# 2.4.5
+
+* DDB has some tables badly formatted which could break the parsing of some characters.
+
 # 2.4.4
 
 * Handle edge cases in spell parsing which could causes parser to fail.
