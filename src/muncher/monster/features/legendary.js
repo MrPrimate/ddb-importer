@@ -1,6 +1,7 @@
-import { getSource } from "./source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage, getRange, getTarget } from "./utils.js";
-import { FEAT_TEMPLATE } from "./templates/feat.js";
+import { getSource } from "../source.js";
+import { getRecharge, getActivation, getFeatSave, getDamage, getRange, getTarget } from "../utils.js";
+import { newFeat } from "../templates/feat.js";
+import { generateTable } from "../../table.js";
 
 function addPlayerDescription(monster, action) {
   let playerDescription = `</section>\nThe ${monster.name} performs ${action.name}!`;
@@ -19,6 +20,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
     };
   }
 
+  const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
 
   let actionResource = {
@@ -43,8 +45,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   let dynamicActions = [];
 
   // Base feat
-  let feat = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-  feat.name = "Legendary Actions";
+  let feat = newFeat("Legendary Actions");
   feat.data.source = getSource(monster, DDB_CONFIG);
   feat.data.description.value = "";
   if (hideDescription) feat.data.description.value += "<section class=\"secret\">\n";
@@ -57,13 +58,14 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
 
   // build out skeleton actions
   dom.querySelectorAll("strong").forEach((node) => {
-    let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-    action.name = node.textContent.trim().replace(/\.$/, '').trim();
+    const name = node.textContent.trim().replace(/\.$/, '').trim();
+    let action = newFeat(name);
+
     const actionMatch = monsterActions.find((mstAction) =>
-      action.name == mstAction.name ||
-      action.name == `${mstAction.name} Attack` ||
-      action.name == `${mstAction.name}`.split('(', 1)[0].trim() ||
-      action.name == `${mstAction.name} Attack`.split('(', 1)[0].trim()
+      name == mstAction.name ||
+      name == `${mstAction.name} Attack` ||
+      name == `${mstAction.name}`.split('(', 1)[0].trim() ||
+      name == `${mstAction.name} Attack`.split('(', 1)[0].trim()
     );
 
     action.flags.monsterMunch = {};
@@ -105,6 +107,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
         if (action.data.description.value !== "" && hideDescription && action.name !== "Legendary Actions") {
           action.data.description.value += addPlayerDescription(monster, action);
         }
+        action.data.description.value = generateTable(action.name, action.data.description.value, updateExisting);
         action = switchAction;
         if (action.data.description.value === "") {
           startFlag = true;
@@ -150,6 +153,8 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   if (action && action.data.description.value !== "" && hideDescription && action.name !== "Legendary Actions") {
     action.data.description.value += addPlayerDescription(monster, action);
   }
+  if (action) action.data.description.value = generateTable(monster.name, action.data.description.value, updateExisting);
+
 
   // console.log(dynamicActions);
 

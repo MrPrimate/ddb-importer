@@ -1,10 +1,10 @@
 // specialTraitsDescription
 // handle legendary resistance here
 
-import { getSource } from "./source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses, getTarget } from "./utils.js";
-import { FEAT_TEMPLATE } from "./templates/feat.js";
-
+import { getSource } from "../source.js";
+import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses, getTarget } from "../utils.js";
+import { newFeat } from "../templates/feat.js";
+import { generateTable } from "../../table.js";
 
 function addPlayerDescription(monster, action) {
   let playerDescription = `</section>\nThe ${monster.name} uses ${action.name}!`;
@@ -23,6 +23,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     };
   }
 
+  const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
 
   let resistanceResource = {
@@ -60,7 +61,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
 
   // build out skeleton actions
   dom.querySelectorAll("p").forEach((node) => {
-    let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
+    let action = newFeat(name);
     let pDom = new DocumentFragment();
     $.parseHTML(node.outerHTML).forEach((element) => {
       pDom.appendChild(element);
@@ -78,14 +79,14 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
 
   if (dynamicActions.length == 0) {
     dom.querySelectorAll("p").forEach((node) => {
-      let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
       let pDom = new DocumentFragment();
       $.parseHTML(node.outerHTML).forEach((element) => {
         pDom.appendChild(element);
       });
       const query = pDom.querySelector("strong");
       if (!query) return;
-      action.name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
+      const name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
+      let action = newFeat(name);
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
@@ -97,8 +98,8 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
 
   if (dynamicActions.length == 0) {
     dom.querySelectorAll("em").forEach((node) => {
-      let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-      action.name = node.textContent.trim().replace(/\.$/, '').trim();
+      const name = node.textContent.trim().replace(/\.$/, '').trim();
+      let action = newFeat(name);
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {
         titleHTML: node.outerHTML,
@@ -110,8 +111,8 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
 
   if (dynamicActions.length == 0) {
     dom.querySelectorAll("strong").forEach((node) => {
-      let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-      action.name = node.textContent.trim().replace(/\.$/, '').trim();
+      const name = node.textContent.trim().replace(/\.$/, '').trim();
+      let action = newFeat(name);
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {
         titleHTML: node.outerHTML,
@@ -122,8 +123,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
   }
 
   if (dynamicActions.length == 0) {
-    let action = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
-    action.name = "Special Traits";
+    let action = newFeat("Special Traits");
     action.data.source = getSource(monster, DDB_CONFIG);
     action.flags.monsterMunch = {};
     if (action.name) dynamicActions.push(action);
@@ -147,6 +147,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
       if (action.data.description.value !== "" && hideDescription) {
         action.data.description.value += addPlayerDescription(monster, action);
       }
+      action.data.description.value = generateTable(action.name, action.data.description.value, updateExisting);
       action = switchAction;
       if (action.data.description.value === "") {
         startFlag = true;
@@ -220,6 +221,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
   if (action && action.data.description.value !== "" && hideDescription) {
     action.data.description.value += addPlayerDescription(monster, action);
   }
+  if (action) action.data.description.value = generateTable(monster.name, action.data.description.value, updateExisting);
 
   // console.log(dynamicActions);
 

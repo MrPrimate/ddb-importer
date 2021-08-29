@@ -14,16 +14,16 @@ import { getSpeed } from "./movement.js";
 import { getSize } from "./size.js";
 import { getSource } from "./source.js";
 import { getEnvironments } from "./environments.js";
-import { getLairActions } from "./lair.js";
-import { getLegendaryActions } from "./legendary.js";
-import { getActions } from "./actions.js";
-import { getSpecialTraits } from "./specialtraits.js";
+import { getLairActions } from "./features/lair.js";
+import { getLegendaryActions } from "./features/legendary.js";
+import { getActions } from "./features/actions.js";
+import { getSpecialTraits } from "./features/specialtraits.js";
 import { getSpells } from "./spells.js";
 import { getType } from "./type.js";
 
 import { DDB_CONFIG } from "../../ddbConfig.js";
 import utils from "../../utils.js";
-import { MONSTER_TEMPLATE } from "./templates/monster.js";
+import { newNPC } from "./templates/monster.js";
 
 import logger from '../../logger.js';
 
@@ -37,12 +37,12 @@ export function parseMonsters(monsterData, extra = false) {
   // eslint-disable-next-line complexity
   monsterData.forEach((monster) => {
     try {
-      let foundryActor = JSON.parse(JSON.stringify(MONSTER_TEMPLATE));
+      let foundryActor = JSON.parse(JSON.stringify(newNPC(monster.name)));
       // logger.info(monster);
       let items = [];
 
       // name
-      foundryActor.name = monster.name;
+      // foundryActor.name = monster.name;
       // logger.info("********************");
       // logger.info(monster.name);
       let img = (monster.basicAvatarUrl) ? monster.basicAvatarUrl : monster.largeAvatarUrl;

@@ -2,6 +2,7 @@ import utils from "../../utils.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { getImagePath } from "../import.js";
+import { generateTable } from "../table.js";
 
 const CLASS_TEMPLATE = {
   "name": "",
@@ -62,9 +63,11 @@ export const FEATURE_DUP = [
 
 function buildBase(data) {
   let result = JSON.parse(JSON.stringify(CLASS_TEMPLATE));
+  const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
   result.name = data.name;
-  result.data.description.value += `${data.description}\n\n`;
+  const tableDescription = generateTable(data.name, data.description, updateExisting);
+  result.data.description.value += `${tableDescription}\n\n`;
 
   result.flags.ddbimporter = {
     id: data.id,

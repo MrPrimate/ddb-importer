@@ -3,6 +3,7 @@
 import utils from "../../utils.js";
 import { generateFeatEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
+import { generateTable } from "../../muncher/table.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
   // console.warn(ddbItem);
@@ -281,5 +282,9 @@ export function fixFeatures(features) {
       }
       // no default
     }
+
+    const tableDescription = generateTable(feature.name, feature.data.description.value, true);
+    feature.data.description.value = tableDescription;
+    feature.data.description.chat = tableDescription;
   });
 }
