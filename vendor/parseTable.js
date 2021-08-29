@@ -70,6 +70,13 @@ export function getHeadings(table, unique = true) {
   return headings;
 }
 
+
+function getRowsFromHeader(table) {
+  let rows = [...table.tHead.rows];
+  rows.splice(0, 1);
+  return rows;
+}
+
 /**
  * given a table, generate an array of objects.
  * each object corresponds to a row in the table.
@@ -83,10 +90,16 @@ export function parseTable(table) {
   const allHeadings = getHeadings(table, false);
 
   if (headings.length === 0) return [];
+  // some tables are misformated and only have a thead and no tbody
+  const rows = table.tBodies[0]
+    ? [...table.tBodies[0].rows]
+    : table.tHead.rows.length > 1
+      ? getRowsFromHeader(table)
+      : [];
   // DDB often puts d rolls alongside each other. we attempt to detect these
-  const lowResults = [...table.tBodies[0].rows].map(mapRow(headings));
+  const lowResults = rows.map(mapRow(headings));
   const highResults =
-    allHeadings.length !== headings.length ? [...table.tBodies[0].rows].map(mapRow(headings, true)) : [];
+    allHeadings.length !== headings.length ? rows.map(mapRow(headings, true)) : [];
 
   return lowResults.concat(highResults);
 }
