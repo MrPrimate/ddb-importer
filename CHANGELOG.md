@@ -1,3 +1,7 @@
+# 2.4.6
+
+* Character parsing: If you had multi-class or racial spells with a different ability to your primary casting ability, if the spell had a save, the ability it used would not be set correctly. @MaxPat#7936
+
 # 2.4.5
 
 * DDB has some tables badly formatted which could break the parsing of some characters.

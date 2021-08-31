@@ -86,6 +86,9 @@ export function parseSpell(data, character) {
   // casting abilities
   if (character && character.data.attributes.spellcasting !== data.flags.ddbimporter.dndbeyond.ability) {
     spell.data.ability = data.flags.ddbimporter.dndbeyond.ability;
+    if (spell.data.save.scaling == "spell") {
+      spell.data.save.scaling = data.flags.ddbimporter.dndbeyond.ability;
+    }
   }
 
   // If using better rolls we set alt to be versatile for spells like
