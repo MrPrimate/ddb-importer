@@ -30,6 +30,7 @@ async function updateCharacterCall(actor, path, bodyContent) {
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
+          logger.warn("Update failed:", data.message);
           resolve(data);
         }
         logger.debug(`${path} updated`);
@@ -316,7 +317,6 @@ async function addEquipment(actor, ddbData) {
       logger.error(`Unable to update character with equipment, got the error:`, err);
       logger.info(`Update payload:`, itemUpdates);
     }
-
 
     return itemResults;
   } else {
