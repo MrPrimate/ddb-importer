@@ -442,19 +442,22 @@ const utils = {
     return Math.floor((val - 10) / 2);
   },
 
-  diceStringResultBuild: (diceString, dice, bonus = "", mods = "", diceHint = "", specialFlags = "") => {
+  diceStringResultBuild: (diceMap, dice, bonus = "", mods = "", diceHint = "", specialFlags = "") => {
     const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-    const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? '+' : ''} ${bonus}`;
-    const diceHintAdd = globalDamageHints && diceHint && diceString && diceString !== "";
+    const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? ' +' : ' '} ${bonus}`;
+    const diceHintAdd = globalDamageHints && diceHint && diceMap;
+    const hintString = diceHintAdd ? diceHint : "";
+    const diceHintString = diceMap.map(({ sign, count, die }, index) =>
+      `${index ? `${sign} ` : ''}${count}d${die}${specialFlags}${hintString}`
+    ).join(' ');
 
     const result = {
-      dice: dice,
-      diceMapped: diceString,
-      bonus: bonus,
+      dice,
+      diceMap,
+      diceHintString,
+      bonus,
       diceString: [
-        diceString,
-        specialFlags,
-        (diceHintAdd ? diceHint : ""),
+        diceHintString,
         mods,
         resultBonus
       ].join('').trim(),
@@ -482,7 +485,7 @@ const utils = {
 
       // sign. We only take the sign standing exactly in front of the dice string
       // so +-1d8 => -1d8. Just as a failsave
-      const sign = rawSign.slice(-1);
+      const sign = rawSign === "" ? "+" : rawSign.slice(-1);
 
       if (die) {
         dice.push({
@@ -505,14 +508,14 @@ const utils = {
     // e.g.
     // +1d8+2d8 => 3d8
     // +1d8-2d8 => +1d8 -2d8 will remain as-is
-    const endDice = [];
+    const diceMap = [];
 
     const groupBySign = utils.groupBy(dice, 'sign');
     for (const group of groupBySign.values()) {
       const groupByDie = utils.groupBy(group, 'die');
 
       for (const dieGroup of groupByDie.values()) {
-        endDice.push(
+        diceMap.push(
           dieGroup.reduce((acc, item) => ({
             ...acc,
             count: acc.count + item.count
@@ -521,7 +524,7 @@ const utils = {
       }
     }
 
-    endDice.sort((a, b) => {
+    diceMap.sort((a, b) => {
       if (a.die < b.die) return -1;
       if (a.die > b.die) return 1;
       if (a.sign === b.sign) {
@@ -533,9 +536,7 @@ const utils = {
       }
     });
 
-    const diceString = endDice.map(({ sign, count, die }, index) => `${index ? sign : ''}${count}d${die}`).join(' ');
-
-    const result = utils.diceStringResultBuild(diceString, dice, bonus, mods, diceHint, specialFlags);
+    const result = utils.diceStringResultBuild(diceMap, dice, bonus, mods, diceHint, specialFlags);
     return result;
   },
 

@@ -27,7 +27,7 @@ function damageModReplace(text, attackInfo, damageType) {
     const baseAbilityMod = attackInfo.abilities[attackInfo.baseAbility];
     const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
     const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
-    const reParse = utils.diceStringResultBuild(diceParse.diceMapped, null, bonusMod, useMod, damageHint);
+    const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod, damageHint);
     result = reParse.diceString;
   } else {
     result = diceParse.diceString;
