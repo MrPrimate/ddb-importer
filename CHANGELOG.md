@@ -1,3 +1,7 @@
+# 2.4.8
+
+* Active Effect generation: some effects like saving throw bonuses from Cloak of Protection could be applied twice (since 2.4.1).
+
 # 2.4.7
 
 * Dice processing: Some dice strings like the Orc War Chief, would not add a + in the correct place, so damage dice would not roll.
