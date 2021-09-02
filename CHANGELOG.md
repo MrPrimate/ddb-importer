@@ -1,3 +1,8 @@
+# 2.4.7
+
+* Dice processing: Some dice strings like the Orc War Chief, would not add a + in the correct place, so damage dice would not roll.
+* Homebrew Monster: better detection and removal of false positive parsing.
+
 # 2.4.6
 
 * Character parsing: If you had multi-class or racial spells with a different ability to your primary casting ability, if the spell had a save, the ability it used would not be set correctly. @MaxPat#7936
