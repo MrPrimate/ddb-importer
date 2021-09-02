@@ -187,6 +187,12 @@ export function parseMonsters(monsterData, extra = false) {
       foundryActor.data.spells = spellcastingData.spells;
       foundryActor.flags.monsterMunch['spellList'] = spellcastingData.spellList;
 
+      const badItems = items.filter((i) => i.name === "" || !i.name);
+      if (badItems.length > 0) {
+        logger.error(`${monster.name} - ${badItems.length} items have no name.`, badItems);
+        items = items.filter((i) => i.name && i.name !== "");
+      }
+
       foundryActor.items = items;
 
       // logger.info(JSON.stringify(foundryActor));
