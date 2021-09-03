@@ -197,11 +197,18 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
   return generatedTables;
 }
 
+var tables = {};
+
 export function generateTable(parentName, html, updateExisting) {
   const document = utils.htmlToDoc(html);
   const tableNodes = document.querySelectorAll("table");
   let tablesMatched = [];
   let updatedDocument = utils.htmlToDoc(html);
+  if (parentName.startsWith("Background:")) {
+    const parentNamesArray = parentName.split(":");
+    parentNamesArray.pop();
+    parentName = parentNamesArray.join(":");
+  }
 
   let tableNum = 0;
   tableNodes.forEach((node) => {
@@ -215,17 +222,23 @@ export function generateTable(parentName, html, updateExisting) {
       nameGuess = keys[1];
     }
     const finalName = `${parentName}: ${nameGuess}`;
+    const tableGenerated = (finalName in tables);
 
     logger.debug(`Table detection triggered for ${parentName}!`);
     logger.debug(`Table: "${finalName}"`);
     logger.debug(`Dice Keys: ${diceKeys.join(", ")}`);
     logger.debug(`Keys: ${keys.join(", ")}`);
 
-    const builtTables = buildTable(parsedTable, keys, diceKeys, finalName, parentName);
+    const builtTables = tableGenerated
+      ? tables[finalName]
+      : buildTable(parsedTable, keys, diceKeys, finalName, parentName);
 
     if (builtTables.length > 0) {
       // these updates are done async, and we continue. this is fine as we actually use the table name for linking
-      const compendiumTables = updateCompendium("tables", { tables: builtTables }, updateExisting);
+      if (!tableGenerated) {
+        tables[finalName] = builtTables;
+        updateCompendium("tables", { tables: builtTables }, updateExisting);
+      }
 
       let tableData = {
         nameGuess,
@@ -239,8 +252,7 @@ export function generateTable(parentName, html, updateExisting) {
         multiDiceKeys: diceKeys.length > 1,
         diceKeysNumber: diceKeys.length,
         totalKeys: keys.length,
-        builtTables,
-        compendiumTables,
+        builtTables: tables[finalName],
       };
       tablesMatched.push(tableData);
       updatedDocument = tableReplacer(updatedDocument, tableNum, tableData.builtTables);

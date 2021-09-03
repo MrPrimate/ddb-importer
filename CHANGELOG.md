@@ -1,3 +1,7 @@
+# 2.4.9
+
+* Backgrounds generated multiple skill tables.
+
 # 2.4.8
 
 * Active Effect generation: some effects like saving throw bonuses from Cloak of Protection could be applied twice (since 2.4.1).
