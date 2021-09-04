@@ -275,6 +275,23 @@ function addCustomValues(ddbItem, foundryItem, character) {
   if (adamantine) foundryItem.data.properties['ada'] = true;
 }
 
+function addExtraDDBFlags(data, item) {
+  item.flags.ddbimporter['id'] = data.id;
+  item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
+
+  if (data.definition.avatarUrl) item.flags.ddbimporter.dndbeyond['avatarUrl'] = data.definition.avatarUrl.split('?')[0];
+  if (data.definition.largeAvatarUrl) item.flags.ddbimporter.dndbeyond['largeAvatarUrl'] = data.definition.largeAvatarUrl.split('?')[0];
+  if (data.definition.filterType) {
+    const filter = DICTIONARY.items.find((i) => i.filterType === data.definition.filterType);
+    if (filter) item.flags.ddbimporter.dndbeyond['filterType'] = filter.filterType;
+  }
+
+  // container info
+  if (data.containerEntityId) item.flags.ddbimporter['containerEntityId'] = data.containerEntityId;
+  if (data.containerEntityTypeId) item.flags.ddbimporter['containerEntityTypeId'] = data.containerEntityTypeId;
+  return item;
+}
+
 // the filter type "Other Gear" represents the equipment while the other filters represents the magic items in ddb
 function parseItem(ddb, data, character, flags) {
   try {
@@ -320,16 +337,9 @@ function parseItem(ddb, data, character, flags) {
       item = parseCustomItem(data);
     }
     item.data.attunement = getAttunement(data);
-    if (data.definition.avatarUrl) item.flags.ddbimporter.dndbeyond['avatarUrl'] = data.definition.avatarUrl.split('?')[0];
-    if (data.definition.largeAvatarUrl) item.flags.ddbimporter.dndbeyond['largeAvatarUrl'] = data.definition.largeAvatarUrl.split('?')[0];
-    if (data.definition.filterType) {
-      const filter = DICTIONARY.items.find((i) => i.filterType === data.definition.filterType);
-      if (filter) item.flags.ddbimporter.dndbeyond['filterType'] = filter.filterType;
-    }
-    item.flags.ddbimporter['id'] = data.id;
-    item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
-
     if (data.definition.cost) item.data.price = data.definition.cost;
+
+    item = addExtraDDBFlags(data, item);
 
     return item;
   } catch (err) {
