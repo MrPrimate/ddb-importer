@@ -4,7 +4,6 @@ import { parseJson } from "../parser/character.js";
 import {
   copySupportedItemFlags,
   addMagicItemSpells,
-  // updateFolderItems,
   getCompendiumItems,
   getSRDCompendiumItems,
   copySRDIcons,
