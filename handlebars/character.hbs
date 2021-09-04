@@ -173,8 +173,8 @@
       </div>
       {{/each}}
     </div>
-    <p>Extras parsing makes a number of assumptions about the configuration.</p>
-    <p>This will be more customisable in the future.</p>
+    <p>Extras can be added to your character sheet in D&D Beyond. These might be wild shapes, familiars, pets etc.</p>
+    <p>DDB Importer will do it's best to import them into a folder in your world.</p>
     <hr>
     <div class="form-section">
       <div class="form-description">
@@ -183,7 +183,7 @@
           <button type="button" id="dndbeyond-character-extras-start"
             {{#if syncEnabled}}
             {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}{{else}}disabled{{/if}}>
-            {{#if tiers.supporter}}[Experimental] Import Extras{{else}}[Experimental] Import Extras Available to Patreon Supporters{{/if}}</button>
+            Import Extras</button>
         </div>
       </div>
     </div>
