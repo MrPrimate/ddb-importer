@@ -189,8 +189,17 @@ export async function getCharacterData(characterId, syncId, localCobaltPostFix =
     await loadSRDRules();
 
     // construct the expected { character: {...} } object
-    let ddb = data.ddb.character === undefined ? { character: data.ddb } : data.ddb;
-    ddb.classOptions = data.ddb.classOptions;
+    let ddb = {};
+    if (data.ddb.character === undefined) {
+      ddb = {
+        character: data.ddb,
+        classOptions: data.ddb.classOptions,
+        infusions: data.ddb.infusions,
+      };
+    } else {
+      ddb = data.ddb;
+    }
+
     logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
     try {
       const character = parseJson(ddb);
