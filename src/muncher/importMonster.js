@@ -137,8 +137,11 @@ async function getNPCImage(data) {
   let dndBeyondImageUrl = data.flags.monsterMunch.img;
   let dndBeyondTokenImageUrl = data.flags.monsterMunch.tokenImg;
   const useAvatarAsToken = game.settings.get("ddb-importer", "munching-policy-use-full-token-image");
+  const useTokenAsAvatar = game.settings.get("ddb-importer", "munching-policy-use-token-avatar-image");
   if (useAvatarAsToken) {
     dndBeyondTokenImageUrl = dndBeyondImageUrl;
+  } else if (useTokenAsAvatar) {
+    dndBeyondImageUrl = dndBeyondTokenImageUrl;
   }
 
   const npcType = data.data.details.type.value;

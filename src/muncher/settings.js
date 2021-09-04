@@ -700,6 +700,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       enabled: true,
     },
     {
+      name: "use-token-avatar-image",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-use-token-avatar-image"),
+      description: "Use token image for avatar rather than avatar image",
+      enabled: true,
+    },
+    {
       name: "dae-copy",
       isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
       description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
@@ -812,6 +818,20 @@ export function updateMuncherSettings(html, event) {
   game.settings.set("ddb-importer", "munching-policy-" + selection, checked);
 
   switch (selection) {
+    case "use-full-token-image": {
+      if (checked) {
+        game.settings.set("ddb-importer", "munching-policy-use-token-avatar-image", false);
+        $("#munching-policy-use-token-avatar-image").prop("checked", false);
+      }
+      break;
+    }
+    case "use-token-avatar-image": {
+      if (checked) {
+        game.settings.set("ddb-importer", "munching-policy-use-full-token-image", false);
+        $("#munching-policy-use-full-token-image").prop("checked", false);
+      }
+      break;
+    }
     case "monster-homebrew": {
       if (!checked) {
         game.settings.set("ddb-importer", "munching-policy-monster-homebrew-only", false);

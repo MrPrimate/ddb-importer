@@ -1016,6 +1016,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-use-token-avatar-image", {
+    name: "ddb-importer.munching-policy-use-token-avatar-image.name",
+    hint: "ddb-importer.munching-policy-use-token-avatar-image.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "munching-policy-remote-images", {
     name: "ddb-importer.munching-policy-remote-images.name",
     hint: "ddb-importer.munching-policy-remote-images.hint",
