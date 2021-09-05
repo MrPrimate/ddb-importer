@@ -21,8 +21,8 @@ const MUNCH_DEFAULTS = [
   { name: "munching-policy-dae-copy", needed: false },
 ];
 
-function getCustomValue(ddb, typeId, valueId, valueTypeId) {
-  const characterValues = ddb.characterValues;
+function getCustomValue(ddbCharacter, typeId, valueId, valueTypeId) {
+  const characterValues = ddbCharacter.characterValues;
   const customValue = characterValues.find(
     (value) => value.valueId == valueId && value.valueTypeId == valueTypeId && value.typeId == typeId
   );
@@ -293,6 +293,7 @@ function getCreatureAnimationType(name, creatureGroup) {
 
 export async function characterExtras(html, characterData, actor) {
   let munchSettings = [];
+  let ddbCharacter = characterData.ddb.character;
 
   MUNCH_DEFAULTS.forEach((setting) => {
     logger.debug(`Loading extras munch settings ${setting.name}`);
@@ -306,12 +307,12 @@ export async function characterExtras(html, characterData, actor) {
 
   try {
     logger.debug(characterData);
-    if (characterData.ddb.creatures.length === 0) return;
+    if (ddbCharacter.creatures.length === 0) return;
 
     const folder = await utils.getOrCreateFolder(actor.folder, "Actor", `[Extras] ${actor.name}`);
 
     // eslint-disable-next-line complexity
-    let creatures = characterData.ddb.creatures.map((creature) => {
+    let creatures = ddbCharacter.creatures.map((creature) => {
       logger.debug("Extra data", creature);
       let mock = JSON.parse(JSON.stringify(creature.definition));
       const proficiencyBonus = DDB_CONFIG.challengeRatings.find(
@@ -337,27 +338,27 @@ export async function characterExtras(html, characterData, actor) {
       mock.automatedEvcoationAnimation = getCreatureAnimationType(mock.name, creatureGroup);
 
       // size
-      const sizeChange = getCustomValue(characterData.ddb, 46, creature.id, creature.entityTypeId);
+      const sizeChange = getCustomValue(ddbCharacter, 46, creature.id, creature.entityTypeId);
       if (sizeChange) mock.sizeId = sizeChange;
 
       // hp
-      const hpMaxChange = getCustomValue(characterData.ddb, 43, creature.id, creature.entityTypeId);
+      const hpMaxChange = getCustomValue(ddbCharacter, 43, creature.id, creature.entityTypeId);
       if (hpMaxChange) mock.averageHitPoints = hpMaxChange;
 
       // creature type
-      const typeChange = getCustomValue(characterData.ddb, 44, creature.id, creature.entityTypeId);
+      const typeChange = getCustomValue(ddbCharacter, 44, creature.id, creature.entityTypeId);
       if (typeChange) mock.typeId = typeChange;
 
       // ac
-      const acChange = getCustomValue(characterData.ddb, 42, creature.id, creature.entityTypeId);
+      const acChange = getCustomValue(ddbCharacter, 42, creature.id, creature.entityTypeId);
       if (acChange) mock.armorClass = acChange;
 
       // alignment
-      const alignmentChange = getCustomValue(characterData.ddb, 45, creature.id, creature.entityTypeId);
+      const alignmentChange = getCustomValue(ddbCharacter, 45, creature.id, creature.entityTypeId);
       if (alignmentChange) mock.alignmentId = alignmentChange;
 
       // notes
-      const extraNotes = getCustomValue(characterData.ddb, 47, creature.id, creature.entityTypeId);
+      const extraNotes = getCustomValue(ddbCharacter, 47, creature.id, creature.entityTypeId);
       if (extraNotes) mock.characteristicsDescription += `\n\n${extraNotes}`;
 
       const creatureStats = mock.stats.filter((stat) => !creatureGroup.ownerStats.includes(stat.statId));
@@ -388,19 +389,19 @@ export async function characterExtras(html, characterData, actor) {
 
       // assume this is beast master
       if (creatureFlags.includes("HPLM")) {
-        const ranger = characterData.ddb.classes.find((klass) => klass.definition.id === 5);
+        const ranger = ddbCharacter.classes.find((klass) => klass.definition.id === 5);
         const level = ranger ? ranger.level : 0;
         mock.averageHitPoints = Math.max(mock.averageHitPoints, 4 * level);
       }
 
       // homunculus servant
       if (creatureFlags.includes("MHPBAL")) {
-        const artificer = characterData.ddb.classes.find((klass) => klass.definition.name === "Artificer");
+        const artificer = ddbCharacter.classes.find((klass) => klass.definition.name === "Artificer");
         mock.averageHitPoints = parseInt(artificer.level);
       }
 
       if (creatureFlags.includes("AHM")) {
-        const artificer = characterData.ddb.classes.find((klass) => klass.definition.name === "Artificer");
+        const artificer = ddbCharacter.classes.find((klass) => klass.definition.name === "Artificer");
         mock.averageHitPoints = parseInt(5 * artificer.level);
       }
 

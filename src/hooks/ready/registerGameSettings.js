@@ -379,8 +379,13 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    default: "https://london.drop.mrprimate.co.uk/",
+    default: "https://images.ddb.mrprimate.co.uk/",
   });
+
+  const corsEndpoint = game.settings.get("ddb-importer", "cors-endpoint");
+  if (corsEndpoint === "https://london.drop.mrprimate.co.uk/") {
+    game.settings.set("ddb-importer", "cors-endpoint", "https://images.ddb.mrprimate.co.uk/");
+  }
 
   game.settings.register("ddb-importer", "cors-encode", {
     name: "ddb-importer.cors-encode.name",
