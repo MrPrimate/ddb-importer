@@ -349,7 +349,7 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
   const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
   // reload the actor following potential updates to equipment
-  let ddbItems = ddbData.ddb.inventory;
+  let ddbItems = ddbData.ddb.character.inventory;
   if (addEquipmentResults?.data) {
     actor = game.actors.get(actor.id);
     ddbItems = ddbItems.concat(addEquipmentResults.data.addItems);

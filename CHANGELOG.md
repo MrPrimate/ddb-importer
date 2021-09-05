@@ -1,3 +1,7 @@
+# 2.4.11
+
+* Update to DDB borked by proxy changes.
+
 # 2.4.10
 
 * The avatar image can now use the token image during munch. @dirusulixes#6754
