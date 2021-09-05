@@ -31,6 +31,7 @@ import { fixItems } from "./special.js";
 // effects support
 import { generateItemEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
+import { parseInfusion } from "./infusions.js";
 
 // tables
 import { generateTable } from "../../muncher/table.js";
@@ -440,6 +441,7 @@ export default function getInventory(ddb, character, itemSpells) {
       item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       if (!item.effects) item.effects = [];
+      if (!item.name || item.name === "") item.name = "Item";
 
       if (daeInstalled && addEffects) item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
       // if this is a piece of armor and not generating effects don't generate ac
@@ -452,7 +454,7 @@ export default function getInventory(ddb, character, itemSpells) {
         item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
       }
 
-      if (!item.name || item.name === "") item.name = "Item";
+      // item = parseInfusion(ddb, character, item, ddbItem, compendiumItem);
       items.push(item);
     }
   }

@@ -11,6 +11,7 @@ import { getSkillProficiency } from "../character/skills.js";
 import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { featureEffectAdjustment } from "./specialFeats.js";
+import { infusionEffectAdjustment } from "./specialInfusions.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -1044,13 +1045,17 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
  * @param {*} ddbItem
  * @param {*} foundryItem
  */
-function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, labelOverride) {
   if (!foundryItem.effects) foundryItem.effects = [];
   if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return foundryItem;
   logger.debug(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported effects for ${foundryItem.name}`);
 
-  let effect = baseItemEffect(foundryItem, `${foundryItem.name} - Constant Effects`);
+  const label = labelOverride
+    ? labelOverride
+    : `${foundryItem.name} - Constant Effects`;
+
+  let effect = baseItemEffect(foundryItem, label);
 
   const globalSaveBonus = addCustomBonusEffect(
     ddbItem.definition.grantedModifiers,
@@ -1224,5 +1229,14 @@ export function generateSpellEffects(ddb, character, ddbItem, foundryItem, isCom
   foundryItem = spellEffectAdjustment(foundryItem);
   if (foundryItem.effects?.length > 0)
     logger.debug(`Spell effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+  return foundryItem;
+}
+
+export function generateInfusionEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+  const label = `${foundryItem.name} - Infusion Effects`;
+  foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, label);
+  foundryItem = infusionEffectAdjustment(foundryItem);
+  if (foundryItem.effects?.length > 0)
+    logger.debug(`Infusion effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
 }
