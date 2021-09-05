@@ -1,6 +1,7 @@
 # 2.4.10
 
 * The avatar image can now use the token image during munch. @dirusulixes#6754
+* Some changes to support proxy changes for infusion work.
 
 # 2.4.9
 
