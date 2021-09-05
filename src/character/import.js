@@ -387,24 +387,25 @@ export default class CharacterImport extends FormApplication {
   async updateImage(html, data) {
     // updating the image?
     let imagePath = this.actor.img;
+    const decorations = data.character.decorations;
     const userHasPermission = !(game.settings.get("ddb-importer", "restrict-to-trusted") && !game.user.isTrusted);
     if (
       userHasPermission &&
-      data.decorations?.avatarUrl &&
-      data.decorations.avatarUrl !== "" &&
+      decorations?.avatarUrl &&
+      decorations.avatarUrl !== "" &&
       (imagePath.indexOf("mystery-man") !== -1 || game.settings.get("ddb-importer", "character-update-policy-image"))
     ) {
       CharacterImport.showCurrentTask(html, "Uploading avatar image");
-      let filename = data.name
+      let filename = data.character.name
         .replace(/[^a-zA-Z]/g, "-")
         .replace(/-+/g, "-")
         .trim();
 
       const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
-      imagePath = await utils.uploadImage(data.decorations.avatarUrl, uploadDirectory, filename);
+      imagePath = await utils.uploadImage(decorations.avatarUrl, uploadDirectory, filename);
       this.result.character.img = imagePath;
-      if (data.decorations?.frameAvatarUrl && data.decorations.frameAvatarUrl !== "") {
-        const framePath = await utils.uploadImage(data.decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
+      if (decorations?.frameAvatarUrl && decorations.frameAvatarUrl !== "") {
+        const framePath = await utils.uploadImage(decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
         this.result.character.flags.ddbimporter["framePath"] = framePath;
       }
     }
