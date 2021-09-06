@@ -102,7 +102,7 @@ async function getItemMap() {
   return Promise.all(results);
 }
 
-export async function generateAdventureConfig() {
+export async function generateAdventureConfig(full = true) {
   const customProxy = game.settings.get("ddb-importer", "custom-proxy");
 
   const result = {
@@ -125,9 +125,11 @@ export async function generateAdventureConfig() {
 
   // @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}
 
-  result.lookups.monsters = await getMonsterMap();
-  result.lookups.spells = await getSpellMap();
-  result.lookups.items = await getItemMap();
+  if (full) {
+    result.lookups.monsters = await getMonsterMap();
+    result.lookups.spells = await getSpellMap();
+    result.lookups.items = await getItemMap();
+  }
 
   const rulesCompendium = "dnd5e.rules";
   const srdCompendium = await game.packs.get(rulesCompendium);
@@ -208,7 +210,8 @@ export async function generateAdventureConfig() {
 }
 
 export async function downloadAdventureConfig() {
-  const result = await generateAdventureConfig();
+  const fullConfig = game.settings.get("ddb-importer", "adventure-muncher-full-config");
+  const result = await generateAdventureConfig(fullConfig);
   download(JSON.stringify(result, null, 4), `adventure-config.json`, "application/json");
   return result;
 }
