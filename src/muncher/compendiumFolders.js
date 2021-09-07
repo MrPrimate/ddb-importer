@@ -270,6 +270,7 @@ export async function createCompendiumFolderStructure(type) {
         }
         break;
       }
+      case "inventory":
       case "item":
       case "items": {
         rootItemFolders = {};
@@ -407,6 +408,7 @@ function getCompendiumFolderName(type, document) {
       }
       break;
     }
+    case "inventory":
     case "item":
     case "items": {
       name = getItemCompendiumFolderName(document);
@@ -489,6 +491,7 @@ export async function addToCompendiumFolder(type, document, folders) {
     logger.debug(`Checking ${document.name} in ${packName}`);
 
     switch (type) {
+      case "inventory":
       case "items":
       case "item":
       case "spells":
@@ -543,6 +546,7 @@ export async function migrateExistingCompendium(type) {
       indexFields = ["name", "flags.cf", "data.level"];
       break;
     }
+    case "inventory":
     case "items":
     case "item": {
       indexFields = [
@@ -561,6 +565,7 @@ export async function migrateExistingCompendium(type) {
   const index = await compendium.getIndex({ fields: indexFields });
 
   switch (type) {
+    case "inventory":
     case "items":
     case "item":
     case "spells":

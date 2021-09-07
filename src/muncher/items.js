@@ -5,6 +5,7 @@ import getInventory from "../parser/inventory/index.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import logger from "../logger.js";
+import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -143,6 +144,13 @@ export async function parseItems(ids = null) {
   logger.info("Checking for existing files...");
   await utils.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete, getting ItemData.");
+
+  const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
+  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  if (addToCompendiumFolder && compendiumFoldersInstalled) {
+    munchNote(`Checking compendium folders..`, true);
+    await createCompendiumFolderStructure("items");
+  }
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);

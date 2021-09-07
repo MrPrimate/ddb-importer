@@ -53,12 +53,21 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   // initiative
   { type: "advantage", subType: "initiative" },
 
-  // saving throws and ability checks - with midi
-  // not adding these as they are not used elsewhere
-  // { type: "advantage", subType: "strength-saving-throws" },
-// ];
+  // { type: "bonus", subType: "strength-ability-checks" },
+  // { type: "bonus", subType: "dexterity-ability-checks" },
+  // { type: "bonus", subType: "constitution-ability-checks" },
+  // { type: "bonus", subType: "wisdom-ability-checks" },
+  // { type: "bonus", subType: "intelligence-ability-checks" },
+  // { type: "bonus", subType: "charisma-ability-checks" },
 
-// const EFFECT_EXCLUDED_ATTACK_MODIFIERS = [
+  // { type: "bonus", subType: "strength-saving-throws" },
+  // { type: "bonus", subType: "dexterity-saving-throws" },
+  // { type: "bonus", subType: "constitution-saving-throws" },
+  // { type: "bonus", subType: "wisdom-saving-throws" },
+  // { type: "bonus", subType: "intelligence-saving-throws" },
+  // { type: "bonus", subType: "charisma-saving-throws" },
+
+  // attack modifiers
   { type: "bonus", subType: "weapon-attacks" },
   { type: "bonus", subType: "melee-attacks" },
   { type: "bonus", subType: "ranged-attacks" },

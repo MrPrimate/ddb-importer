@@ -4,6 +4,7 @@ import DICTIONARY from "../dictionary.js";
 import { munchNote } from "./utils.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
+import { addToCompendiumFolder } from "./compendiumFolders.js";
 
 // a mapping of compendiums with content type
 const compendiumLookup = [
@@ -352,7 +353,9 @@ async function updateCompendiumItems(compendium, compendiumItems, index, matchFl
 
 async function createCompendiumItems(type, compendium, compendiumItems, index, matchFlags) {
   let promises = [];
-  compendiumItems.forEach(async (item) => {
+  // compendiumItems.forEach(async (item) => {
+  for (const item of compendiumItems) {
+    // eslint-disable-next-line no-await-in-loop
     const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
     // we have a single match
     if (existingItems.length === 0) {
@@ -364,6 +367,7 @@ async function createCompendiumItems(type, compendium, compendiumItems, index, m
           break;
         }
         default: {
+          // eslint-disable-next-line no-await-in-loop
           newItem = await Item.create(item, {
             temporary: true,
             displaySheet: false,
@@ -371,10 +375,25 @@ async function createCompendiumItems(type, compendium, compendiumItems, index, m
         }
       }
       munchNote(`Creating ${item.name}`);
+      logger.debug(`Pushing ${item.name} to compendium`);
       promises.push(compendium.importDocument(newItem));
     }
-  });
+  };
+  munchNote(`Waiting for items in compendium...`, true);
   return Promise.all(promises);
+}
+
+export async function compendiumFolders(document, type) {
+  // using compendium folders?
+  const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
+  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  munchNote(`Checking compendium folders..`, true);
+  if (compendiumFolderAdd && compendiumFoldersInstalled) {
+    // we create the compendium folder before import
+    munchNote(`Adding ${document.name} to compendium folder`);
+    logger.debug(`Adding ${document.name} to compendium folder`);
+    await addToCompendiumFolder(type, document);
+  }
 }
 
 export async function updateCompendium(type, input, updateExisting = false, matchFlags = []) {
@@ -397,7 +416,13 @@ export async function updateCompendium(type, input, updateExisting = false, matc
     // create new items
     const createResults = await createCompendiumItems(type, compendium, compendiumItems, initialIndex, matchFlags);
 
-    return createResults.concat(updateResults);
+    // compendium folders
+    createResults.forEach(async (document) => {
+      await compendiumFolders(document, type);
+    });
+
+    const results = createResults.concat(updateResults);
+    return new Promise((resolve) => resolve(results));
   }
   return [];
 }

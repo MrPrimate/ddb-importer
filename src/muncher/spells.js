@@ -5,6 +5,7 @@ import { getSpells } from "../parser/spells/getGenericSpells.js";
 import utils from "../utils.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
+import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -54,6 +55,13 @@ export async function parseSpells(ids = null) {
 
   // to speed up file checking we pregenerate existing files now.
   await utils.generateCurrentFiles(uploadDirectory);
+
+  const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
+  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  if (addToCompendiumFolder && compendiumFoldersInstalled) {
+    munchNote(`Checking compendium folders..`, true);
+    await createCompendiumFolderStructure("spells");
+  }
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);

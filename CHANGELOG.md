@@ -1,3 +1,7 @@
+# 2.4.12
+
+* Can now create/assign item and spell compendium folders during import (re-assigns new items only).
+
 # 2.4.11
 
 * Update to DDB borked by proxy changes.

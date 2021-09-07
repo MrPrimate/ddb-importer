@@ -627,7 +627,7 @@ export function getMuncherSettings(includeHomebrew = true) {
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
   const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
   const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
-  const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders-monster");
+  const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
   const compendiumFolderMonsterStyles = getCompendiumFolderLookups("monster");
   const compendiumFolderSpellStyles = getCompendiumFolderLookups("spell");
@@ -710,12 +710,6 @@ export function getMuncherSettings(includeHomebrew = true) {
       isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
       description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",
       enabled: daeInstalled && daeSRDContentAvailable,
-    },
-    {
-      name: "use-compendium-folders-monster",
-      isChecked: compendiumFolderAdd,
-      description: "Generate compendium folders based on creature type (requires Compendium Folders module). You can migrate an existing import in the Tools tab.",
-      enabled: compendiumFoldersInstalled,
     }
   ];
 
@@ -780,6 +774,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
       description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD or Midi content module)",
       enabled: daeInstalled && daeSRDContentAvailable,
+    },
+    {
+      name: "use-compendium-folders",
+      isChecked: compendiumFoldersInstalled ? compendiumFolderAdd : false,
+      description: "Generate compendium folders. You can migrate an existing import in the Tools tab.",
+      enabled: compendiumFoldersInstalled,
     },
     {
       name: "use-srd",

@@ -1,10 +1,9 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, copySupportedItemFlags } from "./import.js";
+import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, copySupportedItemFlags, compendiumFolders } from "./import.js";
 import { munchNote } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
-import { addToCompendiumFolder } from "./compendiumFolders.js";
 
 var compendiumLoaded = false;
 var monsterCompendium;
@@ -110,13 +109,7 @@ async function addNPCToCompendium(npc) {
     }
 
     // using compendium folders?
-    const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders-monster");
-    const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
-    if (compendiumFolderAdd && compendiumFoldersInstalled) {
-      // we create the compendium folder before import
-      logger.debug(`Adding ${compendiumNPC.name} to compendium folder`);
-      await addToCompendiumFolder("npc", compendiumNPC);
-    }
+    await compendiumFolders(compendiumNPC, "npc");
   } else {
     logger.error("Error opening compendium, check your settings");
   }

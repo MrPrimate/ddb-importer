@@ -921,7 +921,7 @@ export default function () {
   });
 
   // build compendium folders?
-  game.settings.register("ddb-importer", "munching-policy-use-compendium-folders-monster", {
+  game.settings.register("ddb-importer", "munching-policy-use-compendium-folders", {
     scope: "player",
     config: false,
     type: Boolean,
@@ -1349,6 +1349,13 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "encounter-import-policy-use-ddb-save", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "adventure-muncher-full-config", {
     scope: "world",
     config: false,
     type: Boolean,

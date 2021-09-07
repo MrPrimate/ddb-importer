@@ -8,7 +8,6 @@ import {
 } from "./hooks.js";
 import extendSceneNavigationContext from "./hooks/getSceneNavigationContext/extendSceneNavigationContext.js";
 
-CONFIG.debug.hooks = false;
 // register hooks
 Hooks.once("init", init);
 Hooks.once("ready", onceReady);
