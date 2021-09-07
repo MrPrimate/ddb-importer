@@ -1,6 +1,7 @@
 # 2.4.12
 
 * Can now create/assign item and spell compendium folders during import (re-assigns new items only).
+* Changes to support check and save ability bonuses in D&D 5e v1.5.
 
 # 2.4.11
 

@@ -305,19 +305,37 @@ const utils = {
   getModifierSum: (modifiers, character) => {
     let sum = 0;
     let diceString = "";
-    modifiers.forEach((bonus) => {
-      if (bonus.statId !== null) {
-        const ability = DICTIONARY.character.abilities.find((ability) => ability.id === bonus.statId);
-        sum += character.data.abilities[ability.value].mod;
-      } else if (bonus.dice) {
-        const mod = bonus.dice.diceString;
+    let modBonus = 0;
+    modifiers.forEach((modifier) => {
+      const fixedBonus = modifier.dice?.fixedValue ? modifier.dice.fixedValue : 0;
+      const statBonus = (modifier.statId)
+        ? modifier.statId
+        : modifier.abilityModifierStatId
+          ? modifier.abilityModifierStatId
+          : null;
+      if (statBonus) {
+        const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId);
+        modBonus += character.data.abilities[ability.value].mod;
+      }
+      if (modifier.dice) {
+        const mod = modifier.dice.diceString;
         diceString += diceString === "" ? mod : " + " + mod;
-      } else {
-        sum += bonus.value;
+        if (modifier.dice.diceString) {
+          const mod = modifier.dice.diceString + modBonus + fixedBonus
+          diceString += diceString === "" ? mod : " + " + mod;
+        } else if (fixedBonus) {
+          sum += fixedBonus + modBonus;
+        }
+      } else if (modifier.fixedValue) {
+        sum += modifier.fixedValue;
+      } else if (modifier.value) {
+        sum += modifier.value;
+      } else if (modBonus) {
+        sum += modBonus;
       }
     });
     if (diceString !== "") {
-      sum = sum + " + " + diceString;
+      sum = diceString + " + " + sum;
     }
 
     return sum;

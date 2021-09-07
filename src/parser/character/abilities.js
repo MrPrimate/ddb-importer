@@ -103,6 +103,32 @@ function parseAbilities(data, includeExcludedEffects = false) {
     result[ability.value].mod = utils.calculateModifier(result[ability.value].value);
     result[ability.value].proficient = proficient;
     result[ability.value].max = Math.max(cappedBonus.cap, overRiddenStat);
+
+  });
+
+  const character = {
+    data: {
+      abilities: result,
+    },
+  };
+
+  DICTIONARY.character.abilities.forEach((ability) => {
+
+    const checkBonusModifiers = utils
+      .filterBaseModifiers(data, "bonus", `${ability.long}-ability-checks`, [null, ""], includeExcludedEffects);
+    const checkBonus = utils.getModifierSum(checkBonusModifiers, character);
+
+    const saveBonusModifiers = utils
+      .filterBaseModifiers(data, "bonus", `${ability.long}-saving-throws`, [null, ""], includeExcludedEffects);
+    const saveBonus = utils.getModifierSum(saveBonusModifiers, character);
+
+    const bonuses = {
+      check: checkBonus,
+      save: saveBonus,
+    };
+
+    result[ability.value].bonuses = bonuses;
+
   });
 
   return result;
