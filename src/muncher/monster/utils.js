@@ -78,7 +78,9 @@ function getExtendedDamage(description, attackInfo) {
     const damage = dmg[3] || dmg[2];
     // Make sure we did match a damage
     if (damage) {
-      const finalDamage = (attackInfo)
+      const includesDiceRegExp = /[0-9]*d[0-9]+/;
+      const includesDice = includesDiceRegExp.test(damage);
+      const finalDamage = (attackInfo && includesDice)
           ? damageModReplace(damage.replace("plus", "+"), attackInfo, dmg[4])
           : damage.replace("plus", "+");
       // assumption here is that there is just one field added to versatile. this is going to be rare.
