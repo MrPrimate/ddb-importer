@@ -193,9 +193,11 @@ export async function getCharacterData(characterId, syncId, localCobaltPostFix =
       ddb = {
         character: data.ddb,
         classOptions: data.ddb.classOptions,
+        originOptions: data.ddb.originOptions,
         infusions: data.ddb.infusions,
       };
     } else {
+      // fallback to old proxy style
       ddb = data.ddb;
     }
 
