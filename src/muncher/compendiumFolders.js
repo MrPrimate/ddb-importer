@@ -485,7 +485,7 @@ function getCompendiumFolderName(type, document) {
 export async function addToCompendiumFolder(type, document, folders) {
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
 
-  if (compendiumFoldersInstalled) {
+  if (compendiumFoldersInstalled && (folders || game.customFolders?.fic?.folders)) {
     if (!folders) folders = game.customFolders.fic.folders;
     const packName = await getCompendiumLabel(type);
     logger.debug(`Checking ${document.name} in ${packName}`);
