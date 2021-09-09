@@ -343,7 +343,7 @@ const utils = {
         const mod = modifier.dice.diceString;
         diceString += diceString === "" ? mod : " + " + mod;
         if (modifier.dice.diceString) {
-          const mod = modifier.dice.diceString + modBonus + fixedBonus
+          const mod = modifier.dice.diceString + modBonus + fixedBonus;
           diceString += diceString === "" ? mod : " + " + mod;
         } else if (fixedBonus) {
           sum += fixedBonus + modBonus;
