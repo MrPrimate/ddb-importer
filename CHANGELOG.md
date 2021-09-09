@@ -1,8 +1,9 @@
 # 2.4.12
 
 * Can now create/assign item and spell compendium folders during import (re-assigns new items only).
-* Changes to support check and save ability bonuses in D&D 5e v1.5.
-* For creatures such as SPider where damage is a fixed value, it no longer tries to parse a weird dice roll (e.g. +mod -1) but will keep the fixed value.
+* Groundwork to support check and save ability bonuses in D&D 5e v1.5.
+* For creatures such as Spider where damage is a fixed value, it no longer tries to parse a weird dice roll (e.g. +mod -1) but will keep the fixed value.
+* Level scaling text and dice parsing for optional class features had broken.
 
 # 2.4.11
 

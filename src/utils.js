@@ -95,11 +95,33 @@ const utils = {
    * @param {*} ddb
    * @param {*} featureId
    */
+
   findComponentByComponentId: (ddb, componentId) => {
-    const result = ddb.character.classes.reduce((curr, cls) => {
+    let result;
+
+    ddb.character.classes.forEach((cls) => {
       const feature = cls.classFeatures.find((component) => component.definition.id === componentId);
-      return feature ?? curr;
-    }, undefined);
+      if (feature) result = feature;
+    });
+
+    const optionalClassFeature = ddb.classOptions.find((option) => option.id == componentId);
+    if (optionalClassFeature && !result) {
+      result = optionalClassFeature;
+      const optionalLevelScales = optionalClassFeature.levelScales && optionalClassFeature.levelScales.length > 0;
+      if (result && !result.levelScale && optionalLevelScales) {
+        const klass = ddb.character.classes.find((cls) => cls.definition.id === optionalClassFeature.classId);
+        const klassLevel = klass ? klass.level : undefined;
+        if (klassLevel) {
+          result.levelScale = optionalClassFeature.levelScales
+            .filter((scale) => scale.level <= klassLevel)
+            .reduce((previous, current) => {
+              if (previous.level > current.level) return previous;
+              return current;
+            });
+        }
+      }
+    }
+
     return result;
   },
 
@@ -261,7 +283,7 @@ const utils = {
           data.character.choices.class.some((choice) =>
             choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
           ) ||
-          data.character.classOptions?.some((classOption) =>
+          data.classOptions?.some((classOption) =>
             classOption.id == option.componentId && classOption.entityTypeId == option.componentTypeId
           )
         ) &&
@@ -444,8 +466,8 @@ const utils = {
       }
     }
     // class option lookups
-    if (!cls && data.character.classOptions) {
-      const classOption = data.character.classOptions.find((option) => option.id == featureId);
+    if (!cls && data.classOptions) {
+      const classOption = data.classOptions.find((option) => option.id == featureId);
       if (classOption) {
         cls = data.character.classes.find((cls) => cls.definition.id == classOption.classId);
       }
