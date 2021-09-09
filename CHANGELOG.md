@@ -1,3 +1,7 @@
+# 2.4.13
+
+* Small bug caused error message when compendium folders was enabled and importing characters with roll tables.
+
 # 2.4.12
 
 * Can now create/assign item and spell compendium folders during import (re-assigns new items only).
