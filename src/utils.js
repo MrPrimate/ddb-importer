@@ -112,12 +112,14 @@ const utils = {
         const klass = ddb.character.classes.find((cls) => cls.definition.id === optionalClassFeature.classId);
         const klassLevel = klass ? klass.level : undefined;
         if (klassLevel) {
-          result.levelScale = optionalClassFeature.levelScales
-            .filter((scale) => scale.level <= klassLevel)
-            .reduce((previous, current) => {
-              if (previous.level > current.level) return previous;
-              return current;
-            });
+          const levelFilteredScales = optionalClassFeature.levelScales.filter((scale) => scale.level <= klassLevel);
+          if (levelFilteredScales.length > 0) {
+            result.levelScale = levelFilteredScales
+              .reduce((previous, current) => {
+                if (previous.level > current.level) return previous;
+                return current;
+              });
+          }
         }
       }
     }
