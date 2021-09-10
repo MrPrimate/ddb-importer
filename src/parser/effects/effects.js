@@ -335,9 +335,9 @@ function attunedItemsBonus(actor, change) {
     // setProperty(actor, "data.flags.ddbimporter.attundedItems", bonus);
     // this updates the effect value
     change.value = bonus;
-    console.warn(actor);
-    console.warn(change);
-    console.warn(bonus);
+    // console.warn(actor);
+    // console.warn(change);
+    // console.warn(bonus);
   }
 }
 

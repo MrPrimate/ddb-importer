@@ -84,6 +84,18 @@ function getInfusionModifiers(infusionItemMap, infusionDetail) {
   return modifiers;
 }
 
+function addMagicBonus(character, item, modifiers) {
+  const filteredModifiers = utils.filterModifiers(modifiers, "bonus", "magic");
+  const magicBonus = utils.getModifierSum(filteredModifiers, character);
+
+  if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
+    item.data.damage.parts[0][0] += ` + ${magicBonus}`;
+    item.data.attackBonus += magicBonus;
+    // to do add infusion description to item
+  }
+  return item;
+}
+
 export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumItem) {
     // get item mapping
   const infusionItemMap = getInfusionItemMap(ddb, foundryItem);
@@ -98,11 +110,13 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     const ddbInfusionItem = JSON.parse(JSON.stringify(ddbItem));
     ddbInfusionItem.definition.grantedModifiers = getInfusionModifiers(infusionItemMap, infusionDetail);
 
-    // get actions
-
-    // add descriptions and snipets to items
     foundryItem = generateEffects(ddb, character, ddbInfusionItem, foundryItem, compendiumItem, "infusion");
+    // magic bonuses can't be added as effects as it's real hard to pin to one item
+    foundryItem = addMagicBonus(character, foundryItem, ddbInfusionItem.definition.grantedModifiers);
 
+    // todo: get actions
+
+    // todo : add descriptions and snipets to items
   }
   return foundryItem;
 
