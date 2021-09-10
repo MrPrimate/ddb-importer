@@ -12,6 +12,7 @@ import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { featureEffectAdjustment } from "./specialFeats.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
+import { generateACEffectChangesForItem } from "./acEffects.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -322,6 +323,27 @@ export function generateDowngradeChange(bonus, priority, key) {
   return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.DOWNGRADE);
 }
 
+
+// special effect functions
+function attunedItemsBonus(actor, change) {
+  // actor is the actor being processed and change a key/value pair
+  if (change.key === "data.bonuses.abilities.save" && change.value === "ATTUNED_ITEM_BONUS") {
+    // If your active effect spec was
+    const bonus = actor.data.items.filter((item) => item.data.data.attunement == 2).length;
+    // actor.data.data.bonuses.abilities.save += bonus;
+    logger.debug(`Setting attuned items saving throw bonus for ${actor.name} to ${bonus}`);
+    // setProperty(actor, "data.flags.ddbimporter.attundedItems", bonus);
+    // this updates the effect value
+    change.value = bonus;
+    console.warn(actor);
+    console.warn(change);
+    console.warn(bonus);
+  }
+}
+
+Hooks.on("applyActiveEffect", attunedItemsBonus);
+
+
 //
 function extractModifierValue(modifier) {
   let value = "";
@@ -354,6 +376,12 @@ function extractModifierValue(modifier) {
     value = modBonus;
   }
 
+  if (value === "" && modifier.subType == "saving-throws" && modifier.bonusTypes.includes(2)) {
+    // we set the value to zero and when the saving throw is calculated it will
+    // be updated by the attunedItemsBonus functio above
+    value = "ATTUNED_ITEM_BONUS";
+  }
+
   return value;
 }
 
@@ -372,7 +400,41 @@ function addCustomBonusEffect(modifiers, name, type, key) {
       if (bonuses !== "") bonuses += " + ";
       bonuses += bonusParse;
     });
+    if (bonuses === "") bonuses = 0;
     changes.push(generateCustomChange(`${bonuses}`, 18, key));
+    logger.debug(`Changes for ${type} bonus for ${name}`, changes);
+  }
+
+  return changes;
+}
+
+//
+// Generate saving throw bonuses
+//
+function addGlobalSavingBonusEffect(modifiers, name) {
+  const type = "saving-throws";
+  const key = "data.bonuses.abilities.save";
+  let changes = [];
+  const regularBonuses = modifiers.filter((mod) => !mod.bonusTypes?.includes(2));
+  const customBonuses = modifiers.filter((mod) => mod.bonusTypes?.includes(2));
+
+  if (customBonuses.length > 0) {
+    let customEffects = addCustomBonusEffect(customBonuses, name, type, key);
+    changes = changes.concat(customEffects);
+  }
+
+  const regularModifiers = utils.filterModifiers(regularBonuses, "bonus", type);
+
+  if (regularModifiers.length > 0) {
+    logger.debug(`Generating ${type} bonus for ${name}`);
+    let bonuses = "";
+    regularModifiers.forEach((modifier) => {
+      let bonusParse = extractModifierValue(modifier);
+      if (bonuses !== "") bonuses += " + ";
+      bonuses += bonusParse;
+    });
+    if (bonuses === "") bonuses = 0;
+    changes.push(generateAddChange(`+ ${bonuses}`, 20, key));
     logger.debug(`Changes for ${type} bonus for ${name}`, changes);
   }
 
@@ -1047,9 +1109,6 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
  */
 function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, labelOverride) {
   if (!foundryItem.effects) foundryItem.effects = [];
-  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return foundryItem;
-  logger.debug(`Item: ${foundryItem.name}`, ddbItem);
-  logger.debug(`Generating supported effects for ${foundryItem.name}`);
 
   const label = labelOverride
     ? labelOverride
@@ -1057,12 +1116,10 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
 
   let effect = baseItemEffect(foundryItem, label);
 
-  const globalSaveBonus = addCustomBonusEffect(
-    ddbItem.definition.grantedModifiers,
-    foundryItem.name,
-    "saving-throws",
-    "data.bonuses.abilities.save",
-  );
+  if (!ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0) return [foundryItem, effect];
+  logger.debug(`Generating Effects for ${foundryItem.name}`, ddbItem);
+
+  const globalSaveBonus = addGlobalSavingBonusEffect(ddbItem.definition.grantedModifiers, foundryItem.name);
   const globalAbilityBonus = addCustomBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
@@ -1195,48 +1252,99 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
 
   // if we don't have effects, lets return the item
   if (effect.changes?.length === 0) {
-    return foundryItem;
+    return [foundryItem, effect];
   }
 
-  // generate flags for effect (e.g. checking attunement and equiped status)
+  // generate flags for effect (e.g. checking attunement and equipped status)
   [foundryItem, effect] = addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem);
 
+  return [foundryItem, effect];
+}
+
+export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, type) {
+  let label;
+
+  if (type == "infusion") {
+    label = `${foundryItem.name} - Infusion Effects`;
+  }
+  let effect;
+  [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, label);
+  if (type == "infusion") {
+    [foundryItem, effect] = generateACEffectChangesForItem(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
+  }
   if (effect.changes?.length > 0) {
     foundryItem.effects.push(effect);
   }
+  switch (type) {
+    case "infusion": {
+      foundryItem = infusionEffectAdjustment(foundryItem);
+      break;
+    }
+    case "equipment":
+    case "item": {
+      foundryItem = equipmentEffectAdjustment(foundryItem);
+      break;
+    }
+    case "spell": {
+      foundryItem = spellEffectAdjustment(foundryItem);
+      break;
+    }
+    case "feature":
+    case "feat": {
+      foundryItem = featureEffectAdjustment(foundryItem);
+      break;
+    }
+    // no default
+  }
 
-  return foundryItem;
-}
-
-export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-  foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
-  foundryItem = equipmentEffectAdjustment(foundryItem);
   if (foundryItem.effects?.length > 0)
-    logger.debug(`Item effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+    logger.debug(`${type} effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
   return foundryItem;
+
 }
 
-export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-  foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
-  foundryItem = featureEffectAdjustment(foundryItem);
-  if (foundryItem.effects?.length > 0)
-    logger.debug(`Feature effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
-  return foundryItem;
-}
+// export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+//   let effect;
+//   [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+//   if (effect.changes?.length > 0) {
+//     foundryItem.effects.push(effect);
+//   }
+//   foundryItem = equipmentEffectAdjustment(foundryItem);
+//   if (foundryItem.effects?.length > 0)
+//     logger.debug(`Item effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+//   return foundryItem;
+// }
 
-export function generateSpellEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-  foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
-  foundryItem = spellEffectAdjustment(foundryItem);
-  if (foundryItem.effects?.length > 0)
-    logger.debug(`Spell effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
-  return foundryItem;
-}
+// export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+//   let effect;
+//   [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+//   if (effect.changes?.length > 0) {
+//     foundryItem.effects.push(effect);
+//   }
+//   foundryItem = featureEffectAdjustment(foundryItem);
+//   if (foundryItem.effects?.length > 0)
+//     logger.debug(`Feature effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+//   return foundryItem;
+// }
 
-export function generateInfusionEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-  const label = `${foundryItem.name} - Infusion Effects`;
-  foundryItem = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, label);
-  foundryItem = infusionEffectAdjustment(foundryItem);
-  if (foundryItem.effects?.length > 0)
-    logger.debug(`Infusion effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
-  return foundryItem;
-}
+// export function generateSpellEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+//   let effect;
+//   [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
+//   if (effect.changes?.length > 0) {
+//     foundryItem.effects.push(effect);
+//   }
+//   foundryItem = spellEffectAdjustment(foundryItem);
+//   if (foundryItem.effects?.length > 0)
+//     logger.debug(`Spell effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+//   return foundryItem;
+// }
+
+// export function generateInfusionEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+//   const label = `${foundryItem.name} - Infusion Effects`;
+//   let effect;
+//   [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, label);
+//   foundryItem = infusionEffectAdjustment(foundryItem);
+//   if (foundryItem.effects?.length > 0)
+//     logger.debug(`Infusion effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+//   return foundryItem;
+// }

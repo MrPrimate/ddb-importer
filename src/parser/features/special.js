@@ -1,7 +1,7 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
 import utils from "../../utils.js";
-import { generateFeatEffects } from "../effects/effects.js";
+import { generateEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 import { generateTable } from "../../muncher/table.js";
 
@@ -88,7 +88,7 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
     : game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects");
   const modifierItem = generateFeatModifiers(ddb, ddbItem, choice, type);
   if (daeInstalled && addCharacterEffects) {
-    item = generateFeatEffects(ddb, character, modifierItem, item, compendiumItem);
+    item = generateEffects(ddb, character, modifierItem, item, compendiumItem, "feat");
     // console.log(item);
   }
   if ((daeInstalled && addACEffects) || AUTO_AC) {

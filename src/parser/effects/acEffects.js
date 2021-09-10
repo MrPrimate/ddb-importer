@@ -69,81 +69,6 @@ export function generateFixedACEffect(formula, label, alwaysActive = false, prio
   return effect;
 }
 
-
-/**
- * Generate effect for Classic Armor
- * @param {*} ddb
- * @param {*} foundryItem
- */
-function generateArmorItemEffect(ddb, ddbItem, foundryItem) {
-  const maxDexMedium = Math.max(
-    ...utils.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
-    2
-  );
-
-  let change;
-  // const foundryACValue = foundryItem.data.armor.value;
-  const baseACValue = ddbItem.definition.armorClass;
-
-  switch (foundryItem.data.armor.type) {
-    case "shield": {
-      change = generateAddChange(baseACValue, 18, "data.attributes.ac.value");
-      break;
-    }
-    case "natural": {
-      const key = `@abilities.dex.mod + ${baseACValue}`;
-      change = generateOverrideChange(key, 15, "data.attributes.ac.value");
-      break;
-    }
-    case "light": {
-      const dexCap = foundryItem.data.armor.dex || 99;
-      const key = `@abilities.dex.mod > ${dexCap} ? ${dexCap + baseACValue} : @abilities.dex.mod + ${baseACValue}`;
-      change = generateOverrideChange(key, 15, "data.attributes.ac.value");
-      break;
-    }
-    case "medium": {
-      const key = `@abilities.dex.mod > ${maxDexMedium} ? ${maxDexMedium + baseACValue} : @abilities.dex.mod + ${baseACValue}`;
-      change = generateOverrideChange(key, 15, "data.attributes.ac.value");
-      break;
-    }
-    case "heavy": {
-      const key = `${baseACValue}`;
-      change = generateOverrideChange(key, 15, "data.attributes.ac.value");
-      break;
-    }
-    // no default
-  }
-  return change;
-}
-
-/**
- *
- * @param {*} ddb
- * @param {*} foundryItem
- */
-function createBaseArmorItemEffect(ddb, ddbItem, foundryItem) {
-  let changes = [];
-  switch (foundryItem.data.armor?.type) {
-    case "natural": {
-      setProperty(foundryItem, "flags.dae.alwaysActive", true);
-      const effect = generateArmorItemEffect(ddb, ddbItem, foundryItem);
-      if (effect) changes.push(effect);
-      break;
-    }
-    case "shield":
-    case "light":
-    case "medium":
-    case "heavy": {
-      setProperty(foundryItem, "flags.dae.activeEquipped", true);
-      const effect = generateArmorItemEffect(ddb, ddbItem, foundryItem);
-      if (effect) changes.push(effect);
-      break;
-    }
-    // no default
-  }
-  return changes;
-}
-
 /**
  * Generate stat sets
  *
@@ -260,28 +185,46 @@ function addACBonusEffect(modifiers, name, type) {
   return changes;
 }
 
-/**
- *
- * @param {*} ddb
- * @param {*} character
- * @param {*} ddbItem
- * @param {*} foundryItem
- * @param {*} isCompendiumItem
- */
-export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+
+function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
+  if (
+    isCompendiumItem ||
+    foundryItem.type === "feat" ||
+    (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
+    (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
+    (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
+  ) {
+    setProperty(foundryItem, "flags.dae.alwaysActive", false);
+    setProperty(effect, "flags.ddbimporter.disabled", false);
+    effect.disabled = false;
+  } else {
+    effect.disabled = true;
+    setProperty(effect, "flags.ddbimporter.disabled", true);
+    setProperty(foundryItem, "flags.dae.alwaysActive", false);
+  }
+
+  setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
+  setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
+  // set dae flag for active equipped
+  if (ddbItem.definition?.canEquip || ddbItem.definition?.canAttune) {
+    setProperty(foundryItem, "flags.dae.activeEquipped", true);
+  } else {
+    setProperty(foundryItem, "flags.dae.activeEquipped", false);
+  }
+
+  return [foundryItem, effect];
+}
+
+function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect) {
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
   const noACValue = !foundryItem.data?.armor?.value;
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
   const daeBonusField = daeInstalled ? "data.attributes.ac.value" : "data.attributes.ac.bonus";
 
-  if (noModifiers && noACValue) return foundryItem;
+  if (noModifiers && noACValue) return [];
   // console.error(`Item: ${foundryItem.name}`, ddbItem);
-  logger.debug(`Generating supported AC effects for ${foundryItem.name}`);
+  logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.label}`);
 
-  let effect = baseItemEffect(foundryItem, `AC: ${foundryItem.name}`);
-
-  // base ac effect from item value
-  const base = daeInstalled ? createBaseArmorItemEffect(ddb, ddbItem, foundryItem) : [];
   // base ac from modifiers
   const acSets = daeInstalled ? addACSets(ddbItem.definition.grantedModifiers, foundryItem.name) : [];
 
@@ -311,8 +254,7 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
     daeBonusField
   );
 
-  effect.changes = [
-    ...base,
+  const acChanges = [
     ...acSets,
     ...acBonus,
     ...unarmoredACBonus,
@@ -320,40 +262,53 @@ export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, i
     ...dualWieldACBonus,
   ];
 
-  if (effect.changes.length === 0) return foundryItem;
+  return acChanges;
 
-  // check attunement status etc
-  if (
-    isCompendiumItem ||
-    foundryItem.type === "feat" ||
-    (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
-    (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
-    (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
-  ) {
-    setProperty(foundryItem, "flags.dae.alwaysActive", false);
-    setProperty(effect, "flags.ddbimporter.disabled", false);
-    effect.disabled = false;
-  } else {
-    effect.disabled = true;
-    setProperty(effect, "flags.ddbimporter.disabled", true);
-    setProperty(foundryItem, "flags.dae.alwaysActive", false);
-  }
+}
 
-  setProperty(effect, "flags.ddbimporter.itemId", ddbItem.id);
-  setProperty(effect, "flags.ddbimporter.itemEntityTypeId", ddbItem.entityTypeId);
-  // set dae flag for active equipped
-  if (ddbItem.definition?.canEquip || ddbItem.definition?.canAttune) {
-    setProperty(foundryItem, "flags.dae.activeEquipped", true);
-  } else {
-    setProperty(foundryItem, "flags.dae.activeEquipped", false);
-  }
+// generates changes and adds to effect for item
+export function generateACEffectChangesForItem(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect) {
+  const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
+
+  if (noModifiers) return [foundryItem, effect];
+
+  const acChanges = generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
+
+  if (acChanges.length === 0) return [foundryItem, effect];;
+
+  effect.changes = effect.changes.concat(acChanges);
+
+  // generate flags for effect (e.g. checking attunement and equipped status)
+  [foundryItem, effect] = addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem);
+
+  return [foundryItem, effect];
+
+}
+
+/**
+ *
+ * @param {*} ddb
+ * @param {*} character
+ * @param {*} ddbItem
+ * @param {*} foundryItem
+ * @param {*} isCompendiumItem
+ */
+export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
+  const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
+  const noACValue = !foundryItem.data?.armor?.value;
+
+  if (noModifiers && noACValue) return foundryItem;
+  // console.error(`Item: ${foundryItem.name}`, ddbItem);
+  logger.debug(`Generating supported AC effects for ${foundryItem.name}`);
+
+  let effect = baseItemEffect(foundryItem, `AC: ${foundryItem.name}`);
+
+  // generate flags for effect (e.g. checking attunement and equipped status)
+  [foundryItem, effect] = generateACEffectChangesForItem(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
 
   if (effect.changes?.length > 0) {
     if (!foundryItem.effects) foundryItem.effects = [];
     foundryItem.effects.push(effect);
   }
-
-  // console.warn(JSON.parse(JSON.stringify(foundryItem)));
-
   return foundryItem;
 }

@@ -29,7 +29,7 @@ import logger from "../../logger.js";
 import { fixItems } from "./special.js";
 
 // effects support
-import { generateItemEffects } from "../effects/effects.js";
+import { generateEffects } from "../effects/effects.js";
 import { generateBaseACItemEffect } from "../effects/acEffects.js";
 import { parseInfusion } from "./infusions.js";
 
@@ -443,7 +443,7 @@ export default function getInventory(ddb, character, itemSpells) {
       if (!item.effects) item.effects = [];
       if (!item.name || item.name === "") item.name = "Item";
 
-      if (daeInstalled && addEffects) item = generateItemEffects(ddb, character, ddbItem, item, compendiumItem);
+      if (daeInstalled && addEffects) item = generateEffects(ddb, character, ddbItem, item, compendiumItem, "item");
       // if this is a piece of armor and not generating effects don't generate ac
       if (item.type === "equipment" && item.data.armor?.type && !["trinket", "clothing"].includes(item.data.armor.type)) {
         if (daeInstalled && generateArmorACEffect) {
@@ -454,7 +454,7 @@ export default function getInventory(ddb, character, itemSpells) {
         item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
       }
 
-      // item = parseInfusion(ddb, character, item, ddbItem, compendiumItem);
+      item = parseInfusion(ddb, character, item, ddbItem, compendiumItem);
       items.push(item);
     }
   }

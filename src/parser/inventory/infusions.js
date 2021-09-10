@@ -1,7 +1,7 @@
 import utils from "../../utils.js";
 import logger from "../../logger.js";
 
-import { generateInfusionEffects } from "../effects/effects.js";
+import { generateEffects } from "../effects/effects.js";
 
 // id: 0,
 // success: true,
@@ -23,17 +23,19 @@ import { generateInfusionEffects } from "../effects/effects.js";
 //  item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
 
 
-export function isInfused(ddb, item) {
-  return ddb.infusions.item.some((infusion) =>
-    infusion.itemId === item.flag.ddbimporter.id &&
-    infusion.itemTypeId === item.flag.ddbimporter.entityTypeId
+function isInfused(ddb, item) {
+  return ddb.infusions.item.some((mapping) =>
+    mapping.itemId === item.flags.ddbimporter.definitionId &&
+    mapping.inventoryMappingId === item.flags.ddbimporter.id &&
+    mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
   );
 }
 
 function getInfusionId(item, infusionMap) {
-  const infusionInMap = infusionMap.find((infusion) =>
-    infusion.itemId === item.flag.ddbimporter.id &&
-    infusion.itemTypeId === item.flag.ddbimporter.entityTypeId
+  const infusionInMap = infusionMap.find((mapping) =>
+    mapping.itemId === item.flags.ddbimporter.definitionId &&
+    mapping.inventoryMappingId === item.flags.ddbimporter.id &&
+    mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
   );
 
   if (infusionInMap) {
@@ -44,12 +46,11 @@ function getInfusionId(item, infusionMap) {
 }
 
 
-function getInfusionItem(ddb, item) {
-  console.warn(ddb);
-  console.warn(item);
-  return ddb.infusions.item.find((data) =>
-    data.itemId === item.flag.ddbimporter.id &&
-    data.itemTypeId === item.flag.ddbimporter.entityTypeId
+function getInfusionItemMap(ddb, item) {
+  return ddb.infusions.item.find((mapping) =>
+    mapping.itemId === item.flags.ddbimporter.definitionId &&
+    mapping.inventoryMappingId === item.flags.ddbimporter.id &&
+    mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
   );
 }
 
@@ -60,13 +61,17 @@ function getInfusionDetail(ddb, definitionKey) {
 }
 
 
-function getInfusionModifiers(infusionItem, infusionDetail) {
+function getInfusionModifiers(infusionItemMap, infusionDetail) {
+  console.warn(infusionItemMap);
+  console.warn(infusionDetail);
   let modifiers = [];
 
   switch (infusionDetail.modifierDataType) {
     case "class-level":
     case "damage-type-choice": {
-      const damageMods = infusionItem.modifierData.find((data) => data.id === infusionItem.modifierGroupId);
+      const damageMods = infusionDetail.modifierData.find(
+        (data) => data.id === infusionItemMap.modifierGroupId
+      );
       if (damageMods) modifiers = damageMods.modifiers;
       break;
     }
@@ -81,18 +86,24 @@ function getInfusionModifiers(infusionItem, infusionDetail) {
 
 export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumItem) {
     // get item mapping
-  const infusionItem = getInfusionItem(ddb, foundryItem);
-  const infusionDetail = getInfusionDetail(ddb, infusionItem.definitionKey);
+  const infusionItemMap = getInfusionItemMap(ddb, foundryItem);
+  if (infusionItemMap) {
+    console.warn(`Infusion detected for ${foundryItem.name}`);
+    // console.warn(ddb);
+    console.warn(ddbItem);
+    console.warn(foundryItem);
+    const infusionDetail = getInfusionDetail(ddb, infusionItemMap.definitionKey);
 
-  // get modifiers
-  const modifiers = getInfusionModifiers(infusionItem, infusionDetail);
-  ddbItem.modifers = modifiers;
-  // generate effects
-  // get actions
+    // get modifiers && generate effects
+    const ddbInfusionItem = JSON.parse(JSON.stringify(ddbItem));
+    ddbInfusionItem.definition.grantedModifiers = getInfusionModifiers(infusionItemMap, infusionDetail);
 
-  // add descriptions and snipets to items
-  foundryItem = generateInfusionEffects(ddb, character, ddbItem, foundryItem, compendiumItem);
+    // get actions
 
+    // add descriptions and snipets to items
+    foundryItem = generateEffects(ddb, character, ddbInfusionItem, foundryItem, compendiumItem, "infusion");
+
+  }
   return foundryItem;
 
 }
