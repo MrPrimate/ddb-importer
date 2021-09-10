@@ -378,7 +378,7 @@ function extractModifierValue(modifier) {
 
   if (value === "" && modifier.subType == "saving-throws" && modifier.bonusTypes.includes(2)) {
     // we set the value to zero and when the saving throw is calculated it will
-    // be updated by the attunedItemsBonus functio above
+    // be updated by the attunedItemsBonus function above
     value = "ATTUNED_ITEM_BONUS";
   }
 
@@ -1302,49 +1302,3 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
   return foundryItem;
 
 }
-
-// export function generateItemEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-//   let effect;
-//   [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
-//   if (effect.changes?.length > 0) {
-//     foundryItem.effects.push(effect);
-//   }
-//   foundryItem = equipmentEffectAdjustment(foundryItem);
-//   if (foundryItem.effects?.length > 0)
-//     logger.debug(`Item effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
-//   return foundryItem;
-// }
-
-// export function generateFeatEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-//   let effect;
-//   [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
-//   if (effect.changes?.length > 0) {
-//     foundryItem.effects.push(effect);
-//   }
-//   foundryItem = featureEffectAdjustment(foundryItem);
-//   if (foundryItem.effects?.length > 0)
-//     logger.debug(`Feature effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
-//   return foundryItem;
-// }
-
-// export function generateSpellEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-//   let effect;
-//   [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem);
-//   if (effect.changes?.length > 0) {
-//     foundryItem.effects.push(effect);
-//   }
-//   foundryItem = spellEffectAdjustment(foundryItem);
-//   if (foundryItem.effects?.length > 0)
-//     logger.debug(`Spell effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
-//   return foundryItem;
-// }
-
-// export function generateInfusionEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
-//   const label = `${foundryItem.name} - Infusion Effects`;
-//   let effect;
-//   [foundryItem, effect] = generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, label);
-//   foundryItem = infusionEffectAdjustment(foundryItem);
-//   if (foundryItem.effects?.length > 0)
-//     logger.debug(`Infusion effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
-//   return foundryItem;
-// }
