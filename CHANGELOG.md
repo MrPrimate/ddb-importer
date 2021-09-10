@@ -1,10 +1,7 @@
-# 2.4.14
-
-* Some characters with optional class features enabled, at levels they did not have, would fail to parse with the following error " "Error parsing Character: TypeError: Reduce empty array with no initial value" @HighlandGreen#5213
-
 # 2.4.13
 
 * Small bug caused error message when compendium folders was enabled and importing characters with roll tables.
+* Some characters with optional class features enabled, at levels they did not have, would fail to parse with the following error " "Error parsing Character: TypeError: Reduce empty array with no initial value" @HighlandGreen#5213
 
 # 2.4.12
 
