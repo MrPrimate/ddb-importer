@@ -381,9 +381,13 @@ function getAttackAction(ddb, character, action) {
         action: true,
         componentId: action.componentId,
         componentTypeId: action.componentTypeId,
-      }
+      },
+      infusions: { infused: false },
     },
   };
+  if (action.infusionFlags) {
+    setProperty(weapon, "flags.infusions", action.infusionFlags);
+  }
   logger.debug(`Getting Attack Action ${action.name}`);
 
   try {
@@ -532,9 +536,13 @@ function getOtherActions(ddb, character, items) {
             entityTypeId: action.entityTypeId,
             componentId: action.componentId,
             componentTypeId: action.componentTypeId,
-          }
+          },
+          infusions: { infused: false },
         },
       };
+      if (action.infusionFlags) {
+        setProperty(feat, "flags.infusions", action.infusionFlags);
+      }
       feat.data.activation = getActivation(action);
       feat.data.description = getDescription(ddb, character, action);
       feat.data.uses = getLimitedUse(action, character);

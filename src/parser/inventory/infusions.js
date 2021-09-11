@@ -85,12 +85,18 @@ export function getInfusionActionData(ddb) {
     .filter((infusionDetail) => infusionDetail.type === "augment" && infusionDetail.actions.length > 0)
     .map((infusionDetail) => {
       const actions = infusionDetail.actions.map((action) => {
+        const itemLookup = ddb.infusions.item.find((mapping) => mapping.definitionKey === infusionDetail.definitionKey);
         if (!action.name) {
           const itemLookup = ddb.infusions.item.find((mapping) => mapping.definitionKey === infusionDetail.definitionKey);
           const item = ddb.character.inventory.find((item) => item.id === itemLookup.inventoryMappingId);
           const itemName = item?.definition?.name ? `${item.definition.name} : ` : ``;
           action.name = `${itemName}[Infusion] ${infusionDetail.name}`;
         }
+        action.infusionFlags = {
+          maps: [JSON.parse(JSON.stringify(itemLookup))],
+          applied: [JSON.parse(JSON.stringify(infusionDetail))],
+          infused: true,
+        };
         return action;
       });
       return actions;
@@ -105,6 +111,7 @@ export function getInfusionActionData(ddb) {
 export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumItem) {
     // get item mapping
   const infusionItemMap = getInfusionItemMap(ddb, foundryItem);
+  foundryItem.flags.infusions = { maps: [], applied: [], infused: false };
   if (infusionItemMap) {
     logger.debug(`Infusion detected for ${foundryItem.name}`);
     // console.warn(ddb);
@@ -120,14 +127,16 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     // magic bonuses can't be added as effects as it's real hard to pin to one item
     foundryItem = addMagicBonus(character, foundryItem, ddbInfusionItem.definition.grantedModifiers);
 
-    // Update Item description
-    if (!foundryItem.flags.infusions) foundryItem.flags.infusions = { maps: [], applied: [], infused: true };
+    // add infusion flags
+    foundryItem.flags.infusions.infused = true;
     foundryItem.flags.infusions.applied.push(infusionDetail);
     foundryItem.flags.infusions.maps.push(infusionItemMap);
 
+    // Update Item description
     foundryItem.data.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;
     foundryItem.data.description.chat += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.snippet ? infusionDetail.snippet : infusionDetail.description}</p></div>`;
 
+    // adjust name for infused item
     foundryItem.name += " [Infusion]";
   }
   return foundryItem;

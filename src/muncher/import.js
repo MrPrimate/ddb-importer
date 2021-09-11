@@ -399,6 +399,7 @@ export async function compendiumFolders(document, type) {
 export async function updateCompendium(type, input, updateExisting = false, matchFlags = []) {
   const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
   const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+  logger.debug(`Getting compendium ${compendiumLabel} for update of ${type} documents (checking ${input[type].length} docs)`);
   const compendium = await game.packs.get(compendiumLabel);
   compendium.configure({ locked: false });
 
