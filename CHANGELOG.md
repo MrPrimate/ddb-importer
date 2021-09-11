@@ -1,3 +1,7 @@
+# 2.5.0
+
+* Encounter Muncher now available to all Patreon Supporters.
+
 # 2.4.13
 
 * Small bug caused error message when compendium folders was enabled and importing characters with roll tables.
