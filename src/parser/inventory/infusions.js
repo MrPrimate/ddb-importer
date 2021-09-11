@@ -27,6 +27,7 @@ import { generateEffects } from "../effects/effects.js";
 
 
 function getInfusionItemMap(ddb, item) {
+  if (!ddb.infusions?.item) return undefined;
   return ddb.infusions.item.find((mapping) =>
     mapping.itemId === item.flags.ddbimporter.definitionId &&
     mapping.inventoryMappingId === item.flags.ddbimporter.id &&
@@ -35,6 +36,7 @@ function getInfusionItemMap(ddb, item) {
 }
 
 function getInfusionDetail(ddb, definitionKey) {
+  if (!ddb.infusions?.infusions?.definitionData) return undefined;
   return ddb.infusions.infusions.definitionData.find(
     (infusion) => infusion.definitionKey === definitionKey
   );
@@ -77,6 +79,7 @@ function addMagicBonus(character, item, modifiers) {
 }
 
 export function getInfusionActionData(ddb) {
+  if (!ddb.infusions?.item) return [];
   const generatedInfusionMap = ddb.infusions.item.map((mapping) => {
     return getInfusionDetail(ddb, mapping.definitionKey);
   });

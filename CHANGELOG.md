@@ -1,3 +1,7 @@
+# 2.5.1
+
+* Fix for failure of infusion parsing in some circumstances.
+
 # 2.5.0
 
 * Encounter Muncher now available to all Patreon Supporters.
