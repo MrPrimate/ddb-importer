@@ -1,6 +1,7 @@
 # 2.5.0
 
 * Encounter Muncher now available to all Patreon Supporters.
+* BETA: For Undying and God Tier: Artificer Infusion Parsing now available. The muncher will now mark items that are infusions as such, generate Active Effects on infused items, and parse Infusion actions.
 
 # 2.4.13
 
