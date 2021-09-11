@@ -280,6 +280,10 @@ export function fixFeatures(features) {
         feature.data.damage = { parts: [["1d6"]], versatile: "", value: "" };
         break;
       }
+      case "Arcane Propulsion Armor Gauntlet": {
+        feature.data.damage.parts[0][0] += " + @mod";
+        break;
+      }
       // no default
     }
 

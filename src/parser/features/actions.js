@@ -3,6 +3,7 @@ import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
 import { fixFeatures, stripHtml, addFeatEffects } from "./special.js";
+import { getInfusionActionData } from "../inventory/infusions.js";
 
 // get actions from ddb.character.customActions
 function getCustomActions(ddb, displayedAsAttack) {
@@ -488,6 +489,7 @@ function getAttackActions(ddb, character) {
     ddb.character.actions.race,
     ddb.character.actions.feat,
     getCustomActions(ddb, true),
+    getInfusionActionData(ddb),
   ]
     .flat()
     .filter((action) => action.displayAsAttack)
@@ -508,6 +510,7 @@ function getOtherActions(ddb, character, items) {
     ddb.character.actions.race,
     ddb.character.actions.feat,
     getCustomActions(ddb, false),
+    getInfusionActionData(ddb),
   ]
     .flat()
     .filter((action) => action.name && action.name !== "")

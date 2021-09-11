@@ -3,47 +3,27 @@ import logger from "../../logger.js";
 
 import { generateEffects } from "../effects/effects.js";
 
-// id: 0,
-// success: true,
-// message: "Successfully retrieved infusion mappings",
-// data: [
-//   {
-//     definitionKey: "infusion:b40c5807-37b6-417b-9826-3c8152b5e14a",
-//     characterId: 32300380,
-//     inventoryMappingId: 402333339,
-//     creatureMappingId: null,
-//     modifierGroupId: "94743d6c-c9e7-4bed-8bff-46ff100bea2e",
-//     choiceKey: "364B2EAD-4019-4953-A0FF-7B59AE1021EE",
-//     itemTypeId: 2103445194,
-//     itemId: 153,
-//     monsterId: null,
+// function isInfused(ddb, item) {
+//   return ddb.infusions.item.some((mapping) =>
+//     mapping.itemId === item.flags.ddbimporter.definitionId &&
+//     mapping.inventoryMappingId === item.flags.ddbimporter.id &&
+//     mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
+//   );
+// }
 
+// function getInfusionId(item, infusionMap) {
+//   const infusionInMap = infusionMap.find((mapping) =>
+//     mapping.itemId === item.flags.ddbimporter.definitionId &&
+//     mapping.inventoryMappingId === item.flags.ddbimporter.id &&
+//     mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
+//   );
 
-//   item.flags.ddbimporter['id'] = data.id;
-//  item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
-
-
-function isInfused(ddb, item) {
-  return ddb.infusions.item.some((mapping) =>
-    mapping.itemId === item.flags.ddbimporter.definitionId &&
-    mapping.inventoryMappingId === item.flags.ddbimporter.id &&
-    mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
-  );
-}
-
-function getInfusionId(item, infusionMap) {
-  const infusionInMap = infusionMap.find((mapping) =>
-    mapping.itemId === item.flags.ddbimporter.definitionId &&
-    mapping.inventoryMappingId === item.flags.ddbimporter.id &&
-    mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
-  );
-
-  if (infusionInMap) {
-    return infusionInMap.definitionKey.replace("infusion:", "");
-  } else {
-    return undefined;
-  }
-}
+//   if (infusionInMap) {
+//     return infusionInMap.definitionKey.replace("infusion:", "");
+//   } else {
+//     return undefined;
+//   }
+// }
 
 
 function getInfusionItemMap(ddb, item) {
@@ -62,8 +42,6 @@ function getInfusionDetail(ddb, definitionKey) {
 
 
 function getInfusionModifiers(infusionItemMap, infusionDetail) {
-  console.warn(infusionItemMap);
-  console.warn(infusionDetail);
   let modifiers = [];
 
   switch (infusionDetail.modifierDataType) {
@@ -77,9 +55,11 @@ function getInfusionModifiers(infusionItemMap, infusionDetail) {
     }
     case "granted":
     default: {
-      modifiers = [...infusionDetail.modifierData.map((data) => data.modifiers)];
+      modifiers = infusionDetail.modifierData.map((data) => data.modifiers).flat();
     }
   }
+
+  // logger.debug(`${infusionDetail.name} ${infusionDetail.modifierDataType}`, modifiers);
 
   return modifiers;
 }
@@ -96,14 +76,40 @@ function addMagicBonus(character, item, modifiers) {
   return item;
 }
 
+export function getInfusionActionData(ddb) {
+  const generatedInfusionMap = ddb.infusions.item.map((mapping) => {
+    return getInfusionDetail(ddb, mapping.definitionKey);
+  });
+
+  const infusionActions = generatedInfusionMap
+    .filter((infusionDetail) => infusionDetail.type === "augment" && infusionDetail.actions.length > 0)
+    .map((infusionDetail) => {
+      const actions = infusionDetail.actions.map((action) => {
+        if (!action.name) {
+          const itemLookup = ddb.infusions.item.find((mapping) => mapping.definitionKey === infusionDetail.definitionKey);
+          const item = ddb.character.inventory.find((item) => item.id === itemLookup.inventoryMappingId);
+          const itemName = item?.definition?.name ? `${item.definition.name} : ` : ``;
+          action.name = `${itemName}[Infusion] ${infusionDetail.name}`;
+        }
+        return action;
+      });
+      return actions;
+    })
+    .flat();
+
+  logger.debug(`Infusions Actions Map`, generatedInfusionMap);
+  logger.debug(`Generated Infusions Actions`, infusionActions);
+  return infusionActions;
+}
+
 export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumItem) {
     // get item mapping
   const infusionItemMap = getInfusionItemMap(ddb, foundryItem);
   if (infusionItemMap) {
-    console.warn(`Infusion detected for ${foundryItem.name}`);
+    logger.debug(`Infusion detected for ${foundryItem.name}`);
     // console.warn(ddb);
-    console.warn(ddbItem);
-    console.warn(foundryItem);
+    // console.warn(ddbItem);
+    // console.warn(foundryItem);
     const infusionDetail = getInfusionDetail(ddb, infusionItemMap.definitionKey);
 
     // get modifiers && generate effects
@@ -114,10 +120,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     // magic bonuses can't be added as effects as it's real hard to pin to one item
     foundryItem = addMagicBonus(character, foundryItem, ddbInfusionItem.definition.grantedModifiers);
 
-    // todo: get actions
-
-    // todo : add descriptions and snipets to items
-
+    // Update Item description
     if (!foundryItem.flags.infusions) foundryItem.flags.infusions = { maps: [], applied: [], infused: true };
     foundryItem.flags.infusions.applied.push(infusionDetail);
     foundryItem.flags.infusions.maps.push(infusionItemMap);
@@ -125,6 +128,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     foundryItem.data.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;
     foundryItem.data.description.chat += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.snippet ? infusionDetail.snippet : infusionDetail.description}</p></div>`;
 
+    foundryItem.name += " [Infusion]";
   }
   return foundryItem;
 
