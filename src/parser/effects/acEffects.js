@@ -1,7 +1,7 @@
 import utils from "../../utils.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
-import { baseItemEffect, generateUpgradeChange, generateOverrideChange, generateAddChange } from "./effects.js";
+import { baseItemEffect, generateUpgradeChange, generateAddChange } from "./effects.js";
 
   // // ac -
   // { type: "bonus", subType: "armor-class" },
@@ -274,7 +274,7 @@ export function generateACEffectChangesForItem(ddb, character, ddbItem, foundryI
 
   const acChanges = generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect);
 
-  if (acChanges.length === 0) return [foundryItem, effect];;
+  if (acChanges.length === 0) return [foundryItem, effect]; ;
 
   effect.changes = effect.changes.concat(acChanges);
 
