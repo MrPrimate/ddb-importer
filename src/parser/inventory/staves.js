@@ -144,7 +144,7 @@ export default function parseStaff(data, character) {
   weapon.data.proficient = getWeaponProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
   weapon.data.description = {
     value: data.definition.description,
-    chat: data.definition.description,
+    chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
     unidentified: data.definition.type,
   };
 

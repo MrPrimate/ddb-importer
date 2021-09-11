@@ -72,7 +72,7 @@ export default function parseLoot(data, itemType) {
 
   loot.data.description = {
     value: data.definition.description,
-    chat: data.definition.description,
+    chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
     unidentified: data.definition.type,
   };
 

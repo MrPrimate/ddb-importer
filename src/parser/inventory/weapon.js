@@ -310,7 +310,7 @@ export default function parseWeapon(data, character, flags) {
 
   weapon.data.description = {
     value: data.definition.description,
-    chat: data.definition.description,
+    chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
     unidentified: data.definition.type,
   };
   weapon.data.source = utils.parseSource(data.definition);

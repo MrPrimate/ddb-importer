@@ -74,7 +74,7 @@ export default function parseAmmunition(data, itemType) {
 
   ammunition.data.description = {
     value: data.definition.description,
-    chat: data.definition.description,
+    chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
     unidentified: data.definition.type,
   };
   ammunition.data.source = utils.parseSource(data.definition);

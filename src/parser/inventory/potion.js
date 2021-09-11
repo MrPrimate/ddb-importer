@@ -103,7 +103,7 @@ export default function parsePotion(data, itemType) {
   consumable.data.uses = getConsumableUses(data);
   consumable.data.description = {
     value: data.definition.description,
-    chat: data.definition.description,
+    chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
     unidentified: data.definition.type,
   };
   consumable.data.source = utils.parseSource(data.definition);

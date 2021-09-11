@@ -117,6 +117,14 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     // todo: get actions
 
     // todo : add descriptions and snipets to items
+
+    if (!foundryItem.flags.infusions) foundryItem.flags.infusions = { maps: [], applied: [], infused: true };
+    foundryItem.flags.infusions.applied.push(infusionDetail);
+    foundryItem.flags.infusions.maps.push(infusionItemMap);
+
+    foundryItem.data.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;
+    foundryItem.data.description.chat += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.snippet ? infusionDetail.snippet : infusionDetail.description}</p></div>`;
+
   }
   return foundryItem;
 
