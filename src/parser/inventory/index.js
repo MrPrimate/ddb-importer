@@ -454,7 +454,7 @@ export default function getInventory(ddb, character, itemSpells) {
         item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
       }
 
-      item = parseInfusion(ddb, character, item, ddbItem, compendiumItem);
+      if (!compendiumItem) item = parseInfusion(ddb, character, item, ddbItem, compendiumItem);
       items.push(item);
     }
   }
