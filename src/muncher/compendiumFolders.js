@@ -29,6 +29,17 @@ const spellLevelFolderNames = [
   "9th Level",
 ];
 
+const itemRarityNames = [
+  "Common",
+  "Uncommon",
+  "Rare",
+  "Very Rare",
+  "Legendary",
+  "Artifact",
+  "Varies",
+  "Unknown",
+];
+
 const rootItemFolderNames = {
   equipment: "Equipment",
   tool: "Tools",
@@ -137,7 +148,7 @@ async function createSpellLevelCompendiumFolders(packName) {
     let promises = [];
     spellLevelFolderNames.forEach(async (levelName) => {
       logger.info(`Creating folder '${levelName}'`);
-      const newFolder = await game.CF.FICFolderAPI.createFolderAtRoot(packName, levelName);
+      const newFolder = await createCompendiumFolder(packName, levelName);
       promises.push(newFolder);
     });
     resolve(promises);
@@ -151,7 +162,20 @@ async function createSpellSchoolCompendiumFolders(packName) {
     DICTIONARY.spell.schools.forEach(async (school) => {
       const schoolName = utils.capitalize(school.name);
       logger.info(`Creating folder '${schoolName}'`);
-      const newFolder = await game.CF.FICFolderAPI.createFolderAtRoot(packName, schoolName);
+      const newFolder = await createCompendiumFolder(packName, schoolName);
+      promises.push(newFolder);
+    });
+    resolve(promises);
+  });
+}
+
+// item rarity folder
+async function createItemRarityCompendiumFolders(packName) {
+  return new Promise((resolve) => {
+    let promises = [];
+    itemRarityNames.forEach(async (rarityName) => {
+      logger.info(`Creating folder '${rarityName}'`);
+      const newFolder = await createCompendiumFolder(packName, rarityName);
       promises.push(newFolder);
     });
     resolve(promises);
@@ -284,6 +308,9 @@ export async function createCompendiumFolderStructure(type) {
           case "TYPE":
             await createItemTypeCompendiumFolders(packName);
             break;
+          case "RARITY":
+            await createItemRarityCompendiumFolders(packName);
+            break;
           // no default
         }
         break;
@@ -300,6 +327,15 @@ export async function createCompendiumFolderStructure(type) {
 function getItemCompendiumFolderName(document) {
   let name;
   switch (compendiumFolderTypeItem) {
+    case "RARITY": {
+      const rarity = document.data.data.rarity;
+      if (rarity && rarity != "") {
+        name = utils.capitalize(rarity).replace("rare", "Rare").replace("Unknown rarity", "Unknown");
+      } else {
+        name = "Unknown";
+      }
+      break;
+    }
     case "TYPE": {
       switch (document.data.type) {
         case "equipment": {
@@ -556,6 +592,7 @@ export async function migrateExistingCompendium(type) {
         "flags.ddbimporter.dndbeyond.type",
         "data.armor.type",
         "data.weaponType",
+        "data.rarity"
       ];
       break;
     }

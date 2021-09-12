@@ -963,6 +963,7 @@ export default function () {
     type: String,
     choices: {
       TYPE: "Item Type",
+      RARITY: "Rarity",
     },
     default: "TYPE",
   });
