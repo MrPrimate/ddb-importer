@@ -11,6 +11,10 @@ function classSpell(data, result) {
   if (data.restriction === "As Ritual Only") {
     result.mode = "prepared";
     result.prepared = false;
+  } else if (!data.usesSpellSlot && data.definition.level !== 0) {
+    // some class features such as druid circle of stars grants x uses of a spell
+    // at the lowest level. for these we add as an innate.
+    result.mode = "innate";
   } else if (data.alwaysPrepared) {
     result.mode = "always";
   } else if (result.mode && classPrepMode) {
@@ -46,6 +50,10 @@ export function getSpellPreparationMode(data) {
   } else if (data.flags.ddbimporter.dndbeyond.lookup === "race" && data.definition.level !== 0) {
     // set race spells as innate
     result.mode = "innate";
+    if (data.usesSpellSlot) {
+      // some racial spells allow the spell to also be added to spell lists
+      result.mode = "always";
+    }
   } else if (
     // Warlock Mystic Arcanum are passed in as Features
     data.flags.ddbimporter.dndbeyond.lookupName.startsWith("Mystic Arcanum")

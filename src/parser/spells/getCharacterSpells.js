@@ -56,6 +56,7 @@ export function getCharacterSpells(ddb, character) {
             id: spell.id,
             entityTypeId: spell.entityTypeId,
             healingBoost: healingBoost,
+            usesSpellSlot: spell.usesSpellSlot,
           },
         }
       };
@@ -135,6 +136,7 @@ export function getCharacterSpells(ddb, character) {
           id: spell.id,
           entityTypeId: spell.entityTypeId,
           healingBoost: healingBoost,
+          usesSpellSlot: spell.usesSpellSlot,
         },
       },
     };
@@ -148,7 +150,8 @@ export function getCharacterSpells(ddb, character) {
       (existingSpell) =>
         existingSpell.name === spell.definition.name &&
         klass &&
-        klass.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class
+        klass.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class &&
+        spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
     );
     if (!items[duplicateSpell]) {
       items.push(parseSpell(spell, character));
@@ -201,6 +204,7 @@ export function getCharacterSpells(ddb, character) {
           id: spell.id,
           entityTypeId: spell.entityTypeId,
           healingBoost: healingBoost,
+          usesSpellSlot: spell.usesSpellSlot,
         },
       },
     };
@@ -248,6 +252,7 @@ export function getCharacterSpells(ddb, character) {
           id: spell.id,
           entityTypeId: spell.entityTypeId,
           healingBoost: healingBoost,
+          usesSpellSlot: spell.usesSpellSlot,
         },
       },
     };

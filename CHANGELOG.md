@@ -1,3 +1,8 @@
+# 2.5.2
+
+* Character: handle cases like Druid Circle of Stars where spells are granted x times per day and also added to prepared spells.
+* Character: handle cases like Hexblood where spells are granted x times a day and can also be added to prepared spells.
+
 # 2.5.1
 
 * Fix for failure of infusion parsing in some circumstances.
