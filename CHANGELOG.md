@@ -2,6 +2,10 @@
 
 * Character: handle cases like Druid Circle of Stars where spells are granted x times per day and also added to prepared spells.
 * Character: handle cases like Hexblood where spells are granted x times a day and can also be added to prepared spells.
+* Compendium Folders: Items now support Rarity as a folder structure option.
+* Tweaks to Bomb and Fragmentation grenade so they parse as useable items.
+* Compendium Folders: Fix a bug where folders could be created multiple times during an update of things.
+
 
 # 2.5.1
 
