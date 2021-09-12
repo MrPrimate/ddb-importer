@@ -106,6 +106,38 @@ export function fixItems(items) {
         };
         break;
       }
+      case "Bomb": {
+        item.type = "consumable";
+        item.data.activation = { type: "action", cost: 1, condition: "" };
+        item.data.target = { value: 5, width: null, units: "ft", type: "radius" };
+        item.data.range = { value: 60, long: null, units: "ft" };
+        item.data.ability = "dex";
+        item.data.actionType = "rwak";
+        item.data.chatFlavor = "improvised weapon";
+        item.data.damage = { parts: [["3d6[fire]", "fire"]], versatile: "", value: "" };
+        item.data.save = {
+          ability: "dex",
+          dc: 12,
+          scaling: "flat",
+        };
+        break;
+      }
+      case "Grenade, Fragmentation": {
+        item.type = "consumable";
+        item.data.activation = { type: "action", cost: 1, condition: "" };
+        item.data.target = { value: 20, width: null, units: "ft", type: "radius" };
+        item.data.range = { value: 60, long: null, units: "ft" };
+        item.data.ability = "dex";
+        item.data.actionType = "rwak";
+        item.data.chatFlavor = "improvised weapon";
+        item.data.damage = { parts: [["5d6[piercing]", "piercing"]], versatile: "", value: "" };
+        item.data.save = {
+          ability: "dex",
+          dc: 15,
+          scaling: "flat",
+        };
+        break;
+      }
       // no default
     }
   });
