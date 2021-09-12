@@ -6,7 +6,6 @@
 * Tweaks to Bomb and Fragmentation grenade so they parse as useable items.
 * Compendium Folders: Fix a bug where folders could be created multiple times during an update of things.
 
-
 # 2.5.1
 
 * Fix for failure of infusion parsing in some circumstances.
