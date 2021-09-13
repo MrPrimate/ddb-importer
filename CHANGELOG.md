@@ -1,4 +1,4 @@
-# 2.5.3
+# 2.5.4
 
 * Tweak infusion effect generation to apply effects generated for loot items like Rods.
 

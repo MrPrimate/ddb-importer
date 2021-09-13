@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
-import { getItemRarity, getAttuned, getEquipped, getWeaponProficient, getMagicalBonus } from "./common.js";
+import { getItemRarity, getEquipped, getWeaponProficient, getMagicalBonus } from "./common.js";
 
 /**
  * Gets the DND5E weapontype (simpleM, martialR etc.) as string

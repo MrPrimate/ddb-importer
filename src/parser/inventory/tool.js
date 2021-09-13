@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
-import { getItemRarity, getAttuned, getEquipped, getUses } from "./common.js";
+import { getItemRarity, getEquipped, getUses } from "./common.js";
 
 function isHalfProficiencyRoundedUp(data, ab) {
   const longAbility = DICTIONARY.character.abilities

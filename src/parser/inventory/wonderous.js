@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getAttuned, getEquipped, getUses } from "./common.js";
+import { getItemRarity, getEquipped, getUses } from "./common.js";
 
 export default function parseWonderous(data) {
   /**

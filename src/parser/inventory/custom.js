@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getAttuned, getEquipped } from "./common.js";
+import { getItemRarity, getEquipped } from "./common.js";
 
 export default function parseCustomItem(data) {
   let customItem = {

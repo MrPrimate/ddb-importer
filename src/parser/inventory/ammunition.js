@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getAttuned, getEquipped, getMagicalBonus } from "./common.js";
+import { getItemRarity, getEquipped, getMagicalBonus } from "./common.js";
 
 /**
  * Gets the range(s) of a given weapon

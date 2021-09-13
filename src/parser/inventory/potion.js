@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getAttuned, getEquipped, getConsumableUses } from "./common.js";
+import { getItemRarity, getEquipped, getConsumableUses } from "./common.js";
 
 
 function getActionType(data) {
