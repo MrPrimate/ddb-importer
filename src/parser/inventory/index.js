@@ -23,7 +23,8 @@ import parseCustomItem from "./custom.js";
 import utils from "../../utils.js";
 
 // magicitems support
-import { parseMagicItem, getAttunement } from "./magicify.js";
+import { parseMagicItem } from "./magicify.js";
+import { getAttunement } from "./common.js";
 import logger from "../../logger.js";
 
 import { fixItems } from "./special.js";

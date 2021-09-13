@@ -102,3 +102,13 @@ export function getMagicalBonus(data) {
   let bonus = boni.reduce((prev, cur) => prev + cur.value, 0);
   return bonus;
 }
+
+export function getAttunement(item) {
+  if (item.isAttuned) {
+    return 2;
+  } else if (item.definition.canAttune) {
+    return 1;
+  } else {
+    return 0;
+  }
+}

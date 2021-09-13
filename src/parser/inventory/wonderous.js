@@ -47,7 +47,6 @@ export default function parseWonderous(data) {
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   item.data.weight = totalWeight / bundleSize;
-  item.data.attuned = getAttuned(data);
   item.data.equipped = getEquipped(data);
   item.data.rarity = getItemRarity(data);
   item.data.identified = true;

@@ -34,7 +34,6 @@ export default function parseCustomItem(data) {
   let totalWeight = data.definition.weight ? data.definition.weight : 0;
   customItem.data.weight = totalWeight / bundleSize; // ;* (loot.data.quantity / bundleSize);
   customItem.data.price = data.definition.cost ? data.definition.cost : 0;
-  customItem.data.attuned = getAttuned(data);
   customItem.data.equipped = getEquipped(data);
   customItem.data.identified = true;
   customItem.data.rarity = getItemRarity(data);

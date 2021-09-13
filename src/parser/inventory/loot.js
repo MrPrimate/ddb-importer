@@ -82,7 +82,6 @@ export default function parseLoot(data, itemType) {
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   loot.data.weight = totalWeight / bundleSize;
-  loot.data.attuned = getAttuned(data);
   loot.data.equipped = getEquipped(data);
   loot.data.rarity = getItemRarity(data);
   loot.data.identified = true;

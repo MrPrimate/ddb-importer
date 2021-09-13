@@ -74,7 +74,6 @@ export default function parseTool(ddb, data, itemType) {
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   tool.data.weight = totalWeight / bundleSize;
-  tool.data.attuned = getAttuned(data);
   tool.data.equipped = getEquipped(data);
   tool.data.rarity = getItemRarity(data);
   tool.data.identified = true;

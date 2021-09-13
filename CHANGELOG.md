@@ -1,3 +1,7 @@
+# 2.5.3
+
+* Tweak infusion effect generation to apply effects generated for loot items like Rods.
+
 # 2.5.2
 
 * Character: handle cases like Druid Circle of Stars where spells are granted x times per day and also added to prepared spells.

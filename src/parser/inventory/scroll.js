@@ -30,7 +30,6 @@ export default function parseScroll(data) {
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   consumable.data.weight = totalWeight / bundleSize;
-  consumable.data.attuned = getAttuned(data);
   consumable.data.equipped = getEquipped(data);
   consumable.data.rarity = getItemRarity(data);
   consumable.data.identified = true;

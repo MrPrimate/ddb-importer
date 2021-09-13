@@ -236,7 +236,6 @@ export function parseMagicItem(data, itemSpells, characterItem = true) {
   if (data.definition.magic) {
     // default magicitem data
     let magicItem = createDefaultItem();
-    magicItem.attuned = data.definition.canAttune;
     magicItem.equipped = data.definition.canEquip;
 
     if (!characterItem) {
@@ -288,12 +287,3 @@ export function parseMagicItem(data, itemSpells, characterItem = true) {
   }
 }
 
-export function getAttunement(item) {
-  if (item.isAttuned) {
-    return 2;
-  } else if (item.definition.canAttune) {
-    return 1;
-  } else {
-    return 0;
-  }
-}

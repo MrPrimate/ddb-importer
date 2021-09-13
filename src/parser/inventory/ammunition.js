@@ -84,7 +84,6 @@ export default function parseAmmunition(data, itemType) {
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   ammunition.data.weight = (totalWeight / bundleSize) * (ammunition.data.quantity / bundleSize);
-  ammunition.data.attuned = getAttuned(data);
   ammunition.data.equipped = getEquipped(data);
   ammunition.data.rarity = getItemRarity(data);
   ammunition.data.identified = true;

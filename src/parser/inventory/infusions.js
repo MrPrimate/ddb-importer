@@ -141,6 +141,17 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
 
     // adjust name for infused item
     foundryItem.name += " [Infusion]";
+    // if item is loot, lets move it to equipment/trinket so effects will apply
+    if (foundryItem.type === "loot") {
+      foundryItem.type = "equipment";
+      foundryItem.data.armor = {
+        type: "trinket",
+        value: 10,
+        dex: null,
+      };
+      // infusions will over ride the can equip status, so just check for equipped
+      foundryItem.data.equipped = ddbItem.equipped;
+    }
   }
   return foundryItem;
 

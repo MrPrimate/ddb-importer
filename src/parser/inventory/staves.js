@@ -154,7 +154,6 @@ export default function parseStaff(data, character) {
   const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
   const totalWeight = data.definition.weight ? data.definition.weight : 0;
   weapon.data.weight = totalWeight / bundleSize;
-  weapon.data.attuned = getAttuned(data);
   weapon.data.equipped = getEquipped(data);
   weapon.data.rarity = getItemRarity(data);
   weapon.data.identified = true;
