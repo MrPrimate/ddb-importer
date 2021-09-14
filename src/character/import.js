@@ -1142,8 +1142,9 @@ export default class CharacterImport extends FormApplication {
 }
 
 
-export async function importCharacterById(html, characterId) {
+export async function importCharacterById(characterId, html) {
   try {
+    if (!html) html = utils.htmlToDoc("");
     let actor = await Actor.create({
       name: "New Actor",
       type: "character",
@@ -1181,5 +1182,42 @@ export async function importCharacterById(html, characterId) {
         break;
     }
     return undefined;
+  }
+}
+
+
+export async function importCharacter(actor, html) {
+  try {
+    if (!html) html = utils.htmlToDoc("");
+    const actorData = actor.toObject();
+    const characterId = actorData.flags.ddbimporter.dndbeyond.characterId;
+    const characterData = await getCharacterData(characterId, null, actorData._id);
+    logger.debug("import.js importCharacter getCharacterData result", characterData);
+    const debugJson = game.settings.get("ddb-importer", "debug-json");
+    if (debugJson) {
+      download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+    }
+    if (characterData.success) {
+      // begin parsing the character data
+      const importer = new CharacterImport(CharacterImport.defaultOptions, actorData);
+      await importer.parseCharacterData(html, characterData);
+      CharacterImport.showCurrentTask(html, "Loading Character data", "Done.", false);
+      logger.info("Loading Character data");
+      return true;
+    } else {
+      logger.error("Error Loading Character data", characterData.message);
+      return false;
+    }
+  } catch (error) {
+    switch (error) {
+      case "Forbidden":
+        logger.error("Error retrieving Character: ", error);
+        break;
+      default:
+        logger.error("Error parsing Character: ", error);
+        logger.error(error.stack);
+        break;
+    }
+    return false;
   }
 }

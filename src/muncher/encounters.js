@@ -310,7 +310,7 @@ export class DDBEncounterMunch extends Application {
     const importCharacters = game.settings.get("ddb-importer", "encounter-import-policy-missing-characters");
     if (importCharacters && this.encounter.missingCharacters) {
       await Helpers.asyncForEach(this.encounter.missingCharacterData, async (character) => {
-        await importCharacterById(html, character.ddbId);
+        await importCharacterById(character.ddbId, html);
       });
     }
   }

@@ -7,6 +7,7 @@ import { migrateExistingCompendium, createCompendiumFolderStructure } from "../.
 import { parseEncounters, DDBEncounterMunch } from "../../muncher/encounters.js";
 import { generateAdventureConfig } from "../../muncher/adventure.js";
 import { updateDDBCharacter } from "../../character/update.js";
+import { importCharacter, importCharacterById } from "../../character/import.js";
 import { getPatreonTier, getPatreonTiers, setPatreonTier, checkPatreon } from "../../muncher/utils.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 
@@ -51,5 +52,7 @@ export function registerWindow() {
     DDBEncounterMunch,
     migrateExistingCompendiumToCompendiumFolders: migrateExistingCompendium,
     createCompendiumFolderStructure,
+    importCharacter,
+    importCharacterById,
   };
 }

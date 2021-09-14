@@ -1,3 +1,7 @@
+# 2.5.6
+
+* Groundwork for future parsing improvements.
+
 # 2.5.5
 
 * CSS tweaks.
