@@ -1,3 +1,8 @@
+# 2.5.5
+
+* CSS tweaks.
+* Tweak to Hex to remove attack element of spell parse.
+
 # 2.5.4
 
 * Tweak infusion effect generation to apply effects generated for loot items like Rods.
