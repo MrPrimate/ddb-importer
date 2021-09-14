@@ -125,6 +125,8 @@ export function fixSpells(ddb, items) {
       case "Produce Flame":
         spell.data.range = { value: 30, units: "ft", long: null };
         break;
+      case "Hex":
+      case "Shadow of Moil":
       case "Cloud of Daggers":
       case "Magic Missile":
         spell.data.actionType = "other";
@@ -173,9 +175,6 @@ export function fixSpells(ddb, items) {
         break;
       case "Flaming Sphere":
         spell.data.target['value'] = 2.5;
-        break;
-      case "Shadow of Moil":
-        spell.data.actionType = "other";
         break;
       case "Heat Metal":
         spell.data.actionType = "save";
