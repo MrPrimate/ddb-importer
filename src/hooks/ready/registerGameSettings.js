@@ -46,7 +46,7 @@ export default function () {
     default: "[data] ddb-images/other",
   });
 
-  if (game.user.isTrusted) {
+  if (game.user.isGM) {
     const characterUploads = game.settings.get("ddb-importer", "image-upload-directory");
     const otherUploads = game.settings.get("ddb-importer", "other-image-upload-directory");
     if (characterUploads !== "[data] ddb-images/characters" && otherUploads === "[data] ddb-images/other") {
@@ -66,7 +66,7 @@ export default function () {
     default: "[data] ddb-images/frames",
   });
 
-  if (game.user.isTrusted) {
+  if (game.user.isGM) {
     const frameUploads = game.settings.get("ddb-importer", "frame-image-upload-directory");
     DirectoryPicker.verifyPath(DirectoryPicker.parse(frameUploads));
   }
