@@ -1,6 +1,7 @@
 # 2.5.7
 
 * Improve some language on the importer screen for compendium folders.
+* Compendium list reordered.
 
 # 2.5.6
 
