@@ -307,11 +307,11 @@ async function filterItemsToAdd(itemsToAdd) {
 
   for (let i = 0; i < itemsToAdd.length; i++) {
     let item = itemsToAdd[i];
-    if (item.data.flags.ddbimporter?.definitionId && item.data.flags.ddbimporter?.definitionEntityTypeId) {
+    if (item.flags.ddbimporter?.definitionId && item.flags.ddbimporter?.definitionEntityTypeId) {
       equipment.push({
-        entityId: parseInt(item.data.flags.ddbimporter.definitionId),
-        entityTypeId: parseInt(item.data.flags.ddbimporter.definitionEntityTypeId),
-        quantity: parseInt(item.data.data.quantity),
+        entityId: parseInt(item.flags.ddbimporter.definitionId),
+        entityTypeId: parseInt(item.flags.ddbimporter.definitionEntityTypeId),
+        quantity: parseInt(item.data.quantity),
       });
     } else {
       // eslint-disable-next-line no-await-in-loop
@@ -321,21 +321,19 @@ async function filterItemsToAdd(itemsToAdd) {
         ddbCompendiumMatch.flags?.ddbimporter?.definitionId &&
         ddbCompendiumMatch.flags?.ddbimporter?.definitionEntityTypeId
       ) {
-        console.warn(`Adding ${item.name}`);
-        let i1 = setProperty(item, "data.flags.ddbimporter.definitionId", ddbCompendiumMatch.flags.ddbimporter.definitionId);
-        let i2 = setProperty(item, "data.flags.ddbimporter.definitionEntityTypeId", ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId);
-        console.log(`${i1}, ${i2}`);
+        logger.debug(`Adding ${item.name} from DDB compendium match:`, ddbCompendiumMatch);
+        setProperty(item, "flags.ddbimporter.definitionId", ddbCompendiumMatch.flags.ddbimporter.definitionId);
+        setProperty(item, "flags.ddbimporter.definitionEntityTypeId", ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId);
+        setProperty(item, "name", ddbCompendiumMatch.name);
+        setProperty(item, "type", ddbCompendiumMatch.type);
         equipment.push({
           entityId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionId),
           entityTypeId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId),
-          quantity: parseInt(item.data.data.quantity),
+          quantity: parseInt(item.data.quantity),
         });
-        console.warn(JSON.parse(JSON.stringify(item)));
       }
     }
   }
-  console.warn(itemsToAdd);
-
   return Promise.all(equipment);
 }
 
@@ -349,33 +347,30 @@ async function addEquipment(actor, ddbData) {
     !item.data.data.quantity == 0 &&
     DICTIONARY.types.inventory.includes(item.type) &&
     !ddbItems.some((s) => s.name === item.name && s.type === item.type)
-  ).map((item) => item.toJson());
+  ).map((item) => item.toObject());
 
   const equipmentToAdd = await filterItemsToAdd(itemsToAdd);
 
-  let addItemData = {
+  const addItemData = {
     equipment: equipmentToAdd,
   };
-
-  console.warn("addItemData", addItemData);
-  console.warn("items to add", itemsToAdd);
 
   if (addItemData.equipment.length > 0) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData);
     const itemUpdates = itemResults.data.addItems
       .filter((addedItem) => itemsToAdd.some((i) =>
-        i.data.flags.ddbimporter.definitionId === addedItem.definition.id &&
-        i.data.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
+        i.flags.ddbimporter.definitionId === addedItem.definition.id &&
+        i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
       ))
       .map((addedItem) => {
         let updatedItem = itemsToAdd.find((i) =>
-          i.data.flags.ddbimporter.definitionId === addedItem.definition.id &&
-          i.data.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
+          i.flags.ddbimporter.definitionId === addedItem.definition.id &&
+          i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
         );
-        setProperty(updatedItem, "data.flags.ddbimporter.id", addedItem.id);
+        setProperty(updatedItem, "flags.ddbimporter.id", addedItem.id);
         return updatedItem;
       });
-    console.warn("item updates", itemUpdates);
+    logger.debug("Character item updates:", itemUpdates);
     try {
       await actor.updateEmbeddedDocuments("Item", itemUpdates);
     } catch (err) {
