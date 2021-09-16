@@ -3,6 +3,7 @@
 * Improve some language on the importer screen for compendium folders.
 * Compendium list reordered.
 * Some feature template strings did not parse class level.
+* Update to DDB: if an item that is not from the DDB compendium is used, the updater will attempt to find a suitable DDB item from the DDB items compendium to use.
 
 # 2.5.6
 
