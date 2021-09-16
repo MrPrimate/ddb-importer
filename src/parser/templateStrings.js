@@ -87,7 +87,9 @@ let parseMatch = (ddb, character, match, feature) => {
   // classlevel*5
   // (classlevel/2)@roundup
   if (result.includes("classlevel")) {
-    const cls = utils.findClassByFeatureId(ddb, feature.componentId);
+    const cls = feature.classId
+      ? ddb.character.classes.find((cls) => cls.definition.id == feature.classId)
+      : utils.findClassByFeatureId(ddb, feature.componentId);
     if (cls) {
       result = result.replace("classlevel", cls.level);
     } else {

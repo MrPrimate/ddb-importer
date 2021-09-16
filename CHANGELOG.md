@@ -2,6 +2,7 @@
 
 * Improve some language on the importer screen for compendium folders.
 * Compendium list reordered.
+* Some feature template strings did not parse class level.
 
 # 2.5.6
 
