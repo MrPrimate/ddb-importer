@@ -9,10 +9,15 @@ import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 
 var itemIndex;
 
-export async function getUpdateItemIndex() {
-  if (itemIndex) return itemIndex;
+export async function getItemCompendium() {
   const compendiumLabel = getCompendiumLabel("item");
   const compendium = await game.packs.get(compendiumLabel);
+  return compendium;
+}
+
+export async function getUpdateItemIndex() {
+  if (itemIndex) return itemIndex;
+  const compendium = await getItemCompendium();
 
   const indexFields = [
     "name",
