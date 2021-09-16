@@ -113,6 +113,11 @@ const gameFolderLookup = [
   },
 ];
 
+export function getCompendiumLabel(type) {
+  const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
+  const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+  return compendiumLabel;
+}
 
 /**
  * Removes items
@@ -224,7 +229,7 @@ function getLooseNames(name, extraNames = []) {
 }
 
 // The monster setting is less vigorous!
-export async function looseItemNameMatch(item, items, loose = false, monster = false) {
+export async function looseItemNameMatch(item, items, loose = false, monster = false, magicMatch = false) {
   // first pass is a strict match
   let matchingItem = items.find((matchItem) => {
     let activationMatch = false;
@@ -253,25 +258,34 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
   });
 
   if (!matchingItem && monster) {
-    // console.warn(`lose monster match ${item.name}`);
-    // console.log(item);
-    // console.log(items);
     matchingItem = items.find(
       (matchItem) => {
         const monsterNames = getMonsterNames(matchItem.name);
-        // console.log(`matchItem ${matchItem.name}`);
-        // console.log(monsterNames);
         const monsterMatch = (monsterNames.includes(item.name.toLowerCase())) &&
           DICTIONARY.types.monster.includes(matchItem.type) &&
           DICTIONARY.types.inventory.includes(item.type);
-        // console.log(monsterMatch);
         return monsterMatch;
       });
-    // console.log(matchingItem);
+  }
+
+  if (!matchingItem && magicMatch) {
+    // is this an inverse match for updates?
+    // if so strip out the non-magic names, we want to match on the magic names
+    const magicName = item.name.replace(/(.*)\s+(\+\d*)\s*/, "$1, $2").trim().toLowerCase();
+    console.warn(magicName);
+    matchingItem = items.find(
+      (matchItem) => matchItem.name.trim().toLowerCase() == magicName
+    );
   }
 
   if (!matchingItem && loose) {
-    const looseNames = getLooseNames(item.name);
+    const looseNames = getLooseNames(item.name)
+      .filter((name) => {
+        if (!magicMatch) return true;
+        const removeMagicName = name.replace(/\+\d*\s*/, "").trim();
+        if (name === removeMagicName) return false;
+        return true;
+      });
     // lets go loosey goosey on matching equipment, we often get types wrong
     matchingItem = items.find(
       (matchItem) =>
@@ -397,8 +411,7 @@ export async function compendiumFolders(document, type) {
 }
 
 export async function updateCompendium(type, input, updateExisting = false, matchFlags = []) {
-  const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
-  const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+  const compendiumLabel = getCompendiumLabel(type);
   logger.debug(`Getting compendium ${compendiumLabel} for update of ${type} documents (checking ${input[type].length} docs)`);
   const compendium = await game.packs.get(compendiumLabel);
   compendium.configure({ locked: false });
@@ -868,13 +881,6 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
   }
 
   return results;
-}
-
-
-export function getCompendiumLabel(type) {
-  const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
-  const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
-  return compendiumLabel;
 }
 
 /**

@@ -2,9 +2,35 @@ import logger from "../logger.js";
 import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
 import { getCampaignId } from "../muncher/utils.js";
+import { getCompendiumLabel, looseItemNameMatch } from "../muncher/import.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 
+
+var itemIndex;
+
+export async function getUpdateItemIndex() {
+  if (itemIndex) return itemIndex;
+  const compendiumLabel = getCompendiumLabel("item");
+  const compendium = await game.packs.get(compendiumLabel);
+
+  const indexFields = [
+    "name",
+    "type",
+    "flags.ddbimporter.definitionId",
+    "flags.ddbimporter.definitionEntityTypeId",
+  ];
+  // eslint-disable-next-line require-atomic-updates
+  itemIndex = await compendium.getIndex({ fields: indexFields });
+
+  return itemIndex;
+}
+
+async function getCompendiumItemInfo(item) {
+  const index = await getUpdateItemIndex();
+  const match = await looseItemNameMatch(item, index, true, false, true);
+  return match;
+}
 
 async function updateCharacterCall(actor, path, bodyContent) {
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
@@ -275,6 +301,44 @@ async function spellsPrepared(actor, ddbData) {
 
 }
 
+
+async function filterItemsToAdd(itemsToAdd) {
+  const equipment = [];
+
+  for (let i = 0; i < itemsToAdd.length; i++) {
+    let item = itemsToAdd[i];
+    if (item.data.flags.ddbimporter?.definitionId && item.data.flags.ddbimporter?.definitionEntityTypeId) {
+      equipment.push({
+        entityId: parseInt(item.data.flags.ddbimporter.definitionId),
+        entityTypeId: parseInt(item.data.flags.ddbimporter.definitionEntityTypeId),
+        quantity: parseInt(item.data.data.quantity),
+      });
+    } else {
+      // eslint-disable-next-line no-await-in-loop
+      const ddbCompendiumMatch = await getCompendiumItemInfo(item);
+      console.warn(`Found item`, ddbCompendiumMatch);
+      if (ddbCompendiumMatch &&
+        ddbCompendiumMatch.flags?.ddbimporter?.definitionId &&
+        ddbCompendiumMatch.flags?.ddbimporter?.definitionEntityTypeId
+      ) {
+        console.warn(`Adding ${item.name}`);
+        let i1 = setProperty(item, "data.flags.ddbimporter.definitionId", ddbCompendiumMatch.flags.ddbimporter.definitionId);
+        let i2 = setProperty(item, "data.flags.ddbimporter.definitionEntityTypeId", ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId);
+        console.log(`${i1}, ${i2}`);
+        equipment.push({
+          entityId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionId),
+          entityTypeId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId),
+          quantity: parseInt(item.data.data.quantity),
+        });
+        console.warn(JSON.parse(JSON.stringify(item)));
+      }
+    }
+  }
+  console.warn(itemsToAdd);
+
+  return Promise.all(equipment);
+}
+
 async function addEquipment(actor, ddbData) {
   const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
@@ -284,33 +348,34 @@ async function addEquipment(actor, ddbData) {
     !item.data.flags.ddbimporter?.action &&
     !item.data.data.quantity == 0 &&
     DICTIONARY.types.inventory.includes(item.type) &&
-    !ddbItems.some((s) => s.name === item.name && s.type === item.type) &&
-    item.data.flags.ddbimporter?.definitionId &&
-    item.data.flags.ddbimporter?.definitionEntityTypeId
-  );
+    !ddbItems.some((s) => s.name === item.name && s.type === item.type)
+  ).map((item) => item.toJson());
+
+  const equipmentToAdd = await filterItemsToAdd(itemsToAdd);
 
   let addItemData = {
-    equipment: []
+    equipment: equipmentToAdd,
   };
 
-  itemsToAdd.forEach((item) => {
-    addItemData.equipment.push({
-      entityId: parseInt(item.data.flags.ddbimporter.definitionId),
-      entityTypeId: parseInt(item.data.flags.ddbimporter.definitionEntityTypeId),
-      quantity: parseInt(item.data.data.quantity),
-    });
-  });
+  console.warn("addItemData", addItemData);
+  console.warn("items to add", itemsToAdd);
 
   if (addItemData.equipment.length > 0) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData);
-    const itemUpdates = itemResults.data.addItems.map((addedItem) => {
-      let updatedItem = itemsToAdd.find((i) =>
+    const itemUpdates = itemResults.data.addItems
+      .filter((addedItem) => itemsToAdd.some((i) =>
         i.data.flags.ddbimporter.definitionId === addedItem.definition.id &&
         i.data.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
-      );
-      updatedItem.data.flags.ddbimporter.id = addedItem.id;
-      return updatedItem;
-    });
+      ))
+      .map((addedItem) => {
+        let updatedItem = itemsToAdd.find((i) =>
+          i.data.flags.ddbimporter.definitionId === addedItem.definition.id &&
+          i.data.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
+        );
+        setProperty(updatedItem, "data.flags.ddbimporter.id", addedItem.id);
+        return updatedItem;
+      });
+    console.warn("item updates", itemUpdates);
     try {
       await actor.updateEmbeddedDocuments("Item", itemUpdates);
     } catch (err) {

@@ -15,7 +15,7 @@ import {
 import { download, getCampaignId } from "../muncher/utils.js";
 import { migrateActorDAESRD, addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
-import { updateDDBCharacter } from "./update.js";
+import { updateDDBCharacter, getUpdateItemIndex } from "./update.js";
 import { characterExtras } from "./extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
@@ -449,7 +449,7 @@ export default class CharacterImport extends FormApplication {
 
   /* -------------------------------------------- */
 
-  getData() {
+  async getData() {
 
     // loads settings for actor
     const importSettings = getCharacterImportSettings();
@@ -465,12 +465,17 @@ export default class CharacterImport extends FormApplication {
     const cobaltCookie = getCobalt(this.actor.id);
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
 
+    const itemsMunched = syncEnabled
+      ? await getUpdateItemIndex().length !== 0
+      : false;
+
     const actorSettings = {
       actor: this.actor,
       localCobalt: localCobalt,
       cobaltSet: cobaltSet,
-      syncEnabled: syncEnabled,
+      syncEnabled: syncEnabled && itemsMunched,
       importAllowed: !syncOnly,
+      itemsMunched: itemsMunched,
     };
 
     return mergeObject(importSettings, actorSettings);

@@ -207,14 +207,15 @@
       {{/each}}
     </div>
   <hr>
-  <p>For best results you will need to re-munch spells and items if you did this prior to the 0.3.0 release. If you imported your character with an earlier version some features may not update (such as Hit Dice) until you have reimported.</p>
-  <p>Item update only works with items imported from DDB into the Item Compendium or via a character.</p>
+  <p>Item update only works best with items imported from DDB into the Item Compendium or via a character.</p><p>If it comes from another source it will try to guess.</p>
   <div class="form-section">
       <div class="form-description">
         <div class="form-description"></div>
         <div>
           <button type="button" id="dndbeyond-character-update"
-            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Update D&D Beyond with changes{{else}}D&D Beyond Update Available to Patreon Supporters{{/if}}</button>
+            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}
+            {{#if itemsMunched}}Update D&D Beyond with changes{{else}}Please import D&D Beyond items into your compendium first.{{/if}}
+            {{else}}D&D Beyond Update Available to Patreon Supporters{{/if}}</button>
         </div>
       </div>
     </div>
