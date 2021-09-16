@@ -1,3 +1,7 @@
+# 2.5.7
+
+* Improve some language on the importer screen for compendium folders.
+
 # 2.5.6
 
 * Groundwork for future parsing improvements.
