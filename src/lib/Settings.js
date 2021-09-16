@@ -504,20 +504,6 @@ export class DDBCompendiumSetup extends FormApplication {
 
     const compendiums = [
       {
-        setting: "entity-spell-compendium",
-        name: "Spells",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-spell-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-spell-compendium")),
-      },
-      {
-        setting: "entity-item-compendium",
-        name: "Items",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-item-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-item-compendium")),
-      },
-      {
         setting: "entity-class-compendium",
         name: "Classes",
         type: "item",
@@ -532,13 +518,6 @@ export class DDBCompendiumSetup extends FormApplication {
         compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-feature-compendium")),
       },
       {
-        setting: "entity-race-compendium",
-        name: "Races",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-race-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-race-compendium")),
-      },
-      {
         setting: "entity-feat-compendium",
         name: "Feats",
         type: "item",
@@ -546,11 +525,11 @@ export class DDBCompendiumSetup extends FormApplication {
         compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-feat-compendium")),
       },
       {
-        setting: "entity-trait-compendium",
-        name: "Racial traits",
+        setting: "entity-item-compendium",
+        name: "Items",
         type: "item",
-        current: game.settings.get("ddb-importer", "entity-trait-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-trait-compendium")),
+        current: game.settings.get("ddb-importer", "entity-item-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-item-compendium")),
       },
       {
         setting: "entity-monster-compendium",
@@ -560,11 +539,25 @@ export class DDBCompendiumSetup extends FormApplication {
         compendiums: getCompendiumLookups("Actor", game.settings.get("ddb-importer", "entity-monster-compendium")),
       },
       {
-        setting: "entity-override-compendium",
-        name: "Override",
+        setting: "entity-race-compendium",
+        name: "Races",
         type: "item",
-        current: game.settings.get("ddb-importer", "entity-override-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-override-compendium")),
+        current: game.settings.get("ddb-importer", "entity-race-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-race-compendium")),
+      },
+      {
+        setting: "entity-trait-compendium",
+        name: "Racial traits",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-trait-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-trait-compendium")),
+      },
+      {
+        setting: "entity-spell-compendium",
+        name: "Spells",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-spell-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-spell-compendium")),
       },
       {
         setting: "entity-table-compendium",
@@ -572,6 +565,13 @@ export class DDBCompendiumSetup extends FormApplication {
         type: "RollTable",
         current: game.settings.get("ddb-importer", "entity-table-compendium"),
         compendiums: getCompendiumLookups("RollTable", game.settings.get("ddb-importer", "entity-table-compendium")),
+      },
+      {
+        setting: "entity-override-compendium",
+        name: "Override",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-override-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-override-compendium")),
       },
     ];
 
