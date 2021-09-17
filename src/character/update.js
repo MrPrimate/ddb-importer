@@ -389,19 +389,40 @@ async function addEquipment(actor, ddbData) {
   }
 }
 
-// custom value update
-// "characterId": 011111110,
-// "typeId": 16,
-// "value": true,
-// "notes": null,
-// "valueId": "20202020202020222",
-// "valueTypeId": "222222222222",
-// "contextId": null,
-// "contextTypeId": null
+// updates names of items and actions
+async function updateCustomNames(actor, ddbData) {
+  const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
+  if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
+  const ddbItems = ddbData.character.inventory;
 
-// async function updateCustomItemNames(actor, ddbData) {
+  const itemsToName = actor.data.items.filter((item) =>
+    item.data.data.quantity != 0 &&
+    (DICTIONARY.types.inventory.includes(item.type) || item.data.flags.ddbimporter?.action) &&
+    item.data.flags.ddbimporter?.id &&
+    // item.data.flags.ddbimporter?.entityTypeId &&
+    ddbItems.some((s) => s.flags.ddbimporter?.id === item.data.flags.ddbimporter.id && s.type === item.type && s.name !== item.name)
+  ).map((item) => item.toObject());
 
-// }
+  let promises = [];
+
+  itemsToName.forEach((item) => {
+    const customData = {
+      customValues: {
+        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+        contextId: null,
+        contextTypeId: null,
+        notes: null,
+        typeId: 8,
+        value: item.name,
+        valueId: `${item.flags.ddbimporter.id}`,
+        valueTypeId: `${item.flags.ddbimporter.entityTypeId}`,
+      }
+    };
+    promises.push(updateCharacterCall(actor, "equipment/custom", customData));
+  });
+
+  return Promise.all(promises);
+}
 
 async function removeEquipment(actor, ddbData) {
   const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
@@ -468,6 +489,18 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
       item.data.data.quantity !== dItem.quantity
     )
   );
+  const itemsToName = actor.data.items.filter((item) =>
+    item.data.flags.ddbimporter?.id &&
+    // item.data.flags.ddbimporter?.entityTypeId &&
+    item.data.data.quantity !== 0 &&
+    ddbItems.some((dItem) =>
+      // item.data.flags.ddbimporter.id === dItem.id &&
+      item.data.flags.ddbimporter.originalName === dItem.definition.name &&
+      item.data.flags.ddbimporter.originalName !== item.data.name &&
+      dItem.id === item.data.flags.ddbimporter?.id &&
+      item.data.name !== dItem.definition.name
+    )
+  );
 
   let promises = [];
 
@@ -492,6 +525,22 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
       quantity: parseInt(item.data.data.quantity),
     };
     promises.push(updateCharacterCall(actor, "equipment/quantity", itemData));
+  });
+  itemsToName.forEach((item) => {
+    const entityTypeId = ddbItems.find((dItem) => dItem.id === item.data.flags.ddbimporter.id).entityTypeId;
+    const customData = {
+      customValues: {
+        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+        contextId: null,
+        contextTypeId: null,
+        notes: null,
+        typeId: 8,
+        value: item.name,
+        valueId: `${item.data.flags.ddbimporter.id}`,
+        valueTypeId: `${entityTypeId}`,
+      }
+    };
+    promises.push(updateCharacterCall(actor, "equipment/custom", customData));
   });
 
   return Promise.all(promises);
@@ -563,6 +612,7 @@ export async function updateDDBCharacter(actor) {
   const singleResults = await Promise.all(singlePromises);
   const spellsPreparedResults = await spellsPrepared(actor, ddbData);
   const actionUpdateResults = await actionUpdate(actor, ddbData);
+  const nameUpdateResults = await updateCustomNames(actor, ddbData);
   const addEquipmentResults = await addEquipment(actor, ddbData);
   const removeEquipmentResults = await removeEquipment(actor, ddbData);
 
@@ -586,7 +636,12 @@ export async function updateDDBCharacter(actor) {
   // we can now process item attunements and uses (not yet done)
 
   const results = singleResults.concat(
-    addEquipmentResults, spellsPreparedResults, removeEquipmentResults, updateEquipmentStatusResults, actionUpdateResults
+    nameUpdateResults,
+    addEquipmentResults,
+    spellsPreparedResults,
+    removeEquipmentResults,
+    updateEquipmentStatusResults,
+    actionUpdateResults
   ).filter((result) => result !== undefined);
 
   logger.debug("Update results", results);

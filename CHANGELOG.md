@@ -5,6 +5,7 @@
 * Some feature template strings did not parse class level.
 * Update to DDB: if an item that is not from the DDB compendium is used, the updater will attempt to find a suitable DDB item from the DDB items compendium to use.
 * Update to DDB: will no longer replace/delete items if item name has changed.
+* Update to DDB: items using custom names will now update custom names. e.g. if you change an items name that comes from DDB (either via a compendium or ) it will update it on DDB.
 * Icon updates for some new and existing features (thanks @MaxPat#7936 )
 
 # 2.5.6
