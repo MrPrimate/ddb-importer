@@ -4,6 +4,7 @@
 * Compendium list reordered.
 * Some feature template strings did not parse class level.
 * Update to DDB: if an item that is not from the DDB compendium is used, the updater will attempt to find a suitable DDB item from the DDB items compendium to use.
+* Update to DDB: will no longer replace/delete items if item name has changed.
 * Icon updates for some new and existing features (thanks @MaxPat#7936 )
 
 # 2.5.6

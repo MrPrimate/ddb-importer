@@ -351,7 +351,7 @@ async function addEquipment(actor, ddbData) {
     !item.data.flags.ddbimporter?.action &&
     !item.data.data.quantity == 0 &&
     DICTIONARY.types.inventory.includes(item.type) &&
-    !ddbItems.some((s) => s.name === item.name && s.type === item.type)
+    !ddbItems.some((s) => s.flags.ddbimporter?.id === item.data.flags.ddbimporter?.id && s.type === item.type)
   ).map((item) => item.toObject());
 
   const equipmentToAdd = await filterItemsToAdd(itemsToAdd);
@@ -389,14 +389,28 @@ async function addEquipment(actor, ddbData) {
   }
 }
 
+// custom value update
+// "characterId": 011111110,
+// "typeId": 16,
+// "value": true,
+// "notes": null,
+// "valueId": "20202020202020222",
+// "valueTypeId": "222222222222",
+// "contextId": null,
+// "contextTypeId": null
+
+// async function updateCustomItemNames(actor, ddbData) {
+
+// }
+
 async function removeEquipment(actor, ddbData) {
   const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
   const ddbItems = ddbData.character.inventory;
 
   const itemsToRemove = ddbItems.filter((item) =>
-    (!actor.data.items.some((s) => (s.name === item.name && s.type === item.type) && !s.data.flags.ddbimporter?.action) ||
-    actor.data.items.some((s) => (s.name === item.name && s.type === item.type) && !s.data.flags.ddbimporter?.action && s.data.data.quantity == 0)) &&
+    (!actor.data.items.some((s) => (item.flags.ddbimporter?.id === s.data.flags.ddbimporter?.id && s.type === item.type) && !s.data.flags.ddbimporter?.action) ||
+    actor.data.items.some((s) => (item.flags.ddbimporter?.id === s.data.flags.ddbimporter?.id && s.type === item.type) && !s.data.flags.ddbimporter?.action && s.data.data.quantity == 0)) &&
     DICTIONARY.types.inventory.includes(item.type) &&
     item.flags.ddbimporter?.id
   );
@@ -424,7 +438,7 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
-      item.name === dItem.definition.name &&
+      dItem.id === item.data.flags.ddbimporter?.id &&
       item.data.data.equipped !== dItem.equipped
     )
   );
@@ -432,7 +446,7 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
-      item.name === dItem.definition.name &&
+      dItem.id === item.data.flags.ddbimporter?.id &&
       ((item.data.data.attunement === 2) !== dItem.isAttuned)
     )
   );
@@ -440,7 +454,7 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
-      item.name === dItem.definition.name &&
+      dItem.id === item.data.flags.ddbimporter?.id &&
       item.data.data.uses?.max && dItem.limitedUse?.numberUsed &&
       ((parseInt(item.data.data.uses.max) - parseInt(item.data.data.uses.value)) !== dItem.limitedUse.numberUsed)
     )
@@ -450,7 +464,7 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
     !item.data.data.quantity == 0 &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
-      item.name === dItem.definition.name &&
+      dItem.id === item.data.flags.ddbimporter?.id &&
       item.data.data.quantity !== dItem.quantity
     )
   );
