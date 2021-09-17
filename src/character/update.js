@@ -321,7 +321,7 @@ async function filterItemsToAdd(itemsToAdd) {
     } else {
       // eslint-disable-next-line no-await-in-loop
       const ddbCompendiumMatch = await getCompendiumItemInfo(item);
-      console.warn(`Found item`, ddbCompendiumMatch);
+      logger.debug(`Found item`, ddbCompendiumMatch);
       if (ddbCompendiumMatch &&
         ddbCompendiumMatch.flags?.ddbimporter?.definitionId &&
         ddbCompendiumMatch.flags?.ddbimporter?.definitionEntityTypeId

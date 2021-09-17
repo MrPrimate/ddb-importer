@@ -272,7 +272,6 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
     // is this an inverse match for updates?
     // if so strip out the non-magic names, we want to match on the magic names
     const magicName = item.name.replace(/(.*)\s+(\+\d*)\s*/, "$1, $2").trim().toLowerCase();
-    console.warn(magicName);
     matchingItem = items.find(
       (matchItem) => matchItem.name.trim().toLowerCase() == magicName
     );
