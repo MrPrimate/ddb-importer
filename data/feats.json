@@ -129,5 +129,7 @@
   { "name": "Tough", "path": "icons/equipment/shoulder/pauldron-segmented-steel-yellow.webp", "type": "core" },
   { "name": "War Caster", "path": "icons/weapons/wands/wand-totem.webp", "type": "core" },
   { "name": "Weapon Master", "path": "systems/dnd5e/icons/skills/gray_08.jpg", "type": "systems" },
-  { "name": "Wood Elf Magic", "path": "systems/dnd5e/icons/skills/green_10.jpg", "type": "systems" }
+  { "name": "Wood Elf Magic", "path": "systems/dnd5e/icons/skills/green_10.jpg", "type": "systems" },
+  { "name": "Telekinetic Adept: Psi-Powered Leap", "path": "icons/skills/movement/figure-running-gray.webp", "type": "core" },
+  { "name": "Telekinetic Adept: Telekinetic Thrust", "path": "icons/magic/movement/trail-streak-impact-blue.webp", "type": "core" }
 ]

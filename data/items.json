@@ -4126,5 +4126,7 @@
   { "name": "Serpent Scale Armor", "path": "icons/commodities/leather/scales-green.webp", "type": "core" },
   { "name": "Serpent’s Fang", "path": "icons/creatures/reptiles/snake-fangs-bite-green.webp", "type": "core" },
   { "name": "Stonky’s ring", "path": "icons/equipment/finger/ring-band-gold.webp", "type": "core" },
-  { "name": "Watchful Helm", "path": "icons/equipment/head/helm-barbute-white.webp", "type": "core" }
+  { "name": "Watchful Helm", "path": "icons/equipment/head/helm-barbute-white.webp", "type": "core" },
+  { "name": "Deflect Missiles Attack", "path": "icons/skills/melee/strike-polearm-glowing-white.webp", "type": "core" },
+  { "name": "Psionic Power: Psionic Strike", "path": "icons/skills/melee/weapons-crossed-swords-teal.webp", "type": "core" }
 ]

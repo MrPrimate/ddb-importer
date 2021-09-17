@@ -26,7 +26,7 @@ const TYPE_MAP = {
 };
 
 const FILE_MAP = {
-  items: ["items.json"],
+  items: ["items.json", "class-features.json"],
   spells: ["spells.json"],
   feats: ["feats.json", "class-features.json", "races.json", "general.json"],
   classes: ["classes.json"],
