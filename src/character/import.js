@@ -467,7 +467,7 @@ export default class CharacterImport extends FormApplication {
     const itemCompendium = await getItemCompendium();
 
     const itemsMunched = syncEnabled
-      ? await itemCompendium.size !== 0
+      ? await itemCompendium.index.size !== 0
       : false;
 
     const actorSettings = {
