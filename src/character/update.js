@@ -160,19 +160,32 @@ async function updateDDBHitPoints(actor) {
   });
 }
 
-export async function activeSync(actor) {
+async function activeSync(actor, update) {
   return new Promise((resolve) => {
     const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
     const dynamicHPSync = game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints");
-    const actorActiveSync = actor.data.flags.ddbimporter?.activeSync || true;
+    const actorActiveSync = actor.data.flags.ddbimporter?.activeSync;
+    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+    console.warn(updateUser);
+    console.warn(game.user.id);
+
+    if (update.data?.attributes?.hp && game.user.isGM && game.user.id == updateUser) {
+      console.warn("Hitpoint hooks");
+      resolve(updateDDBHitPoints(actor));
+    } else {
+      resolve();
+    }
+
     if (dynamicSync && dynamicHPSync && actorActiveSync) {
       resolve(updateDDBHitPoints(actor));
     } else {
       resolve();
     }
   });
-
 }
+
+Hooks.on("updateActor", activeSync);
+
 
 async function hitPoints(actor, ddbData) {
   return new Promise((resolve) => {

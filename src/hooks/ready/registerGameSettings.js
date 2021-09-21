@@ -1381,5 +1381,29 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "dynamic-sync", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-hitpoints", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-user", {
+    scope: "world",
+    config: false,
+    type: String,
+    default: "",
+  });
+
+  if (game.settings.get("ddb-importer", "dynamic-sync-user") === "" && game.user.isGM) {
+    game.settings.set("ddb-importer", "dynamic-sync-user", game.user.id);
+  }
 
 }
