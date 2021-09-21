@@ -148,20 +148,42 @@ async function xp(actor, ddbData) {
   });
 }
 
+async function updateDDBHitPoints(actor) {
+  return new Promise((resolve) => {
+    const temporaryHitPoints = actor.data.data.attributes.hp.temp ? actor.data.data.attributes.hp.temp : 0;
+    const removedHitPoints = actor.data.data.attributes.hp.max - actor.data.data.attributes.hp.value;
+    const hitPointData = {
+      removedHitPoints,
+      temporaryHitPoints,
+    };
+    resolve(updateCharacterCall(actor, "hitpoints", hitPointData));
+  });
+}
+
+export async function activeSync(actor) {
+  return new Promise((resolve) => {
+    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
+    const dynamicHPSync = game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints");
+    const actorActiveSync = actor.data.flags.ddbimporter?.activeSync || true;
+    if (dynamicSync && dynamicHPSync && actorActiveSync) {
+      resolve(updateDDBHitPoints(actor));
+    } else {
+      resolve();
+    }
+  });
+
+}
+
 async function hitPoints(actor, ddbData) {
   return new Promise((resolve) => {
     if (!game.settings.get("ddb-importer", "sync-policy-hitpoints")) resolve();
-    const localTemp = actor.data.data.attributes.hp.temp ? actor.data.data.attributes.hp.temp : 0;
+    const temporaryHitPoints = actor.data.data.attributes.hp.temp ? actor.data.data.attributes.hp.temp : 0;
     const same =
       ddbData.character.character.data.attributes.hp.value === actor.data.data.attributes.hp.value &&
-      ddbData.character.character.data.attributes.hp.temp === localTemp;
+      ddbData.character.character.data.attributes.hp.temp === temporaryHitPoints;
 
     if (!same) {
-      const hitPointData = {
-        removedHitPoints: actor.data.data.attributes.hp.max - actor.data.data.attributes.hp.value,
-        temporaryHitPoints: localTemp,
-      };
-      resolve(updateCharacterCall(actor, "hitpoints", hitPointData));
+      resolve(updateDDBHitPoints(actor));
     }
 
     resolve();
