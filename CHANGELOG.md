@@ -1,3 +1,7 @@
+# 2.5.8
+
+* Harengon prof bonus to initiative.
+
 # 2.5.7
 
 * Improve some language on the importer screen for compendium folders.
