@@ -354,7 +354,11 @@ const utils = {
         sum += modifier.fixedValue;
       } else if (modifier.value) {
         sum += modifier.value;
-      } else if (modBonus) {
+      } else if (modifier.modifierTypeId === 1 && modifier.modifierSubTypeId === 218) {
+        // prof bonus
+        console.warn("PROF ADD!");
+        sum += character.data.attributes.prof;
+      } else if (modBonus !== 0) {
         sum += modBonus;
       }
     });

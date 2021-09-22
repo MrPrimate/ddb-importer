@@ -71,6 +71,10 @@ export default function getCharacter(ddb) {
     },
   };
 
+    // proficiency
+  // prettier-ignore
+  character.data.attributes.prof = Math.ceil(1 + (0.25 * character.flags.ddbimporter.dndbeyond.totalLevels));
+
   // Get supported 5e feats and abilities
   // We do this first so we can check for them later
   character.flags.dnd5e = getSpecialTraits(ddb);
@@ -112,10 +116,6 @@ export default function getCharacter(ddb) {
 
   // initiative
   character.data.attributes.init = getInitiative(ddb, character);
-
-  // proficiency
-  // prettier-ignore
-  character.data.attributes.prof = Math.ceil(1 + (0.25 * character.flags.ddbimporter.dndbeyond.totalLevels));
 
   // speeds
   const movement = getSpeed(ddb);
