@@ -160,33 +160,6 @@ async function updateDDBHitPoints(actor) {
   });
 }
 
-async function activeSync(actor, update) {
-  return new Promise((resolve) => {
-    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
-    const dynamicHPSync = game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints");
-    const actorActiveSync = actor.data.flags.ddbimporter?.activeSync;
-    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
-    console.warn(updateUser);
-    console.warn(game.user.id);
-
-    if (update.data?.attributes?.hp && game.user.isGM && game.user.id == updateUser) {
-      console.warn("Hitpoint hooks");
-      resolve(updateDDBHitPoints(actor));
-    } else {
-      resolve();
-    }
-
-    if (dynamicSync && dynamicHPSync && actorActiveSync) {
-      resolve(updateDDBHitPoints(actor));
-    } else {
-      resolve();
-    }
-  });
-}
-
-Hooks.on("updateActor", activeSync);
-
-
 async function hitPoints(actor, ddbData) {
   return new Promise((resolve) => {
     if (!game.settings.get("ddb-importer", "sync-policy-hitpoints")) resolve();
@@ -505,7 +478,60 @@ async function removeEquipment(actor, ddbData) {
   return Promise.all(promises);
 }
 
-async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
+async function updateDDBEquipmentStatus(actor, updateItemDetails) {
+  const itemsToEquip = updateItemDetails.itemsToEquip || [];
+  const itemsToAttune = updateItemDetails.itemsToAttune || [];
+  const itemsToCharge = updateItemDetails.itemsToCharge || [];
+  const itemsToQuantity = updateItemDetails.itemsToQuantity || [];
+  const itemsToName = updateItemDetails.itemsToName || [];
+
+  let promises = [];
+
+  itemsToEquip.forEach((item) => {
+    const itemData = { itemId: item.data.flags.ddbimporter.id, value: item.data.data.equipped };
+    promises.push(updateCharacterCall(actor, "equipment/equipped", itemData));
+  });
+  itemsToAttune.forEach((item) => {
+    const itemData = { itemId: item.data.flags.ddbimporter.id, value: (item.data.data.attunement === 2) };
+    promises.push(updateCharacterCall(actor, "equipment/attuned", itemData));
+  });
+  itemsToCharge.forEach((item) => {
+    const itemData = {
+      itemId: item.data.flags.ddbimporter.id,
+      charges: parseInt(item.data.data.uses.max) - parseInt(item.data.data.uses.value),
+    };
+    promises.push(updateCharacterCall(actor, "equipment/charges", itemData));
+  });
+  itemsToQuantity.forEach((item) => {
+    const itemData = {
+      itemId: item.data.flags.ddbimporter.id,
+      quantity: parseInt(item.data.data.quantity),
+    };
+    promises.push(updateCharacterCall(actor, "equipment/quantity", itemData));
+  });
+  itemsToName.forEach((item) => {
+    const entityTypeId = ddbItems.find((dItem) => dItem.id === item.data.flags.ddbimporter.id).entityTypeId;
+    const customData = {
+      customItem: false,
+      customValues: {
+        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+        contextId: null,
+        contextTypeId: null,
+        notes: null,
+        typeId: 8,
+        value: item.name,
+        valueId: `${item.data.flags.ddbimporter.id}`,
+        valueTypeId: `${entityTypeId}`,
+      }
+    };
+    promises.push(updateCharacterCall(actor, "equipment/custom", customData));
+  });
+
+  return Promise.all(promises);
+}
+
+
+async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
   // reload the actor following potential updates to equipment
@@ -562,52 +588,19 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
     )
   );
 
-  let promises = [];
+  const itemsToUpdate = {
+    itemsToEquip,
+    itemsToAttune,
+    itemsToCharge,
+    itemsToQuantity,
+    itemsToName,
+  };
 
-  itemsToEquip.forEach((item) => {
-    const itemData = { itemId: item.data.flags.ddbimporter.id, value: item.data.data.equipped };
-    promises.push(updateCharacterCall(actor, "equipment/equipped", itemData));
-  });
-  itemsToAttune.forEach((item) => {
-    const itemData = { itemId: item.data.flags.ddbimporter.id, value: (item.data.data.attunement === 2) };
-    promises.push(updateCharacterCall(actor, "equipment/attuned", itemData));
-  });
-  itemsToCharge.forEach((item) => {
-    const itemData = {
-      itemId: item.data.flags.ddbimporter.id,
-      charges: parseInt(item.data.data.uses.max) - parseInt(item.data.data.uses.value),
-    };
-    promises.push(updateCharacterCall(actor, "equipment/charges", itemData));
-  });
-  itemsToQuantity.forEach((item) => {
-    const itemData = {
-      itemId: item.data.flags.ddbimporter.id,
-      quantity: parseInt(item.data.data.quantity),
-    };
-    promises.push(updateCharacterCall(actor, "equipment/quantity", itemData));
-  });
-  itemsToName.forEach((item) => {
-    const entityTypeId = ddbItems.find((dItem) => dItem.id === item.data.flags.ddbimporter.id).entityTypeId;
-    const customData = {
-      customItem: false,
-      customValues: {
-        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
-        contextId: null,
-        contextTypeId: null,
-        notes: null,
-        typeId: 8,
-        value: item.name,
-        valueId: `${item.data.flags.ddbimporter.id}`,
-        valueTypeId: `${entityTypeId}`,
-      }
-    };
-    promises.push(updateCharacterCall(actor, "equipment/custom", customData));
-  });
+  return updateDDBEquipmentStatus(actor, itemsToUpdate);
 
-  return Promise.all(promises);
 }
 
-async function actionUpdate(actor, ddbData) {
+async function actionStatus(actor, ddbData) {
   const syncActionReady = actor.data.flags.ddbimporter?.syncActionReady;
   if (syncActionReady && !game.settings.get("ddb-importer", "sync-policy-action-use")) return [];
 
@@ -672,12 +665,12 @@ export async function updateDDBCharacter(actor) {
 
   const singleResults = await Promise.all(singlePromises);
   const spellsPreparedResults = await spellsPrepared(actor, ddbData);
-  const actionUpdateResults = await actionUpdate(actor, ddbData);
+  const actionStatusResults = await actionStatus(actor, ddbData);
   const nameUpdateResults = await updateCustomNames(actor, ddbData);
   const addEquipmentResults = await addEquipment(actor, ddbData);
   const removeEquipmentResults = await removeEquipment(actor, ddbData);
 
-  const updateEquipmentStatusResults = await updateEquipmentStatus(actor, ddbData, addEquipmentResults);
+  const equipmentStatusResults = await equipmentStatus(actor, ddbData, addEquipmentResults);
 
   // if a known/choice spellcaster
   // and new spell/ spells removed
@@ -701,11 +694,47 @@ export async function updateDDBCharacter(actor) {
     addEquipmentResults,
     spellsPreparedResults,
     removeEquipmentResults,
-    updateEquipmentStatusResults,
-    actionUpdateResults
+    equipmentStatusResults,
+    actionStatusResults
   ).filter((result) => result !== undefined);
 
   logger.debug("Update results", results);
 
   return results;
 }
+
+
+
+async function activeSync(actor, update) {
+  return new Promise((resolve) => {
+
+    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
+    const dynamicHPSync = game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints");
+    const actorActiveSync = actor.data.flags.ddbimporter?.activeSync;
+
+    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+    console.warn(updateUser);
+    console.warn(game.user.id);
+
+    if (game.user.isGM && game.user.id !== updateUser) resolve();
+
+    if (update.data?.attributes?.hp) {
+      console.warn("Hitpoint hooks");
+      // resolve(updateDDBHitPoints(actor));
+    } else if (update.data?.uses) {
+      console.warn("Uses hooks");
+    } else {
+      resolve();
+    }
+    resolve();
+
+    // if (dynamicSync && dynamicHPSync && actorActiveSync) {
+    //   resolve(updateDDBHitPoints(actor));
+    // } else {
+    //   resolve();
+    // }
+  });
+}
+
+Hooks.on("updateActor", activeSync);
+Hooks.on("updateItem", activeSync);
