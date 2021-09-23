@@ -387,6 +387,16 @@ export default function () {
     game.settings.set("ddb-importer", "cors-endpoint", "https://images.ddb.mrprimate.co.uk/");
   }
 
+  game.settings.register("ddb-importer", "dynamic-api-endpoint", {
+    name: "ddb-importer.api-endpoint.name",
+    hint: "ddb-importer.api-endpoint.hint",
+    scope: "world",
+    config: false,
+    type: String,
+    //default: "https://dynamic.ddb.mrprimate.co.uk",
+    default: "https://proxy.ddb.mrprimate.co.uk",
+  });
+
   game.settings.register("ddb-importer", "cors-encode", {
     name: "ddb-importer.cors-encode.name",
     hint: "ddb-importer.cors-encode.hint",

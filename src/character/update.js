@@ -9,6 +9,12 @@ import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 
 var itemIndex;
 
+function activeUpdate() {
+  const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
+  const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+  const gmSyncUser = !game.user.isGM || game.user.id !== updateUser;
+  return dynamicSync && gmSyncUser;
+}
 
 export async function getUpdateItemIndex() {
   if (itemIndex) return itemIndex;
@@ -35,17 +41,30 @@ async function getCompendiumItemInfo(item) {
 async function updateCharacterCall(actor, path, bodyContent) {
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
   const cobaltCookie = getCobalt(actor.id);
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+  const dynamicSync = activeUpdate();
+  const parsingApi = dynamicSync
+    ? game.settings.get("ddb-importer", "dynamic-api-endpoint")
+    : game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
-  const coreBody = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
+  const coreBody = {
+    cobalt: cobaltCookie,
+    betaKey,
+    characterId,
+    campaignId: proxyCampaignId,
+    dynamicSync,
+  };
   const body = { ...coreBody, ...bodyContent };
+
+  const url = dynamicSync
+    ? `${parsingApi}/proxy/dynamic/update/${path}`
+    : `${parsingApi}/proxy/update/${path}`;
 
   logger.debug("Update body:", bodyContent);
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/update/${path}`, {
+    fetch(url, {
       method: "POST",
       cache: "no-cache",
       headers: {
@@ -428,18 +447,20 @@ async function updateCustomNames(actor, ddbData) {
   const ddbItems = ddbData.character.inventory;
 
   const itemsToName = actor.data.items.filter((item) =>
-    item.data.data.quantity != 0 &&
+    item.data.data.quantity !== 0 &&
     (DICTIONARY.types.inventory.includes(item.type) || item.data.flags.ddbimporter?.action) &&
     item.data.flags.ddbimporter?.id &&
     // item.data.flags.ddbimporter?.entityTypeId &&
-    ddbItems.some((s) => s.flags.ddbimporter?.id === item.data.flags.ddbimporter.id && s.type === item.type && s.name !== item.name)
+    ddbItems.some((s) =>
+      s.flags.ddbimporter?.id === item.data.flags.ddbimporter.id &&
+      s.type === item.type && s.name !== item.name
+    )
   ).map((item) => item.toObject());
 
   let promises = [];
 
   itemsToName.forEach((item) => {
     const customData = {
-      customItem: false,
       customValues: {
         characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
         contextId: null,
@@ -478,7 +499,7 @@ async function removeEquipment(actor, ddbData) {
   return Promise.all(promises);
 }
 
-async function updateDDBEquipmentStatus(actor, updateItemDetails) {
+async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   const itemsToEquip = updateItemDetails.itemsToEquip || [];
   const itemsToAttune = updateItemDetails.itemsToAttune || [];
   const itemsToCharge = updateItemDetails.itemsToCharge || [];
@@ -512,7 +533,6 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails) {
   itemsToName.forEach((item) => {
     const entityTypeId = ddbItems.find((dItem) => dItem.id === item.data.flags.ddbimporter.id).entityTypeId;
     const customData = {
-      customItem: false,
       customValues: {
         characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
         contextId: null,
@@ -575,9 +595,9 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
       item.data.data.quantity !== dItem.quantity
     )
   );
+  // this is for items that have been added and might have a different name
   const itemsToName = actor.data.items.filter((item) =>
     item.data.flags.ddbimporter?.id &&
-    // item.data.flags.ddbimporter?.entityTypeId &&
     item.data.data.quantity !== 0 &&
     ddbItems.some((dItem) =>
       // item.data.flags.ddbimporter.id === dItem.id &&
@@ -596,7 +616,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     itemsToName,
   };
 
-  return updateDDBEquipmentStatus(actor, itemsToUpdate);
+  return updateDDBEquipmentStatus(actor, itemsToUpdate, ddbItems);
 
 }
 
@@ -703,26 +723,30 @@ export async function updateDDBCharacter(actor) {
   return results;
 }
 
-
-
+// Called when characters are updated
+// will dynamically sync status back to DDB
 async function activeSync(actor, update) {
   return new Promise((resolve) => {
 
-    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
-    const dynamicHPSync = game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints");
+    const dynamicSync = activeUpdate();
+    // TODO add this to each character
     const actorActiveSync = actor.data.flags.ddbimporter?.activeSync;
 
-    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
-    console.warn(updateUser);
-    console.warn(game.user.id);
-
-    if (game.user.isGM && game.user.id !== updateUser) resolve();
+    if (!dynamicSync) resolve();
 
     if (update.data?.attributes?.hp) {
       console.warn("Hitpoint hooks");
       // resolve(updateDDBHitPoints(actor));
     } else if (update.data?.uses) {
+      // if action
       console.warn("Uses hooks");
+      // else assume item/weapon
+
+    // also handle:
+    //spell slots
+    //spells prepared
+
+
     } else {
       resolve();
     }
