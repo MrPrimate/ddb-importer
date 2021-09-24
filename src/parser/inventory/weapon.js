@@ -196,7 +196,7 @@ function getDamage(data, flags, betterRolls5e) {
       if (damagePart) {
         const damageHintSub = mod.subType && globalDamageHints ? `[${mod.subType}]` : "";
         const damageParsed = utils.parseDiceString(damagePart, "", damageHintSub).diceString;
-        parts.push([damageParsed, mod.subType]);
+        parts.push([`${damageParsed}`, mod.subType]);
       }
     });
 
@@ -215,7 +215,7 @@ function getDamage(data, flags, betterRolls5e) {
         if (utils.isModuleInstalledAndActive("betterrolls5e")) {
           const attackNum = parts.length;
           betterRolls5e.quickDamage.context[attackNum] = mod.restriction;
-          parts.push([damageParsed, mod.subType]);
+          parts.push([`${damageParsed}`, mod.subType]);
         } else {
           // if (utils.isModuleInstalledAndActive("midi-qol")) {
           parts.forEach((part) => {

@@ -111,7 +111,7 @@ function getDamage(data, magicalDamageBonus) {
       if (mod.dice) {
         parts.push([mod.dice.diceString, mod.subType]);
       } else if (mod.value) {
-        parts.push([mod.value, mod.subType]);
+        parts.push([`${mod.value}`, mod.subType]);
       }
     });
 

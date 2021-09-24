@@ -1,3 +1,7 @@
+# 2.5.9
+
+* Some homebrew modifier combos could cause an integer to be placed into the damage field, which Foundry needs to parse as a string.
+
 # 2.5.8
 
 * Harengon prof bonus to initiative.
