@@ -410,6 +410,7 @@ export default function getInventory(ddb, character, itemSpells) {
 
   const customItems = ddb.character.customItems
     ? ddb.character.customItems.map((customItem) => ({
+      id: customItem.id,
       definition: customItem,
     }))
     : [];

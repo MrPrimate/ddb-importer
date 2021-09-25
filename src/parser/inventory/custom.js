@@ -8,6 +8,7 @@ export default function parseCustomItem(data) {
     data: JSON.parse(utils.getTemplate("loot")),
     flags: {
       ddbimporter: {
+        custom: true,
         dndbeyond: {
           type: "Custom Item",
         },

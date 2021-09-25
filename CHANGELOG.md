@@ -1,3 +1,8 @@
+# 2.5.11
+
+* TWBtW race feature/trait icons (thanks @MaxPat#7936 )
+* Better handling of some edge case items when updating characters on DDB.
+
 # 2.5.10
 
 * Some extra debug logging

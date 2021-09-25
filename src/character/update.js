@@ -307,13 +307,17 @@ async function spellsPrepared(actor, ddbData) {
 }
 
 
-async function filterItemsToAdd(itemsToAdd) {
-  const equipment = [];
+async function generateItemsToAdd(itemsToAdd) {
+  const results = {
+    items: [],
+    toAdd: [],
+    custom: [],
+  };
 
   for (let i = 0; i < itemsToAdd.length; i++) {
     let item = itemsToAdd[i];
     if (item.flags.ddbimporter?.definitionId && item.flags.ddbimporter?.definitionEntityTypeId) {
-      equipment.push({
+      results.toAdd.push({
         entityId: parseInt(item.flags.ddbimporter.definitionId),
         entityTypeId: parseInt(item.flags.ddbimporter.definitionEntityTypeId),
         quantity: parseInt(item.data.quantity),
@@ -331,15 +335,20 @@ async function filterItemsToAdd(itemsToAdd) {
         setProperty(item, "flags.ddbimporter.definitionEntityTypeId", ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId);
         setProperty(item, "name", ddbCompendiumMatch.name);
         setProperty(item, "type", ddbCompendiumMatch.type);
-        equipment.push({
+        results.toAdd.push({
           entityId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionId),
           entityTypeId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId),
           quantity: parseInt(item.data.quantity),
         });
+      } else {
+        results.custom.push(item);
       }
     }
+    results.items.push(item);
   }
-  return Promise.all(equipment);
+  return new Promise((resolve) => {
+    resolve(results);
+  });
 }
 
 async function addEquipment(actor, ddbData) {
@@ -349,33 +358,39 @@ async function addEquipment(actor, ddbData) {
 
   const itemsToAdd = actor.data.items.filter((item) =>
     !item.data.flags.ddbimporter?.action &&
-    !item.data.data.quantity == 0 &&
+    item.data.data.quantity !== 0 &&
     DICTIONARY.types.inventory.includes(item.type) &&
-    !ddbItems.some((s) => s.flags.ddbimporter?.id === item.data.flags.ddbimporter?.id && s.type === item.type)
+    !item.data.flags.ddbimporter?.custom &&
+    (!item.data.flags.ddbimporter?.id ||
+    !ddbItems.some((s) => s.flags.ddbimporter?.id === item.data.flags.ddbimporter?.id && s.type === item.type))
   ).map((item) => item.toObject());
 
-  const equipmentToAdd = await filterItemsToAdd(itemsToAdd);
+  const generatedItemsToAddData = await generateItemsToAdd(itemsToAdd);
+
+  logger.debug(`Generated items data`, generatedItemsToAddData);
 
   const addItemData = {
-    equipment: equipmentToAdd,
+    equipment: generatedItemsToAddData.toAdd,
   };
 
   if (addItemData.equipment.length > 0) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData);
     try {
       const itemUpdates = itemResults.data.addItems
-      .filter((addedItem) => itemsToAdd.some((i) =>
-        i.flags.ddbimporter.definitionId === addedItem.definition.id &&
-        i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
-      ))
-      .map((addedItem) => {
-        let updatedItem = itemsToAdd.find((i) =>
+        .filter((addedItem) => itemsToAdd.some((i) =>
+          i.flags.ddbimporter &&
           i.flags.ddbimporter.definitionId === addedItem.definition.id &&
           i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
-        );
-        setProperty(updatedItem, "flags.ddbimporter.id", addedItem.id);
-        return updatedItem;
-      });
+        ))
+        .map((addedItem) => {
+          let updatedItem = itemsToAdd.find((i) =>
+            i.flags.ddbimporter &&
+            i.flags.ddbimporter.definitionId === addedItem.definition.id &&
+            i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
+          );
+          setProperty(updatedItem, "flags.ddbimporter.id", addedItem.id);
+          return updatedItem;
+        });
 
       logger.debug("Character item updates:", itemUpdates);
 
@@ -389,7 +404,7 @@ async function addEquipment(actor, ddbData) {
     } catch (err) {
       logger.error(`Unable to filter updated equipment, got the error:`, err);
       logger.error(`itemsToAdd`, itemsToAdd);
-      logger.error(`equipmentToAdd`, equipmentToAdd);
+      logger.error(`equipmentToAdd`, generatedItemsToAddData);
       logger.error(`itemResults`, itemResults);
     }
 
