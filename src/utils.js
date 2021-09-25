@@ -356,7 +356,6 @@ const utils = {
         sum += modifier.value;
       } else if (modifier.modifierTypeId === 1 && modifier.modifierSubTypeId === 218) {
         // prof bonus
-        console.warn("PROF ADD!");
         sum += character.data.attributes.prof;
       } else if (modBonus !== 0) {
         sum += modBonus;
