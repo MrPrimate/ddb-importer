@@ -362,7 +362,8 @@ async function addEquipment(actor, ddbData) {
 
   if (addItemData.equipment.length > 0) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData);
-    const itemUpdates = itemResults.data.addItems
+    try {
+      const itemUpdates = itemResults.data.addItems
       .filter((addedItem) => itemsToAdd.some((i) =>
         i.flags.ddbimporter.definitionId === addedItem.definition.id &&
         i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
@@ -375,12 +376,21 @@ async function addEquipment(actor, ddbData) {
         setProperty(updatedItem, "flags.ddbimporter.id", addedItem.id);
         return updatedItem;
       });
-    logger.debug("Character item updates:", itemUpdates);
-    try {
-      await actor.updateEmbeddedDocuments("Item", itemUpdates);
+
+      logger.debug("Character item updates:", itemUpdates);
+
+      try {
+        await actor.updateEmbeddedDocuments("Item", itemUpdates);
+      } catch (err) {
+        logger.error(`Unable to update character with equipment, got the error:`, err);
+        logger.error(`Update payload:`, itemUpdates);
+      }
+
     } catch (err) {
-      logger.error(`Unable to update character with equipment, got the error:`, err);
-      logger.info(`Update payload:`, itemUpdates);
+      logger.error(`Unable to filter updated equipment, got the error:`, err);
+      logger.error(`itemsToAdd`, itemsToAdd);
+      logger.error(`equipmentToAdd`, equipmentToAdd);
+      logger.error(`itemResults`, itemResults);
     }
 
     return itemResults;
