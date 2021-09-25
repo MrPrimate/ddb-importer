@@ -3566,5 +3566,37 @@
     "subrace": "Touched by the Raven",
     "path": "systems/dnd5e/icons/skills/ice_09.jpg",
     "type": "systems"
+  },
+  {
+    "name": "Fairy Magic",
+    "racial_trait": "Fairy Magic",
+    "race": "Fairy",
+    "subrace": "",
+    "path": "icons/creatures/magical/fae-fairy-winged-glowing-green.webp",
+    "type": "core"
+  },
+  {
+    "name": "Rabbit Hop",
+    "racial_trait": "Rabbit Hop",
+    "race": "Harengon",
+    "subrace": "",
+    "path": "icons/creatures/mammals/rabbit-movement-glowing-green.webp",
+    "type": "core"
+  },
+  {
+    "name": "Hare-Trigger",
+    "racial_trait": "Hare-Trigger",
+    "race": "Harengon",
+    "subrace": "",
+    "path": "icons/skills/movement/arrow-upward-yellow.webp",
+    "type": "core"
+  },
+  {
+    "name": "Leporine Senses",
+    "racial_trait": "Leporine Senses",
+    "race": "Harengon",
+    "subrace": "",
+    "path": "icons/commodities/biological/eye-red-pink.webp",
+    "type": "core"
   }
 ]
