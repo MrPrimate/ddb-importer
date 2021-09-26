@@ -1079,12 +1079,32 @@ export default class CharacterImport extends FormApplication {
     await this.updateImage(html, data.ddb);
 
     // manage updates of basic character data more intelligently
+    // revert some data if update not wanted
+    if (!game.settings.get("ddb-importer", "character-update-policy-hp")) {
+      this.result.character.data.attributes.hp = this.actorOriginal.data.attributes.hp;
+    }
+    if (!game.settings.get("ddb-importer", "character-update-policy-hit-die")) {
+      this.result.character.data.attributes.hd = this.actorOriginal.data.attributes.hd;
+      this.result.classes = this.result.classes.map((klass) => {
+        const originalKlass = this.actorOriginal.items.find((original) => original.name === klass.name && original.type === "class");
+        if (originalKlass) {
+          klass.data.hitDiceUsed = originalKlass.data.hitDiceUsed;
+        }
+        return klass;
+      });
+      // this.actorOriginal.items
+      //   .filter((i) => i.type === "class")
+      //   .forEach((klass) => {
+      //     const klassIndex = this.result.classes.findIndex((i) => i.name === klass.name);
+      //     if (klassIndex) {
+      //       this.result.classes[klassIndex].data.hitDiceUsed = klass.data.hitDiceUsed;
+      //     }
+      //   });
+    }
     if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
-      // revert currency if user didn't select to update it
       this.result.character.data.currency = this.actorOriginal.data.currency;
     }
     if (!game.settings.get("ddb-importer", "character-update-policy-bio")) {
-      // revert bio info
       const bioUpdates = ["alignment", "appearance", "background", "biography", "bond", "flaw", "idea", "trait"];
       bioUpdates.forEach((option) => {
         this.result.character.data.details[option] = this.actorOriginal.data.details[option];

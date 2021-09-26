@@ -64,6 +64,16 @@ export function getCharacterImportSettings() {
       description: "Name",
     },
     {
+      name: "hp",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-hp"),
+      description: "HP",
+    },
+    {
+      name: "hit-die",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-hit-die"),
+      description: "Hit Die",
+    },
+    {
       name: "class",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-class"),
       description: "Classes",

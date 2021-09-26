@@ -709,6 +709,24 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-hp", {
+    name: "ddb-importer.character-update-policy-name.hp",
+    hint: "ddb-importer.character-update-policy-name.hp",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-hit-die", {
+    name: "ddb-importer.character-update-policy-name.hit-die",
+    hint: "ddb-importer.character-update-policy-name.hit-die",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-class", {
     name: "ddb-importer.character-update-policy-class.name",
     hint: "ddb-importer.character-update-policy-class.hint",

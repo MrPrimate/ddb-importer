@@ -1,6 +1,7 @@
 # 2.5.12
 
 * Character: Skill ability over-ride effects were not generated correctly.
+* HP and HitDie are now toggleable on import screen.
 
 # 2.5.11
 

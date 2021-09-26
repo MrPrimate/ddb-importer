@@ -35,11 +35,13 @@
   <nav class="sheet-tabs tabs">
   {{#if importAllowed}}
     <a class="item active" data-tab="import"><i class="fas fa-arrow-alt-circle-down"></i> Import Character</a>
-    <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Advanced Settings</a>
-    <a class="item" data-tab="effects"><i class="fas fa-dna"></i> Active Effects</a>
-    <a class="item" data-tab="extras"><i class="fas fa-pastafarianism"></i> Import Extras</a>
+    <a class="item" data-tab="extras"><i class="fas fa-pastafarianism"></i> Import Companions</a>
   {{/if}}
-    <a class="item" data-tab="sync"><i class="fas fa-arrow-alt-circle-up"></i></i> Update D&D Beyond</a>
+    <a class="item" data-tab="sync"><i class="fas fa-arrow-alt-circle-up"></i> Update D&DBeyond</a>
+  {{#if importAllowed}}
+    <a class="item" data-tab="effects"><i class="fas fa-dna"></i> Active Effects</a>
+    <a class="item" data-tab="config"><i class="fas fa-cogs"></i> Advanced</a>
+  {{/if}}
     <a class="item" data-tab="help"><i class="fas fa-info-circle"></i> Help</a>
   </nav>
 
