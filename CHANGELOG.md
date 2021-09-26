@@ -1,3 +1,7 @@
+# 2.5.13
+
+* Active Effect Skill bonuses: will now generate effects based off ability values, rather than just flat values.
+
 # 2.5.12
 
 * Character: Skill ability over-ride effects were not generated correctly.

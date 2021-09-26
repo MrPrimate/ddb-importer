@@ -384,22 +384,38 @@ function extractModifierValue(modifier) {
   return value;
 }
 
-/**
- * Generates a global custom bonus for an item with a +
- */
-function addCustomBonusEffect(modifiers, name, type, key) {
-  let changes = [];
-  const bonusEffects = utils.filterModifiers(modifiers, "bonus", type);
+
+function getValueFromModifiers(modifiers, name, modifierSubType, modifierType = "bonus") {
+  let bonuses;
+  const bonusEffects = utils.filterModifiers(modifiers, modifierType, modifierSubType);
 
   if (bonusEffects.length > 0) {
-    logger.debug(`Generating ${type} bonus for ${name}`);
-    let bonuses = "";
+    logger.debug(`Generating ${modifierSubType} ${modifierType} for ${name}`);
+    bonuses = "";
     bonusEffects.forEach((modifier) => {
       let bonusParse = extractModifierValue(modifier);
       if (bonuses !== "") bonuses += " + ";
       bonuses += bonusParse;
     });
-    if (bonuses === "") bonuses = 0;
+    if (bonuses === "") {
+      bonuses = undefined;
+      logger.debug(`Modifier value 0 for ${modifierSubType} ${modifierType} for ${name}. Reset to undefined`);
+    } else {
+      logger.debug(`Modifier value string for ${modifierSubType} ${modifierType} for ${name}`, bonuses);
+    }
+  }
+
+  return bonuses;
+}
+
+/**
+ * Generates a global custom bonus for an item with a +
+ */
+function addCustomBonusEffect(modifiers, name, type, key) {
+  let changes = [];
+  const bonuses = getValueFromModifiers(modifiers, name, type, "bonus");
+
+  if (bonuses) {
     changes.push(generateCustomChange(`${bonuses}`, 18, key));
     logger.debug(`Changes for ${type} bonus for ${name}`, changes);
   }
@@ -458,9 +474,10 @@ function addCustomEffect(modifiers, name, type, key, extra = "") {
  */
 function addAddEffect(modifiers, name, type, key) {
   let changes = [];
-  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
-  if (bonus !== 0) {
-    logger.debug(`Generating ${type} bonus for ${name}`);
+  // const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  const bonus = getValueFromModifiers(modifiers, name, type, "bonus");
+  if (bonus) {
+    logger.debug(`Generating ${type} bonus for ${name}`, bonus);
     changes.push(generateAddChange(bonus, 18, key));
   }
   return changes;
@@ -897,16 +914,14 @@ function addHPEffect(modifiers, name, consumable) {
 // Generate skill bonuses
 //
 function addSkillBonusEffect(modifiers, name, skill) {
-  const bonuses = utils.filterModifiers(modifiers, "bonus", skill.subType);
+  const bonus = getValueFromModifiers(modifiers, name, skill.subType, "bonus");
 
-  let effects = [];
-  // dwarfen "Maximum of 20"
-  if (bonuses.length > 0) {
-    logger.debug(`Generating ${skill.subType} skill bonus for ${name}`);
-    const value = bonuses.map((skl) => skl.value).reduce((a, b) => a + b, 0) || 0;
-    effects.push(generateAddChange(value, 12, `data.skills.${skill.name}.mod`));
+  let changes = [];
+  if (bonus) {
+    logger.debug(`Generating ${skill.subType} skill bonus for ${name}`, bonus);
+    changes.push(generateAddChange(bonus, 12, `data.skills.${skill.name}.mod`));
   }
-  return effects;
+  return changes;
 }
 
 //
