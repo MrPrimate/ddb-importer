@@ -273,11 +273,10 @@ export function baseItemEffect(foundryItem, label) {
 // UPGRADE: 4
 //
 
-export function generateBaseSkillEffect(id) {
+export function generateBaseSkillEffect(id, label) {
   const mockItem = {
     img: "icons/svg/up.svg",
   };
-  const label = "Misc Skill Bonuses";
   let skillEffect = baseItemEffect(mockItem, label);
   skillEffect.flags.dae = {};
   skillEffect.flags.ddbimporter.characterEffect = true;

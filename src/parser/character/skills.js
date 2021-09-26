@@ -59,15 +59,17 @@ let getCustomSkillProficiency = (data, skill) => {
 
 let getCustomSkillAbility = (data, skill) => {
   // Overwrite the proficient value with any custom set over rides
+  let mod;
   if (data.character.characterValues) {
     const customAbility = data.character.characterValues.find(
-      (value) => value.typeId === 27 && value.valueId === skill.valueId
+      (value) => value.typeId === 27 && value.valueId == skill.valueId
     );
     if (customAbility) {
-      return customAbility.value;
+      const ability = DICTIONARY.character.abilities.find((ability) => ability.id == customAbility.value);
+      if (ability) mod = ability.value;
     }
   }
-  return undefined;
+  return mod;
 };
 
 let getCustomSkillBonus = (data, skill) => {
@@ -113,6 +115,7 @@ export function getSkills(data, character) {
     const skillBonus = skillModifierBonus + customSkillBonus;
 
     if (addEffects && skillBonus && skillBonus > 0) {
+      const label = "Misc Skill Bonuses";
       const change = {
         key: `data.skills.${skill.name}.mod`,
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -120,11 +123,11 @@ export function getSkills(data, character) {
         priority: 20
       };
 
-      const changeIndex = character.effects.findIndex((effect) => effect.label === "Misc Skill Bonuses");
+      const changeIndex = character.effects.findIndex((effect) => effect.label === label);
       if (changeIndex >= 0) {
         character.effects[changeIndex].changes.push(change);
       } else {
-        let skillEffect = generateBaseSkillEffect(data.character.id);
+        let skillEffect = generateBaseSkillEffect(data.character.id, label);
         skillEffect.changes.push(change);
         character.effects.push(skillEffect);
       }
@@ -140,6 +143,26 @@ export function getSkills(data, character) {
     const customAbility = getCustomSkillAbility(data, skill);
     const ability = customAbility !== undefined ? customAbility : skill.ability;
 
+    // custom skill ability over ride effects
+    if (customAbility) {
+      const label = "Skill Ability Changes";
+      const change = {
+        key: `data.skills.${skill.name}.ability`,
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        value: `${customAbility}`,
+        priority: "20"
+      };
+
+      const changeIndex = character.effects.findIndex((effect) => effect.label === label);
+      if (changeIndex >= 0) {
+        character.effects[changeIndex].changes.push(change);
+      } else {
+        let skillEffect = generateBaseSkillEffect(data.character.id, label);
+        skillEffect.changes.push(change);
+        character.effects.push(skillEffect);
+      }
+    }
+
     result[skill.name] = {
       type: "Number",
       label: skill.label,
@@ -152,4 +175,5 @@ export function getSkills(data, character) {
 
   return result;
 }
+
 
