@@ -24,7 +24,7 @@ import utils from "../../utils.js";
 
 // magicitems support
 import { parseMagicItem } from "./magicify.js";
-import { getAttunement } from "./common.js";
+import { getAttunement, getBaseItem } from "./common.js";
 import logger from "../../logger.js";
 
 import { fixItems } from "./special.js";
@@ -212,7 +212,7 @@ function getItemFromGearTypeIdOne(ddb, data) {
   return item;
 }
 
-function otherGear (ddb, data) {
+function otherGear(ddb, data) {
   let item = {};
 
   switch (data.definition.gearTypeId) {
@@ -338,6 +338,7 @@ function parseItem(ddb, data, character, flags) {
       // try parsing it as a custom item
       item = parseCustomItem(data);
     }
+    item.data.baseItem = getBaseItem(data);
     item.data.attunement = getAttunement(data);
     if (data.definition.cost) item.data.price = data.definition.cost;
 

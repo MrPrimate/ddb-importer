@@ -95,43 +95,25 @@ export function getToolProficiencies(data, proficiencyArray) {
   let allToolProficiencies = DICTIONARY.character.proficiencies
     .filter((prof) => prof.type === "Tool")
     .map((prof) => {
-      return prof.name;
+      return prof;
     });
 
-    proficiencyArray.forEach((prof) => {
+  proficiencyArray.forEach((prof) => {
     // Some have values we can match too in foundry, others have to be custom imported
     switch (prof.name) {
-      case "Artisan's Tools":
-        values.push("art");
-        break;
-      case "Disguise Kit":
-        values.push("disg");
-        break;
-      case "Forgery Kit":
-        values.push("forg");
-        break;
-      case "Gaming Set":
-        values.push("game");
-        break;
-      case "Musical Instrument":
-        values.push("music");
-        break;
-      case "Thieves' Tools":
-        values.push("thief");
-        break;
-      case "Navigator's Tools":
-        values.push("navg");
-        break;
-      case "Poisoner's Kit":
-        values.push("pois");
-        break;
       case "Vehicle (Land or Water)":
       case "Vehicle (Land)":
       case "Vehicle (Water)":
         values.push("vehicle");
         break;
-      default:
-        if (allToolProficiencies.includes(prof.name)) custom.push(prof.name);
+      default: {
+        const allProfMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
+        if (allProfMatch && allProfMatch.baseTool && allProfMatch.baseTool !== "") {
+          values.push(allProfMatch.baseTool);
+        } else if (allProfMatch) {
+         custom.push(prof.name);
+        }
+      }
     }
   });
 

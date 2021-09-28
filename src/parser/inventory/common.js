@@ -112,3 +112,29 @@ export function getAttunement(item) {
     return 0;
   }
 }
+
+export function getBaseItem(data) {
+  let baseItem = "";
+
+  if (data.definition.filterType === "Weapon") {
+    baseItem = data.definition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
+  } else if (data.definition.filterType === "Armor") {
+   baseItem = data.definition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
+  } else if (data.definition.filterType === "Other Gear" &&
+    ((data.definition.gearTypeId === 1 && data.definition.subType === "Tool") ||
+      (data.definition.gearTypeId === 11))) {
+    const toolProficiencies = DICTIONARY.character.proficiencies
+      .filter((prof) => prof.type === "Tool")
+      .map((prof) => {
+        return prof;
+      });
+
+    const baseTool = toolProficiencies.find((allProf) => allProf.name === data.definition.name);
+    if (baseTool && baseTool.baseTool && baseTool.baseTool !== "") {
+      baseItem = baseTool.baseTool;
+    }
+  }
+
+
+  return baseItem;
+}

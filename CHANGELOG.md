@@ -1,4 +1,8 @@
-# 2.5.13
+# 2.5.14
+
+* Better tool proficiency support and basic handling of Base Items for D&D 1.5 system.
+
+# 5.1.13
 
 * Active Effect Skill bonuses: will now generate effects based off ability values, rather than just flat values.
 
