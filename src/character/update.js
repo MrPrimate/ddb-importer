@@ -432,6 +432,7 @@ async function updateCustomNames(actor, ddbData) {
 
   itemsToName.forEach((item) => {
     const customData = {
+      customItem: false,
       customValues: {
         characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
         contextId: null,
@@ -554,6 +555,7 @@ async function updateEquipmentStatus(actor, ddbData, addEquipmentResults) {
   itemsToName.forEach((item) => {
     const entityTypeId = ddbItems.find((dItem) => dItem.id === item.data.flags.ddbimporter.id).entityTypeId;
     const customData = {
+      customItem: false,
       customValues: {
         characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
         contextId: null,
