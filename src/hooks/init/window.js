@@ -10,6 +10,7 @@ import { updateDDBCharacter } from "../../character/update.js";
 import { importCharacter, importCharacterById } from "../../character/import.js";
 import { getPatreonTier, getPatreonTiers, setPatreonTier, checkPatreon } from "../../muncher/utils.js";
 import { checkCobalt } from "../../lib/Secrets.js";
+import { getFeats } from "../../muncher/feats/feats.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -54,5 +55,6 @@ export function registerWindow() {
     createCompendiumFolderStructure,
     importCharacter,
     importCharacterById,
+    parseFeats: getFeats,
   };
 }

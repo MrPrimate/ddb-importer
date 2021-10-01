@@ -118,8 +118,8 @@ export function getBaseItem(data) {
 
   if (data.definition.filterType === "Weapon") {
     baseItem = data.definition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
-  } else if (data.definition.filterType === "Armor") {
-   baseItem = data.definition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
+  } else if (data.definition.filterType === "Armor" && data.definition.baseArmorName) {
+    baseItem = data.definition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
   } else if (data.definition.filterType === "Other Gear" &&
     ((data.definition.gearTypeId === 1 && data.definition.subType === "Tool") ||
       (data.definition.gearTypeId === 11))) {

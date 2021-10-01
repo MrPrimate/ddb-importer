@@ -1,3 +1,7 @@
+# 2.5.15
+
+* Bug prevented bulk item loading.
+
 # 2.5.14
 
 * Better tool proficiency support and basic handling of Base Items for D&D 1.5 system.
