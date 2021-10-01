@@ -466,7 +466,7 @@ export default class CharacterImport extends FormApplication {
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
     const itemCompendium = await getItemCompendium();
 
-    const itemsMunched = syncEnabled
+    const itemsMunched = syncEnabled && itemCompendium
       ? await itemCompendium.index.size !== 0
       : false;
 

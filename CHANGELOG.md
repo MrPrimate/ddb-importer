@@ -1,6 +1,7 @@
 # 2.5.14
 
 * Better tool proficiency support and basic handling of Base Items for D&D 1.5 system.
+* Changes for character update could prevent importer opening.
 
 # 5.1.13
 
