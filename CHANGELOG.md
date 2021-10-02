@@ -1,3 +1,7 @@
+# 2.5.16
+
+* DDB API change prevented adding new items to characters during update. (@Hexx#6358)
+
 # 2.5.15
 
 * Bug prevented bulk item loading.

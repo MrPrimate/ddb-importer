@@ -307,7 +307,7 @@ async function spellsPrepared(actor, ddbData) {
 }
 
 
-async function generateItemsToAdd(itemsToAdd) {
+async function generateItemsToAdd(actor, itemsToAdd) {
   const results = {
     items: [],
     toAdd: [],
@@ -318,6 +318,8 @@ async function generateItemsToAdd(itemsToAdd) {
     let item = itemsToAdd[i];
     if (item.flags.ddbimporter?.definitionId && item.flags.ddbimporter?.definitionEntityTypeId) {
       results.toAdd.push({
+        containerEntityId: parseInt(actor.data.flags.ddbimporter?.dndbeyond?.characterId),
+        containerEntityTypeId: parseInt("1581111423"),
         entityId: parseInt(item.flags.ddbimporter.definitionId),
         entityTypeId: parseInt(item.flags.ddbimporter.definitionEntityTypeId),
         quantity: parseInt(item.data.quantity),
@@ -336,6 +338,8 @@ async function generateItemsToAdd(itemsToAdd) {
         setProperty(item, "name", ddbCompendiumMatch.name);
         setProperty(item, "type", ddbCompendiumMatch.type);
         results.toAdd.push({
+          containerEntityId: parseInt(actor.data.flags.ddbimporter?.dndbeyond?.characterId),
+          containerEntityTypeId: parseInt("1581111423"),
           entityId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionId),
           entityTypeId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId),
           quantity: parseInt(item.data.quantity),
@@ -365,7 +369,7 @@ async function addEquipment(actor, ddbData) {
     !ddbItems.some((s) => s.flags.ddbimporter?.id === item.data.flags.ddbimporter?.id && s.type === item.type))
   ).map((item) => item.toObject());
 
-  const generatedItemsToAddData = await generateItemsToAdd(itemsToAdd);
+  const generatedItemsToAddData = await generateItemsToAdd(actor, itemsToAdd);
 
   logger.debug(`Generated items data`, generatedItemsToAddData);
 
