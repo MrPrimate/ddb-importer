@@ -393,8 +393,7 @@ export default function () {
     scope: "world",
     config: false,
     type: String,
-    //default: "https://dynamic.ddb.mrprimate.co.uk",
-    default: "https://proxy.ddb.mrprimate.co.uk",
+    default: "https://dynamic.ddb.mrprimate.co.uk",
   });
 
   game.settings.register("ddb-importer", "cors-encode", {
