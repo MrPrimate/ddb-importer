@@ -263,8 +263,12 @@ export function fixFeatures(features) {
         break;
       }
       case "Superiority Dice": {
-        // feature parses as all available dice, rather than 1 per use
-        feature.data.damage.parts[0][0] = `1d${feature.data.damage.parts[0][0].split("d").pop()}`;
+        // feature parses as all available dice, rather than 1 per us
+        if (feature.data.damage.parts.length === 0) {
+          feature.data.damage.parts = [["1d6"]];
+        } else {
+          feature.data.damage.parts[0][0] = `1d${feature.data.damage.parts[0][0].split("d").pop()}`;
+        }
         break;
       }
       case "Deflect Missiles": {

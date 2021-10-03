@@ -1,3 +1,7 @@
+# 2.1.17
+
+* "Martial Adept" feat could cause parsing issues is some usecases.
+
 # 2.5.16
 
 * DDB API change prevented adding new items to characters during update. (@Hexx#6358)
