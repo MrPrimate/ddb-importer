@@ -4,10 +4,11 @@ import DICTIONARY from "../../dictionary.js";
 
 export function getItemRarity(data) {
   const rarityDropdown = utils.versionCompare(game.data.system.data.version, "1.4.2") >= 0;
+  let tmpRarity = data.definition.rarity;
   const rarity = data.definition.rarity
     ? rarityDropdown
-      ? data.definition.rarity.toLowerCase()
-      : data.definition.rarity
+      ? tmpRarity.charAt(0).toLowerCase() + tmpRarity.slice(1).replace(/\s/g, "")
+      : tmpRarity
     : "";
   return rarity;
 }

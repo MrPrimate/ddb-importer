@@ -324,66 +324,108 @@ export async function createCompendiumFolderStructure(type) {
   return undefined;
 }
 
-function getItemCompendiumFolderName(document) {
+function getItemCompendiumFolderNameForRarity(document) {
   let name;
-  switch (compendiumFolderTypeItem) {
-    case "RARITY": {
-      const rarity = document.data.data.rarity;
-      if (rarity && rarity != "") {
-        name = utils.capitalize(rarity).replace("rare", "Rare").replace("Unknown rarity", "Unknown");
-      } else {
+  const rarity = document.data.data.rarity;
+
+  if (rarity && rarity != "") {
+    switch (rarity.toLowerCase().trim()) {
+      case "common":
+        name = "Common";
+        break;
+      case "uncommon":
+        name = "Uncommon";
+        break;
+      case "rare":
+        name = "Rare";
+        break;
+      case "very rare":
+      case "veryrare":
+        name = "Very Rare";
+        break;
+      case "legendary":
+        name = "Legendary";
+        break;
+      case "artifact":
+        name = "Artifact";
+        break;
+      case "varies":
+        name = "Varies";
+        break;
+      case "unknown":
+      default:
         name = "Unknown";
-      }
-      break;
+        break;
     }
-    case "TYPE": {
-      switch (document.data.type) {
-        case "equipment": {
-          switch (document.data.data?.armor?.type) {
-            case "trinket": {
-              const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
-              if (ddbType) {
-                name = trinketFolders[ddbType].name;
-              }
-              break;
-            }
-            default: {
-              name = equipmentFolders[document.data.data.armor.type].name;
-              break;
-            }
-          }
-          break;
-        }
-        case "weapon": {
-          name = weaponFolders[document.data.data.weaponType].name;
-          break;
-        }
-        case "consumable": {
+  } else {
+    name = "Unknown";
+  }
+  return name;
+}
+
+function getItemCompendiumFolderNameForType(document) {
+  let name;
+
+  switch (document.data.type) {
+    case "equipment": {
+      switch (document.data.data?.armor?.type) {
+        case "trinket": {
           const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
           if (ddbType) {
-            name = consumableFolders[ddbType].name;
-          }
-          break;
-        }
-        case "loot": {
-          const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
-          if (ddbType) {
-            name = lootFolders[ddbType].name;
-          }
-          break;
-        }
-        case "backpack": {
-          const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
-          if (ddbType) {
-            name = backpackFolders[ddbType].name;
+            name = trinketFolders[ddbType].name;
           }
           break;
         }
         default: {
-          name = rootItemFolders[document.data.type].name;
+          name = equipmentFolders[document.data.data.armor.type].name;
           break;
         }
       }
+      break;
+    }
+    case "weapon": {
+      name = weaponFolders[document.data.data.weaponType].name;
+      break;
+    }
+    case "consumable": {
+      const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+      if (ddbType) {
+        name = consumableFolders[ddbType].name;
+      }
+      break;
+    }
+    case "loot": {
+      const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+      if (ddbType) {
+        name = lootFolders[ddbType].name;
+      }
+      break;
+    }
+    case "backpack": {
+      const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+      if (ddbType) {
+        name = backpackFolders[ddbType].name;
+      }
+      break;
+    }
+    default: {
+      name = rootItemFolders[document.data.type].name;
+      break;
+    }
+  }
+
+  return name;
+}
+
+function getItemCompendiumFolderName(document) {
+  let name;
+  switch (compendiumFolderTypeItem) {
+    case "RARITY": {
+      name = getItemCompendiumFolderNameForRarity(document);
+      break;
+    }
+    case "TYPE": {
+      name = getItemCompendiumFolderNameForType(document);
       break;
     }
     // no default

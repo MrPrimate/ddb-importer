@@ -1,6 +1,7 @@
 # 2.1.17
 
 * "Martial Adept" feat could cause parsing issues is some usecases.
+* Item rarity did not always set correctly for Very Rare items, resulting in some interesting sorting when using Compendium Folders.
 
 # 2.5.16
 
