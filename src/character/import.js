@@ -11,6 +11,7 @@ import {
   getDDBSpellSchoolIcons,
   getDDBGenericItemIcons,
   addItemEffectIcons,
+  retainExistingIcons,
 } from "../muncher/import.js";
 import { download, getCampaignId } from "../muncher/utils.js";
 import { migrateActorDAESRD, addItemsDAESRD } from "../muncher/dae.js";
@@ -761,8 +762,10 @@ export default class CharacterImport extends FormApplication {
       }
 
       if (daeInstalled && (addItemEffects || addItemACEffects || addCharacterEffects)) {
-        items = addItemEffectIcons(items);
+        items = await addItemEffectIcons(items);
       }
+
+      items = await retainExistingIcons(items);
     }
 
     items = items.map((item) => {
@@ -819,8 +822,14 @@ export default class CharacterImport extends FormApplication {
         if (matchedItem) {
           if (!matchedItem.data.flags.ddbimporter?.ignoreItemImport) {
             item["_id"] = matchedItem["id"];
-            if (matchedItem.data.flags.ddbimporter?.ignoreIcon) item.flags.ddbimporter.matchedImg = matchedItem.data.img;
-            if (matchedItem.data.flags.ddbimporter?.retainResourceConsumption) item.data.consume = matchedItem.data.data.consume;
+            if (matchedItem.data.flags.ddbimporter?.ignoreIcon) {
+              item.flags.ddbimporter.matchedImg = matchedItem.data.img;
+              item.flags.ddbimporter.ignoreIcon = true;
+            }
+            if (matchedItem.data.flags.ddbimporter?.retainResourceConsumption) {
+              item.data.consume = matchedItem.data.data.consume;
+              item.flags.ddbimporter.retainResourceConsumption = true;
+            }
 
             matchedItems.push(item);
           }
@@ -829,17 +838,8 @@ export default class CharacterImport extends FormApplication {
         }
       });
 
-      // enrich matched items
-      let enrichedItems = await this.enrichCharacterItems(html, matchedItems);
-
-      // ensure excluded icons are retained
-      enrichedItems = enrichedItems.map((item) => {
-        if (item.flags.ddbimporter?.matchedImg) item.img = item.flags.ddbimporter.matchedImg;
-        return item;
-      });
-
-      logger.debug("Finished updating items");
-      return nonMatchedItems.concat(enrichedItems);
+      logger.debug("Finished retaining items");
+      return nonMatchedItems.concat(matchedItems);
     } else {
       return items;
     }

@@ -516,7 +516,6 @@ export async function getSRDIconLibrary() {
   return srdIconMap;
 }
 
-// eslint-disable-next-line require-atomic-updates
 export async function copySRDIcons(items, srdIconLibrary = null, nameMatchList = []) {
   // eslint-disable-next-line require-atomic-updates
   if (!srdIconLibrary) srdIconLibrary = await getSRDIconLibrary();
@@ -539,6 +538,19 @@ export async function copySRDIcons(items, srdIconLibrary = null, nameMatchList =
 
     });
     resolve(srdItems);
+  });
+}
+
+export async function retainExistingIcons(items) {
+  return new Promise((resolve) => {
+    const newItems = items.map((item) => {
+      if (item.flags.ddbimporter?.ignoreIcon) {
+        logger.debug(`Retaining icon for ${item.name} to ${item.flags.ddbimporter.matchedImg}`);
+        item.img = item.flags.ddbimporter.matchedImg;
+      }
+      return item;
+    });
+    resolve(newItems);
   });
 }
 

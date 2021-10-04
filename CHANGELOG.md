@@ -1,3 +1,7 @@
+# 2.5.18
+
+* Retain custom icon information had stopped working and would loose setting during import.
+
 # 2.5.17
 
 * "Martial Adept" feat could cause parsing issues is some usecases.
