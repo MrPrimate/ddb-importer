@@ -12,7 +12,10 @@ var itemIndex;
 function activeUpdate() {
   const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
   const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
-  const gmSyncUser = !game.user.isGM || game.user.id !== updateUser;
+  const gmSyncUser = game.user.isGM && game.user.id == updateUser;
+  console.warn(`Dynamic sync: ${dynamicSync}`);
+  console.warn(`Dynamic sync user: ${updateUser}`);
+  console.warn(`gmSyncUser: ${gmSyncUser}`);
   return dynamicSync && gmSyncUser;
 }
 
@@ -725,7 +728,7 @@ export async function updateDDBCharacter(actor) {
 
 // Called when characters are updated
 // will dynamically sync status back to DDB
-async function activeSync(actor, update) {
+async function activeSyncActor(actor, update) {
   return new Promise((resolve) => {
 
     const dynamicSync = activeUpdate();
@@ -737,14 +740,19 @@ async function activeSync(actor, update) {
     if (update.data?.attributes?.hp) {
       console.warn("Hitpoint hooks");
       // resolve(updateDDBHitPoints(actor));
-    } else if (update.data?.uses) {
-      // if action
-      console.warn("Uses hooks");
-      // else assume item/weapon
+
 
     // also handle:
-    //spell slots
-    //spells prepared
+
+    // currency
+    // hit dice
+    // spell slots pack
+    // spell slots
+    // inspiration
+    // exhaustion
+    // death saves
+    // xp
+    // spells prepared
 
 
     } else {
@@ -760,5 +768,47 @@ async function activeSync(actor, update) {
   });
 }
 
-Hooks.on("updateActor", activeSync);
-Hooks.on("updateItem", activeSync);
+// Called when characters items are updated
+// will dynamically sync status back to DDB
+async function activeSyncItem(document, update) {
+  return new Promise((resolve) => {
+
+    const dynamicSync = activeUpdate();
+    // TODO add this to each character
+    const parentActor = document.parent;
+    const actorActiveSync = parentActor.data.flags.ddbimporter?.activeSync;
+
+    if (!dynamicSync || !parentActor) resolve();
+
+    if (update.data?.uses) {
+
+      // item.data.flags.ddbimporter?.action || item.type === "feat"
+
+      // if action
+      console.warn("Uses hooks");
+      // else assume item/weapon
+
+    // also handle:
+
+    // action status
+    // name update
+    // add equipment
+    // remove equipment
+    // equipment statuses
+
+
+    } else {
+      resolve();
+    }
+    resolve();
+
+    // if (dynamicSync && dynamicHPSync && actorActiveSync) {
+    //   resolve(updateDDBHitPoints(actor));
+    // } else {
+    //   resolve();
+    // }
+  });
+}
+
+Hooks.on("updateActor", activeSyncActor);
+Hooks.on("updateItem", activeSyncItem);
