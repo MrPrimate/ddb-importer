@@ -776,7 +776,7 @@ async function activeSyncItem(document, update) {
     const dynamicSync = activeUpdate();
     // TODO add this to each character
     const parentActor = document.parent;
-    const actorActiveSync = parentActor.data.flags.ddbimporter?.activeSync;
+    const actorActiveSync = parentActor && parentActor.data.flags.ddbimporter?.activeSync;
 
     if (!dynamicSync || !parentActor) resolve();
 
