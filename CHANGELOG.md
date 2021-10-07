@@ -1,3 +1,7 @@
+# 2.5.19
+
+* Compendium migration bug tried to migrate all compendiumms, not just unlocked DDB compendiums.
+
 # 2.5.18
 
 * Retain custom icon information had stopped working and would loose setting during import. (@DrWiFi#8928)

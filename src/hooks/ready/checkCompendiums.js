@@ -28,23 +28,34 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
   }
 };
 
+export const ddbCompendiums = [
+  { name: "entity-spell-compendium", label: "Spells", type: "Item" },
+  { name: "entity-item-compendium", label: "Items", type: "Item" },
+  { name: "entity-monster-compendium", label: "Monsters", type: "Actor" },
+  { name: "entity-feat-compendium", label: "Feats", type: "Item" },
+  { name: "entity-feature-compendium", label: "Class Features", type: "Item" },
+  { name: "entity-class-compendium", label: "Classes", type: "Item" },
+  { name: "entity-trait-compendium", label: "Racial Traits", type: "Item" },
+  { name: "entity-race-compendium", label: "Races", type: "Item" },
+  { name: "entity-override-compendium", label: "Override", type: "Item" },
+  { name: "entity-table-compendium", label: "Tables", type: "RollTable" },
+];
+
+export function getCompendiumNames() {
+  return ddbCompendiums.map((ddbCompendium) => {
+    return game.settings.get("ddb-importer", ddbCompendium.name);
+  });
+}
 
 export default async function () {
   const autoCreate = game.settings.get("ddb-importer", "auto-create-compendium");
 
   if (autoCreate) {
-    let results = await Promise.all([
-      createIfNotExists("entity-spell-compendium", "Item", "Spells"),
-      createIfNotExists("entity-item-compendium", "Item", "Items"),
-      createIfNotExists("entity-feature-compendium", "Item", "Class Features"),
-      createIfNotExists("entity-class-compendium", "Item", "Classes"),
-      createIfNotExists("entity-trait-compendium", "Item", "Racial Traits"),
-      createIfNotExists("entity-feat-compendium", "Item", "Feats"),
-      createIfNotExists("entity-race-compendium", "Item", "Races"),
-      createIfNotExists("entity-monster-compendium", "Actor", "Monsters"),
-      createIfNotExists("entity-override-compendium", "Item", "Override"),
-      createIfNotExists("entity-table-compendium", "RollTable", "Tables"),
-    ]);
+    let promises = [];
+    ddbCompendiums.forEach((compendium) => {
+      promises.push(createIfNotExists(compendium.name, compendium.type, compendium.label));
+    });
+    let results = await Promise.all(promises);
 
     const reload = results.some((result) => result.value);
 

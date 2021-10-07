@@ -11,6 +11,7 @@ import { importCharacter, importCharacterById } from "../../character/import.js"
 import { getPatreonTier, getPatreonTiers, setPatreonTier, checkPatreon } from "../../muncher/utils.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 import { getFeats } from "../../muncher/feats/feats.js";
+import { getCompendiumNames } from "../ready/checkCompendiums.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -26,11 +27,13 @@ function resetProxy() {
 // eslint-disable-next-line no-unused-vars
 function migrateAllCompendiums(value, key, map) {
   if (!value.locked) game.dnd5e.migrations.migrateCompendium(value);
-  game.dnd5e.migrations.migrateCompendium(value);
 }
 
 function migrateCompendiums() {
-  game.packs.forEach(migrateAllCompendiums);
+  const compendiumNames = getCompendiumNames();
+  game.packs
+    .filter((pack) => compendiumNames.includes(pack.collection))
+    .forEach(migrateAllCompendiums);
 }
 
 export function registerWindow() {
