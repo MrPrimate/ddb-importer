@@ -707,8 +707,8 @@ function addStatChanges(modifiers, name) {
     const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
     const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-saving-throw`, "save");
     const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-ability-checks`, "check");
-    const abilityBonusesSave = addAddEffect(modifiers, name, "bonus", `data.abilities.${ability.value}.bonuses.save`);
-    const abilityBonusesCheck = addAddEffect(modifiers, name, "bonus", `data.abilities.${ability.value}.bonuses.check`);
+    const abilityBonusesSave = addAddEffect(modifiers, name, `${stat}-saving-throws`, `data.abilities.${ability.value}.bonuses.save`);
+    const abilityBonusesCheck = addAddEffect(modifiers, name, `${stat}-ability-checks`, `data.abilities.${ability.value}.bonuses.check`);
     changes = changes.concat(statEffect, savingThrowAdvantage, abilityCheckAdvantage, abilityBonusesSave, abilityBonusesCheck);
   });
 
