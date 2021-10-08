@@ -1,3 +1,7 @@
+# 2.5.21
+
+* Bug fix for skill bonus failure when no skill bonuses!
+
 # 2.5.20
 
 * Improve new save bonuses for skills and  in D&D5e 1.5. Add support for custom ability bonuses from DDB.
