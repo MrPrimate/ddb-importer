@@ -135,7 +135,7 @@ export function getSkills(data, character) {
         character.effects.push(skillEffect);
       }
 
-    } else if (skillBonus && skillBonus > 0) {
+    } else if (skillBonus && skillBonus > 0 && !SAVE_BONUSES) {
       character.flags['skill-customization-5e'][skill.name] = {
         "skill-bonus": skillBonus
       };
