@@ -1,3 +1,7 @@
+# 2.5.20
+
+* Improve new save bonuses for skills and  in D&D5e 1.5. Add support for custom ability bonuses from DDB.
+
 # 2.5.19
 
 * Compendium migration bug tried to migrate all compendiumms, not just unlocked DDB compendiums.

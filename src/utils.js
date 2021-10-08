@@ -305,6 +305,18 @@ const utils = {
     return modifiers;
   },
 
+
+  filterBaseCharacterModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false) => {
+    const modifiers = [
+      utils.getChosenClassModifiers(data, includeExcludedEffects, effectOnly),
+      utils.getModifiers(data, "race", includeExcludedEffects, effectOnly),
+      utils.getModifiers(data, "background", includeExcludedEffects, effectOnly),
+      utils.getModifiers(data, "feat", includeExcludedEffects, effectOnly),
+    ];
+
+    return utils.filterModifiers(modifiers, type, subType, restriction);
+  },
+
   // I need to getChosenOriginFeatures from data.optionalOriginFeatures
 
   filterBaseModifiers: (data, type, subType = null, restriction = ["", null], includeExcludedEffects = false, effectOnly = false) => {

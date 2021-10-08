@@ -10,6 +10,39 @@ function getOverrides(data) {
   return result;
 }
 
+function getCustomSaveProficiency(data, ability) {
+  // Overwrite the proficient value with any custom set over rides
+  if (data.character.characterValues) {
+    const customProficiency = data.character.characterValues.find(
+      (value) => value.typeId === 41 && value.valueId == ability.id && value.value
+    );
+    if (customProficiency) {
+      if (customProficiency.value === 1) {
+        return 0;
+      }
+      // Foundry does not support half proficiencies or expertise here
+      return 1;
+    }
+  }
+  return undefined;
+}
+
+function getCustomSaveBonus(data, ability) {
+  // Get any custom skill bonuses
+  if (data.character.characterValues) {
+    const customBonus = data.character.characterValues.filter(
+      (value) => (value.typeId == 40 || value.typeId == 39) && value.valueId == ability.id
+    ).reduce((total, bonus) => {
+      return total + bonus.value;
+    }, 0);
+
+    if (customBonus) {
+      return customBonus;
+    }
+  }
+  return 0;
+}
+
 /**
  * Retrieves character abilities, including proficiency on saving throws
  * @param {obj} data JSON Import
@@ -26,6 +59,10 @@ function parseAbilities(data, includeExcludedEffects = false) {
       min: 3,
       max: 20,
       proficient: 0,
+      bonuses: {
+        check: "",
+        save: "",
+      },
     };
     // console.warn(ability.value);
 
@@ -94,7 +131,11 @@ function parseAbilities(data, includeExcludedEffects = false) {
     // console.log(`setAbilityState ${setAbilityState}`);
     // console.log(`overRiddenStat ${overRiddenStat}`);
 
-    const proficient = utils.filterBaseModifiers(data, "proficiency", `${ability.long}-saving-throws`, [null, ""], includeExcludedEffects).length > 0
+    const customProficiency = getCustomSaveProficiency(data, ability);
+
+    const proficient = customProficiency
+      ? customProficiency
+      : utils.filterBaseModifiers(data, "proficiency", `${ability.long}-saving-throws`, [null, ""], includeExcludedEffects).length > 0
         ? 1
         : 0;
 
@@ -117,17 +158,35 @@ function parseAbilities(data, includeExcludedEffects = false) {
     const checkBonusModifiers = utils
       .filterBaseModifiers(data, "bonus", `${ability.long}-ability-checks`, [null, ""], includeExcludedEffects);
     const checkBonus = utils.getModifierSum(checkBonusModifiers, character);
+    if (checkBonus && checkBonus !== "") {
+      result[ability.value].bonuses.check = checkBonus;
+    }
 
     const saveBonusModifiers = utils
       .filterBaseModifiers(data, "bonus", `${ability.long}-saving-throws`, [null, ""], includeExcludedEffects);
-    const saveBonus = utils.getModifierSum(saveBonusModifiers, character);
+    const modifiersSaveBonus = utils.getModifierSum(saveBonusModifiers, character);
+    const customSaveBonus = getCustomSaveBonus(data, ability);
 
-    const bonuses = {
-      check: checkBonus,
-      save: saveBonus,
-    };
+    // console.warn("modifiersSaveBonus", modifiersSaveBonus);
+    // console.warn("customSaveBonus", customSaveBonus);
 
-    result[ability.value].bonuses = bonuses;
+    if (modifiersSaveBonus && modifiersSaveBonus !== "" && parseInt(modifiersSaveBonus)) {
+      if (customSaveBonus) {
+        const totalSave = parseInt(customSaveBonus) + parseInt(modifiersSaveBonus);
+        // console.warn("totalSave", totalSave);
+        result[ability.value].bonuses.save = `${totalSave}`;
+      } else {
+        result[ability.value].bonuses.save = `${modifiersSaveBonus}`;
+      }
+    } else if (modifiersSaveBonus && modifiersSaveBonus !== "") {
+      if (customSaveBonus) {
+        result[ability.value].bonuses.save = `${modifiersSaveBonus} + ${customSaveBonus}`;
+      } else {
+        result[ability.value].bonuses.save = `${modifiersSaveBonus}`;
+      }
+    } else if (customSaveBonus) {
+      result[ability.value].bonuses.save = `${customSaveBonus}`;
+    }
 
   });
 

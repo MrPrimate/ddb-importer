@@ -55,19 +55,19 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   // initiative
   { type: "advantage", subType: "initiative" },
 
-  // { type: "bonus", subType: "strength-ability-checks" },
-  // { type: "bonus", subType: "dexterity-ability-checks" },
-  // { type: "bonus", subType: "constitution-ability-checks" },
-  // { type: "bonus", subType: "wisdom-ability-checks" },
-  // { type: "bonus", subType: "intelligence-ability-checks" },
-  // { type: "bonus", subType: "charisma-ability-checks" },
+  { type: "bonus", subType: "strength-ability-checks" },
+  { type: "bonus", subType: "dexterity-ability-checks" },
+  { type: "bonus", subType: "constitution-ability-checks" },
+  { type: "bonus", subType: "wisdom-ability-checks" },
+  { type: "bonus", subType: "intelligence-ability-checks" },
+  { type: "bonus", subType: "charisma-ability-checks" },
 
-  // { type: "bonus", subType: "strength-saving-throws" },
-  // { type: "bonus", subType: "dexterity-saving-throws" },
-  // { type: "bonus", subType: "constitution-saving-throws" },
-  // { type: "bonus", subType: "wisdom-saving-throws" },
-  // { type: "bonus", subType: "intelligence-saving-throws" },
-  // { type: "bonus", subType: "charisma-saving-throws" },
+  { type: "bonus", subType: "strength-saving-throws" },
+  { type: "bonus", subType: "dexterity-saving-throws" },
+  { type: "bonus", subType: "constitution-saving-throws" },
+  { type: "bonus", subType: "wisdom-saving-throws" },
+  { type: "bonus", subType: "intelligence-saving-throws" },
+  { type: "bonus", subType: "charisma-saving-throws" },
 
   // attack modifiers
   { type: "bonus", subType: "weapon-attacks" },
@@ -703,10 +703,13 @@ function addStatChanges(modifiers, name) {
   let changes = [];
   const stats = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
   stats.forEach((stat) => {
+    const ability = DICTIONARY.character.abilities.find((ab) => ab.long === stat);
     const statEffect = addStatSetEffect(modifiers, name, `${stat}-score`);
     const savingThrowAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-saving-throw`, "save");
     const abilityCheckAdvantage = addAbilityAdvantageEffect(modifiers, name, `${stat}-ability-checks`, "check");
-    changes = changes.concat(statEffect, savingThrowAdvantage, abilityCheckAdvantage);
+    const abilityBonusesSave = addAddEffect(modifiers, name, "bonus", `data.abilities.${ability.value}.bonuses.save`);
+    const abilityBonusesCheck = addAddEffect(modifiers, name, "bonus", `data.abilities.${ability.value}.bonuses.check`);
+    changes = changes.concat(statEffect, savingThrowAdvantage, abilityCheckAdvantage, abilityBonusesSave, abilityBonusesCheck);
   });
 
   return changes;
@@ -918,8 +921,13 @@ function addSkillBonusEffect(modifiers, name, skill) {
 
   let changes = [];
   if (bonus) {
+    const SAVE_BONUS = utils.versionCompare(game.data.system.data.version, "1.5.0") >= 0;
     logger.debug(`Generating ${skill.subType} skill bonus for ${name}`, bonus);
-    changes.push(generateAddChange(bonus, 12, `data.skills.${skill.name}.mod`));
+    if (SAVE_BONUS) {
+      changes.push(generateAddChange(bonus, 12, `data.skills.${skill.name}.bonuses.check`));
+    } else {
+      changes.push(generateAddChange(bonus, 12, `data.skills.${skill.name}.mod`));
+    }
   }
   return changes;
 }

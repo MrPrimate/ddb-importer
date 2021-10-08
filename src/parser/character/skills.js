@@ -93,6 +93,8 @@ export function getSkills(data, character) {
   let result = {};
 
   const addEffects = utils.isModuleInstalledAndActive("dae");
+  // dnd 1.5.0 +
+  const SAVE_BONUSES = utils.versionCompare(game.data.system.data.version, "1.5.0") >= 0;
 
   if (!addEffects) character.flags['skill-customization-5e'] = {};
   DICTIONARY.character.skills.forEach((skill) => {
@@ -114,10 +116,11 @@ export function getSkills(data, character) {
     const customSkillBonus = getCustomSkillBonus(data, skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
 
-    if (addEffects && skillBonus && skillBonus > 0) {
+    if (addEffects && skillBonus && skillBonus > 0 && !SAVE_BONUSES) {
       const label = "Misc Skill Bonuses";
+      const key = `data.skills.${skill.name}.mod`;
       const change = {
-        key: `data.skills.${skill.name}.mod`,
+        key: key,
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
         value: skillBonus,
         priority: 20
@@ -169,8 +172,18 @@ export function getSkills(data, character) {
       ability: ability,
       value: proficient,
       mod: utils.calculateModifier(value),
-      bonus: skillBonus,
+      bonus: 0,
     };
+
+    // dnd 1.5.0 +
+    if (SAVE_BONUSES) {
+      result[skill.name].bonuses = {
+        "check": `${skillBonus}`,
+        "passive": ""
+      };
+    } else {
+      result[skill.name].bonus = skillBonus;
+    }
   });
 
   return result;
