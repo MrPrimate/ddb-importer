@@ -534,7 +534,10 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     promises.push(updateCharacterCall(actor, "equipment/quantity", itemData));
   });
   itemsToName.forEach((item) => {
-    const entityTypeId = ddbItems.find((dItem) => dItem.id === item.data.flags.ddbimporter.id).entityTypeId;
+    // historically items may not have this metadata
+    const entityTypeId = item.data?.flags?.ddbimporter?.entityTypeId
+      ? item.data.flags.ddbimporter.entityTypeId
+      : ddbItems.find((dItem) => dItem.id === item.data.flags.ddbimporter.id).entityTypeId;
     const customData = {
       customValues: {
         characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
@@ -589,9 +592,11 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
       ((parseInt(item.data.data.uses.max) - parseInt(item.data.data.uses.value)) !== dItem.limitedUse.numberUsed)
     )
   );
+  // need to handle weapon and armor separately, as they get added as new items (not implemented)
   const itemsToQuantity = actor.data.items.filter((item) =>
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     !item.data.data.quantity == 0 &&
+    item.type !== "weapon" && !item.data.data?.armor?.type &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
       dItem.id === item.data.flags.ddbimporter?.id &&
@@ -728,87 +733,161 @@ export async function updateDDBCharacter(actor) {
 
 // Called when characters are updated
 // will dynamically sync status back to DDB
-async function activeSyncActor(actor, update) {
+async function activeUpdateActor(actor, update) {
   return new Promise((resolve) => {
 
     const dynamicSync = activeUpdate();
-    // TODO add this to each character
-    const actorActiveSync = actor.data.flags.ddbimporter?.activeSync;
+    const actoractiveUpdate = actor.data.flags.ddbimporter?.activeUpdate;
 
-    if (!dynamicSync) resolve();
+    console.warn("dynamicSync", dynamicSync);
+    console.warn("actoractiveUpdate", actoractiveUpdate);
+    if (!dynamicSync || !actoractiveUpdate) {
+      resolve([]);
+    } else {
+      console.warn("actor",actor);
+      console.warn("actorUpdate",update);
+      resolve();
+      if (update.data?.attributes?.hp) {
+        console.warn("Updating DDB Hitpoints...");
+        resolve(updateDDBHitPoints(actor));
+      } else {
+        // also handle:
 
-    if (update.data?.attributes?.hp) {
-      console.warn("Hitpoint hooks");
-      // resolve(updateDDBHitPoints(actor));
+        // currency
+        // hit dice
+        // spell slots pack
+        // spell slots
+        // inspiration
+        // exhaustion
+        // death saves
+        // xp
+        // spells prepared
+        console.warn("Not Yet Implemented", update);
+        resolve("NOT YET IMPLEMENTED");
+      }
+      resolve([]);
+    }
+
+  });
+}
 
 
-    // also handle:
+async function generateDynamicItemChange(actor, document, update) {
+  const updateItemDetails = {
+    itemsToEquip: [],
+    itemsToAttune: [],
+    itemsToCharge: [],
+    itemsToQuantity: [],
+    itemsToName: [],
+  };
 
-    // currency
-    // hit dice
-    // spell slots pack
-    // spell slots
-    // inspiration
-    // exhaustion
-    // death saves
-    // xp
-    // spells prepared
-
+  console.warn("Document", document);
+  console.warn("Update", update);
+  if (update.data?.uses) {
+    updateItemDetails.itemsToCharge.push(document);
+  } else if (update.data?.attunement) {
+    updateItemDetails.itemsToAttune.push(document);
+  } else if (update.data?.quantity) {
+    // if its a weapon or armor we actually need to push a new one
+    if (document.type === "weapon" || document.type === "armor") {
+      console.warn("Not Yet Implemented Weapon or Armor Quantity Update", update);
+      // to do:
 
     } else {
-      resolve();
+      updateItemDetails.itemsToQuantity.push(document);
     }
-    resolve();
+  } else if (update.data?.equipped) {
+    updateItemDetails.itemsToEquip.push(document);
+  } else if (update.name) {
+    updateItemDetails.itemsToName.push(document);
+  }
 
-    // if (dynamicSync && dynamicHPSync && actorActiveSync) {
-    //   resolve(updateDDBHitPoints(actor));
-    // } else {
-    //   resolve();
-    // }
-  });
+  return updateDDBEquipmentStatus(actor, updateItemDetails, []);
 }
 
 // Called when characters items are updated
 // will dynamically sync status back to DDB
-async function activeSyncItem(document, update) {
+async function activeUpdateUpdateItem(document, update) {
   return new Promise((resolve) => {
 
     const dynamicSync = activeUpdate();
-    // TODO add this to each character
+    // we check to see if this is actually an embedded item
     const parentActor = document.parent;
-    const actorActiveSync = parentActor && parentActor.data.flags.ddbimporter?.activeSync;
+    const actoractiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
 
-    if (!dynamicSync || !parentActor) resolve();
-
-    if (update.data?.uses) {
-
-      // item.data.flags.ddbimporter?.action || item.type === "feat"
-
-      // if action
-      console.warn("Uses hooks");
-      // else assume item/weapon
-
-    // also handle:
-
-    // action status
-    // name update
-    // add equipment
-    // remove equipment
-    // equipment statuses
-
-
+    if (!dynamicSync || !parentActor || !actoractiveUpdate) {
+      resolve([]);
     } else {
-      resolve();
-    }
-    resolve();
+      console.warn("Preparing to sync item change to DDB...");
+      const action = document.data.flags.ddbimporter?.action || document.type === "feat";
 
-    // if (dynamicSync && dynamicHPSync && actorActiveSync) {
-    //   resolve(updateDDBHitPoints(actor));
-    // } else {
-    //   resolve();
-    // }
+      // is this a DDB action, or do we treat this as an item?
+      if (action) {
+        console.warn("Not Yet Implemented", update);
+        resolve("NOT YET IMPLEMENTED");
+        // actionStatus()
+      } else {
+        resolve(generateDynamicItemChange(parentActor, document, update));
+      }
+    }
   });
 }
 
-Hooks.on("updateActor", activeSyncActor);
-Hooks.on("updateItem", activeSyncItem);
+
+// Called when characters items are added
+// will dynamically sync status back to DDB
+async function activeUpdateAddItem(document, update) {
+  return new Promise((resolve) => {
+
+    const dynamicSync = activeUpdate();
+    // we check to see if this is actually an embedded item
+    const parentActor = document.parent;
+    const actoractiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
+
+    if (!dynamicSync || !parentActor || !actoractiveUpdate) {
+      resolve([]);
+    } else {
+      console.warn("Preparing to add item to DDB...");
+      const action = document.data.flags.ddbimporter?.action || document.type === "feat";
+      if (action) {
+        console.warn("Not Yet Implemented", update);
+        resolve("NOT YET IMPLEMENTED");
+      } else {
+        console.warn("Not Yet Implemented", update);
+        resolve("NOT YET IMPLEMENTED");
+      }
+    }
+  });
+}
+
+// Called when characters items are added
+// will dynamically sync status back to DDB
+async function activeUpdateDeleteItem(document, update) {
+  return new Promise((resolve) => {
+
+    const dynamicSync = activeUpdate();
+    // we check to see if this is actually an embedded item
+    const parentActor = document.parent;
+    const actoractiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
+
+    if (!dynamicSync || !parentActor || !actoractiveUpdate) {
+      resolve([]);
+    } else {
+      console.warn("Preparing to delete item from DDB...");
+      const action = document.data.flags.ddbimporter?.action || document.type === "feat";
+      if (action) {
+        console.warn("Not Yet Implemented", update);
+        resolve("NOT YET IMPLEMENTED");
+      } else {
+        console.warn("Not Yet Implemented", update);
+        resolve("NOT YET IMPLEMENTED");
+      }
+    }
+
+  });
+}
+
+Hooks.on("updateActor", activeUpdateActor);
+Hooks.on("updateItem", activeUpdateUpdateItem);
+Hooks.on("deleteItem", activeUpdateDeleteItem);
+Hooks.on("createItem", activeUpdateAddItem);

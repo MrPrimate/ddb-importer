@@ -467,6 +467,11 @@ export default class CharacterImport extends FormApplication {
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
     const itemCompendium = await getCompendiumType("item", false);
 
+    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
+    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+    const gmSyncUser = game.user.isGM && game.user.id == updateUser;
+    const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.god;
+
     const itemsMunched = syncEnabled && itemCompendium
       ? await itemCompendium.index.size !== 0
       : false;
@@ -478,6 +483,7 @@ export default class CharacterImport extends FormApplication {
       syncEnabled: syncEnabled && itemsMunched,
       importAllowed: !syncOnly,
       itemsMunched: itemsMunched,
+      dynamicUpdateAllowed,
     };
 
     return mergeObject(importSettings, actorSettings);
@@ -1064,6 +1070,12 @@ export default class CharacterImport extends FormApplication {
 
     logger.debug("Current Actor:", this.actorOriginal);
 
+    // disable active sync
+    const activeUpdateState = this.actorOriginal.flags?.ddbimporter?.activeUpdate
+      ? this.actorOriginal.flags.ddbimporter.activeUpdate
+      : false;
+    this.actor.data.flags.ddbimporter.activeUpdate = false;
+
     // console.warn(JSON.parse(JSON.stringify(this.actor)));
     // handle active effects
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
@@ -1114,6 +1126,7 @@ export default class CharacterImport extends FormApplication {
     // flag as having items ids
     this.result.character.flags.ddbimporter["syncItemReady"] = true;
     this.result.character.flags.ddbimporter["syncActionReady"] = true;
+    this.result.character.flags.ddbimporter["activeUpdate"] = false;
     // remove unneeded flags (used for character parsing)
     this.result.character.flags.ddbimporter.dndbeyond["templateStrings"] = null;
     this.result.character.flags.ddbimporter.dndbeyond["characterValues"] = null;
@@ -1165,10 +1178,14 @@ export default class CharacterImport extends FormApplication {
       });
     }
 
+    this.actor.data.flags.ddbimporter.activeUpdate = activeUpdateState;
+    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: activeUpdateState } } };
+    await this.actor.update(activeUpdateData);
     // this.actor.prepareDerivedData();
     // this.actor.prepareEmbeddedEntities();
     // this.actor.applyActiveEffects();
     this.actor.render();
+    console.warn(this.actor);
   }
 }
 
