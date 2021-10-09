@@ -27,6 +27,8 @@ import adventureFlags from "./hooks/renderJournalSheet/adventure.js";
 
 import registerNotifications from "./lib/Notification.js";
 
+import { activateUpdateHooks } from "./character/update.js";
+
 
 // foundry is initializing
 export function init() {
@@ -53,6 +55,7 @@ export function onceReady() {
     itemSheets();
     checkVersion();
     loadDDBConfig();
+    activateUpdateHooks();
 
   }, 500);
 }

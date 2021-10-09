@@ -530,15 +530,8 @@ export default class CharacterImport extends FormApplication {
 
     $(html)
       .find("#dndbeyond-character-dynamic-update")
-      .on("click", async (event) => {
-        const state = this.actor.data?.flags?.ddbimporter?.activeUpdate
-          ? this.actor.data.flags.ddbimporter.activeUpdate
-          : false;
-
-        event.currentTarget.innerText = state
-          ? "ENABLED! Click to Disable Dynamic DDB Update"
-          : "DISABLED! Click to Enable Dynamic DDB Update";
-        const activeUpdateData = { flags: { ddbimporter: { activeUpdate: !state } } };
+      .on("change", async (event) => {
+        const activeUpdateData = { flags: { ddbimporter: { activeUpdate: event.currentTarget.checked } } };
         await this.actor.update(activeUpdateData);
       });
 

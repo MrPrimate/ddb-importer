@@ -224,7 +224,12 @@
     <div class="form-section">
       <div class="form-description">
         <div>
-          <button type="button" id="dndbeyond-character-dynamic-update"{{#if dynamicUpdateAllowed}}enabled{{else}}disabled{{/if}}>{{#if actor.data.flags.ddbimporter.activeUpdate}}ENABLED! Click to Disable{{else}}DISABLED! Click to Enable{{/if}} Dynamic DDB Update</button>
+          <input {{#if dynamicUpdateAllowed}}checked{{/if}} type="checkbox"
+          id="dndbeyond-character-dynamic-update"
+          name="dndbeyond-character-dynamic-update"
+          data-selection="dndbeyond-character-dynamic-update"
+          {{#if tiers.god}}enabled{{else}}disabled{{/if}}
+          >Enable Dynamic DDB Update
         </div>
       </div>
     </div>

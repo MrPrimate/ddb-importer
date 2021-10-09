@@ -13,9 +13,9 @@ function activeUpdate() {
   const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
   const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
   const gmSyncUser = game.user.isGM && game.user.id == updateUser;
-  console.warn(`Dynamic sync: ${dynamicSync}`);
-  console.warn(`Dynamic sync user: ${updateUser}`);
-  console.warn(`gmSyncUser: ${gmSyncUser}`);
+  // console.warn(`Dynamic sync: ${dynamicSync}`);
+  // console.warn(`Dynamic sync user: ${updateUser}`);
+  // console.warn(`gmSyncUser: ${gmSyncUser}`);
   return dynamicSync && gmSyncUser;
 }
 
@@ -61,7 +61,7 @@ async function updateCharacterCall(actor, path, bodyContent) {
   const body = { ...coreBody, ...bodyContent };
 
   const url = dynamicSync
-    ? `${parsingApi}/proxy/dynamic/update/${path}`
+    ? `${parsingApi}/dynamic/update/${path}`
     : `${parsingApi}/proxy/update/${path}`;
 
   logger.debug("Update body:", bodyContent);
@@ -380,20 +380,7 @@ async function generateItemsToAdd(actor, itemsToAdd) {
   });
 }
 
-async function addEquipment(actor, ddbData) {
-  const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
-  if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
-  const ddbItems = ddbData.character.inventory;
-
-  const itemsToAdd = actor.data.items.filter((item) =>
-    !item.data.flags.ddbimporter?.action &&
-    item.data.data.quantity !== 0 &&
-    DICTIONARY.types.inventory.includes(item.type) &&
-    !item.data.flags.ddbimporter?.custom &&
-    (!item.data.flags.ddbimporter?.id ||
-    !ddbItems.some((s) => s.flags.ddbimporter?.id === item.data.flags.ddbimporter?.id && s.type === item.type))
-  ).map((item) => item.toObject());
-
+async function addDDBEquipment(actor, itemsToAdd) {
   const generatedItemsToAddData = await generateItemsToAdd(actor, itemsToAdd);
 
   logger.debug(`Generated items data`, generatedItemsToAddData);
@@ -441,6 +428,23 @@ async function addEquipment(actor, ddbData) {
   } else {
     return [];
   }
+}
+
+async function addEquipment(actor, ddbData) {
+  const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
+  if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
+  const ddbItems = ddbData.character.inventory;
+
+  const itemsToAdd = actor.data.items.filter((item) =>
+    !item.data.flags.ddbimporter?.action &&
+    item.data.data.quantity !== 0 &&
+    DICTIONARY.types.inventory.includes(item.type) &&
+    !item.data.flags.ddbimporter?.custom &&
+    (!item.data.flags.ddbimporter?.id ||
+    !ddbItems.some((s) => s.flags.ddbimporter?.id === item.data.flags.ddbimporter?.id && s.type === item.type))
+  ).map((item) => item.toObject());
+
+  return addDDBEquipment(actor, itemsToAdd);
 }
 
 // updates names of items and actions
@@ -771,6 +775,11 @@ async function activeUpdateActor(actor, update) {
   });
 }
 
+const DISABLE_FOUNDRY_UPGRADE = {
+  applyFeatures: false,
+  addFeatures: false,
+  promptAddFeatures: false,
+};
 
 async function generateDynamicItemChange(actor, document, update) {
   const updateItemDetails = {
@@ -785,20 +794,36 @@ async function generateDynamicItemChange(actor, document, update) {
   console.warn("Update", update);
   if (update.data?.uses) {
     updateItemDetails.itemsToCharge.push(document);
-  } else if (update.data?.attunement) {
+  }
+  if (update.data?.attunement) {
     updateItemDetails.itemsToAttune.push(document);
-  } else if (update.data?.quantity) {
+  }
+  if (update.data?.quantity) {
     // if its a weapon or armor we actually need to push a new one
-    if (document.type === "weapon" || document.type === "armor") {
-      console.warn("Not Yet Implemented Weapon or Armor Quantity Update", update);
-      // to do:
+    if (document.type === "weapon" || document.type === "armor" && update.data.quantity > 1) {
+      console.warn("Weapon or Armor Quantity Update triggers new item", update);
 
+      await document.update({ data: { quantity: 1 } });
+      let newDocument = JSON.parse(JSON.stringify(document.toObject()));
+      delete newDocument._id;
+      delete newDocument.flags.ddbimporter.id;
+      console.warn(newDocument);
+      let results = [];
+      for (let i = 1; i < update.data.quantity; i++) {
+        console.warn(`Adding item # ${i}`);
+        let newDoc = await actor.createEmbeddedDocuments("Item", [newDocument], DISABLE_FOUNDRY_UPGRADE);
+        results.push(newDoc);
+        // new doc/item push to ddb handled elsewhere/new item hook
+      }
+      return results;
     } else {
       updateItemDetails.itemsToQuantity.push(document);
     }
-  } else if (update.data?.equipped) {
+  }
+  if (update.data?.equipped) {
     updateItemDetails.itemsToEquip.push(document);
-  } else if (update.name) {
+  }
+  if (update.name) {
     updateItemDetails.itemsToName.push(document);
   }
 
@@ -849,12 +874,11 @@ async function activeUpdateAddItem(document, update) {
     } else {
       console.warn("Preparing to add item to DDB...");
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
-      if (action) {
-        console.warn("Not Yet Implemented", update);
-        resolve("NOT YET IMPLEMENTED");
-      } else {
-        console.warn("Not Yet Implemented", update);
-        resolve("NOT YET IMPLEMENTED");
+      if (!action) {
+        console.warn("Attempting to add new Item");
+        console.warn("docment", document);
+        resolve(addDDBEquipment(parentActor, [document.toObject()]));
+        // still need to handle item status updates
       }
     }
   });
@@ -887,7 +911,11 @@ async function activeUpdateDeleteItem(document, update) {
   });
 }
 
-Hooks.on("updateActor", activeUpdateActor);
-Hooks.on("updateItem", activeUpdateUpdateItem);
-Hooks.on("deleteItem", activeUpdateDeleteItem);
-Hooks.on("createItem", activeUpdateAddItem);
+export function activateUpdateHooks() {
+  if (activeUpdate()) {
+    Hooks.on("updateActor", activeUpdateActor);
+    Hooks.on("updateItem", activeUpdateUpdateItem);
+    Hooks.on("deleteItem", activeUpdateDeleteItem);
+    Hooks.on("createItem", activeUpdateAddItem);
+  }
+}
