@@ -529,6 +529,20 @@ export default class CharacterImport extends FormApplication {
       });
 
     $(html)
+      .find("#dndbeyond-character-dynamic-update")
+      .on("click", async (event) => {
+        const state = this.actor.data?.flags?.ddbimporter?.activeUpdate
+          ? this.actor.data.flags.ddbimporter.activeUpdate
+          : false;
+
+        event.currentTarget.innerText = state
+          ? "ENABLED! Click to Disable Dynamic DDB Update"
+          : "DISABLED! Click to Enable Dynamic DDB Update";
+        const activeUpdateData = { flags: { ddbimporter: { activeUpdate: !state } } };
+        await this.actor.update(activeUpdateData);
+      });
+
+    $(html)
       .find("#dndbeyond-character-import-start")
       .on("click", async (event) => {
         // retrieve the character data from the proxy

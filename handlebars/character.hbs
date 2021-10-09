@@ -86,16 +86,6 @@
         </div>
       </div>
     </div>
-    <hr>
-    <div class="form-section">
-      <div class="form-description">
-        <div class="form-description"></div>
-        <div>
-          <button type="button" id="dndbeyond-character-dynamic-update"{{#if dynamicUpdateAllowed}}enabled{{else}}disabled{{/if}}>{{#if actor.data.flags.ddbimporter.activeUpdate}}ENABLED! Click to Disable{{else}}DISABLED! Click to Enable{{/if}} Dynamic DDB Update</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </section>
 
   <!-- Advanced Configuration Tab -->
@@ -226,6 +216,15 @@
             {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}
             {{#if itemsMunched}}Update D&D Beyond with changes{{else}}Please import D&D Beyond items into your compendium first.{{/if}}
             {{else}}D&D Beyond Update Available to Patreon Supporters{{/if}}</button>
+        </div>
+      </div>
+
+    </div>
+    <hr>
+    <div class="form-section">
+      <div class="form-description">
+        <div>
+          <button type="button" id="dndbeyond-character-dynamic-update"{{#if dynamicUpdateAllowed}}enabled{{else}}disabled{{/if}}>{{#if actor.data.flags.ddbimporter.activeUpdate}}ENABLED! Click to Disable{{else}}DISABLED! Click to Enable{{/if}} Dynamic DDB Update</button>
         </div>
       </div>
     </div>
