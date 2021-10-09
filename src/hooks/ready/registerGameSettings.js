@@ -1,5 +1,5 @@
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
-import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
+import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup } from "../../lib/Settings.js";
 import logger from "../../logger.js";
 
 CONFIG.DDBI = {
@@ -22,10 +22,19 @@ export default function () {
   game.settings.registerMenu("ddb-importer", 'compendiumMenu', {
     name: "ddb-importer.compendium-setup.name",
     label: "ddb-importer.compendium-setup.name",
-    hint: "ddb-importer.setup.hint",
+    hint: "ddb-importer.compendium-setup.hint",
     icon: 'fas fa-wrench',
     type: DDBCompendiumSetup,
     restricted: true
+  });
+
+  game.settings.registerMenu("ddb-importer", 'dynamicUpdateMenu', {
+    name: "ddb-importer.dynamic-update-setup.name",
+    label: "ddb-importer.dynamic-update-setup.name",
+    hint: "ddb-importer.dynamic-update-setup.hint",
+    icon: 'fas fa-wrench',
+    type: DDBDynamicUpdateSetup,
+    restricted: true,
   });
 
   game.settings.register("ddb-importer", "image-upload-directory", {

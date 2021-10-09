@@ -576,8 +576,8 @@ export class DDBCompendiumSetup extends FormApplication {
     ];
 
     return {
-      settings: settings,
-      compendiums: compendiums,
+      settings,
+      compendiums,
     };
   }
 
@@ -586,6 +586,69 @@ export class DDBCompendiumSetup extends FormApplication {
   async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
     for (const [key, value] of Object.entries(formData)) {
+      game.settings.set("ddb-importer", key, value);
+    }
+  }
+}
+
+
+function getGMUsers() {
+  const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+
+  const gmUsers = game.users
+  .filter((user) => user.isGM)
+  .reduce((choices, user) => {
+    choices.push({
+      userId: user.id,
+      userName: user.name,
+      selected: user.id === updateUser,
+    });
+    return choices;
+  }, []);
+
+  return gmUsers;
+}
+
+
+export class DDBDynamicUpdateSetup extends FormApplication {
+  static get defaultOptions() {
+    const options = super.defaultOptions;
+    options.id = "ddb-importer-settings-dynamic-updates";
+    options.template = "modules/ddb-importer/handlebars/dynamic-updates.hbs";
+    options.width = 500;
+    return options;
+  }
+
+  get title() { // eslint-disable-line class-methods-use-this
+    // improve localisation
+    // game.i18n.localize("")
+    return "DDB Importer Dynamic Update Settings";
+  }
+
+  /** @override */
+  async getData() { // eslint-disable-line class-methods-use-this
+    const settings = [
+      {
+        name: "dynamic-sync",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync"),
+        description: "Enable Dynamic Sync?",
+        enabled: true,
+      },
+    ];
+    const gmUsers = getGMUsers();
+
+    return {
+      settings,
+      gmUsers,
+    };
+  }
+
+  /** @override */
+  // eslint-disable-next-line class-methods-use-this
+  async _updateObject(event, formData) {
+    event.preventDefault();
+    for (const [key, value] of Object.entries(formData)) {
+      console.warn(`Updating ${key} to ${value}`);
       game.settings.set("ddb-importer", key, value);
     }
   }
