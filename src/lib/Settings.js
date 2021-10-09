@@ -648,7 +648,6 @@ export class DDBDynamicUpdateSetup extends FormApplication {
   async _updateObject(event, formData) {
     event.preventDefault();
     for (const [key, value] of Object.entries(formData)) {
-      console.warn(`Updating ${key} to ${value}`);
       game.settings.set("ddb-importer", key, value);
     }
   }
