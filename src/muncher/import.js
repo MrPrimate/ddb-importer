@@ -413,6 +413,11 @@ export async function updateCompendium(type, input, updateExisting = false, matc
   const compendiumLabel = getCompendiumLabel(type);
   logger.debug(`Getting compendium ${compendiumLabel} for update of ${type} documents (checking ${input[type].length} docs)`);
   const compendium = await game.packs.get(compendiumLabel);
+  if (!compendium) {
+    ui.notifications.error(`Unable to open the chosen ${type} Compendium - Please check it exists!`, { permanent: true });
+    logger.error(`Unable to find compendiumm ${compendiumLabel} for ${type} documents`);
+    throw new Error(`Unable to find compendiumm ${compendiumLabel} for ${type} documents`);
+  }
   compendium.configure({ locked: false });
 
   if (game.user.isGM) {
