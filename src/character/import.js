@@ -24,6 +24,7 @@ import { DDBCookie } from "../lib/Settings.js";
 import { loadSRDRules } from "../parser/templateStrings.js";
 import { abilityOverrideEffects } from "../parser/effects/abilityOverrides.js";
 import { getCharacterImportSettings, updateActorSettings, setRecommendedCharacterActiveEffectSettings } from "../muncher/settings.js";
+import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -1078,10 +1079,8 @@ export default class CharacterImport extends FormApplication {
     logger.debug("Current Actor:", this.actorOriginal);
 
     // disable active sync
-    const activeUpdateState = this.actorOriginal.flags?.ddbimporter?.activeUpdate
-      ? this.actorOriginal.flags.ddbimporter.activeUpdate
-      : false;
-    this.actor.data.flags.ddbimporter.activeUpdate = false;
+    const activeUpdateState = getCurrentDynamicUpdateState(this.actor);
+    await disableDynamicUpdates(this.actor);
 
     // console.warn(JSON.parse(JSON.stringify(this.actor)));
     // handle active effects
@@ -1111,14 +1110,6 @@ export default class CharacterImport extends FormApplication {
         }
         return klass;
       });
-      // this.actorOriginal.items
-      //   .filter((i) => i.type === "class")
-      //   .forEach((klass) => {
-      //     const klassIndex = this.result.classes.findIndex((i) => i.name === klass.name);
-      //     if (klassIndex) {
-      //       this.result.classes[klassIndex].data.hitDiceUsed = klass.data.hitDiceUsed;
-      //     }
-      //   });
     }
     if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
       this.result.character.data.currency = this.actorOriginal.data.currency;
@@ -1185,14 +1176,12 @@ export default class CharacterImport extends FormApplication {
       });
     }
 
-    this.actor.data.flags.ddbimporter.activeUpdate = activeUpdateState;
-    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: activeUpdateState } } };
-    await this.actor.update(activeUpdateData);
     // this.actor.prepareDerivedData();
     // this.actor.prepareEmbeddedEntities();
     // this.actor.applyActiveEffects();
     this.actor.render();
-    console.warn(this.actor);
+
+    await updateDynamicUpdates(this.actor, activeUpdateState);
   }
 }
 

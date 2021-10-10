@@ -5,7 +5,7 @@ import { getCampaignId, getCompendiumType } from "../muncher/utils.js";
 import { looseItemNameMatch } from "../muncher/import.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
-
+import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
 
 var itemIndex;
 
@@ -380,6 +380,40 @@ async function generateItemsToAdd(actor, itemsToAdd) {
   });
 }
 
+
+
+
+async function manageDDBCustomItems(actor, itemsToAdd, create = true) {
+  return new Promise((resolve) => {
+    let customItemResults = [];
+    for (let i = 0; i < itemsToAdd.length; i++) {
+      const item = itemsToAdd[i];
+      const customData = {
+        create,
+        update: !create,
+        customValues: {
+          characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+          name: item.name,
+          description: item.data.description.value,
+          // THESE need to be set only for item update
+          // weight: `${item.data.weight}`,
+          // cost: `${item.data.price}`,
+          // quantity: parseInt(item.data.quantity),
+        }
+      };
+      const result = updateCharacterCall(actor, "custom/item", customData).then((data) => {
+        console.warn(data);
+        setProperty(item, "flags.ddbimporter.id", data.data.id);
+        setProperty(item, "flags.ddbimporter.custom", true);
+        return item;
+      });
+      customItemResults.push(result);
+    }
+
+    resolve(customItemResults);
+  });
+}
+
 async function addDDBEquipment(actor, itemsToAdd) {
   const generatedItemsToAddData = await generateItemsToAdd(actor, itemsToAdd);
 
@@ -388,6 +422,38 @@ async function addDDBEquipment(actor, itemsToAdd) {
   const addItemData = {
     equipment: generatedItemsToAddData.toAdd,
   };
+
+  const customItems = await manageDDBCustomItems(actor, generatedItemsToAddData.custom, true);
+  console.warn(customItems);
+
+  try {
+    const customItemResults = actor.updateEmbeddedDocuments("Item", customItems);
+    console.warn(customItemResults);
+  } catch (err) {
+    logger.error(`Unable to update character with equipment, got the error:`, err);
+    logger.error(`Update payload:`, customItems);
+  }
+
+
+  // TODO: Add support for custom items create/update in backend to API
+  // TODO: Add support for custom item change
+
+  // let customItemResults = [];
+  // for (let i = 0; i < generatedItemsToAddData.custom.length; i++) {
+  //   const item = generatedItemsToAddData.custom[i];
+  //   const customData = {
+  //     customValues: {
+  //       characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+  //       name: item.name,
+  //       description: item.data.description.value,
+  //       weight: `${item.data.weight}`,
+  //       cost: `${item.data.price}`,
+  //       quantity: parseInt(item.data.quantity),
+  //     }
+  //   };
+  //   const result = updateCharacterCall(actor, "equipment/add", customData);
+  //   customItemResults.push(result);
+  // }
 
   if (addItemData.equipment.length > 0) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData);
@@ -485,6 +551,19 @@ async function updateCustomNames(actor, ddbData) {
   return Promise.all(promises);
 }
 
+async function removeDDBEquipment(actor, itemsToRemove) {
+  let promises = [];
+
+  itemsToRemove.forEach((item) => {
+    if (item.flags?.ddbimporter?.id) {
+      console.warn(`Removing item ${item.name}`);
+      promises.push(updateCharacterCall(actor, "equipment/remove", { itemId: parseInt(item.flags.ddbimporter.id) }));
+    }
+  });
+
+  return Promise.all(promises);
+}
+
 async function removeEquipment(actor, ddbData) {
   const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
@@ -497,13 +576,7 @@ async function removeEquipment(actor, ddbData) {
     item.flags.ddbimporter?.id
   );
 
-  let promises = [];
-
-  itemsToRemove.forEach((item) => {
-    promises.push(updateCharacterCall(actor, "equipment/remove", { itemId: parseInt(item.flags.ddbimporter.id) }));
-  });
-
-  return Promise.all(promises);
+  return removeDDBEquipment(actor, itemsToRemove);
 }
 
 async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
@@ -665,6 +738,9 @@ async function actionStatus(actor, ddbData) {
 }
 
 export async function updateDDBCharacter(actor) {
+  const activeUpdateState = getCurrentDynamicUpdateState(actor);
+  await disableDynamicUpdates(actor);
+
   const cobaltCheck = await checkCobalt(actor.id);
 
   if (cobaltCheck.success) {
@@ -731,6 +807,7 @@ export async function updateDDBCharacter(actor) {
   ).filter((result) => result !== undefined);
 
   logger.debug("Update results", results);
+  await updateDynamicUpdates(actor, activeUpdateState);
 
   return results;
 }
@@ -740,37 +817,65 @@ export async function updateDDBCharacter(actor) {
 async function activeUpdateActor(actor, update) {
   return new Promise((resolve) => {
 
+    const promises = [];
+
     const dynamicSync = activeUpdate();
     const actoractiveUpdate = actor.data.flags.ddbimporter?.activeUpdate;
 
     console.warn("dynamicSync", dynamicSync);
     console.warn("actoractiveUpdate", actoractiveUpdate);
-    if (!dynamicSync || !actoractiveUpdate) {
-      resolve([]);
-    } else {
+    if (dynamicSync && actoractiveUpdate) {
       console.warn("actor",actor);
       console.warn("actorUpdate",update);
-      resolve();
-      if (update.data?.attributes?.hp) {
-        console.warn("Updating DDB Hitpoints...");
-        resolve(updateDDBHitPoints(actor));
-      } else {
-        // also handle:
+      const syncHP = game.settings.get("ddb-importer", "sync-policy-hitpoints");
+      const syncHD = game.settings.get("ddb-importer", "sync-policy-hitdice");
+      const syncCurrency = game.settings.get("ddb-importer", "sync-policy-currency");
+      const syncSpellSlots = game.settings.get("ddb-importer", "sync-policy-spells-slots");
+      const syncInspiration = game.settings.get("ddb-importer", "sync-policy-inspiration");
+      const syncExhaustion = game.settings.get("ddb-importer", "sync-policy-condition");
+      const syncDeathSaves = game.settings.get("ddb-importer", "sync-policy-deathsaves");
+      const syncXP = game.settings.get("ddb-importer", "sync-policy-xp");
+      const syncSpellsPrepared= game.settings.get("ddb-importer", "sync-policy-spells-prepared");
 
-        // currency
-        // hit dice
-        // spell slots pack
-        // spell slots
-        // inspiration
-        // exhaustion
-        // death saves
-        // xp
-        // spells prepared
-        console.warn("Not Yet Implemented", update);
-        resolve("NOT YET IMPLEMENTED");
+      if (syncHP && update.data?.attributes?.hp) {
+        console.warn("Updating DDB Hitpoints...");
+        promises.push(updateDDBHitPoints(actor));
       }
-      resolve([]);
+      // if (syncCurrency && update.data?.attributes?.currency) {
+      //   console.warn("Updating DDB Currency...");
+      //   promises.push(updateDDBCurrency(actor));
+      // }
+      // if (syncHD && update.data?.attributes?.hd) {
+      //   console.warn("Updating DDB HitDice...");
+      //   promises.push(updateDDBHitDice(actor));
+      // }
+      // if (syncSpellSlots && update.data?.attributes?.spells) {
+      //   console.warn("Updating DDB SpellSlots Pack...");
+      //   promises.push(updateDDBSpellSlotsPack(actor));
+      //   promises.push(updateDDBSpellSlots(actor));
+      // }
+      // if (syncInspiration && update.data?.attributes?.inspiration) {
+      //   console.warn("Updating DDB Inspiration...");
+      //   promises.push(updateDDBInspiration(actor));
+      // }
+      // if (syncExhaustion && update.data?.attributes?.exhaustion) {
+      //   console.warn("Updating DDB Exhaustion...");
+      //   promises.push(updateDDBExhaustion(actor));
+      // }
+      // if (syncDeathSaves && update.data?.attributes?.deathSaves) {
+      //   console.warn("Updating DDB DeathSaves...");
+      //   promises.push(updateDDBDeathSaves(actor));
+      // }
+      // if (syncXP && update.data?.attributes?.xp) {
+      //   console.warn("Updating DDB XP...");
+      //   promises.push(updateDDBXP(actor));
+      // }
+      // if (syncSpellsPrepared && update.data?.attributes?.spells) {
+      //   console.warn("Updating DDB SpellsPrepared...");
+      //   promises.push(updateDDBSpellsPrepared(actor));
+      // }
     }
+    resolve(promises);
 
   });
 }
@@ -813,7 +918,7 @@ async function generateDynamicItemChange(actor, document, update) {
         console.warn(`Adding item # ${i}`);
         let newDoc = await actor.createEmbeddedDocuments("Item", [newDocument], DISABLE_FOUNDRY_UPGRADE);
         results.push(newDoc);
-        // new doc/item push to ddb handled elsewhere/new item hook
+        // new doc/item push to ddb handled by the add item hook
       }
       return results;
     } else {
@@ -845,13 +950,16 @@ async function activeUpdateUpdateItem(document, update) {
     } else {
       console.warn("Preparing to sync item change to DDB...");
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
+      const syncEquipment = game.settings.get("ddb-importer", "sync-policy-equipment");
+      const syncActionUse = game.settings.get("ddb-importer", "sync-policy-action-use");
+      const isDDBItem = document.data.flags.ddbimporter?.id;
 
       // is this a DDB action, or do we treat this as an item?
-      if (action) {
+      if (action && syncActionUse && isDDBItem) {
         console.warn("Not Yet Implemented", update);
         resolve("NOT YET IMPLEMENTED");
         // actionStatus()
-      } else {
+      } else if (syncEquipment) {
         resolve(generateDynamicItemChange(parentActor, document, update));
       }
     }
@@ -861,53 +969,51 @@ async function activeUpdateUpdateItem(document, update) {
 
 // Called when characters items are added
 // will dynamically sync status back to DDB
-async function activeUpdateAddItem(document, update) {
+async function activeUpdateAddItem(document) {
   return new Promise((resolve) => {
+    let promises = [];
 
+    const syncEquipment = game.settings.get("ddb-importer", "sync-policy-equipment");
     const dynamicSync = activeUpdate();
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
     const actoractiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
 
-    if (!dynamicSync || !parentActor || !actoractiveUpdate) {
-      resolve([]);
-    } else {
-      console.warn("Preparing to add item to DDB...");
+    if (dynamicSync && parentActor && actoractiveUpdate && syncEquipment) {
+      logger.debug("Preparing to add item to DDB...");
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
       if (!action) {
-        console.warn("Attempting to add new Item");
-        console.warn("docment", document);
-        resolve(addDDBEquipment(parentActor, [document.toObject()]));
+        logger.debug("Attempting to add new Item", document);
+        promises.push(addDDBEquipment(parentActor, [document.toObject()]));
         // still need to handle item status updates
+        console.warn("TODO: HANDLE ITEM UPDATES!!");
       }
     }
+    resolve(promises);
   });
 }
 
 // Called when characters items are added
 // will dynamically sync status back to DDB
-async function activeUpdateDeleteItem(document, update) {
+async function activeUpdateDeleteItem(document) {
   return new Promise((resolve) => {
+    let promises = [];
 
+    const syncEquipment = game.settings.get("ddb-importer", "sync-policy-equipment");
     const dynamicSync = activeUpdate();
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
     const actoractiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
 
-    if (!dynamicSync || !parentActor || !actoractiveUpdate) {
-      resolve([]);
-    } else {
-      console.warn("Preparing to delete item from DDB...");
+    if (dynamicSync && parentActor && actoractiveUpdate && syncEquipment) {
+      logger.debug("Preparing to delete item from DDB...");
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
-      if (action) {
-        console.warn("Not Yet Implemented", update);
-        resolve("NOT YET IMPLEMENTED");
-      } else {
-        console.warn("Not Yet Implemented", update);
-        resolve("NOT YET IMPLEMENTED");
+      if (!action) {
+        logger.debug("Attempting to remove new Item", document);
+        promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
       }
     }
-
+    resolve(promises);
   });
 }
 
