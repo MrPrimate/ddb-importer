@@ -109,8 +109,9 @@ async function spellSlotsPact(actor, ddbData) {
       spellSlotPackData.spellslots[`level${actor.data.data.spells.pact.level}`] = used;
       const spellPactSlots = updateCharacterCall(actor, "spell/slots", spellSlotPackData);
       resolve(spellPactSlots);
+    } else {
+      resolve();
     }
-    resolve();
   });
 }
 
@@ -129,9 +130,9 @@ async function spellSlots(actor, ddbData) {
     }
     if (spellSlotData["update"]) {
       resolve(updateCharacterCall(actor, "spells/slots", spellSlotData));
+    } else {
+      resolve();
     }
-
-    resolve();
   });
 }
 
@@ -173,16 +174,22 @@ async function currency(actor, ddbData) {
   });
 }
 
+async function updateDDBXP(actor) {
+  return new Promise((resolve) => {
+    resolve(updateCharacterCall(actor, "xp", { currentXp: actor.data.data.details.xp.value }));
+  });
+}
+
 async function xp(actor, ddbData) {
   return new Promise((resolve) => {
     if (!game.settings.get("ddb-importer", "sync-policy-xp")) resolve();
     const same = ddbData.character.character.data.details.xp.value === actor.data.data.details.xp.value;
 
     if (!same) {
-      resolve(updateCharacterCall(actor, "xp", { currentXp: actor.data.data.details.xp.value }));
+      resolve(updateDDBXP(actor));
+    } else {
+      resolve();
     }
-
-    resolve();
   });
 }
 
@@ -208,9 +215,18 @@ async function hitPoints(actor, ddbData) {
 
     if (!same) {
       resolve(updateDDBHitPoints(actor));
+    } else {
+      resolve();
     }
+  });
+}
 
-    resolve();
+async function updateDDBInspiration(actor) {
+  return new Promise((resolve) => {
+    const inspiration = updateCharacterCall(actor, "inspiration", {
+      inspiration: actor.data.data.attributes.inspiration,
+    });
+    resolve(inspiration);
   });
 }
 
@@ -220,15 +236,28 @@ async function inspiration(actor, ddbData) {
     const same = ddbData.character.character.data.attributes.inspiration === actor.data.data.attributes.inspiration;
 
     if (!same) {
-      const inspiration = updateCharacterCall(actor, "inspiration", {
-        inspiration: actor.data.data.attributes.inspiration,
-      });
-      resolve(inspiration);
+      resolve(updateDDBInspiration(actor));
+    } else {
+      resolve();
     }
-
-    resolve();
   });
 }
+
+async function updateDDBExhaustion(actor) {
+  return new Promise((resolve) => {
+    let exhaustionData = {
+      conditionId: 4,
+      addCondition: false,
+    };
+    if (actor.data.data.attributes.exhaustion !== 0) {
+      exhaustionData["level"] = actor.data.data.attributes.exhaustion;
+      exhaustionData["totalHP"] = actor.data.data.attributes.hp.max;
+      exhaustionData["addCondition"] = true;
+    }
+    resolve(updateCharacterCall(actor, "condition", exhaustionData));
+  });
+}
+
 
 async function exhaustion(actor, ddbData) {
   return new Promise((resolve) => {
@@ -236,19 +265,21 @@ async function exhaustion(actor, ddbData) {
     const same = ddbData.character.character.data.attributes.exhaustion === actor.data.data.attributes.exhaustion;
 
     if (!same) {
-      let exhaustionData = {
-        conditionId: 4,
-        addCondition: false,
-      };
-      if (actor.data.data.attributes.exhaustion !== 0) {
-        exhaustionData["level"] = actor.data.data.attributes.exhaustion;
-        exhaustionData["totalHP"] = actor.data.data.attributes.hp.max;
-        exhaustionData["addCondition"] = true;
-      }
-      resolve(updateCharacterCall(actor, "condition", exhaustionData));
+      resolve(updateDDBExhaustion(actor));
+    } else {
+      resolve();
     }
 
-    resolve();
+  });
+}
+
+async function updateDDBDeathSaves(actor) {
+  return new Promise((resolve) => {
+    const deathSaveData = {
+      failCount: actor.data.data.attributes.death.failure,
+      successCount: actor.data.data.attributes.death.success,
+    };
+    resolve(updateCharacterCall(actor, "deathsaves", deathSaveData));
   });
 }
 
@@ -258,14 +289,10 @@ async function deathSaves(actor, ddbData) {
     const same = isEqual(ddbData.character.character.data.attributes.death, actor.data.data.attributes.death);
 
     if (!same) {
-      const deathSaveData = {
-        failCount: actor.data.data.attributes.death.failure,
-        successCount: actor.data.data.attributes.death.success,
-      };
-      resolve(updateCharacterCall(actor, "deathsaves", deathSaveData));
+      resolve(updateDDBDeathSaves(actor));
+    } else {
+      resolve();
     }
-
-    resolve();
   });
 }
 
@@ -857,7 +884,6 @@ async function activeUpdateActor(actor, update) {
       console.warn("actor",actor);
       console.warn("actorUpdate",update);
       const syncHP = game.settings.get("ddb-importer", "sync-policy-hitpoints");
-      const syncHD = game.settings.get("ddb-importer", "sync-policy-hitdice");
       const syncCurrency = game.settings.get("ddb-importer", "sync-policy-currency");
       const syncSpellSlots = game.settings.get("ddb-importer", "sync-policy-spells-slots");
       const syncInspiration = game.settings.get("ddb-importer", "sync-policy-inspiration");
@@ -874,35 +900,33 @@ async function activeUpdateActor(actor, update) {
         logger.debug("Updating DDB Currency...");
         promises.push(updateDDBCurrency(actor));
       }
-      // if (syncHD && update.data?.attributes?.hd) {
-      //   console.warn("Updating DDB HitDice...");
-      //   promises.push(updateDDBHitDice(actor));
-      // }
       // if (syncSpellSlots && update.data?.attributes?.spells) {
       //   console.warn("Updating DDB SpellSlots Pack...");
       //   promises.push(updateDDBSpellSlotsPack(actor));
       //   promises.push(updateDDBSpellSlots(actor));
       // }
-      // if (syncInspiration && update.data?.attributes?.inspiration) {
-      //   console.warn("Updating DDB Inspiration...");
-      //   promises.push(updateDDBInspiration(actor));
-      // }
-      // if (syncExhaustion && update.data?.attributes?.exhaustion) {
-      //   console.warn("Updating DDB Exhaustion...");
-      //   promises.push(updateDDBExhaustion(actor));
-      // }
-      // if (syncDeathSaves && update.data?.attributes?.deathSaves) {
-      //   console.warn("Updating DDB DeathSaves...");
-      //   promises.push(updateDDBDeathSaves(actor));
-      // }
-      // if (syncXP && update.data?.attributes?.xp) {
-      //   console.warn("Updating DDB XP...");
-      //   promises.push(updateDDBXP(actor));
-      // }
       // if (syncSpellsPrepared && update.data?.attributes?.spells) {
       //   console.warn("Updating DDB SpellsPrepared...");
       //   promises.push(updateDDBSpellsPrepared(actor));
       // }
+      if (syncInspiration &&
+        (update.data?.attributes?.inspiration === true || update.data?.attributes?.inspiration === false)
+      ) {
+        logger.debug("Updating DDB Inspiration...");
+        promises.push(updateDDBInspiration(actor));
+      }
+      if (syncExhaustion && update.data?.attributes?.exhaustion) {
+        logger.debug("Updating DDB Exhaustion...");
+        promises.push(updateDDBExhaustion(actor));
+      }
+      if (syncDeathSaves && update.data?.attributes?.death) {
+        logger.debug("Updating DDB DeathSaves...");
+        promises.push(updateDDBDeathSaves(actor));
+      }
+      if (syncXP && update.data?.attributes?.xp) {
+        logger.debug("Updating DDB XP...");
+        promises.push(updateDDBXP(actor));
+      }
     }
     resolve(promises);
 
