@@ -135,6 +135,21 @@ async function spellSlots(actor, ddbData) {
   });
 }
 
+async function updateDDBCurrency(actor) {
+  return new Promise((resolve) => {
+    const value = {
+      pp: Number.isInteger(actor.data.data.currency.pp) ? actor.data.data.currency.pp : 0,
+      gp: Number.isInteger(actor.data.data.currency.gp) ? actor.data.data.currency.gp : 0,
+      ep: Number.isInteger(actor.data.data.currency.ep) ? actor.data.data.currency.ep : 0,
+      sp: Number.isInteger(actor.data.data.currency.sp) ? actor.data.data.currency.sp : 0,
+      cp: Number.isInteger(actor.data.data.currency.cp) ? actor.data.data.currency.cp : 0,
+    };
+
+    resolve(updateCharacterCall(actor, "currency", value));
+
+  });
+}
+
 async function currency(actor, ddbData) {
   return new Promise((resolve) => {
     if (!game.settings.get("ddb-importer", "sync-policy-currency")) resolve();
@@ -151,9 +166,10 @@ async function currency(actor, ddbData) {
 
     if (!same) {
       resolve(updateCharacterCall(actor, "currency", value));
+    } else {
+      resolve();
     }
 
-    resolve();
   });
 }
 
@@ -250,6 +266,21 @@ async function deathSaves(actor, ddbData) {
     }
 
     resolve();
+  });
+}
+
+async function updateDDBHitDice(actor, klass, update) {
+  return new Promise((resolve) => {
+    if (klass.data.flags?.ddbimporter?.id) {
+      let hitDiceData = {
+        classHitDiceUsed: {},
+        resetMaxHpModifier: false,
+      };
+      hitDiceData.classHitDiceUsed[klass.data.flags.ddbimporter.id] = update.data.hitDiceUsed;
+      resolve(updateCharacterCall(actor, "hitdice", { shortRest: hitDiceData }));
+    } else {
+      resolve();
+    }
   });
 }
 
@@ -379,8 +410,6 @@ async function generateItemsToAdd(actor, itemsToAdd) {
     resolve(results);
   });
 }
-
-
 
 
 async function manageDDBCustomItems(actor, itemsToAdd, create = true) {
@@ -838,13 +867,13 @@ async function activeUpdateActor(actor, update) {
       const syncSpellsPrepared= game.settings.get("ddb-importer", "sync-policy-spells-prepared");
 
       if (syncHP && update.data?.attributes?.hp) {
-        console.warn("Updating DDB Hitpoints...");
+        logger.debug("Updating DDB Hitpoints...");
         promises.push(updateDDBHitPoints(actor));
       }
-      // if (syncCurrency && update.data?.attributes?.currency) {
-      //   console.warn("Updating DDB Currency...");
-      //   promises.push(updateDDBCurrency(actor));
-      // }
+      if (syncCurrency && update.data?.currency) {
+        logger.debug("Updating DDB Currency...");
+        promises.push(updateDDBCurrency(actor));
+      }
       // if (syncHD && update.data?.attributes?.hd) {
       //   console.warn("Updating DDB HitDice...");
       //   promises.push(updateDDBHitDice(actor));
@@ -896,7 +925,7 @@ async function generateDynamicItemChange(actor, document, update) {
   };
 
   console.warn("Document", document);
-  console.warn("Update", update);
+  console.warn("ItemUpdate", update);
   if (update.data?.uses) {
     updateItemDetails.itemsToCharge.push(document);
   }
@@ -916,6 +945,7 @@ async function generateDynamicItemChange(actor, document, update) {
       let results = [];
       for (let i = 1; i < update.data.quantity; i++) {
         console.warn(`Adding item # ${i}`);
+        // eslint-disable-next-line no-await-in-loop
         let newDoc = await actor.createEmbeddedDocuments("Item", [newDocument], DISABLE_FOUNDRY_UPGRADE);
         results.push(newDoc);
         // new doc/item push to ddb handled by the add item hook
@@ -960,7 +990,14 @@ async function activeUpdateUpdateItem(document, update) {
         resolve("NOT YET IMPLEMENTED");
         // actionStatus()
       } else if (syncEquipment) {
-        resolve(generateDynamicItemChange(parentActor, document, update));
+        const syncHD = game.settings.get("ddb-importer", "sync-policy-hitdice");
+        if (syncHD && update.data?.hitDiceUsed) {
+          logger.debug("Updating hitdice on DDB");
+          resolve(updateDDBHitDice(parentActor, document, update));
+        } else {
+          resolve(generateDynamicItemChange(parentActor, document, update));
+        }
+
       }
     }
   });
@@ -985,11 +1022,8 @@ async function activeUpdateAddItem(document) {
       if (!action) {
         logger.debug("Attempting to add new Item", document);
         promises.push(addDDBEquipment(parentActor, [document.toObject()]));
-        // still need to handle item status updates
-        console.warn("TODO: HANDLE ITEM UPDATES!!");
       }
     }
-    resolve(promises);
   });
 }
 
