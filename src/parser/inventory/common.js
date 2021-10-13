@@ -88,7 +88,8 @@ export function getWeaponProficient(data, weaponType, proficiencies) {
   ) {
     return true;
   } else {
-    return proficiencies.find((proficiency) => proficiency.name === data.definition.type) !== undefined;
+    const proficient = proficiencies.some((proficiency) => proficiency.name.toLowerCase() === data.definition.type.toLowerCase());
+    return proficient;
   }
 };
 

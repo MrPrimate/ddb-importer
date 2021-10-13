@@ -142,7 +142,7 @@ export function getWeaponProficiencies(data, proficiencyArray) {
   let custom = [];
 
   // lookup the characters's proficiencies in the DICT
-  let allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Weapon");
+  const allProficiencies = DICTIONARY.character.proficiencies.filter((prof) => prof.type === "Weapon");
   proficiencyArray.forEach((prof) => {
     if (prof.name === "Simple Weapons" && !values.includes("sim")) {
       values.push("sim");
@@ -150,7 +150,11 @@ export function getWeaponProficiencies(data, proficiencyArray) {
     if (prof.name === "Martial Weapons" && !values.includes("mar")) {
       values.push("mar");
     }
-    if (allProficiencies.find((p) => p.name === prof.name) !== undefined && !custom.includes(prof.name)) {
+    // new  1.5
+    const systemWeaponIds = CONFIG.DND5E.weaponIds;
+    if (systemWeaponIds && prof.name.toLowerCase() in systemWeaponIds) {
+      if (!values.includes(prof.name.toLowerCase())) values.push(prof.name.toLowerCase());
+    } else if (allProficiencies.some((p) => p.name === prof.name) && !custom.includes(prof.name)) {
       custom.push(prof.name);
     }
   });

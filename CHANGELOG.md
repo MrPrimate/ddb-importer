@@ -1,3 +1,7 @@
+# 2.5.52
+
+* Character import Bug fix for missing weapon proficiencies transferring to weapons in some circumstances under D&D v1.5.
+
 # 2.5.21
 
 * Bug fix for skill bonus failure when no skill bonuses!
