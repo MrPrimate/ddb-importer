@@ -1,3 +1,7 @@
+# 2.5.53
+
+* DnD5e Helpers - retain wild magic feat special feature on characters, and add for Wild Magic sorcerers.
+
 # 2.5.52
 
 * Character import Bug fix for missing weapon proficiencies transferring to weapons in some circumstances under D&D v1.5.

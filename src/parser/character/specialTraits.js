@@ -15,6 +15,7 @@ export function getSpecialTraits(data) {
     reliableTalent: false,
     diamondSoul: false,
     meleeCriticalDamageDice: 0,
+    wildMagic: false,
   };
 
   // powerful build/equine build
@@ -67,6 +68,11 @@ export function getSpecialTraits(data) {
       // Remarkable Athlete
       results.remarkableAthlete = results.remarkableAthlete || cls.subclassDefinition.classFeatures.some(
         (feature) => feature.name === "Remarkable Athlete" && cls.level >= feature.requiredLevel
+      );
+
+      // wild magic surge for 5e Helpers
+      results.wildMagic = cls.subclassDefinition.classFeatures.some(
+        (feature) => feature.name === "Wild Magic Surge" && cls.level >= feature.requiredLevel
       );
     }
 
