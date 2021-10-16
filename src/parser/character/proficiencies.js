@@ -152,8 +152,12 @@ export function getWeaponProficiencies(data, proficiencyArray) {
     }
     // new  1.5
     const systemWeaponIds = CONFIG.DND5E.weaponIds;
-    if (systemWeaponIds && prof.name.toLowerCase() in systemWeaponIds) {
-      if (!values.includes(prof.name.toLowerCase())) values.push(prof.name.toLowerCase());
+    const dnd5eNameArray = prof.name.toLowerCase().split(",");
+    const dnd5eName = dnd5eNameArray.length === 2
+      ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`
+      : prof.name.toLowerCase();
+    if (systemWeaponIds && dnd5eName in systemWeaponIds) {
+      if (!values.includes(dnd5eName)) values.push(dnd5eName);
     } else if (allProficiencies.some((p) => p.name === prof.name) && !custom.includes(prof.name)) {
       custom.push(prof.name);
     }

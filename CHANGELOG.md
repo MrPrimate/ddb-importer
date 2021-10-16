@@ -1,3 +1,7 @@
+# 2.5.24
+
+* Crossbows did not register proficiency properly when imported on characters such as rogues. @draco#4365
+
 # 2.5.23
 
 * DnD5e Helpers - retain wild magic feat special feature on characters, and add for Wild Magic sorcerers.
