@@ -224,11 +224,11 @@
     <div class="form-section">
       <div class="form-description">
         <div>
-          <input {{#if dynamicUpdateAllowed}}checked{{/if}} type="checkbox"
+          <input {{#if dynamicUpdateStatus}}checked{{/if}} type="checkbox"
           id="dndbeyond-character-dynamic-update"
           name="dndbeyond-character-dynamic-update"
           data-selection="dndbeyond-character-dynamic-update"
-          {{#if tiers.god}}enabled{{else}}disabled{{/if}}
+          {{#if dynamicUpdateAllowed}}enabled{{else}}disabled{{/if}}
           >Enable Dynamic Updates to D&D Beyond - sync above changes to D&D Beyond as they happen. Only a GM can dynamically sync changes, and must be logged in to do so. Additional setup in module settings is required to configure this feature.
         </div>
       </div>

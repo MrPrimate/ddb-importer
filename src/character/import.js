@@ -472,6 +472,7 @@ export default class CharacterImport extends FormApplication {
     const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.god;
+    const dynamicUpdateStatus = this.actor.data.flags?.ddbimporter?.activeUpdate;
 
     const itemsMunched = syncEnabled && itemCompendium
       ? await itemCompendium.index.size !== 0
@@ -485,6 +486,7 @@ export default class CharacterImport extends FormApplication {
       importAllowed: !syncOnly,
       itemsMunched: itemsMunched,
       dynamicUpdateAllowed,
+      dynamicUpdateStatus,
     };
 
     return mergeObject(importSettings, actorSettings);
