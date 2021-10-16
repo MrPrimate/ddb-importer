@@ -94,6 +94,18 @@ async function updateCharacterCall(actor, path, bodyContent) {
   });
 }
 
+async function updateDDBSpellSlotsPact(actor) {
+  return new Promise((resolve) => {
+    let spellSlotPackData = {
+      spellslots: {},
+      pact: true,
+    };
+    spellSlotPackData.spellslots[`level${actor.data.data.spells.pact.level}`] = actor.data.data.spells.pact.value;
+    const spellPactSlots = updateCharacterCall(actor, "spell/slots", spellSlotPackData);
+    resolve(spellPactSlots);
+  });
+}
+
 async function spellSlotsPact(actor, ddbData) {
   return new Promise((resolve) => {
     if (!game.settings.get("ddb-importer", "sync-policy-spells-slots")) resolve();
@@ -101,14 +113,26 @@ async function spellSlotsPact(actor, ddbData) {
       actor.data.data.spells.pact.max > 0 &&
       ddbData.character.character.data.spells.pact.value !== actor.data.data.spells.pact.value
     ) {
-      const used = actor.data.data.spells.pact.max - actor.data.data.spells.pact.value;
-      let spellSlotPackData = {
-        spellslots: {},
-        pact: true,
-      };
-      spellSlotPackData.spellslots[`level${actor.data.data.spells.pact.level}`] = used;
-      const spellPactSlots = updateCharacterCall(actor, "spell/slots", spellSlotPackData);
-      resolve(spellPactSlots);
+      resolve(updateDDBSpellSlotsPact(actor));
+    } else {
+      resolve();
+    }
+  });
+}
+
+async function updateDynamicDDBSpellSlots(actor, update) {
+  return new Promise((resolve) => {
+     let spellSlotData = { spellslots: {}, update: false };
+    for (let i = 1; i <= 9; i++) {
+      let spellData = actor.data.data.spells[`spell${i}`];
+      if (spellData.max > 0 && update.data.spells[`spell${i}`]) {
+        const used = spellData.max - spellData.value;
+        spellSlotData.spellslots[`level${i}`] = used;
+        spellSlotData["update"] = true;
+      }
+    }
+    if (spellSlotData["update"]) {
+      resolve(updateCharacterCall(actor, "spells/slots", spellSlotData));
     } else {
       resolve();
     }
@@ -876,11 +900,11 @@ async function activeUpdateActor(actor, update) {
     const promises = [];
 
     const dynamicSync = activeUpdate();
-    const actoractiveUpdate = actor.data.flags.ddbimporter?.activeUpdate;
+    const actorActiveUpdate = actor.data.flags.ddbimporter?.activeUpdate;
 
     console.warn("dynamicSync", dynamicSync);
-    console.warn("actoractiveUpdate", actoractiveUpdate);
-    if (dynamicSync && actoractiveUpdate) {
+    console.warn("actorActiveUpdate", actorActiveUpdate);
+    if (dynamicSync && actorActiveUpdate) {
       console.warn("actor",actor);
       console.warn("actorUpdate",update);
       const syncHP = game.settings.get("ddb-importer", "sync-policy-hitpoints");
@@ -890,7 +914,7 @@ async function activeUpdateActor(actor, update) {
       const syncExhaustion = game.settings.get("ddb-importer", "sync-policy-condition");
       const syncDeathSaves = game.settings.get("ddb-importer", "sync-policy-deathsaves");
       const syncXP = game.settings.get("ddb-importer", "sync-policy-xp");
-      const syncSpellsPrepared= game.settings.get("ddb-importer", "sync-policy-spells-prepared");
+
 
       if (syncHP && update.data?.attributes?.hp) {
         logger.debug("Updating DDB Hitpoints...");
@@ -900,15 +924,19 @@ async function activeUpdateActor(actor, update) {
         logger.debug("Updating DDB Currency...");
         promises.push(updateDDBCurrency(actor));
       }
-      // if (syncSpellSlots && update.data?.attributes?.spells) {
-      //   console.warn("Updating DDB SpellSlots Pack...");
-      //   promises.push(updateDDBSpellSlotsPack(actor));
-      //   promises.push(updateDDBSpellSlots(actor));
-      // }
-      // if (syncSpellsPrepared && update.data?.attributes?.spells) {
-      //   console.warn("Updating DDB SpellsPrepared...");
-      //   promises.push(updateDDBSpellsPrepared(actor));
-      // }
+      if (syncSpellSlots && update.data?.spells) {
+        const spellKeys = Object.keys(update.data.spells);
+        if (spellKeys.includes("pact")) {
+          console.warn("Updating DDB SpellSlots Pack...");
+          promises.push(updateDDBSpellSlotsPact(actor));
+        }
+        const spellLevelKeys = ["spell1", "spell2", "spell3", "spell4", "spell5", "spell6", "spell7", "spell8", "spell9"];
+        const foundSpells = spellKeys.some((spellKey) => spellLevelKeys.includes(spellKey));
+        if (foundSpells) {
+          console.warn("Updating DDB SpellSlots...");
+          promises.push(updateDynamicDDBSpellSlots(actor, update));
+        }
+      }
       if (syncInspiration &&
         (update.data?.attributes?.inspiration === true || update.data?.attributes?.inspiration === false)
       ) {
@@ -958,7 +986,7 @@ async function generateDynamicItemChange(actor, document, update) {
   }
   if (update.data?.quantity) {
     // if its a weapon or armor we actually need to push a new one
-    if (document.type === "weapon" || document.type === "armor" && update.data.quantity > 1) {
+    if (document.type === "weapon" || (document.type === "armor" && update.data.quantity > 1)) {
       console.warn("Weapon or Armor Quantity Update triggers new item", update);
 
       await document.update({ data: { quantity: 1 } });
@@ -1006,6 +1034,8 @@ async function activeUpdateUpdateItem(document, update) {
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
       const syncEquipment = game.settings.get("ddb-importer", "sync-policy-equipment");
       const syncActionUse = game.settings.get("ddb-importer", "sync-policy-action-use");
+      const syncHD = game.settings.get("ddb-importer", "sync-policy-hitdice");
+      const syncSpellsPrepared = game.settings.get("ddb-importer", "sync-policy-spells-prepared");
       const isDDBItem = document.data.flags.ddbimporter?.id;
 
       // is this a DDB action, or do we treat this as an item?
@@ -1013,15 +1043,14 @@ async function activeUpdateUpdateItem(document, update) {
         console.warn("Not Yet Implemented", update);
         resolve("NOT YET IMPLEMENTED");
         // actionStatus()
+      } else if (document.type === "class" && syncHD && update.data?.hitDiceUsed) {
+        logger.debug("Updating hitdice on DDB");
+        resolve(updateDDBHitDice(parentActor, document, update));
+      } else if (document.type === "spell" && syncSpellsPrepared && update.data?.preparation) {
+        console.warn("Updating DDB SpellsPrepared...");
+        resolve(updateDDBSpellsPrepared(parentActor, document));
       } else if (syncEquipment) {
-        const syncHD = game.settings.get("ddb-importer", "sync-policy-hitdice");
-        if (syncHD && update.data?.hitDiceUsed) {
-          logger.debug("Updating hitdice on DDB");
-          resolve(updateDDBHitDice(parentActor, document, update));
-        } else {
-          resolve(generateDynamicItemChange(parentActor, document, update));
-        }
-
+        resolve(generateDynamicItemChange(parentActor, document, update));
       }
     }
   });
@@ -1048,6 +1077,7 @@ async function activeUpdateAddItem(document) {
         promises.push(addDDBEquipment(parentActor, [document.toObject()]));
       }
     }
+    resolve(promises);
   });
 }
 
