@@ -127,7 +127,7 @@ export function getBonusAbilities(data, character) {
 
   bonusLookup.forEach((b) => {
     const bonus = utils.getModifierSum(utils.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
-    result[b.fvttType] = bonus === 0 ? "" : bonus;
+    result[b.fvttType] = bonus === 0 ? "" : `${bonus}`;
   });
   return result;
 }

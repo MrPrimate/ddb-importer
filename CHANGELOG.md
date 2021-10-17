@@ -1,3 +1,7 @@
+# 5.2.25
+
+* Global Bonus Abilities could sometimes be added to field as an interger and when combined with CUB would cause problems.
+
 # 2.5.24
 
 * Crossbows did not register proficiency properly when imported on characters such as rogues. @draco#4365
