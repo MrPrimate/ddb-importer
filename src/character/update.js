@@ -1025,9 +1025,9 @@ async function activeUpdateUpdateItem(document, update) {
     const dynamicSync = activeUpdate();
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
-    const actoractiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
+    const actorActiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
 
-    if (!dynamicSync || !parentActor || !actoractiveUpdate) {
+    if (!dynamicSync || !parentActor || !actorActiveUpdate) {
       resolve([]);
     } else {
       console.warn("Preparing to sync item change to DDB...");
@@ -1048,6 +1048,17 @@ async function activeUpdateUpdateItem(document, update) {
         resolve(updateDDBHitDice(parentActor, document, update));
       } else if (document.type === "spell" && syncSpellsPrepared && update.data?.preparation) {
         console.warn("Updating DDB SpellsPrepared...");
+        // get spells class
+        // if remove prepared, remove
+        // else if add
+        // calculate total avaiable spell slots
+        // calculate total prepared spells
+        // can add spells?
+        // add spell
+
+        // check status - if fail then mark as failed - don't send any new spells till sync
+        // klass.flags.ddbimporter.spellSlotDivisor = spellSlotDivisor;
+        // klass.flags.ddbimporter.spellCastingAbility = spellCastingAbility;
         resolve(updateDDBSpellsPrepared(parentActor, document));
       } else if (syncEquipment) {
         resolve(generateDynamicItemChange(parentActor, document, update));
@@ -1067,9 +1078,9 @@ async function activeUpdateAddItem(document) {
     const dynamicSync = activeUpdate();
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
-    const actoractiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
+    const actorActiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
 
-    if (dynamicSync && parentActor && actoractiveUpdate && syncEquipment) {
+    if (dynamicSync && parentActor && actorActiveUpdate && syncEquipment) {
       logger.debug("Preparing to add item to DDB...");
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
       if (!action) {
@@ -1091,9 +1102,9 @@ async function activeUpdateDeleteItem(document) {
     const dynamicSync = activeUpdate();
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
-    const actoractiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
+    const actorActiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
 
-    if (dynamicSync && parentActor && actoractiveUpdate && syncEquipment) {
+    if (dynamicSync && parentActor && actorActiveUpdate && syncEquipment) {
       logger.debug("Preparing to delete item from DDB...");
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
       if (!action) {
