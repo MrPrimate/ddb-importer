@@ -22,3 +22,9 @@ export function getCurrentDynamicUpdateState(actor) {
       : false;
   return activeUpdateState;
 }
+
+export async function setActiveSyncSpellsFlag(actor, state) {
+  actor.data.flags.ddbimporter.activeSyncSpells = state;
+  const activeUpdateData = { flags: { ddbimporter: { activeSyncSpells: state } } };
+  await actor.update(activeUpdateData);
+}

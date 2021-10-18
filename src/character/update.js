@@ -5,7 +5,7 @@ import { getCampaignId, getCompendiumType } from "../muncher/utils.js";
 import { looseItemNameMatch } from "../muncher/import.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
-import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
+import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates, setActiveSyncSpellsFlag } from "./utils.js";
 
 var itemIndex;
 
@@ -372,6 +372,33 @@ async function updateSpellsPrepared(actor, spellPreparedData) {
   });
 }
 
+async function updateDDBSpellsPrepared(actor, spells) {
+  let promises = [];
+
+  const preparedSpells = spells.filter((spell) =>
+    spell.type === "spell" &&
+    spell.data.data.preparation?.mode === "prepared" &&
+    spell.data.flags.ddbimporter?.dndbeyond?.characterClassId
+  ).map((spell) => {
+    let spellPreparedData = {
+        spellInfo: {
+          spellId: spell.data.flags.ddbimporter.definitionId,
+          characterClassId: spell.data.flags.ddbimporter.dndbeyond.characterClassId,
+          entityTypeId: spell.data.flags.ddbimporter.entityTypeId,
+          id: spell.data.flags.ddbimporter.id,
+          prepared: spell.data.data.preparation.prepared === true,
+        }
+    };
+    return spellPreparedData;
+  });
+
+  preparedSpells.forEach((spellPreparedData) => {
+    promises.push(updateSpellsPrepared(actor, spellPreparedData));
+  });
+
+  return Promise.all(promises);
+}
+
 async function spellsPrepared(actor, ddbData) {
   if (!game.settings.get("ddb-importer", "sync-policy-spells-prepared")) return [];
   const ddbSpells = ddbData.character.spells;
@@ -388,29 +415,11 @@ async function spellsPrepared(actor, ddbData) {
       item.data.data.preparation?.mode === "prepared" &&
       item.data.data.preparation.prepared !== spellMatch.data.preparation?.prepared;
     return spellMatch && select;
-  }).map((spell) => {
-    let spellPreparedData = {
-        spellInfo: {
-          spellId: spell.data.flags.ddbimporter.definitionId,
-          characterClassId: spell.data.flags.ddbimporter.dndbeyond.characterClassId,
-          entityTypeId: spell.data.flags.ddbimporter.entityTypeId,
-          id: spell.data.flags.ddbimporter.id,
-          prepared: false,
-        }
-    };
-    if (spell.data.data.preparation.prepared) spellPreparedData.spellInfo.prepared = true;
-    return spellPreparedData;
   });
 
-  let promises = [];
-  preparedSpells.forEach((spellPreparedData) => {
-    // console.warn(spellPreparedData);
-    // promises.push(spellPreparedData);
-    promises.push(updateSpellsPrepared(actor, spellPreparedData));
-  });
+  const results = updateDDBSpellsPrepared(actor, preparedSpells);
 
-  return Promise.all(promises);
-
+  return results;
 }
 
 
@@ -475,7 +484,7 @@ async function manageDDBCustomItems(actor, itemsToAdd, create = true) {
           characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
           name: item.name,
           description: item.data.description.value,
-          // THESE need to be set only for item update
+          // TODO: THESE need to be set only for item update
           // weight: `${item.data.weight}`,
           // cost: `${item.data.price}`,
           // quantity: parseInt(item.data.quantity),
@@ -874,6 +883,7 @@ export async function updateDDBCharacter(actor) {
   // promises.push(spellSlots);
 
   actor.setFlag("ddb-importer", "syncId", syncId);
+  await setActiveSyncSpellsFlag(actor, true);
 
   // we can now process item attunements and uses (not yet done)
 
@@ -1017,6 +1027,26 @@ async function generateDynamicItemChange(actor, document, update) {
   return updateDDBEquipmentStatus(actor, updateItemDetails, []);
 }
 
+async function updateSpellPrep(actor, document) {
+  return new Promise((resolve) => {
+    const spellSyncFlag = actor.data.flags.ddbimporter?.activeSyncSpells;
+    if (spellSyncFlag) {
+      logger.debug("Updating DDB SpellsPrepared...");
+      // get spells class
+      const klassName = document.data.flags.ddbimporter?.dndbeyond?.class;
+      const klass = actor.items.find((item) => item.name === klassName && item.type === "class");
+      if (klass) {
+        resolve(updateDDBSpellsPrepared(actor, [document]));
+      } else {
+        resolve([]);
+      }
+    } else {
+      logger.warn("Unable to sync spell prep status until character is imported or updated to DDB");
+      resolve([]);
+    }
+  });
+}
+
 // Called when characters items are updated
 // will dynamically sync status back to DDB
 async function activeUpdateUpdateItem(document, update) {
@@ -1030,7 +1060,7 @@ async function activeUpdateUpdateItem(document, update) {
     if (!dynamicSync || !parentActor || !actorActiveUpdate) {
       resolve([]);
     } else {
-      console.warn("Preparing to sync item change to DDB...");
+      logger.debug("Preparing to sync item change to DDB...");
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
       const syncEquipment = game.settings.get("ddb-importer", "sync-policy-equipment");
       const syncActionUse = game.settings.get("ddb-importer", "sync-policy-action-use");
@@ -1046,20 +1076,16 @@ async function activeUpdateUpdateItem(document, update) {
       } else if (document.type === "class" && syncHD && update.data?.hitDiceUsed) {
         logger.debug("Updating hitdice on DDB");
         resolve(updateDDBHitDice(parentActor, document, update));
-      } else if (document.type === "spell" && syncSpellsPrepared && update.data?.preparation) {
-        console.warn("Updating DDB SpellsPrepared...");
-        // get spells class
-        // if remove prepared, remove
-        // else if add
-        // calculate total avaiable spell slots
-        // calculate total prepared spells
-        // can add spells?
-        // add spell
-
-        // check status - if fail then mark as failed - don't send any new spells till sync
-        // klass.flags.ddbimporter.spellSlotDivisor = spellSlotDivisor;
-        // klass.flags.ddbimporter.spellCastingAbility = spellCastingAbility;
-        resolve(updateDDBSpellsPrepared(parentActor, document));
+      } else if (document.type === "spell" && syncSpellsPrepared &&
+        update.data?.preparation && document.data.data.preparation.mode === "prepared"
+      ) {
+        logger.debug("Updating DDB SpellsPrepared...");
+        updateSpellPrep(parentActor, document).then((results) => {
+          logger.debug("Spell prep results", results);
+          const failures = results.find((result) => result.success !== true);
+          if (failures) setActiveSyncSpellsFlag(parentActor, false);
+          resolve(results);
+        });
       } else if (syncEquipment) {
         resolve(generateDynamicItemChange(parentActor, document, update));
       }
