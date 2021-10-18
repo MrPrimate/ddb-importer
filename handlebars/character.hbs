@@ -183,9 +183,8 @@
         <div class="form-description"></div>
         <div>
           <button type="button" id="dndbeyond-character-extras-start"
-            {{#if syncEnabled}}
-            {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}{{else}}disabled{{/if}}>
-            Import Extras</button>
+            {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>
+            {{#if actor.data.flags.ddbimporter.dndbeyond.characterId}}Import Extras{{else}}Please Import the Character First{{/if}}</button>
         </div>
       </div>
     </div>
