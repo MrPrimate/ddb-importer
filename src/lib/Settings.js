@@ -1,5 +1,5 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
-import { setPatreonTier, BAD_DIRS, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
+import { setPatreonTier, getPatreonTiers, BAD_DIRS, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
@@ -627,11 +627,80 @@ export class DDBDynamicUpdateSetup extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
+    const tier = game.settings.get("ddb-importer", "patreon-tier");
+    const tiers = getPatreonTiers(tier);
+
     const settings = [
       {
         name: "dynamic-sync",
         isChecked: game.settings.get("ddb-importer", "dynamic-sync"),
         description: "Enable Dynamic Sync?",
+        enabled: tiers.god,
+      },
+      {
+        name: "dynamic-sync-policy-currency",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-currency"),
+        description: "Currency?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-hitpoints",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints"),
+        description: "Hit Points?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-hitdice",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-hitdice"),
+        description: "Hit Dice?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-action-use",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-action-use"),
+        description: "Action usage?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-inspiration",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-inspiration"),
+        description: "Inspiration?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-condition",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-condition"),
+        description: "Exhaustion?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-deathsaves",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-deathsaves"),
+        description: "Death Saves?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-spells-prepared",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-spells-prepared"),
+        description: "Spells Prepared?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-spells-slots",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-spells-slots"),
+        description: "Spell Slots?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-equipment",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-equipment"),
+        description: "Equipment?",
+        enabled: true,
+      },
+      {
+        name: "dynamic-sync-policy-xp",
+        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-xp"),
+        description: "XP?",
         enabled: true,
       },
     ];
