@@ -794,7 +794,26 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
 
 }
 
-async function actionStatus(actor, ddbData) {
+async function updateActionUseStatus(actor, actionData) {
+  return new Promise((resolve) => {
+    resolve(updateCharacterCall(actor, "action/use", actionData));
+  });
+}
+
+async function updateDDBActionUseStatus(actor, actions) {
+  let promises = [];
+  actions.forEach((action) => {
+    const actionData = {
+      actionId: action.data.flags.ddbimporter.id,
+      entityTypeId: action.data.flags.ddbimporter.entityTypeId,
+      uses: parseInt(action.data.data.uses.max) - parseInt(action.data.data.uses.value)
+    };
+    promises.push(updateActionUseStatus(actor, actionData));
+  });
+  return Promise.all(promises);
+}
+
+async function actionUseStatus(actor, ddbData) {
   const syncActionReady = actor.data.flags.ddbimporter?.syncActionReady;
   if (syncActionReady && !game.settings.get("ddb-importer", "sync-policy-action-use")) return [];
 
@@ -812,18 +831,9 @@ async function actionStatus(actor, ddbData) {
     )
   );
 
-  let promises = [];
+  const actionChanges = updateDDBActionUseStatus(actor, actionsToCharge);
 
-  actionsToCharge.forEach((action) => {
-    const actionData = {
-      actionId: action.data.flags.ddbimporter.id,
-      entityTypeId: action.data.flags.ddbimporter.entityTypeId,
-      uses: parseInt(action.data.data.uses.max) - parseInt(action.data.data.uses.value)
-    };
-    promises.push(updateCharacterCall(actor, "action/use", actionData));
-  });
-
-  return Promise.all(promises);
+  return actionChanges;
 }
 
 export async function updateDDBCharacter(actor) {
@@ -862,7 +872,7 @@ export async function updateDDBCharacter(actor) {
 
   const singleResults = await Promise.all(singlePromises);
   const spellsPreparedResults = await spellsPrepared(actor, ddbData);
-  const actionStatusResults = await actionStatus(actor, ddbData);
+  const actionStatusResults = await actionUseStatus(actor, ddbData);
   const nameUpdateResults = await updateCustomNames(actor, ddbData);
   const addEquipmentResults = await addEquipment(actor, ddbData);
   const removeEquipmentResults = await removeEquipment(actor, ddbData);
@@ -917,13 +927,13 @@ async function activeUpdateActor(actor, update) {
     if (dynamicSync && actorActiveUpdate) {
       console.warn("actor",actor);
       console.warn("actorUpdate",update);
-      const syncHP = game.settings.get("ddb-importer", "sync-policy-hitpoints");
-      const syncCurrency = game.settings.get("ddb-importer", "sync-policy-currency");
-      const syncSpellSlots = game.settings.get("ddb-importer", "sync-policy-spells-slots");
-      const syncInspiration = game.settings.get("ddb-importer", "sync-policy-inspiration");
-      const syncExhaustion = game.settings.get("ddb-importer", "sync-policy-condition");
-      const syncDeathSaves = game.settings.get("ddb-importer", "sync-policy-deathsaves");
-      const syncXP = game.settings.get("ddb-importer", "sync-policy-xp");
+      const syncHP = game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints");
+      const syncCurrency = game.settings.get("ddb-importer", "dynamic-sync-policy-currency");
+      const syncSpellSlots = game.settings.get("ddb-importer", "dynamic-sync-policy-spells-slots");
+      const syncInspiration = game.settings.get("ddb-importer", "dynamic-sync-policy-inspiration");
+      const syncExhaustion = game.settings.get("ddb-importer", "dynamic-sync-policy-condition");
+      const syncDeathSaves = game.settings.get("ddb-importer", "dynamic-sync-policy-deathsaves");
+      const syncXP = game.settings.get("ddb-importer", "dynamic-sync-policy-xp");
 
 
       if (syncHP && update.data?.attributes?.hp) {
@@ -1062,17 +1072,20 @@ async function activeUpdateUpdateItem(document, update) {
     } else {
       logger.debug("Preparing to sync item change to DDB...");
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
-      const syncEquipment = game.settings.get("ddb-importer", "sync-policy-equipment");
-      const syncActionUse = game.settings.get("ddb-importer", "sync-policy-action-use");
-      const syncHD = game.settings.get("ddb-importer", "sync-policy-hitdice");
-      const syncSpellsPrepared = game.settings.get("ddb-importer", "sync-policy-spells-prepared");
+      const syncEquipment = game.settings.get("ddb-importer", "dynamic-sync-policy-equipment");
+      const syncActionUse = game.settings.get("ddb-importer", "dynamic-sync-policy-action-use");
+      const syncHD = game.settings.get("ddb-importer", "dynamic-sync-policy-hitdice");
+      const syncSpellsPrepared = game.settings.get("ddb-importer", "dynamic-sync-policy-spells-prepared");
       const isDDBItem = document.data.flags.ddbimporter?.id;
 
       // is this a DDB action, or do we treat this as an item?
       if (action && syncActionUse && isDDBItem) {
-        console.warn("Not Yet Implemented", update);
-        resolve("NOT YET IMPLEMENTED");
-        // actionStatus()
+        if (update.data?.uses) {
+          logger.debug("Updating action uses", update);
+          updateDDBActionUseStatus(parentActor, [document]);
+        } else {
+          resolve([]);
+        }
       } else if (document.type === "class" && syncHD && update.data?.hitDiceUsed) {
         logger.debug("Updating hitdice on DDB");
         resolve(updateDDBHitDice(parentActor, document, update));
@@ -1100,7 +1113,7 @@ async function activeUpdateAddItem(document) {
   return new Promise((resolve) => {
     let promises = [];
 
-    const syncEquipment = game.settings.get("ddb-importer", "sync-policy-equipment");
+    const syncEquipment = game.settings.get("ddb-importer", "dynamic-sync-policy-equipment");
     const dynamicSync = activeUpdate();
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
@@ -1124,7 +1137,7 @@ async function activeUpdateDeleteItem(document) {
   return new Promise((resolve) => {
     let promises = [];
 
-    const syncEquipment = game.settings.get("ddb-importer", "sync-policy-equipment");
+    const syncEquipment = game.settings.get("ddb-importer", "dynamic-sync-policy-equipment");
     const dynamicSync = activeUpdate();
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
