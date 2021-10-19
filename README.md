@@ -31,6 +31,10 @@ In addition you can:
 
 ![](./docs/sync.png)
 
+### Exclude Items from Update
+
+![](./docs/exclude.png)
+
 ### Generate Roll Tables
 
 ![](./docs/confusion.png)
