@@ -23,8 +23,26 @@ In addition you can:
 
 ## Examples
 
-![](./docs/bulk-spell-import.gif)
-![](./docs/sync.gif)
+### Import Things!
+
+![](./docs/muncher.png)
+
+### Update back to D&DBeyond
+
+![](./docs/sync.png)
+
+### Generate Roll Tables
+
+![](./docs/confusion.png)
+
+### Encounter Muncher
+
+![](./docs/encounter-muncher.png)
+
+### Compendium Folders Module Support
+
+![](./docs/compendium-folders.png)
+
 
 ## What's the catch?
 
