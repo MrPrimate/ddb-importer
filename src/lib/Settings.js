@@ -629,79 +629,80 @@ export class DDBDynamicUpdateSetup extends FormApplication {
   async getData() { // eslint-disable-line class-methods-use-this
     const tier = game.settings.get("ddb-importer", "patreon-tier");
     const tiers = getPatreonTiers(tier);
+    const enabled = tiers.god;
 
     const settings = [
       {
         name: "dynamic-sync",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync"),
         description: "Enable Dynamic Sync?",
-        enabled: tiers.god,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-currency",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-currency"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-currency"),
         description: "Currency?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-hitpoints",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints"),
         description: "Hit Points?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-hitdice",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-hitdice"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-hitdice"),
         description: "Hit Dice?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-action-use",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-action-use"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-action-use"),
         description: "Action usage?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-inspiration",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-inspiration"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-inspiration"),
         description: "Inspiration?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-condition",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-condition"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-condition"),
         description: "Exhaustion?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-deathsaves",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-deathsaves"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-deathsaves"),
         description: "Death Saves?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-spells-prepared",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-spells-prepared"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-spells-prepared"),
         description: "Spells Prepared?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-spells-slots",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-spells-slots"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-spells-slots"),
         description: "Spell Slots?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-equipment",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-equipment"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-equipment"),
         description: "Equipment?",
-        enabled: true,
+        enabled,
       },
       {
         name: "dynamic-sync-policy-xp",
-        isChecked: game.settings.get("ddb-importer", "dynamic-sync-policy-xp"),
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-xp"),
         description: "XP?",
-        enabled: true,
+        enabled,
       },
     ];
     const gmUsers = getGMUsers();
