@@ -472,7 +472,7 @@ async function generateItemsToAdd(actor, itemsToAdd) {
 }
 
 
-async function manageDDBCustomItems(actor, itemsToAdd, create = true) {
+async function addDDBCustomItems(actor, itemsToAdd, create = true) {
   return new Promise((resolve) => {
     let customItemResults = [];
     for (let i = 0; i < itemsToAdd.length; i++) {
@@ -512,7 +512,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
     equipment: generatedItemsToAddData.toAdd,
   };
 
-  const customItems = await manageDDBCustomItems(actor, generatedItemsToAddData.custom, true);
+  const customItems = await addDDBCustomItems(actor, generatedItemsToAddData.custom, true);
   console.warn(customItems);
 
   try {
