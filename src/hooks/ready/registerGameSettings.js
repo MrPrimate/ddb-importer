@@ -1406,13 +1406,6 @@ export default function () {
     default: false,
   });
 
-  game.settings.register("ddb-importer", "dynamic-sync-policy-hitpoints", {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
   game.settings.register("ddb-importer", "dynamic-sync-user", {
     scope: "world",
     config: false,
@@ -1424,4 +1417,88 @@ export default function () {
     game.settings.set("ddb-importer", "dynamic-sync-user", game.user.id);
   }
 
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-currency", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-hitpoints", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-hitdice", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-action-use", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-inspiration", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-condition", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-deathsaves", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-spells-prepared", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-spells-slots", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-spells-sync", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-equipment", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-xp", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
 }
