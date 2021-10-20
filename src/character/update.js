@@ -471,23 +471,43 @@ async function generateItemsToAdd(actor, itemsToAdd) {
   });
 }
 
+async function deleteDDBCustomItems(actor, itemsToDelete) {
+  return new Promise((resolve) => {
+    let customItemResults = [];
+    for (let i = 0; i < itemsToDelete.length; i++) {
+      const item = itemsToDelete[i];
+      const customData = {
+        itemState: "DELETE",
+        customValues: {
+          characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+          id: item.flags.ddbimporter.id,
+        }
+      };
+      const result = updateCharacterCall(actor, "custom/item", customData).then((data) => {
+        console.warn(data);
+        setProperty(item, "flags.ddbimporter.id", data.data.id);
+        setProperty(item, "flags.ddbimporter.custom", true);
+        return item;
+      });
+      customItemResults.push(result);
+    }
 
-async function addDDBCustomItems(actor, itemsToAdd, create = true) {
+    resolve(customItemResults);
+  });
+}
+
+
+async function addDDBCustomItems(actor, itemsToAdd) {
   return new Promise((resolve) => {
     let customItemResults = [];
     for (let i = 0; i < itemsToAdd.length; i++) {
       const item = itemsToAdd[i];
       const customData = {
-        create,
-        update: !create,
+        itemState: "NEW",
         customValues: {
           characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
           name: item.name,
           description: item.data.description.value,
-          // TODO: THESE need to be set only for item update
-          // weight: `${item.data.weight}`,
-          // cost: `${item.data.price}`,
-          // quantity: parseInt(item.data.quantity),
         }
       };
       const result = updateCharacterCall(actor, "custom/item", customData).then((data) => {
@@ -512,7 +532,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
     equipment: generatedItemsToAddData.toAdd,
   };
 
-  const customItems = await addDDBCustomItems(actor, generatedItemsToAddData.custom, true);
+  const customItems = await addDDBCustomItems(actor, generatedItemsToAddData.custom);
   console.warn(customItems);
 
   try {
@@ -522,27 +542,6 @@ async function addDDBEquipment(actor, itemsToAdd) {
     logger.error(`Unable to update character with equipment, got the error:`, err);
     logger.error(`Update payload:`, customItems);
   }
-
-
-  // TODO: Add support for custom items create/update in backend to API
-  // TODO: Add support for custom item change
-
-  // let customItemResults = [];
-  // for (let i = 0; i < generatedItemsToAddData.custom.length; i++) {
-  //   const item = generatedItemsToAddData.custom[i];
-  //   const customData = {
-  //     customValues: {
-  //       characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
-  //       name: item.name,
-  //       description: item.data.description.value,
-  //       weight: `${item.data.weight}`,
-  //       cost: `${item.data.price}`,
-  //       quantity: parseInt(item.data.quantity),
-  //     }
-  //   };
-  //   const result = updateCharacterCall(actor, "equipment/add", customData);
-  //   customItemResults.push(result);
-  // }
 
   if (addItemData.equipment.length > 0) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData);
@@ -564,12 +563,15 @@ async function addDDBEquipment(actor, itemsToAdd) {
         });
 
       logger.debug("Character item updates:", itemUpdates);
+      logger.debug("Character custom item updates:", customItems);
 
       try {
-        await actor.updateEmbeddedDocuments("Item", itemUpdates);
+        if (itemUpdates.length > 0) await actor.updateEmbeddedDocuments("Item", itemUpdates);
+        if (customItems.length > 0) await actor.updateEmbeddedDocuments("Item", customItems);
       } catch (err) {
         logger.error(`Unable to update character with equipment, got the error:`, err);
         logger.error(`Update payload:`, itemUpdates);
+        logger.error(`Update custom payload:`, customItems);
       }
 
     } catch (err) {
@@ -577,6 +579,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
       logger.error(`itemsToAdd`, itemsToAdd);
       logger.error(`equipmentToAdd`, generatedItemsToAddData);
       logger.error(`itemResults`, itemResults);
+      logger.error(`customItems`, customItems);
     }
 
     return itemResults;
@@ -602,6 +605,32 @@ async function addEquipment(actor, ddbData) {
   return addDDBEquipment(actor, itemsToAdd);
 }
 
+
+// updates custom names on regular items
+async function updateDDBCustomNames(actor, items) {
+  let promises = [];
+
+  items.forEach((item) => {
+    const customData = {
+      customValues: {
+        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+        contextId: null,
+        contextTypeId: null,
+        notes: null,
+        typeId: 8,
+        value: item.name,
+        valueId: `${item.flags.ddbimporter.id}`,
+        valueTypeId: `${item.flags.ddbimporter.entityTypeId}`,
+      }
+    };
+    // custom name on standard equipment
+    promises.push(updateCharacterCall(actor, "equipment/custom", customData));
+  });
+
+  return Promise.all(promises);
+
+}
+
 // updates names of items and actions
 async function updateCustomNames(actor, ddbData) {
   const syncItemReady = actor.data.flags.ddbimporter?.syncItemReady;
@@ -619,34 +648,21 @@ async function updateCustomNames(actor, ddbData) {
     )
   ).map((item) => item.toObject());
 
-  let promises = [];
-
-  itemsToName.forEach((item) => {
-    const customData = {
-      customValues: {
-        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
-        contextId: null,
-        contextTypeId: null,
-        notes: null,
-        typeId: 8,
-        value: item.name,
-        valueId: `${item.flags.ddbimporter.id}`,
-        valueTypeId: `${item.flags.ddbimporter.entityTypeId}`,
-      }
-    };
-    promises.push(updateCharacterCall(actor, "equipment/custom", customData));
-  });
-
-  return Promise.all(promises);
+  return updateDDBCustomNames(actor, itemsToName);
 }
 
 async function removeDDBEquipment(actor, itemsToRemove) {
   let promises = [];
 
+  console.warn(itemsToRemove);
   itemsToRemove.forEach((item) => {
     if (item.flags?.ddbimporter?.id) {
       console.warn(`Removing item ${item.name}`);
-      promises.push(updateCharacterCall(actor, "equipment/remove", { itemId: parseInt(item.flags.ddbimporter.id) }));
+      if (item.flags?.ddbimporter?.custom) {
+        promises.push(deleteDDBCustomItems(actor, [item]));
+      } else {
+        promises.push(updateCharacterCall(actor, "equipment/remove", { itemId: parseInt(item.flags.ddbimporter.id) }));
+      }
     }
   });
 
@@ -674,6 +690,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   const itemsToCharge = updateItemDetails.itemsToCharge || [];
   const itemsToQuantity = updateItemDetails.itemsToQuantity || [];
   const itemsToName = updateItemDetails.itemsToName || [];
+  const customItems = updateItemDetails.customItems || [];
 
   let promises = [];
 
@@ -719,6 +736,23 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     promises.push(updateCharacterCall(actor, "equipment/custom", customData));
   });
 
+  customItems.forEach((item) => {
+    const customData = {
+      itemState: "UPDATE",
+      customValues: {
+        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+        id: item.data.flags.ddbimporter.id,
+        name: item.name,
+        description: item.data.data.description.value,
+        // revist these need to be ints
+        // weight: `${item.data.data.weight}`,
+        // cost: ${item.data.data.price,
+        quantity: parseInt(item.data.data.quantity),
+      }
+    };
+    promises.push(updateCharacterCall(actor, "custom/item", customData));
+  });
+
   return Promise.all(promises);
 }
 
@@ -728,6 +762,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
   // reload the actor following potential updates to equipment
   let ddbItems = ddbData.ddb.character.inventory;
+  let customDDBItems = ddbData.ddb.character.customItems;
   if (addEquipmentResults?.data) {
     actor = game.actors.get(actor.id);
     ddbItems = ddbItems.concat(addEquipmentResults.data.addItems);
@@ -735,6 +770,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
 
   const itemsToEquip = actor.data.items.filter((item) =>
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
+    !item.data.flags.ddbimporter?.custom &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
       dItem.id === item.data.flags.ddbimporter?.id &&
@@ -743,6 +779,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   );
   const itemsToAttune = actor.data.items.filter((item) =>
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
+    !item.data.flags.ddbimporter?.custom &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
       dItem.id === item.data.flags.ddbimporter?.id &&
@@ -751,6 +788,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   );
   const itemsToCharge = actor.data.items.filter((item) =>
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
+    !item.data.flags.ddbimporter?.custom &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
       dItem.id === item.data.flags.ddbimporter?.id &&
@@ -762,6 +800,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   const itemsToQuantity = actor.data.items.filter((item) =>
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     !item.data.data.quantity == 0 &&
+    !item.data.flags.ddbimporter?.custom &&
     item.type !== "weapon" && !item.data.data?.armor?.type &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
@@ -773,12 +812,30 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   const itemsToName = actor.data.items.filter((item) =>
     item.data.flags.ddbimporter?.id &&
     item.data.data.quantity !== 0 &&
+    !item.data.flags.ddbimporter?.custom &&
     ddbItems.some((dItem) =>
       // item.data.flags.ddbimporter.id === dItem.id &&
       item.data.flags.ddbimporter.originalName === dItem.definition.name &&
       item.data.flags.ddbimporter.originalName !== item.data.name &&
+      !item.data.data.quantity == 0 &&
       dItem.id === item.data.flags.ddbimporter?.id &&
       item.data.name !== dItem.definition.name
+    )
+  );
+
+  // update.name || update.data?.description || update.data?.weight || update.data?.price || update.data?.quantity
+  const customItems = actor.data.items.filter((item) =>
+    item.data.flags.ddbimporter?.id &&
+    item.data.data.quantity !== 0 &&
+    item.data.flags.ddbimporter?.custom &&
+    customDDBItems.some((dItem) => dItem.id === item.data.flags.ddbimporter.id &&
+      (
+        item.data.name !== dItem.name ||
+        item.data.data.description.value != dItem.description ||
+        item.data.data.quantity != dItem.quantity ||
+        item.data.data.weight != dItem.weight ||
+        item.data.data.price != dItem.cost
+      )
     )
   );
 
@@ -788,6 +845,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     itemsToCharge,
     itemsToQuantity,
     itemsToName,
+    customItems,
   };
 
   return updateDDBEquipmentStatus(actor, itemsToUpdate, ddbItems);
@@ -994,47 +1052,56 @@ async function generateDynamicItemChange(actor, document, update) {
     itemsToCharge: [],
     itemsToQuantity: [],
     itemsToName: [],
+    customItems: [],
   };
 
   console.warn("Document", document);
   console.warn("ItemUpdate", update);
-  if (update.data?.uses) {
-    updateItemDetails.itemsToCharge.push(document);
-  }
-  if (update.data?.attunement) {
-    updateItemDetails.itemsToAttune.push(document);
-  }
-  if (update.data?.quantity) {
-    // if its a weapon or armor we actually need to push a new one
-    if (document.type === "weapon" || (document.type === "armor" && update.data.quantity > 1)) {
-      console.warn("Weapon or Armor Quantity Update triggers new item", update);
 
-      await document.update({ data: { quantity: 1 } });
-      let newDocument = JSON.parse(JSON.stringify(document.toObject()));
-      delete newDocument._id;
-      delete newDocument.flags.ddbimporter.id;
-      console.warn(newDocument);
-      let results = [];
-      for (let i = 1; i < update.data.quantity; i++) {
-        console.warn(`Adding item # ${i}`);
-        // eslint-disable-next-line no-await-in-loop
-        let newDoc = await actor.createEmbeddedDocuments("Item", [newDocument], DISABLE_FOUNDRY_UPGRADE);
-        results.push(newDoc);
-        // new doc/item push to ddb handled by the add item hook
-      }
-      return results;
-    } else {
-      updateItemDetails.itemsToQuantity.push(document);
+  if (document.data.flags.ddbimporter?.custom) {
+    if (update.name || update.data?.description || update.data?.weight || update.data?.price || update.data?.quantity) {
+      updateItemDetails.customItems.push(document);
     }
-  }
-  if (update.data?.equipped) {
-    updateItemDetails.itemsToEquip.push(document);
-  }
-  if (update.name) {
-    updateItemDetails.itemsToName.push(document);
+  } else {
+    if (update.data?.uses) {
+      updateItemDetails.itemsToCharge.push(document);
+    }
+    if (update.data?.attunement) {
+      updateItemDetails.itemsToAttune.push(document);
+    }
+    if (update.data?.quantity) {
+      // if its a weapon or armor we actually need to push a new one
+      if (document.type === "weapon" || (document.type === "armor" && update.data.quantity > 1)) {
+        console.warn("Weapon or Armor Quantity Update triggers new item", update);
+
+        await document.update({ data: { quantity: 1 } });
+        let newDocument = JSON.parse(JSON.stringify(document.toObject()));
+        delete newDocument._id;
+        delete newDocument.flags.ddbimporter.id;
+        console.warn(newDocument);
+        let results = [];
+        for (let i = 1; i < update.data.quantity; i++) {
+          console.warn(`Adding item # ${i}`);
+          // eslint-disable-next-line no-await-in-loop
+          let newDoc = await actor.createEmbeddedDocuments("Item", [newDocument], DISABLE_FOUNDRY_UPGRADE);
+          results.push(newDoc);
+          // new doc/item push to ddb handled by the add item hook
+        }
+        return results;
+      } else {
+        updateItemDetails.itemsToQuantity.push(document);
+      }
+    }
+    if (update.data?.equipped) {
+      updateItemDetails.itemsToEquip.push(document);
+    }
+    if (update.name) {
+      updateItemDetails.itemsToName.push(document);
+    }
   }
 
   return updateDDBEquipmentStatus(actor, updateItemDetails, []);
+
 }
 
 async function updateSpellPrep(actor, document) {
@@ -1060,6 +1127,7 @@ async function updateSpellPrep(actor, document) {
 // Called when characters items are updated
 // will dynamically sync status back to DDB
 async function activeUpdateUpdateItem(document, update) {
+  // eslint-disable-next-line complexity
   return new Promise((resolve) => {
 
     const dynamicSync = activeUpdate();
@@ -1077,6 +1145,12 @@ async function activeUpdateUpdateItem(document, update) {
       const syncHD = game.settings.get("ddb-importer", "dynamic-sync-policy-hitdice");
       const syncSpellsPrepared = game.settings.get("ddb-importer", "dynamic-sync-policy-spells-prepared");
       const isDDBItem = document.data.flags.ddbimporter?.id;
+      const customItem = document.data.flags.ddbimporter?.custom || false;
+
+      const customNameAllowed = DICTIONARY.types.inventory.includes(document.type) || document.data.flags.ddbimporter?.action;
+      if (!customItem && update.name && customNameAllowed) {
+        updateDDBCustomNames(parentActor, [document]);
+      }
 
       // is this a DDB action, or do we treat this as an item?
       if (action && syncActionUse && isDDBItem) {
