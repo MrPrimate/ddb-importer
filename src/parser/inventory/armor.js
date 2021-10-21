@@ -15,12 +15,16 @@ function getArmorType(data, flags) {
   // get the armor class
   const baseArmorClass = data.definition.armorClass;
   const bonusArmorClass = data.definition.grantedModifiers.reduce((prev, cur) => {
-    if (cur.type === "bonus" && cur.subType === "armor-class" && cur.value) {
-      return cur.value;
+    if (cur.type === "bonus" && cur.subType === "armor-class" && Number.isInteger(cur.value)) {
+      return prev + cur.value;
     } else {
-      return 0;
+      return prev;
     }
   }, 0);
+
+  // console.warn("datadefinition",data.definition)
+  // console.warn("baseArmorClass",baseArmorClass)
+  // console.warn("bonusArmorClass",bonusArmorClass)
 
   // get the max dex modifier (Medium Armor: 2, Heavy: 0)
   let maxDexModifier;
