@@ -717,8 +717,16 @@ export class DDBDynamicUpdateSetup extends FormApplication {
   // eslint-disable-next-line class-methods-use-this
   async _updateObject(event, formData) {
     event.preventDefault();
+    const initial = game.settings.get("ddb-importer", "dynamic-sync");
     for (const [key, value] of Object.entries(formData)) {
-      game.settings.set("ddb-importer", key, value);
+      // eslint-disable-next-line no-await-in-loop
+      await game.settings.set("ddb-importer", key, value);
+    }
+    const post = game.settings.get("ddb-importer", "dynamic-sync");
+
+    if (initial != post) {
+      logger.warn("RELOADING!");
+      foundry.utils.debounce(window.location.reload(), 100);
     }
   }
 }
