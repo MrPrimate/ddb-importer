@@ -983,8 +983,8 @@ async function activeUpdateActor(actor, update) {
     console.warn("dynamicSync", dynamicSync);
     console.warn("actorActiveUpdate", actorActiveUpdate);
     if (dynamicSync && actorActiveUpdate) {
-      console.warn("actor",actor);
-      console.warn("actorUpdate",update);
+      console.warn("actor", actor);
+      console.warn("actorUpdate", update);
       const syncHP = game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints");
       const syncCurrency = game.settings.get("ddb-importer", "dynamic-sync-policy-currency");
       const syncSpellSlots = game.settings.get("ddb-importer", "dynamic-sync-policy-spells-slots");
