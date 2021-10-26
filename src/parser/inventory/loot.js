@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getConsumableUses } from "./common.js";
+import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity } from "./common.js";
 
 function getItemType(data) {
   let result = {
@@ -77,11 +77,8 @@ export default function parseLoot(data, itemType) {
   };
 
   loot.data.source = utils.parseSource(data.definition);
-  loot.data.quantity = data.quantity ? data.quantity : 1;
-
-  const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
-  const totalWeight = data.definition.weight ? data.definition.weight : 0;
-  loot.data.weight = totalWeight / bundleSize;
+  loot.data.quantity = getQuantity(data);
+  loot.data.weight = getSingleItemWeight(data);
   loot.data.equipped = getEquipped(data);
   loot.data.rarity = getItemRarity(data);
   loot.data.identified = true;

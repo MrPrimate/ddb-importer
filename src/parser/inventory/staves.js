@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getWeaponProficient, getMagicalBonus } from "./common.js";
+import { getItemRarity, getEquipped, getWeaponProficient, getMagicalBonus, getSingleItemWeight, getQuantity } from "./common.js";
 
 /**
  * Gets the DND5E weapontype (simpleM, martialR etc.) as string
@@ -126,7 +126,7 @@ function getDamage(data, magicalDamageBonus) {
 
 export default function parseStaff(data, character) {
   let template = JSON.parse(utils.getTemplate("weapon"));
-  let weapon = {
+  let staff = {
     name: data.definition.name,
     type: "weapon",
     data: template,
@@ -139,30 +139,27 @@ export default function parseStaff(data, character) {
     },
   };
 
-  weapon.data.weaponType = getWeaponType(data);
-  weapon.data.properties = getProperties(data);
-  weapon.data.proficient = getWeaponProficient(data, weapon.data.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
-  weapon.data.description = {
+  staff.data.weaponType = getWeaponType(data);
+  staff.data.properties = getProperties(data);
+  staff.data.proficient = getWeaponProficient(data, staff.data.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
+  staff.data.description = {
     value: data.definition.description,
     chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
     unidentified: data.definition.type,
   };
 
-  weapon.data.source = utils.parseSource(data.definition);
-  weapon.data.quantity = data.quantity ? data.quantity : 1;
+  staff.data.source = utils.parseSource(data.definition);
+  staff.data.quantity = getQuantity(data);
+  staff.data.weight = getSingleItemWeight(data);
+  staff.data.equipped = getEquipped(data);
+  staff.data.rarity = getItemRarity(data);
+  staff.data.identified = true;
+  staff.data.activation = { type: "action", cost: 1, condition: "" };
+  staff.data.range = getRange(data);
+  staff.data.ability = getAbility(staff.data.properties, staff.data.range, character.flags.ddbimporter.dndbeyond.effectAbilities);
+  staff.data.actionType = staff.data.range.long === 5 ? "mwak" : "rwak";
+  staff.data.attackBonus = getMagicalBonus(data);
+  staff.data.damage = getDamage(data, getMagicalBonus(data));
 
-  const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
-  const totalWeight = data.definition.weight ? data.definition.weight : 0;
-  weapon.data.weight = totalWeight / bundleSize;
-  weapon.data.equipped = getEquipped(data);
-  weapon.data.rarity = getItemRarity(data);
-  weapon.data.identified = true;
-  weapon.data.activation = { type: "action", cost: 1, condition: "" };
-  weapon.data.range = getRange(data);
-  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range, character.flags.ddbimporter.dndbeyond.effectAbilities);
-  weapon.data.actionType = weapon.data.range.long === 5 ? "mwak" : "rwak";
-  weapon.data.attackBonus = getMagicalBonus(data);
-  weapon.data.damage = getDamage(data, getMagicalBonus(data));
-
-  return weapon;
+  return staff;
 }

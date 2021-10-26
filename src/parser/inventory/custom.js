@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped } from "./common.js";
+import { getItemRarity, getEquipped, getSingleItemWeight, getQuantity } from "./common.js";
 
 export default function parseCustomItem(data) {
   let customItem = {
@@ -28,12 +28,8 @@ export default function parseCustomItem(data) {
   };
 
   customItem.data.source = "Custom item";
-
-  customItem.data.quantity = data.definition.quantity ? data.definition.quantity : 1;
-
-  let bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
-  let totalWeight = data.definition.weight ? data.definition.weight : 0;
-  customItem.data.weight = totalWeight / bundleSize; // ;* (loot.data.quantity / bundleSize);
+  customItem.data.quantity = getQuantity(data);
+  customItem.data.weight = getSingleItemWeight(data);
   customItem.data.price = data.definition.cost ? data.definition.cost : 0;
   customItem.data.equipped = getEquipped(data);
   customItem.data.identified = true;

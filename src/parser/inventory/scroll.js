@@ -1,9 +1,9 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getConsumableUses } from "./common.js";
+import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity } from "./common.js";
 
 
 export default function parseScroll(data) {
-  let consumable = {
+  let scroll = {
     name: data.definition.name,
     type: "consumable",
     data: JSON.parse(utils.getTemplate("consumable")),
@@ -16,25 +16,22 @@ export default function parseScroll(data) {
     },
   };
 
-  consumable.data.consumableType = "scroll";
-  consumable.data.uses = getConsumableUses(data);
-  consumable.data.description = {
+  scroll.data.consumableType = "scroll";
+  scroll.data.uses = getConsumableUses(data);
+  scroll.data.description = {
     value: data.definition.description,
     chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
     unidentified: data.definition.type,
   };
 
-  consumable.data.source = utils.parseSource(data.definition);
-  consumable.data.quantity = data.quantity ? data.quantity : 1;
+  scroll.data.source = utils.parseSource(data.definition);
+  scroll.data.quantity = getQuantity(data);
+  scroll.data.weight = getSingleItemWeight(data);
+  scroll.data.equipped = getEquipped(data);
+  scroll.data.rarity = getItemRarity(data);
+  scroll.data.identified = true;
+  scroll.data.activation = { type: "action", cost: 1, condition: "" };
+  scroll.data.actionType = "other";
 
-  const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
-  const totalWeight = data.definition.weight ? data.definition.weight : 0;
-  consumable.data.weight = totalWeight / bundleSize;
-  consumable.data.equipped = getEquipped(data);
-  consumable.data.rarity = getItemRarity(data);
-  consumable.data.identified = true;
-  consumable.data.activation = { type: "action", cost: 1, condition: "" };
-  consumable.data.actionType = "other";
-
-  return consumable;
+  return scroll;
 }

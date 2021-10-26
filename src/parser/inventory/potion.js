@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getConsumableUses } from "./common.js";
+import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity } from "./common.js";
 
 
 function getActionType(data) {
@@ -86,7 +86,7 @@ function getDuration(data) {
 
 
 export default function parsePotion(data, itemType) {
-  let consumable = {
+  let potion = {
     name: data.definition.name,
     type: "consumable",
     data: JSON.parse(utils.getTemplate("consumable")),
@@ -99,26 +99,23 @@ export default function parsePotion(data, itemType) {
     },
   };
 
-  consumable.data.consumableType = "potion";
-  consumable.data.uses = getConsumableUses(data);
-  consumable.data.description = {
+  potion.data.consumableType = "potion";
+  potion.data.uses = getConsumableUses(data);
+  potion.data.description = {
     value: data.definition.description,
     chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
     unidentified: data.definition.type,
   };
-  consumable.data.source = utils.parseSource(data.definition);
-  consumable.data.quantity = data.quantity ? data.quantity : 1;
+  potion.data.source = utils.parseSource(data.definition);
+  potion.data.quantity = getQuantity(data);
+  potion.data.weight = getSingleItemWeight(data);
+  potion.data.equipped = getEquipped(data);
+  potion.data.rarity = getItemRarity(data);
+  potion.data.identified = true;
+  potion.data.activation = { type: "action", cost: 1, condition: "" };
+  potion.data.duration = getDuration(data);
+  potion.data.actionType = getActionType(data);
+  potion.data.damage = getDamage(data, getActionType(data));
 
-  const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
-  const totalWeight = data.definition.weight ? data.definition.weight : 0;
-  consumable.data.weight = totalWeight / bundleSize;
-  consumable.data.equipped = getEquipped(data);
-  consumable.data.rarity = getItemRarity(data);
-  consumable.data.identified = true;
-  consumable.data.activation = { type: "action", cost: 1, condition: "" };
-  consumable.data.duration = getDuration(data);
-  consumable.data.actionType = getActionType(data);
-  consumable.data.damage = getDamage(data, getActionType(data));
-
-  return consumable;
+  return potion;
 }

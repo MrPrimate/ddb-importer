@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getUses } from "./common.js";
+import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity } from "./common.js";
 
 function isHalfProficiencyRoundedUp(data, ab) {
   const longAbility = DICTIONARY.character.abilities
@@ -69,11 +69,8 @@ export default function parseTool(ddb, data, itemType) {
 
   tool.data.proficient = (ddb) ? getProficiency(ddb, tool.name, tool.data.ability) : 0;
   tool.data.source = utils.parseSource(data.definition);
-  tool.data.quantity = data.quantity ? data.quantity : 1;
-
-  const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
-  const totalWeight = data.definition.weight ? data.definition.weight : 0;
-  tool.data.weight = totalWeight / bundleSize;
+  tool.data.quantity = getQuantity(data);
+  tool.data.weight = getSingleItemWeight(data);
   tool.data.equipped = getEquipped(data);
   tool.data.rarity = getItemRarity(data);
   tool.data.identified = true;

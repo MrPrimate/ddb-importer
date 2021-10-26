@@ -140,3 +140,18 @@ export function getBaseItem(data) {
 
   return baseItem;
 }
+
+export function getQuantity(data) {
+  return data.definition.quantity
+    ? data.definition.quantity
+    : data.quantity
+      ? data.quantity
+      : 1;
+}
+
+export function getSingleItemWeight(data) {
+  const bundleSize = data.definition?.bundleSize ? data.definition.bundleSize : 1;
+  const totalWeight = data.definition?.weight ? data.definition.weight : 0;
+  const weight = totalWeight / bundleSize;
+  return weight;
+}

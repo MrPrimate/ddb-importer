@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getUses } from "./common.js";
+import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity } from "./common.js";
 
 export default function parseWonderous(data) {
   /**
@@ -43,10 +43,8 @@ export default function parseWonderous(data) {
   };
 
   item.data.source = utils.parseSource(data.definition);
-  item.data.quantity = data.quantity ? data.quantity : 1;
-  const bundleSize = data.definition.bundleSize ? data.definition.bundleSize : 1;
-  const totalWeight = data.definition.weight ? data.definition.weight : 0;
-  item.data.weight = totalWeight / bundleSize;
+  item.data.quantity = getQuantity(data);
+  item.data.weight = getSingleItemWeight(data);
   item.data.equipped = getEquipped(data);
   item.data.rarity = getItemRarity(data);
   item.data.identified = true;

@@ -1,3 +1,7 @@
+# 5.2.27
+
+* Item weights, notably for Ammunition did not parse correctly.
+
 # 5.2.26
 
 * In some instances, where a magic armour had multiple modifiers on DDB, the magic bonus to AC would not be parsed, noteable on Dragonguard. @✨ Algor_Langeaux ✨#2734
