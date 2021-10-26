@@ -1,12 +1,12 @@
-# 5.2.27
+# 2.5.27
 
 * Item weights, notably for Ammunition did not parse correctly.
 
-# 5.2.26
+# 2.5.26
 
 * In some instances, where a magic armour had multiple modifiers on DDB, the magic bonus to AC would not be parsed, noteable on Dragonguard. @✨ Algor_Langeaux ✨#2734
 
-# 5.2.25
+# 2.5.25
 
 * Global Bonus Abilities could sometimes be added to field as an interger and when combined with CUB would cause problems.
 
