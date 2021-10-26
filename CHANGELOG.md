@@ -22,12 +22,16 @@
 * Bead of Force did not parse correctly.
 * Spell: Bones of the Earth had incorrect radius.
 
+# 2.6.1
+
+* Active Updates: Dynamically sync character changes back to D&D Beyond as they happen.
+
 # 2.5.30
 
 * Characters: In some rare circumstances a class and race feature name clashed (e.g. Radiant Soul) and would not import both.
 * Characters: Consolidate background choices into single feature.
 
-# 2.5.29
+# 2.2.29
 
 * Max prepared spells added to the Tidy sheet data.
 * Sneak Attack ensures activation is set to special when importing features and actions. (@flynnkd#7958).
