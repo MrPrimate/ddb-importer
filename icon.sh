@@ -7,6 +7,6 @@ FILES="./*"
 for f in $FILES
 do
   echo "Processing $f file..."
-  cat "$f" | jq -c > "../data/$f"
+  jq -c '.' "$f" > "../data/$f"
 done
 cd ..
