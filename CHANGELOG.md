@@ -1,3 +1,7 @@
+# 2.5.28
+
+* Improve Breath Weapon import.
+
 # 2.5.27
 
 * Item weights, notably for Ammunition did not parse correctly.

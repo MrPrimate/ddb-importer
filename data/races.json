@@ -32,6 +32,14 @@
     "type": "systems"
   },
   {
+    "name": "Metallic Breath Weapon",
+    "racial_trait": "Metallic Breath Weapon",
+    "race": "Dragonborn",
+    "subrace": "Metallic Dragonborn",
+    "path": "systems/dnd5e/icons/skills/fire_05.jpg",
+    "type": "systems"
+  },
+  {
     "name": "Damage Resistance",
     "racial_trait": "Damage Resistance",
     "race": "Dragonborn",

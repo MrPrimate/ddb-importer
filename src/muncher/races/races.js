@@ -3,6 +3,9 @@ import utils from "../../utils.js";
 import { getCompendiumLabel, updateCompendium, srdFiddling, getImagePath } from "../import.js";
 import { munchNote } from "../utils.js";
 
+const FEATURE_DUP = [
+  "Breath Weapon",
+];
 
 const RACE_TEMPLATE = {
   "name": "",
@@ -94,6 +97,9 @@ function getRacialTrait(trait, fullName) {
   logger.debug("Race trait build started");
 
   let result = buildBase(trait);
+
+  const duplicateFeature = FEATURE_DUP.includes(result.name);
+  result.name = (duplicateFeature) ? `${result.name} (${fullName})` : result.name;
 
   result.flags.ddbimporter['spellListIds'] = trait.spellListIds;
   result.flags.ddbimporter['definitionKey'] = trait.definitionKey;
