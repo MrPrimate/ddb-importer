@@ -8,7 +8,7 @@
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
   "minimumCoreVersion": "0.8.9",
-  "compatibleCoreVersion": "0.8.9",
+  "compatibleCoreVersion": "9.226",
   "authors": [
     {
       "name": "MrPrimate",
