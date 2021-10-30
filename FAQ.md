@@ -101,3 +101,18 @@ Answer: run the above migration command.
 * For integrating characters/spells/items you need to the character builder content.
 
 * For adventure muncher you need the compendium content.
+
+## Can I update all my characters without opening each one?
+
+Yes, use the following macro:
+
+```javascript
+const actors = game.actors;
+for (let [key, value] of actors.entries()) {
+  const ddbImported = 'ddbimporter' in value.data.flags;
+  if (ddbImported && value.type === "character") {
+    console.log('Importing: ' + value.data.name);
+    await DDBImporter.importCharacter(value);
+  }
+}
+```
