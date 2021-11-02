@@ -76,6 +76,7 @@ export function getBonusSpellAttacks(data, character, type) {
   const bonusLookups = [
     { fvttType: "attack", ddbSubType: "spell-attacks" },
     { fvttType: "attack", ddbSubType: `${type}-spell-attacks` },
+    { fvttType: "attack", ddbSubType: "warlock-spell-attacks" },
   ];
 
   return getGlobalBonusAttackModifiers(bonusLookups, data, character);
@@ -134,7 +135,10 @@ export function getBonusAbilities(data, character) {
 
 export function getBonusSpellDC(data, character) {
   let result = {};
-  const bonusLookup = [{ fvttType: "dc", ddbSubType: "spell-save-dc" }];
+  const bonusLookup = [
+    { fvttType: "dc", ddbSubType: "spell-save-dc" },
+    { fvttType: "dc", ddbSubType: "warlock-spell-save-dc" },
+  ];
 
   bonusLookup.forEach((b) => {
     result[b.fvttType] = utils.getModifierSum(utils.filterBaseModifiers(data, "bonus", b.ddbSubType), character);

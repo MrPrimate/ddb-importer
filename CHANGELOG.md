@@ -1,6 +1,7 @@
 # 2.5.28
 
 * Improve Breath Weapon import.
+* Rod of the Pact Keeper did not add a bonus when not using active effects.
 
 # 2.5.27
 
