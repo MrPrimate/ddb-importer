@@ -64,6 +64,7 @@
   "ddb-importer.scenes.gm-enable": "Enable GM Map",
   "ddb-importer.scenes.gm-enabled": "GM Map",
   "ddb-importer.scenes.download": "DDB Scene Config",
+  "ddb-importer.scenes.third-party-download": "Third Party Scene Config",
   "ddb-importer.allow-scene-download.name": "Allow Download of Scene Data",
   "ddb-importer.allow-scene-download.hint": "If you wish to submit data for walls and lighting of a scene use this option to download a config file for submission.",
   "ddb-importer.scene-format.name": "Scene image format",

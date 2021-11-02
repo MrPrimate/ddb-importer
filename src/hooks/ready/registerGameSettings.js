@@ -103,6 +103,15 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "allow-third-party-scene-download", {
+    name: "ddb-importer.allow-third-party-scene-download.name",
+    hint: "ddb-importer.allow-third-party-scene-download.hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "allow-note-generation", {
     name: "ddb-importer.allow-note-generation.name",
     hint: "ddb-importer.allow-note-generation.hint",
