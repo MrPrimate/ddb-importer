@@ -2,7 +2,7 @@ import utils from "../../utils.js";
 import { getArmorClass } from "./ac.js";
 import { getSpecialTraits } from "./specialTraits.js";
 import { getSkills } from "./skills.js";
-import { getSpellCasting, getSpellDC, getSpellSlots } from "./spellCasting.js";
+import { getSpellCasting, getSpellDC, getSpellSlots, maxPreparedSpells } from "./spellCasting.js";
 import { getHitpoints, getHitDice } from "./hp.js";
 import { getSpeed } from "./speed.js";
 import {
@@ -133,6 +133,9 @@ export default function getCharacter(ddb) {
 
   // details
   character.data.details.background = getBackground(ddb);
+
+  // known spells
+  character.data.details.maxPreparedSpells = maxPreparedSpells(ddb, character);
 
   // xp
   character.data.details.xp.value = ddb.character.currentXp;

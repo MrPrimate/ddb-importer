@@ -11,21 +11,26 @@ let convertSpellCastingAbilityId = (spellCastingAbilityId) => {
   return DICTIONARY.character.abilities.find((ability) => ability.id === spellCastingAbilityId).value;
 };
 
+function getSpellCastingAbility(klass) {
+  let spellCastingAbility = undefined;
+  if (hasSpellCastingAbility(klass.definition.spellCastingAbilityId)) {
+    // check to see if class has a spell casting ability
+    spellCastingAbility = convertSpellCastingAbilityId(klass.definition.spellCastingAbilityId);
+  } else if (
+    klass.subclassDefinition &&
+    hasSpellCastingAbility(klass.subclassDefinition.spellCastingAbilityId)
+  ) {
+    // some subclasses attach a spellcasting ability, e.g. Arcane Trickster
+    spellCastingAbility = convertSpellCastingAbilityId(klass.subclassDefinition.spellCastingAbilityId);
+  }
+  return spellCastingAbility;
+}
+
 export function getSpellCasting(data, character) {
   let result = [];
   data.character.classSpells.forEach((playerClass) => {
     let classInfo = data.character.classes.find((cls) => cls.id === playerClass.characterClassId);
-    let spellCastingAbility = undefined;
-    if (hasSpellCastingAbility(classInfo.definition.spellCastingAbilityId)) {
-      // check to see if class has a spell casting ability
-      spellCastingAbility = convertSpellCastingAbilityId(classInfo.definition.spellCastingAbilityId);
-    } else if (
-      classInfo.subclassDefinition &&
-      hasSpellCastingAbility(classInfo.subclassDefinition.spellCastingAbilityId)
-    ) {
-      // some subclasses attach a spellcasting ability, e.g. Arcane Trickster
-      spellCastingAbility = convertSpellCastingAbilityId(classInfo.subclassDefinition.spellCastingAbilityId);
-    }
+    const spellCastingAbility = getSpellCastingAbility(classInfo);
     if (spellCastingAbility !== undefined) {
       const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
       let abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
@@ -158,4 +163,24 @@ export function getSpellSlots(data) {
     };
   }
   return spellSlots;
+}
+
+export function maxPreparedSpells(data, character) {
+  let max = 0;
+
+  data.character.classes
+    .filter((klass) => {
+      return (klass.definition.canCastSpells || (klass.subclassDefinition && klass.subclassDefinition.canCastSpells)) &&
+        (klass.definition.spellPrepareType === 1 || (klass.subclassDefinition && klass.subclassDefinition.spellPrepareType === 1));
+    })
+    .forEach((klass) => {
+      const spellCastingAbility = getSpellCastingAbility(klass);
+      if (spellCastingAbility !== undefined) {
+        const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+        const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
+        max += abilityModifier + klass.level;
+      }
+    });
+
+  return max;
 }

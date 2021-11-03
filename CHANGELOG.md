@@ -1,3 +1,7 @@
+# 5.2.29
+
+* Max prepared spells added to the Tidy sheet data.
+
 # 2.5.28
 
 * Improve Breath Weapon import.
