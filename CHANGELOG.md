@@ -1,6 +1,8 @@
 # 5.2.29
 
 * Max prepared spells added to the Tidy sheet data.
+* Sneak Attack ensures activation is set to special when importing features and actions. (@flynnkd#7958).
+* Support for Link Item and Resource DnD5e module https://foundryvtt.com/packages/link-item-resource-5e (Thanks @Calego#0914)
 
 # 2.5.28
 
