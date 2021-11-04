@@ -263,14 +263,33 @@ function getResource(character, action) {
   Object.keys(character.data.resources).forEach((resource) => {
     const detail = character.data.resources[resource];
     if (action.name === detail.label) {
-      consume = {
-        type: "attribute",
-        target: `resources.${resource}.value`,
-        amount: null,
+      const linkItems = utils.isModuleInstalledAndActive("link-item-resource-5e");
+      if (!linkItems) {
+        consume = {
+          type: "attribute",
+          target: `resources.${resource}.value`,
+          amount: 1,
+        };
       };
     }
   });
   return consume;
+}
+
+function getResourceFlags(character, action, flags) {
+  Object.keys(character.data.resources).forEach((resource) => {
+    const detail = character.data.resources[resource];
+    if (action.name === detail.label) {
+      flags["link-item-resource-5e"] = {
+        "resource-link": resource
+      };
+      const linkItems = utils.isModuleInstalledAndActive("link-item-resource-5e");
+      if (linkItems) {
+        character.data.resources[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+      }
+    }
+  });
+  return flags;
 }
 
 function getWeaponType(action) {
@@ -408,6 +427,7 @@ function getAttackAction(ddb, character, action) {
     weapon.data.weaponType = getWeaponType(action);
     weapon.data.uses = getLimitedUse(action, character);
     weapon.data.consume = getResource(character, action);
+    weapon.flags = getResourceFlags(character, action, weapon.flags);
 
     // class action
     const klassAction = utils.findComponentByComponentId(ddb, action.id);
@@ -547,6 +567,7 @@ function getOtherActions(ddb, character, items) {
       feat.data.description = getDescription(ddb, character, action);
       feat.data.uses = getLimitedUse(action, character);
       feat.data.consume = getResource(character, action);
+      feat.flags = getResourceFlags(character, action, feat.flags);
 
       feat = calculateRange(action, feat);
       feat = getAttackType(ddb, character, action, feat);
