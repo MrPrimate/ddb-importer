@@ -76,6 +76,7 @@ I'd recommend installing:
 
 - [Magic Items](https://foundryvtt.com/packages/magicitems/) for attaching spells to magic items
 - [DAE](https://foundryvtt.com/packages/dae/) or [Skill Customization for D&D5E](https://foundryvtt.com/packages/skill-customization-5e/) for skill bonuses
+- [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e )
 
 ## SRD Import Notes
 
