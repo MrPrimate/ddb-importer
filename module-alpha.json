@@ -3,7 +3,7 @@
   "author": "MrPrimate",
   "title": "[ALPHA] D&D Beyond Importer",
   "description": "ALPHA DDB Importer for Active Updates",
-  "version": "2.6.3",
+  "version": "2.6.4",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
