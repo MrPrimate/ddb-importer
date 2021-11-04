@@ -255,6 +255,7 @@ export function fixFeatures(features) {
         feature.data.damage = { parts: [["(ceil(@classes.rogue.levels /2))d6", ""]], versatile: "", value: "" };
         if (!feature.flags.ddbimporter.action) {
           feature.data.actionType = "other";
+          feature.data.activation = { type: "special", cost: 0, condition: "" };
         }
         break;
       }
