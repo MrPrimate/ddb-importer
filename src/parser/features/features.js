@@ -147,7 +147,7 @@ function includedFeatureNameCheck(featName) {
   const nameAllowed = !featName.startsWith("Proficiencies") &&
     !featName.startsWith("Ability Score") &&
     !featName.startsWith("Size") &&
-    SKIPPED_FEATURES.includes(featName);
+    !SKIPPED_FEATURES.includes(featName);
 
   return nameAllowed;
 }
