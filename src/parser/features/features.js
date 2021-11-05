@@ -138,10 +138,16 @@ function getNameMatchedFeature(items, item) {
   return items.find((dup) => dup.name === item.name && item.flags.ddbimporter.type === dup.flags.ddbimporter.type);
 }
 
+const SKIPPED_FEATURES = [
+  "Hit Points",
+  "Languages",
+  "Bonus Proficiency",
+];
 function includedFeatureNameCheck(featName) {
   const nameAllowed = !featName.startsWith("Proficiencies") &&
     !featName.startsWith("Ability Score") &&
-    featName !== "Bonus Proficiency";
+    !featName.startsWith("Size") &&
+    SKIPPED_FEATURES.includes(featName);
 
   return nameAllowed;
 }
