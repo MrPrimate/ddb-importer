@@ -113,12 +113,12 @@ export function removeActionFeatures(actions, features) {
   });
 
   features = features
-  .filter((feature) => actionAndFeature || !actions.some((action) => feature.name === action.name))
-  .map((feature) => {
-    const actionMatch = actionAndFeature && actions.some((action) => feature.name === action.name);
-    if (actionMatch) feature.effects = [];
-    return feature;
-  });
+    .filter((feature) => actionAndFeature || !actions.some((action) => feature.name === action.name && action.flags.ddbimporter.componentId == feature.flags.ddbimporter.id))
+    .map((feature) => {
+      const actionMatch = actionAndFeature && actions.some((action) => feature.name === action.name);
+      if (actionMatch) feature.effects = [];
+      return feature;
+    });
 
   return [actions, features];
 }

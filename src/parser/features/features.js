@@ -49,8 +49,9 @@ function parseFeature(feat, ddb, character, source, type) {
     data: JSON.parse(utils.getTemplate("feat")),
     flags: {
       ddbimporter: {
-        id: feat.id,
-        entityTypeId: feat.entityTypeId,
+        id: feat.definition?.id ? feat.definition.id : feat.id,
+        type: type,
+        entityTypeId: feat.definition?.entityTypeId ? feat.definition.entityTypeId : feat.entityTypeId,
         dndbeyond: {
           requiredLevel: feat.requiredLevel,
           displayOrder:
@@ -121,7 +122,7 @@ function isDuplicateFeature(items, item) {
 }
 
 function getNameMatchedFeature(items, item) {
-  return items.find((dup) => dup.name === item.name);
+  return items.find((dup) => dup.name === item.name && item.flags.ddbimporter.type === dup.flags.ddbimporter.type);
 }
 
 function includedFeatureNameCheck(featName, addEffects) {
@@ -139,7 +140,7 @@ function includedFeatureNameCheck(featName, addEffects) {
 }
 
 
-function parseClassFeatures(ddb, character, addEffects, actionAndFeature) {
+function parseClassFeatures(ddb, character, addEffects) {
   // class and subclass traits
   let classItems = [];
   let classesFeatureList = [];
@@ -195,7 +196,6 @@ function parseClassFeatures(ddb, character, addEffects, actionAndFeature) {
         (feat) =>
           includedFeatureNameCheck(feat.name, addEffects) &&
           feat.requiredLevel <= klass.level &&
-          (actionAndFeature || !ddb.character.actions.class.some((action) => action.name === feat.name)) &&
           !excludedFeatures.includes(feat.id)
       );
       const subKlassName = `${klassName} : ${klass.subclassDefinition.name}`;
@@ -260,6 +260,7 @@ export default function parseFeatures(ddb, character) {
     .map((f) => f.affectedRacialTraitId);
 
   // racial traits
+  logger.debug("Parsing racial traits");
   ddb.character.race.racialTraits
     .filter(
       (trait) => !trait.definition.hideInSheet && !excludedOriginFeatures.includes(trait.definition.id))
@@ -278,15 +279,17 @@ export default function parseFeatures(ddb, character) {
     });
 
   // class and subclass traits
+  logger.debug("Parsing class and subclass features");
   let classItems = parseClassFeatures(ddb, character, addEffects);
 
   // optional class features
+  logger.debug("Parsing optional class features");
   if (ddb.classOptions) {
     ddb.classOptions
     .forEach((feat) => {
       logger.debug(`Parsing Optional Feature ${feat.name}`);
       const source = utils.parseSource(feat);
-      const feats = parseFeature(feat, ddb, character, source, "feat");
+      const feats = parseFeature(feat, ddb, character, source, "class");
       feats.forEach((item) => {
         items.push(item);
       });
@@ -294,6 +297,7 @@ export default function parseFeatures(ddb, character) {
   }
 
   // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
+  logger.debug("Removing matching traits");
   classItems
     .forEach((item) => {
       const existingFeature = getNameMatchedFeature(items, item);
@@ -307,6 +311,7 @@ export default function parseFeatures(ddb, character) {
     });
 
   // add feats
+  logger.debug("Parsing feats");
   ddb.character.feats
     .forEach((feat) => {
       const source = utils.parseSource(feat.definition);
@@ -316,6 +321,7 @@ export default function parseFeatures(ddb, character) {
       });
     });
 
+  logger.debug("Parsing backgrounds");
   const backgroundFeature = getBackgroundData(ddb);
   const backgroundSource = utils.parseSource(backgroundFeature.definition);
   const backgroundFeat = parseFeature(backgroundFeature, ddb, character, backgroundSource, "background");
@@ -323,8 +329,9 @@ export default function parseFeatures(ddb, character) {
     items.push(item);
   });
 
+  logger.debug("Feature fixes");
   fixFeatures(items);
   // console.log("FEATURES");
-  // console.error(JSON.parse(JSON.stringify(items)));
+  // console.error("FEATURES",JSON.parse(JSON.stringify(items)));
   return items;
 }

@@ -1,3 +1,7 @@
+# 5.2.30
+
+* Characters: In some rare circumstances a class and race feature name clashed (e.g. Radiant Soul) and would not import both.
+
 # 5.2.29
 
 * Max prepared spells added to the Tidy sheet data.
