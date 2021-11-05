@@ -1,6 +1,7 @@
 # 5.2.30
 
 * Characters: In some rare circumstances a class and race feature name clashed (e.g. Radiant Soul) and would not import both.
+* Characters: Consolidate background choices into single feature.
 
 # 5.2.29
 

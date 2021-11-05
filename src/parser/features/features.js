@@ -80,7 +80,20 @@ function parseFeature(feat, ddb, character, source, type) {
   // Add choices to the textual description of that feat
   let choices = utils.getChoices(ddb, type, feat);
 
-  if (choices.length > 0) {
+  if (type === "background") {
+    logger.debug(`Found background ${feat.name}`);
+    logger.debug(`Found ${choices.map((c) => c.label).join(",")}`);
+    item.data.description = getDescription(ddb, character, feat);
+    item.data.description.value += `<h3>Choices</h3><ul>`;
+    item.data.source = source;
+    choices.forEach((choice) => {
+      let choiceItem = JSON.parse(JSON.stringify(item));
+      item = addFeatEffects(ddb, character, feat, choiceItem, choice, type);
+      item.data.description.value += `<li>${choice.label}</li>`;
+    });
+    item.data.description.value += `</ul>`;
+    features.push(item);
+  } else if (choices.length > 0) {
     logger.debug(`Found ${choices.map((c) => c.label).join(",")}`);
     choices.forEach((choice) => {
       logger.debug(`Adding choice ${choice.label}`);
@@ -125,13 +138,7 @@ function getNameMatchedFeature(items, item) {
   return items.find((dup) => dup.name === item.name && item.flags.ddbimporter.type === dup.flags.ddbimporter.type);
 }
 
-function includedFeatureNameCheck(featName, addEffects) {
-  // we add all features when parsing active effects
-  if (addEffects) {
-    const nameAllowed = !featName.startsWith("Ability Score");
-    return nameAllowed;
-  }
-
+function includedFeatureNameCheck(featName) {
   const nameAllowed = !featName.startsWith("Proficiencies") &&
     !featName.startsWith("Ability Score") &&
     featName !== "Bonus Proficiency";
@@ -140,7 +147,7 @@ function includedFeatureNameCheck(featName, addEffects) {
 }
 
 
-function parseClassFeatures(ddb, character, addEffects) {
+function parseClassFeatures(ddb, character) {
   // class and subclass traits
   let classItems = [];
   let classesFeatureList = [];
@@ -154,7 +161,7 @@ function parseClassFeatures(ddb, character, addEffects) {
   ddb.character.classes.forEach((klass) => {
     const classFeatures = klass.definition.classFeatures.filter(
       (feat) =>
-        includedFeatureNameCheck(feat.name, addEffects) &&
+        includedFeatureNameCheck(feat.name) &&
         feat.requiredLevel <= klass.level
     );
     const klassName = klass.definition.name;
@@ -194,7 +201,7 @@ function parseClassFeatures(ddb, character, addEffects) {
       let subClassItems = [];
       const subFeatures = klass.subclassDefinition.classFeatures.filter(
         (feat) =>
-          includedFeatureNameCheck(feat.name, addEffects) &&
+          includedFeatureNameCheck(feat.name) &&
           feat.requiredLevel <= klass.level &&
           !excludedFeatures.includes(feat.id)
       );
@@ -247,12 +254,6 @@ function parseClassFeatures(ddb, character, addEffects) {
 }
 
 export default function parseFeatures(ddb, character) {
-  const daeInstalled = utils.isModuleInstalledAndActive("dae");
-  const compendiumItem = character.flags.ddbimporter.compendium;
-  const addEffects = (daeInstalled && compendiumItem)
-    ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-    : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
-
   let items = [];
 
   const excludedOriginFeatures = ddb.character.optionalOrigins
@@ -263,7 +264,7 @@ export default function parseFeatures(ddb, character) {
   logger.debug("Parsing racial traits");
   ddb.character.race.racialTraits
     .filter(
-      (trait) => !trait.definition.hideInSheet && !excludedOriginFeatures.includes(trait.definition.id))
+      (trait) => includedFeatureNameCheck(trait.definition.name) && !trait.definition.hideInSheet && !excludedOriginFeatures.includes(trait.definition.id))
     .forEach((feat) => {
       const source = utils.parseSource(feat.definition);
       const features = parseFeature(feat, ddb, character, source, "race");
@@ -280,7 +281,7 @@ export default function parseFeatures(ddb, character) {
 
   // class and subclass traits
   logger.debug("Parsing class and subclass features");
-  let classItems = parseClassFeatures(ddb, character, addEffects);
+  let classItems = parseClassFeatures(ddb, character);
 
   // optional class features
   logger.debug("Parsing optional class features");
