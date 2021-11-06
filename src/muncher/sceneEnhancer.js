@@ -1,3 +1,4 @@
+import { download } from "./utils.js";
 
 /**
    * Extracts all notes that have been placed by ddb-importer
@@ -5,11 +6,11 @@
    * getting the real label from the appropriate Journal Entry
    * @param {Scene} scene The scene to extract the notes from
   */
- function getNotes(scene) {
+function getNotes(scene, bookCode) {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
-    journal.data.flags.ddb?.bookCode && scene.data.flags.ddb?.bookCode &&
-    journal.data.flags.ddb.bookCode === scene.data.flags.ddb.bookCode
+    journal.data.flags.ddb?.bookCode &&
+    journal.data.flags.ddb.bookCode === bookCode
   );
 
   // get all notes placed on the map
@@ -22,12 +23,7 @@
       const idx = parseInt(journal.data.flags.ddb.ddbId);
         // removed un-needed userdata
       const flags = journal.data.flags.ddb;
-      if (flags?.userData) {
-        if (flags.userData.status) delete (flags.userData.status);
-        if (flags.userData.userId) delete (flags.userData.userId);
-        if (flags.userData.twitchUserName) delete (flags.userData.twitchUserName);
-        if (flags.userData.AvatarUrl) delete (flags.userData.AvatarUrl);
-      }
+      if (flags?.userData) delete flags.userData;
       return {
         index: idx,
         label: journal.data.name,
@@ -81,8 +77,9 @@
  * Prepares the scene data for download
  * @param {Scene} scene
  */
-function collectSceneData(scene) {
-  const notes = getNotes(scene);
+export function collectSceneData(scene, bookCode) {
+
+  const notes = getNotes(scene, bookCode);
 
   const data = {
     flags: scene.data.flags,
@@ -164,12 +161,7 @@ function collectSceneData(scene) {
 
 
   // removed un-needed userdata
-  if (data.flags.ddb?.userData) {
-    if (data.flags.ddb.userData.status) delete (data.flags.ddb.userData.status);
-    if (data.flags.ddb.userData.userId) delete (data.flags.ddb.userData.userId);
-    if (data.flags.ddb.userData.twitchUserName) delete (data.flags.ddb.userData.twitchUserName);
-    if (data.flags.ddb.userData.AvatarUrl) delete (data.flags.ddb.userData.AvatarUrl);
-  }
+  if (data.flags.ddb?.userData) delete data.flags.ddb.userData;
 
   data.flags.ddb.notes = notes;
   data.flags.ddbimporter = {
@@ -193,27 +185,41 @@ export function sceneEnhancer() {
 // };
 
 
-export class SceneEnhancerExport extends FormApplication {
+export class SceneEnhancerExport extends Application {
+  constructor(scene) {
+    super();
+    this.scene = scene;
+    this.compendiums = game.packs
+      .filter((pack) => pack.metadata?.entity === "Scene")
+      .sort((a, b) => a.metadata.label.localeCompare(b.metadata.label));
+    this.bookCode = "";
+    if (scene.data.flags.ddb?.bookCode) {
+      this.bookCode = scene.data.flags.ddb.bookCode;
+    }
+
+  }
+
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-scene-enhancer";
     options.template = "modules/ddb-importer/handlebars/enhance-export.hbs";
     options.width = 500;
+    options.classes = ["ddb-muncher", "sheet"];
+    options.tabs = [{ navSelector: ".tabs", contentSelector: "div", initial: "compendium" }];
     return options;
   }
 
   get title() { // eslint-disable-line class-methods-use-this
     // improve localisation
     // game.i18n.localize("")
-    return "DDB Importer Scene Enhancer Exporter";
+    return `DDB Importer Scene Enhancer Exporter: ${this.scene.name}`;
   }
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
     let templateData = {
-      sceneName: scene.name,
-      inCompendium: inCompendium,
-      compendiums: [],
+      sceneName: this.scene.name,
+      compendiums: this.compendiums,
       compendium: {
         name: "",
         id: "",
@@ -221,84 +227,60 @@ export class SceneEnhancerExport extends FormApplication {
       flagName: "",
       useFlag: false,
       description: "",
-      bookCode: "",
+      bookCode: this.bookCode,
     };
-
-    if (scene.data.flags.ddb?.bookCode) {
-      templateData.bookCode = scene.data.flags.ddb.bookCode;
-    }
-
-    const scenes = game.scenes.filter((scene) => !scene.data.flags.ddb?.ddbId);
-
-
-    // this won't work! no reliable way to get the compendium
-    // maybe need to just search for scene name?
-    const flagged = scene.data.flags.core?.sourceId;
-    if (flagged && flagged.toLowerCase().startsWith("compendium")) {
-      const splitSource = flagged.split(".");
-      if (splitSource.length >= 3) {
-        const compendiumLabel = splitSource[3];
-        let compendiumLabel = "house-of-lament-steves-scenes";
-        const compendium = game.packs.find((p) => p.metadata.label === compendiumLabel);
-        templateData.compendium.name = game.
-      // compendium it belongs to
-      // module it belongs to
-    }
-
-    // - scene name
-    // use a flag not name to match the scene:
-    // - bool useFlag
-    // - string: flagName
-    // - bool: export scenes
-    // - bool: export walls
-    // - bool: export actors
-    // - bool: export config
-
-    // description: e.g. does the user have to manually find the image?
 
     return templateData;
   }
 
   activateListeners(html) {
     super.activateListeners(html);
-    // html.find("#patreon-button").click(async (event) => {
-    //   event.preventDefault();
-    //   linkToPatreon();
-    // });
-    // html.find("#campaign-button").click(async (event) => {
-    //   event.preventDefault();
-    //   const cookie = html.find("#cobalt-cookie-input");
-    //   const campaigns = await refreshCampaigns(cookie[0].value);
-    //   let campaignList = `<option value="">Select campaign:</option>`;
-    //   campaigns.forEach((campaign) => {
-    //     campaignList += `<option value="${campaign.id}">${campaign.name} (${campaign.dmUsername}) - ${campaign.id}</option>\n`;
-    //   });
-    //   const list = html.find("#campaign-select");
-    //   list[0].innerHTML = campaignList;
-    // });
-    // html.find("#check-cobalt-button").click(async (event) => {
-    //   event.preventDefault();
-    //   const cookie = html.find("#cobalt-cookie-input");
-    //   if (cookie[0].value === undefined) throw new Error("undefined");
-    //   const cobaltStatus = await checkCobalt("", cookie[0].value);
-    //   const button = html.find("#check-cobalt-button");
-    //   if (cobaltStatus.success) {
-    //     button[0].innerHTML = "Check Cobalt Cookie - Success!";
-    //   } else {
-    //     button[0].innerHTML = "Check Cobalt Cookie - Failure!";
-    //   }
+    $("#ddb-importer-scene-enhancer").css("height", "auto");
+
+    html.find('#compendium-form').submit(async (event) => {
+      const form = document.querySelector('#compendium-form');
+      const data = Object.fromEntries(new FormData(form).entries());
+      this.buttonClick(event, data);
     });
 
+    html.find('#download-form').submit(async (event) => {
+      const form = document.querySelector('#download-form');
+      const data = Object.fromEntries(new FormData(form).entries());
+      this.buttonClick(event, data);
+    });
+
+    html.find("#select-compendium").on("change", async () => {
+      const compendiumSelection = html.find("#select-compendium");
+      const sceneSelection = html.find("#select-scene");
+      // get selected campaign from html selection
+      console.warn(compendiumSelection[0]);
+      const compendiumCollection = compendiumSelection[0].selectedOptions[0]
+        ? compendiumSelection[0].selectedOptions[0].value
+        : undefined;
+      const compendium = game.packs.find((pack) => pack.collection === compendiumCollection);
+      if (compendium) {
+        let sceneList = `<option value="">Select...</option>`;
+        compendium.index.forEach((scene) => {
+          sceneList += `<option value="${scene._id}">${scene.name}</option>`;
+        });
+        sceneSelection.list[0].innerHTML = sceneList;
+      }
+    });
 
   }
 
-  /** @override */
-  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
+
+  async buttonClick(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
     const bookCode = formData['book-code'];
     const campaignSelect = formData['campaign-select'];
 
+    console.warn(formData);
 
+
+    // flagname
+    // description
+    // comepndium/id and
     // update bookcode on scene
     // scene.data.flags.ddb.bookCode -
     //
@@ -317,6 +299,13 @@ export class SceneEnhancerExport extends FormApplication {
     // description: e.g. does the user have to manually find the image?
 
     // compendium
+
+    // console.warn(scene);
+    const data = collectSceneData(this.scene, bookCode);
+    const name = this.scene.data.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+    const sceneRef = `ddb-enhanced-scene-${name}`;
+    // console.warn(data);
+    // download(JSON.stringify(data, null, 4), `${sceneRef}.json`, "application/json");
 
   }
 }

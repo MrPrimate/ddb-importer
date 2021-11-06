@@ -10,7 +10,7 @@ export default function (html, contextOptions) {
       const sceneId = $(li).attr("data-scene-id") ? $(li).attr("data-scene-id") : $(li).attr("data-entity-id");
       const scene = game.scenes.get(sceneId);
       // console.warn(scene);
-      const data = collectSceneData(scene);
+      const data = collectSceneData(scene, scene.data.flags.ddb.bookCode);
       const bookCode = `${scene.data.flags.ddb.bookCode}-${scene.data.flags.ddb.ddbId}`;
       const cobaltId = scene.data.flags.ddb?.cobaltId ? `-${scene.data.flags.ddb.cobaltId}` : "";
       const parentId = scene.data.flags.ddb?.parentId ? `-${scene.data.flags.ddb.parentId}` : "";
@@ -35,12 +35,7 @@ export default function (html, contextOptions) {
     callback: (li) => {
       const sceneId = $(li).attr("data-scene-id") ? $(li).attr("data-scene-id") : $(li).attr("data-entity-id");
       const scene = game.scenes.get(sceneId);
-      // console.warn(scene);
-      const data = collectSceneData(scene);
-      const name = scene.data.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
-      const sceneRef = `ddb-enhanced-scene-${name}`;
-      // console.warn(data);
-      return download(JSON.stringify(data, null, 4), `${sceneRef}.json`, "application/json");
+      new SceneEnhancerExport(scene).render(true);
     },
     condition: (li) => {
       const sceneId = $(li).attr("data-scene-id") ? $(li).attr("data-scene-id") : $(li).attr("data-entity-id");
