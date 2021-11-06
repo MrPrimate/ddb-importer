@@ -2,6 +2,7 @@
 
 * Characters: now imports a consolidated race "feature" to help keep feature list more trim.
 * Bead of Force did not parse correctly.
+* Spell: Bones of the Earth had incorrect radius.
 
 # 2.5.30
 

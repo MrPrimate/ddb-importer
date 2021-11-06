@@ -210,6 +210,10 @@ export function fixSpells(ddb, items) {
         spell.data['target']['type'] = "self";
         break;
       }
+      case "Bones of the Earth": {
+        spell.data.target.value = 2.5;
+        break;
+      }
       // no default
     }
 
