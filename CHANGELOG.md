@@ -1,3 +1,7 @@
+# 2.5.31
+
+* Characters: now imports a consolidated race "feature" to help keep feature list more trim.
+
 # 2.5.30
 
 * Characters: In some rare circumstances a class and race feature name clashed (e.g. Radiant Soul) and would not import both.

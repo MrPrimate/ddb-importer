@@ -86,11 +86,26 @@ async function buildRace(race, compendiumRacialTraits, compendiumLabel) {
     const feature = f.definition;
     const featureMatch = compendiumRacialTraits.find((match) => feature.name === match.name && match.flags.ddbimporter && match.flags.ddbimporter.entityRaceId === feature.entityRaceId);
     const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
-
     result.data.description.value += `${title}\n${feature.description}\n\n`;
   });
 
   return result;
+}
+
+async function getRacialTraitsLookup(racialTraits) {
+  const compendiumLabel = getCompendiumLabel("traits");
+  const compendium = await game.packs.get(compendiumLabel);
+  const index = await compendium.getIndex({ fields: ["name", "flags.ddbimporter.entityRaceId"] });
+  const traitIndex = await index.filter((i) => racialTraits.some((orig) => i.name === orig.name));
+  return traitIndex;
+}
+
+export async function getDDBRace(ddb) {
+  const compendiumLabel = getCompendiumLabel("traits");
+  const compendiumRacialTraits = await getRacialTraitsLookup(ddb.character.race.racialTraits.map((r) => r.definition));
+  const builtRace = await buildRace(ddb.character.race, compendiumRacialTraits, compendiumLabel);
+  delete builtRace.sort;
+  return builtRace;
 }
 
 function getRacialTrait(trait, fullName) {
@@ -142,15 +157,7 @@ export async function getRaces(data) {
   await updateCompendium("traits", { traits: fiddledRacialFeatures }, updateBool);
 
   const compendiumLabel = getCompendiumLabel("traits");
-  const compendium = await game.packs.get(compendiumLabel);
-  const index = await compendium.getIndex();
-  const firstPassTraits = await index.filter((i) => fiddledRacialFeatures.some((orig) => i.name === orig.name));
-  let compendiumRacialTraits = [];
-
-  await Promise.allSettled(firstPassTraits.map(async (feature) => {
-    const trait = await compendium.getEntry(feature._id);
-    compendiumRacialTraits.push(trait);
-  }));
+  const compendiumRacialTraits = await getRacialTraitsLookup(fiddledRacialFeatures);
 
   await Promise.allSettled(data.map(async (race) => {
     logger.debug(`${race.fullName} race parsing started...`);

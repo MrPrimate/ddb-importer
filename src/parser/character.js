@@ -5,16 +5,19 @@ import { removeActionFeatures } from "./features/special.js";
 import getClasses from "./classes/index.js";
 import { getCharacterSpells } from "./spells/getCharacterSpells.js";
 import { getItemSpells } from "./spells/getItemSpells.js";
+import { getDDBRace } from "../muncher/races/races.js";
 import getInventory from "./inventory/index.js";
 import getSpecial from "./special/index.js";
 import logger from "../logger.js";
 
-export function parseJson(ddb) {
+export async function parseJson(ddb) {
   try {
     logger.debug("Starting core character parse");
     let character = getCharacter(ddb);
     logger.debug("Character parse complete");
-    let features = getFeatures(ddb, character);
+    let race = await getDDBRace(ddb);
+    logger.debug("Race parse complete");
+    let features = [race, ...getFeatures(ddb, character)];
     logger.debug("Feature parse complete");
     let classes = getClasses(ddb);
     logger.debug("Classes parse complete");
@@ -30,13 +33,13 @@ export function parseJson(ddb) {
     [actions, features] = removeActionFeatures(actions, features);
 
     let characterJSON = {
-      character: character,
-      features: features,
-      classes: classes,
-      inventory: inventory,
-      spells: spells,
-      actions: actions,
-      itemSpells: itemSpells,
+      character,
+      features,
+      classes,
+      inventory,
+      spells,
+      actions,
+      itemSpells,
     };
 
     getSpecial(characterJSON);

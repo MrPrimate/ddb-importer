@@ -142,6 +142,7 @@ const SKIPPED_FEATURES = [
   "Hit Points",
   "Languages",
   "Bonus Proficiency",
+  "Speed",
 ];
 function includedFeatureNameCheck(featName) {
   const nameAllowed = !featName.startsWith("Proficiencies") &&

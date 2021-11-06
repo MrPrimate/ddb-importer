@@ -204,7 +204,7 @@ export async function getCharacterData(characterId, syncId, localCobaltPostFix =
 
     logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
     try {
-      const character = parseJson(ddb);
+      const character = await parseJson(ddb);
       const shouldChangeName = game.settings.get("ddb-importer", "character-update-policy-name");
       if (!shouldChangeName) {
         character.character.name = undefined;
