@@ -1,6 +1,7 @@
 # 2.5.31
 
 * Characters: now imports a consolidated race "feature" to help keep feature list more trim.
+* Bead of Force did not parse correctly.
 
 # 2.5.30
 

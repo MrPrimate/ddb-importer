@@ -90,6 +90,23 @@ export function fixItems(items) {
         item.data.damage = { parts: [["2d6[acid]", "acid"]], versatile: "", value: "" };
         break;
       }
+      case "Bead of Force": {
+        item.data.activation = { type: "action", cost: 1, condition: "" };
+        item.data.target = { value: 10, width: null, units: "ft", type: "radius" };
+        item.data.range = { value: 60, long: null, units: "ft" };
+        item.data.ability = "dex";
+        item.data.duration = { units: "minute", value: 1 };
+        item.data.uses = { value: 1, max: "1", per: "" };
+        item.data.actionType = "rwak";
+        item.data.chatFlavor = "improvised weapon";
+        item.data.damage = { parts: [["5d4[force]", "force"]], versatile: "", value: "" };
+        item.data.save = {
+          ability: "dex",
+          dc: 15,
+          scaling: "flat",
+        };
+        break;
+      }
       case "Alchemist's Fire (flask)":
       case "Alchemist's Fire": {
         item.data.activation = { type: "action", cost: 1, condition: "" };
