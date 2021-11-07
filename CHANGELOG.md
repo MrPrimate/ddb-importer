@@ -1,5 +1,9 @@
 # 2.5.33
 
+* New icon mappings - thanks @JacksonBockus#1378
+
+# 2.5.33
+
 * In some instances the character importer would fail to generate a race.
 
 # 2.5.32
