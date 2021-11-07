@@ -206,7 +206,7 @@ export function generateTable(parentName, html, updateExisting) {
   let updatedDocument = utils.htmlToDoc(html);
   if (parentName.startsWith("Background:")) {
     const parentNamesArray = parentName.split(":");
-    parentNamesArray.pop();
+    if (parentNamesArray.lenghth > 2) parentNamesArray.pop();
     parentName = parentNamesArray.join(":");
   }
 
