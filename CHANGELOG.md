@@ -1,3 +1,7 @@
+# 2.5.33
+
+* In some instances the character importer would fail to generate a race.
+
 # 2.5.32
 
 * Compendium load and check refactor.
