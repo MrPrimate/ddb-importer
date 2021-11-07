@@ -66,6 +66,7 @@ export default function getCharacter(ddb) {
           roUrl: ddb.character.readonlyUrl,
           characterValues: ddb.character.characterValues,
           templateStrings: [],
+          campaign: ddb.character.campaign,
         },
       },
     },
