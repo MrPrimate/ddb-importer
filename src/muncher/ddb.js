@@ -16,7 +16,7 @@ import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 
 
-function getSourcesLookups(selected) {
+export function getSourcesLookups(selected) {
   const selections = DDB_CONFIG.sources
   .filter((source) => source.isReleased)
   .map((source) => {

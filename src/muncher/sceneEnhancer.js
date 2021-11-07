@@ -1,4 +1,6 @@
 import { download } from "./utils.js";
+import { getSourcesLookups } from "./ddb.js";
+import { DDB_CONFIG } from "../ddbConfig.js";
 
 /**
    * Extracts all notes that have been placed by ddb-importer
@@ -192,45 +194,70 @@ export class SceneEnhancerExport extends Application {
     this.compendiums = game.packs
       .filter((pack) => pack.metadata?.entity === "Scene")
       .sort((a, b) => a.metadata.label.localeCompare(b.metadata.label));
-    this.bookCode = "";
-    if (scene.data.flags.ddb?.bookCode) {
-      this.bookCode = scene.data.flags.ddb.bookCode;
-    }
+
+    const selectedBooks = this.scene.data.flags.ddb?.bookCode
+      ? DDB_CONFIG.sources.find((s) => s.name === this.scene.data.flags.ddb.bookCode).map((s) => s.id)
+      : [];
+    this.books = getSourcesLookups(selectedBooks).map((b) => {
+      return {
+        code: b.acronym,
+        name: b.label,
+        selected: b.selected,
+      };
+    }).sort((a, b) => a.name.localeCompare(b.name));
+
+    this.description = this.scene.data.flags.ddbimporter?.export?.description || "";
+    this.url = this.scene.data.flags.ddbimporter?.export?.url || "";
+
+    this.sceneSet = false;
+    this.compendiumBookSet = false;
+    this.downloadBookSet = false;
 
   }
 
   static get defaultOptions() {
     const options = super.defaultOptions;
+    options.baseApplication = "SceneEnhancerExport";
     options.id = "ddb-importer-scene-enhancer";
     options.template = "modules/ddb-importer/handlebars/enhance-export.hbs";
     options.width = 500;
+    options.resizable = false;
+    options.height = "auto";
     options.classes = ["ddb-muncher", "sheet"];
     options.tabs = [{ navSelector: ".tabs", contentSelector: "div", initial: "compendium" }];
     return options;
   }
 
-  get title() { // eslint-disable-line class-methods-use-this
-    // improve localisation
-    // game.i18n.localize("")
+  get title() {
     return `DDB Importer Scene Enhancer Exporter: ${this.scene.name}`;
   }
 
   /** @override */
-  async getData() { // eslint-disable-line class-methods-use-this
+  getData() {
     let templateData = {
       sceneName: this.scene.name,
       compendiums: this.compendiums,
-      compendium: {
-        name: "",
-        id: "",
-      },
-      flagName: "",
-      useFlag: false,
-      description: "",
-      bookCode: this.bookCode,
+      description: this.description,
+      books: this.books,
+      url: this.url,
     };
 
     return templateData;
+  }
+
+  checkState(html) {
+    const compendiumSelection = html.find("#compendium-button");
+    const downloadSelection = html.find("#compendium-button");
+    if (this.sceneSet && this.compendiumBookSet) {
+      compendiumSelection.disabled = false;
+    } else {
+      compendiumSelection.disabled = true;
+    }
+    if (this.downloadBookSet && this.url !== "" && this.url.startsWith("http")) {
+      downloadSelection.disabled = false;
+    } else {
+      downloadSelection.disabled = true;
+    }
   }
 
   activateListeners(html) {
@@ -251,9 +278,8 @@ export class SceneEnhancerExport extends Application {
 
     html.find("#select-compendium").on("change", async () => {
       const compendiumSelection = html.find("#select-compendium");
-      const sceneSelection = html.find("#select-scene");
+
       // get selected campaign from html selection
-      console.warn(compendiumSelection[0]);
       const compendiumCollection = compendiumSelection[0].selectedOptions[0]
         ? compendiumSelection[0].selectedOptions[0].value
         : undefined;
@@ -263,8 +289,42 @@ export class SceneEnhancerExport extends Application {
         compendium.index.forEach((scene) => {
           sceneList += `<option value="${scene._id}">${scene.name}</option>`;
         });
-        sceneSelection.list[0].innerHTML = sceneList;
+        const sceneSelection = html.find("#select-scene");
+        sceneSelection[0].innerHTML = sceneList;
       }
+    });
+
+    html.find("#select-scene").on("change", async () => {
+      const sceneSelection = html.find("#select-scene");
+      const scene = sceneSelection[0].selectedOptions[0]
+        ? sceneSelection[0].selectedOptions[0].value
+        : undefined;
+      if (scene && scene !== "") {
+        this.sceneSet = true;
+      }
+      this.checkState(html);
+    });
+
+    html.find("#select-book-compendium").on("change", async () => {
+      const bookSelection = html.find("#select-book-compendium");
+      const book = bookSelection[0].selectedOptions[0]
+        ? bookSelection[0].selectedOptions[0].value
+        : undefined;
+      if (book && book !== "") {
+        this.compendiumBookSet = true;
+      }
+      this.checkState(html);
+    });
+
+    html.find("#select-book-download").on("change", async () => {
+      const bookSelection = html.find("#select-book-download");
+      const book = bookSelection[0].selectedOptions[0]
+        ? bookSelection[0].selectedOptions[0].value
+        : undefined;
+      if (book && book !== "") {
+        this.downloadBookSet = true;
+      }
+      this.checkState(html);
     });
 
   }
@@ -309,3 +369,4 @@ export class SceneEnhancerExport extends Application {
 
   }
 }
+

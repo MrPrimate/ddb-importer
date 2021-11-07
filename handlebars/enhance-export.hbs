@@ -8,11 +8,10 @@
   </nav>
 
   <section class="tab" data-tab="compendium">
-    <div class="form-description">
-    <form id="compendium-form" onsubmit="event.preventDefault();">
+    <form id="ddb-importer-settings" onsubmit="event.preventDefault();">
       <div class="form-group">
         <label>Compendium</label>
-        <select id="select-compendium" name="select-compendium" class="form-select">
+        <select id="select-compendium" name="select-compendium" class="form-select" style="flex: 55%">
           <option value=""></option>
           {{#each compendiums}}
           <option value="{{this.collection}}">{{this.title}}</option>
@@ -21,25 +20,70 @@
       </div>
       <div class="form-group">
         <label>Scene</label>
-        <select id="select-scene" name="select-scene" class="form-select">
+        <select id="select-scene" name="select-scene" class="form-select" style="flex: 55%">
           <option value=""></option>
         </select>
       </div>
+      <hr>
+
+      <div class="form-group">
+        <label>Book</label>
+        <select id="select-book-compendium" name="select-book-compendium" class="form-select" style="flex: 55%">
+          <option value=""></option>
+          {{#each books}}
+          <option value="{{this.code}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <hr>
+      Scene description
+      <textarea name="description" rows="3" cols="30">{{url}}</textarea>
+      <hr>
+      Which elements of the scene should be exported?
+      <div class="form-section">
+        <label class="scene-config"><input checked type="checkbox" name="export-actors" data-section="actors" id="export-actors">Actors?</label>
+        <label class="scene-config"><input checked type="checkbox" name="export-notes" data-section="notes" id="export-notes">Notes?</label>
+        <label class="scene-config"><input type="checkbox" name="export-lights" data-section="lights" id="export-lights">Lights?</label>
+        <label class="scene-config"><input type="checkbox" name="export-walls" data-section="walls" id="export-walls">Lights?</label>
+        <label class="scene-config"><input type="checkbox" name="export-config" data-section="config" id="export-config">Config?</label>
+      </div>
+      <hr>
       <button id="compendium-button" name="compendium" type="submit" value="compendium" disabled>Download config</button>
     </form>
-    </div>
   </section>
 
   <section class="tab" data-tab="download">
-    <div class="form-description">
-    <form id="download-form" onsubmit="event.preventDefault();">
+    <form id="ddb-importer-settings" onsubmit="event.preventDefault();">
       <div class="form-group">
-        <label>URL to download the image from</label>
+        <label>Image download URL</label>
         <input type="text" name="url" value="" />
       </div>
+      <hr>
+      <div class="form-group">
+        <label>Book</label>
+        <select id="select-book-download" name="select-book-download" class="form-select" style="flex: 55%">
+          <option value=""></option>
+          {{#each books}}
+          <option value="{{this.code}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <hr>
+      Scene description
+      <textarea name="description" rows="3" cols="30">{{url}}</textarea>
+
+      <hr>
+      Which elements of the scene should be exported?
+      <div class="form-section">
+        <label class="scene-config"><input checked type="checkbox" name="export-actors" data-section="actors" id="export-actors">Actors?</label>
+        <label class="scene-config"><input checked type="checkbox" name="export-notes" data-section="notes" id="export-notes">Notes?</label>
+        <label class="scene-config"><input checked type="checkbox" name="export-lights" data-section="lights" id="export-lights">Lights?</label>
+        <label class="scene-config"><input checked type="checkbox" name="export-walls" data-section="walls" id="export-walls">Lights?</label>
+        <label class="scene-config"><input checked type="checkbox" name="export-config" data-section="config" id="export-config">Config?</label>
+      </div>
+      <hr>
       <button id="download-button" name="download" type="submit" value="download" disabled>Download config</button>
     </form>
-    </div>
   </section>
 
 </div>
