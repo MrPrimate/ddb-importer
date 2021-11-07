@@ -99,36 +99,6 @@ export default class Helpers {
       // item.flags.importid === id
   }
 
-  /**
-   * Converts and object into an update object for entity update function
-   * @param  {object} newItem - Object data
-   * @returns {object} - Entity Update Object
-   */
-  static buildUpdateData(newItem) {
-    let updateData = {};
-
-    for (let key in newItem) {
-      const recursiveObject = (itemkey, obj) => {
-        for (let objkey in obj) {
-          if (typeof obj[objkey] === "object") {
-            recursiveObject(`${itemkey}.${objkey}`, obj[objkey]);
-          } else if (obj[objkey]) {
-            const datakey = `${itemkey}.${objkey}`;
-            updateData[datakey] = obj[objkey];
-          }
-        }
-      };
-
-      if (typeof newItem[key] === "object") {
-        recursiveObject(key, newItem[key]);
-      } else {
-        const datakey = `${key}`;
-        updateData[datakey] = `${newItem[key]}`;
-      }
-    }
-    return updateData;
-  }
-
 
   /**
    * Async replace for all matching patterns

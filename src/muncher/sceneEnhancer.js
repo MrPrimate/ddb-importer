@@ -166,9 +166,9 @@ export function collectSceneData(scene, bookCode) {
   if (data.flags.ddb?.userData) delete data.flags.ddb.userData;
 
   data.flags.ddb.notes = notes;
-  data.flags.ddbimporter = {
-    version: game.modules.get("ddb-importer").data.version,
-  };
+
+  if (!data.flags.ddbimporter) data.flags.ddbimporter = {};
+  data.flags.ddbimporter['version'] = game.modules.get("ddb-importer").data.version;
 
   return data;
 }
@@ -176,6 +176,23 @@ export function collectSceneData(scene, bookCode) {
 // TODO: this will handle the scene enhancement/import
 export function sceneEnhancer() {
 
+}
+
+function getCompendiumScenes(compendiumCollection, selectedId) {
+  let scenes = [];
+  const compendium = game.packs.find((pack) => pack.collection === compendiumCollection);
+  if (compendium) {
+    compendium.index.forEach((scene) => {
+      const option = {
+        _id: scene._id,
+        name: scene.name,
+        selected: selectedId && selectedId == scene._id,
+      };
+      scenes.push(option);
+    });
+  }
+
+  return scenes;
 }
 
 
@@ -186,33 +203,74 @@ export function sceneEnhancer() {
 //   exportScene: exportScene,
 // };
 
+const ddbFlags = ["ddb", "ddbimporter"];
+const allowedFlags = ["stairways", "perfect-vision", "dynamic-illumination"];
+
 
 export class SceneEnhancerExport extends Application {
+
+  // eslint-disable-next-line complexity
   constructor(scene) {
     super();
+    this.sceneSet = false;
+    this.compendiumBookSet = false;
+    this.downloadBookSet = false;
+
     this.scene = scene;
+    const sceneExportFlags = this.scene.data.flags.ddbimporter?.export;
+
+    this.description = sceneExportFlags?.description || "";
+    this.url = sceneExportFlags?.url || "";
+    this.compendium = sceneExportFlags?.compendium;
+    this.compendiumScene = sceneExportFlags?.scene;
+    this.bookCode = this.scene.data.flags?.ddb?.bookCode.toLowerCase()
+    this.compendiumScenes = this.compendium ? getCompendiumScenes(this.compendium, this.compendiumScene) : [];
+
+    if (this.compendiumScene && this.compendiumScenes) this.sceneSet = true;
+
     this.compendiums = game.packs
       .filter((pack) => pack.metadata?.entity === "Scene")
+      .map((pack) => {
+        if (this.compendium && this.compendium === pack.collection) pack.selected = true;
+        else pack.selected = false;
+        return pack;
+      })
       .sort((a, b) => a.metadata.label.localeCompare(b.metadata.label));
 
-    const selectedBooks = this.scene.data.flags.ddb?.bookCode
-      ? DDB_CONFIG.sources.find((s) => s.name === this.scene.data.flags.ddb.bookCode).map((s) => s.id)
+    const selectedBooks = this.bookCode
+      ? DDB_CONFIG.sources.filter((s) => s.name.toLowerCase() === this.bookCode).map((s) => s.id)
       : [];
     this.books = getSourcesLookups(selectedBooks).map((b) => {
+      if (b.selected) {
+        this.compendiumBookSet = true;
+        this.downloadBookSet = true;
+      }
       return {
-        code: b.acronym,
+        code: b.acronym.toLowerCase(),
         name: b.label,
         selected: b.selected,
       };
     }).sort((a, b) => a.name.localeCompare(b.name));
 
-    this.description = this.scene.data.flags.ddbimporter?.export?.description || "";
-    this.url = this.scene.data.flags.ddbimporter?.export?.url || "";
-
-    this.sceneSet = false;
-    this.compendiumBookSet = false;
-    this.downloadBookSet = false;
-
+    console.warn(sceneExportFlags);
+    this.exportOptionsCompendium = {
+      actors: sceneExportFlags?.actors !== undefined ? sceneExportFlags.actors : true,
+      notes: sceneExportFlags?.notes !== undefined ? sceneExportFlags.notes : true,
+      lights: sceneExportFlags?.lights !== undefined ? sceneExportFlags.lights : false,
+      walls: sceneExportFlags?.walls !== undefined ? sceneExportFlags.walls : false,
+      drawings: sceneExportFlags?.drawings !== undefined ? sceneExportFlags.drawings : false,
+      config: sceneExportFlags?.config !== undefined ? sceneExportFlags.config : false,
+    };
+    this.exportOptionsDownload = {
+      actors: sceneExportFlags?.actors !== undefined ? sceneExportFlags.actors : true,
+      notes: sceneExportFlags?.notes !== undefined ? sceneExportFlags.notes : true,
+      lights: sceneExportFlags?.lights !== undefined ? sceneExportFlags.lights : true,
+      walls: sceneExportFlags?.walls !== undefined ? sceneExportFlags.walls : true,
+      drawings: sceneExportFlags?.drawings !== undefined ? sceneExportFlags.drawings : true,
+      config: sceneExportFlags?.config !== undefined ? sceneExportFlags.config : true,
+    };
+    this.compendiumDisabled = !this.sceneSet || !this.compendiumBookSet;
+    this.downloadDisabled = !this.downloadBookSet || this.url === "" || !this.url.startsWith("http");
   }
 
   static get defaultOptions() {
@@ -237,26 +295,31 @@ export class SceneEnhancerExport extends Application {
     let templateData = {
       sceneName: this.scene.name,
       compendiums: this.compendiums,
+      compendiumScenes: this.compendiumScenes,
       description: this.description,
       books: this.books,
       url: this.url,
+      exportOptionsCompendium: this.exportOptionsCompendium,
+      exportOptionsDownload: this.exportOptionsDownload,
+      compendiumDisabled: this.compendiumDisabled,
+      downloadDisabled: this.downloadDisabled,
     };
 
     return templateData;
   }
 
-  checkState(html) {
-    const compendiumSelection = html.find("#compendium-button");
-    const downloadSelection = html.find("#compendium-button");
+  checkState() {
     if (this.sceneSet && this.compendiumBookSet) {
-      compendiumSelection.disabled = false;
+      this.compendiumDisabled = false;
+      $("#compendium-button").prop("disabled", false);
     } else {
-      compendiumSelection.disabled = true;
+      $("#compendium-button").prop("disabled", true);
     }
     if (this.downloadBookSet && this.url !== "" && this.url.startsWith("http")) {
-      downloadSelection.disabled = false;
+      this.downloadDisabled = false;
+      $("#download-button").prop("disabled", false);
     } else {
-      downloadSelection.disabled = true;
+      $("#download-button").prop("disabled", true);
     }
   }
 
@@ -283,15 +346,19 @@ export class SceneEnhancerExport extends Application {
       const compendiumCollection = compendiumSelection[0].selectedOptions[0]
         ? compendiumSelection[0].selectedOptions[0].value
         : undefined;
-      const compendium = game.packs.find((pack) => pack.collection === compendiumCollection);
-      if (compendium) {
-        let sceneList = `<option value="">Select...</option>`;
-        compendium.index.forEach((scene) => {
-          sceneList += `<option value="${scene._id}">${scene.name}</option>`;
+
+      let sceneList = "";
+
+      if (compendiumCollection && compendiumCollection !== "") {
+        const scenes = getCompendiumScenes(compendiumCollection);
+        sceneList = `<option value="">Select...</option>`;
+        scenes.forEach((scene) => {
+          const selected = scene.selected ? " selected" : "";
+          sceneList += `<option value="${scene._id}"${selected}>${scene.name}</option>`;
         });
-        const sceneSelection = html.find("#select-scene");
-        sceneSelection[0].innerHTML = sceneList;
       }
+      const sceneSelection = html.find("#select-scene");
+        sceneSelection[0].innerHTML = sceneList;
     });
 
     html.find("#select-scene").on("change", async () => {
@@ -299,10 +366,8 @@ export class SceneEnhancerExport extends Application {
       const scene = sceneSelection[0].selectedOptions[0]
         ? sceneSelection[0].selectedOptions[0].value
         : undefined;
-      if (scene && scene !== "") {
-        this.sceneSet = true;
-      }
-      this.checkState(html);
+      this.sceneSet = scene && scene !== "";
+      this.checkState();
     });
 
     html.find("#select-book-compendium").on("change", async () => {
@@ -310,10 +375,8 @@ export class SceneEnhancerExport extends Application {
       const book = bookSelection[0].selectedOptions[0]
         ? bookSelection[0].selectedOptions[0].value
         : undefined;
-      if (book && book !== "") {
-        this.compendiumBookSet = true;
-      }
-      this.checkState(html);
+      this.compendiumBookSet = book && book !== "";
+      this.checkState();
     });
 
     html.find("#select-book-download").on("change", async () => {
@@ -321,10 +384,17 @@ export class SceneEnhancerExport extends Application {
       const book = bookSelection[0].selectedOptions[0]
         ? bookSelection[0].selectedOptions[0].value
         : undefined;
-      if (book && book !== "") {
-        this.downloadBookSet = true;
+      this.downloadBookSet = book && book !== "";
+      this.checkState();
+    });
+
+    html.find("#download-url").on("change", async () => {
+      const bookSelection = html.find("#download-url");
+      const url = bookSelection[0].value;
+      if (url && url !== "" && url.startsWith("http")) {
+        this.url = url;
       }
-      this.checkState(html);
+      this.checkState();
     });
 
   }
@@ -332,41 +402,72 @@ export class SceneEnhancerExport extends Application {
 
   async buttonClick(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
-    const bookCode = formData['book-code'];
-    const campaignSelect = formData['campaign-select'];
 
-    console.warn(formData);
+    let sceneFlags = JSON.parse(JSON.stringify(this.scene.data.flags));
 
+    if (!sceneFlags.ddb) sceneFlags.ddb = {};
+    if (!sceneFlags.ddbimporter) sceneFlags.ddbimporter = {};
+    if (!sceneFlags.ddbimporter.export) sceneFlags.ddbimporter.export = {};
 
-    // flagname
-    // description
-    // comepndium/id and
-    // update bookcode on scene
-    // scene.data.flags.ddb.bookCode -
-    //
+    sceneFlags.ddb["bookCode"] = formData["select-book"];
+    sceneFlags.ddbimporter.export['description'] = formData["description"];
+    sceneFlags.ddbimporter.export['actors'] = formData["export-actors"] == "on";
+    sceneFlags.ddbimporter.export['notes'] = formData["export-notes"] == "on";
+    sceneFlags.ddbimporter.export['lights'] = formData["export-lights"] == "on";
+    sceneFlags.ddbimporter.export['walls'] = formData["export-walls"] == "on";
+    sceneFlags.ddbimporter.export['drawings'] = formData["export-drawings"] == "on";
+    sceneFlags.ddbimporter.export['config'] = formData["export-config"] == "on";
 
-    // download image link?
+    if (formData["download-url"]) {
+      sceneFlags.ddbimporter.export['url'] = formData["download-url"];
+    } else {
+      sceneFlags.ddbimporter.export['compendium'] = formData["select-compendium"];
+      sceneFlags.ddbimporter.export['scene'] = formData["select-scene"];
+    }
 
-        // - scene name
-    // use a flag not name to match the scene:
-    // - bool useFlag
-    // - string: flagName
-    // - bool: export scenes
-    // - bool: export walls
-    // - bool: export actors
-    // - bool: export config
+    await this.scene.update({ flags: sceneFlags });
 
-    // description: e.g. does the user have to manually find the image?
+    let sceneData = collectSceneData(this.scene, formData["select-book"]);
 
-    // compendium
+    Object.keys(sceneData.flags).forEach((flag) => {
+      console.warn(flag)
+      if (!allowedFlags.includes(flag) && !ddbFlags.includes(flag)) delete sceneData.flags[flag];
+    });
 
-    // console.warn(scene);
-    const data = collectSceneData(this.scene, bookCode);
-    const name = this.scene.data.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+    if (formData["export-actors"] !== "on") delete sceneData.flags.ddb.tokens;
+    if (formData["export-notes"] !== "on") delete sceneData.flags.ddb.notes;
+    if (formData["export-lights"] !== "on") delete sceneData.lights;
+    if (formData["export-walls"] !== "on") delete sceneData.walls;
+    if (formData["export-drawings"] !== "on") delete sceneData.drawings;
+    if (formData["export-config"] !== "on") {
+      delete sceneData.navName;
+      delete sceneData.width;
+      delete sceneData.height;
+      delete sceneData.grid;
+      delete sceneData.gridDistance;
+      delete sceneData.gridType;
+      delete sceneData.gridUnits;
+      delete sceneData.shiftX;
+      delete sceneData.shiftY;
+      delete sceneData.padding;
+      delete sceneData.weather;
+      delete sceneData.darkness;
+      delete sceneData.tokenVision;
+      delete sceneData.globalLight;
+      delete sceneData.globalLightThreshold;
+      delete sceneData.backgroundColor;
+      delete sceneData.initial;
+      Object.keys(sceneData.flags).forEach((flag) => {
+        if (!ddbFlags.includes(flag)) delete sceneData.flags[flag];
+      });
+    }
+
+    console.warn(sceneData);
+    const name = sceneData.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
     const sceneRef = `ddb-enhanced-scene-${name}`;
-    // console.warn(data);
-    // download(JSON.stringify(data, null, 4), `${sceneRef}.json`, "application/json");
+    download(JSON.stringify(sceneData, null, 4), `${sceneRef}.json`, "application/json");
 
+    this.close();
   }
 }
 
