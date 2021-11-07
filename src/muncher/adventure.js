@@ -1,5 +1,5 @@
 import { DDB_CONFIG } from "../ddbConfig.js";
-import { munchNote, getCampaignId, download } from "./utils.js";
+import { munchNote, getCampaignId, download, getCompendium, getCompendiumLabel } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 
 function getVehicleData() {
@@ -37,8 +37,8 @@ function getVehicleData() {
 
 async function getMonsterMap () {
   // ddb://monsters
-  const monsterCompendiumLabel = await game.settings.get("ddb-importer", "entity-monster-compendium");
-  const monsterCompendium = await game.packs.get(monsterCompendiumLabel);
+  const monsterCompendiumLabel = getCompendiumLabel("monster");
+  const monsterCompendium = await getCompendium(monsterCompendiumLabel);
   const monsterIndices = ["name", "flags.ddbimporter.id"];
   const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices });
 
@@ -132,7 +132,7 @@ export async function generateAdventureConfig(full = true) {
   }
 
   const rulesCompendium = "dnd5e.rules";
-  const srdCompendium = await game.packs.get(rulesCompendium);
+  const srdCompendium = await getCompendium(rulesCompendium);
   const srdIndex = await srdCompendium.getIndex();
 
   const skillEntry = srdIndex.find((i) => i.name === "Using Each Ability");

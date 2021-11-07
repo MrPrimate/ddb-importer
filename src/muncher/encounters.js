@@ -1,6 +1,6 @@
 // Main module class
 import { checkMonsterCompendium } from "./importMonster.js";
-import { munchNote, download, getPatreonTiers } from "./utils.js";
+import { munchNote, download, getPatreonTiers, getCompendiumLabel } from "./utils.js";
 import logger from "../logger.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -124,8 +124,7 @@ export class DDBEncounterMunch extends Application {
   async parseEncounter(id) {
     logger.debug(`Looking for Encounter "${id}"`);
     if (!CONFIG.DDBI.ENCOUNTERS) return this.encounter;
-    const monsterPack = await checkMonsterCompendium();
-
+    const monsterPack = checkMonsterCompendium();
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
     // console.warn(CONFIG.DDBI.ENCOUNTERS);
@@ -228,9 +227,9 @@ export class DDBEncounterMunch extends Application {
       logger.debug("Finised Importing missing monsters from DDB");
     }
 
-    const monsterPack = await checkMonsterCompendium();
+    const monsterPack = checkMonsterCompendium();
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
-    const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
+    const compendiumName = getCompendiumLabel("monster");
 
     let monstersToAddToWorld = [];
     this.encounter.monsterData = [];

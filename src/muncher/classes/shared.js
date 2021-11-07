@@ -3,6 +3,7 @@ import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { getImagePath } from "../import.js";
 import { generateTable } from "../table.js";
+import { getCompendiumLabel } from "../utils.js";
 
 const CLASS_TEMPLATE = {
   "name": "",
@@ -227,10 +228,12 @@ export async function buildBaseClass(klass) {
   return result;
 }
 
-export async function buildClassFeatures(klass, compendiumClassFeatures, compendiumLabel) {
+export async function buildClassFeatures(klass, compendiumClassFeatures) {
   logger.debug(`Parsing ${klass.name} features`);
   let description = "<h3>Class Features</h3>\n\n";
   let classFeatures = [];
+
+  const compendiumLabel = getCompendiumLabel("features");
 
   klass.classFeatures.forEach((feature) => {
     const classFeaturesAdded = classFeatures.some((f) => f === feature.name);

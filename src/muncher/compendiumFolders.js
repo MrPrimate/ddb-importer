@@ -1,7 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { getCompendiumLabel } from "./import.js";
+import { getCompendium, getCompendiumLabel } from "./utils.js";
 import { DDB_CONFIG } from "../ddbConfig.js";
 
 var compendiumFolderTypeMonster;
@@ -615,7 +615,7 @@ export async function migrateExistingCompendium(type) {
 
   logger.debug("Compendium Folders", folders);
 
-  const compendium = game.packs.get(packName);
+  const compendium = await getCompendium(packName);
   if (!compendium) return undefined;
   let indexFields = ["name"];
   switch (type) {

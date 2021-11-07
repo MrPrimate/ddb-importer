@@ -28,6 +28,75 @@ export function munchNote(note, nameField = false, monsterNote = false) {
   }
 }
 
+// a mapping of compendiums with content type
+const compendiumLookup = [
+  { type: "spells", compendium: "entity-spell-compendium" },
+  { type: "spell", compendium: "entity-spell-compendium" },
+  { type: "feats", compendium: "entity-feat-compendium" },
+  { type: "features", compendium: "entity-feature-compendium" },
+  { type: "feature", compendium: "entity-feature-compendium" },
+  { type: "feat", name: "entity-feature-compendium" },
+  { type: "classes", compendium: "entity-class-compendium" },
+  { type: "class", compendium: "entity-class-compendium" },
+  { type: "races", compendium: "entity-race-compendium" },
+  { type: "race", compendium: "entity-race-compendium" },
+  { type: "traits", compendium: "entity-trait-compendium" },
+  { type: "trait", compendium: "entity-trait-compendium" },
+  { type: "npc", compendium: "entity-monster-compendium" },
+  { type: "monsters", compendium: "entity-monster-compendium" },
+  { type: "monster", compendium: "entity-monster-compendium" },
+  { type: "custom", compendium: "entity-override-compendium" },
+  { type: "override", compendium: "entity-override-compendium" },
+  { type: "inventory", compendium: "entity-item-compendium" },
+  { type: "item", compendium: "entity-item-compendium" },
+  { type: "items", compendium: "entity-item-compendium" },
+  { type: "weapon", name: "entity-item-compendium" },
+  { type: "consumable", name: "entity-item-compendium" },
+  { type: "tool", name: "entity-item-compendium" },
+  { type: "loot", name: "entity-item-compendium" },
+  { type: "backpack", name: "entity-item-compendium" },
+  { type: "spell", name: "entity-spell-compendium" },
+  { type: "equipment", name: "entity-item-compendium" },
+  { type: "table", compendium: "entity-table-compendium" },
+  { type: "tables", compendium: "entity-table-compendium" },
+];
+
+export function getCompendiumLabel(type) {
+  const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
+  const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+  return compendiumLabel;
+}
+
+export function getCompendium(label, fail = true) {
+  const compendium = game.packs.get(label);
+  if (compendium) {
+    return compendium;
+  } else {
+    if (fail) {
+      logger.error(`Unable to find compendium ${label}`);
+      ui.notifications.error(`Unable to open the Compendium ${label}`);
+      throw new Error(`Unable to open the Compendium ${label}`);
+    }
+    return undefined;
+  }
+}
+
+export function getCompendiumType(type, fail = true) {
+  const compendiumLabel = getCompendiumLabel(type);
+  logger.debug(`Getting compendium ${compendiumLabel} for update of ${type}`);
+  const compendium = getCompendium(compendiumLabel, false);
+  if (compendium) {
+    return compendium;
+  } else {
+    logger.error(`Unable to find compendium ${compendiumLabel} for ${type} documents`);
+    ui.notifications.error(`Unable to open the Compendium ${compendiumLabel}`);
+    if (fail) {
+      throw new Error(`Unable to open the Compendium ${compendiumLabel}`);
+    }
+    return undefined;
+  }
+}
+
 export function getCampaignId() {
   const campaignId = game.settings.get("ddb-importer", "campaign-id").split('/').pop();
 

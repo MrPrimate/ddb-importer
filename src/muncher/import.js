@@ -1,42 +1,10 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { munchNote } from "./utils.js";
+import { munchNote, getCompendiumLabel, getCompendiumType, getCompendium } from "./utils.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";
-
-// a mapping of compendiums with content type
-const compendiumLookup = [
-  { type: "inventory", compendium: "entity-item-compendium" },
-  { type: "item", compendium: "entity-item-compendium" },
-  { type: "items", compendium: "entity-item-compendium" },
-  { type: "spells", compendium: "entity-spell-compendium" },
-  { type: "feats", compendium: "entity-feat-compendium" },
-  { type: "spell", compendium: "entity-spell-compendium" },
-  { type: "itemspells", compendium: "entity-item-spell-compendium" },
-  { type: "features", compendium: "entity-feature-compendium" },
-  { type: "classes", compendium: "entity-class-compendium" },
-  { type: "class", compendium: "entity-class-compendium" },
-  { type: "races", compendium: "entity-race-compendium" },
-  { type: "traits", compendium: "entity-trait-compendium" },
-  { type: "race", compendium: "entity-race-compendium" },
-  { type: "npc", compendium: "entity-monster-compendium" },
-  { type: "monsters", compendium: "entity-monster-compendium" },
-  { type: "monster", compendium: "entity-monster-compendium" },
-  { type: "custom", compendium: "entity-override-compendium" },
-  { type: "feat", name: "entity-feature-compendium" },
-  { type: "weapon", name: "entity-item-compendium" },
-  { type: "consumable", name: "entity-item-compendium" },
-  { type: "tool", name: "entity-item-compendium" },
-  { type: "loot", name: "entity-item-compendium" },
-  { type: "backpack", name: "entity-item-compendium" },
-  { type: "spell", name: "entity-spell-compendium" },
-  { type: "equipment", name: "entity-item-compendium" },
-  { type: "monsterfeatures", name: "entity-feature-compendium" },
-  { type: "table", compendium: "entity-table-compendium" },
-  { type: "tables", compendium: "entity-table-compendium" },
-];
 
 const srdCompendiumLookup = [
   { type: "inventory", name: "dnd5e.items" },
@@ -80,7 +48,7 @@ var srdPacks = {};
 
 async function loadSRDPacks(compendiumName) {
   if (srdPacksLoaded[compendiumName]) return;
-  const srdPack = await game.packs.get(compendiumName);
+  const srdPack = await getCompendium(compendiumName);
   if (!srdPack) {
     logger.error(`Failed to load SRDPack ${compendiumName}`);
   } else {
@@ -112,12 +80,6 @@ const gameFolderLookup = [
     itemType: "actor",
   },
 ];
-
-export function getCompendiumLabel(type) {
-  const compendiumName = compendiumLookup.find((c) => c.type == type).compendium;
-  const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
-  return compendiumLabel;
-}
 
 /**
  * Removes items
@@ -410,14 +372,8 @@ export async function compendiumFolders(document, type) {
 }
 
 export async function updateCompendium(type, input, updateExisting = false, matchFlags = []) {
-  const compendiumLabel = getCompendiumLabel(type);
-  logger.debug(`Getting compendium ${compendiumLabel} for update of ${type} documents (checking ${input[type].length} docs)`);
-  const compendium = await game.packs.get(compendiumLabel);
-  if (!compendium) {
-    ui.notifications.error(`Unable to open the chosen ${type} Compendium - Please check it exists!`, { permanent: true });
-    logger.error(`Unable to find compendiumm ${compendiumLabel} for ${type} documents`);
-    throw new Error(`Unable to find compendiumm ${compendiumLabel} for ${type} documents`);
-  }
+  logger.debug(`Getting compendium for update of ${type} documents (checking ${input[type].length} docs)`);
+  const compendium = await getCompendiumType(type);
   compendium.configure({ locked: false });
 
   if (game.user.isGM) {
@@ -907,7 +863,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   if (!compendiumLabel) {
     compendiumLabel = getCompendiumLabel(type);
   }
-  const compendium = await game.packs.get(compendiumLabel);
+  const compendium = await getCompendium(compendiumLabel, false);
   if (!compendium) return [];
   const index = await compendium.getIndex();
   const firstPassItems = await index.filter((i) =>

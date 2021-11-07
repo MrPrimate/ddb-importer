@@ -2,8 +2,8 @@ import logger from "../../logger.js";
 import { DDB_CONFIG } from "../../ddbConfig.js";
 
 import { buildBaseClass, getClassFeature, buildClassFeatures, NO_TRAITS } from "./shared.js";
-import { getCompendiumLabel, updateCompendium, srdFiddling, getImagePath } from "../import.js";
-import { munchNote } from "../utils.js";
+import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
+import { munchNote, getCompendiumType } from "../utils.js";
 
 async function buildSubClassBase(klass, subClass) {
   delete klass['_id'];
@@ -73,10 +73,10 @@ async function buildSubClassBase(klass, subClass) {
 
 }
 
-async function buildSubClass(klass, subclass, compendiumSubClassFeatures, compendiumLabel) {
+async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
   let baseClass = await buildBaseClass(klass.flags.ddbimporter.data);
   let result = await buildSubClassBase(baseClass, subclass);
-  result.data.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures, compendiumLabel);
+  result.data.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures);
   return result;
 }
 
@@ -106,8 +106,7 @@ export async function getSubClasses(data) {
   munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
-  const compendiumLabel = getCompendiumLabel("features");
-  const compendium = await game.packs.get(compendiumLabel);
+  const compendium = getCompendiumType("features");
   const index = await compendium.getIndex();
   const firstPassFeatures = await index.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
 
@@ -119,14 +118,13 @@ export async function getSubClasses(data) {
   }));
 
   // get base class
-  const classCompendiumLabel = getCompendiumLabel("class");
-  const classCompendium = await game.packs.get(classCompendiumLabel);
+  const classCompendium = getCompendiumType("class");
   // const classIndex = await classCompendium.getIndex();
   const content = await classCompendium.getDocuments();
 
   await Promise.all(data.map(async (subClass) => {
     const classMatch = content.find((i) => i.data.flags.ddbimporter['id'] == subClass.parentClassId);
-    const builtClass = await buildSubClass(classMatch.data, subClass, compendiumClassFeatures, compendiumLabel);
+    const builtClass = await buildSubClass(classMatch.data, subClass, compendiumClassFeatures);
     subClasses.push(builtClass);
   }));
 

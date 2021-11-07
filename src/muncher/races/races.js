@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
-import { getCompendiumLabel, updateCompendium, srdFiddling, getImagePath } from "../import.js";
-import { munchNote } from "../utils.js";
+import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
+import { munchNote, getCompendiumType, getCompendiumLabel } from "../utils.js";
 
 const FEATURE_DUP = [
   "Breath Weapon",
@@ -47,7 +47,7 @@ function buildBase(data) {
 }
 
 
-async function buildRace(race, compendiumRacialTraits, compendiumLabel) {
+async function buildRace(race, compendiumRacialTraits) {
   let result = buildBase(race);
 
   let avatarUrl;
@@ -82,6 +82,8 @@ async function buildRace(race, compendiumRacialTraits, compendiumLabel) {
   // eslint-disable-next-line require-atomic-updates
   result.data.description.value += image;
 
+  const compendiumLabel = getCompendiumLabel("traits");
+
   race.racialTraits.forEach((f) => {
     const feature = f.definition;
     const featureMatch = compendiumRacialTraits.find((match) => feature.name === match.name && match.flags.ddbimporter && match.flags.ddbimporter.entityRaceId === feature.entityRaceId);
@@ -92,18 +94,20 @@ async function buildRace(race, compendiumRacialTraits, compendiumLabel) {
   return result;
 }
 
-async function getRacialTraitsLookup(racialTraits) {
-  const compendiumLabel = getCompendiumLabel("traits");
-  const compendium = await game.packs.get(compendiumLabel);
-  const index = await compendium.getIndex({ fields: ["name", "flags.ddbimporter.entityRaceId"] });
-  const traitIndex = await index.filter((i) => racialTraits.some((orig) => i.name === orig.name));
-  return traitIndex;
+async function getRacialTraitsLookup(racialTraits, fail = true) {
+  const compendium = getCompendiumType("traits", fail);
+  if (compendium) {
+    const index = await compendium.getIndex({ fields: ["name", "flags.ddbimporter.entityRaceId"] });
+    const traitIndex = await index.filter((i) => racialTraits.some((orig) => i.name === orig.name));
+    return traitIndex;
+  } else {
+    return [];
+  }
 }
 
 export async function getDDBRace(ddb) {
-  const compendiumLabel = getCompendiumLabel("traits");
-  const compendiumRacialTraits = await getRacialTraitsLookup(ddb.character.race.racialTraits.map((r) => r.definition));
-  const builtRace = await buildRace(ddb.character.race, compendiumRacialTraits, compendiumLabel);
+  const compendiumRacialTraits = await getRacialTraitsLookup(ddb.character.race.racialTraits.map((r) => r.definition), false);
+  const builtRace = await buildRace(ddb.character.race, compendiumRacialTraits);
   delete builtRace.sort;
   return builtRace;
 }
@@ -156,12 +160,11 @@ export async function getRaces(data) {
   munchNote(`Importing ${fiddledRacialFeatures.length} traits!`, true);
   await updateCompendium("traits", { traits: fiddledRacialFeatures }, updateBool);
 
-  const compendiumLabel = getCompendiumLabel("traits");
   const compendiumRacialTraits = await getRacialTraitsLookup(fiddledRacialFeatures);
 
   await Promise.allSettled(data.map(async (race) => {
     logger.debug(`${race.fullName} race parsing started...`);
-    const builtRace = await buildRace(race, compendiumRacialTraits, compendiumLabel);
+    const builtRace = await buildRace(race, compendiumRacialTraits);
     races.push(builtRace);
   }));
 

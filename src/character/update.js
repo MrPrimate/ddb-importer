@@ -1,23 +1,18 @@
 import logger from "../logger.js";
 import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
-import { getCampaignId } from "../muncher/utils.js";
-import { getCompendiumLabel, looseItemNameMatch } from "../muncher/import.js";
+import { getCampaignId, getCompendiumType } from "../muncher/utils.js";
+import { looseItemNameMatch } from "../muncher/import.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 
 
 var itemIndex;
 
-export async function getItemCompendium() {
-  const compendiumLabel = getCompendiumLabel("item");
-  const compendium = await game.packs.get(compendiumLabel);
-  return compendium;
-}
 
 export async function getUpdateItemIndex() {
   if (itemIndex) return itemIndex;
-  const compendium = await getItemCompendium();
+  const compendium = await getCompendiumType("item");
 
   const indexFields = [
     "name",

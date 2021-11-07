@@ -1,12 +1,12 @@
 import logger from "../../logger.js";
 import { buildBaseClass, getClassFeature, buildClassFeatures, NO_TRAITS } from "./shared.js";
-import { getCompendiumLabel, updateCompendium, srdFiddling } from "../import.js";
-import { munchNote } from "../utils.js";
+import { updateCompendium, srdFiddling } from "../import.js";
+import { munchNote, getCompendiumType } from "../utils.js";
 
 
-async function buildClass(klass, compendiumClassFeatures, compendiumLabel) {
+async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);
-  result.data.description.value += await buildClassFeatures(klass, compendiumClassFeatures, compendiumLabel);
+  result.data.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
   return result;
 }
 
@@ -35,8 +35,7 @@ export async function getClasses(data) {
   munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
-  const compendiumLabel = getCompendiumLabel("features");
-  const compendium = await game.packs.get(compendiumLabel);
+  const compendium = getCompendiumType("features");
   const index = await compendium.getIndex();
   const firstPassFeatures = await index.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
   let compendiumClassFeatures = [];
@@ -48,7 +47,7 @@ export async function getClasses(data) {
 
   await Promise.all(data.map(async (klass) => {
     logger.debug(`${klass.name} class parsing started...`);
-    const builtClass = await buildClass(klass, compendiumClassFeatures, compendiumLabel);
+    const builtClass = await buildClass(klass, compendiumClassFeatures);
     klasses.push(builtClass);
   }));
 

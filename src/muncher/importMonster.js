@@ -2,7 +2,7 @@ import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, copySupportedItemFlags, compendiumFolders } from "./import.js";
-import { munchNote } from "./utils.js";
+import { getCompendiumType, munchNote } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
 var compendiumLoaded = false;
@@ -50,28 +50,25 @@ async function retrieveSpells(spells) {
 //   return retrieveCompendiumItems(items, compendiumName);
 // }
 
-async function getMonsterCompendium() {
+function getMonsterCompendium() {
   if (compendiumLoaded) return monsterCompendium;
-  const compendiumName = await game.settings.get("ddb-importer", "entity-monster-compendium");
-  if (compendiumName && compendiumName !== "") {
-    monsterCompendium = await game.packs.get(compendiumName);
-    if (monsterCompendium) {
-      // eslint-disable-next-line require-atomic-updates
-      compendiumLoaded = true;
-      return monsterCompendium;
-    }
+  monsterCompendium = getCompendiumType("monster", false);
+  if (monsterCompendium) {
+    // eslint-disable-next-line require-atomic-updates
+    compendiumLoaded = true;
+    return monsterCompendium;
   }
   return undefined;
 }
 
-export async function checkMonsterCompendium() {
+export function checkMonsterCompendium() {
   compendiumLoaded = false;
   monsterCompendium = undefined;
   return getMonsterCompendium();
 }
 
 async function addNPCToCompendium(npc) {
-  const compendium = await getMonsterCompendium();
+  const compendium = getMonsterCompendium();
   if (compendium) {
     // unlock the compendium for update/create
     compendium.configure({ locked: false });

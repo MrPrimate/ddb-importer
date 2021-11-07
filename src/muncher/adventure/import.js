@@ -7,7 +7,7 @@ import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
 import { generateAdventureConfig } from "../adventure.js";
-import { getPatreonTiers } from "../utils.js";
+import { getPatreonTiers, getCompendiumType } from "../utils.js";
 
 const COMPENDIUM_MAP = {
   "spells": "spells",
@@ -572,8 +572,7 @@ export default class AdventureMunch extends FormApplication {
 
   static async _getCompendiumIndex(type) {
     return new Promise((resolve) => {
-      const compendiumLabel = game.settings.get("ddb-importer", `entity-${type}-compendium`);
-      const compendium = game.packs.get(compendiumLabel);
+      const compendium = getCompendiumType(type);
       const fields = (type === "monster")
         ? ["flags.ddbimporter.id"]
         : ["flags.ddbimporter.definitionId"];
@@ -700,7 +699,7 @@ export default class AdventureMunch extends FormApplication {
   }
 
   static async _generateTokenActors(scene) {
-    const monsterCompendium = await checkMonsterCompendium();
+    const monsterCompendium = checkMonsterCompendium();
 
     const tokens = await AdventureMunch._linkDDBActors(scene.tokens);
 

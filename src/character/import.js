@@ -13,10 +13,10 @@ import {
   addItemEffectIcons,
   retainExistingIcons,
 } from "../muncher/import.js";
-import { download, getCampaignId } from "../muncher/utils.js";
+import { download, getCampaignId, getCompendiumType } from "../muncher/utils.js";
 import { migrateActorDAESRD, addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
-import { updateDDBCharacter, getItemCompendium } from "./update.js";
+import { updateDDBCharacter } from "./update.js";
 import { characterExtras } from "./extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
@@ -465,7 +465,7 @@ export default class CharacterImport extends FormApplication {
     const localCobalt = isLocalCobalt(this.actor.id);
     const cobaltCookie = getCobalt(this.actor.id);
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
-    const itemCompendium = await getItemCompendium();
+    const itemCompendium = await getCompendiumType("item");
 
     const itemsMunched = syncEnabled && itemCompendium
       ? await itemCompendium.index.size !== 0
