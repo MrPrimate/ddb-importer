@@ -1,3 +1,8 @@
+# 2.5.32
+
+* Compendium load and check refactor.
+* Background tables did not always have unique names.
+
 # 2.5.31
 
 * Characters: now imports a consolidated race "feature" to help keep feature list more trim.
