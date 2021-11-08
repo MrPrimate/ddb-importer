@@ -16,14 +16,20 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
   } else {
     logger.info(`Compendium for ${compendiumLabel}, was not found, creating it now.`);
     const sanitizedLabel = sanitize(compendiumLabel);
-    // create a compendium for the user
-    await CompendiumCollection.createCompendium({
-      entity: compendiumType,
-      label: `DDB ${compendiumLabel}`,
-      name: `ddb-${game.world.data.name}-${sanitizedLabel}`,
-      package: "world",
-    });
-    await game.settings.set("ddb-importer", settingName, `world.ddb-${game.world.data.name}-${sanitizedLabel}`);
+    const name = `ddb-${game.world.data.name}-${sanitizedLabel}`;
+    const defaultCompendium = await game.packs.get(`world.${name}`);
+    if (defaultCompendium) {
+      logger.warn(`Could not load Compendium '${compendiumName}', and could not create default Compendium '${name}' as it already exists. Please check your DDB Importer Compendium setup.`);
+    } else {
+      // create a compendium for the user
+      await CompendiumCollection.createCompendium({
+        entity: compendiumType,
+        label: `DDB ${compendiumLabel}`,
+        name: name,
+        package: "world",
+      });
+      await game.settings.set("ddb-importer", settingName, `world.${name}`);
+    }
     return true;
   }
 };

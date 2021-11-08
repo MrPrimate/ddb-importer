@@ -1,3 +1,7 @@
+# 2.5.34
+
+* Improve the handling of default compendium creation.
+
 # 2.5.33
 
 * New icon mappings - thanks @JacksonBockus#1378
