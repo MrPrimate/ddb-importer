@@ -2,9 +2,6 @@
 
 * Improve the handling of default compendium creation.
 * Improve handling of the compendium load during character munching.
-
-# 2.5.33
-
 * New icon mappings - thanks @JacksonBockus#1378
 
 # 2.5.33
