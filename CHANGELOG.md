@@ -1,6 +1,7 @@
 # 2.5.34
 
 * Improve the handling of default compendium creation.
+* Improve handling of the compendium load during character munching.
 
 # 2.5.33
 

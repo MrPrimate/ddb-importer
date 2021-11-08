@@ -465,7 +465,7 @@ export default class CharacterImport extends FormApplication {
     const localCobalt = isLocalCobalt(this.actor.id);
     const cobaltCookie = getCobalt(this.actor.id);
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
-    const itemCompendium = await getCompendiumType("item");
+    const itemCompendium = await getCompendiumType("item", false);
 
     const itemsMunched = syncEnabled && itemCompendium
       ? await itemCompendium.index.size !== 0

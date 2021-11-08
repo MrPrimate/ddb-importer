@@ -12,7 +12,7 @@ var itemIndex;
 
 export async function getUpdateItemIndex() {
   if (itemIndex) return itemIndex;
-  const compendium = await getCompendiumType("item");
+  const compendium = await getCompendiumType("item", false);
 
   const indexFields = [
     "name",
