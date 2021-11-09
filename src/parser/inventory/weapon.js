@@ -73,10 +73,10 @@ function getRange(data, weaponProperties) {
  * @param {obj} weaponRange weapon range information
  * @param {obj} abilities character abilities (scores)
  */
-function getAbility(weaponProperties, weaponRange, abilities) {
+function getAbility(weaponProperties, weaponRange) {
   // finesse weapons can choose freely, so we choose the higher one
   if (weaponProperties.fin) {
-    return abilities.str?.value > abilities.dex?.value ? "str" : "dex";
+    return null;
   }
 
   // thrown, but not finesse weapon: STR
@@ -89,7 +89,7 @@ function getAbility(weaponProperties, weaponRange, abilities) {
     return "dex";
   }
   // the default is STR
-  return "str";
+  return null;
 }
 
 /**
@@ -324,7 +324,7 @@ export default function parseWeapon(data, character, flags) {
 
   weapon.data.range = getRange(data, weapon.data.properties);
   weapon.data.uses = getUses(data);
-  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range, characterAbilities);
+  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range);
   // warlocks can use cha for their Hex weapon
   if (flags.classFeatures.includes("hexWarrior")) {
     if (characterAbilities.cha.value >= characterAbilities[weapon.data.ability].value) {

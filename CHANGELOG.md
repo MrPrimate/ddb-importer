@@ -1,3 +1,7 @@
+# 2.5.35
+
+* Set weapon ability as default for weapons instead of explicit str/dex to allow default ability and finesse to auto apply/decide. @flogistoni#5670
+
 # 2.5.34
 
 * Improve the handling of default compendium creation.
