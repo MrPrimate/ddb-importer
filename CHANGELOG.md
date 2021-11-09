@@ -1,6 +1,6 @@
 # 2.6.10
 
-* Active Update now in BETA and available for Undying tier patreons.
+* Active Update now in BETA and available for Undying tier patreon supporters.
 * Set weapon ability as default for weapons instead of explicit str/dex to allow default ability and finesse to auto apply/decide. @flogistoni#5670
 
 # 2.5.34/2.6.9
