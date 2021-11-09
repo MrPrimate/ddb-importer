@@ -629,7 +629,7 @@ export class DDBDynamicUpdateSetup extends FormApplication {
   async getData() { // eslint-disable-line class-methods-use-this
     const tier = game.settings.get("ddb-importer", "patreon-tier");
     const tiers = getPatreonTiers(tier);
-    const enabled = tiers.god;
+    const enabled = tiers.experimentalMid;
 
     const settings = [
       {
