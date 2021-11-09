@@ -1,5 +1,5 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
-import { setPatreonTier, BAD_DIRS, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
+import { setPatreonTier, getPatreonTiers, BAD_DIRS, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
@@ -576,8 +576,8 @@ export class DDBCompendiumSetup extends FormApplication {
     ];
 
     return {
-      settings: settings,
-      compendiums: compendiums,
+      settings,
+      compendiums,
     };
   }
 
@@ -587,6 +587,146 @@ export class DDBCompendiumSetup extends FormApplication {
     event.preventDefault();
     for (const [key, value] of Object.entries(formData)) {
       game.settings.set("ddb-importer", key, value);
+    }
+  }
+}
+
+
+function getGMUsers() {
+  const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+
+  const gmUsers = game.users
+  .filter((user) => user.isGM)
+  .reduce((choices, user) => {
+    choices.push({
+      userId: user.id,
+      userName: user.name,
+      selected: user.id === updateUser,
+    });
+    return choices;
+  }, []);
+
+  return gmUsers;
+}
+
+
+export class DDBDynamicUpdateSetup extends FormApplication {
+  static get defaultOptions() {
+    const options = super.defaultOptions;
+    options.id = "ddb-importer-settings-dynamic-updates";
+    options.template = "modules/ddb-importer/handlebars/dynamic-updates.hbs";
+    options.width = 500;
+    return options;
+  }
+
+  get title() { // eslint-disable-line class-methods-use-this
+    // improve localisation
+    // game.i18n.localize("")
+    return "DDB Importer Dynamic Update Settings";
+  }
+
+  /** @override */
+  async getData() { // eslint-disable-line class-methods-use-this
+    const tier = game.settings.get("ddb-importer", "patreon-tier");
+    const tiers = getPatreonTiers(tier);
+    const enabled = tiers.god;
+
+    const settings = [
+      {
+        name: "dynamic-sync",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync"),
+        description: "Enable Dynamic Sync?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-currency",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-currency"),
+        description: "Currency?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-hitpoints",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints"),
+        description: "Hit Points?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-hitdice",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-hitdice"),
+        description: "Hit Dice?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-action-use",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-action-use"),
+        description: "Action usage?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-inspiration",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-inspiration"),
+        description: "Inspiration?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-condition",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-condition"),
+        description: "Exhaustion?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-deathsaves",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-deathsaves"),
+        description: "Death Saves?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-spells-prepared",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-spells-prepared"),
+        description: "Spells Prepared?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-spells-slots",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-spells-slots"),
+        description: "Spell Slots?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-equipment",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-equipment"),
+        description: "Equipment?",
+        enabled,
+      },
+      {
+        name: "dynamic-sync-policy-xp",
+        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-xp"),
+        description: "XP?",
+        enabled,
+      },
+    ];
+    const gmUsers = getGMUsers();
+
+    return {
+      settings,
+      gmUsers,
+    };
+  }
+
+  /** @override */
+  // eslint-disable-next-line class-methods-use-this
+  async _updateObject(event, formData) {
+    event.preventDefault();
+    const initial = game.settings.get("ddb-importer", "dynamic-sync");
+    for (const [key, value] of Object.entries(formData)) {
+      // eslint-disable-next-line no-await-in-loop
+      await game.settings.set("ddb-importer", key, value);
+    }
+    const post = game.settings.get("ddb-importer", "dynamic-sync");
+
+    if (initial != post) {
+      logger.warn("RELOADING!");
+      foundry.utils.debounce(window.location.reload(), 100);
     }
   }
 }

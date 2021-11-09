@@ -1,0 +1,45 @@
+<h2>DDB Importer Dynamic Updates</h2>
+<p>If you are a Patreon Supporter you can <i>dynamically</i> sync your character(s) back to D&D Beyond.</p>
+
+<h3>Caveats</h3>
+
+<ul>
+  <li>This feature is currently in ALPHA and is restricted to higher tier Patreon supporters.</li>
+  <li>There is a good chance it won't work.</li>
+  <li>The feature is not yet complete.</li>
+  <li>Only a single GM user can sync to DDB, and it will only sync changes detected while that user is connected.</li>
+  <li>The user needs to have permission to write to all of the characters. This will likely mean they are the DM of a campaign on D&D Beyond.</li>
+  <li>Before you turn on dynamic syn it's best to make sure the characters have been recently imported or updated</li>
+  <li>Each character will need dynamic updates enabled on their character in addition to enabling below.</li>
+</ul>
+
+<div class="form-description">
+  <form id="ddb-importer-sync-settings" autocomplete="off" onsubmit="event.preventDefault();">
+    <div class="form-content">
+      <hr>
+      <div class="form-group">
+        <h3><label for="gmUser">GM User used for Syncing</label></h3>
+        <select name="dynamic-sync-user" id="dynamic-sync-user" style="flex: 55%">
+          {{#each this.gmUsers}}
+            <option value="{{this.userId}}" {{#if this.selected}}selected{{/if}}>{{this.userName}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <hr>
+    </div>
+      {{#each settings}}
+      <div class="ddb-importer-sync-setting">
+        <input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+              id="{{this.name}}"
+              name="{{this.name}}"
+              data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>
+        {{this.description}}
+      {{/each}}
+
+    <hr>
+</div>
+    <button id="ddb-importer-sync-settings" class="munch-button" type="submit">Save</button>
+  </form>
+
+</div>
+

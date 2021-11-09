@@ -1,5 +1,5 @@
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
-import { DDBSetup, DDBCompendiumSetup } from "../../lib/Settings.js";
+import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup } from "../../lib/Settings.js";
 import logger from "../../logger.js";
 
 CONFIG.DDBI = {
@@ -22,10 +22,19 @@ export default function () {
   game.settings.registerMenu("ddb-importer", 'compendiumMenu', {
     name: "ddb-importer.compendium-setup.name",
     label: "ddb-importer.compendium-setup.name",
-    hint: "ddb-importer.setup.hint",
+    hint: "ddb-importer.compendium-setup.hint",
     icon: 'fas fa-wrench',
     type: DDBCompendiumSetup,
     restricted: true
+  });
+
+  game.settings.registerMenu("ddb-importer", 'dynamicUpdateMenu', {
+    name: "ddb-importer.dynamic-update-setup.name",
+    label: "ddb-importer.dynamic-update-setup.name",
+    hint: "ddb-importer.dynamic-update-setup.hint",
+    icon: 'fas fa-wrench',
+    type: DDBDynamicUpdateSetup,
+    restricted: true,
   });
 
   game.settings.register("ddb-importer", "image-upload-directory", {
@@ -386,6 +395,15 @@ export default function () {
   if (corsEndpoint === "https://london.drop.mrprimate.co.uk/") {
     game.settings.set("ddb-importer", "cors-endpoint", "https://images.ddb.mrprimate.co.uk/");
   }
+
+  game.settings.register("ddb-importer", "dynamic-api-endpoint", {
+    name: "ddb-importer.api-endpoint.name",
+    hint: "ddb-importer.api-endpoint.hint",
+    scope: "world",
+    config: false,
+    type: String,
+    default: "https://dynamic.ddb.mrprimate.co.uk",
+  });
 
   game.settings.register("ddb-importer", "cors-encode", {
     name: "ddb-importer.cors-encode.name",
@@ -1381,5 +1399,106 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "dynamic-sync", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
 
+  game.settings.register("ddb-importer", "dynamic-sync-user", {
+    scope: "world",
+    config: false,
+    type: String,
+    default: "",
+  });
+
+  if (game.settings.get("ddb-importer", "dynamic-sync-user") === "" && game.user.isGM) {
+    game.settings.set("ddb-importer", "dynamic-sync-user", game.user.id);
+  }
+
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-currency", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-hitpoints", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-hitdice", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-action-use", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-inspiration", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-condition", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-deathsaves", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-spells-prepared", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-spells-slots", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-spells-sync", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-equipment", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "dynamic-sync-policy-xp", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
 }

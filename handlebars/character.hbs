@@ -86,7 +86,6 @@
         </div>
       </div>
     </div>
-  </div>
 </section>
 
   <!-- Advanced Configuration Tab -->
@@ -219,8 +218,25 @@
             {{else}}D&D Beyond Update Available to Patreon Supporters{{/if}}</button>
         </div>
       </div>
-    </div>
 
+    </div>
+    {{#if dynamicUpdateAllowed}}
+    <hr>
+    <div class="form-section">
+      <div class="form-description">
+        <div>
+          <input {{#if dynamicUpdateStatus}}checked{{/if}} type="checkbox"
+          id="dndbeyond-character-dynamic-update"
+          name="dndbeyond-character-dynamic-update"
+          data-selection="dndbeyond-character-dynamic-update"
+          {{#if dynamicUpdateAllowed}}enabled{{else}}disabled{{/if}}
+          >Enable Dynamic Updates to D&D Beyond - sync above changes to D&D Beyond as they happen.
+        </div>
+      </div>
+    </div>
+    <p>Only a GM can (currently) dynamically sync changes, and must be logged in to do so.</p>
+    {{#if dynamicUpdateAllowed}}{{else}}<p><b>Additional setup in module settings is required to configure this feature.</b></p>{{/if}}
+    {{/if}}
   </section>
 
 <!-- Help Tab -->

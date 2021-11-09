@@ -1,4 +1,4 @@
-image: node:latest
+image: node:16.13.0
 
 cache:
   paths:
@@ -47,6 +47,7 @@ build:
     - npm run build
     - echo "$(node ./.gitlab/build-alpha-module.js | jq .)"
     - node ./.gitlab/build-alpha-module.js | jq . > module.json
+    - ./icon.sh
     - zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang data vendor LICENSE.md
     - aws s3 cp ./ddb-importer.zip s3://$S3_BUCKET/$S3_PATH/ --cache-control no-cache
     - aws s3 cp ./module.json s3://$S3_BUCKET/$S3_PATH/ --cache-control no-cache

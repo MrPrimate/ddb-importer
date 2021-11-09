@@ -552,7 +552,6 @@ export default class AdventureMunch extends FormApplication {
             const tier = game.settings.get("ddb-importer", "patreon-tier");
             const tiers = getPatreonTiers(tier);
             if (tiers.all) {
-
               resolve(parseCritters(docIds));
             } else {
               resolve([]);

@@ -1,47 +1,51 @@
-# 2.5.35
+# 2.6.10
 
 * Set weapon ability as default for weapons instead of explicit str/dex to allow default ability and finesse to auto apply/decide. @flogistoni#5670
 
-# 2.5.34
+# 2.5.34/2.6.9
 
 * Improve the handling of default compendium creation.
 * Improve handling of the compendium load during character munching.
 * New icon mappings - thanks @JacksonBockus#1378
 
-# 2.5.33
+# 2.5.33/2.6.8
 
 * In some instances the character importer would fail to generate a race.
 
-# 2.5.32
+# 2.5.32/2.6.7
 
 * Compendium load and check refactor.
 * Background tables did not always have unique names.
 
-# 2.5.31
+# 2.5.31/2.6.6
 
 * Characters: now imports a consolidated race "feature" to help keep feature list more trim.
 * Bead of Force did not parse correctly.
 * Spell: Bones of the Earth had incorrect radius.
 
-# 2.5.30
+# 2.5.30/2.6.5
 
 * Characters: In some rare circumstances a class and race feature name clashed (e.g. Radiant Soul) and would not import both.
 * Characters: Consolidate background choices into single feature.
 
-# 2.5.29
+# 2.2.29/2.6.4
 
 * Max prepared spells added to the Tidy sheet data.
 * Sneak Attack ensures activation is set to special when importing features and actions. (@flynnkd#7958).
 * Support for Link Item and Resource DnD5e module https://foundryvtt.com/packages/link-item-resource-5e (Thanks @Calego#0914)
 
-# 2.5.28
+# 2.5.28/2.6.3
 
 * Improve Breath Weapon import.
 * Rod of the Pact Keeper did not add a bonus when not using active effects.
 
-# 2.5.27
+# 2.5.27/2.6.2
 
 * Item weights, notably for Ammunition did not parse correctly.
+
+# 2.6.1
+
+* Active Updates: Dynamically sync character changes back to D&D Beyond as they happen.
 
 # 2.5.26
 

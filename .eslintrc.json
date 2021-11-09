@@ -48,7 +48,8 @@
     "isNewerVersion": true,
     "renderTemplate": true,
     "Combat": true,
-    "deepClone": true
+    "deepClone": true,
+    "foundry": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

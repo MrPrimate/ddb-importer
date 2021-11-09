@@ -24,6 +24,7 @@ import { DDBCookie } from "../lib/Settings.js";
 import { loadSRDRules } from "../parser/templateStrings.js";
 import { abilityOverrideEffects } from "../parser/effects/abilityOverrides.js";
 import { getCharacterImportSettings, updateActorSettings, setRecommendedCharacterActiveEffectSettings } from "../muncher/settings.js";
+import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -467,6 +468,12 @@ export default class CharacterImport extends FormApplication {
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
     const itemCompendium = await getCompendiumType("item", false);
 
+    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
+    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+    const gmSyncUser = game.user.isGM && game.user.id == updateUser;
+    const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.god;
+    const dynamicUpdateStatus = this.actor.data.flags?.ddbimporter?.activeUpdate;
+
     const itemsMunched = syncEnabled && itemCompendium
       ? await itemCompendium.index.size !== 0
       : false;
@@ -478,6 +485,8 @@ export default class CharacterImport extends FormApplication {
       syncEnabled: syncEnabled && itemsMunched,
       importAllowed: !syncOnly,
       itemsMunched: itemsMunched,
+      dynamicUpdateAllowed,
+      dynamicUpdateStatus,
     };
 
     return mergeObject(importSettings, actorSettings);
@@ -520,6 +529,13 @@ export default class CharacterImport extends FormApplication {
           "sync-policy-" + event.currentTarget.dataset.section,
           event.currentTarget.checked
         );
+      });
+
+    $(html)
+      .find("#dndbeyond-character-dynamic-update")
+      .on("change", async (event) => {
+        const activeUpdateData = { flags: { ddbimporter: { activeUpdate: event.currentTarget.checked } } };
+        await this.actor.update(activeUpdateData);
       });
 
     $(html)
@@ -1064,6 +1080,10 @@ export default class CharacterImport extends FormApplication {
 
     logger.debug("Current Actor:", this.actorOriginal);
 
+    // disable active sync
+    const activeUpdateState = getCurrentDynamicUpdateState(this.actor);
+    await disableDynamicUpdates(this.actor);
+
     // console.warn(JSON.parse(JSON.stringify(this.actor)));
     // handle active effects
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
@@ -1092,14 +1112,6 @@ export default class CharacterImport extends FormApplication {
         }
         return klass;
       });
-      // this.actorOriginal.items
-      //   .filter((i) => i.type === "class")
-      //   .forEach((klass) => {
-      //     const klassIndex = this.result.classes.findIndex((i) => i.name === klass.name);
-      //     if (klassIndex) {
-      //       this.result.classes[klassIndex].data.hitDiceUsed = klass.data.hitDiceUsed;
-      //     }
-      //   });
     }
     if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
       this.result.character.data.currency = this.actorOriginal.data.currency;
@@ -1114,6 +1126,8 @@ export default class CharacterImport extends FormApplication {
     // flag as having items ids
     this.result.character.flags.ddbimporter["syncItemReady"] = true;
     this.result.character.flags.ddbimporter["syncActionReady"] = true;
+    this.result.character.flags.ddbimporter["activeUpdate"] = false;
+    this.result.character.flags.ddbimporter["activeSyncSpells"] = true;
     // remove unneeded flags (used for character parsing)
     this.result.character.flags.ddbimporter.dndbeyond["templateStrings"] = null;
     this.result.character.flags.ddbimporter.dndbeyond["characterValues"] = null;
@@ -1169,6 +1183,8 @@ export default class CharacterImport extends FormApplication {
     // this.actor.prepareEmbeddedEntities();
     // this.actor.applyActiveEffects();
     this.actor.render();
+
+    await updateDynamicUpdates(this.actor, activeUpdateState);
   }
 }
 

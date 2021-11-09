@@ -8,6 +8,7 @@ export default function parseCustomItem(data) {
     data: JSON.parse(utils.getTemplate("loot")),
     flags: {
       ddbimporter: {
+        id: data.id,
         custom: true,
         dndbeyond: {
           type: "Custom Item",
@@ -16,7 +17,9 @@ export default function parseCustomItem(data) {
     },
   };
 
-  let description = data.definition.description ? data.definition.description : "";
+  let description = data.definition.description && data.definition.description !== "null"
+    ? data.definition.description
+    : "";
   description = data.definition.notes
     ? description + `<p><blockquote>${data.definition.notes}</blockquote></p>`
     : description;

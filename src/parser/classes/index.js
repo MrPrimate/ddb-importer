@@ -29,7 +29,7 @@ export default function parseClasses(ddb) {
   let items = [];
 
   ddb.character.classes.forEach((characterClass) => {
-    let item = {
+    let klass = {
       name: characterClass.definition.name,
       type: 'class',
       data: JSON.parse(utils.getTemplate('class')),
@@ -42,29 +42,29 @@ export default function parseClasses(ddb) {
       },
     };
 
-    item.data.description = {
+    klass.data.description = {
       value: characterClass.definition.description,
       chat: characterClass.definition.description,
       unidentified: false,
     };
-    item.data.levels = characterClass.level;
-    item.data.source = getSources(characterClass);
+    klass.data.levels = characterClass.level;
+    klass.data.source = getSources(characterClass);
 
     if (
       characterClass.subclassDefinition &&
       characterClass.subclassDefinition.name
     ) {
-      item.data.subclass = characterClass.subclassDefinition.name;
+      klass.data.subclass = characterClass.subclassDefinition.name;
 
       // update the description
-      item.data.description.value +=
-        '<p><strong>' + item.data.subclass + '</strong></p>';
-      item.data.description.value +=
+      klass.data.description.value +=
+        '<p><strong>' + klass.data.subclass + '</strong></p>';
+      klass.data.description.value +=
         characterClass.subclassDefinition.description;
     }
 
-    item.data.hitDice = `d${characterClass.definition.hitDice}`;
-    item.data.hitDiceUsed = characterClass.hitDiceUsed;
+    klass.data.hitDice = `d${characterClass.definition.hitDice}`;
+    klass.data.hitDiceUsed = characterClass.hitDiceUsed;
 
     // There class object supports skills granted by the class.
     // Lets find and add them for future compatibility.
@@ -120,17 +120,17 @@ export default function parseClasses(ddb) {
       });
     });
 
-    item.data.skills = {
+    klass.data.skills = {
       value: skillsChosen,
       number: skillsChosen.length,
       choices: skillChoices,
     };
 
-    item.data.saves = [];
+    klass.data.saves = [];
     DICTIONARY.character.abilities.forEach((ability) => {
       const mods = utils.getChosenClassModifiers(ddb, true);
       const save = utils.filterModifiers(mods, "proficiency", `${ability.long}-saving-throws`, [null, ""], true).length > 0;
-      if (save) item.data.saves.push(ability.value);
+      if (save) klass.data.saves.push(ability.value);
     });
 
     const castSpells = (characterClass.definition.canCastSpells ||
@@ -140,14 +140,21 @@ export default function parseClasses(ddb) {
       const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === characterClass.definition.name);
       const spellCastingAbility = getSpellCastingAbility(characterClass);
       if (spellProgression) {
-        item.data.spellcasting = {
+        klass.data.spellcasting = {
           progression: spellProgression.value,
           ability: spellCastingAbility,
         };
       }
+      const spellSlotDivisor = characterClass.definition.spellRules?.multiClassSpellSlotDivisor
+        ? characterClass.definition.spellRules.multiClassSpellSlotDivisor
+        : characterClass.subclassDefinition.spellRules?.multiClassSpellSlotDivisor
+          ? characterClass.subclassDefinition.spellRules?.multiClassSpellSlotDivisor
+          : undefined;
+      klass.flags.ddbimporter.spellSlotDivisor = spellSlotDivisor;
+      klass.flags.ddbimporter.spellCastingAbility = spellCastingAbility;
     }
 
-    items.push(item);
+    items.push(klass);
   });
 
   return items;
