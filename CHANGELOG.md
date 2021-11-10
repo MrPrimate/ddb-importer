@@ -1,3 +1,7 @@
+# 2.6.14
+
+* Vehicle proficiencies no longer imported. @Seamonster#2107
+
 # 2.6.13
 
 *Hexblade and Kensai monks now import their special weapons again. @Rule#6296

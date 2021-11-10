@@ -101,11 +101,6 @@ export function getToolProficiencies(data, proficiencyArray) {
   proficiencyArray.forEach((prof) => {
     // Some have values we can match too in foundry, others have to be custom imported
     switch (prof.name) {
-      case "Vehicle (Land or Water)":
-      case "Vehicle (Land)":
-      case "Vehicle (Water)":
-        values.push("vehicle");
-        break;
       default: {
         const allProfMatch = allToolProficiencies.find((allProf) => allProf.name === prof.name);
         if (allProfMatch && allProfMatch.baseTool && allProfMatch.baseTool !== "") {

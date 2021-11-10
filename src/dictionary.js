@@ -366,6 +366,9 @@ const DICTIONARY = {
       { name: "Brewer's Supplies", type: "Tool", subType: "Supplies", ability: "int", baseTool: "brewer" },
       { name: "Calligrapher's Supplies", type: "Tool", subType: "Supplies", ability: "dex", baseTool: "calligrapher" },
       { name: "Painter's Supplies", type: "Tool", subType: "Supplies", ability: "dex", baseTool: "" },
+      { name: "Vehicles (Land)", type: "Tool", subType: "Vehicles", ability: "dex", baseTool: "land" },
+      { name: "Vehicles (Air)", type: "Tool", subType: "Vehicles", ability: "dex", baseTool: "air" },
+      { name: "Vehicles (Water)", type: "Tool", subType: "Vehicles", ability: "dex", baseTool: "water" },
     ],
     characterValuesLookup: [
       { name: "pactWeapon", typeId: 28 },
