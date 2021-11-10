@@ -325,20 +325,24 @@ export default function parseWeapon(data, character, flags) {
   weapon.data.range = getRange(data, weapon.data.properties);
   weapon.data.uses = getUses(data);
   weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range);
+  const mockAbility = weapon.data.ability === null
+    ? weapon.data.properties.fin ? "dex" : "str"
+    : weapon.data.ability;
+
   // warlocks can use cha for their Hex weapon
   if (flags.classFeatures.includes("hexWarrior")) {
-    if (characterAbilities.cha.value >= characterAbilities[weapon.data.ability].value) {
+    if (characterAbilities.cha.value >= characterAbilities[mockAbility].value) {
       weapon.data.ability = "cha";
     }
   }
   // kensai monks
   if (flags.classFeatures.includes("kensaiWeapon") || flags.classFeatures.includes("monkWeapon")) {
-    if (characterAbilities.dex.value >= characterAbilities[weapon.data.ability].value) {
+    if (characterAbilities.dex.value >= characterAbilities[mockAbility].value) {
       weapon.data.ability = "dex";
     }
   }
   if (flags.magicItemAttackInt && (data.definition.magic || weapon.data.properties.mgc)) {
-    if (characterAbilities.int.value > characterAbilities[weapon.data.ability].value) {
+    if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
       weapon.data.ability = "int";
     }
   }

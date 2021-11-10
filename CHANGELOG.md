@@ -1,3 +1,7 @@
+# 2.6.13
+
+*Hexblade and Kensai monks now import their special weapons again. @Rule#6296
+
 # 2.6.12
 
 * Dynamic Updates did not show up on each character sheet.
