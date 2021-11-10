@@ -1,3 +1,7 @@
+# 2.6.12
+
+* Dynamic Updates did not show up on each character sheet.
+
 # 2.6.11
 
 * Some class features that added stat bonus too iniative could add proficiency instead.

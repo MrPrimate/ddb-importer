@@ -471,7 +471,7 @@ export default class CharacterImport extends FormApplication {
     const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
     const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
-    const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.god;
+    const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.experimentalMid;
     const dynamicUpdateStatus = this.actor.data.flags?.ddbimporter?.activeUpdate;
 
     const itemsMunched = syncEnabled && itemCompendium
