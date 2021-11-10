@@ -1,3 +1,7 @@
+# 2.6.11
+
+* Some class features that added stat bonus too iniative could add proficiency instead.
+
 # 2.6.10
 
 * Active Update now in BETA and available for Undying tier patreon supporters.

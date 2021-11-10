@@ -366,11 +366,11 @@ const utils = {
         sum += modifier.fixedValue;
       } else if (modifier.value) {
         sum += modifier.value;
+      } else if (modBonus !== 0) {
+        sum += modBonus;
       } else if (modifier.modifierTypeId === 1 && modifier.modifierSubTypeId === 218) {
         // prof bonus
         sum += character.data.attributes.prof;
-      } else if (modBonus !== 0) {
-        sum += modBonus;
       }
     });
     if (diceString !== "") {
