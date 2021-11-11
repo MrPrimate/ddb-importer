@@ -98,10 +98,12 @@ function getUnarmoredAC(modifiers, character) {
   //   });
   // }
 
+  const ignoreDex = modifiers.some((modifier) => modifier.type === "ignore" && modifier.subType === "unarmored-dex-ac-bonus");
+
   const maxUnamoredDexMods = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "ac-max-dex-modifier" && modifier.isGranted
   ).map((mods) => mods.value);
-  const maxUnamoredDexMod = Math.min(...maxUnamoredDexMods, 20);
+  const maxUnamoredDexMod = ignoreDex ? 0 : Math.min(...maxUnamoredDexMods, 20);
 
   // console.log(`Max Dex: ${maxUnamoredDexMod}`);
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
@@ -119,10 +121,8 @@ function getUnarmoredAC(modifiers, character) {
     if (unarmored.statId !== null) {
       let ability = DICTIONARY.character.abilities.find((ability) => ability.id === unarmored.statId);
       unarmoredACValue += characterAbilities[ability.value].mod;
-    } else {
-      // others are picked up here e.g. Draconic Resilience
-      unarmoredACValue += unarmored.value;
     }
+    if (unarmored.value) unarmoredACValue += unarmored.value;
     unarmoredACValues.push(unarmoredACValue);
   });
   // console.warn(unarmoredACValues);
@@ -441,11 +441,12 @@ export function getArmorClass(ddb, character) {
   switch (ddb.character.race.fullName) {
     case "Lizardfolk":
       baseAC = Math.max(getUnarmoredAC(ddb.character.modifiers.race, character));
-      equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", "Lizardfolk"));
+      equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", ddb.character.race.fullName));
       break;
+    case "Loxodon":
     case "Tortle":
       baseAC = Math.max(getMinimumBaseAC(ddb.character.modifiers.race, character), getUnarmoredAC(ddb.character.modifiers.race, character));
-      equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", "Tortle"));
+      equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", ddb.character.race.fullName));
       break;
     default:
       equippedArmor.push(getBaseArmor(baseAC, "Unarmored"));
