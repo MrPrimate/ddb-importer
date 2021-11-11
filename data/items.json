@@ -4129,5 +4129,23 @@
   { "name": "Watchful Helm", "path": "icons/equipment/head/helm-barbute-white.webp", "type": "core" },
   { "name": "Deflect Missiles Attack", "path": "icons/skills/melee/strike-polearm-glowing-white.webp", "type": "core" },
   { "name": "Psionic Power: Psionic Strike", "path": "icons/skills/melee/weapons-crossed-swords-teal.webp", "type": "core" },
-  { "name": "Witchlight Watch", "path": "icons/commodities/tech/watch.webp", "type": "core" }
+  { "name": "Witchlight Watch", "path": "icons/commodities/tech/watch.webp", "type": "core" },
+  { "name": "Sapphire Buckler", "path": "icons/equipment/shield/heater-crystal-blue.webp", "type": "core" },
+  { "name": "Rust Bag of Tricks", "path": "icons/containers/bags/sack-leather-red.webp", "type": "core" },
+  { "name": "Potion of Dragon's Majesty", "path": "icons/consumables/potions/potion-bottle-corked-fancy-orange.webp", "type": "core" },
+  { "name": "Platinum Scarf", "path": "icons/commodities/cloth/ribbon-bow-teal.webp", "type": "core" },
+  { "name": "Pixie Dust", "path": "icons/commodities/materials/bowl-powder-teal.webp", "type": "core" },
+  { "name": "Gray Bag of Tricks", "path": "icons/containers/bags/sack-leather-grey.webp", "type": "core" },
+  { "name": "Gold Canary Figurine of Wondrous Power", "path": "icons/creatures/birds/songbird-yellow-flying.webp", "type": "core" },
+  { "name": "Eldritch Staff", "path": "icons/weapons/staves/staff-ornate-banded-purple.webp", "type": "core" },
+  { "name": "Dust of Corrosion", "path": "icons/commodities/materials/bowl-powder-yellow.webp", "type": "core" },
+  { "name": "Dragonlance", "path": "icons/weapons/polearms/spear-hooked-double-engraved.webp", "type": "core" },
+  { "name": "Dragon Wing Hand Crossbow", "path": "icons/weapons/crossbows/crossbow-ornamental-winged.webp", "type": "core" },
+  { "name": "Dragon Wing Heavy Crossbow", "path": "icons/weapons/crossbows/crossbow-ornamental-winged.webp", "type": "core" },
+  { "name": "Dragon Wing Light Crossbow", "path": "icons/weapons/crossbows/crossbow-ornamental-winged.webp", "type": "core" },
+  { "name": "Dragon Wing Shortbow", "path": "icons/weapons/bows/shortbow-recurve-blue.webp", "type": "core" },
+  { "name": "Dragon Wing Longbow", "path": "icons/weapons/bows/shortbow-recurve-blue.webp", "type": "core" },
+  { "name": "Dragon Wing Bow", "path": "icons/weapons/bows/shortbow-recurve-blue.webp", "type": "core" },
+  { "name": "Dragon Vessel", "path": "icons/containers/kitchenware/goblet-jeweled-red.webp", "type": "core" }
 ]
+

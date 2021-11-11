@@ -1,6 +1,7 @@
 # 2.6.14
 
 * Vehicle proficiencies no longer imported. @Seamonster#2107
+* Moar icons for new items from Fizban's - thanks @JacksonBockus#1378 !
 
 # 2.6.13
 
