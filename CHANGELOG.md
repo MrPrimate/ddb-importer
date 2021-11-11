@@ -2,6 +2,7 @@
 
 * Vehicle proficiencies no longer imported. @Seamonster#2107
 * Moar icons for new items from Fizban's - thanks @JacksonBockus#1378 !
+* Fix AC for Loxodon @LususNaturae#0046
 
 # 2.6.13
 
