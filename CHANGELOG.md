@@ -1,6 +1,7 @@
 # 2.6.15
 
-* Retain "Inventory +" categories on character and items during import.
+* Retain "Inventory +" categories on character and items during import. @TheLuckyDemon#0352
+
 
 # 2.6.14
 
