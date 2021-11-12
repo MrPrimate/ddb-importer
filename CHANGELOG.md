@@ -1,3 +1,7 @@
+# 2.6.15
+
+* Retain "Inventory +" categories on character and items during import.
+
 # 2.6.14
 
 * Vehicle proficiencies no longer imported. @Seamonster#2107
