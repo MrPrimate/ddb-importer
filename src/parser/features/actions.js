@@ -389,10 +389,13 @@ function getAttackType(ddb, character, action, weapon) {
 }
 
 function getAttackAction(ddb, character, action) {
-  let weapon = {
+  const actionType = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features")
+    ? "feat"
+    : "weapon";
+  let feature = {
     name: utils.getName(action, character),
-    type: "weapon",
-    data: JSON.parse(utils.getTemplate("weapon")),
+    type: actionType,
+    data: JSON.parse(utils.getTemplate(actionType)),
     flags: {
       ddbimporter: {
         id: action.id,
@@ -404,43 +407,43 @@ function getAttackAction(ddb, character, action) {
       infusions: { infused: false },
     },
   };
+  logger.debug(`Parsing action: ${feature.name} as ${actionType}`);
   if (action.infusionFlags) {
-    setProperty(weapon, "flags.infusions", action.infusionFlags);
+    setProperty(feature, "flags.infusions", action.infusionFlags);
   }
-  logger.debug(`Getting Attack Action ${action.name}`);
 
   try {
     if (action.isMartialArts) {
-      weapon.flags.ddbimporter.dndbeyond = {
+      feature.flags.ddbimporter.dndbeyond = {
         type: "Martial Arts",
       };
     }
 
-    weapon.data.proficient = action.isProficient ? 1 : 0;
-    weapon.data.description = getDescription(ddb, character, action);
-    weapon.data.equipped = true;
-    weapon.data.rarity = "common";
-    weapon.data.identified = true;
-    weapon.data.activation = getActivation(action);
-    weapon = calculateRange(action, weapon);
-    weapon = getAttackType(ddb, character, action, weapon);
-    weapon.data.weaponType = getWeaponType(action);
-    weapon.data.uses = getLimitedUse(action, character);
-    weapon.data.consume = getResource(character, action);
-    weapon.flags = getResourceFlags(character, action, weapon.flags);
+    feature.data.proficient = action.isProficient ? 1 : 0;
+    feature.data.description = getDescription(ddb, character, action);
+    feature.data.equipped = true;
+    feature.data.rarity = "common";
+    feature.data.identified = true;
+    feature.data.activation = getActivation(action);
+    feature = calculateRange(action, feature);
+    feature = getAttackType(ddb, character, action, feature);
+    feature.data.weaponType = getWeaponType(action);
+    feature.data.uses = getLimitedUse(action, character);
+    feature.data.consume = getResource(character, action);
+    feature.flags = getResourceFlags(character, action, feature.flags);
 
     // class action
     const klassAction = utils.findComponentByComponentId(ddb, action.id);
     if (klassAction) {
-      setProperty(weapon.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
-      setProperty(weapon.flags, "ddbimporter.dndbeyond.levelScales", klassAction.definition?.levelScales);
-      setProperty(weapon.flags, "ddbimporter.dndbeyond.limitedUse", klassAction.definition?.limitedUse);
+      setProperty(feature.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
+      setProperty(feature.flags, "ddbimporter.dndbeyond.levelScales", klassAction.definition?.levelScales);
+      setProperty(feature.flags, "ddbimporter.dndbeyond.limitedUse", klassAction.definition?.limitedUse);
     }
 
-    weapon = addFeatEffects(ddb, character, action, weapon);
+    feature = addFeatEffects(ddb, character, action, feature);
 
-    if (weapon.data.uses?.max) {
-      weapon.flags.betterRolls5e = {
+    if (feature.data.uses?.max) {
+      feature.flags.betterRolls5e = {
         "quickCharges": {
           "value": {
             "use": true,
@@ -460,7 +463,7 @@ function getAttackAction(ddb, character, action) {
     );
   }
 
-  return weapon;
+  return feature;
 }
 
 /**

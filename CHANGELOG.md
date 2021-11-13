@@ -1,7 +1,10 @@
+# 2.6.16
+
+* Character import: Add an option to import D&D Beyond Actions as Features not Weapons. @PhantamaroK#2938
+
 # 2.6.15
 
 * Retain "Inventory +" categories on character and items during import. @TheLuckyDemon#0352
-
 
 # 2.6.14
 

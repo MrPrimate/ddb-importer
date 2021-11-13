@@ -160,6 +160,13 @@ export function getCharacterImportSettings() {
       enabled: true,
     },
     {
+      name: "use-actions-as-features",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features"),
+      description:
+        "Import D&D Beyond Actions as Features, not weapons.",
+      enabled: true,
+    },
+    {
       name: "use-action-and-feature",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature"),
       description:

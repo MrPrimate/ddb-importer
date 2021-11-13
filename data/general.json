@@ -14,5 +14,7 @@
   { "name": "Extra Attack", "path": "systems/dnd5e/icons/spells/enchant-orange-2.jpg", "type": "systems" },
   { "name": "Tool Proficiency", "path": "systems/dnd5e/icons/items/inventory/badge-hammer.jpg", "type": "systems" },
   { "name": "Bonus Cantrip", "path": "icons/sundries/documents/document-symbol-eye.webp", "type": "core" },
-  { "name": "Bonus Cantrips", "path": "icons/sundries/documents/document-symbol-eye.webp", "type": "core" }
+  { "name": "Bonus Cantrips", "path": "icons/sundries/documents/document-symbol-eye.webp", "type": "core" },
+  { "name": "Unarmed Strike", "path": "systems/dnd5e/icons/skills/yellow_08.jpg", "type": "systems" },
+  { "name": "Background", "path": "icons/skills/trades/academics-book-study-purple.webp", "type": "core" }
 ]
