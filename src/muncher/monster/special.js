@@ -10,7 +10,7 @@ export function specialCases(monster) {
     case "Aboleth":
       monster.items.forEach((item) => {
         if (item.name === "Tentacle") {
-          item.data.damage.formula = item.data.damage.parts[1][0];
+          item.data.formula = item.data.damage.parts[1][0];
           item.data.damage.parts.splice(1, 1);
         }
       });
