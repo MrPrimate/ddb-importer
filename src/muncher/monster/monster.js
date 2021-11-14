@@ -24,6 +24,7 @@ import { getType } from "./type.js";
 import { DDB_CONFIG } from "../../ddbConfig.js";
 import utils from "../../utils.js";
 import { newNPC } from "./templates/monster.js";
+import { specialCases } from "./special.js";
 
 import logger from '../../logger.js';
 
@@ -195,7 +196,9 @@ export function parseMonsters(monsterData, extra = false) {
 
       foundryActor.items = items;
 
+      foundryActor = specialCases(foundryActor);
       // logger.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
+      console.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
       // logger.info(foundryActor.data.resources);
       // logger.info(foundryActor.data.traits.languages);
 

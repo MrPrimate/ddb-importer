@@ -161,6 +161,7 @@ function getEdgeCases(spellList) {
     // {name: "", type: "srt/lng/day", value: 0} // check these values
     innate: [],
     edgeCases: [], // map { name: "", type: "", edge: "" }
+    material: spellList.material,
   };
 
   // class and atwill
