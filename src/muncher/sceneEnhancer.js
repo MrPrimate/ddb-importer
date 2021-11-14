@@ -1,6 +1,7 @@
 import { download } from "./utils.js";
 import { getSourcesLookups } from "./ddb.js";
 import { DDB_CONFIG } from "../ddbConfig.js";
+import logger from "../logger.js";
 
 /**
    * Extracts all notes that have been placed by ddb-importer
@@ -173,11 +174,6 @@ export function collectSceneData(scene, bookCode) {
   return data;
 }
 
-// TODO: this will handle the scene enhancement/import
-export function sceneEnhancer() {
-
-}
-
 function getCompendiumScenes(compendiumCollection, selectedId) {
   let scenes = [];
   const compendium = game.packs.find((pack) => pack.collection === compendiumCollection);
@@ -223,7 +219,7 @@ export class SceneEnhancerExport extends Application {
     this.url = sceneExportFlags?.url || "";
     this.compendium = sceneExportFlags?.compendium;
     this.compendiumScene = sceneExportFlags?.scene;
-    this.bookCode = this.scene.data.flags?.ddb?.bookCode.toLowerCase()
+    this.bookCode = this.scene.data.flags?.ddb?.bookCode.toLowerCase();
     this.compendiumScenes = this.compendium ? getCompendiumScenes(this.compendium, this.compendiumScene) : [];
 
     if (this.compendiumScene && this.compendiumScenes) this.sceneSet = true;
@@ -252,7 +248,6 @@ export class SceneEnhancerExport extends Application {
       };
     }).sort((a, b) => a.name.localeCompare(b.name));
 
-    console.warn(sceneExportFlags);
     this.exportOptionsCompendium = {
       actors: sceneExportFlags?.actors !== undefined ? sceneExportFlags.actors : true,
       notes: sceneExportFlags?.notes !== undefined ? sceneExportFlags.notes : true,
@@ -430,7 +425,6 @@ export class SceneEnhancerExport extends Application {
     let sceneData = collectSceneData(this.scene, formData["select-book"]);
 
     Object.keys(sceneData.flags).forEach((flag) => {
-      console.warn(flag)
       if (!allowedFlags.includes(flag) && !ddbFlags.includes(flag)) delete sceneData.flags[flag];
     });
 
@@ -462,7 +456,7 @@ export class SceneEnhancerExport extends Application {
       });
     }
 
-    console.warn(sceneData);
+    logger.debug(sceneData);
     const name = sceneData.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
     const sceneRef = `ddb-enhanced-scene-${name}`;
     download(JSON.stringify(sceneData, null, 4), `${sceneRef}.json`, "application/json");
