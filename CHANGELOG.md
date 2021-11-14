@@ -2,6 +2,7 @@
 
 * Update to D&D Beyond: some weapons are stackable (e.g. Javelins) on D&D Beyond. The updater will now update the quantity correctly rather than creating a new item for each Javelin. Requires an reimport of the character and recommended that you reimport your items into the DDB Items compendium.
 * Add level to class feature import requirement
+* Refactor to scene downloader for Adventure Muncher
 
 # 2.6.16
 
