@@ -150,7 +150,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     const query = pDom.querySelector("strong");
     if (!query) return;
     let name = query.textContent.trim().replace(/\./g, '');
-    if (!name.includes("Spell;")) {
+    if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
       name = name.split(";").pop().trim();
     }
     let action = newFeat(name);
@@ -174,7 +174,10 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       });
       const query = pDom.querySelector("b");
       if (!query) return;
-      const name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
+      let name = query.textContent.trim().replace(/\./g, '')
+      if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
+        name = name.split(";").pop().trim();
+      }
       let action = newFeat(name);
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {

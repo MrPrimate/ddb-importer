@@ -198,7 +198,8 @@ export function parseMonsters(monsterData, extra = false) {
 
       foundryActor = specialCases(foundryActor);
       // logger.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
-      console.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
+      // console.warn("Data:", monster);
+      // console.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
       // logger.info(foundryActor.data.resources);
       // logger.info(foundryActor.data.traits.languages);
 

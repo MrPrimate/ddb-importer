@@ -3,6 +3,7 @@
 * Some monsters, e.g. Abhorrent Overlord could import with the spellcaster level set incorrectly.
 * Monsters: Sephek Kaltro did not import Misty Step. (Odd formating)
 * Monsters: Aboleth tentacle damage was not correct. Acid is now split to the Other formula field.
+* Monsters: Some mythic actions did not parse names correctly, e.g. Arasta's Armor of Spiders.
 
 # 2.6.17
 

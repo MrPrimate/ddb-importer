@@ -61,14 +61,18 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
 
   // build out skeleton actions
   dom.querySelectorAll("p").forEach((node) => {
-    let action = newFeat(name);
     let pDom = new DocumentFragment();
     $.parseHTML(node.outerHTML).forEach((element) => {
       pDom.appendChild(element);
     });
     const query = pDom.querySelector("em");
     if (!query) return;
-    action.name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
+    let name = query.textContent.trim().replace(/\./g, '');
+    if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
+      name = name.split(";").pop().trim();
+    }
+    let action = newFeat(name);
+    action.name = name;
     action.data.source = getSource(monster, DDB_CONFIG);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
@@ -85,7 +89,10 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
       });
       const query = pDom.querySelector("strong");
       if (!query) return;
-      const name = query.textContent.trim().replace(/\./g, '').split(";").pop().trim();
+      let name = query.textContent.trim().replace(/\./g, '');
+      if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
+        name = name.split(";").pop().trim();
+      }
       let action = newFeat(name);
       action.data.source = getSource(monster, DDB_CONFIG);
       action.flags.monsterMunch = {
@@ -138,6 +145,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     // const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
     const nodeName = node.textContent.split('.')[0].trim();
     let switchAction = dynamicActions.find((act) => nodeName === act.name);
+    if (action.name.includes("; Recharges after a Short or Long Rest")) action.name = action.name.replace("; Recharges after a Short or Long Rest", "");
     if (!switchAction) {
       switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.flags.monsterMunch.fullName));
     }
