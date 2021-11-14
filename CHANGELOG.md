@@ -1,3 +1,7 @@
+# 2.6.18
+
+* Some monsters, e.g. Abhorrent Overlord could import with the spellcaster level set incorrectly.
+
 # 2.6.17
 
 * Update to D&D Beyond: some weapons are stackable (e.g. Javelins) on D&D Beyond. The updater will now update the quantity correctly rather than creating a new item for each Javelin. Requires an reimport of the character and recommended that you reimport your items into the DDB Items compendium.

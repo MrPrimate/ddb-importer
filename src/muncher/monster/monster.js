@@ -195,7 +195,7 @@ export function parseMonsters(monsterData, extra = false) {
 
       foundryActor.items = items;
 
-      // logger.info(JSON.stringify(foundryActor));
+      // logger.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
       // logger.info(foundryActor.data.resources);
       // logger.info(foundryActor.data.traits.languages);
 

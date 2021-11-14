@@ -13,7 +13,7 @@ function parseSpellcasting(text) {
 }
 
 function parseSpellLevel(text) {
-  let spellLevel = "";
+  let spellLevel = 0;
   const levelSearch = /is (?:a|an) (\d+)(?:th|nd|rd|st)(?:-| )level spellcaster/;
   const match = text.match(levelSearch);
   if (match) {
@@ -49,7 +49,7 @@ function parseBonusSpellAttack(text, monster, DDB_CONFIG) {
 }
 
 function parseInnateSpells(text, spells, spellList) {
- // handle innate style spells here
+  // handle innate style spells here
   // 3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)
   // console.log(text);
   const innateSearch = /^(\d+)\/(\w+)(?:\s+each)?:\s+(.*$)/;
@@ -331,6 +331,9 @@ export function getSpells(monster, DDB_CONFIG) {
       spellcasting = parseSpellcasting(spellText);
       spelldc = parseSpelldc(spellText);
       spellLevel = parseSpellLevel(spellText);
+      if (spellLevel != 0) {
+        console.warn(spellText);
+      }
       spellAttackBonus = parseBonusSpellAttack(spellText, monster, DDB_CONFIG);
     }
 
