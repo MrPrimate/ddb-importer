@@ -332,9 +332,6 @@ export function getSpells(monster, DDB_CONFIG) {
       spellcasting = parseSpellcasting(spellText);
       spelldc = parseSpelldc(spellText);
       spellLevel = parseSpellLevel(spellText);
-      if (spellLevel != 0) {
-        console.warn(spellText);
-      }
       spellAttackBonus = parseBonusSpellAttack(spellText, monster, DDB_CONFIG);
     }
 

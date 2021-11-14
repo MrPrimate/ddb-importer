@@ -174,7 +174,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       });
       const query = pDom.querySelector("b");
       if (!query) return;
-      let name = query.textContent.trim().replace(/\./g, '')
+      let name = query.textContent.trim().replace(/\./g, '');
       if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
         name = name.split(";").pop().trim();
       }
