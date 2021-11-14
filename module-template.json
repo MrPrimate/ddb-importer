@@ -3,7 +3,7 @@
   "author": "MrPrimate",
   "title": "D&D Beyond Importer",
   "license": "MIT License",
-  "description": "Import your dndbeyond.com characters, spells, monsters, and adventures at super speed!",
+  "description": "Import your dndbeyond.com characters, spells, items, monsters, encounters, and adventures at super speed!",
   "version": "VERSION",
   "download": "https://github.com/mrprimate/ddb-importer/releases/download/VERSION/ddb-importer.zip",
   "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module.json",
