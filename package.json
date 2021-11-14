@@ -2,7 +2,7 @@
   "name": "ddb-importer",
   "version": "2.6.18",
   "author": "MrPrimate",
-  "description": "Foundry module for integrating DDB content",
+  "description": "Foundry module for integrating D&D Beyond content",
   "private": true,
   "scripts": {
     "lint": "npx eslint src/",
