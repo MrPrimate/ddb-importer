@@ -793,12 +793,12 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
       ((parseInt(item.data.data.uses.max) - parseInt(item.data.data.uses.value)) !== dItem.limitedUse.numberUsed)
     )
   );
-  // need to handle weapon and armor separately, as they get added as new items (not implemented)
   const itemsToQuantity = actor.data.items.filter((item) =>
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     !item.data.data.quantity == 0 &&
     !item.data.flags.ddbimporter?.custom &&
-    item.type !== "weapon" && !item.data.data?.armor?.type &&
+    ((item.type !== "weapon" && item.type !== "armor") || item.flags.ddbimporter?.dndbeyond?.stackable) &&
+    !item.data.data?.armor?.type &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
       dItem.id === item.data.flags.ddbimporter?.id &&
@@ -1064,8 +1064,8 @@ async function generateDynamicItemChange(actor, document, update) {
     }
     if (update.data?.quantity) {
       // if its a weapon or armor we actually need to push a new one
-      if (document.type === "weapon" || (document.type === "armor" && update.data.quantity > 1)) {
-        // logger.debug("Weapon or Armor Quantity Update triggers new item", update);
+      if (!document.data.flags.ddbimporter?.dndbeyond?.stackable && update.data.quantity > 1) {
+        // Some items are not stackable on DDB
 
         await document.update({ data: { quantity: 1 } });
         let newDocument = JSON.parse(JSON.stringify(document.toObject()));

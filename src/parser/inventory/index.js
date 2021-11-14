@@ -391,6 +391,7 @@ function enrichFlags(data, item) {
   if (data.id) item.flags.ddbimporter['id'] = data.id;
   if (data.definition?.tags) item.flags.ddbimporter.dndbeyond['tags'] = data.definition.tags;
   if (data.definition?.sources) item.flags.ddbimporter.dndbeyond['sources'] = data.definition.sources;
+  if (data.definition?.stackable) item.flags.ddbimporter.dndbeyond['stackable'] = data.definition.stackable;
 }
 
 export default function getInventory(ddb, character, itemSpells) {
