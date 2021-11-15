@@ -18,7 +18,7 @@ async function getCharacterInventory(items) {
       equipped: false,
       id: 0,
       isAttuned: false,
-      quantity: 1,
+      quantity: item.bundleSize ? item.bundleSize : 1,
       definition: item,
     };
   });
