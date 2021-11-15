@@ -534,7 +534,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
   logger.debug("Adding custom items:", customItems);
 
   try {
-    const customItemResults = actor.updateEmbeddedDocuments("Item", customItems);
+    const customItemResults = await actor.updateEmbeddedDocuments("Item", customItems);
     logger.debug("customItemResults", customItemResults);
   } catch (err) {
     logger.error(`Unable to update character with equipment, got the error:`, err);
@@ -797,7 +797,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     !item.data.flags.ddbimporter?.action && item.data.flags.ddbimporter?.id &&
     !item.data.data.quantity == 0 &&
     !item.data.flags.ddbimporter?.custom &&
-    ((item.type !== "weapon" && item.type !== "armor") || item.flags.ddbimporter?.dndbeyond?.stackable) &&
+    ((item.type !== "weapon" && item.type !== "armor") || item.data.flags.ddbimporter?.dndbeyond?.stackable) &&
     !item.data.data?.armor?.type &&
     ddbItems.some((dItem) =>
       item.data.flags.ddbimporter.id === dItem.id &&
