@@ -1,3 +1,8 @@
+# 2.6.19
+
+* Bundle sizes when munching items into the DDB Items compendium did not calculate properly.
+* Character Update to D&D Beyond: Stackable items may not have updated on DDB.
+
 # 2.6.18
 
 * Some monsters, e.g. Abhorrent Overlord could import with the spellcaster level set incorrectly.
