@@ -196,7 +196,7 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
   // first pass is a strict match
   let matchingItem = items.find((matchItem) => {
     let activationMatch = false;
-    const alternativeNames = (((matchItem.flags || {}).ddbimporter || {}).dndbeyond || {}).alternativeNames;
+    const alternativeNames = matchItem.flags?.ddbimporter?.dndbeyond?.alternativeNames;
     const extraNames = (alternativeNames) ? matchItem.flags.ddbimporter.dndbeyond.alternativeNames : [];
 
     const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.data, 'activation');
@@ -827,11 +827,6 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
 
     // logger.debug(`matched? ${JSON.stringify(matched)}`);
     // console.log(matched);
-    // const ddbItem = items.find((orig) =>
-    //   (item.name === orig.name && item.type === orig.type && orig.data.activation
-    //     ? orig.data.activation.type === item.data.activation.type
-    //     : true)
-    // );
 
     if (matched) {
       if (!item.flags.ddbimporter) {
@@ -915,7 +910,7 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
   return results;
 }
 
-export async function getSRDCompendiumItems(items, type, looseMatch = false, keepId = false) {
+export async function getSRDCompendiumItems(items, type, looseMatch = false, keepId = false, monster = false) {
   const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
   if (!srdPacksLoaded[compendiumName]) await loadSRDPacks(compendiumName);
   const compendiumItems = srdPacks[compendiumName];
@@ -941,9 +936,9 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
     }
     return item;
   });
-  logger.debug(`SRD ${type} loaded items:`, loadedItems);
+  // logger.debug(`SRD ${type} loaded items:`, loadedItems);
 
-  const results = await updateMatchingItems(items, loadedItems, looseMatch, false, keepId);
+  const results = await updateMatchingItems(items, loadedItems, looseMatch, monster, keepId);
   logger.debug(`SRD ${type} result items:`, results);
 
   return results;
@@ -1041,6 +1036,7 @@ export async function srdFiddling(items, type) {
     const lessSrdItems = await removeItems(items, srdItems);
     const newIcons = lessSrdItems.concat(srdItems);
     const iconedItems = await updateIcons(newIcons);
+    // console.warn("Final Monsters", srdItems);
     return iconedItems;
   } else if (useSrd) {
     logger.debug("Removing compendium items");
