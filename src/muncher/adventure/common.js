@@ -352,7 +352,8 @@ export default class Helpers {
             break;
           }
           case "spell":
-            resolve(parseSpells(docIds));
+            // we actually want all spells, because monsters don't just use spells from a single source
+            resolve(parseSpells());
             break;
           // no default
         }
@@ -565,5 +566,41 @@ export default class Helpers {
     }
     return newDoc;
   }
+
+  static getImportType(type) {
+    const typeName = type[0].toUpperCase() + type.slice(1);
+    let importType = typeName;
+
+    switch (type) {
+      case "journal":
+        importType = "JournalEntry";
+        break;
+      case "table":
+        importType = "RollTable";
+        break;
+      default:
+        importType = typeName;
+        break;
+    }
+
+    return importType;
+  }
+
+  static folderExists(folder, zip) {
+    const files = Object.values(zip.files).filter((file) => {
+      return file.dir && file.name.toLowerCase().includes(folder);
+    });
+
+    return files.length > 0;
+  }
+
+  static getFiles(folder, zip) {
+    const files = Object.values(zip.files).filter((file) => {
+      return !file.dir && file.name.split('.').pop() === 'json' && file.name.includes(`${folder}/`);
+    });
+
+    return files;
+  }
+
 
 }

@@ -1,0 +1,30 @@
+<form class="{{cssClass}}" autocomplete="off" onsubmit="event.preventDefault();">
+  <div class="import-file-selector">
+    <p class="notes">You may select an adventure file manually uploaded within data directory (use this if file is larger that 500 mb) or select a file to import from your client.</p>
+    <div>
+      <select style="text-align:center" name="import-file" id="import-file">
+        <option></option>
+        {{#each files}}
+        <option value="{{this.path}}">{{this.name}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div>
+      <div class="form-group">
+        <input type="file" name="data" accept=".fvttadv"/>
+      </div>
+    </div>
+    <div class="import-progress import-hidden">
+      <div class="import-progress-bar" style="width: 0%"></div>
+    </div>
+    <div>
+      <button class="dialog-button" data-button="import">
+        <i class="fas fa-check"></i>
+        {{localize "dbb-importer.adventure-import-button"}}
+      </button>
+    </div>
+  </div>
+  <div class="ddb-overlay import-invalid">
+    <div class="ddb-working import-hidden"><i class="fas fa-cog"></i><div style="font-size: 15px; text-align: center;">Updating References...</div></div>
+  </div>
+</form>

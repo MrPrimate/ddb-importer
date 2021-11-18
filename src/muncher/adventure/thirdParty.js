@@ -3,7 +3,7 @@ import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 
-export default class AdventureMunch extends FormApplication {
+export default class ThirdPartyMunch extends FormApplication {
   /** @override */
   constructor(object = {}, options = {}) {
     super(object, options);
@@ -20,8 +20,8 @@ export default class AdventureMunch extends FormApplication {
     return mergeObject(super.defaultOptions, {
       id: "ddb-adventure-import",
       classes: ["ddb-adventure-import"],
-      title: "Adventure Munch",
-      template: "modules/ddb-importer/handlebars/adventure/import.hbs",
+      title: "Third Party Munch",
+      template: "modules/ddb-importer/handlebars/adventure/import-third.hbs",
       width: 350,
     });
   }
@@ -36,7 +36,7 @@ export default class AdventureMunch extends FormApplication {
       // const parsedDirectory = DirectoryPicker.parse(this._importPathData);
       const verifiedDirectory = await DirectoryPicker.verifyPath(this._importPathData);
       if (verifiedDirectory) {
-        const options = { bucket: this._importPathData.bucket, extensions: [".fvttadv", ".FVTTADV", ".zip"], wildcard: false };
+        const options = { bucket: this._importPathData.bucket, extensions: [".zip"], wildcard: false };
         data = await Helpers.BrowseFiles(this._importPathData.activeSource, this._importPathData.current, options);
         files = data.files.map((file) => {
           const filename = decodeURIComponent(file).replace(/^.*[\\/]/, '');
@@ -55,42 +55,6 @@ export default class AdventureMunch extends FormApplication {
       cssClass: "ddb-importer-window"
     };
 
-  }
-
-  static async _createFolders(adventure, folders) {
-    if (folders) {
-      const maintainFolders = adventure?.options?.folders;
-      let itemFolder = null;
-      if (!maintainFolders) {
-        const importTypes = ["Scene", "Actor", "Item", "JournalEntry", "RollTable"];
-        await Helpers.asyncForEach(importTypes, async (importType) => {
-          itemFolder = game.folders.find((folder) => {
-            return folder.data.name === adventure.name && folder.data.type === importType;
-          });
-
-          if (!itemFolder) {
-            logger.debug(`Creating folder ${adventure.name} - ${importType}`);
-
-            // eslint-disable-next-line require-atomic-updates
-            itemFolder = await Folder.create({
-              color: adventure.folderColour ? adventure.folderColour : "#FF0000",
-              name: adventure.name,
-              parent: null,
-              type: importType
-            }, { keepId: true });
-          }
-
-          CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[importType] = itemFolder.data._id;
-        });
-      } else {
-        CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
-        CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = null;
-      }
-
-      // the folder list could be out of order, we need to create all folders with parent null first
-      const firstLevelFolders = folders.filter((folder) => folder.parent === null);
-      await Helpers.importFolder(itemFolder, firstLevelFolders, adventure, folders);
-    }
   }
 
   /** @override */
@@ -153,21 +117,21 @@ export default class AdventureMunch extends FormApplication {
           sceneTokens: {},
         };
 
-        await AdventureMunch._createFolders(adventure, folders);
+        await ThirdPartyMunch._createFolders(adventure, folders);
 
         if (adventure.required?.monsters && adventure.required.monsters.length > 0) {
           logger.debug(`${adventure.name} - monsters required`, adventure.required.monsters);
-          AdventureMunch._progressNote(`Checking for missing monsters from DDB`);
+          ThirdPartyMunch._progressNote(`Checking for missing monsters from DDB`);
           await Helpers.checkForMissingDocuments("monster", adventure.required.monsters);
         }
         if (adventure.required?.spells && adventure.required.spells.length > 0) {
           logger.debug(`${adventure.name} - spells required`, adventure.required.spells);
-          AdventureMunch._progressNote(`Checking for missing spells from DDB`);
+          ThirdPartyMunch._progressNote(`Checking for missing spells from DDB`);
           await Helpers.checkForMissingDocuments("spell", adventure.required.spells);
         }
         if (adventure.required?.items && adventure.required.items.length > 0) {
           logger.debug(`${adventure.name} - items required`, adventure.required.items);
-          AdventureMunch._progressNote(`Checking for missing items from DDB`);
+          ThirdPartyMunch._progressNote(`Checking for missing items from DDB`);
           await Helpers.checkForMissingDocuments("item", adventure.required.items);
         }
 
@@ -178,34 +142,6 @@ export default class AdventureMunch extends FormApplication {
         if (Helpers.folderExists("scene", zip)) {
           logger.debug(`${adventure.name} - Loading scenes`);
           await this._checkForDataUpdates("scene", zip, adventure);
-        }
-        if (Helpers.folderExists("actor", zip)) {
-          logger.debug(`${adventure.name} - Loading actors`);
-          await this._importFile("actor", zip, adventure);
-        }
-        if (Helpers.folderExists("item", zip)) {
-          logger.debug(`${adventure.name} - Loading item`);
-          await this._importFile("item", zip, adventure);
-        }
-        if (Helpers.folderExists("journal", zip)) {
-          logger.debug(`${adventure.name} - Loading journal`);
-          await this._importFile("journal", zip, adventure);
-        }
-        if (Helpers.folderExists("table", zip)) {
-          logger.debug(`${adventure.name} - Loading table`);
-          await this._importFile("table", zip, adventure);
-        }
-        if (Helpers.folderExists("playlist", zip)) {
-          logger.debug(`${adventure.name} - Loading playlist`);
-          await this._importFile("playlist", zip, adventure);
-        }
-        if (Helpers.folderExists("compendium", zip)) {
-          logger.debug(`${adventure.name} - Loading compendium`);
-          await this._importCompendium("compendium", zip, adventure);
-        }
-        if (Helpers.folderExists("macro", zip)) {
-          logger.debug(`${adventure.name} - Loading macro`);
-          await this._importFile("macro", zip, adventure);
         }
 
         try {
@@ -278,7 +214,7 @@ export default class AdventureMunch extends FormApplication {
                 logger.warn(`Error updating references for object ${item}`, err);
               }
               currentCount += 1;
-              AdventureMunch._updateProgress(totalCount, currentCount, "References");
+              ThirdPartyMunch._updateProgress(totalCount, currentCount, "References");
               clearTimeout(toTimer);
             });
           }
@@ -320,98 +256,6 @@ export default class AdventureMunch extends FormApplication {
     }
   }
 
-  async _importCompendium(type, zip, adventure) {
-    let totalCount = 0;
-    let currentCount = 0;
-    const typeName = type[0].toUpperCase() + type.slice(1);
-    const dataFiles = Helpers.getFiles(type, zip);
-    logger.info(`Importing ${adventure.name} - ${typeName} (${dataFiles.length} items)`);
-    totalCount = dataFiles.length;
-
-    await Helpers.asyncForEach(dataFiles, async (file) => {
-      const rawData = await zip.file(file.name).async("text");
-      const data = JSON.parse(rawData);
-
-      let pack = await Helpers.getCompendiumPack(data.info.entity, data.info.label);
-      await pack.getIndex();
-
-      totalCount += data.items.length;
-      await Helpers.asyncForEach(data.items, async (item) => {
-        let obj;
-        let entry = pack.index.find((e) => e.name === item.name);
-
-        item.flags.importid = item._id;
-
-        if (item.img) {
-          // eslint-disable-next-line require-atomic-updates
-          item.img = await Helpers.importImage(item.img, zip, adventure);
-        }
-        if (item.thumb) {
-          // eslint-disable-next-line require-atomic-updates
-          item.thumb = await Helpers.importImage(item.thumb, zip, adventure);
-        }
-        if (item?.token?.img) {
-          // eslint-disable-next-line require-atomic-updates
-          item.token.img = await Helpers.importImage(item.token.img, zip, adventure);
-        }
-
-        if (item?.items?.length) {
-          await Helpers.asyncForEach(data.items, async (i) => {
-            if (i.img) {
-              // eslint-disable-next-line require-atomic-updates
-              i.img = await Helpers.importImage(i.img, zip, adventure);
-            }
-          });
-        }
-
-        switch (data.info.entity) {
-          case "Item":
-            obj = new Item(item, { temporary: true });
-            break;
-          case "Actor":
-            obj = new Actor(item, { temporary: true });
-            break;
-          case "Scene":
-            obj = new Scene(item, { temporary: true });
-            break;
-          case "JournalEntry":
-            obj = new JournalEntry(item, { temporary: true });
-            break;
-          case "Macro":
-            obj = new Macro(item, { temporary: true });
-            break;
-          case "RollTable":
-            await Helpers.asyncForEach(item.results, async (result) => {
-              // eslint-disable-next-line require-atomic-updates
-              result.img = await Helpers.importImage(result.img, zip, adventure);
-            });
-            obj = new RollTable(item, { temporary: true });
-            break;
-          case "Playlist":
-            await Helpers.asyncForEach(item.sounds, async (sound) => {
-              // eslint-disable-next-line require-atomic-updates
-              sound.path = await Helpers.importImage(sound.path, zip, adventure);
-            });
-            obj = new Playlist(item, { temporary: true });
-            break;
-          // no default
-        }
-
-        if (!entry) {
-          let compendiumItem = await pack.importDocument(obj);
-
-          if (JSON.stringify(item).match(this.pattern) || JSON.stringify(item).match(this.altpattern)) {
-            this._itemsToRevisit.push(`Compendium.${pack.metadata.package}.${pack.metadata.name}.${compendiumItem.data._id}`);
-          }
-        }
-        currentCount += 1;
-        AdventureMunch._updateProgress(totalCount, currentCount, typeName);
-      });
-      currentCount += 1;
-      AdventureMunch._updateProgress(totalCount, currentCount, typeName);
-    });
-  }
-
   // import a scene file
   async _importRenderedSceneFile(adventure, typeName, data, zip, needRevisit, overwriteIds, overwriteEntity) {
     if (!Helpers.findEntityByImportId("scenes", data._id) || overwriteEntity) {
@@ -448,53 +292,6 @@ export default class AdventureMunch extends FormApplication {
         await this._importRenderedSceneFile(adventure, typeName, data, zip, needRevisit, overwriteIds, overwriteEntity);
         break;
       }
-      case "Actor":
-        if (!Helpers.findEntityByImportId("actors", data._id)) {
-          let actor = await Actor.create(data, { keepId: true });
-          await actor.update({ [`data.token.actorId`]: actor.data._id });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`Actor.${actor.data._id}`);
-          }
-        }
-      break;
-      case "Item":
-        if (!Helpers.findEntityByImportId("items", data._id)) {
-          let item = await Item.create(data, { keepId: true });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`Item.${item.data._id}`);
-          }
-        }
-      break;
-      case "JournalEntry":
-        if (!Helpers.findEntityByImportId("journal", data._id)) {
-          let journal = await JournalEntry.create(data, { keepId: true });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`JournalEntry.${journal.data._id}`);
-          }
-        }
-      break;
-      case "RollTable":
-        if (!Helpers.findEntityByImportId("tables", data._id)) {
-          let rolltable = await RollTable.create(data, { keepId: true });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`RollTable.${rolltable.data._id}`);
-          }
-        }
-      break;
-      case "Playlist":
-        if (!Helpers.findEntityByImportId("playlists", data._id)) {
-          data.name = `${adventure.name}.${data.name}`;
-          await Playlist.create(data, { keepId: true });
-        }
-      break;
-      case "Macro":
-        if (!Helpers.findEntityByImportId("macros", data._id)) {
-          let macro = await Macro.create(data, { keepId: true });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`Macro.${macro.data._id}`);
-          }
-        }
-      break;
       // no default
     }
   }
@@ -593,13 +390,13 @@ export default class AdventureMunch extends FormApplication {
     totalCount = dataFiles.length;
 
     await Helpers.asyncForEach(dataFiles, async (file) => {
-      const rawdata = await zip.file(file.name).async("text");
-      const data = JSON.parse(rawdata);
+      const rawData = await zip.file(file.name).async("text");
+      const data = JSON.parse(rawData);
 
       let needRevisit = false;
 
       // let pattern = /(\@[a-z]*)(\[)([a-z0-9]*|[a-z0-9\.]*)(\])/gmi
-      if (rawdata.match(this.pattern) || rawdata.match(this.altpattern)) {
+      if (rawData.match(this.pattern) || rawData.match(this.altpattern)) {
         needRevisit = true;
       }
 
@@ -631,7 +428,7 @@ export default class AdventureMunch extends FormApplication {
             await Helpers.asyncForEach(filesToUpload, async (file) => {
               await Helpers.importImage(file.name, zip, adventure);
               currentCount += 1;
-              AdventureMunch._updateProgress(totalCount, currentCount, importType);
+              ThirdPartyMunch._updateProgress(totalCount, currentCount, importType);
             });
           }
 
@@ -654,58 +451,13 @@ export default class AdventureMunch extends FormApplication {
         if (data.tokens) {
           await Helpers.generateTokenActors(data);
         }
-      } else if (importType === "Playlist") {
-        await Helpers.asyncForEach(data.sounds, async (sound) => {
-          if (sound.path) {
-            // eslint-disable-next-line require-atomic-updates
-            sound.path = await Helpers.importImage(sound.path, zip, adventure);
-          }
-        });
-      } else if (importType === "RollTable") {
-        await Helpers.asyncForEach(data.results, async (result) => {
-          if (result.img) {
-            // eslint-disable-next-line require-atomic-updates
-            result.img = await Helpers.importImage(result.img, zip, adventure);
-          }
-          if (result.resultId) {
-            needRevisit = true;
-          }
-          logger.debug(`Updating DDB links for ${data.name}`);
-          // eslint-disable-next-line require-atomic-updates
-          data.text = Helpers.foundryCompendiumReplace(data.text);
-        });
-      } else if (importType === "JournalEntry" && data.content) {
-        const journalImages = Helpers.reMatchAll(/(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/, data.content);
-        if (journalImages) {
-          await Helpers.asyncForEach(journalImages, async (result) => {
-            const path = await Helpers.importImage(result[2], zip, adventure);
-            data.content = data.content.replace(result[0], `${result[1]}="${path}"`);
-          });
-        }
-        logger.debug(`Updating DDB links for ${data.name}`);
-        data.content = Helpers.foundryCompendiumReplace(data.content);
       }
 
       data.flags.importid = data._id;
-
-      if (importType !== "Playlist" && importType !== "Compendium") {
-        if (CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder]) {
-          logger.debug(`Adding data to subfolder importkey = ${data.folder}, folder = ${CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder]}`);
-          data.folder = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder];
-        } else {
-          logger.debug(`Adding data to subfolder importkey = ${data.folder}, folder = ${CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"]}`);
-          if (adventure?.options?.folders) {
-            data.folder = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"];
-          } else {
-            data.folder = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[importType];
-          }
-        }
-      }
-
       await this._importRenderedFile(adventure, importType, data, zip, needRevisit, overwriteIds);
 
       currentCount += 1;
-      AdventureMunch._updateProgress(totalCount, currentCount, importType);
+      ThirdPartyMunch._updateProgress(totalCount, currentCount, importType);
     });
 
 
