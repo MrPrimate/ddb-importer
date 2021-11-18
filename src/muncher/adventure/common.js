@@ -6,7 +6,7 @@ import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
 import { getPatreonTiers, getCompendiumType } from "../utils.js";
-import AdventureMunch from "./import.js";
+import AdventureMunch from "./adventure.js";
 
 const COMPENDIUM_MAP = {
   "spells": "spells",

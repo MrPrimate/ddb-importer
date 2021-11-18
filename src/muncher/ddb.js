@@ -11,7 +11,7 @@ import { getPatreonTiers, munchNote } from "./utils.js";
 import { DDB_CONFIG } from "../ddbConfig.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { downloadAdventureConfig } from "./adventure.js";
-import AdventureMunch from "./adventure/import.js";
+import AdventureMunch from "./adventure/adventure.js";
 import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 
