@@ -1,3 +1,7 @@
+# 2.6.20
+
+* Monster special traits could import with action count set to one, even if it wa not appropriate. @Zouln#0001
+
 # 2.6.19
 
 * Bundle sizes when munching items into the DDB Items compendium did not calculate properly.

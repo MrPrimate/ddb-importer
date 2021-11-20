@@ -187,14 +187,14 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     // do it again!
     // if (!startFlag) return;
 
+    action.data.activation.type = getAction(node.textContent, "");
     const activationCost = getActivation(node.textContent);
     if (activationCost) {
       action.data.activation.cost = activationCost;
       action.data.consume.amount = activationCost;
-    } else {
+    } else if (action.data.activation.type !== "") {
       action.data.activation.cost = 1;
     }
-    action.data.activation.type = getAction(node.textContent, "");
 
     action.data.uses = getUses(node.textContent);
     action.data.recharge = getRecharge(node.textContent);
