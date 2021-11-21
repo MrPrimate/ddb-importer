@@ -1,3 +1,5 @@
+import utils from "../../utils.js";
+
 const CONDITION_TYPES = [
   { name: "Blinded", value: "blinded" },
   { name: "Charmed", value: "charmed" },
@@ -72,7 +74,20 @@ function getDamageAdjustments(monster, type, DDB_CONFIG) {
     } else if (adjustment && adjustment.slug === "bludgeoning-piercing-and-slashing-from-nonmagical-attacks") {
       values.push("physical");
     } else if (adjustment) {
-      custom.push(adjustment.name);
+      const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
+      if (midiQolInstalled) {
+        if (adjustment.name.toLowerCase().includes("silvered")) {
+          values.push("silver");
+        } else if (adjustment.name.toLowerCase().includes("adamantine")) {
+          values.push("adamant");
+        } else if (adjustment.slug === "damage-from-spells") {
+          values.push("spell");
+        } else {
+          custom.push(adjustment.name);
+        }
+      } else {
+        custom.push(adjustment.name);
+      }
     }
   });
 

@@ -1,3 +1,7 @@
+# 2.6.21
+
+* If Midi-QoL is installed use it's Adamantine and Silvered damage conditions for Monsters instead of free text. @⭐FiNalStaR#1337
+
 # 2.6.20
 
 * Monster special traits could import with action count set to one, even if it wa not appropriate. @Zouln#0001
