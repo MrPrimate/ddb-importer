@@ -12,6 +12,7 @@ import { DDB_CONFIG } from "../ddbConfig.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { downloadAdventureConfig } from "./adventure.js";
 import AdventureMunch from "./adventure/adventure.js";
+import ThirdPartyMunch from "./adventure/thirdParty.js";
 import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 
@@ -116,7 +117,7 @@ export default class DDBMuncher extends Application {
       DDBMuncher.startMunch();
     });
     html.find("#munch-source-select").click(async () => {
-      DDBMuncher.selectSources();
+      new DDBSources().render(true);
     });
 
     html.find("#munch-spells-start").click(async () => {
@@ -155,7 +156,10 @@ export default class DDBMuncher extends Application {
       DDBMuncher.generateAdventureConfig();
     });
     html.find("#munch-adventure-import-start").click(async () => {
-      DDBMuncher.importAdventure();
+      new AdventureMunch().render(true);
+    });
+    html.find("#munch-adventure-third-party-start").click(async () => {
+      new ThirdPartyMunch().render(true);
     });
     html.find("#munch-migrate-compendium-monster").click(async () => {
       munchNote(`Migrating monster compendium...`, true);
@@ -354,14 +358,6 @@ export default class DDBMuncher extends Application {
     await migrateExistingCompendium(type);
     munchNote(`Migrating complete.`, true);
     DDBMuncher.enableButtons();
-  }
-
-  static async selectSources() {
-    new DDBSources().render(true);
-  }
-
-  static async importAdventure() {
-    new AdventureMunch().render(true);
   }
 
   getData() { // eslint-disable-line class-methods-use-this

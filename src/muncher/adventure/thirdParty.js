@@ -1,15 +1,17 @@
 import Helpers from "./common.js";
 import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
-import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
+
+const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
+const RAW_BASE_URL = `https://raw.githubusercontent.com/${MR_PRIMATES_THIRD_PARTY_REPO}`;
+const RAW_MODULES_URL = `${RAW_BASE_URL}/main/modules.json`;
 
 export default class ThirdPartyMunch extends FormApplication {
   /** @override */
   constructor(object = {}, options = {}) {
     super(object, options);
     this._itemsToRevisit = [];
-    const importPathData = game.settings.get("ddb-importer", "adventure-import-path");
-    this._importPathData = DirectoryPicker.parse(importPathData);
+    this._adventure = {};
   }
 
   /** @override */
@@ -30,28 +32,25 @@ export default class ThirdPartyMunch extends FormApplication {
   // eslint-disable-next-line class-methods-use-this
   async getData() {
     let data;
-    let files = [];
+    let packages = [];
 
     try {
-      // const parsedDirectory = DirectoryPicker.parse(this._importPathData);
-      const verifiedDirectory = await DirectoryPicker.verifyPath(this._importPathData);
-      if (verifiedDirectory) {
-        const options = { bucket: this._importPathData.bucket, extensions: [".zip"], wildcard: false };
-        data = await Helpers.BrowseFiles(this._importPathData.activeSource, this._importPathData.current, options);
-        files = data.files.map((file) => {
-          const filename = decodeURIComponent(file).replace(/^.*[\\/]/, '');
-
-          return { path: decodeURIComponent(file), name: filename };
-        });
+      data = await $.getJSON(RAW_MODULES_URL);
+      this._defaultRepoData = data;
+      for (const [key, value] of Object.entries(data.packages)) {
+        console.log(`${key}: ${value}`);
+        packages.push(value);
       }
+      packages = packages.sort((a, b) => a.name.localeCompare(b.last_nom));
+      console.warn(this._defaultRepoData);
     } catch (err) {
       logger.error(err);
-      logger.warn(`Unable to verify import path, this may be due to permissions on the server. You may be able to ignore this message.`);
+      logger.warn(`Unable to generate package list.`);
     }
 
     return {
       data,
-      files,
+      packages,
       cssClass: "ddb-importer-window"
     };
 

@@ -1,19 +1,15 @@
 <form class="{{cssClass}}" autocomplete="off" onsubmit="event.preventDefault();">
   <div class="import-file-selector">
-    <p class="notes">You may select an adventure file manually uploaded within data directory (use this if file is larger that 500 mb) or select a file to import from your client.</p>
+    <p class="notes">Select from the list, future updates will allow import from other sources.</p>
     <div>
-      <select style="text-align:center" name="import-file" id="import-file">
+      <select name="select-package" id="select-package">
         <option></option>
-        {{#each files}}
+        {{#each packages}}
         <option value="{{this.path}}">{{this.name}}</option>
         {{/each}}
       </select>
     </div>
-    <div>
-      <div class="form-group">
-        <input type="file" name="data" accept=".fvttadv"/>
-      </div>
-    </div>
+    <div class="ddb-message import-hidden" style="text-align: center;">TEST</div>
     <div class="import-progress import-hidden">
       <div class="import-progress-bar" style="width: 0%"></div>
     </div>
