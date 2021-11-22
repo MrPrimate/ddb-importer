@@ -1,6 +1,7 @@
 import Helpers from "./common.js";
 import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
+import utils from "../../utils.js";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
 const RAW_BASE_URL = `https://raw.githubusercontent.com/${MR_PRIMATES_THIRD_PARTY_REPO}`;
@@ -61,6 +62,56 @@ export default class ThirdPartyMunch extends FormApplication {
     super.activateListeners(html);
 
     html.find(".dialog-button").on("click", this._dialogButton.bind(this));
+    html.find("#select-package").on("change", this._selectPackage.bind(this, null, html));
+  }
+
+  async _selectPackage(event, html) {
+    const packageSelectionElement = html.find("#select-package");
+
+    // get selected campaign from html selection
+    const packageSelection = packageSelectionElement[0].selectedOptions[0]
+      ? packageSelectionElement[0].selectedOptions[0].value
+      : undefined;
+
+    if (packageSelection) {
+      const missingModules = [this._defaultRepoData.packages[packageSelection].module].filter((module) => {
+        return !utils.isModuleInstalledAndActive(module);
+      });
+
+      const moduleMessage = html.find("#ddb-message");
+      moduleMessage[0].innerHTML = "";
+      if (missingModules.length > 0) {
+        moduleMessage[0].innerHTML += "You will need to install the modules: " + missingModules.join(", ");
+      }
+
+      if (moduleMessage[0].innerHTML !== "") moduleMessage[0].innerHTML += "<br>";
+
+      const missingBooks = this._defaultRepoData.packages[packageSelection].books.filter((book) => {
+        const matchingJournals = game.journal.some((j) => j.data.flags.ddb?.bookCode === book);
+        if (matchingJournals) {
+          logger.info(`Found journals for ${book}`);
+          return false;
+        } else {
+          logger.warn(`Missing journals for ${book}`);
+          return true;
+        }
+      });
+
+      if (missingBooks.length > 0) {
+        // TODO: come back and improve this to full book title
+        moduleMessage[0].innerHTML += "You will need to use Adventure Muncher to load the following books first: " + missingBooks.join(", ");
+      }
+
+      if (missingBooks.length === 0 && missingModules.length === 0) {
+        $(".ddb-message").addClass("import-hidden");
+        $(".dialog-button").prop('disabled', false);
+      } else {
+        $(".ddb-message").removeClass("import-hidden");
+      }
+
+    } else {
+      $(".ddb-message").addClass("import-hidden");
+    }
   }
 
   // eslint-disable-next-line complexity
