@@ -1,6 +1,8 @@
 # 2.6.21
 
 * If Midi-QoL is installed use it's Adamantine and Silvered damage conditions for Monsters instead of free text. @⭐FiNalStaR#1337
+* Retain more token image information if "Update Monster Images" is unchecked. @V3rotti#8154
+* New icons and icon path updates from @flogistoni#5670 !
 
 # 2.6.20
 
