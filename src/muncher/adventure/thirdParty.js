@@ -231,36 +231,41 @@ export default class ThirdPartyMunch extends FormApplication {
     const action = a.dataset.button;
 
     if (action === "import") {
-      const form = $("form.ddb-importer-third-party-window")[0];
-      console.warn(form.data);
+      const selectedPackage = $("#select-package").val();
+      console.warn(selectedPackage);
 
+      let packageURL = `${RAW_BASE_URL}/main/${selectedPackage}/module.json`;
+      // https://raw.githubusercontent.com/MrPrimate/ddb-third-party-scenes/main/modules/steves-scenes/lament/module.json
+
+      console.warn(packageURL);
+
+      let content = await fetch(packageURL)
+        .then((response) => {
+            if (response.status === 200 || response.status === 0) {
+                return Promise.resolve(response.json());
+            } else {
+                return Promise.reject(new Error(response.statusText));
+            }
+        });
+      console.warn(content);
     }
 
     if (action === "import" && false) {
-      let importFilename;
       try {
         $(".import-progress").toggleClass("import-hidden");
         $(".ddb-overlay").toggleClass("import-invalid");
 
-        const form = $("form.ddb-importer-window")[0];
+        const selectedFile = $("#select-package").val();
 
-        let zip;
-        if (form.data.files.length) {
-          importFilename = form.data.files[0].name;
-          zip = await Helpers.readBlobFromFile(form.data.files[0]).then(JSZip.loadAsync);
-        } else {
-          const selectedFile = $("#import-file").val();
-          importFilename = selectedFile;
-          zip = await fetch(`/${selectedFile}`)
-            .then((response) => {
-                if (response.status === 200 || response.status === 0) {
-                    return Promise.resolve(response.blob());
-                } else {
-                    return Promise.reject(new Error(response.statusText));
-                }
-            })
-            .then(JSZip.loadAsync);
-        }
+        let zip = await fetch(`/${selectedFile}`)
+          .then((response) => {
+              if (response.status === 200 || response.status === 0) {
+                  return Promise.resolve(response.blob());
+              } else {
+                  return Promise.reject(new Error(response.statusText));
+              }
+          })
+          .then(JSZip.loadAsync);
 
         const adventure = JSON.parse(await zip.file("adventure.json").async("text"));
         let folders;
