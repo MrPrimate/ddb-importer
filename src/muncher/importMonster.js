@@ -87,6 +87,17 @@ async function addNPCToCompendium(npc) {
         }
         if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
           npc.token.img = existingNPC.data.token.img;
+          npc.token.scale = existingNPC.data.token.scale;
+          npc.token.randomImg = existingNPC.data.token.randomImg;
+          npc.token.mirrorX = existingNPC.data.token.mirrorX;
+          npc.token.mirrorY = existingNPC.data.token.mirrorY;
+          npc.token.lockRotation = existingNPC.data.token.lockRotation;
+          npc.token.rotation = existingNPC.data.token.rotation;
+          npc.token.alpha = existingNPC.data.token.alpha;
+          npc.token.lightAlpha = existingNPC.data.token.lightAlpha;
+          npc.token.lightAnimation = existingNPC.data.token.lightAnimation;
+          npc.token.tint = existingNPC.data.token.tint;
+          npc.token.lightColor = existingNPC.data.token.lightColor;
         }
         npc._id = npcMatch._id;
         await copySupportedItemFlags(existingNPC.data, npc);
