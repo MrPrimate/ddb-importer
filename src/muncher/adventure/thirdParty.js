@@ -99,7 +99,8 @@ export default class ThirdPartyMunch extends FormApplication {
 
       if (missingBooks.length > 0) {
         // TODO: come back and improve this to full book title
-        moduleMessage[0].innerHTML += "You will need to use Adventure Muncher to load the following books first: " + missingBooks.join(", ");
+        const bookString = missingBooks.join(", ");
+        moduleMessage[0].innerHTML += `You will need to use Adventure Muncher to load the following books first: ${bookString}`;
       }
 
       if (missingBooks.length === 0 && missingModules.length === 0) {
@@ -248,6 +249,22 @@ export default class ThirdPartyMunch extends FormApplication {
             }
         });
       console.warn(content);
+
+      // check for existing compendium folder
+      // if it does not exist create it
+      // check for scenes that exist
+      // if the scenes do not exist, import them
+      // for each scene that exists check to see if it has the ddb data flag
+      // if it does not have the flag, add it and import the ddb extensions
+
+      // notes
+      // actors
+      // walls
+      // drawings
+      // lights
+      // config
+
+      // TODO check for valid json object
     }
 
     if (action === "import" && false) {
@@ -351,6 +368,7 @@ export default class ThirdPartyMunch extends FormApplication {
       // no default
     }
   }
+
 
   async _checkForDataUpdates(type, zip, adventure) {
     const importType = Helpers.getImportType(type);
