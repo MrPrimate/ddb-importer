@@ -52,7 +52,7 @@ export default class ThirdPartyMunch extends FormApplication {
     return {
       data,
       packages,
-      cssClass: "ddb-importer-window"
+      cssClass: "ddb-importer-third-party-window"
     };
 
   }
@@ -114,7 +114,116 @@ export default class ThirdPartyMunch extends FormApplication {
     }
   }
 
-  // eslint-disable-next-line complexity
+  static async _checkForMissingData(adventure, folders) {
+    await ThirdPartyMunch._createFolders(adventure, folders);
+
+    if (adventure.required?.monsters && adventure.required.monsters.length > 0) {
+      logger.debug(`${adventure.name} - monsters required`, adventure.required.monsters);
+      ThirdPartyMunch._progressNote(`Checking for missing monsters from DDB`);
+      await Helpers.checkForMissingDocuments("monster", adventure.required.monsters);
+    }
+    if (adventure.required?.spells && adventure.required.spells.length > 0) {
+      logger.debug(`${adventure.name} - spells required`, adventure.required.spells);
+      ThirdPartyMunch._progressNote(`Checking for missing spells from DDB`);
+      await Helpers.checkForMissingDocuments("spell", adventure.required.spells);
+    }
+    if (adventure.required?.items && adventure.required.items.length > 0) {
+      logger.debug(`${adventure.name} - items required`, adventure.required.items);
+      ThirdPartyMunch._progressNote(`Checking for missing items from DDB`);
+      await Helpers.checkForMissingDocuments("item", adventure.required.items);
+    }
+  }
+
+  async _importFiles(adventure, zip) {
+    if (Helpers.folderExists("scene", zip)) {
+      logger.debug(`${adventure.name} - Loading scenes`);
+      await this._checkForDataUpdates("scene", zip, adventure);
+    }
+  }
+
+  static _renderCompleteDialog(title, adventure) {
+    new Dialog(
+      {
+        title: title,
+        content: { adventure },
+        buttons: { two: { label: "OK" } },
+      },
+      {
+        classes: ["dialog", "adventure-import-export"],
+        template: "modules/ddb-importer/handlebars/adventure/import-complete.hbs",
+      }
+    ).render(true);
+  }
+
+  async _revisitItems(adventure) {
+    try {
+      if (this._itemsToRevisit.length > 0) {
+        let totalCount = this._itemsToRevisit.length;
+        let currentCount = 0;
+
+        await Helpers.asyncForEach(this._itemsToRevisit, async (item) => {
+          const toTimer = setTimeout(() => {
+            logger.warn(`Reference update timed out.`);
+            ThirdPartyMunch._renderCompleteDialog(`Successful Import of ${adventure.name}`, adventure);
+            this.close();
+          }, 60000);
+          try {
+            const obj = await fromUuid(item);
+            // let rawData;
+            let updatedData = {};
+            switch (obj.documentName) {
+              case "Scene": {
+                const scene = JSON.parse(JSON.stringify(obj.data));
+                // this is a scene we need to update links to all items
+                logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
+                await Helpers.asyncForEach(scene.tokens, async (token) => {
+                  if (token.actorId) {
+                    const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
+                    delete sceneToken.scale;
+                    const worldActor = game.actors.get(token.actorId);
+                    if (worldActor) {
+                      const tokenData = await worldActor.getTokenData();
+                      delete tokenData.y;
+                      delete tokenData.x;
+                      const jsonTokenData = JSON.parse(JSON.stringify(tokenData));
+                      const updateData = mergeObject(jsonTokenData, sceneToken);
+                      logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
+                      await obj.updateEmbeddedDocuments("Token", [updateData], { keepId: true });
+                    }
+                  }
+                });
+
+                // In 0.8.x the thumbs don't seem to be generated.
+                // This code would embed the thumbnail.
+                // Consider writing this out.
+                if (!obj.data.thumb) {
+                  const thumbData = await obj.createThumbnail();
+                  updatedData["thumb"] = thumbData.thumb;
+                }
+                await obj.update(updatedData);
+                break;
+              }
+              // no default
+            }
+          } catch (err) {
+            logger.warn(`Error updating references for object ${item}`, err);
+          }
+          currentCount += 1;
+          ThirdPartyMunch._updateProgress(totalCount, currentCount, "References");
+          clearTimeout(toTimer);
+        });
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-undef
+      logger.warn(`Error during reference update for object ${item}`, err);
+    }
+  }
+
+  findCompendiumFolder(compendium, type) {
+
+  }
+
+
   async _dialogButton(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -122,6 +231,12 @@ export default class ThirdPartyMunch extends FormApplication {
     const action = a.dataset.button;
 
     if (action === "import") {
+      const form = $("form.ddb-importer-third-party-window")[0];
+      console.warn(form.data);
+
+    }
+
+    if (action === "import" && false) {
       let importFilename;
       try {
         $(".import-progress").toggleClass("import-hidden");
@@ -167,132 +282,18 @@ export default class ThirdPartyMunch extends FormApplication {
           sceneTokens: {},
         };
 
-        await ThirdPartyMunch._createFolders(adventure, folders);
-
-        if (adventure.required?.monsters && adventure.required.monsters.length > 0) {
-          logger.debug(`${adventure.name} - monsters required`, adventure.required.monsters);
-          ThirdPartyMunch._progressNote(`Checking for missing monsters from DDB`);
-          await Helpers.checkForMissingDocuments("monster", adventure.required.monsters);
-        }
-        if (adventure.required?.spells && adventure.required.spells.length > 0) {
-          logger.debug(`${adventure.name} - spells required`, adventure.required.spells);
-          ThirdPartyMunch._progressNote(`Checking for missing spells from DDB`);
-          await Helpers.checkForMissingDocuments("spell", adventure.required.spells);
-        }
-        if (adventure.required?.items && adventure.required.items.length > 0) {
-          logger.debug(`${adventure.name} - items required`, adventure.required.items);
-          ThirdPartyMunch._progressNote(`Checking for missing items from DDB`);
-          await Helpers.checkForMissingDocuments("item", adventure.required.items);
-        }
+        await ThirdPartyMunch._checkForMissingData(adventure, folders);
 
         // now we have imported all missing data, generate the lookup data
         CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig();
         logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
-        if (Helpers.folderExists("scene", zip)) {
-          logger.debug(`${adventure.name} - Loading scenes`);
-          await this._checkForDataUpdates("scene", zip, adventure);
-        }
-
-        try {
-          if (this._itemsToRevisit.length > 0) {
-            let totalCount = this._itemsToRevisit.length;
-            let currentCount = 0;
-
-            await Helpers.asyncForEach(this._itemsToRevisit, async (item) => {
-              const toTimer = setTimeout(() => {
-                logger.warn(`Reference update timed out.`);
-                const title = `Successful Import of ${adventure.name}`;
-                new Dialog(
-                  {
-                    title: title,
-                    content: {
-                      adventure
-                    },
-                    buttons: {
-                      two: {
-                        label: "Ok",
-                      },
-                    },
-                  },
-                  {
-                    classes: ["dialog", "adventure-import-export"],
-                    template: "modules/ddb-importer/handlebars/adventure/import-complete.hbs",
-                  }
-                ).render(true);
-                this.close();
-              }, 60000);
-              try {
-                const obj = await fromUuid(item);
-                // let rawData;
-                let updatedData = {};
-                switch (obj.documentName) {
-                  case "Scene": {
-                    const scene = JSON.parse(JSON.stringify(obj.data));
-                    // this is a scene we need to update links to all items
-                    logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
-                    await Helpers.asyncForEach(scene.tokens, async (token) => {
-                      if (token.actorId) {
-                        const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
-                        delete sceneToken.scale;
-                        const worldActor = game.actors.get(token.actorId);
-                        if (worldActor) {
-                          const tokenData = await worldActor.getTokenData();
-                          delete tokenData.y;
-                          delete tokenData.x;
-                          const jsonTokenData = JSON.parse(JSON.stringify(tokenData));
-                          const updateData = mergeObject(jsonTokenData, sceneToken);
-                          logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
-                          await obj.updateEmbeddedDocuments("Token", [updateData], { keepId: true });
-                        }
-                      }
-                    });
-
-                    // In 0.8.x the thumbs don't seem to be generated.
-                    // This code would embed the thumbnail.
-                    // Consider writing this out.
-                    if (!obj.data.thumb) {
-                      const thumbData = await obj.createThumbnail();
-                      updatedData["thumb"] = thumbData.thumb;
-                    }
-                    await obj.update(updatedData);
-                    break;
-                  }
-                  // no default
-                }
-              } catch (err) {
-                logger.warn(`Error updating references for object ${item}`, err);
-              }
-              currentCount += 1;
-              ThirdPartyMunch._updateProgress(totalCount, currentCount, "References");
-              clearTimeout(toTimer);
-            });
-          }
-        } catch (err) {
-          // eslint-disable-next-line no-undef
-          logger.warn(`Error during reference update for object ${item}`, err);
-        }
+        await this._importFiles(adventure, zip);
+        await this._revisitItems(adventure);
 
         $(".ddb-overlay").toggleClass("import-invalid");
 
-        const title = `Successful Import of ${adventure.name}`;
-        new Dialog(
-          {
-            title: title,
-            content: {
-              adventure
-            },
-            buttons: {
-              two: {
-                label: "Ok",
-              },
-            },
-          },
-          {
-            classes: ["dialog", "adventure-import-export"],
-            template: "modules/ddb-importer/handlebars/adventure/import-complete.hbs",
-          }
-        ).render(true);
+        ThirdPartyMunch._renderCompleteDialog(`Successful Import of ${adventure.name}`, adventure);
 
         // eslint-disable-next-line require-atomic-updates
         CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
