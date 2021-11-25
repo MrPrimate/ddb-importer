@@ -13,6 +13,7 @@ export default class ThirdPartyMunch extends FormApplication {
     super(object, options);
     this._itemsToRevisit = [];
     this._adventure = {};
+    this._scenePackage = {};
   }
 
   /** @override */
@@ -220,8 +221,26 @@ export default class ThirdPartyMunch extends FormApplication {
     }
   }
 
-  findCompendiumFolder(compendium, type) {
+  static async _createFolder(label, type) {
+    const folderData = {
+      "name": label,
+      "type": type,
+      "parent": null,
+      "sorting": "m",
+    };
+    const newFolder = await Folder.create(folderData);
+    logger.debug(`Created new folder ${newFolder.data._id} with data:`, folderData, newFolder);
+    return newFolder;
+  }
 
+  static async _findFolder(label, type) {
+    const folder = game.folders.find((f) =>
+      f.type === type &&
+      f.parentFolder === undefined &&
+      f.name === label
+    );
+
+    return folder ? folder : ThirdPartyMunch._createFolder(label, type);
   }
 
 
@@ -240,7 +259,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
       console.warn(packageURL);
 
-      let content = await fetch(packageURL)
+      this._scenePackage = await fetch(packageURL)
         .then((response) => {
             if (response.status === 200 || response.status === 0) {
                 return Promise.resolve(response.json());
@@ -248,7 +267,73 @@ export default class ThirdPartyMunch extends FormApplication {
                 return Promise.reject(new Error(response.statusText));
             }
         });
-      console.warn(content);
+
+      // TODO check for valid json object
+
+      console.warn(this._scenePackage);
+
+      // We need to check for potenential Scene Folders and Create if missing
+      const compendiumLabels = [...new Set(this._scenePackage.scenes
+        .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
+        .map((scene) => {
+          const compendiumId = scene.flags.ddbimporter.export.compendium;
+          const compendium = game.packs.get(compendiumId);
+          return compendium.metadata.label;
+        }))].map((label) => {
+          return ThirdPartyMunch._findFolder(label, "Scene");
+        });
+
+      await Promise.all(compendiumLabels);
+      console.warn(compendiumLabels);
+      console.log("Done folder creation");
+
+      const scenes = await this._scenePackage.scenes
+        .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
+        // does the scene match a compendium scene
+        .filter(async (scene) => {
+          const compendium = game.packs.get(scene.flags.ddbimporter.export.compendium);
+          const compendiumScene = compendium.index.find((s) => s.name === scene.name);
+          if (compendiumScene) return true;
+          else return false;
+        })
+        .map(async (scene) => {
+          const compendiumId = scene.flags.ddbimporter.export.compendium;
+          const compendium = game.packs.get(compendiumId);
+          const folder = await ThirdPartyMunch._findFolder(compendium.metadata.label, "Scene");
+          const compendiumScene = compendium.index.find((s) => s.name === scene.name);
+          // eslint-disable-next-line require-atomic-updates
+          scene.folder = folder.id;
+
+          const existingScene = game.scenes.find((s) => s.name === scene.name && s.data.folder === folder.id);
+
+          // if scene already exists, update
+          if (existingScene) {
+            logger.info(`Updating ${scene.name}`);
+            await existingScene.update(scene);
+            return existingScene;
+          } else {
+            const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene);
+            console.warn(`Scene: ${scene.name} folder:`, folder);
+            console.warn(`worldScene: ${worldScene}`);
+            return worldScene;
+          }
+        });
+
+      await Promise.all(scenes);
+      console.warn(scenes);
+
+
+
+
+      // const compendiums = this._scenePackage.scenes.map((scene) => scene.flags.ddbimporter.export.compendium);
+
+      console.warn("DONE?");
+
+      // let folder = game.folders.find((f) =>
+      //   f.type === "JournalEntry" &&
+      //   f.parentFolder === undefined &&
+      //   f.name ===
+      // );
 
       // check for existing compendium folder
       // if it does not exist create it
@@ -264,7 +349,7 @@ export default class ThirdPartyMunch extends FormApplication {
       // lights
       // config
 
-      // TODO check for valid json object
+
     }
 
     if (action === "import" && false) {
