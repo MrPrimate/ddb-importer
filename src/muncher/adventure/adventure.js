@@ -103,11 +103,6 @@ export default class AdventureMunch extends FormApplication {
   static async _checkForMissingData(adventure, folders) {
     await AdventureMunch._createFolders(adventure, folders);
 
-    if (adventure.required?.monsters && adventure.required.monsters.length > 0) {
-      logger.debug(`${adventure.name} - monsters required`, adventure.required.monsters);
-      AdventureMunch._progressNote(`Checking for missing monsters from DDB`);
-      await Helpers.checkForMissingDocuments("monster", adventure.required.monsters);
-    }
     if (adventure.required?.spells && adventure.required.spells.length > 0) {
       logger.debug(`${adventure.name} - spells required`, adventure.required.spells);
       AdventureMunch._progressNote(`Checking for missing spells from DDB`);
@@ -117,6 +112,11 @@ export default class AdventureMunch extends FormApplication {
       logger.debug(`${adventure.name} - items required`, adventure.required.items);
       AdventureMunch._progressNote(`Checking for missing items from DDB`);
       await Helpers.checkForMissingDocuments("item", adventure.required.items);
+    }
+    if (adventure.required?.monsters && adventure.required.monsters.length > 0) {
+      logger.debug(`${adventure.name} - monsters required`, adventure.required.monsters);
+      AdventureMunch._progressNote(`Checking for missing monsters from DDB`);
+      await Helpers.checkForMissingDocuments("monster", adventure.required.monsters);
     }
   }
 
