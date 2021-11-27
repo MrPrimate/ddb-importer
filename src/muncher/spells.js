@@ -63,6 +63,8 @@ export async function parseSpells(ids = null) {
     await createCompendiumFolderStructure("spells");
   }
 
+  munchNote("Downloading spell data..";
+
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
   const results = await Promise.allSettled([
@@ -79,7 +81,8 @@ export async function parseSpells(ids = null) {
     getSpellData("Artificer", sourceFilter),
   ]);
 
-  // replace smart quotes and filter out duplicates
+  munchNote("Parsing spell data..");
+  
   const filteredResults = results
     .filter((r) => r.status === "fulfilled")
     .map((r) => r.value).flat().flat();
@@ -94,7 +97,7 @@ export async function parseSpells(ids = null) {
     });
 
   if (results.some((r) => r.status === "rejected")) {
-    munchNote("Some spell parsing failed to parse, see developer console for details.");
+    munchNote("Failed to parse some spells, see developer console for details.");
     logger.error("Failed spell parsing", results);
   }
 
