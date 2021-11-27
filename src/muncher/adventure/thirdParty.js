@@ -3,6 +3,7 @@ import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
 import utils from "../../utils.js";
 import { DDB_CONFIG } from "../../ddbConfig.js";
+import { generateIcon } from "./icons.js";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
 const RAW_BASE_URL = `https://raw.githubusercontent.com/${MR_PRIMATES_THIRD_PARTY_REPO}`;
@@ -290,6 +291,78 @@ export default class ThirdPartyMunch extends FormApplication {
     return tokens;
   }
 
+  static async _linkSceneNotes(scene, adventure) {
+    const journalNotes = game.journal.filter((journal) => journal.data?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
+
+    const notes = await Promise.all([scene]
+      .filter((scene) => scene.flags?.ddb?.notes)
+      .map((scene) => scene.flags.ddb.notes)
+      .flat()
+      .map(async (note) => {
+        const noteJournal = journalNotes.find((journal) => {
+          const contentChunkIdMatch = note.flags.ddb.contentChunkId
+            ? journal.data.flags.ddb && note.flags.ddb &&
+              journal.data.flags.ddb.contentChunkId == note.flags.ddb.contentChunkId
+            : false;
+
+          const noContentChunk = !note.flags.ddb.contentChunkId &&
+            note.flags.ddb.originalLink && note.flags.ddb.ddbId && note.flags.ddb.parentId &&
+            note.flags.ddb.slug && note.flags.ddb.linkName;
+          const originMatch = noContentChunk
+            ? journal.data.flags.ddb.slug == note.flags.ddb.slug &&
+              journal.data.flags.ddb.ddbId == note.flags.ddbId &&
+              journal.data.flags.ddb.parentId == note.flags.ddb.parentId &&
+              journal.data.flags.ddb.cobaltId == note.flags.ddb.cobaltId &&
+              journal.data.flags.ddb.originalLink == note.flags.ddb.originalLink &&
+              journal.data.flags.ddb.linkName == note.flags.ddb.linkName
+            : false;
+          const journalNameMatch = !contentChunkIdMatch && !originMatch
+            ? journal.name.trim() == note.label.trim()
+            : false;
+          return contentChunkIdMatch || originMatch || journalNameMatch;
+
+        });
+        if (noteJournal) {
+          logger.info(`Found note "${note.label}"" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
+          note.flags.ddb.journalId = noteJournal.id;
+          // eslint-disable-next-line require-atomic-updates
+          note.icon = await generateIcon(adventure, note.label);
+        }
+        return note;
+      }));
+
+    const positionedNotes = [];
+    notes.forEach((note) => {
+      if (note.flags?.ddb?.journalId) {
+        note.positions.forEach((position) => {
+          logger.info(`Matching ${note.label} to position ${note.x}/${note.y}`);
+          const noteId = randomID();
+          const n = {
+            "_id": noteId,
+            "flags": {
+              "ddb": note.flags.ddb,
+              "importid": noteId,
+            },
+            "entryId": note.flags.ddb.journalId,
+            "x": position.x,
+            "y": position.y,
+            "icon": note.icon, // "assets/icons/1.svg",
+            "iconSize": note.iconSize ? note.iconSize : 40,
+            "iconTint": "",
+            "text": "",
+            "fontFamily": note.fontFamily ? note.fontFamily : "Signika",
+            "fontSize": note.fontSize ? note.fontSize : 48,
+            "textAnchor": 1,
+            "textColor": note.textColor ? note.textColor : "",
+          };
+          positionedNotes.push(n);
+        });
+      }
+    });
+
+    return positionedNotes;
+  }
+
   async _dialogButton(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -347,39 +420,54 @@ export default class ThirdPartyMunch extends FormApplication {
       console.log("Competed folder creation");
 
       // import any missing monsters into the compendium
-      const monsterAdjustedScenes = await Promise.all(this._scenePackage.scenes
+      // add tokens to scene
+      // add notes to scene
+      const adjustedScenes = await Promise.all(this._scenePackage.scenes
         .filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens)
         .map(async (scene) => {
-          if (scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens) {
-            const mockAdventure = ThirdPartyMunch._generateMockAdventure(scene);
+          const mockScene = JSON.parse(JSON.stringify(scene));
+          if (mockScene.flags?.ddbimporter?.export?.actors && mockScene.flags?.ddb?.tokens) {
+            const mockAdventure = ThirdPartyMunch._generateMockAdventure(mockScene);
             console.warn("mockAdventure", mockAdventure);
             await ThirdPartyMunch._checkForMissingData(mockAdventure, []);
 
-            const bookName = ThirdPartyMunch._getDDBBookName(scene.flags.ddb.bookCode);
+            const bookName = ThirdPartyMunch._getDDBBookName(mockScene.flags.ddb.bookCode);
             const actorFolder = await ThirdPartyMunch._findFolder(bookName, "Actor");
-            scene.tokens = scene.flags.ddb.tokens.map((token) => {
+            mockScene.tokens = mockScene.flags.ddb.tokens.map((token) => {
               token.flags.actorFolderId = actorFolder.id;
               token.actorId = ThirdPartyMunch._generateActorId(token);
               return token;
             });
-            console.warn("SCENE", JSON.parse(JSON.stringify(scene)));
+            mockScene.notes = await ThirdPartyMunch._linkSceneNotes(mockScene, mockAdventure);
+            console.warn("SCENE", JSON.parse(JSON.stringify(mockScene)));
           }
 
-          return scene;
+          return mockScene;
         }));
 
-      console.warn(JSON.parse(JSON.stringify(monsterAdjustedScenes)));
+      console.warn(JSON.parse(JSON.stringify(adjustedScenes)));
 
       console.log("About to generate Token Actors");
-      
-      await Helpers.asyncForEach(monsterAdjustedScenes, async(scene) => {
+      // load token actors into world
+      await Helpers.asyncForEach(adjustedScenes, async(scene) => {
         console.warn(`Generating scene actors for ${scene.name}`);
         console.warn(scene);
         await Helpers.generateTokenActors(scene);
-        console.warn(`Finsiehd scene actors for ${scene.name}`);
+        console.warn(`Finished scene actors for ${scene.name}`);
       });
 
-      const tokenAdjustedScenes = await Promise.all(monsterAdjustedScenes
+      // const noteAdjustedScenes = await Promise.all(adjustedScenes
+      //   .map(async (scene) => {
+      //     console.warn(`Updating scene notes for ${scene.name}`);
+      //     const newScene = JSON.parse(JSON.stringify(scene));
+      //     newScene.tokens = await ThirdPartyMunch._linkSceneNotes(scene, a);
+      //     return newScene;
+      //   })
+      // );
+
+      // console.warn("noteAdjustedScenes", noteAdjustedScenes);
+      // link tokens on scene to imported actors
+      const tokenAdjustedScenes = await Promise.all(adjustedScenes
         .map(async (scene) => {
           console.warn(`Updating scene tokens for ${scene.name}`);
           const newScene = JSON.parse(JSON.stringify(scene));
@@ -444,30 +532,7 @@ export default class ThirdPartyMunch extends FormApplication {
       CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
       this.close();
 
-      // const compendiums = this._scenePackage.scenes.map((scene) => scene.flags.ddbimporter.export.compendium);
-
       console.warn("DONE?");
-
-      // let folder = game.folders.find((f) =>
-      //   f.type === "JournalEntry" &&
-      //   f.parentFolder === undefined &&
-      //   f.name ===
-      // );
-
-      // check for existing compendium folder
-      // if it does not exist create it
-      // check for scenes that exist
-      // if the scenes do not exist, import them
-      // for each scene that exists check to see if it has the ddb data flag
-      // if it does not have the flag, add it and import the ddb extensions
-
-      // notes
-      // actors
-      // walls
-      // drawings
-      // lights
-      // config
-
 
     }
   }

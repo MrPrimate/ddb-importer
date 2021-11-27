@@ -28,6 +28,72 @@ const DDB_MAP = {
 
 export default class Helpers {
 
+
+  static getImportFilePaths(path, adventure, misc) {
+    const adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
+    const targetPath = path.replace(/[\\/][^\\/]+$/, '');
+    const filename = path.replace(/^.*[\\/]/, '').replace(/\?(.*)/, '');
+    const baseUploadPath = misc
+      ? game.settings.get("ddb-importer", "adventure-misc-path")
+      : game.settings.get("ddb-importer", "adventure-upload-path");
+    const parsedBaseUploadPath = DirectoryPicker.parse(baseUploadPath);
+    const uploadPath = misc
+      ? `${parsedBaseUploadPath.current}/${targetPath}`
+      : `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
+    const returnFilePath = misc
+      ? `${targetPath}/${filename}`
+      : `${adventurePath}/${targetPath}/${filename}`;
+    return {
+      adventurePath,
+      targetPath,
+      filename,
+      baseUploadPath,
+      parsedBaseUploadPath,
+      uploadPath,
+      returnFilePath,
+    };
+  }
+
+  static unPad(match, p1) {
+    if (isNaN(parseInt(p1))) {
+      return p1;
+    } else {
+      return parseInt(p1);
+    }
+  }
+
+  static async importRawFile(path, content, mimeType, adventure, misc) {
+    try {
+      if (path[0] === "*") {
+        // this file was flagged as core data, just replace name.
+        return path.replace(/\*/g, "");
+      } else if (path.startsWith("icons/") || path.startsWith("systems/dnd5e/icons/") || path.startsWith("ddb://")) {
+        // these are core icons, ignore
+        // or are ddb:// paths that will be replaced by muncher
+        return path;
+      } else {
+        const paths = Helpers.getImportFilePaths(path, adventure, misc);
+
+        if (!CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path]) {
+          await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
+          const fileData = new File([content], paths.filename, { type: mimeType });
+          await Helpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, { bucket: paths.parsedBaseUploadPath.bucket });
+          // eslint-disable-next-line require-atomic-updates
+          CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path] = true;
+        } else {
+          logger.debug(`File already imported ${path}`);
+        }
+
+        const returnPath = await utils.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
+        return `${returnPath}`;
+      }
+    } catch (err) {
+      logger.error(`Error importing image file ${path} : ${err.message}`);
+    }
+
+    return path;
+  }
+
   /**
    * Imports binary file, by extracting from zip file and uploading to path.
    *
@@ -45,33 +111,20 @@ export default class Helpers {
         // or are ddb:// paths that will be replaced by muncher
         return path;
       } else {
-        const adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
-        const targetPath = path.replace(/[\\/][^\\/]+$/, '');
-        const filename = path.replace(/^.*[\\/]/, '').replace(/\?(.*)/, '');
-        const baseUploadPath = misc
-          ? game.settings.get("ddb-importer", "adventure-misc-path")
-          : game.settings.get("ddb-importer", "adventure-upload-path");
-        const parsedBaseUploadPath = DirectoryPicker.parse(baseUploadPath);
-        const uploadPath = misc
-         ? `${parsedBaseUploadPath.current}/${targetPath}`
-         : `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
+        const paths = Helpers.getImportFilePaths(path, adventure, misc);
 
         if (!CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path]) {
-          await DirectoryPicker.verifyPath(parsedBaseUploadPath, `${uploadPath}`);
+          await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
           const img = await zip.file(path).async("uint8array");
-          const fileData = new File([img], filename);
-          await Helpers.UploadFile(parsedBaseUploadPath.activeSource, `${uploadPath}`, fileData, { bucket: parsedBaseUploadPath.bucket });
+          const fileData = new File([img], paths.filename);
+          await Helpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, { bucket: paths.parsedBaseUploadPath.bucket });
           // eslint-disable-next-line require-atomic-updates
           CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path] = true;
         } else {
           logger.debug(`File already imported ${path}`);
         }
 
-        const returnFilePath = misc
-          ? `${targetPath}/${filename}`
-          : `${adventurePath}/${targetPath}/${filename}`;
-        const returnPath = await utils.getFileUrl(baseUploadPath, returnFilePath);
-
+        const returnPath = await utils.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
         return `${returnPath}`;
       }
     } catch (err) {
