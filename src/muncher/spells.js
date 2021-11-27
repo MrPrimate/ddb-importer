@@ -63,7 +63,7 @@ export async function parseSpells(ids = null) {
     await createCompendiumFolderStructure("spells");
   }
 
-  munchNote("Downloading spell data..";
+  munchNote("Downloading spell data..");
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
@@ -97,7 +97,7 @@ export async function parseSpells(ids = null) {
     });
 
   if (results.some((r) => r.status === "rejected")) {
-    munchNote("Failed to parse some spells, see developer console for details.");
+    munchNote("Failed to parse some spells, see the developer console (F12) for details.");
     logger.error("Failed spell parsing", results);
   }
 
