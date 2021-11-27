@@ -152,10 +152,14 @@ export async function parseItems(ids = null) {
     await createCompendiumFolderStructure("items");
   }
 
+  munchNote("Downloading item data..");
+
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
   const results = await getItemData(sourceFilter);
   let items = results.items;
+
+  munchNote("Parsing item data..");
 
   // Items Spell addition is currently not done, parsing out spells needs to be addded
   // let itemSpells = results.value.itemSpells;
