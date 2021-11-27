@@ -43,11 +43,11 @@ export default class ThirdPartyMunch extends FormApplication {
       data = await $.getJSON(RAW_MODULES_URL);
       this._defaultRepoData = data;
       for (const [key, value] of Object.entries(data.packages)) {
-        console.log(`${key}: ${value}`);
+        logger.debug(`${key}: ${value}`);
         packages.push(value);
       }
       packages = packages.sort((a, b) => a.name.localeCompare(b.last_nom));
-      console.warn(this._defaultRepoData);
+      logger.debug("_defaultRepoData", this._defaultRepoData);
     } catch (err) {
       logger.error(err);
       logger.warn(`Unable to generate package list.`);
@@ -104,8 +104,7 @@ export default class ThirdPartyMunch extends FormApplication {
       });
 
       if (missingBooks.length > 0) {
-        // TODO: come back and improve this to full book title
-        const bookString = missingBooks.join(", ");
+        const bookString = missingBooks.map((bookCode) => ThirdPartyMunch._getDDBBookName(bookCode)).join(", ");
         moduleMessage[0].innerHTML += `You will need to use Adventure Muncher to load the following books first: ${bookString}`;
       }
 
@@ -385,7 +384,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
       // check for valid json object?
 
-      console.warn(this._scenePackage);
+      logger.debug("_scenePackage", this._scenePackage);
 
       CONFIG.DDBI.ADVENTURE.TEMPORARY = {
         folders: {},
@@ -395,7 +394,7 @@ export default class ThirdPartyMunch extends FormApplication {
         mockActors: {},
       };
 
-      // We need to check for potenential Scene Folders and Create if missing
+      // We need to check for potential Scene Folders and Create if missing
       const compendiumLabels = [...new Set(this._scenePackage.scenes
         .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
         .map((scene) => {
@@ -417,7 +416,7 @@ export default class ThirdPartyMunch extends FormApplication {
         });
       await Promise.all(adventureLabels);
 
-      console.log("Competed folder creation");
+      logger.debug("Competed folder creation");
 
       // import any missing monsters into the compendium
       // add tokens to scene
@@ -428,9 +427,7 @@ export default class ThirdPartyMunch extends FormApplication {
           const mockScene = JSON.parse(JSON.stringify(scene));
           if (mockScene.flags?.ddbimporter?.export?.actors && mockScene.flags?.ddb?.tokens) {
             const mockAdventure = ThirdPartyMunch._generateMockAdventure(mockScene);
-            console.warn("mockAdventure", mockAdventure);
             await ThirdPartyMunch._checkForMissingData(mockAdventure, []);
-
             const bookName = ThirdPartyMunch._getDDBBookName(mockScene.flags.ddb.bookCode);
             const actorFolder = await ThirdPartyMunch._findFolder(bookName, "Actor");
             mockScene.tokens = mockScene.flags.ddb.tokens.map((token) => {
@@ -439,44 +436,31 @@ export default class ThirdPartyMunch extends FormApplication {
               return token;
             });
             mockScene.notes = await ThirdPartyMunch._linkSceneNotes(mockScene, mockAdventure);
-            console.warn("SCENE", JSON.parse(JSON.stringify(mockScene)));
           }
-
           return mockScene;
         }));
 
-      console.warn(JSON.parse(JSON.stringify(adjustedScenes)));
+      logger.debug("adjustedScenes", JSON.parse(JSON.stringify(adjustedScenes)));
 
-      console.log("About to generate Token Actors");
+      logger.debug("About to generate Token Actors");
       // load token actors into world
       await Helpers.asyncForEach(adjustedScenes, async(scene) => {
-        console.warn(`Generating scene actors for ${scene.name}`);
-        console.warn(scene);
+        logger.debug(`Generating scene actors for ${scene.name}`);
         await Helpers.generateTokenActors(scene);
-        console.warn(`Finished scene actors for ${scene.name}`);
+        logger.debug(`Finished scene actors for ${scene.name}`);
       });
 
-      // const noteAdjustedScenes = await Promise.all(adjustedScenes
-      //   .map(async (scene) => {
-      //     console.warn(`Updating scene notes for ${scene.name}`);
-      //     const newScene = JSON.parse(JSON.stringify(scene));
-      //     newScene.tokens = await ThirdPartyMunch._linkSceneNotes(scene, a);
-      //     return newScene;
-      //   })
-      // );
-
-      // console.warn("noteAdjustedScenes", noteAdjustedScenes);
       // link tokens on scene to imported actors
       const tokenAdjustedScenes = await Promise.all(adjustedScenes
         .map(async (scene) => {
-          console.warn(`Updating scene tokens for ${scene.name}`);
+          logger.debug(`Updating scene tokens for ${scene.name}`);
           const newScene = JSON.parse(JSON.stringify(scene));
           newScene.tokens = await ThirdPartyMunch._linkSceneTokens(scene);
           return newScene;
         })
       );
 
-      console.warn("tokenAdjustedScenes", tokenAdjustedScenes);
+      logger.debug("tokenAdjustedScenes", tokenAdjustedScenes);
 
       CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig();
       logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
@@ -502,18 +486,18 @@ export default class ThirdPartyMunch extends FormApplication {
 
           // if scene already exists, update
           if (existingScene) {
-            logger.info(`Updating ${scene.name}`);
+            logger.info(`Updating ${scene.name}`, scene);
             await existingScene.update(scene);
             return existingScene;
           } else {
             const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene, { keepId: true });
-            console.warn(`Scene: ${scene.name} folder:`, folder);
-            console.warn("worldScene:", worldScene);
+            logger.info(`Scene: ${scene.name} folder:`, folder);
+            logger.debug("worldScene:", worldScene);
             return worldScene;
           }
         }));
 
-      console.warn(scenes);
+      // logger.debug("finalScenes", scenes);
 
       const toTimer = setTimeout(() => {
         logger.warn(`Reference update timed out.`);
@@ -521,6 +505,7 @@ export default class ThirdPartyMunch extends FormApplication {
         this.close();
       }, 60000);
 
+      // clearup remaining scene things
       await ThirdPartyMunch._fixupScenes(scenes);
       clearTimeout(toTimer);
 
@@ -531,9 +516,6 @@ export default class ThirdPartyMunch extends FormApplication {
       // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
       this.close();
-
-      console.warn("DONE?");
-
     }
   }
 
