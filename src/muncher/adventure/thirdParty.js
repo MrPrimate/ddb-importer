@@ -81,6 +81,8 @@ export default class ThirdPartyMunch extends FormApplication {
         return !utils.isModuleInstalledAndActive(module);
       });
 
+      this._packageName = packageSelectionElement[0].selectedOptions[0].text;
+
       const moduleMessage = html.find("#ddb-message");
       moduleMessage[0].innerHTML = "";
       if (missingModules.length > 0) {
@@ -175,29 +177,9 @@ export default class ThirdPartyMunch extends FormApplication {
             let updatedData = {};
             switch (obj.documentName) {
               case "Scene": {
-                const scene = JSON.parse(JSON.stringify(obj.data));
-                // this is a scene we need to update links to all items
-                logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
-                await Helpers.asyncForEach(scene.tokens, async (token) => {
-                  if (token.actorId) {
-                    const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
-                    delete sceneToken.scale;
-                    const worldActor = game.actors.get(token.actorId);
-                    if (worldActor) {
-                      const tokenData = await worldActor.getTokenData();
-                      delete tokenData.y;
-                      delete tokenData.x;
-                      const jsonTokenData = JSON.parse(JSON.stringify(tokenData));
-                      const updateData = mergeObject(jsonTokenData, sceneToken);
-                      logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
-                      await obj.updateEmbeddedDocuments("Token", [updateData], { keepId: true });
-                    }
-                  }
-                });
-
-                // In 0.8.x the thumbs don't seem to be generated.
+                // In 0.8.x the thumbs don't seem to be auto generated anymore
                 // This code would embed the thumbnail.
-                // Consider writing this out.
+                // Remove once/if resolved
                 if (!obj.data.thumb) {
                   const thumbData = await obj.createThumbnail();
                   updatedData["thumb"] = thumbData.thumb;
@@ -284,20 +266,40 @@ export default class ThirdPartyMunch extends FormApplication {
     }
   }
 
+  static async _linkSceneTokens(scene) {
+    logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
+    const tokens = await Promise.all(scene.tokens.map(async (token) => {
+      if (token.actorId) {
+        const worldActor = game.actors.get(token.actorId);
+        if (worldActor) {
+          // we merge the override data provided by the token to the actor to get
+          // world specific things like img paths and scales etc
+          const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
+          delete sceneToken.scale;
+          const tokenData = await worldActor.getTokenData();
+          delete tokenData.y;
+          delete tokenData.x;
+          const jsonTokenData = JSON.parse(JSON.stringify(tokenData));
+          const newToken = mergeObject(jsonTokenData, sceneToken);
+          logger.debug(`${token.name} token data for id ${token.actorId}`, newToken);
+          return newToken;
+        }
+      }
+      return token;
+    }));
+    return tokens;
+  }
+
   async _dialogButton(event) {
     event.preventDefault();
     event.stopPropagation();
     const a = event.currentTarget;
     const action = a.dataset.button;
+    const packageName = this._packageName;
 
     if (action === "import") {
       const selectedPackage = $("#select-package").val();
-      console.warn(selectedPackage);
-
-      let packageURL = `${RAW_BASE_URL}/main/${selectedPackage}/module.json`;
-      // https://raw.githubusercontent.com/MrPrimate/ddb-third-party-scenes/main/modules/steves-scenes/lament/module.json
-
-      console.warn(packageURL);
+      const packageURL = `${RAW_BASE_URL}/main/${selectedPackage}/module.json`;
 
       this._scenePackage = await fetch(packageURL)
         .then((response) => {
@@ -308,7 +310,7 @@ export default class ThirdPartyMunch extends FormApplication {
             }
         });
 
-      // TODO check for valid json object
+      // check for valid json object?
 
       console.warn(this._scenePackage);
 
@@ -377,10 +379,21 @@ export default class ThirdPartyMunch extends FormApplication {
         console.warn(`Finsiehd scene actors for ${scene.name}`);
       });
 
+      const tokenAdjustedScenes = await Promise.all(monsterAdjustedScenes
+        .map(async (scene) => {
+          console.warn(`Updating scene tokens for ${scene.name}`);
+          const newScene = JSON.parse(JSON.stringify(scene));
+          newScene.tokens = await ThirdPartyMunch._linkSceneTokens(scene);
+          return newScene;
+        })
+      );
+
+      console.warn("tokenAdjustedScenes", tokenAdjustedScenes);
+
       CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig();
       logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
-      const scenes = await Promise.all(monsterAdjustedScenes
+      const scenes = await Promise.all(tokenAdjustedScenes
         .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
         // does the scene match a compendium scene
         .filter(async (scene) => {
@@ -405,9 +418,9 @@ export default class ThirdPartyMunch extends FormApplication {
             await existingScene.update(scene);
             return existingScene;
           } else {
-            const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene);
+            const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene, { keepId: true });
             console.warn(`Scene: ${scene.name} folder:`, folder);
-            console.warn(`worldScene: ${worldScene}`);
+            console.warn("worldScene:", worldScene);
             return worldScene;
           }
         }));
@@ -416,7 +429,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
       const toTimer = setTimeout(() => {
         logger.warn(`Reference update timed out.`);
-        ThirdPartyMunch._renderCompleteDialog(`Un-Successful Import of ${this._selectPackage.name}`, { name: this._selectPackage.name });
+        ThirdPartyMunch._renderCompleteDialog(`Un-Successful Import of ${packageName}`, { name: packageName });
         this.close();
       }, 60000);
 
@@ -425,7 +438,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
       $(".ddb-overlay").toggleClass("import-invalid");
 
-      ThirdPartyMunch._renderCompleteDialog(`Successful Import of ${this._selectPackage.name}`, { name: this._selectPackage.name });
+      ThirdPartyMunch._renderCompleteDialog(`Successful Import of ${packageName}`, { name: packageName });
 
       // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
