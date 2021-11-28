@@ -25,6 +25,7 @@ import { loadSRDRules } from "../parser/templateStrings.js";
 import { abilityOverrideEffects } from "../parser/effects/abilityOverrides.js";
 import { getCharacterImportSettings, updateActorSettings, setRecommendedCharacterActiveEffectSettings } from "../muncher/settings.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
+import { setConditions } from "./conditions.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -1185,6 +1186,8 @@ export default class CharacterImport extends FormApplication {
     this.actor.render();
 
     await updateDynamicUpdates(this.actor, activeUpdateState);
+    console.warn(data);
+    await setConditions(data.ddb, this.actor);
   }
 }
 
