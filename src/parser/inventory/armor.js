@@ -7,7 +7,7 @@ import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity }
  * Supported Types only: Simple/Martial Melee/Ranged and Ammunition (Firearms in D&DBeyond)
  * @param {obj} data item data
  */
-function getArmorType(data, flags) {
+function getArmorType(data, character, flags) {
   // get the generic armor type
   const nameEntry = DICTIONARY.equipment.armorType.find((type) => type.name === data.definition.type);
   const idEntry = DICTIONARY.equipment.armorType.find((type) => type.id === data.definition.armorTypeId);
@@ -37,6 +37,11 @@ function getArmorType(data, flags) {
       break;
     default:
       maxDexModifier = null;
+  }
+
+  const itemDexMaxAdjustment = utils.getModifierSum(utils.filterModifiers(data.definition.grantedModifiers, "set", "ac-max-dex-modifier"), character);
+  if (maxDexModifier !== null && Number.isInteger(itemDexMaxAdjustment) && itemDexMaxAdjustment > maxDexModifier) {
+    maxDexModifier = itemDexMaxAdjustment;
   }
 
   return {
@@ -88,7 +93,7 @@ export default function parseArmor(data, character, flags) {
     },
   };
 
-  armor.data.armor = getArmorType(data, flags);
+  armor.data.armor = getArmorType(data, character, flags);
   armor.data.strength = getStrength(data);
   armor.data.stealth = getStealthPenalty(data);
   armor.data.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);

@@ -1,3 +1,8 @@
+# 2.7.1
+
+* Support for enhancing 3rd party scenes with DDB Data. Currently support for Steve's Scenes House of Lament. More coming soon, please reach out if you wish to add support.
+* Fix Max Dex restriction removal on some items, e.g. Serpent Scale Armor.
+
 # 2.6.21
 
 * If Midi-QoL is installed use it's Adamantine and Silvered damage conditions for Monsters instead of free text. @⭐FiNalStaR#1337
