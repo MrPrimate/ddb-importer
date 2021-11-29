@@ -9,7 +9,7 @@ export function getDeathSaves (data) {
 }
 
 export function getExhaustion(data) {
-  let condition = data.character.conditions.find((condition) => (condition.id = 4));
+  let condition = data.character.conditions.find((condition) => condition.id === 4);
   let level = condition ? condition.level : 0;
   return level;
 }

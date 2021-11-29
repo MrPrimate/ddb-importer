@@ -1,4 +1,5 @@
 import logger from "../logger.js";
+import utils from "../utils.js";
 import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
 import { getCampaignId, getCompendiumType } from "../muncher/utils.js";
@@ -6,6 +7,7 @@ import { looseItemNameMatch } from "../muncher/import.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates, setActiveSyncSpellsFlag } from "./utils.js";
+import { getActorConditionStates } from "./conditions.js";
 
 var itemIndex;
 
@@ -294,6 +296,36 @@ async function exhaustion(actor, ddbData) {
       resolve();
     }
 
+  });
+}
+
+async function updateDDBCondition(actor, condition) {
+  return new Promise((resolve) => {
+    const conditionData = {
+      conditionId: condition.ddbId,
+      addCondition: condition.applied,
+      level: null,
+      totalHP: actor.data.data.attributes.hp.max,
+    };
+
+    resolve(updateCharacterCall(actor, "condition", conditionData));
+  });
+}
+
+async function conditions(actor, ddbData) {
+  return new Promise((resolve) => {
+    const dfConditionsOn = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
+    if (!game.settings.get("ddb-importer", "sync-policy-condition") || !dfConditionsOn) resolve([]);
+    getActorConditionStates(actor, ddbData.ddb).then((conditions) => {
+      console.warn(conditions);
+      let results = [];
+      conditions.forEach((condition) => {
+        if (condition.needsUpdate) {
+          results.push(updateDDBCondition(actor, condition));
+        }
+      });
+      resolve(results);
+    });
   });
 }
 
@@ -931,9 +963,8 @@ export async function updateDDBCharacter(actor) {
   const nameUpdateResults = await updateCustomNames(actor, ddbData);
   const addEquipmentResults = await addEquipment(actor, ddbData);
   const removeEquipmentResults = await removeEquipment(actor, ddbData);
-
   const equipmentStatusResults = await equipmentStatus(actor, ddbData, addEquipmentResults);
-
+  const conditionResults = await conditions(actor, ddbData);
   // if a known/choice spellcaster
   // and new spell/ spells removed
   // for each spell add or remove, e.g.
@@ -958,7 +989,8 @@ export async function updateDDBCharacter(actor) {
     spellsPreparedResults,
     removeEquipmentResults,
     equipmentStatusResults,
-    actionStatusResults
+    actionStatusResults,
+    conditionResults,
   ).filter((result) => result !== undefined);
 
   logger.debug("Update results", results);
@@ -970,6 +1002,7 @@ export async function updateDDBCharacter(actor) {
 // Called when characters are updated
 // will dynamically sync status back to DDB
 async function activeUpdateActor(actor, update) {
+  // eslint-disable-next-line complexity
   return new Promise((resolve) => {
 
     const promises = [];
@@ -982,7 +1015,7 @@ async function activeUpdateActor(actor, update) {
       const syncCurrency = game.settings.get("ddb-importer", "dynamic-sync-policy-currency");
       const syncSpellSlots = game.settings.get("ddb-importer", "dynamic-sync-policy-spells-slots");
       const syncInspiration = game.settings.get("ddb-importer", "dynamic-sync-policy-inspiration");
-      const syncExhaustion = game.settings.get("ddb-importer", "dynamic-sync-policy-condition");
+      const syncConditions = game.settings.get("ddb-importer", "dynamic-sync-policy-condition");
       const syncDeathSaves = game.settings.get("ddb-importer", "dynamic-sync-policy-deathsaves");
       const syncXP = game.settings.get("ddb-importer", "dynamic-sync-policy-xp");
 
@@ -1014,7 +1047,7 @@ async function activeUpdateActor(actor, update) {
         logger.debug("Updating DDB Inspiration...");
         promises.push(updateDDBInspiration(actor));
       }
-      if (syncExhaustion && update.data?.attributes?.exhaustion) {
+      if (syncConditions && update.data?.attributes?.exhaustion) {
         logger.debug("Updating DDB Exhaustion...");
         promises.push(updateDDBExhaustion(actor));
       }
@@ -1230,3 +1263,118 @@ export function activateUpdateHooks() {
     Hooks.on("createItem", activeUpdateAddItem);
   }
 }
+
+
+// conditons:
+// const syncConditions = game.settings.get("ddb-importer", "dynamic-sync-policy-condition");
+      //   const dfConditionsOn = utils.isModuleInstalledAndActive("dregs-convenient-effects");
+      //   if (dfConditionsOn) {
+      //     logger.debug("Updating DDB Conditions...");
+      //     promises.push(updateDDBConditions(actor));
+      //   }
+
+// updateActiveEffect
+
+// [
+//   {
+//       "_id": "lcs33ALPi1svdmVN",
+//       "changes": [],
+//       "disabled": true,
+//       "duration": {
+//           "startRound": 0,
+//           "startTime": 1609459200,
+//           "startTurn": 0
+//       },
+//       "icon": "modules/dfreds-convenient-effects/images/charmed.svg",
+//       "label": "Charmed",
+//       "tint": null,
+//       "transfer": false,
+//       "flags": {
+//           "core": {
+//               "statusId": "Convenient Effect: Charmed"
+//           },
+//           "isConvenient": true,
+//           "dae": {
+//               "transfer": false
+//           }
+//       }
+//   },
+//   {
+//       "disabled": true,
+//       "_id": "lcs33ALPi1svdmVN"
+//   },
+//   {
+//       "diff": true,
+//       "render": true
+//   },
+//   "wbrMbVsKHjLih5JY"
+// ]
+
+
+// deleteActiveEffect
+
+// [
+//   {
+//       "_id": "gOR5QdsvBZqRkkr3",
+//       "changes": [],
+//       "disabled": false,
+//       "duration": {
+//           "startRound": 0,
+//           "startTime": 1609459200,
+//           "startTurn": 0
+//       },
+//       "icon": "icons/svg/skull.svg",
+//       "label": "Dead",
+//       "tint": null,
+//       "transfer": false,
+//       "flags": {
+//           "core": {
+//               "statusId": "Convenient Effect: Dead"
+//           },
+//           "isConvenient": true,
+//           "dae": {
+//               "transfer": false
+//           }
+//       }
+//   },
+//   {
+//       "render": true
+//   },
+//   "wbrMbVsKHjLih5JY"
+// ]
+
+// createActiveEffect
+
+// [
+//   {
+//       "_id": "YxzJ2Gs8NHw8ovdf",
+//       "changes": [],
+//       "disabled": false,
+//       "duration": {
+//           "startRound": 0,
+//           "startTime": 1609459200,
+//           "startTurn": 0
+//       },
+//       "icon": "modules/dfreds-convenient-effects/images/deafened.svg",
+//       "label": "Deafened",
+//       "tint": null,
+//       "transfer": false,
+//       "flags": {
+//           "core": {
+//               "statusId": "Convenient Effect: Deafened"
+//           },
+//           "isConvenient": true,
+//           "dae": {
+//               "transfer": false
+//           }
+//       }
+//   },
+//   {
+//       "temporary": false,
+//       "renderSheet": false,
+//       "render": true
+//   },
+//   "wbrMbVsKHjLih5JY"
+// ]
+
+

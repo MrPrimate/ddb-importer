@@ -1186,8 +1186,7 @@ export default class CharacterImport extends FormApplication {
     this.actor.render();
 
     await updateDynamicUpdates(this.actor, activeUpdateState);
-    console.warn(data);
-    await setConditions(data.ddb, this.actor);
+    await setConditions(this.actor, data.ddb);
   }
 }
 

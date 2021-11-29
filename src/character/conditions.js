@@ -1,4 +1,5 @@
 import utils from "../utils.js";
+import logger from "../logger.js";
 
 const CONDITION_MATRIX = [
   { label: "Blinded", statusId: "Convenient Effect: Blinded", ddbId: 1, levelId: null, ddbType: 1 },
@@ -23,28 +24,67 @@ const CONDITION_MATRIX = [
   { label: "Unconscious", statusId: "Convenient Effect: Unconscious", ddbId: 15, levelId: null, ddbType: 1 },
 ];
 
+export function getCondition(conditionName) {
+  return CONDITION_MATRIX.find((condition) => condition.label === conditionName);
+}
 
-export async function setConditions(ddb, actor) {
+export async function getActiveConditions(actor) {
+  const conditions = await Promise.all(CONDITION_MATRIX.filter(async (condition) => {
+    const conditionApplied = await game.dfreds.effectInterface.hasEffectApplied(condition.label, actor.uuid);
+    return conditionApplied;
+  }));
+  return conditions;
+}
+
+async function effectAppliedAndActive(condition, actor) {
+  return actor.data.effects.some(
+    (activeEffect) =>
+      activeEffect?.data?.flags?.isConvenient &&
+      activeEffect?.data?.label == condition.label &&
+      !activeEffect?.data?.disabled
+  );
+}
+
+export async function getActorConditionStates(actor, ddb) {
+  const conditions = await Promise.all(CONDITION_MATRIX.map(async (condition) => {
+    // const conditionApplied = await game.dfreds.effectInterface.hasEffectApplied(condition.label, actor.uuid);
+    const conditionApplied = await effectAppliedAndActive(condition, actor);
+    const ddbCondition = ddb.character.conditions.some((conditionState) =>
+      conditionState.id === condition.ddbId &&
+      conditionState.level === condition.levelId
+    );
+    // eslint-disable-next-line require-atomic-updates
+    condition.ddbCondition = ddbCondition;
+    // eslint-disable-next-line require-atomic-updates
+    condition.applied = conditionApplied;
+    // eslint-disable-next-line require-atomic-updates
+    condition.needsUpdate = (ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied);
+    return condition;
+  }));
+  return conditions;
+}
+
+/**
+ * Set conditions
+ * @param {*} ddb
+ * @param {*} actor
+ */
+export async function setConditions(actor, ddb) {
   const dfConditionsOn = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
-
-  console.warn(JSON.parse(JSON.stringify(ddb.character.conditions)));
-
-  for (let i = 0; ddb.character.conditions.length > i; i++) {
-    const conditionRef = ddb.character.conditions[i];
-    console.warn(conditionRef);
-    const conditionLookup = CONDITION_MATRIX.find((condition) => condition.ddbId === conditionRef.id && condition.levelId === conditionRef.level);
-    console.warn(conditionLookup);
-    
-    if (dfConditionsOn && conditionLookup) {
-      const conditionApplied = await game.dfreds.effectInterface.hasEffectApplied(conditionLookup.label, actor.uuid);
-      console.warn("conditionApplied", conditionApplied);
-      if (!conditionApplied) {
-        console.warn(`Applying condition ${conditionLookup.label} to ${actor.name} (${actor.uuid})`);
-        await game.dfreds.effectInterface.toggleEffect(conditionLookup.label, actor.uuid);
+  if (dfConditionsOn) {
+    const conditionStates = await getActorConditionStates(actor, ddb);
+    console.warn(conditionStates);
+    await Promise.all(conditionStates.map(async (condition) => {
+      console.warn(condition);
+      if (condition.needsUpdate) {
+        const state = condition.conditionApplied ? "off" : "on";
+        console.warn(`Toggling condition to ${state} for ${condition.label} to ${actor.name} (${actor.uuid})`);
+        await game.dfreds.effectInterface.toggleEffect(condition.label, actor.uuid);
       } else {
-        console.warn(`Condition ${conditionLookup.label} exists on ${actor.name} (${actor.uuid})`);
+        const state = condition.conditionApplied ? "on" : "off";
+        logger.info(`Condition ${condition.label} ignored (currently ${state}) for ${actor.name} (${actor.uuid})`);
       }
-    }
-  };
-
+      return condition;
+    }));
+  }
 }
