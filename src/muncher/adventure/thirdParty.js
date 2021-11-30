@@ -17,6 +17,7 @@ export default class ThirdPartyMunch extends FormApplication {
     this._adventure = {};
     this._scenePackage = {};
     this._packageName = "";
+    this._description = "";
   }
 
   /** @override */
@@ -30,6 +31,7 @@ export default class ThirdPartyMunch extends FormApplication {
       title: "Third Party Munch",
       template: "modules/ddb-importer/handlebars/adventure/import-third.hbs",
       width: 350,
+      height: "auto",
     });
   }
 
@@ -77,20 +79,22 @@ export default class ThirdPartyMunch extends FormApplication {
       ? packageSelectionElement[0].selectedOptions[0].value
       : undefined;
 
+    const moduleMessage = html.find("#ddb-message");
+
     if (packageSelection) {
       const missingModules = [this._defaultRepoData.packages[packageSelection].module].filter((module) => {
         return !utils.isModuleInstalledAndActive(module);
       });
 
       this._packageName = packageSelectionElement[0].selectedOptions[0].text;
+      this._description = this._defaultRepoData.packages[packageSelection].description;
 
-      const moduleMessage = html.find("#ddb-message");
-      moduleMessage[0].innerHTML = "";
+
+      let message = "";
       if (missingModules.length > 0) {
-        moduleMessage[0].innerHTML += "You will need to install the modules: " + missingModules.join(", ");
+        const missingModulesString = missingModules.join(", ");
+        message += `<p>You need to install the modules: ${missingModulesString}</p>`;
       }
-
-      if (moduleMessage[0].innerHTML !== "") moduleMessage[0].innerHTML += "<br>";
 
       const missingBooks = this._defaultRepoData.packages[packageSelection].books.filter((book) => {
         const matchingJournals = game.journal.some((j) => j.data.flags.ddb?.bookCode === book);
@@ -105,8 +109,14 @@ export default class ThirdPartyMunch extends FormApplication {
 
       if (missingBooks.length > 0) {
         const bookString = missingBooks.map((bookCode) => ThirdPartyMunch._getDDBBookName(bookCode)).join(", ");
-        moduleMessage[0].innerHTML += `You will need to use Adventure Muncher to load the following books first: ${bookString}`;
+        message += `<p>You need to use Adventure Muncher to load the following books first: ${bookString}</p>`;
       }
+
+      if (this._description && this.description !== "") {
+        message += `<p><b>Details</b>: ${this._description}</p>`;
+      }
+
+      if (message !== "") moduleMessage[0].innerHTML = message;
 
       if (missingBooks.length === 0 && missingModules.length === 0) {
         $(".ddb-message").addClass("import-hidden");
@@ -116,8 +126,10 @@ export default class ThirdPartyMunch extends FormApplication {
       }
 
     } else {
+      moduleMessage[0].innerHTML = "";
       $(".ddb-message").addClass("import-hidden");
     }
+    $('#ddb-adventure-import').css("height", "auto");
   }
 
   static async _createFolders(adventure, folders) {
@@ -370,6 +382,8 @@ export default class ThirdPartyMunch extends FormApplication {
     const packageName = this._packageName;
 
     if (action === "import") {
+      $(".import-progress").toggleClass("import-hidden");
+      $(".ddb-overlay").toggleClass("import-invalid");
       const selectedPackage = $("#select-package").val();
       const packageURL = `${RAW_BASE_URL}/main/${selectedPackage}/module.json`;
 
