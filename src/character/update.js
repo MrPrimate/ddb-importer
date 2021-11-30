@@ -7,7 +7,7 @@ import { looseItemNameMatch } from "../muncher/import.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates, setActiveSyncSpellsFlag } from "./utils.js";
-import { getActorConditionStates } from "./conditions.js";
+import { getActorConditionStates, getCondition } from "./conditions.js";
 
 var itemIndex;
 
@@ -1007,10 +1007,9 @@ async function activeUpdateActor(actor, update) {
 
     const promises = [];
 
-    const dynamicSync = activeUpdate();
     const actorActiveUpdate = actor.data.flags.ddbimporter?.activeUpdate;
 
-    if (dynamicSync && actorActiveUpdate) {
+    if (actorActiveUpdate) {
       const syncHP = game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints");
       const syncCurrency = game.settings.get("ddb-importer", "dynamic-sync-policy-currency");
       const syncSpellSlots = game.settings.get("ddb-importer", "dynamic-sync-policy-spells-slots");
@@ -1156,12 +1155,11 @@ async function activeUpdateUpdateItem(document, update) {
   // eslint-disable-next-line complexity
   return new Promise((resolve) => {
 
-    const dynamicSync = activeUpdate();
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
     const actorActiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
 
-    if (!dynamicSync || !parentActor || !actorActiveUpdate) {
+    if (!parentActor || !actorActiveUpdate) {
       resolve([]);
     } else {
       logger.debug("Preparing to sync item change to DDB...");
@@ -1207,48 +1205,73 @@ async function activeUpdateUpdateItem(document, update) {
 }
 
 
-// Called when characters items are added
+// Called when characters items are added/deleted
 // will dynamically sync status back to DDB
-async function activeUpdateAddItem(document) {
+async function activeUpdateAddOrDeleteItem(document, state) {
   return new Promise((resolve) => {
     let promises = [];
 
     const syncEquipment = game.settings.get("ddb-importer", "dynamic-sync-policy-equipment");
-    const dynamicSync = activeUpdate();
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
     const actorActiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
 
-    if (dynamicSync && parentActor && actorActiveUpdate && syncEquipment) {
-      logger.debug("Preparing to add item to DDB...");
+    if (parentActor && actorActiveUpdate && syncEquipment) {
+      logger.debug(`Preparing to ${state.toLowerCase()} item on DDB...`);
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
       if (!action) {
-        logger.debug("Attempting to add new Item", document);
-        promises.push(addDDBEquipment(parentActor, [document.toObject()]));
+        logger.debug(`Attempting to ${state.toLowerCase()} new Item`, document);
+        switch (state) {
+          case "CREATE":
+            promises.push(addDDBEquipment(parentActor, [document.toObject()]));
+            break;
+          case "DELETE":
+            promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
+            break;
+          // no default
+        }
       }
     }
     resolve(promises);
   });
 }
 
-// Called when characters items are added
-// will dynamically sync status back to DDB
-async function activeUpdateDeleteItem(document) {
+// called when effects are added/deleted/updated
+async function activeUpdateEffectTrigger(document, state) {
   return new Promise((resolve) => {
     let promises = [];
 
-    const syncEquipment = game.settings.get("ddb-importer", "dynamic-sync-policy-equipment");
-    const dynamicSync = activeUpdate();
+    const syncConditions = game.settings.get("ddb-importer", "dynamic-sync-policy-condition");
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
     const actorActiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
 
-    if (dynamicSync && parentActor && actorActiveUpdate && syncEquipment) {
-      logger.debug("Preparing to delete item from DDB...");
-      const action = document.data.flags.ddbimporter?.action || document.type === "feat";
-      if (!action) {
-        logger.debug("Attempting to remove new Item", document);
-        promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
+    if (parentActor && actorActiveUpdate && syncConditions) {
+      logger.debug(`Preparing to ${state.toLowerCase()} condition on DDB...`);
+      // is it a condition?
+      // is it a suitable type?
+      const isConvenient = document.data?.flags?.isConvenient;
+      const condition = getCondition(document.data?.label);
+      // exhaustion is a special case, but also a condition effect, handled by character update
+      const notExhaustion = condition ? condition.ddbId !== 4 : false;
+
+      if (isConvenient && condition && notExhaustion) {
+        logger.debug(`Attempting to ${state.toLowerCase()} Condition`, document);
+        switch (state) {
+          case "CREATE":
+            condition.applied = true;
+            promises.push(updateDDBCondition(parentActor, condition));
+            break;
+          case "UPDATE":
+            condition.applied = !document.data.disabled;
+            promises.push(updateDDBCondition(parentActor, condition));
+            break;
+          case "DELETE":
+            condition.applied = false;
+            promises.push(updateDDBCondition(parentActor, condition));
+            break;
+          // no default
+        }
       }
     }
     resolve(promises);
@@ -1256,125 +1279,18 @@ async function activeUpdateDeleteItem(document) {
 }
 
 export function activateUpdateHooks() {
+  // check to make sure we can sync back, currently only works for 1 gm user
   if (activeUpdate()) {
     Hooks.on("updateActor", activeUpdateActor);
     Hooks.on("updateItem", activeUpdateUpdateItem);
-    Hooks.on("deleteItem", activeUpdateDeleteItem);
-    Hooks.on("createItem", activeUpdateAddItem);
+    Hooks.on("createItem", (document) => activeUpdateAddOrDeleteItem(document, "CREATE"));
+    Hooks.on("deleteItem", (document) => activeUpdateAddOrDeleteItem(document, "DELETE"));
+    // conditions syncing relies of Conv Effects
+    const dfConditionsOn = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
+    if (dfConditionsOn) {
+      Hooks.on("createActiveEffect", (document) => activeUpdateEffectTrigger(document, "CREATE"));
+      Hooks.on("updateActiveEffect", (document) => activeUpdateEffectTrigger(document, "UPDATE"));
+      Hooks.on("deleteActiveEffect", (document) => activeUpdateEffectTrigger(document, "DELETE"));
+    }
   }
 }
-
-
-// conditons:
-// const syncConditions = game.settings.get("ddb-importer", "dynamic-sync-policy-condition");
-      //   const dfConditionsOn = utils.isModuleInstalledAndActive("dregs-convenient-effects");
-      //   if (dfConditionsOn) {
-      //     logger.debug("Updating DDB Conditions...");
-      //     promises.push(updateDDBConditions(actor));
-      //   }
-
-// updateActiveEffect
-
-// [
-//   {
-//       "_id": "lcs33ALPi1svdmVN",
-//       "changes": [],
-//       "disabled": true,
-//       "duration": {
-//           "startRound": 0,
-//           "startTime": 1609459200,
-//           "startTurn": 0
-//       },
-//       "icon": "modules/dfreds-convenient-effects/images/charmed.svg",
-//       "label": "Charmed",
-//       "tint": null,
-//       "transfer": false,
-//       "flags": {
-//           "core": {
-//               "statusId": "Convenient Effect: Charmed"
-//           },
-//           "isConvenient": true,
-//           "dae": {
-//               "transfer": false
-//           }
-//       }
-//   },
-//   {
-//       "disabled": true,
-//       "_id": "lcs33ALPi1svdmVN"
-//   },
-//   {
-//       "diff": true,
-//       "render": true
-//   },
-//   "wbrMbVsKHjLih5JY"
-// ]
-
-
-// deleteActiveEffect
-
-// [
-//   {
-//       "_id": "gOR5QdsvBZqRkkr3",
-//       "changes": [],
-//       "disabled": false,
-//       "duration": {
-//           "startRound": 0,
-//           "startTime": 1609459200,
-//           "startTurn": 0
-//       },
-//       "icon": "icons/svg/skull.svg",
-//       "label": "Dead",
-//       "tint": null,
-//       "transfer": false,
-//       "flags": {
-//           "core": {
-//               "statusId": "Convenient Effect: Dead"
-//           },
-//           "isConvenient": true,
-//           "dae": {
-//               "transfer": false
-//           }
-//       }
-//   },
-//   {
-//       "render": true
-//   },
-//   "wbrMbVsKHjLih5JY"
-// ]
-
-// createActiveEffect
-
-// [
-//   {
-//       "_id": "YxzJ2Gs8NHw8ovdf",
-//       "changes": [],
-//       "disabled": false,
-//       "duration": {
-//           "startRound": 0,
-//           "startTime": 1609459200,
-//           "startTurn": 0
-//       },
-//       "icon": "modules/dfreds-convenient-effects/images/deafened.svg",
-//       "label": "Deafened",
-//       "tint": null,
-//       "transfer": false,
-//       "flags": {
-//           "core": {
-//               "statusId": "Convenient Effect: Deafened"
-//           },
-//           "isConvenient": true,
-//           "dae": {
-//               "transfer": false
-//           }
-//       }
-//   },
-//   {
-//       "temporary": false,
-//       "renderSheet": false,
-//       "render": true
-//   },
-//   "wbrMbVsKHjLih5JY"
-// ]
-
-
