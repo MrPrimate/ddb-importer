@@ -317,7 +317,6 @@ async function conditions(actor, ddbData) {
     const dfConditionsOn = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
     if (!game.settings.get("ddb-importer", "sync-policy-condition") || !dfConditionsOn) resolve([]);
     getActorConditionStates(actor, ddbData.ddb).then((conditions) => {
-      console.warn(conditions);
       let results = [];
       conditions.forEach((condition) => {
         if (condition.needsUpdate) {

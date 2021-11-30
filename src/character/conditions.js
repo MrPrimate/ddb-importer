@@ -73,12 +73,12 @@ export async function setConditions(actor, ddb) {
   const dfConditionsOn = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
   if (dfConditionsOn) {
     const conditionStates = await getActorConditionStates(actor, ddb);
-    console.warn(conditionStates);
+    // console.warn(conditionStates);
     await Promise.all(conditionStates.map(async (condition) => {
-      console.warn(condition);
+      // console.warn(condition);
       if (condition.needsUpdate) {
         const state = condition.conditionApplied ? "off" : "on";
-        console.warn(`Toggling condition to ${state} for ${condition.label} to ${actor.name} (${actor.uuid})`);
+        logger.info(`Toggling condition to ${state} for ${condition.label} to ${actor.name} (${actor.uuid})`);
         await game.dfreds.effectInterface.toggleEffect(condition.label, actor.uuid);
       } else {
         const state = condition.conditionApplied ? "on" : "off";
