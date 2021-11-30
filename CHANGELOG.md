@@ -1,9 +1,8 @@
-# 2.7.1
+# 2.6.22
 
-* Support for enhancing 3rd party scenes with DDB Data. Currently support for Steve's Scenes House of Lament. More coming soon, please reach out if you wish to add support.
 * Fix Max Dex restriction removal on some items, e.g. Serpent Scale Armor.
-* If using "DFreds Convenient Effects" conditions from D&D Beyond will be applied to the actor during import.
-
+* If using "DFreds Convenient Effects" conditions from D&D Beyond will be applied to the actor during import and sync back to D&D Beyond.
+* Tweaks to Adventure Muncher if using custom proxy.
 
 # 2.6.21
 

@@ -397,7 +397,7 @@ export default class Helpers {
           case "monster": {
             const tier = game.settings.get("ddb-importer", "patreon-tier");
             const tiers = getPatreonTiers(tier);
-            if (tiers.all) {
+            if (tiers.supporter) {
               resolve(parseCritters(docIds));
             } else {
               resolve([]);

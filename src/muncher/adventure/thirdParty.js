@@ -48,7 +48,9 @@ export default class ThirdPartyMunch extends FormApplication {
         logger.debug(`${key}: ${value}`);
         packages.push(value);
       }
-      packages = packages.sort((a, b) => a.name.localeCompare(b.last_nom));
+      packages = packages
+        .filter((p) => p.released)
+        .sort((a, b) => a.name.localeCompare(b.last_nom));
       logger.debug("_defaultRepoData", this._defaultRepoData);
     } catch (err) {
       logger.error(err);
@@ -116,13 +118,13 @@ export default class ThirdPartyMunch extends FormApplication {
         message += `<p><b>Details</b>: ${this._description}</p>`;
       }
 
-      if (message !== "") moduleMessage[0].innerHTML = message;
+      if (message !== "") {
+        moduleMessage[0].innerHTML = message;
+        $(".ddb-message").removeClass("import-hidden");
+      }
 
       if (missingBooks.length === 0 && missingModules.length === 0) {
-        $(".ddb-message").addClass("import-hidden");
         $(".dialog-button").prop('disabled', false);
-      } else {
-        $(".ddb-message").removeClass("import-hidden");
       }
 
     } else {
