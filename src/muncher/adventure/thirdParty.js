@@ -48,8 +48,9 @@ export default class ThirdPartyMunch extends FormApplication {
         logger.debug(`${key}: ${value}`);
         packages.push(value);
       }
+      const partialScenes = game.settings.get("ddb-importer", "third-party-scenes-partial");
       packages = packages
-        .filter((p) => p.released)
+        .filter((p) => p.released || partialScenes)
         .sort((a, b) => a.name.localeCompare(b.last_nom));
       logger.debug("_defaultRepoData", this._defaultRepoData);
     } catch (err) {

@@ -1524,4 +1524,11 @@ export default function () {
     type: Boolean,
     default: false,
   });
+
+  game.settings.register("ddb-importer", "third-party-scenes-partial", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
 }
