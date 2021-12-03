@@ -33,6 +33,7 @@ function buildBase(data) {
 
   result.flags.ddbimporter = {
     entityRaceId: data.entityRaceId,
+    version: CONFIG.DDBI.version,
   };
 
   if (data.moreDetailsUrl) {

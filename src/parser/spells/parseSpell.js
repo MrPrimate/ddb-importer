@@ -29,6 +29,7 @@ export function parseSpell(data, character) {
         originalName: data.name,
         sources: data.definition.sources,
         tags: data.definition.tags,
+        version: CONFIG.DDBI.version,
       },
     },
   };

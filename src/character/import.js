@@ -1136,7 +1136,7 @@ export default class CharacterImport extends FormApplication {
     this.result.character.flags.ddbimporter.dndbeyond["proficienciesIncludingEffects"] = null;
     this.result.character.flags.ddbimporter.dndbeyond["effectAbilities"] = null;
     this.result.character.flags.ddbimporter.dndbeyond["abilityOverrides"] = null;
-
+    setProperty(this.result.character.flags, "ddb-importer.version", CONFIG.DDBI.version);
 
     if (this.actorOriginal.flags.dnd5e?.wildMagic === true) {
       this.result.character.flags.dnd5e["wildMagic"] = true;

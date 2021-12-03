@@ -30,6 +30,7 @@ function buildBase(data) {
 
   result.flags.ddbimporter = {
     featId: data.id,
+    version: CONFIG.DDBI.version,
   };
 
   result.flags.ddbimporter['prerequisites'] = data.prerequisites;

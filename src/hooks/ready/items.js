@@ -1,4 +1,5 @@
 import { DDBItemConfig } from "../../lib/itemConfig.js";
+import { DDBAdventureFlags } from "../../lib/adventureFlags.js";
 
 function initItemSheetHook(app, html) {
   if (!app.document.isOwned) return;
@@ -7,8 +8,12 @@ function initItemSheetHook(app, html) {
   const title = `DDB Importer Item Config`;
   const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
   let button = $(`<a class="open-item-ddb-importer" title="${title}"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
-  button.click(() => {
-    new DDBItemConfig(app.document, {}).render(true);
+  button.click((event) => {
+    if (event.shiftKey && event.ctrlKey) {
+      new DDBAdventureFlags(app.document, {}).render(true);
+    } else {
+      new DDBItemConfig(app.document, {}).render(true);
+    }
   });
   html.closest('.app').find('.open-item-ddb-importer').remove();
   let titleElement = html.closest('.app').find('.window-title');

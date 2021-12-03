@@ -444,6 +444,7 @@ export default function getInventory(ddb, character, itemSpells) {
     if (item) {
       item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
+      item.flags.ddbimporter.version = CONFIG.DDBI.version;
       if (!item.effects) item.effects = [];
       if (!item.name || item.name === "") item.name = "Item";
 

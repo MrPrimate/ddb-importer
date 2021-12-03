@@ -677,6 +677,7 @@ export default class AdventureMunch extends FormApplication {
       }
 
       data.flags.importid = data._id;
+      setProperty(data.flags, "ddbimporter.version", CONFIG.DDBI.version);
 
       if (importType !== "Playlist" && importType !== "Compendium") {
         if (CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder]) {

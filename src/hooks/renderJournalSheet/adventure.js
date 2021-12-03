@@ -32,7 +32,7 @@ function adventureFlags(app, html, data) {
   const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
   let button = $(`<a class="open-adventure-ddb-importer" title="${title}"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
   button.click((event) => {
-    if (event.shiftKey) {
+    if (event.shiftKey && event.ctrlKey) {
       new DDBAdventureFlags(app.document, {}).render(true);
     } else {
       event.preventDefault();

@@ -1,3 +1,8 @@
+# 2.6.23
+
+* Some debug information about ddbimporter flags
+* Monsters: changes to DDB API meant that monsters imported when an adventure or encounter was imported resulted in weird formatting and incorrect forumula.
+
 # 2.6.22
 
 * Fix Max Dex restriction removal on some items, e.g. Serpent Scale Armor.

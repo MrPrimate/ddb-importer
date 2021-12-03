@@ -73,6 +73,7 @@ function buildBase(data) {
   result.flags.ddbimporter = {
     id: data.id,
     data: data,
+    version: CONFIG.DDBI.version,
   };
 
   if (data.moreDetailsUrl) {

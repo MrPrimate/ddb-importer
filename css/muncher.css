@@ -55,3 +55,7 @@ button.spell-muncher {
   flex: 0 1 100%;
   font-size: 0.9rem;
 }
+
+.ddb-importer-flags {
+  user-select: text;
+}

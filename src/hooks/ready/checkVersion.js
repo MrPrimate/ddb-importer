@@ -28,12 +28,14 @@ async function getLatestModuleMinimumCoreVersion() {
 }
 
 export default async () => {
+  const moduleInfo = game.modules.get(MODULE_NAME).data;
+  const installedVersion = moduleInfo.version;
+  CONFIG.DDBI.version = installedVersion;
+
   // check version number only for GMs
   const check = game.settings.get("ddb-importer", "update-check");
   if (!check || !game.user.isGM) return;
 
-  const moduleInfo = game.modules.get(MODULE_NAME).data;
-  const installedVersion = moduleInfo.version;
   try {
     const { latestVersion, prerelease: preRelease } = await getLatestModuleVersion();
     const { minimumCoreVersion, compatibleCoreVersion } = await getLatestModuleMinimumCoreVersion();

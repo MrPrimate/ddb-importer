@@ -1,6 +1,7 @@
 import CharacterImport from "../../character/import.js";
 import logger from "../../logger.js";
 import { DDBSetup, isSetupComplete } from "../../lib/Settings.js";
+import { DDBAdventureFlags } from "../../lib/adventureFlags.js";
 
 const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v5/character/";
 // reference to the D&D Beyond popup
@@ -66,25 +67,22 @@ export default function () {
       }
 
       button.click((event) => {
-        if (event.shiftKey) {
+        if (event.shiftKey && event.ctrlKey) {
+          new DDBAdventureFlags(app.document, {}).render(true);
+        } else if (event.shiftKey) {
           event.preventDefault();
           return renderPopup("web", url);
-        }
-
-        if (event.altKey && jsonURL) {
+        } else if (event.altKey && jsonURL) {
           event.preventDefault();
           return renderPopup("json", jsonURL);
-        }
-        if (event.altKey && !jsonURL) {
+        } else if (event.altKey && !jsonURL) {
           // get the character ID
           const characterId = url.split("/").pop();
           if (characterId) {
             event.preventDefault();
             return renderPopup("json", API_ENDPOINT + characterId);
           }
-        }
-
-        if ((!event.shiftKey && !event.ctrlKey && !event.altKey) || url === null) {
+        } else if ((!event.shiftKey && !event.ctrlKey && !event.altKey) || url === null) {
           const setupComplete = isSetupComplete(false);
 
           if (setupComplete) {
@@ -137,8 +135,12 @@ export default function () {
 
       // eslint-disable-next-line no-unused-vars
       button.click((event) => {
-        logger.debug(`Clicked for url ${url}`);
-        renderPopup("web", url);
+        if (event.shiftKey && event.ctrlKey) {
+          new DDBAdventureFlags(app.document, {}).render(true);
+        } else {
+          logger.debug(`Clicked for url ${url}`);
+          renderPopup("web", url);
+        }
       });
 
       if (monsterLink) {
