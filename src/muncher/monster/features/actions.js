@@ -1,5 +1,5 @@
 import { getSource } from "../source.js";
-import { getActionInfo, getAction, getUses, stripHtml } from "../utils.js";
+import { getActionInfo, getAction, getUses, stripHtml, replaceRollable } from "../utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../table.js";
 
@@ -112,6 +112,8 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
   if (actions == "") {
     return [[], null];
   }
+
+  actions = replaceRollable(actions);
 
   let splitActions = actions.split("<h3>Roleplaying Information</h3>");
   if (splitActions.length > 1) {

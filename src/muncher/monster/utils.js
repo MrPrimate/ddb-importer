@@ -18,6 +18,19 @@ function reMatchAll(regexp, string) {
   return matches;
 }
 
+// some monsters now have [rollable] tags - if these exist we need to parse them out
+// in the future we may be able to use them, but not consistent yet
+export function replaceRollable(text) {
+  const rollableRegex = new RegExp(/(\[rollable\])([^;]*);(.*)(\[\/rollable\])/);
+  const rollableMatches = reMatchAll(rollableRegex, text) || [];
+  for (let match of rollableMatches) {
+    if (match[2]) {
+      text = text.replace(match[0], match[2]);
+    }
+  }
+  return text;
+}
+
 function damageModReplace(text, attackInfo, damageType) {
   let result;
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
@@ -459,6 +472,7 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
   const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
   const abilities = getAbilityMods(monster, DDB_CONFIG);
 
+  replaceRollable(text);
 
   let result = {
     monsterName: monster.name,

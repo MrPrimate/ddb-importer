@@ -1,5 +1,5 @@
 import { getSource } from "../source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage, getRange, getTarget } from "../utils.js";
+import { getRecharge, getActivation, getFeatSave, getDamage, getRange, getTarget, replaceRollable } from "../utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../table.js";
 
@@ -30,7 +30,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
 
   let dom = new DocumentFragment();
 
-  let fixedLegendaryActionsDescription = monster.legendaryActionsDescription
+  let fixedLegendaryActionsDescription = replaceRollable(monster.legendaryActionsDescription)
     .replace(/<\/strong> <strong>/g, "").replace(/<\/strong><strong>/g, "");
   $.parseHTML(fixedLegendaryActionsDescription).forEach((element) => {
     dom.appendChild(element);

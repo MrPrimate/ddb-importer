@@ -2,7 +2,7 @@
 // handle legendary resistance here
 
 import { getSource } from "../source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses, getTarget } from "../utils.js";
+import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses, getTarget, replaceRollable } from "../utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../table.js";
 
@@ -33,7 +33,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
   let characterDescription;
 
   let dom = new DocumentFragment();
-  let splitActions = monster.specialTraitsDescription.split("<h3>Roleplaying Information</h3>");
+  let splitActions = replaceRollable(monster.specialTraitsDescription).split("<h3>Roleplaying Information</h3>");
   if (splitActions.length > 1) {
     characterDescription = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
   }

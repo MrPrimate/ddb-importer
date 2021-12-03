@@ -63,6 +63,7 @@ export function parseMonsters(monsterData, extra = false) {
         creatureGroup: monster.creatureGroup ? monster.creatureGroup : null,
         creatureFlags: monster.creatureFlags ? monster.creatureFlags : [],
         automatedEvcoationAnimation: monster.automatedEvcoationAnimation ? monster.automatedEvcoationAnimation : undefined,
+        version: CONFIG.DDBI.version,
       };
 
       const removedHitPoints = monster.removedHitPoints ? monster.removedHitPoints : 0;
