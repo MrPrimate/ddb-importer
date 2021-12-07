@@ -102,9 +102,11 @@ export class DDBEncounterMunch extends Application {
     super(options);
     this.encounter = {};
     this.img = "";
+    this.sceneId = "";
     this.journal = undefined;
     this.combat = undefined;
     this.tokens = [];
+    this.folders = {};
   }
 
   static get defaultOptions() {
@@ -185,6 +187,8 @@ export class DDBEncounterMunch extends Application {
       missingMonsters: missingMonsterIds.length !== 0,
       missingCharacters: missingCharacterData.length !== 0,
     };
+
+    this.folders = {};
 
     logger.debug("Current encounter", this.encounter);
 
@@ -381,12 +385,23 @@ export class DDBEncounterMunch extends Application {
     });
   }
 
-  async createScene() {
+
+  async createNewScene() {
+    this.folders["scene"] = await utils.getFolder(
+      "scene",
+      this.encounter.name,
+      "D&D Beyond Encounters",
+      "#6f0006",
+      "#98020a",
+      false
+    );
+
     let sceneData = {
       name: this.encounter.name,
       flags: {
         ddbimporter: {
           encounterId: this.encounter.id,
+          encounters: true,
         },
       },
       width: 1000,
@@ -401,12 +416,37 @@ export class DDBEncounterMunch extends Application {
       img: this.img,
       tokenVision: false,
       fogExploration: false,
+      folder: this.folders["scene"].id,
     };
 
-    const importScene = game.settings.get("ddb-importer", "encounter-import-policy-create-scene");
-    if (importScene) {
+    return sceneData;
+
+  }
+
+  async createScene() {
+    const importDDBIScene = game.settings.get("ddb-importer", "encounter-import-policy-create-scene");
+    const useExistingScene = game.settings.get("ddb-importer", "encounter-import-policy-existing-scene");
+
+    let sceneData; 
+    let worldScene;
+
+    if (importDDBIScene) {
+      logger.debug(`Creating scene for encounter "${this.encounter.name}""`);
+      sceneData = await this.createNewScene();
+    } else if (useExistingScene) {
+      worldScene = game.scenes.find((s) => s.id == this.sceneId);
+      if (worldScene) {
+        logger.debug(`Using existing scene "${worldScene.data.name}" for encounter "${this.encounter.name}""`);
+        sceneData = worldScene.toObject();
+      } else {
+        logger.warn(`Unable to find scene ${this.sceneId}, creating a new scene `);
+        throw new Error(`Unable to find scene ${this.sceneId}, creating a new scene `);
+      }
+      this.scene = worldScene;
+    }
+
+    if (sceneData) {
       let tokenData = [];
-      logger.debug(`Creating scene for encounter ${this.encounter.name}`);
       const useDDBSave =
         this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
       const xSquares = sceneData.width / sceneData.grid;
@@ -429,10 +469,17 @@ export class DDBEncounterMunch extends Application {
               actor.data.flags.ddbimporter.dndbeyond.characterId == character.id
           );
           if (characterInGame) {
+            if (useExistingScene) {
+              
+            }
+
+
             const linkedToken = JSON.parse(JSON.stringify(await characterInGame.getTokenData()));
             if (useDDBSave) {
               setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
             }
+            setProperty(linkedToken, "actorData.flags.ddbimporter.encounters", true);
+            setProperty(linkedToken, "actorData.flags.ddbimporter.encounterId", this.encounter.id);
             linkedToken.x = xStartPixelPC;
             const yOffsetChange = characterCount * sceneData.grid;
             linkedToken.y = yStartPixel + yOffsetChange;
@@ -458,6 +505,8 @@ export class DDBEncounterMunch extends Application {
         setProperty(linkedToken, "actorData.name", worldMonster.ddbName);
         setProperty(linkedToken, "flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
         setProperty(linkedToken, "actorData.flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
+        setProperty(linkedToken, "actorData.flags.ddbimporter.encounters", true);
+        setProperty(linkedToken, "actorData.flags.ddbimporter.encounterId", this.encounter.id);
         const xOffsetChange = sceneData.grid * monsterRows;
         const yOffsetChange = monsterDepth * sceneData.grid;
         linkedToken.x = xStartPixelMonster + xOffsetChange;
@@ -482,21 +531,29 @@ export class DDBEncounterMunch extends Application {
 
       if (this.journal?.id) sceneData.journal = this.journal.id;
 
-      const sceneFolder = await utils.getFolder(
-        "scene",
-        this.encounter.name,
-        "D&D Beyond Encounters",
-        "#6f0006",
-        "#98020a",
-        false
-      );
-      // eslint-disable-next-line require-atomic-updates
-      sceneData.folder = sceneFolder.id;
+      if (importDDBIScene) {
+        worldScene = game.scenes.find(
+          (a) => a.data.folder == this.folders["scene"].id &&
+          a.data.flags?.ddbimporter?.encounterId == this.encounter.id
+        );
+      }
 
-      let worldScene = game.scenes.find(
-        (a) => a.data.folder == sceneFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id
-      );
-      if (!worldScene) {
+      if (worldScene) {
+        logger.info(`Updating scene ${sceneData.name}`);
+        await Combat.deleteDocuments(game.combats.filter((c) => c.scene.id == worldScene.id).map((c) => c.id));
+        if (importDDBIScene) {
+          logger.info(`Updating DDBI scene ${sceneData.name}`);
+          sceneData._id = worldScene.id;
+          await worldScene.deleteEmbeddedDocuments("Token", [], { deleteAll: true });
+          await Scene.update(mergeObject(worldScene.data.toObject(), sceneData));
+        } else if (useExistingScene) {
+          logger.info(`Checking existing scene ${sceneData.name} for encounter monsters`);
+          const existingSceneMonsterIds = worldScene.data.tokens
+            .filter((t) => t.data?.flags?.ddbimporter?.encounterId == this.encounter.id && t.actor.type == "npc")
+            .map((t) => t.id);
+          await worldScene.deleteEmbeddedDocuments("Token", existingSceneMonsterIds);
+        }
+      } else if (importDDBIScene) {
         logger.info(`Importing scene ${sceneData.name}`);
         try {
           // eslint-disable-next-line require-atomic-updates
@@ -505,12 +562,6 @@ export class DDBEncounterMunch extends Application {
           logger.error(err);
           logger.warn(`Unable to create scene ${sceneData.name}`);
         }
-      } else {
-        logger.info(`Updating scene ${sceneData.name}`);
-        sceneData._id = worldScene.id;
-        await Combat.deleteDocuments(game.combats.filter((c) => c.scene.id == worldScene.id).map((c) => c.id));
-        await worldScene.deleteEmbeddedDocuments("Token", [], { deleteAll: true });
-        await Scene.update(mergeObject(worldScene.data.toObject(), sceneData));
       }
 
       const thumbData = await worldScene.createThumbnail();
@@ -544,7 +595,8 @@ export class DDBEncounterMunch extends Application {
     await this.combat.activate();
 
     let toCreate = [];
-    const tokens = canvas.tokens.placeables;
+    const tokens = canvas.tokens.placeables
+      .filter((t) => t.data.flags.ddbimporter.encounterId == this.encounter.id || t.actor.type == "pc");
     if (tokens.length) {
       tokens.forEach((t) => {
         let combatant = { tokenId: t.id, actorId: t.data.actorId, hidden: t.data.hidden };
@@ -614,6 +666,23 @@ export class DDBEncounterMunch extends Application {
     $(html)
       .find('.encounter-config input[type="checkbox"]')
       .on("change", (event) => {
+        switch (event.currentTarget.dataset.section) {
+          case "create-scene": {
+            game.settings.set("ddb-importer", "encounter-import-policy-existing-scene", false);
+            if (event.currentTarget.checked) $("#encounter-scene-select").prop("disabled", true);
+            $("#encounter-scene-img-select").prop("disabled", !event.currentTarget.checked);
+            $("#encounter-import-policy-existing-scene").prop('checked', false);
+            break;
+          }
+          case "existing-scene": {
+            game.settings.set("ddb-importer", "encounter-import-policy-create-scene", true);
+            if (event.currentTarget.checked) $("#encounter-scene-img-select").prop("disabled", true);
+            $("#encounter-scene-select").prop("disabled", !event.currentTarget.checked);
+            $("#encounter-import-policy-create-scene").prop('checked', false);
+            break;
+          }
+          // no default
+        };
         game.settings.set(
           "ddb-importer",
           "encounter-import-policy-" + event.currentTarget.dataset.section,
@@ -625,6 +694,11 @@ export class DDBEncounterMunch extends Application {
     html.find("#encounter-scene-img-select").on("change", async () => {
       const imgSelect = html.find("#encounter-scene-img-select");
       this.img = imgSelect[0].selectedOptions[0] ? imgSelect[0].selectedOptions[0].value : "";
+    });
+
+    html.find("#encounter-scene-select").on("change", async () => {
+      const imgSelect = html.find("#encounter-scene-select");
+      this.sceneId = imgSelect[0].selectedOptions[0] ? imgSelect[0].selectedOptions[0].value : "";
     });
 
     // filter campaigns
@@ -778,7 +852,24 @@ export class DDBEncounterMunch extends Application {
         enabled: true,
         description: "Create/update a scene to use, and add available characters and NPC's?",
       },
+      {
+        name: "existing-scene",
+        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-existing-scene"),
+        enabled: true,
+        description: "Use an existing scene?",
+      },
     ];
+
+    const scenes = game.scenes.filter((scene) => !scene.data.flags?.ddbimporter?.encounters)
+    .map((scene) => {
+      const folderName = scene.folder ? `[${scene.folder.name}] ` : "";
+      const s = {
+        name: `${folderName}${scene.name}`,
+        id: Scene.id,
+      };
+      return s;
+     })
+     .sort((a, b) => a.name.localeCompare(b.name));
 
     const encounterSettings = {
       tiers,
@@ -786,6 +877,9 @@ export class DDBEncounterMunch extends Application {
       availableEncounters,
       encounterConfig,
       sceneImg: SCENE_IMG,
+      scenes,
+      createSceneSelect: game.settings.get("ddb-importer", "encounter-import-policy-create-scene"),
+      existingSceneSelect: game.settings.get("ddb-importer", "encounter-import-policy-existing-scene"),
     };
 
     const data = mergeObject(importSettings, encounterSettings);
