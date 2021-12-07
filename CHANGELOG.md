@@ -1,4 +1,4 @@
-# 2.6.24
+# 2.6.24/25
 
 * Monsters: Support new size category for Strixhaven template monsters.
 

@@ -35,9 +35,7 @@ export function getSizeFromId(sizeId, DDB_CONFIG) {
 }
 
 export function getSize (monster, DDB_CONFIG) {
-  console.warn(monster);
   const sizeData = getSizeFromId(monster.sizeId, DDB_CONFIG);
-  console.warn(sizeData);
   let token = {
     scale: 1,
     value: sizeData.size,
