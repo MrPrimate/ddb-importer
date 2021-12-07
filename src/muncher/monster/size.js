@@ -12,6 +12,8 @@
 
 //     "sizeId": 7,
 
+import logger from '../../logger.js';
+
 const SIZES = [
   { name: "Tiny", value: "tiny", size: 0.5 },
   { name: "Small", value: "sm", size: 0.8 },
@@ -24,11 +26,18 @@ const SIZES = [
 export function getSizeFromId(sizeId, DDB_CONFIG) {
   const size = DDB_CONFIG.creatureSizes.find((s) => s.id == sizeId).name;
   const sizeData = SIZES.find((s) => size == s.name);
+
+  if (!sizeData) {
+    logger.warn(`No size found for, using medium`, size);
+    return { name: "Medium", value: "med", size: 1 };
+  }
   return sizeData;
 }
 
 export function getSize (monster, DDB_CONFIG) {
+  console.warn(monster);
   const sizeData = getSizeFromId(monster.sizeId, DDB_CONFIG);
+  console.warn(sizeData);
   let token = {
     scale: 1,
     value: sizeData.size,

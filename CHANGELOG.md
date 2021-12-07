@@ -1,3 +1,7 @@
+# 2.6.24
+
+* Monsters: Support new size category for Strixhaven template monsters.
+
 # 2.6.23
 
 * Some debug information about ddbimporter flags
