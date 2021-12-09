@@ -39,6 +39,11 @@ export default function parseClasses(ddb) {
           definitionId: characterClass.definition.id,
           entityTypeId: characterClass.entityTypeId,
         },
+        obsidian: {
+          source: {
+            type: "class"
+          }
+        },
       },
     };
 

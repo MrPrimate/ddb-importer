@@ -17,6 +17,11 @@ const FEAT_TEMPLATE = {
   "sort": 2600000,
   "flags": {
     "ddbimporter": {},
+    "obsidian": {
+      "source": {
+        "type": "feat"
+      }
+    },
   },
   "img": null
 };

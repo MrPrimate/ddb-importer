@@ -40,6 +40,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "cf",
   "automated-evocations",
   "inventory-plus",
+  "obsidian",
 ];
 
 var srdIconMapLoaded = false;

@@ -58,6 +58,11 @@ function parseFeature(feat, ddb, character, source, type) {
             feat.definition && feat.definition.displayOrder ? feat.definition.displayOrder : feat.displayOrder,
         },
       },
+      obsidian: {
+        source: {
+          type: type,
+        },
+      },
     },
   };
 
