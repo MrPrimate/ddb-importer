@@ -97,6 +97,10 @@ export function fixSpells(ddb, items) {
         spell.data.range.value += eldritchBlastMods["range"];
         break;
       }
+      case "Aid": {
+        spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
+        break;
+      }
       // The target/range input data are incorrect on some AOE spells centred
       // on self.
       // Range is self with an AoE target of 15 ft cube
