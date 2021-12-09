@@ -1,3 +1,7 @@
+# 2.6.26
+
+* Character parsing: generation of generic/undefined ac effects for generic armour items with no type were incorrect, and incredibly rare cases would break character imports.
+
 # 2.6.24/25
 
 * Monsters: Support new size category for Strixhaven template monsters.

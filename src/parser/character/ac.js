@@ -315,7 +315,7 @@ function calculateACOptions(data, character, calculatedArmor) {
           acCalc,
           shieldMod,
         };
-        effects = generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name}: ${acValue.value}`, false, 22);
+        effect = generateFixedACEffect(`${acCalc} + @abilities.dex.mod`, `AC ${calculatedArmor.armors[armor].definition.name}: ${acValue.value}`, false, 22);
         break;
       }
     }
