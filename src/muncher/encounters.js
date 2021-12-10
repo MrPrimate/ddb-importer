@@ -469,22 +469,22 @@ export class DDBEncounterMunch extends Application {
               actor.data.flags.ddbimporter.dndbeyond.characterId == character.id
           );
           if (characterInGame) {
-            if (useExistingScene) {
-              
-            }
+            const onScene = useExistingScene && worldScene.data.tokens
+              .some((t) => t.actor.data?.flags?.ddbimporter?.id == character.id && t.actor.type == "character");
 
-
-            const linkedToken = JSON.parse(JSON.stringify(await characterInGame.getTokenData()));
-            if (useDDBSave) {
-              setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
+            if (!onScene) {
+              const linkedToken = JSON.parse(JSON.stringify(await characterInGame.getTokenData()));
+              if (useDDBSave) {
+                setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
+              }
+              setProperty(linkedToken, "actorData.flags.ddbimporter.encounters", true);
+              setProperty(linkedToken, "actorData.flags.ddbimporter.encounterId", this.encounter.id);
+              linkedToken.x = xStartPixelPC;
+              const yOffsetChange = characterCount * sceneData.grid;
+              linkedToken.y = yStartPixel + yOffsetChange;
+              tokenData.push(linkedToken);
+              characterCount++;
             }
-            setProperty(linkedToken, "actorData.flags.ddbimporter.encounters", true);
-            setProperty(linkedToken, "actorData.flags.ddbimporter.encounterId", this.encounter.id);
-            linkedToken.x = xStartPixelPC;
-            const yOffsetChange = characterCount * sceneData.grid;
-            linkedToken.y = yStartPixel + yOffsetChange;
-            tokenData.push(linkedToken);
-            characterCount++;
           }
         });
 
@@ -504,6 +504,7 @@ export class DDBEncounterMunch extends Application {
         setProperty(linkedToken, "name", worldMonster.ddbName);
         setProperty(linkedToken, "actorData.name", worldMonster.ddbName);
         setProperty(linkedToken, "flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
+        setProperty(linkedToken, "flags.ddbimporter.encounterId", this.encounter.id);
         setProperty(linkedToken, "actorData.flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
         setProperty(linkedToken, "actorData.flags.ddbimporter.encounters", true);
         setProperty(linkedToken, "actorData.flags.ddbimporter.encounterId", this.encounter.id);
@@ -582,7 +583,8 @@ export class DDBEncounterMunch extends Application {
   }
 
   async createCombatEncounter() {
-    const importCombat = game.settings.get("ddb-importer", "encounter-import-policy-create-scene");
+    const importCombat = game.settings.get("ddb-importer", "encounter-import-policy-create-scene") ||
+      game.settings.get("ddb-importer", "encounter-import-policy-existing-scene");
 
     if (!importCombat) return undefined;
     logger.debug(`Creating combat for encounter ${this.encounter.name}`);
@@ -596,7 +598,7 @@ export class DDBEncounterMunch extends Application {
 
     let toCreate = [];
     const tokens = canvas.tokens.placeables
-      .filter((t) => t.data.flags.ddbimporter.encounterId == this.encounter.id || t.actor.type == "pc");
+      .filter((t) => t.data?.flags?.ddbimporter?.encounterId == this.encounter.id || t.actor.type == "character");
     if (tokens.length) {
       tokens.forEach((t) => {
         let combatant = { tokenId: t.id, actorId: t.data.actorId, hidden: t.data.hidden };
@@ -675,7 +677,7 @@ export class DDBEncounterMunch extends Application {
             break;
           }
           case "existing-scene": {
-            game.settings.set("ddb-importer", "encounter-import-policy-create-scene", true);
+            game.settings.set("ddb-importer", "encounter-import-policy-create-scene", false);
             if (event.currentTarget.checked) $("#encounter-scene-img-select").prop("disabled", true);
             $("#encounter-scene-select").prop("disabled", !event.currentTarget.checked);
             $("#encounter-import-policy-create-scene").prop('checked', false);
@@ -865,7 +867,7 @@ export class DDBEncounterMunch extends Application {
       const folderName = scene.folder ? `[${scene.folder.name}] ` : "";
       const s = {
         name: `${folderName}${scene.name}`,
-        id: Scene.id,
+        id: scene.id,
       };
       return s;
      })
