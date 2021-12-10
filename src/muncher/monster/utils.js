@@ -383,10 +383,7 @@ function getWeaponAttack(resultData, proficiencyBonus) {
 
     // negative mods!
     if (!result.baseAbility) {
-      logger.warn("NEGATIVE PARSE!");
-      logger.warn(result.monsterName);
-      logger.warn(result.name);
-      logger.info(result.toHit);
+      logger.info(`Negative ability parse for ${result.monsterName}, to hit ${result.toHit} with ${result.name}`);
 
       const magicAbilities = checkAbilities(initialAbilities, result.abilities, proficiencyBonus, result.toHit, true);
       // logger.info(magicAbilities);
