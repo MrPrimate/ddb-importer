@@ -49,11 +49,20 @@
       </label>
       </div>
       {{/each}}
+      <hr>
       <div class="form-group">
-        <select name="encounter-scene-img-select" class="form-select" id="encounter-scene-img-select">
+        <select name="encounter-scene-img-select" class="form-select" id="encounter-scene-img-select" {{#if createSceneSelect}}{{else}}disabled{{/if}}>
           <option value="">No scene background image</option>
           {{#each sceneImg}}
           <option value="{{this.img}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="form-group">
+        <select name="encounter-scene-select" class="form-select" id="encounter-scene-select" {{#if existingSceneSelect}}{{else}}disabled{{/if}}>
+          <option value="">Scene selection...</option>
+          {{#each scenes}}
+          <option value="{{this.id}}">{{this.name}}</option>
           {{/each}}
         </select>
       </div>

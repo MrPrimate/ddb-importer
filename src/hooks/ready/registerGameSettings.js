@@ -1373,6 +1373,13 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "encounter-import-policy-existing-scene", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "encounter-import-policy-missing-characters", {
     scope: "world",
     config: false,
