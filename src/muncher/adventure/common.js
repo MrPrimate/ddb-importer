@@ -388,16 +388,18 @@ export default class Helpers {
   static async loadMissingDocuments(type, docIds) {
     return new Promise((resolve) => {
       if (docIds && docIds.length > 0) {
-        logger.debug(`Importing missing ${type}s from DDB`, docIds);
-        AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
         switch (type) {
           case "item":
+            logger.debug(`Importing missing ${type}s from DDB`, docIds);
+            AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
             resolve(parseItems(docIds));
             break;
           case "monster": {
             const tier = game.settings.get("ddb-importer", "patreon-tier");
             const tiers = getPatreonTiers(tier);
             if (tiers.supporter) {
+              logger.debug(`Importing missing ${type}s from DDB`, docIds);
+              AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
               resolve(parseCritters(docIds));
             } else {
               resolve([]);
@@ -405,6 +407,8 @@ export default class Helpers {
             break;
           }
           case "spell":
+            logger.debug(`Importing missing ${type}s from DDB`);
+            AdventureMunch._progressNote(`Missing spells detected, importing from DDB`);
             // we actually want all spells, because monsters don't just use spells from a single source
             resolve(parseSpells());
             break;
@@ -430,18 +434,19 @@ export default class Helpers {
 
   static async checkForMissingDocuments(type, ids) {
     const index = await Helpers.getCompendiumIndex(type);
+    // console.warn(`${type} index`, index);
 
     return new Promise((resolve) => {
       const missingIds = ids.filter((id) => {
         switch (type) {
           case "monster":
-            return !index.some((i) => i.flags?.ddbimporter?.id && String(i.flags.ddbimporter.id) == id);
+            return !index.some((i) => i.flags?.ddbimporter?.id && String(i.flags.ddbimporter.id) == String(id));
           case "spell":
           case "item":
-            return !index.some((i) => i.flags?.ddbimporter?.definitionId && String(i.flags.ddbimporter.definitionId) == id);
-          // no default
+            return !index.some((i) => i.flags?.ddbimporter?.definitionId && String(i.flags.ddbimporter.definitionId) == String(id));
+          default:
+            return false;
         }
-        return false;
       });
       const missingDocuments = Helpers.loadMissingDocuments(type, missingIds);
       resolve(missingDocuments);
