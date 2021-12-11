@@ -453,8 +453,27 @@ async function spellsPrepared(actor, ddbData) {
   return results;
 }
 
+async function updateItemsWithDDBInfo(itemsToAdd) {
+  return Promise.all(itemsToAdd.map(async (item) => {
+    if (!item.flags.ddbimporter?.definitionId && !item.flags.ddbimporter?.definitionEntityTypeId) {
+      const ddbCompendiumMatch = await getCompendiumItemInfo(item);
+      logger.debug(`Found item`, ddbCompendiumMatch);
+      if (ddbCompendiumMatch &&
+        ddbCompendiumMatch.flags?.ddbimporter?.definitionId &&
+        ddbCompendiumMatch.flags?.ddbimporter?.definitionEntityTypeId
+      ) {
+        logger.debug(`Adding ${item.name} from DDB compendium match:`, ddbCompendiumMatch);
+        setProperty(item, "flags.ddbimporter.definitionId", ddbCompendiumMatch.flags.ddbimporter.definitionId);
+        setProperty(item, "flags.ddbimporter.definitionEntityTypeId", ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId);
+        setProperty(item, "name", ddbCompendiumMatch.name);
+        setProperty(item, "type", ddbCompendiumMatch.type);
+      }
+    }
+    return item;
+  }));
+}
 
-async function generateItemsToAdd(actor, itemsToAdd) {
+function generateItemsToAdd(actor, itemsToAdd) {
   const results = {
     items: [],
     toAdd: [],
@@ -472,34 +491,11 @@ async function generateItemsToAdd(actor, itemsToAdd) {
         quantity: parseInt(item.data.quantity),
       });
     } else {
-      // eslint-disable-next-line no-await-in-loop
-      const ddbCompendiumMatch = await getCompendiumItemInfo(item);
-      logger.debug(`Found item`, ddbCompendiumMatch);
-      if (ddbCompendiumMatch &&
-        ddbCompendiumMatch.flags?.ddbimporter?.definitionId &&
-        ddbCompendiumMatch.flags?.ddbimporter?.definitionEntityTypeId
-      ) {
-        logger.debug(`Adding ${item.name} from DDB compendium match:`, ddbCompendiumMatch);
-        setProperty(item, "flags.ddbimporter.definitionId", ddbCompendiumMatch.flags.ddbimporter.definitionId);
-        setProperty(item, "flags.ddbimporter.definitionEntityTypeId", ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId);
-        setProperty(item, "name", ddbCompendiumMatch.name);
-        setProperty(item, "type", ddbCompendiumMatch.type);
-        results.toAdd.push({
-          containerEntityId: parseInt(actor.data.flags.ddbimporter?.dndbeyond?.characterId),
-          containerEntityTypeId: parseInt("1581111423"),
-          entityId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionId),
-          entityTypeId: parseInt(ddbCompendiumMatch.flags.ddbimporter.definitionEntityTypeId),
-          quantity: parseInt(item.data.quantity),
-        });
-      } else {
-        results.custom.push(item);
-      }
+      results.custom.push(item);
     }
     results.items.push(item);
   }
-  return new Promise((resolve) => {
-    resolve(results);
-  });
+  return results;
 }
 
 async function deleteDDBCustomItems(actor, itemsToDelete) {
@@ -526,34 +522,32 @@ async function deleteDDBCustomItems(actor, itemsToDelete) {
   });
 }
 
-
 async function addDDBCustomItems(actor, itemsToAdd) {
-  return new Promise((resolve) => {
-    let customItemResults = [];
-    for (let i = 0; i < itemsToAdd.length; i++) {
-      const item = itemsToAdd[i];
-      const customData = {
-        itemState: "NEW",
-        customValues: {
-          characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
-          name: item.name,
-          description: item.data.description.value,
-        }
-      };
-      const result = updateCharacterCall(actor, "custom/item", customData).then((data) => {
-        setProperty(item, "flags.ddbimporter.id", data.data.id);
-        setProperty(item, "flags.ddbimporter.custom", true);
-        return item;
-      });
-      customItemResults.push(result);
-    }
+  let customItemResults = [];
+  for (let i = 0; i < itemsToAdd.length; i++) {
+    const item = itemsToAdd[i];
+    const customData = {
+      itemState: "NEW",
+      customValues: {
+        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+        name: item.name,
+        description: item.data.description.value,
+      }
+    };
+    const result = updateCharacterCall(actor, "custom/item", customData).then((data) => {
+      setProperty(item, "flags.ddbimporter.id", data.data.id);
+      setProperty(item, "flags.ddbimporter.custom", true);
+      return item;
+    });
+    customItemResults.push(result);
+  }
 
-    resolve(customItemResults);
-  });
+  return Promise.all(customItemResults);
 }
 
 async function addDDBEquipment(actor, itemsToAdd) {
-  const generatedItemsToAddData = await generateItemsToAdd(actor, itemsToAdd);
+  const ddbEnrichedItems = await updateItemsWithDDBInfo(itemsToAdd);
+  const generatedItemsToAddData = generateItemsToAdd(actor, ddbEnrichedItems);
 
   logger.debug(`Generated items data`, generatedItemsToAddData);
 
@@ -569,6 +563,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
     logger.debug("customItemResults", customItemResults);
   } catch (err) {
     logger.error(`Unable to update character with equipment, got the error:`, err);
+    logger.error(err.stack);
     logger.error(`Update payload:`, customItems);
   }
 
@@ -576,13 +571,13 @@ async function addDDBEquipment(actor, itemsToAdd) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData);
     try {
       const itemUpdates = itemResults.data.addItems
-        .filter((addedItem) => itemsToAdd.some((i) =>
+        .filter((addedItem) => ddbEnrichedItems.some((i) =>
           i.flags.ddbimporter &&
           i.flags.ddbimporter.definitionId === addedItem.definition.id &&
           i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
         ))
         .map((addedItem) => {
-          let updatedItem = itemsToAdd.find((i) =>
+          let updatedItem = ddbEnrichedItems.find((i) =>
             i.flags.ddbimporter &&
             i.flags.ddbimporter.definitionId === addedItem.definition.id &&
             i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
@@ -606,6 +601,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
     } catch (err) {
       logger.error(`Unable to filter updated equipment, got the error:`, err);
       logger.error(`itemsToAdd`, itemsToAdd);
+      logger.error(`ddbEnrichedItems`, ddbEnrichedItems);
       logger.error(`equipmentToAdd`, generatedItemsToAddData);
       logger.error(`itemResults`, itemResults);
       logger.error(`customItems`, customItems);
@@ -774,7 +770,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
         description: item.data.data.description.value,
         // revist these need to be ints
         // weight: `${item.data.data.weight}`,
-        // cost: ${item.data.data.price,
+        // cost: ${item.data.data.price},
         quantity: parseInt(item.data.data.quantity),
       }
     };

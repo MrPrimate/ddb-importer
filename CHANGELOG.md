@@ -7,6 +7,7 @@
 * Better checking for unsupported versions of the 5e system.
 * Fixed token vision/senses for v9.
 * Encounter muncher would start with two conflicting settings both set to true.
+* Update Character to DDB: fixed a bug that could occur with custom items.
 
 # 2.6.27
 
