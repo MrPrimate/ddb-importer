@@ -1377,7 +1377,7 @@ export default function () {
     scope: "world",
     config: false,
     type: Boolean,
-    default: true,
+    default: false,
   });
 
   game.settings.register("ddb-importer", "encounter-import-policy-missing-characters", {
