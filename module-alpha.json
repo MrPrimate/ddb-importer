@@ -7,8 +7,10 @@
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
+  "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
+  "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "minimumCoreVersion": "0.8.9",
-  "compatibleCoreVersion": "9.226",
+  "compatibleCoreVersion": "9.235",
   "authors": [
     {
       "name": "MrPrimate",
