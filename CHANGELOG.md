@@ -1,3 +1,12 @@
+# 2.7.0
+
+* Class and class features are now available to Coffee Tier supporters
+* Support for enhancing 3rd party scenes with DDB Data. Currently support for Steve's Scenes House of Lament and Cyrens Undermountain maps. Please reach out if you wish to add support for your own modules.
+* First pass of support for v9 of Foundry.
+* Better checking for unsupported versions of the 5e system.
+* Fixed token vision/senses for v9.
+* Encounter muncher would start with two conflicting settings both set to true.
+
 # 2.6.27
 
 * Encounters: you can now import encounters onto an existing scene.
