@@ -41,7 +41,7 @@ export function getTokenSenses(token, monster, DDB_CONFIG) {
       const senseType = SENSE_MAP[senseMatch.name];
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
-        token[senseType] = rangeMatch[1];
+        token[senseType] = parseInt(rangeMatch[1]);
       }
     }
   });

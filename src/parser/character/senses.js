@@ -18,8 +18,8 @@ export function getSensesMap(data) {
       .filter((sense) => sense.distance)
       .forEach((sense) => {
         const s = DICTIONARY.character.senses.find((s) => s.id === sense.senseId);
-        if (s && sense.distance) {
-          senses[s.name.toLowerCase()] = sense.distance;
+        if (s && sense.distance && Number.isInteger(sense.distance)) {
+          senses[s.name.toLowerCase()] = parseInt(sense.distance);
         } else {
           senses.special += `${sense.distance}; `;
         }
@@ -29,8 +29,8 @@ export function getSensesMap(data) {
   // Base senses
   for (const senseName in senses) {
     utils.filterBaseModifiers(data, "set-base", senseName).forEach((sense) => {
-      if (sense.value > senses[senseName]) {
-        senses[senseName] = sense.value;
+      if (Number.isInteger(sense.value) && sense.value > senses[senseName]) {
+        senses[senseName] = parseInt(sense.value);
       }
     });
   }
@@ -41,8 +41,8 @@ export function getSensesMap(data) {
       "You can see normally in darkness, both magical and nonmagical",
     ])
     .forEach((sense) => {
-      if (sense.value > senses['darkvision']) {
-        senses['darkvision'] = sense.value;
+      if (Number.isInteger(sense.value) && sense.value > senses['darkvision']) {
+        senses['darkvision'] = parseInt(sense.value);
         senses.special += "You can see normally in darkness, both magical and nonmagical.";
       }
     });
@@ -52,8 +52,8 @@ export function getSensesMap(data) {
     .filterBaseModifiers(data, "sense", "darkvision", ["", null, "plus 60 feet if wearer already has Darkvision"])
     .forEach((mod) => {
       const hasSense = mod.subType in senses;
-      if (hasSense) {
-        senses[mod.subType] += mod.value;
+      if (hasSense && mod.value && Number.isInteger(mod.value)) {
+        senses[mod.subType] += parseInt(mod.value);
       } else {
         senses.special += ` ${mod.value},`;
       }
