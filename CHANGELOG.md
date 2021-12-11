@@ -2,6 +2,7 @@
 
 * Class and class features are now available to Coffee Tier supporters
 * Support for enhancing 3rd party scenes with DDB Data. Currently support for Steve's Scenes House of Lament and Cyrens Undermountain maps. Please reach out if you wish to add support for your own modules.
+* Support for Obsidian character sheet during imports (will keep existing Obsidian data and categorise feature types).
 * First pass of support for v9 of Foundry.
 * Better checking for unsupported versions of the 5e system.
 * Fixed token vision/senses for v9.

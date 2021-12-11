@@ -41,7 +41,8 @@ export default function parseClasses(ddb) {
         },
         obsidian: {
           source: {
-            type: "class"
+            type: "class",
+            text: characterClass.definition.name,
           }
         },
       },

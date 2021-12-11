@@ -21,7 +21,8 @@ const CLASS_TEMPLATE = {
     "ddbimporter": {},
     "obsidian": {
       "source": {
-        "type": "class"
+        "type": "class",
+        "text": ""
       }
     },
   },
@@ -93,6 +94,7 @@ export function getClassFeature(feature, klass, subClassName = "") {
   logger.debug("Class feature build started");
 
   let result = buildBase(feature);
+  result.flags.obsidian.source.text = klass.name;
 
   const duplicateFeature = FEATURE_DUP.includes(feature.name);
   result.name = (duplicateFeature) ? `${feature.name} (${klass.name})` : feature.name;
@@ -112,7 +114,7 @@ export function getClassFeature(feature, klass, subClassName = "") {
 export async function buildBaseClass(klass) {
   let result = buildBase(klass);
   logger.debug(`Parsing ${klass.name}`);
-
+  result.flags.obsidian.source.text = klass.name;
   result.type = "class";
 
   let avatarUrl;

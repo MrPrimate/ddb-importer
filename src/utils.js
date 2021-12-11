@@ -458,9 +458,9 @@ const utils = {
   findClassByFeatureId: (data, featureId) => {
     // optional class features need this filter, as they replace existing features
     const featId = utils.determineActualFeatureId(data, featureId);
-    logger.debug(`Finding featureId ${featureId}`);
+    logger.debug(`Finding featureId ${featureId} with featId ${featId}`);
 
-    let cls = data.character.classes.find((cls) => {
+    let klass = data.character.classes.find((cls) => {
       let classFeatures = cls.classFeatures;
       let featureMatch = classFeatures.find((feature) => feature.definition.id === featId);
 
@@ -476,23 +476,26 @@ const utils = {
       }
     });
     // try class option lookup
-    if (!cls) {
+    if (!klass) {
       const option = data.character.options.class.find((option) => option.definition.id == featureId);
       if (option) {
-        cls = data.character.classes.find((cls) => cls.classFeatures.find((feature) => feature.definition.id == option.componentId));
+        klass = data.character.classes.find((cls) => cls.classFeatures.find((feature) => feature.definition.id == option.componentId));
       }
     }
     // class option lookups
-    if (!cls && data.classOptions) {
+    if (!klass && data.classOptions) {
       const classOption = data.classOptions.find((option) => option.id == featureId);
       if (classOption) {
-        cls = data.character.classes.find((cls) => cls.definition.id == classOption.classId);
+        klass = data.character.classes.find((cls) => cls.definition.id == classOption.classId);
       }
     }
-    if (!cls) {
+    if (klass) {
+      logger.debug(`Class ${klass.definition.name} found for ${featureId} with featId ${featId}`);
+    } else {
       logger.debug(`Class not found for ${featureId}`);
     }
-    return cls;
+
+    return klass;
   },
 
   calculateModifier: (val) => {

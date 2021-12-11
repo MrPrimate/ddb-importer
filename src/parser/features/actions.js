@@ -405,6 +405,11 @@ function getAttackAction(ddb, character, action) {
         componentTypeId: action.componentTypeId,
       },
       infusions: { infused: false },
+      obsidian: {
+        source: {
+          type: "other",
+        },
+      },
     },
   };
   logger.debug(`Parsing action: ${feature.name} as ${actionType}`);
@@ -561,6 +566,11 @@ function getOtherActions(ddb, character, items) {
             componentTypeId: action.componentTypeId,
           },
           infusions: { infused: false },
+          obsidian: {
+            source: {
+              type: "other",
+            },
+          }
         },
       };
       if (action.infusionFlags) {
@@ -619,6 +629,37 @@ function getOtherActions(ddb, character, items) {
   return actions;
 }
 
+function addObsidianHints(ddb, character, actions) {
+  actions.forEach((action) => {
+    const klassAction = ddb.character.actions.class
+      .filter((ddbAction) => utils.findClassByFeatureId(ddb, ddbAction.componentId))
+      .find((ddbAction) => {
+        const name = utils.getName(ddbAction, character);
+        return name === action.name;
+      });
+    const raceAction = ddb.character.actions.race
+      .some((ddbAction) => {
+        const name = utils.getName(ddbAction, character);
+        return name === action.name;
+      });
+    const featAction = ddb.character.actions.feat
+      .some((ddbAction) => {
+        const name = utils.getName(ddbAction, character);
+        return name === action.name;
+      });
+
+    if (klassAction) {
+      const klass = utils.findClassByFeatureId(ddb, klassAction.componentId);
+      action.flags.obsidian.source.type = "class";
+      action.flags.obsidian.source.text = klass.definition.name;
+    } else if (raceAction) {
+      action.flags.obsidian.source.type = "race";
+    } else if (featAction) {
+      action.flags.obsidian.source.type = "feat";
+    }
+  });
+}
+
 export default function parseActions(ddb, character) {
   let actions = [
     // Get Attack Actions that we know about, typically natural attacks etc
@@ -656,6 +697,7 @@ export default function parseActions(ddb, character) {
   });
 
   fixFeatures(actions);
+  addObsidianHints(ddb, character, actions);
   // console.log("ACTIONS");
   // console.error(JSON.parse(JSON.stringify(actions)));
   return actions;
