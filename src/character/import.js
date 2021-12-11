@@ -232,7 +232,7 @@ export async function getCharacterData(characterId, syncId, localCobaltPostFix =
 export default class CharacterImport extends FormApplication {
   constructor(options, actor) {
     super(options);
-    this.actor = game.actors.get(actor._id);
+    this.actor = game.actors.get(actor.id ? actor.id : actor._id);
     this.migrateMetadata();
     this.actorOriginal = JSON.parse(JSON.stringify(this.actor));
     this.result = {};
