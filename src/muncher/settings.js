@@ -807,8 +807,6 @@ export function getMuncherSettings(includeHomebrew = true) {
     },
   ];
 
-  const thirdPartyScenesEnabled = game.settings.get("ddb-importer", "third-party-scenes-enable");
-
   const resultData = {
     cobalt,
     genericConfig,
@@ -821,7 +819,6 @@ export function getMuncherSettings(includeHomebrew = true) {
     compendiumFolderMonsterStyles,
     compendiumFolderItemStyles,
     compendiumFolderSpellStyles,
-    thirdPartyScenesEnabled,
   };
 
   // console.warn(resultData);

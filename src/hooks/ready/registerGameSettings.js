@@ -1525,13 +1525,6 @@ export default function () {
     default: true,
   });
 
-  game.settings.register("ddb-importer", "third-party-scenes-enable", {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
   game.settings.register("ddb-importer", "third-party-scenes-partial", {
     scope: "world",
     config: false,
