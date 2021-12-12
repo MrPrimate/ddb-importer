@@ -194,9 +194,7 @@ export function getEffectExcludedModifiers(type, features, ac) {
       }
     }
     // here ac represents the more exotic ac effects that set limits and change base
-    const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
-    // if using D&D 1.4.* then we need to add in some ac bonuses off the bat regardless
-    if (AUTO_AC || ac) modifiers = modifiers.concat(AC_BONUS_MODIFIERS);
+    modifiers = modifiers.concat(AC_BONUS_MODIFIERS);
     if (ac) {
       modifiers = modifiers.concat(AC_EFFECTS);
     }
