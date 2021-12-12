@@ -424,7 +424,7 @@ export default function getInventory(ddb, character, itemSpells) {
     : game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
   const generateArmorACEffect = (compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects")
-    : game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
+    : false;
   const autoAC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
 
   for (let ddbItem of ddb.character.inventory.concat(customItems)) {

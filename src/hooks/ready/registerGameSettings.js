@@ -662,36 +662,9 @@ export default function () {
     default: false,
   });
 
-  game.settings.register("ddb-importer", "character-update-policy-generate-ac-armor-effects", {
-    name: "ddb-importer.character-update-policy-generate-ac-armor-effects.name",
-    hint: "ddb-importer.character-update-policy-generate-ac-armor-effects.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
   game.settings.register("ddb-importer", "character-update-policy-generate-ac-feature-effects", {
     name: "ddb-importer.character-update-policy-generate-ac-feature-effects.name",
     hint: "ddb-importer.character-update-policy-generate-ac-feature-effects.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register("ddb-importer", "character-update-policy-generate-ac-override-effects", {
-    name: "ddb-importer.character-update-policy-generate-ac-override-effects.name",
-    hint: "ddb-importer.character-update-policy-generate-ac-override-effects.hint",
-    scope: "player",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register("ddb-importer", "character-update-policy-generate-base-ac", {
-    name: "ddb-importer.character-update-policy-generate-base-ac.name",
-    hint: "ddb-importer.character-update-policy-generate-base-ac.hint",
     scope: "player",
     config: false,
     type: Boolean,

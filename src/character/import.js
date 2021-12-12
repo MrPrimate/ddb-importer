@@ -14,6 +14,7 @@ import {
   retainExistingIcons,
 } from "../muncher/import.js";
 import { download, getCampaignId, getCompendiumType } from "../muncher/utils.js";
+// eslint-disable-next-line no-unused-vars
 import { migrateActorDAESRD, addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
@@ -735,7 +736,6 @@ export default class CharacterImport extends FormApplication {
     const daeMidiInstalled = utils.isModuleInstalledAndActive("midi-srd");
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const addItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
-    const addItemACEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
     const addCharacterEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
     // if we still have items to add, add them
@@ -778,7 +778,7 @@ export default class CharacterImport extends FormApplication {
         items = await addItemsDAESRD(items);
       }
 
-      if (daeInstalled && (addItemEffects || addItemACEffects || addCharacterEffects)) {
+      if (daeInstalled && (addItemEffects || addCharacterEffects)) {
         items = await addItemEffectIcons(items);
       }
 
@@ -1024,21 +1024,6 @@ export default class CharacterImport extends FormApplication {
       ddbGeneratedCharEffects.map((ae) => ae.id)
     );
 
-    if (game.settings.get("ddb-importer", "character-update-policy-generate-ac-override-effects")) {
-      const acEffects = this.result.character.flags.ddbimporter.acEffects.map((ae) => {
-        ae.origin = `Actor.${this.actor.id}`;
-        return ae;
-      });
-      this.result.character.effects = this.result.character.effects.concat(acEffects);
-    }
-
-    const autoAC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
-    if (!autoAC && game.settings.get("ddb-importer", "character-update-policy-generate-base-ac")) {
-      // console.warn(this.result.character.data.attributes.ac);
-      // console.warn(this.result.character.flags.ddbimporter.baseAC);
-      this.result.character.data.attributes.ac.value = this.result.character.flags.ddbimporter.baseAC;
-    }
-
     // are we trying to retain existing effects?
     if (activeEffectCopy) {
       // add retained character effects to result
@@ -1157,13 +1142,14 @@ export default class CharacterImport extends FormApplication {
     // console.warn(JSON.parse(JSON.stringify(this.actor)));
 
     // copy items whole from DAE
-    const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
-    const daeInstalled =
-      utils.isModuleInstalledAndActive("dae") && (utils.isModuleInstalledAndActive("Dynamic-Effects-SRD") || utils.isModuleInstalledAndActive("midi-srd"));
-    if (daeCopy && daeInstalled) {
-      CharacterImport.showCurrentTask(html, "Importing DAE SRD");
-      await migrateActorDAESRD(this.actor);
-    }
+    // this should basically never get called now
+    // const daeCopy = game.settings.get("ddb-importer", "character-update-policy-dae-copy");
+    // const daeInstalled =
+    //   utils.isModuleInstalledAndActive("dae") && (utils.isModuleInstalledAndActive("Dynamic-Effects-SRD") || utils.isModuleInstalledAndActive("midi-srd"));
+    // if (daeCopy && daeInstalled) {
+    //   CharacterImport.showCurrentTask(html, "Importing DAE SRD");
+    //   await migrateActorDAESRD(this.actor);
+    // }
 
     if (activeEffectCopy) {
       // find effects with a matching name that existed on previous actor

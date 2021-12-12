@@ -51,15 +51,13 @@ function getEquippedAC(equippedGear) {
     }
 
     // magical armor
-    const usingArmorACEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
     const usingItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
 
     const daeItemEffects = (usingItemEffects &&
       item.equipped && item.definition.filterType !== "Armor"
     );
-    const daeInstalled = utils.isModuleInstalledAndActive("dae");
-    const daeArmorACEffects = usingArmorACEffects && daeInstalled;
-    if ((!daeArmorACEffects && !daeItemEffects) && item.definition.grantedModifiers) {
+
+    if (!daeItemEffects && item.definition.grantedModifiers) {
       let isAvailable = false;
       // does an item need attuning
       if (item.definition.canAttune === true) {
@@ -367,10 +365,6 @@ export function getArmorClass(ddb, character) {
     };
   }
 
-  const usingEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-armor-effects");
-  const daeInstalled = utils.isModuleInstalledAndActive("dae");
-  const daeEffects = usingEffects && daeInstalled;
-
   // get a list of equipped armor
   // we make a distinction so we can loop over armor
   let equippedArmor = ddb.character.inventory.filter(
@@ -397,7 +391,7 @@ export function getArmorClass(ddb, character) {
       utils.getChosenClassModifiers(ddb),
       ddb.character.modifiers.race,
       ddb.character.modifiers.feat,
-      utils.getActiveItemModifiers(ddb, !daeEffects),
+      utils.getActiveItemModifiers(ddb, true),
     ];
     unarmoredSources.forEach((modifiers) => {
       const unarmoredAC = Math.max(getUnarmoredAC(modifiers, character));

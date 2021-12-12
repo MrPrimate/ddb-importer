@@ -149,7 +149,7 @@ export async function addItemsDAESRD(items) {
     resolve(
       items.map((itemData) => {
         let replaceData = matchItem(itemData);
-        if (replaceData) {
+        if (replaceData && !replaceData.name.startsWith("Unarmored Defense")) {
           replaceData = replaceData.data.toObject();
           logger.debug(`Adding effects for ${replaceData.name}`);
           itemData.effects = replaceData.effects;

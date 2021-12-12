@@ -8,6 +8,8 @@
 * Fixed token vision/senses for v9.
 * Encounter muncher would start with two conflicting settings both set to true.
 * Update Character to DDB: fixed a bug that could occur with custom items.
+* Remove code for D&D 5e v 1.4
+* Fix an issue where if copying effects from DAE SRD Unarmored Defence would get both MOnk and Barbarian.
 
 # 2.6.27
 
