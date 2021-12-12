@@ -149,6 +149,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
   static async _checkForMissingData(adventure, folders) {
     await ThirdPartyMunch._createFolders(adventure, folders);
+    // console.warn("_checkForMissingData", adventure);
 
     if (adventure.required?.spells && adventure.required.spells.length > 0) {
       logger.debug(`${adventure.name} - spells required`, adventure.required.spells);
@@ -349,7 +350,7 @@ export default class ThirdPartyMunch extends FormApplication {
     notes.forEach((note) => {
       if (note.flags?.ddb?.journalId) {
         note.positions.forEach((position) => {
-          logger.info(`Matching ${note.label} to position ${note.x}/${note.y}`);
+          logger.info(`Matching ${note.label} to position ${position.x}/${position.y}`);
           const noteId = randomID();
           const n = {
             "_id": noteId,

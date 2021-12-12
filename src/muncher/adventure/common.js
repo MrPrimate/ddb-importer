@@ -449,6 +449,7 @@ export default class Helpers {
         }
       });
       const missingDocuments = Helpers.loadMissingDocuments(type, missingIds);
+      // console.warn(`${type} missing`, missingDocuments);
       resolve(missingDocuments);
     });
   }
