@@ -124,6 +124,7 @@ export function collectSceneData(scene, bookCode) {
   };
 
   if (!data.flags.ddb) data.flags.ddb = {};
+  data.flags.ddb.foundryVersion = game.version ? game.version : game.data.version;
 
   if (data.flags.ddb.tokens) delete data.flags.ddb.tokens;
   data.flags.ddb.tokens = scene.data.tokens
