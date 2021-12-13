@@ -228,6 +228,7 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-items-start"]').prop('disabled', false);
       $('button[id^="munch-adventure-config-start"]').prop('disabled', false);
       $('button[id^="munch-adventure-import-start"]').prop('disabled', false);
+      $('button[id^="munch-adventure-third-party-start"]').prop('disabled', false);
       $('button[id^="munch-migrate-compendium-monster"]').prop('disabled', false);
       $('button[id^="munch-migrate-compendium-spell"]').prop('disabled', false);
       $('button[id^="munch-migrate-compendium-item"]').prop('disabled', false);
