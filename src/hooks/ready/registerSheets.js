@@ -130,6 +130,8 @@ export default function () {
       if (monsterLink) {
         button = $(`<a class="ddb-open-url" title="D&D Beyond"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
       } else {
+        // don't add the button multiple times
+        if ($(html).find("#ddbImporterButton").length > 0) return;
         button = $('<button type="button" id="ddbImporterButton"><i class="fab fa-d-and-d-beyond"></button>');
       }
 

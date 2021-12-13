@@ -1,3 +1,8 @@
+# 2.7.1
+
+* Third party scenes button could become "stuck" on disabled till muncher was reopened.
+* In v9 if using Tidy Sheet multiple monster link buttons could be displayed.
+
 # 2.7.0
 
 * Class and class features are now available to Coffee Tier supporters
