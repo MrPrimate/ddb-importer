@@ -509,11 +509,14 @@ export default class AdventureMunch extends FormApplication {
       switch (importType) {
         case "Scene": {
           const existingScene = await game.scenes.find((item) => item.data._id === json._id);
+          const scene = Helpers.extractDocumentVersionData(json, existingScene, installedVersion);
+          const sceneVersions = scene.flags?.ddb?.versions?.importer;
           if (existingScene) {
-            const scene = Helpers.extractDocumentVersionData(json, existingScene, installedVersion);
-            if (scene.importerVersionChanged || scene.metaVersionChanged || scene.muncherVersionChanged) {
+            if (sceneVersions && (sceneVersions.metaVersionChanged || sceneVersions.muncherVersionChanged || sceneVersions.foundryVersionNewer)) {
               fileData.push(scene);
             }
+          } else if (sceneVersions && sceneVersions.foundryVersionNewer) {
+            fileData.push(scene);
           }
           break;
         }

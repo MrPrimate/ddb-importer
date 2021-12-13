@@ -2,6 +2,7 @@
 
 * Third party scenes button could become "stuck" on disabled till muncher was reopened.
 * In v9 if using Tidy Sheet multiple monster link buttons could be displayed.
+* Character imports: option to disable resource creation.
 
 # 2.7.0
 
