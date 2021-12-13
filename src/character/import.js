@@ -1108,6 +1108,9 @@ export default class CharacterImport extends FormApplication {
         this.result.character.data.details[option] = this.actorOriginal.data.details[option];
       });
     }
+    if (!game.settings.get("ddb-importer", "character-update-policy-use-resources")) {
+      this.result.character.data.resources = this.actorOriginal.data.resources;
+    }
 
     // flag as having items ids
     this.result.character.flags.ddbimporter["syncItemReady"] = true;

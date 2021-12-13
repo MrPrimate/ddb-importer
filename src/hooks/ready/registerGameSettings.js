@@ -890,6 +890,13 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "character-update-policy-use-resources", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-dae-copy", {
     name: "ddb-importer.character-update-policy-dae-copy.name",
     hint: "ddb-importer.character-update-policy-dae-copy.hint",
