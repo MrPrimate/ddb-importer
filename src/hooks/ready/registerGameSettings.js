@@ -1178,6 +1178,13 @@ export default function () {
     default: [],
   });
 
+  game.settings.register("ddb-importer", "munching-policy-monster-use-item-ac", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   // sets the current tutorial step the user has completed
   // game.settings.register("ddb-importer", "tutorial-step", {
   //   scope: "world",

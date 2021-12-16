@@ -645,6 +645,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       enabled: true,
     },
     {
+      name: "monster-use-item-ac",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac"),
+      description: "[Experimental] Attempt to use items instead of setting a flat AC?",
+      enabled: true,
+    },
+    {
       name: "update-images",
       isChecked: game.settings.get("ddb-importer", "munching-policy-update-images"),
       description: "Update Monster images on existing items?",

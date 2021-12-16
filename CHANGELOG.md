@@ -1,3 +1,8 @@
+# 2.7.2
+
+* Monster munch: experimental feature: attempt to generate armor items, and set AC based on these. This works for 90% of monsters. Maybe oddities for monsters with abilities or magic items, it _should_ try to set it to a flat value in this case. Please report any _bad monsters_.
+* Monster munch: In the case of natural armor, this will now be set as such in the ac calculation field.
+
 # 2.7.1
 
 * Third party scenes button could become "stuck" on disabled till muncher was reopened.
