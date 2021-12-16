@@ -1,7 +1,8 @@
 # 2.7.2
 
-* Monster munch: experimental feature: attempt to generate armor items, and set AC based on these. This works for 90% of monsters. Maybe oddities for monsters with abilities or magic items, it _should_ try to set it to a flat value in this case. Please report any _bad monsters_.
+* Monster munch: armor items will now be added to a monsters equipment.
 * Monster munch: In the case of natural armor, this will now be set as such in the ac calculation field.
+* Monster munch: experimental feature: attempt to set AC based on armor items. This works for most monsters. There are oddities for monsters with abilities or magic items, or just incorrect AC calcuations (Arkhan looking at you), it _should_ try to set it to a flat value where I have been able to detect this. Please report any _bad monsters_.
 
 # 2.7.1
 
