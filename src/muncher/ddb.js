@@ -19,7 +19,7 @@ import { migrateExistingCompendium } from "./compendiumFolders.js";
 
 export function getSourcesLookups(selected) {
   const selections = DDB_CONFIG.sources
-  .filter((source) => source.isReleased)
+  .filter((source) => source.isReleased && source.sourceCategoryId !== 9 && source.sourceCategoryId !== 3)
   .map((source) => {
     const details = {
       id: source.id,

@@ -1,3 +1,7 @@
+# 2.7.3
+
+* Improved messages about selected sources.
+
 # 2.7.2
 
 * Monster munch: armor items will now be added to a monsters equipment.

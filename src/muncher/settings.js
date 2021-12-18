@@ -3,6 +3,7 @@ import utils from "../utils.js";
 import logger from "../logger.js";
 import { getPatreonTiers } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
+import { getSourcesLookups } from "./ddb.js";
 
 export function setRecommendedCharacterActiveEffectSettings(html) {
   $(html).find("#character-import-policy-dae-copy").prop("checked", false);
@@ -626,10 +627,13 @@ export function getMuncherSettings(includeHomebrew = true) {
     },
   ];
 
-  const sourcesSelected = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat().length > 0;
+  const sourceArray = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
+  const sourcesSelected = sourceArray.length > 0;
+  const sourceNames = getSourcesLookups(sourceArray).filter((source) => source.selected).map((source) => source.label);
   const homebrewDescription = sourcesSelected
-      ? "SOURCES SELECTED! You can't import homebrew with a source filter selected"
+      ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
       : "Include homebrew?";
+  const sourceDescription = `Importing from the following sources only: ${sourceNames.join(", ")}`;
 
   const basicMonsterConfig = [
     {
@@ -765,6 +769,8 @@ export function getMuncherSettings(includeHomebrew = true) {
     compendiumFolderMonsterStyles,
     compendiumFolderItemStyles,
     compendiumFolderSpellStyles,
+    sourcesSelected,
+    sourceDescription,
   };
 
   // console.warn(resultData);
