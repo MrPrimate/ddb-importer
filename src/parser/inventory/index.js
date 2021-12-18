@@ -425,7 +425,6 @@ export default function getInventory(ddb, character, itemSpells) {
   const generateArmorACEffect = (compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects")
     : false;
-  const autoAC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
 
   for (let ddbItem of ddb.character.inventory.concat(customItems)) {
     const originalName = ddbItem.definition.name;
@@ -454,7 +453,7 @@ export default function getInventory(ddb, character, itemSpells) {
         if (daeInstalled && generateArmorACEffect) {
           item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
         }
-      } else if (autoAC || daeInstalled) {
+      } else {
         // always generate other item ac effects
         item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
       }

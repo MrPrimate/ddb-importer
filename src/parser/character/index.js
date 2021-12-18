@@ -99,14 +99,8 @@ export default function getCharacter(ddb) {
   character.data.attributes.inspiration = ddb.character.inspiration;
 
   // armor class
-  const autoAC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
   const ac = getArmorClass(ddb, character);
-  // D&D5e v1.4.0 AC features
-  if (autoAC) {
     character.data.attributes.ac = ac.auto;
-  } else {
-    character.data.attributes.ac = ac.fixed;
-  }
   character.flags.ddbimporter.acEffects = ac.effects;
   character.flags.ddbimporter.baseAC = ac.base;
   character.flags.ddbimporter.autoAC = ac.auto;
