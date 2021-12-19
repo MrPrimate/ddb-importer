@@ -277,13 +277,13 @@ function getResource(character, action) {
 }
 
 function getResourceFlags(character, action, flags) {
+  const linkItems = utils.isModuleInstalledAndActive("link-item-resource-5e");
   Object.keys(character.data.resources).forEach((resource) => {
     const detail = character.data.resources[resource];
     if (action.name === detail.label) {
       flags["link-item-resource-5e"] = {
         "resource-link": resource
       };
-      const linkItems = utils.isModuleInstalledAndActive("link-item-resource-5e");
       if (linkItems) {
         character.data.resources[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
       }
