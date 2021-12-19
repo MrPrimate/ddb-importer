@@ -1,6 +1,7 @@
 # 2.7.3
 
 * Improved messages about selected sources.
+* Monster munch: tiny and small creatures had scale values different to SRD monsters. The grid size and scale now reflects SRD compendium.
 
 # 2.7.2
 

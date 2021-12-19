@@ -36,14 +36,10 @@ export function getSizeFromId(sizeId, DDB_CONFIG) {
 
 export function getSize (monster, DDB_CONFIG) {
   const sizeData = getSizeFromId(monster.sizeId, DDB_CONFIG);
-  let token = {
-    scale: 1,
-    value: sizeData.size,
+  const token = {
+    scale: sizeData.size >= 1 ? 1 : sizeData.size,
+    value: sizeData.size >= 1 ? sizeData.size : 1,
   };
-  if (token.value < 1) {
-    token.scale = token.value;
-    token.value = 1;
-  }
 
   const data = {
     value: sizeData.value,
