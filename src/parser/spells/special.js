@@ -205,8 +205,8 @@ export function fixSpells(ddb, items) {
       case "Armor of Agathys": {
         spell.data.actionType = "heal";
         spell.data['target']['type'] = "self";
-        spell.data.damage.parts[0] = ["5d1", "temphp"];
-        spell.data.scaling = { mode: "level", formula: "5d1" };
+        spell.data.damage.parts[0] = ["5", "temphp"];
+        spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
       }
       case "Divine Favor": {
