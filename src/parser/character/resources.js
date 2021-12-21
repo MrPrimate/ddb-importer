@@ -107,25 +107,50 @@ export function getResourceList(data, character) {
   return getSortedByUsedResourceList(data, character);
 }
 
+function isCustomResources(actor) {
+  return hasProperty(actor, "data.flags.ddbimporter.resources.type") &&
+    actor.data.flags.ddbimporter.resources.type == "custom";
+}
 
-export async function getResourcesDialog(data, character) {
-  console.warn(data);
+export async function getResourcesDialog(currentActorId, ddb, character) {
+  const currentActor = game.actors.get(currentActorId);
+  console.warn(currentActor);
   return new Promise((resolve) => {
-    const resources = getSortedByUsedResourceList(data, character).map((resource) => {
+    let currentResourceSelection = isCustomResources(currentActor)
+      ? currentActor.data.flags.ddbimporter.resources
+      : {
+        primary: undefined,
+        secondary: undefined,
+        tertiary: undefined,
+      };
+    console.warn("currentResourceSelection", currentResourceSelection);
+    const resources = getSortedByUsedResourceList(ddb, character).map((resource) => {
       let resourceArray = [];
       if (resource.sr) resourceArray.push("SR");
       if (resource.lr) resourceArray.push("LR");
       if (!resource.sr && !resource.lr) resourceArray.push("Other");
       resource.resetString = resourceArray.join(", ");
+      switch (resource.label) {
+        case currentResourceSelection.primary:
+          resource.primary = true;
+          break;
+        case currentResourceSelection.secondary:
+          resource.secondary = true;
+          break;
+        case currentResourceSelection.tertiary:
+          resource.tertiary = true;
+          break;
+        // no default
+      }
       return resource;
     });
-    if (resources.length >= 1) {
+    if (!currentResourceSelection.primary && resources.length >= 1) {
       resources[0].primary = true;
     }
-    if (resources.length >= 2) {
+    if (!currentResourceSelection.secondary && resources.length >= 2) {
       resources[1].secondary = true;
     }
-    if (resources.length >= 3) {
+    if (!currentResourceSelection.tertiary && resources.length >= 3) {
       resources[2].tertiary = true;
     }
 
@@ -134,8 +159,8 @@ export async function getResourcesDialog(data, character) {
       content: {
         "resources": resources,
         "character": character.name,
-        "img": data.character.decorations?.avatarUrl
-          ? data.character.decorations.avatarUrl
+        "img": ddb.character.decorations?.avatarUrl
+          ? ddb.character.decorations.avatarUrl
           : "icons/svg/mystery-man.svg",
         "cssClass": "character-resource-selection sheet"
       },
@@ -153,9 +178,18 @@ export async function getResourcesDialog(data, character) {
         label: "Use selected",
         callback: async () => {
           const formData = $('.character-resource-selection').serializeArray();
-          console.warn(formData);
+          const primary = formData.find((r) => r.name === "primary-select" && r.value !== "");
+          const secondary = formData.find((r) => r.name === "secondary-select" && r.value !== "");
+          const tertiary = formData.find((r) => r.name === "tertiary-select" && r.value !== "");
 
-          setProperty(character, "flags.ddbimporter.resources", { type: "custom" });
+          const resourceSelection = {
+            type: "custom",
+            primary: primary ? primary.value : "",
+            secondary: secondary ? secondary.value : "",
+            tertiary: tertiary ? tertiary.value : "",
+          };
+          console.warn(resourceSelection);
+          setProperty(character, "flags.ddbimporter.resources", resourceSelection);
           resolve(character);
         }
        },

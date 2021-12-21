@@ -934,7 +934,7 @@ export async function updateDDBCharacter(actor) {
 
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
   const syncId = actor.data.flags["ddb-importer"]?.syncId ? actor.data.flags["ddb-importer"].syncId + 1 : 0;
-  let ddbData = await getCharacterData(characterId, syncId, actor.id);
+  let ddbData = await getCharacterData(actor.id, characterId, syncId, actor.id, false);
 
   logger.debug("Current actor:", actor.data);
   logger.debug("DDB Parsed data:", ddbData);

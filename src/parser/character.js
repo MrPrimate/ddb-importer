@@ -11,12 +11,14 @@ import getSpecial from "./special/index.js";
 import logger from "../logger.js";
 import { getResourcesDialog } from "./character/resources.js";
 
-export async function parseJson(ddb, setResources=true) {
+export async function parseJson(currentActorId, ddb, resourceSelection = true) {
   try {
     logger.debug("Starting core character parse");
     let character = getCharacter(ddb);
-    logger.debug("Character resources");
-    character = await getResourcesDialog(ddb, character);
+    if (resourceSelection) {
+      logger.debug("Character resources");
+      character = await getResourcesDialog(currentActorId, ddb, character);
+    }
     logger.debug("Character parse complete");
     let race = await getDDBRace(ddb);
     logger.debug("Race parse complete");
