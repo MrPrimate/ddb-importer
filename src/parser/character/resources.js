@@ -5,7 +5,6 @@ function resourceList(data) {
   const resources = genResources
     ? [data.character.actions.race, data.character.actions.class, data.character.actions.feat]
       .flat()
-      // let resources = data.character.actions.class
       .filter((action) =>
         action.limitedUse &&
         (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus))
@@ -54,7 +53,7 @@ function getSortedByUsedResourceList(data, character) {
         value: maxUses - action.limitedUse.numberUsed,
         max: maxUses,
         sr: action.limitedUse.resetType === 1,
-        lr: action.limitedUse.resetType === 1 || action.limitedUse.resetType === 2,
+        lr: action.limitedUse.resetType === 1 || action.limitedUse.resetType === 2 || action.limitedUse.resetType === 3,
       };
     })
     // sort by maxUses, I guess one wants to track the most uses first, because it's used more often
@@ -103,3 +102,85 @@ export function getResources(data, character, numberOfResources = 3) {
 
   return result;
 }
+
+export function getResourceList(data, character) {
+  return getSortedByUsedResourceList(data, character);
+}
+
+
+export async function getResourcesDialog(data, character) {
+  console.warn(data);
+  return new Promise((resolve) => {
+    const resources = getSortedByUsedResourceList(data, character).map((resource) => {
+      let resourceArray = [];
+      if (resource.sr) resourceArray.push("SR");
+      if (resource.lr) resourceArray.push("LR");
+      if (!resource.sr && !resource.lr) resourceArray.push("Other");
+      resource.resetString = resourceArray.join(", ");
+      return resource;
+    });
+    if (resources.length >= 1) {
+      resources[0].primary = true;
+    }
+    if (resources.length >= 2) {
+      resources[1].secondary = true;
+    }
+    if (resources.length >= 3) {
+      resources[2].tertiary = true;
+    }
+
+    const dialog = new Dialog({
+      title: "Choose Resources",
+      content: {
+        "resources": resources,
+        "character": character.name,
+        "img": data.character.decorations?.avatarUrl
+          ? data.character.decorations.avatarUrl
+          : "icons/svg/mystery-man.svg",
+        "cssClass": "character-resource-selection sheet"
+      },
+      buttons: {
+       default: {
+        icon: '<i class="fas fa-list-ol"></i>',
+        label: "Default",
+        callback: async () => {
+          setProperty(character, "flags.ddbimporter.resources", { type: "default" });
+          resolve(character);
+        }
+       },
+       custom: {
+        icon: '<i class="fas fa-sort"></i>',
+        label: "Use selected",
+        callback: async () => {
+          const formData = $('.character-resource-selection').serializeArray();
+          console.warn(formData);
+
+          setProperty(character, "flags.ddbimporter.resources", { type: "custom" });
+          resolve(character);
+        }
+       },
+       disable: {
+        icon: '<i class="fas fa-times"></i>',
+        label: "None",
+        callback: async () => {
+          setProperty(character, "flags.ddbimporter.resources", { type: "disable" });
+          await game.settings.set("ddb-importer", "character-update-policy-use-resources", false);
+          resolve(character);
+        }
+       }
+      },
+      default: "default",
+      render: () => console.log("Register interactivity in the rendered dialog"),
+      close: () => resolve(character),
+    },
+    {
+      width: 700,
+      classes: ["dialog", "character-resource-selection"],
+      template: "modules/ddb-importer/handlebars/resources.hbs",
+    });
+    dialog.render(true);
+
+  });
+}
+
+window.getResourcesDialog = getResourcesDialog;

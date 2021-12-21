@@ -9,11 +9,14 @@ import { getDDBRace } from "../muncher/races/races.js";
 import getInventory from "./inventory/index.js";
 import getSpecial from "./special/index.js";
 import logger from "../logger.js";
+import { getResourcesDialog } from "./character/resources.js";
 
-export async function parseJson(ddb) {
+export async function parseJson(ddb, setResources=true) {
   try {
     logger.debug("Starting core character parse");
     let character = getCharacter(ddb);
+    logger.debug("Character resources");
+    character = await getResourcesDialog(ddb, character);
     logger.debug("Character parse complete");
     let race = await getDDBRace(ddb);
     logger.debug("Race parse complete");
