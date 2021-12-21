@@ -3,8 +3,9 @@
 * Improved messages about selected sources.
 * Monster munch: tiny and small creatures had scale values different to SRD monsters. The grid size and scale now reflects SRD compendium.
 * Rewrite of some resources code for future enhancement.
-* Added function to fix base64 in scene thumbnails and alert to base64 in scene images. Run `DDBImporter.base64Check()` in the browser console.
+* Added function to fix base64 in scene thumbnails and alert to base64 in scene images. Run `DDBImporter.base64Check()` in the browser console or trigger from the Muncher tools tab.
 * Spell: tweak Armor of Agathys scaling.
+* Scene exporter did not work for v9.
 
 # 2.7.2
 
