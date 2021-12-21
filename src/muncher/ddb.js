@@ -10,6 +10,7 @@ import { parseFrames } from "./frames.js";
 import { getPatreonTiers, munchNote } from "./utils.js";
 import { DDB_CONFIG } from "../ddbConfig.js";
 import { getCobalt } from "../lib/Secrets.js";
+import { base64Check } from "../lib/Base64Check.js";
 import { downloadAdventureConfig } from "./adventure.js";
 import AdventureMunch from "./adventure/adventure.js";
 import ThirdPartyMunch from "./adventure/thirdParty.js";
@@ -176,6 +177,11 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.migrateCompendiumFolders("items");
     });
+    html.find("#munch-fix-base64").click(async () => {
+      munchNote(`Checking Scenes for base64 data...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.base64Check();
+    });
 
     // watch the change of the import-policy-selector checkboxes
     $(html)
@@ -232,6 +238,7 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-migrate-compendium-monster"]').prop('disabled', false);
       $('button[id^="munch-migrate-compendium-spell"]').prop('disabled', false);
       $('button[id^="munch-migrate-compendium-item"]').prop('disabled', false);
+      $('button[id^="munch-fix-base64"]').prop('disabled', false);
 
       if (tiers.all) {
         $('button[id^="munch-monsters-start"]').prop('disabled', false);
@@ -361,11 +368,22 @@ export default class DDBMuncher extends Application {
     DDBMuncher.enableButtons();
   }
 
+  static async base64Check() {
+    logger.info("Checking base64 in scenes");
+    const results = base64Check();
+    let notifyString = `Check complete.`;
+    if (results.fixedScenes.length === 0 && results.badScenes.length === 0) {
+      notifyString += " No problems found.";
+    } else {
+      if (results.fixedScenes.length > 0) notifyString += ` Fixing ${results.fixedScenes.length} scenes (wait untill uploads complete).`;
+      if (results.badScenes.length > 0) notifyString += ` Found ${results.badScenes.length} scenes that I couldn't fix.`;
+    }
+    munchNote(notifyString, true);
+    DDBMuncher.enableButtons();
+  }
+
   getData() { // eslint-disable-line class-methods-use-this
     const resultData = getMuncherSettings();
-
-    // console.warn(resultData);
-
     return resultData;
   }
 }

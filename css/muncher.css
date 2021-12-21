@@ -5,6 +5,12 @@ button.monster-muncher {
   clear: both;
 }
 
+.munch-wrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 .monster-muncher .form-group {
   margin: 10px
 }
