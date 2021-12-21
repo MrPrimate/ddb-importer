@@ -29,17 +29,19 @@ function checkBase64(string) {
 export function checkScenes() {
   let badScenes = [];
   game.scenes.forEach((scene) => {
-    if (checkBase64(scene.thumb)) {
+    if (checkBase64(scene.data.thumb)) {
       logger.warn(`Scene ${scene.name} has base 64 thumb data - fixing!`);
       scene.createThumbnail().then((data) => {
         scene.update({ thumb: data.thumb }, { diff: false });
         ui.notifications.info(`Regenerated thumbnail image for ${scene.name} background image`);
       });
     }
-    if (checkBase64(scene.img)) {
-      logger.warn(`Scene ${scene.img} has base 64 Image data!`);
+    if (checkBase64(scene.data.img)) {
+      logger.warn(`Scene ${scene.name} has base 64 Image data!`);
       ui.notifications.warn(`${scene.name} has a base64 encoded scene image - please fix`);
       badScenes.push(scene.name);
+    } else if (checkBase64(scene) && !checkBase64(scene.data.thumb)) {
+      logger.warn(`Scene ${scene.name} has unknown location base 64 data!`);
     }
   });
   if (badScenes.length > 0) logger.warn("Please fix the following scenes with base64 data:", badScenes);
