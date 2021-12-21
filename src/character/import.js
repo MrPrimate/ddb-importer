@@ -417,40 +417,6 @@ export default class CharacterImport extends FormApplication {
     }
   }
 
-  async showErrorMessage(html, error) {
-    logger.info("%c #### PLEASE PASTE TO DISCORD #####", "color: #ff0000");
-    logger.info("%c #### ", "color: #ff0000");
-    logger.info("%c #### --------------- COPY BELOW --------------- #####", "color: #ff0000");
-    if (
-      this.actor.data.flags.ddbimporter &&
-      this.actor.data.flags.ddbimporter.dndbeyond &&
-      this.actor.data.flags.ddbimporter.dndbeyond.url
-    ) {
-      const characterId = this.actor.data.flags.ddbimporter.dndbeyond.url.split("/").pop();
-      if (characterId) {
-        const jsonUrl = "https://character-service.dndbeyond.com/character/v5/character/" + characterId;
-        logger.info("%c **Character JSON          :** " + jsonUrl, "color: #ff0000");
-      }
-    }
-    logger.info(`%c **Foundry version         :** ${game.data.version}`, "color: #ff0000");
-    logger.info(`%c **DND5e version           :** ${game.system.data.version}`, "color: #ff0000");
-    const moduleVersion = game.modules.get("ddb-importer").data.version;
-    logger.info(`%c **ddb-importer version    :** ${moduleVersion}`, "color: #ff0000");
-    logger.info(error);
-    logger.info("%c #### --------------- COPY ABOVE --------------- #####", "color: #ff0000");
-    CharacterImport.showCurrentTask(
-      html,
-      "I guess you are special!",
-      `We had trouble understanding this character. But you can help us to improve!</p>
-      <p>Please</p>
-      <ul>
-        <li>open the console with F12</li>
-        <li>search for a block of text starting with <b>#### PLEASE PASTE TO ...</b></li>
-        <li>Copy the designated lines and submit it to the Discord channel <a href=">#bugs</a></li></ul> Thanks!`,
-      true
-    );
-  }
-
   /* -------------------------------------------- */
 
   async getData() {
