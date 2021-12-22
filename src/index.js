@@ -6,7 +6,7 @@ import {
   renderItemSheet,
   renderJournalSheet,
 } from "./hooks.js";
-import extendSceneNavigationContext from "./hooks/getSceneNavigationContext/extendSceneNavigationContext.js";
+import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext.js";
 
 // register hooks
 Hooks.once("init", init);
@@ -17,3 +17,4 @@ Hooks.on("renderJournalSheet", renderJournalSheet);
 Hooks.on("renderItemSheet", renderItemSheet);
 Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
 Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
+
