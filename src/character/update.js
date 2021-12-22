@@ -934,7 +934,15 @@ export async function updateDDBCharacter(actor) {
 
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
   const syncId = actor.data.flags["ddb-importer"]?.syncId ? actor.data.flags["ddb-importer"].syncId + 1 : 0;
-  let ddbData = await getCharacterData(actor.id, characterId, syncId, actor.id, false);
+
+  const characterDataOptions = {
+    currentActorId: actor.id,
+    characterId: characterId,
+    syncId: syncId,
+    localCobaltPostFix: actor.id,
+    resourceSelection: false,
+  };
+  let ddbData = await getCharacterData(characterDataOptions);
 
   logger.debug("Current actor:", actor.data);
   logger.debug("DDB Parsed data:", ddbData);

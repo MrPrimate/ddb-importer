@@ -160,20 +160,30 @@ const filterActorItemsByUserSelection = (actor, invert = false) => {
   return items;
 };
 
+
+const DEFAULT_CHARACTER_DATA_OPTIONS = {
+  currentActorId: undefined,
+  characterId: undefined,
+  syncId: undefined,
+  localCobaltPostFix: "",
+  resourceSelection: true,
+};
+
 /**
  * Loads and parses character in the proxy
- * @param {*} characterId
+ * @param {*} options.characterId
  */
 
-export async function getCharacterData(currentActorId, characterId, syncId, localCobaltPostFix = "", resourceSelection = true) {
-  const cobaltCookie = getCobalt(localCobaltPostFix);
+export async function getCharacterData(optionsIn) {
+  const options = mergeObject(DEFAULT_CHARACTER_DATA_OPTIONS, optionsIn);
+  const cobaltCookie = getCobalt(options.localCobaltPostFix);
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
-  let body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: characterId, campaignId: proxyCampaignId };
-  if (syncId) {
-    body["updateId"] = syncId;
+  let body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: options.characterId, campaignId: proxyCampaignId };
+  if (options.syncId) {
+    body["updateId"] = options.syncId;
   }
 
   try {
@@ -206,9 +216,9 @@ export async function getCharacterData(currentActorId, characterId, syncId, loca
     }
 
     logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
-    console.warn("currentActorId", currentActorId);
+    logger.debug("currentActorId", options.currentActorId);
     try {
-      const character = await parseJson(currentActorId, ddb, resourceSelection);
+      const character = await parseJson(options.currentActorId, ddb, options.resourceSelection);
       const shouldChangeName = game.settings.get("ddb-importer", "character-update-policy-name");
       if (!shouldChangeName) {
         character.character.name = undefined;
@@ -219,7 +229,7 @@ export async function getCharacterData(currentActorId, characterId, syncId, loca
     } catch (error) {
       const debugJson = game.settings.get("ddb-importer", "debug-json");
       if (debugJson) {
-        download(JSON.stringify(data), `${characterId}-raw.json`, "application/json");
+        download(JSON.stringify(data), `${options.characterId}-raw.json`, "application/json");
       }
       throw error;
     }
@@ -517,7 +527,14 @@ export default class CharacterImport extends FormApplication {
           $(html).find("#dndbeyond-character-import-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Getting Character data");
           const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
-          const characterData = await getCharacterData(this.actor.id, characterId, null, this.actor.id);
+          const characterDataOptions = {
+            currentActorId: this.actor.id,
+            characterId: characterId,
+            syncId: null,
+            localCobaltPostFix: this.actor.id,
+            resourceSelection: true,
+          };
+          const characterData = await getCharacterData(characterDataOptions);
           logger.debug("import.js getCharacterData result", characterData);
           const debugJson = game.settings.get("ddb-importer", "debug-json");
           if (debugJson) {
@@ -605,7 +622,14 @@ export default class CharacterImport extends FormApplication {
           $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Fetching character data");
           const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
-          const characterData = await getCharacterData(this.actor.id, characterId, null, this.actor.id);
+          const characterDataOptions = {
+            currentActorId: this.actor.id,
+            characterId: characterId,
+            syncId: null,
+            localCobaltPostFix: this.actor.id,
+            resourceSelection: false,
+          };
+          const characterData = await getCharacterData(characterDataOptions);
           logger.debug("import.js getCharacterData result", characterData);
           const debugJson = game.settings.get("ddb-importer", "debug-json");
           if (debugJson) {
@@ -1163,7 +1187,14 @@ export async function importCharacterById(characterId, html) {
       }
     });
 
-    const characterData = await getCharacterData(actor.id, characterId, null, actor.id);
+    const characterDataOptions = {
+      currentActorId: actor.id,
+      characterId: characterId,
+      syncId: null,
+      localCobaltPostFix: actor.id,
+      resourceSelection: false,
+    };
+    const characterData = await getCharacterData(characterDataOptions);
     const debugJson = game.settings.get("ddb-importer", "debug-json");
     if (debugJson) {
       download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
@@ -1196,7 +1227,14 @@ export async function importCharacter(actor, html) {
     if (!html) html = utils.htmlToDoc("");
     const actorData = actor.toObject();
     const characterId = actorData.flags.ddbimporter.dndbeyond.characterId;
-    const characterData = await getCharacterData(actorData._id, characterId, null, actorData._id);
+    const characterDataOptions = {
+      currentActorId: actorData._id,
+      characterId: characterId,
+      syncId: null,
+      localCobaltPostFix: actorData._id,
+      resourceSelection: true,
+    };
+    const characterData = await getCharacterData(characterDataOptions);
     logger.debug("import.js importCharacter getCharacterData result", characterData);
     const debugJson = game.settings.get("ddb-importer", "debug-json");
     if (debugJson) {
