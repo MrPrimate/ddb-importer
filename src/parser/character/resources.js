@@ -95,9 +95,36 @@ export function getResources(data, character, numberOfResources = 3) {
 
   let result = {};
 
-  for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
-    const resource = usedResources.length > i ? usedResources[i] : { value: 0, max: 0, sr: false, lr: false, label: "" };
-    result[sheetResources[i]] = resource;
+  const resourceSelectionType = hasProperty(character, "flags.ddbimporter.resources.type")
+    ? getProperty(character, "flags.ddbimporter.resources.type")
+    : "default";
+
+  switch (resourceSelectionType) {
+    case "custom": {
+      const customResourceSelection = getProperty(character, "flags.ddbimporter.resources");
+      for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
+        const resourceLookupName = customResourceSelection[sheetResources[i]];
+
+        const resource = resourceLookupName && resourceLookupName !== ""
+          ? allResources.find((r) => r.label === resourceLookupName)
+          : { value: 0, max: 0, sr: false, lr: false, label: "" };
+        result[sheetResources[i]] = resource || { value: 0, max: 0, sr: false, lr: false, label: "" };
+      };
+      break;
+    }
+    case "disable": {
+      for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
+        result[sheetResources[i]] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+      };
+      break;
+    }
+    default: {
+      for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
+        const resource = usedResources.length > i ? usedResources[i] : { value: 0, max: 0, sr: false, lr: false, label: "" };
+        result[sheetResources[i]] = resource;
+      };
+      break;
+    }
   }
 
   return result;
@@ -107,113 +134,127 @@ export function getResourceList(data, character) {
   return getSortedByUsedResourceList(data, character);
 }
 
-function isCustomResources(actor) {
-  return hasProperty(actor, "data.flags.ddbimporter.resources.type") &&
-    actor.data.flags.ddbimporter.resources.type == "custom";
-}
-
 export async function getResourcesDialog(currentActorId, ddb, character) {
   const currentActor = game.actors.get(currentActorId);
-  console.warn(currentActor);
   return new Promise((resolve) => {
-    let currentResourceSelection = isCustomResources(currentActor)
-      ? currentActor.data.flags.ddbimporter.resources
+    let currentResourceSelection = hasProperty(currentActor, "data.flags.ddbimporter.resources.type")
+      ? getProperty(currentActor, "data.flags.ddbimporter.resources")
       : {
+        ask: true,
+        type: "default",
         primary: undefined,
         secondary: undefined,
         tertiary: undefined,
       };
-    console.warn("currentResourceSelection", currentResourceSelection);
-    const resources = getSortedByUsedResourceList(ddb, character).map((resource) => {
-      let resourceArray = [];
-      if (resource.sr) resourceArray.push("SR");
-      if (resource.lr) resourceArray.push("LR");
-      if (!resource.sr && !resource.lr) resourceArray.push("Other");
-      resource.resetString = resourceArray.join(", ");
-      switch (resource.label) {
-        case currentResourceSelection.primary:
-          resource.primary = true;
-          break;
-        case currentResourceSelection.secondary:
-          resource.secondary = true;
-          break;
-        case currentResourceSelection.tertiary:
-          resource.tertiary = true;
-          break;
-        // no default
+
+    if (currentResourceSelection.ask || !hasProperty(currentResourceSelection, "ask")) {
+      const resources = getSortedByUsedResourceList(ddb, character).map((resource) => {
+        let resourceArray = [];
+        if (resource.sr) resourceArray.push("SR");
+        if (resource.lr) resourceArray.push("LR");
+        if (!resource.sr && !resource.lr) resourceArray.push("Other");
+        resource.resetString = resourceArray.join(", ");
+        switch (resource.label) {
+          case currentResourceSelection.primary:
+            resource.primary = true;
+            break;
+          case currentResourceSelection.secondary:
+            resource.secondary = true;
+            break;
+          case currentResourceSelection.tertiary:
+            resource.tertiary = true;
+            break;
+          // no default
+        }
+        return resource;
+      });
+      if (!currentResourceSelection.primary && resources.length >= 1) {
+        resources[0].primary = true;
       }
-      return resource;
-    });
-    if (!currentResourceSelection.primary && resources.length >= 1) {
-      resources[0].primary = true;
-    }
-    if (!currentResourceSelection.secondary && resources.length >= 2) {
-      resources[1].secondary = true;
-    }
-    if (!currentResourceSelection.tertiary && resources.length >= 3) {
-      resources[2].tertiary = true;
-    }
+      if (!currentResourceSelection.secondary && resources.length >= 2) {
+        resources[1].secondary = true;
+      }
+      if (!currentResourceSelection.tertiary && resources.length >= 3) {
+        resources[2].tertiary = true;
+      }
 
-    const dialog = new Dialog({
-      title: "Choose Resources",
-      content: {
-        "resources": resources,
-        "character": character.name,
-        "img": ddb.character.decorations?.avatarUrl
-          ? ddb.character.decorations.avatarUrl
-          : "icons/svg/mystery-man.svg",
-        "cssClass": "character-resource-selection sheet"
+      const dialog = new Dialog({
+        title: "Choose Resources",
+        content: {
+          "resources": resources,
+          "character": character.name,
+          "img": ddb.character.decorations?.avatarUrl
+            ? ddb.character.decorations.avatarUrl
+            : "icons/svg/mystery-man.svg",
+          "cssClass": "character-resource-selection sheet"
+        },
+        buttons: {
+        default: {
+          icon: '<i class="fas fa-list-ol"></i>',
+          label: "Default",
+          callback: async () => {
+            const formData = $('.character-resource-selection').serializeArray();
+            const ask = formData.find((r) => r.name === "ask-resources")?.value === "on";
+            const resourceSelection = {
+              type: "default",
+              ask,
+            };
+            setProperty(character, "flags.ddbimporter.resources", resourceSelection);
+            resolve(character);
+          }
+        },
+        custom: {
+          icon: '<i class="fas fa-sort"></i>',
+          label: "Use selected",
+          callback: async () => {
+            const formData = $('.character-resource-selection').serializeArray();
+            const primary = formData.find((r) => r.name === "primary-select" && r.value !== "");
+            const secondary = formData.find((r) => r.name === "secondary-select" && r.value !== "");
+            const tertiary = formData.find((r) => r.name === "tertiary-select" && r.value !== "");
+            const ask = formData.find((r) => r.name === "ask-resources")?.value === "on";
+
+            const resourceSelection = {
+              type: "custom",
+              primary: primary ? primary.value : "",
+              secondary: secondary ? secondary.value : "",
+              tertiary: tertiary ? tertiary.value : "",
+              ask,
+            };
+            setProperty(character, "flags.ddbimporter.resources", resourceSelection);
+            setProperty(character, "data.resources", getResources(ddb, character));
+            resolve(character);
+          }
+        },
+        disable: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "None",
+          callback: async () => {
+            const formData = $('.character-resource-selection').serializeArray();
+            const ask = formData.find((r) => r.name === "ask-resources")?.value === "on";
+            const resourceSelection = {
+              type: "disable",
+              ask,
+            };
+            setProperty(character, "flags.ddbimporter.resources", resourceSelection);
+            setProperty(character, "data.resources", getResources(ddb, character));
+            resolve(character);
+          }
+        }
+        },
+        default: "default",
+        close: () => resolve(character),
       },
-      buttons: {
-       default: {
-        icon: '<i class="fas fa-list-ol"></i>',
-        label: "Default",
-        callback: async () => {
-          setProperty(character, "flags.ddbimporter.resources", { type: "default" });
-          resolve(character);
-        }
-       },
-       custom: {
-        icon: '<i class="fas fa-sort"></i>',
-        label: "Use selected",
-        callback: async () => {
-          const formData = $('.character-resource-selection').serializeArray();
-          const primary = formData.find((r) => r.name === "primary-select" && r.value !== "");
-          const secondary = formData.find((r) => r.name === "secondary-select" && r.value !== "");
-          const tertiary = formData.find((r) => r.name === "tertiary-select" && r.value !== "");
-
-          const resourceSelection = {
-            type: "custom",
-            primary: primary ? primary.value : "",
-            secondary: secondary ? secondary.value : "",
-            tertiary: tertiary ? tertiary.value : "",
-          };
-          console.warn(resourceSelection);
-          setProperty(character, "flags.ddbimporter.resources", resourceSelection);
-          resolve(character);
-        }
-       },
-       disable: {
-        icon: '<i class="fas fa-times"></i>',
-        label: "None",
-        callback: async () => {
-          setProperty(character, "flags.ddbimporter.resources", { type: "disable" });
-          await game.settings.set("ddb-importer", "character-update-policy-use-resources", false);
-          resolve(character);
-        }
-       }
-      },
-      default: "default",
-      render: () => console.log("Register interactivity in the rendered dialog"),
-      close: () => resolve(character),
-    },
-    {
-      width: 700,
-      classes: ["dialog", "character-resource-selection"],
-      template: "modules/ddb-importer/handlebars/resources.hbs",
-    });
-    dialog.render(true);
-
+      {
+        width: 700,
+        classes: ["dialog", "character-resource-selection"],
+        template: "modules/ddb-importer/handlebars/resources.hbs",
+      });
+      dialog.render(true);
+    } else {
+      setProperty(character, "flags.ddbimporter.resources", currentResourceSelection);
+      setProperty(character, "data.resources", getResources(ddb, character));
+      resolve(character);
+    }
   });
 }
 
