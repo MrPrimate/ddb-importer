@@ -452,6 +452,9 @@ export default class CharacterImport extends FormApplication {
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.experimentalMid;
     const dynamicUpdateStatus = this.actor.data.flags?.ddbimporter?.activeUpdate;
+    const resourceSelection = !hasProperty(this.actor, "data.flags.ddbimporter.resources.ask") ||
+      (hasProperty(this.actor, "data.flags.ddbimporter.resources.ask") &&
+        this.actor.data.flags.ddbimporter.resources.ask);
 
     const itemsMunched = syncEnabled && itemCompendium
       ? await itemCompendium.index.size !== 0
@@ -466,6 +469,7 @@ export default class CharacterImport extends FormApplication {
       itemsMunched: itemsMunched,
       dynamicUpdateAllowed,
       dynamicUpdateStatus,
+      resourceSelection,
     };
 
     return mergeObject(importSettings, actorSettings);
@@ -498,6 +502,14 @@ export default class CharacterImport extends FormApplication {
         event.preventDefault();
         setRecommendedCharacterActiveEffectSettings(html);
 
+      });
+
+    $(html)
+      .find(['.resource-selection input[type="checkbox"]'].join(",")
+      )
+      .on("change", async (event) => {
+        const updateData = { flags: { ddbimporter: { resources: { ask: event.currentTarget.checked } } } };
+        await this.actor.update(updateData);
       });
 
     $(html)
@@ -1099,7 +1111,8 @@ export default class CharacterImport extends FormApplication {
         this.result.character.data.details[option] = this.actorOriginal.data.details[option];
       });
     }
-    if (!game.settings.get("ddb-importer", "character-update-policy-use-resources")) {
+    if (hasProperty(this.result.character, "flags.ddbimporter.resources.ask") &&
+      !this.result.character.flags.ddbimporter.resources.ask) {
       this.result.character.data.resources = this.actorOriginal.data.resources;
     }
 

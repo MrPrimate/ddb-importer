@@ -260,35 +260,36 @@ function getResource(character, action) {
     "target": "",
     "amount": null
   };
+
   Object.keys(character.data.resources).forEach((resource) => {
     const detail = character.data.resources[resource];
     if (action.name === detail.label) {
-      const linkItems = utils.isModuleInstalledAndActive("link-item-resource-5e");
-      if (!linkItems) {
-        consume = {
-          type: "attribute",
-          target: `resources.${resource}.value`,
-          amount: 1,
-        };
+      consume = {
+        type: "attribute",
+        target: `resources.${resource}.value`,
+        amount: 1,
       };
     }
   });
+
   return consume;
 }
 
 function getResourceFlags(character, action, flags) {
   const linkItems = utils.isModuleInstalledAndActive("link-item-resource-5e");
-  Object.keys(character.data.resources).forEach((resource) => {
-    const detail = character.data.resources[resource];
-    if (action.name === detail.label) {
-      flags["link-item-resource-5e"] = {
-        "resource-link": resource
-      };
-      if (linkItems) {
+  const resourceType = getProperty(character, "flags.ddbimporter.resources.type");
+  if (resourceType !== "disable" && linkItems) {
+    const hasResourceLink = getProperty(flags, "link-item-resource-5e.resource-link");
+    Object.keys(character.data.resources).forEach((resource) => {
+      const detail = character.data.resources[resource];
+      if (action.name === detail.label) {
+        setProperty(flags, "link-item-resource-5e.resource-link", resource);
         character.data.resources[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+      } else if (hasResourceLink === resource) {
+        setProperty(flags, "link-item-resource-5e.resource-link", undefined);
       }
-    }
-  });
+    });
+  }
   return flags;
 }
 

@@ -1,16 +1,16 @@
 <form class="{{content.cssClass}}" autocomplete="off" onsubmit="event.preventDefault();">
   <header class="sheet-header">
     <img class="item-icon" src="{{content.img}}" data-edit="img">
-    <h3 class="item-title">{{content.character}} Resource Selection</h3>
+    <h3 class="item-title">Resource Selection ({{content.character}})</h3>
   </header>
 
-  <p>Choose default, custom choice, or disable.</p>
-
-
+  <div><b>Default:</b> Top 3 most numerous abilities (auto-calculated on import).</div>
+  <div><b>Custom:</b> Select from list (dropdowns below).</div>
+  <div><b>Disable:</b> Do not use. (Retains existing resources).</div>
 
   <div class="form-description">
     <div class="form-group">
-      <p>Primary Resource</p>
+      <p><b>Primary</b></p>
       <select name="primary-select" class="form-select" id="primary-select">
         <option value="">Primary resource:</option>
         {{#each content.resources}}
@@ -19,7 +19,7 @@
       </select>
     </div>
     <div class="form-group">
-      <p>Secondary Resource</p>
+      <p><b>Secondary</b></p>
       <select name="secondary-select" class="form-select" id="secondary-select">
         <option value="">Secondary resource:</option>
         {{#each content.resources}}
@@ -28,7 +28,7 @@
       </select>
     </div>
     <div class="form-group">
-      <p>Tertiary Resource</p>
+      <p><b>Tertiary</b></p>
       <select name="tertiary-select" class="form-select" id="tertiary-select">
         <option value="">Tertiary resource:</option>
         {{#each content.resources}}

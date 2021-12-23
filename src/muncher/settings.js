@@ -150,13 +150,6 @@ export function getCharacterImportSettings() {
         "[CAUTION] If a feature is marked as an action, import both the action and the feature. This might lead to some weird behaviour.",
       enabled: true,
     },
-    {
-      name: "use-resources",
-      isChecked: game.settings.get("ddb-importer", "character-update-policy-use-resources"),
-      description:
-        "Link characters resources to features (picks features with most uses).",
-      enabled: true,
-    },
   ];
 
   const advancedImportConfig = [
