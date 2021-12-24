@@ -214,6 +214,10 @@ function replaceTag(match, p1, p2, p3, offset, string) {
     logger.warn(`Unable to tag parse ${match}`);
     return match;
   }
+  // console.warn("stuff", {
+  //   match, p1, p2, p3, offset, string
+  // })
+  // logger.debug(`Checking tag ${p2} in SRD rules`);
   const srdMatch = srdRules.find((rule) => rule.name.toLowerCase() === p2.toLowerCase());
   if (srdMatch) {
     return `@Compendium[dnd5e.rules.${srdMatch._id}]{${p2}}`;
@@ -229,7 +233,7 @@ function parseTags(text) {
   if (typeof text.replaceAll !== "function") {
     return text;
   }
-  const tagRegEx = /\[(.*)](.*)\[\/(.*)]/g;
+  const tagRegEx = /\[([^\]]+)]([^[]+)\[\/([^\]]+)]/g;
   const matches = text.match(tagRegEx);
   if (matches) {
     return text.replaceAll(tagRegEx, replaceTag);

@@ -1,3 +1,7 @@
+# 2.7.4
+
+* Linking to conditions in descriptions: if multiple conditions were present in the feature description it would remove text between these conditions. Rare, noticed on 3rd-level College of Spirits feature.
+
 # 2.7.3
 
 * Resource Selector - new dialog will pop up asking about what Resources you wish to use. This is the first part of improving resource management.
