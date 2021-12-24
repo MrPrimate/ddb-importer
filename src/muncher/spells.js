@@ -61,6 +61,7 @@ export async function parseSpells(ids = null) {
   if (addToCompendiumFolder && compendiumFoldersInstalled) {
     munchNote(`Checking compendium folders..`, true);
     await createCompendiumFolderStructure("spells");
+    munchNote("", true);
   }
 
   munchNote("Downloading spell data..");
@@ -82,7 +83,7 @@ export async function parseSpells(ids = null) {
   ]);
 
   munchNote("Parsing spell data..");
-  
+
   const filteredResults = results
     .filter((r) => r.status === "fulfilled")
     .map((r) => r.value).flat().flat();

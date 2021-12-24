@@ -356,7 +356,6 @@ async function createCompendiumItems(type, compendium, compendiumItems, index, m
       promises.push(compendium.importDocument(newItem));
     }
   };
-  munchNote(`Waiting for items in compendium...`, true);
   return Promise.all(promises);
 }
 
@@ -364,7 +363,6 @@ export async function compendiumFolders(document, type) {
   // using compendium folders?
   const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
-  munchNote(`Checking compendium folders..`, true);
   if (compendiumFolderAdd && compendiumFoldersInstalled) {
     // we create the compendium folder before import
     munchNote(`Adding ${document.name} to compendium folder`);
@@ -385,12 +383,15 @@ export async function updateCompendium(type, input, updateExisting = false, matc
 
     let updateResults = [];
     // update existing items
+    munchNote(`Creating and updating ${compendiumItems.length} new ${type} items in compendium...`, true);
+
     if (updateExisting) {
       updateResults = await updateCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
     }
 
     // create new items
     const createResults = await createCompendiumItems(type, compendium, compendiumItems, initialIndex, matchFlags);
+    munchNote("", true);
 
     // compendium folders
     createResults.forEach(async (document) => {

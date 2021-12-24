@@ -131,6 +131,7 @@ export async function parseCritters(ids = null) {
   if (addToCompendiumFolder && compendiumFoldersInstalled) {
     munchNote(`Checking compendium folders..`, true);
     await createCompendiumFolderStructure("monsters");
+    munchNote("", true);
   }
 
   let monstersParsed = [];
