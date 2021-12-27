@@ -1,3 +1,8 @@
+# 2.7.5
+
+* Adventure Muncher: Updating Scenes would fail in v9.
+* Artificer Infusions: if using a Battle SMith int will now be used instead of str/dex (if appropriate) to infused items.
+
 # 2.7.4
 
 * Linking to conditions in descriptions: if multiple conditions were present in the feature description it would remove text between these conditions. Rare, noticed on 3rd-level College of Spirits feature.
