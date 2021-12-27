@@ -425,7 +425,7 @@ export default class AdventureMunch extends FormApplication {
         tile.img = await Helpers.importImage(tile.img, zip, adventure);
       });
 
-      if (overwriteEntity) await Scene.delete([data._id]);
+      if (overwriteEntity) await Scene.deleteDocuments([data._id]);
       const scene = await Scene.create(data, { keepId: true });
       this._itemsToRevisit.push(`Scene.${scene.data._id}`);
     }
