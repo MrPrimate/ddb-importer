@@ -73,6 +73,7 @@ function addMagicBonus(character, item, modifiers) {
   if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
     item.data.damage.parts[0][0] += ` + ${magicBonus}`;
     item.data.attackBonus += magicBonus;
+    setProperty(item, "data.properties.mgc", true);
     // to do add infusion description to item
   }
   return item;
@@ -135,6 +136,9 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     foundryItem.flags.infusions.applied.push(infusionDetail);
     foundryItem.flags.infusions.maps.push(infusionItemMap);
 
+    // set magic properties
+    setProperty(foundryItem, "data.properties.mgc", true);
+
     // Update Item description
     foundryItem.data.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;
     foundryItem.data.description.chat += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.snippet ? infusionDetail.snippet : infusionDetail.description}</p></div>`;
@@ -151,6 +155,20 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
       };
       // infusions will over ride the can equip status, so just check for equipped
       foundryItem.data.equipped = ddbItem.equipped;
+    }
+
+    // check to see if we need to fiddle attack modifiers on infused weapons
+    if (foundryItem.type === "weapon") {
+      const intSwap = utils.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0;
+      if (intSwap) {
+        const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+        const mockAbility = foundryItem.data.ability === null
+          ? foundryItem.data.properties.fin ? "dex" : "str"
+          : foundryItem.data.ability;
+        if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
+          foundryItem.data.ability = "int";
+        }
+      }
     }
   }
   return foundryItem;
