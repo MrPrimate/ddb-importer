@@ -51,6 +51,7 @@
     "renderTemplate": true,
     "Combat": true,
     "deepClone": true,
+    "duplicate": true,
     "foundry": true
   },
   "parserOptions": {

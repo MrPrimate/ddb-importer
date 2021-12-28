@@ -1,4 +1,9 @@
-# 2.7.6/7
+# 2.7.7
+
+* Try and make source book filter more obvious.
+* First pass implementing absorbtion for monsters (needs midi qol).
+
+# 2.7.6
 
 * Try and make source book filter more obvious.
 

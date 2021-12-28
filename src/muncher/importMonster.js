@@ -70,11 +70,14 @@ export function checkMonsterCompendium() {
 async function addNPCToCompendium(npc) {
   const compendium = getMonsterCompendium();
   if (compendium) {
+    let npcBasic = duplicate(npc);
+    // delete npcBasic.items;
+    let npcItems = npc.items;
     // unlock the compendium for update/create
     compendium.configure({ locked: false });
 
     const index = await compendium.getIndex();
-    const npcMatch = index.contents.find((entity) => entity.name.toLowerCase() === npc.name.toLowerCase());
+    const npcMatch = index.contents.find((entity) => entity.name.toLowerCase() === npcBasic.name.toLowerCase());
 
     let compendiumNPC;
     if (npcMatch) {
@@ -83,37 +86,41 @@ async function addNPCToCompendium(npc) {
 
         const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
         if (!updateImages && existingNPC.data.img !== "icons/svg/mystery-man.svg") {
-          npc.img = existingNPC.data.img;
+          npcBasic.img = existingNPC.data.img;
         }
         if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
-          npc.token.img = existingNPC.data.token.img;
-          npc.token.scale = existingNPC.data.token.scale;
-          npc.token.randomImg = existingNPC.data.token.randomImg;
-          npc.token.mirrorX = existingNPC.data.token.mirrorX;
-          npc.token.mirrorY = existingNPC.data.token.mirrorY;
-          npc.token.lockRotation = existingNPC.data.token.lockRotation;
-          npc.token.rotation = existingNPC.data.token.rotation;
-          npc.token.alpha = existingNPC.data.token.alpha;
-          npc.token.lightAlpha = existingNPC.data.token.lightAlpha;
-          npc.token.lightAnimation = existingNPC.data.token.lightAnimation;
-          npc.token.tint = existingNPC.data.token.tint;
-          npc.token.lightColor = existingNPC.data.token.lightColor;
+          npcBasic.token.img = existingNPC.data.token.img;
+          npcBasic.token.scale = existingNPC.data.token.scale;
+          npcBasic.token.randomImg = existingNPC.data.token.randomImg;
+          npcBasic.token.mirrorX = existingNPC.data.token.mirrorX;
+          npcBasic.token.mirrorY = existingNPC.data.token.mirrorY;
+          npcBasic.token.lockRotation = existingNPC.data.token.lockRotation;
+          npcBasic.token.rotation = existingNPC.data.token.rotation;
+          npcBasic.token.alpha = existingNPC.data.token.alpha;
+          npcBasic.token.lightAlpha = existingNPC.data.token.lightAlpha;
+          npcBasic.token.lightAnimation = existingNPC.data.token.lightAnimation;
+          npcBasic.token.tint = existingNPC.data.token.tint;
+          npcBasic.token.lightColor = existingNPC.data.token.lightColor;
         }
-        npc._id = npcMatch._id;
-        await copySupportedItemFlags(existingNPC.data, npc);
+        npcBasic._id = npcMatch._id;
+        await copySupportedItemFlags(existingNPC.data, npcBasic);
 
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-        compendiumNPC = await existingNPC.update(npc);
+        delete npcBasic.items;
+        compendiumNPC = await existingNPC.update(npcBasic);
+        compendiumNPC.createEmbeddedDocuments("Item", npcItems);
       }
     } else {
       // create the new npc
-      logger.debug(`Creating NPC actor ${npc.name}`);
+      logger.debug(`Creating NPC actor ${npcBasic.name}`);
       const options = {
         temporary: true,
         displaySheet: false,
       };
-      const newNPC = await Actor.create(npc, options);
+      delete npcBasic.items;
+      const newNPC = await Actor.create(npcBasic, options);
       compendiumNPC = await compendium.importDocument(newNPC);
+      compendiumNPC.createEmbeddedDocuments("Item", npcItems);
     }
 
     // using compendium folders?
