@@ -1,4 +1,4 @@
-# 2.7.6
+# 2.7.6/7
 
 * Try and make source book filter more obvious.
 

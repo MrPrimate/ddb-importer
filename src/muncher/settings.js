@@ -754,7 +754,7 @@ export function getMuncherSettings(includeHomebrew = true) {
     {
       name: "use-source-filter",
       isChecked: enableSources,
-      description: "Restrict import to source book(s)? (DDB sets this as the <i>first</i> book a monster appears in).",
+      description: "Restrict import to specific source book(s)? (DDB sets this as the <i>first</i> book a monster appears in).",
       enabled: tiers.homebrew,
     }
   ];
@@ -834,6 +834,7 @@ export function updateMuncherSettings(html, event, dialog) {
     }
     case "use-source-filter": {
       $("#munch-source-select").prop("disabled", !checked);
+      $("#munch-source-div").toggleClass("ddbimporter-hidden");
       dialog.render(true);
       break;
     }

@@ -8,7 +8,7 @@ div.ddbCharacterName {
   align-items: center;
 }
 
-.ddbimporter .import-hidden {
+.ddbimporter-hidden {
   visibility: hidden;
 }
 
