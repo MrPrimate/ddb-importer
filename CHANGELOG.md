@@ -1,6 +1,6 @@
 # 2.7.6
 
-* Try and make soure book filter more obvious.
+* Try and make source book filter more obvious.
 
 # 2.7.5
 
