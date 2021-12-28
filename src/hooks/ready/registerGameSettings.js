@@ -1162,9 +1162,14 @@ export default function () {
     default: false,
   });
 
-  game.settings.register("ddb-importer", "munching-policy-monster-sources", {
-    name: "ddb-importer.munching-policy-monster-sources.name",
-    hint: "ddb-importer.munching-policy-monster-sources.hint",
+  game.settings.register("ddb-importer", "munching-policy-use-source-filter", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "munching-policy-muncher-sources", {
     scope: "player",
     config: false,
     type: Array,

@@ -41,7 +41,6 @@
     "./css/import.css",
     "./css/journal.css",
     "./css/notifications.css",
-    "./css/muncher.css",
     "./css/adventure.css"
   ],
   "packs": [],

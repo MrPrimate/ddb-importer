@@ -67,7 +67,7 @@ export class DDBSources extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const existingSelection = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
+    const existingSelection = game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat();
     const sources = getSourcesLookups(existingSelection);
 
     return {
@@ -85,7 +85,7 @@ export class DDBSources extends FormApplication {
     for (const [key, value] of Object.entries(formData)) {
       if (value) sources.push(parseInt(key));
     }
-    await game.settings.set("ddb-importer", "munching-policy-monster-sources", sources);
+    await game.settings.set("ddb-importer", "munching-policy-muncher-sources", sources);
     // eslint-disable-next-line no-use-before-define
     new DDBMuncher().render(true);
   }
@@ -194,7 +194,7 @@ export default class DDBMuncher extends Application {
       ].join(",")
     )
     .on("change", (event) => {
-      updateMuncherSettings(html, event);
+      updateMuncherSettings(html, event, this);
     });
 
 

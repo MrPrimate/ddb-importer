@@ -1,3 +1,7 @@
+# 2.7.6
+
+* Try and make soure book filter more obvious.
+
 # 2.7.5
 
 * Adventure Muncher: Updating Scenes would fail in v9.

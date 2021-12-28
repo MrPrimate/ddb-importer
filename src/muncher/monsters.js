@@ -22,13 +22,16 @@ async function getMonsterData(ids) {
     body.ids = [...new Set(ids)];
   } else {
     const searchTerm = $("#monster-munch-filter")[0].value;
-    body.sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
+    const enableSources = game.settings.get("ddb-importer", "munching-policy-use-source-filter");
+    const sources = enableSources
+      ? game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat()
+      : [];
+    body.sources = sources;
     body.search = $("#monster-munch-filter")[0].value;
     body.homebrew = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
     body.homebrewOnly = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
     body.searchTerm = encodeURIComponent(searchTerm);
     body.exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
-    body.sources = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
   }
 
   const debugJson = game.settings.get("ddb-importer", "debug-json");

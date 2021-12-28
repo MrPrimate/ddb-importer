@@ -620,8 +620,11 @@ export function getMuncherSettings(includeHomebrew = true) {
     },
   ];
 
-  const sourceArray = game.settings.get("ddb-importer", "munching-policy-monster-sources").flat();
-  const sourcesSelected = sourceArray.length > 0;
+  const enableSources = game.settings.get("ddb-importer", "munching-policy-use-source-filter");
+  const sourceArray = enableSources
+    ? game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat()
+    : [];
+  const sourcesSelected = enableSources && sourceArray.length > 0;
   const sourceNames = getSourcesLookups(sourceArray).filter((source) => source.selected).map((source) => source.label);
   const homebrewDescription = sourcesSelected
       ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
@@ -748,6 +751,12 @@ export function getMuncherSettings(includeHomebrew = true) {
         "[CAUTION] Use SRD compendium things instead of importing. This is not recommended, and may break adventure munching functionality.",
       enabled: true,
     },
+    {
+      name: "use-source-filter",
+      isChecked: enableSources,
+      description: "Restrict import to source book(s)? (DDB sets this as the <i>first</i> book a monster appears in).",
+      enabled: tiers.homebrew,
+    }
   ];
 
   const resultData = {
@@ -764,6 +773,7 @@ export function getMuncherSettings(includeHomebrew = true) {
     compendiumFolderSpellStyles,
     sourcesSelected,
     sourceDescription,
+    enableSources,
   };
 
   // console.warn(resultData);
@@ -771,7 +781,7 @@ export function getMuncherSettings(includeHomebrew = true) {
   return resultData;
 }
 
-export function updateMuncherSettings(html, event) {
+export function updateMuncherSettings(html, event, dialog) {
   const selection = event.currentTarget.dataset.section;
   const checked = event.currentTarget.checked;
 
@@ -820,6 +830,11 @@ export function updateMuncherSettings(html, event) {
         game.settings.set("ddb-importer", "munching-policy-remote-images", false);
         $("#munching-generic-policy-remote-images").prop("checked", false);
       }
+      break;
+    }
+    case "use-source-filter": {
+      $("#munch-source-select").prop("disabled", !checked);
+      dialog.render(true);
       break;
     }
     // no default

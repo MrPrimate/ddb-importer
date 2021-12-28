@@ -8,6 +8,10 @@ div.ddbCharacterName {
   align-items: center;
 }
 
+.ddbimporter .import-hidden {
+  visibility: hidden;
+}
+
 .ddbimporter div.form-section {
   display: flex;
   flex-direction: row;
