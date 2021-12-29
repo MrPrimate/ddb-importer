@@ -261,6 +261,18 @@ export function fixFeatures(features) {
       }
       case "Bardic Inspiration": {
         feature.data.actionType = "util";
+        feature.data.duration = {
+          value: 10,
+          units: "minute",
+        };
+        feature.data.target = {
+          value: 1,
+          width: null,
+          units: "",
+          type: "creature",
+        };
+        feature.data["range"]["value"] = 60;
+        feature.data["range"]["units"] = "ft";
         break;
       }
       case "Superiority Dice": {

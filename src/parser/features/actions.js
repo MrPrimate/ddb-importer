@@ -653,6 +653,10 @@ function addObsidianHints(ddb, character, actions) {
       const klass = utils.findClassByFeatureId(ddb, klassAction.componentId);
       action.flags.obsidian.source.type = "class";
       action.flags.obsidian.source.text = klass.definition.name;
+      action.flags.ddbimporter.class = klass.definition.name;
+      action.flags.ddbimporter.subclass = hasProperty(klass, "subclassDefinition.name")
+        ? klass.subclassDefinition.name
+        : undefined;
     } else if (raceAction) {
       action.flags.obsidian.source.type = "race";
     } else if (featAction) {

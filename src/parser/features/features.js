@@ -183,6 +183,10 @@ function parseClassFeatures(ddb, character) {
         let items = parseFeature(feat, ddb, character, klassName, "class");
         return items.map((item) => {
           item.flags.ddbimporter.dndbeyond.class = klassName;
+          item.flags.ddbimporter.class = klass.definition.name;
+          item.flags.ddbimporter.subclass = hasProperty(klass, "subclassDefinition.name")
+            ? klass.subclassDefinition.name
+            : undefined;
           item.flags.obsidian.source.text = klassName;
           // add feature to all features list
           classesFeatureList.push(JSON.parse(JSON.stringify(item)));
@@ -225,6 +229,10 @@ function parseClassFeatures(ddb, character) {
           return subClassItems.map((item) => {
             item.flags.ddbimporter.dndbeyond.class = subKlassName;
             item.flags.obsidian.source.text = klassName;
+            item.flags.ddbimporter.class = klass.definition.name;
+            item.flags.ddbimporter.subclass = hasProperty(klass, "subclassDefinition.name")
+              ? klass.subclassDefinition.name
+              : undefined;
             // add feature to all features list
             subClassesFeatureList.push(JSON.parse(JSON.stringify(item)));
             return item;
