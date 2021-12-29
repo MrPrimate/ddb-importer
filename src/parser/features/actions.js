@@ -5,6 +5,87 @@ import parseTemplateString from "../templateStrings.js";
 import { fixFeatures, stripHtml, addFeatEffects } from "./special.js";
 import { getInfusionActionData } from "../inventory/infusions.js";
 
+function getResourceFlags(character, action, flags) {
+  const linkItems = utils.isModuleInstalledAndActive("link-item-resource-5e");
+  const resourceType = getProperty(character, "flags.ddbimporter.resources.type");
+  if (resourceType !== "disable" && linkItems) {
+    const hasResourceLink = getProperty(flags, "link-item-resource-5e.resource-link");
+    Object.keys(character.data.resources).forEach((resource) => {
+      const detail = character.data.resources[resource];
+      if (action.name === detail.label) {
+        setProperty(flags, "link-item-resource-5e.resource-link", resource);
+        character.data.resources[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+      } else if (hasResourceLink === resource) {
+        setProperty(flags, "link-item-resource-5e.resource-link", undefined);
+      }
+    });
+  }
+  return flags;
+}
+
+function addFlagHints(ddb, character, action, feature) {
+  const klassAction = ddb.character.actions.class
+    .filter((ddbAction) => utils.findClassByFeatureId(ddb, ddbAction.componentId))
+    .find((ddbAction) => {
+      const name = utils.getName(ddbAction, character);
+      return name === feature.name;
+    });
+  const raceAction = ddb.character.actions.race
+    .some((ddbAction) => {
+      const name = utils.getName(ddbAction, character);
+      return name === feature.name;
+    });
+  const featAction = ddb.character.actions.feat
+    .some((ddbAction) => {
+      const name = utils.getName(ddbAction, character);
+      return name === feature.name;
+    });
+
+  // obsidian and klass names (used in effect enrichment)
+  if (klassAction) {
+    const klass = utils.findClassByFeatureId(ddb, klassAction.componentId);
+    setProperty(feature.flags, "obsidian.source.type", "class");
+    setProperty(feature.flags, "obsidian.source.text", klass.definition.name);
+    setProperty(feature.flags, "ddbimporter.class", klass.definition.name);
+    const subClassName = hasProperty(klass, "subclassDefinition.name") ? klass.subclassDefinition.name : undefined;
+    setProperty(feature.flags, "ddbimporter.subclass", subClassName);
+  } else if (raceAction) {
+    feature.flags.obsidian.source.type = "race";
+  } else if (featAction) {
+    feature.flags.obsidian.source.type = "feat";
+  }
+
+  // scaling details
+  let klassActionComponent = utils.findComponentByComponentId(ddb, action.id);
+  if (!klassActionComponent) klassActionComponent = utils.findComponentByComponentId(ddb, action.componentId);
+  if (klassActionComponent) {
+    setProperty(feature.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
+    setProperty(feature.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
+    setProperty(feature.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
+  }
+
+  // better rolls
+  if (feature.data.uses?.max) {
+    feature.flags.betterRolls5e = {
+      "quickCharges": {
+        "value": {
+          "use": true,
+          "resource": true
+        },
+        "altValue": {
+          "use": true,
+          "resource": true
+        }
+      }
+    };
+  }
+
+  // resource flag hints
+  feature.flags = getResourceFlags(character, action, feature.flags);
+
+  return feature;
+}
+
 // get actions from ddb.character.customActions
 function getCustomActions(ddb, displayedAsAttack) {
   const customActions = ddb.character.customActions
@@ -275,24 +356,6 @@ function getResource(character, action) {
   return consume;
 }
 
-function getResourceFlags(character, action, flags) {
-  const linkItems = utils.isModuleInstalledAndActive("link-item-resource-5e");
-  const resourceType = getProperty(character, "flags.ddbimporter.resources.type");
-  if (resourceType !== "disable" && linkItems) {
-    const hasResourceLink = getProperty(flags, "link-item-resource-5e.resource-link");
-    Object.keys(character.data.resources).forEach((resource) => {
-      const detail = character.data.resources[resource];
-      if (action.name === detail.label) {
-        setProperty(flags, "link-item-resource-5e.resource-link", resource);
-        character.data.resources[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
-      } else if (hasResourceLink === resource) {
-        setProperty(flags, "link-item-resource-5e.resource-link", undefined);
-      }
-    });
-  }
-  return flags;
-}
-
 function getWeaponType(action) {
   const entry = DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === action.attackSubtype);
   const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === action.attackTypeRange);
@@ -436,32 +499,10 @@ function getAttackAction(ddb, character, action) {
     feature.data.weaponType = getWeaponType(action);
     feature.data.uses = getLimitedUse(action, character);
     feature.data.consume = getResource(character, action);
-    feature.flags = getResourceFlags(character, action, feature.flags);
 
-    // class action
-    const klassAction = utils.findComponentByComponentId(ddb, action.id);
-    if (klassAction) {
-      setProperty(feature.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
-      setProperty(feature.flags, "ddbimporter.dndbeyond.levelScales", klassAction.definition?.levelScales);
-      setProperty(feature.flags, "ddbimporter.dndbeyond.limitedUse", klassAction.definition?.limitedUse);
-    }
-
+    feature = addFlagHints(ddb, character, action, feature);
     feature = addFeatEffects(ddb, character, action, feature);
 
-    if (feature.data.uses?.max) {
-      feature.flags.betterRolls5e = {
-        "quickCharges": {
-          "value": {
-            "use": true,
-            "resource": true
-          },
-          "altValue": {
-            "use": true,
-            "resource": true
-          }
-        }
-      };
-    }
   } catch (err) {
     logger.warn(
       `Unable to Import Attack Action: ${action.name}, please log a bug report. Err: ${err.message}`,
@@ -581,88 +622,22 @@ function getOtherActions(ddb, character, items) {
       feat.data.description = getDescription(ddb, character, action);
       feat.data.uses = getLimitedUse(action, character);
       feat.data.consume = getResource(character, action);
-      feat.flags = getResourceFlags(character, action, feat.flags);
 
       feat = calculateRange(action, feat);
       feat = getAttackType(ddb, character, action, feat);
-
-      if (feat.data.uses?.max) {
-        feat.flags.betterRolls5e = {
-          quickCharges: {
-            value: {
-              use: true,
-              resource: true
-            },
-            altValue: {
-              use: true,
-              resource: true
-            }
-          }
-        };
-      }
 
       if (!feat.data.damage?.parts) {
         logger.debug("Running level scale parser");
         feat = getLevelScaleDice(ddb, character, action, feat);
       }
 
-      // class action
-      const klassAction = utils.findComponentByComponentId(ddb, action.id);
-      if (klassAction) {
-        setProperty(feat.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
-        setProperty(feat.flags, "ddbimporter.dndbeyond.levelScales", klassAction.definition?.levelScales);
-        setProperty(feat.flags, "ddbimporter.dndbeyond.limitedUse", klassAction.definition?.limitedUse);
-      } else {
-        const klassByComponentId = utils.findComponentByComponentId(ddb, action.componentId);
-        if (klassByComponentId) {
-          setProperty(feat.flags, "ddbimporter.dndbeyond.levelScale", klassByComponentId.levelScale);
-          setProperty(feat.flags, "ddbimporter.dndbeyond.levelScales", klassByComponentId.definition?.levelScales);
-          setProperty(feat.flags, "ddbimporter.dndbeyond.limitedUse", klassByComponentId.definition?.limitedUse);
-        }
-      }
-
+      feat = addFlagHints(ddb, character, action, feat);
       feat = addFeatEffects(ddb, character, action, feat);
 
       return feat;
     });
 
-  // FUTURE ENHANCEMENT: We maybe able to look up other entities here to get details for things like Sneak Attack
   return actions;
-}
-
-function addObsidianHints(ddb, character, actions) {
-  actions.forEach((action) => {
-    const klassAction = ddb.character.actions.class
-      .filter((ddbAction) => utils.findClassByFeatureId(ddb, ddbAction.componentId))
-      .find((ddbAction) => {
-        const name = utils.getName(ddbAction, character);
-        return name === action.name;
-      });
-    const raceAction = ddb.character.actions.race
-      .some((ddbAction) => {
-        const name = utils.getName(ddbAction, character);
-        return name === action.name;
-      });
-    const featAction = ddb.character.actions.feat
-      .some((ddbAction) => {
-        const name = utils.getName(ddbAction, character);
-        return name === action.name;
-      });
-
-    if (klassAction) {
-      const klass = utils.findClassByFeatureId(ddb, klassAction.componentId);
-      action.flags.obsidian.source.type = "class";
-      action.flags.obsidian.source.text = klass.definition.name;
-      action.flags.ddbimporter.class = klass.definition.name;
-      action.flags.ddbimporter.subclass = hasProperty(klass, "subclassDefinition.name")
-        ? klass.subclassDefinition.name
-        : undefined;
-    } else if (raceAction) {
-      action.flags.obsidian.source.type = "race";
-    } else if (featAction) {
-      action.flags.obsidian.source.type = "feat";
-    }
-  });
 }
 
 export default function parseActions(ddb, character) {
@@ -702,8 +677,5 @@ export default function parseActions(ddb, character) {
   });
 
   fixFeatures(actions);
-  addObsidianHints(ddb, character, actions);
-  // console.log("ACTIONS");
-  // console.error(JSON.parse(JSON.stringify(actions)));
   return actions;
 }

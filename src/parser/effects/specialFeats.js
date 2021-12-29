@@ -184,7 +184,6 @@ export function featureEffectAdjustment(document) {
           effectActivation: false,
           forceCEOff: false,
         };
-        console.warn(document);
       }
       break;
     }
