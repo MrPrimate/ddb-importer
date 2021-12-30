@@ -774,6 +774,7 @@ export function getMuncherSettings(includeHomebrew = true) {
     sourcesSelected,
     sourceDescription,
     enableSources,
+    version: CONFIG.DDBI.version,
   };
 
   // console.warn(resultData);

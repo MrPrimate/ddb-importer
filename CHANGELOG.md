@@ -1,7 +1,7 @@
 # 2.7.7
 
 * Try and make source book filter more obvious.
-* First pass implementing absorbtion for monsters (needs midi qol).
+* First pass implementing absorption for monsters (needs midi qol).
 * Effects: Support Potent Cantrip for midi-qol.
 * Effects: If using midi-qol Bardic Inspiration effect is now applied to feature.
 * Action parsing: code tidy.
