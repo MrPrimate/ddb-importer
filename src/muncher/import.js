@@ -333,20 +333,19 @@ export async function updateMidiFlags() {
   const index = await compendium.getIndex();
   const docs = await compendium.getDocuments();
   const spells = docs.map((s) => s.toObject()).filter((s) => s.type === "spell");
-  const filteredSpells = spells.map(s => {
+  const filteredSpells = spells.map((s) => {
     delete s.flags.dynamiceffects;
     delete s.flags.core;
-    if (s.flags.itemacro && s.flags.itemacro.macro.data.command == "");
+    if (s.flags.itemacro && s.flags.itemacro.macro.data.command == "") delete s.flags.itemacro;
+    if (s.flags.itemacro) {
+      delete s.flags.itemacro.macro._data;
+      delete s.flags.itemacro.macro.data.author;
+    }
     const effects = s.effects.map((e) => {
       if (e.flags) {
         let flags = { };
         if (e.flags.dae && e.flags.dae.macroRepeat !== "none") setProperty(flags, "dae.macroRepeat", e.flags.dae.macroRepeat);
         if (e.flags["midi-qol"]) flags["midi-qol"] = e.flags["midi-qol"];
-        if (e.flags.itemacro && e.flags.itemacro.macro.data.command !== "") flags.itemacro = e.flags.itemacro;
-        if (flags.itemacro) {
-          delete flags.itemacro._data;
-          delete flags.itemacro.author;
-        }
         e.flags = flags;
       }
       return e;
