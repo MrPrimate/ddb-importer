@@ -14,6 +14,7 @@ import { getDamage } from "./damage.js";
 import { getSave } from "./save.js";
 import { getSpellScaling } from "./scaling.js";
 import { generateTable } from "../../muncher/table.js";
+import { spellEffectAdjustment } from "../effects/specialSpells.js";
 
 export function parseSpell(data, character) {
   let spell = {
@@ -109,6 +110,11 @@ export function parseSpell(data, character) {
       }
     },
   };
+
+  const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
+  if (midiQolInstalled) {
+    spellEffectAdjustment(spell);
+  }
 
   return spell;
 }
