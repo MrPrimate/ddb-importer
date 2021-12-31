@@ -7,13 +7,13 @@ import utils from '../../utils.js';
 function reMatchAll(regexp, string) {
   const matches = string.match(new RegExp(regexp, "gm"));
   if (matches) {
-      let start = 0;
-      return matches.map((group0) => {
-          const match = group0.match(regexp);
-          match.index = string.indexOf(group0, start);
-          start = match.index;
-          return match;
-      });
+    let start = 0;
+    return matches.map((group0) => {
+      const match = group0.match(regexp);
+      match.index = string.indexOf(group0, start);
+      start = match.index;
+      return match;
+    });
   }
   return matches;
 }
@@ -80,7 +80,7 @@ function getExtendedDamage(description, attackInfo) {
   for (let dmg of matches) {
     let other = false;
     if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
-        continue; // eslint-disable-line no-continue
+      continue; // eslint-disable-line no-continue
     }
     // check for versatile
     if (dmg[1] == "or " || dmg[5] == "two hands") {
@@ -94,8 +94,8 @@ function getExtendedDamage(description, attackInfo) {
       const includesDiceRegExp = /[0-9]*d[0-9]+/;
       const includesDice = includesDiceRegExp.test(damage);
       const finalDamage = (attackInfo && includesDice)
-          ? damageModReplace(damage.replace("plus", "+"), attackInfo, dmg[4])
-          : damage.replace("plus", "+");
+        ? damageModReplace(damage.replace("plus", "+"), attackInfo, dmg[4])
+        : damage.replace("plus", "+");
       // assumption here is that there is just one field added to versatile. this is going to be rare.
       if (other) {
         if (result.formula == "") result.formula = finalDamage;
@@ -119,14 +119,14 @@ function getExtendedDamage(description, attackInfo) {
 
   const save = hit.match(/DC ([0-9]+) (.*?) saving throw/);
   if (save) {
-      result.save.dc = save[1];
-      result.save.ability = save[2].toLowerCase().substr(0, 3);
+    result.save.dc = save[1];
+    result.save.ability = save[2].toLowerCase().substr(0, 3);
   } else {
-      const escape = hit.match(/escape DC ([0-9]+)/);
-      if (escape) {
-        result.save.dc = escape[1];
-        result.save.ability = "Escape";
-      }
+    const escape = hit.match(/escape DC ([0-9]+)/);
+    if (escape) {
+      result.save.dc = escape[1];
+      result.save.ability = "Escape";
+    }
   }
 
   return result;
@@ -563,7 +563,7 @@ export function getActionInfo(monster, DDB_CONFIG, name, text) {
 }
 
 export function stripHtml(html) {
-   let tmp = document.createElement("DIV");
-   tmp.innerHTML = html;
-   return tmp.textContent || tmp.innerText || "";
+  let tmp = document.createElement("DIV");
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || "";
 }

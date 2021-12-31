@@ -309,14 +309,14 @@ export default function parseFeatures(ddb, character) {
   logger.debug("Parsing optional class features");
   if (ddb.classOptions) {
     ddb.classOptions
-    .forEach((feat) => {
-      logger.debug(`Parsing Optional Feature ${feat.name}`);
-      const source = utils.parseSource(feat);
-      const feats = parseFeature(feat, ddb, character, source, "class");
-      feats.forEach((item) => {
-        items.push(item);
+      .forEach((feat) => {
+        logger.debug(`Parsing Optional Feature ${feat.name}`);
+        const source = utils.parseSource(feat);
+        const feats = parseFeature(feat, ddb, character, source, "class");
+        feats.forEach((item) => {
+          items.push(item);
+        });
       });
-    });
   }
 
   // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision

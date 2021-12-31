@@ -124,10 +124,10 @@ function getClassModifiers(data, classFeatures, isStartingClass = false) {
 
 export function getAllClassFeatures(data) {
   return data.classes
-  .map((cls) => {
-    return getClassFeatures(cls, cls.level);
-  })
-  .flat();
+    .map((cls) => {
+      return getClassFeatures(cls, cls.level);
+    })
+    .flat();
 }
 
 function getClassOptionModifiers(data) {

@@ -2,9 +2,9 @@ import DICTIONARY from "../../dictionary.js";
 
 function resourceList(data) {
   const resources = [data.character.actions.race, data.character.actions.class, data.character.actions.feat]
-      .flat()
-      .filter((action) =>
-        action.limitedUse &&
+    .flat()
+    .filter((action) =>
+      action.limitedUse &&
         (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus));
 
   return resources;
@@ -218,37 +218,37 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
           "cssClass": "character-resource-selection sheet"
         },
         buttons: {
-        default: {
-          icon: '<i class="fas fa-list-ol"></i>',
-          label: "Default",
-          callback: async () => {
-            const formData = $('.character-resource-selection').serializeArray();
-            let resourceSelection = generateResourceSelectionFromForm(formData, "default");
-            resourceSelection = setDefaultResources(resources, resourceSelection);
-            character = setResourceType(ddb, character, resourceSelection);
-            resolve(character);
+          default: {
+            icon: '<i class="fas fa-list-ol"></i>',
+            label: "Default",
+            callback: async () => {
+              const formData = $('.character-resource-selection').serializeArray();
+              let resourceSelection = generateResourceSelectionFromForm(formData, "default");
+              resourceSelection = setDefaultResources(resources, resourceSelection);
+              character = setResourceType(ddb, character, resourceSelection);
+              resolve(character);
+            }
+          },
+          custom: {
+            icon: '<i class="fas fa-sort"></i>',
+            label: "Use selected",
+            callback: async () => {
+              const formData = $('.character-resource-selection').serializeArray();
+              const resourceSelection = generateResourceSelectionFromForm(formData, "custom");
+              character = setResourceType(ddb, character, resourceSelection);
+              resolve(character);
+            }
+          },
+          disable: {
+            icon: '<i class="fas fa-times"></i>',
+            label: "None",
+            callback: async () => {
+              const formData = $('.character-resource-selection').serializeArray();
+              const resourceSelection = generateResourceSelectionFromForm(formData, "disable");
+              character = setResourceType(ddb, character, resourceSelection);
+              resolve(character);
+            }
           }
-        },
-        custom: {
-          icon: '<i class="fas fa-sort"></i>',
-          label: "Use selected",
-          callback: async () => {
-            const formData = $('.character-resource-selection').serializeArray();
-            const resourceSelection = generateResourceSelectionFromForm(formData, "custom");
-            character = setResourceType(ddb, character, resourceSelection);
-            resolve(character);
-          }
-        },
-        disable: {
-          icon: '<i class="fas fa-times"></i>',
-          label: "None",
-          callback: async () => {
-            const formData = $('.character-resource-selection').serializeArray();
-            const resourceSelection = generateResourceSelectionFromForm(formData, "disable");
-            character = setResourceType(ddb, character, resourceSelection);
-            resolve(character);
-          }
-        }
         },
         default: "default",
         close: () => resolve(character),

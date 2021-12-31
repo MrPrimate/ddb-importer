@@ -326,10 +326,10 @@ function getActivation(action) {
     const activation = !actionType
       ? {}
       : {
-          type: actionType.value,
-          cost: action.activation.activationTime || 1,
-          condition: "",
-        };
+        type: actionType.value,
+        cost: action.activation.activationTime || 1,
+        condition: "",
+      };
     return activation;
   }
   return {};

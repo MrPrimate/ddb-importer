@@ -20,16 +20,16 @@ import { migrateExistingCompendium } from "./compendiumFolders.js";
 
 export function getSourcesLookups(selected) {
   const selections = DDB_CONFIG.sources
-  .filter((source) => source.isReleased && source.sourceCategoryId !== 9 && source.sourceCategoryId !== 3)
-  .map((source) => {
-    const details = {
-      id: source.id,
-      acronym: source.name,
-      label: source.description,
-      selected: selected.includes(source.id),
-    };
-    return details;
-  });
+    .filter((source) => source.isReleased && source.sourceCategoryId !== 9 && source.sourceCategoryId !== 3)
+    .map((source) => {
+      const details = {
+        id: source.id,
+        acronym: source.name,
+        label: source.description,
+        selected: selected.includes(source.id),
+      };
+      return details;
+    });
 
   return selections;
 }
@@ -185,17 +185,17 @@ export default class DDBMuncher extends Application {
 
     // watch the change of the import-policy-selector checkboxes
     $(html)
-    .find(
-      [
-        '.munching-generic-config input[type="checkbox"]',
-        '.munching-spell-config input[type="checkbox"]',
-        '.munching-item-config input[type="checkbox"]',
-        '.munching-monster-config input[type="checkbox"]',
-      ].join(",")
-    )
-    .on("change", (event) => {
-      updateMuncherSettings(html, event, this);
-    });
+      .find(
+        [
+          '.munching-generic-config input[type="checkbox"]',
+          '.munching-spell-config input[type="checkbox"]',
+          '.munching-item-config input[type="checkbox"]',
+          '.munching-monster-config input[type="checkbox"]',
+        ].join(",")
+      )
+      .on("change", (event) => {
+        updateMuncherSettings(html, event, this);
+      });
 
 
     html.find("#monster-munch-filter").on("keyup", (event) => {

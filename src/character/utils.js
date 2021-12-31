@@ -18,8 +18,8 @@ export async function updateDynamicUpdates(actor, state) {
 
 export function getCurrentDynamicUpdateState(actor) {
   const activeUpdateState = actor.data.flags?.ddbimporter?.activeUpdate
-      ? actor.data.flags.ddbimporter.activeUpdate
-      : false;
+    ? actor.data.flags.ddbimporter.activeUpdate
+    : false;
   return activeUpdateState;
 }
 

@@ -124,7 +124,7 @@ async function spellSlotsPact(actor, ddbData) {
 
 async function updateDynamicDDBSpellSlots(actor, update) {
   return new Promise((resolve) => {
-     let spellSlotData = { spellslots: {}, update: false };
+    let spellSlotData = { spellslots: {}, update: false };
     for (let i = 1; i <= 9; i++) {
       let spellData = actor.data.data.spells[`spell${i}`];
       if (spellData.max > 0 && update.data.spells[`spell${i}`]) {
@@ -412,13 +412,13 @@ async function updateDDBSpellsPrepared(actor, spells) {
     spell.data.flags.ddbimporter?.dndbeyond?.characterClassId
   ).map((spell) => {
     let spellPreparedData = {
-        spellInfo: {
-          spellId: spell.data.flags.ddbimporter.definitionId,
-          characterClassId: spell.data.flags.ddbimporter.dndbeyond.characterClassId,
-          entityTypeId: spell.data.flags.ddbimporter.entityTypeId,
-          id: spell.data.flags.ddbimporter.id,
-          prepared: spell.data.data.preparation.prepared === true,
-        }
+      spellInfo: {
+        spellId: spell.data.flags.ddbimporter.definitionId,
+        characterClassId: spell.data.flags.ddbimporter.dndbeyond.characterClassId,
+        entityTypeId: spell.data.flags.ddbimporter.entityTypeId,
+        id: spell.data.flags.ddbimporter.id,
+        prepared: spell.data.data.preparation.prepared === true,
+      }
     };
     return spellPreparedData;
   });

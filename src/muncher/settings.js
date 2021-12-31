@@ -627,8 +627,8 @@ export function getMuncherSettings(includeHomebrew = true) {
   const sourcesSelected = enableSources && sourceArray.length > 0;
   const sourceNames = getSourcesLookups(sourceArray).filter((source) => source.selected).map((source) => source.label);
   const homebrewDescription = sourcesSelected
-      ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
-      : "Include homebrew?";
+    ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
+    : "Include homebrew?";
   const sourceDescription = `Importing from the following sources only: ${sourceNames.join(", ")}`;
 
   const basicMonsterConfig = [
@@ -678,25 +678,25 @@ export function getMuncherSettings(includeHomebrew = true) {
 
   const homebrewMonsterConfig = includeHomebrew
     ? [
-        {
-          name: "monster-homebrew",
-          isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew") && !sourcesSelected,
-          description: homebrewDescription,
-          enabled: tiers.homebrew && !sourcesSelected,
-        },
-        {
-          name: "monster-homebrew-only",
-          isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only") && !sourcesSelected,
-          description: "Homebrew monsters only? (Otherwise both)",
-          enabled: tiers.homebrew && !sourcesSelected,
-        },
-        {
-          name: "monster-exact-match",
-          isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exact-match"),
-          description: "Exact name match?",
-          enabled: tiers.homebrew,
-        }
-      ]
+      {
+        name: "monster-homebrew",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew") && !sourcesSelected,
+        description: homebrewDescription,
+        enabled: tiers.homebrew && !sourcesSelected,
+      },
+      {
+        name: "monster-homebrew-only",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only") && !sourcesSelected,
+        description: "Homebrew monsters only? (Otherwise both)",
+        enabled: tiers.homebrew && !sourcesSelected,
+      },
+      {
+        name: "monster-exact-match",
+        isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exact-match"),
+        description: "Exact name match?",
+        enabled: tiers.homebrew,
+      }
+    ]
     : [];
 
   const monsterConfig = basicMonsterConfig.concat(homebrewMonsterConfig);

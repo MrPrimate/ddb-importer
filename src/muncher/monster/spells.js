@@ -98,42 +98,42 @@ function parseAdditionalAtWill(text) {
 }
 
 function parseSpells(text, spells, spellList) {
-    // console.log(text);
-    const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|at-will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
-    const match = text.match(spellLevelSearch);
-    // console.log(match);
+  // console.log(text);
+  const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|at-will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
+  const match = text.match(spellLevelSearch);
+  // console.log(match);
 
-    const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:Level|level|-level)\s*(?:slot|slots)?\):\s+(.*$)/;
-    const warlockMatch = text.match(warlockLevelSearch);
+  const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:Level|level|-level)\s*(?:slot|slots)?\):\s+(.*$)/;
+  const warlockMatch = text.match(warlockLevelSearch);
 
-    if (!match && !warlockMatch) return parseInnateSpells(text, spells, spellList);
+  if (!match && !warlockMatch) return parseInnateSpells(text, spells, spellList);
 
-    const spellLevel = (match) ? match[1] : 'pact';
-    const slots = (match) ? match[2] : warlockMatch[2];
-    const spellMatches = (match) ? match[3] : warlockMatch[4];
+  const spellLevel = (match) ? match[1] : 'pact';
+  const slots = (match) ? match[2] : warlockMatch[2];
+  const spellMatches = (match) ? match[3] : warlockMatch[4];
 
-    if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))) {
-      spells[`spell${spellLevel}`]['value'] = slots;
-      spells[`spell${spellLevel}`]['max'] = slots;
-      spells[`spell${spellLevel}`]['override'] = slots;
-      const spellArray = spellMatches.split(",").map((spell) => spell.trim());
-      spellList.class.push(...spellArray);
-    } else if (spellLevel === 'pact' && Number.isInteger(parseInt(slots))) {
-      spells[spellLevel]['value'] = slots;
-      spells[spellLevel]['max'] = slots;
-      spells[spellLevel]['override'] = slots;
-      spells[spellLevel]['level'] = warlockMatch[3];
-      const spellArray = spellMatches.split(",").map((spell) => spell.trim());
-      spellList.pact.push(...spellArray);
-    } else if (["at will", "at-will"].includes(slots)) {
-      // at will spells
-      const spellArray = spellMatches.replace(/\*/g, '').split(",").map((spell) => spell.trim());
-      spellList.atwill.push(...spellArray);
-    }
+  if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))) {
+    spells[`spell${spellLevel}`]['value'] = slots;
+    spells[`spell${spellLevel}`]['max'] = slots;
+    spells[`spell${spellLevel}`]['override'] = slots;
+    const spellArray = spellMatches.split(",").map((spell) => spell.trim());
+    spellList.class.push(...spellArray);
+  } else if (spellLevel === 'pact' && Number.isInteger(parseInt(slots))) {
+    spells[spellLevel]['value'] = slots;
+    spells[spellLevel]['max'] = slots;
+    spells[spellLevel]['override'] = slots;
+    spells[spellLevel]['level'] = warlockMatch[3];
+    const spellArray = spellMatches.split(",").map((spell) => spell.trim());
+    spellList.pact.push(...spellArray);
+  } else if (["at will", "at-will"].includes(slots)) {
+    // at will spells
+    const spellArray = spellMatches.replace(/\*/g, '').split(",").map((spell) => spell.trim());
+    spellList.atwill.push(...spellArray);
+  }
 
-    // console.log(spellList);
+  // console.log(spellList);
 
-    return [spells, spellList];
+  return [spells, spellList];
 
 }
 
@@ -302,19 +302,19 @@ export function getSpells(monster, DDB_CONFIG) {
   // let specialTraits = monster.specialTraitsDescription;
   const possibleSpellSources = monster.specialTraitsDescription + monster.actionsDescription;
   let specialTraits = possibleSpellSources.replace(/<br \/>/g, "</p><p>");
-//   const specialCases = ["Sir Godfrey Gwilym", "Hlam", "Ygorl, Lord of Entropy",
-//     "Whymsee (Kraken Priest Variant)", "Strahd Zombie", "Skr’a S’orsk",
-//     "Mongrelfolk", "Laeral Silverhand", "Jarlaxle Baenre", "Gar Shatterkeel (Noncore)", "Forlarren",
-//     "Fog Giant", "Fhenimore (Kraken Priest Variant)", "Drow Arachnomancer",
-//     "Archon of the Triumvirate", "Amble",
-// ];
-//   if (specialCases.includes(monster.name)) {
-//     specialTraits = specialTraits.replace(/<br \/>/g, "</p><p>");
-//     logger.warn(`Fiddling with ${monster.name} spells due to bad formatting`);
-//   }
-//   if (specialTraits.includes("<br />")) console.error(`"SPECIAL CASE ${monster.name}`);
+  //   const specialCases = ["Sir Godfrey Gwilym", "Hlam", "Ygorl, Lord of Entropy",
+  //     "Whymsee (Kraken Priest Variant)", "Strahd Zombie", "Skr’a S’orsk",
+  //     "Mongrelfolk", "Laeral Silverhand", "Jarlaxle Baenre", "Gar Shatterkeel (Noncore)", "Forlarren",
+  //     "Fog Giant", "Fhenimore (Kraken Priest Variant)", "Drow Arachnomancer",
+  //     "Archon of the Triumvirate", "Amble",
+  // ];
+  //   if (specialCases.includes(monster.name)) {
+  //     specialTraits = specialTraits.replace(/<br \/>/g, "</p><p>");
+  //     logger.warn(`Fiddling with ${monster.name} spells due to bad formatting`);
+  //   }
+  //   if (specialTraits.includes("<br />")) console.error(`"SPECIAL CASE ${monster.name}`);
 
-// console.warn(specialTraits);
+  // console.warn(specialTraits);
   $.parseHTML(specialTraits).forEach((element) => {
     dom.appendChild(element);
   });

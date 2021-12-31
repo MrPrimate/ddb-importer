@@ -40,7 +40,7 @@ export function getEquipped(data) {
  * Gets Limited uses information, if any
  * uses: { value: 0, max: 0, per: null }
  */
- export function getUses(data) {
+export function getUses(data) {
   if (data.limitedUse !== undefined && data.limitedUse !== null) {
     let resetType = DICTIONARY.resets.find((reset) => reset.id == data.limitedUse.resetType);
     return {

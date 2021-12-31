@@ -7,15 +7,15 @@ export function getInitiative(data, character) {
   // If we have the alert Feat set, lets sub 5 so it's correct
   const initiative = character.flags.dnd5e.initiativeAlert
     ? {
-        value: initiativeBonus - 5,
-        bonus: 5, // used by FVTT internally
-        mod: characterAbilities.dex.mod,
-      }
+      value: initiativeBonus - 5,
+      bonus: 5, // used by FVTT internally
+      mod: characterAbilities.dex.mod,
+    }
     : {
-        value: initiativeBonus,
-        bonus: 0, // used by FVTT internally
-        mod: characterAbilities.dex.mod,
-      };
+      value: initiativeBonus,
+      bonus: 0, // used by FVTT internally
+      mod: characterAbilities.dex.mod,
+    };
 
   return initiative;
 }

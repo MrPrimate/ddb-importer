@@ -753,13 +753,13 @@ export class DDBEncounterMunch extends Application {
       const goodMonsters = encounter.goodMonsterIds.map((monster) => `${monster.name}`).join(", ");
       const neededCharactersHTML = encounter.missingCharacters
         ? ` <span style="color: red"> Missing ${
-            encounter.missingCharacterData.length
-          }: ${encounter.missingCharacterData.map((character) => character.name).join(", ")}</span>`
+          encounter.missingCharacterData.length
+        }: ${encounter.missingCharacterData.map((character) => character.name).join(", ")}</span>`
         : "";
       const neededMonstersHTML = encounter.missingMonsters
         ? ` <span style="color: red"> Missing ${
-            encounter.missingMonsterIds.length
-          }. DDB Id's: ${encounter.missingMonsterIds.map((monster) => monster.ddbId).join(", ")}</span>`
+          encounter.missingMonsterIds.length
+        }. DDB Id's: ${encounter.missingMonsterIds.map((monster) => monster.ddbId).join(", ")}</span>`
         : "";
 
       nameHtml[0].innerHTML = `<i class='fas fa-check-circle' style='color: green'></i> <b>Encounter:</b> ${encounter.name}`;
@@ -863,15 +863,15 @@ export class DDBEncounterMunch extends Application {
     ];
 
     const scenes = game.scenes.filter((scene) => !scene.data.flags?.ddbimporter?.encounters)
-    .map((scene) => {
-      const folderName = scene.folder ? `[${scene.folder.name}] ` : "";
-      const s = {
-        name: `${folderName}${scene.name}`,
-        id: scene.id,
-      };
-      return s;
-     })
-     .sort((a, b) => a.name.localeCompare(b.name));
+      .map((scene) => {
+        const folderName = scene.folder ? `[${scene.folder.name}] ` : "";
+        const s = {
+          name: `${folderName}${scene.name}`,
+          id: scene.id,
+        };
+        return s;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     const encounterSettings = {
       tiers,

@@ -67,7 +67,7 @@ function getDuration(data) {
       { foundryUnit: "month", descriptionMatches: ["month", "months"] },
       { foundryUnit: "perm", descriptionMatches: ["permanent"] },
       { foundryUnit: "round", descriptionMatches: ["round", "rounds"] },
-     // { foundryUnit: "spec", descriptionMatches: [null] },
+      // { foundryUnit: "spec", descriptionMatches: [null] },
       { foundryUnit: "turn", descriptionMatches: ["turn", "turns"] },
       { foundryUnit: "year", descriptionMatches: ["year", "years"] },
     ];

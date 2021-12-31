@@ -72,7 +72,7 @@ export default function getCharacter(ddb) {
     },
   };
 
-    // proficiency
+  // proficiency
   // prettier-ignore
   character.data.attributes.prof = Math.ceil(1 + (0.25 * character.flags.ddbimporter.dndbeyond.totalLevels));
 
@@ -100,7 +100,7 @@ export default function getCharacter(ddb) {
 
   // armor class
   const ac = getArmorClass(ddb, character);
-    character.data.attributes.ac = ac.auto;
+  character.data.attributes.ac = ac.auto;
   character.flags.ddbimporter.acEffects = ac.effects;
   character.flags.ddbimporter.baseAC = ac.base;
   character.flags.ddbimporter.autoAC = ac.auto;

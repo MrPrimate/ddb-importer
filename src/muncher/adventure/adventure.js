@@ -256,11 +256,11 @@ export default class AdventureMunch extends FormApplication {
           importFilename = selectedFile;
           zip = await fetch(`/${selectedFile}`)
             .then((response) => {
-                if (response.status === 200 || response.status === 0) {
-                    return Promise.resolve(response.blob());
-                } else {
-                    return Promise.reject(new Error(response.statusText));
-                }
+              if (response.status === 200 || response.status === 0) {
+                return Promise.resolve(response.blob());
+              } else {
+                return Promise.reject(new Error(response.statusText));
+              }
             })
             .then(JSZip.loadAsync);
         }
@@ -446,7 +446,7 @@ export default class AdventureMunch extends FormApplication {
             this._itemsToRevisit.push(`Actor.${actor.data._id}`);
           }
         }
-      break;
+        break;
       case "Item":
         if (!Helpers.findEntityByImportId("items", data._id)) {
           let item = await Item.create(data, { keepId: true });
@@ -454,7 +454,7 @@ export default class AdventureMunch extends FormApplication {
             this._itemsToRevisit.push(`Item.${item.data._id}`);
           }
         }
-      break;
+        break;
       case "JournalEntry":
         if (!Helpers.findEntityByImportId("journal", data._id)) {
           let journal = await JournalEntry.create(data, { keepId: true });
@@ -462,7 +462,7 @@ export default class AdventureMunch extends FormApplication {
             this._itemsToRevisit.push(`JournalEntry.${journal.data._id}`);
           }
         }
-      break;
+        break;
       case "RollTable":
         if (!Helpers.findEntityByImportId("tables", data._id)) {
           let rolltable = await RollTable.create(data, { keepId: true });
@@ -470,13 +470,13 @@ export default class AdventureMunch extends FormApplication {
             this._itemsToRevisit.push(`RollTable.${rolltable.data._id}`);
           }
         }
-      break;
+        break;
       case "Playlist":
         if (!Helpers.findEntityByImportId("playlists", data._id)) {
           data.name = `${adventure.name}.${data.name}`;
           await Playlist.create(data, { keepId: true });
         }
-      break;
+        break;
       case "Macro":
         if (!Helpers.findEntityByImportId("macros", data._id)) {
           let macro = await Macro.create(data, { keepId: true });
@@ -484,7 +484,7 @@ export default class AdventureMunch extends FormApplication {
             this._itemsToRevisit.push(`Macro.${macro.data._id}`);
           }
         }
-      break;
+        break;
       // no default
     }
   }

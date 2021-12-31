@@ -8,28 +8,28 @@ export const ABILITIES = [
 ];
 
 //     "abilities": {
-  // "str": {
-  //   "value": 27,
-  //   "proficient": 0,
-  //   "min": 3,
-  //   "mod": 8,
-  //   "save": 8,
-  //   "prof": 0,
-  //   "saveBonus": 0,
-  //   "checkBonus": 0,
-  //   "dc": 23
-  // },
-  // "dex": {
-  //   "value": 14,
-  //   "proficient": 1,
-  //   "min": 3,
-  //   "mod": 2,
-  //   "save": 9,
-  //   "prof": 7,
-  //   "saveBonus": 0,
-  //   "checkBonus": 0,
-  //   "dc": 17
-  // },
+// "str": {
+//   "value": 27,
+//   "proficient": 0,
+//   "min": 3,
+//   "mod": 8,
+//   "save": 8,
+//   "prof": 0,
+//   "saveBonus": 0,
+//   "checkBonus": 0,
+//   "dc": 23
+// },
+// "dex": {
+//   "value": 14,
+//   "proficient": 1,
+//   "min": 3,
+//   "mod": 2,
+//   "save": 9,
+//   "prof": 7,
+//   "saveBonus": 0,
+//   "checkBonus": 0,
+//   "dc": 17
+// },
 /**
  * Retrieves character abilities, including proficiency on saving throws
  * @param {obj} monster JSON Import

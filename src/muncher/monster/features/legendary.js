@@ -88,67 +88,67 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
   let action = dynamicActions.find((act) => act.name == "Legendary Actions");
 
   dom.childNodes
-  .forEach((node) => {
+    .forEach((node) => {
     // check for action numbers
     // can take 3 legendary actions
-    let startFlag = false;
-    const actionMatch = node.textContent.match(/can take (d+) legendary actions/);
-    if (actionMatch) {
-      actionResource.value = parseInt(actionMatch[1]);
-      actionResource.max = parseInt(actionMatch[1]);
-    }
+      let startFlag = false;
+      const actionMatch = node.textContent.match(/can take (d+) legendary actions/);
+      if (actionMatch) {
+        actionResource.value = parseInt(actionMatch[1]);
+        actionResource.max = parseInt(actionMatch[1]);
+      }
 
-//    const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
-    const nodeName = node.textContent.split('.')[0].trim();
-    const switchAction = dynamicActions.find((act) => nodeName === act.name);
-    if (action.name !== "Legendary Actions" || switchAction) {
+      //    const switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.name));
+      const nodeName = node.textContent.split('.')[0].trim();
+      const switchAction = dynamicActions.find((act) => nodeName === act.name);
+      if (action.name !== "Legendary Actions" || switchAction) {
 
-      if (switchAction) {
-        if (action.data.description.value !== "" && hideDescription && action.name !== "Legendary Actions") {
-          action.data.description.value += addPlayerDescription(monster, action);
-        }
-        action.data.description.value = generateTable(action.name, action.data.description.value, updateExisting);
-        action = switchAction;
-        if (action.data.description.value === "") {
-          startFlag = true;
-          if (hideDescription) {
-            action.data.description.value = "<section class=\"secret\">\n";
+        if (switchAction) {
+          if (action.data.description.value !== "" && hideDescription && action.name !== "Legendary Actions") {
+            action.data.description.value += addPlayerDescription(monster, action);
+          }
+          action.data.description.value = generateTable(action.name, action.data.description.value, updateExisting);
+          action = switchAction;
+          if (action.data.description.value === "") {
+            startFlag = true;
+            if (hideDescription) {
+              action.data.description.value = "<section class=\"secret\">\n";
+            }
           }
         }
-      }
-      // console.log(action)
-      if (action.flags && action.flags.monstersMunch && action.flags.monsterMunch.actionCopy) return;
-      if (node.outerHTML) {
-        let outerHTML = node.outerHTML;
-        if (switchAction && startFlag) {
-          outerHTML = outerHTML.replace(`${nodeName}.`, "");
+        // console.log(action)
+        if (action.flags && action.flags.monstersMunch && action.flags.monsterMunch.actionCopy) return;
+        if (node.outerHTML) {
+          let outerHTML = node.outerHTML;
+          if (switchAction && startFlag) {
+            outerHTML = outerHTML.replace(`${nodeName}.`, "");
+          }
+          action.data.description.value += outerHTML;
         }
-        action.data.description.value += outerHTML;
-      }
 
-      const activationCost = getActivation(node.textContent);
-      if (activationCost) {
-        action.data.activation.cost = activationCost;
-        action.data.consume.amount = activationCost;
-      } else {
-        action.data.activation.cost = 1;
-      }
+        const activationCost = getActivation(node.textContent);
+        if (activationCost) {
+          action.data.activation.cost = activationCost;
+          action.data.consume.amount = activationCost;
+        } else {
+          action.data.activation.cost = 1;
+        }
 
-      // only attempt to update these if we don't parse an action
-      if (!action.flags.monsterMunch.actionCopy) {
-        action.data.recharge = getRecharge(node.textContent);
-        action.data.save = getFeatSave(node.textContent, action.data.save);
-        // assumption - if we have parsed a save dc set action type to save
-        if (action.data.save.dc) {
-          action.data.actionType = "save";
+        // only attempt to update these if we don't parse an action
+        if (!action.flags.monsterMunch.actionCopy) {
+          action.data.recharge = getRecharge(node.textContent);
+          action.data.save = getFeatSave(node.textContent, action.data.save);
+          // assumption - if we have parsed a save dc set action type to save
+          if (action.data.save.dc) {
+            action.data.actionType = "save";
           // action.type = "weapon";
+          }
+          action.data.range = getRange(node.textContent);
+          action.data.target = getTarget(node.textContent);
+          action.data.damage = getDamage(node.textContent);
         }
-        action.data.range = getRange(node.textContent);
-        action.data.target = getTarget(node.textContent);
-        action.data.damage = getDamage(node.textContent);
       }
-    }
-  });
+    });
 
   if (action && action.data.description.value !== "" && hideDescription && action.name !== "Legendary Actions") {
     action.data.description.value += addPlayerDescription(monster, action);

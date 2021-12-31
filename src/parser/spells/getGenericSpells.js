@@ -13,23 +13,23 @@ export function getSpells(spells) {
       return true;
     }
   })
-  .forEach((spell) => {
-    if (!spell.definition) return;
+    .forEach((spell) => {
+      if (!spell.definition) return;
 
-    spell.flags = {
-      ddbimporter: {
-        generic: true,
-        dndbeyond: {
-          lookup: "generic",
-          lookupName: "generic",
-          level: spell.castAtLevel,
-          castAtLevel: spell.castAtLevel,
+      spell.flags = {
+        ddbimporter: {
+          generic: true,
+          dndbeyond: {
+            lookup: "generic",
+            lookupName: "generic",
+            level: spell.castAtLevel,
+            castAtLevel: spell.castAtLevel,
+          },
         },
-      },
-    };
+      };
 
-    items.push(parseSpell(spell, null));
-  });
+      items.push(parseSpell(spell, null));
+    });
 
   if (items) fixSpells(null, items);
 

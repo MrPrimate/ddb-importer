@@ -11,18 +11,18 @@ const MINIMUM_5E_VERSION = "1.5.5";
 // eslint-disable-next-line consistent-return
 async function getLatestModuleVersion() {
   try {
-      const { tag_name: latestVersion, prerelease } = await $.getJSON(_GITHUB_API_LATEST);
-      return { latestVersion, prerelease };
+    const { tag_name: latestVersion, prerelease } = await $.getJSON(_GITHUB_API_LATEST);
+    return { latestVersion, prerelease };
   } catch (error) {
-      logger.error(error);
+    logger.error(error);
   }
 }
 
 // eslint-disable-next-line consistent-return
 async function getLatestModuleMinimumCoreVersion() {
   try {
-      const { minimumCoreVersion, compatibleCoreVersion } = await $.getJSON(_GITHUB_MODULE_JSON_LATEST);
-      return { minimumCoreVersion, compatibleCoreVersion };
+    const { minimumCoreVersion, compatibleCoreVersion } = await $.getJSON(_GITHUB_MODULE_JSON_LATEST);
+    return { minimumCoreVersion, compatibleCoreVersion };
   } catch (error) {
     logger.error(error);
   }

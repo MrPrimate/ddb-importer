@@ -81,13 +81,13 @@ export default function parseClasses(ddb) {
     //     : []);
 
     const classProficiencyFeatureIds = characterClass.definition.classFeatures
-    .filter((feature) => feature.name === "Proficiencies")
-    .map((feature) => feature.id)
-    .concat((characterClass.subclassDefinition)
-      ? characterClass.subclassDefinition.classFeatures
-        .filter((feature) => feature.name === "Proficiencies")
-        .map((feature) => feature.id)
-      : []);
+      .filter((feature) => feature.name === "Proficiencies")
+      .map((feature) => feature.id)
+      .concat((characterClass.subclassDefinition)
+        ? characterClass.subclassDefinition.classFeatures
+          .filter((feature) => feature.name === "Proficiencies")
+          .map((feature) => feature.id)
+        : []);
 
     // const classSkillSubType = `choose-a-${characterClass.definition.name.toLowerCase()}-skill`;
     // const skillIds = utils.getChosenClassModifiers(ddb)

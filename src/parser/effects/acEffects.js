@@ -3,12 +3,12 @@ import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { baseItemEffect, generateUpgradeChange, generateAddChange } from "./effects.js";
 
-  // // ac -
-  // { type: "bonus", subType: "armor-class" },
-  // // e.g. robe of the archm
-  // { type: "set", subType: "unarmored-armor-class" },
-  // // bracers of defence
-  // { type: "bonus", subType: "unarmored-armor-class" },
+// // ac -
+// { type: "bonus", subType: "armor-class" },
+// // e.g. robe of the archm
+// { type: "set", subType: "unarmored-armor-class" },
+// // bracers of defence
+// { type: "bonus", subType: "unarmored-armor-class" },
 
 /**
  *

@@ -150,7 +150,7 @@ function getItemFlags(ddb, data, character) {
     damage: {
       parts: [],
     },
-      // Some features, notably hexblade abilities we scrape out here
+    // Some features, notably hexblade abilities we scrape out here
     classFeatures: getClassFeatures(ddb, data),
     martialArtsDie: getMartialArtsDie(ddb),
     maxMediumArmorDex: Math.max(...utils.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier").map((mod) => mod.value), 2),
@@ -223,10 +223,10 @@ function otherGear(ddb, data) {
       item = parseLoot(data, "Mount");
       break;
     case 5:
-    item = parsePotion(data, "Poison");
+      item = parsePotion(data, "Poison");
       break;
     case 6:
-    item = parsePotion(data, "Potion");
+      item = parsePotion(data, "Potion");
       break;
     case 11:
       item = parseTool(ddb, data, "Tool");

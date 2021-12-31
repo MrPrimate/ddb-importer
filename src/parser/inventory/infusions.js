@@ -113,7 +113,7 @@ export function getInfusionActionData(ddb) {
 }
 
 export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumItem) {
-    // get item mapping
+  // get item mapping
   const infusionItemMap = getInfusionItemMap(ddb, foundryItem);
   foundryItem.flags.infusions = { maps: [], applied: [], infused: false };
   if (infusionItemMap) {

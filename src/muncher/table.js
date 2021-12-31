@@ -79,7 +79,7 @@ function tableReplacer(htmlDocument, tableNum, compendiumTables) {
       logger.debug(`Updating table reference for: ${table.name}`);
       tablePoint.insertAdjacentHTML("afterend", `<div id="table-link">@Compendium[${rollCompendiumLabel}.${table.name}]{Open RollTable ${table.name}}</div>`);
     });
-   }
+  }
 
   return htmlDocument;
 }

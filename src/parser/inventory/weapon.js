@@ -184,7 +184,7 @@ function getDamage(data, flags, betterRolls5e) {
     parts.push([
       utils.parseDiceString(diceString + ` + ${magicalDamageBonus}`, `${mod}${dueling}`, damageTag, fightingStyleDiceMod)
         .diceString,
-        damageType,
+      damageType,
     ]);
   }
 
@@ -269,7 +269,7 @@ export default function parseWeapon(data, character, flags) {
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
   const characterProficiencies = character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects;
 
-    // if using better rolls lets add some useful QOL information.
+  // if using better rolls lets add some useful QOL information.
   // marks context as magical attack and makes alt click a versatile damage click
   weapon.flags.betterRolls5e = {
     quickDamage: {

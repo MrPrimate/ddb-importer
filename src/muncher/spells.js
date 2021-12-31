@@ -49,7 +49,7 @@ function getSpellData(className, sourceFilter) {
         logger.warn(error);
         reject(error);
       });
-    });
+  });
 }
 
 export async function parseSpells(ids = null) {

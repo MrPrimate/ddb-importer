@@ -24,7 +24,7 @@ function getNotes(scene, bookCode) {
     .map((note) => {
       const journal = relatedJournalEntries.find((journal) => journal.id === note.data.entryId);
       const idx = parseInt(journal.data.flags.ddb.ddbId);
-        // removed un-needed userdata
+      // removed un-needed userdata
       const flags = journal.data.flags.ddb;
       if (flags?.userData) delete flags.userData;
       return {
@@ -128,40 +128,40 @@ export function collectSceneData(scene, bookCode) {
 
   if (data.flags.ddb.tokens) delete data.flags.ddb.tokens;
   data.flags.ddb.tokens = scene.data.tokens
-  .filter((token) => !token.actorLink)
-  .map((token) => {
-    let result = {
-      _id: token.data._id,
-      name: token.data.name,
-      width: token.data.width,
-      height: token.data.height,
-      scale: token.data.scale,
-      x: token.data.x,
-      y: token.data.y,
-      disposition: token.data.disposition,
-      flags: token.data.flags,
-      actorLink: false,
-      bar1: { attribute: "attributes.hp" },
-      effects: [],
-      elevation: token.data.elevation,
-      hidden: token.data.hidden,
-      lightAlpha: token.data.lightAlpha,
-      lightAngle: token.data.lightAngle,
-      lightAnimation: token.data.lightAnimation,
-      tint: token.data.tint,
-      actorData: token.data.actorData,
-    };
+    .filter((token) => !token.actorLink)
+    .map((token) => {
+      let result = {
+        _id: token.data._id,
+        name: token.data.name,
+        width: token.data.width,
+        height: token.data.height,
+        scale: token.data.scale,
+        x: token.data.x,
+        y: token.data.y,
+        disposition: token.data.disposition,
+        flags: token.data.flags,
+        actorLink: false,
+        bar1: { attribute: "attributes.hp" },
+        effects: [],
+        elevation: token.data.elevation,
+        hidden: token.data.hidden,
+        lightAlpha: token.data.lightAlpha,
+        lightAngle: token.data.lightAngle,
+        lightAnimation: token.data.lightAnimation,
+        tint: token.data.tint,
+        actorData: token.data.actorData,
+      };
 
-    // the token actor flags here help us match up actors using the DDB ID
-    if (token.actor) {
-      if (token.actor.data.flags.ddbimporter) {
-        result.flags.ddbActorFlags = token.actor.data.flags.ddbimporter;
-        result.flags.ddbActorFlags.name = token.actor.data.token?.name ? token.actor.data.token.name : token.actor.data.name;
+      // the token actor flags here help us match up actors using the DDB ID
+      if (token.actor) {
+        if (token.actor.data.flags.ddbimporter) {
+          result.flags.ddbActorFlags = token.actor.data.flags.ddbimporter;
+          result.flags.ddbActorFlags.name = token.actor.data.token?.name ? token.actor.data.token.name : token.actor.data.name;
+        }
       }
-    }
 
-    return result;
-  });
+      return result;
+    });
 
 
   // removed un-needed userdata
@@ -354,7 +354,7 @@ export class SceneEnhancerExport extends Application {
         });
       }
       const sceneSelection = html.find("#select-scene");
-        sceneSelection[0].innerHTML = sceneList;
+      sceneSelection[0].innerHTML = sceneList;
     });
 
     html.find("#select-scene").on("change", async () => {

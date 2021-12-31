@@ -20,10 +20,10 @@ function getCustomProficiencies(data, type) {
 
 export function getProficiencies(data, includeItemEffects = false) {
   const coreProficiencies = utils
-   .filterBaseModifiers(data, "proficiency", null, null, includeItemEffects)
-   .map((proficiency) => {
-    return { name: proficiency.friendlySubtypeName };
-  });
+    .filterBaseModifiers(data, "proficiency", null, null, includeItemEffects)
+    .map((proficiency) => {
+      return { name: proficiency.friendlySubtypeName };
+    });
 
   const customProficiencies = [
     ...getCustomProficiencies(data, "Armor"),
@@ -106,7 +106,7 @@ export function getToolProficiencies(data, proficiencyArray) {
         if (allProfMatch && allProfMatch.baseTool && allProfMatch.baseTool !== "") {
           values.push(allProfMatch.baseTool);
         } else if (allProfMatch) {
-         custom.push(prof.name);
+          custom.push(prof.name);
         }
       }
     }
@@ -175,15 +175,15 @@ export function getLanguagesFromModifiers(data, modifiers) {
   let custom = [];
 
   modifiers
-  .filter((mod) => mod.type === "language")
-  .forEach((language) => {
-    let result = DICTIONARY.character.languages.find((lang) => lang.name === language.friendlySubtypeName);
-    if (result) {
-      languages.push(result.value);
-    } else {
-      custom.push(language.friendlySubtypeName);
-    }
-  });
+    .filter((mod) => mod.type === "language")
+    .forEach((language) => {
+      let result = DICTIONARY.character.languages.find((lang) => lang.name === language.friendlySubtypeName);
+      if (result) {
+        languages.push(result.value);
+      } else {
+        custom.push(language.friendlySubtypeName);
+      }
+    });
 
   if (data) {
     data.character.customProficiencies.forEach((proficiency) => {

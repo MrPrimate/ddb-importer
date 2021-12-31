@@ -393,11 +393,11 @@ export default class ThirdPartyMunch extends FormApplication {
 
       this._scenePackage = await fetch(packageURL)
         .then((response) => {
-            if (response.status === 200 || response.status === 0) {
-                return Promise.resolve(response.json());
-            } else {
-                return Promise.reject(new Error(response.statusText));
-            }
+          if (response.status === 200 || response.status === 0) {
+            return Promise.resolve(response.json());
+          } else {
+            return Promise.reject(new Error(response.statusText));
+          }
         });
 
       // check for valid json object?
@@ -420,8 +420,8 @@ export default class ThirdPartyMunch extends FormApplication {
           const compendium = game.packs.get(compendiumId);
           return compendium.metadata.label;
         }))].map((label) => {
-          return ThirdPartyMunch._findFolder(label, "Scene");
-        });
+        return ThirdPartyMunch._findFolder(label, "Scene");
+      });
 
       await Promise.all(compendiumLabels);
 
@@ -430,8 +430,8 @@ export default class ThirdPartyMunch extends FormApplication {
         .map((scene) => {
           return ThirdPartyMunch._getDDBBookName(scene.flags.ddb.bookCode);
         }))].map((label) => {
-          return ThirdPartyMunch._findFolder(label, "Actor");
-        });
+        return ThirdPartyMunch._findFolder(label, "Actor");
+      });
       await Promise.all(adventureLabels);
 
       logger.debug("Competed folder creation");

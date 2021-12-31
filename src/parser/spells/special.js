@@ -221,7 +221,7 @@ export function fixSpells(ddb, items) {
       // no default
     }
 
-  if (ddb) addCustomValues(spell, ddb);
+    if (ddb) addCustomValues(spell, ddb);
   });
 }
 /* eslint-enable complexity */

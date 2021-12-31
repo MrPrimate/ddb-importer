@@ -173,7 +173,7 @@ export default class Helpers {
    */
   static findEntityByImportId(type, id) {
     return game.data[type].find((item) => item._id === id);
-      // item.flags.importid === id
+    // item.flags.importid === id
   }
 
 
@@ -188,12 +188,12 @@ export default class Helpers {
   static async replaceAsync(str, regex, asyncFn) {
     const promises = [];
     str.replace(regex, (match, ...args) => {
-        const promise = asyncFn(match, ...args);
-        promises.push(promise);
+      const promise = asyncFn(match, ...args);
+      promises.push(promise);
     });
     const data = await Promise.all(promises);
     return str.replace(regex, () => data.shift());
-}
+  }
 
   /**
    * Returns the difference between object 1 and 2
@@ -204,12 +204,12 @@ export default class Helpers {
   static diff(obj1, obj2) {
     var result = {};
     for (const key in obj1) {
-        if (obj2[key] != obj1[key]) result[key] = obj2[key];
-        // eslint-disable-next-line valid-typeof
-        if (typeof obj2[key] == 'array' && typeof obj1[key] == 'array')
-            result[key] = this.diff(obj1[key], obj2[key]);
-        if (typeof obj2[key] == 'object' && typeof obj1[key] == 'object')
-            result[key] = this.diff(obj1[key], obj2[key]);
+      if (obj2[key] != obj1[key]) result[key] = obj2[key];
+      // eslint-disable-next-line valid-typeof
+      if (typeof obj2[key] == 'array' && typeof obj1[key] == 'array')
+        result[key] = this.diff(obj1[key], obj2[key]);
+      if (typeof obj2[key] == 'object' && typeof obj1[key] == 'object')
+        result[key] = this.diff(obj1[key], obj2[key]);
     }
     return result;
   }
@@ -245,10 +245,10 @@ export default class Helpers {
         if (folderData.parent !== null) {
           folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.parent];
         } else if (adventure?.options?.folders) {
-            folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"];
-          } else {
-            folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.type];
-          }
+          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"];
+        } else {
+          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.type];
+        }
 
         newFolder = await Folder.create(folderData, { keepId: true });
         logger.debug(`Created new folder ${newFolder.data._id} with data:`, folderData, newFolder);
@@ -276,13 +276,13 @@ export default class Helpers {
   static reMatchAll(regexp, string) {
     const matches = string.match(new RegExp(regexp, "gm"));
     if (matches) {
-        let start = 0;
-        return matches.map((group0) => {
-            const match = group0.match(regexp);
-            match.index = string.indexOf(group0, start);
-            start = match.index;
-            return match;
-        });
+      let start = 0;
+      return matches.map((group0) => {
+        const match = group0.match(regexp);
+        match.index = string.indexOf(group0, start);
+        start = match.index;
+        return match;
+      });
     }
     return matches;
   }
@@ -362,15 +362,15 @@ export default class Helpers {
   static async BrowseForgeFiles(source, target, options = {}) {
     if (target.startsWith(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX)) {
       if (options.wildcard)
-          options.wildcard = target;
+        options.wildcard = target;
       target = target.slice(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX.length);
       target = target.split("/").slice(1, -1).join("/"); // Remove userid from url to get target path
     }
 
     const response = await ForgeAPI.call('assets/browse', { path: decodeURIComponent(target), options });
     if (!response || response.error) {
-        ui.notifications.error(response ? response.error : "An unknown error occured accessing The Forge API");
-        return { target, dirs: [], files: [], gridSize: null, private: false, privateDirs: [], extensions: options.extensions };
+      ui.notifications.error(response ? response.error : "An unknown error occured accessing The Forge API");
+      return { target, dirs: [], files: [], gridSize: null, private: false, privateDirs: [], extensions: options.extensions };
     }
     // Should be decodeURIComponent but FilePicker's _onPick needs to do encodeURIComponent too, but on each separate path.
     response.target = decodeURI(response.folder);

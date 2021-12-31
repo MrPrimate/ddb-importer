@@ -12,12 +12,12 @@ function isHalfProficiencyRoundedUp(data, ab) {
 
 function getProficiency(data, toolName, ability) {
   const modifiers = [
-      utils.getChosenClassModifiers(data, true),
-      utils.getModifiers(data, "race", true),
-      utils.getModifiers(data, "background", true),
-      utils.getModifiers(data, "feat", true),
-      utils.getActiveItemModifiers(data, true),
-    ]
+    utils.getChosenClassModifiers(data, true),
+    utils.getModifiers(data, "race", true),
+    utils.getModifiers(data, "background", true),
+    utils.getModifiers(data, "feat", true),
+    utils.getActiveItemModifiers(data, true),
+  ]
     .flat()
     .filter((modifier) => modifier.friendlySubtypeName === toolName)
     .map((mod) => mod.type);

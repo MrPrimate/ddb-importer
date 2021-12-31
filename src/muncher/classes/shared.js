@@ -214,10 +214,10 @@ export async function buildBaseClass(klass) {
   } else if (skillMatch) {
     const skillNames = skillMatch[2].replace('and', ',').split(',').map((skill) => skill.trim());
     const skills = skillNames.filter((name) => DICTIONARY.character.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
-    .map((name) => {
-      const dictSkill = DICTIONARY.character.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase());
-      return dictSkill.name;
-    });
+      .map((name) => {
+        const dictSkill = DICTIONARY.character.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase());
+        return dictSkill.name;
+      });
     const numberSkills = DICTIONARY.numbers.find((num) => skillMatch[1].toLowerCase() === num.natural);
     // eslint-disable-next-line require-atomic-updates
     result.data.skills = {

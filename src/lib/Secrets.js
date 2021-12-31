@@ -2,9 +2,9 @@ import logger from "../logger.js";
 
 function isJSON(str) {
   try {
-      return (JSON.parse(str) && !!str && str !== null);
+    return (JSON.parse(str) && !!str && str !== null);
   } catch (e) {
-      return false;
+    return false;
   }
 }
 

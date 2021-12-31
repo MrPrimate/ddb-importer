@@ -7,7 +7,7 @@ export function getSpeed(data) {
   let movementTypes = {};
   for (let type in data.character.race.weightSpeeds.normal) {
     // if (data.character.race.weightSpeeds.normal[type] !== 0) {
-      movementTypes[type] = data.character.race.weightSpeeds.normal[type];
+    movementTypes[type] = data.character.race.weightSpeeds.normal[type];
     // }
   }
 

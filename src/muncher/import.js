@@ -1083,8 +1083,8 @@ export async function srdFiddling(items, type) {
     // removed existing items from those to be imported
     return new Promise((resolve) => {
       removeItems(items, srdItems)
-      .then((cleanedItems) => updateIcons(cleanedItems))
-      .then((iconItems) => resolve(iconItems));
+        .then((cleanedItems) => updateIcons(cleanedItems))
+        .then((iconItems) => resolve(iconItems));
     });
   } else {
     const iconItems = await updateIcons(items);

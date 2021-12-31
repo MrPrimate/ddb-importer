@@ -209,7 +209,7 @@ const utils = {
 
   getActiveItemEffectModifiers: (data) => {
     return utils.getActiveItemModifiers(data, true).filter((mod) =>
-    getEffectExcludedModifiers("item", true, true).some((exMod) => mod.type === exMod.type &&
+      getEffectExcludedModifiers("item", true, true).some((exMod) => mod.type === exMod.type &&
       (mod.subType === exMod.subType || !exMod.subType))
     );
   },
@@ -221,22 +221,22 @@ const utils = {
     const daeInstalled = utils.isModuleInstalledAndActive("dae");
     const excludedModifiers = ((featureEffects || acEffects) && daeInstalled &&
       (!includeExcludedEffects || (includeExcludedEffects && effectOnly)))
-        ? getEffectExcludedModifiers(type, featureEffects, acEffects)
-        : getEffectExcludedModifiers(type, false, false);
+      ? getEffectExcludedModifiers(type, featureEffects, acEffects)
+      : getEffectExcludedModifiers(type, false, false);
     // get items we are going to interact on
     let modifiers = [];
     if (effectOnly) {
       modifiers = data.character.modifiers[type]
-      .filter((mod) => excludedModifiers.some((exMod) =>
-        mod.type === exMod.type &&
+        .filter((mod) => excludedModifiers.some((exMod) =>
+          mod.type === exMod.type &&
         (mod.subType === exMod.subType || !exMod.subType))
-      );
+        );
     } else {
       modifiers = data.character.modifiers[type]
-      .filter((mod) => !excludedModifiers.some((exMod) =>
-        mod.type === exMod.type &&
+        .filter((mod) => !excludedModifiers.some((exMod) =>
+          mod.type === exMod.type &&
         (mod.subType === exMod.subType || !exMod.subType))
-      );
+        );
     }
 
     return modifiers;

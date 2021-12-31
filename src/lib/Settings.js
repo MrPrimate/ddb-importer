@@ -460,17 +460,17 @@ function getCompendiumLookups(type, selected) {
   ];
 
   const selections = game.packs
-  .filter((pack) =>
-    pack.documentClass.documentName === type &&
+    .filter((pack) =>
+      pack.documentClass.documentName === type &&
     !excludedCompendiumPackages.includes(pack.metadata.package)
-  )
-  .reduce((choices, pack) => {
-    choices[pack.collection] = {
-      label: `[${pack.metadata.package}] ${pack.metadata.label}`,
-      selected: pack.collection === selected,
-    };
-    return choices;
-  }, {});
+    )
+    .reduce((choices, pack) => {
+      choices[pack.collection] = {
+        label: `[${pack.metadata.package}] ${pack.metadata.label}`,
+        selected: pack.collection === selected,
+      };
+      return choices;
+    }, {});
 
   return selections;
 }
@@ -596,15 +596,15 @@ function getGMUsers() {
   const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
 
   const gmUsers = game.users
-  .filter((user) => user.isGM)
-  .reduce((choices, user) => {
-    choices.push({
-      userId: user.id,
-      userName: user.name,
-      selected: user.id === updateUser,
-    });
-    return choices;
-  }, []);
+    .filter((user) => user.isGM)
+    .reduce((choices, user) => {
+      choices.push({
+        userId: user.id,
+        userName: user.name,
+        selected: user.id === updateUser,
+      });
+      return choices;
+    }, []);
 
   return gmUsers;
 }
