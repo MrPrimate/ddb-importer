@@ -143,6 +143,13 @@ export async function copyInbuiltIcons(items, monster = false, monsterName = "")
       const pathMatched = getIconPath(item, item.type);
       if (pathMatched) {
         item.img = pathMatched;
+        if (item.effects) {
+          item.effects.forEach((effect) => {
+            if (!effect.icon || effect.icon === "") {
+              effect.icon = pathMatched;
+            }
+          });
+        }
       }
       return item;
     });
