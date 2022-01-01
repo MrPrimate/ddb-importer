@@ -1,8 +1,8 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function contagionEffect(document) {
-  let effectContagionContagion = baseSpellEffect(document, document.name);
-  effectContagionContagion.flags.dae.macroRepeat = "endEveryTurn";
+  let effect = baseSpellEffect(document, document.name);
+  effect.flags.dae.macroRepeat = "endEveryTurn";
   document.flags["midi-qol"] = { criticalThreshold: "20" };
   const itemMacroText = `
 //DAE Item Macro  @attributes.spell.dc
@@ -252,8 +252,8 @@ async function ContagionMessage() {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectContagionContagion.changes.push(generateMacroChange("@attributes.spelldc"));
-  document.effects.push(effectContagionContagion);
+  effect.changes.push(generateMacroChange("@attributes.spelldc"));
+  document.effects.push(effect);
 
   return document;
 }

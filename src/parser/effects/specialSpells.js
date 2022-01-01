@@ -47,6 +47,7 @@ import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
 import { holdMonsterEffect } from "./spells/holdMonster.js";
 import { holdPersonEffect } from "./spells/holdPerson.js";
 import { holyAuraEffect } from "./spells/holyAura.js";
+import { huntersMarkEffect } from "./spells/huntersMark.js";
 import { hypnoticPatternEffect } from "./spells/hypnoticPattern.js";
 import { invisibilityEffect } from "./spells/invisibility.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
@@ -393,6 +394,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Holy Aura": {
       document = holyAuraEffect(document);
+      break;
+    }
+    case "Hunters Mark": {
+      document = huntersMarkEffect(document);
       break;
     }
     case "Hypnotic Pattern": {
