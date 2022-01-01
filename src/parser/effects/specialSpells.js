@@ -61,6 +61,7 @@ import { mindBlankEffect } from "./spells/mindBlank.js";
 import { mirrorImageEffect } from "./spells/mirrorImage.js";
 import { mistyStepEffect } from "./spells/mistyStep.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
+import { passWithoutTraceEffect } from "./spells/passWithoutTrace.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
 import { protectionfromEnergyEffect } from "./spells/protectionfromEnergy.js";
 import { protectionfromPoisonEffect } from "./spells/protectionfromPoison.js";
@@ -452,6 +453,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Moonbeam": {
       document = moonbeamEffect(document);
+      break;
+    }
+    case "Pass Without Trace": {
+      document = passWithoutTraceEffect(document);
       break;
     }
     case "Phantasmal Killer": {
