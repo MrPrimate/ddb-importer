@@ -1,4 +1,4 @@
-import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
+import { baseSpellEffect, generateMacroFlags } from "../specialSpells.js";
 
 // this one is a bit different, the macro is triggered by midi-qol and applies effects to the actor
 // the Marked effect gets applied to the target
@@ -52,7 +52,6 @@ if (args[0].tag === "OnUse") {
   let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
 
   if (!midiQOLSettings.allowUseMacro) {
-    console.warn("Setting midi-qol use macro to true");
     midiQOLSettings.allowUseMacro = true;
     game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
   }
