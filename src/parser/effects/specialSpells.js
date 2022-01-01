@@ -57,6 +57,7 @@ import { longstriderEffect } from "./spells/longstrider.js";
 import { mageArmorEffect } from "./spells/mageArmor.js";
 import { magicWeaponEffect } from "./spells/magicWeapon.js";
 import { massSuggestionEffect } from "./spells/massSuggestion.js";
+import { mindBlankEffect } from "./spells/mindBlank.js";
 import { mistyStepEffect } from "./spells/mistyStep.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
@@ -434,6 +435,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Mass Suggestion": {
       document = massSuggestionEffect(document);
+      break;
+    }
+    case "Mind Blank": {
+      document = mindBlankEffect(document);
       break;
     }
     case "Misty Step": {
