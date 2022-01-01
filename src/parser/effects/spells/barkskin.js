@@ -1,14 +1,14 @@
 import { baseSpellEffect } from "../specialSpells.js";
 
 export function barkskinEffect(document) {
-  let effectBarkskinBarkskin = baseSpellEffect(document, document.name);
-  effectBarkskinBarkskin.changes.push({
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push({
     key: "data.attributes.ac.value",
     mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
     value: "16",
     priority: "100",
   });
-  document.effects.push(effectBarkskinBarkskin);
+  document.effects.push(effect);
 
   return document;
 }

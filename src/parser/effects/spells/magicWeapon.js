@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function magicWeaponEffect(document) {
-  let effectMagicWeaponMagicWeapon = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Item Macro Execute, arguments = @item.level
 if (!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
@@ -127,8 +127,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectMagicWeaponMagicWeapon.changes.push(generateMacroChange("@item.level", 0));
-  document.effects.push(effectMagicWeaponMagicWeapon);
+  effect.changes.push(generateMacroChange("@item.level", 0));
+  document.effects.push(effect);
 
   return document;
 }

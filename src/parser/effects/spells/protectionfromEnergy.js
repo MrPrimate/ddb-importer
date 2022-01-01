@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function protectionfromEnergyEffect(document) {
-  let effectProtectionfromEnergyProtectionfromEnergy = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE  Macro, no arguments passed
 
@@ -108,8 +108,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectProtectionfromEnergyProtectionfromEnergy.changes.push(generateMacroChange("", 0));
-  document.effects.push(effectProtectionfromEnergyProtectionfromEnergy);
+  effect.changes.push(generateMacroChange("", 0));
+  document.effects.push(effect);
 
   return document;
 }

@@ -1,14 +1,14 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function heroismEffect(document) {
-  let effectHeroismHeroism = baseSpellEffect(document, document.name);
-  effectHeroismHeroism.changes.push({
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push({
     key: "data.traits.ci.value",
     value: "frightened",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: 20,
   });
-  effectHeroismHeroism.flags.dae.macroRepeat = "startEveryTurn";
+  effect.flags.dae.macroRepeat = "startEveryTurn";
   const itemMacroText = `
 //DAE Macro Execute, Effect Value = "Macro Name" t @damage (apply @mod damge of none type)
 const lastArg = args[args.length - 1];
@@ -32,8 +32,8 @@ let bonus = mod > tactor.data.data.attributes.hp.temp ? mod : tactor.data.data.a
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectHeroismHeroism.changes.push(generateMacroChange("@damage", 0));
-  document.effects.push(effectHeroismHeroism);
+  effect.changes.push(generateMacroChange("@damage", 0));
+  document.effects.push(effect);
 
   return document;
 }

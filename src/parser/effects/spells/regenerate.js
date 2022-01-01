@@ -1,8 +1,8 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function regenerateEffect(document) {
-  let effectRegenerateRegenerate = baseSpellEffect(document, document.name);
-  effectRegenerateRegenerate.flags.dae.macroRepeat = "startEveryTurn";
+  let effect = baseSpellEffect(document, document.name);
+  effect.flags.dae.macroRepeat = "startEveryTurn";
   const itemMacroText = `
 //DAE Macro , no arguments
 const lastArg = args[args.length - 1];
@@ -75,8 +75,8 @@ function roundCount(currentTime, updateInterval, applyTime, expireTime) {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectRegenerateRegenerate.changes.push(generateMacroChange(""));
-  document.effects.push(effectRegenerateRegenerate);
+  effect.changes.push(generateMacroChange(""));
+  document.effects.push(effect);
 
   return document;
 }

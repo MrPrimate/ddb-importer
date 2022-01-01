@@ -1,8 +1,8 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function fleshtoStoneEffect(document) {
-  let effectFleshtoStoneFleshtoStone = baseSpellEffect(document, document.name);
-  effectFleshtoStoneFleshtoStone.flags.dae.macroRepeat = "endEveryTurn";
+  let effect = baseSpellEffect(document, document.name);
+  effect.flags.dae.macroRepeat = "endEveryTurn";
   const itemMacroText = `
 //DAE Macro, Effect Value = @attributes.spelldc
 if (!game.modules.get("advanced-macros")?.active) { ui.notifications.error("Please enable the Advanced Macros module"); return; }
@@ -91,8 +91,8 @@ async function FleshToStoneUpdate() {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectFleshtoStoneFleshtoStone.changes.push(generateMacroChange("@attributes.spelldc"));
-  document.effects.push(effectFleshtoStoneFleshtoStone);
+  effect.changes.push(generateMacroChange("@attributes.spelldc"));
+  document.effects.push(effect);
 
   return document;
 }

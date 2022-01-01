@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function flameBladeEffect(document) {
-  let effectFlameBladeFlameBlade = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Item Macro, no arguments passed
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
@@ -67,8 +67,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectFlameBladeFlameBlade.changes.push(generateMacroChange("@item.level @attributes.spellcasting"));
-  document.effects.push(effectFlameBladeFlameBlade);
+  effect.changes.push(generateMacroChange("@item.level @attributes.spellcasting"));
+  document.effects.push(effect);
 
   return document;
 }

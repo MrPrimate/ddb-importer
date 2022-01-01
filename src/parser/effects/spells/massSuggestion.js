@@ -1,9 +1,9 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
 
 export function massSuggestionEffect(document) {
-  let effectMassSuggestionMassSuggestion = baseSpellEffect(document, document.name);
-  effectMassSuggestionMassSuggestion.changes.push(generateStatusEffectChange("Charmed"));
-  document.effects.push(effectMassSuggestionMassSuggestion);
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push(generateStatusEffectChange("Charmed"));
+  document.effects.push(effect);
 
   return document;
 }

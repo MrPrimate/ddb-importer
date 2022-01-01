@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function shillelaghEffect(document) {
-  let effectShillelaghShillelagh = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 const lastArg = args[args.length - 1];
 let tactor;
@@ -68,8 +68,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectShillelaghShillelagh.changes.push(generateMacroChange("", 0));
-  document.effects.push(effectShillelaghShillelagh);
+  effect.changes.push(generateMacroChange("", 0));
+  document.effects.push(effect);
 
   return document;
 }

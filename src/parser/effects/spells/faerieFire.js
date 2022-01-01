@@ -1,8 +1,8 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function faerieFireEffect(document) {
-  let effectFaerieFireFaerieFire = baseSpellEffect(document, document.name);
-  effectFaerieFireFaerieFire.changes.push({
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push({
     key: "flags.midi-qol.grants.advantage.attack.all",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     value: "1",
@@ -77,8 +77,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectFaerieFireFaerieFire.changes.push(generateMacroChange(""));
-  document.effects.push(effectFaerieFireFaerieFire);
+  effect.changes.push(generateMacroChange(""));
+  document.effects.push(effect);
 
   return document;
 }

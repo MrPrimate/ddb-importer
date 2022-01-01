@@ -1,14 +1,14 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function confusionEffect(document) {
-  let effectConfusionConfusion = baseSpellEffect(document, document.name);
-  effectConfusionConfusion.changes.push({
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push({
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     value: "turn=end, saveAbility=wis, saveDC=@attributes.spelldc,",
     priority: "20",
   });
-  effectConfusionConfusion.flags.dae.macroRepeat = "startEveryTurn";
+  effect.flags.dae.macroRepeat = "startEveryTurn";
   const itemMacroText = `
 //DAE Macro , Effect Value = @attributes.spelldc
 
@@ -46,8 +46,8 @@ if (args[0] === "each") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectConfusionConfusion.changes.push(generateMacroChange("@attributes.spelldc"));
-  document.effects.push(effectConfusionConfusion);
+  effect.changes.push(generateMacroChange("@attributes.spelldc"));
+  document.effects.push(effect);
 
   return document;
 }

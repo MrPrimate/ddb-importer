@@ -86,6 +86,7 @@ function addCustomValues(item, ddb) {
  */
 /* eslint-disable complexity */
 export function fixSpells(ddb, items) {
+  const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
   items.forEach((spell) => {
     switch (spell.name) {
       // Eldritch Blast is a special little kitten and has some fun Eldritch
@@ -150,8 +151,12 @@ export function fixSpells(ddb, items) {
         break;
       case "Hunter's Mark":
       case "Hunter’s Mark":
-        spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
         spell.data.actionType = "other";
+        if (!midiQolInstalled) {
+          spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
+        } else {
+          spell.data.damage = { parts: [], versatile: "", value: "" };
+        }
         break;
       case "Pyrotechnics":
         spell.data['target']['value'] = 15;

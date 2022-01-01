@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function fireShieldEffect(document) {
-  let effectFireShieldFireShield = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 // DAE Macro, no arguments passed
 
@@ -101,8 +101,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectFireShieldFireShield.changes.push(generateMacroChange("", 0));
-  document.effects.push(effectFireShieldFireShield);
+  effect.changes.push(generateMacroChange("", 0));
+  document.effects.push(effect);
 
   return document;
 }

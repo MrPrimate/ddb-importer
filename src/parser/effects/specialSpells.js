@@ -396,7 +396,7 @@ export function spellEffectAdjustment(document) {
       document = holyAuraEffect(document);
       break;
     }
-    case "Hunters Mark": {
+    case "Hunter's Mark": {
       document = huntersMarkEffect(document);
       break;
     }

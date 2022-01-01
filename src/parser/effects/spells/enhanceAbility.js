@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function enhanceAbilityEffect(document) {
-  let effectEnhanceAbilityEnhanceAbility = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Item Macro, no arguments passed
 // only works with midi qol and speed roll ability checks
@@ -143,8 +143,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectEnhanceAbilityEnhanceAbility.changes.push(generateMacroChange(""));
-  document.effects.push(effectEnhanceAbilityEnhanceAbility);
+  effect.changes.push(generateMacroChange(""));
+  document.effects.push(effect);
 
   return document;
 }

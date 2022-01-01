@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function levitateEffect(document) {
-  let effectLevitateLevitate = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Item Macro, no arguments passed
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
@@ -19,8 +19,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectLevitateLevitate.changes.push(generateMacroChange("", 0));
-  document.effects.push(effectLevitateLevitate);
+  effect.changes.push(generateMacroChange("", 0));
+  document.effects.push(effect);
 
   return document;
 }

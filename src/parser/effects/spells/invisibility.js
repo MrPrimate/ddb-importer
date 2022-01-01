@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function invisibilityEffect(document) {
-  let effectInvisibilityInvisibility = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Item Macro, no arguments passed
 if (!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
@@ -20,8 +20,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectInvisibilityInvisibility.changes.push(generateMacroChange("@target", 0));
-  document.effects.push(effectInvisibilityInvisibility);
+  effect.changes.push(generateMacroChange("@target", 0));
+  document.effects.push(effect);
 
   return document;
 }

@@ -1,8 +1,8 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function aidEffect(document) {
-  let effectAidAid = baseSpellEffect(document, document.name);
-  effectAidAid.changes.push({
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push({
     key: "data.attributes.hp.max",
     value: "5 * (@spellLevel - 1)",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -26,8 +26,8 @@ if (args[0] === "on") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectAidAid.changes.push(generateMacroChange("@spellLevel @data.attributes.hp.max", 0));
-  document.effects.push(effectAidAid);
+  effect.changes.push(generateMacroChange("@spellLevel @data.attributes.hp.max", 0));
+  document.effects.push(effect);
 
   return document;
 }

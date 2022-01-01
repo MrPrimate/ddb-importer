@@ -1,8 +1,8 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function irresistibleDanceEffect(document) {
-  let effectIrresistibleDanceIrresistibleDance = baseSpellEffect(document, document.name);
-  effectIrresistibleDanceIrresistibleDance.flags.dae.macroRepeat = "startEveryTurn";
+  let effect = baseSpellEffect(document, document.name);
+  effect.flags.dae.macroRepeat = "startEveryTurn";
   const itemMacroText = `
 //DAE Macro , Effect Value = @attributes.spelldc
 if(!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
@@ -44,8 +44,8 @@ if (args[0] === "each") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectIrresistibleDanceIrresistibleDance.changes.push(generateMacroChange("@attributes.spelldc"));
-  document.effects.push(effectIrresistibleDanceIrresistibleDance);
+  effect.changes.push(generateMacroChange("@attributes.spelldc"));
+  document.effects.push(effect);
 
   return document;
 }

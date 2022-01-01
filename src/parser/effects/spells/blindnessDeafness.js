@@ -1,8 +1,8 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function blindnessDeafnessEffect(document) {
-  let effectBlindnessDeafnessBlindnessDeafness = baseSpellEffect(document, document.name);
-  effectBlindnessDeafnessBlindnessDeafness.changes.push({
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push({
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     value: "turn=end, saveDC = @attributes.spelldc, saveAbility=con, savingThrow=true",
@@ -50,8 +50,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectBlindnessDeafnessBlindnessDeafness.changes.push(generateMacroChange(""));
-  document.effects.push(effectBlindnessDeafnessBlindnessDeafness);
+  effect.changes.push(generateMacroChange(""));
+  document.effects.push(effect);
 
   return document;
 }

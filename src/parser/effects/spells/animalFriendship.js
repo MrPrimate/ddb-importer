@@ -1,9 +1,9 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
 
 export function animalFriendshipEffect(document) {
-  let effectAnimalFriendshipCharmed = baseSpellEffect(document, document.name);
-  effectAnimalFriendshipCharmed.changes.push(generateStatusEffectChange("Charmed"));
-  document.effects.push(effectAnimalFriendshipCharmed);
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push(generateStatusEffectChange("Charmed"));
+  document.effects.push(effect);
 
   return document;
 }

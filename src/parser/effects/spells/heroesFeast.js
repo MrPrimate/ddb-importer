@@ -1,8 +1,8 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function heroesFeastEffect(document) {
-  let effectHeroesFeastHeroesFeast = baseSpellEffect(document, document.name);
-  effectHeroesFeastHeroesFeast.changes.push(
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push(
     { key: "data.traits.di.value", value: "poison", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 },
     { key: "data.traits.ci.value", value: "frightened", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 }
   );
@@ -42,8 +42,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectHeroesFeastHeroesFeast.changes.push(generateMacroChange("@damage", 0));
-  document.effects.push(effectHeroesFeastHeroesFeast);
+  effect.changes.push(generateMacroChange("@damage", 0));
+  document.effects.push(effect);
 
   return document;
 }

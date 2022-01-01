@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function mistyStepEffect(document) {
-  let effectMistyStepMistyStep = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Macro Execute, Effect Value = "Macro Name" @target 
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
@@ -73,8 +73,8 @@ if (args[0] === "on") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectMistyStepMistyStep.changes.push(generateMacroChange("@target"));
-  document.effects.push(effectMistyStepMistyStep);
+  effect.changes.push(generateMacroChange("@target"));
+  document.effects.push(effect);
 
   return document;
 }

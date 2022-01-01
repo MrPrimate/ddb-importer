@@ -1,8 +1,8 @@
 import { baseSpellEffect } from "../specialSpells.js";
 
 export function beaconofHopeEffect(document) {
-  let effectBeaconofHopeBeaconofHope = baseSpellEffect(document, document.name);
-  effectBeaconofHopeBeaconofHope.changes.push(
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push(
     {
       key: "flags.midi-qol.advantage.ability.save.wis",
       value: "1",
@@ -11,7 +11,7 @@ export function beaconofHopeEffect(document) {
     },
     { key: "flags.midi-qol.advantage.deathSave", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 20 }
   );
-  document.effects.push(effectBeaconofHopeBeaconofHope);
+  document.effects.push(effect);
 
   return document;
 }

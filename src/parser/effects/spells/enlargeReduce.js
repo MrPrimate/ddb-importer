@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function enlargeReduceEffect(document) {
-  let effectEnlargeReduceEnlargeReduce = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Macro Execute, Effect Value = "Macro Name" @target 
 
@@ -63,8 +63,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectEnlargeReduceEnlargeReduce.changes.push(generateMacroChange("", 0));
-  document.effects.push(effectEnlargeReduceEnlargeReduce);
+  effect.changes.push(generateMacroChange("", 0));
+  document.effects.push(effect);
 
   return document;
 }

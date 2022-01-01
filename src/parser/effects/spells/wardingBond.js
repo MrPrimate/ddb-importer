@@ -1,8 +1,8 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function wardingBondEffect(document) {
-  let effectWardingBondWardingBond = baseSpellEffect(document, document.name);
-  effectWardingBondWardingBond.changes.push(
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push(
     { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "+1", priority: "20" },
     { key: "data.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "0", priority: "0" },
     { key: "data.bonuses.abilities.save", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "1", priority: "20" }
@@ -63,8 +63,8 @@ if (args[0] === "each") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectWardingBondWardingBond.changes.push(generateMacroChange(""));
-  document.effects.push(effectWardingBondWardingBond);
+  effect.changes.push(generateMacroChange(""));
+  document.effects.push(effect);
 
   return document;
 }

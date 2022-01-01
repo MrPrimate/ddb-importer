@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function rayofEnfeeblementEffect(document) {
-  let effectRayofEnfeeblementRayofEnfeeblement = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Item Macro Execute, no arguments
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
@@ -37,8 +37,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectRayofEnfeeblementRayofEnfeeblement.changes.push(generateMacroChange(""));
-  document.effects.push(effectRayofEnfeeblementRayofEnfeeblement);
+  effect.changes.push(generateMacroChange(""));
+  document.effects.push(effect);
 
   return document;
 }

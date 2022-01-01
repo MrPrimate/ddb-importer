@@ -1,9 +1,9 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
 
 export function dominateMonsterEffect(document) {
-  let effectDominateMonsterDominateMonster = baseSpellEffect(document, document.name);
-  effectDominateMonsterDominateMonster.changes.push(generateStatusEffectChange("Charmed"));
-  document.effects.push(effectDominateMonsterDominateMonster);
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push(generateStatusEffectChange("Charmed"));
+  document.effects.push(effect);
 
   return document;
 }

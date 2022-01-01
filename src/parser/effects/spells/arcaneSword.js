@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function arcaneSwordEffect(document) {
-  let effectArcaneSwordArcaneSword = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 if(!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
 //DAE Macro Execute, Effect Value = "Macro Name" @target
@@ -123,8 +123,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectArcaneSwordArcaneSword.changes.push(generateMacroChange("@attributes.spellcasting"));
-  document.effects.push(effectArcaneSwordArcaneSword);
+  effect.changes.push(generateMacroChange("@attributes.spellcasting"));
+  document.effects.push(effect);
 
   return document;
 }

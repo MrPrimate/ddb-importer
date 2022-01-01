@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function spiritualWeaponEffect(document) {
-  let effectSpiritualWeaponSpiritualWeapon = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Item Macro Execute, value = @item.level
 // Set spell to self cast, no damage/attack roll
@@ -125,8 +125,8 @@ if (args[0] === "off") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectSpiritualWeaponSpiritualWeapon.changes.push(generateMacroChange("@item.level @attributes.spellcasting"));
-  document.effects.push(effectSpiritualWeaponSpiritualWeapon);
+  effect.changes.push(generateMacroChange("@item.level @attributes.spellcasting"));
+  document.effects.push(effect);
 
   return document;
 }

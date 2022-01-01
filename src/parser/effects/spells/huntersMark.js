@@ -1,7 +1,9 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
+// this one is a bit different, the macro is triggered by midi-qol and applies effects to the actor
+// the Marked effect gets applied to the target
 export function huntersMarkEffect(document) {
-  let effect = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, "Marked");
 
   const itemMacroText = `
 // Hunters mark onUse macro
@@ -15,7 +17,7 @@ if (args[0].tag === "OnUse") {
       console.error("Hunter's Mark: no token/target selected");
       return;
     }
- 
+
     const effectData = {
       changes: [
         {key: "flags.midi-qol.huntersMark", mode: 5, value: targetUuid, priority: 20}, // who is marked
@@ -40,9 +42,20 @@ if (args[0].tag === "OnUse") {
     return {damageRoll: \`\${diceMult}d6[\${damageType}]\`, flavor: "Hunters Mark Damage"}
 }
 `;
-  document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@attributes.spelldc"));
+
+  setProperty(document, "flags.itemacro", generateMacroFlags(document, itemMacroText));
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setProperty(document, "data.actionType", "util");
+
   document.effects.push(effect);
+
+  let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
+
+  if (!midiQOLSettings.allowUseMacro) {
+    console.warn("Setting midi-qol use macro to true");
+    midiQOLSettings.allowUseMacro = true;
+    game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
+  }
 
   return document;
 }

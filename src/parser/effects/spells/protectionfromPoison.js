@@ -1,14 +1,14 @@
 import { baseSpellEffect } from "../specialSpells.js";
 
 export function protectionfromPoisonEffect(document) {
-  let effectProtectionfromPoisonProtectionfromPoison = baseSpellEffect(document, document.name);
-  effectProtectionfromPoisonProtectionfromPoison.changes.push({
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push({
     key: "data.traits.dr.value",
     value: "poison",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: 0,
   });
-  document.effects.push(effectProtectionfromPoisonProtectionfromPoison);
+  document.effects.push(effect);
 
   return document;
 }

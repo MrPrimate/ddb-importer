@@ -1,9 +1,9 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
 
 export function charmPersonEffect(document) {
-  let effectCharmPersonCharmPerson = baseSpellEffect(document, document.name);
-  effectCharmPersonCharmPerson.changes.push(generateStatusEffectChange("Charmed"));
-  document.effects.push(effectCharmPersonCharmPerson);
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push(generateStatusEffectChange("Charmed"));
+  document.effects.push(effect);
 
   return document;
 }
