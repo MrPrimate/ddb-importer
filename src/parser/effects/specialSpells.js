@@ -58,6 +58,7 @@ import { mageArmorEffect } from "./spells/mageArmor.js";
 import { magicWeaponEffect } from "./spells/magicWeapon.js";
 import { massSuggestionEffect } from "./spells/massSuggestion.js";
 import { mindBlankEffect } from "./spells/mindBlank.js";
+import { mirrorImageEffect } from "./spells/mirrorImage.js";
 import { mistyStepEffect } from "./spells/mistyStep.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
@@ -439,6 +440,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Mind Blank": {
       document = mindBlankEffect(document);
+      break;
+    }
+    case "Mirror Image": {
+      document = mirrorImageEffect(document);
       break;
     }
     case "Misty Step": {
