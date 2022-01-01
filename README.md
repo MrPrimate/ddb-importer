@@ -72,12 +72,16 @@ You can log bugs here, or mention them in the [Discord channel](https://discord.
 
 ## Pre-requisites and recommendations
 
-I'd recommend installing:
+I'd strongly recommend installing:
 
 - [Magic Items](https://foundryvtt.com/packages/magicitems/) for attaching spells to magic items
 - [DAE](https://foundryvtt.com/packages/dae/) or [Skill Customization for D&D5E](https://foundryvtt.com/packages/skill-customization-5e/) for skill bonuses
 - [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e )
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
+
+If you want to increase automation for spell effects you will need:
+- [Midi-QOL](https://foundryvtt.com/packages/midi-qol/), [About Time](https://foundryvtt.com/packages/about-time), [Times Up](https://foundryvtt.com/packages/times-up/).
+- For the best results also use [Advanced Macros](https://foundryvtt.com/packages/advanced-macros), [Active Token Effects](https://foundryvtt.com/packages/ATL) and [Token Magic FX](https://foundryvtt.com/packages/tokenmagic).
 
 ## SRD Import Notes
 

@@ -1,14 +1,19 @@
-import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
+import { baseSpellEffect, generateMacroChange, generateMacroFlags, generateATLChange } from "../specialSpells.js";
+import utils from "../../../utils.js";
 
 export function darkvisionEffect(document) {
-  let effectDarkvisionDarkvision = baseSpellEffect(document, document.name);
-  effectDarkvisionDarkvision.changes.push({
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push({
     key: "data.attributes.senses.darkvision",
     value: "60",
     mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
     priority: 20,
   });
-  const itemMacroText = `
+
+  if (utils.isModuleInstalledAndActive("ATL")) {
+    effect.changes.push(generateATLChange("ATL.dimSight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '60', 5));
+  } else {
+    const itemMacroText = `
 //DAE Macro Execute, Effect Value = "Macro Name" @target
 const lastArg = args[args.length - 1];
 let tactor;
@@ -32,9 +37,11 @@ if(args[0] === "off") {
     ChatMessage.create({content: \`\${target.name}'s vision has been returned\`});
 }
 `;
-  document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectDarkvisionDarkvision.changes.push(generateMacroChange(""));
-  document.effects.push(effectDarkvisionDarkvision);
+    document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
+    effect.changes.push(generateMacroChange(""));
+  }
+  
+  document.effects.push(effect);
 
   return document;
 }

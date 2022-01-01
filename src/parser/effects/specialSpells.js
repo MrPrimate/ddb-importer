@@ -50,6 +50,7 @@ import { hypnoticPatternEffect } from "./spells/hypnoticPattern.js";
 import { invisibilityEffect } from "./spells/invisibility.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
 import { levitateEffect } from "./spells/levitate.js";
+import { lightEffect } from "./spells/light.js";
 import { longstriderEffect } from "./spells/longstrider.js";
 import { mageArmorEffect } from "./spells/mageArmor.js";
 import { magicWeaponEffect } from "./spells/magicWeapon.js";
@@ -75,6 +76,8 @@ import { trueStrikeEffect } from "./spells/trueStrike.js";
 import { viciousMockeryEffect } from "./spells/viciousMockery.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
+
+import utils from "../../utils.js";
 
 export function baseSpellEffect(document, label) {
   return {
@@ -121,6 +124,53 @@ export function generateTokenMagicFXChange(macroValue, priority = 20) {
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     value: macroValue,
     priority: priority,
+  };
+}
+
+export function generateATLChange(atlKey, mode, value, priority = 20) {
+  let key = atlKey;
+  const version = (game.version ?? game.data.version);
+  const v9 = utils.versionCompare(version, 9) >= 0;
+
+  if (v9) {
+    switch (atlKey) {
+      case 'ATL.dimLight':
+        key = 'ATL.light.dim';
+        break;
+      case 'ATL.brightLight':
+        key = 'ATL.light.bright';
+        break;
+      case 'ATL.lightAnimation':
+        key = 'ATL.light.animation';
+        break;
+      case 'ATL.lightColor':
+        key = 'ATL.light.color';
+        break;
+      case 'ATL.lightAlpha':
+        key = 'ATL.light.alpha';
+        break;
+      case 'ATL.lightAngle':
+        key = 'ATL.light.angle';
+        break;
+      case 'ATL.preset':
+      case 'ATL.brightSight':
+      case 'ATL.dimSight':
+      case 'ATL.height':
+      case 'ATl.img':
+      case 'ATL.mirrorX':
+      case 'ATL.mirrorY':
+      case 'ATL.rotation':
+      case 'ATL.scale':
+      case 'ATL.width':
+      default:
+        break;
+    }
+  }
+  return {
+    key,
+    mode,
+    value,
+    priority,
   };
 }
 
@@ -354,6 +404,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Levitate": {
       document = levitateEffect(document);
+      break;
+    }
+    case "Light": {
+      document = lightEffect(document);
       break;
     }
     case "Longstrider": {
