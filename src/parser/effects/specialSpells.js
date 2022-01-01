@@ -68,6 +68,7 @@ import { protectionfromPoisonEffect } from "./spells/protectionfromPoison.js";
 import { rayofEnfeeblementEffect } from "./spells/rayofEnfeeblement.js";
 import { rayofFrostEffect } from "./spells/rayofFrost.js";
 import { regenerateEffect } from "./spells/regenerate.js";
+import { resilientSphereEffect } from "./spells/resilientSphere.js";
 import { resistanceEffect } from "./spells/resistance.js";
 import { shieldEffect } from "./spells/shield.js";
 import { shieldofFaithEffect } from "./spells/shieldofFaith.js";
@@ -135,7 +136,7 @@ export function generateTokenMagicFXChange(macroValue, priority = 20) {
 export function generateATLChange(atlKey, mode, value, priority = 20) {
   let key = atlKey;
   const version = (game.version ?? game.data.version);
-  const v9 = utils.versionCompare(version, 9) >= 0;
+  const v9 = utils.versionCompare(version, "9.0") >= 0;
 
   if (v9) {
     switch (atlKey) {
@@ -481,6 +482,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Regenerate": {
       document = regenerateEffect(document);
+      break;
+    }
+    case "Resilient Sphere": {
+      document = resilientSphereEffect(document);
       break;
     }
     case "Resistance": {
