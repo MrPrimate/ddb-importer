@@ -209,6 +209,13 @@ export function fixSpells(ddb, items) {
         spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
       }
+      case "False Life": {
+        spell.data.actionType = "heal";
+        spell.data['target']['type'] = "self";
+        spell.data.damage.parts[0] = ["1d4 + 4", "temphp"];
+        spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
+        break;
+      }
       case "Divine Favor": {
         spell.data.actionType = "util";
         spell.data['target']['type'] = "self";
