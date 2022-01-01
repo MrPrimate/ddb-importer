@@ -38,6 +38,7 @@ import { flyEffect } from "./spells/fly.js";
 import { geasEffect } from "./spells/geas.js";
 import { greaseEffect } from "./spells/grease.js";
 import { greaterInvisibilityEffect } from "./spells/greaterInvisibility.js";
+import { guidanceEffect } from "./spells/guidance.js";
 import { guidingBoltEffect } from "./spells/guidingBolt.js";
 import { hasteEffect } from "./spells/haste.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
@@ -356,6 +357,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Greater Invisibility": {
       document = greaterInvisibilityEffect(document);
+      break;
+    }
+    case "Guidance": {
+      document = guidanceEffect(document);
       break;
     }
     case "Guiding Bolt": {
