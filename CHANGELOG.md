@@ -1,3 +1,8 @@
+# 2.7.8
+
+* Better automation of spell effects and mechanism for building in non-SRD spell effects if midi-qol is installed.
+* Flase Life will now roll correct hp as it scales.
+
 # 2.7.7
 
 * Try and make source book filter more obvious.

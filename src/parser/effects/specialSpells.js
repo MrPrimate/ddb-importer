@@ -9,10 +9,12 @@ import { barkskinEffect } from "./spells/barkskin.js";
 import { beaconofHopeEffect } from "./spells/beaconofHope.js";
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { blessEffect } from "./spells/bless.js";
+import { blurEffect } from "./spells/blur.js";
 import { blindnessDeafnessEffect } from "./spells/blindnessDeafness.js";
 import { callLightningEffect } from "./spells/callLightning.js";
 import { charmPersonEffect } from "./spells/charmPerson.js";
 import { commandEffect } from "./spells/command.js";
+import { comprehendLanguagesEffect } from "./spells/comprehendLanguages.js";
 import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
 import { darknessEffect } from "./spells/darkness.js";
@@ -112,6 +114,15 @@ export function generateMacroChange(macroValues, priority = 20) {
   };
 }
 
+export function generateTokenMagicFXChange(macroValue, priority = 20) {
+  return {
+    key: 'macro.tokenMagic',
+    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    value: macroValue,
+    priority: priority,
+  };
+}
+
 export function generateMacroFlags(document, macroText) {
   return {
     macro: {
@@ -180,6 +191,10 @@ export function spellEffectAdjustment(document) {
       document = blessEffect(document);
       break;
     }
+    case "Blur": {
+      document = blurEffect(document);
+      break;
+    }
     case "Blindness/Deafness": {
       document = blindnessDeafnessEffect(document);
       break;
@@ -194,6 +209,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Command": {
       document = commandEffect(document);
+      break;
+    }
+    case "Comprehend Languages": {
+      document = comprehendLanguagesEffect(document);
       break;
     }
     case "Confusion": {

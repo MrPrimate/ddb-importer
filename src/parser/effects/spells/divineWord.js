@@ -1,7 +1,7 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function divineWordEffect(document) {
-  let effectDivineWordDivineWord = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 ////DAE Item Macro 
 //// Requires Convenient Effects and About Time
@@ -59,8 +59,8 @@ if (args[0] === "on") {
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectDivineWordDivineWord.changes.push(generateMacroChange(""));
-  document.effects.push(effectDivineWordDivineWord);
+  effect.changes.push(generateMacroChange(""));
+  document.effects.push(effect);
 
   return document;
 }
