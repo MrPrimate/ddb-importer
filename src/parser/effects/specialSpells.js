@@ -62,6 +62,7 @@ import { protectionfromPoisonEffect } from "./spells/protectionfromPoison.js";
 import { rayofEnfeeblementEffect } from "./spells/rayofEnfeeblement.js";
 import { rayofFrostEffect } from "./spells/rayofFrost.js";
 import { regenerateEffect } from "./spells/regenerate.js";
+import { resistanceEffect } from "./spells/resistance.js";
 import { shieldEffect } from "./spells/shield.js";
 import { shieldofFaithEffect } from "./spells/shieldofFaith.js";
 import { shillelaghEffect } from "./spells/shillelagh.js";
@@ -401,6 +402,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Regenerate": {
       document = regenerateEffect(document);
+      break;
+    }
+    case "Resistance": {
+      document = resistanceEffect(document);
       break;
     }
     case "Shield": {
