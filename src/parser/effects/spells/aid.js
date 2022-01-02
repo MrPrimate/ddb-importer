@@ -10,23 +10,21 @@ export function aidEffect(document) {
   });
   const itemMacroText = `
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const target = canvas.tokens.get(lastArg.tokenId)
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 let buf = (parseInt(args[1])-1) * 5;
-let curHP = tactor.data.data.attributes.hp.value;
-let curMax = tactor.data.data.attributes.hp.max;
+let curHP = target.data.data.attributes.hp.value;
+let curMax = target.data.data.attributes.hp.max;
 
 if (args[0] === "on") {
-  tactor.update({"data.attributes.hp.value": curHP+buf})
+  target.update({"data.attributes.hp.value": curHP+buf});
 } else if (curHP > curMax) {
-  tactor.update({"data.attributes.hp.value": curMax})
+  target.update({"data.attributes.hp.value": curMax});
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@spellLevel @data.attributes.hp.max", 0));
+  effect.changes.push(generateMacroChange("@spellLevel", 0));
   document.effects.push(effect);
 
   return document;
