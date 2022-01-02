@@ -220,6 +220,7 @@ export function spellEffectAdjustment(document) {
       document = animalFriendshipEffect(document);
       break;
     }
+    case "Mordenkainen's Sword":
     case "Arcane Sword": {
       document = arcaneSwordEffect(document);
       break;

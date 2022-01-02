@@ -16,29 +16,28 @@ const castItemName = "Call Lightning - bolt";
  * Create Call Lightning Bolt item in inventory
  */
 if (args[0] === "on") {
-  // If you want the macro to place the template, uncomment  this block
-  // let templateData = {
-  //   t: "circle",
-  //   user: game.user._id,
-  //   distance: 60,
-  //   direction: 0,
-  //   x: 0,
-  //   y: 0,
-  //   flags: {
-  //     DAESRD: {
-  //       CallLighting: {
-  //         ActorId: targetActor.id,
-  //       },
-  //     },
-  //   },
-  //   fillColor: game.user.color,
-  // };
-  // let doc = new CONFIG.MeasuredTemplate.documentClass(templateData, {
-  //   parent: canvas.scene,
-  // });
-  // let template = new game.dnd5e.canvas.AbilityTemplate(doc);
-  // template.actorSheet = targetActor.sheet;
-  // template.drawPreview();
+  let templateData = {
+    t: "circle",
+    user: game.user._id,
+    distance: 60,
+    direction: 0,
+    x: 0,
+    y: 0,
+    flags: {
+      DAESRD: {
+        CallLighting: {
+          ActorId: targetActor.id,
+        },
+      },
+    },
+    fillColor: game.user.color,
+  };
+  let doc = new CONFIG.MeasuredTemplate.documentClass(templateData, {
+    parent: canvas.scene,
+  });
+  let template = new game.dnd5e.canvas.AbilityTemplate(doc);
+  template.actorSheet = targetActor.sheet;
+  template.drawPreview();
 
   const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "spell");
   if (!castItem) {
@@ -63,7 +62,11 @@ if (args[0] === "on") {
           versatile: "",
         },
         formula: "",
-        save: DAEitem.data.save,
+        save: {
+          ability: "dex",
+          dc: null,
+          scaling: "spell"
+        },
         level: 0,
         school: DAEitem.data.school,
         preparation: {
@@ -79,6 +82,7 @@ if (args[0] === "on") {
       effects: [],
     };
     await targetActor.createEmbeddedDocuments("Item", [spell]);
+    ui.notifications.notify("Spell Bolt attack created in your spellbook");
   }
 }
 
@@ -86,12 +90,12 @@ if (args[0] === "on") {
 if (args[0] === "off") {
   const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "spell");
   if (castItem) await targetActor.deleteEmbeddedDocuments("Item", castItem._id);
-  // const template = canvas.templates.placeables.find((i) => i.data.flags.DAESRD?.CallLighting?.ActorId === targetActor.id);
-  // if (template) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
+  const template = canvas.templates.placeables.find((i) => i.data.flags.DAESRD?.CallLighting?.ActorId === targetActor.id);
+  if (template) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@actor"));
+  effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
   setProperty(document, "data.actionType", "other");
 
