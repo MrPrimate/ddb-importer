@@ -1,4 +1,5 @@
-import { baseSpellEffect } from "../specialSpells.js";
+import { baseSpellEffect, generateTokenMagicFXChange } from "../specialSpells.js";
+import utils from "../../../utils.js";
 
 export function shieldofFaithEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -8,6 +9,11 @@ export function shieldofFaithEffect(document) {
     value: "+2",
     priority: "20",
   });
+
+  if (utils.isModuleInstalledAndActive("tokenmagic")) {
+    effect.changes.push(generateTokenMagicFXChange("bloom"));
+  }
+
   document.effects.push(effect);
 
   return document;

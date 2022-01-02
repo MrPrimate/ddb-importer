@@ -1,4 +1,5 @@
-import { baseSpellEffect } from "../specialSpells.js";
+import { baseSpellEffect, generateTokenMagicFXChange } from "../specialSpells.js";
+import utils from "../../../utils.js";
 
 export function shieldEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -8,6 +9,12 @@ export function shieldEffect(document) {
     value: "+5",
     priority: "20",
   });
+  effect.flags.dae.specialDuration = "turnStart";
+
+  if (utils.isModuleInstalledAndActive("tokenmagic")) {
+    effect.changes.push(generateTokenMagicFXChange("water-field"));
+  }
+
   document.effects.push(effect);
 
   return document;

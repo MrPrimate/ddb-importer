@@ -1,4 +1,5 @@
-import { baseSpellEffect } from "../specialSpells.js";
+import { baseSpellEffect, generateTokenMagicFXChange } from "../specialSpells.js";
+import utils from "../../../utils.js";
 
 export function blessEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -7,6 +8,10 @@ export function blessEffect(document) {
     { key: "data.bonuses.All-Attacks", value: "+1d4", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 }
   );
   document.effects.push(effect);
+
+  if (utils.isModuleInstalledAndActive("tokenmagic")) {
+    effect.changes.push(generateTokenMagicFXChange("bloom"));
+  }
 
   return document;
 }

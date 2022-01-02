@@ -1,4 +1,5 @@
-import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
+import { baseSpellEffect, generateMacroChange, generateMacroFlags, generateTokenMagicFXChange } from "../specialSpells.js";
+import utils from "../../../utils.js";
 
 export function faerieFireEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -9,8 +10,6 @@ export function faerieFireEffect(document) {
     priority: "20",
   });
   const itemMacroText = `
-// DAE macro, just call the macro, nothing else
-// setup the spell as normal
 if (!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
 
 const lastArg = args[args.length - 1];
@@ -78,6 +77,11 @@ if (args[0] === "off") {
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
+
+  if (utils.isModuleInstalledAndActive("tokenmagic")) {
+    effect.changes.push(generateTokenMagicFXChange("glow"));
+  }
+
   document.effects.push(effect);
 
   return document;
