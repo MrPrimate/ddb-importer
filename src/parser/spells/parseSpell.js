@@ -42,14 +42,11 @@ export function parseSpell(data, character) {
   const school = DICTIONARY.spell.schools.find((s) => s.name === data.definition.school.toLowerCase());
   spell.data.school = (school) ? school.id : null;
 
-
   /**
    * Gets the necessary spell components VSM + material
    */
   spell.data.components = getComponents(data);
-
   spell.data.materials = getMaterials(data);
-
   spell.data.preparation = getSpellPreparationMode(data);
 
   const updateExisting = data.flags.ddbimporter.generic
@@ -64,23 +61,14 @@ export function parseSpell(data, character) {
   };
 
   spell.data.source = utils.parseSource(data.definition);
-
   spell.data.activation = getActivation(data);
-
   spell.data.duration = getDuration(data);
-
   spell.data.target = getTarget(data);
-
   spell.data.range = getRange(data);
-
   spell.data.actionType = getActionType(data);
-
   spell.data.damage = getDamage(data, spell);
-
   spell.data.save = getSave(data);
-
   spell.data.scaling = getSpellScaling(data);
-
   spell.data.uses = getUses(data);
 
   // attach the spell ability id to the spell data so VTT always uses the

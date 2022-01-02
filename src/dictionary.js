@@ -551,15 +551,15 @@ const DICTIONARY = {
       { name: "Monk", value: "always" },
     ],
     activationTypes: [
-      { activationType: 0, value: "none" },
-      { activationType: 1, value: "action" },
-      { activationType: 2, value: "action" },
-      { activationType: 3, value: "bonus" },
-      { activationType: 4, value: "reaction" },
-      { activationType: 5, value: "action" },
-      { activationType: 6, value: "minute" },
-      { activationType: 7, value: "hour" },
-      { activationType: 8, value: "special" },
+      { activationType: 0, value: "none", name: "No Action" }, // doesn't exist an more
+      { activationType: 1, value: "action", name: "Action", }, // action
+      { activationType: 2, value: "none", name: "No Action" }, // no action
+      { activationType: 3, value: "bonus", name: "Bonus Action" }, // bonus action
+      { activationType: 4, value: "reaction", name: "Reaction", }, // reaction
+      { activationType: 5, value: "special", name: "Unknown" }, // no longer exists
+      { activationType: 6, value: "minute", name: "Minute" }, // minute
+      { activationType: 7, value: "hour", name: "Hour" }, // hour
+      { activationType: 8, value: "special", name: "Special" }, // special
     ],
   },
 };
