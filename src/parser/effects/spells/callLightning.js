@@ -1,13 +1,14 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function callLightningEffect(document) {
-  let effectCallLightningCallLightningSummon = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 //DAE Macro no arguments passed
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module");
 
 const lastArg = args[args.length - 1];
-const targetActor = lastArg.tokenId ? canvas.tokens.get(lastArg.tokenId).actor : game.actors.get(lastArg.actorId);
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const DAEitem = lastArg.efData.flags.dae.itemData;
 const saveData = DAEitem.data.save;
 const castItemName = "Call Lightning - bolt";
@@ -85,13 +86,13 @@ if (args[0] === "on") {
 if (args[0] === "off") {
   const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "spell");
   if (castItem) await targetActor.deleteEmbeddedDocuments("Item", castItem._id);
-  const template = canvas.templates.placeables.find((i) => i.data.flags.DAESRD?.CallLighting?.ActorId === targetActor.id);
-  if (template) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
+  // const template = canvas.templates.placeables.find((i) => i.data.flags.DAESRD?.CallLighting?.ActorId === targetActor.id);
+  // if (template) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectCallLightningCallLightningSummon.changes.push(generateMacroChange("@actor"));
-  document.effects.push(effectCallLightningCallLightningSummon);
+  effect.changes.push(generateMacroChange("@actor"));
+  document.effects.push(effect);
   setProperty(document, "data.actionType", "other");
 
   return document;
