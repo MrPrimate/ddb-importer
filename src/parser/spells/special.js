@@ -150,14 +150,21 @@ export function fixSpells(ddb, items) {
         spell.data.chatFlavor = "Choose one of Acid, Cold, Fire, Lightning, or Poison.";
         break;
       case "Hunter's Mark":
-      case "Hunter’s Mark":
+      case "Hunter’s Mark": {
         spell.data.actionType = "other";
-        if (!midiQolInstalled) {
-          spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
+        if (midiQolInstalled) {
+          spell.data.damage = { parts: [], versatile: "", value: "" };
         } else {
+          spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
+        }
+        break;
+      }
+      case "Call Lightning": {
+        if (midiQolInstalled) {
           spell.data.damage = { parts: [], versatile: "", value: "" };
         }
         break;
+      }
       case "Pyrotechnics":
         spell.data['target']['value'] = 15;
         break;
