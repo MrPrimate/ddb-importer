@@ -384,6 +384,7 @@ export function spellEffectAdjustment(document) {
       document = heroismEffect(document);
       break;
     }
+    case "Tasha's Hideous Laughter":
     case "Hideous Laughter": {
       document = hideousLaughterEffect(document);
       break;
@@ -412,6 +413,7 @@ export function spellEffectAdjustment(document) {
       document = invisibilityEffect(document);
       break;
     }
+    case "Otto's Irresistible Dance":
     case "Irresistible Dance": {
       document = irresistibleDanceEffect(document);
       break;
@@ -484,6 +486,7 @@ export function spellEffectAdjustment(document) {
       document = regenerateEffect(document);
       break;
     }
+    case "Otiluke's Resilient Sphere":
     case "Resilient Sphere": {
       document = resilientSphereEffect(document);
       break;

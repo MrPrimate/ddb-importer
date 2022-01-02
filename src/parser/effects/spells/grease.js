@@ -1,9 +1,9 @@
 import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
 
 export function greaseEffect(document) {
-  let effectGreaseProne = baseSpellEffect(document, document.name);
-  effectGreaseProne.changes.push(generateStatusEffectChange("Prone"));
-  document.effects.push(effectGreaseProne);
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push(generateStatusEffectChange("Prone"));
+  document.effects.push(effect);
 
   return document;
 }
