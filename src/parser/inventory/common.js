@@ -135,6 +135,8 @@ export function getBaseItem(data) {
     if (baseTool && baseTool.baseTool && baseTool.baseTool !== "") {
       baseItem = baseTool.baseTool;
     }
+  } else if (data.definition.filterType === "Staff") {
+    baseItem = "quarterstaff";
   }
 
 

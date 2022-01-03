@@ -365,11 +365,7 @@ function parseItem(ddb, data, character, flags) {
 
 function enrichFlags(data, item) {
   if (data.definition.magic) {
-    if (item.data.properties) {
-      item.data.properties['mgc'] = true;
-    } else {
-      item.data.properties = { mgc: true };
-    }
+    setProperty(item, "data.properties.mgc", true);
   }
   if (item.data.uses?.max && !item.flags?.betterRolls5e) {
     item.flags['betterRolls5e'] = {

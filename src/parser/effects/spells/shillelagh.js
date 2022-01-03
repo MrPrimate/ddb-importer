@@ -4,71 +4,84 @@ export function shillelaghEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   const itemMacroText = `
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-let weapons = tactor.items.filter(i => i.data.type === \`weapon\`);
-let weapon_content = \`\`;
+// we see if the equipped weapons have base weapon set and filter on that, otherwise we just get all weapons
+const filteredWeapons = target.items
+  .filter((i) => i.data.type === "weapon" && (i.data.data.baseItem === "club" || i.data.data.baseItem === "quarterstaff"));
+const weapons = (filteredWeapons.length > 0)
+  ? filteredWeapons
+  : target.items.filter((i) => i.data.type === "weapon");
 
-for (let weapon of weapons) {
-    weapon_content += \`<option value=\${weapon.id}>\${weapon.name}</option>\`;
-}
+const weapon_content = weapons.map((w) => \`<option value=\${w.id}>\${w.name}</option>\`).join("");
+
 if (args[0] === "on") {
-    let content = \`
+  const content = \`
 <div class="form-group">
   <label>Weapons : </label>
   <select name="weapons">
-    \${weapon_content}
+  \${weapon_content}
   </select>
-</div>\`;
+</div>
+\`;
 
-    new Dialog({
-        title: "Choose a club or quarterstaff",
-        content,
-        buttons:
-        {
-            Ok:
-            {
-                label: \`Ok\`,
-                callback: (html) => {
-                    let itemId = html.find('[name=weapons]')[0].value;
-                    let weaponItem = tactor.items.get(itemId);
-                    let copy_item = duplicate(weaponItem);
-                    DAE.setFlag(tactor, \`shillelagh\`, {
-                        id : itemId,
-                        damage : copy_item.data.damage.parts[0][0]    
-                    });
-                    let damage = copy_item.data.damage.parts[0][0];
-                    var newdamage = damage.replace(/1d(4|6)/g,"1d8");
-                    copy_item.data.damage.parts[0][0] = newdamage;
-                    copy_item.data.ability = "wis";
-                    tactor.updateEmbeddedEntity("OwnedItem", copy_item);
-                    ChatMessage.create({content: copy_item.name + " is empowered"});
-                }
-            },
-            Cancel:
-            {
-                label: \`Cancel\`
-            }
-        }
-    }).render(true);
+  new Dialog({
+    title: "Choose a club or quarterstaff",
+    content,
+    buttons: {
+      Ok: {
+        label: "Ok",
+        callback: async (html) => {
+          const itemId = html.find("[name=weapons]")[0].value;
+          const weaponItem = target.getEmbeddedDocument("Item", itemId);
+          const weaponCopy = duplicate(weaponItem);
+          await DAE.setFlag(target, "shillelagh", {
+            id: itemId,
+            name: weaponItem.name,
+            damage: weaponItem.data.data.damage.parts[0][0],
+            ability: weaponItem.data.data.ability,
+            magical: getProperty(weaponItem, "data.properties.mgc") || false,
+          });
+          const damage = weaponCopy.data.damage.parts[0][0];
+          const targetAbilities = target.data.data.abilities;
+          weaponCopy.data.damage.parts[0][0] = damage.replace(/1d(4|6)/g, "1d8");
+          if (targetAbilities.wis.value > targetAbilities.str.value) weaponCopy.data.ability = "wis";
+          weaponCopy.name = weaponItem.name + " [Shillelagh]";
+          setProperty(weaponCopy, "data.properties.mgc", true);
+          await target.updateEmbeddedDocuments("Item", [weaponCopy]);
+          await ChatMessage.create({
+            content: weaponCopy.name + " is empowered by Shillelagh",
+          });
+        },
+      },
+      Cancel: {
+        label: "Cancel",
+      },
+    },
+  }).render(true);
 }
 
 if (args[0] === "off") {
-    let flag = DAE.getFlag(tactor, \`shillelagh\`);
-    let weaponItem = tactor.items.get(flag.id);
-    let copy_item = duplicate(weaponItem);
-    copy_item.data.damage.parts[0][0] = flag.damage;
-    copy_item.data.ability = "";
-    tactor.updateEmbeddedEntity("OwnedItem", copy_item);
-    DAE.unsetFlag(tactor, \`shillelagh\`);
-    ChatMessage.create({content: copy_item.name + " returns to normal"});
-
+  const flag = DAE.getFlag(target, "shillelagh");
+  const weaponItem = target.getEmbeddedDocument("Item", flag.id);
+  const weaponCopy = duplicate(weaponItem);
+  weaponCopy.data.damage.parts[0][0] = flag.damage;
+  weaponCopy.data.ability = flag.ability;
+  weaponCopy.name = flag.name;
+  setProperty(weaponCopy, "data.properties.mgc", flag.magical);
+  await target.updateEmbeddedDocuments("Item", [weaponCopy]);
+  await DAE.unsetFlag(target, "shillelagh");
+  await ChatMessage.create({ content: weaponCopy.name + " returns to normal" });
 }
+
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
+
+  document.data.damage = { parts: [], versatile: "", value: "" };
+  document.data['target']['type'] = "self";
+  document.data.range = { value: null, units: "self", long: null };
   document.effects.push(effect);
 
   return document;
