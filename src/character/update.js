@@ -1176,7 +1176,7 @@ async function activeUpdateUpdateItem(document, update) {
 
       const customNameAllowed = DICTIONARY.types.inventory.includes(document.type) || document.data.flags.ddbimporter?.action;
       if (!customItem && update.name && customNameAllowed) {
-        updateDDBCustomNames(parentActor, [document]);
+        updateDDBCustomNames(parentActor, [document.toObject()]);
       }
 
       // is this a DDB action, or do we treat this as an item?

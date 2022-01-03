@@ -82,6 +82,7 @@ if (args[0] === "off") {
   document.data.damage = { parts: [], versatile: "", value: "" };
   document.data['target']['type'] = "self";
   document.data.range = { value: null, units: "self", long: null };
+  document.data.actionType = "other";
   document.effects.push(effect);
 
   return document;
