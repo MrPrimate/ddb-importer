@@ -367,19 +367,21 @@ function enrichFlags(data, item) {
   if (data.definition.magic) {
     setProperty(item, "data.properties.mgc", true);
   }
-  if (item.data.uses?.max && !item.flags?.betterRolls5e) {
-    item.flags['betterRolls5e'] = {
-      quickCharges: {
-        value: {
-          use: true,
-          resource: true
+  if (utils.isModuleInstalledAndActive("betterrolls5e")) {
+    if (item.data.uses?.max && !item.flags?.betterRolls5e) {
+      item.flags['betterRolls5e'] = {
+        quickCharges: {
+          value: {
+            use: true,
+            resource: true
+          },
+          altValue: {
+            use: true,
+            resource: true
+          }
         },
-        altValue: {
-          use: true,
-          resource: true
-        }
-      },
-    };
+      };
+    }
   }
   if (data.definition?.entityTypeId) item.flags.ddbimporter['definitionEntityTypeId'] = data.definition.entityTypeId;
   if (data.definition?.id) item.flags.ddbimporter['definitionId'] = data.definition.id;

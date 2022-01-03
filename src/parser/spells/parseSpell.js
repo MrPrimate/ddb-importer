@@ -83,25 +83,28 @@ export function parseSpell(data, character) {
 
   // If using better rolls we set alt to be versatile for spells like
   // Toll The Dead
-  spell.flags.betterRolls5e = {
-    quickVersatile: {
-      altValue: true,
-    },
-    quickCharges: {
-      value: {
-        use: true,
-        resource: true
+  if (utils.isModuleInstalledAndActive("betterrolls5e")) {
+    spell.flags.betterRolls5e = {
+      quickVersatile: {
+        altValue: true,
       },
-      altValue: {
-        use: true,
-        resource: true
-      }
-    },
-  };
+      quickCharges: {
+        value: {
+          use: true,
+          resource: true
+        },
+        altValue: {
+          use: true,
+          resource: true
+        }
+      },
+    };
+  }
 
   const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
   if (midiQolInstalled) {
     spellEffectAdjustment(spell);
+    setProperty(spell, "flags.ddbimporter.effectsApplied", true);
   }
 
   return spell;

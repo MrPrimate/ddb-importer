@@ -43,6 +43,13 @@ const SUPPORTED_FLAG_GROUPS = [
   "obsidian",
 ];
 
+const EFFECTS_IGNORE_FLAG_GROUPS = [
+  "dae",
+  "midi-qol",
+  "itemacro",
+  "itemmacro",
+];
+
 var srdIconMapLoaded = false;
 var srdIconMap = {};
 var srdPacksLoaded = {};
@@ -127,7 +134,9 @@ export const filterItemsByUserSelection = (result, sections) => {
 
 async function copyFlagGroup(flagGroup, originalItem, targetItem) {
   if (targetItem.flags === undefined) targetItem.flags = {};
-  if (originalItem.flags && !!originalItem.flags[flagGroup]) {
+  // if we have generated effects we dont want to copy some flag groups. mostly for AE on spells
+  const effectsProperty = getProperty(targetItem, "flags.ddbimporter.effectsApplied") && EFFECTS_IGNORE_FLAG_GROUPS.includes(flagGroup);
+  if (originalItem.flags && !!originalItem.flags[flagGroup] && !effectsProperty) {
     logger.debug(`Copying ${flagGroup} for ${originalItem.name}`);
     targetItem.flags[flagGroup] = originalItem.flags[flagGroup];
   }
@@ -351,7 +360,7 @@ export async function updateMidiFlags() {
       return e;
     });
     s.effects = effects;
-  
+
     return s;
   });
 

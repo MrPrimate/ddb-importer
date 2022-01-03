@@ -11,6 +11,70 @@ const utils = {
     return true;
   },
 
+  getDamageType: (data) => {
+    if (data.definition.damageType) {
+      const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>
+        mod.type === "replace-damage-type" &&
+        (!mod.restriction || mod.restriction === "")
+      );
+
+      const damageType = damageTypeReplace
+        ? damageTypeReplace.subType.toLowerCase()
+        : data.definition.damageType.toLowerCase();
+      return damageType;
+    } else {
+      return undefined;
+    }
+  },
+
+  globalDamageTagInfo: (mod) => {
+    const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
+    const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints");
+    const hintOrRestriction = globalDamageHints || damageRestrictionHints;
+    const restriction = damageRestrictionHints && mod.restriction && mod.restriction !== "" ? mod.restriction : "";
+    const hintAndRestriction = globalDamageHints && restriction !== "" ? " - " : "";
+
+    return {
+      globalDamageHints,
+      damageRestrictionHints,
+      hintOrRestriction,
+      hintAndRestriction,
+      restriction,
+    };
+  },
+
+  getDamageTag(mod, overrideDamageType) {
+    const damageTagData = utils.globalDamageTagInfo(mod);
+    const damageType = overrideDamageType
+      ? overrideDamageType
+      : mod.subType && damageTagData.globalDamageHints ? mod.subType : "";
+    const damageHint = damageTagData.hintOrRestriction
+      ? `${damageType}${damageTagData.hintAndRestriction}${damageTagData.restriction}`
+      : "";
+    const damageTag = damageTagData.hintOrRestriction ? `[${damageHint}]` : "";
+    return {
+      globalDamageHints: damageTagData.globalDamageHints,
+      damageRestrictionHints: damageTagData.damageRestrictionHints,
+      hintOrRestriction: damageTagData.hintOrRestriction,
+      hintAndRestriction: damageTagData.hintAndRestriction,
+      restriction: damageTagData.restriction,
+      damageType,
+      damageHint,
+      damageTag,
+    };
+  },
+
+  getDamageTagForMod: (mod) => {
+    const damageTagData = utils.getDamageTag(mod);
+    return damageTagData;
+  },
+
+  getDamageTagForItem(data) {
+    const damageType = utils.getDamageType(data);
+    const damageTagData = utils.getDamageTag({}, damageType);
+    return damageTagData;
+  },
+
   findByProperty: (arr, property, searchString) => {
     function levenshtein(a, b) {
       let tmp;

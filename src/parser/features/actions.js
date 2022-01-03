@@ -65,19 +65,21 @@ function addFlagHints(ddb, character, action, feature) {
   }
 
   // better rolls
-  if (feature.data.uses?.max) {
-    feature.flags.betterRolls5e = {
-      "quickCharges": {
-        "value": {
-          "use": true,
-          "resource": true
-        },
-        "altValue": {
-          "use": true,
-          "resource": true
+  if (utils.isModuleInstalledAndActive("betterrolls5e")) {
+    if (feature.data.uses?.max) {
+      feature.flags.betterRolls5e = {
+        "quickCharges": {
+          "value": {
+            "use": true,
+            "resource": true
+          },
+          "altValue": {
+            "use": true,
+            "resource": true
+          }
         }
-      }
-    };
+      };
+    }
   }
 
   // resource flag hints

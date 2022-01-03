@@ -106,22 +106,6 @@ function getWeaponMagicalBonus(data, flags) {
   }
 };
 
-function getDamageType(data) {
-  if (data.definition.damageType) {
-    const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>
-      mod.type === "replace-damage-type" &&
-      (!mod.restriction || mod.restriction === "")
-    );
-
-    const damageType = (damageTypeReplace)
-      ? damageTypeReplace.subType.toLowerCase()
-      : data.definition.damageType.toLowerCase();
-    return damageType;
-  } else {
-    return undefined;
-  }
-}
-
 /**
  *
  * @param {obj} data item data
@@ -138,14 +122,10 @@ function getDamage(data, flags, betterRolls5e) {
   const twoWeapon = flags.classFeatures.includes("Two-Weapon Fighting");
   const twoHanded = data.definition.properties.find((property) => property.name === "Two-Handed");
   const mod = (offHand && !twoWeapon) ? "" : " + @mod";
-  const damageType = getDamageType(data);
 
-  const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-  const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints");
-  const hintOrRestriction = globalDamageHints || damageRestrictionHints;
-
-  const damageHint = damageType && globalDamageHints ? damageType : "";
-  const damageTag = hintOrRestriction ? `[${damageHint}]` : "";
+  const baseDamageTagData = utils.getDamageTagForItem(data);
+  const damageTag = baseDamageTagData.damageTag;
+  const damageType = baseDamageTagData.damageType;
 
   const versatile = data.definition.properties
     .filter((property) => property.name === "Versatile")
@@ -194,9 +174,9 @@ function getDamage(data, flags, betterRolls5e) {
     .forEach((mod) => {
       const damagePart = (mod.dice) ? mod.dice.diceString : mod.value;
       if (damagePart) {
-        const damageHintSub = mod.subType && globalDamageHints ? `[${mod.subType}]` : "";
-        const damageParsed = utils.parseDiceString(damagePart, "", damageHintSub).diceString;
-        parts.push([`${damageParsed}`, mod.subType]);
+        const subDamageTagData = utils.getDamageTagForMod(mod);
+        const damageParsed = utils.parseDiceString(damagePart, "", subDamageTagData.damageTag).diceString;
+        parts.push([`${damageParsed}`, subDamageTagData.damageType]);
       }
     });
 
@@ -207,15 +187,13 @@ function getDamage(data, flags, betterRolls5e) {
     .forEach((mod) => {
       const damagePart = (mod.dice) ? mod.dice.diceString : `${mod.value}`;
       if (damagePart) {
-        const subType = mod.subType && globalDamageHints ? mod.subType : "";
-        const hintAndRestriction = globalDamageHints && mod.restriction !== "" ? " - " : "";
-        const subTypeDamageTag = hintOrRestriction ? `[${subType}${hintAndRestriction}${mod.restriction}]` : "";
-        const damageParsed = utils.parseDiceString(damagePart, "", subTypeDamageTag).diceString;
+        const subDamageTagData = utils.getDamageTagForMod(mod);
+        const damageParsed = utils.parseDiceString(damagePart, "", subDamageTagData.damageTag).diceString;
 
         if (utils.isModuleInstalledAndActive("betterrolls5e")) {
           const attackNum = parts.length;
           betterRolls5e.quickDamage.context[attackNum] = mod.restriction;
-          parts.push([`${damageParsed}`, mod.subType]);
+          parts.push([`${damageParsed}`, subDamageTagData.damageType]);
         } else {
           // if (utils.isModuleInstalledAndActive("midi-qol")) {
           parts.forEach((part) => {
@@ -271,32 +249,35 @@ export default function parseWeapon(data, character, flags) {
 
   // if using better rolls lets add some useful QOL information.
   // marks context as magical attack and makes alt click a versatile damage click
-  weapon.flags.betterRolls5e = {
-    quickDamage: {
-      context: {
-        "0": getWeaponMagicalBonus(data, flags) > 0 ? "Magical" : "",
+  const brFlags = (utils.isModuleInstalledAndActive("betterrolls5e"))
+    ? {
+      quickDamage: {
+        context: {
+          "0": getWeaponMagicalBonus(data, flags) > 0 ? "Magical" : "",
+        },
+        value: {
+          "0": true,
+        },
+        altValue: {
+          "0": true,
+        },
       },
-      value: {
-        "0": true,
+      quickVersatile: {
+        altValue: true,
       },
-      altValue: {
-        "0": true,
+      quickCharges: {
+        value: {
+          use: false,
+          resource: true
+        },
+        altValue: {
+          use: false,
+          resource: true
+        }
       },
-    },
-    quickVersatile: {
-      altValue: true,
-    },
-    quickCharges: {
-      value: {
-        use: false,
-        resource: true
-      },
-      altValue: {
-        use: false,
-        resource: true
-      }
-    },
-  };
+    }
+    : {};
+  setProperty(weapon, "flags.betterRolls5e", brFlags);
 
   weapon.data.weaponType = getWeaponType(data);
   weapon.data.properties = getProperties(data);
