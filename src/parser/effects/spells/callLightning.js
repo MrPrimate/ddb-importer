@@ -12,6 +12,8 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const DAEitem = lastArg.efData.flags.dae.itemData;
 const saveData = DAEitem.data.save;
 const castItemName = "Call Lightning - bolt";
+const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "spell");
+
 /**
  * Create Call Lightning Bolt item in inventory
  */
@@ -39,44 +41,24 @@ if (args[0] === "on") {
   template.actorSheet = targetActor.sheet;
   template.drawPreview();
 
-  const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "spell");
   if (!castItem) {
     const spell = {
       name: castItemName,
       type: "spell",
       data: {
         description: DAEitem.data.description,
-        activation: {
-          type: "action",
-        },
-        target: {
-          value: 5,
-          width: null,
-          units: "ft",
-          type: "radius",
-        },
-        ability: "",
+        activation: { type: "action", },
+        target: { value: 5, width: null, units: "ft", type: "radius", },
+        ability: DAEitem.data.ability,
+        attackBonus: DAEitem.data.attackBonus,
         actionType: "save",
-        damage: {
-          parts: [[\`\${DAEitem.data.level}d10\`, "lightning"]],
-          versatile: "",
-        },
+        damage: { parts: [[\`\${DAEitem.data.level}d10\`, "lightning"]], versatile: "", },
         formula: "",
-        save: {
-          ability: "dex",
-          dc: null,
-          scaling: "spell"
-        },
+        save: { ability: "dex", dc: null, scaling: "spell" },
         level: 0,
         school: DAEitem.data.school,
-        preparation: {
-          mode: "prepared",
-          prepared: false,
-        },
-        scaling: {
-          mode: "none",
-          formula: "",
-        },
+        preparation: { mode: "prepared", prepared: false, },
+        scaling: { mode: "none", formula: "", },
       },
       img: "systems/dnd5e/icons/spells/lighting-sky-2.jpg",
       effects: [],
@@ -88,7 +70,6 @@ if (args[0] === "on") {
 
 // Delete Lighting bolt
 if (args[0] === "off") {
-  const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "spell");
   if (castItem) await targetActor.deleteEmbeddedDocuments("Item", castItem._id);
   const template = canvas.templates.placeables.find((i) => i.data.flags.DAESRD?.CallLighting?.ActorId === targetActor.id);
   if (template) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);

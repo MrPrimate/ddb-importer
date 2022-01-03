@@ -82,8 +82,8 @@ if (args[0] === "on") {
         target: { value: 1, type: "creature", },
         range: { value: 5, long: null, units: "", },
         ability: DAEitem.data.ability,
+        attackBonus: DAEitem.data.attackBonus,
         actionType: "msak",
-        attackBonus: "0",
         chatFlavor: "",
         critical: null,
         damage: { parts: [["3d10", "force"]], versatile: "" },
@@ -102,7 +102,7 @@ if (args[0] === "on") {
 // Delete Arcane Sword
 if (args[0] === "off") {
   let swords = target.data.items.filter((i) => i.data.flags?.ArcaneSword === target.id);
-  if (swords.length > 0) await target.deleteEmbeddedDocuments("Item", [swords.map((s) => s.id)]);
+  if (swords.length > 0) await target.deleteEmbeddedDocuments("Item", swords.map((s) => s.id));
   let templates = canvas.templates.placeables.filter((i) => i.data.flags?.ArcaneSword?.ActorId === target.id);
   if (templates.length > 0) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.map((t) => t.id)]);
 }

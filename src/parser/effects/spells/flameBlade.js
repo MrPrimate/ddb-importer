@@ -7,67 +7,63 @@ export function flameBladeEffect(document) {
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
 
 const lastArg = args[args.length-1]
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-const DAEItem = lastArg.efData.flags.dae.itemData
-const saveData = DAEItem.data.save
+const castItemName = "Summoned Flame Blade";
 
 /**
  * Create Flame Blade item in inventory
  */
 if (args[0] === "on") {
-  let weaponDamge = 2 + Math.floor(DAEItem.data.level / 2);
-  await tactor.createOwnedItem(
-    {
-      "name": "Summoned Flame Blade",
-      "type": "weapon",
-      "data": {
-        "quantity": 1,
-        "activation": {
-          "type": "action",
-          "cost": 1,
-          "condition": ""
-        },
-        "target": {
-          "value": 1,
-          "width": null,
-          "units": "",
-          "type": "creature"
-        },
-        "range": {
-          "value": 5,
-        },
-        "ability": "",
-        "actionType": "msak",
-        "attackBonus": "0",
-        "damage": {
-          "parts": [
-            [
-              \`\${weaponDamge}d6\`,
-              "fire"
-            ]
-          ],
-        },
-        "weaponType": "simpleM",
-        "proficient": true,
+  const castItem = target.data.items.find((i) => i.name === castItemName && i.type === "weapon");
+  if (!castItem) {
+    const DAEItem = lastArg.efData.flags.dae.itemData;
+    const weaponDamage = 2 + Math.floor(DAEItem.data.level / 2);
+    const weaponData = {
+      name: castItemName,
+      type: "weapon",
+      data: {
+        quantity: 1,
+        activation: { type: "action", cost: 1, condition: "", },
+        target: { value: 1, type: "creature", },
+        range: { value: 5, long: null, units: "", },
+        ability: DAEItem.data.ability,
+        actionType: "msak",
+        attackBonus: DAEItem.data.attackBonus,
+        chatFlavor: "",
+        critical: null,
+        damage: { parts: [[\`\${weaponDamage}d6\`, "fire"]], versatile: "" },
+        weaponType: "simpleM",
+        proficient: true,
+        description: DAEItem.data.description,
       },
-      "img": DAEItem.img,
-      "effects" : []
-    }
-  );
-  ui.notifications.notify("A Flame Blade appears in your inventory")
+      flags: { FlameBlade: target.id },
+      img: DAEItem.img,
+    };
+
+    await target.createEmbeddedDocuments("Item", [weaponData]);
+    ui.notifications.notify("Weapon created in your inventory");
+  }
+
+  ui.notifications.notify("Flame Blade added to your inventory")
 }
 
 // Delete Flame Blade
 if (args[0] === "off") {
-  let castItem = tactor.data.items.find(i => i.name === "Summoned Flame Blade" && i.type === "weapon")
-  if(castItem) await tactor.deleteOwnedItem(castItem._id)
+  const blades = target.data.items.filter((i) => i.data.flags?.FlameBlade === target.id);
+  if (blades.length > 0) {
+    await target.deleteEmbeddedDocuments("Item", [blades.map((s) => s.id)]);
+    ui.notifications.notify("Flame Blade removed from your inventory");
+  }
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@item.level @attributes.spellcasting"));
+  effect.changes.push(generateMacroChange(""));
+  document.data.damage = { parts: [], versatile: "", value: "" };
+  document.data['target']['type'] = "self";
+  document.data.range = { value: null, units: "self", long: null };
+  document.data.actionType = "other";
   document.effects.push(effect);
 
   return document;
