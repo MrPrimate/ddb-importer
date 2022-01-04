@@ -24,7 +24,7 @@ function getDivineSmite() {
     }
     : {};
 
-  const damageTagInfo = utils.getDamageTag({ subType: "radiant", restriction: ""});
+  const damageTagInfo = utils.getDamageTag({ subType: "radiant", restriction: "" });
   const regularDamage = utils.parseDiceString("2d8", "", damageTagInfo.damageTag).diceString;
   const extraDamageTagInfo = utils.getDamageTag({ subType: "radiant", restriction });
   const extraDamage = utils.parseDiceString("1d8", "", extraDamageTagInfo.damageTag).diceString;

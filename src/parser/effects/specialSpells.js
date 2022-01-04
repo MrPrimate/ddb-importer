@@ -246,7 +246,6 @@ function configureDependencies() {
 }
 
 
-
 /**
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
