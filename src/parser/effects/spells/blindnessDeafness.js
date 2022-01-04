@@ -5,18 +5,25 @@ export function blindnessDeafnessEffect(document) {
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-    value: "turn=end, saveDC = @attributes.spelldc, saveAbility=con, savingThrow=true",
+    value: "label=Blindness/Deafness,turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true",
     priority: "20",
   });
   const itemMacroText = `
 if(!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
 if(!game.modules.get("dfreds-convenient-effects")?.active) {ui.notifications.error("Please enable the CE module"); return;}
 
-//DAE macro, call directly with no arguments
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+
+function effectAppliedAndActive(conditionName) {
+  return targetActor.data.effects.some(
+    (activeEffect) =>
+      activeEffect?.data?.flags?.isConvenient &&
+      activeEffect?.data?.label == conditionName &&
+      !activeEffect?.data?.disabled
+  );
+}
 
 if (args[0] === "on") {
     new Dialog({
@@ -25,29 +32,31 @@ if (args[0] === "on") {
             one: {
                 label: "Blindness",
                 callback: () => {
-                    DAE.setFlag(tactor, "DAEBlind", "blind")
-                    game.dfreds.effectInterface.addEffect("Blinded", tactor.uuid)
+                    DAE.setFlag(targetActor, "DAEBlind", "blind")
+                    game.dfreds.effectInterface.addEffect("Blinded", targetActor.uuid)
                 }
             },
             two: {
                 label: "Deafness",
                 callback: () => {
-                    DAE.setFlag(tactor, "DAEBlind", "deaf")
-                    game.dfreds.effectInterface.addEffect("Deafened", tactor.uuid)
+                    DAE.setFlag(targetActor, "DAEBlind", "deaf")
+                    game.dfreds.effectInterface.addEffect("Deafened", targetActor.uuid)
                 }
             }
         },
     }).render(true);
 }
+
 if (args[0] === "off") {
-    let flag = DAE.getFlag(tactor, "DAEBlind")
+    let flag = DAE.getFlag(targetActor, "DAEBlind")
     if (flag === "blind") {
-        game.dfreds.effectInterface.removeEffect("Blinded", tactor.uuid)
+        if (effectAppliedAndActive("Blinded", targetActor)) game.dfreds.effectInterface.removeEffect("Blinded", targetActor.uuid)
     } else if (flag === "deaf") {
-        game.dfreds.effectInterface.removeEffect("Deafened", tactor.uuid)
+        if (effectAppliedAndActive("Deafened", targetActor)) game.dfreds.effectInterface.removeEffect("Deafened", targetActor.uuid)
     }
-    DAE.unsetFlag(tactor, "DAEBlind")
+    DAE.unsetFlag(targetActor, "DAEBlind")
 }
+
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));

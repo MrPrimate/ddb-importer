@@ -5,22 +5,21 @@ export function confusionEffect(document) {
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-    value: "turn=end, saveAbility=wis, saveDC=@attributes.spelldc,",
+    value: "label=Confusion,turn=end,saveAbility=wis,saveDC=@attributes.spelldc,saveMagic=true",
     priority: "20",
   });
   effect.flags.dae.macroRepeat = "startEveryTurn";
   const itemMacroText = `
-//DAE Macro , Effect Value = @attributes.spelldc
+if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module");
 
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 if (args[0] === "each") {
 
-  let confusionRoll = await new Roll("1d10").evaluate();
-  let result = confusionRoll.total;
+  const confusionRoll = await new Roll("1d10").evaluate({async:true});
+  const result = confusionRoll.total;
   let content;
   switch (result) {
     case 1:
@@ -42,11 +41,12 @@ if (args[0] === "each") {
       content = "The creature can act and move normally.";
       break;
   }
-  ChatMessage.create({ content: \`Confusion roll for \${tactor.name} is \${result}:<br> \` + content });
+  ChatMessage.create({ content: \`Confusion roll for \${targetActor.name} is \${result}:<br> \` + content });
+
 }
 `;
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@attributes.spelldc"));
+  effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
 
   return document;
