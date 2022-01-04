@@ -49,12 +49,5 @@ if (args[0].tag === "OnUse") {
 
   document.effects.push(effect);
 
-  let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
-
-  if (!midiQOLSettings.allowUseMacro) {
-    midiQOLSettings.allowUseMacro = true;
-    game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
-  }
-
   return document;
 }

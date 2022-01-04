@@ -1,5 +1,4 @@
-import { baseSpellEffect, generateMacroChange, generateMacroFlags, generateTokenMagicFXChange } from "../specialSpells.js";
-import utils from "../../../utils.js";
+import { baseSpellEffect, generateMacroChange, generateMacroFlags, generateTokenMagicFXChange, spellEffectModules } from "../specialSpells.js";
 
 export function faerieFireEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -78,7 +77,7 @@ if (args[0] === "off") {
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
 
-  if (utils.isModuleInstalledAndActive("tokenmagic")) {
+  if (spellEffectModules.tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("glow"));
   }
 

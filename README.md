@@ -21,6 +21,10 @@ In addition you can:
 - Apply effects from DAE or DAE SRD.
 - Attempt to auto-generate effects for items.
 
+## Video Tutorial
+
+[Watch a video to get started here!](https://youtu.be/OMaJHLQORWo).
+
 ## Examples
 
 ### Import Things!
@@ -79,9 +83,16 @@ I'd strongly recommend installing:
 - [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e )
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
 
-If you want to increase automation for spell effects you will need:
-- [Midi-QOL](https://foundryvtt.com/packages/midi-qol/), [About Time](https://foundryvtt.com/packages/about-time), [Times Up](https://foundryvtt.com/packages/times-up/).
-- For the best results also use [Advanced Macros](https://foundryvtt.com/packages/advanced-macros), [Active Token Effects](https://foundryvtt.com/packages/ATL) and [Token Magic FX](https://foundryvtt.com/packages/tokenmagic).
+If you want to add spell effects you will need:
+- [Midi-QOL](https://foundryvtt.com/packages/midi-qol/)
+- [About Time](https://foundryvtt.com/packages/about-time)
+- [Times Up](https://foundryvtt.com/packages/times-up/).
+- [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
+- [Advanced Macros](https://foundryvtt.com/packages/advanced-macros)
+
+For token effects and prettiness add:
+- [Active Token Effects](https://foundryvtt.com/packages/ATL)
+- [Token Magic FX](https://foundryvtt.com/packages/tokenmagic).
 
 ## SRD Import Notes
 

@@ -1,5 +1,4 @@
-import { baseSpellEffect, generateTokenMagicFXChange } from "../specialSpells.js";
-import utils from "../../../utils.js";
+import { baseSpellEffect, generateTokenMagicFXChange, spellEffectModules } from "../specialSpells.js";
 
 export function blessEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -9,7 +8,7 @@ export function blessEffect(document) {
   );
   document.effects.push(effect);
 
-  if (utils.isModuleInstalledAndActive("tokenmagic")) {
+  if (spellEffectModules.tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("bloom"));
   }
 

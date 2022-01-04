@@ -101,8 +101,8 @@ export function parseSpell(data, character) {
     };
   }
 
-  const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
-  if (midiQolInstalled) {
+  const addSpellEffects = true;
+  if (addSpellEffects) {
     spellEffectAdjustment(spell);
     setProperty(spell, "flags.ddbimporter.effectsApplied", true);
   }

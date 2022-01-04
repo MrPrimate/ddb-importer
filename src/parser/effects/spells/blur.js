@@ -1,5 +1,4 @@
-import { baseSpellEffect, generateTokenMagicFXChange } from "../specialSpells.js";
-import utils from "../../../utils.js";
+import { baseSpellEffect, generateTokenMagicFXChange, spellEffectModules } from "../specialSpells.js";
 
 export function blurEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -12,7 +11,7 @@ export function blurEffect(document) {
     }
   );
 
-  if (utils.isModuleInstalledAndActive("tokenmagic")) {
+  if (spellEffectModules.tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("blur"));
   }
 

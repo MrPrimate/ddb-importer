@@ -84,6 +84,36 @@ import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
 
 import utils from "../../utils.js";
+import logger from "../../logger.js";
+
+var installedModules;
+
+export function spellEffectModules() {
+  if (installedModules) return installedModules;
+  const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
+  const advancedMacrosInstalled = utils.isModuleInstalledAndActive("advanced-macros");
+  const aboutTime = utils.isModuleInstalledAndActive("about-time");
+  const timesUp = utils.isModuleInstalledAndActive("about-time");
+  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const convinientEffectsInstalled = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
+
+  const atlInstalled = utils.isModuleInstalledAndActive("ATL");
+  const tokenAurasInstalled = utils.isModuleInstalledAndActive("token-auras");
+  const tokenMagicInstalled = utils.isModuleInstalledAndActive("tokenmagic");
+  installedModules = {
+    hasCore: midiQolInstalled && advancedMacrosInstalled && aboutTime && timesUp && daeInstalled && convinientEffectsInstalled,
+    midiQolInstalled,
+    advancedMacrosInstalled,
+    aboutTime,
+    timesUp,
+    daeInstalled,
+    convinientEffectsInstalled,
+    atlInstalled,
+    tokenAurasInstalled,
+    tokenMagicInstalled,
+  };
+  return installedModules;
+}
 
 export function baseSpellEffect(document, label) {
   return {
@@ -108,9 +138,9 @@ export function baseSpellEffect(document, label) {
 
 export function generateStatusEffectChange(statusName, priority = 20) {
   return {
-    key: "StatusEffect",
+    key: "macro.CE",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    value: `Convenient Effect: ${statusName}`,
+    value: statusName,
     priority: priority,
   };
 }
@@ -196,6 +226,27 @@ export function generateMacroFlags(document, macroText) {
   };
 }
 
+var configured = false;
+
+function configureDependencies() {
+  // allow item use macros on items
+  let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
+  if (!midiQOLSettings.allowUseMacro) {
+    midiQOLSettings.allowUseMacro = true;
+    game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
+  }
+
+  // if dfreds status effects not added, add them
+  let convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
+  if (!convenientEffectStatusSettings || convenientEffectStatusSettings === "none") {
+    game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
+  }
+
+  configured = true;
+}
+
+
+
 /**
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
@@ -203,6 +254,15 @@ export function generateMacroFlags(document, macroText) {
 // eslint-disable-next-line complexity
 export function spellEffectAdjustment(document) {
   if (!document.effects) document.effects = [];
+
+  // check that we can gen effects
+  const deps = spellEffectModules();
+  if (!deps.hasCore) {
+    logger.warn("Sorry, you're missing some required modules for spell effects. Please install them and try again.", deps);
+    return document;
+  }
+  if (!configured) configureDependencies();
+
   switch (document.name) {
     case "Absorb Elements": {
       document = absorbElementsEffect(document);

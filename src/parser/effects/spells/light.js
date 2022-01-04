@@ -1,10 +1,9 @@
-import { baseSpellEffect, generateATLChange } from "../specialSpells.js";
-import utils from "../../../utils.js";
+import { baseSpellEffect, generateATLChange, spellEffectModules } from "../specialSpells.js";
 
 export function lightEffect(document) {
   let effect = baseSpellEffect(document, document.name);
 
-  if (utils.isModuleInstalledAndActive("ATL")) {
+  if (spellEffectModules.atlInstalled) {
     effect.changes.push(generateATLChange("ATL.dimLight", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'));
     effect.changes.push(generateATLChange("ATL.brightLight", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'));
     effect.changes.push(generateATLChange("ATL.lightColor", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'));

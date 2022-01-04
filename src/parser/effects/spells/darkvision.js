@@ -1,5 +1,4 @@
-import { baseSpellEffect, generateMacroChange, generateMacroFlags, generateATLChange } from "../specialSpells.js";
-import utils from "../../../utils.js";
+import { baseSpellEffect, generateMacroChange, generateMacroFlags, generateATLChange, spellEffectModules } from "../specialSpells.js";
 
 export function darkvisionEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -10,7 +9,7 @@ export function darkvisionEffect(document) {
     priority: 20,
   });
 
-  if (utils.isModuleInstalledAndActive("ATL")) {
+  if (spellEffectModules.atlInstalled) {
     effect.changes.push(generateATLChange("ATL.dimSight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '60', 5));
   } else {
     const itemMacroText = `
@@ -40,7 +39,7 @@ if(args[0] === "off") {
     document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
     effect.changes.push(generateMacroChange(""));
   }
-  
+
   document.effects.push(effect);
 
   return document;
