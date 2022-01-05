@@ -862,12 +862,19 @@ export function updateCharacterItemFlags(itemData, replaceData) {
   return replaceData;
 }
 
-async function updateMatchingItems(oldItems, newItems, looseMatch = false, monster = false, keepId = false) {
+async function updateMatchingItems(oldItems, newItems, inOptions) {
   let results = [];
+
+  const defaultOptions = {
+    looseMatch: false,
+    monster: false,
+    keepId: false,
+  };
+  const options = mergeObject(defaultOptions, inOptions);
 
   for (let item of newItems) {
     // logger.debug(`checking ${item.name}`);
-    const matched = await looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
+    const matched = await looseItemNameMatch(item, oldItems, options.looseMatch, options.monster); // eslint-disable-line no-await-in-loop
 
     // logger.debug(`matched? ${JSON.stringify(matched)}`);
     // console.log(matched);
@@ -887,7 +894,7 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
       item = updateCharacterItemFlags(matched, item);
       // do we want to enrich the compendium item with our parsed flag data?
       // item.flags = { ...matched.flags, ...item.flags };
-      if (!keepId) delete item["_id"];
+      if (!options.keepId) delete item["_id"];
       results.push(item);
     }
   }
@@ -896,25 +903,30 @@ async function updateMatchingItems(oldItems, newItems, looseMatch = false, monst
 }
 
 /**
- * gets items from compendium
- * @param {*} items
+ *
  */
-export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true) {
-  if (!compendiumLabel) {
-    compendiumLabel = getCompendiumLabel(type);
-  }
-  const compendium = await getCompendium(compendiumLabel, false);
+export async function loadPassedItemsFromCompendium(compendium, items, type, inOptions) {
   if (!compendium) return [];
-  const index = await compendium.getIndex();
+  const defaultOptions = {
+    looseMatch: false,
+    monsterMatch: false,
+    keepId: false,
+    deleteCompendiumId: true,
+    indexFilter: {} // { fields: ["name", "flags.ddbimporter.id"] }
+  };
+  const options = mergeObject(defaultOptions, inOptions);
+
+  if (!compendium.indexed) await compendium.getIndex(options.indexFilter);
+  const index = compendium.index;
   const firstPassItems = await index.filter((i) =>
     items.some((orig) => {
       const extraNames = (orig.flags?.ddbimporter?.dndbeyond?.alternativeNames)
         ? orig.flags.ddbimporter.dndbeyond.alternativeNames
         : [];
-      if (looseMatch) {
+      if (options.looseMatch) {
         const looseNames = getLooseNames(orig.name, extraNames);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
-      } else if (monsterMatch) {
+      } else if (options.monsterMatch) {
         const monsterNames = getMonsterNames(orig.name);
         // console.log(magicNames)
         if (i.name === orig.name) {
@@ -935,21 +947,51 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
     // eslint-disable-next-line no-await-in-loop
     let item = await compendium.getDocument(i._id).then((doc) => {
       const docData = doc.toObject();
-      if (deleteCompendiumId) delete docData._id;
+      if (options.deleteCompendiumId) delete docData._id;
       return docData;
     });
     if (item.flags.ddbimporter) {
-      item.flags.ddbimporter["pack"] = compendiumLabel;
+      item.flags.ddbimporter["pack"] = compendium.metadata.name;
     } else {
-      item.flags.ddbimporter = { pack: compendiumLabel };
+      item.flags.ddbimporter = { pack: compendium.metadata.name };
     }
     loadedItems.push(item);
   }
   logger.debug(`compendium ${type} loaded items:`, loadedItems);
   // console.log(loadedItems);
 
-  const results = await updateMatchingItems(items, loadedItems, looseMatch, monsterMatch, keepId);
+  const matchingOptions = {
+    looseMatch: options.looseMatch,
+    monster: options.monsterMatch,
+    keepId: options.keepId,
+  };
+
+  const results = await updateMatchingItems(items, loadedItems, matchingOptions);
   logger.debug(`compendium ${type} result items:`, results);
+  // console.log(results);
+  return results;
+}
+
+/**
+ * gets items from compendium
+ * @param {*} items
+ */
+export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true) {
+  if (!compendiumLabel) {
+    compendiumLabel = getCompendiumLabel(type);
+  }
+  const compendium = await getCompendium(compendiumLabel, false);
+  if (!compendium) return [];
+
+  const loadOptions = {
+    looseMatch,
+    monsterMatch,
+    keepId,
+    deleteCompendiumId,
+  };
+
+  const results = await loadPassedItemsFromCompendium(compendium, items, type, loadOptions);
+
   // console.log(results);
   return results;
 }
@@ -982,7 +1024,13 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
   });
   // logger.debug(`SRD ${type} loaded items:`, loadedItems);
 
-  const results = await updateMatchingItems(items, loadedItems, looseMatch, monster, keepId);
+  const matchingOptions = {
+    looseMatch,
+    monster,
+    keepId,
+  };
+
+  const results = await updateMatchingItems(items, loadedItems, matchingOptions);
   logger.debug(`SRD ${type} result items:`, results);
 
   return results;

@@ -7,6 +7,7 @@ import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
+import { resetEquipment } from "./monster/ac.js";
 
 async function getMonsterData(ids) {
   const cobaltCookie = getCobalt();
@@ -82,6 +83,7 @@ async function getMonsterData(ids) {
 
 export async function parseCritters(ids = null) {
   checkMonsterCompendium();
+  resetEquipment();
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
   const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -150,6 +152,7 @@ export async function parseCritters(ids = null) {
     currentMonster += 1;
   }
   munchNote("", false, true);
+  resetEquipment();
 
   if (ids !== null) {
     return Promise.all(monstersParsed);

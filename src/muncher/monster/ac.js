@@ -1,9 +1,26 @@
 import logger from "../../logger.js";
-import { getCompendiumItems } from "../import.js";
+import { loadPassedItemsFromCompendium } from "../import.js";
+import { getCompendiumLabel, getCompendium } from "../utils.js";
 
 const BAD_AC_MONSTERS = [
   "arkhan the cruel"
 ];
+
+var equipmentCompendium;
+
+export function resetEquipment() {
+  equipmentCompendium = null;
+}
+
+async function getEquipmentCompendium() {
+  if (!equipmentCompendium) {
+    const label = getCompendiumLabel("inventory");
+    // eslint-disable-next-line require-atomic-updates
+    equipmentCompendium = await getCompendium(label);
+    if (!equipmentCompendium.indexed) await equipmentCompendium.getIndex();
+  }
+  return equipmentCompendium;
+}
 
 export async function generateAC(monster, DDB_CONFIG, useItemAC) {
 
@@ -57,7 +74,8 @@ export async function generateAC(monster, DDB_CONFIG, useItemAC) {
     });
   }
 
-  const unAttunedItems = await getCompendiumItems(itemsToCheck, "inventory", null, false, true);
+  const compendium = await getEquipmentCompendium();
+  const unAttunedItems = await loadPassedItemsFromCompendium(compendium, itemsToCheck, "inventory", { monsterMatch: true });
   const attunedItems = unAttunedItems.map((item) => {
     if (item.data.attunement === 1) item.data.attunement = 2;
     return item;
