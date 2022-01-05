@@ -3,7 +3,7 @@ import { baseSpellEffect, generateATLChange, spellEffectModules } from "../speci
 export function lightEffect(document) {
   let effect = baseSpellEffect(document, document.name);
 
-  if (spellEffectModules.atlInstalled) {
+  if (spellEffectModules().atlInstalled) {
     effect.changes.push(generateATLChange("ATL.dimLight", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '40'));
     effect.changes.push(generateATLChange("ATL.brightLight", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'));
     effect.changes.push(generateATLChange("ATL.lightColor", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'));

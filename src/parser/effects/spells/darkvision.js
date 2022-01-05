@@ -9,7 +9,7 @@ export function darkvisionEffect(document) {
     priority: 20,
   });
 
-  if (spellEffectModules.atlInstalled) {
+  if (spellEffectModules().atlInstalled) {
     effect.changes.push(generateATLChange("ATL.dimSight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '60', 5));
   } else {
     const itemMacroText = `

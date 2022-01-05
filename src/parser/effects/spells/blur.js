@@ -11,7 +11,7 @@ export function blurEffect(document) {
     }
   );
 
-  if (spellEffectModules.tokenMagicInstalled) {
+  if (spellEffectModules().tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("blur"));
   }
 

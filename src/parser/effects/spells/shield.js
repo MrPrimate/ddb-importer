@@ -10,7 +10,7 @@ export function shieldEffect(document) {
   });
   effect.flags.dae.specialDuration = "turnStart";
 
-  if (spellEffectModules.tokenMagicInstalled) {
+  if (spellEffectModules().tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("water-field"));
   }
 

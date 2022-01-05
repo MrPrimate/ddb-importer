@@ -17,7 +17,7 @@ export function holyAuraEffect(document) {
     },
   );
 
-  if (spellEffectModules.atlInstalled) {
+  if (spellEffectModules().atlInstalled) {
     effect.changes.push(generateATLChange("ATL.dimLight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '5'));
     effect.changes.push(generateATLChange("ATL.lightColor", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'));
     effect.changes.push(generateATLChange("ATL.lightAlpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'));

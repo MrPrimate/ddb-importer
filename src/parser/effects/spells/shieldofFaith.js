@@ -9,7 +9,7 @@ export function shieldofFaithEffect(document) {
     priority: "20",
   });
 
-  if (spellEffectModules.tokenMagicInstalled) {
+  if (spellEffectModules().tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("bloom"));
   }
 

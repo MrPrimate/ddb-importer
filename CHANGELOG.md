@@ -1,8 +1,9 @@
 # 2.7.8
 
-* Better automation of spell effects and mechanism for building in non-SRD spell effects if midi-qol is installed.
+* Effects: A lot of spells will now generate effects, pre-reqs required.
 * False Life will now roll correct hp as it scales.
 * Spell activation conditions now added to the activation field.
+* Try and improve monster parsing speed to reduce compendium lookups.
 
 # 2.7.7
 

@@ -8,7 +8,7 @@ export function blessEffect(document) {
   );
   document.effects.push(effect);
 
-  if (spellEffectModules.tokenMagicInstalled) {
+  if (spellEffectModules().tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("bloom"));
   }
 

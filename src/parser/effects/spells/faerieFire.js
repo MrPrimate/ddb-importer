@@ -77,7 +77,7 @@ if (args[0] === "off") {
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
 
-  if (spellEffectModules.tokenMagicInstalled) {
+  if (spellEffectModules().tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("glow"));
   }
 

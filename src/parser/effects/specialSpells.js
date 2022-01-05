@@ -75,6 +75,7 @@ import { shieldofFaithEffect } from "./spells/shieldofFaith.js";
 import { shillelaghEffect } from "./spells/shillelagh.js";
 import { slowEffect } from "./spells/slow.js";
 import { spiderClimbEffect } from "./spells/spiderClimb.js";
+import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
 import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stoneskinEffect } from "./spells/stoneskin.js";
 import { sunbeamEffect } from "./spells/sunbeam.js";
@@ -97,9 +98,11 @@ export function spellEffectModules() {
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
   const convinientEffectsInstalled = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
 
+  const activeAurasInstalled = utils.isModuleInstalledAndActive("ActiveAuras");
   const atlInstalled = utils.isModuleInstalledAndActive("ATL");
   const tokenAurasInstalled = utils.isModuleInstalledAndActive("token-auras");
   const tokenMagicInstalled = utils.isModuleInstalledAndActive("tokenmagic");
+  const autoAnimationsInstalled = utils.isModuleInstalledAndActive("autoanimations");
   installedModules = {
     hasCore: midiQolInstalled && advancedMacrosInstalled && aboutTime && timesUp && daeInstalled && convinientEffectsInstalled,
     midiQolInstalled,
@@ -111,7 +114,10 @@ export function spellEffectModules() {
     atlInstalled,
     tokenAurasInstalled,
     tokenMagicInstalled,
+    activeAurasInstalled,
+    autoAnimationsInstalled,
   };
+  console.warn("installedModulesSpellModules", installedModules);
   return installedModules;
 }
 
@@ -573,6 +579,10 @@ export function spellEffectAdjustment(document) {
     }
     case "Spider Climb": {
       document = spiderClimbEffect(document);
+      break;
+    }
+    case "Spirit Guardians": {
+      document = spiritGuardiansEffect(document);
       break;
     }
     case "Spiritual Weapon": {

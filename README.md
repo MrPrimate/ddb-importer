@@ -91,8 +91,11 @@ If you want to add spell effects you will need:
 - [Advanced Macros](https://foundryvtt.com/packages/advanced-macros)
 
 For token effects and prettiness add:
+- [Active Auras](https://foundryvtt.com/packages/ActiveAuras)
 - [Active Token Effects](https://foundryvtt.com/packages/ATL)
 - [Token Magic FX](https://foundryvtt.com/packages/tokenmagic).
+- [Automated Animations](https://foundryvtt.com/packages/autoanimations)
+
 
 ## SRD Import Notes
 

@@ -3,7 +3,7 @@ import { baseSpellEffect, generateTokenMagicFXChange, spellEffectModules } from 
 export function mirrorImageEffect(document) {
   let effect = baseSpellEffect(document, document.name);
 
-  if (spellEffectModules.tokenMagicInstalled) {
+  if (spellEffectModules().tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("images"));
   }
 
