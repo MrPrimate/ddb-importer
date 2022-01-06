@@ -157,15 +157,6 @@ export default function () {
     default: true,
   });
 
-  game.settings.register("ddb-importer", "monster-has-vision", {
-    name: "ddb-importer.monster-has-vision.name",
-    hint: "ddb-importer.monster-has-vision.hint",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
-
   game.settings.register("ddb-importer", "restrict-to-trusted", {
     name: "ddb-importer.restrict-to-trusted.name",
     hint: "ddb-importer.restrict-to-trusted.hint",
@@ -1181,6 +1172,13 @@ export default function () {
     config: false,
     type: Boolean,
     default: false,
+  });
+
+  game.settings.register("ddb-importer", "munching-policy-monster-use-vision", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
   });
 
   // sets the current tutorial step the user has completed

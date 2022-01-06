@@ -195,7 +195,7 @@ export async function parseMonsters(monsterData, extra = false) {
   let foundryActors = [];
   let failedMonsterNames = [];
 
-  const setVision = game.settings.get("ddb-importer", "monster-has-vision");
+  const setVision = game.settings.get("ddb-importer", "munching-policy-monster-use-vision");
   const useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
 
   monsterData.forEach((monster) => {

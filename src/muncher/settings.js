@@ -669,6 +669,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       enabled: true,
     },
     {
+      name: "monster-use-vision",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-use-vision"),
+      description: "Should imported monster have vision set?",
+      enabled: true,
+    },
+    {
       name: "dae-copy",
       isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
       description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module).",

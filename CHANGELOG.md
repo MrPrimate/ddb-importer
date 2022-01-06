@@ -4,6 +4,7 @@
 * False Life will now roll correct hp as it scales.
 * Spell activation conditions now added to the activation field.
 * Try and improve monster parsing speed to reduce compendium lookups.
+* Monster has vision setting moved to muncher settings.
 
 # 2.7.7
 
