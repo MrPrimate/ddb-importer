@@ -108,7 +108,7 @@ async function addNPCToCompendium(npc) {
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         delete npcBasic.items;
         compendiumNPC = await existingNPC.update(npcBasic);
-        compendiumNPC.createEmbeddedDocuments("Item", npcItems);
+        await compendiumNPC.createEmbeddedDocuments("Item", npcItems);
       }
     } else {
       // create the new npc
@@ -120,7 +120,7 @@ async function addNPCToCompendium(npc) {
       delete npcBasic.items;
       const newNPC = await Actor.create(npcBasic, options);
       compendiumNPC = await compendium.importDocument(newNPC);
-      compendiumNPC.createEmbeddedDocuments("Item", npcItems);
+      await compendiumNPC.createEmbeddedDocuments("Item", npcItems);
     }
 
     // using compendium folders?
