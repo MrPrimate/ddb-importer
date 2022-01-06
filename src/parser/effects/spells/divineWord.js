@@ -4,23 +4,19 @@ export function divineWordEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   // MACRO START
   const itemMacroText = `
-////DAE Item Macro
-//// Requires Convenient Effects and About Time
-
-/**
- * Apply Divine Word to targeted tokens
- * @param {Number} targetHp
- * @param {Boolean} linked
- */
-
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const target = canvas.tokens.get(lastArg.tokenId)
 
-function effectAppliedAndActive(conditionName, tactor) {
-  return target.data.effects.some(
+//DAE Macro Execute, Effect Value = "Macro Name"
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const targetToken = await fromUuid(lastArg.tokenUuid);
+
+function effectAppliedAndActive(conditionName) {
+  return targetToken.data.effects.some(
     (activeEffect) =>
       activeEffect?.data?.flags?.isConvenient &&
       activeEffect?.data?.label == conditionName &&
@@ -30,34 +26,35 @@ function effectAppliedAndActive(conditionName, tactor) {
 
 async function DivineWordApply(target, targetHp) {
   if (targetHp <= 20) {
-      await target.actor.update({ "data.attributes.hp.value": 0 });
+    await target.actor.update({ "data.attributes.hp.value": 0 });
   } else {
     if (targetHp <= 30) {
-        const hasStunned = effectAppliedAndActive("Stunned", tactor);
-        if (!hasStunned) await game.dfreds.effectInterface.toggleEffect("Stunned", tactor.uuid);
-        game.Gametime.doIn({ hours: 1 }, async () => {
-            await game.dfreds.effectInterface.removeEffect("Stunned", tactor.uuid);
-        });
+      const hasStunned = effectAppliedAndActive("Stunned");
+      if (!hasStunned) await game.dfreds.effectInterface.toggleEffect("Stunned", targetActor.uuid);
+      game.Gametime.doIn({ hours: 1 }, async () => {
+        await game.dfreds.effectInterface.removeEffect("Stunned", targetActor.uuid);
+      });
     }
     if (targetHp <= 40) {
-        const hasBlinded = effectAppliedAndActive("Blinded", tactor);
-        if (!hasBlinded)  await game.dfreds.effectInterface.toggleEffect("Blinded", tactor.uuid);
-        game.Gametime.doIn({ hours: 1 }, async () => {
-            await game.dfreds.effectInterface.removeEffect("Blinded", tactor.uuid);
-        });
+      const hasBlinded = effectAppliedAndActive("Blinded");
+      if (!hasBlinded) await game.dfreds.effectInterface.toggleEffect("Blinded", targetActor.uuid);
+      game.Gametime.doIn({ hours: 1 }, async () => {
+        await game.dfreds.effectInterface.removeEffect("Blinded", targetActor.uuid);
+      });
     }
     if (targetHp <= 50) {
-        const hasDeafened = effectAppliedAndActive("Deafened", tactor);
-        if (!hasDeafened)  await game.dfreds.effectInterface.toggleEffect("Deafened", tactor.uuid);
-        game.Gametime.doIn({ hours: 1 }, async () => {
-            await game.dfreds.effectInterface.removeEffect("Deafened", tactor.uuid);
-        });
+      const hasDeafened = effectAppliedAndActive("Deafened");
+      if (!hasDeafened) await game.dfreds.effectInterface.toggleEffect("Deafened", targetActor.uuid);
+      game.Gametime.doIn({ hours: 1 }, async () => {
+        await game.dfreds.effectInterface.removeEffect("Deafened", targetActor.uuid);
+      });
     }
   }
 }
 if (args[0] === "on") {
-    DivineWordApply(target, target.actor.data.data.attributes.hp.value)
+  DivineWordApply(targetToken, targetToken.actor.data.data.attributes.hp.value);
 }
+
 `;
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
