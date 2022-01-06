@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function invisibilityEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 //DAE Item Macro, no arguments passed
 if (!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
@@ -19,6 +20,7 @@ if (args[0] === "off") {
     target.update({ "hidden": false });
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@target", 0));
   document.effects.push(effect);

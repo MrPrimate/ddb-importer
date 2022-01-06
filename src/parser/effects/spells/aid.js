@@ -8,6 +8,7 @@ export function aidEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     priority: 20,
   });
+  // MACRO START
   const itemMacroText = `
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
@@ -23,6 +24,7 @@ if (args[0] === "on") {
   target.update({"data.attributes.hp.value": curMax});
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@spellLevel", 0));
   document.effects.push(effect);

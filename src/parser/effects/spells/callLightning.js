@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function callLightningEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 //DAE Macro no arguments passed
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module");
@@ -75,6 +76,7 @@ if (args[0] === "off") {
   if (template) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

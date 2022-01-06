@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function banishmentEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 if(!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
 //DAE Macro, Effect Value
@@ -20,6 +21,7 @@ if (args[0]=== "off") {
 }
 
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
   document.effects.push(effect);

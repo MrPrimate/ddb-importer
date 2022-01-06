@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function moonbeamEffect(document) {
   let effectMoonbeamMoonbeamSummon = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 //DAE Item Macro Execute, Effect Value = @attributes.spelldc
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
@@ -116,6 +117,7 @@ if (args[0] === "off") {
   canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id])
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effectMoonbeamMoonbeamSummon.changes.push(generateMacroChange("@attributes.spelldc"));
   document.effects.push(effectMoonbeamMoonbeamSummon);

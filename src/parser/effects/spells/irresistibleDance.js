@@ -23,6 +23,7 @@ export function irresistibleDanceEffect(document) {
   });
 
   effect.flags.dae.macroRepeat = "startEveryTurn";
+  // MACRO START
   const itemMacroText = `
 if (!game.modules.get("advanced-macros")?.active) {
   ui.notifications.error("Please enable the Advanced Macros module");
@@ -62,6 +63,7 @@ if (args[0] === "each") {
   }).render(true);
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

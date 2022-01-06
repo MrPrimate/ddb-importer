@@ -102,6 +102,10 @@ export function fixSpells(ddb, items) {
         spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
       }
+      case "Darkvision": {
+        spell.data['target']['type'] = "creature";
+        break;
+      }
       // The target/range input data are incorrect on some AOE spells centred
       // on self.
       // Range is self with an AoE target of 15 ft cube

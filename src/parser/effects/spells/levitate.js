@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function levitateEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 //DAE Item Macro, no arguments passed
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
@@ -18,6 +19,7 @@ if (args[0] === "off") {
     ChatMessage.create({ content: \`\${target.name} is returned to the ground\` });
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
   document.effects.push(effect);

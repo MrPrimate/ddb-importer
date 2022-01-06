@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function eyebiteEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 // DAE macro, args : @attributes.spelldc
 if(!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
@@ -16,7 +17,7 @@ const DAEItem = lastArg.efData.flags.dae.itemData
 let target = canvas.tokens.get(lastArg.tokenId)
 
 /**
- * Dialog appears on players screen, CondtionControll callback execute on GM end 
+ * Dialog appears on players screen, CondtionControll callback execute on GM end
  */
 
 function EyebiteDialog() {
@@ -88,6 +89,7 @@ if (args[0] === "each") {
     EyebiteDialog();
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@attributes.spelldc", 0));
   document.effects.push(effect);

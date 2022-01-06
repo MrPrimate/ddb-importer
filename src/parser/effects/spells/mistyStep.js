@@ -2,8 +2,9 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function mistyStepEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
-//DAE Macro Execute, Effect Value = "Macro Name" @target 
+//DAE Macro Execute, Effect Value = "Macro Name" @target
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
 
 const lastArg = args[args.length - 1];
@@ -66,12 +67,13 @@ if (args[0] === "on") {
             })
             await target.update({ x: template.data.x, y: template.data.y } , {animate : false})
             if (removeTemplates) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", templateArray)
-            await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]); 
+            await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
         };
     });
-    
+
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@target"));
   document.effects.push(effect);

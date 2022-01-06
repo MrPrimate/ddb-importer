@@ -2,14 +2,15 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function divineWordEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
-////DAE Item Macro 
+////DAE Item Macro
 //// Requires Convenient Effects and About Time
 
 /**
  * Apply Divine Word to targeted tokens
- * @param {Number} targetHp 
- * @param {Boolean} linked 
+ * @param {Number} targetHp
+ * @param {Boolean} linked
  */
 
 const lastArg = args[args.length - 1];
@@ -26,7 +27,7 @@ function effectAppliedAndActive(conditionName, tactor) {
       !activeEffect?.data?.disabled
   );
 }
- 
+
 async function DivineWordApply(target, targetHp) {
   if (targetHp <= 20) {
       await target.actor.update({ "data.attributes.hp.value": 0 });
@@ -58,6 +59,7 @@ if (args[0] === "on") {
     DivineWordApply(target, target.actor.data.data.attributes.hp.value)
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

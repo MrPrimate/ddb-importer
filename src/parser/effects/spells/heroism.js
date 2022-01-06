@@ -9,6 +9,7 @@ export function heroismEffect(document) {
     priority: 20,
   });
   effect.flags.dae.macroRepeat = "startEveryTurn";
+  // MACRO START
   const itemMacroText = `
 //DAE Macro Execute, Effect Value = "Macro Name" t @damage (apply @mod damge of none type)
 const lastArg = args[args.length - 1];
@@ -31,6 +32,7 @@ let bonus = mod > tactor.data.data.attributes.hp.temp ? mod : tactor.data.data.a
     ChatMessage.create({ content: "Heroism continues on " + tactor.name })
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@damage", 0));
   document.effects.push(effect);

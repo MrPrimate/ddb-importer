@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function spiritualWeaponEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 //DAE Item Macro Execute, value = @item.level
 // Set spell to self cast, no damage/attack roll
@@ -124,6 +125,7 @@ if (args[0] === "off") {
   if(template) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id])
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@item.level @attributes.spellcasting"));
   document.effects.push(effect);

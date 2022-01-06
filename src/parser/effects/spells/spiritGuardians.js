@@ -20,6 +20,7 @@ export function spiritGuardiansEffect(document) {
       priority: "20",
     }
   );
+  // MACRO START
   const itemMacroText = `
 const lastArg = args[args.length -1];
 
@@ -56,6 +57,7 @@ if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.
     await MidiQOL.completeItemRoll(item, options);
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,

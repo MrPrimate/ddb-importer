@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function fireShieldEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 // DAE Macro, no arguments passed
 
@@ -12,7 +13,7 @@ else tactor = game.actors.get(lastArg.actorId);
 const target = canvas.tokens.get(lastArg.tokenId)
 
 
-if (args[0] === "on") {  
+if (args[0] === "on") {
         new Dialog({
             title: "Warm or Cold Shield",
             buttons: {
@@ -100,6 +101,7 @@ if (args[0] === "off") {
 
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
   document.effects.push(effect);

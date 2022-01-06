@@ -9,6 +9,7 @@ export function confusionEffect(document) {
     priority: "20",
   });
   effect.flags.dae.macroRepeat = "startEveryTurn";
+  // MACRO START
   const itemMacroText = `
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module");
 
@@ -45,6 +46,7 @@ if (args[0] === "each") {
 
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

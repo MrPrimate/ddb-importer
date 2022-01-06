@@ -117,7 +117,6 @@ export function spellEffectModules() {
     activeAurasInstalled,
     autoAnimationsInstalled,
   };
-  console.warn("installedModulesSpellModules", installedModules);
   return installedModules;
 }
 

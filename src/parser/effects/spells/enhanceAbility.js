@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function enhanceAbilityEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 //DAE Item Macro, no arguments passed
 // only works with midi qol and speed roll ability checks
@@ -142,6 +143,7 @@ if (args[0] === "off") {
     ChatMessage.create({ content: "Enhance Ability has expired" });
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function magicWeaponEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 //DAE Item Macro Execute, arguments = @item.level
 if (!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
@@ -39,7 +40,7 @@ if (args[0] === "on") {
         width: 100%;
         align-items: flex-start;
       }
-      
+
       .magicWeapon .radio-label {
         display: flex;
         flex-direction: column;
@@ -49,11 +50,11 @@ if (args[0] === "on") {
         flex: 1 0 25%;
         line-height: normal;
       }
-      
+
       .magicWeapon .radio-label input {
         display: none;
       }
-      
+
       .magicWeapon img {
         border: 0px;
         width: 50px;
@@ -61,7 +62,7 @@ if (args[0] === "on") {
         flex: 0 0 50px;
         cursor: pointer;
       }
-          
+
       /* CHECKED STYLES */
       .magicWeapon [type=radio]:checked + img {
         outline: 2px solid #f00;
@@ -126,6 +127,7 @@ if (args[0] === "off") {
     DAE.unsetFlag(tactor, \`magicWeapon\`);
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@item.level", 0));
   document.effects.push(effect);

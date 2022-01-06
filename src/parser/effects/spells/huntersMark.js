@@ -5,6 +5,7 @@ import { baseSpellEffect, generateMacroFlags } from "../specialSpells.js";
 export function huntersMarkEffect(document) {
   let effect = baseSpellEffect(document, "Marked");
 
+  // MACRO START
   const itemMacroText = `
 // Hunters mark onUse macro
 if (args[0].hitTargets.length === 0) return;
@@ -42,6 +43,7 @@ if (args[0].tag === "OnUse") {
     return {damageRoll: \`\${diceMult}d6[\${damageType}]\`, flavor: "Hunters Mark Damage"}
 }
 `;
+  // MACRO STOP
 
   setProperty(document, "flags.itemacro", generateMacroFlags(document, itemMacroText));
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");

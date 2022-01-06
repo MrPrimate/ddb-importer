@@ -3,6 +3,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 export function regenerateEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.flags.dae.macroRepeat = "startEveryTurn";
+  // MACRO START
   const itemMacroText = `
 //DAE Macro , no arguments
 const lastArg = args[args.length - 1];
@@ -44,7 +45,7 @@ if (args[0] === "off") {
 
 
 /**
- * 
+ *
  * @param {Number} currentTime current world time
  * @param {Number} updateInterval amount the world time was incremented
  * @param {Number} applyTime time the effect was applied
@@ -74,6 +75,7 @@ function roundCount(currentTime, updateInterval, applyTime, expireTime) {
     return roundCount;
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

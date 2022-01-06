@@ -2,11 +2,12 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function enlargeReduceEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
-//DAE Macro Execute, Effect Value = "Macro Name" @target 
+//DAE Macro Execute, Effect Value = "Macro Name" @target
 
 /**
- * For each target, the GM will have to choose 
+ * For each target, the GM will have to choose
  */
 
 const lastArg = args[args.length - 1];
@@ -62,6 +63,7 @@ if (args[0] === "off") {
     ChatMessage.create({ content: \`\${target.name} is returned to normal size\` });
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
   document.effects.push(effect);

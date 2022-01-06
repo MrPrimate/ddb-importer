@@ -6,6 +6,7 @@ export function heroesFeastEffect(document) {
     { key: "data.traits.di.value", value: "poison", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 },
     { key: "data.traits.ci.value", value: "frightened", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 }
   );
+  // MACRO START
   const itemMacroText = `
 //DAE Macro , Effect Value = @damage
 if(!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
@@ -41,6 +42,7 @@ if (args[0] === "off") {
         DAE.unsetFlag(tactor, 'HeroesFeast');
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@damage", 0));
   document.effects.push(effect);

@@ -3,6 +3,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 export function fleshtoStoneEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.flags.dae.macroRepeat = "endEveryTurn";
+  // MACRO START
   const itemMacroText = `
 //DAE Macro, Effect Value = @attributes.spelldc
 if (!game.modules.get("advanced-macros")?.active) { ui.notifications.error("Please enable the Advanced Macros module"); return; }
@@ -90,6 +91,7 @@ async function FleshToStoneUpdate() {
 
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@attributes.spelldc"));
   document.effects.push(effect);

@@ -7,6 +7,7 @@ export function wardingBondEffect(document) {
     { key: "data.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "0", priority: "0" },
     { key: "data.bonuses.abilities.save", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "1", priority: "20" }
   );
+  // MACRO START
   const itemMacroText = `
 //DAE Macro Execute, Effect Value = "Macro Name" @target @item
 const lastArg = args[args.length - 1];
@@ -42,7 +43,7 @@ async function SetWardingBondHook(target) {
         }
     })
     DAE.setFlag(tactor, "WardingBondHook", hookId)
-    
+
 }
 
 async function RemoveHook() {
@@ -62,6 +63,7 @@ if (args[0] === "each") {
     await SetWardingBondHook()
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

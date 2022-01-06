@@ -8,6 +8,7 @@ export function faerieFireEffect(document) {
     value: "1",
     priority: "20",
   });
+  // MACRO START
   const itemMacroText = `
 if (!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
 
@@ -74,6 +75,7 @@ if (args[0] === "off") {
     DAE.unsetFlag(tactor, "FaerieFire")
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
 

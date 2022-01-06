@@ -2,6 +2,7 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function protectionfromEnergyEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  // MACRO START
   const itemMacroText = `
 //DAE  Macro, no arguments passed
 
@@ -18,7 +19,7 @@ let content = \`
         width: 100%;
         align-items: flex-start;
       }
-      
+
       .protEnergy .radio-label {
         display: flex;
         flex-direction: column;
@@ -28,11 +29,11 @@ let content = \`
         flex: 1 0 20%;
         line-height: normal;
       }
-      
+
       .protEnergy .radio-label input {
         display: none;
       }
-      
+
       .protEnergy img {
         border: 0px;
         width: 50px;
@@ -40,7 +41,7 @@ let content = \`
         flex: 0 0 50px;
         cursor: pointer;
       }
-          
+
       /* CHECKED STYLES */
       .protEnergy [type=radio]:checked + img {
         outline: 2px solid #f00;
@@ -107,6 +108,7 @@ if (args[0] === "off") {
   ChatMessage.create({ content: \`\${tactor.name} loses resistance to \${element}\` });
 }
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
   document.effects.push(effect);

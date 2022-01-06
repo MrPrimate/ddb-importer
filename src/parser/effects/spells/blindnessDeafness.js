@@ -8,6 +8,7 @@ export function blindnessDeafnessEffect(document) {
     value: "label=Blindness/Deafness,turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true",
     priority: "20",
   });
+  // MACRO START
   const itemMacroText = `
 if(!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
 if(!game.modules.get("dfreds-convenient-effects")?.active) {ui.notifications.error("Please enable the CE module"); return;}
@@ -58,6 +59,7 @@ if (args[0] === "off") {
 }
 
 `;
+  // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

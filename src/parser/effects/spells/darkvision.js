@@ -12,30 +12,35 @@ export function darkvisionEffect(document) {
   if (spellEffectModules().atlInstalled) {
     effect.changes.push(generateATLChange("ATL.dimSight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '60', 5));
   } else {
+    // MACRO START
     const itemMacroText = `
-//DAE Macro Execute, Effect Value = "Macro Name" @target
-const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const target = canvas.tokens.get(lastArg.tokenId)
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
 
-let dimVision = target.data.dimSight;
+const lastArg = args[args.length - 1];
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const targetToken = await fromUuid(lastArg.tokenUuid);
+
+const dimVision = targetToken.data.dimSight;
 if (args[0] === "on") {
-    DAE.setFlag(tactor, 'darkvisionSpell', dimVision);
-    let newSight = dimVision < 60 ? 60 : dimVision
-    await target.update({"dimSight" : newSight});
-    await tactor.update({"token.dimSight" : newSight})
-    ChatMessage.create({content: \`\${target.name}'s vision has been improved\`});
+    DAE.setFlag(targetActor, 'darkvisionSpell', dimVision);
+    const newSight = dimVision < 60 ? 60 : dimVision
+    await targetToken.update({"dimSight" : newSight});
+    await targetActor.update({"token.dimSight" : newSight})
+    ChatMessage.create({content: \`\${targetToken.name}'s vision has been improved\`});
 }
 if(args[0] === "off") {
-    let sight = DAE.getFlag(tactor, 'darkvisionSpell');
-    target.update({"dimSight" : sight });
-    await tactor.update({"token.dimSight" : sight})
-    DAE.unsetFlag(tactor, 'darkvisionSpell');
-    ChatMessage.create({content: \`\${target.name}'s vision has been returned\`});
+    const sight = DAE.getFlag(targetActor, 'darkvisionSpell');
+    targetToken.update({"dimSight" : sight });
+    await targetActor.update({"token.dimSight" : sight})
+    DAE.unsetFlag(targetActor, 'darkvisionSpell');
+    ChatMessage.create({content: \`\${targetToken.name}'s vision has been returned\`});
 }
 `;
+    // MACRO STOP
     document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
     effect.changes.push(generateMacroChange(""));
   }
