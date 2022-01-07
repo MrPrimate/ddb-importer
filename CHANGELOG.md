@@ -5,6 +5,7 @@
 * Spell activation conditions now added to the activation field.
 * Try and improve monster parsing speed to reduce compendium lookups.
 * Monster has vision setting moved to muncher settings.
+* If using your own ddb-proxy, please update to version v0.0.11.
 
 # 2.7.7
 

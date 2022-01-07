@@ -11,7 +11,7 @@
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "url": "https://github.com/mrprimate/ddb-importer",
   "minimumCoreVersion": "0.8.9",
-  "compatibleCoreVersion": "9.238",
+  "compatibleCoreVersion": "9.241",
   "authors": [
     {
       "name": "MrPrimate",
