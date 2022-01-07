@@ -193,18 +193,7 @@ export function generateATLChange(atlKey, mode, value, priority = 20) {
       case 'ATL.lightAngle':
         key = 'ATL.light.angle';
         break;
-      case 'ATL.preset':
-      case 'ATL.brightSight':
-      case 'ATL.dimSight':
-      case 'ATL.height':
-      case 'ATl.img':
-      case 'ATL.mirrorX':
-      case 'ATL.mirrorY':
-      case 'ATL.rotation':
-      case 'ATL.scale':
-      case 'ATL.width':
-      default:
-        break;
+      // no default
     }
   }
   return {

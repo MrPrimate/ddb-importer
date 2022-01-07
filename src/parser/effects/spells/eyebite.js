@@ -4,95 +4,100 @@ export function eyebiteEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   // MACRO START
   const itemMacroText = `
-// DAE macro, args : @attributes.spelldc
-if(!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
-if(!game.modules.get("dfreds-convenient-effects")?.active) {ui.notifications.error("Please enable the CE module"); return;}
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
+if (!game.modules.get("dfreds-convenient-effects")?.active) {
+  ui.notifications.error("Please enable the CE module");
+  return;
+}
 
 const lastArg = args[args.length - 1];
-const DC = args[1]
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const DAEItem = lastArg.efData.flags.dae.itemData
-let target = canvas.tokens.get(lastArg.tokenId)
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const DAEItem = lastArg.efData.flags.dae.itemData;
+const saveData = DAEItem.data.save;
 
-/**
- * Dialog appears on players screen, CondtionControll callback execute on GM end
- */
+function effectAppliedAndActive(conditionName) {
+  return targetActor.data.effects.some(
+    (activeEffect) =>
+      activeEffect?.data?.flags?.isConvenient &&
+      activeEffect?.data?.label == conditionName &&
+      !activeEffect?.data?.disabled
+  );
+}
 
-function EyebiteDialog() {
-    new Dialog({
-        title: "Eyebite options",
-        content: "<p>Target a token and select the effect</p>",
-        buttons: {
-            one: {
-                label: "Asleep",
-                callback: async () => {
-                    for (let t of game.user.targets) {
-                        const flavor = \`\${CONFIG.DND5E.abilities["wis"]} DC\${DC} \${DAEItem?.name || ""}\`;
-                        let saveRoll = (await tactor.rollAbilitySave("wis", { flavor, fastFoward: true})).total;
-                        if (saveRoll < DC) {
-                            ChatMessage.create({ content: \`\${t.name} failed the save with a \${saveRoll}\` });
-                            game.dfreds.effectInterface.addEffect("Unconscious", t.actor.uuid);
-                        }
-                        else {
-                            ChatMessage.create({ content: \`\${t.name} passed the save with a \${saveRoll}\` });
-                        }
-                    }
-                }
-            },
-            two: {
-                label: "Panicked",
-                callback: async () => {
-                    for (let t of game.user.targets) {
-                        const flavor = \`\${CONFIG.DND5E.abilities["wis"]} DC\${DC} \${DAEItem?.name || ""}\`;
-                        let saveRoll = (await tactor.rollAbilitySave("wis", { flavor, fastFoward: true })).total;
-                        if (saveRoll < DC) {
-                            ChatMessage.create({ content: \`\${t.name} failed the save with a \${saveRoll}\` });
-                            game.dfreds.effectInterface.addEffect("Frightened", t.actor.uuid);
+async function eyebite(type) {
+  for (let t of game.user.targets) {
+    const flavor = \`\${CONFIG.DND5E.abilities["wis"]} DC\${saveData.dc} \${DAEItem?.name || ""}\`;
+    const saveRoll = await targetActor.rollAbilitySave("wis", { flavor, fastFoward: true });
+    if (saveRoll.total < saveData.dc) {
+      ChatMessage.create({ content: \`\${t.name} failed the save with a \${saveRoll.total}\` });
+      switch (type) {
+        case "asleep":
+          game.dfreds.effectInterface.addEffect("Unconscious", t.actor.uuid);
+          break;
+        case "panicked":
+          game.dfreds.effectInterface.addEffect("Frightened", t.actor.uuid);
+          break;
+        case "sickened":
+          game.dfreds.effectInterface.addEffect("Poisoned", t.actor.uuid);
+          break;
+        // no default
+      }
+      DAE.setFlag(targetActor, "eyebiteSpell", type);
+    } else {
+      ChatMessage.create({ content: \`\${t.name} passed the save with a \${saveRoll.total}\` });
+    }
+  }
+}
 
-                        }
-                        else {
-                            ChatMessage.create({ content: \`\${t.name} passed the save with a \${saveRoll}\` });
-                        }
-                    }
-                }
-            },
-            three: {
-                label: "Sickened",
-                callback: async () => {
-                    for (let t of game.user.targets) {
-                        const flavor = \`\${CONFIG.DND5E.abilities["wis"]} DC\${DC} \${DAEItem?.name || ""}\`;
-                        let saveRoll = (await tactor.rollAbilitySave("wis", { flavor, fastFoward: true })).total;
-                        if (saveRoll < DC) {
-                            ChatMessage.create({ content: \`\${t.name} failed the save with a \${saveRoll}\` });
-                            game.dfreds.effectInterface.addEffect("Poisoned", t.actor.uuid);
-                        }
-                        else {
-                            ChatMessage.create({ content: \`\${t.name} passed the save with a \${saveRoll}\` });
-                        }
-                    }
-                }
-            },
-        }
-    }).render(true);
+function eyebiteDialog() {
+  new Dialog({
+    title: "Eyebite options",
+    content: "<p>Target a token and select the effect</p>",
+    buttons: {
+      one: {
+        label: "Asleep",
+        callback: async () => await eyebite("Unconscious"),
+      },
+      two: {
+        label: "Panicked",
+        callback: async () => await eyebite("Frightened"),
+      },
+      three: {
+        label: "Sickened",
+        callback: async () => await eyebite("Poisoned"),
+      },
+    },
+  }).render(true);
 }
 
 if (args[0] === "on") {
-    EyebiteDialog();
-    ChatMessage.create({ content: \`\${target.name} is blessed with Eyebite\` });
-
+  eyebiteDialog();
+  ChatMessage.create({ content: \`\${targetActor.name} is blessed with Eyebite\` });
 }
 
-//Cleanup hooks and flags.
 if (args[0] === "each") {
-    EyebiteDialog();
+  eyebiteDialog();
 }
+
+if (args[0] === "off") {
+  const flag = await DAE.getFlag(targetActor, "eyebiteSpell");
+  if (flag) {
+    if (effectAppliedAndActive(flag, targetActor)) game.dfreds.effectInterface.removeEffect(flag, targetActor.uuid);
+  }
+}
+
 `;
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@attributes.spelldc", 0));
+  effect.flags.dae.macroRepeat = "startEveryTurn";
+  effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
+  setProperty(document, "data.actionType", "other");
+  setProperty(document, "data.save.ability", "");
 
   return document;
 }

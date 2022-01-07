@@ -1,66 +1,76 @@
-import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
+import { baseSpellEffect, generateMacroChange, generateMacroFlags, spellEffectModules } from "../specialSpells.js";
 
 export function enlargeReduceEffect(document) {
+  if (!spellEffectModules().atlInstalled) return document;
+
   let effect = baseSpellEffect(document, document.name);
   // MACRO START
   const itemMacroText = `
-//DAE Macro Execute, Effect Value = "Macro Name" @target
-
-/**
- * For each target, the GM will have to choose
- */
-
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
+if (!game.modules.get("ATL")?.active) {
+  ui.notifications.error("Please enable the Advanced Token Effects module");
+  return;
+}
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const tokenFromUuid = await fromUuid(lastArg.tokenUuid);
+const targetToken = tokenFromUuid.data || token;
 
-let target = canvas.tokens.get(lastArg.tokenId);
-let originalSize = target.data.width;
-let mwak = target.actor.data.data.bonuses.mwak.damage;
+async function reSize(flavour) {
+  const originalSize = parseInt(targetToken.width);
+  const types = {
+    enlarge: {
+      size: originalSize + 1,
+      bonus: "+1d4",
+    },
+    reduce: {
+      size: originalSize > 1 ? originalSize - 1 : originalSize - 0.3,
+      bonus: "-1d4",
+    },
+  };
+  const changes = [
+    {
+      key: "data.bonuses.mwak.damage",
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      priority: 20,
+      value: \`\${types[flavour].bonus}\`,
+    },
+    {
+      key: "ATL.width",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      priority: 30,
+      value: \`\${types[flavour].size}\`,
+    },
+    {
+      key: "ATL.height",
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      priority: 30,
+      value: \`\${types[flavour].size}\`,
+    },
+  ];
+  const effect = targetActor.effects.find((e) => e.data.label === lastArg.efData.label);
+  await effect.update({ changes: changes.concat(effect.data.changes) });
+  ChatMessage.create({ content: \`\${targetToken.name} is \${flavour}d\` });
+}
 
 if (args[0] === "on") {
-    new Dialog({
-        title: "Enlarge or Reduce",
-        buttons: {
-            one: {
-                label: "Enlarge",
-                callback: () => {
-                    let bonus = mwak + "+ 1d4";
-                    let enlarge = (originalSize + 1);
-                    tactor.update({ "data.bonuses.mwak.damage": bonus });
-                    target.update({ "width": enlarge, "height": enlarge });
-                    DAE.setFlag(tactor, 'enlageReduceSpell', {
-                        size: originalSize,
-                        ogMwak: mwak,
-                    });
-                    ChatMessage.create({ content: \`\${target.name} is enlarged\` });
-                }
-            },
-            two: {
-                label: "Reduce",
-                callback: () => {
-                    let bonus = mwak + " -1d4";
-                    let size = originalSize;
-                    let newSize = (size > 1) ? (size - 1) : (size - 0.3);
-                    tactor.update({ "data.bonuses.mwak.damage": bonus });
-                    target.update({ "width": newSize, "height": newSize });
-                    DAE.setFlag(tactor, 'enlageReduceSpell', {
-                        size: originalSize,
-                        ogMwak: mwak,
-                    });
-                    ChatMessage.create({ content: \`\${target.name} is reduced\` });
-                }
-            },
-        }
-    }).render(true);
-}
-if (args[0] === "off") {
-    let flag = DAE.getFlag(tactor, 'enlageReduceSpell');
-    tactor.update({ "data.bonuses.mwak.damage": flag.ogMwak });
-    target.update({ "width": flag.size, "height": flag.size });
-    DAE.unsetFlag(tactor, 'enlageReduceSpell');
-    ChatMessage.create({ content: \`\${target.name} is returned to normal size\` });
+  new Dialog({
+    title: "Enlarge or Reduce",
+    buttons: {
+      one: {
+        label: "Enlarge",
+        callback: async () => await reSize("enlarge"),
+      },
+      two: {
+        label: "Reduce",
+        callback: async () => await reSize("reduce"),
+      },
+    },
+  }).render(true);
 }
 `;
   // MACRO STOP

@@ -90,9 +90,11 @@ If you want to add spell effects you will need:
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
 - [Advanced Macros](https://foundryvtt.com/packages/advanced-macros)
 
-For token effects and prettiness add:
+Several macros that impact tokens rely on:
 - [Active Auras](https://foundryvtt.com/packages/ActiveAuras)
 - [Active Token Effects](https://foundryvtt.com/packages/ATL)
+
+For prettiness add:
 - [Token Magic FX](https://foundryvtt.com/packages/tokenmagic).
 - [Automated Animations](https://foundryvtt.com/packages/autoanimations)
 
