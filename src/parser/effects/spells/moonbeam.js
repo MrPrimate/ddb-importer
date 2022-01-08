@@ -15,7 +15,7 @@ const target = canvas.tokens.get(lastArg.tokenId)
 
 const DAEItem = lastArg.efData.flags.dae.itemData
 const saveData = DAEItem.data.save
-const DC = args[1]
+const DC = saveData.dc;
 /**
  * Create Moonbeam item in inventory
  */
@@ -67,7 +67,7 @@ if (args[0] === "on") {
       await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [removeTemplates[0].id]);
     };
 
-    let damage = DAEItem.data.level;
+    let damage = args[1];
     tactor.createOwnedItem(
       {
         "name": "Moonbeam repeating",
@@ -119,7 +119,7 @@ if (args[0] === "off") {
 `;
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectMoonbeamMoonbeamSummon.changes.push(generateMacroChange("@attributes.spelldc"));
+  effectMoonbeamMoonbeamSummon.changes.push(generateMacroChange("@spellLevel"));
   document.effects.push(effectMoonbeamMoonbeamSummon);
 
   return document;

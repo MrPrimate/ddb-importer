@@ -215,8 +215,10 @@ export function fixSpells(ddb, items) {
         const radiantAlignments = [1, 2, 3, 4, 5, 6, 10, 14];
         const necroticAlignments = [7, 8, 9, 11];
         if (radiantAlignments.includes(ddb.character.alignmentId)) {
+          setProperty(spell, "flags.ddbimporter.damageType", "radiant");
           spell.data.damage = { parts: [["3d8", "radiant"]], versatile: "", value: "" };
         } else if (necroticAlignments.includes(ddb.character.alignmentId)) {
+          setProperty(spell, "flags.ddbimporter.damageType", "necrotic");
           spell.data.damage = { parts: [["3d8", "necrotic"]], versatile: "", value: "" };
         }
         break;

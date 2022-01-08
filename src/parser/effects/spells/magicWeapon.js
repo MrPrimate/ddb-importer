@@ -86,7 +86,7 @@ if (args[0] === "on") {
                     let itemId = $("input[type='radio'][name='weapon']:checked").val();
                     let weaponItem = tactor.items.get(itemId);
                     let copy_item = duplicate(weaponItem);
-                    let spellLevel = Math.floor(DAEItem.data.level / 2);
+                    let spellLevel = Math.floor(args[1] / 2);
                     let bonus = value_limit(spellLevel, 1, 3);
                     let wpDamage = copy_item.data.damage.parts[0][0];
                     let verDamage = copy_item.data.damage.versatile;

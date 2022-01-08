@@ -53,7 +53,7 @@ if (args[0] === "on") {
         ability: DAEitem.data.ability,
         attackBonus: DAEitem.data.attackBonus,
         actionType: "save",
-        damage: { parts: [[\`\${DAEitem.data.level}d10\`, "lightning"]], versatile: "", },
+        damage: { parts: [[\`\${args[1]}d10\`, "lightning"]], versatile: "", },
         formula: "",
         save: { ability: "dex", dc: null, scaling: "spell" },
         level: 0,
@@ -78,7 +78,7 @@ if (args[0] === "off") {
 `;
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  effect.changes.push(generateMacroChange("@spellLevel"));
   document.effects.push(effect);
   setProperty(document, "data.actionType", "other");
 

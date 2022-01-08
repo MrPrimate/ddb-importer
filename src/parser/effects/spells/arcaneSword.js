@@ -20,9 +20,7 @@ async function deleteTemplates(actorId) {
   let removeTemplates = canvas.templates.placeables.filter(
     (i) => i.data.flags?.ArcaneSwordRange?.ActorId === actorId
   );
-  console.warn("removeTemplates", removeTemplates);
   await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", removeTemplates.map((t) => t.id));
-  console.warn("templates deleted")
 }
 
 /**
@@ -105,7 +103,7 @@ if (args[0] === "off") {
   let swords = target.data.items.filter((i) => i.data.flags?.ArcaneSword === target.id);
   if (swords.length > 0) await target.deleteEmbeddedDocuments("Item", swords.map((s) => s.id));
   let templates = canvas.templates.placeables.filter((i) => i.data.flags?.ArcaneSword?.ActorId === target.id);
-  if (templates.length > 0) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.map((t) => t.id)]);
+  if (templates.length > 0) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", templates.map((t) => t.id));
 }
 
 `;

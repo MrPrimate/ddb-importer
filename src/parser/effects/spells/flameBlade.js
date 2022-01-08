@@ -20,7 +20,7 @@ if (args[0] === "on") {
   const castItem = target.data.items.find((i) => i.name === castItemName && i.type === "weapon");
   if (!castItem) {
     const DAEItem = lastArg.efData.flags.dae.itemData;
-    const weaponDamage = 2 + Math.floor(DAEItem.data.level / 2);
+    const weaponDamage = 2 + Math.floor(args[1] / 2);
     const weaponData = {
       name: castItemName,
       type: "weapon",
@@ -61,7 +61,7 @@ if (args[0] === "off") {
 `;
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+  effect.changes.push(generateMacroChange("@spellLevel"));
   document.data.damage = { parts: [], versatile: "", value: "" };
   document.data['target']['type'] = "self";
   document.data.range = { value: null, units: "self", long: null };
