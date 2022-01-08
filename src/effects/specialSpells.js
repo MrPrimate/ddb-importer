@@ -84,8 +84,8 @@ import { viciousMockeryEffect } from "./spells/viciousMockery.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
 
-import utils from "../../utils.js";
-import logger from "../../logger.js";
+import utils from "../utils.js";
+import logger from "../logger.js";
 
 var installedModules;
 

@@ -1,13 +1,13 @@
-import utils from "../../utils.js";
-import logger from "../../logger.js";
-import DICTIONARY from "../../dictionary.js";
+import utils from "../utils.js";
+import logger from "../logger.js";
+import DICTIONARY from "../dictionary.js";
 import {
   getWeaponProficiencies,
   getArmorProficiencies,
   getToolProficiencies,
   getLanguagesFromModifiers,
-} from "../character/proficiencies.js";
-import { getSkillProficiency } from "../character/skills.js";
+} from "../parser/character/proficiencies.js";
+import { getSkillProficiency } from "../parser/character/skills.js";
 import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 import { featureEffectAdjustment } from "./specialFeats.js";

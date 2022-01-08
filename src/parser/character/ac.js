@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils.js";
-import { generateFixedACEffect } from "../effects/acEffects.js";
+import { generateFixedACEffect } from "../../effects/acEffects.js";
 import { getAllClassFeatures } from "./filterModifiers.js";
 
 /**

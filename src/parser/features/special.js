@@ -1,8 +1,8 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
 import utils from "../../utils.js";
-import { generateEffects } from "../effects/effects.js";
-import { generateBaseACItemEffect } from "../effects/acEffects.js";
+import { generateEffects } from "../../effects/effects.js";
+import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { generateTable } from "../../muncher/table.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {

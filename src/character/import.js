@@ -23,7 +23,7 @@ import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import { DDBCookie } from "../lib/Settings.js";
 import { loadSRDRules } from "../parser/templateStrings.js";
-import { abilityOverrideEffects } from "../parser/effects/abilityOverrides.js";
+import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { getCharacterImportSettings, updateActorSettings, setRecommendedCharacterActiveEffectSettings } from "../muncher/settings.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
 import { setConditions } from "./conditions.js";

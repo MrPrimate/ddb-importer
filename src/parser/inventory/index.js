@@ -30,8 +30,8 @@ import logger from "../../logger.js";
 import { fixItems } from "./special.js";
 
 // effects support
-import { generateEffects } from "../effects/effects.js";
-import { generateBaseACItemEffect } from "../effects/acEffects.js";
+import { generateEffects } from "../../effects/effects.js";
+import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { parseInfusion } from "./infusions.js";
 
 // tables

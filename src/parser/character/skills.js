@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
-import { generateBaseSkillEffect } from "../effects/effects.js";
+import { generateBaseSkillEffect } from "../../effects/effects.js";
 
 let isHalfProficiencyRoundedUp = (data, skill, modifiers = null) => {
   const longAbility = DICTIONARY.character.abilities

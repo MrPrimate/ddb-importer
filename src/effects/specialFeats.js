@@ -1,5 +1,5 @@
 import { baseItemEffect } from "./effects.js";
-import utils from "../../utils.js";
+import utils from "../utils.js";
 
 /**
  * This function is mainly for effects that can't be dynamically generated

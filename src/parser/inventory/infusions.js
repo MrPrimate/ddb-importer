@@ -1,7 +1,7 @@
 import utils from "../../utils.js";
 import logger from "../../logger.js";
 
-import { generateEffects } from "../effects/effects.js";
+import { generateEffects } from "../../effects/effects.js";
 
 // function isInfused(ddb, item) {
 //   return ddb.infusions.item.some((mapping) =>

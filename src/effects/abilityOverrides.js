@@ -1,6 +1,4 @@
-// import utils from "../../utils.js";
-// import logger from "../../logger.js";
-import DICTIONARY from "../../dictionary.js";
+import DICTIONARY from "../dictionary.js";
 import { generateOverrideChange } from "./effects.js";
 
 function buildBaseOverrideEffect(label) {

@@ -1,4 +1,4 @@
-import { baseItemEffect } from "../../parser/effects/effects.js";
+import { baseItemEffect } from "../../effects/effects.js";
 import utils from "../../utils.js";
 
 function absorption(monster) {
