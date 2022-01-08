@@ -87,6 +87,7 @@ if (args[0] === "off") {
   const flag = await DAE.getFlag(targetActor, "eyebiteSpell");
   if (flag) {
     if (effectAppliedAndActive(flag, targetActor)) game.dfreds.effectInterface.removeEffect(flag, targetActor.uuid);
+    await DAE.unsetFlag(targetActor, "eyebiteSpell");
   }
 }
 

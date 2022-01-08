@@ -1,99 +1,101 @@
-import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
+import { baseSpellEffect, generateMacroChange, generateMacroFlags, generateStatusEffectChange } from "../specialSpells.js";
 
 export function fleshtoStoneEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  effect.flags.dae.macroRepeat = "endEveryTurn";
+  effect.changes.push(generateStatusEffectChange("Restrained"));
   // MACRO START
   const itemMacroText = `
-//DAE Macro, Effect Value = @attributes.spelldc
-if (!game.modules.get("advanced-macros")?.active) { ui.notifications.error("Please enable the Advanced Macros module"); return; }
-if(!game.modules.get("dfreds-convenient-effects")?.active) {ui.notifications.error("Please enable the CE module"); return;}
-
-const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-
-const DAEItem = lastArg.efData.flags.dae.itemData
-const saveData = DAEItem.data.save
-let dc = args[1]
-
-if (args[0] === "on") {
-    await game.dfreds.effectInterface.addEffect("Restrained", tactor.uuid)
-    await DAE.setFlag(tactor, "FleshToStoneSpell", {
-        successes: 0,
-        failures: 1
-    });
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
+if (!game.modules.get("dfreds-convenient-effects")?.active) {
+  ui.notifications.error("Please enable the CE module");
+  return;
 }
 
-if (args[0] === "off") {
-    await DAE.unsetFlag("world", "FleshToStoneSpell");
-    ChatMessage.create({ content: "Flesh to stone ends, if concentration was maintained for the entire duration,the creature is turned to stone until the effect is removed. " });
+const lastArg = args[args.length - 1];
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const DAEItem = lastArg.efData.flags.dae.itemData;
+const saveData = DAEItem.data.save;
+
+function effectAppliedAndActive(conditionName) {
+  return targetActor.data.effects.some(
+    (activeEffect) =>
+      activeEffect?.data?.flags?.isConvenient &&
+      activeEffect?.data?.label == conditionName &&
+      !activeEffect?.data?.disabled
+  );
+}
+
+if (args[0] === "on") {
+  await DAE.setFlag(targetActor, "fleshToStoneSpell", {
+    successes: 0,
+    failures: 1,
+    rounds: 1,
+  });
+}
+
+async function checkPetrification(flag) {
+  const flavor = \`\${CONFIG.DND5E.abilities[saveData.ability]} DC\${saveData.dc} \${DAEItem?.name || ""}\`;
+  const saveRoll = await targetActor.rollAbilitySave(saveData.ability, { flavor, fastForward: true });
+
+  if (saveRoll.total < saveData.dc) {
+    flag.failures += 1;
+    await DAE.setFlag(targetActor, "fleshToStoneSpell", flag);
+
+    if (flag.failures === 3) {
+      ChatMessage.create({ content: \`Flesh To Stone on \${targetActor.name} is complete\` });
+      if (!effectAppliedAndActive("Petrified")) {
+        await game.dfreds.effectInterface.addEffect("Petrified", targetActor.uuid);
+      }
+    } else {
+      console.log(\`Flesh To Stone failures increments to \${flag.failures} and \${flag.successes}\`);
+    }
+  } else if (saveRoll.total >= saveData.dc) {
+    flag.successes += 1;
+    await DAE.setFlag(targetActor, "fleshToStoneSpell", flag);
+
+    if (flag.successes === 3) {
+      ChatMessage.create({ content: \`Flesh To Stone on \${targetActor.name} ends\` });
+      await targetActor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
+    } else {
+      console.log(\`Flesh To Stone failures increments to \${flag.failures} and \${flag.successes}\`);
+    }
+  }
 }
 
 if (args[0] === "each") {
-    let flag = DAE.getFlag(tactor, "FleshToStoneSpell");
-    if (flag.failures === 3) return;
-    const flavor = \`\${CONFIG.DND5E.abilities[saveData.ability]} DC\${dc} \${DAEItem?.name || ""}\`;
-    let saveRoll = (await tactor.rollAbilitySave(saveData.ability, { flavor, fastForward : true })).total;
-
-    if (saveRoll < dc) {
-        if (flag.failures === 2) {
-            let fleshToStoneFailures = (flag.failures + 1);
-
-            await DAE.setFlag(tactor, "FleshToStoneSpell", {
-                failures: fleshToStoneFailures
-            });
-            ChatMessage.create({ content: \`Flesh To Stone on \${tactor.name} is complete\` });
-            FleshToStoneUpdate();
-            return;
-        }
-        else {
-            let fleshToStoneFailures = (flag.failures + 1);
-
-            await DAE.setFlag(tactor, "FleshToStoneSpell", {
-                failures: fleshToStoneFailures
-            });
-            console.log(\`Flesh To Stone failures increments to \${fleshToStoneFailures}\`);
-
-        }
-    }
-    else if (saveRoll >= dc) {
-        if (flag.successes === 2) {
-            ChatMessage.create({ content: \`Flesh To Stone on \${tactor.name} ends\` });
-            await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
-            await game.dfreds.effectInterface.removeEffect("Restrained", tactor.uuid)
-            return;
-        }
-        else {
-            let fleshToStoneSuccesses = (flag.successes + 1);
-            await DAE.setFlag(tactor, "FleshToStoneSpell", {
-                successes: fleshToStoneSuccesses
-            });
-            console.log(\`Flesh To Stone successes to \${fleshToStoneSuccesses}\`);
-        }
-    }
+  let flag = DAE.getFlag(targetActor, "fleshToStoneSpell");
+  flag.rounds += 1;
+  if (flag.failures === 3) {
+    await DAE.setFlag(targetActor, "fleshToStoneSpell", flag);
+  } else {
+    await checkPetrification(flag);
+  }
 }
 
-/**
- * Update token with accurate DAE effect
- */
-async function FleshToStoneUpdate() {
-    let fleshToStone = tactor.effects.get(lastArg.effectId);
-    let icon = fleshToStone.data.icon;
-    if (game.modules.get("dfreds-convenient-effects").active) icon = "modules/dfreds-convenient-effects/images/petrified.svg";
-    else icon = "icons/svg/paralysis.svg"
-    let label = fleshToStone.data.label;
-    label = "Flesh to Stone - Petrified";
-    let time = fleshToStone.data.duration.seconds
-    time = 60000000
-    await fleshToStone.update({ icon, label, time });
+if (args[0] === "off") {
+  console.warn("ALSO HERE");
+  ChatMessage.create({
+    content: \`Flesh to stone ends, if concentration was maintained for the entire duration, the creature (\${targetActor.name}) is turned to stone until the effect is removed.\`,
+  });
 
+  const flag = await DAE.getFlag(targetActor, "fleshToStoneSpell");
+  if (flag && flag.rounds < 10) {
+    if (effectAppliedAndActive("Petrified")) {
+      game.dfreds.effectInterface.removeEffect("Petrified", targetActor.uuid);
+    }
+  }
+
+  await DAE.unsetFlag(targetActor, "fleshToStoneSpell");
 }
 `;
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effect.changes.push(generateMacroChange("@attributes.spelldc"));
+  effect.flags.dae.macroRepeat = "endEveryTurn";
+  effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
 
   return document;

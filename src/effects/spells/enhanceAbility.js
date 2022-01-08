@@ -143,7 +143,10 @@ if (args[0] === "on") {
 
 if (args[0] === "off") {
   const flag = await DAE.getFlag(targetActor, 'enhanceAbility');
-  if (flag.name === "bear") await targetActor.update({ "data.attributes.hp.temp": "" });
+  if (flag.name === "bear") {
+    await targetActor.update({ "data.attributes.hp.temp": "" });
+    await DAE.unsetFlag(targetActor, "eyebiteSpell");
+  }
   ChatMessage.create({ content: "Enhance Ability has expired" });
 }
 `;
