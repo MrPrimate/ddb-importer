@@ -111,6 +111,7 @@ async function updateActor(kind) {
 if (args[0] === "on") {
   new Dialog({
     title: "Choose Enhance Ability option for " + targetActor.name,
+    content: "<p>Choose option</p>",
     buttons: {
       one: {
         label: "Bear's Endurance",
@@ -142,7 +143,6 @@ if (args[0] === "on") {
 
 if (args[0] === "off") {
   const flag = await DAE.getFlag(targetActor, 'enhanceAbility');
-  console.warn(flag)
   if (flag.name === "bear") await targetActor.update({ "data.attributes.hp.temp": "" });
   ChatMessage.create({ content: "Enhance Ability has expired" });
 }

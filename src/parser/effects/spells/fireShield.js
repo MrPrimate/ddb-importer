@@ -4,102 +4,92 @@ export function fireShieldEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   // MACRO START
   const itemMacroText = `
-// DAE Macro, no arguments passed
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
 
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const target = canvas.tokens.get(lastArg.tokenId)
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const tokenFromUuid = await fromUuid(lastArg.tokenUuid);
+const targetToken = tokenFromUuid.data || token;
+const DAEitem = lastArg.efData.flags.dae.itemData;
 
+function getShieldName(type) {
+  return \`Summoned Fire Shield (\${type})\`;
+}
+
+function createShieldItem(type) {
+  const damageType = type == "warm" ? "fire" : "cold";
+  const img =
+    type === "warm" ? "systems/dnd5e/icons/spells/protect-red-3.jpg" : "systems/dnd5e/icons/spells/protect-blue-3.jpg";
+  const item = {
+    name: getShieldName(type),
+    type: "weapon",
+    img: img,
+    data: {
+      source: "Fire Shield Spell",
+      activation: {
+        type: "special",
+        cost: 0,
+        condition: "whenever a creature within 5 feet of you hits you with a melee Attack",
+      },
+      actionType: "other",
+      damage: {
+        parts: [[\`2d8[\${damageType}]\`, damageType]],
+      },
+      weaponType: "natural",
+    },
+    effects: [],
+  };
+  return item;
+}
+
+async function createFireShield(type) {
+  const resistanceType = type == "warm" ? "cold" : "fire";
+  const item = createShieldItem(type);
+  const effect = targetActor.effects.find((e) => e.data.label === lastArg.efData.label);
+  const changes = [
+    {
+      key: "data.traits.dr.value",
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      priority: 30,
+      value: resistanceType,
+    },
+  ];
+  await effect.update({ changes: changes.concat(effect.data.changes) });
+  await targetActor.createEmbeddedDocuments("Item", [item]);
+  await DAE.setFlag(targetActor, "fireShieldSpell", type);
+  ChatMessage.create({ content: \`\${targetToken.name} gains resistance to \${resistanceType}\` });
+  ChatMessage.create({ content: \`\${targetToken.name} has Fire Shield item added to inventory \` });
+}
 
 if (args[0] === "on") {
-        new Dialog({
-            title: "Warm or Cold Shield",
-            buttons: {
-                one: {
-                    label: "Warm",
-                    callback: async () => {
-                        let resistances = duplicate(tactor.data.data.traits.dr.value);
-                        resistances.push("cold");
-                        await tactor.update({ "data.traits.dr.value": resistances });
-                        await DAE.setFlag(tactor, 'FireShield', "cold");
-                        ChatMessage.create({ content: \`\${target.name} gains resistnace to cold\` });
-                        await tactor.createEmbeddedDocuments("Item", [{
-                            "name": "Summoned Fire Shield",
-                            "type": "weapon",
-                            "img": "systems/dnd5e/icons/spells/protect-red-3.jpg",
-                            "data": {
-                              "source": "Fire Shield Spell",
-                              "activation": {
-                                "type": "special",
-                                "cost": 0,
-                                "condition": "whenever a creature within 5 feet of you hits you with a melee Attack"
-                              },
-                              "actionType": "other",
-                              "damage": {
-                                "parts": [
-                                  [
-                                    "2d8",
-                                    "fire"
-                                  ]
-                                ]
-                              },
-                              "weaponType": "natural"
-                            },
-                            "effects": []
-                          }])
-                    }
-                },
-                two: {
-                    label: "Cold",
-                    callback: async () => {
-                        let resistances = duplicate(tactor.data.data.traits.dr.value);
-                        resistances.push("fire");
-                        await tactor.update({ "data.traits.dr.value": resistances });
-                        await DAE.setFlag(tactor, 'FireShield', "fire");
-                        ChatMessage.create({ content: \`\${target.name} gains resistance to fire\` });
-                        await tactor.createEmbeddedDocuments("Item", [{
-                            "name": "Summoned Fire Shield",
-                            "type": "weapon",
-                            "img": "systems/dnd5e/icons/spells/protect-blue-3.jpg",
-                            "data": {
-                              "source": "Fire Shield Spell",
-                              "activation": {
-                                "type": "special",
-                                "cost": 0,
-                                "condition": "whenever a creature within 5 feet of you hits you with a melee Attack"
-                              },
-                              "actionType": "other",
-                              "damage": {
-                                "parts": [
-                                  [
-                                    "2d8",
-                                    "cold"
-                                  ]
-                                ]
-                              },
-                              "weaponType": "natural"
-                            },
-                            "effects": []
-                          }])
-                    }
-                },
-            }
-        }).render(true);
+  new Dialog({
+    title: "Warm or Cold Shield",
+    content: "<p>Choose a shield type</p>",
+    buttons: {
+      warm: {
+        label: "Warm",
+        callback: async () => await createFireShield("warm"),
+      },
+      cold: {
+        label: "Cold",
+        callback: async () => await createFireShield("warm"),
+      },
+    },
+  }).render(true);
 }
-if (args[0] === "off") {
-    let item = tactor.items.getName("Summoned Fire Shield")
-    let element = DAE.getFlag(tactor, 'FireShield');
-    let resistances = tactor.data.data.traits.dr.value;
-    const index = resistances.indexOf(element);
-    resistances.splice(index, 1);
-    await tactor.update({ "data.traits.dr.value": resistances });
-    ChatMessage.create({ content: "Fire Shield expires on " + target.name});
-    await DAE.unsetFlag(tactor, 'FireShield');
-    await tactor.deleteEmbeddedDocuments("Item", [item.id])
 
+if (args[0] === "off") {
+  const flag = await DAE.getFlag(targetActor, "fireShieldSpell");
+  const item = targetActor.items.getName(getShieldName(flag));
+  ChatMessage.create({ content: "Fire Shield expires on " + targetToken.name });
+  await DAE.unsetFlag(targetActor, "fireShieldSpell");
+  await targetActor.deleteEmbeddedDocuments("Item", [item.id]);
 }
+
 `;
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
