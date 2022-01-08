@@ -395,14 +395,24 @@ export default class Helpers {
             resolve(parseItems(docIds));
             break;
           case "monster": {
-            const tier = game.settings.get("ddb-importer", "patreon-tier");
-            const tiers = getPatreonTiers(tier);
-            if (tiers.supporter) {
-              logger.debug(`Importing missing ${type}s from DDB`, docIds);
-              AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
-              resolve(parseCritters(docIds));
-            } else {
-              resolve([]);
+            try {
+              const tier = game.settings.get("ddb-importer", "patreon-tier");
+              const tiers = getPatreonTiers(tier);
+              if (tiers.all) {
+                logger.debug(`Importing missing ${type}s from DDB`, docIds);
+                AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
+                resolve(parseCritters(docIds));
+              } else {
+                logger.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, docIds);
+                ui.notifications.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, { permanent: true });
+                resolve([]);
+              }
+            } catch (err) {
+              if (err instanceof SyntaxError) {
+                ui.notifications.error("Error fetching monsters, likely cause outdated ddb-proxy", { permanent: true });
+              } else {
+                throw err;
+              }
             }
             break;
           }

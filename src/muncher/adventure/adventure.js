@@ -190,6 +190,7 @@ export default class AdventureMunch extends FormApplication {
                 const scene = JSON.parse(JSON.stringify(obj.data));
                 // this is a scene we need to update links to all items
                 logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
+                let deadTokenIds = [];
                 await Helpers.asyncForEach(scene.tokens, async (token) => {
                   if (token.actorId) {
                     const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
@@ -203,9 +204,18 @@ export default class AdventureMunch extends FormApplication {
                       const updateData = mergeObject(jsonTokenData, sceneToken);
                       logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
                       await obj.updateEmbeddedDocuments("Token", [updateData], { keepId: true });
+                    } else {
+                      deadTokenIds.push(token._id);
                     }
+                  } else {
+                    deadTokenIds.push(token._id);
                   }
                 });
+                // remove a token from the scene if we have not been able to link it
+                if (deadTokenIds.length > 0) {
+                  logger.warn(`Removing ${scene.name} tokens with no world actors`, deadTokenIds);
+                  await obj.deleteEmbeddedDocuments("Token", deadTokenIds);
+                }
 
                 // In 0.8.x the thumbs don't seem to be generated.
                 // This code would embed the thumbnail.

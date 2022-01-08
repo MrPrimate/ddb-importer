@@ -6,6 +6,7 @@
 * Try and improve monster parsing speed to reduce compendium lookups.
 * Monster has vision setting moved to muncher settings.
 * If using your own ddb-proxy, please update to version v0.0.11.
+* During adventure munch, tokens without linked actors will be removed from newly imported scenes.
 
 # 2.7.7
 
