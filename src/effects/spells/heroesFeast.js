@@ -8,38 +8,39 @@ export function heroesFeastEffect(document) {
   );
   // MACRO START
   const itemMacroText = `
-//DAE Macro , Effect Value = @damage
-if(!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
-
-
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const target = canvas.tokens.get(lastArg.tokenId)
+const castItemName = "Summoned Arcane Sword";
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
+const amount = args[1];
 
-let amount = args[1]
-/**
- * Update HP and Max HP to roll formula, save result as flag
- */
+async function updateHP(max, current) {
+  return target.update({ "data.attributes.hp.max": max, "data.attributes.hp.value": current });
+}
+
+// Update HP and Max HP to roll formula, save result as flag
 if (args[0] === "on") {
-        let hpMax = tactor.data.data.attributes.hp.max;
-        let hp = tactor.data.data.attributes.hp.value;
-        await tactor.update({"data.attributes.hp.max": (hpMax + amount), "data.attributes.hp.value": (hp + amount) });
-        ChatMessage.create({content: \`\${target.name} gains \${amount} Max HP\`});
-        await DAE.setFlag(tactor, 'HeroesFeast', amount);
-};
+  const hpMax = target.data.data.attributes.hp.max;
+  const hp = target.data.data.attributes.hp.value;
+  await updateHP(hpMax + amount,  hp + amount);
+  ChatMessage.create({ content: \`\${target.name} gains \${amount} Max HP\` });
+  await DAE.setFlag(target, "heroesFeastSpell", amount);
+}
 
 // Remove Max Hp and reduce HP to max if needed
 if (args[0] === "off") {
-        let amountOff = await DAE.getFlag(tactor, 'HeroesFeast');
-        let hpMax = tactor.data.data.attributes.hp.max;
-        let newHpMax = hpMax - amountOff;
-        let hp = tactor.data.data.attributes.hp.value > newHpMax ? newHpMax : tactor.data.data.attributes.hp.value
-        await tactor.update({"data.attributes.hp.max": newHpMax, "data.attributes.hp.value" : hp });
-        ChatMessage.create({content: target.name + "'s Max HP returns to normal"});
-        DAE.unsetFlag(tactor, 'HeroesFeast');
+  const amountOff = await DAE.getFlag(target, "heroesFeastSpell");
+  const hpMax = target.data.data.attributes.hp.max;
+  const newHpMax = hpMax - amountOff;
+  const hp = target.data.data.attributes.hp.value > newHpMax ? newHpMax : target.data.data.attributes.hp.value;
+  await updateHP(newHpMax,  hp);
+  ChatMessage.create({ content: target.name + "'s Max HP returns to normal" });
+  DAE.unsetFlag(target, "heroesFeastSpell");
 }
 `;
   // MACRO STOP

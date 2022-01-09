@@ -6,9 +6,7 @@ let getEldritchInvocations = (data) => {
   let damage = "";
   let range = 0;
 
-  const eldritchBlastMods = utils.filterBaseModifiers(data, "eldritch-blast").filter(
-    (modifier) => modifier.isGranted
-  );
+  const eldritchBlastMods = utils.filterBaseModifiers(data, "eldritch-blast").filter((modifier) => modifier.isGranted);
 
   eldritchBlastMods.forEach((mod) => {
     switch (mod.subType) {
@@ -41,7 +39,11 @@ let getEldritchInvocations = (data) => {
 function getCustomValue(data, ddb, type) {
   if (!ddb) return null;
   const characterValues = ddb.character.characterValues;
-  const customValue = characterValues.filter((value) => value.valueId == data.flags.ddbimporter.dndbeyond.id && value.valueTypeId == data.flags.ddbimporter.dndbeyond.entityTypeId);
+  const customValue = characterValues.filter(
+    (value) =>
+      value.valueId == data.flags.ddbimporter.dndbeyond.id &&
+      value.valueTypeId == data.flags.ddbimporter.dndbeyond.entityTypeId
+  );
 
   if (customValue) {
     const customName = customValue.find((value) => value.typeId == type);
@@ -103,7 +105,7 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Darkvision": {
-        spell.data['target']['type'] = "creature";
+        spell.data["target"]["type"] = "creature";
         break;
       }
       // The target/range input data are incorrect on some AOE spells centred
@@ -142,7 +144,7 @@ export function fixSpells(ddb, items) {
         break;
       // dnd beyond lists a damage for each type
       case "Chaos Bolt":
-        spell.data.damage = { parts: [["2d8", ""], ["1d6", ""]], versatile: "", value: "" };
+        spell.data.damage = { parts: [["2d8", ""], ["1d6", ""]], versatile: "", value: "", };
         break;
       // dnd beyond lists a damage for each type
       case "Chromatic Orb":
@@ -166,19 +168,19 @@ export function fixSpells(ddb, items) {
       case "Call Lightning": {
         if (midiQolInstalled) {
           spell.data.damage = { parts: [], versatile: "", value: "" };
-          spell.data['target']['type'] = "self";
+          spell.data["target"]["type"] = "self";
           spell.data.range = { value: null, units: "self", long: null };
           spell.data.save.ability = "";
         }
         break;
       }
       case "Pyrotechnics":
-        spell.data['target']['value'] = 15;
+        spell.data["target"]["value"] = 15;
         break;
       case "Absorb Elements":
         spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
         spell.data.chatFlavor = "Uses the damage type of the triggered attack: Acid, Cold, Fire, Lightning, or Poison.";
-        spell.data['target']['value'] = 1;
+        spell.data["target"]["value"] = 1;
         break;
       case "Booming Blade":
         spell.data.damage = { parts: [["0", "thunder"]], versatile: "1d8", value: "" };
@@ -197,7 +199,7 @@ export function fixSpells(ddb, items) {
         spell.data.damage = { parts: [["1", "healing"]], versatile: "", value: "" };
         break;
       case "Flaming Sphere":
-        spell.data.target['value'] = 2.5;
+        spell.data.target["value"] = 2.5;
         break;
       case "Heat Metal":
         spell.data.actionType = "save";
@@ -225,27 +227,38 @@ export function fixSpells(ddb, items) {
       }
       case "Armor of Agathys": {
         spell.data.actionType = "heal";
-        spell.data['target']['type'] = "self";
+        spell.data["target"]["type"] = "self";
         spell.data.damage.parts[0] = ["5", "temphp"];
         spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
       }
       case "False Life": {
         spell.data.actionType = "heal";
-        spell.data['target']['type'] = "self";
+        spell.data["target"]["type"] = "self";
         spell.data.damage.parts[0] = ["1d4 + 4", "temphp"];
         spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
       }
       case "Divine Favor": {
         spell.data.actionType = "util";
-        spell.data['target']['type'] = "self";
+        spell.data["target"]["type"] = "self";
         break;
       }
       case "Bones of the Earth": {
         spell.data.target.value = 2.5;
         break;
       }
+      case "Heroes Feast": {
+        spell.data.duration = { value: 1, units: "day" };
+        break;
+      }
+      case "Heroism": {
+        spell.data.damage.parts[0] = ["@mod", "temphp"];
+        break;
+      }
+      case "Protection from Energy":
+        spell.data["target"]["type"] = "creature";
+        break;
       // no default
     }
 
@@ -253,5 +266,3 @@ export function fixSpells(ddb, items) {
   });
 }
 /* eslint-enable complexity */
-
-

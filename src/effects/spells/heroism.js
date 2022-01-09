@@ -11,25 +11,40 @@ export function heroismEffect(document) {
   effect.flags.dae.macroRepeat = "startEveryTurn";
   // MACRO START
   const itemMacroText = `
-//DAE Macro Execute, Effect Value = "Macro Name" t @damage (apply @mod damge of none type)
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const target = canvas.tokens.get(lastArg.tokenId)
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const amount = args[1];
+const currentTemp = Number.isInteger(targetActor.data.data.attributes.hp.temp)
+  ? targetActor.data.data.attributes.hp.temp
+  : 0;
 
-let mod = args[1];
+async function rejuvenateTempHP(tempHP) {
+  if (tempHP > currentTemp) {
+    const flag = await DAE.setFlag(targetActor, "heroismSpell", tempHP);
+    await targetActor.update({ "data.attributes.hp.temp": tempHP });
+    ChatMessage.create({ content: \`Heroism applies \${tempHP} temporary HP to \${targetActor.name}\` });
+  }
+}
 
 if (args[0] === "on") {
-    ChatMessage.create({ content: \`Heroism is applied to \${tactor.name}\` })
+  await rejuvenateTempHP(amount);
 }
 if (args[0] === "off") {
-    ChatMessage.create({ content: "Heroism ends" });
+  const flag = await DAE.getFlag(targetActor, "heroismSpell");
+  if (flag) {
+    const endTempHP = currentTemp > flag ? currentTemp - flag : null;
+    await targetActor.update({ "data.attributes.hp.temp": endTempHP });
+    await DAE.unsetFlag(targetActor, "heroismSpell");
+  }
+  ChatMessage.create({ content: \`Heroism ends on \${targetActor.name}\` });
 }
-if(args[0] === "each"){
-let bonus = mod > tactor.data.data.attributes.hp.temp ? mod : tactor.data.data.attributes.hp.temp
-    tactor.update({ "data.attributes.hp.temp": mod });
-    ChatMessage.create({ content: "Heroism continues on " + tactor.name })
+if (args[0] === "each") {
+  await rejuvenateTempHP(amount);
 }
 `;
   // MACRO STOP

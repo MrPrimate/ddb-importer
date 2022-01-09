@@ -27,7 +27,7 @@ if (args[0] === "on") {
     x: 0,
     y: 0,
     flags: {
-      DAESRD: {
+      spellEffects: {
         CallLighting: {
           ActorId: targetActor.id,
         },
@@ -72,7 +72,7 @@ if (args[0] === "on") {
 // Delete Lighting bolt
 if (args[0] === "off") {
   if (castItem) await targetActor.deleteEmbeddedDocuments("Item", castItem._id);
-  const template = canvas.templates.placeables.find((i) => i.data.flags.DAESRD?.CallLighting?.ActorId === targetActor.id);
+  const template = canvas.templates.placeables.find((i) => i.data.flags.spellEffects?.CallLighting?.ActorId === targetActor.id);
   if (template) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
 }
 `;

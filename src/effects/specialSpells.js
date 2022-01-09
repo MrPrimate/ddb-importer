@@ -51,7 +51,6 @@ import { huntersMarkEffect } from "./spells/huntersMark.js";
 import { hypnoticPatternEffect } from "./spells/hypnoticPattern.js";
 import { invisibilityEffect } from "./spells/invisibility.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
-import { levitateEffect } from "./spells/levitate.js";
 import { lightEffect } from "./spells/light.js";
 import { longstriderEffect } from "./spells/longstrider.js";
 import { mageArmorEffect } from "./spells/mageArmor.js";
@@ -470,10 +469,6 @@ export function spellEffectAdjustment(document) {
     case "Otto's Irresistible Dance":
     case "Irresistible Dance": {
       document = irresistibleDanceEffect(document);
-      break;
-    }
-    case "Levitate": {
-      document = levitateEffect(document);
       break;
     }
     case "Light": {

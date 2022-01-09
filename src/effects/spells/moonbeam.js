@@ -1,126 +1,153 @@
 import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
 
 export function moonbeamEffect(document) {
-  let effectMoonbeamMoonbeamSummon = baseSpellEffect(document, document.name);
+  let effect = baseSpellEffect(document, document.name);
+  effect.flags.dae.macroRepeat = "startEveryTurn";
   // MACRO START
   const itemMacroText = `
-//DAE Item Macro Execute, Effect Value = @attributes.spelldc
-if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
+if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module");
 
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const target = canvas.tokens.get(lastArg.tokenId)
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const tokenFromUuid  = await fromUuid(lastArg.tokenUuid);
+const targetToken = tokenFromUuid.data || token;
+const DAEItem = lastArg.efData.flags.dae.itemData;
+const saveData = DAEItem.data.save;
+const castItemName = "Moonbeam Attack";
+const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "spell");
 
-const DAEItem = lastArg.efData.flags.dae.itemData
-const saveData = DAEItem.data.save
-const DC = saveData.dc;
-/**
- * Create Moonbeam item in inventory
- */
-if (args[0] === "on") {
-  let range = canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [{
+async function deleteTemplateIds(templateIds) {
+  console.log("Deleting template ids", templateIds);
+  await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", templateIds);
+}
+
+async function deleteTemplates(actorId, flagName) {
+  const templateIds = canvas.templates.placeables.filter(
+    (i) => i.data.flags?.spellEffects?.[flagName] === actorId
+  ).map((t) => t.id);
+  if (templateIds.length >0) await deleteTemplateIds(templateIds);
+}
+
+async function getTemplateId(template, caster) {
+  await DAE.setFlag(caster, "moonBeamSpell.template", template.id);
+}
+
+async function placeMoonBeam(casterActor, range, originObject, deleteOriginTemplate = false) {
+  // create range template
+  const isTemplate = originObject instanceof MeasuredTemplate;
+  await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [{
     t: "circle",
     user: game.user._id,
-    x: target.x + canvas.grid.size / 2,
-    y: target.y + canvas.grid.size / 2,
+    x: isTemplate ? originObject.x : originObject.x + canvas.grid.size / 2,
+    y: isTemplate ? originObject.y : originObject.y + canvas.grid.size / 2,
     direction: 0,
-    distance: 60,
+    distance: range,
     borderColor: "#517bc9",
     flags: {
-      DAESRD: {
-        MoonbeamRange: {
-          ActorId: tactor.id
-        }
+      spellEffects: {
+        MoonbeamRange: casterActor.id,
       }
     }
-    //fillColor: "#FF3366",
   }]);
 
-  range.then(result => {
-    let templateData = {
-      t: "circle",
-      user: game.user._id,
-      distance: 5,
-      direction: 0,
-      x: 0,
-      y: 0,
-      flags: {
-        DAESRD: {
-          Moonbeam: {
-            ActorId: tactor.id
+  const templateData = {
+    t: "circle",
+    user: game.user._id,
+    distance: 5,
+    direction: 0,
+    x: 0,
+    y: 0,
+    flags: {
+      spellEffects: {
+        Moonbeam: casterActor.id,
+      }
+    },
+    fillColor: game.user.color
+  }
+  Hooks.once("createMeasuredTemplate", () => deleteTemplates(casterActor.id, "MoonbeamRange"));
+  Hooks.once("createMeasuredTemplate", (template) => getTemplateId(template, casterActor));
+  if (deleteOriginTemplate) Hooks.once("createMeasuredTemplate", () => deleteTemplateIds([originObject.id]));
+
+  const doc = new MeasuredTemplateDocument(templateData, { parent: canvas.scene })
+  const template = new game.dnd5e.canvas.AbilityTemplate(doc)
+  template.actorSheet = casterActor.sheet;
+  template.drawPreview();
+}
+
+if (args[0] === "on") {
+  // place templates
+  await placeMoonBeam(targetActor, 120, targetToken);
+  const spellLevel = args[1];
+
+  if (!castItem) {
+    const spell = {
+      name: castItemName,
+      type: "spell",
+      data: {
+        description: DAEItem.data.description,
+        activation: { type: "action", },
+        ability: DAEItem.data.ability,
+        attackBonus: DAEItem.data.attackBonus,
+        actionType: "save",
+        damage: { parts: [[\`\${spellLevel}d10\`, "radiant"]], versatile: "", },
+        formula: "",
+        save: { ability: "con", dc: saveData.dc, scaling: "spell" },
+        level: 0,
+        school: DAEItem.data.school,
+        preparation: { mode: "prepared", prepared: false, },
+        scaling: { mode: "none", formula: "", },
+      },
+      img: "systems/dnd5e/icons/spells/lighting-sky-2.jpg",
+      effects: [],
+    };
+    await targetActor.createEmbeddedDocuments("Item", [spell]);
+    ui.notifications.notify("Moonbeam attack created in your spellbook");
+  }
+}
+
+if (args[0] === "each") {
+  new Dialog({
+    title: "Moonbeam options",
+    content: "<p>Use action to move Moonbeam?</p>",
+    buttons: {
+      yes: {
+        label: "Yes",
+        callback: async () => {
+          const originalTemplateId = await DAE.getFlag(targetActor, "moonBeamSpell.template");
+          if (originalTemplateId) {
+            const originalTemplate = canvas.templates.placeables.find((t) => t.id === originalTemplateId);
+            await placeMoonBeam(targetActor, 60, originalTemplate, true);
+          } else {
+            await placeMoonBeam(targetActor, 120, targetToken);
           }
         }
       },
-      fillColor: game.user.color
-    }
-    Hooks.once("createMeasuredTemplate", deleteTemplates);
-
-    let doc = new CONFIG.MeasuredTemplate.documentClass(templateData, { parent: canvas.scene })
-    let template = new game.dnd5e.canvas.AbilityTemplate(doc)
-    template.actorSheet = tactor.sheet;
-    template.drawPreview()
-
-    async function deleteTemplates() {
-      let removeTemplates = canvas.templates.placeables.filter(i => i.data.flags.DAESRD?.MoonbeamRange?.ActorId === tactor.id);
-      await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [removeTemplates[0].id]);
-    };
-
-    let damage = args[1];
-    tactor.createOwnedItem(
-      {
-        "name": "Moonbeam repeating",
-        "type": "spell",
-        "data": {
-          "source": "Casting Moonbeam",
-          "ability": "",
-          "description": {
-            "value": "half damage on save"
-          },
-          "actionType": "save",
-          "attackBonus": 0,
-          "damage": {
-            "parts": [
-              [
-                \`\${damage}d10\`,
-                "radiant"
-              ]
-            ],
-          },
-          "formula": "",
-          "save": {
-            "ability": "con",
-            "dc": saveData.dc,
-            "scaling": "spell"
-          },
-          "level": 0,
-          "school": "abj",
-          "preparation": {
-            "mode": "prepared",
-            "prepared": false
-          },
-
-        },
-        "img": DAEItem.img,
-        "effects": []
+      no: {
+        label: "No",
+        callback: () => {
+          console.log("Moonbeam remains where it is.")
+        }
       }
-    );
-  });
+    },
+  }).render(true);
 }
 
 // Delete Moonbeam
 if (args[0] === "off") {
-  let casterItem = tactor.data.items.find(i => i.name === "Moonbeam repeating" && i.type === "spell")
-  tactor.deleteOwnedItem(casterItem._id)
-  let template = canvas.templates.placeables.find(i => i.data.flags.DAESRD?.Moonbeam?.ActorId === tactor.id)
-  canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id])
+  if (castItem) targetActor.deleteEmbeddedDocuments("Item", [castItem.id]);
+  deleteTemplates(targetActor.id, "Moonbeam");
+  DAE.unsetFlag(targetActor, "moonBeamSpell");
 }
 `;
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
-  effectMoonbeamMoonbeamSummon.changes.push(generateMacroChange("@spellLevel"));
-  document.effects.push(effectMoonbeamMoonbeamSummon);
+  effect.changes.push(generateMacroChange("@spellLevel"));
+  document.effects.push(effect);
+  document.data.damage = { parts: [], versatile: "", value: "" };
+  document.data['target']['type'] = "self";
+  document.data.range = { value: null, units: "self", long: null };
+  document.data.actionType = "other";
 
   return document;
 }

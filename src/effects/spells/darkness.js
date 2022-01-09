@@ -31,7 +31,7 @@ if (args[0] === "on") {
         door: CONST.WALL_DOOR_TYPES.NONE,
         ds: CONST.WALL_DOOR_STATES.CLOSED,
         flags: {
-          DAESRD: {
+          spellEffects: {
             Darkness: {
               ActorId: targetActor.id,
             },
@@ -74,7 +74,7 @@ if (args[0] === "on") {
       },
       hidden: false,
       flags: {
-        DAESRD: {
+        spellEffects: {
           Darkness: {
             ActorId: targetActor.id,
           },
@@ -100,7 +100,7 @@ if (args[0] === "on") {
     y: 0,
     fillColor: game.user.color,
     flags: {
-      DAESRD: {
+      spellEffects: {
         Darkness: {
           ActorId: targetActor.id,
         },
@@ -115,9 +115,9 @@ if (args[0] === "on") {
 }
 
 if (args[0] === "off") {
-  const darkWalls = canvas.walls.placeables.filter((w) => w.data.flags?.DAESRD?.Darkness?.ActorId === targetActor.id);
+  const darkWalls = canvas.walls.placeables.filter((w) => w.data.flags?.spellEffects?.Darkness?.ActorId === targetActor.id);
   const wallArray = darkWalls.map((w) => w.id);
-  const darkLights = canvas.lighting.placeables.filter((w) => w.data.flags?.DAESRD?.Darkness?.ActorId === targetActor.id);
+  const darkLights = canvas.lighting.placeables.filter((w) => w.data.flags?.spellEffects?.Darkness?.ActorId === targetActor.id);
   const lightArray = darkLights.map((w) => w.id);
   await canvas.scene.deleteEmbeddedDocuments("Wall", wallArray);
   await canvas.scene.deleteEmbeddedDocuments("AmbientLight", lightArray);
