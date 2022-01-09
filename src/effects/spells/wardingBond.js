@@ -3,64 +3,58 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 export function wardingBondEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
-    { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "+1", priority: "20" },
-    { key: "data.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "0", priority: "0" },
-    { key: "data.bonuses.abilities.save", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "1", priority: "20" }
+    { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "1", priority: "20" },
+    { key: "data.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "1", priority: "20" },
+    { key: "data.bonuses.abilities.save", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "1", priority: "20" }
   );
   // MACRO START
   const itemMacroText = `
-//DAE Macro Execute, Effect Value = "Macro Name" @target @item
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const target = canvas.tokens.get(lastArg.tokenId)
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const targetToken = await fromUuid(lastArg.tokenUuid);
+const DAEItem = lastArg.efData.flags.dae.itemData;
 
-const DAEItem = lastArg.efData.flags.dae.itemData
+const caster = canvas.tokens.placeables.find((token) => token?.actor?.items.get(DAEItem._id) != null);
 
-let caster = canvas.tokens.placeables.find(token => token?.actor?.items.get(DAEItem._id) != null)
+async function setWardingBondHook() {
+  const hookId = Hooks.on("preUpdateActor", async (actor, update) => {
+    const flag = await DAE.getFlag(targetActor, "WardingBondIds");
+    if (flag.targetID !== actor.id) return;
+    if (!"actorData.data.attributes.hp" in update) return;
+    const oldHP = actor.data.data.attributes.hp.value;
+    const newHP = getProperty(update, "data.attributes.hp.value");
+    const hpChange = oldHP - newHP;
+    if (Number.isInteger(hpChange) && hpChange > 0) {
+      const caster = game.actors.get(flag.casterID).getActiveTokens()[0];
+      caster.actor.applyDamage(hpChange);
+    }
+    if (newHP === 0) {
+      const effectIds = targetActor.data.effects.filter((e) => e.data.label === "Warding Bond").map((t) => t.id);
+      await targetActor.deleteEmbeddedDocuments("ActiveEffect", effectIds);
+    }
+  });
+  DAE.setFlag(targetActor, "WardingBondHook", hookId);
+}
 
 if (args[0] === "on") {
-    await DAE.setFlag(tactor, "WardingBondIds", {
-        tokenID: tactor.id,
-        casterID: caster.actor.id
-    })
-    SetWardingBondHook(target)
-
-}
-
-async function SetWardingBondHook(target) {
-    const hookId = Hooks.on("preUpdateActor", async (actor, update) => {
-        let flag = await DAE.getFlag(tactor, "WardingBondIds")
-        if (flag.tokenID !== actor.id) return
-        if (!"actorData.data.attributes.hp" in update) return;
-        let oldHP = actor.data.data.attributes.hp.value;
-        let newHP = getProperty(update, "data.attributes.hp.value");
-        let hpChange = oldHP - newHP
-        if (hpChange > 0 && typeof hpChange === "number") {
-            let caster = game.actors.get(flag.casterID).getActiveTokens()[0]
-            caster.actor.applyDamage(hpChange)
-        }
-    })
-    DAE.setFlag(tactor, "WardingBondHook", hookId)
-
-}
-
-async function RemoveHook() {
-    let flag = await DAE.getFlag(tactor, 'WardingBondHook');
-    Hooks.off("preUpdateActor", flag);
-    await DAE.unsetFlag(tactor, "WardingBondHook");
+  await DAE.setFlag(targetActor, "WardingBondIds", {
+    targetID: targetActor.id,
+    casterID: caster.actor.id,
+  });
+  setWardingBondHook();
 }
 
 if (args[0] === "off") {
-    RemoveHook()
-    await DAE.unsetFlag(tactor, "WardingBondIds");
-    console.log("Death Ward removed");
-}
-
-if (args[0] === "each") {
-    await RemoveHook()
-    await SetWardingBondHook()
+  const flag = await DAE.getFlag(targetActor, "WardingBondHook");
+  await Hooks.off("preUpdateActor", flag);
+  DAE.unsetFlag(targetActor, "WardingBondHook");
+  DAE.unsetFlag(targetActor, "WardingBondIds");
+  console.log("Warding Bond removed");
 }
 `;
   // MACRO STOP

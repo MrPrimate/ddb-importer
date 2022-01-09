@@ -4,35 +4,36 @@ export function magicWeaponEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   // MACRO START
   const itemMacroText = `
-//DAE Item Macro Execute, arguments = @item.level
-if (!game.modules.get("advanced-macros")?.active) {ui.notifications.error("Please enable the Advanced Macros module") ;return;}
-
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const DAEItem = lastArg.efData.flags.dae.itemData
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const DAEItem = lastArg.efData.flags.dae.itemData;
 
-let weapons = tactor.items.filter(i => i.data.type === \`weapon\`);
-let weapon_content = \`\`;
-
-function value_limit(val, min, max) {
-    return val < min ? min : (val > max ? max : val);
-};
-//Filter for weapons
-for (let weapon of weapons) {
-    weapon_content += \`<label class="radio-label">
-    <input type="radio" name="weapon" value="\${weapon.id}">
-    <img src="\${weapon.img}" style="border:0px; width: 50px; height:50px;">
-    \${weapon.data.name}
-  </label>\`;
+function valueLimit(val, min, max) {
+  return val < min ? min : val > max ? max : val;
 }
 
 /**
  * Select for weapon and apply bonus based on spell level
  */
 if (args[0] === "on") {
-    let content = \`
+  const weapons = targetActor.items.filter((i) => i.data.type === "weapon");
+  let weapon_content = "";
+
+  //Filter for weapons
+  weapons.forEach((weapon) => {
+    weapon_content += \`<label class="radio-label">
+  <input type="radio" name="weapon" value="\${weapon.id}">
+  <img src="\${weapon.img}" style="border:0px; width: 50px; height:50px;">
+  \${weapon.data.name}
+</label>\`;
+  });
+
+  let content = \`
     <style>
     .magicWeapon .form-group {
         display: flex;
@@ -73,58 +74,54 @@ if (args[0] === "on") {
           \${weapon_content}
       </div>
     </form>
-    \`;
+\`;
 
-    new Dialog({
-        content,
-        buttons:
-        {
-            Ok:
-            {
-                label: \`Ok\`,
-                callback: (html) => {
-                    let itemId = $("input[type='radio'][name='weapon']:checked").val();
-                    let weaponItem = tactor.items.get(itemId);
-                    let copy_item = duplicate(weaponItem);
-                    let spellLevel = Math.floor(args[1] / 2);
-                    let bonus = value_limit(spellLevel, 1, 3);
-                    let wpDamage = copy_item.data.damage.parts[0][0];
-                    let verDamage = copy_item.data.damage.versatile;
-                    DAE.setFlag(tactor, \`magicWeapon\`, {
-                        damage: weaponItem.data.data.attackBonus,
-                        weapon: itemId,
-                        weaponDmg: wpDamage,
-                        verDmg: verDamage,
-                        mgc : copy_item.data.properties.mgc
-                    }
-                    );
-                    if(copy_item.data.attackBonus === "") copy_item.data.attackBonus = "0"
-                    copy_item.data.attackBonus = \`\${parseInt(copy_item.data.attackBonus) + bonus}\`;
-                    copy_item.data.damage.parts[0][0] = (wpDamage + " + " + bonus);
-                    copy_item.data.properties.mgc = true
-                    if (verDamage !== "" && verDamage !== null) copy_item.data.damage.versatile = (verDamage + " + " + bonus);
-                    tactor.updateEmbeddedDocuments("Item", [copy_item]);
-                }
-            },
-            Cancel:
-            {
-                label: \`Cancel\`
-            }
-        }
-    }).render(true);
+  new Dialog({
+    content,
+    buttons: {
+      ok: {
+        label: \`Ok\`,
+        callback: (html) => {
+          const itemId = $("input[type='radio'][name='weapon']:checked").val();
+          const weaponItem = targetActor.items.get(itemId);
+          let copyItem = duplicate(weaponItem);
+          const spellLevel = Math.floor(args[1] / 2);
+          const bonus = valueLimit(spellLevel, 1, 3);
+          const wpDamage = copyItem.data.damage.parts[0][0];
+          const verDamage = copyItem.data.damage.versatile;
+          DAE.setFlag(targetActor, "magicWeapon", {
+            damage: weaponItem.data.data.attackBonus,
+            weapon: itemId,
+            weaponDmg: wpDamage,
+            verDmg: verDamage,
+            mgc: copyItem.data.properties.mgc,
+          });
+          if (copyItem.data.attackBonus === "") copyItem.data.attackBonus = "0";
+          copyItem.data.attackBonus = \`\${parseInt(copyItem.data.attackBonus) + bonus}\`;
+          copyItem.data.damage.parts[0][0] = wpDamage + " + " + bonus;
+          copyItem.data.properties.mgc = true;
+          if (verDamage !== "" && verDamage !== null) copyItem.data.damage.versatile = verDamage + " + " + bonus;
+          targetActor.updateEmbeddedDocuments("Item", [copyItem]);
+        },
+      },
+      cancel: {
+        label: \`Cancel\`,
+      },
+    },
+  }).render(true);
 }
 
 //Revert weapon and unset flag.
 if (args[0] === "off") {
-    let { damage, weapon, weaponDmg, verDmg, mgc} = DAE.getFlag(tactor, 'magicWeapon');
-    let weaponItem = tactor.items.get(weapon);
-    let copy_item = duplicate(weaponItem);
-    copy_item.data.attackBonus = damage;
-    copy_item.data.damage.parts[0][0] = weaponDmg;
-    copy_item.data.properties.mgc = mgc
-    if (verDmg !== "" && verDmg !== null) copy_item.data.damage.versatile = verDmg;
-    tactor.updateEmbeddedDocuments("Item", [copy_item]);
-    DAE.unsetFlag(tactor, \`magicWeapon\`);
+  const { damage, weapon, weaponDmg, verDmg, mgc } = DAE.getFlag(targetActor, "magicWeapon");
+  const weaponItem = targetActor.items.get(weapon);
+  let copyItem = duplicate(weaponItem);
+  copyItem.data.attackBonus = damage;
+  copyItem.data.damage.parts[0][0] = weaponDmg;
+  copyItem.data.properties.mgc = mgc;
+  if (verDmg !== "" && verDmg !== null) copyItem.data.damage.versatile = verDmg;
+  targetActor.updateEmbeddedDocuments("Item", [copyItem]);
+  DAE.unsetFlag(targetActor, "magicWeapon");
 }
 `;
   // MACRO STOP
