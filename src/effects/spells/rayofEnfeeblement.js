@@ -2,39 +2,45 @@ import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../spe
 
 export function rayofEnfeeblementEffect(document) {
   let effect = baseSpellEffect(document, document.name);
+  effect.changes.push({
+    key: "flags.midi-qol.OverTime",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    value: `label=${document.name},turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true`,
+    priority: "20",
+  });
   // MACRO START
   const itemMacroText = `
-//DAE Item Macro Execute, no arguments
-if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
-
+if (!game.modules.get("advanced-macros")?.active) {
+  ui.notifications.error("Please enable the Advanced Macros module");
+  return;
+}
 const lastArg = args[args.length - 1];
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-let weapons = tactor.items.filter(i => i.data.type === \`weapon\`);
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const weapons = targetActor.data.items.filter((i) => i.data.type === "weapon");
 
 /**
  * For every str weapon, update the damage formulas to half the damage, set flag of original
  */
 if (args[0] === "on") {
-    for (let weapon of weapons) {
-        if (weapon.abilityMod === "str") {
-            let newWeaponParts = duplicate(weapon.data.data.damage.parts);
-            weapon.setFlag('world', 'RayOfEnfeeblement', newWeaponParts);
-            for (let part of weapon.data.data.damage.parts) {
-                part[0] = \`floor((\${part[0]})/2)\`;
-            }
-            weapon.update({ "data.damage.parts": weapon.data.data.damage.parts });
-        }
+  weapons.forEach((weapon) => {
+    if (weapon.abilityMod === "str") {
+      const originalParts = duplicate(weapon.data.data.damage.parts);
+      weapon.setFlag("world", "RayOfEnfeeblementSpell", originalParts);
+      weapon.data.data.damage.parts.forEach((part) => {
+        part[0] = \`floor((\${part[0]})/2)\`;
+      });
+      weapon.update({ "data.damage.parts": weapon.data.data.damage.parts });
     }
+  });
 }
 
 // Update weapons to old value
 if (args[0] === "off") {
-    for (let weapon of weapons) {
-        let parts = weapon.getFlag('world', 'RayOfEnfeeblement');
-        weapon.update({ "data.damage.parts": parts });
-    }
+  weapons.forEach((weapon) => {
+    const parts = weapon.getFlag("world", "RayOfEnfeeblementSpell");
+    weapon.update({ "data.damage.parts": parts });
+  });
 }
 `;
   // MACRO STOP

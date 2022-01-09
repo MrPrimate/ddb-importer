@@ -4,7 +4,7 @@ export function confusionEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
-    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     value: "label=Confusion,turn=end,saveAbility=wis,saveDC=@attributes.spelldc,saveMagic=true",
     priority: "20",
   });

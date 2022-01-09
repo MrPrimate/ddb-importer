@@ -9,7 +9,7 @@ export function hideousLaughterEffect(document) {
 
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
-    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     value: "label=Hideous Laughter,turn=end,saveDc=@attributes.spelldc,saveAbility=wis,saveMagic=true",
     priority: "20",
   });

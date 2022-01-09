@@ -4,7 +4,7 @@ export function blindnessDeafnessEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
-    mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     value: "label=Blindness/Deafness,turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true",
     priority: "20",
   });
