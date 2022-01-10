@@ -63,7 +63,6 @@ var configured;
  * These are effects that can't be generated dynamically and have extra requirements
  */
 export async function generateExtraEffects(document) {
-  console.warn("HERE")
   if (!document.effects) document.effects = [];
 
   // check that we can gen effects
@@ -79,7 +78,6 @@ export async function generateExtraEffects(document) {
   switch (document.name) {
     case "Empty Body":
     case "Ki: Empty Body": {
-      console.warn("Empty body");
       document = await kiEmptyBodyEffect(document);
       break;
     }
