@@ -212,80 +212,60 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "entity-item-compendium", {
-    name: "ddb-importer.entity-item-compendium.name",
-    hint: "ddb-importer.entity-item-compendium.hint",
     scope: "world",
     config: false,
     type: String,
   });
 
   game.settings.register("ddb-importer", "entity-feature-compendium", {
-    name: "ddb-importer.entity-feature-compendium.name",
-    hint: "ddb-importer.entity-feature-compendium.hint",
     scope: "world",
     config: false,
     type: String,
   });
 
   game.settings.register("ddb-importer", "entity-class-compendium", {
-    name: "ddb-importer.entity-class-compendium.name",
-    hint: "ddb-importer.entity-class-compendium.hint",
     scope: "world",
     config: false,
     type: String,
   });
 
   game.settings.register("ddb-importer", "entity-race-compendium", {
-    name: "ddb-importer.entity-race-compendium.name",
-    hint: "ddb-importer.entity-race-compendium.hint",
     scope: "world",
     config: false,
     type: String,
   });
 
   game.settings.register("ddb-importer", "entity-trait-compendium", {
-    name: "ddb-importer.entity-trait-compendium.name",
-    hint: "ddb-importer.entity-trait-compendium.hint",
     scope: "world",
     config: false,
     type: String,
   });
 
   game.settings.register("ddb-importer", "entity-feat-compendium", {
-    name: "ddb-importer.entity-feat-compendium.name",
-    hint: "ddb-importer.entity-feat-compendium.hint",
     scope: "world",
     config: false,
     type: String,
   });
 
   game.settings.register("ddb-importer", "entity-spell-compendium", {
-    name: "ddb-importer.entity-spell-compendium.name",
-    hint: "ddb-importer.entity-spell-compendium.hint",
     scope: "world",
     config: false,
     type: String,
   });
 
   game.settings.register("ddb-importer", "entity-override-compendium", {
-    name: "ddb-importer.entity-custom-compendium.name",
-    hint: "ddb-importer.entity-custom-compendium.hint",
     scope: "world",
     config: false,
     type: String,
   });
 
   game.settings.register("ddb-importer", "entity-table-compendium", {
-    name: "ddb-importer.entity-table-compendium.name",
-    hint: "ddb-importer.entity-table-compendium.hint",
     scope: "world",
     config: false,
     type: String,
   });
 
   game.settings.register("ddb-importer", "entity-monster-compendium", {
-    name: "ddb-importer.entity-monster-compendium.name",
-    hint: "ddb-importer.entity-monster-compendium.hint",
     scope: "world",
     config: false,
     type: String,
@@ -369,8 +349,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "api-endpoint", {
-    name: "ddb-importer.api-endpoint.name",
-    hint: "ddb-importer.api-endpoint.hint",
     scope: "world",
     config: false,
     type: String,
@@ -383,8 +361,6 @@ export default function () {
   }
 
   game.settings.register("ddb-importer", "cors-endpoint", {
-    name: "ddb-importer.cors-endpoint.name",
-    hint: "ddb-importer.cors-endpoint.hint",
     scope: "world",
     config: false,
     type: String,
@@ -397,8 +373,6 @@ export default function () {
   }
 
   game.settings.register("ddb-importer", "dynamic-api-endpoint", {
-    name: "ddb-importer.api-endpoint.name",
-    hint: "ddb-importer.api-endpoint.hint",
     scope: "world",
     config: false,
     type: String,
@@ -406,8 +380,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "cors-encode", {
-    name: "ddb-importer.cors-encode.name",
-    hint: "ddb-importer.cors-encode.hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -415,8 +387,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "beta-key", {
-    name: "ddb-importer.beta-key.name",
-    hint: "ddb-importer.beta-key.hint",
     scope: "world",
     config: false,
     type: String,
@@ -431,8 +401,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "debug-json", {
-    name: "ddb-importer.debug-json.name",
-    hint: "ddb-importer.debug-json.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -441,8 +409,6 @@ export default function () {
 
   /** Character update settings, stored per user and non-configurable in the settings screen */
   game.settings.register("ddb-importer", "character-update-policy-add-character-effects", {
-    name: "ddb-importer.character-update-policy-add-character-effects.name",
-    hint: "ddb-importer.character-update-policy-add-character-effects.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -645,8 +611,13 @@ export default function () {
   //
   //
   game.settings.register("ddb-importer", "character-update-policy-add-item-effects", {
-    name: "ddb-importer.character-update-policy-add-item-effects.name",
-    hint: "ddb-importer.character-update-policy-add-item-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("ddb-importer", "character-update-policy-add-spell-effects", {
     scope: "player",
     config: false,
     type: Boolean,
@@ -654,8 +625,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-generate-ac-feature-effects", {
-    name: "ddb-importer.character-update-policy-generate-ac-feature-effects.name",
-    hint: "ddb-importer.character-update-policy-generate-ac-feature-effects.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -663,8 +632,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-existing", {
-    name: "ddb-importer.character-update-policy-use-existing.name",
-    hint: "ddb-importer.character-update-policy-use-existing.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -672,8 +639,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-override", {
-    name: "ddb-importer.character-update-policy-use-custom.name",
-    hint: "ddb-importer.character-update-policy-use-custom.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -681,8 +646,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-srd", {
-    name: "ddb-importer.character-update-policy-use-srd.name",
-    hint: "ddb-importer.character-update-policy-use-srd.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -692,8 +655,6 @@ export default function () {
   // Character update policy
 
   game.settings.register("ddb-importer", "character-update-policy-name", {
-    name: "ddb-importer.character-update-policy-name.name",
-    hint: "ddb-importer.character-update-policy-name.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -701,8 +662,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-hp", {
-    name: "ddb-importer.character-update-policy-name.hp",
-    hint: "ddb-importer.character-update-policy-name.hp",
     scope: "player",
     config: false,
     type: Boolean,
@@ -710,8 +669,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-hit-die", {
-    name: "ddb-importer.character-update-policy-name.hit-die",
-    hint: "ddb-importer.character-update-policy-name.hit-die",
     scope: "player",
     config: false,
     type: Boolean,
@@ -719,8 +676,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-class", {
-    name: "ddb-importer.character-update-policy-class.name",
-    hint: "ddb-importer.character-update-policy-class.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -729,8 +684,6 @@ export default function () {
 
 
   game.settings.register("ddb-importer", "character-update-policy-feat", {
-    name: "ddb-importer.character-update-policy-feat.name",
-    hint: "ddb-importer.character-update-policy-feat.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -738,8 +691,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-weapon", {
-    name: "ddb-importer.character-update-policy-weapon.name",
-    hint: "ddb-importer.character-update-policy-weapon.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -747,8 +698,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-equipment", {
-    name: "ddb-importer.character-update-policy-equipment.name",
-    hint: "ddb-importer.character-update-policy-equipment.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -756,8 +705,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-bio", {
-    name: "ddb-importer.character-update-policy-bio.name",
-    hint: "ddb-importer.character-update-policy-bio.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -771,22 +718,15 @@ export default function () {
     default: true,
   });
 
-  game.settings.register(
-    "ddb-importer",
-    "character-update-policy-inventory", // = consumable, tool & loot
-    {
-      name: "ddb-importer.character-update-policy-inventory.name",
-      hint: "ddb-importer.character-update-policy-inventory.hint",
-      scope: "player",
-      config: false,
-      type: Boolean,
-      default: true,
-    }
-  );
+  // = consumable, tool & loot
+  game.settings.register("ddb-importer", "character-update-policy-inventory", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
 
   game.settings.register("ddb-importer", "character-update-policy-currency", {
-    name: "ddb-importer.character-update-policy-currency.name",
-    hint: "ddb-importer.character-update-policy-currency.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -794,8 +734,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-spell", {
-    name: "ddb-importer.character-update-policy-spell.name",
-    hint: "ddb-importer.character-update-policy-spell.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -803,8 +741,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-image", {
-    name: "ddb-importer.character-update-policy-image.name",
-    hint: "ddb-importer.character-update-policy-image.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -812,8 +748,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-ddb-spell-icons", {
-    name: "ddb-importer.character-update-policy-use-ddb-spell-icons.name",
-    hint: "ddb-importer.character-update-policy-use-ddb-spell-icons.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -821,8 +755,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-ddb-generic-item-icons", {
-    name: "ddb-importer.character-update-policy-use-ddb-generic-item-icons.name",
-    hint: "ddb-importer.character-update-policy-use-ddb-generic-item-icons.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -830,8 +762,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-ddb-item-icons", {
-    name: "ddb-importer.character-update-policy-use-ddb-item-icons.name",
-    hint: "ddb-importer.character-update-policy-use-ddb-item-icons.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -839,8 +769,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-inbuilt-icons", {
-    name: "ddb-importer.character-update-policy-use-inbuilt-icons.name",
-    hint: "ddb-importer.character-update-policy-use-inbuilt-icons.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -848,8 +776,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-srd-icons", {
-    name: "ddb-importer.character-update-policy-use-srd-icons.name",
-    hint: "ddb-importer.character-update-policy-use-srd-icons.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -857,8 +783,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-full-description", {
-    name: "ddb-importer.character-update-policy-full-description.name",
-    hint: "ddb-importer.character-update-policy-full-description.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -866,8 +790,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-use-action-and-feature", {
-    name: "ddb-importer.character-update-policy-use-action-and-feature.name",
-    hint: "ddb-importer.character-update-policy-use-action-and-feature.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -882,8 +804,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-dae-copy", {
-    name: "ddb-importer.character-update-policy-dae-copy.name",
-    hint: "ddb-importer.character-update-policy-dae-copy.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -891,8 +811,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-dae-effect-copy", {
-    name: "ddb-importer.character-update-policy-dae-effect-copy.name",
-    hint: "ddb-importer.character-update-policy-dae-effect-copy.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -900,8 +818,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-active-effect-copy", {
-    name: "ddb-importer.character-update-policy-active-effect-copy.name",
-    hint: "ddb-importer.character-update-policy-active-effect-copy.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -909,8 +825,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "character-update-policy-active-effect-character-copy", {
-    name: "ddb-importer.character-update-policy-active-effect-character-copy.name",
-    hint: "ddb-importer.character-update-policy-active-effect-character-copy.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -919,8 +833,6 @@ export default function () {
 
   /** Munching update settings, stored per user and non-configurable in the settings screen */
   game.settings.register("ddb-importer", "munching-policy-update-existing", {
-    name: "ddb-importer.munching-policy-update-existing.name",
-    hint: "ddb-importer.munching-policy-update-existing.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -928,8 +840,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "munching-policy-use-srd", {
-    name: "ddb-importer.munching-policy-use-srd.name",
-    hint: "ddb-importer.munching-policy-use-srd.hint",
     scope: "player",
     config: false,
     type: Boolean,
@@ -1059,6 +969,14 @@ export default function () {
   game.settings.register("ddb-importer", "munching-policy-add-effects", {
     name: "ddb-importer.munching-policy-add-effects.name",
     hint: "ddb-importer.munching-policy-add-effects.hint",
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  /** Generate spell effects for munched spells? */
+  game.settings.register("ddb-importer", "munching-policy-add-spell-effects", {
     scope: "player",
     config: false,
     type: Boolean,

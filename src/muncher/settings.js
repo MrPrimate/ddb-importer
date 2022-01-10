@@ -4,12 +4,17 @@ import logger from "../logger.js";
 import { getPatreonTiers } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getSourcesLookups } from "./ddb.js";
+import { spellEffectModules } from "../effects/specialSpells.js";
 
 export function setRecommendedCharacterActiveEffectSettings(html) {
   $(html).find("#character-import-policy-dae-copy").prop("checked", false);
   game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
-  $(html).find("#character-import-policy-dae-effect-copy").prop("checked", true);
-  game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", true);
+  $(html).find("#character-import-policy-dae-effect-copy").prop("checked", !spellEffectModules().hasCore);
+  game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", !spellEffectModules().hasCore);
+  $(html).find("#character-import-policy-add-spell-effects").prop("checked", spellEffectModules().hasCore);
+  game.settings.set("ddb-importer", "character-update-policy-add-spell-effects", spellEffectModules().hasCore);
+  $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
+  game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", false);
   $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
   game.settings.set("ddb-importer", "character-update-policy-add-item-effects", true);
   $(html).find("#character-import-policy-add-character-effects").prop("checked", true);
@@ -31,6 +36,10 @@ export function setRecommendedCharacterActiveEffectSettings(html) {
     $(html).find(`#character-import-policy-effect-${type}-damages`).prop("checked", false);
     game.settings.set("ddb-importer", `character-update-policy-effect-${type}-damages`, false);
   });
+}
+
+function getInstalledIcon(name) {
+  return spellEffectModules()[name] ? "<i class='fas fa-check-circle' style='color: green'></i>" : "<i class='fas fa-times-circle' style='color: red'></i> ";
 }
 
 export function getCharacterImportSettings() {
@@ -92,10 +101,12 @@ export function getCharacterImportSettings() {
     },
   ];
 
-  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const spellEffectModulesAvailable = spellEffectModules();
+  const daeInstalled = spellEffectModulesAvailable.daeInstalled;
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
   const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
   const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
+  const spellEffectText = `Generate active effects for spells. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convinient Effects${getInstalledIcon("convinientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}`;
 
   // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
 
@@ -189,6 +200,13 @@ export function getCharacterImportSettings() {
       enabled: daeInstalled,
     },
     {
+      name: "add-spell-effects",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-add-spell-effects") && spellEffectModulesAvailable.hasCore,
+      title: "Generate Active Effects for Spells",
+      description: spellEffectText,
+      enabled: daeInstalled,
+    },
+    {
       name: "add-character-effects",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-add-character-effects") && daeInstalled,
       title: "Generate Active Effects for Character Features/Racial Traits/Feats/Backgrounds",
@@ -210,7 +228,7 @@ export function getCharacterImportSettings() {
       isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDContentAvailable,
       title: "Copy Active Effect from DAE Compendiums",
       description:
-        "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug.",
+        "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug. This will overwrite effects generated with the above options.",
       enabled: daeInstalled && daeSRDContentAvailable,
     },
     // {
@@ -574,7 +592,8 @@ export function getMuncherSettings(includeHomebrew = true) {
   const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
   const tier = game.settings.get("ddb-importer", "patreon-tier");
   const tiers = getPatreonTiers(tier);
-  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const spellEffectModulesAvailable = spellEffectModules();
+  const daeInstalled = spellEffectModulesAvailable.daeInstalled;
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
   const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
   const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
@@ -583,6 +602,8 @@ export function getMuncherSettings(includeHomebrew = true) {
   const compendiumFolderMonsterStyles = getCompendiumFolderLookups("monster");
   const compendiumFolderSpellStyles = getCompendiumFolderLookups("spell");
   const compendiumFolderItemStyles = getCompendiumFolderLookups("item");
+  const spellEffectText = `Create active effects. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convinient Effects${getInstalledIcon("convinientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}. Copying from MidiSRD will override these spells.`;
+
 
   const itemConfig = [
     {
@@ -600,13 +621,13 @@ export function getMuncherSettings(includeHomebrew = true) {
     {
       name: "add-effects",
       isChecked: game.settings.get("ddb-importer", "munching-policy-add-effects"),
-      description: "[Experimental] Dynamically generate DAE effects (equipment only). (Requires DAE)",
+      description: "Dynamically generate DAE effects (equipment only). (Requires DAE)",
       enabled: daeInstalled,
     },
     {
       name: "add-ac-armor-effects",
       isChecked: game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects"),
-      description: "[Experimental] Dynamically generate DAE AC effects on armor equipment. (Requires DAE)",
+      description: "[Caution] Dynamically generate DAE AC effects on armor equipment. (Requires DAE). Probably not required.",
       enabled: daeInstalled,
     },
   ];
@@ -617,6 +638,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       isChecked: game.settings.get("ddb-importer", "munching-policy-use-ddb-spell-icons"),
       description: "If no other icon, use the D&DBeyond spell school icon.",
       enabled: true,
+    },
+    {
+      name: "add-spell-effects",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-add-spell-effects"),
+      description: spellEffectText,
+      enabled: spellEffectModulesAvailable.hasCore,
     },
   ];
 
@@ -741,7 +768,7 @@ export function getMuncherSettings(includeHomebrew = true) {
     {
       name: "use-dae-effects",
       isChecked: game.settings.get("ddb-importer", "munching-policy-use-dae-effects"),
-      description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD or Midi content module)",
+      description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD or Midi content module). Will replace dynamically generated effects.",
       enabled: daeInstalled && daeSRDContentAvailable,
     },
     {
