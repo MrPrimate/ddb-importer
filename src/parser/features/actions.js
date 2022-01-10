@@ -2,7 +2,7 @@ import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
-import { fixFeatures, stripHtml, addFeatEffects } from "./special.js";
+import { fixFeatures, stripHtml, addFeatEffects, addExtraEffects } from "./special.js";
 import { getInfusionActionData } from "../inventory/infusions.js";
 
 function getResourceFlags(character, action, flags) {
@@ -642,7 +642,7 @@ function getOtherActions(ddb, character, items) {
   return actions;
 }
 
-export default function parseActions(ddb, character) {
+export default async function parseActions(ddb, character) {
   let actions = [
     // Get Attack Actions that we know about, typically natural attacks etc
     ...getAttackActions(ddb, character),
@@ -679,5 +679,6 @@ export default function parseActions(ddb, character) {
   });
 
   fixFeatures(actions);
-  return actions;
+  const results = await addExtraEffects(actions, character);
+  return results;
 }

@@ -4,6 +4,7 @@ import utils from "../../utils.js";
 import { generateEffects } from "../../effects/effects.js";
 import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { generateTable } from "../../muncher/table.js";
+import { generateExtraEffects } from "../../effects/specialFeats.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
   // console.warn(ddbItem);
@@ -78,23 +79,18 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
 export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
   // can we apply any effects to this feature
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
-  const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
   const compendiumItem = character.flags.ddbimporter.compendium;
   const addCharacterEffects = compendiumItem
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
-  const addACEffects = compendiumItem
-    ? game.settings.get("ddb-importer", "munching-policy-add-effects")
-    : game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects");
   const modifierItem = generateFeatModifiers(ddb, ddbItem, choice, type);
   if (daeInstalled && addCharacterEffects) {
     item = generateEffects(ddb, character, modifierItem, item, compendiumItem, "feat");
     // console.log(item);
   }
-  if ((daeInstalled && addACEffects) || AUTO_AC) {
-    item = generateBaseACItemEffect(ddb, character, modifierItem, item, compendiumItem);
-    // console.log(item);
-  }
+
+  item = generateBaseACItemEffect(ddb, character, modifierItem, item, compendiumItem);
+
   return item;
 }
 
@@ -195,6 +191,16 @@ export function fixFeatures(features) {
           long: null,
           units: "touch"
         };
+        break;
+      }
+      case "Dark One’s Blessing":
+      case "Dark One's Blessing": {
+        feature.data.damage = { parts: [["@classes.warlock.level + @mod", "temphp"]], versatile: "", value: "" };
+        feature.data.actionType = "heal";
+        feature.data.ability = "cha";
+        feature.data["target"]["type"] = "self";
+        feature.data["range"]["type"] = "self";
+        feature.data.activation.condition = "Reduce a hostile creature to 0 HP";
         break;
       }
       case "Stone's Endurance":
@@ -308,4 +314,22 @@ export function fixFeatures(features) {
     feature.data.description.value = tableDescription;
     feature.data.description.chat = tableDescription;
   });
+}
+
+
+export async function addExtraEffects(documents, character) {
+  const compendiumItem = character.flags.ddbimporter.compendium;
+  const addCharacterEffects = compendiumItem
+    ? game.settings.get("ddb-importer", "munching-policy-add-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
+
+  if (addCharacterEffects) {
+    const results = await Promise.all(documents.map((document) => {
+      return generateExtraEffects(document);
+    }));
+    return results;
+  } else {
+    return documents;
+  }
+
 }

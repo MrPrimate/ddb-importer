@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import parseTemplateString from "../templateStrings.js";
-import { fixFeatures, stripHtml, addFeatEffects } from "./special.js";
+import { fixFeatures, stripHtml, addFeatEffects, addExtraEffects } from "./special.js";
 import { getBackgroundData } from "../character/bio.js";
 
 function getDescription(ddb, character, feat) {
@@ -275,7 +275,7 @@ function parseClassFeatures(ddb, character) {
   return classItems;
 }
 
-export default function parseFeatures(ddb, character) {
+export default async function parseFeatures(ddb, character) {
   let items = [];
 
   const excludedOriginFeatures = ddb.character.optionalOrigins
@@ -354,7 +354,8 @@ export default function parseFeatures(ddb, character) {
 
   logger.debug("Feature fixes");
   fixFeatures(items);
+  const results = await addExtraEffects(items, character);
   // console.log("FEATURES");
-  // console.error("FEATURES",JSON.parse(JSON.stringify(items)));
-  return items;
+  // console.error("FEATURES",JSON.parse(JSON.stringify(results)));
+  return results;
 }

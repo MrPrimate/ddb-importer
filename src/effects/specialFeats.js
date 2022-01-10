@@ -1,5 +1,92 @@
 import { baseItemEffect } from "./effects.js";
 import utils from "../utils.js";
+import logger from "../logger.js";
+import { configureDependencies } from "./macros.js";
+import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
+
+export function baseFeatEffect(document, label) {
+  return {
+    label,
+    icon: document.img,
+    changes: [],
+    duration: {},
+    tint: "",
+    transfer: false,
+    disabled: false,
+    flags: {
+      dae: {
+        transfer: false,
+        stackable: false,
+      },
+      ddbimporter: {
+        disabled: false,
+      },
+    },
+  };
+}
+
+var installedModules;
+
+export function featEffectModules() {
+  if (installedModules) return installedModules;
+  const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
+  const advancedMacrosInstalled = utils.isModuleInstalledAndActive("advanced-macros");
+  const aboutTime = utils.isModuleInstalledAndActive("about-time");
+  const timesUp = utils.isModuleInstalledAndActive("about-time");
+  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const convinientEffectsInstalled = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
+
+  const activeAurasInstalled = utils.isModuleInstalledAndActive("ActiveAuras");
+  const atlInstalled = utils.isModuleInstalledAndActive("ATL");
+  const tokenAurasInstalled = utils.isModuleInstalledAndActive("token-auras");
+  const tokenMagicInstalled = utils.isModuleInstalledAndActive("tokenmagic");
+  const autoAnimationsInstalled = utils.isModuleInstalledAndActive("autoanimations");
+  installedModules = {
+    hasCore: midiQolInstalled && advancedMacrosInstalled && aboutTime && timesUp && daeInstalled && convinientEffectsInstalled,
+    midiQolInstalled,
+    advancedMacrosInstalled,
+    aboutTime,
+    timesUp,
+    daeInstalled,
+    convinientEffectsInstalled,
+    atlInstalled,
+    tokenAurasInstalled,
+    tokenMagicInstalled,
+    activeAurasInstalled,
+    autoAnimationsInstalled,
+  };
+  return installedModules;
+}
+
+var configured;
+/**
+ * These are effects that can't be generated dynamically and have extra requirements
+ */
+export async function generateExtraEffects(document) {
+  console.warn("HERE")
+  if (!document.effects) document.effects = [];
+
+  // check that we can gen effects
+  const deps = featEffectModules();
+  if (!deps.hasCore) {
+    logger.warn("Sorry, you're missing some required modules for spell effects. Please install them and try again.", deps);
+    return document;
+  }
+  if (!configured) {
+    configured = configureDependencies();
+  }
+
+  switch (document.name) {
+    case "Empty Body":
+    case "Ki: Empty Body": {
+      console.warn("Empty body");
+      document = await kiEmptyBodyEffect(document);
+      break;
+    }
+    // no default
+  }
+  return document;
+}
 
 /**
  * This function is mainly for effects that can't be dynamically generated
