@@ -1,97 +1,10 @@
-import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
+import { loadMacroFile, generateMacroChange, generateMacroFlags } from "../macros.js";
 
-export function eyebiteEffect(document) {
+export async function eyebiteEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   // MACRO START
-  const itemMacroText = `
-if (!game.modules.get("advanced-macros")?.active) {
-  ui.notifications.error("Please enable the Advanced Macros module");
-  return;
-}
-if (!game.modules.get("dfreds-convenient-effects")?.active) {
-  ui.notifications.error("Please enable the CE module");
-  return;
-}
-
-const lastArg = args[args.length - 1];
-const tokenOrActor = await fromUuid(lastArg.actorUuid);
-const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.data.save;
-
-function effectAppliedAndActive(conditionName) {
-  return targetActor.data.effects.some(
-    (activeEffect) =>
-      activeEffect?.data?.flags?.isConvenient &&
-      activeEffect?.data?.label == conditionName &&
-      !activeEffect?.data?.disabled
-  );
-}
-
-async function eyebite(type) {
-  for (let t of game.user.targets) {
-    const flavor = \`\${CONFIG.DND5E.abilities["wis"]} DC\${saveData.dc} \${DAEItem?.name || ""}\`;
-    const saveRoll = await targetActor.rollAbilitySave("wis", { flavor, fastFoward: true });
-    if (saveRoll.total < saveData.dc) {
-      ChatMessage.create({ content: \`\${t.name} failed the save with a \${saveRoll.total}\` });
-      switch (type) {
-        case "asleep":
-          game.dfreds.effectInterface.addEffect("Unconscious", t.actor.uuid);
-          break;
-        case "panicked":
-          game.dfreds.effectInterface.addEffect("Frightened", t.actor.uuid);
-          break;
-        case "sickened":
-          game.dfreds.effectInterface.addEffect("Poisoned", t.actor.uuid);
-          break;
-        // no default
-      }
-      DAE.setFlag(targetActor, "eyebiteSpell", type);
-    } else {
-      ChatMessage.create({ content: \`\${t.name} passed the save with a \${saveRoll.total}\` });
-    }
-  }
-}
-
-function eyebiteDialog() {
-  new Dialog({
-    title: "Eyebite options",
-    content: "<p>Target a token and select the effect</p>",
-    buttons: {
-      one: {
-        label: "Asleep",
-        callback: async () => await eyebite("Unconscious"),
-      },
-      two: {
-        label: "Panicked",
-        callback: async () => await eyebite("Frightened"),
-      },
-      three: {
-        label: "Sickened",
-        callback: async () => await eyebite("Poisoned"),
-      },
-    },
-  }).render(true);
-}
-
-if (args[0] === "on") {
-  eyebiteDialog();
-  ChatMessage.create({ content: \`\${targetActor.name} is blessed with Eyebite\` });
-}
-
-if (args[0] === "each") {
-  eyebiteDialog();
-}
-
-if (args[0] === "off") {
-  const flag = await DAE.getFlag(targetActor, "eyebiteSpell");
-  if (flag) {
-    if (effectAppliedAndActive(flag, targetActor)) game.dfreds.effectInterface.removeEffect(flag, targetActor.uuid);
-    await DAE.unsetFlag(targetActor, "eyebiteSpell");
-  }
-}
-
-`;
+  const itemMacroText = await loadMacroFile("spell", "eyebite.js");
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.flags.dae.macroRepeat = "startEveryTurn";

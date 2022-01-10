@@ -101,7 +101,10 @@ export function parseSpell(data, character) {
     };
   }
 
-  const addSpellEffects = true;
+  const isGeneric = getProperty(data, "flags.ddbimporter.generic");
+  const addSpellEffects = isGeneric
+    ? game.settings.get("ddb-importer", "munching-policy-add-spell-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
   if (addSpellEffects) {
     spellEffectAdjustment(spell);
     setProperty(spell, "flags.ddbimporter.effectsApplied", true);

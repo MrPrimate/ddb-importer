@@ -85,6 +85,12 @@ import { webEffect } from "./spells/web.js";
 
 import utils from "../utils.js";
 import logger from "../logger.js";
+import {
+  generateStatusEffectChange as baseGenerateStatusEffectChange,
+  generateTokenMagicFXChange as baseGenerateTokenMagicFXChange,
+  generateATLChange as baseGenerateATLChange,
+} from "./effects.js";
+import { configureDependencies } from "./macros.js";
 
 var installedModules;
 
@@ -141,110 +147,25 @@ export function baseSpellEffect(document, label) {
 }
 
 export function generateStatusEffectChange(statusName, priority = 20) {
-  return {
-    key: "macro.CE",
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    value: statusName,
-    priority: priority,
-  };
-}
-
-export function generateMacroChange(macroValues, priority = 20) {
-  return {
-    key: "macro.itemMacro",
-    value: macroValues,
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    priority: priority,
-  };
+  return baseGenerateStatusEffectChange(statusName, priority);
 }
 
 export function generateTokenMagicFXChange(macroValue, priority = 20) {
-  return {
-    key: 'macro.tokenMagic',
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    value: macroValue,
-    priority: priority,
-  };
+  return baseGenerateTokenMagicFXChange(macroValue, priority);
 }
 
 export function generateATLChange(atlKey, mode, value, priority = 20) {
-  let key = atlKey;
-  const version = (game.version ?? game.data.version);
-  const v9 = utils.versionCompare(version, "9.0") >= 0;
-
-  if (v9) {
-    switch (atlKey) {
-      case 'ATL.dimLight':
-        key = 'ATL.light.dim';
-        break;
-      case 'ATL.brightLight':
-        key = 'ATL.light.bright';
-        break;
-      case 'ATL.lightAnimation':
-        key = 'ATL.light.animation';
-        break;
-      case 'ATL.lightColor':
-        key = 'ATL.light.color';
-        break;
-      case 'ATL.lightAlpha':
-        key = 'ATL.light.alpha';
-        break;
-      case 'ATL.lightAngle':
-        key = 'ATL.light.angle';
-        break;
-      // no default
-    }
-  }
-  return {
-    key,
-    mode,
-    value,
-    priority,
-  };
-}
-
-export function generateMacroFlags(document, macroText) {
-  return {
-    macro: {
-      data: {
-        name: document.name,
-        type: "script",
-        scope: "global",
-        command: macroText,
-      },
-      options: {},
-      apps: {},
-      compendium: null,
-    },
-  };
+  return baseGenerateATLChange(atlKey, mode, value, priority);
 }
 
 var configured = false;
-
-function configureDependencies() {
-  // allow item use macros on items
-  let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
-  if (!midiQOLSettings.allowUseMacro) {
-    midiQOLSettings.allowUseMacro = true;
-    game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
-  }
-
-  // if dfreds status effects not added, add them
-  let convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
-  if (!convenientEffectStatusSettings || convenientEffectStatusSettings === "none") {
-    game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
-  }
-
-  configured = true;
-}
-
 
 /**
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
  */
 // eslint-disable-next-line complexity
-export function spellEffectAdjustment(document) {
+export async function spellEffectAdjustment(document) {
   if (!document.effects) document.effects = [];
 
   // check that we can gen effects
@@ -253,7 +174,9 @@ export function spellEffectAdjustment(document) {
     logger.warn("Sorry, you're missing some required modules for spell effects. Please install them and try again.", deps);
     return document;
   }
-  if (!configured) configureDependencies();
+  if (!configured) {
+    configured = configureDependencies();
+  }
 
   switch (document.name) {
     case "Absorb Elements": {
@@ -261,7 +184,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Aid": {
-      document = aidEffect(document);
+      document = await aidEffect(document);
       break;
     }
     case "Alter Self": {
@@ -274,7 +197,7 @@ export function spellEffectAdjustment(document) {
     }
     case "Mordenkainen's Sword":
     case "Arcane Sword": {
-      document = arcaneSwordEffect(document);
+      document = await arcaneSwordEffect(document);
       break;
     }
     case "Bane": {
@@ -282,7 +205,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Banishment": {
-      document = banishmentEffect(document);
+      document = await banishmentEffect(document);
       break;
     }
     case "Barkskin": {
@@ -306,11 +229,11 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Blindness/Deafness": {
-      document = blindnessDeafnessEffect(document);
+      document = await blindnessDeafnessEffect(document);
       break;
     }
     case "Call Lightning": {
-      document = callLightningEffect(document);
+      document = await callLightningEffect(document);
       break;
     }
     case "Charm Person": {
@@ -326,19 +249,19 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Confusion": {
-      document = confusionEffect(document);
+      document = await confusionEffect(document);
       break;
     }
     case "Contagion": {
-      document = contagionEffect(document);
+      document = await contagionEffect(document);
       break;
     }
     case "Darkness": {
-      document = darknessEffect(document);
+      document = await darknessEffect(document);
       break;
     }
     case "Darkvision": {
-      document = darkvisionEffect(document);
+      document = await darkvisionEffect(document);
       break;
     }
     case "Divine Favor": {
@@ -346,7 +269,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Divine Word": {
-      document = divineWordEffect(document);
+      document = await divineWordEffect(document);
       break;
     }
     case "Dominate Beast": {
@@ -362,11 +285,11 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Enhance Ability": {
-      document = enhanceAbilityEffect(document);
+      document = await enhanceAbilityEffect(document);
       break;
     }
     case "Enlarge/Reduce": {
-      document = enlargeReduceEffect(document);
+      document = await enlargeReduceEffect(document);
       break;
     }
     case "Entangle": {
@@ -374,7 +297,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Eyebite": {
-      document = eyebiteEffect(document);
+      document = await eyebiteEffect(document);
       break;
     }
     case "Faerie Fire": {
@@ -390,15 +313,15 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Fire Shield": {
-      document = fireShieldEffect(document);
+      document = await fireShieldEffect(document);
       break;
     }
     case "Flame Blade": {
-      document = flameBladeEffect(document);
+      document = await flameBladeEffect(document);
       break;
     }
     case "Flesh to Stone": {
-      document = fleshtoStoneEffect(document);
+      document = await fleshtoStoneEffect(document);
       break;
     }
     case "Fly": {
@@ -414,7 +337,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Greater Invisibility": {
-      document = greaterInvisibilityEffect(document);
+      document = await greaterInvisibilityEffect(document);
       break;
     }
     case "Guidance": {
@@ -430,16 +353,16 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Heroes' Feast": {
-      document = heroesFeastEffect(document);
+      document = await heroesFeastEffect(document);
       break;
     }
     case "Heroism": {
-      document = heroismEffect(document);
+      document = await heroismEffect(document);
       break;
     }
     case "Tasha's Hideous Laughter":
     case "Hideous Laughter": {
-      document = hideousLaughterEffect(document);
+      document = await hideousLaughterEffect(document);
       break;
     }
     case "Hold Monster": {
@@ -455,7 +378,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Hunter's Mark": {
-      document = huntersMarkEffect(document);
+      document = await huntersMarkEffect(document);
       break;
     }
     case "Hypnotic Pattern": {
@@ -463,12 +386,12 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Invisibility": {
-      document = invisibilityEffect(document);
+      document = await invisibilityEffect(document);
       break;
     }
     case "Otto's Irresistible Dance":
     case "Irresistible Dance": {
-      document = irresistibleDanceEffect(document);
+      document = await irresistibleDanceEffect(document);
       break;
     }
     case "Light": {
@@ -484,7 +407,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Magic Weapon": {
-      document = magicWeaponEffect(document);
+      document = await magicWeaponEffect(document);
       break;
     }
     case "Mass Suggestion": {
@@ -500,11 +423,11 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Misty Step": {
-      document = mistyStepEffect(document);
+      document = await mistyStepEffect(document);
       break;
     }
     case "Moonbeam": {
-      document = moonbeamEffect(document);
+      document = await moonbeamEffect(document);
       break;
     }
     case "Pass Without Trace": {
@@ -516,7 +439,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Protection from Energy": {
-      document = protectionfromEnergyEffect(document);
+      document = await protectionfromEnergyEffect(document);
       break;
     }
     case "Protection from Poison": {
@@ -524,7 +447,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Ray of Enfeeblement": {
-      document = rayofEnfeeblementEffect(document);
+      document = await rayofEnfeeblementEffect(document);
       break;
     }
     case "Ray of Frost": {
@@ -553,7 +476,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Shillelagh": {
-      document = shillelaghEffect(document);
+      document = await shillelaghEffect(document);
       break;
     }
     case "Slow": {
@@ -565,11 +488,11 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Spirit Guardians": {
-      document = spiritGuardiansEffect(document);
+      document = await spiritGuardiansEffect(document);
       break;
     }
     case "Spiritual Weapon": {
-      document = spiritualWeaponEffect(document);
+      document = await spiritualWeaponEffect(document);
       break;
     }
     case "Stoneskin": {
@@ -589,7 +512,7 @@ export function spellEffectAdjustment(document) {
       break;
     }
     case "Warding Bond": {
-      document = wardingBondEffect(document);
+      document = await wardingBondEffect(document);
       break;
     }
     case "Web": {

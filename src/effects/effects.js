@@ -283,6 +283,61 @@ export function generateBaseSkillEffect(id, label) {
   return skillEffect;
 }
 
+
+export function generateStatusEffectChange(statusName, priority = 20) {
+  return {
+    key: "macro.CE",
+    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    value: statusName,
+    priority: priority,
+  };
+}
+
+export function generateTokenMagicFXChange(macroValue, priority = 20) {
+  return {
+    key: 'macro.tokenMagic',
+    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    value: macroValue,
+    priority: priority,
+  };
+}
+
+export function generateATLChange(atlKey, mode, value, priority = 20) {
+  let key = atlKey;
+  const version = (game.version ?? game.data.version);
+  const v9 = utils.versionCompare(version, "9.0") >= 0;
+
+  if (v9) {
+    switch (atlKey) {
+      case 'ATL.dimLight':
+        key = 'ATL.light.dim';
+        break;
+      case 'ATL.brightLight':
+        key = 'ATL.light.bright';
+        break;
+      case 'ATL.lightAnimation':
+        key = 'ATL.light.animation';
+        break;
+      case 'ATL.lightColor':
+        key = 'ATL.light.color';
+        break;
+      case 'ATL.lightAlpha':
+        key = 'ATL.light.alpha';
+        break;
+      case 'ATL.lightAngle':
+        key = 'ATL.light.angle';
+        break;
+      // no default
+    }
+  }
+  return {
+    key,
+    mode,
+    value,
+    priority,
+  };
+}
+
 export function generateChange(bonus, priority, key, mode) {
   return {
     key: key,

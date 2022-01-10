@@ -1,6 +1,7 @@
-import { baseSpellEffect, generateMacroChange, generateMacroFlags } from "../specialSpells.js";
+import { loadMacroFile, generateMacroChange, generateMacroFlags } from "../macros.js";
+import { baseSpellEffect } from "../specialSpells.js";
 
-export function aidEffect(document) {
+export async function aidEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
     key: "data.attributes.hp.max",
@@ -9,21 +10,7 @@ export function aidEffect(document) {
     priority: 20,
   });
   // MACRO START
-  const itemMacroText = `
-const lastArg = args[args.length - 1];
-const tokenOrActor = await fromUuid(lastArg.actorUuid);
-const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-
-let buf = (parseInt(args[1])-1) * 5;
-let curHP = target.data.data.attributes.hp.value;
-let curMax = target.data.data.attributes.hp.max;
-
-if (args[0] === "on") {
-  target.update({"data.attributes.hp.value": curHP+buf});
-} else if (curHP > curMax) {
-  target.update({"data.attributes.hp.value": curMax});
-}
-`;
+  const itemMacroText = await loadMacroFile("spell", "aid.js");
   // MACRO STOP
   document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
   effect.changes.push(generateMacroChange("@spellLevel", 0));
