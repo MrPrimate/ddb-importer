@@ -1,4 +1,4 @@
-# 2.7.8
+# 2.8.1
 
 * Effects: A lot of spells will now generate effects, pre-reqs required.
 * False Life will now roll correct hp as it scales.
