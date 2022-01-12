@@ -476,6 +476,7 @@ const utils = {
             result.componentTypeId = choice.componentTypeId;
             result.choiceId = choice.id;
             result.parentChoiceId = choice.parentChoiceId;
+            result.subType = choice.subType;
             // console.log(result);
             return result;
           });

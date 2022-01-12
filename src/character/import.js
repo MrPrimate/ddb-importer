@@ -359,8 +359,7 @@ export default class CharacterImport extends FormApplication {
         items.filter(
           (item) =>
             !itemsToRemove.some((originalItem) => {
-              const originalNameFlag = ((originalItem.flags || {}).ddbimporter || {}).originalItemName;
-              const originalNameMatch = originalNameFlag
+              const originalNameMatch = originalItem.flags?.ddbimporter?.originalItemName
                 ? originalItem.flags.ddbimporter.originalItemName === item.name
                 : false;
               const nameMatch = item.name === originalItem.name || originalNameMatch;
@@ -834,11 +833,18 @@ export default class CharacterImport extends FormApplication {
 
       await items.forEach((item) => {
         let matchedItem = ownedItems.find(
-          (owned) =>
-            item.name === owned.data.name &&
+          (owned) => {
+            const simpleMatch = item.name === owned.data.name &&
             item.type === owned.data.type &&
-            item.flags?.ddbimporter?.id === owned.data.flags?.ddbimporter?.id
-        );
+            item.flags?.ddbimporter?.id === owned.data.flags?.ddbimporter?.id;
+            const isChoice = hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId") &&
+              hasProperty(owned, "data.flags.ddbimporter.dndbeyond.choice.choiceId");
+            const choiceMatch = isChoice
+              ? item.flags.ddbimporter.dndbeyond.choice.choiceId === owned.data.flags.ddbimporter.dndbeyond.choice.choiceId
+              : true;
+
+            return simpleMatch && choiceMatch;
+          });
         if (matchedItem) {
           if (!matchedItem.data.flags.ddbimporter?.ignoreItemImport) {
             item["_id"] = matchedItem["id"];

@@ -1,3 +1,8 @@
+# 2.8.2
+
+* Spell effects: tweaks.
+* Skill Expert Feat could bomb out character updates if the skill chosen to be expert in had also been gained as a proficiency with Skill Expert.
+
 # 2.8.1
 
 * Effects: A lot of spells will now generate effects, pre-reqs required.

@@ -120,6 +120,14 @@ function parseFeature(feat, ddb, character, source, type) {
       }
       choiceItem.data.description = getDescription(ddb, character, choiceFeat);
       choiceItem.data.source = source;
+      choiceItem.flags.ddbimporter.dndbeyond.choice = {
+        label: choice.label,
+        choiceId: choice.choiceId,
+        componentId: choice.componentId,
+        componentTypeId: choice.componentTypeId,
+        parentChoiceId: choice.parentChoiceId,
+        subType: choice.subType,
+      };
 
       choiceItem = addFeatEffects(ddb, character, feat, choiceItem, choice, type);
       features.push(choiceItem);
