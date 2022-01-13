@@ -1,6 +1,7 @@
 # 2.8.3
 
 * Some badly formatted actions on homebrew actions could break monster import. Import should now continue without bombing out.
+* Character import: option to ignore items/spells/features etc added to foundry character sheet during import. Will still remove items removed from D&D Beyond.
 
 # 2.8.2
 

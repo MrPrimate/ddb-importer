@@ -161,6 +161,13 @@ export function getCharacterImportSettings() {
         "[CAUTION] If a feature is marked as an action, import both the action and the feature. This might lead to some weird behaviour.",
       enabled: true,
     },
+    {
+      name: "ignore-non-ddb-items",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-ignore-non-ddb-items"),
+      description:
+        "Ignore items on character sheet that have not been imported from D&D Beyond. This will remove items that have been removed from the DDB character since the last import, but will keep items added to the character within Foundry.",
+      enabled: true,
+    },
   ];
 
   const advancedImportConfig = [

@@ -849,6 +849,7 @@ async function updateFolderItems(type, input, update = true) {
 }
 
 export function updateCharacterItemFlags(itemData, replaceData) {
+  if (itemData.flags?.ddbimporter?.importId) setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
   if (itemData.data.quantity) replaceData.data.quantity = itemData.data.quantity;
   if (itemData.data.attuned) replaceData.data.attuned = itemData.data.attuned;
   if (itemData.data.attunement) replaceData.data.attunement = itemData.data.attunement;
