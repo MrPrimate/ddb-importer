@@ -384,9 +384,6 @@ export default class CharacterImport extends FormApplication {
    */
   async clearItemsByUserSelection(excludedList = []) {
     const includedItems = getCharacterUpdatePolicyTypes();
-
-    console.warn(this.nonMatchedItemIds);
-
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("Item");
     const toRemove = ownedItems
@@ -1103,7 +1100,6 @@ export default class CharacterImport extends FormApplication {
     this.importId = randomID();
     setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
     await this.addImportIdToItems();
-    console.warn(this.result);
 
     logger.debug("Current Actor:", this.actorOriginal);
 
