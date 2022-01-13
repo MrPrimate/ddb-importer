@@ -253,7 +253,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
     let switchAction = dynamicActions.find((act) => nodeName === act.name || longNodeName === act.name);
 
     if (!switchAction) {
-      switchAction = dynamicActions.find((act) => node.textContent.startsWith(act.flags.monsterMunch.fullName));
+      switchAction = dynamicActions.find((act) => act.flags?.monsterMunch?.fullName && node.textContent.startsWith(act.flags.monsterMunch.fullName));
     }
     // console.warn(nodeName);
     // console.warn(longNodeName);

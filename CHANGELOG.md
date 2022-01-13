@@ -1,3 +1,7 @@
+# 2.8.3
+
+* Some badly formatted actions on homebrew actions could break monster import. Import should now continue without bombing out.
+
 # 2.8.2
 
 * Spell effects: tweaks.

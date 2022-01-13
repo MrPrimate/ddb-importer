@@ -116,3 +116,33 @@ for (let [key, value] of actors.entries()) {
   }
 }
 ```
+
+## My Homebrew doesn't import!
+
+You need to try and match the style and html formatting of official monsters.
+
+A short primer:
+
+* each action MUST be in a `<p>` tag.
+* action title MUST be in a `<strong>` tag. It MUST end with a full stop/period `.`.
+
+Wording Examples:
+
+_You can use the regex links to check your syntax_
+
+* Action type MUST include the following wording: `as a action|as an action|as a reaction`
+* Uses are determined `per x` and must match `x day`.
+* Attack actions need to match the following regex: [`/(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/`](https://regexr.com/6d7kk)
+* Damage must match the following regex [`/([\w]* )(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of)?/`](https://regexr.com/6d7iu)
+* Regaining/healing actions must match the following regex: [`/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/`](https://regexr.com/6d7i6)
+* saving throws must match the following regex: [/DC ([0-9]+) (.*?) saving throw/](https://regexr.com/6d7j4)
+* recharge abilities must match the following regex: [/\(recharge ([0-9–-–−]+)\)/](https://regexr.com/6d7ja)
+* activation costs must match the following regex: [/\(costs ([0-9]+) actions\)/](https://regexr.com/6d7jj)
+* reach must match the following regex: [/reach\s*(\s*\d+\s*)\s*ft/](https://regexr.com/6d7jv)
+* range must match one of the following regexes:
+  * `/range\s*(\d+)\s*\s*\/\s*(\d+)\s*\s*ft/`
+  * `/range\s*(\d+)\s*ft[.]*\s*\s*\/\s*(\d+)\s*\s*ft/`
+  * `/range\s*(\d+)\s*\s*ft/`
+  * `/reach\s*(\d+)\s*\s*ft/`.
+
+[`utils.js`](https://github.com/MrPrimate/ddb-importer/blob/master/src/muncher/monster/utils.js) is where most of the guts of this is parsed.
