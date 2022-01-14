@@ -896,7 +896,7 @@ export default class CharacterImport extends FormApplication {
     }
   }
 
-  async processCharacterItems(html) {
+  async fetchCharacterItems(html) {
     const magicItemsInstalled = utils.isModuleInstalledAndActive("magicitems");
     // items for actor
     let items = [];
@@ -933,7 +933,10 @@ export default class CharacterImport extends FormApplication {
       );
       items = items.flat();
     }
+    return items;
+  }
 
+  async processCharacterItems(html, items) {
     let compendiumItems = [];
     let srdCompendiumItems = [];
     let overrideCompendiumItems = [];
@@ -1018,7 +1021,9 @@ export default class CharacterImport extends FormApplication {
         (item) =>
           item.effects &&
           item.effects.length > 0 &&
-          (item.flags.ddbimporter?.ignoreItemImport || excludedItems.some((ei) => ei._id === item._id))
+          (item.flags.ddbimporter?.ignoreItemImport ||
+            excludedItems.some((ei) => ei._id === item._id) ||
+            this.nonMatchedItemIds.includes(item._id))
       )
       .map((item) => item._id);
 
@@ -1111,6 +1116,7 @@ export default class CharacterImport extends FormApplication {
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
     this.fixUpCharacterEffects(this.result.character);
+    let items = await this.fetchCharacterItems(html);
     await this.removeActiveEffects(activeEffectCopy);
 
     // update image
@@ -1176,7 +1182,7 @@ export default class CharacterImport extends FormApplication {
     this.copyExistingJournalNotes();
 
     // items import
-    await this.processCharacterItems(html);
+    await this.processCharacterItems(html, items);
 
     if (activeEffectCopy) {
       // find effects with a matching name that existed on previous actor
