@@ -79,6 +79,7 @@ import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
 import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stoneskinEffect } from "./spells/stoneskin.js";
 import { sunbeamEffect } from "./spells/sunbeam.js";
+import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { trueStrikeEffect } from "./spells/trueStrike.js";
 import { viciousMockeryEffect } from "./spells/viciousMockery.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
@@ -509,6 +510,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Sunbeam": {
       document = sunbeamEffect(document);
+      break;
+    }
+    case "Toll the Dead": {
+      document = await tolltheDeadEffect(document);
       break;
     }
     case "True Strike": {
