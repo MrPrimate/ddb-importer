@@ -2,6 +2,7 @@
 
 * Character import: ignored items now retain effects.
 * Official spells with custom names would not pick up effects, or update status back to DDB.
+* Spell Effect: Toll the Dead.
 
 # 2.8.3
 
