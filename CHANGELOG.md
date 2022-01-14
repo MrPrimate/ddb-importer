@@ -1,3 +1,7 @@
+# 2.8.4
+
+* Character import: ignored items now retain effects.
+
 # 2.8.3
 
 * Some badly formatted actions on homebrew actions could break monster import. Import should now continue without bombing out.
