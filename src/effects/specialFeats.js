@@ -77,7 +77,8 @@ export async function generateExtraEffects(document) {
     configured = configureDependencies();
   }
 
-  switch (document.name) {
+  const name = document.flags.ddbimporter.originalName || document.name;
+  switch (name) {
     case "Empty Body":
     case "Ki: Empty Body": {
       document = await kiEmptyBodyEffect(document);

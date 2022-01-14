@@ -6,7 +6,6 @@ import { fixSpells } from "./special.js";
 import { parseSpell } from "./parseSpell.js";
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import logger from "../../logger.js";
-import { getName } from "./name.js";
 
 export function getCharacterSpells(ddb, character) {
   let items = [];
@@ -60,8 +59,6 @@ export function getCharacterSpells(ddb, character) {
           },
         }
       };
-
-      spell.definition.name = getName(spell, character);
 
       // Check for duplicate spells, normally domain ones
       // We will import spells from a different class that are the same though
@@ -141,8 +138,6 @@ export function getCharacterSpells(ddb, character) {
       },
     };
 
-    spell.definition.name = getName(spell, character);
-
     // Check for duplicate spells, normally domain ones
     // We will import spells from a different class that are the same though
     // as they may come from with different spell casting mods
@@ -209,8 +204,6 @@ export function getCharacterSpells(ddb, character) {
       },
     };
 
-    spell.definition.name = getName(spell, character);
-
     items.push(parseSpell(spell, character));
   });
 
@@ -256,8 +249,6 @@ export function getCharacterSpells(ddb, character) {
         },
       },
     };
-
-    spell.definition.name = getName(spell, character);
 
     items.push(parseSpell(spell, character));
   });

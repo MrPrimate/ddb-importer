@@ -11,7 +11,8 @@ import {
  * @param {*} document
  */
 export function equipmentEffectAdjustment(document) {
-  switch (document.name) {
+  const name = document.flags.ddbimporter.originalName || document.name;
+  switch (name) {
     case "Armor of Invulnerability": {
       // this effect is 1/day, we have to add it
       let effect = baseItemEffect(document, `${document.name} - Invulnerability`);

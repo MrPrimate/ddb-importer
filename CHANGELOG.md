@@ -1,6 +1,7 @@
 # 2.8.4
 
 * Character import: ignored items now retain effects.
+* Official spells with custom names would not pick up effects, or update status back to DDB.
 
 # 2.8.3
 

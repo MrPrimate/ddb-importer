@@ -134,7 +134,8 @@ export function stripHtml(html) {
 export function fixFeatures(features) {
   // eslint-disable-next-line complexity
   features.forEach((feature) => {
-    switch (feature.name) {
+    const name = feature.flags.ddbimporter.originalName || feature.name;
+    switch (name) {
       case "Channel Divinity: Radiance of the Dawn":
         feature.data.damage = {
           parts: [["2d10[radiant] + @classes.cleric.levels", "radiant"]],

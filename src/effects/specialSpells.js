@@ -181,7 +181,8 @@ export async function spellEffectAdjustment(document) {
     configured = configureDependencies();
   }
 
-  switch (document.name) {
+  const name = document.flags.ddbimporter.originalName || document.name;
+  switch (name) {
     case "Absorb Elements": {
       document = absorbElementsEffect(document);
       break;

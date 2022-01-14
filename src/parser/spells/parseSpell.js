@@ -15,19 +15,20 @@ import { getSave } from "./save.js";
 import { getSpellScaling } from "./scaling.js";
 import { generateTable } from "../../muncher/table.js";
 import { spellEffectAdjustment } from "../../effects/specialSpells.js";
+import { getName } from "./name.js";
 
 export function parseSpell(data, character) {
   let spell = {
     type: "spell",
     data: JSON.parse(utils.getTemplate("spell")),
-    name: data.definition.name.replace(/’/g, "'"),
+    name: getName(data, character),
     flags: {
       ddbimporter: {
         id: data.id,
         definitionId: data.definition.id,
         entityTypeId: data.entityTypeId,
         dndbeyond: data.flags.ddbimporter.dndbeyond,
-        originalName: data.name,
+        originalName: data.definition.name.replace(/’/g, "'"),
         sources: data.definition.sources,
         tags: data.definition.tags,
         version: CONFIG.DDBI.version,

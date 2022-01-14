@@ -90,7 +90,8 @@ function addCustomValues(item, ddb) {
 export function fixSpells(ddb, items) {
   const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
   items.forEach((spell) => {
-    switch (spell.name) {
+    const name = spell.flags.ddbimporter.originalName || spell.name;
+    switch (name) {
       // Eldritch Blast is a special little kitten and has some fun Eldritch
       // Invocations which can adjust it.
       case "Eldritch Blast": {
