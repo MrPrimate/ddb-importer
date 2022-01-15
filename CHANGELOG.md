@@ -1,6 +1,6 @@
 # 2.8.6
 
-* Spell Effects: Toll the Dead did not load macro, Crown of Stars macro, Chill Touch.
+* Spell Effects: Toll the Dead did not load macro, Crown of Stars macro, Chill Touch. Guiding Bolt special expiry and duration corrected. Moonbeam tweaked. Spiritual Weapon tweaked.
 * Some changes to spell parsing to support custom named spells broke magic item integration.
 
 # 2.8.5

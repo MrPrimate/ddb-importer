@@ -8,6 +8,15 @@ export function guidingBoltEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: 20,
   });
+  effect.flags.dae.specialDuration = "isAttacked";
+  effect.duration = {
+    startTime: null,
+    seconds: null,
+    rounds: 1,
+    turns: 1,
+    startRound: null,
+    startTurn: null,
+  };
   document.effects.push(effect);
 
   return document;

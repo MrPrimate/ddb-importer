@@ -20,7 +20,7 @@ async function deleteTemplates(actorId) {
 if (args[0] === "on") {
   const tokenFromUuid  = await fromUuid(lastArg.tokenUuid);
   const casterToken = tokenFromUuid.data || token;
-  const DAEitem = lastArg.efData.flags.dae.itemData;
+  const DAEItem = lastArg.efData.flags.dae.itemData;
   // draw range template
   await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [
     {
@@ -52,7 +52,7 @@ if (args[0] === "on") {
       },
     },
     fillColor: game.user.color,
-    texture: DAEitem.img,
+    texture: DAEItem.img,
   };
   Hooks.once("createMeasuredTemplate", () => deleteTemplates(targetActor.id));
   const doc = new CONFIG.MeasuredTemplate.documentClass(templateData, { parent: canvas.scene });
@@ -70,8 +70,8 @@ if (args[0] === "on") {
         activation: { type: "action", cost: 1, condition: "", },
         target: { value: 1, type: "creature", },
         range: { value: 5, long: null, units: "", },
-        ability: DAEitem.data.ability,
-        attackBonus: DAEitem.data.attackBonus,
+        ability: DAEItem.data.ability,
+        attackBonus: DAEItem.data.attackBonus,
         actionType: "msak",
         chatFlavor: "",
         critical: null,
@@ -80,7 +80,7 @@ if (args[0] === "on") {
         proficient: true,
       },
       flags: { ArcaneSword: targetActor.id },
-      img: DAEitem.img,
+      img: DAEItem.img,
     };
 
     await targetActor.createEmbeddedDocuments("Item", [weaponData]);

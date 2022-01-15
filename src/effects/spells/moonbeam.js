@@ -14,6 +14,7 @@ export async function moonbeamEffect(document) {
   document.data['target']['type'] = "self";
   document.data.range = { value: null, units: "self", long: null };
   document.data.actionType = "other";
+  document.data.save.ability = "";
 
   return document;
 }

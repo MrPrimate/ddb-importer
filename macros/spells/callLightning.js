@@ -54,7 +54,7 @@ if (args[0] === "on") {
         preparation: { mode: "prepared", prepared: false, },
         scaling: { mode: "none", formula: "", },
       },
-      img: "systems/dnd5e/icons/spells/lighting-sky-2.jpg",
+      img: DAEItem.img,
       effects: [],
     };
     await targetActor.createEmbeddedDocuments("Item", [spell]);

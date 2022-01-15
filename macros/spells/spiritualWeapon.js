@@ -5,7 +5,8 @@ if (!game.modules.get("advanced-macros")?.active) {
 const lastArg = args[args.length - 1];
 const castItemName = "Summoned Spiritual Weapon";
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
-const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+
 
 async function deleteTemplates(actorId) {
   let removeTemplates = canvas.templates.placeables.filter(
@@ -19,7 +20,7 @@ async function deleteTemplates(actorId) {
  */
 if (args[0] === "on") {
   const tokenFromUuid  = await fromUuid(lastArg.tokenUuid);
-  const casterToken = tokenFromUuid.data || token;
+  const targetToken = tokenFromUuid.data || token;
   const DAEItem = lastArg.efData.flags.dae.itemData;
   const damage = Math.floor(Math.floor(args[1]/ 2));
   // draw range template
@@ -27,14 +28,14 @@ if (args[0] === "on") {
     {
       t: "circle",
       user: game.user._id,
-      x: casterToken.x + canvas.grid.size / 2,
-      y: casterToken.y + canvas.grid.size / 2,
+      x: targetToken.x + canvas.grid.size / 2,
+      y: targetToken.y + canvas.grid.size / 2,
       direction: 0,
       distance: 60,
       borderColor: "#FF0000",
       flags: {
         SpiritualWeaponRange: {
-          ActorId: targetToken.id,
+          ActorId: targetActor.id,
         },
       },
     },
@@ -49,19 +50,19 @@ if (args[0] === "on") {
     y: 0,
     flags: {
       SpiritualWeapon: {
-        ActorId: targetToken.id,
+        ActorId: targetActor.id,
       },
     },
     fillColor: game.user.color,
     texture: DAEItem.img,
   };
-  Hooks.once("createMeasuredTemplate", () => deleteTemplates(targetToken.id));
+  Hooks.once("createMeasuredTemplate", () => deleteTemplates(targetActor.id));
   const doc = new CONFIG.MeasuredTemplate.documentClass(templateData, { parent: canvas.scene });
   let template = new game.dnd5e.canvas.AbilityTemplate(doc);
-  template.actorSheet = targetToken.sheet;
+  template.actorSheet = targetActor.sheet;
   template.drawPreview();
 
-  const castItem = targetToken.data.items.find((i) => i.name === castItemName && i.type === "weapon");
+  const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "weapon");
   if (!castItem) {
     const weaponData = {
       name: castItemName,
@@ -80,19 +81,19 @@ if (args[0] === "on") {
         weaponType: "simpleM",
         proficient: true,
       },
-      flags: { SpiritualWeapon: targetToken.id },
+      flags: { SpiritualWeapon: targetActor.id },
       img: DAEItem.img,
     };
 
-    await targetToken.createEmbeddedDocuments("Item", [weaponData]);
+    await targetActor.createEmbeddedDocuments("Item", [weaponData]);
     ui.notifications.notify("Weapon created in your inventory");
   }
 }
 
 // Delete Spiritual Weapon
 if (args[0] === "off") {
-  let swords = targetToken.data.items.filter((i) => i.data.flags?.SpiritualWeapon === targetToken.id);
-  if (swords.length > 0) await targetToken.deleteEmbeddedDocuments("Item", swords.map((s) => s.id));
-  const templates = canvas.templates.placeables.filter((i) => i.data.flags?.SpiritualWeapon?.ActorId === targetToken.id);
+  let swords = targetActor.data.items.filter((i) => i.data.flags?.SpiritualWeapon === targetActor.id);
+  if (swords.length > 0) await targetActor.deleteEmbeddedDocuments("Item", swords.map((s) => s.id));
+  const templates = canvas.templates.placeables.filter((i) => i.data.flags?.SpiritualWeapon?.ActorId === targetActor.id);
   if (templates.length > 0) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", templates.map((t) => t.id));
 }
