@@ -18,6 +18,7 @@ import { commandEffect } from "./spells/command.js";
 import { comprehendLanguagesEffect } from "./spells/comprehendLanguages.js";
 import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
+import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { darknessEffect } from "./spells/darkness.js";
 import { darkvisionEffect } from "./spells/darkvision.js";
 import { divineFavorEffect } from "./spells/divineFavor.js";
@@ -263,6 +264,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Contagion": {
       document = await contagionEffect(document);
+      break;
+    }
+    case "Crown of Stars": {
+      document = await crownofStarsEffect(document);
       break;
     }
     case "Darkness": {

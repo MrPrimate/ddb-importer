@@ -1,3 +1,7 @@
+# 2.8.6
+
+* Spell Effects: Toll the Dead did not load macro, Crown of Stars macro.
+
 # 2.8.5
 
 * Spell import to compendium was broken.
