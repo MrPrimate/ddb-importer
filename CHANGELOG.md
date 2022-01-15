@@ -1,3 +1,7 @@
+# 2.8.5
+
+* Spell import to compendium was broken.
+
 # 2.8.4
 
 * Character import: ignored items now retain effects.
