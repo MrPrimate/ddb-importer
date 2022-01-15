@@ -409,7 +409,8 @@ async function updateDDBSpellsPrepared(actor, spells) {
   const preparedSpells = spells.filter((spell) =>
     spell.type === "spell" &&
     spell.data.data.preparation?.mode === "prepared" &&
-    spell.data.flags.ddbimporter?.dndbeyond?.characterClassId
+    spell.data.flags.ddbimporter?.dndbeyond?.characterClassId &&
+    !spell.data.flags.ddbimporter.dndbeyond.granted
   ).map((spell) => {
     let spellPreparedData = {
       spellInfo: {

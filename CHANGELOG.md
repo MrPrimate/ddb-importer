@@ -1,7 +1,8 @@
 # 2.8.6
 
-* Spell Effects: Toll the Dead did not load macro, Crown of Stars macro, Chill Touch. Guiding Bolt special expiry and duration corrected. Moonbeam tweaked. Spiritual Weapon tweaked.
+* Spell Effects: Toll the Dead did not load macro, Crown of Stars macro, Chill Touch. Guiding Bolt special expiry and duration corrected. Moonbeam tweaked. Spiritual Weapon tweaked. @dinesh#9364
 * Some changes to spell parsing to support custom named spells broke magic item integration.
+* Spells granted through feats such as Fey Touched did not get added to known spell lists for regular casting. @DailyLama72#9052
 
 # 2.8.5
 

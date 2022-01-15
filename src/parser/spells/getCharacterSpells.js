@@ -204,6 +204,18 @@ export function getCharacterSpells(ddb, character) {
       },
     };
 
+    if (spell.alwaysPrepared && spell.limitedUse) {
+      // also parse spell as non-limited use
+      let unlimitedSpell = duplicate(spell);
+      unlimitedSpell.limitedUse = null;
+      unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = false;
+      unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
+      unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "classFeature";
+      delete unlimitedSpell.id;
+      delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+      items.push(parseSpell(unlimitedSpell, character));
+    }
+
     items.push(parseSpell(spell, character));
   });
 
@@ -249,6 +261,65 @@ export function getCharacterSpells(ddb, character) {
         },
       },
     };
+
+    if (spell.alwaysPrepared && spell.limitedUse) {
+      // also parse spell as non-limited use
+      let unlimitedSpell = duplicate(spell);
+      unlimitedSpell.limitedUse = null;
+      unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = false;
+      unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "classFeature";
+      unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
+      delete unlimitedSpell.id;
+      delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+      items.push(parseSpell(unlimitedSpell, character));
+    }
+
+    items.push(parseSpell(spell, character));
+  });
+
+  // background spells are handled slightly differently
+  if (!ddb.character.spells.background) ddb.character.spells.background = [];
+  ddb.character.spells.background.forEach((spell) => {
+    if (!spell.definition) return;
+    // If the spell has an ability attached, use that
+    // if there is no ability on spell, we default to wis
+    let spellCastingAbility = "wis";
+    if (hasSpellCastingAbility(spell.spellCastingAbilityId)) {
+      spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
+    }
+
+    const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
+
+    // add some data for the parsing of the spells into the data structure
+    spell.flags = {
+      ddbimporter: {
+        dndbeyond: {
+          lookup: "background",
+          lookupName: "Background",
+          level: spell.castAtLevel,
+          ability: spellCastingAbility,
+          mod: abilityModifier,
+          dc: 8 + proficiencyModifier + abilityModifier,
+          overrideDC: false,
+          id: spell.id,
+          entityTypeId: spell.entityTypeId,
+          healingBoost: healingBoost,
+          usesSpellSlot: spell.usesSpellSlot,
+        },
+      },
+    };
+
+    if (spell.alwaysPrepared && spell.limitedUse) {
+      // also parse spell as non-limited use
+      let unlimitedSpell = duplicate(spell);
+      unlimitedSpell.limitedUse = null;
+      unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = false;
+      unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "classFeature";
+      unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
+      delete unlimitedSpell.id;
+      delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+      items.push(parseSpell(unlimitedSpell, character));
+    }
 
     items.push(parseSpell(spell, character));
   });
