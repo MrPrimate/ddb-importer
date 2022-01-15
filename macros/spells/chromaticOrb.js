@@ -75,7 +75,7 @@ async function selectDamage() {
   return damageType;
 }
 
-if (lastArg.hitTargets.length > 0) {
+if (lastArg.hitTargetUuids.length > 0) {
   const tokenOrActor = await fromUuid(lastArg.actorUuid);
   const casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   const casterToken = await fromUuid(lastArg.tokenUuid);

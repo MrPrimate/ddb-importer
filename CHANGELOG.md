@@ -1,6 +1,6 @@
 # 2.8.6
 
-* Spell Effects: Toll the Dead did not load macro, Crown of Stars macro.
+* Spell Effects: Toll the Dead did not load macro, Crown of Stars macro, Chill Touch.
 
 # 2.8.5
 

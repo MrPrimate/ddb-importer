@@ -14,6 +14,7 @@ import { blindnessDeafnessEffect } from "./spells/blindnessDeafness.js";
 import { callLightningEffect } from "./spells/callLightning.js";
 import { charmPersonEffect } from "./spells/charmPerson.js";
 import { chromaticOrbEffect } from "./spells/chromaticOrb.js";
+import { chillTouchEffect } from "./spells/chillTouch.js";
 import { commandEffect } from "./spells/command.js";
 import { comprehendLanguagesEffect } from "./spells/comprehendLanguages.js";
 import { confusionEffect } from "./spells/confusion.js";
@@ -244,6 +245,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Charm Person": {
       document = charmPersonEffect(document);
+      break;
+    }
+    case "Chill Touch": {
+      document = await chillTouchEffect(document);
       break;
     }
     case "Chromatic Orb": {
