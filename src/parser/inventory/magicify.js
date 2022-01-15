@@ -147,10 +147,13 @@ function buildMagicItemSpell(chargeType, itemSpell) {
       castLevel = itemSpell.flags.ddbimporter.dndbeyond.castAtLevel;
     }
   }
+  const spellName = hasProperty(itemSpell, "flags.ddbimporter.originalName")
+    ? itemSpell.flags.ddbimporter.originalName
+    : itemSpell.name;
 
   return {
     id: "",
-    name: itemSpell.name,
+    name: spellName,
     img: "",
     pack: "",
     baseLevel: itemSpell.data.level,

@@ -1,6 +1,7 @@
 # 2.8.6
 
 * Spell Effects: Toll the Dead did not load macro, Crown of Stars macro, Chill Touch.
+* Some changes to spell parsing to support custom named spells broke magic item integration.
 
 # 2.8.5
 

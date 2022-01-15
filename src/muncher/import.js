@@ -100,7 +100,9 @@ export async function removeItems(items, itemsToRemove) {
     resolve(
       items.filter(
         (item) =>
-          !itemsToRemove.some((originalItem) => item.name === originalItem.name && item.type === originalItem.type)
+          !itemsToRemove.some((originalItem) => (
+            item.name === originalItem.name || item.flags?.ddbimporter?.originalName === originalItem.name) &&
+            item.type === originalItem.type)
       )
     );
   });
@@ -951,15 +953,10 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
       if (options.deleteCompendiumId) delete docData._id;
       return docData;
     });
-    if (item.flags.ddbimporter) {
-      item.flags.ddbimporter["pack"] = compendium.metadata.name;
-    } else {
-      item.flags.ddbimporter = { pack: compendium.metadata.name };
-    }
+    setProperty(item, "flags.ddbimporter.pack", `${compendium.metadata.package}.${compendium.metadata.name}`);
     loadedItems.push(item);
   }
   logger.debug(`compendium ${type} loaded items:`, loadedItems);
-  // console.log(loadedItems);
 
   const matchingOptions = {
     looseMatch: options.looseMatch,
@@ -969,7 +966,6 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
 
   const results = await updateMatchingItems(items, loadedItems, matchingOptions);
   logger.debug(`compendium ${type} result items:`, results);
-  // console.log(results);
   return results;
 }
 
@@ -990,10 +986,8 @@ export async function getCompendiumItems(items, type, compendiumLabel = null, lo
     keepId,
     deleteCompendiumId,
   };
-
   const results = await loadPassedItemsFromCompendium(compendium, items, type, loadOptions);
 
-  // console.log(results);
   return results;
 }
 
@@ -1162,9 +1156,9 @@ export async function daeFiddling(items) {
 }
 
 async function getCompendiumItemSpells(spells) {
-  const compendiumSpells = await getCompendiumItems(spells, "spell", null, false, false, true, false);
+  const compendiumSpells = await getCompendiumItems(spells, "spell", null, true, false, true, false);
   const lessCompendiumSpells = await removeItems(spells, compendiumSpells);
-  const srdSpells = await getSRDCompendiumItems(lessCompendiumSpells, "spell", false, true);
+  const srdSpells = await getSRDCompendiumItems(lessCompendiumSpells, "spell", true, true);
   const foundSpells = compendiumSpells.concat(srdSpells);
 
   const itemSpells = foundSpells.map((result) => {
@@ -1202,8 +1196,12 @@ export async function addMagicItemSpells(input) {
     : [];
   const itemSpells = worldSpells.concat(compendiumItemSpells);
 
+  logger.debug("itemSpells fetched", itemSpells);
+
   // scan the inventory for each item with spells and copy the imported data over
   input.inventory.forEach((item) => {
+    logger.debug("replacing spells for item", item);
+    logger.debug("item.flags.magicitems.spells", item.flags.magicitems.spells);
     if (item.flags.magicitems.spells) {
       for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
         const itemSpell = itemSpells.find((iSpell) => iSpell.name === spell.name &&
