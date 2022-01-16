@@ -11,7 +11,7 @@ export async function darkvisionEffect(document) {
   });
 
   if (spellEffectModules().atlInstalled) {
-    effect.changes.push(generateATLChange("ATL.dimSight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '60', 5));
+    effect.changes.push(generateATLChange("ATL.dimSight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5));
   } else {
     // MACRO START
     const itemMacroText = await loadMacroFile("spell", "darkvision.js");
