@@ -1,6 +1,6 @@
 # 2.8.7
 
-* Spell Effects: Darkness and darkvision tweaks.
+* Spell Effects: Darkness and darkvision tweaks. If using perfect vision darkness spell will use that.
 
 # 2.8.6
 
