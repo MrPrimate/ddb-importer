@@ -20,7 +20,9 @@ if (args[0] === "on") {
       walls.push({
         c: [lastX, lastY, newX, newY],
         move: CONST.WALL_MOVEMENT_TYPES.NONE,
-        sense: CONST.WALL_SENSE_TYPES.NORMAL,
+        light: CONST.WALL_SENSE_TYPES.NORMAL,
+        sight: CONST.WALL_SENSE_TYPES.NORMAL,
+        sound: CONST.WALL_SENSE_TYPES.NONE,
         dir: CONST.WALL_DIRECTIONS.BOTH,
         door: CONST.WALL_DOOR_TYPES.NONE,
         ds: CONST.WALL_DOOR_STATES.CLOSED,
@@ -42,7 +44,7 @@ if (args[0] === "on") {
       x: cx,
       y: cy,
       rotation: 0,
-      walls: true,
+      walls: false,
       vision: false,
       config: {
         alpha: 0.5,
@@ -50,7 +52,7 @@ if (args[0] === "on") {
         bright: radius,
         coloration: 1,
         dim: 0,
-        gradual: true,
+        gradual: false,
         luminosity: -1,
         saturation: 0,
         contrast: 0,
@@ -81,7 +83,7 @@ if (args[0] === "on") {
   Hooks.once("createMeasuredTemplate", async (template) => {
     let radius = canvas.grid.size * (template.data.distance / canvas.grid.grid.options.dimensions.distance);
     circleWall(template.data.x, template.data.y, radius);
-    darknessLight(template.data.x, template.data.y, radius);
+    darknessLight(template.data.x, template.data.y, template.data.distance);
     await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
   });
 

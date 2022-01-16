@@ -1,3 +1,7 @@
+# 2.8.7
+
+* Spell Effects: Darkness and darkvision tweaks.
+
 # 2.8.6
 
 * Spell Effects: Toll the Dead did not load macro, Crown of Stars macro, Chill Touch. Guiding Bolt special expiry and duration corrected. Moonbeam tweaked. Spiritual Weapon tweaked. @dinesh#9364
