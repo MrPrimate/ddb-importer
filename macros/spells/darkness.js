@@ -75,6 +75,9 @@ if (args[0] === "on") {
             ActorId: targetActor.id,
           },
         },
+        "perfect-vision": {
+          sightLimit: 0
+        }
       },
     };
     canvas.scene.createEmbeddedDocuments("AmbientLight", [lightTemplate]);
@@ -82,7 +85,8 @@ if (args[0] === "on") {
 
   Hooks.once("createMeasuredTemplate", async (template) => {
     let radius = canvas.grid.size * (template.data.distance / canvas.grid.grid.options.dimensions.distance);
-    circleWall(template.data.x, template.data.y, radius);
+    // if not using perfect vision, add a wall
+    if (!game.modules.get("perfect-vision")?.active) circleWall(template.data.x, template.data.y, radius);
     darknessLight(template.data.x, template.data.y, template.data.distance);
     await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
   });
