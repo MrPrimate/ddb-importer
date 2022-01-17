@@ -33,7 +33,7 @@ export function featEffectModules() {
   const advancedMacrosInstalled = utils.isModuleInstalledAndActive("advanced-macros");
   const aboutTime = utils.isModuleInstalledAndActive("about-time");
   const itemMacroInstalled = utils.isModuleInstalledAndActive("itemacro");
-  const timesUp = utils.isModuleInstalledAndActive("about-time");
+  const timesUp = utils.isModuleInstalledAndActive("times-up");
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
   const convinientEffectsInstalled = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
 
