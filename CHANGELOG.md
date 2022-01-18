@@ -1,3 +1,7 @@
+# 2.8.8
+
+* Effects: War Caster.
+
 # 2.8.7
 
 * Spell Effects: Darkness and darkvision tweaks. If using perfect vision darkness spell will use that.

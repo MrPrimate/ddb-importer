@@ -4,11 +4,11 @@ import { generateMacroChange, generateMacroFlags, loadMacroFile } from "../macro
 export async function kiEmptyBodyEffect(document) {
   let effect = baseFeatEffect(document, document.name);
   effect.changes.push(
-    { key: "data.traits.dr.all", value: "", mode: 0, priority: 0 },
-    { key: "data.traits.dv.value", value: "force", mode: 0, priority: 0 },
+    { key: "data.traits.dr.all", value: "", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+    { key: "data.traits.dv.value", value: "force", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 }
   );
 
-  document.data['target']['type'] = "self";
+  document.data["target"]["type"] = "self";
   document.data.range = { value: null, units: "self", long: null };
   document.data.duration = { value: 1, units: "min" };
   document.data.actionType = null;

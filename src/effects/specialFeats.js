@@ -3,6 +3,8 @@ import utils from "../utils.js";
 import logger from "../logger.js";
 import { configureDependencies } from "./macros.js";
 import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
+import { warCasterEffect } from "./feats/warCaster.js";
+import { rageEffect } from "./feats/rage.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -43,7 +45,14 @@ export function featEffectModules() {
   const tokenMagicInstalled = utils.isModuleInstalledAndActive("tokenmagic");
   const autoAnimationsInstalled = utils.isModuleInstalledAndActive("autoanimations");
   installedModules = {
-    hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && aboutTime && timesUp && daeInstalled && convinientEffectsInstalled,
+    hasCore:
+      itemMacroInstalled &&
+      midiQolInstalled &&
+      advancedMacrosInstalled &&
+      aboutTime &&
+      timesUp &&
+      daeInstalled &&
+      convinientEffectsInstalled,
     midiQolInstalled,
     itemMacroInstalled,
     advancedMacrosInstalled,
@@ -70,7 +79,10 @@ export async function generateExtraEffects(document) {
   // check that we can gen effects
   const deps = featEffectModules();
   if (!deps.hasCore) {
-    logger.warn("Sorry, you're missing some required modules for spell effects. Please install them and try again.", deps);
+    logger.warn(
+      "Sorry, you're missing some required modules for spell effects. Please install them and try again.",
+      deps
+    );
     return document;
   }
   if (!configured) {
@@ -82,6 +94,15 @@ export async function generateExtraEffects(document) {
     case "Empty Body":
     case "Ki: Empty Body": {
       document = await kiEmptyBodyEffect(document);
+      break;
+    }
+    case "Rage": {
+      document = rageEffect(document);
+      break;
+    }
+    case "War Caster":
+    case "Warcaster": {
+      document = warCasterEffect(document);
       break;
     }
     // no default
@@ -125,65 +146,6 @@ export function featureEffectAdjustment(document) {
           ];
         }
       });
-      break;
-    }
-    case "Rage": {
-      let effect = baseItemEffect(document, `${document.name}`);
-
-      const extraDamage = document.flags?.ddbimporter?.dndbeyond?.levelScale?.fixedValue
-        ? document.flags.ddbimporter.dndbeyond.levelScale.fixedValue
-        : 2;
-      effect.changes.push(
-        {
-          key: "data.bonuses.mwak.damage",
-          value: `${extraDamage}`,
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 0,
-        },
-        {
-          key: "data.traits.dr.value",
-          value: "piercing",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 0,
-        },
-        {
-          key: "data.traits.dr.value",
-          value: "slashing",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
-        {
-          key: "data.traits.dr.value",
-          value: "bludgeoning",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          priority: 20,
-        },
-        {
-          key: "flags.midi-qol.advantage.ability.save.str",
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          priority: 20,
-        },
-        {
-          key: "flags.midi-qol.advantage.ability.check.str",
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          priority: 20,
-        }
-      );
-      effect.duration = {
-        startTime: null,
-        seconds: 60,
-        rounds: null,
-        turns: null,
-        startRound: null,
-        startTurn: null,
-      };
-      effect.transfer = false;
-      effect.disabled = false;
-      effect.flags.dae.transfer = false;
-      effect.flags.dae.stackable = false;
-      document.effects.push(effect);
       break;
     }
     case "Potent Cantrip": {
