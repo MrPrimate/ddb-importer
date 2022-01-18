@@ -5,7 +5,7 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 if (args[0] === "on") {
-  async function circleWall(cx, cy, radius) {
+  function circleWall(cx, cy, radius) {
     let walls = [];
     const step = 30;
     for (let i = step; i <= 360; i += step) {
@@ -39,7 +39,7 @@ if (args[0] === "on") {
     canvas.scene.createEmbeddedDocuments("Wall", walls);
   }
 
-  async function darknessLight(cx, cy, radius) {
+  function darknessLight(cx, cy, radius) {
     const lightTemplate = {
       x: cx,
       y: cy,
@@ -83,17 +83,17 @@ if (args[0] === "on") {
     canvas.scene.createEmbeddedDocuments("AmbientLight", [lightTemplate]);
   }
 
-  Hooks.once("createMeasuredTemplate", async (template) => {
+  Hooks.once("createMeasuredTemplate", (template) => {
     let radius = canvas.grid.size * (template.data.distance / canvas.grid.grid.options.dimensions.distance);
     // if not using perfect vision, add a wall
     if (!game.modules.get("perfect-vision")?.active) circleWall(template.data.x, template.data.y, radius);
     darknessLight(template.data.x, template.data.y, template.data.distance);
-    await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
+    canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
   });
 
   const measureTemplateData = {
     t: "circle",
-    user: game.user._id,
+    user: game.userId,
     distance: 15,
     direction: 0,
     x: 0,
