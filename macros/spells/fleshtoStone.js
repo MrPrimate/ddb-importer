@@ -41,7 +41,7 @@ async function checkPetrification(flag) {
     if (flag.failures === 3) {
       ChatMessage.create({ content: `Flesh To Stone on ${targetActor.name} is complete` });
       if (!effectAppliedAndActive("Petrified")) {
-        await game.dfreds.effectInterface.addEffect("Petrified", targetActor.uuid);
+        await game.dfreds.effectInterface.addEffect({ effectName: "Petrified", uuid: targetActor.uuid });
       }
     } else {
       console.log(`Flesh To Stone failures increments to ${flag.failures} and ${flag.successes}`);
@@ -78,7 +78,7 @@ if (args[0] === "off") {
   const flag = await DAE.getFlag(targetActor, "fleshToStoneSpell");
   if (flag && flag.rounds < 10) {
     if (effectAppliedAndActive("Petrified")) {
-      game.dfreds.effectInterface.removeEffect("Petrified", targetActor.uuid);
+      game.dfreds.effectInterface.removeEffect({ effectName: "Petrified", uuid: targetActor.uuid });
     }
   }
 

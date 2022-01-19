@@ -47,7 +47,6 @@ async function effectAppliedAndActive(condition, actor) {
 
 export async function getActorConditionStates(actor, ddb) {
   const conditions = await Promise.all(CONDITION_MATRIX.map(async (condition) => {
-    // const conditionApplied = await game.dfreds.effectInterface.hasEffectApplied(condition.label, actor.uuid);
     const conditionApplied = await effectAppliedAndActive(condition, actor);
     const ddbCondition = ddb.character.conditions.some((conditionState) =>
       conditionState.id === condition.ddbId &&
@@ -79,7 +78,7 @@ export async function setConditions(actor, ddb) {
       if (condition.needsUpdate) {
         const state = condition.conditionApplied ? "off" : "on";
         logger.info(`Toggling condition to ${state} for ${condition.label} to ${actor.name} (${actor.uuid})`);
-        await game.dfreds.effectInterface.toggleEffect(condition.label, actor.uuid);
+        await game.dfreds.effectInterface.toggleEffect(condition.label, { uuids: [actor.uuid] });
       } else {
         const state = condition.conditionApplied ? "on" : "off";
         logger.info(`Condition ${condition.label} ignored (currently ${state}) for ${actor.name} (${actor.uuid})`);

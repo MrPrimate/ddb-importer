@@ -24,23 +24,23 @@ async function DivineWordApply(target, targetHp) {
   } else {
     if (targetHp <= 30) {
       const hasStunned = effectAppliedAndActive("Stunned");
-      if (!hasStunned) await game.dfreds.effectInterface.toggleEffect("Stunned", targetActor.uuid);
+      if (!hasStunned) await game.dfreds.effectInterface.toggleEffect("Stunned", { uuids: [targetActor.uuid] });
       game.Gametime.doIn({ hours: 1 }, async () => {
-        await game.dfreds.effectInterface.removeEffect("Stunned", targetActor.uuid);
+        await game.dfreds.effectInterface.removeEffect({ effectName: "Stunned", uuid: targetActor.uuid });
       });
     }
     if (targetHp <= 40) {
       const hasBlinded = effectAppliedAndActive("Blinded");
-      if (!hasBlinded) await game.dfreds.effectInterface.toggleEffect("Blinded", targetActor.uuid);
+      if (!hasBlinded) await game.dfreds.effectInterface.toggleEffect("Blinded", { uuids: [targetActor.uuid] });
       game.Gametime.doIn({ hours: 1 }, async () => {
-        await game.dfreds.effectInterface.removeEffect("Blinded", targetActor.uuid);
+        await game.dfreds.effectInterface.removeEffect({ effectName: "Blinded", uuid: [targetActor.uuid] });
       });
     }
     if (targetHp <= 50) {
       const hasDeafened = effectAppliedAndActive("Deafened");
-      if (!hasDeafened) await game.dfreds.effectInterface.toggleEffect("Deafened", targetActor.uuid);
+      if (!hasDeafened) await game.dfreds.effectInterface.toggleEffect("Deafened", { uuids: [targetActor.uuid] });
       game.Gametime.doIn({ hours: 1 }, async () => {
-        await game.dfreds.effectInterface.removeEffect("Deafened", targetActor.uuid);
+        await game.dfreds.effectInterface.removeEffect({ effectName: "Deafened", uuid: targetActor.uuid });
       });
     }
   }

@@ -30,13 +30,13 @@ async function eyebite(type) {
       ChatMessage.create({ content: `${t.name} failed the save with a ${saveRoll.total}` });
       switch (type) {
         case "asleep":
-          game.dfreds.effectInterface.addEffect("Unconscious", t.actor.uuid);
+          game.dfreds.effectInterface.addEffect({ effectName: "Unconscious", uuid: t.actor.uuid });
           break;
         case "panicked":
-          game.dfreds.effectInterface.addEffect("Frightened", t.actor.uuid);
+          game.dfreds.effectInterface.addEffect({ effectName: "Frightened", uuid: t.actor.uuid });
           break;
         case "sickened":
-          game.dfreds.effectInterface.addEffect("Poisoned", t.actor.uuid);
+          game.dfreds.effectInterface.addEffect({ effectName: "Poisoned", uuid: t.actor.uuid });
           break;
         // no default
       }
@@ -80,7 +80,7 @@ if (args[0] === "each") {
 if (args[0] === "off") {
   const flag = await DAE.getFlag(targetActor, "eyebiteSpell");
   if (flag) {
-    if (effectAppliedAndActive(flag, targetActor)) game.dfreds.effectInterface.removeEffect(flag, targetActor.uuid);
+    if (effectAppliedAndActive(flag, targetActor)) game.dfreds.effectInterface.removeEffect({ effectName: flag, uuid: targetActor.uuid });
     await DAE.unsetFlag(targetActor, "eyebiteSpell");
   }
 }

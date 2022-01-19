@@ -23,14 +23,15 @@ function effectAppliedAndActive(conditionName) {
  * Generates the GM client dialog for selecting final Effect, updates target effect with name, icon and new DAE effects.
  */
 async function applyContagion() {
-  if (effectAppliedAndActive("Poisoned", targetActor)) game.dfreds.effectInterface.removeEffect("Poisoned", targetActor.uuid)
+  if (effectAppliedAndActive("Poisoned", targetActor))
+    game.dfreds.effectInterface.removeEffect({ effectName: "Poisoned", uuid: targetActor.uuid });
 
   new Dialog({
     title: "Contagion options",
     content: "<p>Select the effect</p>",
     buttons: {
       one: {
-        label: "Blinding Sickness",
+        blinding: "Blinding Sickness",
         callback: async () => {
           let data = {
             changes: [
@@ -54,7 +55,7 @@ async function applyContagion() {
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
         },
       },
-      two: {
+      filth: {
         label: "Filth Fever",
         callback: async () => {
           let data = {
@@ -90,7 +91,7 @@ async function applyContagion() {
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
         },
       },
-      three: {
+      flesh: {
         label: "Flesh Rot",
         callback: async () => {
           let data = {
@@ -115,7 +116,7 @@ async function applyContagion() {
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
         },
       },
-      four: {
+      mindfire: {
         label: "Mindfire",
         callback: async () => {
           let data = {
@@ -140,7 +141,7 @@ async function applyContagion() {
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
         },
       },
-      five: {
+      seizure: {
         label: "Seizure",
         callback: async () => {
           let data = {
@@ -177,7 +178,7 @@ async function applyContagion() {
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
         },
       },
-      six: {
+      slimy: {
         label: "Slimy Doom",
         callback: async () => {
           let data = {

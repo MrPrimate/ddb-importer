@@ -41,6 +41,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "automated-evocations",
   "inventory-plus",
   "obsidian",
+  "siftoolkit",
 ];
 
 const EFFECTS_IGNORE_FLAG_GROUPS = [

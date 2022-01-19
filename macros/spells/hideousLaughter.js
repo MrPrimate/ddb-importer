@@ -23,9 +23,9 @@ function effectAppliedAndActive(conditionName) {
 async function cleanUp() {
   // cleanup conditions
   const hasProne = effectAppliedAndActive("Prone", targetActor);
-  if (hasProne) await game.dfreds.effectInterface.toggleEffect("Prone", targetActor.uuid);
+  if (hasProne) await game.dfreds.effectInterface.toggleEffect({ effectName: "Prone", uuid: targetActor.uuid });
   const hasIncapacitated = effectAppliedAndActive("Incapacitated", targetActor);
-  if (hasIncapacitated) await game.dfreds.effectInterface.toggleEffect("Incapacitated", targetActor.uuid);
+  if (hasIncapacitated) await game.dfreds.effectInterface.toggleEffect({ effectName: "Incapacitated", uuid: targetActor.uuid });
   // remove hook
   const flag = await DAE.getFlag(targetActor, "hideousLaughterHook");
   if (flag) {
