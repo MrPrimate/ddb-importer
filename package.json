@@ -1,6 +1,6 @@
 {
   "name": "ddb-importer",
-  "version": "2.8.7",
+  "version": "2.8.8",
   "author": "MrPrimate",
   "description": "Foundry module for integrating D&D Beyond content",
   "private": true,
