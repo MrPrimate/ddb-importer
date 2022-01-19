@@ -1,8 +1,8 @@
 # 2.8.8
 
 * Effects: War Caster.
-* Retain SIFToolkit customisations during import/update.
-* Macros and Effects updated to support Convinient Effects v2.0.0
+* Retain SIFToolkit customisation during import/update.
+* Macros and Effects updated to support Convenient Effects v2.0.0
 * Spell Effect: Blindness/Deafness will now restrict target vision if ATL is active.
 
 # 2.8.7
