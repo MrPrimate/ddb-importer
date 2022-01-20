@@ -106,7 +106,7 @@ export function spellEffectModules() {
   const itemMacroInstalled = utils.isModuleInstalledAndActive("itemacro");
   const timesUp = utils.isModuleInstalledAndActive("times-up");
   const daeInstalled = utils.isModuleInstalledAndActive("dae");
-  const convinientEffectsInstalled = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
+  const convenientEffectsInstalled = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
 
   const activeAurasInstalled = utils.isModuleInstalledAndActive("ActiveAuras");
   const atlInstalled = utils.isModuleInstalledAndActive("ATL");
@@ -114,14 +114,14 @@ export function spellEffectModules() {
   const tokenMagicInstalled = utils.isModuleInstalledAndActive("tokenmagic");
   const autoAnimationsInstalled = utils.isModuleInstalledAndActive("autoanimations");
   installedModules = {
-    hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && aboutTime && timesUp && daeInstalled && convinientEffectsInstalled,
+    hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && aboutTime && timesUp && daeInstalled && convenientEffectsInstalled,
     midiQolInstalled,
     itemMacroInstalled,
     advancedMacrosInstalled,
     aboutTime,
     timesUp,
     daeInstalled,
-    convinientEffectsInstalled,
+    convenientEffectsInstalled,
     atlInstalled,
     tokenAurasInstalled,
     tokenMagicInstalled,
