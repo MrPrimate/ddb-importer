@@ -52,7 +52,7 @@ export function getLanguages (monster, DDB_CONFIG) {
     }
   });
 
-  if (!monster.languageNote.includes("--")) custom.push(monster.languageNote);
+  if (monster.languageNote && !monster.languageNote.includes("--")) custom.push(monster.languageNote);
 
   const languages = {
     value: values,
