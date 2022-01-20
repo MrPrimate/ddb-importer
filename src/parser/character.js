@@ -10,9 +10,11 @@ import getInventory from "./inventory/index.js";
 import getSpecial from "./special/index.js";
 import logger from "../logger.js";
 import { getResourcesDialog } from "./character/resources.js";
+import { createGMMacros } from "../effects/macros.js";
 
 export async function parseJson(currentActorId, ddb, resourceSelection = true) {
   try {
+    if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await createGMMacros();
     logger.debug("Starting core character parse");
     let character = getCharacter(ddb);
     if (resourceSelection) {

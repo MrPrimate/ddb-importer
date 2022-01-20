@@ -16,7 +16,7 @@ import AdventureMunch from "./adventure/adventure.js";
 import ThirdPartyMunch from "./adventure/thirdParty.js";
 import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
-
+import { createGMMacros } from "../effects/macros.js";
 
 export function getSourcesLookups(selected) {
   const selections = DDB_CONFIG.sources
@@ -272,6 +272,7 @@ export default class DDBMuncher extends Application {
   static async parseSpells() {
     try {
       logger.info("Munching spells!");
+      if (game.settings.get("ddb-importer", "munching-policy-add-spell-effects")) await createGMMacros("spells");
       await parseSpells();
       munchNote(`Finished importing spells!`, true);
       munchNote("");

@@ -1,6 +1,19 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 
+export async function checkMacroFolder() {
+  const macroFolder = game.folders.find((folder) => folder.data.name === "DDB Macros" && folder.data.type === "Macro");
+
+  if (!macroFolder) {
+    await Folder.create({
+      color: "#FF0000",
+      name: "DDB Macros",
+      parent: null,
+      type: "Macro"
+    });
+  }
+}
+
 export function configureDependencies() {
   // allow item use macros on items
   let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
@@ -54,4 +67,38 @@ export function generateMacroChange(macroValues, priority = 20) {
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: priority,
   };
+}
+
+async function createGMMacro(name, content, img) {
+  const macroFolder = game.folders.find((folder) => folder.data.name === "DDB Macros" && folder.data.type === "Macro");
+
+  const data = {
+    "name": name,
+    "type": "script",
+    "img": img,
+    "scope": "global",
+    "command": content,
+    "folder": macroFolder.id,
+    "flags": {
+      "advanced-macros": {
+        "runAsGM": true
+      },
+    }
+  };
+
+  const existingMacro = game.macros.find((m) => m.name == name);
+
+  if (existingMacro) {
+    data._id = existingMacro.id;
+    await existingMacro.update(data);
+  } else {
+    await Macro.create(data);
+  }
+
+}
+
+export async function createGMMacros() {
+  await checkMacroFolder();
+  const gmMacroText = await loadMacroFile("gm", "darkness.js");
+  await createGMMacro("Darkness (DDB - GM)", gmMacroText, "systems/dnd5e/icons/skills/shadow_10.jpg");
 }

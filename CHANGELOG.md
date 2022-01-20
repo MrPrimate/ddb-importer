@@ -1,3 +1,7 @@
+# 2.8.11
+
+* Spell Effects: Darkness spell fixes for players.
+
 # 2.8.10
 
 * Some icon improvements

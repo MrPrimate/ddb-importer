@@ -1,5 +1,6 @@
+// This Macro is called by the Darkness spell so players can place walls and lights.
 
-console.warn(args)
+const darknessParams = args[args.length - 1];
 
 function circleWall(cx, cy, radius) {
   let walls = [];
@@ -25,7 +26,7 @@ function circleWall(cx, cy, radius) {
       flags: {
         spellEffects: {
           Darkness: {
-            ActorId: targetActor.id,
+            ActorId: darknessParams.targetActorId,
           },
         },
       },
@@ -68,19 +69,27 @@ function darknessLight(cx, cy, radius) {
     flags: {
       spellEffects: {
         Darkness: {
-          ActorId: targetActor.id,
+          ActorId: darknessParams.targetActorId,
         },
       },
       "perfect-vision": {
-        sightLimit: 0
-      }
+        sightLimit: 0,
+      },
     },
   };
   canvas.scene.createEmbeddedDocuments("AmbientLight", [lightTemplate]);
 }
 
-let radius = canvas.grid.size * (template.data.distance / canvas.grid.grid.options.dimensions.distance);
-// if not using perfect vision, add a wall
-if (!game.modules.get("perfect-vision")?.active) circleWall(template.data.x, template.data.y, radius);
-darknessLight(template.data.x, template.data.y, template.data.distance);
-canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
+if (args[0] == "on") {
+  if (!game.modules.get("perfect-vision")?.active) circleWall(darknessParams.x, darknessParams.y, darknessParams.radius);
+  darknessLight(darknessParams.x, darknessParams.y, darknessParams.distance);
+}
+
+if (args[0] == "off") {
+  const darkWalls = canvas.walls.placeables.filter((w) => w.data.flags?.spellEffects?.Darkness?.ActorId === darknessParams.targetActorId);
+  const wallArray = darkWalls.map((w) => w.id);
+  const darkLights = canvas.lighting.placeables.filter((w) => w.data.flags?.spellEffects?.Darkness?.ActorId === darknessParams.targetActorId);
+  const lightArray = darkLights.map((w) => w.id);
+  await canvas.scene.deleteEmbeddedDocuments("Wall", wallArray);
+  await canvas.scene.deleteEmbeddedDocuments("AmbientLight", lightArray);
+}
