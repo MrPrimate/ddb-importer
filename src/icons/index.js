@@ -33,6 +33,10 @@ const FILE_MAP = {
   monster: ["monster-features.json"],
 };
 
+function sanitiseName(name) {
+  return name.replace("’", "'").toLowerCase();
+}
+
 async function loadDataFile(fileName) {
   logger.debug(`Getting icon mapping for ${fileName}`);
   const fileExists = await utils.fileExists("[data] modules/ddb-importer/data", fileName);
@@ -66,21 +70,22 @@ async function loadIconMap(type) {
 function looseMatch(item, typeValue) {
   const originalName = item.flags?.ddbimporter?.originalName;
   if (originalName) {
-    const originalMatch = iconMap[typeValue].find((entry) => entry.name === originalName);
+    const originalMatch = iconMap[typeValue].find((entry) => sanitiseName(entry.name) === sanitiseName(originalName));
     if (originalMatch) return originalMatch.path;
   }
 
+  const sanitisedName = sanitiseName(item.name);
   if (item.name.includes(":")) {
-    const nameArray = item.name.split(":");
-    const postMatch = iconMap[typeValue].find((entry) => entry.name === nameArray[1].trim());
+    const nameArray = sanitisedName.split(":");
+    const postMatch = iconMap[typeValue].find((entry) => sanitiseName(entry.name) === nameArray[1].trim());
     if (postMatch) return postMatch.path;
-    const subMatch = iconMap[typeValue].find((entry) => entry.name === nameArray[0].trim());
+    const subMatch = iconMap[typeValue].find((entry) => sanitiseName(entry.name) === nameArray[0].trim());
     if (subMatch) return subMatch.path;
   }
 
-  const startsMatchEntry = iconMap[typeValue].find((entry) => item.name.split(":")[0].trim().startsWith(entry.name.split(":")[0].trim()));
+  const startsMatchEntry = iconMap[typeValue].find((entry) => sanitisedName.split(":")[0].trim().startsWith(sanitiseName(entry.name).split(":")[0].trim()));
   if (startsMatchEntry) return startsMatchEntry.path;
-  const startsMatchItem = iconMap[typeValue].find((entry) => entry.name.split(":")[0].trim().startsWith(item.name.split(":")[0].trim()));
+  const startsMatchItem = iconMap[typeValue].find((entry) => sanitiseName(entry.name).split(":")[0].trim().startsWith(sanitisedName.split(":")[0].trim()));
   if (startsMatchItem) return startsMatchItem.path;
 
   return null;
@@ -92,10 +97,12 @@ function getIconPath(item, type, monsterName) {
   if (!typeValue || !iconMap[typeValue]) return null;
 
   const iconMatch = iconMap[typeValue].find((entry) => {
+    const sanitisedName = sanitiseName(entry.name);
+    const sanitisedItemName = sanitiseName(item.name);
     if (type === "monster") {
-      return entry.name === item.name.split("(")[0].trim() && entry.monster == monsterName;
+      return sanitisedName === sanitisedItemName.split("(")[0].trim() && sanitiseName(entry.monster) == sanitiseName(monsterName);
     }
-    return entry.name === item.name;
+    return sanitisedName === sanitisedItemName;
   });
   if (iconMatch) {
     return iconMatch.path;
