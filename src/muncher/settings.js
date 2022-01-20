@@ -102,11 +102,15 @@ export function getCharacterImportSettings() {
   ];
 
   const spellEffectModulesAvailable = spellEffectModules();
+  const generateSpellEffects = game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
+  if (generateSpellEffects && !spellEffectModulesAvailable.hasCore) {
+    game.settings.set("ddb-importer", "character-update-policy-add-spell-effects", false);
+  }
   const daeInstalled = spellEffectModulesAvailable.daeInstalled;
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
   const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
   const daeSRDContentAvailable = daeSRDInstalled || midiSRDInstalled;
-  const spellEffectText = `Generate active effects for spells. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, Item Macro${getInstalledIcon("itemMacroInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convinient Effects${getInstalledIcon("convinientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}`;
+  const spellEffectText = `Generate active effects for spells. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, Item Macro${getInstalledIcon("itemMacroInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convenient Effects${getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}`;
 
   // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
 
@@ -208,10 +212,10 @@ export function getCharacterImportSettings() {
     },
     {
       name: "add-spell-effects",
-      isChecked: game.settings.get("ddb-importer", "character-update-policy-add-spell-effects") && spellEffectModulesAvailable.hasCore,
+      isChecked: generateSpellEffects && spellEffectModulesAvailable.hasCore,
       title: "Generate Active Effects for Spells",
       description: spellEffectText,
-      enabled: daeInstalled,
+      enabled: spellEffectModulesAvailable.hasCore,
     },
     {
       name: "add-character-effects",
@@ -609,8 +613,12 @@ export function getMuncherSettings(includeHomebrew = true) {
   const compendiumFolderMonsterStyles = getCompendiumFolderLookups("monster");
   const compendiumFolderSpellStyles = getCompendiumFolderLookups("spell");
   const compendiumFolderItemStyles = getCompendiumFolderLookups("item");
-  const spellEffectText = `Create active effects. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, Item Macro${getInstalledIcon("itemMacroInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convinient Effects${getInstalledIcon("convinientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}. Copying from MidiSRD will override these spells.`;
+  const spellEffectText = `Create active effects. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, Item Macro${getInstalledIcon("itemMacroInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convenient Effects${getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}. Copying from MidiSRD will override these spells.`;
 
+  const generateSpellEffects = game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
+  if (generateSpellEffects && !spellEffectModulesAvailable.hasCore) {
+    game.settings.set("ddb-importer", "character-update-policy-add-spell-effects", false);
+  }
 
   const itemConfig = [
     {
@@ -648,7 +656,7 @@ export function getMuncherSettings(includeHomebrew = true) {
     },
     {
       name: "add-spell-effects",
-      isChecked: game.settings.get("ddb-importer", "munching-policy-add-spell-effects"),
+      isChecked: generateSpellEffects && spellEffectModulesAvailable.hasCore,
       description: spellEffectText,
       enabled: spellEffectModulesAvailable.hasCore,
     },
@@ -706,6 +714,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       name: "monster-use-vision",
       isChecked: game.settings.get("ddb-importer", "munching-policy-monster-use-vision"),
       description: "Should imported monster have vision set?",
+      enabled: true,
+    },
+    {
+      name: "monster-retain-biography",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-retain-biography"),
+      description: "Should monsters retain existing biography?",
       enabled: true,
     },
     {

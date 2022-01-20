@@ -1106,6 +1106,13 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-monster-retain-biography", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   // sets the current tutorial step the user has completed
   // game.settings.register("ddb-importer", "tutorial-step", {
   //   scope: "world",

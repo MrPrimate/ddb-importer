@@ -48,7 +48,7 @@ function parseBonusSpellAttack(text, monster, DDB_CONFIG) {
   return spellAttackBonus;
 }
 
-function parseInnateSpells(text, spells, spellList) {
+function parseInnateSpells({ text, spells, spellList }) {
   // handle innate style spells here
   // 3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)
   // console.log(text);
@@ -58,7 +58,7 @@ function parseInnateSpells(text, spells, spellList) {
   if (innateMatch) {
     const spellArray = innateMatch[3].split(",").map((spell) => spell.trim());
     spellArray.forEach((spell) => {
-      spellList.innate.push({ name: spell, type: innateMatch[2], value: innateMatch[1] });
+      spellList.innate.push({ name: spell, type: innateMatch[2], value: innateMatch[1], innate: spellList.innateMatch });
     });
   }
 
@@ -68,7 +68,12 @@ function parseInnateSpells(text, spells, spellList) {
   if (atWillMatch) {
     const spellArray = atWillMatch[1].split(",").map((spell) => spell.trim());
     spellArray.forEach((spell) => {
-      spellList.atwill.push(spell);
+      if (spellList.innate) {
+        spellList.innate.push({ name: spell, type: "atwill", value: null, innate: spellList.innateMatch });
+      } else {
+        spellList.atwill.push(spell);
+      }
+
     });
   }
 
@@ -77,7 +82,7 @@ function parseInnateSpells(text, spells, spellList) {
     const mephitMatch = text.match(/(\d+)\/(\w+)(?:.*)?cast (.*),/);
     if (mephitMatch) {
       const spell = mephitMatch[3].trim();
-      spellList.innate.push({ name: spell, type: mephitMatch[2], value: mephitMatch[1] });
+      spellList.innate.push({ name: spell, type: mephitMatch[2], value: mephitMatch[1], innate: spellList.innateMatch });
     }
   }
 
@@ -97,7 +102,7 @@ function parseAdditionalAtWill(text) {
   return atWillSpells;
 }
 
-function parseSpells(text, spells, spellList) {
+function parseSpells({ text, spells, spellList }) {
   // console.log(text);
   const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|at-will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
   const match = text.match(spellLevelSearch);
@@ -106,7 +111,7 @@ function parseSpells(text, spells, spellList) {
   const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:Level|level|-level)\s*(?:slot|slots)?\):\s+(.*$)/;
   const warlockMatch = text.match(warlockLevelSearch);
 
-  if (!match && !warlockMatch) return parseInnateSpells(text, spells, spellList);
+  if (!match && !warlockMatch) return parseInnateSpells({ text, spells, spellList });
 
   const spellLevel = (match) ? match[1] : 'pact';
   const slots = (match) ? match[2] : warlockMatch[2];
@@ -235,6 +240,7 @@ export function getSpells(monster, DDB_CONFIG) {
     innate: [],
     edgeCases: [], // map { name: "", type: "", edge: "" }
     material: true,
+    innateMatch: false,
   };
 
   // ability associated
@@ -327,22 +333,40 @@ export function getSpells(monster, DDB_CONFIG) {
 
   dom.childNodes.forEach((node) => {
     const spellText = node.textContent.replace(/’/g, "'");
-    const spellcastingMatch = spellText.trim().match(/^Spellcasting|^Innate Spellcasting/);
-    if (spellcastingMatch) {
+    const trimmedText = spellText.trim();
+
+    const spellCastingRegEx = new RegExp(/^Spellcasting/);
+    const innateSpellCastingRegEx = new RegExp(/^Innate Spellcasting/);
+    const spellcastingMatch = spellCastingRegEx.test(trimmedText);
+    const innateSpellcastingMatch = innateSpellCastingRegEx.test(trimmedText);
+
+    if (spellcastingMatch || innateSpellcastingMatch) {
       spellcasting = parseSpellcasting(spellText);
       spelldc = parseSpelldc(spellText);
       spellLevel = parseSpellLevel(spellText);
       spellAttackBonus = parseBonusSpellAttack(spellText, monster, DDB_CONFIG);
     }
 
-    const noMaterialSearch = /no material component|no component/;
-    const noMaterialMatch = spellText.match(noMaterialSearch);
+    const noMaterialSearch = new RegExp(/no material component|no component/);
+    const noMaterialMatch = noMaterialSearch.test(trimmedText);
 
     if (noMaterialMatch) {
       spellList.material = false;
     }
 
-    [spells, spellList] = parseSpells(spellText, spells, spellList);
+    // lets see if the spell block is innate
+    if (innateSpellcastingMatch) {
+      spellList.innateMatch = true;
+    } else if (spellcastingMatch) {
+      spellList.innateMatch = false;
+    }
+
+    const spellOptions = {
+      text: spellText,
+      spells,
+      spellList,
+    };
+    [spells, spellList] = parseSpells(spellOptions);
     const additionalAtWill = parseAdditionalAtWill(spellText);
     spellList.atwill.push(...additionalAtWill);
   });

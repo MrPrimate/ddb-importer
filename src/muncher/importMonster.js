@@ -102,6 +102,12 @@ async function addNPCToCompendium(npc) {
           npcBasic.token.tint = existingNPC.data.token.tint;
           npcBasic.token.lightColor = existingNPC.data.token.lightColor;
         }
+
+        const retainBiography = game.settings.get("ddb-importer", "munching-policy-monster-retain-biography");
+        if (retainBiography) {
+          npcBasic.data.details.biography = existingNPC.data.data.details.biography;
+        }
+
         npcBasic._id = npcMatch._id;
         await copySupportedItemFlags(existingNPC.data, npcBasic);
 
@@ -332,16 +338,37 @@ async function addSpells(data) {
       .map((spell) => {
         const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
         if (spellInfo) {
-          spell.data.preparation = {
-            mode: "innate",
-            prepared: true,
-          };
-          const per = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
-          spell.data.uses = {
-            value: spellInfo.value,
-            max: spellInfo.value,
-            per: (per && per.type) ? per.type : "day",
-          };
+          const isAtWill = hasProperty(spellInfo, "innate") && !spellInfo.innate;
+          if (spell.data.level == 0) {
+            spell.data.preparation = {
+              mode: "prepared",
+              prepared: false,
+            };
+          } else {
+            spell.data.preparation = {
+              mode: isAtWill ? "atwill" : "innate",
+              prepared: !isAtWill,
+            };
+          }
+          if (isAtWill) {
+            spell.data.uses = {
+              value: null,
+              max: null,
+              per: "",
+            };
+          } else {
+            const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
+            const per = spellInfo.type === "atwill"
+              ? null
+              : (perLookup && perLookup.type)
+                ? perLookup.type
+                : "day";
+            spell.data.uses = {
+              value: spellInfo.value,
+              max: spellInfo.value,
+              per: per,
+            };
+          }
           getSpellEdgeCase(spell, "innate", spellList);
         }
         return spell;
