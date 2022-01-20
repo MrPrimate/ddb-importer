@@ -450,7 +450,6 @@ const utils = {
    * @param {object} feat options to search for
    */
   getChoices: (ddb, type, feat) => {
-    console.warn("choiceData", {ddb, type, feat})
     const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
     const featDefinition = feat.definition ? feat.definition : feat;
 
@@ -459,11 +458,9 @@ const utils = {
       const choices = ddb.character.choices[type].filter(
         (characterChoice) => characterChoice.componentId && characterChoice.componentId === id
       );
-      console.warn("choices", choices);
 
       if (choices) {
         const choiceDefinitions = ddb.character.choices.choiceDefinitions;
-        console.warn("choiceDefinitions", choiceDefinitions);
 
         const options = choices
           .filter(
@@ -485,13 +482,9 @@ const utils = {
             return result;
           });
 
-        console.warn("options", options);
-
         if (options.length > 0) return options;
 
-        console.warn("no options found");
         if (ddb.character.options[type]?.length > 0) {
-          console.warn("checking character options");
           // if it is a choice option, try and see if the mod matches
           const optionMatch = ddb.character.options[type]
             .filter(
@@ -517,9 +510,7 @@ const utils = {
                 subType: `${type}-option`,
                 wasOption: true,
               };
-
             });
-          console.warn("optionMatch", optionMatch);
           if (optionMatch.length > 0) return optionMatch;
         }
       }
