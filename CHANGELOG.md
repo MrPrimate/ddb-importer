@@ -1,6 +1,14 @@
+# 2.8.10
+
+* Some icon improvements
+* Parsing of some rare missing sub-features, e.g. Genie's Vessel: Genie's Wrath (Dao). I don't think this will add any duplicates, but please let me know of any issues.
+* For some homebrew the Muncher could fail to parse languages.
+* Monster parsing: Try and improve innate/at-will spell selection.
+* Monster parsing: You can now retain the existing biography during updates.
+
 # 2.8.9
 
-* Warcaster feature broke module load.
+* Warcaster feature could brake module load.
 * Monsters with no language will not add "--" to custom languages any more.
 
 # 2.8.8
