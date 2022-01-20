@@ -44,7 +44,7 @@ function parseFeature(feat, ddb, character, source, type) {
   // filter proficiencies and Ability Score Improvement
   const name = feat.definition ? feat.definition.name : feat.name;
   let item = {
-    name: name,
+    name: name.replace("’", "'"),
     type: "feat",
     data: JSON.parse(utils.getTemplate("feat")),
     flags: {
@@ -107,17 +107,26 @@ function parseFeature(feat, ddb, character, source, type) {
 
       if (item.name === choice.label) return;
 
-      choiceItem.name = choice.label ? `${choiceItem.name}: ${choice.label}` : choiceItem.name;
-      if (choiceFeat.description) {
-        choiceFeat.description = choice.description
-          ? choiceFeat.description + "<h3>" + choice.label + "</h3>" + choice.description
-          : choiceFeat.description;
+      choiceItem.name = choice.label
+        ? `${choiceItem.name}: ${choice.label}`
+        : choiceItem.name;
+      choiceItem.name = choiceItem.name.replace("’", "'");
+      if (choice.wasOption && choice.description) {
+        choiceFeat.description = choice.description;
+        choiceFeat.snippet = choice.snippet ? choice.snippet : "";
+      } else {
+        if (choiceFeat.description) {
+          choiceFeat.description = choice.description
+            ? choiceFeat.description + "<h3>" + choice.label + "</h3>" + choice.description
+            : choiceFeat.description;
+        }
+        if (choiceFeat.snippet) {
+          choiceFeat.snippet = choice.description
+            ? choiceFeat.snippet + "<h3>" + choice.label + "</h3>" + choice.description
+            : choiceFeat.snippet;
+        }
       }
-      if (choiceFeat.snippet) {
-        choiceFeat.snippet = choice.description
-          ? choiceFeat.snippet + "<h3>" + choice.label + "</h3>" + choice.description
-          : choiceFeat.snippet;
-      }
+
       choiceItem.data.description = getDescription(ddb, character, choiceFeat);
       choiceItem.data.source = source;
       choiceItem.flags.ddbimporter.dndbeyond.choice = {
@@ -127,6 +136,7 @@ function parseFeature(feat, ddb, character, source, type) {
         componentTypeId: choice.componentTypeId,
         parentChoiceId: choice.parentChoiceId,
         subType: choice.subType,
+        wasOption: choice.wasOption,
       };
 
       choiceItem = addFeatEffects(ddb, character, feat, choiceItem, choice, type);

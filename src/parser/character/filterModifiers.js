@@ -74,15 +74,6 @@ export function getClassFeatures(cls, classLevel = 20) {
   }
 }
 
-/**
- * Gets all class options chosen
- * @param {obj} optionns character.options.classes entry
- */
-// function getChosenOptionIds(options) {
-//   return options.map((option) => {
-//     return option.definition.id;
-//   });
-// }
 
 /**
  * Checks if a given class is the starting class of this character

@@ -450,16 +450,20 @@ const utils = {
    * @param {object} feat options to search for
    */
   getChoices: (ddb, type, feat) => {
+    console.warn("choiceData", {ddb, type, feat})
     const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
+    const featDefinition = feat.definition ? feat.definition : feat;
 
     if (ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
       // find a choice in the related choices-array
       const choices = ddb.character.choices[type].filter(
         (characterChoice) => characterChoice.componentId && characterChoice.componentId === id
       );
+      console.warn("choices", choices);
 
       if (choices) {
         const choiceDefinitions = ddb.character.choices.choiceDefinitions;
+        console.warn("choiceDefinitions", choiceDefinitions);
 
         const options = choices
           .filter(
@@ -477,14 +481,51 @@ const utils = {
             result.choiceId = choice.id;
             result.parentChoiceId = choice.parentChoiceId;
             result.subType = choice.subType;
-            // console.log(result);
+            result.wasOption = false;
             return result;
           });
-        return options;
+
+        console.warn("options", options);
+
+        if (options.length > 0) return options;
+
+        console.warn("no options found");
+        if (ddb.character.options[type]?.length > 0) {
+          console.warn("checking character options");
+          // if it is a choice option, try and see if the mod matches
+          const optionMatch = ddb.character.options[type]
+            .filter(
+              (option) =>
+                // id match
+                !featDefinition.componentTypeId &&
+                !featDefinition.entityTypeId &&
+                id == option.componentId // && // the choice id matches the option componentID
+                // (featDefinition.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
+                //   featDefinition.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
+                // option.componentTypeId == featDefinition.entityTypeId
+            )
+            .map((option) => {
+              return {
+                id: option.definition.id,
+                label: option.definition.name,
+                description: option.definition.description,
+                componentId: option.componentId,
+                componentTypeId: option.componentTypeId,
+                choiceId: null,
+                sourceId: option.definition.sourceId,
+                parentChoiceId: null,
+                subType: `${type}-option`,
+                wasOption: true,
+              };
+
+            });
+          console.warn("optionMatch", optionMatch);
+          if (optionMatch.length > 0) return optionMatch;
+        }
       }
     }
     // we could not determine if there are any choices left
-    return undefined;
+    return [];
   },
 
   getComponentIdFromOptionValue: (ddb, type, optionId) => {
@@ -1142,9 +1183,9 @@ const utils = {
     if (customName) {
       return customName;
     } else if (data.definition?.name) {
-      return data.definition.name;
+      return data.definition.name.replace("’", "'");
     } else if (data.name) {
-      return data.name;
+      return data.name.replace("’", "'");
     } else {
       logger.error("Unable to determine name for:", data);
       return "Unknown thing.";

@@ -308,6 +308,16 @@ export function fixFeatures(features) {
         feature.data.damage.parts[0][0] += " + @mod";
         break;
       }
+      case "Genie's Vessel: Genie's Wrath (Dao)": {
+        feature.data.activation.type = "special";
+        feature.data["target"]["value"] = 1;
+        feature.data["target"]["type"] = "creature";
+        feature.data["range"]["units"] = "spec";
+        feature.data.actionType = "util";
+        feature.data.duration.units = "inst";
+        feature.data.damage = { parts: [["@prof", "bludgeoning"]], versatile: "", value: "" };
+        break;
+      }
       // no default
     }
 
