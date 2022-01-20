@@ -1,4 +1,4 @@
-import { baseItemEffect } from "../effects";
+import { baseItemEffect } from "../effects.js";
 
 export function warCasterEffect(document) {
   let effect = baseItemEffect(document, document.name);

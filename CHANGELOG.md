@@ -1,3 +1,8 @@
+# 2.8.9
+
+* Warcaster feature broke module load.
+* Monsters with no language will not add "--" to custom languages any more.
+
 # 2.8.8
 
 * Effects: War Caster.
