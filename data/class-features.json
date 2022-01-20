@@ -1379,8 +1379,8 @@
     "path": "icons/magic/nature/root-vine-entangled-humanoid.webp"
   },
   {
-    "name": "Channel Divinity: Order’s Demand",
-    "class_feature": "Channel Divinity: Order’s Demand",
+    "name": "Channel Divinity: Order's Demand",
+    "class_feature": "Channel Divinity: Order's Demand",
     "class": "Cleric",
     "subclass": "Order Domain",
     "path": "icons/commodities/treasure/token-gold-cross.webp"
@@ -1491,15 +1491,15 @@
     "path": "icons/skills/targeting/crosshair-arrowhead-blue.webp"
   },
   {
-    "name": "Channel Divinity: War God’s Blessing",
-    "class_feature": "Channel Divinity: War God’s Blessing",
+    "name": "Channel Divinity: War God's Blessing",
+    "class_feature": "Channel Divinity: War God's Blessing",
     "class": "Cleric",
     "subclass": "War Domain",
     "path": "systems/dnd5e/icons/skills/weapon_01.jpg"
   },
   {
-    "name": "Channel Divinity: Watcher’s Will",
-    "class_feature": "Channel Divinity: Watcher’s Will",
+    "name": "Channel Divinity: Watcher's Will",
+    "class_feature": "Channel Divinity: Watcher's Will",
     "class": "Paladin",
     "subclass": "",
     "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
@@ -1869,15 +1869,15 @@
     "path": "systems/dnd5e/icons/skills/emerald_03.jpg"
   },
   {
-    "name": "Dark One’s Blessing",
-    "class_feature": "Dark One’s Blessing",
+    "name": "Dark One's Blessing",
+    "class_feature": "Dark One's Blessing",
     "class": "Warlock",
     "subclass": "The Fiend",
     "path": "systems/dnd5e/icons/skills/blue_17.jpg"
   },
   {
-    "name": "Dark One’s Own Luck",
-    "class_feature": "Dark One’s Own Luck",
+    "name": "Dark One's Own Luck",
+    "class_feature": "Dark One's Own Luck",
     "class": "Warlock",
     "subclass": "The Fiend",
     "path": "systems/dnd5e/icons/skills/blood_01.jpg"
@@ -1904,8 +1904,8 @@
     "path": "systems/dnd5e/icons/skills/red_13.jpg"
   },
   {
-    "name": "Death’s Friend",
-    "class_feature": "Death’s Friend",
+    "name": "Death's Friend",
+    "class_feature": "Death's Friend",
     "class": "Rogue",
     "subclass": "Phantom",
     "path": "icons/commodities/currency/emblem-skull-steel-purple.webp"
@@ -2254,8 +2254,8 @@
     "path": "icons/commodities/claws/claw-lizard-white-black.webp"
   },
   {
-    "name": "Drake’s Breath",
-    "class_feature": "Drake’s Breath",
+    "name": "Drake's Breath",
+    "class_feature": "Drake's Breath",
     "class": "Ranger",
     "subclass": "Drakewarden (UA)",
     "path": "systems/dnd5e/icons/skills/ice_11.jpg"
@@ -2310,8 +2310,8 @@
     "path": "systems/dnd5e/icons/items/inventory/runestone-green.jpg"
   },
   {
-    "name": "Drunkard’s Luck",
-    "class_feature": "Drunkard’s Luck",
+    "name": "Drunkard's Luck",
+    "class_feature": "Drunkard's Luck",
     "class": "Monk",
     "subclass": "Way of the Drunken Master",
     "path": "icons/equipment/neck/necklace-charm-clover.webp"
@@ -3962,8 +3962,8 @@
     "path": "systems/dnd5e/icons/spells/air-burst-air-2.jpg"
   },
   {
-    "name": "Genie’s Vessel",
-    "class_feature": "Genie’s Vessel",
+    "name": "Genie's Vessel",
+    "class_feature": "Genie's Vessel",
     "class": "Warlock",
     "subclass": "The Genie",
     "path": "icons/equipment/neck/necklace-carved-lantern-gold.webp"
@@ -3976,8 +3976,8 @@
     "path": "systems/dnd5e/icons/spells/wind-magenta-1.jpg"
   },
   {
-    "name": "Giant’s Might",
-    "class_feature": "Giant’s Might",
+    "name": "Giant's Might",
+    "class_feature": "Giant's Might",
     "class": "Fighter",
     "subclass": "Rune Knight",
     "path": "systems/dnd5e/icons/skills/red_01.jpg"
@@ -4214,8 +4214,8 @@
     "path": "systems/dnd5e/icons/skills/affliction_18.jpg"
   },
   {
-    "name": "Hexblade’s Curse",
-    "class_feature": "Hexblade’s Curse",
+    "name": "Hexblade's Curse",
+    "class_feature": "Hexblade's Curse",
     "class": "Warlock",
     "subclass": "The Hexblade",
     "path": "systems/dnd5e/icons/skills/affliction_03.jpg"
@@ -4396,15 +4396,15 @@
     "path": "systems/dnd5e/icons/skills/red_31.jpg"
   },
   {
-    "name": "Hunter’s Prey",
-    "class_feature": "Hunter’s Prey",
+    "name": "Hunter's Prey",
+    "class_feature": "Hunter's Prey",
     "class": "Ranger",
     "subclass": "Hunter",
     "path": "systems/dnd5e/icons/skills/green_04.jpg"
   },
   {
-    "name": "Hunter’s Sense",
-    "class_feature": "Hunter’s Sense",
+    "name": "Hunter's Sense",
+    "class_feature": "Hunter's Sense",
     "class": "Ranger",
     "subclass": "Monster Slayer",
     "path": "systems/dnd5e/icons/spells/wild-jade-3.jpg"
@@ -4781,22 +4781,22 @@
     "path": "systems/dnd5e/icons/spells/light-blue-2.jpg"
   },
   {
-    "name": "Land’s Stride",
-    "class_feature": "Land’s Stride",
+    "name": "Land's Stride",
+    "class_feature": "Land's Stride",
     "class": "Druid",
     "subclass": "Circle of the Land (Arctic)",
     "path": "systems/dnd5e/icons/spells/leaf-acid-2.jpg"
   },
   {
-    "name": "Land’s Stride",
-    "class_feature": "Land’s Stride",
+    "name": "Land's Stride",
+    "class_feature": "Land's Stride",
     "class": "Ranger",
     "subclass": "Hunter",
     "path": "systems/dnd5e/icons/spells/leaf-acid-2.jpg"
   },
   {
-    "name": "Land’s Stride",
-    "class_feature": "Land’s Stride",
+    "name": "Land's Stride",
+    "class_feature": "Land's Stride",
     "class": "Ranger",
     "subclass": "",
     "path": "systems/dnd5e/icons/spells/leaf-acid-2.jpg"
@@ -4928,8 +4928,8 @@
     "path": "icons/equipment/neck/amulet-geometric-gold-green.webp"
   },
   {
-    "name": "Magic-User’s Nemesis",
-    "class_feature": "Magic-User’s Nemesis",
+    "name": "Magic-User's Nemesis",
+    "class_feature": "Magic-User's Nemesis",
     "class": "Ranger",
     "subclass": "Monster Slayer",
     "path": "systems/dnd5e/icons/spells/shielding-acid-3.jpg"
@@ -5145,8 +5145,8 @@
     "path": "systems/dnd5e/icons/skills/blue_12.jpg"
   },
   {
-    "name": "Master’s Flourish",
-    "class_feature": "Master’s Flourish",
+    "name": "Master's Flourish",
+    "class_feature": "Master's Flourish",
     "class": "Bard",
     "subclass": "College of Swords",
     "path": "systems/dnd5e/icons/skills/weapon_12.jpg"
@@ -5460,22 +5460,22 @@
     "path": "systems/dnd5e/icons/spells/vines-jade-3.jpg"
   },
   {
-    "name": "Nature’s Sanctuary",
-    "class_feature": "Nature’s Sanctuary",
+    "name": "Nature's Sanctuary",
+    "class_feature": "Nature's Sanctuary",
     "class": "Druid",
     "subclass": "Circle of the Land (Arctic)",
     "path": "systems/dnd5e/icons/items/inventory/herb.jpg"
   },
   {
-    "name": "Nature’s Veil",
-    "class_feature": "Nature’s Veil",
+    "name": "Nature's Veil",
+    "class_feature": "Nature's Veil",
     "class": "Ranger",
     "subclass": "",
     "path": "systems/dnd5e/icons/skills/green_18.jpg"
   },
   {
-    "name": "Nature’s Ward",
-    "class_feature": "Nature’s Ward",
+    "name": "Nature's Ward",
+    "class_feature": "Nature's Ward",
     "class": "Druid",
     "subclass": "Circle of the Land (Arctic)",
     "path": "systems/dnd5e/icons/spells/leaf-jade-3.jpg"
@@ -5894,8 +5894,8 @@
     "path": "systems/dnd5e/icons/skills/yellow_17.jpg"
   },
   {
-    "name": "Physician’s Touch",
-    "class_feature": "Physician’s Touch",
+    "name": "Physician's Touch",
+    "class_feature": "Physician's Touch",
     "class": "Monk",
     "subclass": "Way of Mercy",
     "path": "systems/dnd5e/icons/skills/ice_16.jpg"
@@ -6384,8 +6384,8 @@
     "path": "systems/dnd5e/icons/skills/nature_05.jpg"
   },
   {
-    "name": "Ranger’s Companion",
-    "class_feature": "Ranger’s Companion",
+    "name": "Ranger's Companion",
+    "class_feature": "Ranger's Companion",
     "class": "Ranger",
     "subclass": "Beast Master",
     "path": "icons/commodities/treasure/figurine-boar.webp"
@@ -6664,8 +6664,8 @@
     "path": "systems/dnd5e/icons/skills/yellow_37.jpg"
   },
   {
-    "name": "Scoundrel’s Wit",
-    "class_feature": "Scoundrel’s Wit",
+    "name": "Scoundrel's Wit",
+    "class_feature": "Scoundrel's Wit",
     "class": "Fighter",
     "subclass": "COPY_OF_Renegade (Partnered)",
     "path": "icons/weapons/guns/gun-worn-steel.webp"
@@ -6727,8 +6727,8 @@
     "path": "icons/skills/ranged/person-archery-bow-attack-orange.webp"
   },
   {
-    "name": "Sentinel at Death’s Door",
-    "class_feature": "Sentinel at Death’s Door",
+    "name": "Sentinel at Death's Door",
+    "class_feature": "Sentinel at Death's Door",
     "class": "Cleric",
     "subclass": "Grave Domain",
     "path": "systems/dnd5e/icons/skills/yellow_40.jpg"
@@ -6839,15 +6839,15 @@
     "path": "icons/weapons/fist/claw-hooked-grey.webp"
   },
   {
-    "name": "Slayer’s Counter",
-    "class_feature": "Slayer’s Counter",
+    "name": "Slayer's Counter",
+    "class_feature": "Slayer's Counter",
     "class": "Ranger",
     "subclass": "Monster Slayer",
     "path": "systems/dnd5e/icons/skills/shadow_13.jpg"
   },
   {
-    "name": "Slayer’s Prey",
-    "class_feature": "Slayer’s Prey",
+    "name": "Slayer's Prey",
+    "class_feature": "Slayer's Prey",
     "class": "Ranger",
     "subclass": "Monster Slayer",
     "path": "systems/dnd5e/icons/skills/violet_24.jpg"
@@ -7784,8 +7784,8 @@
     "path": "systems/dnd5e/icons/skills/beast_01.jpg"
   },
   {
-    "name": "Stalker’s Flurry",
-    "class_feature": "Stalker’s Flurry",
+    "name": "Stalker's Flurry",
+    "class_feature": "Stalker's Flurry",
     "class": "Ranger",
     "subclass": "Gloom Stalker",
     "path": "systems/dnd5e/icons/skills/yellow_37.jpg"
@@ -7889,8 +7889,8 @@
     "path": "systems/dnd5e/icons/spells/wind-magenta-3.jpg"
   },
   {
-    "name": "Storm’s Fury",
-    "class_feature": "Storm’s Fury",
+    "name": "Storm's Fury",
+    "class_feature": "Storm's Fury",
     "class": "Sorcerer",
     "subclass": "Storm Sorcery",
     "path": "systems/dnd5e/icons/spells/lightning-blue-3.jpg"
@@ -7994,8 +7994,8 @@
     "path": "systems/dnd5e/icons/skills/red_12.jpg"
   },
   {
-    "name": "Superior Hunter’s Defense",
-    "class_feature": "Superior Hunter’s Defense",
+    "name": "Superior Hunter's Defense",
+    "class_feature": "Superior Hunter's Defense",
     "class": "Ranger",
     "subclass": "Hunter",
     "path": "systems/dnd5e/icons/spells/vines-acid-3.jpg"
@@ -8169,22 +8169,22 @@
     "path": "systems/dnd5e/icons/skills/red_09.jpg"
   },
   {
-    "name": "Thief’s Reflexes",
-    "class_feature": "Thief’s Reflexes",
+    "name": "Thief's Reflexes",
+    "class_feature": "Thief's Reflexes",
     "class": "Rogue",
     "subclass": "Thief",
     "path": "systems/dnd5e/icons/skills/beast_01.jpg"
   },
   {
-    "name": "Thieves’ Cant",
-    "class_feature": "Thieves’ Cant",
+    "name": "Thieves' Cant",
+    "class_feature": "Thieves' Cant",
     "class": "Rogue",
     "subclass": "Thief",
     "path": "icons/commodities/treasure/token-runed-sigel-brown.webp"
   },
   {
-    "name": "Thieves’ Cant",
-    "class_feature": "Thieves’ Cant",
+    "name": "Thieves' Cant",
+    "class_feature": "Thieves' Cant",
     "class": "Rogue",
     "subclass": "",
     "path": "icons/commodities/treasure/token-runed-sigel-brown.webp"
@@ -8218,8 +8218,8 @@
     "path": "systems/dnd5e/icons/spells/shielding-eerie-2.jpg"
   },
   {
-    "name": "Time’s Master",
-    "class_feature": "Time’s Master",
+    "name": "Time's Master",
+    "class_feature": "Time's Master",
     "class": "Cleric",
     "subclass": "Time Domain",
     "path": "systems/dnd5e/icons/skills/mech_4.jpg"
@@ -8540,8 +8540,8 @@
     "path": "icons/sundries/documents/document-symbol-triangle-pink.webp"
   },
   {
-    "name": "Transmuter’s Stone",
-    "class_feature": "Transmuter’s Stone",
+    "name": "Transmuter's Stone",
+    "class_feature": "Transmuter's Stone",
     "class": "Wizard",
     "subclass": "School of Transmutation",
     "path": "icons/commodities/gems/gem-rough-oval-orange.webp"

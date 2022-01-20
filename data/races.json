@@ -10,49 +10,21 @@
     "name": "Aereni Elf",
     "racial_trait": "Aereni Elf",
     "race": "Elf",
-    "subrace": "Aereni Wood Elf",
+    "subrace": "",
     "path": "icons/commodities/gems/gem-faceted-diamond-green.webp"
-  },
-  {
-    "name": "Aereni Elf",
-    "racial_trait": "Aereni Elf",
-    "race": "Elf",
-    "subrace": "Aereni High Elf",
-    "path": "icons/commodities/gems/gem-faceted-diamond-green.webp"
-  },
-  {
-    "name": "Aggressive",
-    "racial_trait": "Aggressive",
-    "race": "Orc of Eberron",
-    "subrace": "Orc of Eberron",
-    "path": "icons/equipment/finger/ring-bone-teeth.webp"
-  },
-  {
-    "name": "Aggressive",
-    "racial_trait": "Aggressive",
-    "race": "Orc of Exandria",
-    "subrace": "Orc of Exandria",
-    "path": "icons/equipment/finger/ring-bone-teeth.webp"
   },
   {
     "name": "Aggressive",
     "racial_trait": "Aggressive",
     "race": "Orc",
-    "subrace": "Orc",
+    "subrace": "",
     "path": "icons/equipment/finger/ring-bone-teeth.webp"
   },
   {
     "name": "Amphibious",
     "racial_trait": "Amphibious",
-    "race": "Grung",
-    "subrace": "Grung",
-    "path": "systems/dnd5e/icons/skills/affliction_15.jpg"
-  },
-  {
-    "name": "Amphibious",
-    "racial_trait": "Amphibious",
-    "race": "Triton",
-    "subrace": "Triton",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/affliction_15.jpg"
   },
   {
@@ -61,6 +33,13 @@
     "race": "Genasi",
     "subrace": "Water Genasi",
     "path": "systems/dnd5e/icons/skills/affliction_15.jpg"
+  },
+  {
+    "name": "Ancestral Legacy",
+    "racial_trait": "Ancestral Legacy",
+    "race": "",
+    "subrace": "",
+    "path": "icons/skills/social/intimidation-impressing.webp"
   },
   {
     "name": "Animal Enhancement",
@@ -77,15 +56,15 @@
     "path": "icons/commodities/biological/eye-tentacle-green-orange.webp"
   },
   {
-    "name": "Artificer’s Lore",
-    "racial_trait": "Artificer’s Lore",
+    "name": "Artificer's Lore",
+    "racial_trait": "Artificer's Lore",
     "race": "Gnome",
     "subrace": "Rock Gnome",
     "path": "icons/sundries/books/book-embossed-clasp-gold-brown.webp"
   },
   {
-    "name": "Artisan’s Intuition",
-    "racial_trait": "Artisan’s Intuition",
+    "name": "Artisan's Intuition",
+    "racial_trait": "Artisan's Intuition",
     "race": "Human",
     "subrace": "Mark of Making Human",
     "path": "icons/tools/hand/hammer-and-nail.webp"
@@ -129,42 +108,7 @@
     "name": "Brave",
     "racial_trait": "Brave",
     "race": "Halfling",
-    "subrace": "Lightfoot Halfling",
-    "path": "icons/commodities/treasure/broach-shield-grey.webp"
-  },
-  {
-    "name": "Brave",
-    "racial_trait": "Brave",
-    "race": "Halfling",
-    "subrace": "Stout Halfling",
-    "path": "icons/commodities/treasure/broach-shield-grey.webp"
-  },
-  {
-    "name": "Brave",
-    "racial_trait": "Brave",
-    "race": "Halfling",
-    "subrace": "Ghostwise Halfling",
-    "path": "icons/commodities/treasure/broach-shield-grey.webp"
-  },
-  {
-    "name": "Brave",
-    "racial_trait": "Brave",
-    "race": "Halfling",
-    "subrace": "Lotusden Halfling",
-    "path": "icons/commodities/treasure/broach-shield-grey.webp"
-  },
-  {
-    "name": "Brave",
-    "racial_trait": "Brave",
-    "race": "Halfling",
-    "subrace": "Mark of Healing Halfling",
-    "path": "icons/commodities/treasure/broach-shield-grey.webp"
-  },
-  {
-    "name": "Brave",
-    "racial_trait": "Brave",
-    "race": "Halfling",
-    "subrace": "Mark of Hospitality Halfling",
+    "subrace": "",
     "path": "icons/commodities/treasure/broach-shield-grey.webp"
   },
   {
@@ -198,15 +142,8 @@
   {
     "name": "Cantrip",
     "racial_trait": "Cantrip",
-    "race": "Elf",
-    "subrace": "High Elf",
-    "path": "icons/sundries/documents/document-symbol-eye.webp"
-  },
-  {
-    "name": "Cantrip",
-    "racial_trait": "Cantrip",
-    "race": "Elf",
-    "subrace": "Valenar High Elf",
+    "race": "",
+    "subrace": "",
     "path": "icons/sundries/documents/document-symbol-eye.webp"
   },
   {
@@ -217,15 +154,15 @@
     "path": "icons/sundries/documents/document-symbol-eye.webp"
   },
   {
-    "name": "Cat’s Claws",
-    "racial_trait": "Cat’s Claws",
+    "name": "Cat's Claws",
+    "racial_trait": "Cat's Claws",
     "race": "Tabaxi",
     "subrace": "Tabaxi",
     "path": "icons/weapons/fist/claw-hooked-grey.webp"
   },
   {
-    "name": "Cat’s Talent",
-    "racial_trait": "Cat’s Talent",
+    "name": "Cat's Talent",
+    "racial_trait": "Cat's Talent",
     "race": "Tabaxi",
     "subrace": "Tabaxi",
     "path": "icons/commodities/treasure/broach-gold-eye-green.webp"
@@ -241,35 +178,7 @@
     "name": "Celestial Resistance",
     "racial_trait": "Celestial Resistance",
     "race": "Aasimar",
-    "subrace": "Protector Aasimar",
-    "path": "systems/dnd5e/icons/skills/ice_09.jpg"
-  },
-  {
-    "name": "Celestial Resistance",
-    "racial_trait": "Celestial Resistance",
-    "race": "Aasimar",
-    "subrace": "Scourge Aasimar",
-    "path": "systems/dnd5e/icons/skills/ice_09.jpg"
-  },
-  {
-    "name": "Celestial Resistance",
-    "racial_trait": "Celestial Resistance",
-    "race": "Aasimar",
-    "subrace": "Fallen Aasimar",
-    "path": "systems/dnd5e/icons/skills/ice_09.jpg"
-  },
-  {
-    "name": "Celestial Resistance",
-    "racial_trait": "Celestial Resistance",
-    "race": "Aasimar",
-    "subrace": "Variant Aasimar",
-    "path": "systems/dnd5e/icons/skills/ice_09.jpg"
-  },
-  {
-    "name": "Celestial Resistance",
-    "racial_trait": "Celestial Resistance",
-    "race": "Touched by the Raven",
-    "subrace": "Touched by the Raven",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/ice_09.jpg"
   },
   {
@@ -303,15 +212,8 @@
   {
     "name": "Claws",
     "racial_trait": "Claws",
-    "race": "Tortle",
-    "subrace": "Tortle",
-    "path": "icons/commodities/claws/claws-white.webp"
-  },
-  {
-    "name": "Claws",
-    "racial_trait": "Claws",
-    "race": "Leonin",
-    "subrace": "Leonin",
+    "race": "",
+    "subrace": "",
     "path": "icons/commodities/claws/claws-white.webp"
   },
   {
@@ -338,29 +240,8 @@
   {
     "name": "Creature Type",
     "racial_trait": "Creature Type",
-    "race": "Custom Lineage",
-    "subrace": "Custom Lineage",
-    "path": "icons/environment/creatures/gargoyle-grey-blue.webp"
-  },
-  {
-    "name": "Creature Type",
-    "racial_trait": "Creature Type",
-    "race": "Dhampir (UA)",
-    "subrace": "Dhampir (UA)",
-    "path": "icons/environment/creatures/gargoyle-grey-blue.webp"
-  },
-  {
-    "name": "Creature Type",
-    "racial_trait": "Creature Type",
-    "race": "Hexblood (UA)",
-    "subrace": "Hexblood (UA)",
-    "path": "icons/environment/creatures/gargoyle-grey-blue.webp"
-  },
-  {
-    "name": "Creature Type",
-    "racial_trait": "Creature Type",
-    "race": "Reborn (UA)",
-    "subrace": "Reborn (UA)",
+    "race": "",
+    "subrace": "",
     "path": "icons/environment/creatures/gargoyle-grey-blue.webp"
   },
   {
@@ -387,477 +268,8 @@
   {
     "name": "Darkvision",
     "racial_trait": "Darkvision",
-    "race": "Tabaxi",
-    "subrace": "Tabaxi",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Bugbear",
-    "subrace": "Bugbear",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Goblin",
-    "subrace": "Goblin",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Hobgoblin",
-    "subrace": "Hobgoblin",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Yuan-ti Pureblood",
-    "subrace": "Yuan-ti Pureblood",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Feral Tiefling",
-    "subrace": "Feral Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Orc of Eberron",
-    "subrace": "Orc of Eberron",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Orc of Exandria",
-    "subrace": "Orc of Exandria",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Dhampir (UA)",
-    "subrace": "Dhampir (UA)",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Simic Hybrid",
-    "subrace": "Simic Hybrid",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Kobold",
-    "subrace": "Kobold",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Orc",
-    "subrace": "Orc",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Hexblood (UA)",
-    "subrace": "Hexblood (UA)",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Reborn (UA)",
-    "subrace": "Reborn (UA)",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Half-Orc",
-    "subrace": "Half-Orc",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Half-Elf",
-    "subrace": "Half-Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Triton",
-    "subrace": "Triton",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Huutgr",
-    "subrace": "Huutgr",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Leonin",
-    "subrace": "Leonin",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "High Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Wood Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Dwarf",
-    "subrace": "Hill Dwarf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Dwarf",
-    "subrace": "Mountain Dwarf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Gnome",
-    "subrace": "Rock Gnome",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Aasimar",
-    "subrace": "Protector Aasimar",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Aasimar",
-    "subrace": "Scourge Aasimar",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Feral Tiefling",
-    "subrace": "Variant Feral Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Shifter",
-    "subrace": "Beasthide",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Shifter",
-    "subrace": "Longtooth",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Shifter",
-    "subrace": "Swiftstride",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Shifter",
-    "subrace": "Wildhunt",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Sea Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Eladrin",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Aereni Wood Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Valenar Wood Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Pallid Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Half-Elf",
-    "subrace": "Wood Half-Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Half-Elf",
-    "subrace": "High Half-Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Half-Elf",
-    "subrace": "Aquatic Half-Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Variant Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Baalzebul Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Dispater Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Fierna Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Glasya Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Levistus Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Mammon Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Mephistopheles Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Tiefling",
-    "subrace": "Zariel Tiefling",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Human",
-    "subrace": "Mark of Finding Human",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Dragonborn",
-    "subrace": "Draconblood Dragonborn",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Dragonborn",
-    "subrace": "Ravenite Dragonborn",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Valenar High Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Gnome",
-    "subrace": "Mark of Scribing Gnome",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Mark of Shadow Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Dwarf",
-    "subrace": "Mark of Warding Dwarf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Half-Elf",
-    "subrace": "Mark of Detection Half-Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Half-Orc",
-    "subrace": "Mark of Finding Half-Orc",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Half-Elf",
-    "subrace": "Mark of Storm Half-Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Genasi",
-    "subrace": "Fire Genasi",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Gnome",
-    "subrace": "Forest Gnome",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Aasimar",
-    "subrace": "Fallen Aasimar",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Half-Elf",
-    "subrace": "Drow Half-Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Aasimar",
-    "subrace": "Variant Aasimar",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Eladrin (Variant)",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Shadar-kai",
-    "subrace": "Shadar-kai",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Elf",
-    "subrace": "Aereni High Elf",
-    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
-  },
-  {
-    "name": "Darkvision",
-    "racial_trait": "Darkvision",
-    "race": "Touched by the Raven",
-    "subrace": "Touched by the Raven",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
   },
   {
@@ -870,8 +282,8 @@
   {
     "name": "Deathless Nature",
     "racial_trait": "Deathless Nature",
-    "race": "Reborn (UA)",
-    "subrace": "Reborn (UA)",
+    "race": "Reborn",
+    "subrace": "Reborn",
     "path": "systems/dnd5e/icons/skills/affliction_09.jpg"
   },
   {
@@ -892,35 +304,14 @@
     "name": "Draconic Ancestry",
     "racial_trait": "Draconic Ancestry",
     "race": "Dragonborn",
-    "subrace": "Dragonborn",
-    "path": "icons/commodities/biological/wing-lizard-purple.webp"
-  },
-  {
-    "name": "Draconic Ancestry",
-    "racial_trait": "Draconic Ancestry",
-    "race": "Dragonborn",
-    "subrace": "Draconblood Dragonborn",
-    "path": "icons/commodities/biological/wing-lizard-purple.webp"
-  },
-  {
-    "name": "Draconic Ancestry",
-    "racial_trait": "Draconic Ancestry",
-    "race": "Dragonborn",
-    "subrace": "Ravenite Dragonborn",
+    "subrace": "",
     "path": "icons/commodities/biological/wing-lizard-purple.webp"
   },
   {
     "name": "Drow Magic",
     "racial_trait": "Drow Magic",
     "race": "Elf",
-    "subrace": "Dark Elf (Drow)",
-    "path": "icons/sundries/books/book-embossed-jewel-silver-green.webp"
-  },
-  {
-    "name": "Drow Magic",
-    "racial_trait": "Drow Magic",
-    "race": "Half-Elf",
-    "subrace": "Drow Half-Elf",
+    "subrace": "",
     "path": "icons/sundries/books/book-embossed-jewel-silver-green.webp"
   },
   {
@@ -966,52 +357,10 @@
     "path": "icons/sundries/documents/blueprint-axe.webp"
   },
   {
-    "name": "Dwarven Combat Training",
-    "racial_trait": "Dwarven Combat Training",
-    "race": "Dwarf",
-    "subrace": "Mountain Dwarf",
-    "path": "icons/sundries/documents/blueprint-axe.webp"
-  },
-  {
-    "name": "Dwarven Combat Training",
-    "racial_trait": "Dwarven Combat Training",
-    "race": "Dwarf",
-    "subrace": "Gray Dwarf (Duergar)",
-    "path": "icons/sundries/documents/blueprint-axe.webp"
-  },
-  {
-    "name": "Dwarven Combat Training",
-    "racial_trait": "Dwarven Combat Training",
-    "race": "Dwarf",
-    "subrace": "Mark of Warding Dwarf",
-    "path": "icons/sundries/documents/blueprint-axe.webp"
-  },
-  {
     "name": "Dwarven Resilience",
     "racial_trait": "Dwarven Resilience",
     "race": "Dwarf",
-    "subrace": "Hill Dwarf",
-    "path": "icons/commodities/treasure/statue-carved-figurehead.webp"
-  },
-  {
-    "name": "Dwarven Resilience",
-    "racial_trait": "Dwarven Resilience",
-    "race": "Dwarf",
-    "subrace": "Mountain Dwarf",
-    "path": "icons/commodities/treasure/statue-carved-figurehead.webp"
-  },
-  {
-    "name": "Dwarven Resilience",
-    "racial_trait": "Dwarven Resilience",
-    "race": "Dwarf",
-    "subrace": "Gray Dwarf (Duergar)",
-    "path": "icons/commodities/treasure/statue-carved-figurehead.webp"
-  },
-  {
-    "name": "Dwarven Resilience",
-    "racial_trait": "Dwarven Resilience",
-    "race": "Dwarf",
-    "subrace": "Mark of Warding Dwarf",
+    "subrace": "",
     "path": "icons/commodities/treasure/statue-carved-figurehead.webp"
   },
   {
@@ -1029,24 +378,17 @@
     "path": "icons/environment/wilderness/cave-entrance.webp"
   },
   {
-    "name": "Elf Weapon Training",
-    "racial_trait": "Elf Weapon Training",
-    "race": "Elf",
-    "subrace": "High Elf",
-    "path": "icons/weapons/bows/bow-ornamental-gold-blue.webp"
+    "name": "Eerie Token",
+    "racial_trait": "Eerie Token",
+    "race": "Hexblood",
+    "subrace": "",
+    "path": "icons/creatures/eyes/slime-single-red.webp"
   },
   {
     "name": "Elf Weapon Training",
     "racial_trait": "Elf Weapon Training",
     "race": "Elf",
-    "subrace": "Wood Elf",
-    "path": "icons/weapons/bows/bow-ornamental-gold-blue.webp"
-  },
-  {
-    "name": "Elf Weapon Training",
-    "racial_trait": "Elf Weapon Training",
-    "race": "Elf",
-    "subrace": "Eladrin (Variant)",
+    "subrace": "",
     "path": "icons/weapons/bows/bow-ornamental-gold-blue.webp"
   },
   {
@@ -1081,28 +423,7 @@
     "name": "Extra Language",
     "racial_trait": "Extra Language",
     "race": "Elf",
-    "subrace": "High Elf",
-    "path": "icons/sundries/books/book-open-brown.webp"
-  },
-  {
-    "name": "Extra Language",
-    "racial_trait": "Extra Language",
-    "race": "Dwarf",
-    "subrace": "Gray Dwarf (Duergar)",
-    "path": "icons/sundries/books/book-open-brown.webp"
-  },
-  {
-    "name": "Extra Language",
-    "racial_trait": "Extra Language",
-    "race": "Elf",
-    "subrace": "Valenar High Elf",
-    "path": "icons/sundries/books/book-open-brown.webp"
-  },
-  {
-    "name": "Extra Language",
-    "racial_trait": "Extra Language",
-    "race": "Elf",
-    "subrace": "Aereni High Elf",
+    "subrace": "",
     "path": "icons/sundries/books/book-open-brown.webp"
   },
   {
@@ -1122,190 +443,36 @@
   {
     "name": "Fey",
     "racial_trait": "Fey",
-    "race": "Centaur",
-    "subrace": "Centaur",
-    "path": "systems/dnd5e/icons/spells/vines-jade-3.jpg"
-  },
-  {
-    "name": "Fey",
-    "racial_trait": "Fey",
-    "race": "Satyr",
-    "subrace": "Satyr",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/spells/vines-jade-3.jpg"
   },
   {
     "name": "Fey Ancestry",
     "racial_trait": "Fey Ancestry",
-    "race": "Half-Elf",
-    "subrace": "Half-Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "High Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Wood Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Dark Elf (Drow)",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Sea Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Eladrin",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Aereni Wood Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Valenar Wood Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Pallid Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Half-Elf",
-    "subrace": "Wood Half-Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Half-Elf",
-    "subrace": "High Half-Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Half-Elf",
-    "subrace": "Aquatic Half-Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Valenar High Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Mark of Shadow Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Half-Elf",
-    "subrace": "Mark of Detection Half-Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Half-Elf",
-    "subrace": "Mark of Storm Half-Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Half-Elf",
-    "subrace": "Drow Half-Elf",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Eladrin (Variant)",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Shadar-kai",
-    "subrace": "Shadar-kai",
-    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
-  },
-  {
-    "name": "Fey Ancestry",
-    "racial_trait": "Fey Ancestry",
-    "race": "Elf",
-    "subrace": "Aereni High Elf",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
   },
   {
     "name": "Fey Resilience",
     "racial_trait": "Fey Resilience",
-    "race": "Hexblood (UA)",
-    "subrace": "Hexblood (UA)",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/spells/shielding-acid-2.jpg"
   },
   {
     "name": "Fey Step",
     "racial_trait": "Fey Step",
-    "race": "Elf",
-    "subrace": "Eladrin",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/spells/wind-grasp-acid-1.jpg"
   },
   {
-    "name": "Fey Step",
-    "racial_trait": "Fey Step",
-    "race": "Elf",
-    "subrace": "Eladrin (Variant)",
-    "path": "systems/dnd5e/icons/spells/wind-grasp-acid-1.jpg"
-  },
-  {
-    "name": "Finder’s Magic",
-    "racial_trait": "Finder’s Magic",
-    "race": "Human",
-    "subrace": "Mark of Finding Human",
-    "path": "systems/dnd5e/icons/skills/green_01.jpg"
-  },
-  {
-    "name": "Finder’s Magic",
-    "racial_trait": "Finder’s Magic",
-    "race": "Half-Orc",
-    "subrace": "Mark of Finding Half-Orc",
+    "name": "Finder's Magic",
+    "racial_trait": "Finder's Magic",
+    "race": "",
+    "subrace": "Mark of Finding",
     "path": "systems/dnd5e/icons/skills/green_01.jpg"
   },
   {
@@ -1326,28 +493,14 @@
     "name": "Fleet of Foot",
     "racial_trait": "Fleet of Foot",
     "race": "Elf",
-    "subrace": "Wood Elf",
-    "path": "icons/equipment/feet/shoes-simple-leaf-green.webp"
-  },
-  {
-    "name": "Fleet of Foot",
-    "racial_trait": "Fleet of Foot",
-    "race": "Elf",
-    "subrace": "Aereni Wood Elf",
-    "path": "icons/equipment/feet/shoes-simple-leaf-green.webp"
-  },
-  {
-    "name": "Fleet of Foot",
-    "racial_trait": "Fleet of Foot",
-    "race": "Elf",
-    "subrace": "Valenar Wood Elf",
+    "subrace": "",
     "path": "icons/equipment/feet/shoes-simple-leaf-green.webp"
   },
   {
     "name": "Flight",
     "racial_trait": "Flight",
-    "race": "Aarakocra",
-    "subrace": "Aarakocra",
+    "race": "",
+    "subrace": "",
     "path": "icons/commodities/biological/wing-bird-white.webp"
   },
   {
@@ -1396,28 +549,7 @@
     "name": "Gnome Cunning",
     "racial_trait": "Gnome Cunning",
     "race": "Gnome",
-    "subrace": "Rock Gnome",
-    "path": "icons/commodities/gems/gem-rough-spiral-teal.webp"
-  },
-  {
-    "name": "Gnome Cunning",
-    "racial_trait": "Gnome Cunning",
-    "race": "Gnome",
-    "subrace": "Deep Gnome",
-    "path": "icons/commodities/gems/gem-rough-spiral-teal.webp"
-  },
-  {
-    "name": "Gnome Cunning",
-    "racial_trait": "Gnome Cunning",
-    "race": "Gnome",
-    "subrace": "Mark of Scribing Gnome",
-    "path": "icons/commodities/gems/gem-rough-spiral-teal.webp"
-  },
-  {
-    "name": "Gnome Cunning",
-    "racial_trait": "Gnome Cunning",
-    "race": "Gnome",
-    "subrace": "Forest Gnome",
+    "subrace": "",
     "path": "icons/commodities/gems/gem-rough-spiral-teal.webp"
   },
   {
@@ -1435,8 +567,8 @@
     "path": "systems/dnd5e/icons/skills/green_30.jpg"
   },
   {
-    "name": "Guardian’s Shield",
-    "racial_trait": "Guardian’s Shield",
+    "name": "Guardian's Shield",
+    "racial_trait": "Guardian's Shield",
     "race": "Human",
     "subrace": "Mark of Sentinel Human",
     "path": "systems/dnd5e/icons/skills/weapon_18.jpg"
@@ -1452,56 +584,14 @@
     "name": "Half-Elf Variant",
     "racial_trait": "Half-Elf Variant",
     "race": "Half-Elf",
-    "subrace": "Wood Half-Elf",
-    "path": "icons/weapons/bows/shortbow-leaves-green.webp"
-  },
-  {
-    "name": "Half-Elf Variant",
-    "racial_trait": "Half-Elf Variant",
-    "race": "Half-Elf",
-    "subrace": "High Half-Elf",
+    "subrace": "",
     "path": "icons/weapons/bows/shortbow-leaves-green.webp"
   },
   {
     "name": "Halfling Nimbleness",
     "racial_trait": "Halfling Nimbleness",
     "race": "Halfling",
-    "subrace": "Lightfoot Halfling",
-    "path": "icons/equipment/feet/shoes-collared-leather-blue.webp"
-  },
-  {
-    "name": "Halfling Nimbleness",
-    "racial_trait": "Halfling Nimbleness",
-    "race": "Halfling",
-    "subrace": "Stout Halfling",
-    "path": "icons/equipment/feet/shoes-collared-leather-blue.webp"
-  },
-  {
-    "name": "Halfling Nimbleness",
-    "racial_trait": "Halfling Nimbleness",
-    "race": "Halfling",
-    "subrace": "Ghostwise Halfling",
-    "path": "icons/equipment/feet/shoes-collared-leather-blue.webp"
-  },
-  {
-    "name": "Halfling Nimbleness",
-    "racial_trait": "Halfling Nimbleness",
-    "race": "Halfling",
-    "subrace": "Lotusden Halfling",
-    "path": "icons/equipment/feet/shoes-collared-leather-blue.webp"
-  },
-  {
-    "name": "Halfling Nimbleness",
-    "racial_trait": "Halfling Nimbleness",
-    "race": "Halfling",
-    "subrace": "Mark of Healing Halfling",
-    "path": "icons/equipment/feet/shoes-collared-leather-blue.webp"
-  },
-  {
-    "name": "Halfling Nimbleness",
-    "racial_trait": "Halfling Nimbleness",
-    "race": "Halfling",
-    "subrace": "Mark of Hospitality Halfling",
+    "subrace": "",
     "path": "icons/equipment/feet/shoes-collared-leather-blue.webp"
   },
   {
@@ -1529,21 +619,7 @@
     "name": "Healing Hands",
     "racial_trait": "Healing Hands",
     "race": "Aasimar",
-    "subrace": "Protector Aasimar",
-    "path": "systems/dnd5e/icons/skills/ice_16.jpg"
-  },
-  {
-    "name": "Healing Hands",
-    "racial_trait": "Healing Hands",
-    "race": "Aasimar",
-    "subrace": "Scourge Aasimar",
-    "path": "systems/dnd5e/icons/skills/ice_16.jpg"
-  },
-  {
-    "name": "Healing Hands",
-    "racial_trait": "Healing Hands",
-    "race": "Aasimar",
-    "subrace": "Fallen Aasimar",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/ice_16.jpg"
   },
   {
@@ -1556,92 +632,15 @@
   {
     "name": "Hellish Resistance",
     "racial_trait": "Hellish Resistance",
-    "race": "Feral Tiefling",
-    "subrace": "Feral Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
     "race": "Tiefling",
-    "subrace": "Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Feral Tiefling",
-    "subrace": "Variant Feral Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Tiefling",
-    "subrace": "Variant Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Tiefling",
-    "subrace": "Baalzebul Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Tiefling",
-    "subrace": "Dispater Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Tiefling",
-    "subrace": "Fierna Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Tiefling",
-    "subrace": "Glasya Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Tiefling",
-    "subrace": "Levistus Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Tiefling",
-    "subrace": "Mammon Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Tiefling",
-    "subrace": "Mephistopheles Tiefling",
-    "path": "systems/dnd5e/icons/skills/red_06.jpg"
-  },
-  {
-    "name": "Hellish Resistance",
-    "racial_trait": "Hellish Resistance",
-    "race": "Tiefling",
-    "subrace": "Zariel Tiefling",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/red_06.jpg"
   },
   {
     "name": "Hex Magic",
     "racial_trait": "Hex Magic",
-    "race": "Hexblood (UA)",
-    "subrace": "Hexblood (UA)",
+    "race": "Hexblood",
+    "subrace": "Hexblood",
     "path": "systems/dnd5e/icons/skills/shadow_17.jpg"
   },
   {
@@ -1687,29 +686,29 @@
     "path": "systems/dnd5e/icons/skills/red_29.jpg"
   },
   {
-    "name": "Hunter’s Instincts",
-    "racial_trait": "Hunter’s Instincts",
+    "name": "Hunter's Instincts",
+    "racial_trait": "Hunter's Instincts",
     "race": "Leonin",
     "subrace": "Leonin",
     "path": "icons/equipment/neck/necklace-eye-orange.webp"
   },
   {
-    "name": "Hunter’s Intuition",
-    "racial_trait": "Hunter’s Intuition",
+    "name": "Hunter's Intuition",
+    "racial_trait": "Hunter's Intuition",
     "race": "Human",
     "subrace": "Mark of Finding Human",
     "path": "icons/environment/traps/trap-jaw-steel.webp"
   },
   {
-    "name": "Hunter’s Intuition",
-    "racial_trait": "Hunter’s Intuition",
+    "name": "Hunter's Intuition",
+    "racial_trait": "Hunter's Intuition",
     "race": "Half-Orc",
     "subrace": "Mark of Finding Half-Orc",
     "path": "icons/environment/traps/trap-jaw-steel.webp"
   },
   {
-    "name": "Hunter’s Lore",
-    "racial_trait": "Hunter’s Lore",
+    "name": "Hunter's Lore",
+    "racial_trait": "Hunter's Lore",
     "race": "Lizardfolk",
     "subrace": "Lizardfolk",
     "path": "icons/equipment/neck/necklace-simple-leaves.webp"
@@ -1750,8 +749,8 @@
     "path": "systems/dnd5e/icons/skills/affliction_22.jpg"
   },
   {
-    "name": "Innkeeper’s Magic",
-    "racial_trait": "Innkeeper’s Magic",
+    "name": "Innkeeper's Magic",
+    "racial_trait": "Innkeeper's Magic",
     "race": "Halfling",
     "subrace": "Mark of Hospitality Halfling",
     "path": "icons/tools/cooking/pot-camping-iron-black.webp"
@@ -1885,8 +884,8 @@
   {
     "name": "Knowledge from a Past Life",
     "racial_trait": "Knowledge from a Past Life",
-    "race": "Reborn (UA)",
-    "subrace": "Reborn (UA)",
+    "race": "Reborn",
+    "subrace": "Reborn",
     "path": "icons/environment/settlement/graveyard-tombstone-night.webp"
   },
   {
@@ -1963,21 +962,7 @@
     "name": "Light Bearer",
     "racial_trait": "Light Bearer",
     "race": "Aasimar",
-    "subrace": "Protector Aasimar",
-    "path": "systems/dnd5e/icons/spells/light-sky-1.jpg"
-  },
-  {
-    "name": "Light Bearer",
-    "racial_trait": "Light Bearer",
-    "race": "Aasimar",
-    "subrace": "Scourge Aasimar",
-    "path": "systems/dnd5e/icons/spells/light-sky-1.jpg"
-  },
-  {
-    "name": "Light Bearer",
-    "racial_trait": "Light Bearer",
-    "race": "Aasimar",
-    "subrace": "Fallen Aasimar",
+    "subrace": "",
     "path": "systems/dnd5e/icons/spells/light-sky-1.jpg"
   },
   {
@@ -2019,63 +1004,21 @@
     "name": "Lucky",
     "racial_trait": "Lucky",
     "race": "Halfling",
-    "subrace": "Lightfoot Halfling",
-    "path": "icons/commodities/flowers/clover.webp"
-  },
-  {
-    "name": "Lucky",
-    "racial_trait": "Lucky",
-    "race": "Halfling",
-    "subrace": "Stout Halfling",
-    "path": "icons/commodities/flowers/clover.webp"
-  },
-  {
-    "name": "Lucky",
-    "racial_trait": "Lucky",
-    "race": "Halfling",
-    "subrace": "Ghostwise Halfling",
-    "path": "icons/commodities/flowers/clover.webp"
-  },
-  {
-    "name": "Lucky",
-    "racial_trait": "Lucky",
-    "race": "Halfling",
-    "subrace": "Lotusden Halfling",
-    "path": "icons/commodities/flowers/clover.webp"
-  },
-  {
-    "name": "Lucky",
-    "racial_trait": "Lucky",
-    "race": "Halfling",
-    "subrace": "Mark of Healing Halfling",
-    "path": "icons/commodities/flowers/clover.webp"
-  },
-  {
-    "name": "Lucky",
-    "racial_trait": "Lucky",
-    "race": "Halfling",
-    "subrace": "Mark of Hospitality Halfling",
+    "subrace": "",
     "path": "icons/commodities/flowers/clover.webp"
   },
   {
     "name": "Magic Resistance",
     "racial_trait": "Magic Resistance",
-    "race": "Yuan-ti Pureblood",
-    "subrace": "Yuan-ti Pureblood",
-    "path": "systems/dnd5e/icons/skills/blue_18.jpg"
-  },
-  {
-    "name": "Magic Resistance",
-    "racial_trait": "Magic Resistance",
-    "race": "Satyr",
-    "subrace": "Satyr",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/blue_18.jpg"
   },
   {
     "name": "Magic Token",
     "racial_trait": "Magic Token",
-    "race": "Hexblood (UA)",
-    "subrace": "Hexblood (UA)",
+    "race": "Hexblood",
+    "subrace": "Hexblood",
     "path": "icons/commodities/treasure/doll-mummy.webp"
   },
   {
@@ -2093,8 +1036,8 @@
     "path": "systems/dnd5e/icons/spells/wind-grasp-air-1.jpg"
   },
   {
-    "name": "Maker’s Gift",
-    "racial_trait": "Maker’s Gift",
+    "name": "Maker's Gift",
+    "racial_trait": "Maker's Gift",
     "race": "Human",
     "subrace": "Mark of Making Human",
     "path": "icons/tools/smithing/tongs-steel-grey.webp"
@@ -2121,20 +1064,6 @@
     "path": "icons/equipment/back/cloak-hooded-jewels-green.webp"
   },
   {
-    "name": "Mask of the Wild",
-    "racial_trait": "Mask of the Wild",
-    "race": "Elf",
-    "subrace": "Aereni Wood Elf",
-    "path": "icons/equipment/back/cloak-hooded-jewels-green.webp"
-  },
-  {
-    "name": "Mask of the Wild",
-    "racial_trait": "Mask of the Wild",
-    "race": "Elf",
-    "subrace": "Valenar Wood Elf",
-    "path": "icons/equipment/back/cloak-hooded-jewels-green.webp"
-  },
-  {
     "name": "Medical Intuition",
     "racial_trait": "Medical Intuition",
     "race": "Halfling",
@@ -2151,15 +1080,8 @@
   {
     "name": "Mental Discipline",
     "racial_trait": "Mental Discipline",
-    "race": "Kalashtar",
-    "subrace": "Kalashtar",
-    "path": "systems/dnd5e/icons/spells/protect-jade-1.jpg"
-  },
-  {
-    "name": "Mental Discipline",
-    "racial_trait": "Mental Discipline",
-    "race": "Gith",
-    "subrace": "Githzerai",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/spells/protect-jade-1.jpg"
   },
   {
@@ -2214,57 +1136,15 @@
   {
     "name": "Natural Armor",
     "racial_trait": "Natural Armor",
-    "race": "Lizardfolk",
-    "subrace": "Lizardfolk",
-    "path": "systems/dnd5e/icons/items/inventory/monster-chitin-green.jpg"
-  },
-  {
-    "name": "Natural Armor",
-    "racial_trait": "Natural Armor",
-    "race": "Tortle",
-    "subrace": "Tortle",
-    "path": "systems/dnd5e/icons/items/inventory/monster-chitin-green.jpg"
-  },
-  {
-    "name": "Natural Armor",
-    "racial_trait": "Natural Armor",
-    "race": "Locathah",
-    "subrace": "Locathah",
-    "path": "systems/dnd5e/icons/items/inventory/monster-chitin-green.jpg"
-  },
-  {
-    "name": "Natural Armor",
-    "racial_trait": "Natural Armor",
-    "race": "Loxodon",
-    "subrace": "Loxodon",
-    "path": "systems/dnd5e/icons/items/inventory/monster-chitin-green.jpg"
-  },
-  {
-    "name": "Natural Armor",
-    "racial_trait": "Natural Armor",
-    "race": "Rogue Modron",
-    "subrace": "Rogue Modron",
-    "path": "systems/dnd5e/icons/items/inventory/monster-chitin-green.jpg"
-  },
-  {
-    "name": "Natural Armor",
-    "racial_trait": "Natural Armor",
-    "race": "Huutgr",
-    "subrace": "Huutgr",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/items/inventory/monster-chitin-green.jpg"
   },
   {
     "name": "Natural Athlete",
     "racial_trait": "Natural Athlete",
-    "race": "Goliath",
-    "subrace": "Goliath",
-    "path": "systems/dnd5e/icons/skills/red_05.jpg"
-  },
-  {
-    "name": "Natural Athlete",
-    "racial_trait": "Natural Athlete",
-    "race": "Shifter",
-    "subrace": "Beasthide",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/red_05.jpg"
   },
   {
@@ -2347,15 +1227,8 @@
   {
     "name": "Poison Immunity",
     "racial_trait": "Poison Immunity",
-    "race": "Yuan-ti Pureblood",
-    "subrace": "Yuan-ti Pureblood",
-    "path": "systems/dnd5e/icons/skills/green_08.jpg"
-  },
-  {
-    "name": "Poison Immunity",
-    "racial_trait": "Poison Immunity",
-    "race": "Grung",
-    "subrace": "Grung",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/green_08.jpg"
   },
   {
@@ -2368,50 +1241,8 @@
   {
     "name": "Powerful Build",
     "racial_trait": "Powerful Build",
-    "race": "Goliath",
-    "subrace": "Goliath",
-    "path": "icons/equipment/wrist/bracer-simple-leather-steel.webp"
-  },
-  {
-    "name": "Powerful Build",
-    "racial_trait": "Powerful Build",
-    "race": "Firbolg",
-    "subrace": "Firbolg",
-    "path": "icons/equipment/wrist/bracer-simple-leather-steel.webp"
-  },
-  {
-    "name": "Powerful Build",
-    "racial_trait": "Powerful Build",
-    "race": "Bugbear",
-    "subrace": "Bugbear",
-    "path": "icons/equipment/wrist/bracer-simple-leather-steel.webp"
-  },
-  {
-    "name": "Powerful Build",
-    "racial_trait": "Powerful Build",
-    "race": "Orc of Eberron",
-    "subrace": "Orc of Eberron",
-    "path": "icons/equipment/wrist/bracer-simple-leather-steel.webp"
-  },
-  {
-    "name": "Powerful Build",
-    "racial_trait": "Powerful Build",
-    "race": "Orc of Exandria",
-    "subrace": "Orc of Exandria",
-    "path": "icons/equipment/wrist/bracer-simple-leather-steel.webp"
-  },
-  {
-    "name": "Powerful Build",
-    "racial_trait": "Powerful Build",
-    "race": "Loxodon",
-    "subrace": "Loxodon",
-    "path": "icons/equipment/wrist/bracer-simple-leather-steel.webp"
-  },
-  {
-    "name": "Powerful Build",
-    "racial_trait": "Powerful Build",
-    "race": "Orc",
-    "subrace": "Orc",
+    "race": "",
+    "subrace": "",
     "path": "icons/equipment/wrist/bracer-simple-leather-steel.webp"
   },
   {
@@ -2499,8 +1330,8 @@
     "path": "systems/dnd5e/icons/skills/affliction_24.jpg"
   },
   {
-    "name": "Scribe’s Insight",
-    "racial_trait": "Scribe’s Insight",
+    "name": "Scribe's Insight",
+    "racial_trait": "Scribe's Insight",
     "race": "Gnome",
     "subrace": "Mark of Scribing Gnome",
     "path": "icons/tools/scribal/spectacles-glasses.webp"
@@ -2513,15 +1344,15 @@
     "path": "icons/weapons/polearms/trident-silver-blue.webp"
   },
   {
-    "name": "Sentinel’s Intuition",
-    "racial_trait": "Sentinel’s Intuition",
+    "name": "Sentinel's Intuition",
+    "racial_trait": "Sentinel's Intuition",
     "race": "Human",
     "subrace": "Mark of Sentinel Human",
     "path": "systems/dnd5e/icons/skills/emerald_11.jpg"
   },
   {
-    "name": "Sentry’s Rest",
-    "racial_trait": "Sentry’s Rest",
+    "name": "Sentry's Rest",
+    "racial_trait": "Sentry's Rest",
     "race": "Warforged",
     "subrace": "Warforged",
     "path": "systems/dnd5e/icons/skills/mech_13.jpg"
@@ -2558,57 +1389,15 @@
     "name": "Shifting",
     "racial_trait": "Shifting",
     "race": "Shifter",
-    "subrace": "Beasthide",
-    "path": "systems/dnd5e/icons/skills/beast_01.jpg"
-  },
-  {
-    "name": "Shifting",
-    "racial_trait": "Shifting",
-    "race": "Shifter",
-    "subrace": "Longtooth",
-    "path": "systems/dnd5e/icons/skills/beast_01.jpg"
-  },
-  {
-    "name": "Shifting",
-    "racial_trait": "Shifting",
-    "race": "Shifter",
-    "subrace": "Swiftstride",
-    "path": "systems/dnd5e/icons/skills/beast_01.jpg"
-  },
-  {
-    "name": "Shifting",
-    "racial_trait": "Shifting",
-    "race": "Shifter",
-    "subrace": "Wildhunt",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/beast_01.jpg"
   },
   {
     "name": "Shifting Feature",
     "racial_trait": "Shifting Feature",
     "race": "Shifter",
-    "subrace": "Beasthide",
+    "subrace": "",
     "path": "icons/commodities/leather/fur-brown-gold.webp"
-  },
-  {
-    "name": "Shifting Feature",
-    "racial_trait": "Shifting Feature",
-    "race": "Shifter",
-    "subrace": "Longtooth",
-    "path": "systems/dnd5e/icons/items/inventory/monster-skull-fangs.jpg"
-  },
-  {
-    "name": "Shifting Feature",
-    "racial_trait": "Shifting Feature",
-    "race": "Shifter",
-    "subrace": "Swiftstride",
-    "path": "systems/dnd5e/icons/items/inventory/monster-paw.jpg"
-  },
-  {
-    "name": "Shifting Feature",
-    "racial_trait": "Shifting Feature",
-    "race": "Shifter",
-    "subrace": "Wildhunt",
-    "path": "systems/dnd5e/icons/items/inventory/monster-paw.jpg"
   },
   {
     "name": "Silent Speech",
@@ -2655,85 +1444,8 @@
   {
     "name": "Spells of the Mark",
     "racial_trait": "Spells of the Mark",
-    "race": "Human",
-    "subrace": "Mark of Finding Human",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Halfling",
-    "subrace": "Mark of Healing Halfling",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Halfling",
-    "subrace": "Mark of Hospitality Halfling",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Gnome",
-    "subrace": "Mark of Scribing Gnome",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Elf",
-    "subrace": "Mark of Shadow Elf",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Dwarf",
-    "subrace": "Mark of Warding Dwarf",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Half-Elf",
-    "subrace": "Mark of Detection Half-Elf",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Human",
-    "subrace": "Mark of Handling Human",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Human",
-    "subrace": "Mark of Making Human",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Human",
-    "subrace": "Mark of Passage Human",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Human",
-    "subrace": "Mark of Sentinel Human",
-    "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
-  },
-  {
-    "name": "Spells of the Mark",
-    "racial_trait": "Spells of the Mark",
-    "race": "Half-Elf",
-    "subrace": "Mark of Storm Half-Elf",
+    "race": "",
+    "subrace": "",
     "path": "icons/sundries/scrolls/scroll-runed-tan.webp"
   },
   {
@@ -2746,8 +1458,8 @@
   {
     "name": "Spider Climb",
     "racial_trait": "Spider Climb",
-    "race": "Dhampir (UA)",
-    "subrace": "Dhampir (UA)",
+    "race": "Dhampir",
+    "subrace": "Dhampir",
     "path": "systems/dnd5e/icons/items/inventory/monster-legs-insect.jpg"
   },
   {
@@ -2765,8 +1477,8 @@
     "path": "icons/commodities/treasure/statue-bust-stone-grey.webp"
   },
   {
-    "name": "Stone’s Endurance",
-    "racial_trait": "Stone’s Endurance",
+    "name": "Stone's Endurance",
+    "racial_trait": "Stone's Endurance",
     "race": "Goliath",
     "subrace": "Goliath",
     "path": "systems/dnd5e/icons/skills/weapon_15.jpg"
@@ -2775,33 +1487,12 @@
     "name": "Stonecunning",
     "racial_trait": "Stonecunning",
     "race": "Dwarf",
-    "subrace": "Hill Dwarf",
+    "subrace": "",
     "path": "icons/commodities/stone/masonry-block-cube-pink-white.webp"
   },
   {
-    "name": "Stonecunning",
-    "racial_trait": "Stonecunning",
-    "race": "Dwarf",
-    "subrace": "Mountain Dwarf",
-    "path": "icons/commodities/stone/masonry-block-cube-pink-white.webp"
-  },
-  {
-    "name": "Stonecunning",
-    "racial_trait": "Stonecunning",
-    "race": "Dwarf",
-    "subrace": "Gray Dwarf (Duergar)",
-    "path": "icons/commodities/stone/masonry-block-cube-pink-white.webp"
-  },
-  {
-    "name": "Stonecunning",
-    "racial_trait": "Stonecunning",
-    "race": "Dwarf",
-    "subrace": "Mark of Warding Dwarf",
-    "path": "icons/commodities/stone/masonry-block-cube-pink-white.webp"
-  },
-  {
-    "name": "Storm’s Boon",
-    "racial_trait": "Storm’s Boon",
+    "name": "Storm's Boon",
+    "racial_trait": "Storm's Boon",
     "race": "Half-Elf",
     "subrace": "Mark of Storm Half-Elf",
     "path": "systems/dnd5e/icons/spells/lightning-blue-1.jpg"
@@ -2816,43 +1507,15 @@
   {
     "name": "Sunlight Sensitivity",
     "racial_trait": "Sunlight Sensitivity",
-    "race": "Kobold",
-    "subrace": "Kobold",
-    "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
-  },
-  {
-    "name": "Sunlight Sensitivity",
-    "racial_trait": "Sunlight Sensitivity",
-    "race": "Elf",
-    "subrace": "Dark Elf (Drow)",
-    "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
-  },
-  {
-    "name": "Sunlight Sensitivity",
-    "racial_trait": "Sunlight Sensitivity",
-    "race": "Dwarf",
-    "subrace": "Gray Dwarf (Duergar)",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
   },
   {
     "name": "Superior Darkvision",
     "racial_trait": "Superior Darkvision",
-    "race": "Gnome",
-    "subrace": "Deep Gnome",
-    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-2.jpg"
-  },
-  {
-    "name": "Superior Darkvision",
-    "racial_trait": "Superior Darkvision",
-    "race": "Elf",
-    "subrace": "Dark Elf (Drow)",
-    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-2.jpg"
-  },
-  {
-    "name": "Superior Darkvision",
-    "racial_trait": "Superior Darkvision",
-    "race": "Dwarf",
-    "subrace": "Gray Dwarf (Duergar)",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/spells/evil-eye-eerie-2.jpg"
   },
   {
@@ -2868,6 +1531,13 @@
     "race": "Tortle",
     "subrace": "Tortle",
     "path": "icons/weapons/staves/staff-vines-green.webp"
+  },
+  {
+    "name": "Swiftstride Reaction",
+    "racial_trait": "Swiftstride Reaction",
+    "race": "Shifter",
+    "subrace": "Swiftstride",
+    "path": "icons/creatures/mammals/deer-movement-leap-green.webp"
   },
   {
     "name": "Swim",
@@ -2928,120 +1598,15 @@
   {
     "name": "Tool Proficiency",
     "racial_trait": "Tool Proficiency",
-    "race": "Dwarf",
-    "subrace": "Hill Dwarf",
-    "path": "systems/dnd5e/icons/items/inventory/badge-hammer.jpg"
-  },
-  {
-    "name": "Tool Proficiency",
-    "racial_trait": "Tool Proficiency",
-    "race": "Dwarf",
-    "subrace": "Mountain Dwarf",
-    "path": "systems/dnd5e/icons/items/inventory/badge-hammer.jpg"
-  },
-  {
-    "name": "Tool Proficiency",
-    "racial_trait": "Tool Proficiency",
-    "race": "Dwarf",
-    "subrace": "Gray Dwarf (Duergar)",
-    "path": "systems/dnd5e/icons/items/inventory/badge-hammer.jpg"
-  },
-  {
-    "name": "Tool Proficiency",
-    "racial_trait": "Tool Proficiency",
-    "race": "Dwarf",
-    "subrace": "Mark of Warding Dwarf",
+    "race": "",
+    "subrace": "",
     "path": "systems/dnd5e/icons/items/inventory/badge-hammer.jpg"
   },
   {
     "name": "Trance",
     "racial_trait": "Trance",
     "race": "Elf",
-    "subrace": "High Elf",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Wood Elf",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Dark Elf (Drow)",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Sea Elf",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Eladrin",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Aereni Wood Elf",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Valenar Wood Elf",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Pallid Elf",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Valenar High Elf",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Mark of Shadow Elf",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Eladrin (Variant)",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Shadar-kai",
-    "subrace": "Shadar-kai",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
-  },
-  {
-    "name": "Trance",
-    "racial_trait": "Trance",
-    "race": "Elf",
-    "subrace": "Aereni High Elf",
+    "subrace": "",
     "path": "systems/dnd5e/icons/skills/blue_16.jpg"
   },
   {
@@ -3062,21 +1627,14 @@
     "name": "Valenar Elf",
     "racial_trait": "Valenar Elf",
     "race": "Elf",
-    "subrace": "Valenar Wood Elf",
-    "path": "icons/weapons/swords/scimitar-guard-wood.webp"
-  },
-  {
-    "name": "Valenar Elf",
-    "racial_trait": "Valenar Elf",
-    "race": "Elf",
-    "subrace": "Valenar High Elf",
+    "subrace": "",
     "path": "icons/weapons/swords/scimitar-guard-wood.webp"
   },
   {
     "name": "Vampiric Bite",
     "racial_trait": "Vampiric Bite",
-    "race": "Dhampir (UA)",
-    "subrace": "Dhampir (UA)",
+    "race": "Dhampir",
+    "subrace": "Dhampir",
     "path": "systems/dnd5e/icons/skills/beast_02.jpg"
   },
   {
@@ -3089,15 +1647,8 @@
   {
     "name": "Variant Tiefling",
     "racial_trait": "Variant Tiefling",
-    "race": "Feral Tiefling",
-    "subrace": "Variant Feral Tiefling",
-    "path": "systems/dnd5e/icons/items/inventory/scroll-cursed.jpg"
-  },
-  {
-    "name": "Variant Tiefling",
-    "racial_trait": "Variant Tiefling",
     "race": "Tiefling",
-    "subrace": "Variant Tiefling",
+    "subrace": "",
     "path": "systems/dnd5e/icons/items/inventory/scroll-cursed.jpg"
   },
   {
@@ -3122,8 +1673,8 @@
     "path": "systems/dnd5e/icons/skills/weapon_16.jpg"
   },
   {
-    "name": "Warder’s Intuition",
-    "racial_trait": "Warder’s Intuition",
+    "name": "Warder's Intuition",
+    "racial_trait": "Warder's Intuition",
     "race": "Dwarf",
     "subrace": "Mark of Warding Dwarf",
     "path": "icons/commodities/treasure/token-engraved-pickaxe-pink.webp"
@@ -3150,8 +1701,8 @@
     "path": "systems/dnd5e/icons/spells/wild-orange-2.jpg"
   },
   {
-    "name": "Windwright’s Intuition",
-    "racial_trait": "Windwright’s Intuition",
+    "name": "Windwright's Intuition",
+    "racial_trait": "Windwright's Intuition",
     "race": "Half-Elf",
     "subrace": "Mark of Storm Half-Elf",
     "path": "icons/tools/navigation/compass-brass-blue-red.webp"

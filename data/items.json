@@ -1008,15 +1008,15 @@
     "path": "icons/commodities/stone/geode-raw-purple.webp"
   },
   {
-    "name": "Baba Yaga’s Mortar",
+    "name": "Baba Yaga's Mortar",
     "path": "icons/tools/cooking/mortar-black.webp"
   },
   {
-    "name": "Baba Yaga’s Mortar and Pestle",
+    "name": "Baba Yaga's Mortar and Pestle",
     "path": "icons/tools/cooking/mortar-black.webp"
   },
   {
-    "name": "Baba Yaga’s Pestle",
+    "name": "Baba Yaga's Pestle",
     "path": "icons/tools/laboratory/mortar-powder-green.webp"
   },
   {
@@ -1164,7 +1164,7 @@
     "path": "icons/sundries/survival/bedroll-pink.webp"
   },
   {
-    "name": "Belashyrra’s Beholder Crown",
+    "name": "Belashyrra's Beholder Crown",
     "path": "icons/equipment/head/crown-gold-red.webp"
   },
   {
@@ -1836,7 +1836,7 @@
     "path": "icons/commodities/tech/wheel.webp"
   },
   {
-    "name": "Charlatan’s Die",
+    "name": "Charlatan's Die",
     "path": "systems/dnd5e/icons/items/inventory/dice.jpg"
   },
   {
@@ -2392,19 +2392,19 @@
     "path": "icons/weapons/swords/shortsword-broad-blue.webp"
   },
   {
-    "name": "Danoth’s Visor",
+    "name": "Danoth's Visor",
     "path": "icons/equipment/head/goggles-leather-blue.webp"
   },
   {
-    "name": "Danoth’s Visor (Awakened)",
+    "name": "Danoth's Visor (Awakened)",
     "path": "icons/equipment/head/goggles-leather-blue.webp"
   },
   {
-    "name": "Danoth’s Visor (Dormant)",
+    "name": "Danoth's Visor (Dormant)",
     "path": "icons/equipment/head/goggles-leather-blue.webp"
   },
   {
-    "name": "Danoth’s Visor (Exalted)",
+    "name": "Danoth's Visor (Exalted)",
     "path": "icons/equipment/head/goggles-leather-blue.webp"
   },
   {
@@ -2792,7 +2792,7 @@
     "path": "icons/weapons/thrown/dynamite-red.webp"
   },
   {
-    "name": "Dyrrn’s Tentacle Whip",
+    "name": "Dyrrn's Tentacle Whip",
     "path": "icons/weapons/misc/whip-red-yellow.webp"
   },
   {
@@ -2824,7 +2824,7 @@
     "path": "icons/commodities/metal/mail-chain-steel.webp"
   },
   {
-    "name": "Elder Cartographer’s Glossography",
+    "name": "Elder Cartographer's Glossography",
     "path": "systems/dnd5e/icons/items/inventory/book.jpg"
   },
   {
@@ -3072,7 +3072,7 @@
     "path": "systems/dnd5e/icons/items/inventory/skull-bird.jpg"
   },
   {
-    "name": "Finder’s Goggles",
+    "name": "Finder's Goggles",
     "path": "icons/equipment/head/goggles-leather-tan.webp"
   },
   {
@@ -3192,7 +3192,7 @@
     "path": "icons/sundries/books/book-symbol-lightning-silver-blue.webp"
   },
   {
-    "name": "Galder’s Bubble Pipe",
+    "name": "Galder's Bubble Pipe",
     "path": "icons/sundries/misc/pipe-wooden-curved-oak.webp"
   },
   {
@@ -3220,7 +3220,7 @@
     "path": "icons/weapons/swords/shortsword-broad-engraved.webp"
   },
   {
-    "name": "Gambler’s Blade",
+    "name": "Gambler's Blade",
     "path": "icons/weapons/swords/sword-guard-embossed-green.webp"
   },
   {
@@ -3540,7 +3540,7 @@
     "path": "icons/containers/ammunition/powder-horn-simple.webp"
   },
   {
-    "name": "Gurt’s Greataxe",
+    "name": "Gurt's Greataxe",
     "path": "icons/weapons/axes/axe-double-engraved-black.webp"
   },
   {
@@ -3668,7 +3668,7 @@
     "path": "icons/containers/bags/pack-leather-silver-pink.webp"
   },
   {
-    "name": "Heart Weaver’s Primer",
+    "name": "Heart Weaver's Primer",
     "path": "icons/sundries/books/book-backed-silver-red.webp"
   },
   {
@@ -3932,11 +3932,11 @@
     "path": "icons/containers/bags/pouch-leather-gold-tan.webp"
   },
   {
-    "name": "Heward’s Handy Spice Pouch",
+    "name": "Heward's Handy Spice Pouch",
     "path": "icons/containers/bags/coinpouch-simple-leather-brown.webp"
   },
   {
-    "name": "Heward’s Hireling Armor",
+    "name": "Heward's Hireling Armor",
     "path": "icons/equipment/chest/breastplate-layered-leather-brown-silver.webp"
   },
   {
@@ -4008,7 +4008,7 @@
     "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
   },
   {
-    "name": "Hook of Fisher’s Delight",
+    "name": "Hook of Fisher's Delight",
     "path": "icons/tools/fishing/hook-dressed-red-green.webp"
   },
   {
@@ -4076,7 +4076,7 @@
     "path": "icons/commodities/treasure/statue-bust-stone-grey.webp"
   },
   {
-    "name": "Illuminator’s Tattoo",
+    "name": "Illuminator's Tattoo",
     "path": "systems/dnd5e/icons/skills/red_03.jpg"
   },
   {
@@ -4100,19 +4100,19 @@
     "path": "icons/environment/creatures/horse-brown.webp"
   },
   {
-    "name": "Infiltrator’s Key",
+    "name": "Infiltrator's Key",
     "path": "icons/sundries/misc/key-jeweled-gold-purple.webp"
   },
   {
-    "name": "Infiltrator’s Key (Awakened)",
+    "name": "Infiltrator's Key (Awakened)",
     "path": "icons/sundries/misc/key-jeweled-gold-purple.webp"
   },
   {
-    "name": "Infiltrator’s Key (Dormant)",
+    "name": "Infiltrator's Key (Dormant)",
     "path": "icons/sundries/misc/key-jeweled-gold-purple.webp"
   },
   {
-    "name": "Infiltrator’s Key (Exalted)",
+    "name": "Infiltrator's Key (Exalted)",
     "path": "icons/sundries/misc/key-jeweled-gold-purple.webp"
   },
   {
@@ -4128,7 +4128,7 @@
     "path": "icons/tools/scribal/ink-quill-red.webp"
   },
   {
-    "name": "Inquisitive’s Goggles",
+    "name": "Inquisitive's Goggles",
     "path": "icons/equipment/head/goggles-leather-blue.webp"
   },
   {
@@ -4364,7 +4364,7 @@
     "path": "systems/dnd5e/icons/items/inventory/ore-purple.jpg"
   },
   {
-    "name": "Knave’s Eye Patch",
+    "name": "Knave's Eye Patch",
     "path": "icons/containers/bags/pouch-leather-gold-tan.webp"
   },
   {
@@ -4768,7 +4768,7 @@
     "path": "icons/equipment/hand/glove-simple-leather-orange.webp"
   },
   {
-    "name": "Living Gloves, Thieves’ Tools",
+    "name": "Living Gloves, Thieves' Tools",
     "path": "icons/equipment/hand/glove-simple-leather-orange.webp"
   },
   {
@@ -4868,7 +4868,7 @@
     "path": "icons/weapons/swords/sword-guard-purple.webp"
   },
   {
-    "name": "Lord’s Ensemble",
+    "name": "Lord's Ensemble",
     "path": "icons/equipment/head/helm-barbute-rounded-purple.webp"
   },
   {
@@ -4876,7 +4876,7 @@
     "path": "icons/equipment/head/helm-norman-engraved.webp"
   },
   {
-    "name": "Luba’s Tarokka of Souls",
+    "name": "Luba's Tarokka of Souls",
     "path": "icons/sundries/gaming/rune-card.webp"
   },
   {
@@ -5076,7 +5076,7 @@
     "path": "icons/equipment/chest/breastplate-layered-leather-studded-black.webp"
   },
   {
-    "name": "Mariner’s Leather",
+    "name": "Mariner's Leather",
     "path": "icons/equipment/chest/breastplate-layered-leather-green.webp"
   },
   {
@@ -5100,7 +5100,7 @@
     "path": "systems/dnd5e/icons/skills/shadow_05.jpg"
   },
   {
-    "name": "Master’s Amulet",
+    "name": "Master's Amulet",
     "path": "icons/equipment/neck/amulet-carved-runed-othila-fehu-grey.webp"
   },
   {
@@ -5432,7 +5432,7 @@
     "path": "icons/sundries/misc/key-jeweled-gold-purple.webp"
   },
   {
-    "name": "Nature’s Mantle",
+    "name": "Nature's Mantle",
     "path": "icons/equipment/back/mantle-collared-green.webp"
   },
   {
@@ -5532,7 +5532,7 @@
     "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp"
   },
   {
-    "name": "Obviator’s Lenses",
+    "name": "Obviator's Lenses",
     "path": "icons/equipment/head/goggles-leather-tan.webp"
   },
   {
@@ -5740,7 +5740,7 @@
     "path": "systems/dnd5e/icons/items/inventory/parchment.jpg"
   },
   {
-    "name": "Pariah’s Shield",
+    "name": "Pariah's Shield",
     "path": "systems/dnd5e/icons/skills/weapon_44.jpg"
   },
   {
@@ -5876,7 +5876,7 @@
     "path": "icons/commodities/materials/bowl-powder-teal.webp"
   },
   {
-    "name": "Planecaller’s Codex",
+    "name": "Planecaller's Codex",
     "path": "icons/sundries/books/book-black-grey.webp"
   },
   {
@@ -6416,7 +6416,7 @@
     "path": "icons/weapons/swords/greatsword-guard-jewel-green.webp"
   },
   {
-    "name": "Reveler’s Concertina",
+    "name": "Reveler's Concertina",
     "path": "systems/dnd5e/icons/spells/enchant-magenta-1.jpg"
   },
   {
@@ -6432,19 +6432,19 @@
     "path": "icons/commodities/gems/gem-fragments-pink.webp"
   },
   {
-    "name": "Rhythm-Maker’s Drum",
+    "name": "Rhythm-Maker's Drum",
     "path": "icons/tools/instruments/drum-brown-red.webp"
   },
   {
-    "name": "Rhythm-Maker’s Drum, +1",
+    "name": "Rhythm-Maker's Drum, +1",
     "path": "icons/tools/instruments/drum-brown-red.webp"
   },
   {
-    "name": "Rhythm-Maker’s Drum, +2",
+    "name": "Rhythm-Maker's Drum, +2",
     "path": "icons/tools/instruments/drum-brown-red.webp"
   },
   {
-    "name": "Rhythm-Maker’s Drum, +3",
+    "name": "Rhythm-Maker's Drum, +3",
     "path": "icons/tools/instruments/drum-brown-red.webp"
   },
   {
@@ -6840,7 +6840,7 @@
     "path": "icons/environment/settlement/ship.webp"
   },
   {
-    "name": "Saint Markovia’s Thighbone",
+    "name": "Saint Markovia's Thighbone",
     "path": "icons/commodities/bones/bone-red.webp"
   },
   {
@@ -6936,7 +6936,7 @@
     "path": "icons/equipment/chest/breastplate-collared-steel-green.webp"
   },
   {
-    "name": "Scribe’s Pen",
+    "name": "Scribe's Pen",
     "path": "icons/tools/scribal/ink-quill-pink.webp"
   },
   {
@@ -6992,7 +6992,7 @@
     "path": "systems/dnd5e/icons/items/potions/minor-blue.jpg"
   },
   {
-    "name": "Serpent’s Fang",
+    "name": "Serpent's Fang",
     "path": "icons/creatures/reptiles/snake-fangs-bite-green.webp"
   },
   {
@@ -7528,7 +7528,7 @@
     "path": "icons/weapons/staves/staff-simple-spiral-green.webp"
   },
   {
-    "name": "Spies’ Murmur",
+    "name": "Spies' Murmur",
     "path": "icons/equipment/head/mask-plague-grey.webp"
   },
   {
@@ -7708,7 +7708,7 @@
     "path": "icons/commodities/treasure/glass-crystal-green.webp"
   },
   {
-    "name": "Stonky’s ring",
+    "name": "Stonky's ring",
     "path": "icons/equipment/finger/ring-band-gold.webp"
   },
   {
@@ -8052,7 +8052,7 @@
     "path": "icons/equipment/chest/robe-layered-white.webp"
   },
   {
-    "name": "Veteran’s Cane",
+    "name": "Veteran's Cane",
     "path": "icons/weapons/staves/staff-crescent-green.webp"
   },
   {
@@ -8752,7 +8752,7 @@
     "path": "icons/equipment/chest/breastplate-banded-leather-purple.webp"
   },
   {
-    "name": "Winter’s Dark Bite",
+    "name": "Winter's Dark Bite",
     "path": "icons/weapons/swords/sword-ringed-engraved.webp"
   },
   {
