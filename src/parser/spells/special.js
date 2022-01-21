@@ -88,7 +88,11 @@ function addCustomValues(item, ddb) {
  */
 /* eslint-disable complexity */
 export function fixSpells(ddb, items) {
-  const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
+  // because the effect parsing happens before this, we need to fix some of the spell changes here
+  const usingEffects = ddb === null
+    ? game.settings.get("ddb-importer", "munching-policy-add-spell-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
+
   items.forEach((spell) => {
     const name = spell.flags.ddbimporter.originalName || spell.name;
     switch (name) {
@@ -137,7 +141,13 @@ export function fixSpells(ddb, items) {
       case "Produce Flame":
         spell.data.range = { value: 30, units: "ft", long: null };
         break;
-      case "Hex":
+      case "Hex": {
+        spell.data.actionType = "other";
+        if (usingEffects) {
+          spell.data.damage = { parts: [], versatile: "", value: "" };
+        }
+        break;
+      }
       case "Shadow of Moil":
       case "Cloud of Daggers":
       case "Magic Missile":
@@ -149,7 +159,7 @@ export function fixSpells(ddb, items) {
         break;
       // dnd beyond lists a damage for each type
       case "Chromatic Orb":
-        if (midiQolInstalled) {
+        if (usingEffects) {
           spell.data.damage = { parts: [], versatile: "", value: "" };
         } else {
           spell.data.damage = { parts: [["3d8", ""]], versatile: "", value: "" };
@@ -163,7 +173,7 @@ export function fixSpells(ddb, items) {
       case "Hunter's Mark":
       case "Hunter’s Mark": {
         spell.data.actionType = "other";
-        if (midiQolInstalled) {
+        if (usingEffects) {
           spell.data.damage = { parts: [], versatile: "", value: "" };
         } else {
           spell.data.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
@@ -171,7 +181,7 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Call Lightning": {
-        if (midiQolInstalled) {
+        if (usingEffects) {
           spell.data.damage = { parts: [], versatile: "", value: "" };
           spell.data["target"]["type"] = "self";
           spell.data.range = { value: null, units: "self", long: null };

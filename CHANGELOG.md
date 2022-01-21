@@ -1,6 +1,6 @@
 # 2.8.11
 
-* Spell Effects: Darkness spell fixes for players.
+* Spell Effects: Darkness spell fixes for players. Hex added.
 * Monsters: Natural Armor with Shield. If a monster had natural armor and a shield, the AC would be calculated incorrectly.
 
 # 2.8.10

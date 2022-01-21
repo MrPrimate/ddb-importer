@@ -46,6 +46,7 @@ import { guidingBoltEffect } from "./spells/guidingBolt.js";
 import { hasteEffect } from "./spells/haste.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
 import { heroismEffect } from "./spells/heroism.js";
+import { hexEffect } from "./spells/hex.js";
 import { hideousLaughterEffect } from "./spells/hideousLaughter.js";
 import { holdMonsterEffect } from "./spells/holdMonster.js";
 import { holdPersonEffect } from "./spells/holdPerson.js";
@@ -377,6 +378,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Heroism": {
       document = await heroismEffect(document);
+      break;
+    }
+    case "Hex": {
+      document = await hexEffect(document);
       break;
     }
     case "Tasha's Hideous Laughter":
