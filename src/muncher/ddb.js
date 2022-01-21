@@ -17,6 +17,7 @@ import ThirdPartyMunch from "./adventure/thirdParty.js";
 import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
+import { loadSRDRules } from "../parser/templateStrings.js";
 
 export function getSourcesLookups(selected) {
   const selections = DDB_CONFIG.sources
@@ -69,6 +70,7 @@ export class DDBSources extends FormApplication {
   async getData() { // eslint-disable-line class-methods-use-this
     const existingSelection = game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat();
     const sources = getSourcesLookups(existingSelection);
+    await loadSRDRules();
 
     return {
       sources: sources.sort((a, b) => {

@@ -134,6 +134,7 @@ export async function generateAdventureConfig(full = true) {
   const rulesCompendium = "dnd5e.rules";
   const srdCompendium = await getCompendium(rulesCompendium);
   const srdIndex = await srdCompendium.getIndex();
+  result.index = srdIndex;
 
   const skillEntry = srdIndex.find((i) => i.name === "Using Each Ability");
   result.lookups.skills = DDB_CONFIG.abilitySkills.map((skill) => {

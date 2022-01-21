@@ -38,7 +38,7 @@ export default function parseWonderous(data) {
   item.data.proficient = true;
   item.data.description = {
     value: data.definition.description,
-    chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
+    chat: data.definition.snippet ? data.definition.snippet : "",
     unidentified: data.definition.type,
   };
 

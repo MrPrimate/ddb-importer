@@ -141,7 +141,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
 
     // Update Item description
     foundryItem.data.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;
-    foundryItem.data.description.chat += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.snippet ? infusionDetail.snippet : infusionDetail.description}</p></div>`;
+    foundryItem.data.description.chat += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.snippet ? infusionDetail.snippet : ""}</p></div>`;
 
     // adjust name for infused item
     foundryItem.name += " [Infusion]";

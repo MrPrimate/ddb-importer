@@ -26,7 +26,7 @@ export async function parseJson(currentActorId, ddb, resourceSelection = true) {
     logger.debug("Race parse complete");
     let features = [race, ...await getFeatures(ddb, character)];
     logger.debug("Feature parse complete");
-    let classes = getClasses(ddb);
+    let classes = getClasses(ddb, character);
     logger.debug("Classes parse complete");
     let spells = getCharacterSpells(ddb, character);
     logger.debug("Character Spells parse complete");

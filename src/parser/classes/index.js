@@ -1,6 +1,7 @@
 import DICTIONARY from '../../dictionary.js';
 import utils from '../../utils.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
+import parseTemplateString from "../templateStrings.js";
 
 /**
  * Fetches the sources and pages for class and subclass
@@ -25,7 +26,7 @@ let getSources = (data) => {
   return sources;
 };
 
-export default function parseClasses(ddb) {
+export default function parseClasses(ddb, character) {
   let items = [];
 
   ddb.character.classes.forEach((characterClass) => {
@@ -50,24 +51,19 @@ export default function parseClasses(ddb) {
 
     klass.data.description = {
       value: characterClass.definition.description,
-      chat: characterClass.definition.description,
+      chat: "",
       unidentified: false,
     };
     klass.data.levels = characterClass.level;
     klass.data.source = getSources(characterClass);
 
-    if (
-      characterClass.subclassDefinition &&
-      characterClass.subclassDefinition.name
-    ) {
+    if (characterClass.subclassDefinition && characterClass.subclassDefinition.name) {
       klass.data.subclass = characterClass.subclassDefinition.name;
-
-      // update the description
-      klass.data.description.value +=
-        '<p><strong>' + klass.data.subclass + '</strong></p>';
-      klass.data.description.value +=
-        characterClass.subclassDefinition.description;
+      klass.data.description.value += '<p><strong>' + klass.data.subclass + '</strong></p>';
+      klass.data.description.value += characterClass.subclassDefinition.description;
     }
+
+    klass.data.description.value = parseTemplateString(ddb, character, klass.data.description.value, klass).text;
 
     klass.data.hitDice = `d${characterClass.definition.hitDice}`;
     klass.data.hitDiceUsed = characterClass.hitDiceUsed;

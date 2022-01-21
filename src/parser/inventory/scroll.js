@@ -20,7 +20,7 @@ export default function parseScroll(data) {
   scroll.data.uses = getConsumableUses(data);
   scroll.data.description = {
     value: data.definition.description,
-    chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
+    chat: data.definition.snippet ? data.definition.snippet : "",
     unidentified: data.definition.type,
   };
 

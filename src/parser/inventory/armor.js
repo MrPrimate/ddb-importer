@@ -99,7 +99,7 @@ export default function parseArmor(data, character, flags) {
   armor.data.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
   armor.data.description = {
     value: data.definition.description,
-    chat: data.definition.snippet ? data.definition.snippet : data.definition.description,
+    chat: data.definition.snippet ? data.definition.snippet : "",
     unidentified: data.definition.type,
   };
 

@@ -1,17 +1,16 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
-
-var srdRules;
+import { generateAdventureConfig } from "../muncher/adventure.js";
 
 export async function loadSRDRules() {
-  if (srdRules) return;
+  if (hasProperty(CONFIG, "DDBI.SRD_LOOKUP.index")) return;
   try {
     // eslint-disable-next-line require-atomic-updates
-    srdRules = await game.packs.get("dnd5e.rules").getIndex();
+    CONFIG.DDBI.SRD_LOOKUP = await generateAdventureConfig(false);
   } catch (err) {
     logger.error("5e SRD Rules compendium failed to load");
     // eslint-disable-next-line require-atomic-updates
-    srdRules = [];
+    setProperty(CONFIG, "DDBI.SRD_LOOKUP.index", {});
   }
 }
 
@@ -218,7 +217,7 @@ function replaceTag(match, p1, p2, p3, offset, string) {
   //   match, p1, p2, p3, offset, string
   // })
   // logger.debug(`Checking tag ${p2} in SRD rules`);
-  const srdMatch = srdRules.find((rule) => rule.name.toLowerCase() === p2.toLowerCase());
+  const srdMatch = CONFIG.DDBI.SRD_LOOKUP.index.find((rule) => rule.name.toLowerCase() === p2.toLowerCase());
   if (srdMatch) {
     return `@Compendium[dnd5e.rules.${srdMatch._id}]{${p2}}`;
   } else {
@@ -227,8 +226,26 @@ function replaceTag(match, p1, p2, p3, offset, string) {
   return p2;
 }
 
+function parseSRDLinks(text) {
+  // [
+  //   CONFIG.DDBI.SRD_LOOKUP.lookups.conditions,
+  //   CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
+  //   CONFIG.DDBI.SRD_LOOKUP.lookups.senses,
+  //   CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
+  //   CONFIG.DDBI.SRD_LOOKUP.lookups.weaponproperties,
+  // ].flat()
+  CONFIG.DDBI.SRD_LOOKUP.lookups.conditions.forEach((entry) => {
+    const linkRegEx = new RegExp(`${entry.name}`, "ig");
+    function replaceRule(match) {
+      return `@Compendium[${entry.compendium}.${entry.documentName}]{${match}}`;
+    }
+    text = text.replaceAll(linkRegEx, replaceRule);
+  });
+  return text;
+}
+
 function parseTags(text) {
-  if (!srdRules) return text;
+  if (!CONFIG.DDBI.SRD_LOOKUP.index) return text;
   // older chrome/chromium and electron app do not support replaceAll
   if (typeof text.replaceAll !== "function") {
     return text;
@@ -238,6 +255,7 @@ function parseTags(text) {
   if (matches) {
     return text.replaceAll(tagRegEx, replaceTag);
   }
+  text = parseSRDLinks(text);
   return text;
 }
 
@@ -316,3 +334,5 @@ export default function parseTemplateString(ddb, character, text, feature) {
   character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
   return result;
 }
+
+export function fixItemsAndSpells(ddb, character)
