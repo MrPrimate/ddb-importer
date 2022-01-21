@@ -16,6 +16,7 @@ import { getSpellScaling } from "./scaling.js";
 import { generateTable } from "../../muncher/table.js";
 import { spellEffectAdjustment } from "../../effects/specialSpells.js";
 import { getName } from "./name.js";
+import { parseTags } from "../templateStrings.js";
 
 export function parseSpell(data, character) {
   let spell = {
@@ -56,8 +57,8 @@ export function parseSpell(data, character) {
   data.definition.description = generateTable(spell.name, data.definition.description, updateExisting);
 
   spell.data.description = {
-    value: data.definition.description,
-    chat: data.definition.description,
+    value: parseTags(data.definition.description),
+    chat: "",
     unidentified: data.definition.type,
   };
 

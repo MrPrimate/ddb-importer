@@ -36,6 +36,7 @@ import { parseInfusion } from "./infusions.js";
 
 // tables
 import { generateTable } from "../../muncher/table.js";
+import { parseTags } from "../templateStrings.js";
 
 /**
  * We get extra damage to a weapon attack here, for example Improved
@@ -457,6 +458,10 @@ export default function getInventory(ddb, character, itemSpells) {
       }
 
       if (!compendiumItem) item = parseInfusion(ddb, character, item, ddbItem, compendiumItem);
+
+      // add compendium lookups
+      item.data.description.value = parseTags(item.data.description.value);
+      if (item.data.description.chat) item.data.description.chat = parseTags(item.data.description.chat);
       items.push(item);
     }
   }

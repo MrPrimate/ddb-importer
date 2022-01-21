@@ -312,7 +312,7 @@ function getDescription(ddb, character, action) {
   const useFull = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
   let snippet = action.snippet ? parseTemplateString(ddb, character, action.snippet, action).text : "";
   const description = action.description ? parseTemplateString(ddb, character, action.description, action).text : "";
-  if (stripHtml(description) === snippet) snippet = "";
+  if (stripHtml(description).trim() === stripHtml(snippet).trim()) snippet = "";
   const fullDescription = description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet;
   const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
   return {

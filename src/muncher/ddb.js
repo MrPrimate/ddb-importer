@@ -70,7 +70,6 @@ export class DDBSources extends FormApplication {
   async getData() { // eslint-disable-line class-methods-use-this
     const existingSelection = game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat();
     const sources = getSourcesLookups(existingSelection);
-    await loadSRDRules();
 
     return {
       sources: sources.sort((a, b) => {
@@ -385,8 +384,9 @@ export default class DDBMuncher extends Application {
     DDBMuncher.enableButtons();
   }
 
-  getData() { // eslint-disable-line class-methods-use-this
+  async getData() { // eslint-disable-line class-methods-use-this
     const resultData = getMuncherSettings();
+    await loadSRDRules();
     return resultData;
   }
 }

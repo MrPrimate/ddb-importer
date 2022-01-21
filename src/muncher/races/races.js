@@ -1,4 +1,5 @@
 import logger from "../../logger.js";
+import { parseTags } from "../../parser/templateStrings.js";
 import utils from "../../utils.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
 import { munchNote, getCompendiumType, getCompendiumLabel } from "../utils.js";
@@ -93,9 +94,11 @@ async function buildRace(race, compendiumRacialTraits) {
   race.racialTraits.forEach((f) => {
     const feature = f.definition;
     const featureMatch = compendiumRacialTraits.find((match) => feature.name === match.name && match.flags?.ddbimporter?.entityRaceId && match.flags.ddbimporter.entityRaceId === feature.entityRaceId);
-    const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
+    const title = (featureMatch) ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>` : `<p><b>${feature.name}</b></p>`;
     result.data.description.value += `${title}\n${feature.description}\n\n`;
   });
+
+  result.data.description.value = parseTags(result.data.description.value);
 
   return result;
 }

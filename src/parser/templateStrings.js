@@ -227,14 +227,12 @@ function replaceTag(match, p1, p2, p3, offset, string) {
 }
 
 function parseSRDLinks(text) {
-  // [
-  //   CONFIG.DDBI.SRD_LOOKUP.lookups.conditions,
-  //   CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
-  //   CONFIG.DDBI.SRD_LOOKUP.lookups.senses,
-  //   CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
-  //   CONFIG.DDBI.SRD_LOOKUP.lookups.weaponproperties,
-  // ].flat()
-  CONFIG.DDBI.SRD_LOOKUP.lookups.conditions.forEach((entry) => {
+  [
+    CONFIG.DDBI.SRD_LOOKUP.lookups.conditions,
+    CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
+    CONFIG.DDBI.SRD_LOOKUP.lookups.senses,
+    // CONFIG.DDBI.SRD_LOOKUP.lookups.weaponproperties,
+  ].flat().forEach((entry) => {
     const linkRegEx = new RegExp(`${entry.name}`, "ig");
     function replaceRule(match) {
       return `@Compendium[${entry.compendium}.${entry.documentName}]{${match}}`;
@@ -244,7 +242,7 @@ function parseSRDLinks(text) {
   return text;
 }
 
-function parseTags(text) {
+export function parseTags(text) {
   if (!CONFIG.DDBI.SRD_LOOKUP.index) return text;
   // older chrome/chromium and electron app do not support replaceAll
   if (typeof text.replaceAll !== "function") {
@@ -334,5 +332,3 @@ export default function parseTemplateString(ddb, character, text, feature) {
   character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
   return result;
 }
-
-export function fixItemsAndSpells(ddb, character)

@@ -1,4 +1,5 @@
 import logger from "../../logger.js";
+import { parseTags } from "../../parser/templateStrings.js";
 import utils from "../../utils.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
 import { munchNote } from "../utils.js";
@@ -46,6 +47,8 @@ function buildBase(data) {
   }
 
   result.data.source = utils.parseSource(data);
+
+  result.data.description.value = parseTags(result.data.description.value);
 
   return result;
 }
