@@ -2,6 +2,7 @@
 
 * Spell Effects: Darkness spell fixes for players. Hex added.
 * Monsters: Natural Armor with Shield. If a monster had natural armor and a shield, the AC would be calculated incorrectly.
+* Improve linking in descriptions to things like conditions in the SRD rules compendium.
 
 # 2.8.10
 

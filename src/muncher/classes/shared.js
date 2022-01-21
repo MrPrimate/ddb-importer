@@ -4,6 +4,7 @@ import DICTIONARY from "../../dictionary.js";
 import { getImagePath } from "../import.js";
 import { generateTable } from "../table.js";
 import { getCompendiumLabel } from "../utils.js";
+import { parseTags } from "../../parser/templateStrings.js";
 
 const CLASS_TEMPLATE = {
   "name": "",
@@ -90,6 +91,7 @@ function buildBase(data) {
 
   return result;
 }
+
 export function getClassFeature(feature, klass, subClassName = "") {
   logger.debug("Class feature build started");
 
@@ -107,6 +109,8 @@ export function getClassFeature(feature, klass, subClassName = "") {
   result.flags.ddbimporter['subClass'] = subClassName;
   const requiredLevel = feature.requiredLevel ? ` ${feature.requiredLevel}` : "";
   result.data.requirements = `${klass.name}${requiredLevel}`;
+
+  result.data.description.value = parseTags(result.data.description.value);
 
   return result;
 }
@@ -145,7 +149,9 @@ export async function buildBaseClass(klass) {
     }
   }
 
-  const image = (avatarUrl) ? `<img class="ddb-class-image" src="${avatarUrl}">\n\n` : `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
+  const image = (avatarUrl)
+    ? `<img class="ddb-class-image" src="${avatarUrl}">\n\n`
+    : `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
 
   // eslint-disable-next-line require-atomic-updates
   result.data.description.value += image;
@@ -249,8 +255,14 @@ export async function buildClassFeatures(klass, compendiumClassFeatures) {
 
     // sort by level?
     if (!classFeaturesAdded) {
-      const featureMatch = compendiumClassFeatures.find((match) => feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() && match.flags.ddbimporter && match.flags.ddbimporter.classId == klass.id);
-      const title = (featureMatch) ? `<p><b>${feature.name}</b> @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</p>` : `<p><b>${feature.name}</b></p>`;
+      const featureMatch = compendiumClassFeatures.find((match) =>
+        feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() &&
+        match.flags.ddbimporter &&
+        match.flags.ddbimporter.classId == klass.id
+      );
+      const title = (featureMatch)
+        ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>`
+        : `<p><b>${feature.name}</b></p>`;
 
       // eslint-disable-next-line require-atomic-updates
       description += `${title}\n${feature.description}\n\n`;

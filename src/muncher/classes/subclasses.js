@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
 import { DDB_CONFIG } from "../../ddbConfig.js";
-
+import { parseTags } from "../../parser/templateStrings.js";
 import { buildBaseClass, getClassFeature, buildClassFeatures, NO_TRAITS } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
 import { munchNote, getCompendiumType } from "../utils.js";
@@ -77,6 +77,7 @@ async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
   let baseClass = await buildBaseClass(klass.flags.ddbimporter.data);
   let result = await buildSubClassBase(baseClass, subclass);
   result.data.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures);
+  result.data.description.value = parseTags(result.data.description.value);
   return result;
 }
 
