@@ -58,6 +58,9 @@ export async function generateAC(monster, DDB_CONFIG, useItemAC) {
     descriptionItems.forEach((item) => {
       if (item == "natural" || item == "natural armor") {
         ac.calc = "natural";
+        if (monster.armorClassDescription.toLowerCase().includes("shield")) {
+          ac.flat = parseInt(ac.flat) - 2;
+        }
       } else if (!item.includes("with mage armor")) {
         if (item === "leather armor") {
           item = "leather";
