@@ -1,6 +1,6 @@
 # 2.8.12
 
-* Importing characters via client failed.
+* Importing characters via client failed, or if cobalt cookie was not set.
 
 # 2.8.11
 
