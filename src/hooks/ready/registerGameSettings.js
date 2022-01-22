@@ -6,7 +6,6 @@ setProperty(CONFIG, "DDBI", {
   module: "DDB Muncher",
   schemaVersion: "1.1",
   ADVENTURE: {},
-  ENCOUNTERS: {},
 });
 
 export default function () {
