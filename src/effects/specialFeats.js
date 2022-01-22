@@ -1,6 +1,5 @@
 import { baseItemEffect } from "./effects.js";
 import utils from "../utils.js";
-import logger from "../logger.js";
 import { configureDependencies } from "./macros.js";
 import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
 import { warCasterEffect } from "./feats/warCaster.js";

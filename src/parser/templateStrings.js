@@ -243,7 +243,7 @@ function parseSRDLinks(text) {
 }
 
 export function parseTags(text) {
- // if (!CONFIG.DDBI.SRD_LOOKUP.index || !CONFIG.DDBI.SRD_LOOKUP.lookups) return text;
+  // if (!CONFIG.DDBI.SRD_LOOKUP.index || !CONFIG.DDBI.SRD_LOOKUP.lookups) return text;
   // older chrome/chromium and electron app do not support replaceAll
   if (typeof text.replaceAll !== "function") {
     return text;
