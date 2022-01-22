@@ -1,6 +1,7 @@
 # 2.8.12
 
 * Importing characters via client failed, or if cobalt cookie was not set.
+* Spell effect generation would fail in v8.
 
 # 2.8.11
 

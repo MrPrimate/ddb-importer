@@ -2,16 +2,21 @@ import utils from "../utils.js";
 import logger from "../logger.js";
 
 export async function checkMacroFolder() {
-  const macroFolder = game.folders.find((folder) => folder.data.name === "DDB Macros" && folder.data.type === "Macro");
+  const version = (game.version ?? game.data.version);
+  const v9 = utils.versionCompare(version, "9.0") >= 0;
+  if (v9) {
+    const macroFolder = game.folders.find((folder) => folder.data.name === "DDB Macros" && folder.data.type === "Macro");
 
-  if (!macroFolder) {
-    await Folder.create({
-      color: "#FF0000",
-      name: "DDB Macros",
-      parent: null,
-      type: "Macro"
-    });
+    if (!macroFolder) {
+      await Folder.create({
+        color: "#FF0000",
+        name: "DDB Macros",
+        parent: null,
+        type: "Macro"
+      });
+    }
   }
+
 }
 
 export function configureDependencies() {
@@ -78,7 +83,7 @@ async function createGMMacro(name, content, img) {
     "img": img,
     "scope": "global",
     "command": content,
-    "folder": macroFolder.id,
+    "folder": macroFolder ? macroFolder.id : undefined,
     "flags": {
       "advanced-macros": {
         "runAsGM": true
