@@ -2,7 +2,6 @@ import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { getCompendium, getCompendiumLabel } from "./utils.js";
-import { DDB_CONFIG } from "../ddbConfig.js";
 
 var compendiumFolderTypeMonster;
 var compendiumFolderTypeSpell;
@@ -106,7 +105,7 @@ async function createCompendiumFolderWithParent(packName, folderName, parentFold
 async function createCreatureTypeCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
-    DDB_CONFIG.monsterTypes.forEach(async (monsterType) => {
+    CONFIG.DDB.monsterTypes.forEach(async (monsterType) => {
       const folder = await createCompendiumFolder(packName, monsterType.name, "#6f0006");
       promises.push(folder);
     });
@@ -118,7 +117,7 @@ async function createCreatureTypeCompendiumFolders(packName) {
 async function createChallengeRatingCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
-    DDB_CONFIG.challengeRatings.forEach(async (cr) => {
+    CONFIG.DDB.challengeRatings.forEach(async (cr) => {
       const paddedCR = String(cr.value).padStart(2, "0");
       const folder = await createCompendiumFolder(packName, `CR ${paddedCR}`, "#6f0006");
       promises.push(folder);
@@ -444,7 +443,7 @@ function getCompendiumFolderName(type, document) {
           const creatureType = document.data.data?.details?.type?.value
             ? document.data.data?.details?.type?.value
             : "Unknown";
-          const ddbType = DDB_CONFIG.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
+          const ddbType = CONFIG.DDB.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
           if (ddbType) name = ddbType.name;
           break;
         }

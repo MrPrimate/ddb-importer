@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import { DDB_CONFIG } from "../../ddbConfig.js";
 
 import { getClassFeature, NO_TRAITS } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
@@ -11,7 +10,7 @@ export async function getClassOptions(data, className) {
   let results = [];
 
   let classFeatures = [];
-  const classMatch = DDB_CONFIG.classConfigurations.find((k) => k.name === className);
+  const classMatch = CONFIG.DDB.classConfigurations.find((k) => k.name === className);
 
   const klass = {
     name: className,

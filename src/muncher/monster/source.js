@@ -1,6 +1,6 @@
-export function getSource(monster, DDB_CONFIG) {
+export function getSource(monster) {
   const fullSource = game.settings.get("ddb-importer", "use-full-source");
-  const sourceObject = DDB_CONFIG.sources.find((cnf) => cnf.id == monster.sourceId);
+  const sourceObject = CONFIG.DDB.sources.find((cnf) => cnf.id == monster.sourceId);
   const sourceBook = (sourceObject)
     ? (fullSource) ? sourceObject.description : sourceObject.name
     : "Homebrew";

@@ -35,8 +35,8 @@ const LANGUAGES = [
 //   ],
 //   "custom": ""
 // },
-export function getLanguages (monster, DDB_CONFIG) {
-  const config = DDB_CONFIG.languages;
+export function getLanguages (monster) {
+  const config = CONFIG.DDB.languages;
 
   let values = [];
   let custom = [];

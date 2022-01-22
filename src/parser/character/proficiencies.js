@@ -1,17 +1,16 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
 
-import { DDB_CONFIG } from "../../ddbConfig.js";
 
 function getCustomProficiencies(data, type) {
-  const profGroup = DDB_CONFIG.proficiencyGroups.find((group) => group.label == type);
+  const profGroup = CONFIG.DDB.proficiencyGroups.find((group) => group.label == type);
   const profCharacterValues = data.character.characterValues.filter(
     (value) =>
       profGroup.customAdjustments.includes(parseInt(value.typeId)) &&
       profGroup.entityTypeIds.includes(parseInt(value.valueTypeId)) &&
       value.value == 3
   );
-  const customProfs = DDB_CONFIG[type.toLowerCase()]
+  const customProfs = CONFIG.DDB[type.toLowerCase()]
     .filter((prof) => profCharacterValues.some((value) => value.valueId == prof.id))
     .map((prof) => prof.name);
 

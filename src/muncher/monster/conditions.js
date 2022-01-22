@@ -37,8 +37,8 @@ const DAMAGE_TYPES = [
 ];
 
 
-function getAdjustmentsConfig(type, DDB_CONFIG) {
-  const damageAdjustments = DDB_CONFIG.damageAdjustments;
+function getAdjustmentsConfig(type) {
+  const damageAdjustments = CONFIG.DDB.damageAdjustments;
 
   switch (type) {
     case "resistances":
@@ -48,7 +48,7 @@ function getAdjustmentsConfig(type, DDB_CONFIG) {
     case "vulnerabilities":
       return damageAdjustments.filter((adj) => adj.type == 3);
     case "conditions":
-      return DDB_CONFIG.conditions.map((condition) => {
+      return CONFIG.DDB.conditions.map((condition) => {
         return {
           id: condition.definition.id,
           name: condition.definition.name,
@@ -61,8 +61,8 @@ function getAdjustmentsConfig(type, DDB_CONFIG) {
   }
 }
 
-function getDamageAdjustments(monster, type, DDB_CONFIG) {
-  const config = getAdjustmentsConfig(type, DDB_CONFIG);
+function getDamageAdjustments(monster, type) {
+  const config = getAdjustmentsConfig(type);
 
   let values = [];
   let custom = [];
@@ -99,18 +99,18 @@ function getDamageAdjustments(monster, type, DDB_CONFIG) {
   return adjustments;
 }
 
-export function getDamageImmunities(monster, DDB_CONFIG) {
-  return getDamageAdjustments(monster, "immunities", DDB_CONFIG);
+export function getDamageImmunities(monster) {
+  return getDamageAdjustments(monster, "immunities");
 }
 
-export function getDamageResistances(monster, DDB_CONFIG) {
-  return getDamageAdjustments(monster, "resistances", DDB_CONFIG);
+export function getDamageResistances(monster) {
+  return getDamageAdjustments(monster, "resistances");
 }
-export function getDamageVulnerabilities(monster, DDB_CONFIG) {
-  return getDamageAdjustments(monster, "vulnerabilities", DDB_CONFIG);
+export function getDamageVulnerabilities(monster) {
+  return getDamageAdjustments(monster, "vulnerabilities");
 }
-export function getConditionImmunities(monster, DDB_CONFIG) {
-  const config = getAdjustmentsConfig("conditions", DDB_CONFIG);
+export function getConditionImmunities(monster) {
+  const config = getAdjustmentsConfig("conditions");
 
   let values = [];
   let custom = [];

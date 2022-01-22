@@ -20,8 +20,8 @@
 //   "value": "40 ft.",
 //   "special": "Fly 80 ft., Swim 40 ft."
 // },
-export function getSpeed (monster, DDB_CONFIG) {
-  const movementConfig = DDB_CONFIG.movements;
+export function getSpeed (monster) {
+  const movementConfig = CONFIG.DDB.movements;
   const monsterMovements = monster.movements;
 
   let values = "";

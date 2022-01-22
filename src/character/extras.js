@@ -3,7 +3,6 @@ import utils from "../utils.js";
 import { parseMonsters } from "../muncher/monster/monster.js";
 import { copySupportedItemFlags, srdFiddling } from "../muncher/import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../muncher/importMonster.js";
-import { DDB_CONFIG } from "../ddbConfig.js";
 import { ABILITIES, getAbilityMods } from "../muncher/monster/abilities.js";
 import { SKILLS } from "../muncher/monster/skills.js";
 
@@ -315,10 +314,10 @@ export async function characterExtras(html, characterData, actor) {
     let creatures = ddbCharacter.creatures.map((creature) => {
       logger.debug("Extra data", creature);
       let mock = JSON.parse(JSON.stringify(creature.definition));
-      const proficiencyBonus = DDB_CONFIG.challengeRatings.find(
+      const proficiencyBonus = CONFIG.DDB.challengeRatings.find(
         (cr) => cr.id == mock.challengeRatingId
       ).proficiencyBonus;
-      const creatureGroup = DDB_CONFIG.creatureGroups.find((group) => group.id == creature.groupId);
+      const creatureGroup = CONFIG.DDB.creatureGroups.find((group) => group.id == creature.groupId);
       let creatureFlags = creatureGroup.flags;
 
       mock.id = creature.id;
@@ -410,7 +409,7 @@ export async function characterExtras(html, characterData, actor) {
       }
 
       if (creatureFlags.includes("MHPAMCM")) {
-        const monsterConModifier = getAbilityMods(mock, DDB_CONFIG);
+        const monsterConModifier = getAbilityMods(mock, CONFIG.DDB);
         mock.averageHitPoints += parseInt(monsterConModifier.con);
       }
 
@@ -424,7 +423,7 @@ export async function characterExtras(html, characterData, actor) {
 
           const ability = ABILITIES.find((ab) => ab.value === skill.ability);
           const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
-          const mod = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
+          const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
 
           if (existingSkill && characterProficient === 2) {
             const doubleProf = proficiencyBonus * 2;

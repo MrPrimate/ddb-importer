@@ -11,7 +11,7 @@ function addPlayerDescription(monster, action) {
   return playerDescription;
 }
 
-export function getSpecialTraits(monster, DDB_CONFIG) {
+export function getSpecialTraits(monster) {
   if (monster.specialTraitsDescription == "") {
     return {
       resistance: {
@@ -73,7 +73,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     }
     let action = newFeat(name);
     action.name = name;
-    action.data.source = getSource(monster, DDB_CONFIG);
+    action.data.source = getSource(monster);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
       fullName: query.textContent,
@@ -94,7 +94,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
         name = name.split(";").pop().trim();
       }
       let action = newFeat(name);
-      action.data.source = getSource(monster, DDB_CONFIG);
+      action.data.source = getSource(monster);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
         fullName: query.textContent,
@@ -107,7 +107,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     dom.querySelectorAll("em").forEach((node) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
       let action = newFeat(name);
-      action.data.source = getSource(monster, DDB_CONFIG);
+      action.data.source = getSource(monster);
       action.flags.monsterMunch = {
         titleHTML: node.outerHTML,
         fullName: node.textContent,
@@ -120,7 +120,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
     dom.querySelectorAll("strong").forEach((node) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
       let action = newFeat(name);
-      action.data.source = getSource(monster, DDB_CONFIG);
+      action.data.source = getSource(monster);
       action.flags.monsterMunch = {
         titleHTML: node.outerHTML,
         fullName: node.textContent,
@@ -131,7 +131,7 @@ export function getSpecialTraits(monster, DDB_CONFIG) {
 
   if (dynamicActions.length == 0) {
     let action = newFeat("Special Traits");
-    action.data.source = getSource(monster, DDB_CONFIG);
+    action.data.source = getSource(monster);
     action.flags.monsterMunch = {};
     if (action.name) dynamicActions.push(action);
   }

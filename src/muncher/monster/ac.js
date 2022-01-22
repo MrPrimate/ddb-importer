@@ -22,7 +22,7 @@ async function getEquipmentCompendium() {
   return equipmentCompendium;
 }
 
-export async function generateAC(monster, DDB_CONFIG, useItemAC) {
+export async function generateAC(monster, useItemAC) {
 
   const ac = {
     "flat": monster.armorClass,
@@ -34,7 +34,7 @@ export async function generateAC(monster, DDB_CONFIG, useItemAC) {
   let flatAC = true;
 
   const stat = monster.stats.find((stat) => stat.statId === 2).value || 10;
-  const dexBonus = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
+  const dexBonus = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
 
   let acItems = [];
 

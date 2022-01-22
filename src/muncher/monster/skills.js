@@ -46,15 +46,15 @@ import { ABILITIES } from "./abilities.js";
 //   "prof": 7,
 //   "total": 9
 // },
-export function getSkills (skills, monster, DDB_CONFIG) {
-  const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
+export function getSkills (skills, monster) {
+  const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
 
   const keys = Object.keys(skills);
   keys.forEach((key) => {
     let skill = skills[key];
     const ability = ABILITIES.find((ab) => ab.value === skill.ability);
     const stat = monster.stats.find((stat) => stat.statId === ability.id).value || 10;
-    const mod = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
+    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
     const lookupSkill = SKILLS.find((s) => s.name == key);
     const monsterSkill = monster.skills.find((s) => s.skillId == lookupSkill.valueId);
 
@@ -92,8 +92,8 @@ export function getSkills (skills, monster, DDB_CONFIG) {
 }
 
 
-export function getSkillsHTML (skills, monster, DDB_CONFIG) {
-  const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
+export function getSkillsHTML (skills, monster) {
+  const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
   //  "skillsHtml": "History + 12, Perception + 10"
   const skillsHTML = monster.skillsHtml.split(',');
   const skillsMaps = skillsHTML.filter((str) => str != '').map((str) => {
@@ -118,7 +118,7 @@ export function getSkillsHTML (skills, monster, DDB_CONFIG) {
     let skill = skills[key];
     const ability = ABILITIES.find((ab) => ab.value === skill.ability);
     const stat = monster.stats.find((stat) => stat.statId === ability.id).value || 10;
-    const mod = DDB_CONFIG.statModifiers.find((s) => s.value == stat).modifier;
+    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
     const lookupSkill = SKILLS.find((s) => s.name == key);
     const monsterSkill = monster.skills.find((s) => s.skillId == lookupSkill.valueId);
 

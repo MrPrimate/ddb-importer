@@ -2,11 +2,12 @@ import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup } from "../../lib/Settings.js";
 import logger from "../../logger.js";
 
-CONFIG.DDBI = {
+setProperty(CONFIG, "DDBI", {
   module: "DDB Muncher",
   schemaVersion: "1.1",
   ADVENTURE: {},
-};
+  ENCOUNTERS: {},
+});
 
 export default function () {
 

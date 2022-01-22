@@ -10,7 +10,7 @@ function addPlayerDescription(monster, action) {
   return playerDescription;
 }
 
-export function getLairActions(monster, DDB_CONFIG) {
+export function getLairActions(monster) {
   let resource = {
     value: false,
     initiative: null
@@ -43,7 +43,7 @@ export function getLairActions(monster, DDB_CONFIG) {
 
   let defaultAction = newFeat("Lair Actions");
   defaultAction.data.activation.type = "lair";
-  defaultAction.data.source = getSource(monster, DDB_CONFIG);
+  defaultAction.data.source = getSource(monster);
   dynamicActions.push(defaultAction);
 
   dom.querySelectorAll("h4").forEach((node) => {
@@ -52,7 +52,7 @@ export function getLairActions(monster, DDB_CONFIG) {
     if (node.textContent == "Lair Actions" || node.textContent == "") {
       return;
     }
-    action.data.source = getSource(monster, DDB_CONFIG);
+    action.data.source = getSource(monster);
     if (action.name !== "") dynamicActions.push(action);
   });
 
@@ -62,7 +62,7 @@ export function getLairActions(monster, DDB_CONFIG) {
     if (node.textContent == "Lair Actions" || action.name == "") {
       return;
     }
-    action.data.source = getSource(monster, DDB_CONFIG);
+    action.data.source = getSource(monster);
     if (action.name !== "") dynamicActions.push(action);
   });
 

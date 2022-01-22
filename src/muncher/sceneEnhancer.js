@@ -1,6 +1,5 @@
 import { download } from "./utils.js";
 import { getSourcesLookups } from "./ddb.js";
-import { DDB_CONFIG } from "../ddbConfig.js";
 import logger from "../logger.js";
 
 /**
@@ -235,7 +234,7 @@ export class SceneEnhancerExport extends Application {
       .sort((a, b) => a.metadata.label.localeCompare(b.metadata.label));
 
     const selectedBooks = this.bookCode
-      ? DDB_CONFIG.sources.filter((s) => s.name.toLowerCase() === this.bookCode).map((s) => s.id)
+      ? CONFIG.DDB.sources.filter((s) => s.name.toLowerCase() === this.bookCode).map((s) => s.id)
       : [];
     this.books = getSourcesLookups(selectedBooks).map((b) => {
       if (b.selected) {

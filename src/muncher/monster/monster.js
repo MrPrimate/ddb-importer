@@ -22,7 +22,6 @@ import { getSpells } from "./spells.js";
 import { getType } from "./type.js";
 import { generateAC } from "./ac.js";
 
-import { DDB_CONFIG } from "../../ddbConfig.js";
 import { newNPC } from "./templates/monster.js";
 import { specialCases } from "./special.js";
 
@@ -61,24 +60,24 @@ async function parseMonster(monster, setVision, extra, useItemAC) {
   const temporaryHitPoints = monster.temporaryHitPoints ? monster.removedHitPoints : 0;
 
   // abilities
-  foundryActor.data.abilities = getAbilities(foundryActor.data.abilities, monster, DDB_CONFIG);
+  foundryActor.data.abilities = getAbilities(foundryActor.data.abilities, monster);
 
   // skills
   foundryActor.data.skills = (extra)
-    ? getSkills(foundryActor.data.skills, monster, DDB_CONFIG)
-    : getSkillsHTML(foundryActor.data.skills, monster, DDB_CONFIG);
+    ? getSkills(foundryActor.data.skills, monster)
+    : getSkillsHTML(foundryActor.data.skills, monster);
 
   // Senses
-  foundryActor.data.attributes.senses = getSenses(monster, DDB_CONFIG);
-  foundryActor.token = getTokenSenses(foundryActor.token, monster, DDB_CONFIG);
+  foundryActor.data.attributes.senses = getSenses(monster);
+  foundryActor.token = getTokenSenses(foundryActor.token, monster);
   foundryActor.token.vision = setVision;
 
   // Conditions
-  foundryActor.data.traits.di = getDamageImmunities(monster, DDB_CONFIG);
-  foundryActor.data.traits.dr = getDamageResistances(monster, DDB_CONFIG);
-  foundryActor.data.traits.dv = getDamageVulnerabilities(monster, DDB_CONFIG);
-  foundryActor.data.traits.ci = getConditionImmunities(monster, DDB_CONFIG);
-  const size = getSize(monster, DDB_CONFIG);
+  foundryActor.data.traits.di = getDamageImmunities(monster);
+  foundryActor.data.traits.dr = getDamageResistances(monster);
+  foundryActor.data.traits.dv = getDamageVulnerabilities(monster);
+  foundryActor.data.traits.ci = getConditionImmunities(monster);
+  const size = getSize(monster);
   foundryActor.data.traits.size = size.value;
   foundryActor.token.width = size.token.value;
   foundryActor.token.height = size.token.value;
@@ -86,48 +85,48 @@ async function parseMonster(monster, setVision, extra, useItemAC) {
 
 
   // languages
-  foundryActor.data.traits.languages = getLanguages(monster, DDB_CONFIG);
+  foundryActor.data.traits.languages = getLanguages(monster);
 
   // attributes
   foundryActor.data.attributes.hp = getHitPoints(monster, removedHitPoints, temporaryHitPoints);
-  const movement = getSpeed(monster, DDB_CONFIG);
+  const movement = getSpeed(monster);
   foundryActor.data.attributes.movement = movement['movement'];
 
-  foundryActor.data.attributes.prof = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
+  foundryActor.data.attributes.prof = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
 
   // ac
-  const ac = await generateAC(monster, DDB_CONFIG, useItemAC);
+  const ac = await generateAC(monster, useItemAC);
   foundryActor.data.attributes.ac = ac.ac;
   foundryActor.flags.ddbimporter.flatAC = ac.flatAC;
   items.push(...ac.ddbItems);
 
   // details
-  const cr = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId);
-  foundryActor.data.details.type = getType(monster, DDB_CONFIG);
-  const alignment = DDB_CONFIG.alignments.find((c) => monster.alignmentId == c.id);
+  const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId);
+  foundryActor.data.details.type = getType(monster);
+  const alignment = CONFIG.DDB.alignments.find((c) => monster.alignmentId == c.id);
   foundryActor.data.details.alignment = alignment ? alignment.name : "";
   foundryActor.data.details.cr = cr.value;
-  foundryActor.data.details.source = getSource(monster, DDB_CONFIG);
+  foundryActor.data.details.source = getSource(monster);
   foundryActor.data.details.xp = {
     value: cr.xp
   };
-  foundryActor.data.details.environment = getEnvironments(monster, DDB_CONFIG);
+  foundryActor.data.details.environment = getEnvironments(monster);
   foundryActor.data.details.biography.value = monster.characteristicsDescription;
 
   let actions, lairActions, legendaryActions, specialTraits, reactions, bonus, mythic;
   let characterDescriptionAction, characterDescriptionReaction, unexpectedDescription;
 
-  [actions, characterDescriptionAction] = getActions(monster, DDB_CONFIG);
+  [actions, characterDescriptionAction] = getActions(monster);
   items.push(...actions);
 
   if (monster.hasLair) {
-    lairActions = getLairActions(monster, DDB_CONFIG);
+    lairActions = getLairActions(monster);
     items.push(...lairActions.lairActions);
     foundryActor.data.resources["lair"] = lairActions.resource;
   }
 
   if (monster.legendaryActionsDescription != "") {
-    legendaryActions = getLegendaryActions(monster, DDB_CONFIG, actions);
+    legendaryActions = getLegendaryActions(monster, actions);
     items.push(...legendaryActions.legendaryActions);
     foundryActor.data.resources["legact"] = legendaryActions.actions;
     foundryActor.token.bar2 = {
@@ -136,16 +135,16 @@ async function parseMonster(monster, setVision, extra, useItemAC) {
   }
 
   if (monster.specialTraitsDescription != "") {
-    specialTraits = getSpecialTraits(monster, DDB_CONFIG, actions);
+    specialTraits = getSpecialTraits(monster, actions);
     items.push(...specialTraits.specialActions);
     foundryActor.data.resources["legres"] = specialTraits.resistance;
   }
 
-  [reactions, characterDescriptionReaction] = getActions(monster, DDB_CONFIG, "reaction");
+  [reactions, characterDescriptionReaction] = getActions(monster, "reaction");
   items.push(...reactions);
-  [bonus, unexpectedDescription] = getActions(monster, DDB_CONFIG, "bonus");
+  [bonus, unexpectedDescription] = getActions(monster, "bonus");
   items.push(...bonus);
-  [mythic, unexpectedDescription] = getActions(monster, DDB_CONFIG, "mythic");
+  [mythic, unexpectedDescription] = getActions(monster, "mythic");
   items.push(...mythic);
 
   if (unexpectedDescription) {
@@ -162,7 +161,7 @@ async function parseMonster(monster, setVision, extra, useItemAC) {
   }
 
   // Spellcasting
-  const spellcastingData = getSpells(monster, DDB_CONFIG);
+  const spellcastingData = getSpells(monster);
   foundryActor.data.attributes.spellcasting = spellcastingData.spellcasting;
   foundryActor.data.attributes.spelldc = spellcastingData.spelldc;
   foundryActor.data.attributes.spellLevel = spellcastingData.spellLevel;

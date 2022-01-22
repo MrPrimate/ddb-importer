@@ -462,12 +462,12 @@ export function getTarget(text) {
   return target;
 }
 
-export function getActionInfo(monster, DDB_CONFIG, name, text) {
+export function getActionInfo(monster, name, text) {
   const matches = text.match(
     /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/i
   );
-  const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
-  const abilities = getAbilityMods(monster, DDB_CONFIG);
+  const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
+  const abilities = getAbilityMods(monster);
 
   replaceRollable(text);
 

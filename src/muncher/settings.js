@@ -615,9 +615,9 @@ export function getMuncherSettings(includeHomebrew = true) {
   const compendiumFolderItemStyles = getCompendiumFolderLookups("item");
   const spellEffectText = `Create active effects. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, Item Macro${getInstalledIcon("itemMacroInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convenient Effects${getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}. Copying from MidiSRD will override these spells.`;
 
-  const generateSpellEffects = game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
+  const generateSpellEffects = game.settings.get("ddb-importer", "munching-policy-add-spell-effects");
   if (generateSpellEffects && !spellEffectModulesAvailable.hasCore) {
-    game.settings.set("ddb-importer", "character-update-policy-add-spell-effects", false);
+    game.settings.set("ddb-importer", "munching-policy-add-spell-effects", false);
   }
 
   const itemConfig = [

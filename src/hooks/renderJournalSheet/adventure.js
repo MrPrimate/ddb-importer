@@ -1,6 +1,5 @@
 import { DDBAdventureFlags } from "../../lib/adventureFlags.js";
 import buildNotes from "./buildNotes.js";
-import { DDB_CONFIG } from "../../ddbConfig.js";
 
 const POPUPS = {
   json: null,
@@ -37,7 +36,7 @@ function adventureFlags(app, html, data) {
     } else {
       event.preventDefault();
       const flags = app.document.data.flags.ddb;
-      const bookSource = DDB_CONFIG.sources.find((book) => flags.bookCode.toLowerCase() === book.name.toLowerCase());
+      const bookSource = CONFIG.DDB.sources.find((book) => flags.bookCode.toLowerCase() === book.name.toLowerCase());
       return renderPopup("web", `https://www.dndbeyond.com/${bookSource.sourceURL}/${flags.slug}`);
     }
     return true;

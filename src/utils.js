@@ -1,7 +1,6 @@
 import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
-import { DDB_CONFIG } from "./ddbConfig.js";
 import { getEffectExcludedModifiers } from "./effects/effects.js";
 
 const existingFiles = new Set();
@@ -203,7 +202,7 @@ const utils = {
       page: null,
     };
     if (definition.sources?.length > 0) {
-      result.name = DDB_CONFIG.sources
+      result.name = CONFIG.DDB.sources
         .filter((source) => definition.sources.some((ds) => source.id === ds.sourceId))
         .map((source) => {
           const dSource = definition.sources.find((ds) => source.id === ds.sourceId);
@@ -214,12 +213,12 @@ const utils = {
         .join(", ");
     } else {
       if (definition.sourceIds) {
-        result.name = DDB_CONFIG.sources
+        result.name = CONFIG.DDB.sources
           .filter((source) => definition.sourceIds.includes(source.id))
           .map((source) => source.description)
           .join();
       } else if (definition.sourceId) {
-        result.name = DDB_CONFIG.sources
+        result.name = CONFIG.DDB.sources
           .filter((source) => source.id === definition.sourceId)
           .map(
             fullSource

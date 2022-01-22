@@ -1,3 +1,7 @@
+# 2.8.12
+
+* Importing characters via client failed.
+
 # 2.8.11
 
 * Spell Effects: Darkness spell fixes for players. Hex added.

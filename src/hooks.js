@@ -10,7 +10,7 @@ import checkCompendiums from "./hooks/ready/checkCompendiums.js";
 import registerGameSettings from "./hooks/ready/registerGameSettings.js";
 import { itemSheets } from "./hooks/ready/items.js";
 import checkVersion from "./hooks/ready/checkVersion.js";
-import { loadDDBConfig } from "./ddbConfig.js";
+import { loadDDBConfig } from "./hooks/ready/ddbConfig.js";
 
 // monster muncher
 import { earlySettings } from "./hooks/renderMuncher/settings.js";

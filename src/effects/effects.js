@@ -9,10 +9,10 @@ import {
 } from "../parser/character/proficiencies.js";
 import { getSkillProficiency } from "../parser/character/skills.js";
 import { equipmentEffectAdjustment } from "./specialEquipment.js";
-import { spellEffectAdjustment } from "./specialSpells.js";
 import { featureEffectAdjustment } from "./specialFeats.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem } from "./acEffects.js";
+// import { spellEffectAdjustment } from "./specialSpells.js";
 
 /**
  * Add supported effects here to exclude them from calculations.
@@ -1360,10 +1360,10 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
       foundryItem = equipmentEffectAdjustment(foundryItem);
       break;
     }
-    case "spell": {
-      foundryItem = spellEffectAdjustment(foundryItem);
-      break;
-    }
+    // case "spell": {
+    //   foundryItem = spellEffectAdjustment(foundryItem);
+    //   break;
+    // }
     case "feature":
     case "feat": {
       foundryItem = featureEffectAdjustment(foundryItem);

@@ -9,7 +9,7 @@ function addPlayerDescription(monster, action) {
 }
 
 
-export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
+export function getLegendaryActions(monster, monsterActions) {
   if (monster.legendaryActionsDescription == "") {
     return {
       actions: {
@@ -46,7 +46,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
 
   // Base feat
   let feat = newFeat("Legendary Actions");
-  feat.data.source = getSource(monster, DDB_CONFIG);
+  feat.data.source = getSource(monster);
   feat.data.description.value = "";
   if (hideDescription) feat.data.description.value += "<section class=\"secret\">\n";
   feat.data.description.value += monster.legendaryActionsDescription;
@@ -76,7 +76,7 @@ export function getLegendaryActions(monster, DDB_CONFIG, monsterActions) {
       action.flags.monsterMunch['actionCopy'] = false;
     }
     action.data.activation.type = "legendary";
-    action.data.source = getSource(monster, DDB_CONFIG);
+    action.data.source = getSource(monster);
     action.data.consume = {
       type: "attribute",
       target: "resources.legact.value",

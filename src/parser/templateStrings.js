@@ -6,11 +6,11 @@ export async function loadSRDRules() {
   if (hasProperty(CONFIG, "DDBI.SRD_LOOKUP.index")) return;
   try {
     // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.SRD_LOOKUP = await generateAdventureConfig(false);
+    CONFIG.DDBI.SRD_LOOKUP = await generateAdventureConfig(false, false);
   } catch (err) {
-    logger.error("5e SRD Rules compendium failed to load");
+    logger.error("5e SRD Rules compendium failed to load", err);
     // eslint-disable-next-line require-atomic-updates
-    setProperty(CONFIG, "DDBI.SRD_LOOKUP.index", {});
+    // setProperty(CONFIG, "DDBI.SRD_LOOKUP.index", {});
   }
 }
 
@@ -243,7 +243,7 @@ function parseSRDLinks(text) {
 }
 
 export function parseTags(text) {
-  if (!CONFIG.DDBI.SRD_LOOKUP.index) return text;
+ // if (!CONFIG.DDBI.SRD_LOOKUP.index || !CONFIG.DDBI.SRD_LOOKUP.lookups) return text;
   // older chrome/chromium and electron app do not support replaceAll
   if (typeof text.replaceAll !== "function") {
     return text;

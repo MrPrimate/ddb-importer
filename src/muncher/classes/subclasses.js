@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import { DDB_CONFIG } from "../../ddbConfig.js";
 import { parseTags } from "../../parser/templateStrings.js";
 import { buildBaseClass, getClassFeature, buildClassFeatures, NO_TRAITS } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
@@ -90,7 +89,7 @@ export async function getSubClasses(data) {
   let results = [];
 
   data.forEach((subClass) => {
-    const classMatch = DDB_CONFIG.classConfigurations.find((k) => k.id === subClass.parentClassId);
+    const classMatch = CONFIG.DDB.classConfigurations.find((k) => k.id === subClass.parentClassId);
     logger.debug(`${subClass.name} feature parsing started...`);
     subClass.classFeatures.forEach((feature) => {
       const existingFeature = classFeatures.some((f) => f.name === feature.name);

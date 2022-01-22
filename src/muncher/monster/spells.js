@@ -34,14 +34,14 @@ function parseSpelldc(text) {
   return dc;
 }
 
-function parseBonusSpellAttack(text, monster, DDB_CONFIG) {
+function parseBonusSpellAttack(text, monster) {
   let spellAttackBonus = 0;
   const dcSearch = "([+-]\\d+)\\s+to\\s+hit\\s+with\\s+spell\\s+attacks";
   const match = text.match(dcSearch);
   if (match) {
     const toHit = match[1];
-    const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
-    const abilities = getAbilityMods(monster, DDB_CONFIG);
+    const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
+    const abilities = getAbilityMods(monster);
     const castingAbility = parseSpellcasting(text);
     spellAttackBonus = toHit - proficiencyBonus - abilities[castingAbility];
   }
@@ -228,7 +228,7 @@ function getEdgeCases(spellList) {
 // <p><em><strong>Innate Spellcasting.</strong></em> The oblex&rsquo;s innate spellcasting ability is Intelligence (spell save DC 15). It can innately cast the following spells, requiring no components:</p>\r\n<p>3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)</p>
 
 
-export function getSpells(monster, DDB_CONFIG) {
+export function getSpells(monster) {
   let spelldc = 10;
   // data.details.spellLevel (spellcasting level)
   let spellLevel = 0;
@@ -344,7 +344,7 @@ export function getSpells(monster, DDB_CONFIG) {
       spellcasting = parseSpellcasting(spellText);
       spelldc = parseSpelldc(spellText);
       spellLevel = parseSpellLevel(spellText);
-      spellAttackBonus = parseBonusSpellAttack(spellText, monster, DDB_CONFIG);
+      spellAttackBonus = parseBonusSpellAttack(spellText, monster);
     }
 
     const noMaterialSearch = new RegExp(/no material component|no component/);

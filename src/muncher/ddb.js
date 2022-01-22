@@ -8,7 +8,6 @@ import { parseFeats } from "./feats.js";
 import { parseClasses } from "./classes.js";
 import { parseFrames } from "./frames.js";
 import { getPatreonTiers, munchNote } from "./utils.js";
-import { DDB_CONFIG } from "../ddbConfig.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { base64Check } from "../lib/Base64Check.js";
 import { downloadAdventureConfig } from "./adventure.js";
@@ -20,7 +19,7 @@ import { createGMMacros } from "../effects/macros.js";
 import { loadSRDRules } from "../parser/templateStrings.js";
 
 export function getSourcesLookups(selected) {
-  const selections = DDB_CONFIG.sources
+  const selections = CONFIG.DDB.sources
     .filter((source) => source.isReleased && source.sourceCategoryId !== 9 && source.sourceCategoryId !== 3)
     .map((source) => {
       const details = {

@@ -86,7 +86,7 @@ function buildAction(action, actionInfo, textContent, type) {
   return action;
 }
 
-export function getActions(monster, DDB_CONFIG, type = "action") {
+export function getActions(monster, type = "action") {
   const hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
   const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
   let actions;
@@ -156,7 +156,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       name = name.split(";").pop().trim();
     }
     let action = newFeat(name);
-    action.data.source = getSource(monster, DDB_CONFIG);
+    action.data.source = getSource(monster);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
       fullName: query.textContent,
@@ -181,7 +181,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
         name = name.split(";").pop().trim();
       }
       let action = newFeat(name);
-      action.data.source = getSource(monster, DDB_CONFIG);
+      action.data.source = getSource(monster);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
         fullName: query.textContent,
@@ -203,7 +203,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       const title = pDom.textContent.split('.')[0];
       const name = title.trim();
       let action = newFeat(name);
-      action.data.source = getSource(monster, DDB_CONFIG);
+      action.data.source = getSource(monster);
       if (pDom.outerHTML) {
         action.flags.monsterMunch = {
           titleHTML: pDom.outerHTML.split('.')[0],
@@ -225,7 +225,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
       const title = pDom.textContent.split('.')[0];
       const name = title.trim();
       let action = newFeat(name);
-      action.data.source = getSource(monster, DDB_CONFIG);
+      action.data.source = getSource(monster);
       if (pDom.outerHTML) {
         action.flags.monsterMunch = {
           titleHTML: pDom.outerHTML.split('.')[0],
@@ -292,7 +292,7 @@ export function getActions(monster, DDB_CONFIG, type = "action") {
 
   dynamicActions = dynamicActions.map((da) => {
     const actionDescription = stripHtml(da.data.description.value);
-    const actionInfo = getActionInfo(monster, DDB_CONFIG, da.name, actionDescription);
+    const actionInfo = getActionInfo(monster, da.name, actionDescription);
     const result = buildAction(da, actionInfo, actionDescription, type);
     if (hideDescription) {
       da.data.description.value = generatePlayerDescription(monster, da);

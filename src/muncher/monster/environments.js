@@ -1,9 +1,9 @@
 
-export function getEnvironments(monster, DDB_CONFIG) {
+export function getEnvironments(monster) {
   const environments = monster.environments.filter((env) =>
-    DDB_CONFIG.environments.some((c) => env == c.id)
+    CONFIG.DDB.environments.some((c) => env == c.id)
   ).map((env) => {
-    return DDB_CONFIG.environments.find((c) => env == c.id).name;
+    return CONFIG.DDB.environments.find((c) => env == c.id).name;
   });
 
   return environments.join(", ");

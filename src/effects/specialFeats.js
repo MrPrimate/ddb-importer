@@ -79,10 +79,6 @@ export async function generateExtraEffects(document) {
   // check that we can gen effects
   const deps = featEffectModules();
   if (!deps.hasCore) {
-    logger.warn(
-      "Sorry, you're missing some required modules for spell effects. Please install them and try again.",
-      deps
-    );
     return document;
   }
   if (!configured) {

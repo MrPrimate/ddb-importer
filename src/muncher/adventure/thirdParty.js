@@ -2,7 +2,6 @@ import Helpers from "./common.js";
 import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
 import utils from "../../utils.js";
-import { DDB_CONFIG } from "../../ddbConfig.js";
 import { generateIcon } from "./icons.js";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
@@ -241,7 +240,7 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   static _getDDBBookName(bookCode) {
-    const selection = DDB_CONFIG.sources.find((source) => bookCode.toLowerCase() === source.name.toLowerCase());
+    const selection = CONFIG.DDB.sources.find((source) => bookCode.toLowerCase() === source.name.toLowerCase());
     return selection.description;
   }
 

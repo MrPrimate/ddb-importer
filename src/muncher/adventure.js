@@ -1,4 +1,3 @@
-import { DDB_CONFIG } from "../ddbConfig.js";
 import { munchNote, getCampaignId, download, getCompendium, getCompendiumLabel } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 
@@ -102,12 +101,10 @@ async function getItemMap() {
   return Promise.all(results);
 }
 
-export async function generateAdventureConfig(full = true) {
+export async function generateAdventureConfig(full = true, cobalt = true) {
   const customProxy = game.settings.get("ddb-importer", "custom-proxy");
 
   const result = {
-    cobalt: getCobalt(),
-    campaignId: getCampaignId(),
     generateTokens: true,
     version: game.modules.get("ddb-importer").data.version,
     lookups: {
@@ -123,6 +120,11 @@ export async function generateAdventureConfig(full = true) {
     }
   };
 
+  if (cobalt) {
+    result.cobalt = getCobalt();
+    result.campaignId = getCampaignId();
+  }
+
   // @Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}
 
   if (full) {
@@ -137,7 +139,7 @@ export async function generateAdventureConfig(full = true) {
   result.index = srdIndex;
 
   const skillEntry = srdIndex.find((i) => i.name === "Using Each Ability");
-  result.lookups.skills = DDB_CONFIG.abilitySkills.map((skill) => {
+  result.lookups.skills = CONFIG.DDB.abilitySkills.map((skill) => {
     return {
       id: skill.id,
       _id: skillEntry.id,
@@ -146,7 +148,7 @@ export async function generateAdventureConfig(full = true) {
       documentName: skillEntry.name,
     };
   });
-  result.lookups.senses = DDB_CONFIG.senses.filter((sense) => srdIndex.some((i) => i.name === sense.name))
+  result.lookups.senses = CONFIG.DDB.senses.filter((sense) => srdIndex.some((i) => i.name === sense.name))
     .map((sense) => {
       const entry = srdIndex.find((i) => i.name === sense.name);
       return {
@@ -158,7 +160,7 @@ export async function generateAdventureConfig(full = true) {
       };
     });
 
-  result.lookups.conditions = DDB_CONFIG.conditions.filter((condition) => srdIndex.some((i) => i.name.trim() === condition.definition.name.trim()))
+  result.lookups.conditions = CONFIG.DDB.conditions.filter((condition) => srdIndex.some((i) => i.name.trim() === condition.definition.name.trim()))
     .map((condition) => {
       const entry = srdIndex.find((i) => i.name.trim() === condition.definition.name.trim());
       return {
@@ -172,7 +174,7 @@ export async function generateAdventureConfig(full = true) {
     });
 
   const actionEntry = srdIndex.find((i) => i.name === "Actions in Combat");
-  result.lookups.actions = DDB_CONFIG.basicActions.map((action) => {
+  result.lookups.actions = CONFIG.DDB.basicActions.map((action) => {
     return {
       id: action.id,
       _id: actionEntry.id,
@@ -183,7 +185,7 @@ export async function generateAdventureConfig(full = true) {
   });
 
   const weaponPropertiesEntry = srdIndex.find((i) => i.name === "Weapons");
-  result.lookups.weaponproperties = DDB_CONFIG.weaponProperties.map((prop) => {
+  result.lookups.weaponproperties = CONFIG.DDB.weaponProperties.map((prop) => {
     return {
       id: prop.id,
       _id: weaponPropertiesEntry.id,
@@ -194,7 +196,7 @@ export async function generateAdventureConfig(full = true) {
   });
 
   // vehicles
-  if (!customProxy) {
+  if (!customProxy && cobalt) {
     const vehicleData = await getVehicleData();
 
     result.lookups.vehicles = vehicleData.map((v) => {

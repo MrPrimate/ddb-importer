@@ -33,15 +33,15 @@ export const ABILITIES = [
 /**
  * Retrieves character abilities, including proficiency on saving throws
  * @param {obj} monster JSON Import
- * @param {obj} DDB_CONFIG config
+ * @param {obj} CONFIG.DDB config
  */
-export function getAbilities(abilities, monster, DDB_CONFIG) {
+export function getAbilities(abilities, monster) {
   // go through every ability
   ABILITIES.forEach((ability) => {
     const value = monster.stats.find((stat) => stat.statId === ability.id).value || 0;
     const proficient = monster.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
-    const proficiencyBonus = DDB_CONFIG.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
-    const mod = DDB_CONFIG.statModifiers.find((s) => s.value == value).modifier;
+    const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
+    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
     abilities[ability.value]['value'] = value;
     abilities[ability.value]['proficient'] = proficient;
@@ -60,12 +60,12 @@ export function getAbilities(abilities, monster, DDB_CONFIG) {
 }
 
 
-export function getAbilityMods(monster, DDB_CONFIG) {
+export function getAbilityMods(monster) {
   let abilities = {};
 
   ABILITIES.forEach((ability) => {
     const value = monster.stats.find((stat) => stat.statId === ability.id).value || 0;
-    const mod = DDB_CONFIG.statModifiers.find((s) => s.value == value).modifier;
+    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
     abilities[ability.value] = mod;
   });
 

@@ -32,8 +32,8 @@ const SENSE_MAP = {
 //   "name": "Unknown"
 // }],
 
-export function getTokenSenses(token, monster, DDB_CONFIG) {
-  const senseLookup = DDB_CONFIG.senses;
+export function getTokenSenses(token, monster) {
+  const senseLookup = CONFIG.DDB.senses;
 
   monster.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
@@ -50,7 +50,7 @@ export function getTokenSenses(token, monster, DDB_CONFIG) {
 }
 
 
-export function getSenses(monster, DDB_CONFIG) {
+export function getSenses(monster) {
   let senses = {
     darkvision: 0,
     blindsight: 0,
@@ -59,7 +59,7 @@ export function getSenses(monster, DDB_CONFIG) {
     units: "ft",
     special: ""
   };
-  const senseLookup = DDB_CONFIG.senses;
+  const senseLookup = CONFIG.DDB.senses;
 
   monster.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
