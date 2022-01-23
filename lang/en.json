@@ -139,5 +139,7 @@
   "ddb-importer.munching-selection-compendium-folders-item.name": "Compendium Folders Style (Items)",
   "ddb-importer.munching-selection-compendium-folders-item.hint": "If using compendium folders, what kind of folders do you want the muncher to create?",
   "ddb-importer.embed-macros.name": "Embed macros in items?",
-  "ddb-importer.embed-macros.hint": "Embed macros into items? If not selected, item macro will call DDB Importer to generate and run the appropriate macro on the fly. Advantages: don't need to remunch spells to get macro, less data stored in world. Disadvantages: harder to debug, need to be running DDB Importer."
+  "ddb-importer.embed-macros.hint": "Embed macros into items? If not selected, item macro will call DDB Importer to generate and run the appropriate macro on the fly. Advantages: don't need to remunch spells to get macro, less data stored in world. Disadvantages: harder to debug, need to be running DDB Importer.",
+  "ddb-importer.show-image-to-players.name": "Show the show image to players button?",
+  "ddb-importer.show-image-to-players.hint": "In journals provide hover-over button to show image to players? (Reload required)"
 }

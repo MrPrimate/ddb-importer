@@ -226,6 +226,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "show-image-to-players", {
+    name: "ddb-importer.show-image-to-players.name",
+    hint: "ddb-importer.show-image-to-players.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register("ddb-importer", "entity-item-compendium", {
     scope: "world",
     config: false,

@@ -1,3 +1,7 @@
+# 2.8.15
+
+* Option to disable the "Show image to players" button on journal images.
+
 # 2.8.14
 
 * Spells: Control weather range changed to miles

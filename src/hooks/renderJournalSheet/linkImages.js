@@ -2,8 +2,10 @@ import utils from "../../utils.js";
 
 export function linkImages(html) {
   if (!game.user.isGM) return;
+  const displayImages = game.settings.get("ddb-importer", "show-image-to-players");
   // does this functionality exist from anther module?
-  const funcExists = utils.isModuleInstalledAndActive("vtta-dndbeyond") ||
+  const funcExists = !displayImages ||
+    utils.isModuleInstalledAndActive("vtta-dndbeyond") ||
     utils.isModuleInstalledAndActive("vtta-ddb") ||
     utils.isModuleInstalledAndActive("token-hud-art-button");
 
