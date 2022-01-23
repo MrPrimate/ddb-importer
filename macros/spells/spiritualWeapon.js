@@ -80,6 +80,7 @@ if (args[0] === "on") {
         damage: { parts: [[`${damage}d8+@mod`, "force"]], versatile: "" },
         weaponType: "simpleM",
         proficient: true,
+        equipped: true,
       },
       flags: { SpiritualWeapon: targetActor.id },
       img: DAEItem.img,

@@ -30,6 +30,7 @@ function createShieldItem(type) {
         condition: "whenever a creature within 5 feet of you hits you with a melee Attack",
       },
       actionType: "other",
+      equipped: true,
       damage: {
         parts: [[`2d8[${damageType}]`, damageType]],
       },

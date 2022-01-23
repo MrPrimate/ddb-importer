@@ -78,6 +78,7 @@ if (args[0] === "on") {
         damage: { parts: [["3d10", "force"]], versatile: "" },
         weaponType: "simpleM",
         proficient: true,
+        equipped: true,
       },
       flags: { ArcaneSword: targetActor.id },
       img: DAEItem.img,

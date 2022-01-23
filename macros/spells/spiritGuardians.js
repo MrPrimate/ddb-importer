@@ -21,6 +21,7 @@ if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.
         },
       },
       data: {
+        equipped: true,
         actionType: "save",
         save: { dc: Number.parseInt(args[3]), ability: "wis", scaling: "flat" },
         damage: { parts: [[`${args[2]}d8`, damageType]] },
