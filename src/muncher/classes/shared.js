@@ -235,12 +235,12 @@ export async function buildBaseClass(klass) {
   }
 
   // get class saves
-  const savingText = dom.textContent.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].trim();
-  const saveRegex = /(.*)($|The|\.$|\w+:)/im;
+  const savingText = dom.textContent.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].split("skills:")[0].trim();
+  const saveRegex = /(.*)(?:$|The|\.$|\w+:)/im;
   const saveMatch = savingText.match(saveRegex);
 
   if (saveMatch) {
-    const saveNames = saveMatch[2].replace('and', ',').split(',').map((ab) => ab.trim());
+    const saveNames = saveMatch[1].replace('and', ',').split(',').map((ab) => ab.trim());
     const saves = saveNames
       .filter((name) => DICTIONARY.character.abilities.some((ab) => ab.long.toLowerCase() === name.toLowerCase()))
       .map((name) => {
