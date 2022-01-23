@@ -1,6 +1,9 @@
 # 2.8.15
 
 * Option to disable the "Show image to players" button on journal images.
+* Class munch: class skills munched for all classes now.
+* Class munch: class saves munched.
+* Spiritual Weapon Macro: created weapon should be bonus action. Weapon is now equipped.
 
 # 2.8.14
 

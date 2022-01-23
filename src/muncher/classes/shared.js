@@ -203,10 +203,11 @@ export async function buildBaseClass(klass) {
 
   // Choose any three
   // Skills: Choose two from Arcana, Animal Handling, Insight, Medicine, Nature, Perception, Religion, and Survival
-  const allSkillRegex = /Skills: Choose any (\w+)(.*)($|\.$|\w+:)/;
+  const skillText = dom.textContent.toLowerCase().split("skills:").pop().split("\n")[0].split("The")[0].split(".")[0].trim();
+  const allSkillRegex = /Skills: Choose any (\w+)(.*)($|\.$|\w+:)/im;
   const allMatch = dom.textContent.match(allSkillRegex);
-  const skillRegex = /Skills: Choose (\w+) from (.*)($|The|\.$|\w+:)/;
-  const skillMatch = dom.textContent.match(skillRegex);
+  const skillRegex = /choose (\w+)(?:\sskills)* from (.*)($|The|\.$|\w+:)/im;
+  const skillMatch = skillText.match(skillRegex);
 
   if (allMatch) {
     const skills = DICTIONARY.character.skills.map((skill) => skill.name);
@@ -231,6 +232,23 @@ export async function buildBaseClass(klass) {
       choices: skills,
       value: [],
     };
+  }
+
+  // get class saves
+  const savingText = dom.textContent.toLowerCase().split("saving throws:").pop().split("\n")[0].split("The")[0].split(".")[0].trim();
+  const saveRegex = /(.*)($|The|\.$|\w+:)/im;
+  const saveMatch = savingText.match(saveRegex);
+
+  if (saveMatch) {
+    const saveNames = saveMatch[2].replace('and', ',').split(',').map((ab) => ab.trim());
+    const saves = saveNames
+      .filter((name) => DICTIONARY.character.abilities.some((ab) => ab.long.toLowerCase() === name.toLowerCase()))
+      .map((name) => {
+        const dictAbility = DICTIONARY.character.abilities.find((ab) => ab.long.toLowerCase() === name.toLowerCase());
+        return dictAbility.value;
+      });
+    // eslint-disable-next-line require-atomic-updates
+    result.data.saves = saves;
   }
 
   // "moreDetailsUrl": "/characters/classes/rogue",
