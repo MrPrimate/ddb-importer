@@ -6,6 +6,12 @@ setProperty(CONFIG, "DDBI", {
   module: "DDB Muncher",
   schemaVersion: "1.1",
   ADVENTURE: {},
+  MACROS: {
+    spell: {},
+    gm: {},
+    item: {},
+    feat: {},
+  },
 });
 
 export default function () {
@@ -205,6 +211,15 @@ export default function () {
   game.settings.register("ddb-importer", "show-munch-top", {
     name: "ddb-importer.show-munch-top.name",
     hint: "ddb-importer.show-munch-top.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "embed-macros", {
+    name: "ddb-importer.embed-macros.name",
+    hint: "ddb-importer.embed-macros.hint",
     scope: "world",
     config: true,
     type: Boolean,

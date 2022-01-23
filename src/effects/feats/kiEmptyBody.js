@@ -1,5 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { generateMacroChange, generateMacroFlags, loadMacroFile } from "../macros.js";
+import { generateMacroChange, generateItemMacroFlag, loadMacroFile } from "../macros.js";
 
 export async function kiEmptyBodyEffect(document) {
   let effect = baseFeatEffect(document, document.name);
@@ -13,7 +13,7 @@ export async function kiEmptyBodyEffect(document) {
   document.data.duration = { value: 1, units: "min" };
   document.data.actionType = null;
   const itemMacroText = await loadMacroFile("spell", "invisibility.js");
-  document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
+  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
 
   document.effects.push(effect);

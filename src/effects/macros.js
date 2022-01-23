@@ -36,20 +36,25 @@ export function configureDependencies() {
   return true;
 }
 
-export async function loadMacroFile(type, fileName) {
+export async function loadMacroFile(type, fileName, forceLoad = false) {
+  const embedMacros = game.settings.get("ddb-importer", "embed-macros");
   logger.debug(`Getting macro for ${type} ${fileName}`);
-  const fileExists = await utils.fileExists(`[data] modules/ddb-importer/macros/${type}s`, fileName);
+  const fileExists = forceLoad
+    ? true
+    : await utils.fileExists(`[data] modules/ddb-importer/macros/${type}s`, fileName);
 
   let data;
-  if (fileExists) {
+  if (fileExists && (forceLoad || embedMacros)) {
     const url = await utils.getFileUrl(`[data] modules/ddb-importer/macros/${type}s`, fileName);
     const response = await fetch(url, { method: "GET" });
     data = await response.text();
+  } else if (fileExists && !embedMacros) {
+    data = `// Execute DDB Importer dynamic macro\nDDBImporter.executeDDBMacro("${type}", "${fileName}", ...args);`;
   }
   return data;
 }
 
-export function generateMacroFlags(document, macroText) {
+export function generateItemMacroFlag(document, macroText) {
   return {
     macro: {
       data: {
@@ -74,36 +79,67 @@ export function generateMacroChange(macroValues, priority = 20) {
   };
 }
 
-async function createGMMacro(name, content, img) {
-  const macroFolder = game.folders.find((folder) => folder.data.name === "DDB Macros" && folder.data.type === "Macro");
+export async function createMacro({ name, content, img, isGM, isTemp }) {
+  const macroFolder = isTemp
+    ? undefined
+    : game.folders.find((folder) => folder.data.name === "DDB Macros" && folder.data.type === "Macro");
 
   const data = {
     "name": name,
     "type": "script",
-    "img": img,
+    "img": img ? img : "icons/svg/dice-target.svg",
     "scope": "global",
     "command": content,
     "folder": macroFolder ? macroFolder.id : undefined,
     "flags": {
       "advanced-macros": {
-        "runAsGM": true
+        "runAsGM": isGM
       },
     }
   };
 
   const existingMacro = game.macros.find((m) => m.name == name);
+  if (existingMacro) data._id = existingMacro.id;
+  const macro = existingMacro
+    ? existingMacro.update(data)
+    : Macro.create(data, {
+      temporary: isTemp,
+      displaySheet: false,
+    });
 
-  if (existingMacro) {
-    data._id = existingMacro.id;
-    await existingMacro.update(data);
-  } else {
-    await Macro.create(data);
-  }
+  return macro;
 
+}
+
+async function createGMMacro(name, content, img) {
+  return createMacro({ name, content, img, isGM: true, isTemp: false });
 }
 
 export async function createGMMacros() {
   await checkMacroFolder();
   const gmMacroText = await loadMacroFile("gm", "darkness.js");
   await createGMMacro("Darkness (DDB - GM)", gmMacroText, "systems/dnd5e/icons/skills/shadow_10.jpg");
+}
+
+
+export async function executeDDBMacro(type, fileName, ...params) {
+  if (!fileName.endsWith(".js")) fileName = `${fileName}.js`;
+  let macro = CONFIG.DDBI.MACROS[type]?.[fileName];
+  if (!macro) {
+    const macroText = await loadMacroFile(type, fileName, true);
+    if (!macroText) {
+      ui.notifications.error(`Unable to load macro (${type}) ${fileName}`);
+      logger.warn(`Unable to load macro (${type}) ${fileName}`);
+      throw new Error(`Unable to load macro (${type}) ${fileName}`);
+    }
+
+    // eslint-disable-next-line require-atomic-updates
+    macro = await createMacro({ name: `${type} ${fileName}`, content: macroText, img: null, isGM: false, isTemp: true });
+    // eslint-disable-next-line require-atomic-updates
+    CONFIG.DDBI.MACROS[type][fileName] = macro;
+    logger.debug(`Macro (${type}) ${fileName} loaded`, macro);
+  }
+
+  logger.debug(`Calling (${type}) ${fileName} with params`, ...params);
+  macro.execute(...params);
 }

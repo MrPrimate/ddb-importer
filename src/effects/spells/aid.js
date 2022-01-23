@@ -1,5 +1,6 @@
-import { loadMacroFile, generateMacroChange, generateMacroFlags } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 import { baseSpellEffect } from "../specialSpells.js";
+import logger from "../../logger.js";
 
 export async function aidEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -9,10 +10,11 @@ export async function aidEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     priority: 20,
   });
-  // MACRO START
   const itemMacroText = await loadMacroFile("spell", "aid.js");
-  // MACRO STOP
-  document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
+  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+
+  logger.debug(itemMacroText);
+  logger.debug(document);
   effect.changes.push(generateMacroChange("@spellLevel", 0));
   document.effects.push(effect);
 

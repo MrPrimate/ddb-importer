@@ -1,6 +1,6 @@
 import { generateATLChange } from "../effects.js";
 import { baseSpellEffect, spellEffectModules } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateMacroFlags } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 
 export async function crownofStarsEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -11,8 +11,7 @@ export async function crownofStarsEffect(document) {
   }
 
   const itemMacroText = await loadMacroFile("spell", "crownofStars.js");
-  // MACRO STOP
-  document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
+  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("@spellLevel"));
   document.data.damage = { parts: [], versatile: "", value: "" };
   document.data['target']['type'] = "self";

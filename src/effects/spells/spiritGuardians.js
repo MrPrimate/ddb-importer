@@ -1,5 +1,5 @@
 import { baseSpellEffect, spellEffectModules } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateMacroFlags } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 
 export async function spiritGuardiansEffect(document) {
   // we require active auras for this effect
@@ -21,10 +21,8 @@ export async function spiritGuardiansEffect(document) {
       priority: "20",
     }
   );
-  // MACRO START
   const itemMacroText = await loadMacroFile("spell", "spiritGuardians.js");
-  // MACRO STOP
-  document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
+  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "Enemy",

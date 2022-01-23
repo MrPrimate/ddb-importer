@@ -79,11 +79,11 @@ You can log bugs here, or mention them in the [Discord channel](https://discord.
 I'd strongly recommend installing:
 
 - [Magic Items](https://foundryvtt.com/packages/magicitems/) for attaching spells to magic items
-- [DAE](https://foundryvtt.com/packages/dae/) or [Skill Customization for D&D5E](https://foundryvtt.com/packages/skill-customization-5e/) for skill bonuses
-- [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e )
-- [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
+- [DAE](https://foundryvtt.com/packages/dae/) for skill bonuses and basic effects
+- [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e ) for good resource linking
+- [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects) for proper condition management
 
-If you want to add spell effects you will need:
+If you want to add spell effects, and high levels of automation you will need:
 - [Midi-QOL](https://foundryvtt.com/packages/midi-qol/)
 - [About Time](https://foundryvtt.com/packages/about-time)
 - [Times Up](https://foundryvtt.com/packages/times-up/).

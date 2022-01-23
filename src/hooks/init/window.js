@@ -13,6 +13,7 @@ import { checkCobalt } from "../../lib/Secrets.js";
 import { base64Check } from "../../lib/Base64Check.js";
 import { getFeats } from "../../muncher/feats/feats.js";
 import { getCompendiumNames } from "../ready/checkCompendiums.js";
+import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro } from "../../effects/macros.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -39,27 +40,32 @@ function migrateCompendiums() {
 
 export function registerWindow() {
   window.DDBImporter = {
-    parseCritters,
-    parseMonsters,
-    parseSpells,
-    parseItems,
-    parseEncounters,
+    base64Check: base64Check,
+    checkCobalt,
+    checkPatreon,
+    createCompendiumFolderStructure,
+    createMacro,
+    DDBEncounterMunch,
+    encounterMunch: DDBEncounterMunch,
+    executeDDBMacro,
     generateAdventureConfig,
-    migrateCompendiums,
-    resetProxy,
-    resetSecrets,
-    updateDDBCharacter,
+    generateItemMacroFlag,
     getPatreonTier,
     getPatreonTiers,
-    setPatreonTier,
-    checkPatreon,
-    checkCobalt,
-    DDBEncounterMunch,
-    migrateExistingCompendiumToCompendiumFolders: migrateExistingCompendium,
-    createCompendiumFolderStructure,
     importCharacter,
     importCharacterById,
+    loadMacroFile,
+    migrateCompendiums,
+    migrateExistingCompendiumToCompendiumFolders: migrateExistingCompendium,
+    parseCritters,
+    parseEncounters,
     parseFeats: getFeats,
-    base64Check: base64Check,
+    parseItems,
+    parseMonsters,
+    parseSpells,
+    resetProxy,
+    resetSecrets,
+    setPatreonTier,
+    updateDDBCharacter,
   };
 }

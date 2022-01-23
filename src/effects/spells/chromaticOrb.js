@@ -1,8 +1,8 @@
-import { loadMacroFile, generateMacroFlags } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 
 export async function chromaticOrbEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "chromaticOrb.js");
-  setProperty(document, "flags.itemacro", generateMacroFlags(document, itemMacroText));
+  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
 
   return document;

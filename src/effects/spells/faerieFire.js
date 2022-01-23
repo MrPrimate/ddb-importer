@@ -1,5 +1,5 @@
 import { baseSpellEffect, generateTokenMagicFXChange, spellEffectModules } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateMacroFlags } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 
 export async function faerieFireEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -9,10 +9,8 @@ export async function faerieFireEffect(document) {
     value: "1",
     priority: "20",
   });
-  // MACRO START
   const itemMacroText = await loadMacroFile("spell", "faerieFire.js");
-  // MACRO STOP
-  document.flags["itemacro"] = generateMacroFlags(document, itemMacroText);
+  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
 
   if (spellEffectModules().tokenMagicInstalled) {
