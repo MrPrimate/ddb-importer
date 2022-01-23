@@ -3,7 +3,7 @@
 * Spells: Control weather range changed to miles
 * Underlying changes to macro creation.
 * Option in module settings to load itemacros "on demand" rather than keeping the effect in a macro on the item.
-* Spell effects: MeasuredTemplate updates to allow player useage.
+* Spell effects: MeasuredTemplate updates to allow player usage.
 
 # 2.8.13
 
