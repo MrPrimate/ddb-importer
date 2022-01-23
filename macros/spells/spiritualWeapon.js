@@ -69,7 +69,7 @@ if (args[0] === "on") {
       type: "weapon",
       data: {
         quantity: 1,
-        activation: { type: "action", cost: 1, condition: "", },
+        activation: { type: "bonus", cost: 1, condition: "", },
         target: { value: 1, type: "creature", },
         range: { value: 5, long: null, units: "", },
         ability: DAEItem.data.ability,
