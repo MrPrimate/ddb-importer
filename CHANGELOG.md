@@ -4,6 +4,7 @@
 * Class munch: class skills munched for all classes now.
 * Class munch: class saves munched.
 * Spiritual Weapon Macro: created weapon should be bonus action. Weapon is now equipped.
+* Item effects: for weapons like flame blade or spider staff, damage effects would be created when not needed.
 
 # 2.8.14
 

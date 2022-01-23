@@ -1339,6 +1339,12 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
 export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, type) {
   let label;
 
+  if (type === "item") {
+    ddbItem.definition.grantedModifiers = ddbItem.definition.grantedModifiers.filter((modifier) =>
+      modifier.type !== "damage" && modifier.subType !== null
+    );
+  }
+
   if (type == "infusion") {
     label = `${foundryItem.name} - Infusion Effects`;
   }
