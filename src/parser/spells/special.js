@@ -189,6 +189,11 @@ export function fixSpells(ddb, items) {
         }
         break;
       }
+      case "Control Weather": {
+        spell.data["target"]["type"] = "self";
+        spell.data.range = { value: 5, units: "mi", long: null };
+        break;
+      }
       case "Pyrotechnics":
         spell.data["target"]["value"] = 15;
         break;
