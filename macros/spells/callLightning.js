@@ -14,7 +14,7 @@ const castItem = targetActor.data.items.find((i) => i.name === castItemName && i
 if (args[0] === "on") {
   const templateData = {
     t: "circle",
-    user: game.user._id,
+    user: game.userId,
     distance: 60,
     direction: 0,
     x: 0,

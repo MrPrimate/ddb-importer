@@ -22,7 +22,7 @@ async function deleteTemplatesAndTeleport(destinationTemplate, actorId, flagName
 if (args[0] === "on") {
   const rangeTemplateData = {
     t: "circle",
-    user: game.user._id,
+    user: game.userId,
     x: targetToken.x + canvas.grid.size / 2,
     y: targetToken.y + canvas.grid.size / 2,
     direction: 0,
@@ -38,7 +38,7 @@ if (args[0] === "on") {
 
   const templateData = {
     t: "rect",
-    user: game.user._id,
+    user: game.userId,
     distance: 7.5,
     direction: 45,
     x: 0,

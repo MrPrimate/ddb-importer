@@ -32,7 +32,7 @@ async function placeMoonBeam(casterActor, range, originObject, deleteOriginTempl
   const isTemplate = originObject instanceof MeasuredTemplate;
   await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [{
     t: "circle",
-    user: game.user._id,
+    user: game.userId,
     x: isTemplate ? originObject.x : originObject.x + canvas.grid.size / 2,
     y: isTemplate ? originObject.y : originObject.y + canvas.grid.size / 2,
     direction: 0,
@@ -47,7 +47,7 @@ async function placeMoonBeam(casterActor, range, originObject, deleteOriginTempl
 
   const templateData = {
     t: "circle",
-    user: game.user._id,
+    user: game.userId,
     distance: 5,
     direction: 0,
     x: 0,

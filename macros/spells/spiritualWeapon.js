@@ -27,7 +27,7 @@ if (args[0] === "on") {
   await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [
     {
       t: "circle",
-      user: game.user._id,
+      user: game.userId,
       x: targetToken.x + canvas.grid.size / 2,
       y: targetToken.y + canvas.grid.size / 2,
       direction: 0,
