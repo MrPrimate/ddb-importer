@@ -4,6 +4,10 @@ import { configureDependencies } from "./macros.js";
 import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
 import { warCasterEffect } from "./feats/warCaster.js";
 import { rageEffect } from "./feats/rage.js";
+import { potentCantripEffect } from "./feats/potentCantrip.js";
+import { bardicInspirationEffect } from "./feats/bardicInspiration.js";
+import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
+import { paladinDefaultAuraEffect } from "./feats/paladinDefaultAura.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -91,15 +95,6 @@ export async function generateExtraEffects(document) {
       document = await kiEmptyBodyEffect(document);
       break;
     }
-    case "Rage": {
-      document = rageEffect(document);
-      break;
-    }
-    case "War Caster":
-    case "Warcaster": {
-      document = warCasterEffect(document);
-      break;
-    }
     // no default
   }
   return document;
@@ -115,121 +110,30 @@ export function featureEffectAdjustment(document) {
     // if using active auras add the aura effect
     case "Aura of Courage":
     case "Aura of Protection": {
-      document.effects.forEach((effect) => {
-        if (effect.label.includes("Constant Effects")) {
-          effect.flags.ActiveAuras = {
-            aura: "Allies",
-            radius: 10,
-            isAura: true,
-            inactive: false,
-            hidden: false,
-          };
-        }
-      });
+      document = paladinDefaultAuraEffect(document);
       break;
     }
     case "Unarmored Movement": {
-      document.effects.forEach((effect) => {
-        if (effect.label.includes("Constant Effects")) {
-          effect.changes = [
-            {
-              key: "data.attributes.movement.walk",
-              value: "max(10+(ceil(((@classes.monk.levels)-5)/4))*5,10)",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 20,
-            },
-          ];
-        }
-      });
-      break;
-    }
-    case "Potent Cantrip": {
-      let effect = baseItemEffect(document, `${document.name}`);
-      effect.changes.push({
-        key: "flags.midi-qol.potentCantrip",
-        value: "1",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        priority: 20,
-      });
-      document.effects.push(effect);
+      document = unarmoredMovementEffect(document);
       break;
     }
     case "Bardic Inspiration": {
       if (midiQolInstalled) {
-        document.data.damage.parts = [];
-        let inspiredEffect = baseItemEffect(document, "Inspired");
-        inspiredEffect.changes.push(
-          {
-            key: "flags.midi-qol.optional.bardicInspiration.attack",
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            value: "1d@flags.dae.BardicInspirationDice",
-            priority: "20",
-          },
-          {
-            key: "flags.midi-qol.optional.bardicInspiration.save",
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            value: "1d@flags.dae.BardicInspirationDice",
-            priority: "20",
-          },
-          {
-            key: "flags.midi-qol.optional.bardicInspiration.check",
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            value: "1d@flags.dae.BardicInspirationDice",
-            priority: "20",
-          },
-          {
-            key: "flags.midi-qol.optional.bardicInspiration.label",
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            value: "Bardic Inspiration",
-            priority: "20",
-          }
-        );
-        inspiredEffect.transfer = false;
-        inspiredEffect.disabled = false;
-        setProperty(inspiredEffect, "flags.dae.transfer", false);
-        setProperty(inspiredEffect, "flags.dae.stackable", false);
-        setProperty(inspiredEffect, "flags.dae.macroRepeat", "none");
-        setProperty(inspiredEffect, "flags.dae.specialDuration", []);
-
-        if (document.flags.ddbimporter.subclass === "College of Valor") {
-          inspiredEffect.changes.push(
-            {
-              key: "flags.midi-qol.optional.bardicInspiration.damage",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: "1d@flags.dae.BardicInspirationDice",
-              priority: "20",
-            },
-            {
-              key: "flags.midi-qol.optional.bardicInspiration.ac",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              value: "1d@flags.dae.BardicInspirationDice",
-              priority: "20",
-            }
-          );
-        }
-
-        document.effects.push(inspiredEffect);
-
-        let diceEffect = baseItemEffect(document, "Bardic Inspiration Dice");
-        diceEffect.changes.push({
-          key: "flags.dae",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          value: "BardicInspirationDice (floor(@classes.bard.levels/5)+3) * 2",
-          priority: "20",
-        });
-        diceEffect.transfer = true;
-        diceEffect.disabled = false;
-        setProperty(diceEffect, "flags.dae.transfer", true);
-        setProperty(diceEffect, "flags.dae.stackable", false);
-        setProperty(diceEffect, "flags.dae.macroRepeat", "none");
-        setProperty(diceEffect, "flags.dae.specialDuration", []);
-        document.effects.push(diceEffect);
-        document.flags["midi-qol"] = {
-          onUseMacroName: "",
-          effectActivation: false,
-          forceCEOff: false,
-        };
+        document = bardicInspirationEffect(document);
       }
+      break;
+    }
+    case "Rage": {
+      document = rageEffect(document);
+      break;
+    }
+    case "War Caster":
+    case "Warcaster": {
+      document = warCasterEffect(document);
+      break;
+    }
+    case "Potent Cantrip": {
+      document = potentCantripEffect(document);
       break;
     }
     // no default

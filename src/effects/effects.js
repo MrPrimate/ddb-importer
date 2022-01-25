@@ -1339,7 +1339,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
 export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendiumItem, type) {
   let label;
 
-  if (type === "item") {
+  if (type === "item" && hasProperty(ddbItem, "definition.grantedModifiers")) {
     ddbItem.definition.grantedModifiers = ddbItem.definition.grantedModifiers.filter((modifier) =>
       modifier.type !== "damage" && modifier.subType !== null
     );
