@@ -1,4 +1,3 @@
-import { baseItemEffect } from "./effects.js";
 import utils from "../utils.js";
 import { configureDependencies } from "./macros.js";
 import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
