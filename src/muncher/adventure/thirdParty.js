@@ -268,7 +268,8 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   static _generateActorId(token) {
-    const ddbId = token.flags.ddbActorFlags.id;
+    if (!hasProperty(token, "flags.ddbActorFlags.id")) logger.warn.warn("Token does not link to DDB Actor", token);
+    const ddbId = token.flags.ddbActorFlags?.id;
     const folderId = token.flags.actorFolderId;
     const key = `${ddbId}-${folderId}`;
     if (CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key]) {
