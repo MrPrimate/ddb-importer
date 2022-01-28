@@ -5,6 +5,7 @@
 * Class munch: class saves munched.
 * Spiritual Weapon Macro: created weapon should be bonus action. Weapon is now equipped.
 * Item effects: for weapons like flame blade or spider staff, damage effects would be created when not needed.
+* Improvements to adventure muncher third party scenes to handle data bumps better.
 
 # 2.8.14
 
