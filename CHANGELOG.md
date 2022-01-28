@@ -1,3 +1,8 @@
+# 2.8.16
+
+* Scene exporter for adventure muncher and third party: tokens with light effects will now export light effects in v9.
+* If using tidy sheet max spells prepared was not calculated properly for Artificers.
+
 # 2.8.15
 
 * Option to disable the "Show image to players" button on journal images.

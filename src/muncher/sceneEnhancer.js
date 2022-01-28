@@ -1,6 +1,7 @@
 import { download } from "./utils.js";
 import { getSourcesLookups } from "./ddb.js";
 import logger from "../logger.js";
+import utils from "../utils.js";
 
 /**
    * Extracts all notes that have been placed by ddb-importer
@@ -80,6 +81,8 @@ function getNotes(scene, bookCode) {
  * @param {Scene} scene
  */
 export function collectSceneData(scene, bookCode) {
+  const version = (game.version ?? game.data.version);
+  const v9 = utils.versionCompare(version, "9.0") >= 0;
 
   const notes = getNotes(scene, bookCode);
 
@@ -150,6 +153,14 @@ export function collectSceneData(scene, bookCode) {
         tint: token.data.tint,
         actorData: token.data.actorData,
       };
+
+      if (v9) {
+        result.light = token.data.light;
+      } else {
+        result.lightAlpha = token.data.lightAlpha;
+        result.lightAngle = token.data.lightAngle;
+        result.lightAnimation = token.data.lightAnimation;
+      }
 
       // the token actor flags here help us match up actors using the DDB ID
       if (token.actor) {
