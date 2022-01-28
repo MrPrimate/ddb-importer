@@ -170,15 +170,19 @@ export function maxPreparedSpells(data, character) {
 
   data.character.classes
     .filter((klass) => {
-      return (klass.definition.canCastSpells || (klass.subclassDefinition && klass.subclassDefinition.canCastSpells)) &&
-        (klass.definition.spellPrepareType === 1 || (klass.subclassDefinition && klass.subclassDefinition.spellPrepareType === 1));
+      return (klass.definition.canCastSpells || (klass.subclassDefinition?.canCastSpells));
     })
     .forEach((klass) => {
       const spellCastingAbility = getSpellCastingAbility(klass);
       if (spellCastingAbility !== undefined) {
         const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
         const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
-        max += abilityModifier + klass.level;
+        if (klass.definition.spellPrepareType === 1 || klass.subclassDefinition?.spellPrepareType === 1) {
+          max += abilityModifier + klass.level;
+        } else if (klass.definition.spellPrepareType === 2 || klass.subclassDefinition?.spellPrepareType === 2) {
+          max += abilityModifier + Math.floor(klass.level / 2);
+        }
+
       }
     });
 
