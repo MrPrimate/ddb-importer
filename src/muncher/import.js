@@ -42,6 +42,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "inventory-plus",
   "obsidian",
   "siftoolkit",
+  "advancedspelleffects",
 ];
 
 const EFFECTS_IGNORE_FLAG_GROUPS = [
