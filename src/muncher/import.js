@@ -886,19 +886,18 @@ async function updateMatchingItems(oldItems, newItems, inOptions) {
 
     if (matched) {
       if (!item.flags.ddbimporter) {
-        item.flags.ddbimporter = matched.flags.ddbimporter;
+        setProperty(item, "flags.ddbimporter", matched.flags.ddbimporter);
       } else if (matched.flags.ddbimporter && item.flags.ddbimporter) {
-        item.flags.ddbimporter = mergeObject(matched.flags.ddbimporter, item.flags.ddbimporter);
+        const mergedFlags = mergeObject(item.flags.ddbimporter, matched.flags.ddbimporter);
+        setProperty(item, "flags.ddbimporter", mergedFlags);
       }
       if (!item.flags.monsterMunch && matched.flags.monsterMunch) {
-        item.flags.monsterMunch = matched.flags.monsterMunch;
+        setProperty(item, "flags.monsterMunch", matched.flags.monsterMunch);
       }
-      item.flags.ddbimporter["originalItemName"] = matched.name;
-      item.flags.ddbimporter["replaced"] = true;
-
+      setProperty(item, "flags.ddbimporter.originalItemName", matched.name);
+      setProperty(item, "flags.ddbimporter.replaced", true);
       item = updateCharacterItemFlags(matched, item);
-      // do we want to enrich the compendium item with our parsed flag data?
-      // item.flags = { ...matched.flags, ...item.flags };
+
       if (!options.keepId) delete item["_id"];
       results.push(item);
     }
