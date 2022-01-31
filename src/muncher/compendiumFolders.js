@@ -77,7 +77,7 @@ const toolFolderNames = {
   art: "Artisan's Tools",
   music: "Musical Instrument",
   game: "Gaming Set",
-}
+};
 const backpackFolderNames = ["Equipment Pack", "Adventuring Gear"];
 
 async function createCompendiumFolder(packName, folderName, color = "#6f0006") {
