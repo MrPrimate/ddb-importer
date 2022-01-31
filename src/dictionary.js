@@ -338,7 +338,7 @@ const DICTIONARY = {
       { name: "Dice Set", type: "Tool", subType: "Gaming Set", ability: "int", baseTool: "dice", toolType: "game" },
       { name: "Dragonchess Set", type: "Tool", subType: "Gaming Set", ability: "int", baseTool: "chess", toolType: "game" },
       { name: "Playing Card Set", type: "Tool", subType: "Gaming Set", ability: "int", baseTool: "card", toolType: "game" },
-      { name: "Three-Dragon Ante Set", type: "Tool", subType: "Gaming Set", ability: "int", baseTool: "", toolType: "game" },
+      { name: "Three-Dragon Ante Set", type: "Tool", subType: "Gaming Set", ability: "int", baseTool: "card", toolType: "game" },
       { name: "Disguise Kit", type: "Tool", subType: "Kit", ability: "int", baseTool: "disg", toolType: "" },
       { name: "Forgery Kit", type: "Tool", subType: "Kit", ability: "int", baseTool: "forge", toolType: "" },
       { name: "Herbalism Kit", type: "Tool", subType: "Kit", ability: "int", baseTool: "herb", toolType: "" },

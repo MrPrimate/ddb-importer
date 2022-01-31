@@ -13,6 +13,7 @@ var weaponFolders = {};
 var trinketFolders = {};
 var consumableFolders = {};
 var lootFolders = {};
+var toolFolders = {};
 var backpackFolders = {};
 
 const spellLevelFolderNames = [
@@ -72,6 +73,11 @@ const lootFolderNames = [
   "Holy Symbol",
   "Druidic Focus",
 ];
+const toolFolderNames = {
+  art: "Artisan's Tools",
+  music: "Musical Instrument",
+  game: "Gaming Set",
+}
 const backpackFolderNames = ["Equipment Pack", "Adventuring Gear"];
 
 async function createCompendiumFolder(packName, folderName, color = "#6f0006") {
@@ -209,6 +215,14 @@ async function createItemTypeCompendiumFolders(packName) {
     promises.push(folder);
   }
 
+  for (const [key, value] of Object.entries(toolFolderNames)) {
+    logger.info(`Creating Tool folder '${value}' with key '${key}'`);
+    // eslint-disable-next-line no-await-in-loop
+    const folder = await createCompendiumFolderWithParent(packName, value, rootItemFolders["tool"], "#222222");
+    toolFolders[key] = folder;
+    promises.push(folder);
+  }
+
   trinketFolderNames.forEach((folderName) => {
     logger.info(`Creating Equipment\\Trinket folder '${folderName}'`);
     createCompendiumFolderWithParent(packName, folderName, equipmentFolders["trinket"], "#444444").then((folder) => {
@@ -302,6 +316,7 @@ export async function createCompendiumFolderStructure(type) {
         trinketFolders = {};
         consumableFolders = {};
         lootFolders = {};
+        toolFolders = {};
         backpackFolders = {};
         switch (compendiumFolderTypeItem) {
           case "TYPE":
@@ -404,6 +419,19 @@ function getItemCompendiumFolderNameForType(document) {
       const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
       if (ddbType) {
         name = backpackFolders[ddbType].name;
+      }
+      break;
+    }
+    case "tool": {
+      const toolType = document.data.data.toolType;
+      const instrument = document.data.flags?.ddbimporter?.dndbeyond?.tags.includes("Instrument");
+      const ddbType = ["art", "music", "game"].includes(toolType);
+      if (instrument) {
+        name = toolFolders["music"].name;
+      } else if (ddbType) {
+        name = toolFolders[toolType].name;
+      } else {
+        name = rootItemFolders[document.data.type].name;
       }
       break;
     }
