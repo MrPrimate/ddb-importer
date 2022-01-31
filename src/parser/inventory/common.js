@@ -117,6 +117,7 @@ export function getAttunement(item) {
 
 export function getBaseItem(data) {
   let baseItem = "";
+  let toolType = "";
 
   if (data.definition.filterType === "Weapon") {
     baseItem = data.definition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
@@ -131,16 +132,17 @@ export function getBaseItem(data) {
         return prof;
       });
 
-    const baseTool = toolProficiencies.find((allProf) => allProf.name === data.definition.name);
+    const baseTool = toolProficiencies.find((allProf) => allProf.name.toLowerCase() === data.definition.name.toLowerCase());
     if (baseTool && baseTool.baseTool && baseTool.baseTool !== "") {
       baseItem = baseTool.baseTool;
+      toolType = baseTool.toolType;
     }
   } else if (data.definition.filterType === "Staff") {
     baseItem = "quarterstaff";
   }
 
 
-  return baseItem;
+  return { baseItem, toolType };
 }
 
 export function getQuantity(data) {

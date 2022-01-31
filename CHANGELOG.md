@@ -1,6 +1,7 @@
 # 2.8.17
 
 * Sometimes the class/class feature button would become greyed out when it shouldn't be.
+* Tools/Instruments will now import with the correct Base Item and Tool Type in the latest 5e system version.
 
 # 2.8.16
 

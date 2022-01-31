@@ -339,7 +339,9 @@ function parseItem(ddb, data, character, flags) {
       // try parsing it as a custom item
       item = parseCustomItem(data);
     }
-    item.data.baseItem = getBaseItem(data);
+    const baseItem = getBaseItem(data);
+    item.data.baseItem = baseItem.baseItem;
+    item.data.toolType = baseItem.toolType;
     item.data.attunement = getAttunement(data);
     if (data.definition.cost) item.data.price = data.definition.cost;
 
