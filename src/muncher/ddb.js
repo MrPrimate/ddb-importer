@@ -242,16 +242,16 @@ export default class DDBMuncher extends Application {
 
       if (tiers.all) {
         $('button[id^="munch-monsters-start"]').prop('disabled', false);
+        $('button[id^="munch-source-select"]').prop('disabled', false);
       }
       if (tiers.supporter) {
         $('button[id^="munch-races-start"]').prop('disabled', false);
         $('button[id^="munch-feats-start"]').prop('disabled', false);
-        $('button[id^="munch-source-select"]').prop('disabled', false);
         $('button[id^="munch-frames-start"]').prop('disabled', false);
-      }
-      if (tiers.experimentalMid) {
         $('button[id^="munch-classes-start"]').prop('disabled', false);
       }
+      // if (tiers.experimentalMid) {
+      // }
     }
   }
 

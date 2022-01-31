@@ -1,3 +1,7 @@
+# 2.8.17
+
+* Sometimes the class/class feature button would become greyed out when it shouldn't be.
+
 # 2.8.16
 
 * Scene exporter for adventure muncher and third party: tokens with light effects will now export light effects in v9.
