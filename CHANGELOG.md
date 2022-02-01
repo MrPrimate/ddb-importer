@@ -1,3 +1,7 @@
+# 2.8.18
+
+* Spell Effect: Mage Armor AC fix
+
 # 2.8.17
 
 * Sometimes the class/class feature button would become greyed out when it shouldn't be.
