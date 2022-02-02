@@ -69,11 +69,7 @@ export function bardicInspirationEffect(document) {
   setProperty(diceEffect, "flags.dae.macroRepeat", "none");
   setProperty(diceEffect, "flags.dae.specialDuration", []);
   document.effects.push(diceEffect);
-  document.flags["midi-qol"] = {
-    onUseMacroName: "",
-    effectActivation: false,
-    forceCEOff: false,
-  };
+  setProperty(document, "flags.midi-qol.effectActivation", false);
   return document;
 }
 

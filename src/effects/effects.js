@@ -257,8 +257,17 @@ export function baseItemEffect(foundryItem, label) {
       ddbimporter: {
         disabled: false,
       },
+      "midi-qol": { // by default force CE effect usage to off
+        forceCEOff: true,
+      },
     },
   };
+}
+
+export function getMidiCEOnFlags(midiFlags = {}) {
+  setProperty(midiFlags, "forceCEOff", false);
+  setProperty(midiFlags, "forceCEOn", true);
+  return midiFlags;
 }
 
 // *

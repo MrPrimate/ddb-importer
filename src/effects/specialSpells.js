@@ -149,6 +149,9 @@ export function baseSpellEffect(document, label) {
       ddbimporter: {
         disabled: false,
       },
+      "midi-qol": { // by default force CE effect usage to off
+        forceCEOff: true,
+      },
     },
   };
 }

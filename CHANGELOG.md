@@ -1,3 +1,7 @@
+# 2.8.19
+
+* Effets: add appropriate midi-qol flag to prevenet duplicate CE application.
+
 # 2.8.18
 
 * Spell Effect: Mage Armor AC fix
