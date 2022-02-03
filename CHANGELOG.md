@@ -1,6 +1,7 @@
 # 2.8.19
 
-* Effets: add appropriate midi-qol flag to prevenet duplicate CE application.
+* Effects: add appropriate midi-qol flag to prevent duplicate CE application.
+* Effects: some effects, e.g. Mage Armor did not have correct duration.
 
 # 2.8.18
 

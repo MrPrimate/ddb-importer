@@ -29,7 +29,6 @@ export function equipmentEffectAdjustment(document) {
       effect.disabled = false;
       effect.flags.dae.transfer = false;
       effect.flags.dae.stackable = false;
-      effect.flags.dae.specialDuration = "None";
       document.data.uses = {
         value: 1,
         max: "1",
@@ -104,7 +103,6 @@ export function equipmentEffectAdjustment(document) {
       effect.disabled = true;
       effect.flags.dae.transfer = true;
       effect.flags.dae.stackable = true;
-      effect.flags.dae.specialDuration = "None";
       document.data.target = {
         value: null,
         width: null,

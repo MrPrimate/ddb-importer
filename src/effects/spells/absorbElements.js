@@ -9,7 +9,7 @@ export function absorbElementsEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: 0,
   });
-  effect.flags.dae.specialDuration = "1Hit";
+  effect.flags.dae.specialDuration = ["1Hit"];
   effect.duration = {
     startTime: null,
     seconds: null,

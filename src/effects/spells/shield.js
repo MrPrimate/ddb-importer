@@ -8,7 +8,7 @@ export function shieldEffect(document) {
     value: "+5",
     priority: "20",
   });
-  effect.flags.dae.specialDuration = "turnStart";
+  effect.flags.dae.specialDuration = ["turnStart"];
 
   if (spellEffectModules().tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("water-field"));
