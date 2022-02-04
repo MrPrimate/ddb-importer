@@ -81,9 +81,11 @@ function addMagicBonus(character, item, modifiers) {
 
 export function getInfusionActionData(ddb) {
   if (!ddb.infusions?.item) return [];
-  const generatedInfusionMap = ddb.infusions.item.map((mapping) => {
-    return getInfusionDetail(ddb, mapping.definitionKey);
-  });
+  const generatedInfusionMap = ddb.infusions.item
+    .filter((mapping) => getInfusionDetail(ddb, mapping.definitionKey) !== undefined)
+    .map((mapping) => {
+      return getInfusionDetail(ddb, mapping.definitionKey);
+    });
 
   const infusionActions = generatedInfusionMap
     .filter((infusionDetail) => infusionDetail.type === "augment" && infusionDetail.actions.length > 0)
@@ -116,12 +118,16 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
   // get item mapping
   const infusionItemMap = getInfusionItemMap(ddb, foundryItem);
   foundryItem.flags.infusions = { maps: [], applied: [], infused: false };
-  if (infusionItemMap) {
+  // sometimes ddb keeps dead infusions around - notably homonculus
+  const infusionDetail = infusionItemMap
+    ? getInfusionDetail(ddb, infusionItemMap.definitionKey)
+    : undefined;
+
+  if (infusionItemMap && infusionDetail) {
     logger.debug(`Infusion detected for ${foundryItem.name}`);
     // console.warn(ddb);
     // console.warn(ddbItem);
     // console.warn(foundryItem);
-    const infusionDetail = getInfusionDetail(ddb, infusionItemMap.definitionKey);
 
     // get modifiers && generate effects
     const ddbInfusionItem = JSON.parse(JSON.stringify(ddbItem));
@@ -170,6 +176,8 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
         }
       }
     }
+  } else if (infusionItemMap && !infusionDetail) {
+    logger.warn(`${foundryItem.name} marked as infused but no infusion info found`);
   }
   return foundryItem;
 

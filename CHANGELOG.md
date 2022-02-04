@@ -1,3 +1,7 @@
+# 2.8.20
+
+* Artificers sometimes have infusion data left around on DDB which can confuse the importer and prevent import.
+
 # 2.8.19
 
 * Effects: add appropriate midi-qol flag to prevent duplicate CE application.
