@@ -1470,4 +1470,18 @@ export default function () {
     type: Boolean,
     default: false,
   });
+
+  game.settings.register("ddb-importer", "munching-policy-update-world-monster-update-images", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("ddb-importer", "munching-policy-update-world-monster-retain-biography", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
 }

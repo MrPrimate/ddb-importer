@@ -150,9 +150,9 @@ async function copyFlagGroup(flagGroup, originalItem, targetItem) {
  * Copies across some flags for existing item
  * @param {*} items
  */
-export async function copySupportedItemFlags(originalItem, item) {
+export async function copySupportedItemFlags(originalItem, targetItem) {
   SUPPORTED_FLAG_GROUPS.forEach((flagGroup) => {
-    copyFlagGroup(flagGroup, originalItem, item);
+    copyFlagGroup(flagGroup, originalItem, targetItem);
   });
 }
 

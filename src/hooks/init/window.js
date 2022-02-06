@@ -3,6 +3,7 @@ import { parseMonsters } from "../../muncher/monster/monster.js";
 import { parseSpells } from "../../muncher/spells.js";
 import { parseItems } from "../../muncher/items.js";
 import { parseCritters } from "../../muncher/monsters.js";
+import { updateWorldMonsters } from "../../muncher/tools.js";
 import { migrateExistingCompendium, createCompendiumFolderStructure } from "../../muncher/compendiumFolders.js";
 import { parseEncounters, DDBEncounterMunch } from "../../muncher/encounters.js";
 import { generateAdventureConfig } from "../../muncher/adventure.js";
@@ -67,5 +68,6 @@ export function registerWindow() {
     resetSecrets,
     setPatreonTier,
     updateDDBCharacter,
+    updateWorldMonsters,
   };
 }

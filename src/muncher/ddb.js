@@ -17,6 +17,7 @@ import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
 import { loadSRDRules } from "../parser/templateStrings.js";
+import { updateWorldMonsters } from "./tools.js";
 
 export function getSourcesLookups(selected) {
   const selections = CONFIG.DDB.sources
@@ -181,6 +182,11 @@ export default class DDBMuncher extends Application {
       munchNote(`Checking Scenes for base64 data...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.base64Check();
+    });
+    html.find("#munch-world-monster-update").click(async () => {
+      munchNote(`Updating world actors...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.updateWorldMonsters();
     });
 
     // watch the change of the import-policy-selector checkboxes
@@ -354,6 +360,19 @@ export default class DDBMuncher extends Application {
       logger.info("Generating adventure config!");
       await downloadAdventureConfig();
       munchNote(`Downloading config file`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
+  }
+
+  static async updateWorldMonsters() {
+    try {
+      logger.info("Updating world monsters!");
+      await downloadAdventureConfig();
+      munchNote(`Updated world monsters`, true);
       munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {

@@ -813,12 +813,28 @@ export function getMuncherSettings(includeHomebrew = true) {
     }
   ];
 
+  const worldUpdateConfig = [
+    {
+      name: "update-world-monster-update-images",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-update-world-monster-update-images"),
+      description: "Update Monster images?",
+      enabled: true,
+    },
+    {
+      name: "update-world-monster-retain-biography",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-update-world-monster-retain-biography"),
+      description: "Retain existing biography?",
+      enabled: true,
+    },
+  ];
+
   const resultData = {
     cobalt,
     genericConfig,
     monsterConfig,
     spellConfig,
     itemConfig,
+    worldUpdateConfig,
     beta: betaKey && cobalt,
     tiers,
     compendiumFoldersInstalled,
