@@ -1,3 +1,8 @@
+# 2.8.21
+
+* Some ranged actions could be parsed as melee attacks. e.g. the Monks Deflect missiles attack.
+* A new tool on the tool tab to allows world monsters to be updated with compendium entries.
+
 # 2.8.20
 
 * Artificers sometimes have infusion data left around on DDB which can confuse the importer and prevent import.

@@ -371,9 +371,7 @@ export default class DDBMuncher extends Application {
   static async updateWorldMonsters() {
     try {
       logger.info("Updating world monsters!");
-      await downloadAdventureConfig();
-      munchNote(`Updated world monsters`, true);
-      munchNote("");
+      await updateWorldMonsters();
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);

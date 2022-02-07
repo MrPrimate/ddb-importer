@@ -145,9 +145,19 @@
           <div class="form-description"></div>
               <div>
                   <h2>Tools</h2>
-                  <p>Check scenes for base64 data, and fix if possible (can improve load times)</p>
+                  <p>Check scenes for base64 data, and fix if possible (can improve load times).</p>
                   <div>
                     <button type="button" id="munch-fix-base64" class="munch-button"><i class="fas fa-map"></i> Check & fix Scenes</button>
+                  </div>
+                  <p>Update world actors with compendium actors (only targets DDB imported monsters).</p>
+                  {{#each worldUpdateConfig}}
+                  <div class="munching-monster-world-update-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                          name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
+                          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                  </div>
+                  {{/each}}
+                  <div>
+                    <button type="button" id="munch-world-monster-update" class="munch-button"><i class="fas fa-map"></i> Update world monsters</button>
                   </div>
                   <hr>
                   <h2>Compendium Folders Migration</h2>
