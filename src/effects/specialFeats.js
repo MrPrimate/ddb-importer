@@ -7,6 +7,7 @@ import { potentCantripEffect } from "./feats/potentCantrip.js";
 import { bardicInspirationEffect } from "./feats/bardicInspiration.js";
 import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
 import { paladinDefaultAuraEffect } from "./feats/paladinDefaultAura.js";
+import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -96,6 +97,9 @@ export async function generateExtraEffects(document) {
     case "Ki: Empty Body": {
       document = await kiEmptyBodyEffect(document);
       break;
+    }
+    case "Deflect Missiles": {
+      document = deflectMissilesEffect(document);
     }
     // no default
   }

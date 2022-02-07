@@ -439,7 +439,11 @@ function getAttackType(ddb, character, action, weapon) {
   if (action.saveStatId) {
     weapon = calculateSaveAttack(action, weapon);
   } else if (action.actionType === 1) {
-    weapon.data.actionType = "mwak";
+    if (action.attackTypeRange === 2) {
+      weapon.data.actionType = "rwak";
+    } else {
+      weapon.data.actionType = "mwak";
+    }
     weapon = calculateActionAttackAbilities(ddb, character, action, weapon);
   } else {
     if (action.rangeId && action.rangeId === 1) {
