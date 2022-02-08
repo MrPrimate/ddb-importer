@@ -71,7 +71,7 @@ if (args[0] === "on") {
       },
       cold: {
         label: "Cold",
-        callback: async () => await createFireShield("warm"),
+        callback: async () => await createFireShield("cold"),
       },
     },
   }).render(true);
