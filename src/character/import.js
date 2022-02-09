@@ -880,6 +880,9 @@ export default class CharacterImport extends FormApplication {
             if (ddbMatchedItem.data.flags.ddbimporter?.retainResourceConsumption) {
               item.data.consume = ddbMatchedItem.data.data.consume;
               item.flags.ddbimporter.retainResourceConsumption = true;
+              if (hasProperty(ddbMatchedItem, "data.flags.link-item-resource-5e")) {
+                setProperty(item, "flags.link-item-resource-5e", ddbMatchedItem.data.flags["link-item-resource-5e"]);
+              }
             }
 
             matchedItems.push(item);
