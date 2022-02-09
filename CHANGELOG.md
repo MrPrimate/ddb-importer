@@ -1,7 +1,9 @@
 # 2.8.21
 
-* Some ranged actions could be parsed as melee attacks. e.g. the Monks Deflect missiles attack.
 * A new tool on the tool tab to allows world monsters to be updated with compendium entries.
+* Some ranged actions could be parsed as melee attacks. e.g. the Monks Deflect missiles attack.
+* Resource linking did not copy across using Link Item and Resource DnD5e module and the "retain resource consumption linking" item option.
+* Some hypothetical groundwork for Monsters of the Multiverse changes.
 
 # 2.8.20
 
