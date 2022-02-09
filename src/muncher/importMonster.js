@@ -40,16 +40,6 @@ async function retrieveSpells(spells) {
   return itemData;
 }
 
-// /**
-//  *
-//  * @param {[string]} items Array of Strings or items
-//  */
-// async function retrieveItems(items) {
-//   const compendiumName = await game.settings.get("ddb-importer", "entity-item-compendium");
-
-//   return retrieveCompendiumItems(items, compendiumName);
-// }
-
 function getMonsterCompendium() {
   if (compendiumLoaded) return monsterCompendium;
   monsterCompendium = getCompendiumType("monster", false);
@@ -75,9 +65,14 @@ async function addNPCToCompendium(npc) {
     let npcItems = npc.items;
     // unlock the compendium for update/create
     compendium.configure({ locked: false });
+    const monsterIndexFields = ["name", "flags.ddbimporter.id"];
 
-    const index = await compendium.getIndex();
-    const npcMatch = index.contents.find((entity) => entity.name.toLowerCase() === npcBasic.name.toLowerCase());
+    const index = await compendium.getIndex({ fields: monsterIndexFields });
+    const npcMatch = index.contents.find((entity) =>
+      entity.flags?.ddbimporter?.id &&
+      entity.name.toLowerCase() === npcBasic.name.toLowerCase() &&
+      entity.flags.ddbimporter.id == npcBasic.flags.ddbimporter.id
+    );
 
     let compendiumNPC;
     if (npcMatch) {
