@@ -68,7 +68,11 @@ export async function moveCobaltToSettings() {
 }
 
 export async function checkCobalt(keyPostfix = "", alternativeKey = null) {
-  const cobaltCookie = alternativeKey ? alternativeKey : getCobalt(keyPostfix);
+  const cobaltCookie = alternativeKey
+    ? isJSON(alternativeKey)
+      ? JSON.parse(alternativeKey).cbt
+      : alternativeKey
+    : getCobalt(keyPostfix);
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const body = { cobalt: cobaltCookie, betaKey: betaKey };

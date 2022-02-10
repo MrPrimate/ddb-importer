@@ -134,7 +134,14 @@ export async function getPatreonTier() {
           munchNote(`API Failure: ${data.message}`);
           reject(data.message);
         }
-        resolve(data.data);
+        let currentEmail = game.settings.get("ddb-importer", "patreon-user");
+        if (data.email !== currentEmail) {
+          game.settings.set("ddb-importer", "patreon-user", data.email).then(() => {
+            resolve(data.data);
+          });
+        } else {
+          resolve(data.data);
+        }
       })
       .catch((error) => reject(error));
   });

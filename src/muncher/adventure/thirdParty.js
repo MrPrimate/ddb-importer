@@ -521,7 +521,7 @@ export default class ThirdPartyMunch extends FormApplication {
         logger.warn(`Reference update timed out.`);
         ThirdPartyMunch._renderCompleteDialog(`Un-Successful Import of ${packageName}`, { name: packageName });
         this.close();
-      }, 60000);
+      }, 120000);
 
       // clearup remaining scene things
       await ThirdPartyMunch._fixupScenes(scenes);

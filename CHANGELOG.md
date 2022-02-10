@@ -1,3 +1,8 @@
+# 2.8.22
+
+* Increase Adventure Import Timeout - on some slower systems the complete diaglogue could pop up before it was complete (it would still run in the background).
+* Using DDB Data Grabber would not check cookie successfully.
+
 # 2.8.21
 
 * A new tool on the tool tab to allows world monsters to be updated with compendium entries.

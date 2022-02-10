@@ -180,7 +180,7 @@ export default class AdventureMunch extends FormApplication {
             logger.warn(`Reference update timed out.`);
             AdventureMunch._renderCompleteDialog(`Successful Import of ${adventure.name}`, adventure);
             this.close();
-          }, 60000);
+          }, 180000);
           try {
             const obj = await fromUuid(item);
             // let rawData;
