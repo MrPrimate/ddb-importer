@@ -113,8 +113,6 @@ async function addNPCToCompendium(npc) {
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         delete npcBasic.items;
         compendiumNPC = await existingNPC.update(npcBasic);
-        console.warn(duplicate(existingNPC));
-        console.warn(duplicate(npcItems));
         await existingNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
       }
     } else {
