@@ -2,6 +2,7 @@
 
 * Increase Adventure Import Timeout - on some slower systems the complete diaglogue could pop up before it was complete (it would still run in the background).
 * Using DDB Data Grabber would not check cookie successfully.
+* Monsters with recharge abilities would not have the useage set properly since v9 updates.
 
 # 2.8.21
 
