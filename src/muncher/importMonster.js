@@ -35,7 +35,11 @@ async function retrieveCompendiumItems(items, compendiumName) {
 async function retrieveSpells(spells) {
   const compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
   const compendiumItems = await retrieveCompendiumItems(spells, compendiumName);
-  const itemData = compendiumItems.map((i) => i.toJSON());
+  const itemData = compendiumItems.map((i) => {
+    let spell = i.toObject();
+    delete spell._id;
+    return spell;
+  });
 
   return itemData;
 }
@@ -109,7 +113,9 @@ async function addNPCToCompendium(npc) {
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         delete npcBasic.items;
         compendiumNPC = await existingNPC.update(npcBasic);
-        await compendiumNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
+        console.warn(duplicate(existingNPC));
+        console.warn(duplicate(npcItems));
+        await existingNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
       }
     } else {
       // create the new npc

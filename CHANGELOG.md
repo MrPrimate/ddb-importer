@@ -1,3 +1,7 @@
+# 2.8.23
+
+* Monsters: some rare monsters like Bone Naga which had a spell applied twice would not import.
+
 # 2.8.22
 
 * Increase Adventure Import Timeout - on some slower systems the complete dialogue could pop up before it was complete (it would still run in the background).
