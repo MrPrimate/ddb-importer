@@ -178,6 +178,7 @@ export function collectSceneData(scene, bookCode) {
   if (data.flags.ddb?.userData) delete data.flags.ddb.userData;
 
   data.flags.ddb.notes = notes;
+  data.flags.ddb.img = `assets/${scene.data.img.split("assets/").pop()}`;
 
   if (!data.flags.ddbimporter) data.flags.ddbimporter = {};
   data.flags.ddbimporter['version'] = game.modules.get("ddb-importer").data.version;
