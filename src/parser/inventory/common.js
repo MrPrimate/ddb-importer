@@ -1,14 +1,10 @@
-import utils from "../../utils.js";
 import DICTIONARY from "../../dictionary.js";
 
-
 export function getItemRarity(data) {
-  const rarityDropdown = utils.versionCompare(game.data.system.data.version, "1.4.2") >= 0;
-  let tmpRarity = data.definition.rarity;
-  const rarity = data.definition.rarity
-    ? rarityDropdown
-      ? tmpRarity.charAt(0).toLowerCase() + tmpRarity.slice(1).replace(/\s/g, "")
-      : tmpRarity
+  const tmpRarity = data.definition.rarity;
+  const isMundaneItem = data.definition?.rarity === "Common" && !data.definition.magic;
+  const rarity = data.definition.rarity && !isMundaneItem
+    ? tmpRarity.charAt(0).toLowerCase() + tmpRarity.slice(1).replace(/\s/g, "")
     : "";
   return rarity;
 }
@@ -34,7 +30,6 @@ export function getEquipped(data) {
     return false;
   }
 }
-
 
 /**
  * Gets Limited uses information, if any

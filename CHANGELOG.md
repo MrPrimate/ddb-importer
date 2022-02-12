@@ -1,3 +1,7 @@
+# 2.8.27
+
+* Mundane non-magical items will no longer be maked as common rarity.
+
 # 2.8.26
 
 * Monster updates/creation did not work in v8.

@@ -497,7 +497,7 @@ function getAttackAction(ddb, character, action) {
     feature.data.proficient = action.isProficient ? 1 : 0;
     feature.data.description = getDescription(ddb, character, action);
     feature.data.equipped = true;
-    feature.data.rarity = "common";
+    feature.data.rarity = "";
     feature.data.identified = true;
     feature.data.activation = getActivation(action);
     feature = calculateRange(action, feature);
