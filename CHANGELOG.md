@@ -1,3 +1,7 @@
+# 2.8.26
+
+* Monster updates/creation did not work in v8.
+
 # 2.8.25
 
 * More DAE Copy fixes. (Manshoon)

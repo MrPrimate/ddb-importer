@@ -67,6 +67,20 @@ async function addNPCToCompendium(npc) {
     let npcBasic = duplicate(npc);
     // delete npcBasic.items;
     let npcItems = npc.items;
+    // v8 doesn't like null _ids with keepId set
+    if (!game.version) {
+      npcItems = npcItems.map((i) => {
+        if (!i._id) i._id = randomID();
+        if (i.effects.length > 0) {
+          i.effects = i.effects.map((e) => {
+            if (!e._id) e._id = randomID();
+            return e;
+          });
+        }
+        return i;
+      });
+    }
+
     // unlock the compendium for update/create
     compendium.configure({ locked: false });
     const monsterIndexFields = ["name", "flags.ddbimporter.id"];
@@ -112,7 +126,9 @@ async function addNPCToCompendium(npc) {
 
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         delete npcBasic.items;
+        logger.debug("NPC", duplicate(npcBasic));
         compendiumNPC = await existingNPC.update(npcBasic);
+        logger.debug("npcItems", duplicate(npcItems));
         await compendiumNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
       }
     } else {
@@ -123,7 +139,9 @@ async function addNPCToCompendium(npc) {
         displaySheet: false,
       };
       delete npcBasic.items;
+      logger.debug("NPC", duplicate(npcBasic));
       const newNPC = await Actor.create(npcBasic, options);
+      logger.debug("npcItems", duplicate(npcItems));
       compendiumNPC = await compendium.importDocument(newNPC);
       await compendiumNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
     }
