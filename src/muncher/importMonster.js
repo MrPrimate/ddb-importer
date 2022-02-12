@@ -113,7 +113,7 @@ async function addNPCToCompendium(npc) {
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         delete npcBasic.items;
         compendiumNPC = await existingNPC.update(npcBasic);
-        await existingNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
+        await compendiumNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
       }
     } else {
       // create the new npc
@@ -469,7 +469,7 @@ export async function buildNPC(data, temporary = true, update = false, handleBui
 
 async function parseNPC (data) {
   let npc = await buildNPC(data);
-  logger.debug(`Adding actor ${npc.name} to compendium`);
+  logger.info(`Processing actor ${npc.name} for the compendium`);
   await addNPCToCompendium(npc);
   return npc;
 }

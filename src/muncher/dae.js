@@ -72,7 +72,12 @@ function findDAEItem(itemData, packs) {
     );
     // console.warn(itemData.name);
     // console.warn(matchItem);
-    if (matchItem) return matchItem;
+    if (matchItem) {
+      matchItem = duplicate(matchItem);
+      delete matchItem._id;
+      return matchItem;
+    }
+    
   }
   return undefined;
 }
@@ -85,6 +90,12 @@ function dataSwap(itemData, replaceData) {
     delete replaceData._id;
   }
   if (itemData.flags) replaceData.flags = { ...itemData.flags, ...replaceData.flags };
+  if (replaceData.effects.length > 0) {
+    replaceData.effects = replaceData.effects.map((effect) => {
+      delete effect._id;
+      return effect;
+    });
+  }
   return replaceData;
 }
 
@@ -131,9 +142,9 @@ export async function migrateItemsDAESRD(items) {
       items.map((itemData) => {
         let replaceData = matchItem(itemData);
         if (replaceData) {
-          logger.debug(`migrating ${replaceData.data.name}`);
-          setProperty(replaceData.data.flags, "dae.migrated", true);
-          return dataSwap(itemData, replaceData.data);
+          logger.debug(`migrating ${replaceData.name}`);
+          setProperty(replaceData, "flags.dae.migrated", true);
+          return dataSwap(itemData, replaceData);
         }
         return itemData;
       })
@@ -154,7 +165,6 @@ export async function addItemsDAESRD(items) {
       items.map((itemData) => {
         let replaceData = matchItem(itemData);
         if (replaceData && !replaceData.name.startsWith("Unarmored Defense")) {
-          replaceData = replaceData.data.toObject();
           logger.debug(`Adding effects for ${replaceData.name}`);
           itemData.effects = replaceData.effects;
           if (replaceData.flags.dae) itemData.flags.dae = replaceData.flags.dae;
