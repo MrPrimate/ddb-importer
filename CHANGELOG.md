@@ -1,3 +1,7 @@
+# 2.8.25
+
+* More DAE Copy fixes. (Manshoon)
+
 # 2.8.24
 
 * Fix DAE copy bug
