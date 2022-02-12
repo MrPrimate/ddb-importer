@@ -1,3 +1,7 @@
+# 2.8.24
+
+* Fix DAE copy bug
+
 # 2.8.23
 
 * Monsters: some rare monsters like Bone Naga which had a spell applied twice would not import.
