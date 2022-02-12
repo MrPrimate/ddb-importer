@@ -546,7 +546,7 @@ export class DDBEncounterMunch extends Application {
           logger.info(`Updating DDBI scene ${sceneData.name}`);
           sceneData._id = worldScene.id;
           await worldScene.deleteEmbeddedDocuments("Token", [], { deleteAll: true });
-          await Scene.update(mergeObject(worldScene.data.toObject(), sceneData));
+          await worldScene.update(mergeObject(worldScene.data.toObject(), sceneData));
         } else if (useExistingScene) {
           logger.info(`Checking existing scene ${sceneData.name} for encounter monsters`);
           const existingSceneMonsterIds = worldScene.data.tokens
@@ -576,10 +576,11 @@ export class DDBEncounterMunch extends Application {
 
       this.scene = worldScene;
     }
+    logger.debug("Scene created", this.scene);
 
-    return new Promise((resolve) => {
-      resolve(this.scene);
-    });
+    this.scene.render();
+
+    return this.scene;
   }
 
   async createCombatEncounter() {
@@ -795,7 +796,8 @@ export class DDBEncounterMunch extends Application {
       await this.importMonsters();
       await this.importCharacters(html);
       await this.createJournalEntry();
-      await this.createScene();
+      const scene = await this.createScene();
+      logger.info(`Scene ${scene.id} created`);
       await this.createCombatEncounter();
 
       // to do:
