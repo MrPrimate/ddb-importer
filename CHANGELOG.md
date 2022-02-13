@@ -2,6 +2,7 @@
 
 * Mundane non-magical items will no longer be maked as common rarity.
 * Rations are now parsed as a food consumable.
+* Monster update tool (compendium to world) did not update the options when toggled.
 
 # 2.8.26
 
