@@ -30,11 +30,11 @@ function getCustomSaveProficiency(data, ability) {
 function getCustomSaveBonus(data, ability) {
   // Get any custom skill bonuses
   if (data.character.characterValues) {
-    const customBonus = data.character.characterValues.filter(
-      (value) => (value.typeId == 40 || value.typeId == 39) && value.valueId == ability.id
-    ).reduce((total, bonus) => {
-      return total + bonus.value;
-    }, 0);
+    const customBonus = data.character.characterValues
+      .filter((value) => (value.typeId == 40 || value.typeId == 39) && value.valueId == ability.id)
+      .reduce((total, bonus) => {
+        return total + bonus.value;
+      }, 0);
 
     if (customBonus) {
       return customBonus;
@@ -71,23 +71,31 @@ function parseAbilities(data, includeExcludedEffects = false) {
       .filterBaseModifiers(data, "bonus", "ability-score-maximum", [null, ""], includeExcludedEffects)
       .filter((mod) => mod.statId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
+    const bonusStatRestrictions = [
+      null,
+      "",
+      "+2 to score maximum",
+      "+4 to score maximum",
+      "+2 to maximum score",
+      "+4 to maximum score",
+      "Can't be an Ability Score you already increased with this trait.",
+    ];
     const bonus = utils
-      .filterBaseModifiers(data, "bonus", `${ability.long}-score`, [null, "", "+2 to score maximum", "+4 to score maximum", "+2 to maximum score", "+4 to maximum score"], includeExcludedEffects)
+      .filterBaseModifiers(data, "bonus", `${ability.long}-score`, bonusStatRestrictions, includeExcludedEffects)
       .filter((mod) => mod.entityId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
     const setAbilities = utils
       .filterBaseModifiers(data, "set", `${ability.long}-score`, [null, "", "if not already higher"], includeExcludedEffects)
       .map((mod) => mod.value);
-    const modRestrictions = [
-      "Your maximum is now ",
-      "Maximum of ",
-    ];
+    const modRestrictions = ["Your maximum is now ", "Maximum of "];
     const cappedBonusExp = new RegExp(`(?:${modRestrictions.join("|")})(\\d*)`);
     const cappedBonus = utils
       .filterBaseModifiers(data, "bonus", `${ability.long}-score`, false, includeExcludedEffects)
-      .filter((mod) =>
-        mod.entityId === ability.id && mod.restriction &&
-        modRestrictions.some((m) => mod.restriction.startsWith(m))
+      .filter(
+        (mod) =>
+          mod.entityId === ability.id &&
+          mod.restriction &&
+          modRestrictions.some((m) => mod.restriction.startsWith(m))
       )
       .reduce(
         (prev, cur) => {
@@ -144,7 +152,6 @@ function parseAbilities(data, includeExcludedEffects = false) {
     result[ability.value].mod = utils.calculateModifier(result[ability.value].value);
     result[ability.value].proficient = proficient;
     result[ability.value].max = Math.max(cappedBonus.cap, overRiddenStat);
-
   });
 
   const character = {
@@ -187,7 +194,6 @@ function parseAbilities(data, includeExcludedEffects = false) {
     } else if (customSaveBonus) {
       result[ability.value].bonuses.save = `${customSaveBonus}`;
     }
-
   });
 
   return result;
