@@ -40,6 +40,8 @@ function getItemType(data) {
     if (itemType === "consumable") {
       if (data.definition.name.includes('vial') || data.definition.name.includes('flask')) {
         result.consumableType = "potion";
+      } else if (data.definition.name.startsWith("Ration")) {
+        result.consumableType = "food";
       } else {
         result.consumableType = "trinket";
       }

@@ -1,6 +1,7 @@
 # 2.8.27
 
 * Mundane non-magical items will no longer be maked as common rarity.
+* Rations are now parsed as a food consumable.
 
 # 2.8.26
 
