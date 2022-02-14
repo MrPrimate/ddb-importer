@@ -146,3 +146,18 @@ _You can use the regex links to check your syntax_
   * `/reach\s*(\d+)\s*\s*ft/`.
 
 [`utils.js`](https://github.com/MrPrimate/ddb-importer/blob/master/src/muncher/monster/utils.js) is where most of the guts of this is parsed.
+
+
+## Can I use the Icon Mapping API?
+
+Yes!
+
+```javascript
+let item = game.items.find(i => i.name === "Shield")
+
+await DDBImporter.getIconPath(item)
+'systems/dnd5e/icons/skills/weapon_18.jpg'
+
+await DDBImporter.getIconPath({ name: "Claws", type: "weapon" }, true, "Wolf");
+'icons/commodities/claws/talon-red.webp'
+```
