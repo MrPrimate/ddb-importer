@@ -24,7 +24,12 @@ export class DirectoryPicker extends FilePicker {
 
   static async uploadToPath(path, file) {
     const options = DirectoryPicker.parse(path);
-    return FilePicker.upload(options.activeSource, options.current, file, { bucket: options.bucket });
+    // v9 allows silent uploads
+    if (game.version) {
+      return FilePicker.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
+    } else {
+      return FilePicker.upload(options.activeSource, options.current, file, { bucket: options.bucket });
+    }
   }
 
   // returns the type "Directory" for rendering the SettingsConfig

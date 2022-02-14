@@ -1,3 +1,8 @@
+# 2.8.28
+
+* Expose the icon mapping API (see FAQ for more details). @Oshy#6665
+* Image upload will no longer spam you with messages in v9 (Thanks to @KaKaRoTo#1337 for the hint).
+
 # 2.8.27
 
 * Mundane non-magical items will no longer be maked as common rarity.
