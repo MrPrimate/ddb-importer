@@ -127,9 +127,25 @@ async function loadIconMaps(types) {
   return Promise.all(promises);
 }
 
-export async function copyInbuiltIcons(items, monster = false, monsterName = "") {
-  // eslint-disable-next-line require-atomic-updates
+export async function iconPath(item, monster = false, monsterName = "") {
+  const itemTypes = [item.type];
+  if (monster) itemTypes.push("monster");
+  await loadIconMaps(itemTypes);
 
+  let iconPath;
+  // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
+  // if we have a monster lets check the monster dict first
+  if (monster) {
+    const monsterPath = getIconPath(item, "monster", monsterName);
+    if (monsterPath) {
+      iconPath = monsterPath;
+    }
+  }
+  if (!iconPath) iconPath = getIconPath(item, item.type);
+  return iconPath;
+}
+
+export async function copyInbuiltIcons(items, monster = false, monsterName = "") {
   // get unique array of item types to be matching
   const itemTypes = items.map((item) => item.type).filter((item, i, ar) => ar.indexOf(item) === i);
 
