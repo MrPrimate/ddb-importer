@@ -5,25 +5,25 @@ export function bardicInspirationEffect(document) {
   let inspiredEffect = baseItemEffect(document, "Inspired");
   inspiredEffect.changes.push(
     {
-      key: "flags.midi-qol.optional.bardicInspiration.attack",
+      key: "flags.midi-qol.optional.bardicInspiration.attack.all",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "1d@flags.dae.BardicInspirationDice",
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.bardicInspiration.save",
+      key: "flags.midi-qol.optional.bardicInspiration.save.all",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "1d@flags.dae.BardicInspirationDice",
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.bardicInspiration.check",
+      key: "flags.midi-qol.optional.bardicInspiration.check.all",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "1d@flags.dae.BardicInspirationDice",
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.bardicInspiration.label",
+      key: "flags.midi-qol.optional.bardicInspiration.label.all",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "Bardic Inspiration",
       priority: "20",
@@ -39,13 +39,13 @@ export function bardicInspirationEffect(document) {
   if (document.flags.ddbimporter.subclass === "College of Valor") {
     inspiredEffect.changes.push(
       {
-        key: "flags.midi-qol.optional.bardicInspiration.damage",
+        key: "flags.midi-qol.optional.bardicInspiration.damage.all",
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: "1d@flags.dae.BardicInspirationDice",
         priority: "20",
       },
       {
-        key: "flags.midi-qol.optional.bardicInspiration.ac",
+        key: "flags.midi-qol.optional.bardicInspiration.ac.all",
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: "1d@flags.dae.BardicInspirationDice",
         priority: "20",

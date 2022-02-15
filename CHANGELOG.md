@@ -1,3 +1,7 @@
+# 2.8.29
+
+* Changes for midi-qol flag changes in 0.9.14.
+
 # 2.8.28
 
 * Expose the icon mapping API (see FAQ for more details). @Oshy#6665
