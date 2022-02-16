@@ -61,6 +61,15 @@ export default function () {
     default: "[data] ddb-images/other",
   });
 
+  game.settings.register("ddb-importer", "use-webp", {
+    name: "ddb-importer.use-webp.name",
+    hint: "ddb-importer.use-webp.hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   if (game.user.isGM) {
     const characterUploads = game.settings.get("ddb-importer", "image-upload-directory");
     const otherUploads = game.settings.get("ddb-importer", "other-image-upload-directory");
@@ -101,8 +110,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "allow-scene-download", {
-    name: "ddb-importer.allow-scene-download.name",
-    hint: "ddb-importer.allow-scene-download.hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -110,8 +117,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "allow-third-party-scene-download", {
-    name: "ddb-importer.allow-third-party-scene-download.name",
-    hint: "ddb-importer.allow-third-party-scene-download.hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -119,8 +124,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "allow-note-generation", {
-    name: "ddb-importer.allow-note-generation.name",
-    hint: "ddb-importer.allow-note-generation.hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -128,8 +131,6 @@ export default function () {
   });
 
   game.settings.register("ddb-importer", "auto-create-compendium", {
-    name: "ddb-importer.auto-create-compendium.name",
-    hint: "ddb-importer.auto-create-compendium.hint",
     scope: "world",
     config: false,
     type: Boolean,

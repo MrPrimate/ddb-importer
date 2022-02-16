@@ -17,14 +17,14 @@ export function download(content, fileName, contentType) {
  */
 export function munchNote(note, nameField = false, monsterNote = false) {
   if (nameField) {
-    $('#munching-task-name').text(note);
-    $('#ddb-importer-monsters').css("height", "auto");
+    $("#munching-task-name").text(note);
+    $("#ddb-importer-monsters").css("height", "auto");
   } else if (monsterNote) {
-    $('#munching-task-monster').text(note);
-    $('#ddb-importer-monsters').css("height", "auto");
+    $("#munching-task-monster").text(note);
+    $("#ddb-importer-monsters").css("height", "auto");
   } else {
-    $('#munching-task-notes').text(note);
-    $('#ddb-importer-monsters').css("height", "auto");
+    $("#munching-task-notes").text(note);
+    $("#ddb-importer-monsters").css("height", "auto");
   }
 }
 
@@ -98,7 +98,7 @@ export function getCompendiumType(type, fail = true) {
 }
 
 export function getCampaignId() {
-  const campaignId = game.settings.get("ddb-importer", "campaign-id").split('/').pop();
+  const campaignId = game.settings.get("ddb-importer", "campaign-id").split("/").pop();
 
   if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
     munchNote(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
@@ -202,4 +202,57 @@ export async function checkPatreon() {
 export async function setPatreonTier() {
   const tier = await getPatreonTier();
   game.settings.set("ddb-importer", "patreon-tier", tier);
+}
+
+export function convertImageToWebP(file) {
+  console.warn(file);
+
+  // Load the data into an image
+  const result = new Promise((resolve) => {
+    let rawImage = new Image();
+
+    rawImage.addEventListener("load", () => {
+      resolve(rawImage);
+    });
+
+    rawImage.src = URL.createObjectURL(file);
+  })
+    .then((rawImage) => {
+      // Convert image to webp ObjectURL via a canvas blob
+      return new Promise((resolve) => {
+        let canvas = document.createElement("canvas");
+        let ctx = canvas.getContext("2d");
+
+        canvas.width = rawImage.width;
+        canvas.height = rawImage.height;
+        ctx.drawImage(rawImage, 0, 0);
+
+        canvas.toBlob((blob) => {
+          resolve(URL.createObjectURL(blob));
+        }, "image/webp");
+      });
+    })
+    .then((imageURL) => {
+      // Load image for display on the page
+      return new Promise((resolve) => {
+        let scaledImg = new Image();
+
+        scaledImg.addEventListener("load", () => {
+          resolve({ imageURL, scaledImg });
+        });
+
+        scaledImg.setAttribute("src", imageURL);
+      });
+    })
+    .then((data) => {
+      // Inject into the DOM
+      let imageLink = document.createElement("a");
+
+      imageLink.setAttribute("href", data.imageURL);
+      imageLink.setAttribute("download", `${file.name}.webp`);
+      imageLink.appendChild(data.scaledImg);
+
+      return imageLink;
+    });
+  return result;
 }

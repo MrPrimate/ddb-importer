@@ -30,9 +30,11 @@ export default class Helpers {
 
 
   static getImportFilePaths(path, adventure, misc) {
+    const useWebP = game.settings.get("ddb-importer", "use-webp");
     const adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
     const targetPath = path.replace(/[\\/][^\\/]+$/, '');
-    const filename = path.replace(/^.*[\\/]/, '').replace(/\?(.*)/, '');
+    const baseFilename = path.replace(/^.*[\\/]/, '').replace(/\?(.*)/, '');
+    const filename = useWebP ? `${baseFilename}.webp` : baseFilename;
     const baseUploadPath = misc
       ? game.settings.get("ddb-importer", "adventure-misc-path")
       : game.settings.get("ddb-importer", "adventure-upload-path");
@@ -117,7 +119,8 @@ export default class Helpers {
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
           const img = await zip.file(path).async("uint8array");
           const fileData = new File([img], paths.filename);
-          await Helpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, { bucket: paths.parsedBaseUploadPath.bucket });
+          // await Helpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, { bucket: paths.parsedBaseUploadPath.bucket });
+          await utils.uploadRemoteImage()
           // eslint-disable-next-line require-atomic-updates
           CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path] = true;
         } else {

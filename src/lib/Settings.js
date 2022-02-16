@@ -340,6 +340,7 @@ export class DDBSetup extends FormApplication {
     const validKeyObject = hasKey ? await getPatreonValidity(key) : false;
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
     const availableCampaigns = isCobalt && cobaltStatus.success ? await getAvailableCampaigns() : [];
+    const useWebP = game.settings.get("ddb-importer", "use-webp");
 
     availableCampaigns.forEach((campaign) => {
       const selected = campaign.id == campaignId;
@@ -360,13 +361,14 @@ export class DDBSetup extends FormApplication {
 
     return {
       cobalt: isCobalt,
-      cobaltLocal: cobaltLocal,
-      setupConfig: setupConfig,
-      setupComplete: setupComplete,
-      tier: tier,
+      cobaltLocal,
+      setupConfig,
+      setupComplete,
+      tier,
       patreonLinked: patreonUser && patreonUser != "",
-      patreonUser: patreonUser,
-      validKey: validKey,
+      patreonUser,
+      validKey,
+      useWebP,
     };
   }
 
@@ -414,6 +416,7 @@ export class DDBSetup extends FormApplication {
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
     const otherImageDir = formData['other-image-upload-directory'];
     const frameImageDir = formData['frame-image-upload-directory'];
+    const useWebP = formData['image-use-webp'];
     const currentKey = game.settings.get("ddb-importer", "beta-key");
 
     if (currentKey !== formData['beta-key']) {
@@ -425,6 +428,7 @@ export class DDBSetup extends FormApplication {
     await game.settings.set("ddb-importer", "other-image-upload-directory", otherImageDir);
     await game.settings.set("ddb-importer", "frame-image-upload-directory", frameImageDir);
     await game.settings.set("ddb-importer", "campaign-id", campaignId);
+    await game.settings.set("ddb-importer", "use-webp", useWebP);
 
     await setCobaltCookie(cobaltCookie, cobaltCookieLocal);
 
