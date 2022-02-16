@@ -28,9 +28,14 @@ export function configureDependencies() {
   }
 
   // if dfreds status effects not added, add them
-  let convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
+  const convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
   if (!convenientEffectStatusSettings || convenientEffectStatusSettings === "none") {
     game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
+  }
+
+  const itemMacroSheet = game.settings.get("itemacro", "charsheet");
+  if (itemMacroSheet) {
+    game.settings.get("itemacro", "charsheet", false);
   }
 
   return true;
