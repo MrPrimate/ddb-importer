@@ -17,14 +17,14 @@ export function download(content, fileName, contentType) {
  */
 export function munchNote(note, nameField = false, monsterNote = false) {
   if (nameField) {
-    $('#munching-task-name').text(note);
-    $('#ddb-importer-monsters').css("height", "auto");
+    $("#munching-task-name").text(note);
+    $("#ddb-importer-monsters").css("height", "auto");
   } else if (monsterNote) {
-    $('#munching-task-monster').text(note);
-    $('#ddb-importer-monsters').css("height", "auto");
+    $("#munching-task-monster").text(note);
+    $("#ddb-importer-monsters").css("height", "auto");
   } else {
-    $('#munching-task-notes').text(note);
-    $('#ddb-importer-monsters').css("height", "auto");
+    $("#munching-task-notes").text(note);
+    $("#ddb-importer-monsters").css("height", "auto");
   }
 }
 
@@ -98,7 +98,7 @@ export function getCompendiumType(type, fail = true) {
 }
 
 export function getCampaignId() {
-  const campaignId = game.settings.get("ddb-importer", "campaign-id").split('/').pop();
+  const campaignId = game.settings.get("ddb-importer", "campaign-id").split("/").pop();
 
   if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
     munchNote(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
