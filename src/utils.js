@@ -821,23 +821,8 @@ const utils = {
     return undefined;
   },
 
-
-  // convertImageToWebp: async function (rawImage) {
-  //   return new Promise((resolve) => {
-  //     let canvas = document.createElement("canvas");
-  //     let ctx = canvas.getContext("2d");
-
-  //     canvas.width = rawImage.width;
-  //     canvas.height = rawImage.height;
-  //     ctx.drawImage(rawImage, 0, 0);
-
-  //     canvas.toBlob((blob) => {
-  //       resolve(blob);
-  //     }, "image/webp");
-  //   });
-  // },
-  convertImageToWebp: async function (file) {
-    console.warn(file);
+  convertImageToWebp: async function (file, filename) {
+    logger.info(`Converting file ${filename} to webp`);
 
     // Load the data into an image
     const result = new Promise((resolve) => {
@@ -867,31 +852,25 @@ const utils = {
         return blob;
       });
 
-    console.warn(result);
     return result;
   },
 
 
-  uploadFile: async function (data, path, filename) {
+  uploadFile: async function (data, path, filename, forceWebp = false) {
     const useWebP = game.settings.get("ddb-importer", "use-webp");
     const file = new File([data], filename, { type: data.type });
-
-    const uploadFile = (useWebP && data.type.startsWith("image") && data.type !== "image/webp")
-      ? new File([await utils.convertImageToWebp(file)], filename, { type: "image/webp" })
+    const imageType = data.type.startsWith("image") && data.type !== "image/webp";
+    const uploadFile = useWebP && (imageType || forceWebp)
+      ? new File([await utils.convertImageToWebp(file, filename)], filename, { type: "image/webp" })
       : file;
 
     const result = await DirectoryPicker.uploadToPath(path, uploadFile);
     return result;
   },
 
-  uploadImage: async function (data, path, filename) {
-    const useWebP = game.settings.get("ddb-importer", "use-webp");
-
-    console.warn(data);
-
+  uploadImage: async function (data, path, filename, forceWebp = false) {
     return new Promise((resolve, reject) => {
-      // create new file from the response
-      utils.uploadFile(data, path, filename)
+      utils.uploadFile(data, path, filename, forceWebp)
         .then((result) => {
           resolve(result.path);
         })
@@ -932,14 +911,11 @@ const utils = {
         .pop()
         .split(/#|\?|&/)[0];
 
-    // uploading the character avatar and token
     try {
       const proxyEndpoint = game.settings.get("ddb-importer", "cors-endpoint");
       const urlEncode = game.settings.get("ddb-importer", "cors-encode");
       const target = urlEncode ? encodeURIComponent(url) : url;
       url = useProxy ? proxyEndpoint + target : url;
-      // console.error(`URL: ${url}`);
-      // let result = await process(url, targetDirectory, filename + "." + ext);
       const data = await utils.downloadImage(url);
       // hack as proxy returns ddb access denied as application/xml
       if (data.type === "application/xml") return null;

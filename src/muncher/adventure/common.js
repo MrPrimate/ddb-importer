@@ -28,13 +28,20 @@ const DDB_MAP = {
 
 export default class Helpers {
 
+  static removeFileExtension(name) {
+    let nameArray = name.split(".");
+    nameArray.pop();
+    return nameArray.join(".");
+  }
 
   static getImportFilePaths(path, adventure, misc) {
     const useWebP = game.settings.get("ddb-importer", "use-webp");
     const adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
     const targetPath = path.replace(/[\\/][^\\/]+$/, '');
     const baseFilename = path.replace(/^.*[\\/]/, '').replace(/\?(.*)/, '');
-    const filename = useWebP ? `${baseFilename}.webp` : baseFilename;
+    const filename = useWebP && !baseFilename.endsWith(".webp")
+      ? `${Helpers.removeFileExtension(baseFilename)}.webp`
+      : baseFilename;
     const baseUploadPath = misc
       ? game.settings.get("ddb-importer", "adventure-misc-path")
       : game.settings.get("ddb-importer", "adventure-upload-path");
@@ -53,6 +60,8 @@ export default class Helpers {
       parsedBaseUploadPath,
       uploadPath,
       returnFilePath,
+      baseFilename,
+      forcingWebp: useWebP && baseFilename !== filename,
     };
   }
 
@@ -116,11 +125,10 @@ export default class Helpers {
         const paths = Helpers.getImportFilePaths(path, adventure, misc);
 
         if (!CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path]) {
+          logger.debug(`Importing image from ${path}`, paths);
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-          const img = await zip.file(path).async("uint8array");
-          const fileData = new File([img], paths.filename);
-          // await Helpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, { bucket: paths.parsedBaseUploadPath.bucket });
-          await utils.uploadRemoteImage()
+          const img = await zip.file(path).async("blob");
+          await utils.uploadImage(img, paths.uploadPath, paths.filename, paths.forcingWebp);
           // eslint-disable-next-line require-atomic-updates
           CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path] = true;
         } else {

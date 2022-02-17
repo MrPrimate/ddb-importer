@@ -457,9 +457,12 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
   const uploadDirectory = type === "frame" ? frameDirectory : otherDirectory;
   const downloadImage = (download) ? download : game.settings.get("ddb-importer", "munching-policy-download-images");
   const remoteImage = (remoteImages) ? remoteImages : game.settings.get("ddb-importer", "munching-policy-remote-images");
+  const useWebP = game.settings.get("ddb-importer", "use-webp");
 
   if (imageUrl && downloadImage) {
-    const ext = imageUrl.split(".").pop().split(/#|\?|&/)[0];
+    const ext = useWebP
+      ? "webp"
+      : imageUrl.split(".").pop().split(/#|\?|&/)[0];
     if (!name) name = imageUrl.split("/").pop();
 
     // image upload
