@@ -2,7 +2,7 @@
 
 * [Experimental] New setting in core settings to enable webp mode. This will convert all images when loaded through muncher or characters into webp files. What is webp? It's a image storage format that makes images very small. Note if you turn this on and update monsters/spells/items/etc it won't remove the old images - you'll have to do that manually. Consider changing the upload directories for images both for characters and adventures if you wish to migrate stuff to save space.
 * When choosing to hide the display dialogue setting for character resource manager, it would not always update the resources @kid2407 / Tobias#6450
-* Changes for midi-qol flag changes in 0.9.14.
+* Support for midi-qol flag changes in 0.9.14.
 
 # 2.8.28
 
