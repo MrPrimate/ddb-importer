@@ -1151,9 +1151,11 @@ export default class CharacterImport extends FormApplication {
         this.result.character.data.details[option] = this.actorOriginal.data.details[option];
       });
     }
+    // if resource mode is in disable and not asking, then we use the previous resources
     if (
       hasProperty(this.result.character, "flags.ddbimporter.resources.ask") &&
-      !this.result.character.flags.ddbimporter.resources.ask
+      !this.result.character.flags.ddbimporter.resources.ask &&
+      this.result.character.flags.ddbimporter.resources.type === "disable"
     ) {
       this.result.character.data.resources = this.actorOriginal.data.resources;
     }
