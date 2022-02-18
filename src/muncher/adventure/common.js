@@ -35,7 +35,7 @@ export default class Helpers {
   }
 
   static getImportFilePaths(path, adventure, misc) {
-    const useWebP = game.settings.get("ddb-importer", "use-webp");
+    const useWebP = game.settings.get("ddb-importer", "use-webp") && !path.endsWith("svg");
     const adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
     const targetPath = path.replace(/[\\/][^\\/]+$/, '');
     const baseFilename = path.replace(/^.*[\\/]/, '').replace(/\?(.*)/, '');
