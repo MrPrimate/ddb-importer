@@ -70,6 +70,16 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "webp-quality", {
+    name: "ddb-importer.webp-quality.name",
+    hint: "ddb-importer.webp-quality.hint",
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 0.9,
+  });
+
+
   if (game.user.isGM) {
     const characterUploads = game.settings.get("ddb-importer", "image-upload-directory");
     const otherUploads = game.settings.get("ddb-importer", "other-image-upload-directory");

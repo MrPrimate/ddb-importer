@@ -839,6 +839,7 @@ const utils = {
         return new Promise((resolve) => {
           let canvas = document.createElement("canvas");
           let ctx = canvas.getContext("2d");
+          const quality = game.settings.get("ddb-importer", "webp-quality");
 
           canvas.width = rawImage.width;
           canvas.height = rawImage.height;
@@ -846,7 +847,7 @@ const utils = {
 
           canvas.toBlob((blob) => {
             resolve(blob);
-          }, "image/webp");
+          }, "image/webp", quality);
         });
       }).then((blob) => {
         return blob;
