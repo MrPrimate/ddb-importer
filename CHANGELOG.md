@@ -1,3 +1,7 @@
+# 2.9.1
+
+* Adventure Muncher would sometimes try and convert svgs to webp. It should no longer do this.
+
 # 2.9.0
 
 * [Experimental] New setting in core settings to enable webp mode. This will convert all images when loaded through muncher or characters into webp files. What is webp? It's a image storage format that makes images very small. Note if you turn this on and update monsters/spells/items/etc it won't remove the old images - you'll have to do that manually. Consider changing the upload directories for images both for characters and adventures if you wish to migrate stuff to save space.
