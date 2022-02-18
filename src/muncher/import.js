@@ -909,6 +909,12 @@ async function updateMatchingItems(oldItems, newItems, inOptions) {
   return results;
 }
 
+const compendiumRemoveFlags = [
+  "flags.ddbimporter.ignoreItemImport",
+  "flags.ddbimporter.retainResourceConsumption",
+  "flags.ddbimporter.ignoreIcon",
+];
+
 /**
  *
  */
@@ -955,6 +961,10 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
     let item = await compendium.getDocument(i._id).then((doc) => {
       const docData = doc.toObject();
       if (options.deleteCompendiumId) delete docData._id;
+      compendiumRemoveFlags.forEach((flag) => {
+        if (hasProperty(docData, flag)) setProperty(docData, flag, undefined);
+      });
+
       return docData;
     });
     setProperty(item, "flags.ddbimporter.pack", `${compendium.metadata.package}.${compendium.metadata.name}`);
