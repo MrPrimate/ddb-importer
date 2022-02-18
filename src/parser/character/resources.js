@@ -265,3 +265,13 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
     }
   });
 }
+
+const resourceLinkMap = {
+  "Channel Divinity": ["Channel Divinity:"],
+  "Superiority Dice": ["Maneuvers:"],
+  "Sorcery Points": ["Metamagic - ", "Metamagic:"]
+};
+
+export function autoLinkResources(ddb, character) {
+
+}
