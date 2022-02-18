@@ -71,7 +71,7 @@ async function addNPCToCompendium(npc) {
     if (!game.version) {
       npcItems = npcItems.map((i) => {
         if (!i._id) i._id = randomID();
-        if (i.effects.length > 0) {
+        if (i.effects && i.effects.length > 0) {
           i.effects = i.effects.map((e) => {
             if (!e._id) e._id = randomID();
             return e;
