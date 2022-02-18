@@ -1,3 +1,8 @@
+# 2.9.2
+
+* Remove flags from compendium loaded options which retain resource consumption, ignore the item or icon. These would confuse the muncher if they had been set in on the feature before added to the Override compendium.
+* A v8 import bug if DAE was not enabled @BlitheRapier888#1464
+
 # 2.9.1
 
 * Adventure Muncher would sometimes try and convert svgs to webp. It should no longer do this.
