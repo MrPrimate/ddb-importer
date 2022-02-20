@@ -396,16 +396,14 @@ export async function characterExtras(html, characterData, actor) {
       // homunculus servant
       if (creatureFlags.includes("MHPBAL")) {
         const artificer = ddbCharacter.classes.find((klass) => klass.definition.name === "Artificer");
-        if (artificer)
-        {
+        if (artificer) {
           mock.averageHitPoints = parseInt(artificer.level);
         }
       }
 
       if (creatureFlags.includes("AHM")) {
         const artificer = ddbCharacter.classes.find((klass) => klass.definition.name === "Artificer");
-        if (artificer)
-        {
+        if (artificer) {
           mock.averageHitPoints = parseInt(5 * artificer.level);
         }
       }
