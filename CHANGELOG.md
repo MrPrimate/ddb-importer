@@ -1,3 +1,7 @@
+# 2.9.3
+
+* Using artificer extras without artificer levels could cause import of extras to fail.
+
 # 2.9.2
 
 * Remove flags from compendium loaded options which retain resource consumption, ignore the item or icon. These would confuse the muncher if they had been set in on the feature before added to the Override compendium.
