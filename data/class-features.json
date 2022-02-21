@@ -6083,6 +6083,13 @@
     "path": "systems/dnd5e/icons/skills/yellow_38.jpg"
   },
   {
+    "name": "Protection",
+    "class_feature": "Protection",
+    "class": "Paladin",
+    "subclass": "",
+    "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
+  },
+  {
     "name": "Psionic Energy",
     "class_feature": "Psionic Energy",
     "class": "Fighter",

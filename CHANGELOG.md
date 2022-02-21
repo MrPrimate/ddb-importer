@@ -1,6 +1,7 @@
 # 2.9.3
 
 * Using artificer extras without artificer levels could cause import of extras to fail.
+* Protection fighting style now has an icon.
 
 # 2.9.2
 
