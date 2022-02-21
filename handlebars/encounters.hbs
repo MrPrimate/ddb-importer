@@ -45,7 +45,7 @@
       <label class="encounter-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
           name="encounter-import-policy-{{this.name}}" data-section="{{this.name}}"
           id="encounter-import-policy-{{this.name}}"
-          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
       </label>
       </div>
       {{/each}}
@@ -82,7 +82,7 @@
       <div class="character-import-config">
       <label class="import-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
           name="character-import-policy-{{this.name}}" data-section="{{this.name}}"
-          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+          {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
       </label>
       </div>
       {{/each}}
@@ -165,13 +165,13 @@
               <div class="munching-generic-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
                       id="munching-generic-policy-{{this.name}}"
                       name="munching-policy-{{this.name}}"
-                      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
               </div>
               {{/each}}
               {{#each monsterConfig}}
               <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
                       name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
-                      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
               </div>
               {{/each}}
               <hr>
