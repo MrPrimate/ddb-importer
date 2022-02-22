@@ -466,5 +466,17 @@
   {
     "name": "Wood Elf Magic",
     "path": "systems/dnd5e/icons/skills/green_10.jpg"
+  },
+  {
+    "name": "Gift of the Chromatic Dragon",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Gift of the Gem Dragon",
+    "path": "icons/commodities/gems/pearl-storm.webp"
+  },
+  {
+    "name": "Gift of the Metallic Dragon",
+    "path": "icons/creatures/reptiles/dragon-winged-blue.webp"
   }
 ]
