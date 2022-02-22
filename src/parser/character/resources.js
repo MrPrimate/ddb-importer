@@ -276,7 +276,7 @@ const resourceLinkMap = {
     "Defensive Flourish", "Slashing Flourish", "Mobile Flourish",
     "Psychic Blades",
   ],
-  "Wild Shape": [ "Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit" ],
+  "Wild Shape": ["Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit"],
   "Grit Points": [
     "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
     "Forceful Shot", "Piercing Shot", "Violent Shot", "Winging Shot",
@@ -287,10 +287,23 @@ const resourceLinkMap = {
     ""
   ],
   "Ki Points": [
-    "Ki-Fueled Attack",
+    "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind", 
+    "Deflect Missiles Attack", "Arms of the Astral Self: Summon", "Stunning Strike",
+    "Empty Body", "Diamond Soul", "Visage of the Astral Self", "Quickened Healing",
+    "Focused Aim", "Sharpen the Blade", "Deft Strike", "Shadow Arts"
   ],
 };
 
+const resourceSpellLinkMap = {
+  "Ki Points": [
+    { name: "Astral Projection", cost: "8", lookupName: "Empty Body" },
+    { name: "Darkness", cost: "2", lookupName: "Shadow Arts" },
+    { name: "Darkvision", cost: "2", lookupName: "Shadow Arts" },
+    { name: "Pass without trace", cost: "2", lookupName: "Shadow Arts" },
+    { name: "Silence", cost: "2", lookupName: "Shadow Arts" },
+    
+  ],
+};
 
 export function autoLinkResources(ddb, character) {
 

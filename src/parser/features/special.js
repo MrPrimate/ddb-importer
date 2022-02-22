@@ -323,6 +323,19 @@ export function fixFeatures(features) {
         setProperty(feature, "data.consume.amount", -1);
         break;
       }
+      case "Shadow Arts":
+      case "Quickened Healing": {
+        setProperty(feature, "data.consume.amount", 2);
+        break;
+      }
+      case "Empty Body": {
+        setProperty(feature, "data.consume.amount", 4);
+        break;
+      }
+      case "Awakened Astral Self": {
+        setProperty(feature, "data.consume.amount", 5);
+        break;
+      }
       // no default
     }
 
