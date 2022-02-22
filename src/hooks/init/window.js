@@ -16,6 +16,7 @@ import { getFeats } from "../../muncher/feats/feats.js";
 import { getCompendiumNames } from "../ready/checkCompendiums.js";
 import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro } from "../../effects/macros.js";
 import { iconPath } from "../../icons/index.js";
+import { loadSRDRules } from "../../parser/templateStrings.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -72,5 +73,6 @@ export function registerWindow() {
     updateWorldMonsters,
     getIconPath: iconPath,
     iconPath,
+    loadSRDRules,
   };
 }
