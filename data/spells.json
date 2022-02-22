@@ -2078,5 +2078,10 @@
   {
     "name": "Zone of Truth",
     "path": "systems/dnd5e/icons/skills/yellow_15.jpg"
+  },
+  {
+    "name": "Borrowed Knowledge",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
   }
 ]
+
