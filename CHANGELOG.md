@@ -2,6 +2,7 @@
 
 * Using artificer extras without artificer levels could cause import of extras to fail.
 * Protection fighting style now has an icon.
+* Spells: Crown of Madness effect. Basic  Witch Bolt macro.
 
 # 2.9.2
 
