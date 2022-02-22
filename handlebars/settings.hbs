@@ -1,37 +1,10 @@
 
 <h2>DDB Importer Configuration!</h2>
-<p>Hello! I'm sure your <i>itching</i> to get going, but first we need to do some setup!</p>
-<p>If you need help getting setup checkout the following YouTube videos:</p>
-<p>
-  <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Amazing Overview (Install, Setup, How to Use)</a> is recommended!</li>
-  <li>MrPrimate's <a href="https://youtu.be/8XRxCy9xmyE">Installation, configuration and character imports</a></li>
-  <li>MrPrimate's <a href="https://youtu.be/98KGHSM33U0">Spells, Items, and Monsters</a></li>
-</p>
+<p>Hello! I'm sure your <i>itching</i> to get going, but first we need to do some setup.</p>
+<p>If you need help getting setup checkout MrPrimate's <a href="https://youtu.be/OMaJHLQORWo">Overview on YouTube</a>.</p>
 
 <div class="form-description">
   <form id="ddb-importer-settings" autocomplete="off" onsubmit="event.preventDefault();">
-    <hr>
-    <h3>[Required] A location for image uploads</h3>
-    <p>These can't be stored in your root data folder, create a place for them to live.</p>
-    <p>Player Character Images:</p>
-    <div class="form-content" style="display: flex">
-      <input class="setup-config" type="text" data-dtype="Directory" name="image-upload-directory" style="flex: 0 1 auto" ;
-        value="{{setupConfig.image-upload-directory}}" />
-    </div>
-    <p>Other Images:</p>
-    <div class="form-content" style="display: flex">
-      <input class="setup-config" type="text" data-dtype="Directory" name="other-image-upload-directory" style="flex: 0 1 auto" ;
-        value="{{setupConfig.other-image-upload-directory}}" />
-    </div>
-    <p>Avatar Frame Images:</p>
-    <div class="form-content" style="display: flex">
-      <input class="setup-config" type="text" data-dtype="Directory" name="frame-image-upload-directory" style="flex: 0 1 auto" ;
-        value="{{setupConfig.frame-image-upload-directory}}" />
-    </div>
-    <p>Convert images to webp?</p>
-    <div class="form-content" style="display: flex">
-      <input {{#if useWebP}}checked{{/if}} type="checkbox" name="image-use-webp" data-section="useWebP">
-    </div>
     <hr>
     <h3>[Required] A Cobalt Cookie</h3>
     <p>Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome</a> or the <a href="https://github.com/IamWarHead/ddb-data-grabber">DDB Data Grabber</a> to get this with a click, or follow <a href="https://cdn.discordapp.com/attachments/761196994898165781/781176499155238942/manually-find-cookie.png">these manual steps</a>. Paste into this field with Ctrl-V.</p>
@@ -65,6 +38,28 @@
     <input id="ddb-beta-key" class="setup-config" type="password" name="beta-key" style="flex: 0 1 auto" ;
       value="{{setupConfig.beta-key}}" />
       <p><i>Note: this will be auto filled when you connect to patreon, and the key will be valid for a month.</i></p>
+    <hr>
+    <h3>[Required] A location for image uploads</h3>
+    <p>These can't be stored in your root data folder, create a place for them to live.</p>
+    <p>Player Character Images:</p>
+    <div class="form-content" style="display: flex">
+      <input class="setup-config" type="text" data-dtype="Directory" name="image-upload-directory" style="flex: 0 1 auto" ;
+        value="{{setupConfig.image-upload-directory}}" />
+    </div>
+    <p>Other Images:</p>
+    <div class="form-content" style="display: flex">
+      <input class="setup-config" type="text" data-dtype="Directory" name="other-image-upload-directory" style="flex: 0 1 auto" ;
+        value="{{setupConfig.other-image-upload-directory}}" />
+    </div>
+    <p>Avatar Frame Images:</p>
+    <div class="form-content" style="display: flex">
+      <input class="setup-config" type="text" data-dtype="Directory" name="frame-image-upload-directory" style="flex: 0 1 auto" ;
+        value="{{setupConfig.frame-image-upload-directory}}" />
+    </div>
+    <p>Convert images to webp?</p>
+    <div class="form-content" style="display: flex">
+      <input {{#if useWebP}}checked{{/if}} type="checkbox" name="image-use-webp" data-section="useWebP">
+    </div>
     <hr>
     <p>If you need to change these settings in the future, you can do it in the module settings page.</p>
     <hr>

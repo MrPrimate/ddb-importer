@@ -21,21 +21,36 @@ export async function checkMacroFolder() {
 
 export function configureDependencies() {
   // allow item use macros on items
-  let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
-  if (!midiQOLSettings.allowUseMacro) {
-    midiQOLSettings.allowUseMacro = true;
-    game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
+  if (utils.isModuleInstalledAndActive("midi-qol")) {
+    let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
+    if (!midiQOLSettings.allowUseMacro) {
+      midiQOLSettings.allowUseMacro = true;
+      game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
+    }
+  } else {
+    logger.error("Midi-QOL needs to be installed for effects");
+    ui.notifications.warn("Midi-QOL needs to be installed for effects");
   }
 
   // if dfreds status effects not added, add them
-  const convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
-  if (!convenientEffectStatusSettings || convenientEffectStatusSettings === "none") {
-    game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
+  if (utils.isModuleInstalledAndActive("dfreds-convenient-effects")) {
+    const convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
+    if (!convenientEffectStatusSettings || convenientEffectStatusSettings === "none") {
+      game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
+    }
+  } else {
+    logger.error("Convenient Effects needs to be installed for effects");
+    ui.notifications.warn("Convenient Effects needs to be installed for effects");
   }
 
-  const itemMacroSheet = game.settings.get("itemacro", "charsheet");
-  if (itemMacroSheet) {
-    game.settings.get("itemacro", "charsheet", false);
+  if (utils.isModuleInstalledAndActive("itemacro")) {
+    const itemMacroSheet = game.settings.get("itemacro", "charsheet");
+    if (itemMacroSheet) {
+      game.settings.get("itemacro", "charsheet", false);
+    }
+  } else {
+    logger.error("Item Macro needs to be installed for effects");
+    ui.notifications.warn("Item Macro needs to be installed for effects");
   }
 
   return true;
