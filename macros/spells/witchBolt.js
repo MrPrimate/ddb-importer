@@ -65,7 +65,7 @@ if (args[0] === "on" && !hasParentEffect && caster.uuid !== lastArg.actorUuid) {
     duration: { rounds: 10, startTime: game.time.worldTime },
     origin: lastArg.origin,
     changes: [{
-      key: "macro.itemMacro",
+      key: "macro.itemMacro.local",
       value: "",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: 20,
