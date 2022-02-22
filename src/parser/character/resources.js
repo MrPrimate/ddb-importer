@@ -269,8 +269,28 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
 const resourceLinkMap = {
   "Channel Divinity": ["Channel Divinity:"],
   "Superiority Dice": ["Maneuvers:"],
-  "Sorcery Points": ["Metamagic - ", "Metamagic:"]
+  "Sorcery Points": ["Metamagic - ", "Metamagic:"],
+  "Bardic Inspiration": [
+    "Mote of Potential", "Unsettling Words", "Mantle of Inspiration",
+    "Cutting Words", "Peerless Skill", "Tales from Beyond", "Blade Flourish",
+    "Defensive Flourish", "Slashing Flourish", "Mobile Flourish",
+    "Psychic Blades",
+  ],
+  "Wild Shape": [ "Symbiotic Entity", "Starry Form", "Wild Companion", "Summon Wildfire Spirit" ],
+  "Grit Points": [
+    "Trick Shots:", "Bullying Shot", "Dazing Shot", "Deadeye Shot", "Disarming Shot",
+    "Forceful Shot", "Piercing Shot", "Violent Shot", "Winging Shot",
+  ],
+  "Psionic Power: Psionic Energy": [
+    "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
+    "Psionic Power: Psi-Bolstered Knack", "Soul Blades: Homing Strikes", "Soul Blades: Psychic Teleportation",
+    ""
+  ],
+  "Ki Points": [
+    "Ki-Fueled Attack",
+  ],
 };
+
 
 export function autoLinkResources(ddb, character) {
 
