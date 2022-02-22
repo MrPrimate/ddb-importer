@@ -1,3 +1,13 @@
+import utils from "../utils.js";
+import logger from "../logger.js";
+import {
+  generateStatusEffectChange as baseGenerateStatusEffectChange,
+  generateTokenMagicFXChange as baseGenerateTokenMagicFXChange,
+  generateATLChange as baseGenerateATLChange,
+} from "./effects.js";
+import { configureDependencies } from "./macros.js";
+
+// spell effects load start
 import { absorbElementsEffect } from "./spells/absorbElements.js";
 import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
@@ -20,6 +30,7 @@ import { comprehendLanguagesEffect } from "./spells/comprehendLanguages.js";
 import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
+import { crownofMadnessEffect } from "./spells/crownofMadness.js";
 import { darknessEffect } from "./spells/darkness.js";
 import { darkvisionEffect } from "./spells/darkvision.js";
 import { divineFavorEffect } from "./spells/divineFavor.js";
@@ -87,15 +98,9 @@ import { trueStrikeEffect } from "./spells/trueStrike.js";
 import { viciousMockeryEffect } from "./spells/viciousMockery.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
+import { witchBoltEffect } from "./spells/witchBolt.js";
 
-import utils from "../utils.js";
-import logger from "../logger.js";
-import {
-  generateStatusEffectChange as baseGenerateStatusEffectChange,
-  generateTokenMagicFXChange as baseGenerateTokenMagicFXChange,
-  generateATLChange as baseGenerateATLChange,
-} from "./effects.js";
-import { configureDependencies } from "./macros.js";
+// spell effects load stop
 
 var installedModules;
 
@@ -277,6 +282,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Crown of Stars": {
       document = await crownofStarsEffect(document);
+      break;
+    }
+    case "Crown of Madness": {
+      document = crownofMadnessEffect(document);
       break;
     }
     case "Darkness": {
@@ -549,6 +558,9 @@ export async function spellEffectAdjustment(document) {
     case "Web": {
       document = webEffect(document);
       break;
+    }
+    case "Witch Bolt": {
+      document = await witchBoltEffect(document);
     }
     // no default
   }
