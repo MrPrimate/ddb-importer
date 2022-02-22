@@ -85,6 +85,7 @@ if (lastArg.hitTargetUuids.length > 0) {
   const damageDice = lastArg.isCritical ? baseDamage * 2 : baseDamage;
   const critFlavour = lastArg.isCritical ? "CRITICAL! " : "";
   const damageRoll = await new Roll(`${damageDice}d8[${damageType}]`).evaluate({ async: true });
+  if (game.dice3d) game.dice3d.showForRoll(damageRoll);
   await new MidiQOL.DamageOnlyWorkflow(
     casterActor,
     casterToken,
