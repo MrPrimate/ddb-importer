@@ -896,6 +896,13 @@
     "path": "icons/commodities/leather/scales-green.webp"
   },
   {
+    "name": "Bonus Proficiencies",
+    "class_feature": "Bonus Proficiencies",
+    "class": "",
+    "subclass": "",
+    "path": "systems/dnd5e/icons/skills/red_25.jpg"
+  },
+  {
     "name": "Born to the Saddle",
     "class_feature": "Born to the Saddle",
     "class": "Fighter",
