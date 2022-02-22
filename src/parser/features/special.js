@@ -318,6 +318,11 @@ export function fixFeatures(features) {
         feature.data.damage = { parts: [["@prof", "bludgeoning"]], versatile: "", value: "" };
         break;
       }
+      case "Psionic Power: Recovery": {
+        feature.data.damage = { parts: [], versatile: "", value: "" };
+        setProperty(feature, "data.consume.amount", -1);
+        break;
+      }
       // no default
     }
 
