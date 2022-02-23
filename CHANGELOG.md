@@ -3,6 +3,7 @@
 * Using artificer extras without artificer levels could cause import of extras to fail.
 * Protection fighting style now has an icon.
 * Spells: Crown of Madness effect. Basic  Witch Bolt macro.
+* Monster muncher will now use the default token settings as it's base value for token settings.
 
 # 2.9.2
 
