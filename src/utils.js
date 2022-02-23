@@ -765,52 +765,53 @@ const utils = {
     }
   },
 
+  isObject: (item) => {
+    return item && typeof item === "object" && !Array.isArray(item);
+  },
+
+  mergeDeep: (target, source) => {
+    let output = Object.assign({}, target);
+    if (utils.isObject(target) && utils.isObject(source)) {
+      Object.keys(source).forEach((key) => {
+        if (utils.isObject(source[key])) {
+          if (!(key in target)) Object.assign(output, { [key]: source[key] });
+          else output[key] = utils.mergeDeep(target[key], source[key]);
+        } else {
+          Object.assign(output, { [key]: source[key] });
+        }
+      });
+    }
+    return output;
+  },
+
+  filterDeprecated: (data) => {
+    for (let prop in data) {
+      if (
+        data[prop] &&
+        Object.prototype.hasOwnProperty.call(data[prop], "_deprecated") &&
+        data[prop]["_deprecated"] === true
+      ) {
+        delete data[prop];
+      }
+      if (prop === "_deprecated" && data[prop] === true) {
+        delete data[prop];
+      }
+    }
+    return data;
+  },
+
   getTemplate: (type) => {
-    let isObject = (item) => {
-      return item && typeof item === "object" && !Array.isArray(item);
-    };
-
-    let mergeDeep = (target, source) => {
-      let output = Object.assign({}, target);
-      if (isObject(target) && isObject(source)) {
-        Object.keys(source).forEach((key) => {
-          if (isObject(source[key])) {
-            if (!(key in target)) Object.assign(output, { [key]: source[key] });
-            else output[key] = mergeDeep(target[key], source[key]);
-          } else {
-            Object.assign(output, { [key]: source[key] });
-          }
-        });
-      }
-      return output;
-    };
-    let filterDeprecated = (data) => {
-      for (let prop in data) {
-        if (
-          data[prop] &&
-          Object.prototype.hasOwnProperty.call(data[prop], "_deprecated") &&
-          data[prop]["_deprecated"] === true
-        ) {
-          delete data[prop];
-        }
-        if (prop === "_deprecated" && data[prop] === true) {
-          delete data[prop];
-        }
-      }
-      return data;
-    };
-
-    let templates = game.data.system.template;
+    const templates = game.data.system.template;
     for (let entityType in templates) {
       if (
         templates[entityType].types &&
         Array.isArray(templates[entityType].types) &&
         templates[entityType].types.includes(type)
       ) {
-        let obj = mergeDeep({}, filterDeprecated(templates[entityType][type]));
+        let obj = utils.mergeDeep({}, utils.filterDeprecated(templates[entityType][type]));
         if (obj.templates) {
           obj.templates.forEach((tpl) => {
-            obj = mergeDeep(obj, filterDeprecated(templates[entityType].templates[tpl]));
+            obj = utils.mergeDeep(obj, utils.filterDeprecated(templates[entityType].templates[tpl]));
           });
           delete obj.templates;
         }

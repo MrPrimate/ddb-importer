@@ -1134,13 +1134,6 @@ export default function () {
     default: false,
   });
 
-  game.settings.register("ddb-importer", "munching-policy-monster-use-vision", {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
   game.settings.register("ddb-importer", "munching-policy-monster-retain-biography", {
     scope: "world",
     config: false,

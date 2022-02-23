@@ -711,12 +711,6 @@ export function getMuncherSettings(includeHomebrew = true) {
       enabled: true,
     },
     {
-      name: "monster-use-vision",
-      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-use-vision"),
-      description: "Should imported monster have vision set?",
-      enabled: true,
-    },
-    {
       name: "monster-retain-biography",
       isChecked: game.settings.get("ddb-importer", "munching-policy-monster-retain-biography"),
       description: "Should monsters retain existing biography?",

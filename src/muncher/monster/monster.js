@@ -27,15 +27,9 @@ import { specialCases } from "./special.js";
 
 import logger from '../../logger.js';
 
-async function parseMonster(monster, setVision, extra, useItemAC) {
-  let foundryActor = JSON.parse(JSON.stringify(newNPC(monster.name)));
-  // logger.info(monster);
+async function parseMonster(monster, extra, useItemAC) {
+  let foundryActor = duplicate(await newNPC(monster.name));
   let items = [];
-
-  // name
-  // foundryActor.name = monster.name;
-  // logger.info("********************");
-  // logger.info(monster.name);
   let img = (monster.basicAvatarUrl) ? monster.basicAvatarUrl : monster.largeAvatarUrl;
   // foundry doesn't support gifs
   if (img && img.match(/.gif$/)) {
@@ -69,8 +63,7 @@ async function parseMonster(monster, setVision, extra, useItemAC) {
 
   // Senses
   foundryActor.data.attributes.senses = getSenses(monster);
-  foundryActor.token = getTokenSenses(foundryActor.token, monster);
-  foundryActor.token.vision = setVision;
+  foundryActor.token = await getTokenSenses(foundryActor.token, monster);
 
   // Conditions
   foundryActor.data.traits.di = getDamageImmunities(monster);
@@ -194,12 +187,11 @@ export async function parseMonsters(monsterData, extra = false) {
   let foundryActors = [];
   let failedMonsterNames = [];
 
-  const setVision = game.settings.get("ddb-importer", "munching-policy-monster-use-vision");
   const useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
 
   monsterData.forEach((monster) => {
     try {
-      const foundryActor = parseMonster(monster, setVision, extra, useItemAC);
+      const foundryActor = parseMonster(monster, extra, useItemAC);
       foundryActors.push(foundryActor);
     } catch (err) {
       logger.error(`Failed parsing ${monster.name}`);
