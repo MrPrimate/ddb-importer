@@ -11,7 +11,7 @@ export async function hideousLaughterEffect(document) {
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    value: "label=Hideous Laughter,turn=end,saveDc=@attributes.spelldc,saveAbility=wis,saveMagic=true",
+    value: "label=Hideous Laughter,turn=end,saveDC=@attributes.spelldc,saveAbility=wis,saveMagic=true",
     priority: "20",
   });
 
