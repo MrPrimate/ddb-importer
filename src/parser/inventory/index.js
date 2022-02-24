@@ -24,7 +24,7 @@ import utils from "../../utils.js";
 
 // magicitems support
 import { parseMagicItem } from "./magicify.js";
-import { getAttunement, getBaseItem, getDescription } from "./common.js";
+import { getAttunement, getBaseItem } from "./common.js";
 import logger from "../../logger.js";
 
 import { fixItems } from "./special.js";
