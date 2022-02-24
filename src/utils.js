@@ -857,7 +857,6 @@ const utils = {
     return result;
   },
 
-
   uploadFile: async function (data, path, filename, forceWebp = false) {
     const useWebP = game.settings.get("ddb-importer", "use-webp");
     const file = new File([data], filename, { type: data.type });
