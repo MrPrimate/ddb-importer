@@ -1,7 +1,9 @@
 # 2.9.3
 
+* Resource Linking improvements:
+Channel Divinity, Superiority Dice, Sorcery Points, Bardic Inspiration, Wild Shape, Grit Points, Psionic Power (Fighter and Rogue), and Ki Points. Please let me know if any features are not linking, have incorrect values or I have missed a feature that could use this.
 * Using artificer extras without artificer levels could cause import of extras to fail.
-* Protection fighting style now has an icon.
+* A number of icon additions to the icon sets.
 * Spells: Crown of Madness effect. Basic  Witch Bolt macro.
 * Monster muncher will now use the default token settings as it's base value for token settings.
 
