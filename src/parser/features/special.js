@@ -125,6 +125,16 @@ export function stripHtml(html) {
   return tmp.textContent || tmp.innerText || "";
 }
 
+function setConsumeAmount(feature) {
+  // ki point detection
+  const kiPointRegex = /(?:spend|expend) (\d) ki point/;
+  const match = feature.data.description.value.match(kiPointRegex);
+  if (match) {
+    setProperty(feature, "data.consume.amount", match[1]);
+  }
+  return feature;
+}
+
 /**
  * Some features we need to fix up or massage because they are modified
  * in interesting ways
@@ -323,52 +333,15 @@ export function fixFeatures(features) {
         setProperty(feature, "data.consume.amount", -1);
         break;
       }
-      case "Fist of Four Thunders":
-      case "Fist of Unbroken Air":
-      case "Drunkard’s Luck":
-      case "Drunkard's Luck":
-      case "Shadow Arts":
-      case "Water Whip":
-      case "Sweeping Cinder Strike":
-      case "Rush of the Gale Spirits":
-      case "Quickened Healing": {
-        setProperty(feature, "data.consume.amount", 2);
-        break;
-      }
-      case "Clench of the North Wind":
-      case "Gong of the Summit":
-      case "Quivering Palm":
-      case "Debilitating Barrage": {
-        setProperty(feature, "data.consume.amount", 3);
-        break;
-      }
-      case "Flames of the Phoenix":
-      case "Ride the Wind":
-      case "Mist Stance":
-      case "Empty Body": {
-        setProperty(feature, "data.consume.amount", 4);
-        break;
-      }
-      case "Eternal Mountain Defense":
-      case "River of Hungry Flame":
-      case "Awakened Astral Self": {
-        setProperty(feature, "data.consume.amount", 5);
-        break;
-      }
-      case "Breath of Winter":
-      case "Wave of Rolling Earth": {
-        setProperty(feature, "data.consume.amount", 6);
-        break;
-      }
       // no default
     }
 
     const tableDescription = generateTable(feature.name, feature.data.description.value, true);
     feature.data.description.value = tableDescription;
     feature.data.description.chat = tableDescription;
+    feature = setConsumeAmount(feature);
   });
 }
-
 
 export async function addExtraEffects(documents, character) {
   const compendiumItem = character.flags.ddbimporter.compendium;
