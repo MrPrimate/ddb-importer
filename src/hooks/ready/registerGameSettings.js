@@ -237,6 +237,15 @@ export default function () {
     default: true,
   });
 
+  game.settings.register("ddb-importer", "add-description-to-chat", {
+    name: "ddb-importer.add-description-to-chat.name",
+    hint: "ddb-importer.add-description-to-chat.hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "show-image-to-players", {
     name: "ddb-importer.show-image-to-players.name",
     hint: "ddb-importer.show-image-to-players.hint",

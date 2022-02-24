@@ -1,4 +1,16 @@
 import DICTIONARY from "../../dictionary.js";
+import { parseTags } from "../templateStrings.js";
+
+export function getDescription(data) {
+  const chatSnippet = data.definition.snippet ? data.definition.snippet : "";
+  const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
+
+  return {
+    value: parseTags(data.definition.description),
+    chat: chatAdd ? chatSnippet : "",
+    unidentified: data.definition.type,
+  };
+}
 
 export function getItemRarity(data) {
   const tmpRarity = data.definition.rarity;

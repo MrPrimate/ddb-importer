@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity } from "./common.js";
+import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 
 export default function parseScroll(data) {
@@ -18,12 +18,7 @@ export default function parseScroll(data) {
 
   scroll.data.consumableType = "scroll";
   scroll.data.uses = getConsumableUses(data);
-  scroll.data.description = {
-    value: data.definition.description,
-    chat: data.definition.snippet ? data.definition.snippet : "",
-    unidentified: data.definition.type,
-  };
-
+  scroll.data.description = getDescription(data);
   scroll.data.source = utils.parseSource(data.definition);
   scroll.data.quantity = getQuantity(data);
   scroll.data.weight = getSingleItemWeight(data);

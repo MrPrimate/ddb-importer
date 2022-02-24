@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity } from "./common.js";
+import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 export default function parseWonderous(data) {
   /**
@@ -36,12 +36,7 @@ export default function parseWonderous(data) {
   /* "stealth": false,*/
   item.data.stealth = false;
   item.data.proficient = true;
-  item.data.description = {
-    value: data.definition.description,
-    chat: data.definition.snippet ? data.definition.snippet : "",
-    unidentified: data.definition.type,
-  };
-
+  item.data.description = getDescription(data);
   item.data.source = utils.parseSource(data.definition);
   item.data.quantity = getQuantity(data);
   item.data.weight = getSingleItemWeight(data);

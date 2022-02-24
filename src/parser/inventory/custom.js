@@ -24,9 +24,10 @@ export default function parseCustomItem(data) {
     ? description + `<p><blockquote>${data.definition.notes}</blockquote></p>`
     : description;
 
+  const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
   customItem.data.description = {
     value: description,
-    chat: description,
+    chat: chatAdd ? description : "",
     unidentified: description,
   };
 
