@@ -1,4 +1,3 @@
-import utils from "../../utils.js";
 import { getArmorClass } from "./ac.js";
 import { getSpecialTraits } from "./specialTraits.js";
 import { getSkills } from "./skills.js";
@@ -41,36 +40,55 @@ import { getInitiative } from "./initiative.js";
 import { getCurrency } from "./currency.js";
 // import { fixCharacterLevels } from "./filterModifiers.js";
 
-export default function getCharacter(ddb) {
+async function newPC(name) {
+  const options = {
+    temporary: true,
+    displaySheet: false,
+  };
+  const pcClass = await Actor.create({ name, type: "character" }, options);
+  let pc = pcClass.data.toObject();
+  const flags = {
+    dnd5e: {},
+    ddbimporter: {
+      dndbeyond: {},
+    },
+  };
+  setProperty(pc, "flags", flags);
+  delete pc._id;
+  return pc;
+};
+
+
+export default async function getCharacter(ddb) {
   // *************************************
   // PARSING THE CHARACTER
   // **************************************
   //
   // ddb = fixCharacterLevels(ddb);
-  let character = {
-    data: JSON.parse(utils.getTemplate("character")),
-    type: "character",
-    effects: [],
-    name: (ddb.character.name === "") ? "Hero With No Name" : ddb.character.name,
-    // items: [],  // modified to check inventory analysis on update
-    token: getToken(ddb),
-    flags: {
-      ddbimporter: {
-        compendium: false,
-        acEffects: [],
-        baseAC: 10,
-        dndbeyond: {
-          totalLevels: ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0),
-          proficiencies: getProficiencies(ddb),
-          proficienciesIncludingEffects: getProficiencies(ddb, true),
-          roUrl: ddb.character.readonlyUrl,
-          characterValues: ddb.character.characterValues,
-          templateStrings: [],
-          campaign: ddb.character.campaign,
-        },
+
+  const name = (ddb.character.name === "") ? "Hero With No Name" : ddb.character.name;
+
+  let character = await newPC(name);
+
+  const flags = {
+    ddbimporter: {
+      compendium: false,
+      acEffects: [],
+      baseAC: 10,
+      dndbeyond: {
+        totalLevels: ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0),
+        proficiencies: getProficiencies(ddb),
+        proficienciesIncludingEffects: getProficiencies(ddb, true),
+        roUrl: ddb.character.readonlyUrl,
+        characterValues: ddb.character.characterValues,
+        templateStrings: [],
+        campaign: ddb.character.campaign,
       },
     },
   };
+  setProperty(character, "flags", flags);
+
+  character.token = getToken(ddb, character);
 
   // proficiency
   // prettier-ignore
