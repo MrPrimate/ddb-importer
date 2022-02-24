@@ -9189,5 +9189,124 @@
     "class": "Barbarian",
     "subclass": "Path of the Zealot",
     "path": "systems/dnd5e/icons/skills/yellow_14.jpg"
+  },
+  {
+    "name": "Breath of Winter",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/skills/blue_13.jpg"
+  },
+  {
+    "name": "Clench of the North Wind",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/spells/link-eerie-2.jpg"
+  },
+  {
+    "name": "Elemental Attunement",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/skills/fire_06.jpg"
+  },
+  {
+    "name": "Eternal Mountain Defense",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/skills/blue_34.jpg"
+  },
+  {
+    "name": "Fangs of the Fire Snake",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/spells/beam-red-3.jpg"
+  },
+  {
+    "name": "Fist of Four Thunders",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/spells/air-burst-air-1.jpg"
+  },
+  {
+    "name": "Fist of Unbroken Air",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/spells/wind-blue-2.jpg"
+  },
+  {
+    "name": "Flames of the Phoenix",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/spells/fireball-red-2.jpg"
+  },
+  {
+    "name": "Gong of the Summit",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/skills/yellow_03.jpg"
+  },
+  {
+    "name": "Mist Stance",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Ride the Wind",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "icons/commodities/treasure/trinket-wing-white.webp"
+  },
+  {
+    "name": "River of Hungry Flame",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/spells/shielding-fire-3.jpg"
+  },
+  {
+    "name": "Rush of the Gale Spirits",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/spells/wind-sky-2.jpg"
+  },
+  {
+    "name": "Shape the Flowing River",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "icons/commodities/materials/liquid-droplet-blue.webp"
+  },
+  {
+    "name": "Sweeping Cinder Strike",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "systems/dnd5e/icons/skills/fire_03.jpg"
+  },
+  {
+    "name": "Water Whip",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "icons/magic/water/wave-water-teal.webp"
+  },
+  {
+    "name": "Wave of Rolling Earth",
+    "class_feature": "Elemental Disciplines",
+    "class": "Monk",
+    "subclass": "Way of the Four Elements",
+    "path": "icons/commodities/stone/paver-brick-brown.webp"
   }
 ]
