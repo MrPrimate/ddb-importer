@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getUses, getWeaponProficient, getMagicalBonus, getSingleItemWeight, getQuantity } from "./common.js";
+import { getItemRarity, getEquipped, getUses, getWeaponProficient, getMagicalBonus, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 /**
  * Gets the DND5E weapontype (simpleM, martialR etc.) as string
@@ -289,11 +289,7 @@ export default function parseWeapon(data, character, flags) {
     weapon.data.proficient = getWeaponProficient(data, weapon.data.weaponType, characterProficiencies);
   }
 
-  weapon.data.description = {
-    value: data.definition.description,
-    chat: data.definition.snippet ? data.definition.snippet : "",
-    unidentified: data.definition.type,
-  };
+  weapon.data.description = getDescription(data);
   weapon.data.source = utils.parseSource(data.definition);
   weapon.data.quantity = getQuantity(data);
   weapon.data.weight = getSingleItemWeight(data);

@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity } from "./common.js";
+import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 
 function getActionType(data) {
@@ -101,11 +101,7 @@ export default function parsePotion(data, itemType) {
 
   potion.data.consumableType = "potion";
   potion.data.uses = getConsumableUses(data);
-  potion.data.description = {
-    value: data.definition.description,
-    chat: data.definition.snippet ? data.definition.snippet : "",
-    unidentified: data.definition.type,
-  };
+  potion.data.description = getDescription(data);
   potion.data.source = utils.parseSource(data.definition);
   potion.data.quantity = getQuantity(data);
   potion.data.weight = getSingleItemWeight(data);

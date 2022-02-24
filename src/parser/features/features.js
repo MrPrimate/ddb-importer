@@ -31,10 +31,11 @@ function getDescription(ddb, character, feat) {
 
   const fullDescription = description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet;
   const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
+  const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
   return {
     value: value,
-    chat: snippet,
+    chat: chatAdd ? snippet : "",
     unidentified: "",
   };
 }

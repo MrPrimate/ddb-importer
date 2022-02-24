@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getMagicalBonus, getSingleItemWeight, getQuantity } from "./common.js";
+import { getItemRarity, getEquipped, getMagicalBonus, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 /**
  * Gets the range(s) of a given weapon
@@ -72,11 +72,7 @@ export default function parseAmmunition(data, itemType) {
     },
   };
 
-  ammunition.data.description = {
-    value: data.definition.description,
-    chat: data.definition.snippet ? data.definition.snippet : "",
-    unidentified: data.definition.type,
-  };
+  ammunition.data.description = getDescription(data);
   ammunition.data.source = utils.parseSource(data.definition);
   ammunition.data.properties = {};
   ammunition.data.quantity = getQuantity(data);

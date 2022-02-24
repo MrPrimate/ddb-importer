@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity } from "./common.js";
+import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 /**
  * Gets the DND5E weapontype (simpleM, martialR etc.) as string
@@ -97,12 +97,7 @@ export default function parseArmor(data, character, flags) {
   armor.data.strength = getStrength(data);
   armor.data.stealth = getStealthPenalty(data);
   armor.data.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
-  armor.data.description = {
-    value: data.definition.description,
-    chat: data.definition.snippet ? data.definition.snippet : "",
-    unidentified: data.definition.type,
-  };
-
+  armor.data.description = getDescription(data);
   armor.data.source = utils.parseSource(data.definition);
   armor.data.quantity = getQuantity(data);
   armor.data.weight = getSingleItemWeight(data);
