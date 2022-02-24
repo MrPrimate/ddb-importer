@@ -413,7 +413,7 @@ export default class CharacterImport extends FormApplication {
       userHasPermission &&
       decorations?.avatarUrl &&
       decorations.avatarUrl !== "" &&
-      (imagePath.indexOf("mystery-man") !== -1 || game.settings.get("ddb-importer", "character-update-policy-image"))
+      (imagePath.includes("mystery-man") || game.settings.get("ddb-importer", "character-update-policy-image"))
     ) {
       CharacterImport.showCurrentTask(html, "Uploading avatar image");
       const filename = data.character.name
@@ -428,6 +428,8 @@ export default class CharacterImport extends FormApplication {
         const framePath = await utils.uploadRemoteImage(decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
         this.result.character.flags.ddbimporter["framePath"] = framePath;
       }
+    } else {
+      this.result.character.img = this.actor.img;
     }
   }
 
