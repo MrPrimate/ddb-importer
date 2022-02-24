@@ -5,7 +5,9 @@ Channel Divinity, Superiority Dice, Sorcery Points, Bardic Inspiration, Wild Sha
 * Using artificer extras without artificer levels could cause import of extras to fail.
 * A number of icon additions to the icon sets.
 * Spells: Crown of Madness effect. Basic  Witch Bolt macro.
+* Correct Hideous Laughter effect saveDC not passing through correctly.
 * Monster muncher will now use the default token settings as it's base value for token settings.
+
 
 # 2.9.2
 
