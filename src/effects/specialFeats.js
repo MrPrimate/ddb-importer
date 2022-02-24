@@ -112,7 +112,8 @@ export async function generateExtraEffects(document) {
  */
 export function featureEffectAdjustment(document) {
   const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
-  switch (document.name) {
+  const name = document.flags.ddbimporter.originalName || document.name;
+  switch (name) {
     // if using active auras add the aura effect
     case "Aura of Courage":
     case "Aura of Protection": {

@@ -16,7 +16,7 @@ export async function parseJson(currentActorId, ddb, resourceSelection = true) {
   try {
     if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await createGMMacros();
     logger.debug("Starting core character parse");
-    let character = getCharacter(ddb);
+    let character = await getCharacter(ddb);
     if (resourceSelection) {
       logger.debug("Character resources");
       character = await getResourcesDialog(currentActorId, ddb, character);

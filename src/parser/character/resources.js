@@ -1,4 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
+import logger from "../../logger.js";
 
 function resourceList(data) {
   const resources = [data.character.actions.race, data.character.actions.class, data.character.actions.feat]
@@ -266,9 +267,9 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
   });
 }
 
-const resourceLinkMap = {
+const resourceFeatureLinkMap = {
   "Channel Divinity": ["Channel Divinity:"],
-  "Superiority Dice": ["Maneuvers:"],
+  "Superiority Dice": ["Manoeuvres:", "Maneuvers:"],
   "Sorcery Points": ["Metamagic - ", "Metamagic:"],
   "Bardic Inspiration": [
     "Mote of Potential", "Unsettling Words", "Mantle of Inspiration",
@@ -287,24 +288,113 @@ const resourceLinkMap = {
     ""
   ],
   "Ki Points": [
-    "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind", 
+    "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",
     "Deflect Missiles Attack", "Arms of the Astral Self: Summon", "Stunning Strike",
     "Empty Body", "Diamond Soul", "Visage of the Astral Self", "Quickened Healing",
-    "Focused Aim", "Sharpen the Blade", "Deft Strike", "Shadow Arts"
+    "Focused Aim", "Sharpen the Blade", "Deft Strike", "Shadow Arts",
+    "Extort Truth", "Mind of Mercury", "Debilitating Barrage", "Tipsy Sway",
+    "Drunkard’s Luck", "Drunkard's Luck", "Touch of the Long Death",
+    "Quivering Palm", "Radiant Sun Bolt", "Searing Arc Strike",
+    "Breath of Winter", "Clench of the North Wind", "Eternal Mountain Defense",
+    "Fangs of the Fire Snake", "Fist of Four Thunders", "Fist of Unbroken Air",
+    "Flames of the Phoenix", "Gong of the Summit", "Mist Stance",
+    "Ride the Wind", "River of Hungry Flame", "Rush of the Gale Spirits",
+    "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
+    "Wave of Rolling Earth",
   ],
 };
 
 const resourceSpellLinkMap = {
   "Ki Points": [
-    { name: "Astral Projection", cost: "8", lookupName: "Empty Body" },
-    { name: "Darkness", cost: "2", lookupName: "Shadow Arts" },
-    { name: "Darkvision", cost: "2", lookupName: "Shadow Arts" },
-    { name: "Pass without trace", cost: "2", lookupName: "Shadow Arts" },
-    { name: "Silence", cost: "2", lookupName: "Shadow Arts" },
-    
+    { name: "Astral Projection", cost: 8, lookupName: "Empty Body" },
+    { name: "Darkness", cost: 2, lookupName: "Shadow Arts" },
+    { name: "Darkvision", cost: 2, lookupName: "Shadow Arts" },
+    { name: "Pass Without Trace", cost: 2, lookupName: "Shadow Arts" },
+    { name: "Silence", cost: 2, lookupName: "Shadow Arts" },
+    { name: "Burning Hands", cost: 2, lookupName: "Searing Arc Strike" },
+    { name: "Cone of Cold", cost: 6, lookupName: "Breath of Winter" },
+    { name: "Hold Person", cost: 3, lookupName: "Clench of the North Wind" },
+    { name: "Stoneskin", cost: 5, lookupName: "Eternal Mountain Defense" },
+    { name: "Thunderwave", cost: 2, lookupName: "Fist of Four Thunders" },
+    { name: "Fireball", cost: 4, lookupName: "Flames of the Phoenix" },
+    { name: "Shatter", cost: 3, lookupName: "Gong of the Summit" },
+    { name: "Gaseous Form", cost: 4, lookupName: "Mist Stance" },
+    { name: "Fly", cost: 4, lookupName: "Ride the Wind" },
+    { name: "Wall of Fire", cost: 5, lookupName: "River of Hungry Flame" },
+    { name: "Gust of Wind", cost: 2, lookupName: "Rush of the Gale Spirits" },
+    { name: "Burning Hands", cost: 2, lookupName: "Sweeping Cinder Strike" },
+    { name: "Wall of Stone", cost: 6, lookupName: "Wave of Rolling Earth" },
   ],
 };
 
-export function autoLinkResources(ddb, character) {
+export async function autoLinkResources(actor) {
+  // loop over resourceFeatureLinkMap
+  const possibleItems = actor.items.toObject();
+  let toUpdate = [];
 
+  for (const [key, values] of Object.entries(resourceFeatureLinkMap)) {
+    logger.debug(`Checking ${key}`, values);
+    const parent = possibleItems.find((doc) => {
+      const name = doc.flags.ddbimporter.originalName || doc.name;
+      return name === key;
+    });
+
+    if (parent) {
+      logger.debug("parent", parent);
+      values.forEach((value) => {
+        logger.debug(`Checking ${value}`);
+        const children = possibleItems.filter((doc) => {
+          const name = doc.flags.ddbimporter.originalName || doc.name;
+          return name.startsWith(value);
+        });
+
+        if (children) {
+          logger.debug(`Found children`, children);
+          children.forEach((child) => {
+            logger.debug("child", child);
+            const update = {
+              _id: child._id
+            };
+            setProperty(update, "data.consume.type", "charges");
+            setProperty(update, "data.consume.target", parent._id);
+            toUpdate.push(update);
+          });
+        }
+      });
+    }
+  }
+
+  for (const [key, values] of Object.entries(resourceSpellLinkMap)) {
+    logger.debug(`Checking ${key}`, values);
+    const parent = possibleItems.find((doc) => {
+      const name = doc.flags.ddbimporter.originalName || doc.name;
+      return name === key;
+    });
+    if (parent) {
+      logger.debug("parent", parent);
+      values.forEach((value) => {
+        logger.debug(`Checking ${value.name}`, value);
+        const child = possibleItems.find((doc) => {
+          const name = doc.flags.ddbimporter.originalName || doc.name;
+          const lookupName = doc.flags.ddbimporter?.dndbeyond?.lookupName || "NO_LOOKUP_NAME";
+          return name === value.name && value.lookupName === lookupName;
+        });
+
+        if (child) {
+          logger.debug("child", child);
+          const update = {
+            _id: child._id
+          };
+          setProperty(update, "data.consume.amount", value.cost);
+          setProperty(update, "data.consume.type", "charges");
+          setProperty(update, "data.consume.target", parent._id);
+          toUpdate.push(update);
+        }
+      });
+    }
+  }
+
+  logger.debug("toUpdate", toUpdate);
+
+  await actor.updateEmbeddedDocuments("Item", toUpdate);
 }
