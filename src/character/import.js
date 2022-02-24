@@ -30,6 +30,7 @@ import {
 } from "../muncher/settings.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
 import { setConditions } from "./conditions.js";
+import { autoLinkResources } from "../parser/character/resources.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -1204,10 +1205,10 @@ export default class CharacterImport extends FormApplication {
       });
     }
 
-    this.actor.render();
-
-    await updateDynamicUpdates(this.actor, activeUpdateState);
+    await autoLinkResources(this.actor);
     await setConditions(this.actor, data.ddb);
+    await updateDynamicUpdates(this.actor, activeUpdateState);
+    this.actor.render();
   }
 }
 
