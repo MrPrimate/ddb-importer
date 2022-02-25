@@ -1,3 +1,7 @@
+# 2.9.4
+
+* New Characters would import with mystery man as the token, rather than defaulting to avatar.
+
 # 2.9.3
 
 * Resource Linking improvements:

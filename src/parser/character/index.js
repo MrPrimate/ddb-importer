@@ -54,6 +54,7 @@ async function newPC(name) {
     },
   };
   setProperty(pc, "flags", flags);
+  delete pc.token.img;
   delete pc._id;
   return pc;
 };

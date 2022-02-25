@@ -431,6 +431,11 @@ export default class CharacterImport extends FormApplication {
     } else {
       this.result.character.img = this.actor.img;
     }
+    if (this.actorOriginal.token.img.includes("mystery-man")) {
+      this.result.character.token.img = this.result.character.img;
+    } else {
+      this.result.character.token.img = this.actorOriginal.token.img;
+    }
   }
 
   /* -------------------------------------------- */
