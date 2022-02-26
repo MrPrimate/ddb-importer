@@ -94,6 +94,8 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
   return item;
 }
 
+const badDupes = ["Maneuvers: "];
+
 export function removeActionFeatures(actions, features) {
   const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
 
@@ -109,7 +111,13 @@ export function removeActionFeatures(actions, features) {
   });
 
   features = features
-    .filter((feature) => actionAndFeature || !actions.some((action) => feature.name === action.name && action.flags.ddbimporter.componentId == feature.flags.ddbimporter.id))
+    .filter((feature) =>
+      actionAndFeature ||
+      !actions.some((action) =>
+        feature.name === action.name &&
+        (action.flags.ddbimporter.componentId == feature.flags.ddbimporter.id || badDupes.some((dupe) => action.name.startsWith(dupe)))
+      )
+    )
     .map((feature) => {
       const actionMatch = actionAndFeature && actions.some((action) => feature.name === action.name);
       if (actionMatch) feature.effects = [];
