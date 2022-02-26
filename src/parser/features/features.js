@@ -373,7 +373,7 @@ export default async function parseFeatures(ddb, character) {
 
   logger.debug("Feature fixes");
   fixFeatures(items);
-  const results = await addExtraEffects(items, character);
+  const results = await addExtraEffects(ddb, items, character);
   // console.log("FEATURES");
   // console.error("FEATURES",JSON.parse(JSON.stringify(results)));
   return results;

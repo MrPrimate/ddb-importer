@@ -8,6 +8,9 @@ import { bardicInspirationEffect } from "./feats/bardicInspiration.js";
 import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
 import { paladinDefaultAuraEffect } from "./feats/paladinDefaultAura.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
+import { maneuversEffect } from "./feats/maneuvers.js";
+import { sculptSpellsEffect } from "./feats/sculptSpells.js";
+import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -79,7 +82,7 @@ var configured;
 /**
  * These are effects that can't be generated dynamically and have extra requirements
  */
-export async function generateExtraEffects(document) {
+export async function generateExtraEffects(ddb, character, document) {
   if (!document.effects) document.effects = [];
 
   // check that we can gen effects
@@ -92,6 +95,9 @@ export async function generateExtraEffects(document) {
   }
 
   const name = document.flags.ddbimporter.originalName || document.name;
+  if (name.startsWith("Maneuvers: ")) {
+    document = await maneuversEffect(ddb, character, document);
+  }
   switch (name) {
     case "Empty Body":
     case "Ki: Empty Body": {
@@ -100,6 +106,7 @@ export async function generateExtraEffects(document) {
     }
     case "Deflect Missiles": {
       document = deflectMissilesEffect(document);
+      break;
     }
     // no default
   }
@@ -110,7 +117,7 @@ export async function generateExtraEffects(document) {
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
  */
-export function featureEffectAdjustment(document) {
+export function featureEffectAdjustment(ddb, character, document) {
   const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
   const name = document.flags.ddbimporter.originalName || document.name;
   switch (name) {
@@ -141,6 +148,14 @@ export function featureEffectAdjustment(document) {
     }
     case "Potent Cantrip": {
       document = potentCantripEffect(document);
+      break;
+    }
+    case "Sculpt Spells": {
+      document = sculptSpellsEffect(document);
+      break;
+    }
+    case "Uncanny Dodge": {
+      document = uncannyDodgeEffect(document);
       break;
     }
     // no default

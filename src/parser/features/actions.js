@@ -684,6 +684,6 @@ export default async function parseActions(ddb, character) {
   });
 
   fixFeatures(actions);
-  const results = await addExtraEffects(actions, character);
+  const results = await addExtraEffects(ddb, actions, character);
   return results;
 }

@@ -1381,7 +1381,7 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
     // }
     case "feature":
     case "feat": {
-      foundryItem = featureEffectAdjustment(foundryItem);
+      foundryItem = featureEffectAdjustment(ddb, character, foundryItem);
       break;
     }
     // no default

@@ -343,7 +343,7 @@ export function fixFeatures(features) {
   });
 }
 
-export async function addExtraEffects(documents, character) {
+export async function addExtraEffects(ddb, documents, character) {
   const compendiumItem = character.flags.ddbimporter.compendium;
   const addCharacterEffects = compendiumItem
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")
@@ -351,7 +351,7 @@ export async function addExtraEffects(documents, character) {
 
   if (addCharacterEffects) {
     const results = await Promise.all(documents.map((document) => {
-      return generateExtraEffects(document);
+      return generateExtraEffects(ddb, character, document);
     }));
     return results;
   } else {
