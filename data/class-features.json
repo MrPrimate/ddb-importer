@@ -9308,5 +9308,12 @@
     "class": "Monk",
     "subclass": "Way of the Four Elements",
     "path": "icons/commodities/stone/paver-brick-brown.webp"
+  },
+  {
+    "name": "Superiority Dice",
+    "class_feature": "Superiority Dice",
+    "class": "Fighter",
+    "subclass": "Battle Master",
+    "path": "systems/dnd5e/icons/spells/enchant-sky-3.jpg"
   }
 ]
