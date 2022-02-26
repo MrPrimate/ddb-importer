@@ -4,9 +4,10 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 if (args[0] === "on") {
-  const dice = (parseInt(args[1]));
+  const dice = args[1];
+  const chaMod = args[2];
   const curTemp = target.data.data.attributes.hp.temp;
-  const damageRoll = await new Roll(`${dice}[temphp]`).evaluate({ async: true });
+  const damageRoll = await new Roll(`${dice}[temphp] + ${chaMod}`).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll, game.users.get(options.userId));
   const buf = damageRoll.total;
   if (buf > curTemp) target.update({"data.attributes.hp.temp": buf});
