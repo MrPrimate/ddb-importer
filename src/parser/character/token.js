@@ -1,13 +1,13 @@
 import { getSensesLookup } from "./senses.js";
 import logger from "../../logger.js";
 
-function getTokenSenses(ddb, character) {
+function getTokenSenses(ddb) {
   // Default to the most basic token setup.
   // everything else can be handled by the user / Token Mold
-  let tokenData = duplicate(character.token);
-  setProperty(tokenData, "actorLink", true);
-  setProperty(tokenData, "name", ddb.character.name);
-
+  let tokenData = {
+    actorLink: true,
+    name: ddb.character.name,
+  };
   const senses = getSensesLookup(ddb);
   // darkvision: 0,
   // blindsight: 0,
@@ -26,9 +26,9 @@ function getTokenSenses(ddb, character) {
   return tokenData;
 }
 
-export function getToken(ddb, character) {
+export function getToken(ddb) {
   try {
-    return getTokenSenses(ddb, character);
+    return getTokenSenses(ddb);
   } catch (err) {
     logger.error(err);
     logger.error(err.stack);

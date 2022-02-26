@@ -1,3 +1,7 @@
+# 2.9.5
+
+* Characters would loose some token settings and folder details on reimport.
+
 # 2.9.4
 
 * New Characters would import with mystery man as the token, rather than defaulting to avatar.

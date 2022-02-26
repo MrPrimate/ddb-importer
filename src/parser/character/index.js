@@ -1,3 +1,4 @@
+import utils from "../../utils.js";
 import { getArmorClass } from "./ac.js";
 import { getSpecialTraits } from "./specialTraits.js";
 import { getSkills } from "./skills.js";
@@ -40,23 +41,34 @@ import { getInitiative } from "./initiative.js";
 import { getCurrency } from "./currency.js";
 // import { fixCharacterLevels } from "./filterModifiers.js";
 
-async function newPC(name) {
-  const options = {
-    temporary: true,
-    displaySheet: false,
-  };
-  const pcClass = await Actor.create({ name, type: "character" }, options);
-  let pc = pcClass.data.toObject();
-  const flags = {
-    dnd5e: {},
-    ddbimporter: {
-      dndbeyond: {},
+async function newPC(ddb) {
+  const name = (ddb.character.name === "") ? "Hero With No Name" : ddb.character.name;
+
+  let character = {
+    data: JSON.parse(utils.getTemplate("character")),
+    type: "character",
+    effects: [],
+    name: name,
+    // items: [],  // modified to check inventory analysis on update
+    token: getToken(ddb),
+    flags: {
+      ddbimporter: {
+        compendium: false,
+        acEffects: [],
+        baseAC: 10,
+        dndbeyond: {
+          totalLevels: ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0),
+          proficiencies: getProficiencies(ddb),
+          proficienciesIncludingEffects: getProficiencies(ddb, true),
+          roUrl: ddb.character.readonlyUrl,
+          characterValues: ddb.character.characterValues,
+          templateStrings: [],
+        },
+      },
     },
   };
-  setProperty(pc, "flags", flags);
-  delete pc.token.img;
-  delete pc._id;
-  return pc;
+
+  return character;
 };
 
 
@@ -67,9 +79,7 @@ export default async function getCharacter(ddb) {
   //
   // ddb = fixCharacterLevels(ddb);
 
-  const name = (ddb.character.name === "") ? "Hero With No Name" : ddb.character.name;
-
-  let character = await newPC(name);
+  let character = await newPC(ddb);
 
   const flags = {
     ddbimporter: {
@@ -89,7 +99,7 @@ export default async function getCharacter(ddb) {
   };
   setProperty(character, "flags", flags);
 
-  character.token = getToken(ddb, character);
+  character.token = getToken(ddb);
 
   // proficiency
   // prettier-ignore
