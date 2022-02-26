@@ -1,16 +1,17 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { generateStatusEffectChange } from "../specialSpells.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import logger from "../../logger.js";
 
 // eslint-disable-next-line complexity
 export async function maneuversEffect(ddb, character, document) {
-  console.warn(`Effect fir ${document.name}`)
-  const fighterClass = ddb.character.classes.find((klass) => klass.name === "Fighter");
+  const fighterClass = ddb.character.classes.find((klass) => klass.definition.name === "Fighter");
   if (!fighterClass) return document;
   const combatSuperiority = fighterClass.classFeatures.find((feat) => feat.definition.name === "Combat Superiority");
   if (!combatSuperiority) return document;
   const dieValue = combatSuperiority.levelScale.dice.diceValue;
-  console.warn("DO I GET HERE?")
+
+  logger.debug(`Generating effect for ${document.name}`);
 
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
   const ability = characterAbilities.str?.value > characterAbilities.dex?.value ? "str" : "dex";
@@ -234,7 +235,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Rally": {
       const itemMacroText = await loadMacroFile("feat", "maneuversRally.js");
       document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
-      effect.changes.push(generateMacroChange(`1d${dieValue}`, 20));
+      effect.changes.push(generateMacroChange(`1d${dieValue} @abilities.cha.mod`, 20));
       document.effects.push(effect);
       break;
     }
@@ -300,8 +301,6 @@ export async function maneuversEffect(ddb, character, document) {
     }
     // no default
   }
-
-  document.effects.push(effect);
 
   return document;
 }
