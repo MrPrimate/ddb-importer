@@ -335,7 +335,7 @@ export async function autoLinkResources(actor) {
   for (const [key, values] of Object.entries(resourceFeatureLinkMap)) {
     logger.debug(`Checking ${key}`, values);
     const parent = possibleItems.find((doc) => {
-      const name = doc.flags.ddbimporter.originalName || doc.name;
+      const name = doc.flags.ddbimporter?.originalName || doc.name;
       return name === key;
     });
 
@@ -344,7 +344,7 @@ export async function autoLinkResources(actor) {
       values.forEach((value) => {
         logger.debug(`Checking ${value}`);
         const children = possibleItems.filter((doc) => {
-          const name = doc.flags.ddbimporter.originalName || doc.name;
+          const name = doc.flags.ddbimporter?.originalName || doc.name;
           return name.startsWith(value);
         });
 
@@ -367,7 +367,7 @@ export async function autoLinkResources(actor) {
   for (const [key, values] of Object.entries(resourceSpellLinkMap)) {
     logger.debug(`Checking ${key}`, values);
     const parent = possibleItems.find((doc) => {
-      const name = doc.flags.ddbimporter.originalName || doc.name;
+      const name = doc.flags.ddbimporter?.originalName || doc.name;
       return name === key;
     });
     if (parent) {
@@ -375,7 +375,7 @@ export async function autoLinkResources(actor) {
       values.forEach((value) => {
         logger.debug(`Checking ${value.name}`, value);
         const child = possibleItems.find((doc) => {
-          const name = doc.flags.ddbimporter.originalName || doc.name;
+          const name = doc.flags.ddbimporter?.originalName || doc.name;
           const lookupName = doc.flags.ddbimporter?.dndbeyond?.lookupName || "NO_LOOKUP_NAME";
           return name === value.name && value.lookupName === lookupName;
         });

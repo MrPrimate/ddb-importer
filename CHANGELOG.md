@@ -1,3 +1,7 @@
+# 2.9.6
+
+* If an item was on the sheet that was not from D&D Beyond the resource linking could fail.
+
 # 2.9.5
 
 * Characters would loose some token settings and folder details on reimport.
