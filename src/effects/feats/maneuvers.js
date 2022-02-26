@@ -4,11 +4,13 @@ import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../ma
 
 // eslint-disable-next-line complexity
 export async function maneuversEffect(ddb, character, document) {
+  console.warn(`Effect fir ${document.name}`)
   const fighterClass = ddb.character.classes.find((klass) => klass.name === "Fighter");
   if (!fighterClass) return document;
   const combatSuperiority = fighterClass.classFeatures.find((feat) => feat.definition.name === "Combat Superiority");
   if (!combatSuperiority) return document;
   const dieValue = combatSuperiority.levelScale.dice.diceValue;
+  console.warn("DO I GET HERE?")
 
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
   const ability = characterAbilities.str?.value > characterAbilities.dex?.value ? "str" : "dex";
