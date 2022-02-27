@@ -1,3 +1,8 @@
+# 2.9.7
+
+* Effects: First pass at Battle Master maneuvers. Please note that some of the effects have saves which apply a status, but currently if the check is passed the damage is not applied (but should be).
+* Extras import: conditional checked for Automated Evocations was missing resulting in harmless error if this module was not installed.
+
 # 2.9.6
 
 * If an item was on the sheet that was not from D&D Beyond the resource linking could fail.
