@@ -568,28 +568,32 @@ export async function characterExtras(html, characterData, actor) {
     if (updateBool) await updateExtras(finalExtras, existingExtras);
     const importedExtras = await createExtras(finalExtras, existingExtras, folder.id);
 
-    const currentAutomatedEvocationSettings = {
-      isLocal: actor.getFlag("automated-evocations", "isLocal"),
-      companions: actor.getFlag("automated-evocations", "isLocal"),
-    };
-
-    const companions = existingExtras.concat(importedExtras).map((extra) => {
-      return {
-        id: extra.id ? extra.id : extra._id,
-        number: 1,
-        animation: extra.data.flags?.ddbimporter?.automatedEvcoationAnimation
-          ? extra.data.flags?.ddbimporter?.automatedEvcoationAnimation
-          : "magic1",
+    const isAutomatedEvocations = utils.isModuleInstalledAndActive("automated-evocations");
+    if (isAutomatedEvocations) {
+      const currentAutomatedEvocationSettings = {
+        isLocal: actor.getFlag("automated-evocations", "isLocal"),
+        companions: actor.getFlag("automated-evocations", "isLocal"),
       };
-    });
-    const newAutomatedEvocationSettings = {
-      isLocal: true,
-      companions,
-    };
-    const mergedSettings = mergeObject(currentAutomatedEvocationSettings, newAutomatedEvocationSettings);
+  
+      const companions = existingExtras.concat(importedExtras).map((extra) => {
+        return {
+          id: extra.id ? extra.id : extra._id,
+          number: 1,
+          animation: extra.data.flags?.ddbimporter?.automatedEvcoationAnimation
+            ? extra.data.flags?.ddbimporter?.automatedEvcoationAnimation
+            : "magic1",
+        };
+      });
+      const newAutomatedEvocationSettings = {
+        isLocal: true,
+        companions,
+      };
+      const mergedSettings = mergeObject(currentAutomatedEvocationSettings, newAutomatedEvocationSettings);
+  
+      actor.setFlag("automated-evocations", "isLocal", mergedSettings.isLocal);
+      actor.setFlag("automated-evocations", "companions", mergedSettings.companions);
+    }
 
-    actor.setFlag("automated-evocations", "isLocal", mergedSettings.isLocal);
-    actor.setFlag("automated-evocations", "companions", mergedSettings.companions);
   } catch (err) {
     logger.error("Failure parsing extra", err);
     logger.error(err.stack);
