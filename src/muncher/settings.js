@@ -701,13 +701,13 @@ export function getMuncherSettings(includeHomebrew = true) {
     {
       name: "use-full-token-image",
       isChecked: game.settings.get("ddb-importer", "munching-policy-use-full-token-image"),
-      description: "Use avatar image for token rather than token image",
+      description: "Use avatar image for token rather than token image (full art)",
       enabled: true,
     },
     {
       name: "use-token-avatar-image",
       isChecked: game.settings.get("ddb-importer", "munching-policy-use-token-avatar-image"),
-      description: "Use token image for avatar rather than avatar image",
+      description: "Use token image for avatar rather than avatar image (close up)",
       enabled: true,
     },
     {
