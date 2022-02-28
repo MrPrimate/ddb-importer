@@ -4,7 +4,7 @@ export function resistanceEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
-      key: 'flags.midi-qol.optional.resistance.label.all',
+      key: 'flags.midi-qol.optional.resistance.label',
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: 'Resistance',
       priority: "20",
@@ -16,6 +16,7 @@ export function resistanceEffect(document) {
       priority: "20",
     },
   );
+  setProperty(effect, "flags.dae.specialDuration", ["isSave"]);
 
   document.effects.push(effect);
 

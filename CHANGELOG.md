@@ -1,6 +1,7 @@
 # 2.9.7
 
 * Effects: First pass at Battle Master maneuvers. Please note that some of the effects have saves which apply a status, but currently if the check is passed the damage is not applied (but should be).
+* effects: Guidance and Resistance tweaks for midi changes.
 * Extras import: conditional checked for Automated Evocations was missing resulting in harmless error if this module was not installed.
 * Make wording on art selection clearer.
 
