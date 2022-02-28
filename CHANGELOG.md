@@ -4,6 +4,8 @@
 * effects: Guidance and Resistance tweaks for midi changes.
 * Extras import: conditional checked for Automated Evocations was missing resulting in harmless error if this module was not installed.
 * Make wording on art selection clearer.
+- @The Shaman#0001 : used their Wish Spell: language filtering on characters now available.
+
 
 # 2.9.6
 

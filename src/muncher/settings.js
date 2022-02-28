@@ -43,7 +43,7 @@ function getInstalledIcon(name) {
 }
 
 export function getCharacterImportSettings() {
-  const importPolicies = [
+  const importPolicies1 = [
     {
       name: "name",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-name"),
@@ -59,6 +59,23 @@ export function getCharacterImportSettings() {
       isChecked: game.settings.get("ddb-importer", "character-update-policy-hit-die"),
       description: "Hit Die",
     },
+    {
+      name: "image",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-image"),
+      description: "Image",
+    },
+    {
+      name: "bio",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-bio"),
+      description: "Bio",
+    },
+    {
+      name: "languages",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-languages"),
+      description: "Languages",
+    },
+  ];
+  const importPolicies2 = [
     {
       name: "class",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-class"),
@@ -88,16 +105,6 @@ export function getCharacterImportSettings() {
       name: "spell",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-spell"),
       description: "Spells",
-    },
-    {
-      name: "image",
-      isChecked: game.settings.get("ddb-importer", "character-update-policy-image"),
-      description: "Image",
-    },
-    {
-      name: "bio",
-      isChecked: game.settings.get("ddb-importer", "character-update-policy-bio"),
-      description: "Bio",
     },
   ];
 
@@ -548,15 +555,16 @@ export function getCharacterImportSettings() {
   const tiers = getPatreonTiers(tier);
 
   const result = {
-    importPolicies: importPolicies,
-    importConfig: importConfig,
-    extrasConfig: extrasConfig,
-    advancedImportConfig: advancedImportConfig,
-    effectImportConfig: effectImportConfig,
-    effectSelectionConfig: effectSelectionConfig,
-    dataDirSet: dataDirSet,
-    syncConfig: syncConfig,
-    tiers: tiers,
+    importPolicies1,
+    importPolicies2,
+    importConfig,
+    extrasConfig,
+    advancedImportConfig,
+    effectImportConfig,
+    effectSelectionConfig,
+    dataDirSet,
+    syncConfig,
+    tiers,
   };
 
   return result;

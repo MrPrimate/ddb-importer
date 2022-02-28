@@ -51,7 +51,14 @@
     <h3>Update selection</h3>
     <p>Only ticked items will be updated.</p>
     <div class="import-policy-group">
-      {{#each importPolicies}}
+      {{#each importPolicies1}}
+      <label class="import-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.description}}
+      </label>
+      {{/each}}
+    </div>
+    <div class="import-policy-group">
+      {{#each importPolicies2}}
       <label class="import-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
           name="character-import-policy-{{this.name}}" data-section="{{this.name}}">{{this.description}}
       </label>
