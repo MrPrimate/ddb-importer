@@ -43,6 +43,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "obsidian",
   "siftoolkit",
   "advancedspelleffects",
+  "gm-notes",
 ];
 
 const EFFECTS_IGNORE_FLAG_GROUPS = [

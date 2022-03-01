@@ -49,6 +49,9 @@ export default class Helpers {
     const uploadPath = misc
       ? `${parsedBaseUploadPath.current}/${targetPath}`
       : `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
+    const fullUploadPath = misc
+      ? `${baseUploadPath}/${targetPath}`
+      : `${baseUploadPath}/${adventurePath}/${targetPath}`;
     const returnFilePath = misc
       ? `${targetPath}/${filename}`
       : `${adventurePath}/${targetPath}/${filename}`;
@@ -61,6 +64,7 @@ export default class Helpers {
       uploadPath,
       returnFilePath,
       baseFilename,
+      fullUploadPath,
       forcingWebp: useWebP && baseFilename !== filename,
     };
   }
@@ -128,7 +132,7 @@ export default class Helpers {
           logger.debug(`Importing image from ${path}`, paths);
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
           const img = await zip.file(path).async("blob");
-          await utils.uploadImage(img, paths.uploadPath, paths.filename, paths.forcingWebp);
+          await utils.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
           // eslint-disable-next-line require-atomic-updates
           CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path] = true;
         } else {

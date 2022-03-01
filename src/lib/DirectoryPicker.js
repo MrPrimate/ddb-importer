@@ -152,7 +152,11 @@ export class DirectoryPicker extends FilePicker {
           await DirectoryPicker.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
 
         } catch (err) {
-          if (!err.startsWith("EEXIST") && !err.startsWith("The S3 key")) logger.error(`Error trying to verify path [${parsedPath.activeSource}], ${parsedPath.current}`, err);
+          if (!err.startsWith("EEXIST") && !err.startsWith("The S3 key")) {
+            logger.error(`Error trying to verify path [${parsedPath.activeSource}], ${parsedPath.current}`, err);
+            logger.error("parsedPath", parsedPath);
+            logger.error("targetPath", targetPath);
+          }
         }
       }
     } catch (err) {

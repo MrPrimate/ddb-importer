@@ -1,3 +1,8 @@
+# 2.9.8
+
+* Adventure Uploads using S3 bucket failed.
+* Keep "GM Notes"(module) on character imports.
+
 # 2.9.7
 
 * Effects: First pass at Battle Master maneuvers. Please note that some of the effects have saves which apply a status, but currently if the check is passed the damage is not applied (but should be). @dinesh#9364
