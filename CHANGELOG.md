@@ -1,3 +1,7 @@
+# 2.9.9
+
+* Items would duplicate/nest condition links to SRD conditions.
+
 # 2.9.8
 
 * Adventure Uploads using S3 bucket failed.

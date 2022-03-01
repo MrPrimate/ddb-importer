@@ -7,7 +7,7 @@ export function getDescription(data) {
 
   return {
     value: parseTags(data.definition.description),
-    chat: chatAdd ? chatSnippet : "",
+    chat: chatAdd ? parseTags(chatSnippet) : "",
     unidentified: data.definition.type,
   };
 }
