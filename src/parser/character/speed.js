@@ -5,11 +5,14 @@ import { isArmored } from "./ac.js";
 export function getSpeed(data) {
   // For all processing, we take into account the regular movement types of this character
   let movementTypes = {};
+  let setToWalking = {};
   for (let type in data.character.race.weightSpeeds.normal) {
     // if (data.character.race.weightSpeeds.normal[type] !== 0) {
     movementTypes[type] = data.character.race.weightSpeeds.normal[type];
+    setToWalking[type] = false;
     // }
   }
+
 
   // get bonus speed mods
   let restriction = ["", null, "unless your speed is already higher"];
@@ -29,7 +32,9 @@ export function getSpeed(data) {
 
     innateSpeeds.forEach((speed) => {
       // take the highest value
-      if (speed.value > base) {
+      if (speed.value === null && speed.modifierSubTypeId == 182 && speed.modifierTypeId == 9) {
+        setToWalking[type] = true;
+      } else if (speed.value > base) {
         base = speed.value;
       }
     });
@@ -102,6 +107,12 @@ export function getSpeed(data) {
     }
   }
   special = special.substr(0, special.length - 2);
+
+  for (let type in setToWalking) {
+    if (setToWalking[type] && movementTypes["walk"] > movementTypes[type]) {
+      movementTypes[type] = movementTypes["walk"];
+    }
+  }
 
   const movement = {
     burrow: movementTypes['burrow'] || 0,
