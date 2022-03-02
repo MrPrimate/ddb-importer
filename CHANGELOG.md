@@ -1,6 +1,9 @@
 # 2.9.9
 
 * Items would duplicate/nest condition links to SRD conditions.
+* Fly speed would not parse on Fairy.
+* Some items would not generate speed effects, e.g. Broomstick
+* If you have actors in DDB Monsters compendium that were not created outside of DDB but you now wish to link, you can use `DDBImporter.fixCritters()` from a macro or within the browser developer console to add the DDB Id to any matching actors (by name). This is necessary as recently the Importer started checking for a name and the DDB id in order to support multiple actors with the same name in the compendium.
 
 # 2.9.8
 
