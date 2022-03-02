@@ -2,7 +2,7 @@
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
-import { addNPC, generateIconMap, copyExistingMonsterImages, checkMonsterCompendium } from "./importMonster.js";
+import { addNPC, generateIconMap, copyExistingMonsterImages, checkMonsterCompendium, addNPCDDBId } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -158,4 +158,20 @@ export async function parseCritters(ids = null) {
     return Promise.all(monstersParsed);
   }
   return monsterCount;
+}
+
+export async function fixCritters(ids = null) {
+  checkMonsterCompendium();
+  resetEquipment();
+
+  logger.info("Check complete getting monster data...");
+  let monsters = await getMonsterData(ids);
+
+  for (const monster of monsters) {
+    logger.warn(`Fixing ${monster.name}`);
+    // eslint-disable-next-line no-await-in-loop
+    await addNPCDDBId(monster);
+  }
+
+  logger.info("Update complete!");
 }

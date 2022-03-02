@@ -2,7 +2,7 @@
 import { parseMonsters } from "../../muncher/monster/monster.js";
 import { parseSpells } from "../../muncher/spells.js";
 import { parseItems } from "../../muncher/items.js";
-import { parseCritters } from "../../muncher/monsters.js";
+import { parseCritters, fixCritters } from "../../muncher/monsters.js";
 import { updateWorldMonsters } from "../../muncher/tools.js";
 import { migrateExistingCompendium, createCompendiumFolderStructure } from "../../muncher/compendiumFolders.js";
 import { parseEncounters, DDBEncounterMunch } from "../../muncher/encounters.js";
@@ -74,5 +74,6 @@ export function registerWindow() {
     getIconPath: iconPath,
     iconPath,
     loadSRDRules,
+    fixCritters,
   };
 }

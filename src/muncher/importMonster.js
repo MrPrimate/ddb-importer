@@ -153,6 +153,36 @@ async function addNPCToCompendium(npc) {
   }
 }
 
+export async function addNPCDDBId(npc) {
+  let npcBasic = duplicate(npc);
+  const compendium = getMonsterCompendium();
+  if (compendium) {
+    // unlock the compendium for update/create
+    compendium.configure({ locked: false });
+    const monsterIndexFields = ["name", "flags.ddbimporter.id"];
+
+    const index = await compendium.getIndex({ fields: monsterIndexFields });
+    const npcMatch = index.contents.find((entity) =>
+      !hasProperty(entity, "flags.ddbimporter.id") &&
+      entity.name.toLowerCase() === npcBasic.name.toLowerCase()
+    );
+
+    if (npcMatch) {
+      if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
+        const existingNPC = await compendium.getDocument(npcMatch._id);
+        const updateDDBData = {
+          _id: npcMatch._id,
+          "flags.ddbimporter.id": npcBasic.flags.ddbimporter.id,
+        };
+        logger.debug("NPC Update Data", duplicate(updateDDBData));
+        await existingNPC.update(updateDDBData);
+      }
+    }
+  } else {
+    logger.error("Error opening compendium, check your settings");
+  }
+}
+
 
 async function getNPCImage(data) {
   // check to see if we have munched flags to work on
