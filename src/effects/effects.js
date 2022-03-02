@@ -850,6 +850,11 @@ function addSetSpeeds(modifiers, name) {
     "innate-speed-swimming",
     "innate-speed-flying",
     "innate-speed-burrowing",
+    "speed-walking",
+    "speed-climbing",
+    "speed-swimming",
+    "speed-flying",
+    "speed-burrowing",
   ];
   speedSets.forEach((speedSet) => {
     const result = addSetSpeedEffect(modifiers, name, speedSet);
