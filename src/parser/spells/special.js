@@ -36,50 +36,6 @@ let getEldritchInvocations = (data) => {
   };
 };
 
-function getCustomValue(foundryItem, ddb, type) {
-  if (!ddb) return null;
-  const characterValues = ddb.character.characterValues;
-  const customValue = characterValues.filter(
-    (value) =>
-      value.valueId == foundryItem.flags.ddbimporter.dndbeyond.id &&
-      value.valueTypeId == foundryItem.flags.ddbimporter.dndbeyond.entityTypeId
-  );
-
-  if (customValue) {
-    const customName = customValue.find((value) => value.typeId == type);
-    if (customName) return customName.value;
-  }
-  return null;
-}
-
-function addCustomValues(item, ddb) {
-  // to hit override requires a lot of crunching
-  // const toHitOverride = getCustomValue(item, character, 13);
-  const toHitBonus = getCustomValue(item, ddb, 12);
-  const damageBonus = getCustomValue(item, ddb, 10);
-  const dcOverride = getCustomValue(item, ddb, 15);
-  const dcBonus = getCustomValue(item, ddb, 14);
-
-  if (toHitBonus) item.data.attackBonus += toHitBonus;
-  if (damageBonus && item.data.damage.parts.length !== 0) {
-    item.data.damage.parts[0][0] = item.data.damage.parts[0][0].concat(` +${damageBonus}`);
-  } else if (damageBonus) {
-    const part = [`+${damageBonus}`, ""];
-    item.data.damage.parts.push(part);
-  }
-  // if (damageBonus) item.data.damage.parts[0] = item.data.damage.parts[0].concat(` +${damageBonus}`);
-  if (dcBonus) {
-    if (item.flags.ddbimporter.dndbeyond.dc) {
-      item.data.save.dc = parseInt(item.flags.ddbimporter.dndbeyond.dc) + dcBonus;
-      item.data.save.scaling = "flat";
-    }
-  }
-  if (dcOverride) {
-    item.data.save.dc = dcOverride;
-    item.data.save.scaling = "flat";
-  }
-}
-
 /**
  * Some spells we need to fix up or massage because they are modified
  * in interesting ways
