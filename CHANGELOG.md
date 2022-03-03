@@ -1,3 +1,10 @@
+# 2.9.10
+
+* Fix fo `fixCritters` function if import screen was not open.
+* Try and improve weird errors importing monsters.
+* Monsters parsing: some features with recharge (e.g. Giant Spiders web) could come in as weapons, which don't support recharge. @callbritton#5405
+* Character: Customised Actions will now carry over attack and damage bonuses. This resulted in a rewrite of the core functionality here so please let me know if anything looks off/broken for items or spells. @Icoshi#2431
+
 # 2.9.9
 
 * Items would duplicate/nest condition links to SRD conditions.
