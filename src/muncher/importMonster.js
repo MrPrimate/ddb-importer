@@ -122,14 +122,19 @@ async function addNPCToCompendium(npc) {
         }
 
         npcBasic._id = npcMatch._id;
-        await copySupportedItemFlags(existingNPC.data, npcBasic);
+        await copySupportedItemFlags(existingNPC.toObject(), npcBasic);
 
+        // remove and re-add items
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
+        logger.debug("New npcItems", duplicate(npcItems));
+        await existingNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
         delete npcBasic.items;
-        logger.debug("NPC", duplicate(npcBasic));
-        compendiumNPC = await existingNPC.update(npcBasic);
-        logger.debug("npcItems", duplicate(npcItems));
-        await compendiumNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
+
+        logger.debug("NPC Core data", duplicate(npcBasic));
+        compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.name });
+        if (!compendiumNPC) {
+          logger.debug("No changes made to base character", npcBasic);
+        }
       }
     } else {
       // create the new npc
@@ -457,6 +462,7 @@ async function linkResourcesConsumption(actor) {
       if (item.data?.recharge?.value) {
         const itemID = randomID(16);
         item._id = itemID;
+        if (item.type === "weapon") item.type = "feat";
         item.data.consume = {
           type: "charges",
           target: itemID,
