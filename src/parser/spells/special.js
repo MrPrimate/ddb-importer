@@ -36,13 +36,13 @@ let getEldritchInvocations = (data) => {
   };
 };
 
-function getCustomValue(data, ddb, type) {
+function getCustomValue(foundryItem, ddb, type) {
   if (!ddb) return null;
   const characterValues = ddb.character.characterValues;
   const customValue = characterValues.filter(
     (value) =>
-      value.valueId == data.flags.ddbimporter.dndbeyond.id &&
-      value.valueTypeId == data.flags.ddbimporter.dndbeyond.entityTypeId
+      value.valueId == foundryItem.flags.ddbimporter.dndbeyond.id &&
+      value.valueTypeId == foundryItem.flags.ddbimporter.dndbeyond.entityTypeId
   );
 
   if (customValue) {
@@ -282,7 +282,7 @@ export function fixSpells(ddb, items) {
       // no default
     }
 
-    if (ddb) addCustomValues(spell, ddb);
+    if (ddb) utils.addCustomValues(ddb, spell);
   });
 }
 /* eslint-enable complexity */

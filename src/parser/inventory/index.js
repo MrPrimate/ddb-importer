@@ -183,7 +183,7 @@ function getItemFlags(ddb, data, character) {
     if (utils.hasChosenCharacterOption(ddb, "Two-Weapon Fighting")) {
       flags.classFeatures.push("Two-Weapon Fighting");
     }
-    if (utils.getCustomValue(data, character, 18)) {
+    if (utils.getCustomValueFromCharacter(data, character, 18)) {
       flags.classFeatures.push("OffHand");
     }
   }
@@ -246,35 +246,6 @@ function otherGear(ddb, data) {
       logger.warn("Other Gear type missing from " + data.definition.name);
   }
   return item;
-}
-
-function addCustomValues(ddbItem, foundryItem, character) {
-  // to hit override requires a lot of crunching
-  // const toHitOverride = utils.getCustomValue(item, character, 13);
-  const toHitBonus = utils.getCustomValue(ddbItem, character, 12);
-  const damageBonus = utils.getCustomValue(ddbItem, character, 10);
-  // const displayAsAttack = utils.getCustomValue(item, character, 16);
-  const costOverride = utils.getCustomValue(ddbItem, character, 19);
-  const weightOverride = utils.getCustomValue(ddbItem, character, 22);
-  // dual wield 18
-  // silvered
-  const silvered = utils.getCustomValue(ddbItem, character, 20);
-  // adamantine
-  const adamantine = utils.getCustomValue(ddbItem, character, 21);
-  // off-hand
-  // const offHand = utils.getCustomValue(ddbItem, character, 18);
-
-  if (toHitBonus) foundryItem.data.attackBonus += toHitBonus;
-  if (damageBonus && foundryItem.data?.damage?.parts && foundryItem.data?.damage?.parts.length !== 0) {
-    foundryItem.data.damage.parts[0][0] = foundryItem.data.damage.parts[0][0].concat(` +${damageBonus}`);
-  } else if (damageBonus && foundryItem.data?.damage?.parts) {
-    const part = [`+${damageBonus}`, ""];
-    foundryItem.data.damage.parts.push(part);
-  }
-  if (costOverride) foundryItem.data.cost = costOverride;
-  if (weightOverride) foundryItem.data.weight = weightOverride;
-  if (silvered) foundryItem.data.properties['sil'] = true;
-  if (adamantine) foundryItem.data.properties['ada'] = true;
 }
 
 function addExtraDDBFlags(data, item) {
@@ -428,7 +399,7 @@ export default function getInventory(ddb, character, itemSpells) {
 
   for (let ddbItem of ddb.character.inventory.concat(customItems)) {
     const originalName = ddbItem.definition.name;
-    ddbItem.definition.name = utils.getName(ddbItem, character);
+    ddbItem.definition.name = utils.getName(ddb, ddbItem, character);
     const flags = getItemFlags(ddb, ddbItem, character);
 
     const updateExisting = compendiumItem
@@ -437,7 +408,7 @@ export default function getInventory(ddb, character, itemSpells) {
     ddbItem.definition.description = generateTable(ddbItem.definition.name, ddbItem.definition.description, updateExisting);
 
     let item = Object.assign({}, parseItem(ddb, ddbItem, character, flags));
-    addCustomValues(ddbItem, item, character);
+    item = utils.addCustomValues(ddb, item);
     enrichFlags(ddbItem, item);
 
     if (item) {

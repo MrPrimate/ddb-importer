@@ -1190,10 +1190,13 @@ const utils = {
     return map;
   },
 
-  getCustomValue(data, character, type) {
+  getCustomValueFromCharacter(ddbItem, character, type) {
     if (!character) return null;
     const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
-    const customValue = characterValues.filter((value) => value.valueId == data.id && value.valueTypeId == data.entityTypeId);
+    const customValue = characterValues.filter((value) =>
+      value.valueId == ddbItem.id &&
+      value.valueTypeId == ddbItem.entityTypeId
+    );
 
     if (customValue) {
       const value = customValue.find((value) => value.typeId == type);
@@ -1202,17 +1205,85 @@ const utils = {
     return null;
   },
 
-  getName(data, character) {
+  getCustomValue(foundryItem, ddb, type) {
+    const characterValues = ddb.character?.characterValues;
+    if (!characterValues) return null;
+    const customValue = characterValues.filter(
+      (value) =>
+        (value.valueId == foundryItem.flags.ddbimporter.dndbeyond?.id &&
+          value.valueTypeId == foundryItem.flags.ddbimporter.dndbeyond?.entityTypeId) ||
+        (value.valueId == foundryItem.flags.ddbimporter.id &&
+          value.valueTypeId == foundryItem.flags.ddbimporter.entityTypeId)
+    );
+
+    if (customValue) {
+      const customName = customValue.find((value) => value.typeId == type);
+      if (customName) return customName.value;
+    }
+    return null;
+  },
+
+  addCustomValues(ddb, foundryItem) {
+    // to hit override requires a lot of crunching
+    // const toHitOverride = utils.getCustomValue(item, character, 13);
+    const toHitBonus = utils.getCustomValue(foundryItem, ddb, 12);
+    const damageBonus = utils.getCustomValue(foundryItem, ddb, 10);
+    // const displayAsAttack = utils.getCustomValue(item, character, 16);
+    const costOverride = utils.getCustomValue(foundryItem, ddb, 19);
+    const weightOverride = utils.getCustomValue(foundryItem, ddb, 22);
+    // dual wield 18
+    // silvered
+    const silvered = utils.getCustomValue(foundryItem, ddb, 20);
+    // adamantine
+    const adamantine = utils.getCustomValue(foundryItem, ddb, 21);
+    // off-hand
+    // const offHand = utils.getCustomValue(ddbItem, character, 18);
+    const dcOverride = utils.getCustomValue(foundryItem, ddb, 15);
+    const dcBonus = utils.getCustomValue(foundryItem, ddb, 14);
+
+    if (toHitBonus) {
+      if (hasProperty(foundryItem, "data.attackBonus") && parseInt(foundryItem.data.attackBonus) === 0) {
+        foundryItem.data.attackBonus = toHitBonus;
+      } else {
+        foundryItem.data.attackBonus += ` + ${toHitBonus}`;
+      }
+    }
+    if (damageBonus && foundryItem.data?.damage?.parts && foundryItem.data?.damage?.parts.length !== 0) {
+      foundryItem.data.damage.parts[0][0] = foundryItem.data.damage.parts[0][0].concat(` +${damageBonus}`);
+    } else if (damageBonus && foundryItem.data?.damage?.parts) {
+      const part = [`+${damageBonus}`, ""];
+      foundryItem.data.damage.parts.push(part);
+    }
+    if (costOverride) foundryItem.data.cost = costOverride;
+    if (weightOverride) foundryItem.data.weight = weightOverride;
+    if (silvered) foundryItem.data.properties['sil'] = true;
+    if (adamantine) foundryItem.data.properties['ada'] = true;
+    if (dcBonus) {
+      if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
+        foundryItem.data.save.dc = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
+        foundryItem.data.save.scaling = "flat";
+      }
+    }
+    if (dcOverride) {
+      foundryItem.data.save.dc = dcOverride;
+      foundryItem.data.save.scaling = "flat";
+    }
+    return foundryItem;
+  },
+
+  getName(ddb, item, character = null) {
     // spell name
-    const customName = utils.getCustomValue(data, character, 8);
+    const customName = character
+      ? utils.getCustomValueFromCharacter(item, character, 8)
+      : utils.getCustomValue(item, ddb, 8);
     if (customName) {
-      return customName;
-    } else if (data.definition?.name) {
-      return data.definition.name.replace("’", "'");
-    } else if (data.name) {
-      return data.name.replace("’", "'");
+      return customName.replace("’", "'");
+    } else if (item.definition?.name) {
+      return item.definition.name.replace("’", "'");
+    } else if (item.name) {
+      return item.name.replace("’", "'");
     } else {
-      logger.error("Unable to determine name for:", data);
+      logger.error("Unable to determine name for:", item);
       return "Unknown thing.";
     }
   }

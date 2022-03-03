@@ -27,17 +27,17 @@ function addFlagHints(ddb, character, action, feature) {
   const klassAction = ddb.character.actions.class
     .filter((ddbAction) => utils.findClassByFeatureId(ddb, ddbAction.componentId))
     .find((ddbAction) => {
-      const name = utils.getName(ddbAction, character);
+      const name = utils.getName(ddb, ddbAction, character);
       return name === feature.name;
     });
   const raceAction = ddb.character.actions.race
     .some((ddbAction) => {
-      const name = utils.getName(ddbAction, character);
+      const name = utils.getName(ddb, ddbAction, character);
       return name === feature.name;
     });
   const featAction = ddb.character.actions.feat
     .some((ddbAction) => {
-      const name = utils.getName(ddbAction, character);
+      const name = utils.getName(ddb, ddbAction, character);
       return name === feature.name;
     });
 
@@ -464,7 +464,7 @@ function getAttackAction(ddb, character, action) {
     ? "feat"
     : "weapon";
   let feature = {
-    name: utils.getName(action, character),
+    name: utils.getName(ddb, action, character),
     type: actionType,
     data: JSON.parse(utils.getTemplate(actionType)),
     flags: {
@@ -509,6 +509,8 @@ function getAttackAction(ddb, character, action) {
 
     feature = addFlagHints(ddb, character, action, feature);
     feature = addFeatEffects(ddb, character, action, feature);
+
+    feature = utils.addCustomValues(ddb, feature);
 
   } catch (err) {
     logger.warn(
@@ -603,7 +605,7 @@ function getOtherActions(ddb, character, items) {
     )
     .map((action) => {
       logger.debug(`Getting Other Action ${action.name}`);
-      let feat = {
+      let feature = {
         name: utils.getName(action, character),
         type: "feat",
         data: JSON.parse(utils.getTemplate("feat")),
@@ -623,25 +625,27 @@ function getOtherActions(ddb, character, items) {
         },
       };
       if (action.infusionFlags) {
-        setProperty(feat, "flags.infusions", action.infusionFlags);
+        setProperty(feature, "flags.infusions", action.infusionFlags);
       }
-      feat.data.activation = getActivation(action);
-      feat.data.description = getDescription(ddb, character, action);
-      feat.data.uses = getLimitedUse(action, character);
-      feat.data.consume = getResource(character, action);
+      feature.data.activation = getActivation(action);
+      feature.data.description = getDescription(ddb, character, action);
+      feature.data.uses = getLimitedUse(action, character);
+      feature.data.consume = getResource(character, action);
 
-      feat = calculateRange(action, feat);
-      feat = getAttackType(ddb, character, action, feat);
+      feature = calculateRange(action, feature);
+      feature = getAttackType(ddb, character, action, feature);
 
-      if (!feat.data.damage?.parts) {
+      if (!feature.data.damage?.parts) {
         logger.debug("Running level scale parser");
-        feat = getLevelScaleDice(ddb, character, action, feat);
+        feature = getLevelScaleDice(ddb, character, action, feature);
       }
 
-      feat = addFlagHints(ddb, character, action, feat);
-      feat = addFeatEffects(ddb, character, action, feat);
+      feature = addFlagHints(ddb, character, action, feature);
+      feature = addFeatEffects(ddb, character, action, feature);
 
-      return feat;
+      feature = utils.addCustomValues(ddb, feature);
+
+      return feature;
     });
 
   return actions;
