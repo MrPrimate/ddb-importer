@@ -22,13 +22,14 @@ async function getMonsterData(ids) {
   if (ids && ids.length > 0) {
     body.ids = [...new Set(ids)];
   } else {
-    const searchTerm = $("#monster-munch-filter")[0].value;
+    const searchFilter = $("#monster-munch-filter")[0];
+    const searchTerm = searchFilter?.value || "";
     const enableSources = game.settings.get("ddb-importer", "munching-policy-use-source-filter");
     const sources = enableSources
       ? game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat()
       : [];
     body.sources = sources;
-    body.search = $("#monster-munch-filter")[0].value;
+    body.search = searchTerm;
     body.homebrew = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
     body.homebrewOnly = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
     body.searchTerm = encodeURIComponent(searchTerm);
