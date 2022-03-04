@@ -1,3 +1,7 @@
+# 2.9.12
+
+* Auril's forms did not parse legendary resistance.
+
 # 2.9.11
 
 * Character Import: Actions which were not attacks imported with character name :screamblob: @MissCuddles#8010 @G.O.D.#0001

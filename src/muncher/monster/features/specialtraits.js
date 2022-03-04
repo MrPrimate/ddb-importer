@@ -211,7 +211,7 @@ export function getSpecialTraits(monster) {
     }
 
     // legendary resistance check
-    const actionMatch = node.textContent.match(/Legendary Resistance \((\d+)\/Day\)/);
+    const actionMatch = node.textContent.match(/Legendary Resistance \((\d+)\/Day/);
     if (actionMatch) {
       resistanceResource.value = parseInt(actionMatch[1]);
       resistanceResource.max = parseInt(actionMatch[1]);
