@@ -606,7 +606,7 @@ function getOtherActions(ddb, character, items) {
     .map((action) => {
       logger.debug(`Getting Other Action ${action.name}`);
       let feature = {
-        name: utils.getName(action, character),
+        name: utils.getName(ddb, action, character),
         type: "feat",
         data: JSON.parse(utils.getTemplate("feat")),
         flags: {

@@ -1,3 +1,7 @@
+# 2.9.11
+
+* Character Import: Actions which were not attacks imported with character name :screamblob: @MissCuddles#8010 @G.O.D.#0001
+
 # 2.9.10
 
 * Fix fo `fixCritters` function if import screen was not open.
