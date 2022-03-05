@@ -65,6 +65,10 @@ export function fixSpells(ddb, items) {
         spell.data.target = { value: 1, width: null, units: "", type: "object" };
         break;
       }
+      case "Guidance": {
+        spell.data.target = { value: 1, units: "", type: "creature" };
+        break;
+      }
       case "Aid": {
         spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
