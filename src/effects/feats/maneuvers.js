@@ -285,14 +285,14 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Trip Attack":
     case "Maneuvers: Disarming Attack":
     case "Maneuvers: Pushing Attack": {
-      // damage and save vs push should be split out into item macro
+      setProperty(effect, "flags.midiProperties.fulldam", true);
       setProperty(document, "data.damage.parts", [[`1d${dieValue}`]]);
       setProperty(document, "data.save", { ability: "str", dc: null, "scaling": ability });
       break;
     }
     case "Maneuvers: Menacing Attack":
     case "Maneuvers: Goading Attack": {
-      // damage and save vs push should be split out into item macro
+      setProperty(effect, "flags.midiProperties.fulldam", true);
       setProperty(document, "data.damage.parts", [[`1d${dieValue}`]]);
       setProperty(document, "data.save", { ability: "wis", dc: null, "scaling": ability });
       break;
