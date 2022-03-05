@@ -2,6 +2,7 @@
 
 * Auril's forms did not parse legendary resistance.
 * Effects: Maneuvers: Brace and Lunging Attack tweaked. New midiqol full damage flag set for those with a saving throw where damage is also applied regardless.
+* Spells: Guidance and Light spell tweaks for targets.
 
 # 2.9.11
 
