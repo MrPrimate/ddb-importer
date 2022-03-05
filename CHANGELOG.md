@@ -1,6 +1,7 @@
 # 2.9.12
 
 * Auril's forms did not parse legendary resistance.
+* Effects: Maneuvers: Brace and Lunging Attack .
 
 # 2.9.11
 

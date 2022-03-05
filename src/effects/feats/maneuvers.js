@@ -29,15 +29,13 @@ export async function maneuversEffect(ddb, character, document) {
       setProperty(effect, "flags.dae.specialDuration", ["longRest"]);
       break;
     }
-    case "Maneuvers: Brace": {
-      setProperty(effect, "duration.turns", 2);
-      break;
-    }
+    case "Maneuvers: Brace":
     case "Maneuvers: Riposte": {
       setProperty(effect, "flags.dae.specialDuration", ["1Attack:mwak"]);
       setProperty(effect, "duration.turns", 2);
       break;
     }
+    case "Maneuvers: Lunging Attack":
     case "Maneuvers: Sweeping Attack": {
       setProperty(effect, "duration.turns", 1);
       setProperty(effect, "flags.dae.specialDuration", ["1Attack:mwak"]);
