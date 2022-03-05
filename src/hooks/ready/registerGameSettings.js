@@ -1504,4 +1504,12 @@ export default function () {
     type: Boolean,
     default: true,
   });
+
+  game.settings.register("ddb-importer", "pact-spells-prepared", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
 }

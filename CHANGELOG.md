@@ -1,3 +1,7 @@
+# 2.9.13
+
+* Temporary work around for @Nikkimouse#4382 - Pact spells can now be marked as prepared during import by opening the browser console(F12) and entering `game.settings.set("ddb-importer", "pact-spells-prepared", true)`.
+
 # 2.9.12
 
 * Auril's forms did not parse legendary resistance.

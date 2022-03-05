@@ -25,6 +25,8 @@ function classSpell(data, result) {
   if (result.mode === "pact" && data.definition.level === 0) {
     result.mode = "prepared";
     result.prepared = true;
+  } else if (result.mode === "pact" && game.settings.get("ddb-importer", "pact-spells-prepared")) {
+    result.prepared = true;
   }
   return result;
 }
