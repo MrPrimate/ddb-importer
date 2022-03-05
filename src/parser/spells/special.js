@@ -61,6 +61,10 @@ export function fixSpells(ddb, items) {
         spell.data.range.value += eldritchBlastMods["range"];
         break;
       }
+      case "Light": {
+        spell.data.target = { value: 1, width: null, units: "", type: "object" };
+        break;
+      }
       case "Aid": {
         spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
