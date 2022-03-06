@@ -1,6 +1,7 @@
 # 2.9.13
 
 * Temporary work around for @Nikkimouse#4382 - Pact spells can now be marked as prepared during import by opening the browser console(F12) and entering `game.settings.set("ddb-importer", "pact-spells-prepared", true)`.
+* Effects: Vicious Mockery tweaked.
 
 # 2.9.12
 
