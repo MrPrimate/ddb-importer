@@ -69,7 +69,7 @@ export async function maneuversEffect(ddb, character, document) {
     }
     case "Maneuvers: Feinting Attack": {
       setProperty(effect, "duration.turns", 1);
-      setProperty(effect, "flags.dae.specialDuration", ["1Attack:mwak", "1Attack:rwak"]);
+      setProperty(effect, "flags.dae.specialDuration", ["1Attack"]);
       break;
     }
     case "Maneuvers: Trip Attack": {
