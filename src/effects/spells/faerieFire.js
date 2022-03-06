@@ -9,9 +9,12 @@ export async function faerieFireEffect(document) {
     value: "1",
     priority: "20",
   });
-  const itemMacroText = await loadMacroFile("spell", "faerieFire.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
-  effect.changes.push(generateMacroChange(""));
+
+  if (game.modules.get("ATL")?.active) {
+    const itemMacroText = await loadMacroFile("spell", "faerieFire.js");
+    document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+    effect.changes.push(generateMacroChange("", 20, true));
+  }
 
   if (spellEffectModules().tokenMagicInstalled) {
     effect.changes.push(generateTokenMagicFXChange("glow"));
