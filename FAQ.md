@@ -117,6 +117,10 @@ for (let [key, value] of actors.entries()) {
 }
 ```
 
+## My Pact Spells are not marked as prepared
+
+Pact spells can be marked as prepared during import by opening the browser console(F12) and enter `game.settings.set("ddb-importer", "pact-spells-prepared", true)`.
+
 ## My Homebrew doesn't import!
 
 You need to try and match the style and html formatting of official monsters.
