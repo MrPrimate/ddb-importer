@@ -152,7 +152,7 @@ async function addNPCToCompendium(npc) {
     }
 
     // using compendium folders?
-    await compendiumFolders(compendiumNPC, "npc");
+    if (compendiumNPC) await compendiumFolders(compendiumNPC, "npc");
   } else {
     logger.error("Error opening compendium, check your settings");
   }
