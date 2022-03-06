@@ -90,9 +90,10 @@ export function generateItemMacroFlag(document, macroText) {
   };
 }
 
-export function generateMacroChange(macroValues, priority = 20) {
+export function generateMacroChange(macroValues, priority = 20, local = false) {
+  const macroKey = local ? "macro.itemMacro.local" : "macro.itemMacro";
   return {
-    key: "macro.itemMacro",
+    key: macroKey,
     value: macroValues,
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: priority,
