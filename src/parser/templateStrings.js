@@ -35,14 +35,24 @@ const getScalingValue = (feature) => {
  * @param {*} match
  * @param {*} feature
  */
+// eslint-disable-next-line complexity
 let parseMatch = (ddb, character, match, feature) => {
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+  const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
+    .flat()
+    .find((option) => option.definition.id === feature.componentId);
 
   // scalevalue
   if (result.includes("scalevalue")) {
-    const feat = feature.levelScale ? feature : utils.findComponentByComponentId(ddb, feature.componentId);
+    let feat = feature.levelScale ? feature : utils.findComponentByComponentId(ddb, feature.componentId);
+    if (!feat && hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
+      feat = utils.findComponentByComponentId(ddb, feature.flags.ddbimporter.dndbeyond.choice.componentId);
+    }
+    if (!feat && classOption) {
+      feat = utils.findComponentByComponentId(ddb, classOption.componentId);
+    }
     const scaleValue = getScalingValue(feat);
     result = result.replace("scalevalue", scaleValue);
   }
@@ -91,24 +101,21 @@ let parseMatch = (ddb, character, match, feature) => {
       : utils.findClassByFeatureId(ddb, feature.componentId);
     if (cls) {
       result = result.replace("classlevel", cls.level);
-    } else {
+    } else if (classOption) {
       // still not found a cls? could be an option
-      const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
-        .flat()
-        .find((option) => option.definition.id === feature.componentId);
-      if (!classOption) {
-        if (!feature.componentId) {
-          logger.debug("Feature failed componentID parse", feature);
-        }
-        logger.error(`Unable to parse option class info. ComponentId is ${feature.componentId}`);
+      const optionCls = utils.findClassByFeatureId(ddb, classOption.componentId);
+      if (optionCls) {
+        result = result.replace("classlevel", optionCls.level);
       } else {
-        const optionCls = utils.findClassByFeatureId(ddb, classOption.componentId);
-        if (optionCls) {
-          result = result.replace("classlevel", optionCls.level);
-        } else {
-          logger.error(`Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${feature.componentId}`);
-        }
+        logger.error(
+          `Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${feature.componentId}`
+        );
       }
+    } else {
+      if (!feature.componentId) {
+        logger.debug("Feature failed componentID parse", feature);
+      }
+      logger.error(`Unable to parse option class info. ComponentId is ${feature.componentId}`);
     }
   }
 
@@ -232,13 +239,15 @@ function parseSRDLinks(text) {
     CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
     CONFIG.DDBI.SRD_LOOKUP.lookups.senses,
     // CONFIG.DDBI.SRD_LOOKUP.lookups.weaponproperties,
-  ].flat().forEach((entry) => {
-    const linkRegEx = new RegExp(`${entry.name}`, "ig");
-    function replaceRule(match) {
-      return `@Compendium[${entry.compendium}.${entry.documentName}]{${match}}`;
-    }
-    text = text.replaceAll(linkRegEx, replaceRule);
-  });
+  ]
+    .flat()
+    .forEach((entry) => {
+      const linkRegEx = new RegExp(`${entry.name}`, "ig");
+      function replaceRule(match) {
+        return `@Compendium[${entry.compendium}.${entry.documentName}]{${match}}`;
+      }
+      text = text.replaceAll(linkRegEx, replaceRule);
+    });
   return text;
 }
 
@@ -265,12 +274,15 @@ export function parseTags(text) {
  */
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;
+  if (typeof text.replaceAll === "function") {
+    text = text.replaceAll(/\r?\n/g, "<br />");
+  }
   let result = {
     id: feature.id,
     entityTypeId: feature.entityTypeId,
-    componentId: (feature.componentId) ? feature.componentId : null,
-    componentTypeId: (feature.componentTypeId) ? feature.componentTypeId : null,
-    damageTypeId: (feature.damageTypeId) ? feature.damageTypeId : null,
+    componentId: feature.componentId ? feature.componentId : null,
+    componentTypeId: feature.componentTypeId ? feature.componentTypeId : null,
+    damageTypeId: feature.damageTypeId ? feature.damageTypeId : null,
     text: text,
     resultString: "",
     definitions: [],
@@ -293,7 +305,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
     const splitMatchAt = splitRemoveUnsigned.split("@");
     const parsedMatch = parseMatch(ddb, character, splitRemoveUnsigned, feature);
     const dicePattern = /\d*d\d\d*/;
-    const typeSplit = splitMatchAt[0].split(':');
+    const typeSplit = splitMatchAt[0].split(":");
     entry.type = typeSplit[0];
     if (typeSplit.length > 1) entry.subType = typeSplit[1];
     // do we have a dice string, e.g. sneak attack?
