@@ -1,6 +1,8 @@
 # 2.9.14
 
 * If using compendium folders reimport of monsters could fail.
+* Feature and action descriptions now use `<details>` tag to hide full description.
+* Better detection for scalevalue tags for features like Drakewarden.
 
 # 2.9.13
 
