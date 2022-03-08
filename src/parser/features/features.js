@@ -1,44 +1,7 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
-import parseTemplateString from "../templateStrings.js";
-import { fixFeatures, stripHtml, addFeatEffects, addExtraEffects } from "./special.js";
+import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
 import { getBackgroundData } from "../character/bio.js";
-
-function getDescription(ddb, character, feat) {
-  // for now none actions probably always want the full text
-  // const useFull = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
-  const useFull = true;
-  let snippet = "";
-  let description = "";
-
-  if (feat.definition?.snippet) {
-    snippet = parseTemplateString(ddb, character, feat.definition.snippet, feat).text;
-  } else if (feat.snippet) {
-    snippet = parseTemplateString(ddb, character, feat.snippet, feat).text;
-  } else {
-    snippet = "";
-  }
-
-  if (feat.definition?.description) {
-    description = parseTemplateString(ddb, character, feat.definition.description, feat).text;
-  } else if (feat.description) {
-    description = parseTemplateString(ddb, character, feat.description, feat).text;
-  } else {
-    description = "";
-  }
-
-  if (stripHtml(description) === snippet) snippet = "";
-
-  const fullDescription = description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet;
-  const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
-  const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
-
-  return {
-    value: value,
-    chat: chatAdd ? snippet : "",
-    unidentified: "",
-  };
-}
 
 function parseFeature(feat, ddb, character, source, type) {
   let features = [];
@@ -89,7 +52,7 @@ function parseFeature(feat, ddb, character, source, type) {
   if (type === "background") {
     logger.debug(`Found background ${feat.name}`);
     logger.debug(`Found ${choices.map((c) => c.label).join(",")}`);
-    item.data.description = getDescription(ddb, character, feat);
+    item.data.description = getDescription(ddb, character, feat, true);
     item.data.description.value += `<h3>Choices</h3><ul>`;
     item.data.source = source;
     choices.forEach((choice) => {
@@ -127,8 +90,10 @@ function parseFeature(feat, ddb, character, source, type) {
             : choiceFeat.snippet;
         }
       }
+      // add these flags in so they can be used by the description parser
+      setProperty(choiceFeat, "flags.ddbimporter.dndbeyond.choice", choice);
 
-      choiceItem.data.description = getDescription(ddb, character, choiceFeat);
+      choiceItem.data.description = getDescription(ddb, character, choiceFeat, false);
       choiceItem.data.source = source;
       choiceItem.flags.ddbimporter.dndbeyond.choice = {
         label: choice.label,
@@ -138,13 +103,15 @@ function parseFeature(feat, ddb, character, source, type) {
         parentChoiceId: choice.parentChoiceId,
         subType: choice.subType,
         wasOption: choice.wasOption,
+        entityTypeId: choice.entityTypeId,
+        type: choice.type,
       };
 
       choiceItem = addFeatEffects(ddb, character, feat, choiceItem, choice, type);
       features.push(choiceItem);
     });
   } else {
-    item.data.description = getDescription(ddb, character, feat);
+    item.data.description = getDescription(ddb, character, feat, true);
     item.data.source = source;
     item = addFeatEffects(ddb, character, feat, item, undefined, type);
 

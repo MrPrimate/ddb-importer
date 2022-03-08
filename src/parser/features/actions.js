@@ -1,8 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils.js";
-import parseTemplateString from "../templateStrings.js";
-import { fixFeatures, stripHtml, addFeatEffects, addExtraEffects } from "./special.js";
+import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
 import { getInfusionActionData } from "../inventory/infusions.js";
 
 function getResourceFlags(character, action, flags) {
@@ -191,7 +190,7 @@ function getLevelScaleDice(ddb, character, action, feat) {
     });
 
   feat.data.damage = {
-    parts: parts,
+    parts,
     versatile: "",
   };
 
@@ -306,21 +305,6 @@ function getLimitedUse(action, character) {
       per: "",
     };
   }
-}
-
-function getDescription(ddb, character, action) {
-  const useFull = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
-  let snippet = action.snippet ? parseTemplateString(ddb, character, action.snippet, action).text : "";
-  const description = action.description ? parseTemplateString(ddb, character, action.description, action).text : "";
-  if (stripHtml(description).trim() === stripHtml(snippet).trim()) snippet = "";
-  const fullDescription = description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet;
-  const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
-  const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
-  return {
-    value: value,
-    chat: chatAdd ? snippet : "",
-    unidentified: "",
-  };
 }
 
 function getActivation(action) {
@@ -494,6 +478,7 @@ function getAttackAction(ddb, character, action) {
         type: "Martial Arts",
       };
     }
+    const choice = utils.getChoices(ddb, type, feat);
 
     feature.data.proficient = action.isProficient ? 1 : 0;
     feature.data.description = getDescription(ddb, character, action);
@@ -509,6 +494,7 @@ function getAttackAction(ddb, character, action) {
 
     feature = addFlagHints(ddb, character, action, feature);
     feature = addFeatEffects(ddb, character, action, feature);
+    feature = getLevelScaleDice(ddb, character, action, feature);
 
     feature = utils.addCustomValues(ddb, feature);
 

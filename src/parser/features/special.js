@@ -5,6 +5,7 @@ import { generateEffects } from "../../effects/effects.js";
 import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { generateTable } from "../../muncher/table.js";
 import { generateExtraEffects } from "../../effects/specialFeats.js";
+import parseTemplateString from "../templateStrings.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
   // console.warn(ddbItem);
@@ -94,7 +95,8 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
   return item;
 }
 
-const badDupes = ["Maneuvers: "];
+// const badDupes = ["Maneuvers: ", "Cosmic Omen"];
+const allowDupes = [];
 
 export function removeActionFeatures(actions, features) {
   const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
@@ -113,10 +115,8 @@ export function removeActionFeatures(actions, features) {
   features = features
     .filter((feature) =>
       actionAndFeature ||
-      !actions.some((action) =>
-        feature.name === action.name &&
-        (action.flags.ddbimporter.componentId == feature.flags.ddbimporter.id || badDupes.some((dupe) => action.name.startsWith(dupe)))
-      )
+      allowDupes.includes(feature.name) ||
+      !actions.some((action) => action.name.trim().toLowerCase() === feature.name.trim().toLowerCase())
     )
     .map((feature) => {
       const actionMatch = actionAndFeature && actions.some((action) => feature.name === action.name);
@@ -142,6 +142,66 @@ function setConsumeAmount(feature) {
   }
   return feature;
 }
+
+function buildFullDescription(main, summary, title) {
+  let result = "";
+
+  if (summary && summary !== main && summary.trim() != "") {
+    result += summary.trim();
+    result += `
+<details>
+  <summary>
+    ${title ? title : "More Details"}
+  </summary>
+  <p>
+    ${main}
+  </p>
+</details>`;
+  } else {
+    result += main;
+  }
+
+  return result;
+}
+
+export function getDescription(ddb, character, feat, forceFull = false) {
+  // for now none actions probably always want the full text
+  const useFullSetting = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
+  const useFull = forceFull || useFullSetting;
+  const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
+
+  let snippet = "";
+  let description = "";
+
+  if (feat.definition?.snippet) {
+    snippet = parseTemplateString(ddb, character, feat.definition.snippet, feat).text;
+  } else if (feat.snippet) {
+    snippet = parseTemplateString(ddb, character, feat.snippet, feat).text;
+  } else {
+    snippet = "";
+  }
+
+  if (feat.definition?.description) {
+    description = parseTemplateString(ddb, character, feat.definition.description, feat).text;
+  } else if (feat.description) {
+    description = parseTemplateString(ddb, character, feat.description, feat).text;
+  } else {
+    description = "";
+  }
+
+  if (stripHtml(description) === snippet) snippet = "";
+
+  // const fullDescription = description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet;
+  const fullDescription = buildFullDescription(description, snippet);
+  const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
+
+  return {
+    value: value,
+    chat: chatAdd ? snippet : "",
+    unidentified: "",
+  };
+}
+
 
 /**
  * Some features we need to fix up or massage because they are modified
