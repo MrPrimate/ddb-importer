@@ -52,8 +52,13 @@ It might also be because your AC settings in the "Active Effects" tab is incorre
 
 ## My characters hit points are wrong
 
-First try adding a level and removing it, sometimes the underlying JSON cna get stuck on another level.
+First try adding a level and removing it, sometimes the underlying JSON can get stuck on another level.
 
+# Why do not all monsters have descriptions
+
+It uses the data that comes off the Encounter Builder as it's provide it's in JSON/structured way which makes parsing quick and "easy". However, not all the monsters there have the description that is on the full monster page.
+
+TLDR: only the description available via the encounter builder on DDB gets pulled in for monsters.
 
 ## Explain Active Effects
 
