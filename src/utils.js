@@ -477,6 +477,7 @@ const utils = {
             result.choiceId = choice.id;
             result.parentChoiceId = choice.parentChoiceId;
             result.subType = choice.subType;
+            result.type = type;
             result.wasOption = false;
             return result;
           });
@@ -499,6 +500,7 @@ const utils = {
             .map((option) => {
               return {
                 id: option.definition.id,
+                entityTypeId: option.definition.entityTypeId,
                 label: option.definition.name,
                 description: option.definition.description,
                 componentId: option.componentId,
@@ -507,6 +509,7 @@ const utils = {
                 sourceId: option.definition.sourceId,
                 parentChoiceId: null,
                 subType: `${type}-option`,
+                type: type,
                 wasOption: true,
               };
             });
