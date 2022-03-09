@@ -1177,7 +1177,8 @@ export default class CharacterImport extends FormApplication {
     this.result.character.flags.ddbimporter["activeUpdate"] = false;
     this.result.character.flags.ddbimporter["activeSyncSpells"] = true;
     // remove unneeded flags (used for character parsing)
-    this.result.character.flags.ddbimporter.dndbeyond["templateStrings"] = null;
+    console.warn(this.result.character.flags.ddbimporter.dndbeyond["templateStrings"]);
+   // this.result.character.flags.ddbimporter.dndbeyond["templateStrings"] = null;
     this.result.character.flags.ddbimporter.dndbeyond["characterValues"] = null;
     this.result.character.flags.ddbimporter.dndbeyond["proficiencies"] = null;
     this.result.character.flags.ddbimporter.dndbeyond["proficienciesIncludingEffects"] = null;

@@ -274,6 +274,8 @@ export function parseTags(text) {
  */
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;
+
+  text = text.replace(/\r\n•/g, "</p>\r\n<p>&bull;");
   let result = {
     id: feature.id,
     entityTypeId: feature.entityTypeId,

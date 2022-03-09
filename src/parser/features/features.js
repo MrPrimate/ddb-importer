@@ -39,6 +39,20 @@ function parseFeature(feat, ddb, character, source, type) {
     setProperty(item.flags, "ddbimporter.dndbeyond.limitedUse", klassAction.definition?.limitedUse);
   }
 
+  if (!klassAction) {
+    const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
+      .flat()
+      .find((option) => option.definition.id === feat.componentId);
+    if (classOption) {
+      const classOptionLink = utils.findComponentByComponentId(ddb, classOption.componentId);
+      if (classOptionLink) {
+        setProperty(item.flags, "ddbimporter.dndbeyond.levelScale", classOptionLink.levelScale);
+        setProperty(item.flags, "ddbimporter.dndbeyond.levelScales", classOptionLink.definition?.levelScales);
+        setProperty(item.flags, "ddbimporter.dndbeyond.limitedUse", classOptionLink.definition?.limitedUse);
+      }
+    }
+  }
+
   if (feat?.requiredLevel) {
     const klass = ddb.character.classes.find((klass) => klass.definition.id === feat.classId);
     if (klass && feat.requiredLevel > klass.level) return [];
