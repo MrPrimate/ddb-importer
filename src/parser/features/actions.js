@@ -478,7 +478,6 @@ function getAttackAction(ddb, character, action) {
         type: "Martial Arts",
       };
     }
-    const choice = utils.getChoices(ddb, type, feat);
 
     feature.data.proficient = action.isProficient ? 1 : 0;
     feature.data.description = getDescription(ddb, character, action);
