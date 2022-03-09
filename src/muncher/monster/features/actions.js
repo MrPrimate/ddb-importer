@@ -1,5 +1,6 @@
 import { getSource } from "../source.js";
-import { getActionInfo, getAction, getUses, stripHtml, replaceRollable } from "../utils.js";
+import { getActionInfo, getAction, getUses, replaceRollable } from "../utils.js";
+import { stripHtml } from "../../utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../table.js";
 

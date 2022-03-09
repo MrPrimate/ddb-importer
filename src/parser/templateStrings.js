@@ -274,9 +274,6 @@ export function parseTags(text) {
  */
 export default function parseTemplateString(ddb, character, text, feature) {
   if (!text) return text;
-  if (typeof text.replaceAll === "function") {
-    text = text.replaceAll(/\r?\n/g, "<br />");
-  }
   let result = {
     id: feature.id,
     entityTypeId: feature.entityTypeId,
@@ -342,5 +339,6 @@ export default function parseTemplateString(ddb, character, text, feature) {
   // result.text = await parseTags(result.text);
   result.text = parseTags(result.text);
   character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
+
   return result;
 }
