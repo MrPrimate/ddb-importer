@@ -91,6 +91,20 @@
     "path": "icons/sundries/books/book-tooled-eye-gold-red.webp"
   },
   {
+    "name": "Sorcery Points",
+    "class_feature": "Sorcery Points",
+    "class": "Sorcerer",
+    "subclass": "",
+    "path": "icons/magic/symbols/rune-sigil-red-orange.webp"
+  },
+  {
+    "name": "Convert Sorcery Points",
+    "class_feature": "Convert Sorcery Points",
+    "class": "Sorcerer",
+    "subclass": "",
+    "path": "icons/magic/symbols/triangle-glow-purple.webp"
+  },
+  {
     "name": "Additional Warlock Spells",
     "class_feature": "Additional Warlock Spells",
     "class": "Warlock",
