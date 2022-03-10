@@ -285,7 +285,6 @@ const resourceFeatureLinkMap = {
   "Psionic Power: Psionic Energy": [
     "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
     "Psionic Power: Psi-Bolstered Knack", "Soul Blades: Homing Strikes", "Soul Blades: Psychic Teleportation",
-    ""
   ],
   "Ki Points": [
     "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",

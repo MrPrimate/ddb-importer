@@ -1,3 +1,7 @@
+# 2.9.15
+
+* Character imports: Psi Warrior : would set all weapons to consume Psionic Energy :grimace:
+
 # 2.9.14
 
 * If using compendium folders reimport of monsters could fail.
