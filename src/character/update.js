@@ -319,7 +319,8 @@ async function conditions(actor, ddbData) {
     getActorConditionStates(actor, ddbData.ddb).then((conditions) => {
       let results = [];
       conditions.forEach((condition) => {
-        if (condition.needsUpdate) {
+        // ehaustion handled seperately
+        if (condition.needsUpdate && condition.ddbId !== 4) {
           results.push(updateDDBCondition(actor, condition));
         }
       });

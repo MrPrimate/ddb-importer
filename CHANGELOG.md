@@ -1,3 +1,7 @@
+# 2.9.16
+
+* Character Updates: Exhaustion updates could be inconsistent.
+
 # 2.9.15
 
 * Character imports: Psi Warrior : would set all weapons to consume Psionic Energy :grimace:
