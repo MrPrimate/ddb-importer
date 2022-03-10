@@ -149,7 +149,7 @@ function stringKindaEqual(a, b) {
 function buildFullDescription(main, summary, title) {
   let result = "";
 
-  if (summary && !stringKindaEqual(main, summary) && summary.trim() != "") {
+  if (summary && !stringKindaEqual(main, summary) && summary.trim() !== "" && main.trim() !== "") {
     result += summary.trim();
     result += `
 <details>
@@ -157,11 +157,13 @@ function buildFullDescription(main, summary, title) {
     ${title ? title : "More Details"}
   </summary>
   <p>
-    ${main}
+    ${main.trim()}
   </p>
 </details>`;
+  } else if (main.trim() === "") {
+    result += summary.trim();
   } else {
-    result += main;
+    result += main.trim();
   }
 
   return result;
@@ -402,6 +404,12 @@ export function fixFeatures(features) {
       case "Psionic Power: Recovery": {
         feature.data.damage = { parts: [], versatile: "", value: "" };
         setProperty(feature, "data.consume.amount", -1);
+        break;
+      }
+      case "Extra Attack": {
+        feature.data.activation = { type: "", cost: 0, condition: "" };
+        feature.data.actionType = "";
+        feature.data["range"]["value"] = null;
         break;
       }
       // no default

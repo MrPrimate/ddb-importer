@@ -443,8 +443,10 @@ function getAttackType(ddb, character, action, weapon) {
   return weapon;
 }
 
+const excludedActionFeatures = ["Unarmed Strike"];
+
 function getAttackAction(ddb, character, action) {
-  const actionType = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features")
+  const actionType = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features") && !excludedActionFeatures.includes(action.name)
     ? "feat"
     : "weapon";
   let feature = {
