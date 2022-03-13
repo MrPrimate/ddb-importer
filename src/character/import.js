@@ -1154,7 +1154,7 @@ export default class CharacterImport extends FormApplication {
       this.result.character.data.currency = this.actorOriginal.data.currency;
     }
     if (!game.settings.get("ddb-importer", "character-update-policy-bio")) {
-      const bioUpdates = ["alignment", "appearance", "background", "biography", "bond", "flaw", "idea", "trait"];
+      const bioUpdates = ["alignment", "appearance", "background", "biography", "bond", "flaw", "ideal", "trait"];
       bioUpdates.forEach((option) => {
         this.result.character.data.details[option] = this.actorOriginal.data.details[option];
       });

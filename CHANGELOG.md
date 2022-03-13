@@ -1,6 +1,7 @@
 # 2.9.16
 
 * Character Updates: Exhaustion updates could be inconsistent.
+* Character Import: When ignoring bio the ideals would still be imported.
 
 # 2.9.15
 

@@ -14,9 +14,7 @@ export function getBackground(data) {
 
 export function getTrait(data) {
   let result = data.character.traits.personalityTraits;
-  if (result !== null) {
-    return result;
-  } else {
+  if (result === null) {
     result = "";
   }
   return result;
@@ -24,9 +22,7 @@ export function getTrait(data) {
 
 export function getIdeal(data) {
   let result = data.character.traits.ideals;
-  if (result !== null) {
-    return result;
-  } else {
+  if (result === null) {
     result = "";
   }
   return result;
@@ -48,10 +44,8 @@ function getCharacteristics(data) {
 export function getAppearance(data) {
   let result = getCharacteristics(data);
   if (result && result !== "") result += "\n";
-  result += data.character.traits.appearance;
-  if (result !== null) {
-    return result;
-  } else {
+  if (data.character.traits.appearance) result += data.character.traits.appearance;
+  if (result === null) {
     result = "";
   }
   return result;
@@ -59,9 +53,7 @@ export function getAppearance(data) {
 
 export function getBond(data) {
   let result = data.character.traits.bonds;
-  if (result !== null) {
-    return result;
-  } else {
+  if (result === null) {
     result = "";
   }
   return result;
@@ -69,9 +61,7 @@ export function getBond(data) {
 
 export function getFlaw(data) {
   let result = data.character.traits.flaws;
-  if (result !== null) {
-    return result;
-  } else {
+  if (result === null) {
     result = "";
   }
   return result;
