@@ -5,7 +5,7 @@ if (lastArg.failedSaveUuids.length > 0) {
   const casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   const casterToken = await fromUuid(lastArg.tokenUuid);
   const damageType = "necrotic";
-  const targets = await Promise.all(lastArg.failedSaveUuids.map(async (uuid) => await fromUuid(uuid)));
+  const targets = lastArg.failedSaves.map((fs) => canvas.tokens.get(fs.id));
 
   // assuming single target for spell
   const damageDiceType = targets[0].actor.data.data.attributes.hp.max != targets[0].actor.data.data.attributes.hp.value ? 12 : 8;

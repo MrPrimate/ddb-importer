@@ -2,6 +2,7 @@
 
 * Character Updates: Exhaustion updates could be inconsistent.
 * Character Import: When ignoring bio the ideals would still be imported.
+* Effects: Toll the Dead Error if using Automated Animations.
 
 # 2.9.15
 
