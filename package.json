@@ -11,7 +11,7 @@
     "build": "webpack"
   },
   "devDependencies": {
-    "eslint": "^7.32.0",
+    "eslint": "^8.11.0",
     "eslint-config-prettier": "^8.3.0",
     "prettier": "2.3.2",
     "terser": "^5.10.0",
