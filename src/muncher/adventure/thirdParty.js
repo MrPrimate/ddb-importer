@@ -29,7 +29,7 @@ export default class ThirdPartyMunch extends FormApplication {
       classes: ["ddb-adventure-import"],
       title: "Third Party Munch",
       template: "modules/ddb-importer/handlebars/adventure/import-third.hbs",
-      width: 350,
+      width: 400,
       height: "auto",
     });
   }
