@@ -4,7 +4,7 @@ import logger from '../../logger.js';
 
 function parseSpellcasting(text) {
   let spellcasting = "";
-  const abilitySearch = "(?:spellcasting ability is|uses) (\\w+)(?: as \\w+ spellcasting ability| )";
+  const abilitySearch = "(?:spellcasting ability is|uses|using) (\\w+)(?: as \\w+ spellcasting ability| )";
   const match = text.match(abilitySearch);
   if (match) {
     spellcasting = match[1].toLowerCase().substr(0, 3);
