@@ -4,6 +4,7 @@
 * Better handling of non-english SRD.
 * Initial work on support for some features hopefully coming in D&D v1.6.0
 * Monsters: Monster features/attacks like the Giant Spiders Bite which have a secondary damage vs save effect will now attempt to put this damage into the versatile field, as per SRD style. This also allows for midi-qol to use and automate this save and damage.
+* Monsters: some tweaks for Netherdeep monster parsing.
 
 # 2.9.16
 
