@@ -139,15 +139,18 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
   result.index = srdIndex;
 
   const skillEntry = srdIndex.find((i) => i.name === "Using Each Ability");
-  result.lookups.skills = CONFIG.DDB.abilitySkills.map((skill) => {
-    return {
-      id: skill.id,
-      _id: skillEntry.id,
-      name: skill.name,
-      compendium: rulesCompendium,
-      documentName: skillEntry.name,
-    };
-  });
+  if (skillEntry) {
+    result.lookups.skills = CONFIG.DDB.abilitySkills.map((skill) => {
+      return {
+        id: skill.id,
+        _id: skillEntry.id,
+        name: skill.name,
+        compendium: rulesCompendium,
+        documentName: skillEntry.name,
+      };
+    });
+  }
+
   result.lookups.senses = CONFIG.DDB.senses.filter((sense) => srdIndex.some((i) => i.name === sense.name))
     .map((sense) => {
       const entry = srdIndex.find((i) => i.name === sense.name);
@@ -174,26 +177,30 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
     });
 
   const actionEntry = srdIndex.find((i) => i.name === "Actions in Combat");
-  result.lookups.actions = CONFIG.DDB.basicActions.map((action) => {
-    return {
-      id: action.id,
-      _id: actionEntry.id,
-      name: action.name,
-      compendium: rulesCompendium,
-      documentName: actionEntry.name,
-    };
-  });
+  if (actionEntry) {
+    result.lookups.actions = CONFIG.DDB.basicActions.map((action) => {
+      return {
+        id: action.id,
+        _id: actionEntry.id,
+        name: action.name,
+        compendium: rulesCompendium,
+        documentName: actionEntry.name,
+      };
+    });
+  }
 
   const weaponPropertiesEntry = srdIndex.find((i) => i.name === "Weapons");
-  result.lookups.weaponproperties = CONFIG.DDB.weaponProperties.map((prop) => {
-    return {
-      id: prop.id,
-      _id: weaponPropertiesEntry.id,
-      name: prop.name,
-      compendium: rulesCompendium,
-      documentName: weaponPropertiesEntry.name,
-    };
-  });
+  if (weaponPropertiesEntry) {
+    result.lookups.weaponproperties = CONFIG.DDB.weaponProperties.map((prop) => {
+      return {
+        id: prop.id,
+        _id: weaponPropertiesEntry.id,
+        name: prop.name,
+        compendium: rulesCompendium,
+        documentName: weaponPropertiesEntry.name,
+      };
+    });
+  }
 
   // vehicles
   if (!customProxy && cobalt) {
