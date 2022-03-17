@@ -137,9 +137,11 @@ async function createGMMacro(name, content, img) {
 }
 
 export async function createGMMacros() {
-  await checkMacroFolder();
-  const gmMacroText = await loadMacroFile("gm", "darkness.js");
-  await createGMMacro("Darkness (DDB - GM)", gmMacroText, "systems/dnd5e/icons/skills/shadow_10.jpg");
+  if (game.user.isGM) {
+    await checkMacroFolder();
+    const gmMacroText = await loadMacroFile("gm", "darkness.js");
+    await createGMMacro("Darkness (DDB - GM)", gmMacroText, "systems/dnd5e/icons/skills/shadow_10.jpg");
+  }
 }
 
 
