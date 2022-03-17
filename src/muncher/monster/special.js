@@ -27,6 +27,12 @@ function absorption(monster) {
 // these are non-compliant monsters
 export function specialCases(monster) {
   switch (monster.name) {
+    case "Hypnos Magen": {
+      monster.flags.monsterMunch.spellList.atwill = ["Suggestion"];
+      monster.flags.monsterMunch.spellList.material = false;
+      monster.data.attributes.spellcasting = "int";
+      break;
+    }
     case "Sephek Kaltro": {
       monster.flags.monsterMunch.spellList.innate = [{ name: "Misty Step", type: "day", value: 3 }];
       monster.flags.monsterMunch.spellList.material = false;

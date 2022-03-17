@@ -70,7 +70,7 @@ function getExtendedDamage(description, attackInfo) {
   // console.warn(hit);
   // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
   // eslint-disable-next-line no-useless-escape
-  const damageExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of)?/);
+  const damageExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/);
   const matches = reMatchAll(damageExpression, hit) || [];
   const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
   const regainMatch = hit.match(regainExpression);
@@ -96,6 +96,12 @@ function getExtendedDamage(description, attackInfo) {
       const finalDamage = (attackInfo && includesDice)
         ? damageModReplace(damage.replace("plus", "+"), attackInfo, dmg[4])
         : damage.replace("plus", "+");
+
+      // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
+      // versatile for damage
+      if (dmg[5] && dmg[5].trim() == "on a failed save" && result.damage.parts.length >= 1) {
+        versatile = true;
+      }
       // assumption here is that there is just one field added to versatile. this is going to be rare.
       if (other) {
         if (result.formula == "") result.formula = finalDamage;
@@ -117,10 +123,10 @@ function getExtendedDamage(description, attackInfo) {
     result.damage.parts.push([utils.parseDiceString(regainMatch[3], null, damageHint).diceString, 'healing']);
   }
 
-  const save = hit.match(/DC ([0-9]+) (.*?) saving throw/);
+  const save = hit.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
   if (save) {
     result.save.dc = save[1];
-    result.save.ability = save[2].toLowerCase().substr(0, 3);
+    result.save.ability = save[2] ? save[2].toLowerCase().substr(0, 3) : "";
   } else {
     const escape = hit.match(/escape DC ([0-9]+)/);
     if (escape) {
