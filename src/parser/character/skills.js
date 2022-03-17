@@ -88,6 +88,25 @@ let getCustomSkillBonus = (data, skill) => {
   return 0;
 };
 
+function setSpecial(data, skills) {
+  if (utils.versionCompare(game.data.system.data.version, "1.5.0") >= 0) {
+    data.character.classes.forEach((klass) => {
+      if (klass.subclassDefinition) {
+        // Improved Critical
+        const silverTongue = klass.subclassDefinition.classFeatures.some(
+          (feature) => feature.name === "Silver Tongue" && klass.level >= feature.requiredLevel
+        );
+
+        // supported in v1.6.0 (hopefully)
+        if (silverTongue) {
+          skills["per"].bonuses.minimum = 10;
+          skills["dec"].bonuses.minimum = 10;
+        }
+      }
+    });
+  }
+  return skills;
+}
 
 export function getSkills(data, character) {
   let result = {};
@@ -179,13 +198,15 @@ export function getSkills(data, character) {
     if (SAVE_BONUSES) {
       result[skill.name].bonuses = {
         "check": `${skillBonus}`,
-        "passive": ""
+        "passive": "",
+        "minimum": null,
       };
     } else {
       result[skill.name].bonus = skillBonus;
     }
   });
 
+  result = setSpecial(data, result);
   return result;
 }
 
