@@ -264,7 +264,6 @@ export async function maneuversEffect(ddb, character, document) {
 
   // set regular damage
   switch (name) {
-    case "Maneuvers: Precision Attack":
     case "Maneuvers: Parry":
     case "Maneuvers: Trip Attack":
     case "Maneuvers: Maneuvering Attack":
@@ -275,6 +274,14 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Disarming Attack":
     case "Maneuvers: Pushing Attack": {
       setProperty(document, "data.damage.parts", [[`1d${dieValue}`]]);
+      break;
+    }
+    // no default
+  }
+
+  switch (name) {
+    case "Maneuvers: Precision Attack": {
+      setProperty(document, "data.damage.parts", [[`1d${dieValue}`, "midi-none"]]);
       break;
     }
     // no default

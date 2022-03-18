@@ -1,3 +1,7 @@
+# 2.9.18
+
+* Effects: Precision Attack is now No Damage.
+
 # 2.9.17
 
 * Character imports by Players could fail if they can't create macros.
