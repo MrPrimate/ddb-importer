@@ -1,6 +1,7 @@
 # 2.9.18
 
 * Effects: Precision Attack is now No Damage.
+* Effects: Enhance ability now displays dialogue to player who cast not GM.
 
 # 2.9.17
 
