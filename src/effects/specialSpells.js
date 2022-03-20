@@ -64,6 +64,7 @@ import { holdPersonEffect } from "./spells/holdPerson.js";
 import { holyAuraEffect } from "./spells/holyAura.js";
 import { huntersMarkEffect } from "./spells/huntersMark.js";
 import { hypnoticPatternEffect } from "./spells/hypnoticPattern.js";
+import { iceKnifeEffect } from "./spells/iceKnife.js";
 import { invisibilityEffect } from "./spells/invisibility.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
 import { lightEffect } from "./spells/light.js";
@@ -419,6 +420,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Hypnotic Pattern": {
       document = hypnoticPatternEffect(document);
+      break;
+    }
+    case "Ice Knife": {
+      document = await iceKnifeEffect(document);
       break;
     }
     case "Invisibility": {
