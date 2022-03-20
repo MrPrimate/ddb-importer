@@ -52,6 +52,14 @@ export function fixSpells(ddb, items) {
   items.forEach((spell) => {
     const name = spell.flags.ddbimporter.originalName || spell.name;
     switch (name) {
+      case "Melf's Acid Arrow":
+      case "Acid Arrow": {
+        const baseDamage = duplicate(spell.data.damage.parts[0]);
+        const otherDamage = duplicate(spell.data.damage.parts[1]);
+        spell.data.damage.parts = [baseDamage];
+        spell.data.formula = otherDamage[0];
+        break;
+      }
       // Eldritch Blast is a special little kitten and has some fun Eldritch
       // Invocations which can adjust it.
       case "Eldritch Blast": {
