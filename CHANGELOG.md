@@ -2,6 +2,8 @@
 
 * Effects: Precision Attack is now No Damage.
 * Effects: Enhance ability now displays dialogue to player who cast not GM.
+* Effects: Ice Knife.
+* Effects: Acid Arrow.
 
 # 2.9.17
 
