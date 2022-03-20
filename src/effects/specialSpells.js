@@ -9,6 +9,7 @@ import { configureDependencies } from "./macros.js";
 
 // spell effects load start
 import { absorbElementsEffect } from "./spells/absorbElements.js";
+import { acidArrowEffect } from "./spells/acidArrow.js";
 import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
 import { animalFriendshipEffect } from "./spells/animalFriendship.js";
@@ -198,6 +199,11 @@ export async function spellEffectAdjustment(document) {
   switch (name) {
     case "Absorb Elements": {
       document = absorbElementsEffect(document);
+      break;
+    }
+    case "Melf's Acid Arrow":
+    case "Acid Arrow": {
+      document = acidArrowEffect(document);
       break;
     }
     case "Aid": {
