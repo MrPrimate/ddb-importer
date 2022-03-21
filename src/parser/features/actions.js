@@ -163,7 +163,7 @@ function getDamage(action) {
  * @param {*} feat
  */
 function getLevelScaleDice(ddb, character, action, feat) {
-  let parts = ddb.character.classes
+  const parts = ddb.character.classes
     .filter((cls) => cls.classFeatures.some((feature) =>
       feature.definition.id == action.componentId &&
       feature.definition.entityTypeId == action.componentTypeId &&
@@ -189,10 +189,15 @@ function getLevelScaleDice(ddb, character, action, feat) {
       return [part, ""];
     });
 
-  feat.data.damage = {
-    parts,
-    versatile: "",
-  };
+  if (parts.length > 0) {
+    const combinedParts = hasProperty(feat, "data.damage.parts") && feat.data.damage.parts.length > 0
+      ? feat.data.damage.parts.concat(parts)
+      : parts;
+    feat.data.damage = {
+      combinedParts,
+      versatile: "",
+    };
+  }
 
   return feat;
 }
@@ -421,7 +426,7 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
 
 function getAttackType(ddb, character, action, weapon) {
   // lets see if we have a save stat for things like Dragon born Breath Weapon
-  if (action.saveStatId) {
+  if (typeof action.saveStatId === "number") {
     weapon = calculateSaveAttack(action, weapon);
   } else if (action.actionType === 1) {
     if (action.attackTypeRange === 2) {
