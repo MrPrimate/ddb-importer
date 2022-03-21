@@ -1,3 +1,7 @@
+# 2.9.20
+
+* Action parsing: previous fix broke features like Circle of Star druid.
+
 # 2.9.19
 
 * Icons: update some missing icons
