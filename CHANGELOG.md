@@ -1,3 +1,8 @@
+# 2.9.19
+
+* Icons: update some missing icons
+* Action parsing: some features would no longer parse damage. e.g. Breath Weapon (Acid) from the Metallic Dragonborn
+
 # 2.9.18
 
 * Effects: Precision Attack is now No Damage.
