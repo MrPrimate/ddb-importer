@@ -1099,6 +1099,35 @@
     "path": "systems/dnd5e/icons/skills/fire_05.jpg"
   },
   {
+    "name": "Metallic Ancestry",
+    "racial_trait": "Metallic Ancestry",
+    "race": "Dragonborn",
+    "subrace": "Metallic Dragonborn",
+    "path": "icons/creatures/reptiles/dragon-winged-blue.webp"
+  },
+  {
+    "name": "Chromatic Ancestry",
+    "racial_trait": "Chromatic Ancestry",
+    "race": "Dragonborn",
+    "subrace": "Chromatic Dragonborn",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Draconic Resistance",
+    "racial_trait": "Draconic Resistance",
+    "race": "Dragonborn",
+    "subrace": "",
+    "path": "icons/environment/wilderness/statue-hound-horned.webp"
+  },
+
+  {
+    "name": "Breath Weapon (Acid)",
+    "racial_trait": "Metallic Breath Weapon",
+    "race": "Dragonborn",
+    "subrace": "Metallic Dragonborn",
+    "path": "systems/dnd5e/icons/skills/affliction_14.jpg"
+  },
+  {
     "name": "Mimicry",
     "racial_trait": "Mimicry",
     "race": "Kenku",
