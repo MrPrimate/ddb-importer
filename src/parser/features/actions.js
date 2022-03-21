@@ -194,7 +194,7 @@ function getLevelScaleDice(ddb, character, action, feat) {
       ? feat.data.damage.parts.concat(parts)
       : parts;
     feat.data.damage = {
-      combinedParts,
+      parts: combinedParts,
       versatile: "",
     };
   }
