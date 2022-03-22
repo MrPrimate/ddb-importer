@@ -382,10 +382,19 @@ export default function getInventory(ddb, character, itemSpells) {
   // now parse all items
 
   const customItems = ddb.character.customItems
-    ? ddb.character.customItems.map((customItem) => ({
-      id: customItem.id,
-      definition: customItem,
-    }))
+    ? ddb.character.customItems
+      .filter((customItem) => {
+        const customItemMatch = ddb.character.inventory.some((item) =>
+          customItem.id === item.definition.id &&
+          customItem.name === item.definition.name &&
+          item.definition.isCustomItem
+        );
+        return !customItemMatch;
+      })
+      .map((customItem) => ({
+        id: customItem.id,
+        definition: customItem,
+      }))
     : [];
 
   const daeInstalled = utils.isModuleInstalledAndActive("dae");

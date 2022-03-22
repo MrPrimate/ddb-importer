@@ -1,3 +1,7 @@
+# 2.9.21
+
+* Custom items could be duplicated during import.
+
 # 2.9.20
 
 * Action parsing: previous fix broke features like Circle of Star druid.
