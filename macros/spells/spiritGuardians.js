@@ -6,7 +6,6 @@ if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.
   const tokenOrActor = await fromUuid(lastArg.actorUuid);
   const theActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   const DAEItem = lastArg.efData.flags.dae.itemData;
-  console.warn(DAEItem);
   const damageType = getProperty(DAEItem, "flags.ddbimporter.damageType") || "radiant";
 
   const itemData = mergeObject(
