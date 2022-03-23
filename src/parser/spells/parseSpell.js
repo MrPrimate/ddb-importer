@@ -37,6 +37,12 @@ export function parseSpell(data, character) {
     },
   };
 
+  const isGeneric = getProperty(data, "flags.ddbimporter.generic");
+  const addSpellEffects = isGeneric
+    ? game.settings.get("ddb-importer", "munching-policy-add-spell-effects")
+    : game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
+  setProperty(data, "flags.ddbimporter.addSpellEffects", addSpellEffects);
+
   // spell level
   spell.data.level = data.definition.level;
 
@@ -68,7 +74,9 @@ export function parseSpell(data, character) {
   spell.data.target = getTarget(data);
   spell.data.range = getRange(data);
   spell.data.actionType = getActionType(data);
-  spell.data.damage = getDamage(data, spell);
+  const [damage, chatFlavor] = getDamage(data, spell);
+  spell.data.damage = damage;
+  spell.data.chatFlavor = chatFlavor;
   spell.data.save = getSave(data);
   spell.data.scaling = getSpellScaling(data);
   spell.data.uses = getUses(data);
@@ -103,10 +111,6 @@ export function parseSpell(data, character) {
     };
   }
 
-  const isGeneric = getProperty(data, "flags.ddbimporter.generic");
-  const addSpellEffects = isGeneric
-    ? game.settings.get("ddb-importer", "munching-policy-add-spell-effects")
-    : game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
   if (addSpellEffects) {
     spellEffectAdjustment(spell);
     setProperty(spell, "flags.ddbimporter.effectsApplied", true);

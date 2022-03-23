@@ -17,9 +17,11 @@ export function getDamage(data, spell) {
     parts: [],
     versatile: "",
   };
+  let chatFlavor = [];
 
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-  const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints");
+  const spellEffects = getProperty(data, "flags.ddbimporter.addSpellEffects");
+  const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !spellEffects;
   const hintOrRestriction = globalDamageHints || damageRestrictionHints;
 
   // damage
@@ -27,9 +29,12 @@ export function getDamage(data, spell) {
   if (attacks.length !== 0) {
     const cantripBoost = data.definition.level === 0 && !!data.flags.ddbimporter.dndbeyond.cantripBoost;
     attacks.forEach((attack) => {
-      const restriction = damageRestrictionHints && attack.restriction && attack.restriction !== "" ? attack.restriction : "";
+      const restrictionText = attack.restriction && attack.restriction !== "" ? attack.restriction : "";
+      const restriction = damageRestrictionHints && restrictionText !== "" ? restrictionText : "";
+      const damageHintText = attack.subType || "";
+      if (!damageRestrictionHints && restrictionText !== "") chatFlavor.push(`[${attack.die.diceString} - ${damageHintText}] ${restrictionText}`);
       const hintAndRestriction = globalDamageHints && restriction !== "" ? " - " : "";
-      const damageHint = globalDamageHints ? attack.subType : "";
+      const damageHint = globalDamageHints ? damageHintText : "";
       const damageTag = hintOrRestriction ? `[${damageHint}${hintAndRestriction}${restriction}]` : "";
       const addMod = attack.usePrimaryStat || cantripBoost ? " + @mod" : "";
       let diceString = utils.parseDiceString(attack.die.diceString, addMod, damageTag).diceString;
@@ -39,7 +44,6 @@ export function getDamage(data, spell) {
     // This is probably just for Toll the dead.
     const alternativeFormula = getAlternativeFormula(data);
     result.versatile = cantripBoost ? `${alternativeFormula} + @mod` : alternativeFormula;
-    return result;
   }
 
   // healing
@@ -47,7 +51,9 @@ export function getDamage(data, spell) {
   if (heals.length !== 0) {
     const healingBonus = (spell.flags.ddbimporter.dndbeyond.healingBoost) ? ` + ${spell.flags.ddbimporter.dndbeyond.healingBoost} + @item.level` : "";
     heals.forEach((heal) => {
-      const restriction = damageRestrictionHints && heal.restriction && heal.restriction !== "" ? heal.restriction : "";
+      const restrictionText = heal.restriction && heal.restriction !== "" ? heal.restriction : "";
+      const restriction = damageRestrictionHints && restrictionText !== "" ? restrictionText : "";
+      if (!damageRestrictionHints && restrictionText !== "") chatFlavor.push(`[${heal.die.diceString} - healing] ${restrictionText}`);
       const hintAndRestriction = globalDamageHints && restriction !== "" ? " - " : "";
       const damageHint = globalDamageHints ? "healing" : "";
       const damageTag = hintOrRestriction ? `[${damageHint}${hintAndRestriction}${restriction}]` : "";
@@ -57,7 +63,7 @@ export function getDamage(data, spell) {
         : `${healValue}${healingBonus}`;
       result.parts.push([diceString, "healing"]);
     });
-    return result;
   }
-  return result;
+
+  return [result, chatFlavor.join(", ")];
 }
