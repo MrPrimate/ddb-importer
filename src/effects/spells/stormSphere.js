@@ -1,7 +1,7 @@
 import { baseSpellEffect, spellEffectModules } from "../specialSpells.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 
-export async function spiritGuardiansEffect(document) {
+export async function stormSphereEffect(document) {
   // we require active auras for this effect
   if (!spellEffectModules().activeAurasInstalled) return document;
 
@@ -17,7 +17,7 @@ export async function spiritGuardiansEffect(document) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value:
-        "turn=end,label=Storm Sphere,damageRoll=(@spellLevel-2)d6,damageType=bludgeoning,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=str,saveDamage=nodamage,killAnim=true",
+        "turn=end,label=Storm Sphere,damageRoll=(@item.level - 2)d6,damageType=bludgeoning,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=str,saveDamage=nodamage,killAnim=true",
       priority: "20",
     }
   );
@@ -34,8 +34,13 @@ export async function spiritGuardiansEffect(document) {
     hidden: false,
     // hostile: true,
     onlyOnce: false,
+    save: "str",
+    savedc: null,
+    displayTemp: true,
   };
-  // effect.changes.push(generateMacroChange(""));
+  setProperty(effect, "duration.minutes", 1);
+  setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
+  effect.changes.push(generateMacroChange(""));
   setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
 
   document.effects.push(effect);

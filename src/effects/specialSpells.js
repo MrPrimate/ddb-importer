@@ -94,6 +94,7 @@ import { spiderClimbEffect } from "./spells/spiderClimb.js";
 import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
 import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stoneskinEffect } from "./spells/stoneskin.js";
+import { stormSphereEffect } from "./spells/stormSphere.js";
 import { sunbeamEffect } from "./spells/sunbeam.js";
 import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { trueStrikeEffect } from "./spells/trueStrike.js";
@@ -540,6 +541,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Spiritual Weapon": {
       document = await spiritualWeaponEffect(document);
+      break;
+    }
+    case "Storm Sphere": {
+      document = await stormSphereEffect(document);
       break;
     }
     case "Stoneskin": {
