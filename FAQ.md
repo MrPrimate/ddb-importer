@@ -170,3 +170,14 @@ await DDBImporter.getIconPath(item)
 await DDBImporter.getIconPath({ name: "Claws", type: "weapon" }, true, "Wolf");
 'icons/commodities/claws/talon-red.webp'
 ```
+
+## I want to use the SRD Monster Art
+
+Use the following workflow:
+
+* Ensure that on the Settings tab "[Caution] Use SRD compendium things" is ticked.
+* On the Monsters tab ensure "Update Monster images on existing items?" is not checked.
+* Import your monsters, this will copy the SRD monsters across instead of using the DDB ones.
+* If you want to use the DDB generated data but the SRD images, untick the "[Caution] Use SRD compendium things" and reimport you monsters. The image will not be updated, but the features/attacks etc will.
+
+If you like the SRD art them the ["Forgotten Adventures"](https://www.forgotten-adventures.net/product-category/tokens/) tokens and also the [Token Variant Art](https://foundryvtt.com/packages/token-variants) module which allows you to easily apply the art from such packs to tokens.
