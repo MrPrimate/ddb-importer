@@ -1,15 +1,10 @@
-import utils from "../../utils.js";
 import { baseItemEffect } from "../effects.js";
 
 export function bardicInspirationEffect(document) {
-  const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
-
-  document.data.damage.parts = [];
+  document.system.damage.parts = [];
   let inspiredEffect = baseItemEffect(document, "Inspired");
 
-  const diceString = scaleSupport
-    ? "@scale.bard.bardic-inspiration"
-    : "1d@flags.dae.BardicInspirationDice";
+  const diceString = "@scale.bard.bardic-inspiration";
   inspiredEffect.changes.push(
     {
       key: "flags.midi-qol.optional.bardicInspiration.attack.all",
@@ -68,22 +63,6 @@ export function bardicInspirationEffect(document) {
 
   document.effects.push(inspiredEffect);
 
-  if (!scaleSupport) {
-    let diceEffect = baseItemEffect(document, "Bardic Inspiration Dice");
-    diceEffect.changes.push({
-      key: "flags.dae",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: "BardicInspirationDice (floor(@classes.bard.levels/5)+3) * 2",
-      priority: "20",
-    });
-    diceEffect.transfer = true;
-    diceEffect.disabled = false;
-    setProperty(diceEffect, "flags.dae.transfer", true);
-    setProperty(diceEffect, "flags.dae.stackable", false);
-    setProperty(diceEffect, "flags.dae.macroRepeat", "none");
-    setProperty(diceEffect, "flags.dae.specialDuration", []);
-    document.effects.push(diceEffect);
-  }
   setProperty(document, "flags.midi-qol.effectActivation", false);
   return document;
 }

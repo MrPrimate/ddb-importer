@@ -229,51 +229,39 @@ export async function setPatreonTier() {
 /* eslint-disable require-atomic-updates */
 async function copyExistingActorProperties(type, foundryActor) {
   const compendium = getCompendiumType(type);
-  // v8 doesn't like null _ids with keepId set
-  if (!game.version) {
-    foundryActor.items = foundryActor.items.map((i) => {
-      if (!i._id) i._id = randomID();
-      if (i.effects && i.effects.length > 0) {
-        i.effects = i.effects.map((e) => {
-          if (!e._id) e._id = randomID();
-          return e;
-        });
-      }
-      return i;
-    });
-  }
 
   if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
     const existingNPC = await compendium.getDocument(foundryActor._id);
 
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-    if (!updateImages && existingNPC.data.img !== "icons/svg/mystery-man.svg") {
-      foundryActor.img = existingNPC.data.img;
+    if (!updateImages && existingNPC.system.img !== CONST.DEFAULT_TOKEN) {
+      foundryActor.img = existingNPC.system.img;
     }
-    if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
-      foundryActor.token.img = existingNPC.data.token.img;
-      foundryActor.token.scale = existingNPC.data.token.scale;
-      foundryActor.token.randomImg = existingNPC.data.token.randomImg;
-      foundryActor.token.mirrorX = existingNPC.data.token.mirrorX;
-      foundryActor.token.mirrorY = existingNPC.data.token.mirrorY;
-      foundryActor.token.lockRotation = existingNPC.data.token.lockRotation;
-      foundryActor.token.rotation = existingNPC.data.token.rotation;
-      foundryActor.token.alpha = existingNPC.data.token.alpha;
-      foundryActor.token.lightAlpha = existingNPC.data.token.lightAlpha;
-      foundryActor.token.lightAnimation = existingNPC.data.token.lightAnimation;
-      foundryActor.token.tint = existingNPC.data.token.tint;
-      foundryActor.token.lightColor = existingNPC.data.token.lightColor;
+    if (!updateImages && getProperty(existingNPC, "prototypeToken.texture.src") !== CONST.DEFAULT_TOKEN) {
+      foundryActor.prototypeToken.texture.src = existingNPC.prototypeToken.texture.src;
+      foundryActor.token.scale = existingNPC.system.token.scale;
+      foundryActor.token.randomImg = existingNPC.system.token.randomImg;
+      foundryActor.token.mirrorX = existingNPC.system.token.mirrorX;
+      foundryActor.token.mirrorY = existingNPC.system.token.mirrorY;
+      foundryActor.token.lockRotation = existingNPC.system.token.lockRotation;
+      foundryActor.token.rotation = existingNPC.system.token.rotation;
+      foundryActor.token.alpha = existingNPC.system.token.alpha;
+      foundryActor.token.lightAlpha = existingNPC.system.token.lightAlpha;
+      foundryActor.token.lightAnimation = existingNPC.system.token.lightAnimation;
+      foundryActor.token.tint = existingNPC.system.token.tint;
+      foundryActor.token.lightColor = existingNPC.system.token.lightColor;
     }
 
     const retainBiography = game.settings.get("ddb-importer", "munching-policy-monster-retain-biography");
     if (retainBiography) {
-      foundryActor.data.details.biography = existingNPC.data.data.details.biography;
+      foundryActor.system.details.biography = existingNPC.system.details.biography;
     }
 
     await copySupportedItemFlags(existingNPC.toObject(), foundryActor);
   }
 
   return foundryActor;
+
 }
 /* eslint-enable require-atomic-updates */
 

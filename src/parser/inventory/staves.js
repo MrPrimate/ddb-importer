@@ -140,22 +140,22 @@ export default function parseStaff(data, character) {
     },
   };
 
-  staff.data.weaponType = getWeaponType(data);
-  staff.data.properties = getProperties(data);
-  staff.data.proficient = getWeaponProficient(data, staff.data.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
-  staff.data.description = getDescription(data);
-  staff.data.source = utils.parseSource(data.definition);
-  staff.data.quantity = getQuantity(data);
-  staff.data.weight = getSingleItemWeight(data);
-  staff.data.equipped = getEquipped(data);
-  staff.data.rarity = getItemRarity(data);
-  staff.data.identified = true;
-  staff.data.activation = { type: "action", cost: 1, condition: "" };
-  staff.data.range = getRange(data);
-  staff.data.ability = getAbility(staff.data.properties, staff.data.range, character.flags.ddbimporter.dndbeyond.effectAbilities);
-  staff.data.actionType = staff.data.range.long === 5 ? "mwak" : "rwak";
-  staff.data.attackBonus = getMagicalBonus(data);
-  staff.data.damage = getDamage(data, getMagicalBonus(data));
+  staff.system.weaponType = getWeaponType(data);
+  staff.system.properties = getProperties(data);
+  staff.system.proficient = getWeaponProficient(data, staff.system.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
+  staff.system.description = getDescription(data);
+  staff.system.source = utils.parseSource(data.definition);
+  staff.system.quantity = getQuantity(data);
+  staff.system.weight = getSingleItemWeight(data);
+  staff.system.equipped = getEquipped(data);
+  staff.system.rarity = getItemRarity(data);
+  staff.system.identified = true;
+  staff.system.activation = { type: "action", cost: 1, condition: "" };
+  staff.system.range = getRange(data);
+  staff.system.ability = getAbility(staff.system.properties, staff.system.range, character.flags.ddbimporter.dndbeyond.effectAbilities);
+  staff.system.actionType = staff.system.range.long === 5 ? "mwak" : "rwak";
+  staff.system.attackBonus = getMagicalBonus(data);
+  staff.system.damage = getDamage(data, getMagicalBonus(data));
 
   return staff;
 }

@@ -286,59 +286,59 @@ export default function parseWeapon(data, character, flags) {
     : {};
   setProperty(weapon, "flags.betterRolls5e", brFlags);
 
-  weapon.data.weaponType = getWeaponType(data);
-  weapon.data.properties = getProperties(data);
+  weapon.system.weaponType = getWeaponType(data);
+  weapon.system.properties = getProperties(data);
 
   const proficientFeatures = ["pactWeapon", "kensaiWeapon"];
   if (flags.classFeatures.some((feat) => proficientFeatures.includes(feat))) {
-    weapon.data.proficient = true;
+    weapon.system.proficient = true;
   } else {
-    weapon.data.proficient = getWeaponProficient(data, weapon.data.weaponType, characterProficiencies);
+    weapon.system.proficient = getWeaponProficient(data, weapon.system.weaponType, characterProficiencies);
   }
 
-  weapon.data.description = getDescription(data);
-  weapon.data.source = utils.parseSource(data.definition);
-  weapon.data.quantity = getQuantity(data);
-  weapon.data.weight = getSingleItemWeight(data);
-  weapon.data.equipped = getEquipped(data);
-  weapon.data.rarity = getItemRarity(data);
-  weapon.data.identified = true;
-  weapon.data.activation = { type: "action", cost: 1, condition: "" };
-  if (flags.classFeatures.includes("OffHand")) weapon.data.activation.type = "bonus";
+  weapon.system.description = getDescription(data);
+  weapon.system.source = utils.parseSource(data.definition);
+  weapon.system.quantity = getQuantity(data);
+  weapon.system.weight = getSingleItemWeight(data);
+  weapon.system.equipped = getEquipped(data);
+  weapon.system.rarity = getItemRarity(data);
+  weapon.system.identified = true;
+  weapon.system.activation = { type: "action", cost: 1, condition: "" };
+  if (flags.classFeatures.includes("OffHand")) weapon.system.activation.type = "bonus";
 
-  weapon.data.range = getRange(data, weapon.data.properties);
-  weapon.data.uses = getUses(data);
-  weapon.data.ability = getAbility(weapon.data.properties, weapon.data.range);
-  const mockAbility = weapon.data.ability === null
-    ? weapon.data.properties.fin ? "dex" : "str"
-    : weapon.data.ability;
+  weapon.system.range = getRange(data, weapon.system.properties);
+  weapon.system.uses = getUses(data);
+  weapon.system.ability = getAbility(weapon.system.properties, weapon.system.range);
+  const mockAbility = weapon.system.ability === null
+    ? weapon.system.properties.fin ? "dex" : "str"
+    : weapon.system.ability;
 
   // warlocks can use cha for their Hex weapon
   if (flags.classFeatures.includes("hexWarrior")) {
     if (characterAbilities.cha.value >= characterAbilities[mockAbility].value) {
-      weapon.data.ability = "cha";
+      weapon.system.ability = "cha";
     }
   }
   // kensai monks
   if (flags.classFeatures.includes("kensaiWeapon") || flags.classFeatures.includes("monkWeapon")) {
     if (characterAbilities.dex.value >= characterAbilities[mockAbility].value) {
-      weapon.data.ability = "dex";
+      weapon.system.ability = "dex";
     }
   }
-  if (flags.magicItemAttackInt && (data.definition.magic || weapon.data.properties.mgc)) {
+  if (flags.magicItemAttackInt && (data.definition.magic || weapon.system.properties.mgc)) {
     if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
-      weapon.data.ability = "int";
+      weapon.system.ability = "int";
     }
   }
 
-  weapon.data.actionType = getActionType(data);
-  weapon.data.attackBonus = getWeaponMagicalBonus(data, flags);
+  weapon.system.actionType = getActionType(data);
+  weapon.system.attackBonus = getWeaponMagicalBonus(data, flags);
 
   [
-    weapon.data.damage,
+    weapon.system.damage,
     weapon.flags.betterRolls5e,
-    weapon.data.formula,
-    weapon.data.chatFlavor,
+    weapon.system.formula,
+    weapon.system.chatFlavor,
     weapon.flags.ddbimporter.dndbeyond.restrictions,
   ] = getDamage(data, flags, weapon.flags.betterRolls5e);
 

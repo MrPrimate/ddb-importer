@@ -27,7 +27,7 @@ export function specialCases(monster) {
     case "Hypnos Magen": {
       monster.flags.monsterMunch.spellList.atwill = ["Suggestion"];
       monster.flags.monsterMunch.spellList.material = false;
-      monster.data.attributes.spellcasting = "int";
+      monster.system.attributes.spellcasting = "int";
       break;
     }
     case "Sephek Kaltro": {

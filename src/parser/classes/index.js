@@ -227,7 +227,7 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
   let subKlass = {
     name: characterClass.subclassDefinition.name,
     type: 'subclass',
-    data: JSON.parse(utils.getTemplate('subclass')),
+    system: JSON.parse(utils.getTemplate('subclass')),
     flags: {
       ddbimporter: {
         subclassDefinitionId: characterClass.id,
@@ -242,8 +242,8 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
     },
   };
 
-  subKlass.data.classIdentifier = characterClass.definition.name.toLowerCase().replace(/\s|'|’/g, '-');
-  subKlass.data.identifier = characterClass.subclassDefinition.name.toLowerCase().replace(/\s|'|’/g, '-');
+  subKlass.system.classIdentifier = characterClass.definition.name.toLowerCase().replace(/\s|'|’/g, '-');
+  subKlass.system.identifier = characterClass.subclassDefinition.name.toLowerCase().replace(/\s|'|’/g, '-');
 
   const castSpells = characterClass.subclassDefinition.canCastSpells;
 
@@ -251,7 +251,7 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
     const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === characterClass.definition.name);
     const spellCastingAbility = getSpellCastingAbility(characterClass, true, true);
     if (spellProgression) {
-      subKlass.data.spellcasting = {
+      subKlass.system.spellcasting = {
         progression: spellProgression.value,
         ability: spellCastingAbility,
       };
@@ -263,16 +263,16 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
     subKlass.flags.ddbimporter.spellCastingAbility = spellCastingAbility;
   }
 
-  subKlass.data.description.value += "<h1>Description</h1>";
-  subKlass.data.description.value += characterClass.subclassDefinition.description;
+  subKlass.system.description.value += "<h1>Description</h1>";
+  subKlass.system.description.value += characterClass.subclassDefinition.description;
 
   const baseClassFeatureIds = characterClass.definition.classFeatures.map((f) => f.id);
   // eslint-disable-next-line no-await-in-loop
-  subKlass.data.description.value += await buildClassFeatures(ddb, characterClass, characterClass.subclassDefinition, featuresIndex, baseClassFeatureIds);
+  subKlass.system.description.value += await buildClassFeatures(ddb, characterClass, characterClass.subclassDefinition, featuresIndex, baseClassFeatureIds);
 
-  subKlass.data.description.value = parseTemplateString(ddb, character, subKlass.data.description.value, subKlass).text;
+  subKlass.system.description.value = parseTemplateString(ddb, character, subKlass.system.description.value, subKlass).text;
 
-  subKlass.data.advancement = [
+  subKlass.system.advancement = [
     ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.subclassDefinition, baseClassFeatureIds),
     ...await generateFeatureAdvancements(ddb, characterClass, characterClass.subclassDefinition, featuresIndex, baseClassFeatureIds),
   ];
@@ -286,15 +286,13 @@ export async function getClasses(ddb, character) {
     ? await featuresCompendium.getIndex({ fields: ["name", "flags.ddbimporter.classId", "flags.ddbimporter.class", "flags.ddbimporter.subClass", "flags.ddbimporter.parentClassId"] })
     : [];
 
-  const subClassSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
-
   let items = [];
 
   for (const characterClass of ddb.character.classes) {
     let klass = {
       name: characterClass.definition.name,
       type: 'class',
-      data: JSON.parse(utils.getTemplate('class')),
+      system: JSON.parse(utils.getTemplate('class')),
       flags: {
         ddbimporter: {
           id: characterClass.id,
@@ -311,26 +309,26 @@ export async function getClasses(ddb, character) {
     };
 
     /* eslint-disable require-atomic-updates */
-    klass.data.description.value = "<h1>Description</h1>";
-    klass.data.description.value += characterClass.definition.description;
+    klass.system.description.value = "<h1>Description</h1>";
+    klass.system.description.value += characterClass.definition.description;
     // get class features
     const subClassFeatureIds = characterClass.subclassDefinition && characterClass.subclassDefinition.name
       ? characterClass.subclassDefinition.classFeatures.filter((f) => f.id === characterClass.subclassDefinition.id).map((f) => f.id)
       : [];
     // eslint-disable-next-line no-await-in-loop, require-atomic-updates
-    klass.data.description.value += await buildClassFeatures(ddb, characterClass, characterClass.definition, featuresIndex, subClassFeatureIds);
+    klass.system.description.value += await buildClassFeatures(ddb, characterClass, characterClass.definition, featuresIndex, subClassFeatureIds);
 
     if (characterClass.definition.equipmentDescription) {
       // eslint-disable-next-line require-atomic-updates
-      klass.data.description.value += `<h1>Starting Equipment</h1>\n${characterClass.definition.equipmentDescription}\n\n`;
+      klass.system.description.value += `<h1>Starting Equipment</h1>\n${characterClass.definition.equipmentDescription}\n\n`;
     }
 
-    klass.data.identifier = characterClass.definition.name.toLowerCase().replace(/\s|'|’/g, '-');
-    klass.data.levels = characterClass.level;
-    klass.data.source = getSources(characterClass);
-    klass.data.hitDice = `d${characterClass.definition.hitDice}`;
-    klass.data.hitDiceUsed = characterClass.hitDiceUsed;
-    klass.data.advancement = [
+    klass.system.identifier = characterClass.definition.name.toLowerCase().replace(/\s|'|’/g, '-');
+    klass.system.levels = characterClass.level;
+    klass.system.source = getSources(characterClass);
+    klass.system.hitDice = `d${characterClass.definition.hitDice}`;
+    klass.system.hitDiceUsed = characterClass.hitDiceUsed;
+    klass.system.advancement = [
       getHPAdvancement(),
       // hp should be set like this - we don't actually know in DDB
       // "value": {
@@ -398,27 +396,26 @@ export async function getClasses(ddb, character) {
       });
     });
 
-    klass.data.skills = {
+    klass.system.skills = {
       value: skillsChosen,
       number: skillsChosen.length,
       choices: skillChoices,
     };
 
-    klass.data.saves = [];
+    klass.system.saves = [];
     DICTIONARY.character.abilities.forEach((ability) => {
       const mods = utils.getChosenClassModifiers(ddb, true);
       const save = utils.filterModifiers(mods, "proficiency", `${ability.long}-saving-throws`, [null, ""], true).length > 0;
-      if (save) klass.data.saves.push(ability.value);
+      if (save) klass.system.saves.push(ability.value);
     });
 
-    const castSpells = (characterClass.definition.canCastSpells ||
-      (!subClassSupport && characterClass.subclassDefinition && characterClass.subclassDefinition.canCastSpells));
+    const castSpells = characterClass.definition.canCastSpells;
 
     if (castSpells) {
       const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === characterClass.definition.name);
-      const spellCastingAbility = getSpellCastingAbility(characterClass, !subClassSupport, false);
+      const spellCastingAbility = getSpellCastingAbility(characterClass, false, false);
       if (spellProgression) {
-        klass.data.spellcasting = {
+        klass.system.spellcasting = {
           progression: spellProgression.value,
           ability: spellCastingAbility,
         };
@@ -433,17 +430,11 @@ export async function getClasses(ddb, character) {
     }
 
     if (characterClass.subclassDefinition && characterClass.subclassDefinition.name) {
-      if (subClassSupport) {
-        // eslint-disable-next-line no-await-in-loop
-        items.push(await parseSubclass(ddb, character, characterClass, featuresIndex));
-      } else {
-        klass.data.subclass = characterClass.subclassDefinition.name;
-        klass.data.description.value += '<p><strong>' + klass.data.subclass + '</strong></p>';
-        klass.data.description.value += characterClass.subclassDefinition.description;
-      }
+      // eslint-disable-next-line no-await-in-loop
+      items.push(await parseSubclass(ddb, character, characterClass, featuresIndex));
     }
 
-    klass.data.description.value = parseTemplateString(ddb, character, klass.data.description.value, klass).text;
+    klass.system.description.value = parseTemplateString(ddb, character, klass.system.description.value, klass).text;
 
     items.push(klass);
   }

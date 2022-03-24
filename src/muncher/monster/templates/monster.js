@@ -4,7 +4,7 @@ export async function newNPC(name) {
     displaySheet: false,
   };
   const npcClass = await Actor.create({ name, type: "npc" }, options);
-  let npc = npcClass.data.toObject();
+  let npc = npcClass.system.toObject();
   const flags = {
     dnd5e: {},
     monsterMunch: {},

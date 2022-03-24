@@ -89,22 +89,20 @@ let getCustomSkillBonus = (data, skill) => {
 };
 
 function setSpecial(data, skills) {
-  if (utils.versionCompare(game.data.system.data.version, "1.5.0") >= 0) {
-    data.character.classes.forEach((klass) => {
-      if (klass.subclassDefinition) {
-        // Improved Critical
-        const silverTongue = klass.subclassDefinition.classFeatures.some(
-          (feature) => feature.name === "Silver Tongue" && klass.level >= feature.requiredLevel
-        );
+  data.character.classes.forEach((klass) => {
+    if (klass.subclassDefinition) {
+      // Improved Critical
+      const silverTongue = klass.subclassDefinition.classFeatures.some(
+        (feature) => feature.name === "Silver Tongue" && klass.level >= feature.requiredLevel
+      );
 
-        // supported in v1.6.0 (hopefully)
-        if (silverTongue) {
-          skills["per"].bonuses.minimum = 10;
-          skills["dec"].bonuses.minimum = 10;
-        }
+      // supported in v1.6.0 (hopefully)
+      if (silverTongue) {
+        skills["per"].bonuses.minimum = 10;
+        skills["dec"].bonuses.minimum = 10;
       }
-    });
-  }
+    }
+  });
   return skills;
 }
 
@@ -112,8 +110,6 @@ export function getSkills(data, character) {
   let result = {};
 
   const addEffects = game.modules.get("dae")?.active;
-  // dnd 1.5.0 +
-  const SAVE_BONUSES = utils.versionCompare(game.data.system.data.version, "1.5.0") >= 0;
 
   if (!addEffects) character.flags['skill-customization-5e'] = {};
   DICTIONARY.character.skills.forEach((skill) => {
@@ -123,8 +119,8 @@ export function getSkills(data, character) {
 
     // some abilities round half prof up, some down
     const proficiencyBonus = isHalfProficiencyRoundedUp(data, skill)
-      ? Math.ceil(2 * character.data.attributes.prof * proficient)
-      : Math.floor(2 * character.data.attributes.prof * proficient);
+      ? Math.ceil(2 * character.system.attributes.prof * proficient)
+      : Math.floor(2 * character.system.attributes.prof * proficient);
 
     // Skill bonuses e.g. items
     // These no longer seems to be picked up in recent versions of the DND5e module
@@ -134,34 +130,7 @@ export function getSkills(data, character) {
       .reduce((a, b) => a + b, 0) || 0;
     const customSkillBonus = getCustomSkillBonus(data, skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
-
-    if (addEffects && skillBonus && skillBonus > 0 && !SAVE_BONUSES) {
-      const label = "Misc Skill Bonuses";
-      const key = `data.skills.${skill.name}.mod`;
-      const change = {
-        key: key,
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        value: skillBonus,
-        priority: 20
-      };
-
-      const changeIndex = character.effects.findIndex((effect) => effect.label === label);
-      if (changeIndex >= 0) {
-        character.effects[changeIndex].changes.push(change);
-      } else {
-        let skillEffect = generateBaseSkillEffect(data.character.id, label);
-        skillEffect.changes.push(change);
-        character.effects.push(skillEffect);
-      }
-
-    } else if (skillBonus && skillBonus > 0 && !SAVE_BONUSES) {
-      character.flags['skill-customization-5e'][skill.name] = {
-        "skill-bonus": skillBonus
-      };
-    }
-
-    const value = character.data.abilities[skill.ability].value + proficiencyBonus + skillBonus;
-
+    const value = character.system.abilities[skill.ability].value + proficiencyBonus + skillBonus;
     const customAbility = getCustomSkillAbility(data, skill);
     const ability = customAbility !== undefined ? customAbility : skill.ability;
 
@@ -192,18 +161,12 @@ export function getSkills(data, character) {
       value: proficient,
       mod: utils.calculateModifier(value),
       bonus: 0,
-    };
-
-    // dnd 1.5.0 +
-    if (SAVE_BONUSES) {
-      result[skill.name].bonuses = {
+      bonuses: {
         "check": `${skillBonus}`,
         "passive": "",
         "minimum": null,
-      };
-    } else {
-      result[skill.name].bonus = skillBonus;
-    }
+      },
+    };
   });
 
   result = setSpecial(data, result);

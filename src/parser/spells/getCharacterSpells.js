@@ -9,7 +9,7 @@ import logger from "../../logger.js";
 
 export function getCharacterSpells(ddb, character) {
   let items = [];
-  const proficiencyModifier = character.data.attributes.prof;
+  const proficiencyModifier = character.system.attributes.prof;
   const lookups = getLookups(ddb.character);
 
   logger.debug("Character spell lookups", lookups);
@@ -46,7 +46,7 @@ export function getCharacterSpells(ddb, character) {
             level: classInfo.level,
             characterClassId: playerClass.characterClassId,
             spellLevel: spell.definition.level,
-            // spellSlots: character.data.spells,
+            // spellSlots: character.system.spells,
             ability: spellCastingAbility,
             mod: abilityModifier,
             dc: 8 + proficiencyModifier + abilityModifier,

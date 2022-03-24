@@ -5,6 +5,6 @@ export async function tolltheDeadEffect(document) {
   setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
 
-  document.data.damage = { parts: [], versatile: "", value: "" };
+  document.system.damage = { parts: [], versatile: "", value: "" };
   return document;
 }

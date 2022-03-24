@@ -73,21 +73,21 @@ export default function parseAmmunition(data, itemType) {
     },
   };
 
-  ammunition.data.description = getDescription(data);
-  ammunition.data.source = utils.parseSource(data.definition);
-  ammunition.data.properties = {};
-  ammunition.data.quantity = getQuantity(data);
-  ammunition.data.weight = getSingleItemWeight(data);
-  ammunition.data.equipped = getEquipped(data);
-  ammunition.data.rarity = getItemRarity(data);
-  ammunition.data.identified = true;
-  ammunition.data.activation = { type: "action", cost: 1, condition: "" };
-  ammunition.data.range = getRange(data);
-  ammunition.data.ability = "";
-  ammunition.data.actionType = "rwak";
-  ammunition.data.attackBonus = getMagicalBonus(data);
-  ammunition.data.damage = getDamage(data, getMagicalBonus(data));
-  ammunition.data.consumableType = "ammo";
+  ammunition.system.description = getDescription(data);
+  ammunition.system.source = utils.parseSource(data.definition);
+  ammunition.system.properties = {};
+  ammunition.system.quantity = getQuantity(data);
+  ammunition.system.weight = getSingleItemWeight(data);
+  ammunition.system.equipped = getEquipped(data);
+  ammunition.system.rarity = getItemRarity(data);
+  ammunition.system.identified = true;
+  ammunition.system.activation = { type: "action", cost: 1, condition: "" };
+  ammunition.system.range = getRange(data);
+  ammunition.system.ability = "";
+  ammunition.system.actionType = "rwak";
+  ammunition.system.attackBonus = getMagicalBonus(data);
+  ammunition.system.damage = getDamage(data, getMagicalBonus(data));
+  ammunition.system.consumableType = "ammo";
 
   return ammunition;
 }

@@ -123,9 +123,9 @@ function checkD20Destroy(description) {
 
 // returns the default magicitem flags
 function buildMagicItemSpell(chargeType, itemSpell) {
-  let consumption = chargeType == MAGICITEMS.CHARGE_TYPE_PER_SPELL ? 1 : itemSpell.data.level;
-  let castLevel = itemSpell.data.level;
-  let upcast = itemSpell.data.level;
+  let consumption = chargeType == MAGICITEMS.CHARGE_TYPE_PER_SPELL ? 1 : itemSpell.system.level;
+  let castLevel = itemSpell.system.level;
+  let upcast = itemSpell.system.level;
 
   // Do we have charge use data on spell?
   if (itemSpell.flags.ddbimporter.dndbeyond.spellLimitedUse) {
@@ -134,11 +134,11 @@ function buildMagicItemSpell(chargeType, itemSpell) {
     if (
       chargeType == MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM &&
       !!limitedUse.minNumberConsumed &&
-      itemSpell.data.level !== 0
+      itemSpell.system.level !== 0
     ) {
       consumption = limitedUse.minNumberConsumed;
       if (limitedUse.maxNumberConsumed) {
-        upcast = itemSpell.data.level - limitedUse.minNumberConsumed + limitedUse.maxNumberConsumed;
+        upcast = itemSpell.system.level - limitedUse.minNumberConsumed + limitedUse.maxNumberConsumed;
       }
     }
 
@@ -155,7 +155,7 @@ function buildMagicItemSpell(chargeType, itemSpell) {
     name: spellName,
     img: "",
     pack: "",
-    baseLevel: itemSpell.data.level,
+    baseLevel: itemSpell.system.level,
     level: castLevel,
     consumption: consumption,
     upcast: upcast,

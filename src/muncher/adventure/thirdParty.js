@@ -98,7 +98,7 @@ export default class ThirdPartyMunch extends FormApplication {
       }
 
       const missingBooks = this._defaultRepoData.packages[packageSelection].books.filter((book) => {
-        const matchingJournals = game.journal.some((j) => j.data.flags.ddb?.bookCode === book);
+        const matchingJournals = game.journal.some((j) => j.flags.ddb?.bookCode === book);
         if (matchingJournals) {
           logger.info(`Found journals for ${book}`);
           return false;
@@ -194,7 +194,7 @@ export default class ThirdPartyMunch extends FormApplication {
                 // In 0.8.x the thumbs don't seem to be auto generated anymore
                 // This code would embed the thumbnail.
                 // Remove once/if resolved
-                if (!obj.data.thumb) {
+                if (!obj.thumb) {
                   const thumbData = await obj.createThumbnail();
                   updatedData["thumb"] = thumbData.thumb;
                 }
@@ -274,7 +274,7 @@ export default class ThirdPartyMunch extends FormApplication {
     if (CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key]) {
       return CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key];
     } else {
-      const existingActor = game.actors.find((actor) => actor.data.folder == folderId && actor.data.flags.ddbimporter.id == ddbId);
+      const existingActor = game.actors.find((actor) => actor.folder == folderId && actor.flags.ddbimporter.id == ddbId);
       const actorId = existingActor ? existingActor.id : randomID();
       CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key] = actorId;
       return actorId;
@@ -306,7 +306,7 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   static async _linkSceneNotes(scene, adventure) {
-    const journalNotes = game.journal.filter((journal) => journal.data?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
+    const journalNotes = game.journal.filter((journal) => journal?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
 
     const notes = await Promise.all([scene]
       .filter((scene) => scene.flags?.ddb?.notes)
@@ -315,20 +315,20 @@ export default class ThirdPartyMunch extends FormApplication {
       .map(async (note) => {
         const noteJournal = journalNotes.find((journal) => {
           const contentChunkIdMatch = note.flags.ddb.contentChunkId
-            ? journal.data.flags.ddb && note.flags.ddb &&
-              journal.data.flags.ddb.contentChunkId == note.flags.ddb.contentChunkId
+            ? journal.flags.ddb && note.flags.ddb &&
+              journal.flags.ddb.contentChunkId == note.flags.ddb.contentChunkId
             : false;
 
           const noContentChunk = !note.flags.ddb.contentChunkId &&
             note.flags.ddb.originalLink && note.flags.ddb.ddbId && note.flags.ddb.parentId &&
             note.flags.ddb.slug && note.flags.ddb.linkName;
           const originMatch = noContentChunk
-            ? journal.data.flags.ddb.slug == note.flags.ddb.slug &&
-              journal.data.flags.ddb.ddbId == note.flags.ddbId &&
-              journal.data.flags.ddb.parentId == note.flags.ddb.parentId &&
-              journal.data.flags.ddb.cobaltId == note.flags.ddb.cobaltId &&
-              journal.data.flags.ddb.originalLink == note.flags.ddb.originalLink &&
-              journal.data.flags.ddb.linkName == note.flags.ddb.linkName
+            ? journal.flags.ddb.slug == note.flags.ddb.slug &&
+              journal.flags.ddb.ddbId == note.flags.ddbId &&
+              journal.flags.ddb.parentId == note.flags.ddb.parentId &&
+              journal.flags.ddb.cobaltId == note.flags.ddb.cobaltId &&
+              journal.flags.ddb.originalLink == note.flags.ddb.originalLink &&
+              journal.flags.ddb.linkName == note.flags.ddb.linkName
             : false;
           const journalNameMatch = !contentChunkIdMatch && !originMatch
             ? journal.name.trim() == note.label.trim()
@@ -499,7 +499,7 @@ export default class ThirdPartyMunch extends FormApplication {
           // eslint-disable-next-line require-atomic-updates
           scene.folder = folder.id;
 
-          const existingScene = game.scenes.find((s) => s.name === scene.name && s.data.folder === folder.id);
+          const existingScene = game.scenes.find((s) => s.name === scene.name && s.folder === folder.id);
 
           // if scene already exists, update
           if (existingScene) {

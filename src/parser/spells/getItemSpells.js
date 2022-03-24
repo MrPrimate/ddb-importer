@@ -9,7 +9,7 @@ import { hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.
 
 export function getItemSpells(ddb, character) {
   let items = [];
-  const proficiencyModifier = character.data.attributes.prof;
+  const proficiencyModifier = character.system.attributes.prof;
   const lookups = getLookups(ddb.character);
 
   // feat spells are handled slightly differently

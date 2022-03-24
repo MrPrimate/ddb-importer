@@ -8,10 +8,10 @@ import { getHPAdvancement } from "../../parser/classes/index.js";
 
 async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);
-  result.data.advancement.push(getHPAdvancement());
-  result.data.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
-  result.data.description.value = parseTags(result.data.description.value);
-  result.data.advancement.push(...await generateFeatureAdvancements(klass, compendiumClassFeatures));
+  result.system.advancement.push(getHPAdvancement());
+  result.system.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
+  result.system.description.value = parseTags(result.data.description.value);
+  result.system.advancement.push(...await generateFeatureAdvancements(klass, compendiumClassFeatures));
   return result;
 }
 

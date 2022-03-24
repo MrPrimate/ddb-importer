@@ -7,8 +7,8 @@ export async function darknessEffect(document) {
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
-  document.data['target']['type'] = "self";
-  document.data.range = { value: null, units: "self", long: null };
+  document.system['target']['type'] = "self";
+  document.system.range = { value: null, units: "self", long: null };
 
   return document;
 }

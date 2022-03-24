@@ -14,7 +14,7 @@ export class DDBAdventureFlags extends FormApplication {
   async getData() { // eslint-disable-line class-methods-use-this
     // console.warn(this);
     // console.warn(this.object);
-    let item = this.object.data;
+    let item = this.object;
 
     let flags = {};
 

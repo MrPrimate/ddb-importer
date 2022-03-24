@@ -8,10 +8,10 @@ export async function kiEmptyBodyEffect(document) {
     { key: "data.traits.dv.value", value: "force", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 }
   );
 
-  document.data["target"]["type"] = "self";
-  document.data.range = { value: null, units: "self", long: null };
-  document.data.duration = { value: 1, units: "min" };
-  document.data.actionType = null;
+  document.system["target"]["type"] = "self";
+  document.system.range = { value: null, units: "self", long: null };
+  document.system.duration = { value: 1, units: "min" };
+  document.system.actionType = null;
   const itemMacroText = await loadMacroFile("spell", "invisibility.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));

@@ -96,18 +96,18 @@ export default function parseArmor(data, character, flags) {
     },
   };
 
-  armor.data.armor = getArmorType(data, character, flags);
-  armor.data.strength = getStrength(data);
-  armor.data.stealth = getStealthPenalty(data);
-  armor.data.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
-  armor.data.description = getDescription(data);
-  armor.data.source = utils.parseSource(data.definition);
-  armor.data.quantity = getQuantity(data);
-  armor.data.weight = getSingleItemWeight(data);
-  armor.data.equipped = getEquipped(data);
-  armor.data.rarity = getItemRarity(data);
-  armor.data.identified = true;
-  armor.data.uses = getUses(data);
+  armor.system.armor = getArmorType(data, character, flags);
+  armor.system.strength = getStrength(data);
+  armor.system.stealth = getStealthPenalty(data);
+  armor.system.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
+  armor.system.description = getDescription(data);
+  armor.system.source = utils.parseSource(data.definition);
+  armor.system.quantity = getQuantity(data);
+  armor.system.weight = getSingleItemWeight(data);
+  armor.system.equipped = getEquipped(data);
+  armor.system.rarity = getItemRarity(data);
+  armor.system.identified = true;
+  armor.system.uses = getUses(data);
 
   return armor;
 }

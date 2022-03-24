@@ -25,19 +25,19 @@ export default function parseCustomItem(data) {
     : description;
 
   const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
-  customItem.data.description = {
+  customItem.system.description = {
     value: description,
     chat: chatAdd ? description : "",
     unidentified: description,
   };
 
-  customItem.data.source = "Custom item";
-  customItem.data.quantity = getQuantity(data);
-  customItem.data.weight = getSingleItemWeight(data);
-  customItem.data.price = data.definition.cost ? data.definition.cost : 0;
-  customItem.data.equipped = getEquipped(data);
-  customItem.data.identified = true;
-  customItem.data.rarity = getItemRarity(data);
+  customItem.system.source = "Custom item";
+  customItem.system.quantity = getQuantity(data);
+  customItem.system.weight = getSingleItemWeight(data);
+  customItem.system.price = data.definition.cost ? data.definition.cost : 0;
+  customItem.system.equipped = getEquipped(data);
+  customItem.system.identified = true;
+  customItem.system.rarity = getItemRarity(data);
 
   return customItem;
 }

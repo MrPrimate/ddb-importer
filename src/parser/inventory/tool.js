@@ -55,20 +55,20 @@ export default function parseTool(ddb, data, itemType) {
     },
   };
 
-  tool.data.ability = DICTIONARY.character.proficiencies
+  tool.system.ability = DICTIONARY.character.proficiencies
     .filter((prof) => prof.name === tool.name)
     .map((prof) => prof.ability);
 
-  if (!tool.data.ability) tool.data.ability = "dex";
-  tool.data.description = getDescription(data);
-  tool.data.proficient = (ddb) ? getProficiency(ddb, tool.name, tool.data.ability) : 0;
-  tool.data.source = utils.parseSource(data.definition);
-  tool.data.quantity = getQuantity(data);
-  tool.data.weight = getSingleItemWeight(data);
-  tool.data.equipped = getEquipped(data);
-  tool.data.rarity = getItemRarity(data);
-  tool.data.identified = true;
-  tool.data.uses = getUses(data);
+  if (!tool.system.ability) tool.system.ability = "dex";
+  tool.system.description = getDescription(data);
+  tool.system.proficient = (ddb) ? getProficiency(ddb, tool.name, tool.system.ability) : 0;
+  tool.system.source = utils.parseSource(data.definition);
+  tool.system.quantity = getQuantity(data);
+  tool.system.weight = getSingleItemWeight(data);
+  tool.system.equipped = getEquipped(data);
+  tool.system.rarity = getItemRarity(data);
+  tool.system.identified = true;
+  tool.system.uses = getUses(data);
 
   return tool;
 }

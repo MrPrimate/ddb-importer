@@ -323,10 +323,10 @@ function parseItem(ddb, data, character, flags) {
       item = parseCustomItem(data);
     }
     const baseItem = getBaseItem(data);
-    setProperty(item, "data.baseItem", baseItem.baseItem);
-    setProperty(item, "data.toolType", baseItem.toolType);
-    item.data.attunement = getAttunement(data);
-    if (data.definition.cost) item.data.price = data.definition.cost;
+    setProperty(item, "system.baseItem", baseItem.baseItem);
+    setProperty(item, "system.toolType", baseItem.toolType);
+    item.system.attunement = getAttunement(data);
+    if (data.definition.cost) item.system.price = data.definition.cost;
 
     item = addExtraDDBFlags(data, item);
 
@@ -354,7 +354,7 @@ function enrichFlags(data, item) {
     setProperty(item, "data.properties.mgc", true);
   }
   if (game.modules.get("betterrolls5e")?.active) {
-    if (item.data.uses?.max && !item.flags?.betterRolls5e) {
+    if (item.system.uses?.max && !item.flags?.betterRolls5e) {
       item.flags['betterRolls5e'] = {
         quickCharges: {
           value: {
@@ -425,7 +425,7 @@ export default async function getInventory(ddb, character, itemSpells) {
 
       if (daeInstalled && addEffects) item = generateEffects(ddb, character, ddbItem, item, compendiumItem, "item");
       // if this is a piece of armor and not generating effects don't generate ac
-      if (item.type === "equipment" && item.data.armor?.type && !["trinket", "clothing"].includes(item.data.armor.type)) {
+      if (item.type === "equipment" && item.system.armor?.type && !["trinket", "clothing"].includes(item.system.armor.type)) {
         if (daeInstalled && generateArmorACEffect) {
           item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
         }

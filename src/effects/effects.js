@@ -403,8 +403,8 @@ function attunedItemsBonus(actor, change) {
   // actor is the actor being processed and change a key/value pair
   if (change.key === "data.bonuses.abilities.save" && change.value === "ATTUNED_ITEM_BONUS") {
     // If your active effect spec was
-    const bonus = actor.data.items.filter((item) => item.data.data.attunement == 2).length;
-    // actor.data.data.bonuses.abilities.save += bonus;
+    const bonus = actor.items.filter((item) => item.system.attunement == 2).length;
+    // actor.system.bonuses.abilities.save += bonus;
     logger.debug(`Setting attuned items saving throw bonus for ${actor.name} to ${bonus}`);
     // setProperty(actor, "data.flags.ddbimporter.attundedItems", bonus);
     // this updates the effect value
@@ -1010,13 +1010,8 @@ function addSkillBonusEffect(modifiers, name, skill) {
 
   let changes = [];
   if (bonus) {
-    const SAVE_BONUS = utils.versionCompare(game.data.system.data.version, "1.5.0") >= 0;
     logger.debug(`Generating ${skill.subType} skill bonus for ${name}`, bonus);
-    if (SAVE_BONUS) {
-      changes.push(generateAddChange(bonus, 12, `data.skills.${skill.name}.bonuses.check`));
-    } else {
-      changes.push(generateAddChange(bonus, 12, `data.skills.${skill.name}.mod`));
-    }
+    changes.push(generateAddChange(bonus, 12, `data.skills.${skill.name}.bonuses.check`));
   }
   return changes;
 }
@@ -1117,18 +1112,18 @@ function generateEffectDuration(foundryItem) {
     startRound: null,
     startTurn: null,
   };
-  switch (foundryItem.data.duration.units) {
+  switch (foundryItem.system.duration.units) {
     case "turn":
-      duration.turns = foundryItem.data.duration.value;
+      duration.turns = foundryItem.system.duration.value;
       break;
     case "round":
-      duration.rounds = foundryItem.data.duration.value;
+      duration.rounds = foundryItem.system.duration.value;
       break;
     case "hour":
-      duration.seconds = foundryItem.data.duration.value * 60 * 60;
+      duration.seconds = foundryItem.system.duration.value * 60 * 60;
       break;
     case "minute":
-      duration.rounds = foundryItem.data.duration.value * 10;
+      duration.rounds = foundryItem.system.duration.value * 10;
       break;
     // no default
   }
@@ -1142,24 +1137,24 @@ function consumableEffect(effect, ddbItem, foundryItem) {
   setProperty(effect, "flags.ddbimporter.disabled", false);
   setProperty(foundryItem, "flags.dae.transfer", false);
   effect.duration = generateEffectDuration(foundryItem);
-  if (!foundryItem.data.target?.value) {
-    foundryItem.data.target = {
+  if (!foundryItem.system.target?.value) {
+    foundryItem.system.target = {
       value: 1,
       width: null,
       units: "",
       type: "creature",
     };
   }
-  if (!foundryItem.data.range?.units) {
-    foundryItem.data.range = {
+  if (!foundryItem.system.range?.units) {
+    foundryItem.system.range = {
       value: null,
       long: null,
       units: "touch",
     };
   }
-  if (foundryItem.data.uses) {
-    foundryItem.data.uses.autoDestroy = true;
-    foundryItem.data.uses.autoUse = true;
+  if (foundryItem.system.uses) {
+    foundryItem.system.uses.autoDestroy = true;
+    foundryItem.system.uses.autoUse = true;
   }
 
   return effect;

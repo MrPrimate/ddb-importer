@@ -42,8 +42,8 @@ export function getLairActions(monster) {
   let dynamicActions = [];
 
   let defaultAction = newFeat("Lair Actions");
-  defaultAction.data.activation.type = "lair";
-  defaultAction.data.source = getSource(monster);
+  defaultAction.system.activation.type = "lair";
+  defaultAction.system.source = getSource(monster);
   dynamicActions.push(defaultAction);
 
   dom.querySelectorAll("h4").forEach((node) => {
@@ -52,7 +52,7 @@ export function getLairActions(monster) {
     if (node.textContent == "Lair Actions" || node.textContent == "") {
       return;
     }
-    action.data.source = getSource(monster);
+    action.system.source = getSource(monster);
     if (action.name !== "") dynamicActions.push(action);
   });
 
@@ -62,7 +62,7 @@ export function getLairActions(monster) {
     if (node.textContent == "Lair Actions" || action.name == "") {
       return;
     }
-    action.data.source = getSource(monster);
+    action.system.source = getSource(monster);
     if (action.name !== "") dynamicActions.push(action);
   });
 
@@ -72,7 +72,7 @@ export function getLairActions(monster) {
   if (!action) {
     action = dynamicActions[0];
   } else if (hideDescription) {
-    action.data.description.value = "<section class=\"secret\">\n";
+    action.system.description.value = "<section class=\"secret\">\n";
   }
 
   dom.childNodes.forEach((node) => {
@@ -82,13 +82,13 @@ export function getLairActions(monster) {
     let startFlag = false;
     if (switchAction) {
       actionType = node.textContent;
-      if (action.data.description.value !== "" && hideDescription) {
-        action.data.description.value += addPlayerDescription(monster, action);
+      if (action.system.description.value !== "" && hideDescription) {
+        action.system.description.value += addPlayerDescription(monster, action);
       }
       action = switchAction;
-      if (action.data.description.value === "") startFlag = true;
-      if ((action.data.description.value === "" || action.name === "Lair Actions") && hideDescription) {
-        action.data.description.value += "<section class=\"secret\">\n";
+      if (action.system.description.value === "") startFlag = true;
+      if ((action.system.description.value === "" || action.name === "Lair Actions") && hideDescription) {
+        action.system.description.value += "<section class=\"secret\">\n";
       }
     }
     if (node.outerHTML) {
@@ -96,7 +96,7 @@ export function getLairActions(monster) {
       if (switchAction && startFlag) {
         outerHTML = outerHTML.replace(`${nodeName}.`, "");
       }
-      action.data.description.value += outerHTML;
+      action.system.description.value += outerHTML;
     }
 
     const initiativeMatch = node.textContent.match(/initiative count (\d+)/);
@@ -108,10 +108,10 @@ export function getLairActions(monster) {
     }
   });
 
-  if (action && action.data.description.value !== "" && hideDescription) {
-    action.data.description.value += addPlayerDescription(monster, action);
+  if (action && action.system.description.value !== "" && hideDescription) {
+    action.system.description.value += addPlayerDescription(monster, action);
   }
-  if (action) action.data.description.value = generateTable(monster.name, action.data.description.value, updateExisting);
+  if (action) action.system.description.value = generateTable(monster.name, action.system.description.value, updateExisting);
 
   return {
     resource: resource,

@@ -73,7 +73,7 @@ async function loadSRDPacks(compendiumName) {
   if (!srdPack) {
     logger.error(`Failed to load SRDPack ${compendiumName}`);
   } else {
-    srdPacks[compendiumName] = await srdPack.getDocuments().then((data) => data.map((i) => i.data));
+    srdPacks[compendiumName] = await srdPack.getDocuments();
     // eslint-disable-next-line require-atomic-updates
     srdPacksLoaded[compendiumName] = true;
   }
@@ -225,17 +225,17 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
     const alternativeNames = matchItem.flags?.ddbimporter?.dndbeyond?.alternativeNames;
     const extraNames = (alternativeNames) ? matchItem.flags.ddbimporter.dndbeyond.alternativeNames : [];
 
-    const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.data, 'activation');
-    const matchItemActivationProperty = Object.prototype.hasOwnProperty.call(item.data, 'activation');
+    const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, 'activation');
+    const matchItemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, 'activation');
 
-    if (itemActivationProperty && item.data?.activation?.type == "") {
+    if (itemActivationProperty && item.system?.activation?.type == "") {
       activationMatch = true;
     } else if (matchItemActivationProperty && itemActivationProperty) {
       // I can't remember why I added this. Maybe I was concerned about identical named items with
       // different activation times?
       // maybe I just want to check it exists?
       // causing issues so changed.
-      // activationMatch = matchItem.data.activation.type === item.data.activation.type;
+      // activationMatch = matchItem.system.activation.type === item.system.activation.type;
       activationMatch = matchItemActivationProperty && itemActivationProperty;
     } else if (!itemActivationProperty) {
       activationMatch = true;
@@ -313,7 +313,7 @@ async function getFilteredItems(compendium, item, index, matchFlags) {
 
   const flagFiltered = mapped.filter((idx) => {
     const nameMatch = idx.name === item.name;
-    const flagMatched = flagMatch(idx.data, item, matchFlags);
+    const flagMatched = flagMatch(idx, item, matchFlags);
     return nameMatch && flagMatched;
   });
 
@@ -341,7 +341,7 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
       // purge existing active effects on this item
       if (existing.results) await existing.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
       if (existing.effects) await existing.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-      if (existing.data.flags) await copySupportedItemFlags(existing.data, item);
+      if (existing.flags) await copySupportedItemFlags(existing, item);
       promises.push(existing.update(item));
     }
   });
@@ -520,7 +520,7 @@ async function getSRDIconMatch(type) {
       type: item.type,
       data: {},
     };
-    if (item.data.activation) smallItem.data.activation = item.data.activation;
+    if (item.system.activation) smallItem.system.activation = item.system.activation;
     return smallItem;
   });
 
@@ -700,7 +700,7 @@ export async function getDDBSpellSchoolIcons(items, download) {
     // logger.debug(item.name);
     // logger.debug(item.flags.ddbimporter.dndbeyond);
     if (item.type == "spell") {
-      const school = schools.find((school) => school.id === item.data.school);
+      const school = schools.find((school) => school.id === item.system.school);
       if (school && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
         item.img = school.img;
       }
@@ -792,10 +792,10 @@ async function updateFolderItems(type, input, update = true) {
   const defaultItemsFolder = await utils.getFolder(folderLookup.folder);
   const existingItems = await game.items.entities.filter((item) => {
     const itemFolder = subFolders.find((folder) =>
-      item.data.flags?.ddbimporter?.dndbeyond?.lookupName &&
-      folder.name === item.data.flags.ddbimporter.dndbeyond.lookupName
+      item.flags?.ddbimporter?.dndbeyond?.lookupName &&
+      folder.name === item.flags.ddbimporter.dndbeyond.lookupName
     );
-    return itemFolder && item.type === folderLookup.itemType && item.data.folder === itemFolder._id;
+    return itemFolder && item.type === folderLookup.itemType && item.folder === itemFolder._id;
   });
 
   // update or create folder items
@@ -843,10 +843,10 @@ async function updateFolderItems(type, input, update = true) {
   const folderIds = [defaultItemsFolder._id, ...subFolders.map((f) => f._id)];
   const items = Promise.all(
     game.items.entities
-      .filter((item) => item.type === folderLookup.itemType && folderIds.includes(item.data.folder))
+      .filter((item) => item.type === folderLookup.itemType && folderIds.includes(item.folder))
       .map((result) => {
-        const subFolder = (result.data.flags.ddbimporter?.dndbeyond?.lookupName)
-          ? result.data.flags.ddbimporter.dndbeyond.lookupName
+        const subFolder = (result.flags.ddbimporter?.dndbeyond?.lookupName)
+          ? result.flags.ddbimporter.dndbeyond.lookupName
           : null;
         return {
           magicItem: {
@@ -856,8 +856,8 @@ async function updateFolderItems(type, input, update = true) {
             img: result.img,
             name: result.name,
             subFolder: subFolder,
-            flatDc: result.data.flags?.ddbimporter?.dndbeyond?.overrideDC,
-            dc: result.data.flags?.ddbimporter?.dndbeyond?.dc,
+            flatDc: result.flags?.ddbimporter?.dndbeyond?.overrideDC,
+            dc: result.flags?.ddbimporter?.dndbeyond?.dc,
           },
           _id: result._id,
           name: result.name,
@@ -870,16 +870,16 @@ async function updateFolderItems(type, input, update = true) {
 
 export function updateCharacterItemFlags(itemData, replaceData) {
   if (itemData.flags?.ddbimporter?.importId) setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
-  if (itemData.data.quantity) replaceData.data.quantity = itemData.data.quantity;
-  if (itemData.data.attuned) replaceData.data.attuned = itemData.data.attuned;
-  if (itemData.data.attunement) replaceData.data.attunement = itemData.data.attunement;
-  if (itemData.data.equipped) replaceData.data.equipped = itemData.data.equipped;
-  if (itemData.data.uses) replaceData.data.uses = itemData.data.uses;
-  if (itemData.data.resources) replaceData.data.resources = itemData.data.resources;
-  if (itemData.data.consume) replaceData.data.consume = itemData.data.consume;
-  if (itemData.data.preparation) replaceData.data.preparation = itemData.data.preparation;
-  if (itemData.data.proficient) replaceData.data.proficient = itemData.data.proficient;
-  if (itemData.data.ability) replaceData.data.ability = itemData.data.ability;
+  if (itemData.system.quantity) replaceData.system.quantity = itemData.system.quantity;
+  if (itemData.system.attuned) replaceData.system.attuned = itemData.system.attuned;
+  if (itemData.system.attunement) replaceData.system.attunement = itemData.system.attunement;
+  if (itemData.system.equipped) replaceData.system.equipped = itemData.system.equipped;
+  if (itemData.system.uses) replaceData.system.uses = itemData.system.uses;
+  if (itemData.system.resources) replaceData.system.resources = itemData.system.resources;
+  if (itemData.system.consume) replaceData.system.consume = itemData.system.consume;
+  if (itemData.system.preparation) replaceData.system.preparation = itemData.system.preparation;
+  if (itemData.system.proficient) replaceData.system.proficient = itemData.system.proficient;
+  if (itemData.system.ability) replaceData.system.ability = itemData.system.ability;
   return replaceData;
 }
 

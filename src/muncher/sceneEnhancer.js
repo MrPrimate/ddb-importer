@@ -12,33 +12,33 @@ import utils from "../utils.js";
 function getNotes(scene, bookCode) {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
-    journal.data.flags.ddb?.bookCode &&
-    journal.data.flags.ddb.bookCode === bookCode
+    journal.flags.ddb?.bookCode &&
+    journal.flags.ddb.bookCode === bookCode
   );
 
   // get all notes placed on the map
-  const notes = scene.data.notes
+  const notes = scene.notes
     // the user might have placed a note, unless it is based on an imported Journal Entry, we will not carry
     // that one over
-    .filter((note) => relatedJournalEntries.some((journal) => journal.id === note.data.entryId))
+    .filter((note) => relatedJournalEntries.some((journal) => journal.id === note.system.entryId))
     .map((note) => {
-      const journal = relatedJournalEntries.find((journal) => journal.id === note.data.entryId);
-      const idx = parseInt(journal.data.flags.ddb.ddbId);
+      const journal = relatedJournalEntries.find((journal) => journal.id === note.system.entryId);
+      const idx = parseInt(journal.flags.ddb.ddbId);
       // removed un-needed userdata
-      const flags = journal.data.flags.ddb;
+      const flags = journal.flags.ddb;
       if (flags?.userData) delete flags.userData;
       return {
         index: idx,
-        label: journal.data.name,
+        label: journal.name,
         flags: {
           ddb: flags,
         },
-        iconSize: note.data.iconSize,
-        iconTint: note.data.iconTint,
-        textColor: note.data.textColor,
-        textAnchor: note.data.textAnchor,
-        x: note.data.x,
-        y: note.data.y,
+        iconSize: note.iconSize,
+        iconTint: note.iconTint,
+        textColor: note.textColor,
+        textAnchor: note.textAnchor,
+        x: note.x,
+        y: note.y,
       };
     })
     .reduce((notes, note) => {
@@ -87,38 +87,38 @@ export function collectSceneData(scene, bookCode) {
   const notes = getNotes(scene, bookCode);
 
   const data = {
-    flags: scene.data.flags,
-    name: scene.data.name,
-    navName: scene.data.navName,
+    flags: scene.flags,
+    name: scene.name,
+    navName: scene.navName,
     // dimensions
-    width: scene.data.width,
-    height: scene.data.height,
+    width: scene.width,
+    height: scene.height,
     // grid
-    grid: scene.data.grid,
-    gridDistance: scene.data.gridDistance,
-    gridType: scene.data.gridType,
-    gridUnits: scene.data.gridUnits,
-    shiftX: scene.data.shiftX,
-    shiftY: scene.data.shiftY,
-    padding: scene.data.padding,
+    grid: scene.grid,
+    gridDistance: scene.gridDistance,
+    gridType: scene.gridType,
+    gridUnits: scene.gridUnits,
+    shiftX: scene.shiftX,
+    shiftY: scene.shiftY,
+    padding: scene.padding,
     // initial
-    initial: scene.data.initial,
+    initial: scene.initial,
     // customization
-    backgroundColor: scene.data.backgroundColor,
-    walls: scene.data.walls.map((wall) => {
+    backgroundColor: scene.backgroundColor,
+    walls: scene.walls.map((wall) => {
       const w = wall.toObject();
       delete w._id;
       return w;
     }),
     //
-    drawings: scene.data.drawings,
-    weather: scene.data.weather,
+    drawings: scene.drawings,
+    weather: scene.weather,
     // lights
-    darkness: scene.data.darkness,
-    tokenVision: scene.data.tokenVision,
-    globalLight: scene.data.globalLight,
-    globalLightThreshold: scene.data.globalLightThreshold,
-    lights: scene.data.lights.map((light) => {
+    darkness: scene.darkness,
+    tokenVision: scene.tokenVision,
+    globalLight: scene.globalLight,
+    globalLightThreshold: scene.globalLightThreshold,
+    lights: scene.lights.map((light) => {
       const l = light.toObject();
       delete l._id;
       return l;
@@ -129,44 +129,44 @@ export function collectSceneData(scene, bookCode) {
   data.flags.ddb.foundryVersion = game.version ? game.version : game.data.version;
 
   if (data.flags.ddb.tokens) delete data.flags.ddb.tokens;
-  data.flags.ddb.tokens = scene.data.tokens
+  data.flags.ddb.tokens = scene.tokens
     .filter((token) => !token.actorLink)
     .map((token) => {
       let result = {
-        _id: token.data._id,
-        name: token.data.name,
-        width: token.data.width,
-        height: token.data.height,
-        scale: token.data.scale,
-        x: token.data.x,
-        y: token.data.y,
-        disposition: token.data.disposition,
-        flags: token.data.flags,
+        _id: token._id,
+        name: token.name,
+        width: token.width,
+        height: token.height,
+        scale: token.scale,
+        x: token.x,
+        y: token.y,
+        disposition: token.disposition,
+        flags: token.flags,
         actorLink: false,
         bar1: { attribute: "attributes.hp" },
         effects: [],
-        elevation: token.data.elevation,
-        hidden: token.data.hidden,
-        lightAlpha: token.data.lightAlpha,
-        lightAngle: token.data.lightAngle,
-        lightAnimation: token.data.lightAnimation,
-        tint: token.data.tint,
-        actorData: token.data.actorData,
+        elevation: token.elevation,
+        hidden: token.hidden,
+        lightAlpha: token.lightAlpha,
+        lightAngle: token.lightAngle,
+        lightAnimation: token.lightAnimation,
+        tint: token.tint,
+        actorData: token.actorData,
       };
 
       if (v9) {
-        result.light = token.data.light;
+        result.light = token.light;
       } else {
-        result.lightAlpha = token.data.lightAlpha;
-        result.lightAngle = token.data.lightAngle;
-        result.lightAnimation = token.data.lightAnimation;
+        result.lightAlpha = token.lightAlpha;
+        result.lightAngle = token.lightAngle;
+        result.lightAnimation = token.lightAnimation;
       }
 
       // the token actor flags here help us match up actors using the DDB ID
       if (token.actor) {
-        if (token.actor.data.flags.ddbimporter) {
-          result.flags.ddbActorFlags = token.actor.data.flags.ddbimporter;
-          result.flags.ddbActorFlags.name = token.actor.data.token?.name ? token.actor.data.token.name : token.actor.data.name;
+        if (token.actor.flags.ddbimporter) {
+          result.flags.ddbActorFlags = token.actor.flags.ddbimporter;
+          result.flags.ddbActorFlags.name = token.actor.prototypeToken?.name ? token.actor.prototypeToken.name : token.actor.name;
         }
       }
 
@@ -178,7 +178,7 @@ export function collectSceneData(scene, bookCode) {
   if (data.flags.ddb?.userData) delete data.flags.ddb.userData;
 
   data.flags.ddb.notes = notes;
-  data.flags.ddb.img = `assets/${scene.data.img.split("assets/").pop()}`;
+  data.flags.ddb.img = `assets/${scene.img.split("assets/").pop()}`;
 
   if (!data.flags.ddbimporter) data.flags.ddbimporter = {};
   data.flags.ddbimporter['version'] = game.modules.get("ddb-importer").data.version;
@@ -204,7 +204,7 @@ function getCompendiumScenes(compendiumCollection, selectedId) {
 }
 
 
-// scene.data.flags.ddb.bookCode
+// scene.flags.ddb.bookCode
 
 
 // window.DDBScene = {
@@ -213,7 +213,6 @@ function getCompendiumScenes(compendiumCollection, selectedId) {
 
 const ddbFlags = ["ddb", "ddbimporter"];
 const allowedFlags = ["stairways", "perfect-vision", "dynamic-illumination"];
-
 
 export class SceneEnhancerExport extends Application {
 
@@ -225,13 +224,13 @@ export class SceneEnhancerExport extends Application {
     this.downloadBookSet = false;
 
     this.scene = scene;
-    const sceneExportFlags = this.scene.data.flags.ddbimporter?.export;
+    const sceneExportFlags = this.scene.flags.ddbimporter?.export;
 
     this.description = sceneExportFlags?.description || "";
     this.url = sceneExportFlags?.url || "";
     this.compendium = sceneExportFlags?.compendium;
     this.compendiumScene = sceneExportFlags?.scene;
-    this.bookCode = this.scene.data.flags?.ddb?.bookCode.toLowerCase();
+    this.bookCode = this.scene.flags?.ddb?.bookCode.toLowerCase();
     this.compendiumScenes = this.compendium ? getCompendiumScenes(this.compendium, this.compendiumScene) : [];
 
     if (this.compendiumScene && this.compendiumScenes) this.sceneSet = true;
@@ -410,7 +409,7 @@ export class SceneEnhancerExport extends Application {
   async buttonClick(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
 
-    let sceneFlags = duplicate(this.scene.data.flags);
+    let sceneFlags = duplicate(this.scene.flags);
 
     if (!sceneFlags.ddb) sceneFlags.ddb = {};
     if (!sceneFlags.ddbimporter) sceneFlags.ddbimporter = {};

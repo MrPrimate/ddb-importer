@@ -166,20 +166,15 @@ function addACBonusEffect(modifiers, name, type) {
   const bonus = utils.filterModifiers(modifiers, "bonus", type, restrictions).reduce((a, b) => a + b.value, 0);
   if (bonus !== 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
-    const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
-    if (AUTO_AC) {
-      const daeInstalled = game.modules.get("dae")?.active;
-      // using bonus here adds them to the bonus field, but then items that add a bonsu don't get applied
-      // (e.g. bracers of defense) if wearing something like robi of archmage.
-      // this is set to value, and show up as separate line in ac calculation.
-      // we set this to bonus if dae is not installed as itherwise it is not applied.
-      if (daeInstalled) {
-        changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
-      } else {
-        changes.push(generateAddChange(bonus, 18, "data.attributes.ac.bonus"));
-      }
-    } else {
+    const daeInstalled = game.modules.get("dae")?.active;
+    // using bonus here adds them to the bonus field, but then items that add a bonsu don't get applied
+    // (e.g. bracers of defense) if wearing something like robi of archmage.
+    // this is set to value, and show up as separate line in ac calculation.
+    // we set this to bonus if dae is not installed as itherwise it is not applied.
+    if (daeInstalled) {
       changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
+    } else {
+      changes.push(generateAddChange(bonus, 18, "data.attributes.ac.bonus"));
     }
   }
   return changes;
@@ -217,7 +212,7 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
 
 function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect) {
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
-  const noACValue = !foundryItem.data?.armor?.value;
+  const noACValue = !foundryItem.system?.armor?.value;
   const daeInstalled = game.modules.get("dae")?.active;
   const daeBonusField = daeInstalled ? "data.attributes.ac.value" : "data.attributes.ac.bonus";
 
@@ -295,7 +290,7 @@ export function generateACEffectChangesForItem(ddb, character, ddbItem, foundryI
  */
 export function generateBaseACItemEffect(ddb, character, ddbItem, foundryItem, isCompendiumItem) {
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
-  const noACValue = !foundryItem.data?.armor?.value;
+  const noACValue = !foundryItem.system?.armor?.value;
 
   if (noModifiers && noACValue) return foundryItem;
   // console.error(`Item: ${foundryItem.name}`, ddbItem);

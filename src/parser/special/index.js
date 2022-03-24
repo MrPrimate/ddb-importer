@@ -34,7 +34,7 @@ function getDivineSmite() {
     name: "Divine Smite",
     type: "spell",
     img: "systems/dnd5e/icons/skills/light_05.jpg",
-    data: {
+    system: {
       description: {
         value: "<p>Starting at 2nd level, when you hit a creature with a melee weapon attack, you can expend one spell slot to deal radiant damage to the target, in addition to the weapon&rsquo;s damage.</p>\n<p>The extra damage is 2d8 for a 1st-level spell slot, plus 1d8 for each spell level higher than 1st, to a maximum of 5d8. The damage increases by 1d8 if the target is an undead or a fiend.</p>",
         chat: "",
@@ -115,12 +115,12 @@ function getDivineSmite() {
   };
 
   if (game.modules.get("betterrolls5e")?.active) {
-    result.data.damage.parts.push([`${extraDamage}`, "radiant"]);
+    result.system.damage.parts.push([`${extraDamage}`, "radiant"]);
   } else {
-    result.data.formula = `${regularDamage} + ${extraDamage}`;
-    result.data.chatFlavor = `Use Other damage ${restriction.toLowerCase()}`;
+    result.system.formula = `${regularDamage} + ${extraDamage}`;
+    result.system.chatFlavor = `Use Other damage ${restriction.toLowerCase()}`;
     if (game.modules.get("midi-qol")?.active) {
-      result.data.activation.condition = `["undead", "fiend"].includes("@raceOrType")`;
+      result.system.activation.condition = `["undead", "fiend"].includes("@raceOrType")`;
     }
   }
 

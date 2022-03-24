@@ -12,7 +12,7 @@ export class DDBItemConfig extends FormApplication {
   async getData() { // eslint-disable-line class-methods-use-this
     // console.warn(this);
     // console.warn(this.object);
-    let item = this.object.data;
+    let item = this.object;
 
     const icon = item.flags.ddbimporter?.ignoreIcon;
     const itemImport = item.flags.ddbimporter?.ignoreItemImport;
@@ -65,7 +65,7 @@ export class DDBItemConfig extends FormApplication {
 
     let item = {
       _id: this.object.data._id,
-      flags: this.object.data.flags,
+      flags: this.object.flags,
     };
 
     if (!item.flags.ddbimporter) item.flags.ddbimporter = {};

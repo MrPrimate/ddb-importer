@@ -73,7 +73,7 @@ export function getSpecialTraits(monster) {
     }
     let action = newFeat(name);
     action.name = name;
-    action.data.source = getSource(monster);
+    action.system.source = getSource(monster);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
       fullName: query.textContent,
@@ -94,7 +94,7 @@ export function getSpecialTraits(monster) {
         name = name.split(";").pop().trim();
       }
       let action = newFeat(name);
-      action.data.source = getSource(monster);
+      action.system.source = getSource(monster);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
         fullName: query.textContent,
@@ -107,7 +107,7 @@ export function getSpecialTraits(monster) {
     dom.querySelectorAll("em").forEach((node) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
       let action = newFeat(name);
-      action.data.source = getSource(monster);
+      action.system.source = getSource(monster);
       action.flags.monsterMunch = {
         titleHTML: node.outerHTML,
         fullName: node.textContent,
@@ -120,7 +120,7 @@ export function getSpecialTraits(monster) {
     dom.querySelectorAll("strong").forEach((node) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
       let action = newFeat(name);
-      action.data.source = getSource(monster);
+      action.system.source = getSource(monster);
       action.flags.monsterMunch = {
         titleHTML: node.outerHTML,
         fullName: node.textContent,
@@ -131,7 +131,7 @@ export function getSpecialTraits(monster) {
 
   if (dynamicActions.length == 0) {
     let action = newFeat("Special Traits");
-    action.data.source = getSource(monster);
+    action.system.source = getSource(monster);
     action.flags.monsterMunch = {};
     if (action.name) dynamicActions.push(action);
   }
@@ -152,15 +152,15 @@ export function getSpecialTraits(monster) {
     // console.log(switchAction);
     let startFlag = false;
     if (switchAction) {
-      if (action.data.description.value !== "" && hideDescription) {
-        action.data.description.value += addPlayerDescription(monster, action);
+      if (action.system.description.value !== "" && hideDescription) {
+        action.system.description.value += addPlayerDescription(monster, action);
       }
-      action.data.description.value = generateTable(action.name, action.data.description.value, updateExisting);
+      action.system.description.value = generateTable(action.name, action.system.description.value, updateExisting);
       action = switchAction;
-      if (action.data.description.value === "") {
+      if (action.system.description.value === "") {
         startFlag = true;
         if (hideDescription) {
-          action.data.description.value = "<section class=\"secret\">\n";
+          action.system.description.value = "<section class=\"secret\">\n";
         }
       }
     }
@@ -180,34 +180,34 @@ export function getSpecialTraits(monster) {
         titleDom.appendChild(element);
       });
       if (titleDom.textContent.startsWith(". ")) outerHTML = outerHTML.replace(". ", "");
-      action.data.description.value += outerHTML;
+      action.system.description.value += outerHTML;
     }
 
     // If we have already parsed bits of this action, we probably don't want to
     // do it again!
     // if (!startFlag) return;
 
-    action.data.activation.type = getAction(node.textContent, "");
+    action.system.activation.type = getAction(node.textContent, "");
     const activationCost = getActivation(node.textContent);
     if (activationCost) {
-      action.data.activation.cost = activationCost;
-      action.data.consume.amount = activationCost;
-    } else if (action.data.activation.type !== "") {
-      action.data.activation.cost = 1;
+      action.system.activation.cost = activationCost;
+      action.system.consume.amount = activationCost;
+    } else if (action.system.activation.type !== "") {
+      action.system.activation.cost = 1;
     }
 
-    action.data.uses = getUses(node.textContent);
-    action.data.recharge = getRecharge(node.textContent);
-    action.data.save = getFeatSave(node.textContent, action.data.save);
-    action.data.target = getTarget(node.textContent);
+    action.system.uses = getUses(node.textContent);
+    action.system.recharge = getRecharge(node.textContent);
+    action.system.save = getFeatSave(node.textContent, action.system.save);
+    action.system.target = getTarget(node.textContent);
     // assumption - if we have parsed a save dc set action type to save
-    if (action.data.save.dc) {
-      action.data.actionType = "save";
+    if (action.system.save.dc) {
+      action.system.actionType = "save";
     }
-    action.data.damage = getDamage(node.textContent);
+    action.system.damage = getDamage(node.textContent);
     // assumption - if the action type is not set but there is damage, the action type is other
-    if (!action.data.actionType && action.data.damage.parts.length != 0) {
-      action.data.actionType = "other";
+    if (!action.system.actionType && action.system.damage.parts.length != 0) {
+      action.system.actionType = "other";
     }
 
     // legendary resistance check
@@ -215,9 +215,9 @@ export function getSpecialTraits(monster) {
     if (actionMatch) {
       resistanceResource.value = parseInt(actionMatch[1]);
       resistanceResource.max = parseInt(actionMatch[1]);
-      action.data.activation.type = "special";
-      action.data.activation.const = null;
-      action.data.consume = {
+      action.system.activation.type = "special";
+      action.system.activation.const = null;
+      action.system.consume = {
         type: "attribute",
         target: "resources.legres.value",
         amount: 1
@@ -226,10 +226,10 @@ export function getSpecialTraits(monster) {
 
   });
 
-  if (action && action.data.description.value !== "" && hideDescription) {
-    action.data.description.value += addPlayerDescription(monster, action);
+  if (action && action.system.description.value !== "" && hideDescription) {
+    action.system.description.value += addPlayerDescription(monster, action);
   }
-  if (action) action.data.description.value = generateTable(monster.name, action.data.description.value, updateExisting);
+  if (action) action.system.description.value = generateTable(monster.name, action.system.description.value, updateExisting);
 
   // console.log(dynamicActions);
 

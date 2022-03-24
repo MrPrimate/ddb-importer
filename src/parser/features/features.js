@@ -66,15 +66,15 @@ function parseFeature(feat, ddb, character, source, type) {
   if (type === "background") {
     logger.debug(`Found background ${feat.name}`);
     logger.debug(`Found ${choices.map((c) => c.label).join(",")}`);
-    item.data.description = getDescription(ddb, character, feat, true);
-    item.data.description.value += `<h3>Choices</h3><ul>`;
-    item.data.source = source;
+    item.system.description = getDescription(ddb, character, feat, true);
+    item.system.description.value += `<h3>Choices</h3><ul>`;
+    item.system.source = source;
     choices.forEach((choice) => {
       let choiceItem = duplicate(item);
       item = addFeatEffects(ddb, character, feat, choiceItem, choice, type);
-      item.data.description.value += `<li>${choice.label}</li>`;
+      item.system.description.value += `<li>${choice.label}</li>`;
     });
-    item.data.description.value += `</ul>`;
+    item.system.description.value += `</ul>`;
     features.push(item);
 
     const hasBackgroundType = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
@@ -114,8 +114,8 @@ function parseFeature(feat, ddb, character, source, type) {
       // add these flags in so they can be used by the description parser
       setProperty(choiceFeat, "flags.ddbimporter.dndbeyond.choice", choice);
 
-      choiceItem.data.description = getDescription(ddb, character, choiceFeat, false);
-      choiceItem.data.source = source;
+      choiceItem.system.description = getDescription(ddb, character, choiceFeat, false);
+      choiceItem.system.source = source;
       choiceItem.flags.ddbimporter.dndbeyond.choice = {
         label: choice.label,
         choiceId: choice.choiceId,
@@ -132,8 +132,8 @@ function parseFeature(feat, ddb, character, source, type) {
       features.push(choiceItem);
     });
   } else {
-    item.data.description = getDescription(ddb, character, feat, true);
-    item.data.source = source;
+    item.system.description = getDescription(ddb, character, feat, true);
+    item.system.source = source;
     item = addFeatEffects(ddb, character, feat, item, undefined, type);
 
     features.push(item);
@@ -143,7 +143,7 @@ function parseFeature(feat, ddb, character, source, type) {
 }
 
 function isDuplicateFeature(items, item) {
-  return items.some((dup) => dup.name === item.name && dup.data.description.value === item.data.description.value);
+  return items.some((dup) => dup.name === item.name && dup.system.description.value === item.system.description.value);
 }
 
 function getNameMatchedFeature(items, item) {
@@ -211,8 +211,8 @@ function parseClassFeatures(ddb, character) {
         const existingFeature = getNameMatchedFeature(classItems, item);
         const duplicateFeature = isDuplicateFeature(classItems, item);
         if (existingFeature && !duplicateFeature) {
-          const levelAdjustment = `<h3>${klassName}: Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.data.description.value}`;
-          existingFeature.data.description.value += levelAdjustment;
+          const levelAdjustment = `<h3>${klassName}: Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
+          existingFeature.system.description.value += levelAdjustment;
         } else if (!existingFeature) {
           classItems.push(item);
         }
@@ -256,8 +256,8 @@ function parseClassFeatures(ddb, character) {
           const existingFeature = getNameMatchedFeature(subClassItems, item);
           const duplicateFeature = isDuplicateFeature(subClassItems, item);
           if (existingFeature && !duplicateFeature) {
-            const levelAdjustment = `<h3>${subKlassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.data.description.value}`;
-            existingFeature.data.description.value += levelAdjustment;
+            const levelAdjustment = `<h3>${subKlassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
+            existingFeature.system.description.value += levelAdjustment;
           } else if (!existingFeature) {
             subClassItems.push(item);
           }
@@ -271,8 +271,8 @@ function parseClassFeatures(ddb, character) {
         const existingFeature = getNameMatchedFeature(classItems, item);
         const duplicateFeature = isDuplicateFeature(classItems, item);
         if (existingFeature && !duplicateFeature) {
-          const levelAdjustment = `<h3>${subKlassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.data.description.value}`;
-          existingFeature.data.description.value += levelAdjustment;
+          const levelAdjustment = `<h3>${subKlassName}: At Level ${item.flags.ddbimporter.dndbeyond.requiredLevel}</h3>${item.system.description.value}`;
+          existingFeature.system.description.value += levelAdjustment;
         } else if (!existingFeature) {
           classItems.push(item);
         }
@@ -301,7 +301,7 @@ export default async function parseFeatures(ddb, character, classes) {
         const existingFeature = getNameMatchedFeature(items, item);
         const duplicateFeature = isDuplicateFeature(items, item);
         if (existingFeature && !duplicateFeature) {
-          existingFeature.data.description.value += `<h3>Racial Trait Addition</h3>${item.data.description.value}`;
+          existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
         } else if (!existingFeature) {
           items.push(item);
         }
@@ -333,8 +333,8 @@ export default async function parseFeatures(ddb, character, classes) {
       const existingFeature = getNameMatchedFeature(items, item);
       const duplicateFeature = isDuplicateFeature(items, item);
       if (existingFeature && !duplicateFeature) {
-        const klassAdjustment = `<h3>${item.flags.ddbimporter.dndbeyond.class}</h3>${item.data.description.value}`;
-        existingFeature.data.description.value += klassAdjustment;
+        const klassAdjustment = `<h3>${item.flags.ddbimporter.dndbeyond.class}</h3>${item.system.description.value}`;
+        existingFeature.system.description.value += klassAdjustment;
       } else if (!existingFeature) {
         items.push(item);
       }

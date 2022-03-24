@@ -18,18 +18,18 @@ export function absorbElementsEffect(document) {
     startRound: null,
     startTurn: null,
   };
-  document.data.damage = {
+  document.system.damage = {
     parts: [["", ""]],
     versatile: "",
     value: "",
   };
-  document.data.target = {
+  document.system.target = {
     value: null,
     width: null,
     units: "",
     type: "self",
   };
-  document.data.range = {
+  document.system.range = {
     value: null,
     long: null,
     units: "self",

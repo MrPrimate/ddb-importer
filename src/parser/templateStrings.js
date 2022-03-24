@@ -78,7 +78,7 @@ function parseMatch(ddb, character, match, feature) {
           const abilityModifier = utils.calculateModifier(characterAbilities[save].value);
           // not sure if we should add this, probably not.
           // const bonus = utils.getModifierSum(utils.filterBaseModifiers(ddb, "bonus", "spell-save-dc"), character);
-          const dc = 8 + character.data.attributes.prof + abilityModifier;
+          const dc = 8 + character.system.attributes.prof + abilityModifier;
           return dc;
         });
       const saveRegexp = RegExp(match[0], "g");
@@ -139,7 +139,7 @@ function parseMatch(ddb, character, match, feature) {
   }
 
   if (result.includes("proficiency")) {
-    const profBonus = useScaleAll ? " + @prof" : character.data.attributes.prof;
+    const profBonus = useScaleAll ? " + @prof" : character.system.attributes.prof;
     result = result.replace("proficiency", profBonus);
     linktext = result.replace("proficiency", ` (Proficiency Bonus) `);
   }

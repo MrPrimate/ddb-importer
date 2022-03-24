@@ -52,11 +52,11 @@ export function getSpellCasting(data, character) {
 }
 
 export function getSpellDC(data, character) {
-  if (character.data.attributes.spellcasting === "") {
+  if (character.system.attributes.spellcasting === "") {
     return 10;
   } else {
     const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
-    return 8 + characterAbilities[character.data.attributes.spellcasting].mod + character.data.attributes.prof;
+    return 8 + characterAbilities[character.system.attributes.spellcasting].mod + character.system.attributes.prof;
   }
 }
 

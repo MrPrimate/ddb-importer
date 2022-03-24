@@ -32,27 +32,27 @@ export default function parseWonderous(data) {
   // "value": 10,
   // "dex": null
   // }
-  item.data.armor = {
+  item.system.armor = {
     type: "trinket",
     value: 10,
     dex: null,
   };
 
   /* "strength": 0 */
-  item.data.strength = 0;
+  item.system.strength = 0;
 
   /* "stealth": false,*/
-  item.data.stealth = false;
-  item.data.proficient = true;
-  item.data.description = getDescription(data);
-  item.data.source = utils.parseSource(data.definition);
-  item.data.quantity = getQuantity(data);
-  item.data.weight = getSingleItemWeight(data);
-  item.data.equipped = getEquipped(data);
-  item.data.rarity = getItemRarity(data);
-  item.data.identified = true;
-  item.data.uses = getUses(data);
-  item.data.capacity = getCapacity(data);
+  item.system.stealth = false;
+  item.system.proficient = true;
+  item.system.description = getDescription(data);
+  item.system.source = utils.parseSource(data.definition);
+  item.system.quantity = getQuantity(data);
+  item.system.weight = getSingleItemWeight(data);
+  item.system.equipped = getEquipped(data);
+  item.system.rarity = getItemRarity(data);
+  item.system.identified = true;
+  item.system.uses = getUses(data);
+  item.system.capacity = getCapacity(data);
 
   return item;
 }
