@@ -499,8 +499,7 @@ export function getArmorClass(ddb, character) {
     kf.name === "Unarmored Defense"
   )) calc = "unarmoredBarb";
 
-  const naturalACAllowed = utils.versionCompare(game.data.system.data.version, "1.4.2") >= 0;
-  if (naturalACAllowed && results.maxType === "Natural") {
+  if (results.maxType === "Natural") {
     calc = "natural";
     flat = results.actorBase;
   }

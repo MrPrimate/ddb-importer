@@ -75,24 +75,24 @@ function getSpellEdgeCase(spell, type, spellList) {
     switch (edgeCase.edge.toLowerCase()) {
       case "self":
       case "self only":
-        spell.data.target.type = "self";
+        spell.system.target.type = "self";
         logger.debug("spell target changed to self");
         break;
       // no default
     }
     spell.name = `${spell.name} (${edgeCase.edge})`;
-    spell.data.description.chat = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.data.description.chat}`;
-    spell.data.description.value = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.data.description.value}`;
+    spell.system.description.chat = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.chat}`;
+    spell.system.description.value = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.value}`;
 
     const diceSearch = /(\d+)d(\d+)/;
     const diceMatch = edgeCase.edge.match(diceSearch);
     if (diceMatch) {
-      if (spell.data.damage.parts[0] && spell.data.damage.parts[0][0]) {
-        spell.data.damage.parts[0][0] = diceMatch[0];
-      } else if (spell.data.damage.parts[0]) {
-        spell.data.damage.parts[0] = [diceMatch[0]];
+      if (spell.system.damage.parts[0] && spell.system.damage.parts[0][0]) {
+        spell.system.damage.parts[0][0] = diceMatch[0];
+      } else if (spell.system.damage.parts[0]) {
+        spell.system.damage.parts[0] = [diceMatch[0]];
       } else {
-        spell.data.damage.parts = [[diceMatch[0]]];
+        spell.system.damage.parts = [[diceMatch[0]]];
       }
     }
 
@@ -100,21 +100,21 @@ function getSpellEdgeCase(spell, type, spellList) {
     const saveSearch = /save DC (\d+)/;
     const saveMatch = edgeCase.edge.match(saveSearch);
     if (saveMatch) {
-      spell.data.save.dc = saveMatch[1];
-      spell.data.save.scaling = "flat";
+      spell.system.save.dc = saveMatch[1];
+      spell.system.save.scaling = "flat";
     }
 
   }
 
   // remove material components?
   if (!spellList.material) {
-    spell.data.materials = {
+    spell.system.materials = {
       value: "",
       consumed: false,
       cost: 0,
       supply: 0
     };
-    spell.data.components.material = false;
+    spell.system.components.material = false;
   }
 
 }
@@ -136,17 +136,17 @@ async function addSpells(monster) {
     logger.debug("Retrieving at Will spells:", atWill);
     let spells = await retrieveSpells(atWill);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
-      if (spell.data.level == 0) {
-        spell.data.preparation = {
+      if (spell.system.level == 0) {
+        spell.system.preparation = {
           mode: "prepared",
           prepared: false,
         };
       } else {
-        spell.data.preparation = {
+        spell.system.preparation = {
           mode: "atwill",
           prepared: false,
         };
-        spell.data.uses = {
+        spell.system.uses = {
           value: null,
           max: null,
           per: "",
@@ -164,7 +164,7 @@ async function addSpells(monster) {
     logger.debug("Retrieving class spells:", klass);
     let spells = await retrieveSpells(klass);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
-      spell.data.preparation = {
+      spell.system.preparation = {
         mode: "prepared",
         prepared: true,
       };
@@ -180,7 +180,7 @@ async function addSpells(monster) {
     logger.debug("Retrieving pact spells:", pact);
     let spells = await retrieveSpells(pact);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
-      spell.data.preparation = {
+      spell.system.preparation = {
         mode: "pact",
         prepared: true,
       };
@@ -202,19 +202,19 @@ async function addSpells(monster) {
         const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
         if (spellInfo) {
           const isAtWill = hasProperty(spellInfo, "innate") && !spellInfo.innate;
-          if (spell.data.level == 0) {
-            spell.data.preparation = {
+          if (spell.system.level == 0) {
+            spell.system.preparation = {
               mode: "prepared",
               prepared: false,
             };
           } else {
-            spell.data.preparation = {
+            spell.system.preparation = {
               mode: isAtWill ? "atwill" : "innate",
               prepared: !isAtWill,
             };
           }
           if (isAtWill && spellInfo.type === "atwill") {
-            spell.data.uses = {
+            spell.system.uses = {
               value: null,
               max: null,
               per: "",
@@ -226,7 +226,7 @@ async function addSpells(monster) {
               : (perLookup && perLookup.type)
                 ? perLookup.type
                 : "day";
-            spell.data.uses = {
+            spell.system.uses = {
               value: spellInfo.value,
               max: spellInfo.value,
               per: per,
@@ -251,7 +251,8 @@ async function parseMonster(monster, extra, useItemAC) {
   if (img && img.match(/.gif$/)) {
     img = null;
   }
-  foundryActor.token.name = monster.name;
+
+  foundryActor.prototypeToken.name = monster.name;
   foundryActor.flags.monsterMunch = {
     url: monster.url,
     img: (img) ? img : monster.avatarUrl,
@@ -272,57 +273,57 @@ async function parseMonster(monster, extra, useItemAC) {
   const temporaryHitPoints = monster.temporaryHitPoints ? monster.removedHitPoints : 0;
 
   // abilities
-  foundryActor.data.abilities = getAbilities(foundryActor.data.abilities, monster);
+  foundryActor.system.abilities = getAbilities(foundryActor.system.abilities, monster);
 
   // skills
-  foundryActor.data.skills = (extra)
-    ? getSkills(foundryActor.data.skills, monster)
-    : getSkillsHTML(foundryActor.data.skills, monster);
+  foundryActor.system.skills = (extra)
+    ? getSkills(foundryActor.system.skills, monster)
+    : getSkillsHTML(foundryActor.system.skills, monster);
 
   // Senses
-  foundryActor.data.attributes.senses = getSenses(monster);
+  foundryActor.system.attributes.senses = getSenses(monster);
   foundryActor.token = await getTokenSenses(foundryActor.token, monster);
 
   // Conditions
-  foundryActor.data.traits.di = getDamageImmunities(monster);
-  foundryActor.data.traits.dr = getDamageResistances(monster);
-  foundryActor.data.traits.dv = getDamageVulnerabilities(monster);
-  foundryActor.data.traits.ci = getConditionImmunities(monster);
+  foundryActor.system.traits.di = getDamageImmunities(monster);
+  foundryActor.system.traits.dr = getDamageResistances(monster);
+  foundryActor.system.traits.dv = getDamageVulnerabilities(monster);
+  foundryActor.system.traits.ci = getConditionImmunities(monster);
   const size = getSize(monster);
-  foundryActor.data.traits.size = size.value;
-  foundryActor.token.width = size.token.value;
-  foundryActor.token.height = size.token.value;
-  foundryActor.token.scale = size.token.scale;
+  foundryActor.system.traits.size = size.value;
+  foundryActor.prototypeToken.width = size.token.value;
+  foundryActor.prototypeToken.height = size.token.value;
+  foundryActor.prototypeToken.scale = size.token.scale;
 
 
   // languages
-  foundryActor.data.traits.languages = getLanguages(monster);
+  foundryActor.system.traits.languages = getLanguages(monster);
 
   // attributes
-  foundryActor.data.attributes.hp = getHitPoints(monster, removedHitPoints, temporaryHitPoints);
+  foundryActor.system.attributes.hp = getHitPoints(monster, removedHitPoints, temporaryHitPoints);
   const movement = getSpeed(monster);
-  foundryActor.data.attributes.movement = movement['movement'];
+  foundryActor.system.attributes.movement = movement['movement'];
 
-  foundryActor.data.attributes.prof = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
+  foundryActor.system.attributes.prof = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
 
   // ac
   const ac = await generateAC(monster, useItemAC);
-  foundryActor.data.attributes.ac = ac.ac;
+  foundryActor.system.attributes.ac = ac.ac;
   foundryActor.flags.ddbimporter.flatAC = ac.flatAC;
   items.push(...ac.ddbItems);
 
   // details
   const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId);
-  foundryActor.data.details.type = getType(monster);
+  foundryActor.system.details.type = getType(monster);
   const alignment = CONFIG.DDB.alignments.find((c) => monster.alignmentId == c.id);
-  foundryActor.data.details.alignment = alignment ? alignment.name : "";
-  foundryActor.data.details.cr = cr.value;
-  foundryActor.data.details.source = getSource(monster);
-  foundryActor.data.details.xp = {
+  foundryActor.system.details.alignment = alignment ? alignment.name : "";
+  foundryActor.system.details.cr = cr.value;
+  foundryActor.system.details.source = getSource(monster);
+  foundryActor.system.details.xp = {
     value: cr.xp
   };
-  foundryActor.data.details.environment = getEnvironments(monster);
-  foundryActor.data.details.biography.value = monster.characteristicsDescription;
+  foundryActor.system.details.environment = getEnvironments(monster);
+  foundryActor.system.details.biography.value = monster.characteristicsDescription;
 
   let actions, lairActions, legendaryActions, specialTraits, reactions, bonus, mythic;
   let characterDescriptionAction, characterDescriptionReaction, unexpectedDescription;
@@ -333,14 +334,14 @@ async function parseMonster(monster, extra, useItemAC) {
   if (monster.hasLair) {
     lairActions = getLairActions(monster);
     items.push(...lairActions.lairActions);
-    foundryActor.data.resources["lair"] = lairActions.resource;
+    foundryActor.system.resources["lair"] = lairActions.resource;
   }
 
   if (monster.legendaryActionsDescription != "") {
     legendaryActions = getLegendaryActions(monster, actions);
     items.push(...legendaryActions.legendaryActions);
-    foundryActor.data.resources["legact"] = legendaryActions.actions;
-    foundryActor.token.bar2 = {
+    foundryActor.system.resources["legact"] = legendaryActions.actions;
+    foundryActor.prototypeToken.bar2 = {
       attribute: "resources.legact"
     };
   }
@@ -348,7 +349,7 @@ async function parseMonster(monster, extra, useItemAC) {
   if (monster.specialTraitsDescription != "") {
     specialTraits = getSpecialTraits(monster, actions);
     items.push(...specialTraits.specialActions);
-    foundryActor.data.resources["legres"] = specialTraits.resistance;
+    foundryActor.system.resources["legres"] = specialTraits.resistance;
   }
 
   [reactions, characterDescriptionReaction] = getActions(monster, "reaction");
@@ -362,22 +363,22 @@ async function parseMonster(monster, extra, useItemAC) {
     logger.warn(`Unexpected description for ${monster.name}`);
   }
   if (characterDescriptionAction) {
-    foundryActor.data.details.biography.value += characterDescriptionAction;
+    foundryActor.system.details.biography.value += characterDescriptionAction;
   }
   if (characterDescriptionReaction) {
-    foundryActor.data.details.biography.value += characterDescriptionReaction;
+    foundryActor.system.details.biography.value += characterDescriptionReaction;
   }
   if (specialTraits?.characterDescription) {
-    foundryActor.data.details.biography.value += specialTraits.characterDescription;
+    foundryActor.system.details.biography.value += specialTraits.characterDescription;
   }
 
   // Spellcasting
   const spellcastingData = getSpells(monster);
-  foundryActor.data.attributes.spellcasting = spellcastingData.spellcasting;
-  foundryActor.data.attributes.spelldc = spellcastingData.spelldc;
-  foundryActor.data.attributes.spellLevel = spellcastingData.spellLevel;
-  foundryActor.data.details.spellLevel = spellcastingData.spellLevel;
-  foundryActor.data.spells = spellcastingData.spells;
+  foundryActor.system.attributes.spellcasting = spellcastingData.spellcasting;
+  foundryActor.system.attributes.spelldc = spellcastingData.spelldc;
+  foundryActor.system.attributes.spellLevel = spellcastingData.spellLevel;
+  foundryActor.system.details.spellLevel = spellcastingData.spellLevel;
+  foundryActor.system.spells = spellcastingData.spells;
   foundryActor.flags.monsterMunch['spellList'] = spellcastingData.spellList;
 
   const badItems = items.filter((i) => i.name === "" || !i.name);
@@ -406,13 +407,12 @@ async function parseMonster(monster, extra, useItemAC) {
     foundryActor = await monsterFeatureEffectAdjustment(foundryActor, monster);
   }
 
-  // logger.warn("Monster:", duplicate(foundryActor));
   // console.warn("Data:", monster);
-  // console.warn("Monster:", dulicate(foundryActor));
-  // logger.info(foundryActor.data.resources);
-  // logger.info(foundryActor.data.traits.languages);
+  // console.warn("Monster:", duplicate(foundryActor));
+  // logger.info(foundryActor.system.resources);
+  // logger.info(foundryActor.system.traits.languages);
 
-  // logger.info(foundryActor.data.attributes);
+  // logger.info(foundryActor.system.attributes);
   return foundryActor;
 
 }

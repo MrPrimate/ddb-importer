@@ -74,20 +74,20 @@ export default function parseLoot(data, itemType) {
   };
 
   if (type.consumableType) {
-    loot.data.consumableType = type.consumableType;
-    loot.data.uses = getConsumableUses(data);
+    loot.system.consumableType = type.consumableType;
+    loot.system.uses = getConsumableUses(data);
   }
-  loot.data.description = getDescription(data);
-  loot.data.source = utils.parseSource(data.definition);
-  loot.data.quantity = getQuantity(data);
-  loot.data.weight = getSingleItemWeight(data);
-  loot.data.equipped = getEquipped(data);
-  loot.data.rarity = getItemRarity(data);
-  loot.data.identified = true;
-  loot.data.cost = data.definition.cost;
+  loot.system.description = getDescription(data);
+  loot.system.source = utils.parseSource(data.definition);
+  loot.system.quantity = getQuantity(data);
+  loot.system.weight = getSingleItemWeight(data);
+  loot.system.equipped = getEquipped(data);
+  loot.system.rarity = getItemRarity(data);
+  loot.system.identified = true;
+  loot.system.cost = data.definition.cost;
 
   if (type.type === "backpack") {
-    loot.data.capacity = getCapacity(data);
+    loot.system.capacity = getCapacity(data);
   }
   return loot;
 }

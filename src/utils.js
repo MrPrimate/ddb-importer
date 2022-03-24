@@ -505,7 +505,7 @@ const utils = {
           : null;
       if (statBonus) {
         const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId);
-        modBonus += character.data.abilities[ability.value].mod;
+        modBonus += character.system.abilities[ability.value].mod;
       }
       if (die) {
         const mod = die.diceString;
@@ -524,7 +524,7 @@ const utils = {
         sum += modBonus;
       } else if (modifier.modifierTypeId === 1 && modifier.modifierSubTypeId === 218) {
         // prof bonus
-        sum += character.data.attributes.prof;
+        sum += character.system.attributes.prof;
       }
     });
     if (diceString !== "") {
@@ -1033,8 +1033,8 @@ const utils = {
 
   getOrCreateFolder: async (root, entityType, folderName, folderColor = "") => {
     let folder = game.folders.contents.find((f) =>
-      f.data.type === entityType && f.data.name === folderName &&
-      f.data.parent === (root ? root.id : null)
+      f.type === entityType && f.name === folderName &&
+      f.parent === (root ? root.id : null)
     );
     // console.warn(`Looking for ${root} ${entityType} ${folderName}`);
     // console.warn(folder);
@@ -1164,11 +1164,11 @@ const utils = {
           return new Promise((resolve) => {
             if (entry) {
               compendium.getDocument(entry._id).then((entity) => {
-                entity.data.name = entry.name; // transfer restrictions over, if any
+                entity.name = entry.name; // transfer restrictions over, if any
                 // remove redudant info
-                delete entity.data.id;
-                delete entity.data.permission;
-                resolve(entity.data);
+                delete entity.id;
+                delete entity.ownership;
+                resolve(entity.toObject());
               });
             } else {
               resolve(null);
@@ -1341,31 +1341,31 @@ const utils = {
     const dcBonus = utils.getCustomValue(foundryItem, ddb, 14);
 
     if (toHitBonus) {
-      if (hasProperty(foundryItem, "data.attackBonus") && parseInt(foundryItem.data.attackBonus) === 0) {
-        foundryItem.data.attackBonus = toHitBonus;
+      if (hasProperty(foundryItem, "system.attackBonus") && parseInt(foundryItem.system.attackBonus) === 0) {
+        foundryItem.system.attackBonus = toHitBonus;
       } else {
-        foundryItem.data.attackBonus += ` + ${toHitBonus}`;
+        foundryItem.system.attackBonus += ` + ${toHitBonus}`;
       }
     }
-    if (damageBonus && foundryItem.data?.damage?.parts && foundryItem.data?.damage?.parts.length !== 0) {
-      foundryItem.data.damage.parts[0][0] = foundryItem.data.damage.parts[0][0].concat(` +${damageBonus}`);
-    } else if (damageBonus && foundryItem.data?.damage?.parts) {
+    if (damageBonus && foundryItem.system?.damage?.parts && foundryItem.system?.damage?.parts.length !== 0) {
+      foundryItem.system.damage.parts[0][0] = foundryItem.system.damage.parts[0][0].concat(` +${damageBonus}`);
+    } else if (damageBonus && foundryItem.system?.damage?.parts) {
       const part = [`+${damageBonus}`, ""];
-      foundryItem.data.damage.parts.push(part);
+      foundryItem.system.damage.parts.push(part);
     }
-    if (costOverride) foundryItem.data.cost = costOverride;
-    if (weightOverride) foundryItem.data.weight = weightOverride;
-    if (silvered) foundryItem.data.properties['sil'] = true;
-    if (adamantine) foundryItem.data.properties['ada'] = true;
+    if (costOverride) foundryItem.system.cost = costOverride;
+    if (weightOverride) foundryItem.system.weight = weightOverride;
+    if (silvered) foundryItem.system.properties['sil'] = true;
+    if (adamantine) foundryItem.system.properties['ada'] = true;
     if (dcBonus) {
       if (foundryItem.flags.ddbimporter.dndbeyond.dc) {
-        foundryItem.data.save.dc = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
-        foundryItem.data.save.scaling = "flat";
+        foundryItem.system.save.dc = parseInt(foundryItem.flags.ddbimporter.dndbeyond.dc) + dcBonus;
+        foundryItem.system.save.scaling = "flat";
       }
     }
     if (dcOverride) {
-      foundryItem.data.save.dc = dcOverride;
-      foundryItem.data.save.scaling = "flat";
+      foundryItem.system.save.dc = dcOverride;
+      foundryItem.system.save.scaling = "flat";
     }
     return foundryItem;
   },

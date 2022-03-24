@@ -71,8 +71,8 @@ function addMagicBonus(character, item, modifiers) {
   const magicBonus = utils.getModifierSum(filteredModifiers, character);
 
   if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
-    item.data.damage.parts[0][0] += ` + ${magicBonus}`;
-    item.data.attackBonus += magicBonus;
+    item.system.damage.parts[0][0] += ` + ${magicBonus}`;
+    item.system.attackBonus += magicBonus;
     setProperty(item, "data.properties.mgc", true);
     // to do add infusion description to item
   }
@@ -146,21 +146,21 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     setProperty(foundryItem, "data.properties.mgc", true);
 
     // Update Item description
-    foundryItem.data.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;
-    foundryItem.data.description.chat += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.snippet ? infusionDetail.snippet : ""}</p></div>`;
+    foundryItem.system.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;
+    foundryItem.system.description.chat += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.snippet ? infusionDetail.snippet : ""}</p></div>`;
 
     // adjust name for infused item
     foundryItem.name += " [Infusion]";
     // if item is loot, lets move it to equipment/trinket so effects will apply
     if (foundryItem.type === "loot") {
       foundryItem.type = "equipment";
-      foundryItem.data.armor = {
+      foundryItem.system.armor = {
         type: "trinket",
         value: 10,
         dex: null,
       };
       // infusions will over ride the can equip status, so just check for equipped
-      foundryItem.data.equipped = ddbItem.equipped;
+      foundryItem.system.equipped = ddbItem.equipped;
     }
 
     // check to see if we need to fiddle attack modifiers on infused weapons
@@ -168,11 +168,11 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
       const intSwap = utils.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0;
       if (intSwap) {
         const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
-        const mockAbility = foundryItem.data.ability === null
-          ? foundryItem.data.properties.fin ? "dex" : "str"
-          : foundryItem.data.ability;
+        const mockAbility = foundryItem.system.ability === null
+          ? foundryItem.system.properties.fin ? "dex" : "str"
+          : foundryItem.system.ability;
         if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
-          foundryItem.data.ability = "int";
+          foundryItem.system.ability = "int";
         }
       }
     }

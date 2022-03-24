@@ -87,7 +87,7 @@ export async function generateAC(monster, useItemAC) {
   const compendium = await getEquipmentCompendium();
   const unAttunedItems = await loadPassedItemsFromCompendium(compendium, itemsToCheck, "inventory", { monsterMatch: true });
   const attunedItems = unAttunedItems.map((item) => {
-    if (item.data.attunement === 1) item.data.attunement = 2;
+    if (item.system.attunement === 1) item.system.attunement = 2;
     return item;
   });
 

@@ -46,50 +46,50 @@ export function parseSpell(data, character) {
   setProperty(data, "flags.ddbimporter.addSpellEffects", addSpellEffects);
 
   // spell level
-  spell.data.level = data.definition.level;
+  spell.system.level = data.definition.level;
 
   // get the spell school
   const school = DICTIONARY.spell.schools.find((s) => s.name === data.definition.school.toLowerCase());
-  spell.data.school = (school) ? school.id : null;
+  spell.system.school = (school) ? school.id : null;
 
   /**
    * Gets the necessary spell components VSM + material
    */
-  spell.data.components = getComponents(data);
-  spell.data.materials = getMaterials(data);
-  spell.data.preparation = getSpellPreparationMode(data);
+  spell.system.components = getComponents(data);
+  spell.system.materials = getMaterials(data);
+  spell.system.preparation = getSpellPreparationMode(data);
 
   const updateExisting = data.flags.ddbimporter.generic
     ? game.settings.get("ddb-importer", "munching-policy-update-existing")
     : false;
   data.definition.description = generateTable(spell.name, data.definition.description, updateExisting);
 
-  spell.data.description = {
+  spell.system.description = {
     value: parseTags(data.definition.description),
     chat: "",
     unidentified: data.definition.type,
   };
 
-  spell.data.source = utils.parseSource(data.definition);
-  spell.data.activation = getActivation(data);
-  spell.data.duration = getDuration(data);
-  spell.data.target = getTarget(data);
-  spell.data.range = getRange(data);
-  spell.data.actionType = getActionType(data);
+  spell.system.source = utils.parseSource(data.definition);
+  spell.system.activation = getActivation(data);
+  spell.system.duration = getDuration(data);
+  spell.system.target = getTarget(data);
+  spell.system.range = getRange(data);
+  spell.system.actionType = getActionType(data);
   const [damage, chatFlavor] = getDamage(data, spell);
-  spell.data.damage = damage;
-  spell.data.chatFlavor = chatFlavor;
-  spell.data.save = getSave(data);
-  spell.data.scaling = getSpellScaling(data);
-  spell.data.uses = getUses(data, character);
+  spell.system.damage = damage;
+  spell.system.chatFlavor = chatFlavor;
+  spell.system.save = getSave(data);
+  spell.system.scaling = getSpellScaling(data);
+  spell.system.uses = getUses(data, character);
 
   // attach the spell ability id to the spell data so VTT always uses the
   // correct one, useful if multi-classing and spells have different
   // casting abilities
-  if (character && character.data.attributes.spellcasting !== data.flags.ddbimporter.dndbeyond.ability) {
-    spell.data.ability = data.flags.ddbimporter.dndbeyond.ability;
-    if (spell.data.save.scaling == "spell") {
-      spell.data.save.scaling = data.flags.ddbimporter.dndbeyond.ability;
+  if (character && character.system.attributes.spellcasting !== data.flags.ddbimporter.dndbeyond.ability) {
+    spell.system.ability = data.flags.ddbimporter.dndbeyond.ability;
+    if (spell.system.save.scaling == "spell") {
+      spell.system.save.scaling = data.flags.ddbimporter.dndbeyond.ability;
     }
   }
 

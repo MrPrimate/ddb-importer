@@ -29,18 +29,18 @@ export function equipmentEffectAdjustment(document) {
       effect.disabled = false;
       effect.flags.dae.transfer = false;
       effect.flags.dae.stackable = false;
-      document.data.uses = {
+      document.system.uses = {
         value: 1,
         max: "1",
         per: "day",
       };
-      document.data.target = {
+      document.system.target = {
         value: null,
         width: null,
         units: "",
         type: "self",
       };
-      document.data.range = {
+      document.system.range = {
         value: null,
         long: null,
         units: "self",
@@ -62,19 +62,19 @@ export function equipmentEffectAdjustment(document) {
       // Unarmed strikes bonus/weapons
       document.effects[0].changes.push(
         {
-          key: "items.Unarmed Strike.data.attackBonus",
+          key: "items.Unarmed Strike.system.attackBonus",
           value: "1",
           mode: 2,
           priority: 20,
         },
         {
-          key: "items.Unarmed Strike.data.damage.parts.0.0",
+          key: "items.Unarmed Strike.system.damage.parts.0.0",
           value: "1d8+@mod+1",
           mode: 5,
           priority: 20,
         },
         {
-          key: "items.Unarmed Strike.data.properties.mgc",
+          key: "items.Unarmed Strike.system.properties.mgc",
           value: "true",
           mode: 5,
           priority: 20,
@@ -103,18 +103,18 @@ export function equipmentEffectAdjustment(document) {
       effect.disabled = true;
       effect.flags.dae.transfer = true;
       effect.flags.dae.stackable = true;
-      document.data.target = {
+      document.system.target = {
         value: null,
         width: null,
         units: "",
         type: "self",
       };
-      document.data.range = {
+      document.system.range = {
         value: null,
         long: null,
         units: "self",
       };
-      document.data.activation.type = "bonus";
+      document.system.activation.type = "bonus";
       document.effects.push(effect);
       break;
     }

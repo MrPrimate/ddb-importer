@@ -45,11 +45,11 @@ export async function stormSphereEffect(document) {
 
   document.effects.push(effect);
 
-  const damageOne = duplicate(document.data.damage.parts[0]);
-  const damageTwo = duplicate(document.data.damage.parts[1]);
-  document.data.damage = { parts: [damageOne], versatile: "", value: "" };
-  document.data.formula = damageTwo[0];
-  document.data.actionType = "save";
+  const damageOne = duplicate(document.system.damage.parts[0]);
+  const damageTwo = duplicate(document.system.damage.parts[1]);
+  document.system.damage = { parts: [damageOne], versatile: "", value: "" };
+  document.system.formula = damageTwo[0];
+  document.system.actionType = "save";
 
   return document;
 }

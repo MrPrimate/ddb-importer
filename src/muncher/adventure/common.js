@@ -252,7 +252,7 @@ export default class Helpers {
       let folderData = f;
 
       let newFolder = game.folders.find((folder) => {
-        return (folder.data._id === folderData._id || folder.data.flags.importid === folderData._id) && folder.data.type === folderData.type;
+        return (folder._id === folderData._id || folder.flags.importid === folderData._id) && folder.type === folderData.type;
       });
 
       if (!newFolder) {
@@ -265,11 +265,11 @@ export default class Helpers {
         }
 
         newFolder = await Folder.create(folderData, { keepId: true });
-        logger.debug(`Created new folder ${newFolder.data._id} with data:`, folderData, newFolder);
+        logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
 
       // eslint-disable-next-line require-atomic-updates
-      CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.flags.importid] = newFolder.data._id;
+      CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.flags.importid] = newFolder._id;
 
       let childFolders = folderList.filter((folder) => {
         return folder.parent === folderData._id;
@@ -580,7 +580,13 @@ export default class Helpers {
 
     const neededActors = tokens
       .map((token) => {
-        return { name: token.name, ddbId: token.flags.ddbActorFlags.id, actorId: token.actorId, compendiumId: token.flags.compendiumActorId, folderId: token.flags.actorFolderId };
+        return {
+          name: token.name,
+          ddbId: token.flags.ddbActorFlags.id,
+          actorId: token.actorId,
+          compendiumId: token.flags.compendiumActorId,
+          folderId: token.flags.actorFolderId
+        };
       })
       .filter((obj, pos, arr) => {
         // we only need to create 1 actor per actorId
@@ -613,8 +619,8 @@ export default class Helpers {
     setProperty(newDoc, "flags.ddb.versions.importer", {});
     if (newDoc?.flags?.ddb?.versions?.ddbMetaData?.lastUpdate) {
       // check old data, it might not exist
-      const oldDDBMetaDataVersions = existingDoc.data?.flags?.ddb?.versions?.ddbMetaData?.lastUpdate
-        ? existingDoc.data.flags.ddb.versions.ddbMetaData
+      const oldDDBMetaDataVersions = existingDoc.flags?.ddb?.versions?.ddbMetaData?.lastUpdate
+        ? existingDoc.flags.ddb.versions.ddbMetaData
         : {
           lastUpdate: "0.0.1",
           drawings: "0.0.1",
@@ -624,11 +630,11 @@ export default class Helpers {
           lights: "0.0.1",
           foundry: "0.8.9",
         };
-      const oldDDBImporterVersion = existingDoc.data?.flags?.ddb?.versions?.ddbImporter
-        ? existingDoc.data.flags.ddb.versions.ddbImporter
+      const oldDDBImporterVersion = existingDoc?.flags?.ddb?.versions?.ddbImporter
+        ? existingDoc.flags.ddb.versions.ddbImporter
         : "2.0.1";
-      const oldAdventureMuncherVersion = existingDoc.data?.flags?.ddb?.versions?.adventureMuncher
-        ? existingDoc.data.flags.ddb.versions.adventureMuncher
+      const oldAdventureMuncherVersion = existingDoc?.flags?.ddb?.versions?.adventureMuncher
+        ? existingDoc.flags.ddb.versions.adventureMuncher
         : "0.3.0";
       const foundryVersion = game.version ? game.version : game.data.version;
       const oldVersions = { ddbImporter: oldDDBImporterVersion, ddbMetaData: oldDDBMetaDataVersions, adventureMuncher: oldAdventureMuncherVersion };

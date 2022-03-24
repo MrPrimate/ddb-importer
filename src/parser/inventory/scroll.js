@@ -16,17 +16,17 @@ export default function parseScroll(data) {
     },
   };
 
-  scroll.data.consumableType = "scroll";
-  scroll.data.uses = getConsumableUses(data);
-  scroll.data.description = getDescription(data);
-  scroll.data.source = utils.parseSource(data.definition);
-  scroll.data.quantity = getQuantity(data);
-  scroll.data.weight = getSingleItemWeight(data);
-  scroll.data.equipped = getEquipped(data);
-  scroll.data.rarity = getItemRarity(data);
-  scroll.data.identified = true;
-  scroll.data.activation = { type: "action", cost: 1, condition: "" };
-  scroll.data.actionType = "other";
+  scroll.system.consumableType = "scroll";
+  scroll.system.uses = getConsumableUses(data);
+  scroll.system.description = getDescription(data);
+  scroll.system.source = utils.parseSource(data.definition);
+  scroll.system.quantity = getQuantity(data);
+  scroll.system.weight = getSingleItemWeight(data);
+  scroll.system.equipped = getEquipped(data);
+  scroll.system.rarity = getItemRarity(data);
+  scroll.system.identified = true;
+  scroll.system.activation = { type: "action", cost: 1, condition: "" };
+  scroll.system.actionType = "other";
 
   return scroll;
 }

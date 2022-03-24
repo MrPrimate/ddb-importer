@@ -130,9 +130,9 @@ export function removeActionFeatures(actions, features) {
 function setConsumeAmount(feature) {
   // ki point detection
   const kiPointRegex = /(?:spend|expend) (\d) ki point/;
-  const match = feature.data.description.value.match(kiPointRegex);
+  const match = feature.system.description.value.match(kiPointRegex);
   if (match) {
-    setProperty(feature, "data.consume.amount", match[1]);
+    setProperty(feature, "system.consume.amount", match[1]);
   }
   return feature;
 }
@@ -219,22 +219,21 @@ export function getDescription(ddb, character, feat, forceFull = false) {
 }
 
 export function setLevelScales(classes, features) {
-  const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
   const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-  if (scaleSupport && useScale) {
+  if (useScale) {
     features.forEach((feature) => {
       const featureName = feature.name.toLowerCase().replace(/\s|'|’/g, '-');
       const scaleKlass = classes.find((klass) =>
-        klass.data.advancement
+        klass.system.advancement
           .some((advancement) => advancement.type === "ScaleValue" &&
             advancement.configuration.identifier === featureName
           ));
 
       if (scaleKlass) {
-        if (hasProperty(feature, "data.damage.parts") && feature.data.damage.parts.length > 0) {
-          feature.data.damage.parts[0][0] = `@scale.${scaleKlass.data.identifier}.${featureName}`;
+        if (hasProperty(feature, "system.damage.parts") && feature.system.damage.parts.length > 0) {
+          feature.system.damage.parts[0][0] = `@scale.${scaleKlass.system.identifier}.${featureName}`;
         } else {
-          setProperty(feature, "data.damage.parts", [[`@scale.${scaleKlass.data.identifier}.${featureName}`]]);
+          setProperty(feature, "system.damage.parts", [[`@scale.${scaleKlass.system.identifier}.${featureName}`]]);
         }
       }
     });
@@ -254,39 +253,39 @@ export function fixFeatures(features) {
     const name = feature.flags.ddbimporter.originalName || feature.name;
     switch (name) {
       case "Arcane Propulsion Armor Gauntlet": {
-        feature.data.damage.parts[0][0] += " + @mod";
+        feature.system.damage.parts[0][0] += " + @mod";
         break;
       }
       case "Arms of the Astral Self: Summon": {
-        feature.data.target.type = "enemy";
-        feature.data.target.units = "all";
-        feature.data.range.value = 10;
-        feature.data.range.units = "ft";
+        feature.system.target.type = "enemy";
+        feature.system.target.units = "all";
+        feature.system.range.value = 10;
+        feature.system.range.units = "ft";
         break;
       }
       case "Bardic Inspiration": {
-        feature.data.actionType = "util";
-        feature.data.duration = {
+        feature.system.actionType = "util";
+        feature.system.duration = {
           value: 10,
           units: "minute",
         };
-        feature.data.target = {
+        feature.system.target = {
           value: 1,
           width: null,
           units: "",
           type: "creature",
         };
-        feature.data.range.value = 60;
-        feature.data.range.units = "ft";
+        feature.system.range.value = 60;
+        feature.system.range.units = "ft";
         break;
       }
       case "Blessed Healer": {
-        feature.data.activation.type = "special";
-        feature.data.activation.cost = null;
-        feature.data.actionType = "heal";
-        feature.data["target"]["type"] = "self";
-        feature.data.range = { value: null, units: "self", long: null };
-        feature.data.uses = { value: null, max: "0", per: "", type: "" };
+        feature.system.activation.type = "special";
+        feature.system.activation.cost = null;
+        feature.system.actionType = "heal";
+        feature.system["target"]["type"] = "self";
+        feature.system.range = { value: null, units: "self", long: null };
+        feature.system.uses = { value: null, max: "0", per: "", type: "" };
         break;
       }
       case "Celestial Revelation": {
@@ -300,7 +299,7 @@ export function fixFeatures(features) {
         break;
       }
       case "Channel Divinity: Radiance of the Dawn":
-        feature.data.damage = {
+        feature.system.damage = {
           parts: [["2d10[radiant] + @classes.cleric.levels", "radiant"]],
           versatile: "",
           value: "",
@@ -308,62 +307,62 @@ export function fixFeatures(features) {
         break;
       case "Dark One’s Blessing":
       case "Dark One's Blessing": {
-        feature.data.damage = { parts: [["@classes.warlock.level + @mod", "temphp"]], versatile: "", value: "" };
-        feature.data.actionType = "heal";
-        feature.data.ability = "cha";
-        feature.data.target.type = "self";
-        feature.data.range.units = "self";
-        feature.data.activation.condition = "Reduce a hostile creature to 0 HP";
+        feature.system.damage = { parts: [["@classes.warlock.level + @mod", "temphp"]], versatile: "", value: "" };
+        feature.system.actionType = "heal";
+        feature.system.ability = "cha";
+        feature.system.target.type = "self";
+        feature.system.range.units = "self";
+        feature.system.activation.condition = "Reduce a hostile creature to 0 HP";
         break;
       }
       case "Deflect Missiles": {
-        feature.data.damage = { parts: [["1d10 + @mod + @classes.monk.levels"]], versatile: "", value: "" };
+        feature.system.damage = { parts: [["1d10 + @mod + @classes.monk.levels"]], versatile: "", value: "" };
         break;
       }
       case "Divine Intervention":
-        feature.data.damage = { parts: [["1d100", ""]], versatile: "", value: "" };
-        feature.data.actionType = "other";
+        feature.system.damage = { parts: [["1d100", ""]], versatile: "", value: "" };
+        feature.system.actionType = "other";
         break;
       case "Eldritch Cannon: Force Ballista":
-        feature.data.target.value = 1;
-        feature.data.target.type = "creature";
-        feature.data.range.value = 120;
-        feature.data.range.units = "ft";
-        feature.data.ability = "int";
-        feature.data.actionType = "rsak";
-        feature.data.chatFlavor = "On hit pushed 5 ft away.";
-        feature.data.damage = { parts: [["2d8[force]", "force"]], versatile: "", value: "" };
+        feature.system.target.value = 1;
+        feature.system.target.type = "creature";
+        feature.system.range.value = 120;
+        feature.system.range.units = "ft";
+        feature.system.ability = "int";
+        feature.system.actionType = "rsak";
+        feature.system.chatFlavor = "On hit pushed 5 ft away.";
+        feature.system.damage = { parts: [["2d8[force]", "force"]], versatile: "", value: "" };
         break;
       case "Eldritch Cannon: Flamethrower":
-        feature.data.damage = { parts: [["2d8[fire]", "fire"]], versatile: "", value: "" };
+        feature.system.damage = { parts: [["2d8[fire]", "fire"]], versatile: "", value: "" };
         break;
       case "Eldritch Cannon: Protector":
-        feature.data.target.units = "any";
-        feature.data.target.type = "ally";
-        feature.data.range.value = 10;
-        feature.data.ability = "int";
-        feature.data.actionType = "heal";
-        feature.data.damage = { parts: [["1d8 + @mod", "temphp"]], versatile: "", value: "" };
+        feature.system.target.units = "any";
+        feature.system.target.type = "ally";
+        feature.system.range.value = 10;
+        feature.system.ability = "int";
+        feature.system.actionType = "heal";
+        feature.system.damage = { parts: [["1d8 + @mod", "temphp"]], versatile: "", value: "" };
         break;
       case "Extra Attack": {
-        feature.data.activation = { type: "", cost: 0, condition: "" };
-        feature.data.actionType = "";
-        feature.data.range.value = null;
+        feature.system.activation = { type: "", cost: 0, condition: "" };
+        feature.system.actionType = "";
+        feature.system.range.value = null;
         break;
       }
       case "Fighting Style: Interception":
-        feature.data.damage = { parts: [["1d10 + @prof", ""]], versatile: "", value: "" };
-        feature.data.target.type = "self";
-        feature.data.range.units = "self";
+        feature.system.damage = { parts: [["1d10 + @prof", ""]], versatile: "", value: "" };
+        feature.system.target.type = "self";
+        feature.system.range.units = "self";
         break;
       case "Genie's Vessel: Genie's Wrath (Dao)": {
-        feature.data.activation.type = "special";
-        feature.data.target.value = 1;
-        feature.data.target.type = "creature";
-        feature.data.range.units = "spec";
-        feature.data.actionType = "util";
-        feature.data.duration.units = "inst";
-        feature.data.damage = { parts: [["@prof", "bludgeoning"]], versatile: "", value: "" };
+        feature.system.activation.type = "special";
+        feature.system.target.value = 1;
+        feature.system.target.type = "creature";
+        feature.system.range.units = "spec";
+        feature.system.actionType = "util";
+        feature.system.duration.units = "inst";
+        feature.system.damage = { parts: [["@prof", "bludgeoning"]], versatile: "", value: "" };
         break;
       }
       case "Giant's Might": {
@@ -376,14 +375,14 @@ export function fixFeatures(features) {
         break;
       }
       case "Healing Hands": {
-        feature.data.damage = {
+        feature.system.damage = {
           parts: [["@details.level[healing]", "healing"]],
           versatile: "",
           value: "",
         };
-        feature.data.actionType = "heal";
-        feature.data.target.type = "creature";
-        feature.data.range = {
+        feature.system.actionType = "heal";
+        feature.system.target.type = "creature";
+        feature.system.range = {
           type: "touch",
           value: null,
           long: null,
@@ -392,26 +391,26 @@ export function fixFeatures(features) {
         break;
       }
       case "Healing Light": {
-        feature.data.damage = { parts: [["1d6"]], versatile: "", value: "" };
+        feature.system.damage = { parts: [["1d6"]], versatile: "", value: "" };
         break;
       }
       case "Polearm Master - Bonus Attack": {
-        feature.data.actionType = "mwak";
-        feature.data.range = { value: 10, long: null, units: "ft" };
+        feature.system.actionType = "mwak";
+        feature.system.range = { value: 10, long: null, units: "ft" };
         break;
       }
       case "Psionic Power: Recovery": {
-        feature.data.damage = { parts: [], versatile: "", value: "" };
-        setProperty(feature, "data.consume.amount", -1);
+        feature.system.damage = { parts: [], versatile: "", value: "" };
+        setProperty(feature, "system.consume.amount", -1);
         break;
       }
       case "Quickened Healing": {
-        feature.data.actionType = "heal";
-        feature.data.target.type = "self";
-        feature.data.range.units = "self";
+        feature.system.actionType = "heal";
+        feature.system.target.type = "self";
+        feature.system.range.units = "self";
         if (useScale) {
-          feature.data.damage.parts[0][0] += " + @prof[healing]";
-          feature.data.damage.parts[0][1] = "healing";
+          feature.system.damage.parts[0][0] += " + @prof[healing]";
+          feature.system.damage.parts[0][1] = "healing";
         }
         break;
       }
@@ -427,36 +426,36 @@ export function fixFeatures(features) {
         break;
       }
       case "Rage": {
-        feature.data.target = {
+        feature.system.target = {
           value: null,
           width: null,
           units: "",
           type: "self",
         };
-        feature.data.duration = {
+        feature.system.duration = {
           value: 1,
           units: "minute",
         };
         break;
       }
       case "Second Wind":
-        feature.data.damage = {
+        feature.system.damage = {
           parts: [["1d10[healing] + @classes.fighter.levels", "healing"]],
           versatile: "",
           value: "",
         };
-        feature.data.actionType = "heal";
-        feature.data.target.type = "self";
-        feature.data.range.units = "self";
+        feature.system.actionType = "heal";
+        feature.system.target.type = "self";
+        feature.system.range.units = "self";
         break;
       case "Shifting": {
-        feature.data.actionType = "heal";
-        feature.data.target.type = "self";
-        feature.data.range = { value: null, long: null, units: "self" };
-        feature.data.duration.units = "inst";
-        feature.data.ability = "con";
-        feature.data.actionType = "heal";
-        feature.data.damage = { parts: [["@details.level + max(1,@mod)", "temphp"]], versatile: "", value: "" };
+        feature.system.actionType = "heal";
+        feature.system.target.type = "self";
+        feature.system.range = { value: null, long: null, units: "self" };
+        feature.system.duration.units = "inst";
+        feature.system.ability = "con";
+        feature.system.actionType = "heal";
+        feature.system.damage = { parts: [["@details.level + max(1,@mod)", "temphp"]], versatile: "", value: "" };
         break;
       }
       case "Shift": {
@@ -473,66 +472,59 @@ export function fixFeatures(features) {
         break;
       }
       case "Sneak Attack": {
-        if (!useScale) feature.data.damage = { parts: [["(ceil(@classes.rogue.levels /2))d6", ""]], versatile: "", value: "" };
+        if (!useScale) feature.system.damage = { parts: [["(ceil(@classes.rogue.levels /2))d6", ""]], versatile: "", value: "" };
         if (!feature.flags.ddbimporter.action) {
-          feature.data.actionType = "other";
-          feature.data.activation = { type: "special", cost: 0, condition: "" };
+          feature.system.actionType = "other";
+          feature.system.activation = { type: "special", cost: 0, condition: "" };
         }
         break;
       }
       case "Surprise Attack":
-        feature.data.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
-        feature.data.activation.type = "special";
+        feature.system.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
+        feature.system.activation.type = "special";
         break;
       case "Starry Form: Archer":
-        feature.data.actionType = "rsak";
-        feature.data.target.value = 1;
-        feature.data.target.type = "creature";
-        feature.data.range.units = "ft";
+        feature.system.actionType = "rsak";
+        feature.system.target.value = 1;
+        feature.system.target.type = "creature";
+        feature.system.range.units = "ft";
         break;
       case "Starry Form: Chalice":
-        feature.data.damage.parts[0][1] = "healing";
-        feature.data.actionType = "heal";
-        feature.data.target.value = 1;
-        feature.data.target.type = "ally";
-        feature.data.range.value = 30;
-        feature.data.range.units = "ft";
-        feature.data.activation.type = "special";
+        feature.system.damage.parts[0][1] = "healing";
+        feature.system.actionType = "heal";
+        feature.system.target.value = 1;
+        feature.system.target.type = "ally";
+        feature.system.range.value = 30;
+        feature.system.range.units = "ft";
+        feature.system.activation.type = "special";
         break;
       case "Starry Form: Dragon":
         break;
       case "Stone's Endurance":
       case "Stone’s Endurance":
-        feature.data.damage = { parts: [["1d12 + @mod", ""]], versatile: "", value: "" };
-        feature.data.actionType = "other";
-        feature.data.ability = "con";
-        feature.data.target.type = "self";
-        feature.data.range.units = "self";
+        feature.system.damage = { parts: [["1d12 + @mod", ""]], versatile: "", value: "" };
+        feature.system.actionType = "other";
+        feature.system.ability = "con";
+        feature.system.target.type = "self";
+        feature.system.range.units = "self";
         break;
       case "Stunning Strike":
-        feature.data.actionType = "save";
-        feature.data.save = { ability: "con", dc: null, scaling: "wis" };
-        feature.data.target = { value: null, width: null, units: "touch", type: "creature" };
-        feature.data.range.units = "ft";
+        feature.system.actionType = "save";
+        feature.system.save = { ability: "con", dc: null, scaling: "wis" };
+        feature.system.target = { value: null, width: null, units: "touch", type: "creature" };
+        feature.system.range.units = "ft";
         break;
       case "Superiority Dice": {
-        if (utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0) {
-          setProperty(feature.data, "damage.parts", [["@scale.battle-master.combat-superiority-die"]]);
-        } else if (!hasProperty(feature, "data.damage.parts") || feature.data.damage?.parts?.length === 0) {
-          feature.data.damage.parts = [["1d6"]];
-        // feature parses as all available dice, rather than 1 per us
-        } else {
-          feature.data.damage.parts[0][0] = `1d${feature.data.damage.parts[0][0].split("d").pop()}`;
-        }
+        setProperty(feature.system, "damage.parts", [["@scale.battle-master.combat-superiority-die"]]);
         break;
       }
       // no default
     }
 
-    const tableDescription = generateTable(feature.name, feature.data.description.value, true, feature.type);
-    feature.data.description.value = tableDescription;
+    const tableDescription = generateTable(feature.name, feature.system.description.value, true, feature.type);
+    feature.system.description.value = tableDescription;
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
-    feature.data.description.chat = chatAdd ? tableDescription : "";
+    feature.system.description.chat = chatAdd ? tableDescription : "";
     feature = setConsumeAmount(feature);
 
 

@@ -1,5 +1,6 @@
 import Helpers from "./common.js";
 import logger from "../../logger.js";
+import utils from "../../utils.js";
 import { generateAdventureConfig } from "../adventure.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 
@@ -65,7 +66,7 @@ export default class AdventureMunch extends FormApplication {
         const importTypes = ["Scene", "Actor", "Item", "JournalEntry", "RollTable"];
         await Helpers.asyncForEach(importTypes, async (importType) => {
           itemFolder = game.folders.find((folder) => {
-            return folder.data.name === adventure.name && folder.data.type === importType;
+            return folder.name === adventure.name && folder.type === importType;
           });
 
           if (!itemFolder) {
@@ -80,7 +81,7 @@ export default class AdventureMunch extends FormApplication {
             }, { keepId: true });
           }
 
-          CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[importType] = itemFolder.data._id;
+          CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[importType] = itemFolder.id;
         });
       } else {
         CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
@@ -220,7 +221,7 @@ export default class AdventureMunch extends FormApplication {
                 // In 0.8.x the thumbs don't seem to be generated.
                 // This code would embed the thumbnail.
                 // Consider writing this out.
-                if (!obj.data.thumb) {
+                if (!obj.thumb) {
                   const thumbData = await obj.createThumbnail();
                   updatedData["thumb"] = thumbData.thumb;
                 }
@@ -355,6 +356,11 @@ export default class AdventureMunch extends FormApplication {
           item.token.img = await Helpers.importImage(item.token.img, zip, adventure);
         }
 
+        if (item.prototypeToken?.img) {
+          // eslint-disable-next-line require-atomic-updates
+          item.prototypeToken.img = await Helpers.importImage(item.prototypeToken.img, zip, adventure);
+        }
+
         if (item?.items?.length) {
           await Helpers.asyncForEach(data.items, async (i) => {
             if (i.img) {
@@ -401,7 +407,7 @@ export default class AdventureMunch extends FormApplication {
           let compendiumItem = await pack.importDocument(obj);
 
           if (JSON.stringify(item).match(this.pattern) || JSON.stringify(item).match(this.altpattern)) {
-            this._itemsToRevisit.push(`Compendium.${pack.metadata.package}.${pack.metadata.name}.${compendiumItem.data._id}`);
+            this._itemsToRevisit.push(`Compendium.${pack.metadata.package}.${pack.metadata.name}.${compendiumItem.id}`);
           }
         }
         currentCount += 1;
@@ -437,7 +443,7 @@ export default class AdventureMunch extends FormApplication {
 
       if (overwriteEntity) await Scene.deleteDocuments([data._id]);
       const scene = await Scene.create(data, { keepId: true });
-      this._itemsToRevisit.push(`Scene.${scene.data._id}`);
+      this._itemsToRevisit.push(`Scene.${scene.id}`);
     }
   }
 
@@ -451,9 +457,9 @@ export default class AdventureMunch extends FormApplication {
       case "Actor":
         if (!Helpers.findEntityByImportId("actors", data._id)) {
           let actor = await Actor.create(data, { keepId: true });
-          await actor.update({ [`data.token.actorId`]: actor.data._id });
+          await actor.update({ [`data.token.actorId`]: actor.id });
           if (needRevisit) {
-            this._itemsToRevisit.push(`Actor.${actor.data._id}`);
+            this._itemsToRevisit.push(`Actor.${actor.id}`);
           }
         }
         break;
@@ -461,7 +467,7 @@ export default class AdventureMunch extends FormApplication {
         if (!Helpers.findEntityByImportId("items", data._id)) {
           let item = await Item.create(data, { keepId: true });
           if (needRevisit) {
-            this._itemsToRevisit.push(`Item.${item.data._id}`);
+            this._itemsToRevisit.push(`Item.${item.id}`);
           }
         }
         break;
@@ -469,7 +475,7 @@ export default class AdventureMunch extends FormApplication {
         if (!Helpers.findEntityByImportId("journal", data._id)) {
           let journal = await JournalEntry.create(data, { keepId: true });
           if (needRevisit) {
-            this._itemsToRevisit.push(`JournalEntry.${journal.data._id}`);
+            this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
           }
         }
         break;
@@ -477,7 +483,7 @@ export default class AdventureMunch extends FormApplication {
         if (!Helpers.findEntityByImportId("tables", data._id)) {
           let rolltable = await RollTable.create(data, { keepId: true });
           if (needRevisit) {
-            this._itemsToRevisit.push(`RollTable.${rolltable.data._id}`);
+            this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
           }
         }
         break;
@@ -491,7 +497,7 @@ export default class AdventureMunch extends FormApplication {
         if (!Helpers.findEntityByImportId("macros", data._id)) {
           let macro = await Macro.create(data, { keepId: true });
           if (needRevisit) {
-            this._itemsToRevisit.push(`Macro.${macro.data._id}`);
+            this._itemsToRevisit.push(`Macro.${macro.id}`);
           }
         }
         break;
@@ -518,7 +524,7 @@ export default class AdventureMunch extends FormApplication {
       }
       switch (importType) {
         case "Scene": {
-          const existingScene = await game.scenes.find((item) => item.data._id === json._id);
+          const existingScene = await game.scenes.find((item) => item.id === json._id);
           const scene = Helpers.extractDocumentVersionData(json, existingScene, installedVersion);
           const sceneVersions = scene.flags?.ddb?.versions?.importer;
           if (existingScene) {
@@ -582,6 +588,38 @@ export default class AdventureMunch extends FormApplication {
 
   }
 
+  async _importTokenImage(tokenType, data, zip, adventure, totalCount, currentCount, importType) {
+    if (data[tokenType]?.randomImg) {
+      const imgFilepaths = data[tokenType].img.split("/");
+      const imgFilename = (imgFilepaths.reverse())[0];
+      const imgFilepath = data[tokenType].img.replace(imgFilename, "");
+
+      const filesToUpload = Object.values(zip.files).filter((file) => {
+        return !file.dir && file.name.includes(imgFilepath);
+      });
+
+      let adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
+
+      data[tokenType].img = `${this._importPathData.current}/${adventurePath}/${data[tokenType].img}`;
+
+      if (filesToUpload.length > 0) {
+        totalCount += filesToUpload.length;
+
+        await Helpers.asyncForEach(filesToUpload, async (file) => {
+          await Helpers.importImage(file.name, zip, adventure);
+          currentCount += 1;
+          AdventureMunch._updateProgress(totalCount, currentCount, importType);
+        });
+      }
+
+    } else {
+      // eslint-disable-next-line require-atomic-updates
+      data[tokenType].img = await Helpers.importImage(data[tokenType].img, zip, adventure);
+    }
+
+    return [data, totalCount, currentCount];
+  }
+
   async _importFile(type, zip, adventure, overwriteIds = []) {
     let totalCount = 0;
     let currentCount = 0;
@@ -597,8 +635,7 @@ export default class AdventureMunch extends FormApplication {
 
     await Helpers.asyncForEach(dataFiles, async (file) => {
       const rawdata = await zip.file(file.name).async("text");
-      const data = JSON.parse(rawdata);
-
+      let data = JSON.parse(rawdata);
       let needRevisit = false;
 
       // let pattern = /(\@[a-z]*)(\[)([a-z0-9]*|[a-z0-9\.]*)(\])/gmi
@@ -615,33 +652,12 @@ export default class AdventureMunch extends FormApplication {
         data.thumb = await Helpers.importImage(data.thumb, zip, adventure);
       }
       if (data?.token?.img) {
-        if (data?.token?.randomImg) {
-          const imgFilepaths = data.token.img.split("/");
-          const imgFilename = (imgFilepaths.reverse())[0];
-          const imgFilepath = data.token.img.replace(imgFilename, "");
-
-          const filesToUpload = Object.values(zip.files).filter((file) => {
-            return !file.dir && file.name.includes(imgFilepath);
-          });
-
-          let adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
-
-          data.token.img = `${this._importPathData.current}/${adventurePath}/${data.token.img}`;
-
-          if (filesToUpload.length > 0) {
-            totalCount += filesToUpload.length;
-
-            await Helpers.asyncForEach(filesToUpload, async (file) => {
-              await Helpers.importImage(file.name, zip, adventure);
-              currentCount += 1;
-              AdventureMunch._updateProgress(totalCount, currentCount, importType);
-            });
-          }
-
-        } else {
-          // eslint-disable-next-line require-atomic-updates
-          data.token.img = await Helpers.importImage(data.token.img, zip, adventure);
-        }
+        // eslint-disable-next-line require-atomic-updates
+        [data, totalCount, currentCount] = await this._importTokenImage("token", data, zip, adventure, totalCount, currentCount, importType);
+      }
+      if (data?.prototypeToken?.img) {
+        // eslint-disable-next-line require-atomic-updates
+        [data, totalCount, currentCount] = await this._importTokenImage("prototypeToken", data, zip, adventure, totalCount, currentCount, importType);
       }
 
       if (data?.items?.length) {

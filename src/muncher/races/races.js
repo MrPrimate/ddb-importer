@@ -63,7 +63,7 @@ function buildBase(data) {
   let result = duplicate(RACE_TEMPLATE);
 
   result.name = (data.fullName) ? data.fullName.replace("’", "'") : data.name.replace("’", "'");
-  result.data.description.value += `${data.description}\n\n`;
+  result.system.description.value += `${data.description}\n\n`;
 
   result.flags.ddbimporter = {
     entityRaceId: data.entityRaceId,
@@ -76,9 +76,9 @@ function buildBase(data) {
     result.flags.ddbimporter['moreDetailsUrl'] = data.moreDetailsUrl;
   }
 
-  result.data.source = utils.parseSource(data);
+  result.system.source = utils.parseSource(data);
 
-  if (data.isSubRace && data.baseRaceName) result.data.requirements = data.baseRaceName;
+  if (data.isSubRace && data.baseRaceName) result.system.requirements = data.baseRaceName;
   const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
   if (legacyName && data.isLegacy) {
     result.name += " (Legacy)";
@@ -130,7 +130,7 @@ async function buildRace(race, compendiumRacialTraits) {
   }
 
   const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
-  result.data.description.value += image;
+  result.system.description.value += image;
 
   const compendiumLabel = getCompendiumLabel("traits");
 
@@ -142,10 +142,10 @@ async function buildRace(race, compendiumRacialTraits) {
       match.flags.ddbimporter.entityRaceId === feature.entityRaceId
     );
     const title = (featureMatch) ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>` : `<p><b>${feature.name}</b></p>`;
-    result.data.description.value += `${title}\n${feature.description}\n\n`;
+    result.system.description.value += `${title}\n${feature.description}\n\n`;
   });
 
-  result.data.description.value = parseTags(result.data.description.value);
+  result.system.description.value = parseTags(result.system.description.value);
 
   return result;
 }
@@ -187,7 +187,7 @@ function getRacialTrait(trait, fullName, isLegacy) {
   result.flags.ddbimporter['spellListIds'] = trait.spellListIds;
   result.flags.ddbimporter['definitionKey'] = trait.definitionKey;
   result.flags.ddbimporter['race'] = fullName;
-  result.data.requirements = fullName;
+  result.system.requirements = fullName;
 
   result.data.description.value = parseTags(result.data.description.value);
 

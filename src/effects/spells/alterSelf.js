@@ -12,10 +12,10 @@ export function alterSelfEffect(document) {
 
   let effectNaturalWeapons = baseSpellEffect(document, document.name);
   effectNaturalWeapons.changes.push(
-    { key: "items.Unarmed Strike.data.damage.parts.0.0", value: "1d6+@mod+1", mode: 5, priority: 20 },
-    { key: "items.Unarmed Strike.data.properties.mgc", value: "true", mode: 5, priority: 20 },
-    { key: "items.Unarmed Strike.data.proficient", value: "true", mode: 5, priority: 20 },
-    { key: "items.Unarmed Strike.data.attackBonus", value: "1", mode: 2, priority: 20 }
+    { key: "items.Unarmed Strike.system.damage.parts.0.0", value: "1d6+@mod+1", mode: 5, priority: 20 },
+    { key: "items.Unarmed Strike.system.properties.mgc", value: "true", mode: 5, priority: 20 },
+    { key: "items.Unarmed Strike.system.proficient", value: "true", mode: 5, priority: 20 },
+    { key: "items.Unarmed Strike.system.attackBonus", value: "1", mode: 2, priority: 20 }
   );
   document.effects.push(effectNaturalWeapons);
 

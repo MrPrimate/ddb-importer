@@ -197,7 +197,13 @@ export async function getCharacterData(optionsIn) {
       const shouldChangeName = game.settings.get("ddb-importer", "character-update-policy-name");
       if (!shouldChangeName) {
         character.character.name = undefined;
-        character.character.token.name = undefined;
+        const version = (game.version ?? game.data.version);
+        const v10 = utils.versionCompare(version, "10.0") >= 0;
+        if (v10) {
+          character.character.prototypeToken.name = undefined;
+        } else {
+          character.character.token.name = undefined;
+        }
       }
       data["character"] = character;
       return data;
@@ -227,19 +233,19 @@ export default class CharacterImport extends FormApplication {
   }
 
   migrateMetadata() {
-    if (this.actor.data.flags?.ddbimporter?.dndbeyond) {
-      const url = this.actor.data.flags.ddbimporter.dndbeyond.url || this.actor.data.flags.ddbimporter.dndbeyond.roUrl;
+    if (this.actor.flags?.ddbimporter?.dndbeyond) {
+      const url = this.actor.flags.ddbimporter.dndbeyond.url || this.actor.flags.ddbimporter.dndbeyond.roUrl;
 
-      if (url && !this.actor.data.flags.ddbimporter.characterId) {
+      if (url && !this.actor.flags.ddbimporter.characterId) {
         const characterId = getCharacterId(url);
         if (characterId) {
           const apiEndpointUrl = getCharacterAPIEndpoint(characterId);
-          this.actor.data.flags.ddbimporter.dndbeyond.characterId = characterId;
-          this.actor.data.flags.ddbimporter.dndbeyond.apiEndpointUrl = apiEndpointUrl;
-          this.actor.data.flags.ddbimporter.dndbeyond.url = url;
+          this.actor.flags.ddbimporter.dndbeyond.characterId = characterId;
+          this.actor.flags.ddbimporter.dndbeyond.apiEndpointUrl = apiEndpointUrl;
+          this.actor.flags.ddbimporter.dndbeyond.url = url;
         } else {
           // clear the url, because it's malformed anyway
-          this.actor.data.flags.ddbimporter.dndbeyond.url = null;
+          this.actor.flags.ddbimporter.dndbeyond.url = null;
         }
       }
     }
@@ -295,8 +301,8 @@ export default class CharacterImport extends FormApplication {
       "notes",
     ];
     journalFields.forEach((field) => {
-      if (this.actorOriginal.data.details[field]) {
-        this.actor.data.data.details[field] = this.actorOriginal.data.details[field];
+      if (this.actorOriginal.system.details[field]) {
+        this.actor.system.details[field] = this.actorOriginal.system.details[field];
       }
     });
   }
@@ -367,7 +373,7 @@ export default class CharacterImport extends FormApplication {
           !excludedList.some((excluded) => excluded._id === item.id) &&
           !this.nonMatchedItemIds.includes(item.id)
       )
-      .filter((item) => !item.data.flags.ddbimporter?.ignoreItemImport)
+      .filter((item) => !item.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item.id);
 
     logger.debug("Removing the following character items", toRemove);
@@ -404,10 +410,11 @@ export default class CharacterImport extends FormApplication {
     } else {
       this.result.character.img = this.actor.img;
     }
-    if (this.actorOriginal.token.img.includes("mystery-man")) {
-      this.result.character.token.img = this.result.character.img;
+
+    if (this.actorOriginal.prototypeToken.img.includes("mystery-man")) {
+      this.result.character.prototypeToken.img = this.result.character.img;
     } else {
-      this.result.character.token.img = this.actorOriginal.token.img;
+      this.result.character.prototypeToken.img = this.actorOriginal.prototypeToken.img;
     }
   }
 
@@ -417,7 +424,7 @@ export default class CharacterImport extends FormApplication {
     // loads settings for actor
     const importSettings = getCharacterImportSettings();
 
-    const characterId = this.actor.data.flags?.ddbimporter?.dndbeyond?.characterId;
+    const characterId = this.actor.flags?.ddbimporter?.dndbeyond?.characterId;
     const syncEnabled = characterId && importSettings.tiers.all;
 
     const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
@@ -433,11 +440,11 @@ export default class CharacterImport extends FormApplication {
     const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.experimentalMid;
-    const dynamicUpdateStatus = this.actor.data.flags?.ddbimporter?.activeUpdate;
+    const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
     const resourceSelection =
       !hasProperty(this.actor, "data.flags.ddbimporter.resources.ask") ||
       (hasProperty(this.actor, "data.flags.ddbimporter.resources.ask") &&
-        this.actor.data.flags.ddbimporter.resources.ask);
+        this.actor.flags.ddbimporter.resources.ask);
 
     const itemsMunched = syncEnabled && itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
 
@@ -516,7 +523,7 @@ export default class CharacterImport extends FormApplication {
         try {
           $(html).find("#dndbeyond-character-import-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Getting Character data");
-          const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
+          const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
           const characterDataOptions = {
             currentActorId: this.actor.id,
             characterId: characterId,
@@ -614,7 +621,7 @@ export default class CharacterImport extends FormApplication {
         try {
           $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
           CharacterImport.showCurrentTask(html, "Fetching character data");
-          const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
+          const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
           const characterDataOptions = {
             currentActorId: this.actor.id,
             characterId: characterId,
@@ -697,7 +704,7 @@ export default class CharacterImport extends FormApplication {
       .find("#open-dndbeyond-url")
       .on("click", () => {
         try {
-          const characterId = this.actor.data.flags.ddbimporter.dndbeyond.characterId;
+          const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
           const apiEndpointUrl = getCharacterAPIEndpoint(characterId);
           renderPopup("json", apiEndpointUrl);
         } catch (error) {
@@ -811,13 +818,13 @@ export default class CharacterImport extends FormApplication {
       const items = this.actor.getEmbeddedCollection("Item");
       await items.forEach((item) => {
         const ddbMatchedItem = ddbItems.some((ddbItem) =>
-          item.data.name === ddbItem.name &&
-          item.data.type === ddbItem.type &&
-          item.data.flags?.ddbimporter?.id === ddbItem.flags?.ddbimporter?.id
+          item.name === ddbItem.name &&
+          item.type === ddbItem.type &&
+          item.flags?.ddbimporter?.id === ddbItem.flags?.ddbimporter?.id
         );
         if (!ddbMatchedItem) {
           // if item not replaced by compendium swap or
-          if (item.data.flags?.ddbimporter?.importId !== lastImportId) {
+          if (item.flags?.ddbimporter?.importId !== lastImportId) {
             this.nonMatchedItemIds.push(item.id);
           }
         }
@@ -836,32 +843,32 @@ export default class CharacterImport extends FormApplication {
       await items.forEach((item) => {
         let ddbMatchedItem = ownedItems.find((owned) => {
           const simpleMatch =
-            item.name === owned.data.name &&
-            item.type === owned.data.type &&
-            item.flags?.ddbimporter?.id === owned.data.flags?.ddbimporter?.id;
+            item.name === owned.name &&
+            item.type === owned.type &&
+            item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
           const isChoice =
             hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId") &&
             hasProperty(owned, "data.flags.ddbimporter.dndbeyond.choice.choiceId");
           const choiceMatch = isChoice
             ? item.flags.ddbimporter.dndbeyond.choice.choiceId ===
-              owned.data.flags.ddbimporter.dndbeyond.choice.choiceId
+              owned.flags.ddbimporter.dndbeyond.choice.choiceId
             : true;
 
           return simpleMatch && choiceMatch;
         });
 
         if (ddbMatchedItem) {
-          if (!ddbMatchedItem.data.flags.ddbimporter?.ignoreItemImport) {
+          if (!ddbMatchedItem.flags.ddbimporter?.ignoreItemImport) {
             item["_id"] = ddbMatchedItem["id"];
-            if (ddbMatchedItem.data.flags.ddbimporter?.ignoreIcon) {
-              item.flags.ddbimporter.matchedImg = ddbMatchedItem.data.img;
+            if (ddbMatchedItem.flags.ddbimporter?.ignoreIcon) {
+              item.flags.ddbimporter.matchedImg = ddbMatchedItem.img;
               item.flags.ddbimporter.ignoreIcon = true;
             }
-            if (ddbMatchedItem.data.flags.ddbimporter?.retainResourceConsumption) {
-              item.data.consume = ddbMatchedItem.data.data.consume;
+            if (ddbMatchedItem.flags.ddbimporter?.retainResourceConsumption) {
+              item.system.consume = ddbMatchedItem.system.consume;
               item.flags.ddbimporter.retainResourceConsumption = true;
               if (hasProperty(ddbMatchedItem, "data.flags.link-item-resource-5e")) {
-                setProperty(item, "flags.link-item-resource-5e", ddbMatchedItem.data.flags["link-item-resource-5e"]);
+                setProperty(item, "flags.link-item-resource-5e", ddbMatchedItem.flags["link-item-resource-5e"]);
               }
             }
 
@@ -1027,20 +1034,20 @@ export default class CharacterImport extends FormApplication {
       .map((item) => item._id);
 
     const itemEffects = this.actor.effects.filter(
-      (ae) => ae.data.origin?.includes(".Item.") && !ignoredItemIds.includes(ae.data.origin?.split(".").slice(-1)[0])
+      (ae) => ae.system.origin?.includes(".Item.") && !ignoredItemIds.includes(ae.system.origin?.split(".").slice(-1)[0])
     );
     const ignoredEffects = this.actor.effects.filter(
       (ae) =>
         // is this an ignored item
-        ignoredItemIds.includes(ae.data.origin?.split(".").slice(-1)[0]) ||
+        ignoredItemIds.includes(ae.system.origin?.split(".").slice(-1)[0]) ||
         // is this a core status effect (CUB)
-        ae.data.flags?.core?.statusId
+        ae.flags?.core?.statusId
     );
     const charEffects = this.actor.effects.filter(
-      (ae) => !ae.data.origin?.includes(".Item.") && !ae.data.flags.ddbimporter?.characterEffect
+      (ae) => !ae.system.origin?.includes(".Item.") && !ae.flags.ddbimporter?.characterEffect
     );
     const ddbGeneratedCharEffects = this.actor.effects.filter(
-      (ae) => !ae.data.origin?.includes(".Item.") && ae.data.flags.ddbimporter?.characterEffect
+      (ae) => !ae.system.origin?.includes(".Item.") && ae.flags.ddbimporter?.characterEffect
     );
 
     // remove existing active item effects
@@ -1076,7 +1083,7 @@ export default class CharacterImport extends FormApplication {
     }
 
     character.effects.forEach((effect) => {
-      const origins = ["Ability.Override", "AC", `Actor.${this.actor.data.flags.ddbimporter.dndbeyond.characterId}`];
+      const origins = ["Ability.Override", "AC", `Actor.${this.actor.flags.ddbimporter.dndbeyond.characterId}`];
       if (origins.includes(effect.origin)) {
         effect.origin = `Actor.${this.actor.id}`;
       }
@@ -1134,34 +1141,34 @@ export default class CharacterImport extends FormApplication {
       // manage updates of basic character data more intelligently
       // revert some data if update not wanted
       if (!game.settings.get("ddb-importer", "character-update-policy-hp")) {
-        this.result.character.data.attributes.hp = this.actorOriginal.data.attributes.hp;
+        this.result.character.system.attributes.hp = this.actorOriginal.system.attributes.hp;
       }
       if (!game.settings.get("ddb-importer", "character-update-policy-hit-die")) {
-        this.result.character.data.attributes.hd = this.actorOriginal.data.attributes.hd;
+        this.result.character.system.attributes.hd = this.actorOriginal.system.attributes.hd;
         this.result.classes = this.result.classes.map((klass) => {
           const originalKlass = this.actorOriginal.items.find(
             (original) => original.name === klass.name && original.type === "class"
           );
           if (originalKlass) {
-            klass.data.hitDiceUsed = originalKlass.data.hitDiceUsed;
+            klass.system.hitDiceUsed = originalKlass.system.hitDiceUsed;
           }
           return klass;
         });
       }
       if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
-        this.result.character.data.currency = this.actorOriginal.data.currency;
+        this.result.character.system.currency = this.actorOriginal.system.currency;
       }
       if (!game.settings.get("ddb-importer", "character-update-policy-bio")) {
         const bioUpdates = ["alignment", "appearance", "background", "biography", "bond", "flaw", "ideal", "trait"];
         bioUpdates.forEach((option) => {
-          this.result.character.data.details[option] = this.actorOriginal.data.details[option];
+          this.result.character.system.details[option] = this.actorOriginal.system.details[option];
         });
       }
       if (!game.settings.get("ddb-importer", "character-update-policy-spell-use")) {
-        this.result.character.data.spells = this.actorOriginal.data.spells;
+        this.result.character.system.spells = this.actorOriginal.system.spells;
       }
       if (!game.settings.get("ddb-importer", "character-update-policy-languages")) {
-        this.result.character.data.traits.languages = this.actorOriginal.data.traits.languages;
+        this.result.character.system.traits.languages = this.actorOriginal.system.traits.languages;
       }
       // if resource mode is in disable and not asking, then we use the previous resources
       if (
@@ -1169,7 +1176,7 @@ export default class CharacterImport extends FormApplication {
         !this.result.character.flags.ddbimporter.resources.ask &&
         this.result.character.flags.ddbimporter.resources.type === "disable"
       ) {
-        this.result.character.data.resources = this.actorOriginal.data.resources;
+        this.result.character.system.resources = this.actorOriginal.system.resources;
       }
 
       // flag as having items ids

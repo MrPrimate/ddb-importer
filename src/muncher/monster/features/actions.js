@@ -7,12 +7,12 @@ import { generateTable } from "../../table.js";
 // "actionsDescription": "<p><em><strong>Multiattack.</strong></em> The dragon can use its Frightful Presence. It then makes three attacks: one with its bite and two with its claws.</p>\r\n<p><em><strong>Bite.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 15 ft., one target. <em>Hit:</em> 19 (2d10 + 8) piercing damage plus 9 (2d8) acid damage.</p>\r\n<p><em><strong>Claw.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 10 ft., one target. <em>Hit:</em> 15 (2d6 + 8) slashing damage.</p>\r\n<p><em><strong>Tail.</strong></em> <em>Melee Weapon Attack:</em> +15 to hit, reach 20 ft., one target. <em>Hit:</em> 17 (2d8 + 8) bludgeoning damage.</p>\r\n<p><em><strong>Frightful Presence.</strong></em> Each creature of the dragon's choice that is within 120 feet of the dragon and aware of it must succeed on a DC 19 Wisdom saving throw or become frightened for 1 minute. A creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. If a creature's saving throw is successful or the effect ends for it, the creature is immune to the dragon's Frightful Presence for the next 24 hours.</p>\r\n<p><em><strong>Acid Breath (Recharge 5&ndash;6).</strong></em> The dragon exhales acid in a 90-foot line that is 10 feet wide. Each creature in that line must make a DC 22 Dexterity saving throw, taking 67 (15d8) acid damage on a failed save, or half as much damage on a successful one.</p>",
 
 function generatePlayerDescription(monster, action) {
-  let playerDescription = `<section class="secret">\n${action.data.description.value}`;
-  if (["rwak", "mwak"].includes(action.data.actionType)) {
+  let playerDescription = `<section class="secret">\n${action.system.description.value}`;
+  if (["rwak", "mwak"].includes(action.system.actionType)) {
     playerDescription += `\n</section>\nThe ${monster.name} attacks with its ${action.name}.`;
-  } else if (["rsak", "msak"].includes(action.data.actionType)) {
+  } else if (["rsak", "msak"].includes(action.system.actionType)) {
     playerDescription += `\n</section>\nThe ${monster.name} casts ${action.name}.`;
-  } else if (["save"].includes(action.data.actionType)) {
+  } else if (["save"].includes(action.system.actionType)) {
     playerDescription += `\n</section>\nThe ${monster.name} uses ${action.name} and a save is required.`;
   } else {
     playerDescription += `\n</section>\nThe ${monster.name} uses ${action.name}.`;
@@ -27,61 +27,61 @@ function buildAction(action, actionInfo, textContent, type) {
   // console.warn(action.name);
 
   if (actionInfo.activation) {
-    action.data.activation.cost = actionInfo.activation;
-    action.data.consume.amount = actionInfo.activation;
+    action.system.activation.cost = actionInfo.activation;
+    action.system.consume.amount = actionInfo.activation;
   } else {
-    action.data.activation.cost = 1;
+    action.system.activation.cost = 1;
   }
-  action.data.activation.type = getAction(textContent, type);
+  action.system.activation.type = getAction(textContent, type);
 
-  action.data.recharge = actionInfo.recharge;
-  action.data.save = actionInfo.save;
+  action.system.recharge = actionInfo.recharge;
+  action.system.save = actionInfo.save;
   // assumption - if we have parsed a save dc set action type to save
-  if (action.data.save.dc) {
-    action.data.actionType = "save";
+  if (action.system.save.dc) {
+    action.system.actionType = "save";
   }
 
-  action.data.damage = actionInfo.damage;
-  action.data.formula = actionInfo.formula;
-  action.data.properties = actionInfo.properties;
-  action.data.proficient = actionInfo.proficient;
-  action.data.ability = actionInfo.baseAbility;
-  action.data.attackBonus = actionInfo.extraAttackBonus;
+  action.system.damage = actionInfo.damage;
+  action.system.formula = actionInfo.formula;
+  action.system.properties = actionInfo.properties;
+  action.system.proficient = actionInfo.proficient;
+  action.system.ability = actionInfo.baseAbility;
+  action.system.attackBonus = actionInfo.extraAttackBonus;
 
   if (actionInfo.weaponAttack) {
-    action.data.weaponType = actionInfo.weaponType;
-    action.data.equipped = true;
+    action.system.weaponType = actionInfo.weaponType;
+    action.system.equipped = true;
     // console.log(actionInfo.weaponAttack);
     // console.log(actionInfo.meleeAttack);
     // console.log(actionInfo.rangedAttack);
     if (actionInfo.meleeAttack) {
-      action.data.actionType = "mwak";
+      action.system.actionType = "mwak";
     } else if (actionInfo.rangedAttack) {
-      action.data.actionType = "rwak";
+      action.system.actionType = "rwak";
     }
   } else if (actionInfo.spellAttack) {
     if (actionInfo.meleeAttack) {
-      action.data.actionType = "msak";
+      action.system.actionType = "msak";
     } else if (actionInfo.rangedAttack) {
-      action.data.actionType = "rsak";
+      action.system.actionType = "rsak";
     } else {
-      action.data.actionType = "save";
+      action.system.actionType = "save";
     }
   } else if (actionInfo.save.dc) {
-    action.data.actionType = "save";
+    action.system.actionType = "save";
   }
 
   if (actionInfo.isAttack) {
     action.type = "weapon";
   }
 
-  action.data.range = actionInfo.range;
-  action.data.target = actionInfo.target;
-  action.data.duration = actionInfo.duration;
-  action.data.uses = actionInfo.uses;
+  action.system.range = actionInfo.range;
+  action.system.target = actionInfo.target;
+  action.system.duration = actionInfo.duration;
+  action.system.uses = actionInfo.uses;
 
   if (action.name.includes("/Day")) {
-    action.data.uses = getUses(action.name, true);
+    action.system.uses = getUses(action.name, true);
   }
 
   return action;
@@ -158,7 +158,7 @@ export function getActions(monster, type = "action") {
       name = name.split(";").pop().trim();
     }
     let action = newFeat(name);
-    action.data.source = getSource(monster);
+    action.system.source = getSource(monster);
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
       fullName: query.textContent,
@@ -183,7 +183,7 @@ export function getActions(monster, type = "action") {
         name = name.split(";").pop().trim();
       }
       let action = newFeat(name);
-      action.data.source = getSource(monster);
+      action.system.source = getSource(monster);
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
         fullName: query.textContent,
@@ -205,7 +205,7 @@ export function getActions(monster, type = "action") {
       const title = pDom.textContent.split('.')[0];
       const name = title.trim();
       let action = newFeat(name);
-      action.data.source = getSource(monster);
+      action.system.source = getSource(monster);
       if (pDom.outerHTML) {
         action.flags.monsterMunch = {
           titleHTML: pDom.outerHTML.split('.')[0],
@@ -227,7 +227,7 @@ export function getActions(monster, type = "action") {
       const title = pDom.textContent.split('.')[0];
       const name = title.trim();
       let action = newFeat(name);
-      action.data.source = getSource(monster);
+      action.system.source = getSource(monster);
       if (pDom.outerHTML) {
         action.flags.monsterMunch = {
           titleHTML: pDom.outerHTML.split('.')[0],
@@ -263,7 +263,7 @@ export function getActions(monster, type = "action") {
     let startFlag = false;
     if (switchAction) {
       action = switchAction;
-      if (action.data.description.value === "") {
+      if (action.system.description.value === "") {
         startFlag = true;
       }
     }
@@ -288,18 +288,18 @@ export function getActions(monster, type = "action") {
         });
         if (titleDom.textContent.startsWith(".")) outerHTML = outerHTML.replace(".", "");
       }
-      action.data.description.value += outerHTML;
+      action.system.description.value += outerHTML;
     }
   });
 
   dynamicActions = dynamicActions.map((da) => {
-    const actionDescription = utils.stripHtml(da.data.description.value);
+    const actionDescription = utils.stripHtml(da.system.description.value);
     const actionInfo = getActionInfo(monster, da.name, actionDescription);
     const result = buildAction(da, actionInfo, actionDescription, type);
     if (hideDescription) {
-      da.data.description.value = generatePlayerDescription(monster, da);
+      da.system.description.value = generatePlayerDescription(monster, da);
     }
-    da.data.description.value = generateTable(monster.name, da.data.description.value, updateExisting);
+    da.system.description.value = generateTable(monster.name, da.system.description.value, updateExisting);
     return result;
   });
 

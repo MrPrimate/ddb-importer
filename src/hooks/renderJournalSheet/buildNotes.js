@@ -45,16 +45,16 @@ function buildNotes(html, data) {
             // In 0.8.x for some reason I need to now wrap these in the target id check?
             if (e.target.id === "ddb-note-start") {
               clippy = {
-                ddbId: data.data.flags.ddb.ddbId,
-                cobaltId: data.data.flags.ddb.cobaltId,
-                parentId: data.data.flags.ddb.parentId,
+                ddbId: data.flags.ddb.ddbId,
+                cobaltId: data.flags.ddb.cobaltId,
+                parentId: data.flags.ddb.parentId,
                 splitTag: tagName.toLowerCase(),
-                slug: data.data.flags.ddb.slug,
+                slug: data.flags.ddb.slug,
                 tagIdFirst: $(element).prop("id"),
                 contentChunkIdStart: $(element).attr("data-content-chunk-id"),
                 tagIdLast: "",
                 contentChunkIdStop: "EOF",
-                sceneName: data.data.name,
+                sceneName: data.name,
               };
               copyToClipboard(JSON.stringify(clippy, null, 2));
             }
@@ -89,13 +89,13 @@ function buildNotes(html, data) {
           $(showButton).click((e) => {
             if (e.target.id === "ddb-table-name") {
               clippy = {
-                ddbId: data.data.flags.ddb.ddbId,
-                cobaltId: data.data.flags.ddb.cobaltId,
-                parentId: data.data.flags.ddb.parentId,
-                slug: data.data.flags.ddb.slug,
+                ddbId: data.flags.ddb.ddbId,
+                cobaltId: data.flags.ddb.cobaltId,
+                parentId: data.flags.ddb.parentId,
+                slug: data.flags.ddb.slug,
                 tagIdFirst: $(element).prop("id"),
                 contentChunkId: $(element).attr("data-content-chunk-id"),
-                sceneName: data.data.name,
+                sceneName: data.name,
                 tableName: "",
               };
               copyToClipboard(JSON.stringify(clippy, null, 2));

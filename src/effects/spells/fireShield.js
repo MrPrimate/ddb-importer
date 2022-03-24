@@ -6,7 +6,7 @@ export async function fireShieldEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "fireShield.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
-  document.data.damage = { parts: [], versatile: "", value: "" };
+  document.system.damage = { parts: [], versatile: "", value: "" };
   document.effects.push(effect);
 
   return document;

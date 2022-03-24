@@ -5,7 +5,7 @@ export async function checkMacroFolder() {
   const version = (game.version ?? game.data.version);
   const v9 = utils.versionCompare(version, "9.0") >= 0;
   if (v9) {
-    const macroFolder = game.folders.find((folder) => folder.data.name === "DDB Macros" && folder.data.type === "Macro");
+    const macroFolder = game.folders.find((folder) => folder.name === "DDB Macros" && folder.type === "Macro");
 
     if (!macroFolder) {
       await Folder.create({
@@ -105,7 +105,7 @@ export function generateMacroChange(macroValues, priority = 20, local = false) {
 export async function createMacro({ name, content, img, isGM, isTemp }) {
   const macroFolder = isTemp
     ? undefined
-    : game.folders.find((folder) => folder.data.name === "DDB Macros" && folder.data.type === "Macro");
+    : game.folders.find((folder) => folder.name === "DDB Macros" && folder.type === "Macro");
 
   const data = {
     "name": name,

@@ -46,13 +46,13 @@ export default function () {
       if (!data.owner || !data.actor || (!allowAllSync && trustedUsersOnly && !game.user.isTrusted)) return;
 
       let url = null;
-      if (app.document.data.flags.ddbimporter?.dndbeyond?.url) {
-        url = app.document.data.flags.ddbimporter.dndbeyond.url;
+      if (app.document.flags.ddbimporter?.dndbeyond?.url) {
+        url = app.document.flags.ddbimporter.dndbeyond.url;
       }
 
       let jsonURL = null;
-      if (app.document.data.flags.ddbimporter?.dndbeyond?.json) {
-        jsonURL = app.document.data.flags.ddbimporter.dndbeyond.json;
+      if (app.document.flags.ddbimporter?.dndbeyond?.json) {
+        jsonURL = app.document.flags.ddbimporter.dndbeyond.json;
       }
 
       let button;
@@ -63,7 +63,7 @@ export default function () {
         // don't add the button multiple times
         if ($(html).find("#ddbImporterButton").length > 0) return;
         button = $('<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>');
-        if (app.document.data.flags.ddbimporter?.dndbeyond?.url) button.removeClass("inactive");
+        if (app.document.flags.ddbimporter?.dndbeyond?.url) button.removeClass("inactive");
       }
 
       button.click((event) => {
@@ -122,8 +122,8 @@ export default function () {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this npc
       if (!data.owner || !data.actor) return;
-      if (!app.document.data.flags?.monsterMunch?.url) return;
-      let url = app.document.data.flags.monsterMunch.url;
+      if (!app.document.flags?.monsterMunch?.url) return;
+      let url = app.document.flags.monsterMunch.url;
 
       let button;
 

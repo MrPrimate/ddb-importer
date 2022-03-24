@@ -75,7 +75,7 @@ function buildBase(data) {
 
   result.name = data.name;
   const tableDescription = generateTable(data.name, data.description, updateExisting);
-  result.data.description.value += `${tableDescription}\n\n`;
+  result.system.description.value += `${tableDescription}\n\n`;
 
   result.flags.ddbimporter = {
     id: data.id,
@@ -87,7 +87,7 @@ function buildBase(data) {
     result.flags.ddbimporter['moreDetailsUrl'] = data.moreDetailsUrl;
   }
 
-  result.data.source = utils.parseSource(data);
+  result.system.source = utils.parseSource(data);
 
   return result;
 }
@@ -192,9 +192,9 @@ export function getClassFeature(feature, klass, subClassName = "") {
   result.flags.ddbimporter['subClass'] = subClassName;
   result.flags.ddbimporter['parentClassId'] = klass.parentClassId;
   const requiredLevel = feature.requiredLevel ? ` ${feature.requiredLevel}` : "";
-  result.data.requirements = `${klass.name}${requiredLevel}`;
+  result.system.requirements = `${klass.name}${requiredLevel}`;
 
-  result.data.description.value = parseTags(result.data.description.value);
+  result.system.description.value = parseTags(result.system.description.value);
 
   return result;
 }
@@ -204,8 +204,8 @@ export async function buildBaseClass(klass) {
   logger.debug(`Parsing ${klass.name}`);
   result.flags.obsidian.source.text = klass.name;
   result.type = "class";
-  result.data.identifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
-  result.data.advancement = [];
+  result.system.identifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
+  result.system.advancement = [];
 
   let avatarUrl;
   let largeAvatarUrl;
@@ -240,7 +240,7 @@ export async function buildBaseClass(klass) {
     : `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
 
   // eslint-disable-next-line require-atomic-updates
-  result.data.description.value += image;
+  result.system.description.value += image;
 
   // eslint-disable-next-line require-atomic-updates
   result.flags.ddbimporter['parentClassId'] = klass.parentClassId;
@@ -253,9 +253,9 @@ export async function buildBaseClass(klass) {
 
   // setup data
   // eslint-disable-next-line require-atomic-updates
-  result.data.levels = 1;
+  result.system.levels = 1;
   // eslint-disable-next-line require-atomic-updates
-  result.data.hitDice = `d${klass.hitDice}`;
+  result.system.hitDice = `d${klass.hitDice}`;
 
   let spellcasting = {};
   if (klass.canCastSpells) {
@@ -271,7 +271,7 @@ export async function buildBaseClass(klass) {
     }
   }
   // eslint-disable-next-line require-atomic-updates
-  result.data.spellcasting = spellcasting;
+  result.system.spellcasting = spellcasting;
 
   // this can be used with the add class response
   // const classSkillSubType = `choose-a-${klass.name.toLowerCase()}-skill`;
@@ -299,7 +299,7 @@ export async function buildBaseClass(klass) {
     const skills = DICTIONARY.character.skills.map((skill) => skill.name);
     const numberSkills = DICTIONARY.numbers.find((num) => allMatch[1].toLowerCase() === num.natural);
     // eslint-disable-next-line require-atomic-updates
-    result.data.skills = {
+    result.system.skills = {
       number: numberSkills ? numberSkills.num : 2,
       choices: skills,
       value: [],
@@ -313,7 +313,7 @@ export async function buildBaseClass(klass) {
       });
     const numberSkills = DICTIONARY.numbers.find((num) => skillMatch[1].toLowerCase() === num.natural);
     // eslint-disable-next-line require-atomic-updates
-    result.data.skills = {
+    result.system.skills = {
       number: numberSkills ? numberSkills.num : 2,
       choices: skills,
       value: [],
@@ -334,14 +334,14 @@ export async function buildBaseClass(klass) {
         return dictAbility.value;
       });
     // eslint-disable-next-line require-atomic-updates
-    result.data.saves = saves;
+    result.system.saves = saves;
   }
 
   // "moreDetailsUrl": "/characters/classes/rogue",
 
   if (klass.equipmentDescription) {
     // eslint-disable-next-line require-atomic-updates
-    result.data.description.value += `<p><b>Starting Equipment</b></p>\n${klass.equipmentDescription}\n\n`;
+    result.system.description.value += `<p><b>Starting Equipment</b></p>\n${klass.equipmentDescription}\n\n`;
   }
 
   return result;

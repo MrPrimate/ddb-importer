@@ -12,8 +12,8 @@ export function deflectMissilesEffect(document) {
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(document, "data.activation.type", "reactiondamage");
 
-  document.data["target"]["type"] = "self";
-  document.data.range = { value: null, units: "self", long: null };
+  document.system["target"]["type"] = "self";
+  document.system.range = { value: null, units: "self", long: null };
 
   document.effects.push(effect);
   return document;

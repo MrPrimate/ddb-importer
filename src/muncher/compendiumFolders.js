@@ -340,7 +340,7 @@ export async function createCompendiumFolderStructure(type) {
 
 function getItemCompendiumFolderNameForRarity(document) {
   let name;
-  const rarity = document.data.data.rarity;
+  const rarity = document.system.rarity;
 
   if (rarity && rarity != "") {
     switch (rarity.toLowerCase().trim()) {
@@ -380,63 +380,63 @@ function getItemCompendiumFolderNameForRarity(document) {
 function getItemCompendiumFolderNameForType(document) {
   let name;
 
-  switch (document.data.type) {
+  switch (document.type) {
     case "equipment": {
-      switch (document.data.data?.armor?.type) {
+      switch (document.system?.armor?.type) {
         case "trinket": {
-          const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+          const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
           if (ddbType) {
             name = trinketFolders[ddbType].name;
           }
           break;
         }
         default: {
-          name = equipmentFolders[document.data.data.armor.type].name;
+          name = equipmentFolders[document.system.armor.type].name;
           break;
         }
       }
       break;
     }
     case "weapon": {
-      name = weaponFolders[document.data.data.weaponType].name;
+      name = weaponFolders[document.system.weaponType].name;
       break;
     }
     case "consumable": {
-      const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+      const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
       if (ddbType) {
         name = consumableFolders[ddbType].name;
       }
       break;
     }
     case "loot": {
-      const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+      const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
       if (ddbType) {
         name = lootFolders[ddbType].name;
       }
       break;
     }
     case "backpack": {
-      const ddbType = document.data.flags?.ddbimporter?.dndbeyond?.type;
+      const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
       if (ddbType) {
         name = backpackFolders[ddbType].name;
       }
       break;
     }
     case "tool": {
-      const toolType = document.data.data.toolType;
-      const instrument = document.data.flags?.ddbimporter?.dndbeyond?.tags.includes("Instrument");
+      const toolType = document.system.toolType;
+      const instrument = document.flags?.ddbimporter?.dndbeyond?.tags.includes("Instrument");
       const ddbType = ["art", "music", "game"].includes(toolType);
       if (instrument) {
         name = toolFolders["music"].name;
       } else if (ddbType) {
         name = toolFolders[toolType].name;
       } else {
-        name = rootItemFolders[document.data.type].name;
+        name = rootItemFolders[document.type].name;
       }
       break;
     }
     default: {
-      name = rootItemFolders[document.data.type].name;
+      name = rootItemFolders[document.type].name;
       break;
     }
   }
@@ -468,8 +468,8 @@ function getCompendiumFolderName(type, document) {
     case "monster": {
       switch (compendiumFolderTypeMonster) {
         case "TYPE": {
-          const creatureType = document.data.data?.details?.type?.value
-            ? document.data.data?.details?.type?.value
+          const creatureType = document.system?.details?.type?.value
+            ? document.system?.details?.type?.value
             : "Unknown";
           const ddbType = CONFIG.DDB.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
           if (ddbType) name = ddbType.name;
@@ -483,8 +483,8 @@ function getCompendiumFolderName(type, document) {
           break;
         }
         case "CR": {
-          if (document.data.data.details.cr !== undefined || document.data.data.details.cr !== "") {
-            const paddedCR = String(document.data.data.details.cr).padStart(2, "0");
+          if (document.system.details.cr !== undefined || document.system.details.cr !== "") {
+            const paddedCR = String(document.system.details.cr).padStart(2, "0");
             name = `CR ${paddedCR}`;
           }
         }
@@ -496,14 +496,14 @@ function getCompendiumFolderName(type, document) {
     case "spells": {
       switch (compendiumFolderTypeSpell) {
         case "SCHOOL": {
-          const school = document.data.data?.school;
+          const school = document.system?.school;
           if (school) {
             name = utils.capitalize(DICTIONARY.spell.schools.find((sch) => school == sch.id).name);
           }
           break;
         }
         case "LEVEL": {
-          const levelFolder = spellLevelFolderNames[document.data.data?.level];
+          const levelFolder = spellLevelFolderNames[document.system?.level];
           if (levelFolder) {
             name = levelFolder;
           }
@@ -543,7 +543,7 @@ export async function addToCompendiumFolder(type, document, folders) {
         const folderName = getCompendiumFolderName(type, document);
         if (folderName) {
           const folder = folders.find((f) => f.packCode === packName && f.name == folderName);
-          if (document?.data?.flags?.cf?.id) setProperty(document, "data.flags.cf.id", undefined);
+          if (document?.flags?.cf?.id) setProperty(document, "flags.cf.id", undefined);
           if (folder) {
             logger.info(`Moving ${type} ${document.name} to folder ${folder.name}`);
             await game.CF.FICFolderAPI.moveDocumentToFolder(packName, document, folder);

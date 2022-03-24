@@ -105,19 +105,19 @@ export default function parsePotion(data, itemType) {
     },
   };
 
-  potion.data.consumableType = "potion";
-  potion.data.uses = getConsumableUses(data);
-  potion.data.description = getDescription(data);
-  potion.data.source = utils.parseSource(data.definition);
-  potion.data.quantity = getQuantity(data);
-  potion.data.weight = getSingleItemWeight(data);
-  potion.data.equipped = getEquipped(data);
-  potion.data.rarity = getItemRarity(data);
-  potion.data.identified = true;
-  potion.data.activation = { type: "action", cost: 1, condition: "" };
-  potion.data.duration = getDuration(data);
-  potion.data.actionType = getActionType(data);
-  potion.data.damage = getDamage(data, getActionType(data));
+  potion.system.consumableType = "potion";
+  potion.system.uses = getConsumableUses(data);
+  potion.system.description = getDescription(data);
+  potion.system.source = utils.parseSource(data.definition);
+  potion.system.quantity = getQuantity(data);
+  potion.system.weight = getSingleItemWeight(data);
+  potion.system.equipped = getEquipped(data);
+  potion.system.rarity = getItemRarity(data);
+  potion.system.identified = true;
+  potion.system.activation = { type: "action", cost: 1, condition: "" };
+  potion.system.duration = getDuration(data);
+  potion.system.actionType = getActionType(data);
+  potion.system.damage = getDamage(data, getActionType(data));
 
   return potion;
 }

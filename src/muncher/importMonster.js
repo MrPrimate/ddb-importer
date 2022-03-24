@@ -191,7 +191,7 @@ export async function getNPCImage(data, options) {
     dndBeyondImageUrl = dndBeyondTokenImageUrl;
   }
 
-  const npcType = options.type.startsWith("vehicle") ? "vehicle" : data.data.details.type.value;
+  const npcType = options.type.startsWith("vehicle") ? "vehicle" : data.system.details.type.value;
   const genericNPCName = npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
   const npcName = data.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
 
@@ -216,22 +216,22 @@ export async function getNPCImage(data, options) {
 
     if (dndBeyondTokenImageUrl.endsWith(npcType + "." + tokenExt)) {
       // eslint-disable-next-line require-atomic-updates
-      data.token.img = await getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName, true, false);
+      data.prototypeToken.img = await getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName, true, false);
     } else {
       // eslint-disable-next-line require-atomic-updates
-      data.token.img = await getImagePath(dndBeyondTokenImageUrl, "npc-token", npcName, true, false);
+      data.prototypeToken.img = await getImagePath(dndBeyondTokenImageUrl, "npc-token", npcName, true, false);
     }
   }
 
   // check avatar, if not use token image
   // eslint-disable-next-line require-atomic-updates
-  if (!data.img && data.token.img) data.img = data.token.img;
+  if (!data.img && data.prototypeToken.img) data.img = data.prototypeToken.img;
 
   // final check if image comes back as null
   // eslint-disable-next-line require-atomic-updates
   if (data.img === null) data.img = "icons/svg/mystery-man.svg";
   // eslint-disable-next-line require-atomic-updates
-  if (data.token.img === null) data.token.img = "icons/svg/mystery-man.svg";
+  if (data.prototypeToken.img === null) data.prototypeToken.img = "icons/svg/mystery-man.svg";
 
   // okays, but do we now want to tokenize that?
   const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize") &&
@@ -241,7 +241,7 @@ export async function getNPCImage(data, options) {
   if (tokenizerReady) {
     const compendiumLabel = getCompendiumLabel(options.type);
     // eslint-disable-next-line require-atomic-updates
-    data.token.img = await window.Tokenizer.autoToken(data, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
+    data.prototypeToken.img = await window.Tokenizer.autoToken(data, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
   }
 
   return data;
@@ -276,14 +276,14 @@ async function swapItems(data) {
 }
 
 async function linkResourcesConsumption(actor) {
-  if (actor.items.some((item) => item.data?.recharge?.value)) {
+  if (actor.items.some((item) => item.system.recharge?.value)) {
     logger.debug(`Resource linking for ${actor.name}`);
     actor.items.forEach((item) => {
-      if (item.data?.recharge?.value) {
+      if (item.system?.recharge?.value) {
         const itemID = randomID(16);
         item._id = itemID;
         if (item.type === "weapon") item.type = "feat";
-        item.data.consume = {
+        item.system.consume = {
           type: "charges",
           target: itemID,
           amount: null,
@@ -392,7 +392,7 @@ export function copyExistingMonsterImages(monsters, existingMonsters) {
     const existing = existingMonsters.find((m) => monster.name === m.name);
     if (existing) {
       monster.img = existing.img;
-      monster.token.img = existing.token.img;
+      monster.prototypeToken.img = monster.prototypeToken ? monster.prototypeToken.img : monster.token.img;
       return monster;
     } else {
       return monster;

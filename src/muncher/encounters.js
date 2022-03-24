@@ -153,8 +153,8 @@ export class DDBEncounterMunch extends Application {
       .forEach((character) => {
         const characterInGame = game.actors.find(
           (actor) =>
-            actor.data.flags?.ddbimporter?.dndbeyond?.characterId &&
-            actor.data.flags.ddbimporter.dndbeyond.characterId == character.id
+            actor.flags?.ddbimporter?.dndbeyond?.characterId &&
+            actor.flags.ddbimporter.dndbeyond.characterId == character.id
         );
         if (characterInGame) {
           goodCharacterData.push({ id: characterInGame.id, name: characterInGame.name, ddbId: character.id });
@@ -281,7 +281,7 @@ export class DDBEncounterMunch extends Application {
     logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
     await Helpers.asyncForEach(monstersToAddToWorld, async (actor) => {
       let worldActor = game.actors.find(
-        (a) => a.data.folder == encounterMonsterFolder.id && a.data.flags?.ddbimporter?.id == actor.ddbId
+        (a) => a.folder == encounterMonsterFolder.id && a.flags?.ddbimporter?.id == actor.ddbId
       );
       if (!worldActor) {
         logger.info(
@@ -360,7 +360,7 @@ export class DDBEncounterMunch extends Application {
       }
 
       let worldJournal = game.journal.find(
-        (a) => a.data.folder == journalFolder.id && a.data.flags?.ddbimporter?.encounterId == this.encounter.id
+        (a) => a.folder == journalFolder.id && a.flags?.ddbimporter?.encounterId == this.encounter.id
       );
       if (!worldJournal) {
         logger.info(`Importing journal ${journal.name}`);
@@ -434,7 +434,7 @@ export class DDBEncounterMunch extends Application {
     } else if (useExistingScene) {
       worldScene = game.scenes.find((s) => s.id == this.sceneId);
       if (worldScene) {
-        logger.debug(`Using existing scene "${worldScene.data.name}" for encounter "${this.encounter.name}""`);
+        logger.debug(`Using existing scene "${worldScene.name}" for encounter "${this.encounter.name}""`);
         sceneData = worldScene.toObject();
       } else {
         logger.warn(`Unable to find scene ${this.sceneId}, creating a new scene `);
@@ -463,12 +463,12 @@ export class DDBEncounterMunch extends Application {
           logger.info(`Generating token ${character.name} for ${this.encounter.name}`);
           const characterInGame = game.actors.find(
             (actor) =>
-              actor.data.flags?.ddbimporter?.dndbeyond?.characterId &&
-              actor.data.flags.ddbimporter.dndbeyond.characterId == character.id
+              actor.flags?.ddbimporter?.dndbeyond?.characterId &&
+              actor.flags.ddbimporter.dndbeyond.characterId == character.id
           );
           if (characterInGame) {
-            const onScene = useExistingScene && worldScene.data.tokens
-              .some((t) => t.actor.data?.flags?.ddbimporter?.id == character.id && t.actor.type == "character");
+            const onScene = useExistingScene && worldScene.tokens
+              .some((t) => t.actor.flags?.ddbimporter?.id == character.id && t.actor.type == "character");
 
             if (!onScene) {
               const linkedToken = duplicate(await characterInGame.getTokenData());
@@ -514,10 +514,10 @@ export class DDBEncounterMunch extends Application {
           setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", worldMonster.initiative);
           // if no hp changes have been made on a monster on ddb it says 0 here
           if (worldMonster.maximumHitPoints !== 0) {
-            setProperty(linkedToken, "actorData.data.attributes.hp.max", worldMonster.maximumHitPoints);
+            setProperty(linkedToken, "actorData.system.attributes.hp.max", worldMonster.maximumHitPoints);
             setProperty(
               linkedToken,
-              "actorData.data.attributes.hp.value",
+              "actorData.system.attributes.hp.value",
               worldMonster.currentHitPoints + worldMonster.temporaryHitPoints
             );
           }
@@ -532,8 +532,8 @@ export class DDBEncounterMunch extends Application {
 
       if (importDDBIScene) {
         worldScene = game.scenes.find(
-          (a) => a.data.folder == this.folders["scene"].id &&
-          a.data.flags?.ddbimporter?.encounterId == this.encounter.id
+          (a) => a.folder == this.folders["scene"].id &&
+          a.flags?.ddbimporter?.encounterId == this.encounter.id
         );
       }
 
@@ -544,11 +544,11 @@ export class DDBEncounterMunch extends Application {
           logger.info(`Updating DDBI scene ${sceneData.name}`);
           sceneData._id = worldScene.id;
           await worldScene.deleteEmbeddedDocuments("Token", [], { deleteAll: true });
-          await worldScene.update(mergeObject(worldScene.data.toObject(), sceneData));
+          await worldScene.update(mergeObject(worldScene.toObject(), sceneData));
         } else if (useExistingScene) {
           logger.info(`Checking existing scene ${sceneData.name} for encounter monsters`);
-          const existingSceneMonsterIds = worldScene.data.tokens
-            .filter((t) => t.data?.flags?.ddbimporter?.encounterId == this.encounter.id && t.actor.type == "npc")
+          const existingSceneMonsterIds = worldScene.tokens
+            .filter((t) => t.flags?.ddbimporter?.encounterId == this.encounter.id && t.actor.type == "npc")
             .map((t) => t.id);
           await worldScene.deleteEmbeddedDocuments("Token", existingSceneMonsterIds);
         }
@@ -564,7 +564,7 @@ export class DDBEncounterMunch extends Application {
       }
 
       const thumbData = await worldScene.createThumbnail();
-      const thumbScene = worldScene.data.toObject();
+      const thumbScene = worldScene.toObject();
       thumbScene["thumb"] = thumbData.thumb;
 
       // eslint-disable-next-line require-atomic-updates
@@ -597,12 +597,12 @@ export class DDBEncounterMunch extends Application {
 
     let toCreate = [];
     const tokens = canvas.tokens.placeables
-      .filter((t) => t.data?.flags?.ddbimporter?.encounterId == this.encounter.id || t.actor.type == "character");
+      .filter((t) => t.flags?.ddbimporter?.encounterId == this.encounter.id || t.actor.type == "character");
     if (tokens.length) {
       tokens.forEach((t) => {
-        let combatant = { tokenId: t.id, actorId: t.data.actorId, hidden: t.data.hidden };
-        if (useDDBSave && t.data.flags.ddbimporter?.dndbeyond?.initiative)
-          combatant.initiative = t.data.flags.ddbimporter.dndbeyond.initiative;
+        let combatant = { tokenId: t.id, actorId: t.system.actorId, hidden: t.system.hidden };
+        if (useDDBSave && t.flags.ddbimporter?.dndbeyond?.initiative)
+          combatant.initiative = t.flags.ddbimporter.dndbeyond.initiative;
         if (!t.inCombat) toCreate.push(combatant);
       });
       const combatants = await this.combat.createEmbeddedDocuments("Combatant", toCreate);
@@ -862,7 +862,7 @@ export class DDBEncounterMunch extends Application {
       },
     ];
 
-    const scenes = game.scenes.filter((scene) => !scene.data.flags?.ddbimporter?.encounters)
+    const scenes = game.scenes.filter((scene) => !scene.flags?.ddbimporter?.encounters)
       .map((scene) => {
         const folderName = scene.folder ? `[${scene.folder.name}] ` : "";
         const s = {

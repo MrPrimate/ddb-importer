@@ -31,8 +31,8 @@ function buildBase(data) {
   let result = duplicate(FEAT_TEMPLATE);
 
   result.name = data.name;
-  result.data.description.value += `${data.description}\n\n`;
-  result.data.description.chat += `${data.snippet}\n\n`;
+  result.system.description.value += `${data.description}\n\n`;
+  result.system.description.chat += `${data.snippet}\n\n`;
 
   result.flags.ddbimporter = {
     featId: data.id,
@@ -42,13 +42,13 @@ function buildBase(data) {
   result.flags.ddbimporter['prerequisites'] = data.prerequisites;
   if (data.prerequisites.length > 0) {
     const requirements = data.prerequisites.map((requirement) => requirement.description);
-    result.data.requirements = requirements.join(", ");
-    result.data.description.value += `<h3>Requirements</h3>\n\n${requirements.join("\n\n")}\n\n`;
+    result.system.requirements = requirements.join(", ");
+    result.system.description.value += `<h3>Requirements</h3>\n\n${requirements.join("\n\n")}\n\n`;
   }
 
-  result.data.source = utils.parseSource(data);
+  result.system.source = utils.parseSource(data);
 
-  result.data.description.value = parseTags(result.data.description.value);
+  result.system.description.value = parseTags(result.system.description.value);
 
   return result;
 }

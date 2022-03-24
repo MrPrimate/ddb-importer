@@ -36,11 +36,11 @@ export async function getActiveConditions(actor) {
 }
 
 async function effectAppliedAndActive(condition, actor) {
-  return actor.data.effects.some(
+  return actor.effects.some(
     (activeEffect) =>
-      activeEffect?.data?.flags?.isConvenient &&
-      activeEffect?.data?.label == condition.label &&
-      !activeEffect?.data?.disabled
+      activeEffect?.flags?.isConvenient &&
+      activeEffect?.label == condition.label &&
+      !activeEffect?.disabled
   );
 }
 

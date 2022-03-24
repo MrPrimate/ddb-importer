@@ -55,14 +55,14 @@ async function buildSubClassBase(klass, subClass) {
     const image = (avatarUrl)
       ? `<img class="ddb-class-image" src="${avatarUrl}">\n\n`
       : `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
-    klass.data.description.value.replace(imageMatch, image);
+    klass.system.description.value.replace(imageMatch, image);
   }
 
-  const subClassSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
+  const subClassSupport = utils.versionCompare(game.data.system.version, "1.6.0") >= 0;
 
   if (subClassSupport) {
-    klass.data.classIdentifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
-    klass.data.identifier = subClass.name.toLowerCase().replace(/\s|'|’/g, '-');
+    klass.system.classIdentifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
+    klass.system.identifier = subClass.name.toLowerCase().replace(/\s|'|’/g, '-');
     klass.type = "subclass";
     klass.name = `${subClass.name} (${klass.name})`;
   } else {
@@ -71,13 +71,13 @@ async function buildSubClassBase(klass, subClass) {
   }
 
   // eslint-disable-next-line require-atomic-updates
-  klass.data.description.value += `<h3>${subClass.name}</h3>\n${subClass.description}\n\n`;
+  klass.system.description.value += `<h3>${subClass.name}</h3>\n${subClass.description}\n\n`;
 
   // spell caster now?
   // if canCastSpells but now canCastSpells then set to third
-  if (klass.data.spellcasting === "" && subClass.canCastSpells) {
+  if (klass.system.spellcasting === "" && subClass.canCastSpells) {
     // eslint-disable-next-line require-atomic-updates
-    klass.data.spellcasting = "third";
+    klass.system.spellcasting = "third";
   }
 
   return klass;
@@ -88,9 +88,9 @@ async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
   let baseClass = await buildBaseClass(klass.flags.ddbimporter.data);
   let result = await buildSubClassBase(baseClass, subclass);
   const ignoreIds = klass.flags.ddbimporter.data.classFeatures.map((f) => f.id);
-  result.data.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures, ignoreIds);
-  result.data.description.value = parseTags(result.data.description.value);
-  result.data.advancement.push(...await generateFeatureAdvancements(subclass, compendiumSubClassFeatures, ignoreIds));
+  result.system.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures, ignoreIds);
+  result.system.description.value = parseTags(result.system.description.value);
+  result.system.advancement.push(...await generateFeatureAdvancements(subclass, compendiumSubClassFeatures, ignoreIds));
   return result;
 }
 
@@ -146,8 +146,8 @@ export async function getSubClasses(data) {
   logger.debug("Features fetched", compendiumClassFeatures);
 
   await Promise.all(data.map(async (subClass) => {
-    const classMatch = content.find((i) => i.data.flags.ddbimporter['id'] == subClass.parentClassId);
-    const builtClass = await buildSubClass(classMatch.data, subClass, compendiumClassFeatures);
+    const classMatch = content.find((i) => i.flags.ddbimporter['id'] == subClass.parentClassId);
+    const builtClass = await buildSubClass(classMatch.system, subClass, compendiumClassFeatures);
     subClasses.push(builtClass);
   }));
 

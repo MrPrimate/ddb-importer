@@ -23,7 +23,7 @@ const renderPopup = (type, url) => {
 };
 
 function adventureFlags(app, html, data) {
-  if (!game.user.isGM || !app.document.data.flags.ddb) return;
+  if (!game.user.isGM || !app.document.flags.ddb) return;
   const existingLink = html.closest('.app').find('.open-adventure-ddb-importer');
   if (existingLink.length > 0) return;
 
@@ -35,7 +35,7 @@ function adventureFlags(app, html, data) {
       new DDBAdventureFlags(app.document, {}).render(true);
     } else {
       event.preventDefault();
-      const flags = app.document.data.flags.ddb;
+      const flags = app.document.flags.ddb;
       const bookSource = CONFIG.DDB.sources.find((book) => flags.bookCode.toLowerCase() === book.name.toLowerCase());
       return renderPopup("web", `https://www.dndbeyond.com/${bookSource.sourceURL}/${flags.slug}`);
     }

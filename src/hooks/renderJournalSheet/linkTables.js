@@ -29,7 +29,7 @@ export function linkTables(type, html) {
         ? await pack.getDocument(data.id)
         : game.tables.get(data.id);
 
-      if (table?.data?.flags?.ddb?.contentChunkId || pack) {
+      if (table?.flags?.ddb?.contentChunkId || pack) {
         const button = $(
           `<a title="Click: Roll | Shift-Click: Self Roll" class="ddbimporter roll"><i class="fas fa-dice-d20"></i>  Roll!</a>`
         );
@@ -40,7 +40,7 @@ export function linkTables(type, html) {
           const rollMode = event.shiftKey ? "selfroll" : "roll";
 
           // fix: Table description is undefined
-          if (!table.data.description) table.data.description = table.data.name;
+          if (!table.system.description) table.system.description = table.name;
 
           const draw = await table.roll();
 

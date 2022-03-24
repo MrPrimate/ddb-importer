@@ -9,11 +9,11 @@ function getResourceFlags(character, action, flags) {
   const resourceType = getProperty(character, "flags.ddbimporter.resources.type");
   if (resourceType !== "disable" && linkItems) {
     const hasResourceLink = getProperty(flags, "link-item-resource-5e.resource-link");
-    Object.keys(character.data.resources).forEach((resource) => {
-      const detail = character.data.resources[resource];
+    Object.keys(character.system.resources).forEach((resource) => {
+      const detail = character.system.resources[resource];
       if (action.name === detail.label) {
         setProperty(flags, "link-item-resource-5e.resource-link", resource);
-        character.data.resources[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+        character.system.resources[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
       } else if (hasResourceLink === resource) {
         setProperty(flags, "link-item-resource-5e.resource-link", undefined);
       }
@@ -65,7 +65,7 @@ function addFlagHints(ddb, character, action, feature) {
 
   // better rolls
   if (game.modules.get("betterrolls5e")?.active) {
-    if (feature.data.uses?.max) {
+    if (feature.system.uses?.max) {
       feature.flags.betterRolls5e = {
         "quickCharges": {
           "value": {
@@ -224,7 +224,7 @@ function getLevelScaleDice(ddb, character, action, feat) {
       if (parsedString) {
         const modifier = parsedString.definitions.find((definition) => definition.type === "modifier");
         if (modifier) {
-          feat.data.ability = modifier.subType;
+          feat.system.ability = modifier.subType;
           part = `${part} + @mod`;
         }
       }
@@ -234,10 +234,10 @@ function getLevelScaleDice(ddb, character, action, feat) {
   if (parts.length > 0 && scaleSupport && useScale) {
     feat.data.damage.parts = parts;
   } else if (parts.length > 0 && !LEVEL_SCALE_INFUSIONS.includes(action.name)) {
-    const combinedParts = hasProperty(feat, "data.damage.parts") && feat.data.damage.parts.length > 0
-      ? feat.data.damage.parts.concat(parts)
+    const combinedParts = hasProperty(feat, "data.damage.parts") && feat.system.damage.parts.length > 0
+      ? feat.system.damage.parts.concat(parts)
       : parts;
-    feat.data.damage = {
+    feat.system.damage = {
       parts: combinedParts,
       versatile: "",
     };
@@ -344,12 +344,12 @@ function getLimitedUse(action, character) {
     if (action.limitedUse.useProficiencyBonus) {
       switch (action.limitedUse.proficiencyBonusOperator) {
         case 2: {
-          maxUses *= character.data.attributes.prof;
+          maxUses *= character.system.attributes.prof;
           break;
         }
         case 1:
         default:
-          maxUses += character.data.attributes.prof;
+          maxUses += character.system.attributes.prof;
       }
     }
 
@@ -391,8 +391,8 @@ function getResource(character, action) {
     "amount": null
   };
 
-  Object.keys(character.data.resources).forEach((resource) => {
-    const detail = character.data.resources[resource];
+  Object.keys(character.system.resources).forEach((resource) => {
+    const detail = character.system.resources[resource];
     if (action.name === detail.label) {
       consume = {
         type: "attribute",
@@ -413,27 +413,27 @@ function getWeaponType(action) {
 
 function calculateRange(action, weapon) {
   if (action.range && action.range.aoeType && action.range.aoeSize) {
-    weapon.data.range = { value: null, units: "self", long: "" };
-    weapon.data.target = {
+    weapon.system.range = { value: null, units: "self", long: "" };
+    weapon.system.target = {
       value: action.range.aoeSize,
       type: DICTIONARY.actions.aoeType.find((type) => type.id === action.range.aoeType)?.value,
       units: "ft",
     };
   } else if (action.range && action.range.range) {
-    weapon.data.range = {
+    weapon.system.range = {
       value: action.range.range,
       units: "ft",
       long: action.range.long || "",
     };
   } else {
-    weapon.data.range = { value: 5, units: "ft", long: "" };
+    weapon.system.range = { value: 5, units: "ft", long: "" };
   }
   return weapon;
 }
 
 function calculateSaveAttack(ddb, action, weapon) {
-  weapon.data.actionType = "save";
-  weapon.data.damage = getDamage(ddb, action, weapon);
+  weapon.system.actionType = "save";
+  weapon.system.damage = getDamage(ddb, action, weapon);
 
   const fixedDC = (action.fixedSaveDc) ? action.fixedSaveDc : null;
   const scaling = (fixedDC) ? fixedDC : (action.abilityModifierStatId) ? DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
@@ -442,13 +442,13 @@ function calculateSaveAttack(ddb, action, weapon) {
     ? DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value
     : "";
 
-  weapon.data.save = {
+  weapon.system.save = {
     ability: saveAbility,
     dc: fixedDC,
     scaling: scaling,
   };
   if (action.abilityModifierStatId) {
-    weapon.data.ability = DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value;
+    weapon.system.ability = DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value;
   }
   return weapon;
 }
@@ -461,22 +461,22 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
     defaultAbility = DICTIONARY.character.abilities.find(
       (stat) => stat.id === action.abilityModifierStatId
     ).value;
-    weapon.data.ability = defaultAbility;
+    weapon.system.ability = defaultAbility;
   } else if (action.isMartialArts) {
-    weapon.data.ability =
+    weapon.system.ability =
       action.isMartialArts && isMartialArtists(ddb.character.classes)
         ? character.flags.ddbimporter.dndbeyond.effectAbilities.dex.value >= character.flags.ddbimporter.dndbeyond.effectAbilities.str.value
           ? "dex"
           : "str"
         : "str";
   } else {
-    weapon.data.ability = "";
+    weapon.system.ability = "";
   }
   if (action.isMartialArts) {
-    weapon.data.damage = martialArtsDamage(ddb, action);
-    weapon.data.attackBonus = utils.filterBaseModifiers(ddb, "bonus", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
+    weapon.system.damage = martialArtsDamage(ddb, action);
+    weapon.system.attackBonus = utils.filterBaseModifiers(ddb, "bonus", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
   } else {
-    weapon.data.damage = getDamage(ddb, action, weapon);
+    weapon.system.damage = getDamage(ddb, action, weapon);
   }
   return weapon;
 }
@@ -487,18 +487,18 @@ function getAttackType(ddb, character, action, weapon) {
     weapon = calculateSaveAttack(ddb, action, weapon);
   } else if (action.actionType === 1) {
     if (action.attackTypeRange === 2) {
-      weapon.data.actionType = "rwak";
+      weapon.system.actionType = "rwak";
     } else {
-      weapon.data.actionType = "mwak";
+      weapon.system.actionType = "mwak";
     }
     weapon = calculateActionAttackAbilities(ddb, character, action, weapon);
   } else {
     if (action.rangeId && action.rangeId === 1) {
-      weapon.data.actionType = "mwak";
+      weapon.system.actionType = "mwak";
     } else if (action.rangeId && action.rangeId === 2) {
-      weapon.data.actionType = "rwak";
+      weapon.system.actionType = "rwak";
     } else {
-      weapon.data.actionType = "other";
+      weapon.system.actionType = "other";
     }
     weapon = calculateActionAttackAbilities(ddb, character, action, weapon);
   }
@@ -543,17 +543,17 @@ function getAttackAction(ddb, character, action) {
       };
     }
 
-    feature.data.proficient = action.isProficient ? 1 : 0;
-    feature.data.description = getDescription(ddb, character, action);
-    feature.data.equipped = true;
-    feature.data.rarity = "";
-    feature.data.identified = true;
-    feature.data.activation = getActivation(action);
+    feature.system.proficient = action.isProficient ? 1 : 0;
+    feature.system.description = getDescription(ddb, character, action);
+    feature.system.equipped = true;
+    feature.system.rarity = "";
+    feature.system.identified = true;
+    feature.system.activation = getActivation(action);
     feature = calculateRange(action, feature);
     feature = getAttackType(ddb, character, action, feature);
-    feature.data.weaponType = getWeaponType(action);
-    feature.data.uses = getLimitedUse(action, character);
-    feature.data.consume = getResource(character, action);
+    feature.system.weaponType = getWeaponType(action);
+    feature.system.uses = getLimitedUse(action, character);
+    feature.system.consume = getResource(character, action);
 
     feature = addFlagHints(ddb, character, action, feature);
     feature = addFeatEffects(ddb, character, action, feature);
@@ -686,15 +686,15 @@ function getOtherActions(ddb, character, parsedActions) {
       if (action.infusionFlags) {
         setProperty(feature, "flags.infusions", action.infusionFlags);
       }
-      feature.data.activation = getActivation(action);
-      feature.data.description = getDescription(ddb, character, action);
-      feature.data.uses = getLimitedUse(action, character);
-      feature.data.consume = getResource(character, action);
+      feature.system.activation = getActivation(action);
+      feature.system.description = getDescription(ddb, character, action);
+      feature.system.uses = getLimitedUse(action, character);
+      feature.system.consume = getResource(character, action);
 
       feature = calculateRange(action, feature);
       feature = getAttackType(ddb, character, action, feature);
 
-      if (!feature.data.damage?.parts) {
+      if (!feature.system.damage?.parts) {
         logger.debug("Running level scale parser");
         feature = getLevelScaleDice(ddb, character, action, feature);
       }
@@ -727,16 +727,16 @@ export default async function parseActions(ddb, character) {
 
   // sort alphabetically, then by action type
   actions.sort().sort((a, b) => {
-    if (!a.data.activation.activationType) {
+    if (!a.system.activation.activationType) {
       return 1;
-    } else if (!b.data.activation.activationType) {
+    } else if (!b.system.activation.activationType) {
       return -1;
     } else {
       const aActionTypeID = DICTIONARY.actions.activationTypes.find(
-        (type) => type.value === a.data.activation.activationType
+        (type) => type.value === a.system.activation.activationType
       ).id;
       const bActionTypeID = DICTIONARY.actions.activationTypes.find(
-        (type) => type.value === b.data.activation.activationType
+        (type) => type.value === b.system.activation.activationType
       ).id;
       if (aActionTypeID > bActionTypeID) {
         return 1;
