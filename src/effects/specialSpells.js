@@ -50,6 +50,7 @@ import { fireShieldEffect } from "./spells/fireShield.js";
 import { flameBladeEffect } from "./spells/flameBlade.js";
 import { fleshtoStoneEffect } from "./spells/fleshtoStone.js";
 import { flyEffect } from "./spells/fly.js";
+import { frostbiteEffect } from "./spells/frostbite.js";
 import { geasEffect } from "./spells/geas.js";
 import { greaseEffect } from "./spells/grease.js";
 import { greaterInvisibilityEffect } from "./spells/greaterInvisibility.js";
@@ -366,6 +367,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Fly": {
       document = flyEffect(document);
+      break;
+    }
+    case "Frostbite": {
+      document = frostbiteEffect(document);
       break;
     }
     case "Geas": {
