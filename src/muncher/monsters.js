@@ -123,7 +123,6 @@ export async function parseCritters(ids = null) {
   munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);
 
-
   const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
   const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   if (addToCompendiumFolder && compendiumFoldersInstalled) {
