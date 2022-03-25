@@ -26,7 +26,7 @@ async function getCharacterInventory(items) {
 
 async function generateImportItems(items) {
   const mockCharacter = {
-    data: JSON.parse(utils.getTemplate("character")),
+    system: JSON.parse(utils.getTemplate("character")),
     type: "character",
     name: "",
     flags: {

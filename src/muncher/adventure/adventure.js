@@ -1,6 +1,5 @@
 import Helpers from "./common.js";
 import logger from "../../logger.js";
-import utils from "../../utils.js";
 import { generateAdventureConfig } from "../adventure.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 
@@ -62,6 +61,7 @@ export default class AdventureMunch extends FormApplication {
     if (folders) {
       const maintainFolders = adventure?.options?.folders;
       let itemFolder = null;
+      console.warn(adventure);
       if (!maintainFolders) {
         const importTypes = ["Scene", "Actor", "Item", "JournalEntry", "RollTable"];
         await Helpers.asyncForEach(importTypes, async (importType) => {

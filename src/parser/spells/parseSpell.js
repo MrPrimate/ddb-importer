@@ -21,7 +21,7 @@ import { parseTags } from "../templateStrings.js";
 export function parseSpell(data, character) {
   let spell = {
     type: "spell",
-    data: JSON.parse(utils.getTemplate("spell")),
+    system: JSON.parse(utils.getTemplate("spell")),
     name: getName(data, character),
     flags: {
       ddbimporter: {

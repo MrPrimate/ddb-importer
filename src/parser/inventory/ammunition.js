@@ -63,7 +63,7 @@ export default function parseAmmunition(data, itemType) {
   let ammunition = {
     name: data.definition.name,
     type: "consumable",
-    data: template,
+    system: template,
     flags: {
       ddbimporter: {
         dndbeyond: {

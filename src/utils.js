@@ -1168,7 +1168,7 @@ const utils = {
                 // remove redudant info
                 delete entity.id;
                 delete entity.ownership;
-                resolve(entity.toObject());
+                resolve(entity);
               });
             } else {
               resolve(null);

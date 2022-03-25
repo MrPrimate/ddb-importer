@@ -384,6 +384,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   async updateImage(html, data) {
+    logger.debug("Checking if image needs updating");
     // updating the image?
     let imagePath = this.actor.img;
     const decorations = data.character.decorations;
@@ -924,6 +925,7 @@ export default class CharacterImport extends FormApplication {
       );
       items = items.flat();
     }
+    logger.debug("Finished item fetch");
     return items;
   }
 
@@ -1034,20 +1036,20 @@ export default class CharacterImport extends FormApplication {
       .map((item) => item._id);
 
     const itemEffects = this.actor.effects.filter(
-      (ae) => ae.system.origin?.includes(".Item.") && !ignoredItemIds.includes(ae.system.origin?.split(".").slice(-1)[0])
+      (ae) => ae.origin?.includes(".Item.") && !ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
     );
     const ignoredEffects = this.actor.effects.filter(
       (ae) =>
         // is this an ignored item
-        ignoredItemIds.includes(ae.system.origin?.split(".").slice(-1)[0]) ||
+        ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0]) ||
         // is this a core status effect (CUB)
         ae.flags?.core?.statusId
     );
     const charEffects = this.actor.effects.filter(
-      (ae) => !ae.system.origin?.includes(".Item.") && !ae.flags.ddbimporter?.characterEffect
+      (ae) => !ae.origin?.includes(".Item.") && !ae.flags.ddbimporter?.characterEffect
     );
     const ddbGeneratedCharEffects = this.actor.effects.filter(
-      (ae) => !ae.system.origin?.includes(".Item.") && ae.flags.ddbimporter?.characterEffect
+      (ae) => !ae.origin?.includes(".Item.") && ae.flags.ddbimporter?.characterEffect
     );
 
     // remove existing active item effects

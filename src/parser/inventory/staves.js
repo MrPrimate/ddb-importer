@@ -130,7 +130,7 @@ export default function parseStaff(data, character) {
   let staff = {
     name: data.definition.name,
     type: "weapon",
-    data: template,
+    system: template,
     flags: {
       ddbimporter: {
         dndbeyond: {

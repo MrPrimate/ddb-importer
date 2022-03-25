@@ -282,7 +282,7 @@ async function parseMonster(monster, extra, useItemAC) {
 
   // Senses
   foundryActor.system.attributes.senses = getSenses(monster);
-  foundryActor.token = await getTokenSenses(foundryActor.token, monster);
+  foundryActor.token = await getTokenSenses(foundryActor.prototypeToken, monster);
 
   // Conditions
   foundryActor.system.traits.di = getDamageImmunities(monster);

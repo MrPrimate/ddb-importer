@@ -150,7 +150,7 @@ function generateResourceSelectionFromForm(formData, type) {
 
 function setResourceType(ddb, character, resourceSelection) {
   setProperty(character, "flags.ddbimporter.resources", resourceSelection);
-  setProperty(character, "data.resources", getResources(ddb, character));
+  setProperty(character, "system.resources", getResources(ddb, character));
   return character;
 }
 
@@ -170,8 +170,8 @@ function setDefaultResources(sortedResources, resourceSelection) {
 export async function getResourcesDialog(currentActorId, ddb, character) {
   const currentActor = game.actors.get(currentActorId);
   return new Promise((resolve) => {
-    let currentResourceSelection = hasProperty(currentActor, "data.flags.ddbimporter.resources.type")
-      ? getProperty(currentActor, "data.flags.ddbimporter.resources")
+    let currentResourceSelection = hasProperty(currentActor, "flags.ddbimporter.resources.type")
+      ? getProperty(currentActor, "flags.ddbimporter.resources")
       : {
         ask: true,
         type: "default",
@@ -354,8 +354,8 @@ export async function autoLinkResources(actor) {
             const update = {
               _id: child._id
             };
-            setProperty(update, "data.consume.type", "charges");
-            setProperty(update, "data.consume.target", parent._id);
+            setProperty(update, "system.consume.type", "charges");
+            setProperty(update, "system.consume.target", parent._id);
             toUpdate.push(update);
           });
         }
@@ -384,9 +384,9 @@ export async function autoLinkResources(actor) {
           const update = {
             _id: child._id
           };
-          setProperty(update, "data.consume.amount", value.cost);
-          setProperty(update, "data.consume.type", "charges");
-          setProperty(update, "data.consume.target", parent._id);
+          setProperty(update, "system.consume.amount", value.cost);
+          setProperty(update, "system.consume.type", "charges");
+          setProperty(update, "system.consume.target", parent._id);
           toUpdate.push(update);
         }
       });

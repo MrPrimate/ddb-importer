@@ -155,7 +155,7 @@ function parseAbilities(data, includeExcludedEffects = false) {
   });
 
   const character = {
-    data: {
+    system: {
       abilities: result,
     },
   };

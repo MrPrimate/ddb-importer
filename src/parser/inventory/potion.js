@@ -95,7 +95,7 @@ export default function parsePotion(data, itemType) {
   let potion = {
     name: data.definition.name,
     type: "consumable",
-    data: JSON.parse(utils.getTemplate("consumable")),
+    system: JSON.parse(utils.getTemplate("consumable")),
     flags: {
       ddbimporter: {
         dndbeyond: {

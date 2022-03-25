@@ -5,7 +5,7 @@ export default function parseCustomItem(data) {
   let customItem = {
     name: data.definition.name,
     type: "loot",
-    data: JSON.parse(utils.getTemplate("loot")),
+    system: JSON.parse(utils.getTemplate("loot")),
     flags: {
       ddbimporter: {
         id: data.id,

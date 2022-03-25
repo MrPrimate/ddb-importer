@@ -18,3 +18,5 @@ Hooks.on("renderItemSheet", renderItemSheet);
 Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
 Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
 
+console.warn("SILENT MODE FOR DEBUG");
+CONFIG.debug.compatibility = CONST.COMPATIBILITY_MODES.SILENT

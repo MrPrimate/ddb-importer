@@ -9,7 +9,7 @@ import { getCompendiumLabel } from "../utils.js";
 const CLASS_TEMPLATE = {
   "name": "",
   "type": "feat",
-  "data": {
+  "system": {
     "description": {
       "value": "",
       "chat": "",
