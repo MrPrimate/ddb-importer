@@ -1,7 +1,7 @@
 # 2.9.21
 
 * Custom items could be duplicated during import.
-* Spell effects: Storm Sphere and Frostbite effects.
+* Spell effects: Sleep, Storm Sphere and Frostbite effects.
 
 # 2.9.20
 
