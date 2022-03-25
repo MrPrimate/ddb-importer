@@ -1,5 +1,4 @@
-import { baseSpellEffect, spellEffectModules } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 
 export async function sleepEffect(document) {
 
