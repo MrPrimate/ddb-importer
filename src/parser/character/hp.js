@@ -1,8 +1,10 @@
 import utils from "../../utils.js";
 
 export function getHitpoints(data, character) {
+  console.warn("hp data", data);
+  console.warn("hp character", duplicate(character));
   const constitutionHP = character.flags.ddbimporter.dndbeyond.effectAbilities.con.mod * character.flags.ddbimporter.dndbeyond.totalLevels;
-  let baseHitPoints = data.character.baseHitPoints || 0;
+  const baseHitPoints = data.character.baseHitPoints || 0;
   const bonusHitPoints = data.character.bonusHitPoints || 0;
   const overrideHitPoints = data.character.overrideHitPoints || 0;
   const removedHitPoints = data.character.removedHitPoints || 0;
@@ -12,6 +14,8 @@ export function getHitpoints(data, character) {
   const bonusHitPointFeatures = utils.filterBaseModifiers(data, "bonus", "hit-points-per-level");
   const bonusHitPointFeaturesWithEffects = utils.filterBaseModifiers(data, "bonus", "hit-points-per-level", ["", null], true);
 
+  console.warn("hp bonusHitPointFeatures", bonusHitPointFeatures);
+  console.warn("hp bonusHitPointFeaturesWithEffects", bonusHitPointFeaturesWithEffects);
   // get their values
   const bonusHitPointValues = bonusHitPointFeatures.map((bonus) => {
     const cls = utils.findClassByFeatureId(data, bonus.componentId);
@@ -21,6 +25,7 @@ export function getHitpoints(data, character) {
       return character.flags.ddbimporter.dndbeyond.totalLevels * bonus.value;
     }
   });
+  console.warn("hp bonusHitPointValues", bonusHitPointValues);
 
   const bonusHitPointValuesWithEffects = bonusHitPointFeaturesWithEffects.map((bonus) => {
     const cls = utils.findClassByFeatureId(data, bonus.componentId);
@@ -37,10 +42,10 @@ export function getHitpoints(data, character) {
   const bonusHPEffectDiff = totalBonusHPWithEffects - totalBonusHitPoints;
 
   // add the result to the base hitpoints
-  baseHitPoints += totalBonusHitPoints;
+  // baseHitPoints += totalBonusHitPoints;
 
   const totalHitPoints = overrideHitPoints === 0
-    ? constitutionHP + baseHitPoints + bonusHitPoints
+    ? constitutionHP + baseHitPoints + bonusHitPoints + totalBonusHitPoints
     : overrideHitPoints;
 
   return {

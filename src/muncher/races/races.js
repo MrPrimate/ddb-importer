@@ -39,7 +39,7 @@ const FEATURE_DUP = [
 const RACE_TEMPLATE = {
   "name": "",
   "type": "feat",
-  "data": {
+  "system": {
     "description": {
       "value": "",
       "chat": "",

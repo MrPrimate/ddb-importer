@@ -514,7 +514,7 @@ function getAttackAction(ddb, character, action) {
   let feature = {
     name: utils.getName(ddb, action, character),
     type: actionType,
-    data: JSON.parse(utils.getTemplate(actionType)),
+    system: JSON.parse(utils.getTemplate(actionType)),
     flags: {
       ddbimporter: {
         id: action.id,
@@ -667,7 +667,7 @@ function getOtherActions(ddb, character, parsedActions) {
       let feature = {
         name: utils.getName(ddb, action, character),
         type: "feat",
-        data: JSON.parse(utils.getTemplate("feat")),
+        system: JSON.parse(utils.getTemplate("feat")),
         flags: {
           ddbimporter: {
             id: action.id,

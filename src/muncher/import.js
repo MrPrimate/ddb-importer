@@ -336,16 +336,28 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
     // we have a match, update first match
     if (existingItems.length >= 1) {
       const existing = existingItems[0];
-      delete item._id;
+      // eslint-disable-next-line require-atomic-updates
+      item._id = existing._id;
       munchNote(`Updating ${item.name}`);
       // purge existing active effects on this item
       if (existing.results) await existing.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
       if (existing.effects) await existing.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
       if (existing.flags) await copySupportedItemFlags(existing, item);
-      promises.push(existing.update(item));
+
+      const tableUpdate = await existing.update(item, { pack: compendium.metadata.id });
+      // v10 bug - left in until fixed - tables don't update correctly
+      if (tableUpdate === undefined) console.warn("Undefined table update");
+      updates.push(tableUpdate);
     }
   });
-  return Promise.all(promises);
+
+  // in v9 the table.update may not be returning all the updated items correctly
+  console.warn("table update results", updates);
+
+  return updates;
+  // const results = await RollTable.updateDocuments(updates, { pack: compendium.metadata.id });
+  // console.warn(results);
+  // return results;
 }
 
 export async function updateMidiFlags() {
@@ -518,7 +530,7 @@ async function getSRDIconMatch(type) {
       name: item.name,
       img: item.img,
       type: item.type,
-      data: {},
+      system: {},
     };
     if (item.system.activation) smallItem.system.activation = item.system.activation;
     return smallItem;

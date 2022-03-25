@@ -7,7 +7,7 @@ import { munchNote } from "../utils.js";
 const FEAT_TEMPLATE = {
   "name": "",
   "type": "feat",
-  "data": {
+  "system": {
     "description": {
       "value": "",
       "chat": "",

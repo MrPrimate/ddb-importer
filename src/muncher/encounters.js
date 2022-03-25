@@ -597,12 +597,12 @@ export class DDBEncounterMunch extends Application {
 
     let toCreate = [];
     const tokens = canvas.tokens.placeables
-      .filter((t) => t.flags?.ddbimporter?.encounterId == this.encounter.id || t.actor.type == "character");
+      .filter((t) => t.document.flags?.ddbimporter?.encounterId == this.encounter.id || t.actor.type == "character");
     if (tokens.length) {
       tokens.forEach((t) => {
-        let combatant = { tokenId: t.id, actorId: t.system.actorId, hidden: t.system.hidden };
-        if (useDDBSave && t.flags.ddbimporter?.dndbeyond?.initiative)
-          combatant.initiative = t.flags.ddbimporter.dndbeyond.initiative;
+        let combatant = { tokenId: t.id, actorId: t.document.actorId, hidden: t.document.hidden };
+        if (useDDBSave && t.document.flags.ddbimporter?.dndbeyond?.initiative)
+          combatant.initiative = t.document.flags.ddbimporter.dndbeyond.initiative;
         if (!t.inCombat) toCreate.push(combatant);
       });
       const combatants = await this.combat.createEmbeddedDocuments("Combatant", toCreate);

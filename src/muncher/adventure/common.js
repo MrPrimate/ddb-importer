@@ -506,7 +506,7 @@ export default class Helpers {
 
     for (const lookupKey in COMPENDIUM_MAP) {
       const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
-      logger.debug(`replacing ${lookupKey} references`, compendiumLinks);
+      // logger.debug(`replacing ${lookupKey} references`, compendiumLinks);
 
       const lookupRegExp = new RegExp(`ddb://${lookupKey}/([0-9]*)`);
       compendiumLinks.forEach((node) => {
@@ -550,7 +550,7 @@ export default class Helpers {
     // in this case attempt to link to DDB instead of compendium doc
     for (const lookupKey in COMPENDIUM_MAP) {
       const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
-      logger.debug(`final replace for missing ${lookupKey} references`, compendiumLinks);
+      // logger.debug(`final replace for missing ${lookupKey} references`, compendiumLinks);
 
       compendiumLinks.forEach((node) => {
         const target = node.outerHTML;

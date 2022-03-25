@@ -168,10 +168,11 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
         type: 0,
         text: "",
         img: "icons/svg/d20-black.svg",
-        resultId: "",
+        resultId: null,
         weight: 1,
         range: [],
-        drawn: false
+        drawn: false,
+        resultCollection: "",
       };
       Object.entries(entry).forEach(([key, value]) => {
         if (key === diceKey) {

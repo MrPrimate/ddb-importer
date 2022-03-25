@@ -16,7 +16,7 @@ export default function parseWonderous(data) {
   let item = {
     name: data.definition.name,
     type: "equipment",
-    data: JSON.parse(utils.getTemplate("equipment")),
+    system: JSON.parse(utils.getTemplate("equipment")),
     flags: {
       ddbimporter: {
         dndbeyond: {

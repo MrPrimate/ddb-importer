@@ -10,7 +10,7 @@ function parseFeature(feat, ddb, character, source, type) {
   let item = {
     name: name.replace("’", "'"),
     type: "feat",
-    data: JSON.parse(utils.getTemplate("feat")),
+    system: JSON.parse(utils.getTemplate("feat")),
     flags: {
       ddbimporter: {
         id: feat.definition?.id ? feat.definition.id : feat.id,

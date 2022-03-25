@@ -239,7 +239,7 @@ export default function parseWeapon(data, character, flags) {
   let weapon = {
     name: data.definition.name,
     type: "weapon",
-    data: JSON.parse(utils.getTemplate("weapon")),
+    system: JSON.parse(utils.getTemplate("weapon")),
     flags: {
       ddbimporter: {
         dndbeyond: {

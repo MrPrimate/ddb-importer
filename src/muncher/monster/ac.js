@@ -78,7 +78,7 @@ export async function generateAC(monster, useItemAC) {
           }
         }
         // const type = item.includes("ring") || item.includes("cloak") ? "trinket" : "equipment";
-        itemsToCheck.push({ name: item, type: "equipment", flags: {}, data: { equipped: true } });
+        itemsToCheck.push({ name: item, type: "equipment", flags: {}, system: { equipped: true } });
       };
     });
   }
