@@ -1,7 +1,7 @@
 # 2.9.21
 
 * Custom items could be duplicated during import.
-* Spell effects: Sleep, Storm Sphere and Frostbite effects.
+* Spell effects: Sleep, Storm Sphere (needs Active Auras), Spirit Shroud (needs active Auras) and Frostbite effects.
 
 # 2.9.20
 
