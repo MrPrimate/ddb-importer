@@ -1018,6 +1018,13 @@ function addSkillMidiEffect(modifiers, name, skill, midiEffect = "advantage") {
   if (advantage.length > 0) {
     logger.debug(`Generating ${skill.subType} skill ${midiEffect} for ${name}`);
     effects.push(generateCustomChange(1, 5, `flags.midi-qol.${midiEffect}.skill.${skill.name}`));
+    // handled by midi already
+    // advantage/disadvantage on skill grants +/-5 passive bonus, https://www.dndbeyond.com/sources/phb/using-ability-scores#PassiveChecks
+    // if (midiEffect === "advantage") {
+    //   effects.push(generateAddChange(5, 5, `data.skills.${skill.name}.bonuses.passive`));
+    // } else if (midiEffect === "disadvantage") {
+    //   effects.push(generateAddChange(-5, 5, `data.skills.${skill.name}.bonuses.passive`));
+    // }
   }
   return effects;
 }
