@@ -94,6 +94,7 @@ import { sleepEffect } from "./spells/sleep.js";
 import { slowEffect } from "./spells/slow.js";
 import { spiderClimbEffect } from "./spells/spiderClimb.js";
 import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
+import { spiritShroudEffect } from "./spells/spiritShroud.js";
 import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stoneskinEffect } from "./spells/stoneskin.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
@@ -549,6 +550,10 @@ export async function spellEffectAdjustment(document) {
       document = await spiritGuardiansEffect(document);
       break;
     }
+    case "Spirit Shroud": {
+      document = await spiritShroudEffect(document);
+      break;
+    }
     case "Spiritual Weapon": {
       document = await spiritualWeaponEffect(document);
       break;
@@ -589,6 +594,9 @@ export async function spellEffectAdjustment(document) {
       document = await witchBoltEffect(document);
     }
     // no default
+  }
+  if (document.effects.length > 0 && !hasProperty(document, "flags.midiProperties.toggleEffect")) {
+    setProperty(document, "flags.midiProperties.toggleEffect", false);
   }
   return document;
 }
