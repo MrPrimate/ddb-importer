@@ -1,7 +1,7 @@
-// based on @ccjmk macro for sleep. Gets targets and ignores those who are immune to sleep.
+// based on @ccjmk and @crymic macro for sleep. Gets targets and ignores those who are immune to sleep.
+// uses convinient effects
 // Midi-qol "On Use"
 
-console.warn(args[0]);
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const sleepHp = await args[0].damageTotal;
 const condition = "Unconscious";
@@ -18,13 +18,13 @@ for (let target of targets) {
     const targetHpValue = findTarget.actor.data.data.attributes.hp.value;
     if ((immuneType) || (immuneCI) || (sleeping)) {
         console.log(`Sleep Results => Target: ${findTarget.name} | HP: ${targetHpValue} | Status: Resists`);
-        sleepTarget.push(`<div class="midi-qol-flex-container"><div>resists</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.data.img}" width="30" height="30" style="border:0px"></div></div>`);
+        sleepTarget.push(`<div class="midi-qol-flex-container"><div>Resists</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.data.img}" width="30" height="30" style="border:0px"></div></div>`);
         continue;
     }
     if (remainingSleepHp >= targetHpValue) {
         remainingSleepHp -= targetHpValue;
         console.log(`Sleep Results => Target: ${findTarget.name} |  HP: ${targetHpValue} | HP Pool: ${remainingSleepHp} | Status: Slept`);
-        sleepTarget.push(`<div class="midi-qol-flex-container"><div>slept</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.data.img}" width="30" height="30" style="border:0px"></div></div>`);
+        sleepTarget.push(`<div class="midi-qol-flex-container"><div>Slept</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.data.img}" width="30" height="30" style="border:0px"></div></div>`);
         const gameRound = game.combat ? game.combat.round : 0;
         const effectData = {
             label: "Sleep Spell",

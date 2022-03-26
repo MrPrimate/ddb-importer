@@ -90,6 +90,7 @@ import { resistanceEffect } from "./spells/resistance.js";
 import { shieldEffect } from "./spells/shield.js";
 import { shieldofFaithEffect } from "./spells/shieldofFaith.js";
 import { shillelaghEffect } from "./spells/shillelagh.js";
+import { sleepEffect } from "./spells/sleep.js";
 import { slowEffect } from "./spells/slow.js";
 import { spiderClimbEffect } from "./spells/spiderClimb.js";
 import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
@@ -530,6 +531,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Shillelagh": {
       document = await shillelaghEffect(document);
+      break;
+    }
+    case "Sleep": {
+      document = await sleepEffect(document);
       break;
     }
     case "Slow": {
