@@ -9,13 +9,13 @@ export async function spiritGuardiansEffect(document) {
   effect.changes.push(
     {
       key: "data.attributes.movement.all",
-      mode: 0,
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: "/2",
       priority: "20",
     },
     {
       key: "flags.midi-qol.OverTime",
-      mode: 5,
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       value:
         "turn=start,label=Spirit Guardians,damageRoll=(@spellLevel)d8,damageType=radiant,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=wis,saveDamage=halfdamage,killAnim=true",
       priority: "20",
@@ -34,6 +34,7 @@ export async function spiritGuardiansEffect(document) {
     hidden: false,
     hostile: false,
     onlyOnce: false,
+    displayTemp: true,
   };
   effect.changes.push(generateMacroChange("@token @spellLevel @attributes.spelldc"));
 
