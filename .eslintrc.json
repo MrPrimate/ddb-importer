@@ -52,7 +52,9 @@
     "Combat": true,
     "deepClone": true,
     "duplicate": true,
-    "foundry": true
+    "foundry": true,
+    "MidiQOL": true,
+    "Sequence": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,
