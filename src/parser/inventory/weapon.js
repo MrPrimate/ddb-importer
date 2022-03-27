@@ -139,9 +139,7 @@ function getDamage(data, flags, betterRolls5e) {
       }
     })[0];
 
-  let chatFlavor = "";
   let parts = [];
-  let otherFormula = "";
 
   // first damage part
   // blowguns and other weapons rely on ammunition that provides the damage parts
@@ -180,6 +178,10 @@ function getDamage(data, flags, betterRolls5e) {
       }
     });
 
+
+  let chatFlavors = [];
+  let otherFormulas = [];
+  const isBetterRolls = utils.isModuleInstalledAndActive("betterrolls5e");
   // loop over restricted damage types
   // we do this so we can either break this out for midi users
   data.definition.grantedModifiers
@@ -190,20 +192,19 @@ function getDamage(data, flags, betterRolls5e) {
         const subDamageTagData = utils.getDamageTagForMod(mod);
         const damageParsed = utils.parseDiceString(damagePart, "", subDamageTagData.damageTag).diceString;
 
-        if (utils.isModuleInstalledAndActive("betterrolls5e")) {
+        if (isBetterRolls) {
           const attackNum = parts.length;
           betterRolls5e.quickDamage.context[attackNum] = mod.restriction;
           parts.push([`${damageParsed}`, subDamageTagData.damageType]);
         } else {
-          // if (utils.isModuleInstalledAndActive("midi-qol")) {
-          parts.forEach((part) => {
-            otherFormula += (otherFormula === "") ? part[0] : ` + ${part[0]}`;
-          });
-          otherFormula += ` + ${damageParsed}`;
-          chatFlavor = `Use Other damage ${mod.restriction}`;
+          otherFormulas.push(damageParsed);
+          chatFlavors.push(`[${damagePart}] ${mod.restriction}`);
         }
       }
     });
+
+  const otherFormula = otherFormulas.join(" + ");
+  const chatFlavor = isBetterRolls ? "" : `Other damage: ${chatFlavors.join(", ")}`;
 
   // add damage modifiers from other sources like improved divine smite
   if (flags.damage.parts) {

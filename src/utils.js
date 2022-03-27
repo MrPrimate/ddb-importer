@@ -28,7 +28,8 @@ const utils = {
 
   globalDamageTagInfo: (mod) => {
     const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-    const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints");
+    const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
+    const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !midiInstalled;
     const hintOrRestriction = globalDamageHints || damageRestrictionHints;
     const restriction = damageRestrictionHints && mod.restriction && mod.restriction !== "" ? mod.restriction : "";
     const hintAndRestriction = globalDamageHints && restriction !== "" ? " - " : "";

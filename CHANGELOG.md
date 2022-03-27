@@ -1,3 +1,7 @@
+# 2.9.22
+
+* Tweak weapon parsing for better midi support with other damage parsing and weapon damage hints.
+
 # 2.9.21
 
 * Custom items could be duplicated during import.
