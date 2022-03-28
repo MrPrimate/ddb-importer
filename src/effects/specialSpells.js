@@ -22,6 +22,7 @@ import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { blessEffect } from "./spells/bless.js";
 import { blurEffect } from "./spells/blur.js";
 import { blindnessDeafnessEffect } from "./spells/blindnessDeafness.js";
+import { boomingBladeEffect } from "./spells/boomingBlade.js";
 import { callLightningEffect } from "./spells/callLightning.js";
 import { charmPersonEffect } from "./spells/charmPerson.js";
 import { chromaticOrbEffect } from "./spells/chromaticOrb.js";
@@ -257,6 +258,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Blindness/Deafness": {
       document = await blindnessDeafnessEffect(document);
+      break;
+    }
+    case "Booming Blade": {
+      document = await boomingBladeEffect(document);
       break;
     }
     case "Call Lightning": {
