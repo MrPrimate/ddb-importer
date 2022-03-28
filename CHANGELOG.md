@@ -1,6 +1,7 @@
 # 2.9.22
 
 * Tweak weapon parsing for better midi support with other damage parsing and weapon damage hints.
+* Spell effects: Booming Blade.
 
 # 2.9.21
 
