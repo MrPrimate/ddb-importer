@@ -1,7 +1,5 @@
 const lastArg = args[args.length - 1];
 
-console.warn(lastArg);
-
 // macro vars
 const sequencerFile = "jb2a.static_electricity.01.blue";
 const sequencerScale = 1.5;
