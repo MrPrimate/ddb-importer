@@ -43,8 +43,9 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const weaponItem = caster.getEmbeddedDocument("Item", itemId);
           DAE.setFlag(caster, "boomingBladeChoice", itemId);
           const weaponCopy = duplicate(weaponItem);
-          if (cantripDice > 1) {
-            weaponCopy.data.damage.parts.push([`${cantripDice - 1}d8[${damageType}]`, damageType]);
+          delete weaponCopy._id;
+          if (cantripDice > 0) {
+            weaponCopy.data.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
           }
           weaponCopy.name = weaponItem.name + " [Booming Blade]";
           weaponCopy.effects.push({
@@ -55,12 +56,12 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             label: sourceItemData.name,
             origin,
             transfer: false,
-            flags: { casterUuid: caster.uuid, origin, cantripDice, damageType, dae: { specialDuration: ["turnStartSource", "isMoved"], transfer: false }},
+            flags: { targetUuid: target.uuid, casterUuid: caster.uuid, origin, cantripDice, damageType, dae: { specialDuration: ["turnStartSource", "isMoved"], transfer: false }},
           });
           setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
-          const options = { showFullCard: false, createWorkflow: true, configureDialog: false };
+          const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
           await MidiQOL.completeItemRoll(attackItem, options);
         },
       },
@@ -85,17 +86,30 @@ if(args[0].tag === "OnUse"){
 } else if (args[0] === "off") {
   // uses midis move flag to determine if to apply extra damage
   if (lastArg["expiry-reason"] === "midi-qol:isMoved" || lastArg["expiry-reaason"] === "midi-qol:isMoved") {
-    const targetToken = canvas.tokens.get(lastArg.tokenId);
+    const targetToken = await fromUuid(lastArg.tokenUuid);
     const sourceItem = await fromUuid(lastArg.efData.flags.origin);
     const caster = sourceItem.parent;
     const casterToken = canvas.tokens.placeables.find((t) => t.actor.uuid === caster.uuid);
     const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice}d8[${damageType}]`).evaluate({ async: true });
     if (game.dice3d) game.dice3d.showForRoll(damageRoll);
+    const workflowItemData = duplicate(sourceItem.data);
+    workflowItemData.data.target = { value: 1, units: "", type: "creature" };
+    workflowItemData.name = "Booming Blade: Movement Damage";
+
+    await new MidiQOL.DamageOnlyWorkflow(
+      caster,
+      casterToken.data,
+      damageRoll.total,
+      damageType,
+      [targetToken],
+      damageRoll,
+      {
+        flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
+        itemCardId: "new",
+        itemData: workflowItemData,
+        isCritical: false,
+      }
+    );
     sequencerEffect(targetToken, sequencerFile, sequencerScale);
-    await new MidiQOL.DamageOnlyWorkflow(caster, casterToken, damageRoll.total, damageType, [targetToken], damageRoll, {
-      flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
-      itemCardId: "new",
-      itemData: sourceItem.data,
-    });
   }
 }
