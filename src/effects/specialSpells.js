@@ -600,8 +600,5 @@ export async function spellEffectAdjustment(document) {
     }
     // no default
   }
-  if (document.effects.length > 0 && !hasProperty(document, "flags.midiProperties.toggleEffect")) {
-    setProperty(document, "flags.midiProperties.toggleEffect", false);
-  }
   return document;
 }
