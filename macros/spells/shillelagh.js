@@ -9,14 +9,14 @@ const weapons = (filteredWeapons.length > 0)
   ? filteredWeapons
   : target.items.filter((i) => i.data.type === "weapon");
 
-const weapon_content = weapons.map((w) => `<option value=${w.id}>${w.name}</option>`).join("");
+const weaponContent = weapons.map((w) => `<option value=${w.id}>${w.name}</option>`).join("");
 
 if (args[0] === "on") {
   const content = `
 <div class="form-group">
  <label>Weapons : </label>
  <select name="weapons">
- ${weapon_content}
+ ${weaponContent}
  </select>
 </div>
 `;
