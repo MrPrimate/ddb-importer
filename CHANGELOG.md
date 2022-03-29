@@ -3,6 +3,7 @@
 * Tweak weapon parsing for better midi support with other damage parsing and weapon damage hints.
 * Spell effects: Booming Blade.
 * Resource linking: Mercy Monk had missing resource linking to Ki Points.
+* Attempt to fallback when DDB can't be reached.
 
 # 2.9.21
 
