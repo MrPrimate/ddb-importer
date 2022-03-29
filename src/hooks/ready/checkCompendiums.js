@@ -2,7 +2,7 @@ import logger from '../../logger.js';
 
 let sanitize = (text) => {
   if (text && typeof text === "string") {
-    return text.replace(/\s/g, '-').toLowerCase();
+    return text.replace(/\s|\./g, '-').toLowerCase();
   }
   return text;
 };
