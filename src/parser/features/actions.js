@@ -153,6 +153,10 @@ function getDamage(action) {
   return damage;
 }
 
+const levelScaleInfusions = [
+  "Unarmed Strike"
+];
+
 /**
  * Some features have actions that use dice and mods that are defined on the character class feature
  * this attempts to parse out the damage dice and any ability modifier.
@@ -189,7 +193,7 @@ function getLevelScaleDice(ddb, character, action, feat) {
       return [part, ""];
     });
 
-  if (parts.length > 0) {
+  if (parts.length > 0 && !levelScaleInfusions.includes(action.name)) {
     const combinedParts = hasProperty(feat, "data.damage.parts") && feat.data.damage.parts.length > 0
       ? feat.data.damage.parts.concat(parts)
       : parts;

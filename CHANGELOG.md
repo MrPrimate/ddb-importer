@@ -3,6 +3,7 @@
 * Improve character id detection in URL.
 * Improve embedded macro callbacks for damage macros like Hunters Mark.
 * Improve monster spellcasting ability detection. (Astyrranthor was failing).
+* Monks bonus action Unarmed Strike would come in with an extra die of damage.
 
 # 2.9.22
 
