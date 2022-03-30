@@ -1,3 +1,9 @@
+# 2.9.23
+
+* Improve character id detection in URL.
+* Improve embedded macro callbacks for damage macros like Hunters Mark.
+* Improve monster spellcasting ability detection. (Astyrranthor was failing).
+
 # 2.9.22
 
 * Tweak weapon parsing for better midi support with other damage parsing and weapon damage hints.
