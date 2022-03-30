@@ -71,43 +71,9 @@ const renderPopup = (type, url) => {
  * @returns {string} characterId or null
  */
 const getCharacterId = (url) => {
-  let matches;
-  const CONFIGS = [
-    () => {
-      const PATTERN = /.*dndbeyond\.com\/profile\/[\w-_]+\/characters\/(\d+)/;
-      matches = url.match(PATTERN);
-      if (matches) {
-        return matches[1];
-      }
-      return null;
-    },
-    () => {
-      const PATTERN = /ddb.ac\/characters\/(\d+)\/[\w-_]+/;
-      matches = url.match(PATTERN);
-      if (matches) {
-        return matches[1];
-      }
-      return null;
-    },
-    () => {
-      const PATTERN = /dndbeyond.com\/characters\/(\d+)/;
-      matches = url.match(PATTERN);
-      if (matches) {
-        return matches[1];
-      }
-      return null;
-    },
-    () => {
-      const PATTERN = /character-service.dndbeyond.com\/character\/v\d+\/character\/(\d+)/;
-      matches = url.match(PATTERN);
-      if (matches) {
-        return matches[1];
-      }
-      return null;
-    },
-  ];
-
-  return CONFIGS.map((fn) => fn(url)).reduce((prev, cur) => (!prev && cur ? cur : prev), null);
+  const ddbNamePattern = /(?:https?:\/\/)?(?:www\.dndbeyond\.com|ddb\.ac)(?:\/profile\/.+)?\/characters\/(\d+)\/?/;
+  const matches = url.match(ddbNamePattern);
+  return matches ? matches[1] : null;
 };
 
 /**
