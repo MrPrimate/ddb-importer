@@ -4,10 +4,11 @@ import logger from '../../logger.js';
 
 function parseSpellcasting(text) {
   let spellcasting = "";
-  const abilitySearch = "(?:spellcasting ability is|uses|using) (\\w+)(?: as \\w+ spellcasting ability| )";
+  const abilitySearch = /((?:spellcasting ability) (?:is|uses|using) (\w+)| (\w+)(?: as \w+ spellcasting ability))/;
   const match = text.match(abilitySearch);
   if (match) {
-    spellcasting = match[1].toLowerCase().substr(0, 3);
+    const abilityMatch = match[0] || match[1];
+    spellcasting = abilityMatch.toLowerCase().substr(0, 3);
   }
   return spellcasting;
 }
@@ -387,7 +388,7 @@ export function getSpells(monster) {
     spellAttackBonus: spellAttackBonus,
   };
 
-  // console.log(JSON.stringify(result, null, 4));
+  // console.warn("spell result", JSON.stringify(result, null, 4));
   return result;
 
 }
