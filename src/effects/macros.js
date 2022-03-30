@@ -69,7 +69,7 @@ export async function loadMacroFile(type, fileName, forceLoad = false) {
     const response = await fetch(url, { method: "GET" });
     data = await response.text();
   } else if (fileExists && !embedMacros) {
-    data = `// Execute DDB Importer dynamic macro\nDDBImporter.executeDDBMacro("${type}", "${fileName}", ...args);`;
+    data = `// Execute DDB Importer dynamic macro\nreturn DDBImporter.executeDDBMacro("${type}", "${fileName}", ...args);`;
   }
   return data;
 }
@@ -164,5 +164,5 @@ export async function executeDDBMacro(type, fileName, ...params) {
   }
 
   logger.debug(`Calling (${type}) ${fileName} with params`, ...params);
-  macro.execute(...params);
+  return macro.execute(...params);
 }
