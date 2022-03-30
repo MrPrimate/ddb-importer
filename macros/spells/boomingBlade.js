@@ -31,7 +31,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
 </div>
 `;
   new Dialog({
-    title: "Choose a weapon to attack with",
+    title: "Booming Blade: Choose a weapon to attack with",
     content,
     buttons: {
       Ok: {
