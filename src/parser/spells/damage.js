@@ -32,7 +32,10 @@ export function getDamage(data, spell) {
       const restrictionText = attack.restriction && attack.restriction !== "" ? attack.restriction : "";
       const restriction = damageRestrictionHints && restrictionText !== "" ? restrictionText : "";
       const damageHintText = attack.subType || "";
-      if (!damageRestrictionHints && restrictionText !== "") chatFlavor.push(`[${attack.die.diceString} - ${damageHintText}] ${restrictionText}`);
+      if (!damageRestrictionHints && restrictionText !== "") {
+        const damageText = attack.die.diceString ? `${attack.die.diceString} - ` : "";
+        chatFlavor.push(`[${damageText}${damageHintText}] ${restrictionText}`);
+      }
       const hintAndRestriction = globalDamageHints && restriction !== "" ? " - " : "";
       const damageHint = globalDamageHints ? damageHintText : "";
       const damageTag = hintOrRestriction ? `[${damageHint}${hintAndRestriction}${restriction}]` : "";
@@ -53,7 +56,10 @@ export function getDamage(data, spell) {
     heals.forEach((heal) => {
       const restrictionText = heal.restriction && heal.restriction !== "" ? heal.restriction : "";
       const restriction = damageRestrictionHints && restrictionText !== "" ? restrictionText : "";
-      if (!damageRestrictionHints && restrictionText !== "") chatFlavor.push(`[${heal.die.diceString} - healing] ${restrictionText}`);
+      if (!damageRestrictionHints && restrictionText !== "") {
+        const damageText = heal.die.diceString ? `${heal.die.diceString} - ` : "";
+        chatFlavor.push(`[${damageText}healing] ${restrictionText}`);
+      }
       const hintAndRestriction = globalDamageHints && restriction !== "" ? " - " : "";
       const damageHint = globalDamageHints ? "healing" : "";
       const damageTag = hintOrRestriction ? `[${damageHint}${hintAndRestriction}${restriction}]` : "";
