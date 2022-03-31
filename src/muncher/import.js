@@ -44,6 +44,8 @@ const SUPPORTED_FLAG_GROUPS = [
   "siftoolkit",
   "advancedspelleffects",
   "gm-notes",
+  "greenFlameBladeChoice",
+  "boomingBladeChoice",
 ];
 
 const EFFECTS_IGNORE_FLAG_GROUPS = [
