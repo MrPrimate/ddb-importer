@@ -55,6 +55,7 @@ import { frostbiteEffect } from "./spells/frostbite.js";
 import { geasEffect } from "./spells/geas.js";
 import { greaseEffect } from "./spells/grease.js";
 import { greaterInvisibilityEffect } from "./spells/greaterInvisibility.js";
+import { greenFlameBladeEffect } from "./spells/greenFlameBlade.js";
 import { guidanceEffect } from "./spells/guidance.js";
 import { guidingBoltEffect } from "./spells/guidingBolt.js";
 import { hasteEffect } from "./spells/haste.js";
@@ -390,6 +391,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Greater Invisibility": {
       document = await greaterInvisibilityEffect(document);
+      break;
+    }
+    case "Green-Flame Blade": {
+      document = await greenFlameBladeEffect(document);
       break;
     }
     case "Guidance": {

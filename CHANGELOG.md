@@ -1,4 +1,4 @@
-# 2.9.24
+# 2.9.24/25
 
 * Subclasses using optional features (e.g. Blessed Strikes for Forge Domain) would import even if level did not allow it.
 * Effect: Spiritual Weapon: attack range tweaked so if Midi's range checker is on you can still make attacks.
