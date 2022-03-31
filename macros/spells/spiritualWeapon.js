@@ -71,7 +71,8 @@ if (args[0] === "on") {
         quantity: 1,
         activation: { type: "bonus", cost: 1, condition: "", },
         target: { value: 1, type: "creature", },
-        range: { value: 5, long: null, units: "", },
+        // we choose 60ft here in case the midi-check range is on
+        range: { value: 60, long: null, units: "ft", },
         ability: DAEItem.data.ability,
         attackBonus: DAEItem.data.attackBonus,
         actionType: "msak",
