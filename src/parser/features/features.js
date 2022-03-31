@@ -54,7 +54,7 @@ function parseFeature(feat, ddb, character, source, type) {
   }
 
   if (feat?.requiredLevel) {
-    const klass = ddb.character.classes.find((klass) => klass.definition.id === feat.classId);
+    const klass = ddb.character.classes.find((klass) => klass.definition.id === feat.classId || klass.subclassDefinition?.id === feat.classId);
     if (klass && feat.requiredLevel > klass.level) return [];
   }
 
