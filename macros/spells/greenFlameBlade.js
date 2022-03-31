@@ -1,9 +1,7 @@
 const lastArg = args[args.length - 1];
 
-console.warn(args)
-
 // macro vars
-const sequencerFile = "jb2a.particles_outward01.05.green_yellow";
+const sequencerFile = "jb2a.particles.outward.greenyellow.01.05";
 const sequencerScale = 1.5;
 const damageType = "fire";
 
@@ -14,12 +12,14 @@ function sequencerEffect(target, file, scale) {
   }
 }
 
-async function findTargets(originToken, range, includeOrigin = false) {
+async function findTargets(originToken, range, includeOrigin = false, excludeActorIds = []) {
   const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>
+    (includeOrigin || placeable.id !== originToken.id) &&
+    !excludeActorIds.includes(placeable.actor?.id) &&
+    placeable.actor?.data.data.attributes.hp.value !== 0 &&
     canvas.grid.measureDistance(originToken, placeable) <= (range + 4.5) &&
-    !canvas.walls.checkCollision(new Ray(originToken.center, originToken.center) &&
-    (includeOrigin || placeable.id !== originToken.id)
-  )).map((placeable) => placeable.document.uuid);
+    !canvas.walls.checkCollision(new Ray(originToken.center, placeable.center)
+  ));
   return aoeTargets;
 }
 
@@ -60,7 +60,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             label: sourceItemData.name,
             origin,
             transfer: false,
-            flags: { targetUuid: target.uuid, casterUuid: caster.uuid, origin, cantripDice, damageType, dae: { transfer: false }},
+            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { transfer: false }},
           });
           setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
@@ -76,10 +76,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
   }).render(true);
 }
 
-async function attackNearby(originToken) {
-  const potentialTargets = await findTargets(originToken, 5, false);
-  console.warn(potentialTargets);
-
+async function attackNearby(originToken, ignoreIds) {
+  const potentialTargets = await findTargets(originToken, 5, false, ignoreIds);
   const sourceItem = await fromUuid(lastArg.efData.flags.origin);
   const caster = sourceItem.parent;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor.uuid === caster.uuid);
@@ -93,10 +91,11 @@ async function attackNearby(originToken) {
       Choose: {
         label: "Choose",
         callback: async (html) => {
-          const selectedId = html.find("#secondaryTargetId")[0].value;
+          const selectedId = html.find("[name=secondaryTargetId]")[0].value;
           const targetToken = canvas.tokens.get(selectedId);
           const sourceItem = await fromUuid(lastArg.efData.flags.origin);
-          const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice}d8[${damageType}] + @mod`).evaluate({ async: true });
+          const mod = caster.data.data.abilities[sourceItem.abilityMod].mod;
+          const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
           if (game.dice3d) game.dice3d.showForRoll(damageRoll);
           const workflowItemData = duplicate(sourceItem.data);
           workflowItemData.data.target = { value: 1, units: "", type: "creature" };
@@ -135,5 +134,6 @@ if (args[0].tag === "OnUse"){
   }
 } else if (args[0] === "on") {
   const targetToken = canvas.tokens.get(lastArg.tokenId);
-  await attackNearby(targetToken);
+  const casterId = lastArg.efData.flags.casterId;
+  await attackNearby(targetToken, [casterId]);
 }
