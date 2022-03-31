@@ -1,3 +1,7 @@
+# 2.9.24
+
+* Subclasses using optional feaures (e.g. Blessed Strikes for Forge Domain) would import even if level did not allow it.
+
 # 2.9.23
 
 * Improve character id detection in URL.
