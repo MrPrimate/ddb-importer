@@ -1,3 +1,7 @@
+# 2.9.26
+
+* Effect: Green-Flame Blade, first pass.
+
 # 2.9.24/25
 
 * Subclasses using optional features (e.g. Blessed Strikes for Forge Domain) would import even if level did not allow it.
