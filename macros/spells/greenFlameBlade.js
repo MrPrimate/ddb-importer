@@ -1,14 +1,86 @@
 const lastArg = args[args.length - 1];
 
 // macro vars
-const sequencerFile = "jb2a.particles.outward.greenyellow.01.05";
-const sequencerScale = 1.5;
 const damageType = "fire";
+const freeSequence = "jb2a.particles.outward.greenyellow.01.05";
+const patreonPrimary = "jb2a.dagger.melee.fire.green"
+const patreonSecondary = "jb2a.chain_lightning.secondary.green";
+
+const baseAutoAnimation = {
+  version: 4,
+  killAnim: false,
+  options: {
+    ammo: false,
+    menuType: "weapon",
+    variant: "01",
+    enableCustom: false,
+    repeat: null,
+    delay: null,
+    scale: null,
+    customPath: "",
+  },
+  override: true,
+  autoOverride: {
+    enable: false,
+    variant: "01",
+    color: "darkorangepurple",
+    repeat: null,
+    delay: null,
+    scale: null,
+  },
+  sourceToken: {
+    enable: false,
+  },
+  targetToken: {
+    enable: false,
+  },
+  levels3d: {
+    type: "",
+  },
+  macro: {
+    enable: false,
+  },
+  animLevel: false,
+  animType: "melee",
+  animation: "shortsword",
+  color: "green",
+  audio: {
+    a01: {
+      enable: false,
+    },
+    a02: {
+      enable: false,
+    },
+  },
+  preview: false,
+  meleeSwitch: {
+    switchType: "on",
+    returning: false,
+  },
+  explosions: {
+    enable: false,
+  },
+};
+
 
 // sequencer caller for effects on target
-function sequencerEffect(target, file, scale) {
-  if (game.modules.get("sequencer")?.active && hasProperty(Sequencer.Database.entries, "jb2a")) {
-    new Sequence().effect().file(file).atLocation(target).scaleToObject(scale).play();
+function sequencerEffect(target, origin = null) {
+  if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonSecondary)) {
+    new Sequence()
+      .effect()
+      .atLocation(origin)
+      .reachTowards(target)
+      .file(Sequencer.Database.entryExists(patreonSecondary))
+      .repeats(1, 200, 300)
+      .randomizeMirrorY()
+      .play();
+  } else {
+    const attackAnimation = Sequencer.Database.entryExists(patreonPrimary) ? patreonPrimary : freeSequence;
+    new Sequence()
+      .effect()
+      .file(Sequencer.Database.entryExists(attackAnimation))
+      .atLocation(target)
+      .play();
   }
 }
 
@@ -25,7 +97,10 @@ async function findTargets(originToken, range, includeOrigin = false, excludeAct
 
 function weaponAttack(caster, sourceItemData, origin, target) {
   const chosenWeapon = DAE.getFlag(caster, "greenFlameBladeChoice");
-  const filteredWeapons = caster.items.filter((i) => i.data.type === "weapon" && i.data.data.equipped);
+  const filteredWeapons = caster.items.filter((i) =>
+    i.data.type === "weapon" && i.data.data.equipped &&
+    i.data.data.activation.type ==="action" && i.data.data.actionType == "mwak"
+  );
   const weaponContent = filteredWeapons
     .map((w) => {
       const selected = chosenWeapon && chosenWeapon == w.id ? " selected" : "";
@@ -64,7 +139,14 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           });
           setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
+          const autoAnimationsAdjustments = duplicate(baseAutoAnimation);
+          autoAnimationsAdjustments.animation = weaponCopy.data.baseItem ? weaponCopy.data.baseItem  : "shortsword";
+          const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
+            ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
+            : autoAnimationsAdjustments;
+          setProperty(weaponCopy, "flags.autoanimations", autoanimations);
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
+          console.warn(attackItem);
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
           await MidiQOL.completeItemRoll(attackItem, options);
         },
@@ -116,7 +198,7 @@ async function attackNearby(originToken, ignoreIds) {
               isCritical: false,
             }
           );
-          sequencerEffect(targetToken, sequencerFile, sequencerScale);
+          sequencerEffect(targetToken, originToken);
         },
       },
       Cancel: {
@@ -136,5 +218,6 @@ if (args[0].tag === "OnUse"){
 } else if (args[0] === "on") {
   const targetToken = canvas.tokens.get(lastArg.tokenId);
   const casterId = lastArg.efData.flags.casterId;
+  console.log(`Checking ${targetToken.name} for nearby tokens for Grren-Flame Blade from ${casterId}`);
   await attackNearby(targetToken, [casterId]);
 }
