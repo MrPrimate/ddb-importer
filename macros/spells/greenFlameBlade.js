@@ -78,6 +78,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
 
 async function attackNearby(originToken, ignoreIds) {
   const potentialTargets = await findTargets(originToken, 5, false, ignoreIds);
+  if (potentialTargets.length === 0) return;
   const sourceItem = await fromUuid(lastArg.efData.flags.origin);
   const caster = sourceItem.parent;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor.uuid === caster.uuid);
