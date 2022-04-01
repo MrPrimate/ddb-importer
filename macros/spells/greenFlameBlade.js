@@ -34,31 +34,14 @@ const baseAutoAnimation = {
   targetToken: {
     enable: false,
   },
-  levels3d: {
-    type: "",
-  },
-  macro: {
-    enable: false,
-  },
   animLevel: false,
   animType: "melee",
   animation: "shortsword",
   color: "green",
-  audio: {
-    a01: {
-      enable: false,
-    },
-    a02: {
-      enable: false,
-    },
-  },
   preview: false,
   meleeSwitch: {
     switchType: "on",
     returning: false,
-  },
-  explosions: {
-    enable: false,
   },
 };
 
