@@ -48,22 +48,24 @@ const baseAutoAnimation = {
 
 // sequencer caller for effects on target
 function sequencerEffect(target, origin = null) {
-  if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonSecondary)) {
-    new Sequence()
-      .effect()
-      .atLocation(origin)
-      .reachTowards(target)
-      .file(Sequencer.Database.entryExists(patreonSecondary))
-      .repeats(1, 200, 300)
-      .randomizeMirrorY()
-      .play();
-  } else {
-    const attackAnimation = Sequencer.Database.entryExists(patreonPrimary) ? patreonPrimary : freeSequence;
-    new Sequence()
-      .effect()
-      .file(Sequencer.Database.entryExists(attackAnimation))
-      .atLocation(target)
-      .play();
+  if (game.modules.get("sequencer")?.active) {
+    if (Sequencer.Database.entryExists(patreonSecondary)) {
+      new Sequence()
+        .effect()
+        .atLocation(origin)
+        .reachTowards(target)
+        .file(Sequencer.Database.entryExists(patreonSecondary))
+        .repeats(1, 200, 300)
+        .randomizeMirrorY()
+        .play();
+    } else {
+      const attackAnimation = Sequencer.Database.entryExists(patreonPrimary) ? patreonPrimary : freeSequence;
+      new Sequence()
+        .effect()
+        .file(Sequencer.Database.entryExists(attackAnimation))
+        .atLocation(target)
+        .play();
+    }
   }
 }
 
@@ -113,7 +115,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           weaponCopy.effects.push({
             changes: [{ key: "macro.itemMacro", mode: 0, value: "", priority: "20", }],
             disabled: false,
-            duration: { seconds: 0 },
+            duration: { turns: 1 },
             icon: sourceItemData.img,
             label: sourceItemData.name,
             origin,
@@ -122,12 +124,14 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           });
           setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
-          const autoAnimationsAdjustments = duplicate(baseAutoAnimation);
-          autoAnimationsAdjustments.animation = weaponCopy.data.baseItem ? weaponCopy.data.baseItem  : "shortsword";
-          const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
-            ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
-            : autoAnimationsAdjustments;
-          setProperty(weaponCopy, "flags.autoanimations", autoanimations);
+          if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonPrimary)) {
+            const autoAnimationsAdjustments = duplicate(baseAutoAnimation);
+            autoAnimationsAdjustments.animation = weaponCopy.data.baseItem ? weaponCopy.data.baseItem  : "shortsword";
+            const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
+              ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
+              : autoAnimationsAdjustments;
+            setProperty(weaponCopy, "flags.autoanimations", autoanimations);
+          }
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           console.warn(attackItem);
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
