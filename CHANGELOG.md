@@ -1,3 +1,7 @@
+# 2.9.27
+
+* Monster spellcasting ability detection. Actually commit changes meant to v2.9.23 (Astyrranthor was failing).
+
 # 2.9.26
 
 * Attempt additional fallback when DDB can't be reached.

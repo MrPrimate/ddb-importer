@@ -7,7 +7,7 @@ function parseSpellcasting(text) {
   const abilitySearch = /((?:spellcasting ability) (?:is|uses|using) (\w+)| (\w+)(?: as \w+ spellcasting ability))/;
   const match = text.match(abilitySearch);
   if (match) {
-    const abilityMatch = match[0] || match[1];
+    const abilityMatch = match[2] || match[3];
     spellcasting = abilityMatch.toLowerCase().substr(0, 3);
   }
   return spellcasting;
