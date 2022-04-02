@@ -1,5 +1,6 @@
 # 2.9.26
 
+* Attempt additional fallback when DDB can't be reached.
 * Effect: Green-Flame Blade, first pass.
 
 # 2.9.24/25
