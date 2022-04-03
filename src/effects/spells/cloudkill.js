@@ -41,6 +41,7 @@ export async function cloudkillEffect(document) {
     dice: document.data.damage.parts[0][0],
     damageType: document.data.damage.parts[0][1],
     save: document.data.save.ability,
+    sequencerFile: "jb2a.fog_cloud.2.green",
   });
 
   document.effects.push(effect);

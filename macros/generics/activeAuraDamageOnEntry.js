@@ -5,10 +5,8 @@ if (!game.modules.get("advanced-macros")?.active) {
   ui.notifications.error("ActiveAuras is not enabled");
   return;
 }
-// async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
 const lastArg = args[args.length - 1];
-console.warn(args)
 
 async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const item = await fromUuid(itemUuid);
@@ -55,6 +53,29 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
 
 }
 
+async function attachSequencerFileToTemplate(templateUuid, sequencerFile, originUuid) {
+  if (game.modules.get("sequencer")?.active) {
+    if (Sequencer.Database.entryExists(sequencerFile)) {
+      console.debug("Trying to apply sequencer effect", sequencerFile);
+      const template = await fromUuid(templateUuid);
+      new Sequence()
+      .effect()
+        .file(Sequencer.Database.entryExists(sequencerFile))
+        .size({
+          width: canvas.grid.size * (template.data.width / canvas.dimensions.distance),
+          height: canvas.grid.size * (template.data.width / canvas.dimensions.distance),
+        })
+        .persist(true)
+        .origin(originUuid)
+        .belowTokens()
+        .opacity(0.5)
+        .attachTo(template, { followRotation: true })
+        .stretchTo(template, { attachTo: true})
+      .play();
+    }
+  }
+}
+
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
   const dataTracker = {
@@ -70,17 +91,20 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   await DAE.unsetFlag(item, `${safeName}Tracker`);
   await DAE.setFlag(item, `${safeName}Tracker`, dataTracker);
 
+  const sequencerFile = lastArg.item.flags.ddbimporter?.effect?.sequencerFile;
+  if (sequencerFile) {
+    attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid)
+  }
+
   return await AAhelpers.applyTemplate(args);
+
 } else if (args[0] == "on") {
   const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
-  console.warn("item", item)
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
-  console.warn("targetItemTracker", targetItemTracker);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
   const target = canvas.tokens.get(lastArg.tokenId);
   const targetTokenTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
-  console.warn("targetTokenTrackerFlag", targetTokenTrackerFlag);
   const targetedThisCombat = targetTokenTrackerFlag && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
   const targetTokenTracker = targetedThisCombat
     ? targetTokenTrackerFlag
@@ -91,15 +115,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
       hasLeft: false,
     };
 
-  console.warn("targetTokenTrackerFlag", targetTokenTrackerFlag);
-  console.warn("targetedThisCombat", targetedThisCombat);
-  console.warn("targetTokenTracker", targetTokenTracker);
-
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
   const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
-
-  console.warn("castTurn", castTurn);
-  console.warn("isLaterTurn", isLaterTurn);
 
   // if:
   // not cast turn, and not part of the original target

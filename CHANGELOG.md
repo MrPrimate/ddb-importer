@@ -1,6 +1,7 @@
 # 2.9.27
 
 * Monster spellcasting ability detection. Actually commit changes meant to v2.9.23 (Astyrranthor was failing).
+* Spell Effect: Cloudkill, mostly works for testing, although 've had inconsistent results - please feedback difficulties, requires Active Auras.
 
 # 2.9.26
 
