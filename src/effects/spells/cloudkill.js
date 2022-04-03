@@ -5,7 +5,7 @@ export async function cloudkillEffect(document) {
   // we require active auras for this effect
   if (!spellEffectModules().activeAurasInstalled) return document;
 
-  const itemMacroText = await loadMacroFile("spell", "cloudkill.js");
+  const itemMacroText = await loadMacroFile("spell", "activeAuraDamageOnEntry.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
@@ -35,9 +35,8 @@ export async function cloudkillEffect(document) {
   };
   setProperty(effect, "duration.seconds", 600);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  // effect.changes.push(generateMacroChange(`"${document.data.damage.parts[0][0]}" "${document.data.damage.parts[0][1]}" "${document.data.save.ability}" "@item.level"`));
   effect.changes.push(generateMacroChange("@item.level"));
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro,[postActiveEffects]ItemMacro");
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
   setProperty(document, "flags.ddbimporter.effect", {
     dice: document.data.damage.parts[0][0],
     damageType: document.data.damage.parts[0][1],
