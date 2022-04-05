@@ -1,3 +1,7 @@
+# 2.9.28
+
+* If using the option to not embed macros in items, the Cloudkill macro would fail to load. @callbritton#5405
+
 # 2.9.27
 
 * Monster spellcasting ability detection. Actually commit changes meant to v2.9.23 (Astyrranthor was failing).

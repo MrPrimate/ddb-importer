@@ -161,7 +161,7 @@ export async function executeDDBMacro(type, fileName, ...params) {
     // eslint-disable-next-line require-atomic-updates
     macro = await createMacro({ name: `${type} ${fileName}`, content: macroText, img: null, isGM: false, isTemp: true });
     // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.MACROS[type][fileName] = macro;
+    setProperty(CONFIG.DDBI.MACROS, `${type}${fileName}`, macro);
     logger.debug(`Macro (${type}) ${fileName} loaded`, macro);
   }
 

@@ -34,7 +34,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   setProperty(workflowItemData, "effects", []);
   delete workflowItemData._id;
   workflowItemData.name = `${workflowItemData.name}: Turn Entry Damage`;
-  console.warn("workflowItemData", workflowItemData);
+  // console.warn("workflowItemData", workflowItemData);
 
   await new MidiQOL.DamageOnlyWorkflow(
     caster,
