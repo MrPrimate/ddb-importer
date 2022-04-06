@@ -1,5 +1,21 @@
 export function earlySettings() {
 
+  game.settings.register("ddb-importer", "log-level", {
+    name: "ddb-importer.log-level.name",
+    hint: "ddb-importer.log-level.hint",
+    scope: "world",
+    config: true,
+    type: String,
+    choices: {
+      DEBUG: "DEBUG",
+      INFO: "INFO",
+      WARN: "WARN",
+      ERR: "ERROR ",
+      OFF: "OFF",
+    },
+    default: "INFO",
+  });
+
   game.settings.register("ddb-importer", "show-munch-top", {
     name: "ddb-importer.show-munch-top.name",
     hint: "ddb-importer.show-munch-top.hint",

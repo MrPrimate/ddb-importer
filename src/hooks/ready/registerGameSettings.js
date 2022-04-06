@@ -376,22 +376,6 @@ export default function () {
     DirectoryPicker.verifyPath(DirectoryPicker.parse(iconUploads));
   }
 
-  game.settings.register("ddb-importer", "log-level", {
-    name: "ddb-importer.log-level.name",
-    hint: "ddb-importer.log-level.hint",
-    scope: "world",
-    config: true,
-    type: String,
-    choices: {
-      DEBUG: "DEBUG",
-      INFO: "INFO",
-      WARN: "WARN",
-      ERR: "ERROR ",
-      OFF: "OFF",
-    },
-    default: "INFO",
-  });
-
   game.settings.register("ddb-importer", "api-endpoint", {
     scope: "world",
     config: false,
