@@ -116,11 +116,7 @@ export function getCharacterImportSettings() {
   const daeInstalled = spellEffectModulesAvailable.daeInstalled;
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
   const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
-  // dae/midi srd currently not working in v9
-  const version = (game.version ?? game.data.version);
-  const v9 = utils.versionCompare(version, "9.0") >= 0;
-  if (v9) game.settings.set("ddb-importer", "munching-policy-use-dae-effects", false);
-  const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled) && !v9;
+  const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
   const spellEffectText = `Generate active effects for spells. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, Item Macro${getInstalledIcon("itemMacroInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convenient Effects${getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}`;
 
   // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
@@ -619,11 +615,7 @@ export function getMuncherSettings(includeHomebrew = true) {
   const daeInstalled = spellEffectModulesAvailable.daeInstalled;
   const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
   const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
-  const version = (game.version ?? game.data.version);
-  // dae/midi srd currently not working in v9
-  const v9 = utils.versionCompare(version, "9.0") >= 0;
-  const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled) && !v9;
-  if (v9) game.settings.set("ddb-importer", "munching-policy-use-dae-effects", false);
+  const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
   const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
   const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
   const compendiumFolderMonsterStyles = getCompendiumFolderLookups("monster");
