@@ -4,6 +4,7 @@
 * Monsters: Innate spells with uses did not always parse uses, e.g. Young Crystal Dragon.
 * MidiSRD available to copy from again
 * Log level settings did not respect level
+* Effects: Web spell will now use an Active Auras effect if module is available.
 
 # 2.9.27
 
