@@ -1,6 +1,9 @@
 # 2.9.28
 
 * If using the option to not embed macros in items, the Cloudkill macro would fail to load. @callbritton#5405
+* Monsters: Innate spells with uses did not always parse uses, e.g. Young Crystal Dragon.
+* MidiSRD available to copy from again
+* Log level settings did not respect level
 
 # 2.9.27
 

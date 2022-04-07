@@ -1,9 +1,54 @@
-import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
+import { baseSpellEffect, spellEffectModules, generateStatusEffectChange } from "../specialSpells.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 
-export function webEffect(document) {
-  let effectWebRestrained = baseSpellEffect(document, document.name);
-  effectWebRestrained.changes.push(generateStatusEffectChange("Restrained"));
-  document.effects.push(effectWebRestrained);
+export async function webEffect(document) {
+
+  if (!spellEffectModules().activeAurasInstalled) {
+    let effectWebRestrained = baseSpellEffect(document, document.name);
+    effectWebRestrained.changes.push(generateStatusEffectChange("Restrained"));
+    document.effects.push(effectWebRestrained);
+    return document;
+  }
+
+  // if we have active auras use a more advanced macro
+  const itemMacroText = await loadMacroFile("generic", "activeAuraConditionOnEntry.js");
+  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+
+  let effect = baseSpellEffect(document, document.name);
+  effect.changes.push(generateMacroChange("@item.level @attributes.spelldc"));
+  effect.flags["ActiveAuras"] = {
+    isAura: true,
+    aura: "All",
+    radius: null,
+    alignment: "",
+    type: "",
+    ignoreSelf: false,
+    height: false,
+    hidden: false,
+    // hostile: true,
+    onlyOnce: false,
+    save: "dex",
+    savedc: null,
+    displayTemp: true,
+  };
+  setProperty(effect, "duration.seconds", 3600);
+  setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
+  setProperty(document, "flags.ddbimporter.effect", {
+    applyStart: true,
+    applyEntry: true,
+    allowVsRemoveCondition: true,
+    removalCheck: "str",
+    removalSave: null,
+    saveRemoves: false,
+    condition: "Restrained",
+    save: document.data.save.ability,
+    // sequencerFile: "jb2a.web.02",
+  });
+
+  document.effects.push(effect);
+  document.data.actionType = "other";
+  document.data.save.ability = "";
 
   return document;
 }

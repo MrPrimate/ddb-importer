@@ -8,39 +8,45 @@ if (!game.modules.get("advanced-macros")?.active) {
 
 const lastArg = args[args.length - 1];
 
-console.warn(args);
-
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
-function effectAppliedAndActive(conditionName, targetActor) {
-  return targetActor.data.effects.some(
-    (activeEffect) =>
-      activeEffect?.data?.flags?.isConvenient &&
-      activeEffect?.data?.label == conditionName &&
-      !activeEffect?.data?.disabled
-  );
+async function attemptRemoval(targetToken, condition, item) {
+  if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
+    new Dialog({
+      title: `Use action to attempt to remove ${condition}?`,
+      buttons: {
+        one: {
+          label: "Yes",
+          callback: async () => {
+            const caster = item.parent;
+            const saveDc = caster.data.data.attributes.spelldc;
+            const removalCheck = item.data.flags.ddbimporter.effect.removalCheck;
+            const removalSave = item.data.flags.ddbimporter.effect.removalSave;
+            const ability = removalCheck ? removalCheck : removalSave;
+            const type = removalCheck ? "check" : "save";
+            const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
+            const rollResult = removalCheck
+              ? (await targetToken.actor.rollAbilityTest(ability, { flavor })).total
+              : (await targetToken.actor.rollAbilitySave(ability, { flavor })).total;
+
+            if (rollResult >= saveDc) {
+              game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.document.uuid });
+            } else {
+              if (rollResult < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the ${type} for ${item.name}, still has the ${condition} condition.` });
+            }
+          },
+        },
+        two: {
+          label: "No",
+          callback: () => {},
+        },
+      },
+    }).render(true);
+  }
 }
 
-// async function applyCondition(targetActor, item) {
-//   console.warn(item);
-//   const condition = item.data.flags.ddbimporter.effect.condition;
-//   if (!effectAppliedAndActive(condition, targetActor)) {
-//     const saveAbility = item.data.flags.ddbimporter.effect.save;
-//     const saveDC = args[2];
-//     const flavor = `${CONFIG.DND5E.abilities[saveAbility]} DC${args[2]} ${item?.name || ""}`;
-//     const saveRoll = await targetActor.rollAbilitySave(saveAbility, { flavor, fastFoward: true });
-
-//     if (saveRoll.total < saveDC) {
-//       ChatMessage.create({ content: `${targetActor.name} failed the ${item.name} save with a ${saveRoll.total}` });
-//       game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: targetActor.uuid });
-//     } else {
-//       ChatMessage.create({ content: `${targetActor.name} passed the ${item.name} save with a ${saveRoll.total}` });
-//     }
-//   }
-// }
-
 async function applyCondition(condition, targetToken, item, itemLevel) {
-  if (!effectAppliedAndActive(condition, targetToken.actor)) {
+  if (!game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
     const caster = item.parent;
     const workflowItemData = duplicate(item.data);
     workflowItemData.data.target = { value: 1, units: "", type: "creature" };
@@ -65,10 +71,12 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     const result = await MidiQOL.completeItemRoll(saveItem, options);
 
     game.user.updateTokenTargets(saveTargets);
+    const failedSaves = [...result.failedSaves];
+    if (failedSaves.length > 0) {
+      await game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: failedSaves[0].document.uuid });
+    }
 
-    [...result.failedSaves].forEach((failed) => {
-      game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: failed.document.uuid });
-    });
+    return result;
   }
 }
 
@@ -120,6 +128,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 } else if (args[0] == "on" || args[0] == "each") {
   const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
+  // sometimes the round info has not updated, so we pause a bit
   if (args[0] == "each") await wait(500);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
@@ -133,12 +142,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
       round: game.combat.round,
       turn: game.combat.turn,
       hasLeft: false,
+      condition: item.data.flags.ddbimporter.effect.condition,
     };
-
-    console.warn(game.combat.current.round)
-    console.warn(game.combat.round)
-    console.warn(game.combat.turn)
-    console.warn(game.combat.current.turn)
 
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
   const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
@@ -148,25 +153,34 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   // AND one of the following
   // not original template and have not yet had this effect applied this combat OR
   // has been targeted this combat, left and re-entered effect, and is a later turn
-  const condition = item.data.flags.ddbimporter.effect.condition;
 
   if (castTurn && originalTarget) {
     console.debug(`Token ${target.name} is part of the original target for ${item.name}`);
   } else if (!targetedThisCombat || (targetedThisCombat && isLaterTurn)) {
     console.debug(`Token ${target.name} is targeted for immediate save vs condition with ${item.name}, using the following factors`, { originalTarget, castTurn, targetedThisCombat, targetTokenTracker, isLaterTurn });
     targetTokenTracker.hasLeft = false;
-    await applyCondition(target, condition, item, targetItemTracker.spellLevel);
+    await applyCondition(targetTokenTracker.condition, target, item, targetItemTracker.spellLevel);
   }
-  console.warn("setting token data", targetTokenTracker);
   await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
-  if (!effectAppliedAndActive(condition, target.actor)) {
-    await attemptEscape(target, condition, item);
+  const allowVsRemoveCondition = item.data.flags.ddbimporter.effect.allowVsRemoveCondition;
+  const effectApplied = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
+  const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
+  if (currentTokenCombatTurn && allowVsRemoveCondition && effectApplied) {
+    await attemptRemoval(target, targetTokenTracker.condition, item);
   }
 } else if (args[0] == "off") {
-  const tokenOrActor = await fromUuid(lastArg.actorUuid);
-  const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-  const item = await fromUuid(lastArg.efData.origin);
-  const condition = item.data.flags.ddbimporter?.effect?.condition;
+  const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
+  const targetToken = await fromUuid(lastArg.tokenUuid);
+  const targetTokenTracker = await DAE.getFlag(targetToken, `${safeName}Tracker`);
 
-  if (condition && effectAppliedAndActive(condition, targetActor)) game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetActor.uuid });
+  if (targetTokenTracker?.condition && game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, lastArg.tokenUuid)) {
+    game.dfreds.effectInterface.removeEffect({ effectName: targetTokenTracker.condition, uuid: lastArg.tokenUuid });
+  }
+
+  if (targetTokenTracker) {
+    targetTokenTracker.hasLeft = true;
+    targetTokenTracker.turn = game.combat.turn;
+    targetTokenTracker.round = game.combat.round;
+    await DAE.setFlag(targetToken, `${safeName}Tracker`, targetTokenTracker);
+  }
 }

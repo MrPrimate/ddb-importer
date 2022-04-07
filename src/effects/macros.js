@@ -137,10 +137,12 @@ async function createGMMacro(name, content, img) {
 }
 
 export async function createGMMacros() {
-  const activeAuraDamageMacroText = await loadMacroFile("generic", "activeAuraDamageOnEntry.js");
-  await createMacro({ name: "Active Aura Damage On Entry (Generic)", content: activeAuraDamageMacroText, img: null, isGM: false, isTemp: false });
   if (game.user.isGM) {
     await checkMacroFolder();
+    const activeAuraDamageMacroText = await loadMacroFile("generic", "activeAuraDamageOnEntry.js");
+    await createMacro({ name: "Active Aura Damage On Entry (Generic)", content: activeAuraDamageMacroText, img: null, isGM: false, isTemp: false });
+    const activeAuraConditionMacroText = await loadMacroFile("generic", "activeAuraConditionOnEntry.js");
+    await createMacro({ name: "Active Aura Condition On Entry (Generic)", content: activeAuraConditionMacroText, img: null, isGM: false, isTemp: false });
     const darknessGMMacroText = await loadMacroFile("gm", "darkness.js");
     await createGMMacro("Darkness (DDB - GM)", darknessGMMacroText, "systems/dnd5e/icons/skills/shadow_10.jpg");
   }
