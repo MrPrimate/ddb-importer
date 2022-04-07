@@ -39,6 +39,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "enhancedcombathud",
   "cf",
   "automated-evocations",
+  "automated-polymorpher",
   "inventory-plus",
   "obsidian",
   "siftoolkit",

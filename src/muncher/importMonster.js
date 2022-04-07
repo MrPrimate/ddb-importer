@@ -402,7 +402,7 @@ async function addSpells(data) {
               prepared: !isAtWill,
             };
           }
-          if (isAtWill) {
+          if (isAtWill && spellInfo.type === "atwill") {
             spell.data.uses = {
               value: null,
               max: null,
