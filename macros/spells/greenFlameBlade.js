@@ -133,7 +133,6 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             setProperty(weaponCopy, "flags.autoanimations", autoanimations);
           }
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
-          console.warn(attackItem);
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
           await MidiQOL.completeItemRoll(attackItem, options);
         },
