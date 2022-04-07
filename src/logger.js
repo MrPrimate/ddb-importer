@@ -4,15 +4,20 @@ const logger = {
       return false;
     }
 
-    const setting = game.settings.get("ddb-importer", "log-level");
-    const logLevels = ["DEBUG", "INFO", "WARN", "ERR", "OFF"];
-    const logLevelIndex = logLevels.indexOf(logLevel.toUpperCase());
-    if (setting == "OFF" ||
-            logLevelIndex === -1 ||
-            logLevelIndex < logLevels.indexOf(setting)) {
-      return false;
+    try {
+      const setting = game.settings.get("ddb-importer", "log-level");
+      const logLevels = ["DEBUG", "INFO", "WARN", "ERR", "OFF"];
+      const logLevelIndex = logLevels.indexOf(logLevel.toUpperCase());
+      if (setting == "OFF" ||
+              logLevelIndex === -1 ||
+              logLevelIndex < logLevels.indexOf(setting)) {
+        return false;
+      }
+      return true;
+    } catch (err) {
+      return true;
     }
-    return true;
+
   },
   log: (logLevel, ...data) => {
     if (!logger._showMessage(logLevel, data)) {
