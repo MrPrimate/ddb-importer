@@ -338,7 +338,9 @@ export default function parseTemplateString(ddb, character, text, feature) {
   });
 
   result.text = result.text.replace("+ +", "+");
-  // result.text = await parseTags(result.text);
+  result.text = result.text.replace("++", "+");
+  result.text = result.text.replace("+</strong>+", "+</strong>");
+
   result.text = parseTags(result.text);
   character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
 

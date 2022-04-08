@@ -5,6 +5,7 @@
 * MidiSRD available to copy from again
 * Log level settings did not respect level
 * Effects: Web spell will now use an Active Auras effect if module is available.
+* Characters: Divine fury (and some others) parsed with double damage mods @Tec#2002
 
 # 2.9.27
 

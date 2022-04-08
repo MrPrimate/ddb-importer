@@ -137,7 +137,7 @@ function getDamage(action) {
   if (action.dice) {
     if (action.dice.diceString) {
       const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-      const damageString = utils.parseDiceString(action.dice.diceString, modBonus + fixedBonus, damageTag).diceString;
+      const damageString = utils.parseDiceString(action.dice.diceString, modBonus, damageTag).diceString;
       damage = {
         parts: [[damageString, damageType]],
         versatile: "",
