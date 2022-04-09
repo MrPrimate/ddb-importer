@@ -1,3 +1,8 @@
+# 2.9.29
+
+* Effects: Silence spell uses Active Auras if Available.
+* Macros: If using DDB Embedded macros some combinations could be recursive.
+
 # 2.9.28
 
 * If using the option to not embed macros in items, the Cloudkill macro would fail to load. @callbritton#5405
