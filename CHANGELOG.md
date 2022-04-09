@@ -1,3 +1,7 @@
+# 2.9.30
+
+* Effects: Bladesong.
+
 # 2.9.29
 
 * Effects: Silence spell uses Active Auras if Available.

@@ -11,6 +11,7 @@ import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
 import { sculptSpellsEffect } from "./feats/sculptSpells.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
+import { bladesongEffect } from "./feats/bladesong.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -99,13 +100,17 @@ export async function generateExtraEffects(ddb, character, document) {
     document = await maneuversEffect(ddb, character, document);
   }
   switch (name) {
-    case "Empty Body":
-    case "Ki: Empty Body": {
-      document = await kiEmptyBodyEffect(document);
+    case "Bladesong": {
+      document = await bladesongEffect(document);
       break;
     }
     case "Deflect Missiles": {
       document = deflectMissilesEffect(document);
+      break;
+    }
+    case "Empty Body":
+    case "Ki: Empty Body": {
+      document = await kiEmptyBodyEffect(document);
       break;
     }
     // no default
