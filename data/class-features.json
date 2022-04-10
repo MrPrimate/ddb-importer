@@ -1502,7 +1502,14 @@
     "class_feature": "Channel Divinity: Twilight Sanctuary",
     "class": "Cleric",
     "subclass": "Twilight Domain",
-    "path": "systems/dnd5e/icons/skills/violet_26.jpg"
+    "path": "icons/magic/light/light-lantern-lit-white.webp"
+  },
+  {
+    "name": "Twilight Sanctuary",
+    "class_feature": "Twilight Sanctuary",
+    "class": "Cleric",
+    "subclass": "Twilight Domain",
+    "path": "icons/magic/light/light-lantern-lit-white.webp"
   },
   {
     "name": "Channel Divinity: Vow of Enmity",

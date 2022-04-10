@@ -245,7 +245,7 @@
   },
   {
     "name": "Charm Person",
-    "path": "systems/dnd5e/icons/spells/wind-grasp-magenta-2.jpg"
+    "path": "icons/magic/life/heart-shadow-red.webp"
   },
   {
     "name": "Chill Touch",
@@ -301,7 +301,7 @@
   },
   {
     "name": "Comprehend Languages",
-    "path": "systems/dnd5e/icons/spells/runes-orange-2.jpg"
+    "path": "icons/sundries/documents/document-letter-formal-tan.webp"
   },
   {
     "name": "Compulsion",
@@ -445,7 +445,7 @@
   },
   {
     "name": "Darkness",
-    "path": "systems/dnd5e/icons/skills/shadow_10.jpg"
+    "path": "icons/magic/unholy/orb-glowing-purple.webp"
   },
   {
     "name": "Darkvision",
@@ -941,7 +941,7 @@
   },
   {
     "name": "Heat Metal",
-    "path": "systems/dnd5e/icons/skills/yellow_37.jpg"
+    "path": "icons/magic/fire/flame-burning-chain.webp"
   },
   {
     "name": "Hellish Rebuke",
@@ -1001,7 +1001,7 @@
   },
   {
     "name": "Identify",
-    "path": "systems/dnd5e/icons/spells/light-eerie-1.jpg"
+    "path": "icons/tools/scribal/magnifying-glass.webp"
   },
   {
     "name": "Illusory Dragon",
@@ -1165,7 +1165,7 @@
   },
   {
     "name": "Mage Hand",
-    "path": "icons/equipment/hand/glove-simple-leather-orange.webp"
+    "path": "icons/magic/unholy/strike-hand-glow-pink.webp"
   },
   {
     "name": "Magic Circle",
@@ -1613,7 +1613,7 @@
   },
   {
     "name": "Shatter",
-    "path": "systems/dnd5e/icons/skills/yellow_03.jpg"
+    "path": "icons/magic/sonic/explosion-shock-wave-teal.webp"
   },
   {
     "name": "Shield",
@@ -1713,7 +1713,7 @@
   },
   {
     "name": "Spiritual Weapon",
-    "path": "systems/dnd5e/icons/skills/violet_10.jpg"
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-purple-orange.webp"
   },
   {
     "name": "Staggering Smite",
@@ -1965,7 +1965,7 @@
   },
   {
     "name": "Vicious Mockery",
-    "path": "systems/dnd5e/icons/skills/affliction_24.jpg"
+    "path": "icons/magic/control/fear-fright-white.webp"
   },
   {
     "name": "Vitriolic Sphere",
