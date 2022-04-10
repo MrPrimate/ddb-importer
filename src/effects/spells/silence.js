@@ -12,7 +12,7 @@ export async function silenceEffect(document) {
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
-  effect.changes.push(generateStatusEffectChange("Deafened"));
+  effect.changes.push(generateStatusEffectChange("Deafened", 20, true));
   effect.changes.push(
     {
       key: "flags.midi-qol.fail.spell.vocal",
