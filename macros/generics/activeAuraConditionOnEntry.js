@@ -8,8 +8,6 @@ if (!game.modules.get("advanced-macros")?.active) {
 
 const lastArg = args[args.length - 1];
 
-console.warn(args);
-
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
 async function attemptRemoval(targetToken, condition, item) {

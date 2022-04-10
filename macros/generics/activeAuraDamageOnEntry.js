@@ -8,16 +8,24 @@ if (!game.modules.get("advanced-macros")?.active) {
 
 const lastArg = args[args.length - 1];
 
+function getCantripDice(actor) {
+  const level = actor.type === "character" ? actor.data.details.level : actor.data.details.cr;
+  return 1 + Math.floor((level + 1) / 6);
+}
+
 async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const item = await fromUuid(itemUuid);
   const caster = item.parent;
+  const isCantrip = item.data.flags.ddbimporter.effect.isCantrip;
   const damageDice = item.data.flags.ddbimporter.effect.dice;
   const damageType = item.data.flags.ddbimporter.effect.damageType;
   const saveAbility = item.data.flags.ddbimporter.effect.save;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
   const scalingDiceArray = item.data.data.scaling.formula.split("d");
   const scalingDiceNumber = itemLevel - item.data.data.level;
-  const upscaledDamage =  scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
+  const upscaledDamage =  isCantrip
+    ? `${getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
+    : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
   const damageRoll = await new Roll(upscaledDamage).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll);
   const workflowItemData = duplicate(item.data);
@@ -91,12 +99,32 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   await DAE.unsetFlag(item, `${safeName}Tracker`);
   await DAE.setFlag(item, `${safeName}Tracker`, dataTracker);
 
-  const sequencerFile = lastArg.item.flags.ddbimporter?.effect?.sequencerFile;
-  if (sequencerFile) {
-    attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid)
+  const ddbEffectFlags = lastArg.item.flags.ddbimporter?.effect;
+  const newArgs = duplicate(args);
+  if (ddbEffectFlags) {
+    const sequencerFile = ddbEffectFlags.sequencerFile;
+    if (sequencerFile) {
+      attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid)
+    }
+    if (ddbEffectFlags.isCantrip) {
+      const cantripDice = getCantripDice(lastArg.actor);
+      newArgs[0].spellLevel = cantripDice;
+      ddbEffectFlags.cantripDice = cantripDice;
+      let newEffects = newArgs[0].item.effects.map((effect) => {
+        effect.changes = effect.changes.map((change) => {
+          change.value = change.value.replace("@cantripDice", cantripDice)
+          return change;
+        });
+        return effect;
+      });
+      newArgs[0].item.effects = duplicate(newEffects);
+      newArgs[0].itemData.effects = duplicate(newEffects);
+    }
+    const template = await fromUuid(lastArg.templateUuid);
+    await template.update({"flags.effect": ddbEffectFlags});
   }
 
-  return await AAhelpers.applyTemplate(args);
+  return await AAhelpers.applyTemplate(newArgs);
 
 } else if (args[0] == "on") {
   const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");

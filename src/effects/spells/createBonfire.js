@@ -14,9 +14,16 @@ export async function createBonfireEffect(document) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value:
-        "turn=end,label=Create Bonfire,damageRoll=(@level)d8,damageType=fire,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true",
+        "turn=start,label=Create Bonfire (Start of Turn),damageRoll=(@cantripDice)d8,damageType=fire,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true",
       priority: "20",
-    }
+    },
+    {
+      key: "flags.midi-qol.OverTime",
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      value:
+        "turn=end,label=Create Bonfire (End of Turn),damageRoll=(@cantripDice)d8,damageType=fire,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true",
+      priority: "20",
+    },
   );
   effect.flags["ActiveAuras"] = {
     isAura: true,
@@ -44,6 +51,7 @@ export async function createBonfireEffect(document) {
     damageType: document.data.damage.parts[0][1],
     save: document.data.save.ability,
     sequencerFile: "jb2a.flames.01.orange",
+    isCantrip: true,
   });
 
   return document;

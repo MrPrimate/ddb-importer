@@ -1,6 +1,8 @@
 # 2.9.30
 
-* Effects: Bladesong.
+* Effects: Bladesong. (Thanks @Shyvor#3596)
+* Effects: Spells: Grease, Create Bonfire.
+* Some icon improvements suggested by @Raccoomph#8480
 
 # 2.9.29
 

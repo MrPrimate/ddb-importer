@@ -32,6 +32,7 @@ import { commandEffect } from "./spells/command.js";
 import { comprehendLanguagesEffect } from "./spells/comprehendLanguages.js";
 import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
+import { createBonfireEffect } from "./spells/createBonfire.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { crownofMadnessEffect } from "./spells/crownofMadness.js";
 import { darknessEffect } from "./spells/darkness.js";
@@ -171,8 +172,8 @@ export function baseSpellEffect(document, label) {
   };
 }
 
-export function generateStatusEffectChange(statusName, priority = 20) {
-  return baseGenerateStatusEffectChange(statusName, priority);
+export function generateStatusEffectChange(statusName, priority = 20, macro = false) {
+  return baseGenerateStatusEffectChange(statusName, priority, macro);
 }
 
 export function generateTokenMagicFXChange(macroValue, priority = 20) {
@@ -311,6 +312,10 @@ export async function spellEffectAdjustment(document) {
       document = crownofMadnessEffect(document);
       break;
     }
+    case "Create Bonfire": {
+      document = await createBonfireEffect(document);
+      break;
+    }
     case "Darkness": {
       document = await darknessEffect(document);
       break;
@@ -392,7 +397,7 @@ export async function spellEffectAdjustment(document) {
       break;
     }
     case "Grease": {
-      document = greaseEffect(document);
+      document = await greaseEffect(document);
       break;
     }
     case "Greater Invisibility": {
