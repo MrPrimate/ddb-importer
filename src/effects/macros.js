@@ -136,22 +136,55 @@ async function createGMMacro(name, content, img) {
   return createMacro({ name, content, img, isGM: true, isTemp: false });
 }
 
+export const MACROS = {
+  AA_ONLY: {
+    name: "Active Aura Only (Generic)",
+    type: "generic",
+    file: "activeAuraConditionOnEntry.js",
+    isGM: false,
+    img: null,
+    world: true,
+  },
+  AA_CONDITION_ON_ENTRY: {
+    name: "Active Aura Condition On Entry (Generic)",
+    type: "generic",
+    file: "activeAuraConditionOnEntry.js",
+    isGM: false,
+    img: null,
+    world: true,
+  },
+  AA_DAMAGE_ON_ENTRY: {
+    name: "Active Aura Damage On Entry (Generic)",
+    type: "generic",
+    file: "activeAuraDamageOnEntry.js",
+    isGM: false,
+    img: null,
+    world: true,
+  },
+  DARKNESS_GM: {
+    name: "Darkness (DDB - GM)",
+    type: "gm",
+    file: "darkness.js",
+    isGM: true,
+    img: "systems/dnd5e/icons/skills/shadow_10.jpg",
+    world: true,
+  }
+};
+
 export async function createGMMacros() {
   if (game.user.isGM) {
     await checkMacroFolder();
-    // Generic Macros
-    const activeAuraDamageMacroText = await loadMacroFile("generic", "activeAuraDamageOnEntry.js", true);
-    await createMacro({ name: "Active Aura Damage On Entry (Generic)", content: activeAuraDamageMacroText, img: null, isGM: false, isTemp: false });
-    const activeAuraConditionMacroText = await loadMacroFile("generic", "activeAuraConditionOnEntry.js", true);
-    await createMacro({ name: "Active Aura Condition On Entry (Generic)", content: activeAuraConditionMacroText, img: null, isGM: false, isTemp: false });
-    const activeAuraMacroText = await loadMacroFile("generic", "activeAuraOnly.js", true);
-    await createMacro({ name: "Active Aura Only (Generic)", content: activeAuraMacroText, img: null, isGM: false, isTemp: false });
-    // specific GM Macros
-    const darknessGMMacroText = await loadMacroFile("gm", "darkness.js", true);
-    await createGMMacro("Darkness (DDB - GM)", darknessGMMacroText, "systems/dnd5e/icons/skills/shadow_10.jpg");
+
+    for (const macro of Object.values(MACROS).filter((m) => m.world)) {
+      // eslint-disable-next-line no-await-in-loop
+      const macroFile = await loadMacroFile(macro.type, macro.file, true);
+      if (macroFile) {
+        // eslint-disable-next-line no-await-in-loop
+        await createMacro({ name: macro.name, content: macroFile, img: macro.img, isGM: macro.isGM, isTemp: false });
+      }
+    }
   }
 }
-
 
 export async function executeDDBMacro(type, fileName, ...params) {
   if (!fileName.endsWith(".js")) fileName = `${fileName}.js`;
