@@ -56,7 +56,7 @@ export function configureDependencies() {
   return true;
 }
 
-export async function loadMacroFile(type, fileName, forceLoad = false) {
+export async function loadMacroFile(type, fileName, forceLoad = false, forceDDB = false) {
   const embedMacros = game.settings.get("ddb-importer", "embed-macros");
   logger.debug(`Getting macro for ${type} ${fileName}`);
   const fileExists = forceLoad
@@ -64,12 +64,14 @@ export async function loadMacroFile(type, fileName, forceLoad = false) {
     : await utils.fileExists(`[data] modules/ddb-importer/macros/${type}s`, fileName);
 
   let data;
-  if (fileExists && (forceLoad || embedMacros)) {
+  if (fileExists && (forceLoad || embedMacros) && !forceDDB) {
     const url = await utils.getFileUrl(`[data] modules/ddb-importer/macros/${type}s`, fileName);
     const response = await fetch(url, { method: "GET" });
     data = await response.text();
-  } else if (fileExists && !embedMacros) {
+  } else if (fileExists && (!embedMacros || forceDDB)) {
     data = `// Execute DDB Importer dynamic macro\nreturn DDBImporter.executeDDBMacro("${type}", "${fileName}", ...args);`;
+  } else if (!fileExists) {
+    data = "// Unable to load the macro file";
   }
   return data;
 }
@@ -132,15 +134,19 @@ export async function createMacro({ name, content, img, isGM, isTemp }) {
 
 }
 
-async function createGMMacro(name, content, img) {
-  return createMacro({ name, content, img, isGM: true, isTemp: false });
-}
-
 export const MACROS = {
   AA_ONLY: {
     name: "Active Aura Only (Generic)",
     type: "generic",
     file: "activeAuraConditionOnEntry.js",
+    isGM: false,
+    img: null,
+    world: true,
+  },
+  AA_ON_ENTRY: {
+    name: "Active Aura Damage and Condition On Entry (Generic)",
+    type: "generic",
+    file: "activeAuraDamageAndConditionOnEntry.js",
     isGM: false,
     img: null,
     world: true,
