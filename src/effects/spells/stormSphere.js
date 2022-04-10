@@ -38,7 +38,7 @@ export async function stormSphereEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  setProperty(effect, "duration.minutes", 1);
+  setProperty(effect, "duration.seconds", 60);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   effect.changes.push(generateMacroChange(""));
   setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
