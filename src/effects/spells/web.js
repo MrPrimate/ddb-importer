@@ -1,5 +1,5 @@
 import { baseSpellEffect, spellEffectModules, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
 
 export async function webEffect(document) {
 
@@ -11,7 +11,7 @@ export async function webEffect(document) {
   }
 
   // if we have active auras use a more advanced macro
-  const itemMacroText = await loadMacroFile("generic", "activeAuraConditionOnEntry.js");
+  const itemMacroText = await loadMacroFile(MACROS.AA_CONDITION_ON_ENTRY.type, MACROS.AA_CONDITION_ON_ENTRY.file);
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
@@ -37,6 +37,8 @@ export async function webEffect(document) {
   setProperty(document, "flags.ddbimporter.effect", {
     applyStart: true,
     applyEntry: true,
+    applyImmediate: false,
+    everyEntry: false,
     allowVsRemoveCondition: true,
     removalCheck: "str",
     removalSave: null,

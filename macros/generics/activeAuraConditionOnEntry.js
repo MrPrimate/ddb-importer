@@ -8,6 +8,8 @@ if (!game.modules.get("advanced-macros")?.active) {
 
 const lastArg = args[args.length - 1];
 
+console.warn(args);
+
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
 async function attemptRemoval(targetToken, condition, item) {
@@ -83,7 +85,7 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
 async function attachSequencerFileToTemplate(templateUuid, sequencerFile, originUuid) {
   if (game.modules.get("sequencer")?.active) {
     if (Sequencer.Database.entryExists(sequencerFile)) {
-      console.debug("Trying to apply sequencer effect", sequencerFile);
+      console.debug(`Trying to apply sequencer effect (${sequencerFile}) to ${templateUuid} from ${originUuid}`, sequencerFile);
       const template = await fromUuid(templateUuid);
       new Sequence()
       .effect()
@@ -123,8 +125,29 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid)
   }
 
+  if (lastArg.item.flags.ddbimporter?.effect?.applyImmediate) {
+    await wait(500);
+    const condition = lastArg.item.flags.ddbimporter.effect.condition;
+    for (const token of lastArg.failedSaves) {
+      if (!game.dfreds.effectInterface.hasEffectApplied(condition, token.actor.uuid)) {
+        console.debug(`Applying ${condition} to ${token.name}`);
+        await game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: token.actor.uuid });
+      }
+    };
+  }
+
   return await AAhelpers.applyTemplate(args);
 
+} else if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
+  if (lastArg.item.flags.ddbimporter?.effect?.applyImmediate) {
+    const condition = lastArg.item.flags.ddbimporter.effect.condition;
+    for (const token of lastArg.failedSaves) {
+      if (!game.dfreds.effectInterface.hasEffectApplied(condition, token.actor.uuid)) {
+        console.debug(`Applying ${condition} to ${token.name}`);
+        await game.dfreds.effectInterface.addEffect({ effectName: condition, uuid: token.actor.uuid });
+      }
+    };
+  }
 } else if (args[0] == "on" || args[0] == "each") {
   const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
@@ -147,6 +170,9 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
   const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
+  const everyEntry = hasProperty(item.data, "flags.ddbimporter.effect.everyEntry")
+    ? item.data.flags.ddbimporter.effect.everyEntry
+    : false;
 
   // if:
   // not cast turn, and not part of the original target
@@ -156,7 +182,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   if (castTurn && originalTarget) {
     console.debug(`Token ${target.name} is part of the original target for ${item.name}`);
-  } else if (!targetedThisCombat || (targetedThisCombat && isLaterTurn)) {
+  } else if (everyEntry || !targetedThisCombat || (targetedThisCombat && isLaterTurn)) {
     console.debug(`Token ${target.name} is targeted for immediate save vs condition with ${item.name}, using the following factors`, { originalTarget, castTurn, targetedThisCombat, targetTokenTracker, isLaterTurn });
     targetTokenTracker.hasLeft = false;
     await applyCondition(targetTokenTracker.condition, target, item, targetItemTracker.spellLevel);
@@ -166,14 +192,19 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const effectApplied = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
   if (currentTokenCombatTurn && allowVsRemoveCondition && effectApplied) {
+    console.warn(`Removing ${targetTokenTracker.condition}`);
     await attemptRemoval(target, targetTokenTracker.condition, item);
   }
 } else if (args[0] == "off") {
   const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
   const targetToken = await fromUuid(lastArg.tokenUuid);
   const targetTokenTracker = await DAE.getFlag(targetToken, `${safeName}Tracker`);
+  const removeOnOff = hasProperty(lastArg, "efData.flags.ddbimporter.effect.removeOnOff")
+    ? lastArg.efData.flags.ddbimporter.effect.removeOnOff
+    : true;
 
-  if (targetTokenTracker?.condition && game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, lastArg.tokenUuid)) {
+  if (targetTokenTracker?.condition && removeOnOff && game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, lastArg.tokenUuid)) {
+    console.debug(`Removing ${targetTokenTracker.condition} from ${targetToken.name}`);
     game.dfreds.effectInterface.removeEffect({ effectName: targetTokenTracker.condition, uuid: lastArg.tokenUuid });
   }
 
