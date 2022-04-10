@@ -149,7 +149,7 @@ async function attackNearby(originToken, ignoreIds) {
   if (potentialTargets.length === 0) return;
   const sourceItem = await fromUuid(lastArg.efData.flags.origin);
   const caster = sourceItem.parent;
-  const casterToken = canvas.tokens.placeables.find((t) => t.actor.uuid === caster.uuid);
+  const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
   const targetContent = potentialTargets.map((t) => `<option value="${t.id}">${t.name}</option>`).join("");
   const content = `<div class="form-group"><label>Targets : </label><select name="secondaryTargetId"}>${targetContent}</select></div>`;
 

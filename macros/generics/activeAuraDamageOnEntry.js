@@ -14,7 +14,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const damageDice = item.data.flags.ddbimporter.effect.dice;
   const damageType = item.data.flags.ddbimporter.effect.damageType;
   const saveAbility = item.data.flags.ddbimporter.effect.save;
-  const casterToken = canvas.tokens.placeables.find((t) => t.actor.uuid === caster.uuid);
+  const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
   const scalingDiceArray = item.data.data.scaling.formula.split("d");
   const scalingDiceNumber = itemLevel - item.data.data.level;
   const upscaledDamage =  scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;

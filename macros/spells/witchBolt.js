@@ -78,7 +78,7 @@ if (args[0] === "on" && !hasParentEffect && caster.uuid !== lastArg.actorUuid) {
   for (let t of game.user.targets) {
     targets.push(t.document.uuid);
   }
-  const casterToken = canvas.tokens.placeables.find((t) => t.actor.id === caster.id);
+  const casterToken = canvas.tokens.placeables.find((t) => t.actor?.id === caster.id);
   const options = {
     targets,
     sourceUuid: casterToken?.document?.uuid,
