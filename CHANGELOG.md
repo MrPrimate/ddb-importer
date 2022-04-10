@@ -3,6 +3,8 @@
 * Effects: Bladesong. (Thanks @Shyvor#3596)
 * Effects: Spells: Grease, Create Bonfire.
 * Some icon improvements suggested by @Raccoomph#8480
+* Macros: some macros would fail if monks active tiles were placed.
+
 
 # 2.9.29
 
