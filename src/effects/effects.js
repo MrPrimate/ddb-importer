@@ -293,11 +293,17 @@ export function generateBaseSkillEffect(id, label) {
 }
 
 
-export function generateStatusEffectChange(statusName, priority = 20) {
+export function generateStatusEffectChange(statusName, priority = 20, macro = false) {
+  const value = macro
+    ? statusName
+    : CONFIG.statusEffects.find((se) => se.name === statusName)?.id || statusName;
+  if (!value) {
+    logger.error(`Status effect ${statusName} not found`);
+  }
   return {
-    key: "macro.CE",
+    key: macro ? "macro.CE" : "StatusEffect",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    value: statusName,
+    value,
     priority: priority,
   };
 }
