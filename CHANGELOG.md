@@ -1,7 +1,7 @@
 # 2.9.30
 
 * Effects: Bladesong. (Thanks @Shyvor#3596)
-* Effects: Spells: Grease, Create Bonfire.
+* Effects: Spells: Grease, Create Bonfire, Black Tentacles, Incendiary Cloud, Insect Plague (all require Active Auras).
 * Some icon improvements suggested by @Raccoomph#8480
 * Macros: some macros would fail if monks active tiles were placed.
 
