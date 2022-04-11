@@ -10,6 +10,23 @@ const lastArg = args[args.length - 1];
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
+function getHighestAbility(actor, abilities) {
+  if (typeof abilities === "string") {
+    return abilities;
+  } else if (Array.isArray(abilities)) {
+    return abilities.reduce((prv, current) => {
+      if (actor.data.abilities[current].value > actor.data.abilities[prv].value) return current;
+      else return prv;
+    }, abilities[0]);
+  }
+}
+
+function getCantripDice(actor) {
+  const level = actor.type === "character" ? actor.data.details.level : actor.data.details.cr;
+  return 1 + Math.floor((level + 1) / 6);
+}
+
+
 async function attemptRemoval(targetToken, condition, item) {
   if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
     new Dialog({
@@ -22,7 +39,7 @@ async function attemptRemoval(targetToken, condition, item) {
             const saveDc = caster.data.data.attributes.spelldc;
             const removalCheck = item.data.flags.ddbimporter.effect.removalCheck;
             const removalSave = item.data.flags.ddbimporter.effect.removalSave;
-            const ability = removalCheck ? removalCheck : removalSave;
+            const ability = removalCheck ? getHighestAbility(targetToken.actor.data, removalCheck) : getHighestAbility(targetToken.actor.data, removalSave);
             const type = removalCheck ? "check" : "save";
             const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
             const rollResult = removalCheck
@@ -103,10 +120,6 @@ async function attachSequencerFileToTemplate(templateUuid, sequencerFile, origin
   }
 }
 
-function getCantripDice(actor) {
-  const level = actor.type === "character" ? actor.data.details.level : actor.data.details.cr;
-  return 1 + Math.floor((level + 1) / 6);
-}
 
 async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const item = await fromUuid(itemUuid);
@@ -175,7 +188,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   if (ddbEffectFlags) {
     const sequencerFile = ddbEffectFlags.sequencerFile;
     if (sequencerFile) {
-      attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid)
+      await attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid)
     }
     if (ddbEffectFlags.isCantrip) {
       const cantripDice = getCantripDice(lastArg.actor);
@@ -195,6 +208,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     await template.update({"flags.effect": ddbEffectFlags});
 
     if (ddbEffectFlags.applyImmediate) {
+      console.debug("Applying immediate effect");
       await wait(500);
       const condition = ddbEffectFlags.condition;
       for (const token of lastArg.failedSaves) {
@@ -205,6 +219,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
       };
     }
   }
+
+  console.debug("ItemMacro: Pre-apply finised, applying effect to template")
 
   return await AAhelpers.applyTemplate(newArgs);
 
@@ -221,6 +237,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 } else if (args[0] == "on" || args[0] == "each") {
   const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
+  const ddbEffectFlags = item.data.flags.ddbimporter.effect;
   // sometimes the round info has not updated, so we pause a bit
   if (args[0] == "each") await wait(500);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
@@ -235,7 +252,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
       round: game.combat.round,
       turn: game.combat.turn,
       hasLeft: false,
-      condition: item.data.flags.ddbimporter.effect.condition,
+      condition: ddbEffectFlags.condition,
     };
 
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
@@ -250,20 +267,43 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   // not original template and have not yet had this effect applied this combat OR
   // has been targeted this combat, left and re-entered effect, and is a later turn
 
-  if (castTurn && originalTarget) {
-    console.debug(`Token ${target.name} is part of the original target for ${item.name}`);
-  } else if (everyEntry || !targetedThisCombat || (targetedThisCombat && isLaterTurn)) {
-    console.debug(`Token ${target.name} is targeted for immediate save vs condition with ${item.name}, using the following factors`, { originalTarget, castTurn, targetedThisCombat, targetTokenTracker, isLaterTurn });
-    targetTokenTracker.hasLeft = false;
-    if (targetItemTracker.conditionEffect) await applyCondition(targetTokenTracker.condition, target, item, targetItemTracker.spellLevel);
-    if (targetItemTracker.damageEffect) await rollItemDamage(target, lastArg.efData.origin, targetItemTracker.spellLevel);
+  const autoDamageIfCondition = hasProperty(ddbEffectFlags, "autoDamageIfCondition") ? ddbEffectFlags.autoDamageIfCondition : false;
+  const hasConditionStart = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.actor.uuid);
+  const applyAutoConditionDamage = autoDamageIfCondition && hasConditionStart;
+
+  if (ddbEffectFlags.conditionEffect && !hasConditionStart) {
+    if (castTurn && originalTarget) {
+      console.debug(`Token ${target.name} is part of the original target for ${item.name}`);
+    } else if (everyEntry || !targetedThisCombat || (targetedThisCombat && isLaterTurn)) {
+      console.debug(`Token ${target.name} is targeted for immediate save vs condition with ${item.name}, using the following factors`, { originalTarget, castTurn, targetedThisCombat, targetTokenTracker, isLaterTurn });
+      targetTokenTracker.hasLeft = false;
+      await applyCondition(targetTokenTracker.condition, target, item, targetItemTracker.spellLevel);
+    } else {
+      console.debug(`Token ${target.name} has not evaluated for condition application`);
+    }
   }
+  if (ddbEffectFlags.damageEffect) {
+    if (castTurn && originalTarget) {
+      console.debug(`Token ${target.name} is part of the original target for ${item.name}`);
+    } else if ((!targetedThisCombat && !autoDamageIfCondition) || //if auto damage applied by conditional save
+      (targetedThisCombat && ((targetTokenTracker.hasLeft && isLaterTurn) || (applyAutoConditionDamage && isLaterTurn)))
+    ) {
+      console.debug(`Token ${target.name} is targeted for immediate damage with ${item.name}, using the following factors`, { originalTarget, castTurn, targetedThisCombat, targetTokenTracker, isLaterTurn });
+      targetTokenTracker.hasLeft = false;
+      await rollItemDamage(target, lastArg.efData.origin, targetItemTracker.spellLevel);
+    } else {
+      console.debug(`Token ${target.name} has not evaluated for damage application`);
+    }
+  }
+
+  targetTokenTracker.turn = game.combat.turn;
+  targetTokenTracker.round = game.combat.round;
   await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
   const allowVsRemoveCondition = item.data.flags.ddbimporter.effect.allowVsRemoveCondition;
-  const effectApplied = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
+  const hasConditionAppliedEnd = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
-  if (currentTokenCombatTurn && allowVsRemoveCondition && effectApplied) {
-    console.warn(`Removing ${targetTokenTracker.condition}`);
+  if (currentTokenCombatTurn && allowVsRemoveCondition && hasConditionAppliedEnd) {
+    console.warn(`Asking ${target.name} wants to remove ${targetTokenTracker.condition}`);
     await attemptRemoval(target, targetTokenTracker.condition, item);
   }
 } else if (args[0] == "off") {
@@ -281,8 +321,6 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   if (targetTokenTracker) {
     targetTokenTracker.hasLeft = true;
-    targetTokenTracker.turn = game.combat.turn;
-    targetTokenTracker.round = game.combat.round;
     await DAE.setFlag(targetToken, `${safeName}Tracker`, targetTokenTracker);
   }
 }
