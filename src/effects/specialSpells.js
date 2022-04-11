@@ -71,6 +71,8 @@ import { holyAuraEffect } from "./spells/holyAura.js";
 import { huntersMarkEffect } from "./spells/huntersMark.js";
 import { hypnoticPatternEffect } from "./spells/hypnoticPattern.js";
 import { iceKnifeEffect } from "./spells/iceKnife.js";
+import { incendiaryCloudEffect } from "./spells/incendiaryCloud.js";
+import { insectPlagueEffect } from "./spells/insectPlague.js";
 import { invisibilityEffect } from "./spells/invisibility.js";
 import { irresistibleDanceEffect } from "./spells/irresistibleDance.js";
 import { lightEffect } from "./spells/light.js";
@@ -248,8 +250,9 @@ export async function spellEffectAdjustment(document) {
       document = beaconofHopeEffect(document);
       break;
     }
+    case "Evard's Black Tentacles":
     case "Black Tentacles": {
-      document = blackTentaclesEffect(document);
+      document = await blackTentaclesEffect(document);
       break;
     }
     case "Bless": {
@@ -459,6 +462,14 @@ export async function spellEffectAdjustment(document) {
     }
     case "Ice Knife": {
       document = await iceKnifeEffect(document);
+      break;
+    }
+    case "Incendiary Cloud": {
+      document = await incendiaryCloudEffect(document);
+      break;
+    }
+    case "Insect Plague": {
+      document = await insectPlagueEffect(document);
       break;
     }
     case "Invisibility": {

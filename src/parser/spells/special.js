@@ -224,6 +224,10 @@ export function fixSpells(ddb, items) {
         spell.data.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
       }
+      case "Arms of Hadar": {
+        spell.data["target"]["type"] = "special";
+        break;
+      }
       case "False Life": {
         spell.data.actionType = "heal";
         spell.data["target"]["type"] = "self";
