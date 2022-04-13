@@ -2,9 +2,9 @@
 
 * Effects: Bladesong. (Thanks @Shyvor#3596)
 * Effects: Spells: Grease, Create Bonfire, Black Tentacles, Incendiary Cloud, Insect Plague (all require Active Auras).
+* Effects: Adjusted flame blade so created blade is now equipped.
 * Some icon improvements suggested by @Raccoomph#8480
 * Macros: some macros would fail if monks active tiles were placed.
-
 
 # 2.9.29
 

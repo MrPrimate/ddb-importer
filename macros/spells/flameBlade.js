@@ -30,6 +30,7 @@ if (args[0] === "on") {
         damage: { parts: [[`${weaponDamage}d6`, "fire"]], versatile: "" },
         weaponType: "simpleM",
         proficient: true,
+        equipped: true,
         description: DAEItem.data.description,
       },
       flags: { FlameBlade: target.id },
