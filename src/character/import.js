@@ -86,7 +86,7 @@ const getCharacterAPIEndpoint = (characterId) => {
 };
 
 const getCharacterUpdatePolicyTypes = (invert = false) => {
-  let itemTypes = [];
+  let itemTypes = ["background"];
 
   if (invert) {
     if (!game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");

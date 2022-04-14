@@ -23,6 +23,8 @@ const TYPE_MAP = {
   classes: "classes",
   class: "classes",
   monster: "monster",
+  backgrounds: "backgrounds",
+  background: "backgrounds",
 };
 
 const FILE_MAP = {
@@ -31,6 +33,7 @@ const FILE_MAP = {
   feats: ["feats.json", "class-features.json", "races.json", "general.json"],
   classes: ["classes.json"],
   monster: ["monster-features.json"],
+  backgrounds: ["backgrounds.json", "feats.json", "class-features.json", "races.json", "general.json"],
 };
 
 function sanitiseName(name) {

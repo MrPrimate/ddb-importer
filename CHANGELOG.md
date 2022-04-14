@@ -1,6 +1,8 @@
 # 2.9.31
 
 * Effects: Overtime saves now indicate if Start or End when rolled.
+* [Potentially BREAKING]: Actions are now imported as Features not Weapons by default.
+* Character: Some changes to support changes to Backgrounds in D&D 5e 1.6.0
 
 # 2.9.30
 

@@ -220,16 +220,17 @@ function replaceTag(match, p1, p2, p3, offset, string) {
     logger.warn(`Unable to tag parse ${match}`);
     return match;
   }
-  // console.warn("stuff", {
-  //   match, p1, p2, p3, offset, string
-  // })
-  // logger.debug(`Checking tag ${p2} in SRD rules`);
-  const srdMatch = CONFIG.DDBI.SRD_LOOKUP.index.find((rule) => rule.name.toLowerCase() === p2.toLowerCase());
-  if (srdMatch) {
-    return `@Compendium[dnd5e.rules.${srdMatch._id}]{${p2}}`;
+  if (p1 === "spell") {
+    // TODO: Check spells compendium for spell lookup
   } else {
-    logger.info(`Unable to find tag parse compendium match for ${match}`);
+    const srdMatch = CONFIG.DDBI.SRD_LOOKUP.index.find((rule) => rule.name.toLowerCase() === p2.toLowerCase());
+    if (srdMatch) {
+      return `@Compendium[dnd5e.rules.${srdMatch._id}]{${p2}}`;
+    } else {
+      logger.info(`Unable to find tag parse compendium match for ${match}`);
+    }
   }
+
   return p2;
 }
 
