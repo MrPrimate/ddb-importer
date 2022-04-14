@@ -6,7 +6,7 @@ export function regenerateEffect(document) {
     {
       key: "flags.midi-qol.OverTime",
       mode: 5,
-      value: `label=${document.name},turn=start,damageRoll=1,damageType=healing,condition=@attributes.hp.value > 0 && @attributes.hp.value < @attributes.hp.max`,
+      value: `label=${document.name} (Start of Turn),turn=end,damageRoll=1,damageType=healing,condition=@attributes.hp.value > 0 && @attributes.hp.value < @attributes.hp.max`,
       priority: "20",
     }
   );

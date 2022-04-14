@@ -17,7 +17,7 @@ export async function spiritGuardiansEffect(document) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       value:
-        "turn=start,label=Spirit Guardians,damageRoll=(@spellLevel)d8,damageType=radiant,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=wis,saveDamage=halfdamage,killAnim=true",
+        "turn=start,label=Spirit Guardians (Start of Turn),damageRoll=(@spellLevel)d8,damageType=radiant,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=wis,saveDamage=halfdamage,killAnim=true",
       priority: "20",
     }
   );

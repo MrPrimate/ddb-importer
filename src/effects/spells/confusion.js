@@ -6,7 +6,7 @@ export async function confusionEffect(document) {
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    value: "label=Confusion,turn=end,saveAbility=wis,saveDC=@attributes.spelldc,saveMagic=true",
+    value: "label=Confusion (End of Turn),turn=end,saveAbility=wis,saveDC=@attributes.spelldc,saveMagic=true",
     priority: "20",
   });
   effect.flags.dae.macroRepeat = "startEveryTurn";

@@ -1,3 +1,7 @@
+# 2.9.31
+
+* Effects: Overtime saves now indicate if Start or End when rolled.
+
 # 2.9.30
 
 * Effects: Bladesong. (Thanks @Shyvor#3596)
