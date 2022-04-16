@@ -725,6 +725,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       enabled: true,
     },
     {
+      name: "add-monster-effects",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-add-monster-effects"),
+      description: "[Experimental] Attempt to generate Midi-QOL effects on monster attacks/features?",
+      enabled: spellEffectModulesAvailable.hasCore,
+    },
+    {
       name: "dae-copy",
       isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
       description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE SRD/Midi SRD module).",

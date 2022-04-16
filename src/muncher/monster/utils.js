@@ -75,7 +75,7 @@ function getExtendedDamage(description, attackInfo) {
   const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
   const regainMatch = hit.match(regainExpression);
 
-  logger.debug("Damage matches: " + matches.length);
+  logger.debug("Damage matches: ", matches);
   let versatile = false;
   for (let dmg of matches) {
     let other = false;

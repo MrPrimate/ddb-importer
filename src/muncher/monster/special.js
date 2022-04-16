@@ -1,32 +1,27 @@
-import { baseItemEffect } from "../../effects/effects.js";
-import utils from "../../utils.js";
-
-function absorption(monster) {
-  monster.items.forEach((item) => {
-    const absRegEx = /is subjected to (\w+) damage, it takes no damage and instead regains a number of hit points equal to the (\w+) damage/;
-    const match = absRegEx.exec(item.data.description.value);
-    if (!item.effects) item.effects = [];
-    if (match) {
-      let effect = baseItemEffect(item, `${item.name}`);
-      effect.changes.push(
-        {
-          key: `flags.midi-qol.absorption.${match[1]}`,
-          value: "1",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          priority: 20,
-        }
-      );
-      effect.icon = "icons/svg/downgrade.svg";
-      item.effects.push(effect);
-    }
-  });
-  return monster;
-}
-
-
-// these are non-compliant monsters
+// these are non-compliant monsters that currently don't meet parsing requirements
 export function specialCases(monster) {
   switch (monster.name) {
+    case "Reduced-threat Aboleth":
+    case "Aboleth": {
+      monster.items.forEach(function(item, index) {
+        if (item.name === "Tentacle") {
+          this[index].data.formula = item.data.damage.parts[1][0];
+          this[index].data.damage.parts.splice(1, 1);
+        }
+      }, monster.items);
+      break;
+    }
+    // flumph tendrils have weird syntax for damage over time.
+    case "Flumph": {
+      monster.items.forEach(function(item, index) {
+        if (item.name === "Tendrils") {
+          this[index].data.formula = item.data.damage.parts[2][0];
+          this[index].data.damage.parts.splice(2, 1);
+          this[index].data.save.ability = "";
+        }
+      }, monster.items);
+      break;
+    }
     case "Hypnos Magen": {
       monster.flags.monsterMunch.spellList.atwill = ["Suggestion"];
       monster.flags.monsterMunch.spellList.material = false;
@@ -38,20 +33,8 @@ export function specialCases(monster) {
       monster.flags.monsterMunch.spellList.material = false;
       break;
     }
-    case "Reduced-threat Aboleth":
-    case "Aboleth":
-      monster.items.forEach((item) => {
-        if (item.name === "Tentacle") {
-          item.data.formula = item.data.damage.parts[1][0];
-          item.data.damage.parts.splice(1, 1);
-        }
-      });
-      break;
     // no default
   }
-  const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
-  if (midiQolInstalled) {
-    monster = absorption(monster);
-  }
+
   return monster;
 }

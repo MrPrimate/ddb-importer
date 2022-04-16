@@ -1025,6 +1025,14 @@ export default function () {
     default: false,
   });
 
+  game.settings.register("ddb-importer", "munching-policy-add-monster-effects", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+
   game.settings.register("ddb-importer", "munching-policy-add-ac-armor-effects", {
     scope: "player",
     config: false,

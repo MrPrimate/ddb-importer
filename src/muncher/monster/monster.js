@@ -21,12 +21,13 @@ import { getSpecialTraits } from "./features/specialtraits.js";
 import { getSpells } from "./spells.js";
 import { getType } from "./type.js";
 import { generateAC } from "./ac.js";
-
 import { newNPC } from "./templates/monster.js";
 import { specialCases } from "./special.js";
+import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js";
 
 import logger from '../../logger.js';
 
+// eslint-disable-next-line complexity
 async function parseMonster(monster, extra, useItemAC) {
   let foundryActor = duplicate(await newNPC(monster.name));
   let items = [];
@@ -171,6 +172,10 @@ async function parseMonster(monster, extra, useItemAC) {
   foundryActor.items = items;
 
   foundryActor = specialCases(foundryActor);
+  if (game.settings.get("ddb-importer", "munching-policy-add-monster-effects")) {
+    foundryActor = await monsterFeatureEffectAdjustment(foundryActor, monster);
+  }
+
   // logger.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
   // console.warn("Data:", monster);
   // console.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
