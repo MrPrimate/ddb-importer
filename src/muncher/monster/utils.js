@@ -70,12 +70,12 @@ function getExtendedDamage(description, attackInfo) {
   // console.warn(hit);
   // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
   // eslint-disable-next-line no-useless-escape
-  const damageExpression = new RegExp(/([\w]* )(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/);
+  const damageExpression = new RegExp(/((?:saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/);
   const matches = reMatchAll(damageExpression, hit) || [];
   const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
   const regainMatch = hit.match(regainExpression);
 
-  // console.warn(matches);
+  logger.debug("Damage matches: " + matches.length);
   let versatile = false;
   for (let dmg of matches) {
     let other = false;
@@ -99,7 +99,10 @@ function getExtendedDamage(description, attackInfo) {
 
       // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
       // versatile for damage
-      if (dmg[5] && dmg[5].trim() == "on a failed save" && result.damage.parts.length >= 1) {
+      if (((dmg[5] && dmg[5].trim() == "on a failed save") ||
+          (dmg[1] && dmg[1].includes("saving throw"))) &&
+        result.damage.parts.length >= 1
+      ) {
         versatile = true;
       }
       // assumption here is that there is just one field added to versatile. this is going to be rare.
