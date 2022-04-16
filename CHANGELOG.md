@@ -2,7 +2,9 @@
 
 * Effects: Overtime saves now indicate if Start or End when rolled.
 * [Potentially BREAKING]: Actions are now imported as Features not Weapons by default.
-* Character: Some changes to support changes to Backgrounds in D&D 5e 1.6.0
+* Character: Some changes to support changes to Backgrounds in D&D 5e 1.6.0.
+* All imports: improved linking to compendium items for spells and items where the data from DDB is tagged.
+* Monsters: Improved detection of save vs damage for creatures using wording like the Quasit.
 
 # 2.9.30
 
