@@ -21,7 +21,7 @@ import { characterExtras } from "./extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import { DDBCookie } from "../lib/Settings.js";
-import { loadSRDRules } from "../parser/templateStrings.js";
+import { importCacheLoad } from "../parser/templateStrings.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import {
   getCharacterImportSettings,
@@ -167,7 +167,7 @@ export async function getCharacterData(optionsIn) {
     if (!data.success) return data;
 
     // load some required content
-    await loadSRDRules();
+    await importCacheLoad();
 
     // construct the expected { character: {...} } object
     let ddb = {};

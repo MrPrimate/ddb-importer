@@ -97,6 +97,20 @@ export function getCompendiumType(type, fail = true) {
   }
 }
 
+export async function loadCompendiumIndex(name) {
+  const compendiumLabel = getCompendiumLabel(name);
+  setProperty(CONFIG.DDBI, `compendium.label.${name}`, compendiumLabel);
+  const compendium = await getCompendium(compendiumLabel);
+
+  if (compendium) {
+    const index = await compendium.getIndex();
+    setProperty(CONFIG.DDBI, `compendium.index.${name}`, index);
+    return index;
+  } else {
+    return undefined;
+  }
+}
+
 export function getCampaignId() {
   const campaignId = game.settings.get("ddb-importer", "campaign-id").split("/").pop();
 

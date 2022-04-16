@@ -1,6 +1,19 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import { generateAdventureConfig } from "../muncher/adventure.js";
+import { loadCompendiumIndex } from "../muncher/utils.js";
+
+const INDEX_COMPENDIUMS = [
+  "spell",
+  "item",
+];
+
+export async function loadDDBCompendiumIndexes() {
+  for (const i of INDEX_COMPENDIUMS) {
+    // eslint-disable-next-line no-await-in-loop
+    await loadCompendiumIndex(i);
+  }
+}
 
 export async function loadSRDRules() {
   if (hasProperty(CONFIG, "DDBI.SRD_LOOKUP.index")) return;
@@ -12,6 +25,11 @@ export async function loadSRDRules() {
     // eslint-disable-next-line require-atomic-updates
     // setProperty(CONFIG, "DDBI.SRD_LOOKUP.index", {});
   }
+}
+
+export async function importCacheLoad() {
+  await loadDDBCompendiumIndexes();
+  await loadSRDRules();
 }
 
 /**
@@ -214,14 +232,31 @@ const getNumber = (theNumber) => {
   }
 };
 
+function findMatchingTagInIndex(type, tag) {
+  const index = hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
+    ? getProperty(CONFIG.DDBI, `compendium.index.${type}`)
+    : undefined;
+  if (!index) {
+    logger.warn(`Unable to loaf compendium ${type}s`);
+    return tag;
+  }
+  const match = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === tag.replace("’", "'").toLowerCase());
+  if (match) {
+    const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
+    return `@Compendium[${label}.${match._id}]{${tag}}`;
+  }
+  logger.info(`Unable to find tag parse compendium match in ${type} for ${tag}`);
+  return tag;
+}
+
 // eslint-disable-next-line no-unused-vars
 function replaceTag(match, p1, p2, p3, offset, string) {
   if (!p2) {
     logger.warn(`Unable to tag parse ${match}`);
     return match;
   }
-  if (p1 === "spell") {
-    // TODO: Check spells compendium for spell lookup
+  if (INDEX_COMPENDIUMS.includes(p1)) {
+    return findMatchingTagInIndex(p1, p2);
   } else {
     const srdMatch = CONFIG.DDBI.SRD_LOOKUP.index.find((rule) => rule.name.toLowerCase() === p2.toLowerCase());
     if (srdMatch) {

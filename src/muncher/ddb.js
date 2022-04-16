@@ -16,7 +16,7 @@ import ThirdPartyMunch from "./adventure/thirdParty.js";
 import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
-import { loadSRDRules } from "../parser/templateStrings.js";
+import { importCacheLoad } from "../parser/templateStrings.js";
 import { updateWorldMonsters } from "./tools.js";
 
 export function getSourcesLookups(selected) {
@@ -403,7 +403,7 @@ export default class DDBMuncher extends Application {
 
   async getData() { // eslint-disable-line class-methods-use-this
     const resultData = getMuncherSettings();
-    await loadSRDRules();
+    await importCacheLoad();
     return resultData;
   }
 }
