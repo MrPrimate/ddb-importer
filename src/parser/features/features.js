@@ -356,7 +356,6 @@ export default async function parseFeatures(ddb, character) {
   const backgroundSource = utils.parseSource(backgroundFeature.definition);
   const backgroundFeat = parseFeature(backgroundFeature, ddb, character, backgroundSource, "background");
   backgroundFeat.forEach((item) => {
-    console.warn("bakgroun",item)
     items.push(item);
   });
 
