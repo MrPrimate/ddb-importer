@@ -366,8 +366,9 @@ export function fixFeatures(features) {
         break;
       }
       case "Superiority Dice": {
+        if (!hasProperty(feature, "data.damage.parts")) break;
         // feature parses as all available dice, rather than 1 per us
-        if (feature.data.damage.parts.length === 0) {
+        if (feature.data.damage?.parts?.length === 0) {
           feature.data.damage.parts = [["1d6"]];
         } else {
           feature.data.damage.parts[0][0] = `1d${feature.data.damage.parts[0][0].split("d").pop()}`;
