@@ -246,7 +246,7 @@ export function getCharacterImportSettings() {
       isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy") && daeSRDContentAvailable,
       title: "Copy Active Effect from DAE Compendiums",
       description:
-        "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD and/or Midi SRD module - not available in v9). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug. This will overwrite effects generated with the above options.",
+        "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug. This will overwrite effects generated with the above options.",
       enabled: daeInstalled && daeSRDContentAvailable,
     },
     // {
@@ -727,7 +727,7 @@ export function getMuncherSettings(includeHomebrew = true) {
     {
       name: "dae-copy",
       isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
-      description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE and SRD module - not v9).",
+      description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE SRD/Midi SRD module).",
       enabled: daeInstalled && daeSRDContentAvailable,
     }
   ];
