@@ -1,6 +1,5 @@
 import logger from "../../logger.js";
 import { fallbackDDBConfig } from "./fallbackConfig.js";
-import { getCobalt } from "../../lib/Secrets.js";
 import { download } from "../../muncher/utils.js";
 
 function directConfig() {
@@ -47,7 +46,7 @@ function proxyConfig() {
           reject(data.message);
         }
         if (debugJson) {
-          download(JSON.stringify(data), `monsters-raw.json`, "application/json");
+          download(JSON.stringify(data), `config-raw.json`, "application/json");
         }
         return data;
       })
