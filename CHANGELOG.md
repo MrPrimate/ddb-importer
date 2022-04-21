@@ -5,6 +5,8 @@
 * Character: Some changes to support changes to Backgrounds in D&D 5e 1.6.0.
 * All imports: improved linking to compendium items for spells and items where the data from DDB is tagged.
 * Monsters: Improved detection of save vs damage for creatures using wording like the Quasit.
+* Improve some homebrew feat detection.
+* DDB Config load: now uses proxy
 
 # 2.9.30
 
