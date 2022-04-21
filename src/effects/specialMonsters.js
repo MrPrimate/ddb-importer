@@ -3,7 +3,7 @@ import logger from "../logger.js";
 import { configureDependencies } from "./macros.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
-import { damageOverTimeEffect, generateDamageOverTimeEffect } from "./monsterFeatures/damageOverTimeEffect.js";
+import { damageOverTimeEffect, generateOverTimeEffect } from "./monsterFeatures/overTimeEffect.js";
 
 export function baseMonsterFeatureEffect(document, label) {
   return {
@@ -73,6 +73,15 @@ export function monsterFeatEffectModules() {
 
 var configured;
 
+export function updateItemOvertimeFlags(document, itemName, overTimeFlags) {
+  document.items.forEach(function(item, index) {
+    if (item.name === itemName) {
+      setProperty(this[index].flags, "monsterMunch.overTime", overTimeFlags);
+    }
+  }, document.items);
+  return document;
+}
+
 /**
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
@@ -90,30 +99,38 @@ export async function monsterFeatureEffectAdjustment(document, monster) {
 
   const name = document.flags.ddbimporter.originalName || document.name;
 
-  // absorbtion
+  // absorbtion on monster
   document = absorptionEffect(document);
-
-  // damage over time effects
-  document.items.forEach(function(item, index) {
-    this[index] = generateDamageOverTimeEffect(item, document, monster);
-  }, document.items);
 
   // hardcoded effects
   switch (name) {
+    // case "Colossus of Akros": {
+    //   document = updateItemOvertimeFlags(document, "Flames of Akros (Recharge 6)", { damage: "4d8" });
+    //   break;
+    // }
     case "Flumph": {
-      document.items.forEach(function(item, index) {
-        if (item.name === "Tendrils") {
-          setProperty(item.flags, "monsterMunch.overTime.damage", "1d4");
-          setProperty(item.flags, "monsterMunch.overTime.damageType", "acid");
-          setProperty(item.flags, "monsterMunch.overTime.durationSeconds", 60);
-          this[index] = generateDamageOverTimeEffect(item, document, monster);
-        }
-      }, document.items);
-
+      // document = updateItemOvertimeFlags(document, "Flames of Akros (Recharge 6)", { damage: "1d4", damageType: "acid", durationSeconds: 60 });
+      // document.items.forEach(function(item, index) {
+      //   if (item.name === "Tendrils") {
+      //     // adjustments for damage over time
+      //     setProperty(item.flags, "monsterMunch.overTime.damage", "1d4");
+      //     setProperty(item.flags, "monsterMunch.overTime.damageType", "acid");
+      //     setProperty(item.flags, "monsterMunch.overTime.durationSeconds", 60);
+      //   }
+      // }, document.items);
+      break;
+    }
+    case "Hybrid Poisoner": {
+      // document = updateItemOvertimeFlags(document, "Flames of Akros (Recharge 6)", { damage: "1d4", damageType: "fire", durationSeconds: 60 });
       break;
     }
     // no default
   }
+
+  // damage over time effects
+  document.items.forEach(function(item, index) {
+    this[index] = generateOverTimeEffect(item, document, monster);
+  }, document.items);
 
   return document;
 }

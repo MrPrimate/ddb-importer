@@ -66,6 +66,7 @@ function getExtendedDamage(description, attackInfo) {
   const hitIndex = description.indexOf("Hit:");
   let hit = description;
   if (hitIndex > 0) hit = description.slice(hitIndex);
+  hit = hit.split("At the end of each")[0].split("At the start of each")[0];
   hit = hit.replace(/[–-–−]/g, "-");
   // console.warn(hit);
   // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser

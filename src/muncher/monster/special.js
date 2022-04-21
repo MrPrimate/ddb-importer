@@ -15,8 +15,10 @@ export function specialCases(monster) {
     case "Flumph": {
       monster.items.forEach(function(item, index) {
         if (item.name === "Tendrils") {
-          this[index].data.formula = item.data.damage.parts[2][0];
-          this[index].data.damage.parts.splice(2, 1);
+          if (item.data.damage.parts.length > 2) {
+            this[index].data.formula = item.data.damage.parts[2][0];
+            this[index].data.damage.parts.splice(2, 1);
+          }
           this[index].data.save.ability = "";
         }
       }, monster.items);
