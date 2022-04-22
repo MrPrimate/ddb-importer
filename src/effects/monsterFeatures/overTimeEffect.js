@@ -135,7 +135,7 @@ function effectCleanup(document, actor, monster, effect) {
     let overTimeFlags = hasProperty(actor, "flags.monsterMunch.overTime") ? getProperty(actor, "flags.monsterMunch.overTime") : [];
     overTimeFlags.push(document.name);
     setProperty(actor, "flags.monsterMunch.overTime", overTimeFlags);
-    console.warn(`ITEM OVER TIME EFFECT: ${actor.name}, ${document.name}`);
+    // console.warn(`ITEM OVER TIME EFFECT: ${actor.name}, ${document.name}`);
     logger.debug(`Generating damage over time effect for ${actor.name}, ${actor.name}`);
   }
   return { document, actor, monster };
