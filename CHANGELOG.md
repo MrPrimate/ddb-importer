@@ -7,6 +7,7 @@
 * Monsters: Improved detection of save vs damage for creatures using wording like the Quasit.
 * Improve some homebrew feat detection.
 * DDB Config load: now uses proxy
+* Items: will now add attunement requirements to the bottom of the description block.
 
 # 2.9.30
 

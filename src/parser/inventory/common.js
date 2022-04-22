@@ -5,8 +5,12 @@ export function getDescription(data) {
   const chatSnippet = data.definition.snippet ? data.definition.snippet : "";
   const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
+  const attunementText = data.definition.canAttune && data.definition.attunementDescription && data.definition.attunementDescription !== ""
+    ? `<div class="item-attunement"><i>Requires attunement by a ${data.definition.attunementDescription}</i></div>`
+    : "";
+
   return {
-    value: parseTags(data.definition.description),
+    value: parseTags(data.definition.description + attunementText),
     chat: chatAdd ? parseTags(chatSnippet) : "",
     unidentified: data.definition.type,
   };
