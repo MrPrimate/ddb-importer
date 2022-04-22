@@ -3,6 +3,7 @@ import utils from "../../utils.js";
 import { getFeatSave, getDamage } from "../../muncher/monster/utils.js";
 import DICTIONARY from "../../dictionary.js";
 import { generateStatusEffectChange } from "../effects.js";
+import logger from "../../logger.js";
 
 const DEFAULT_DURATION = 60;
 
@@ -26,10 +27,14 @@ function startOrEnd(text) {
 }
 
 function getDuration(text) {
-  const re = /for (\d+) minute/;
+  const re = /for (\d+) (minute|hour)/;
   const match = text.match(re);
   if (match) {
-    return match[1] * 60;
+    let minutes = parseInt(match[1]) * 60;
+    if (match[2] === "hour") {
+      minutes *= 60;
+    }
+    return minutes;
   } else {
     const reRounds = /for (\d+) round/;
     const roundMatch = text.match(reRounds);
@@ -69,7 +74,7 @@ function getDuration(text) {
 // DC 20 Strength saving throw or be pulled up to 25 feet toward the balor.
 // DC 11 Constitution saving throw or be poisoned until the end of the target’s next turn.
 // DC 14 Wisdom saving throw or be frightened of the quori for 1 minute.
-
+// DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.
 
 function getSpecialDuration (effect, match) {
   // minutes
@@ -91,7 +96,7 @@ function generateConditionEffect(effect, text) {
   text = text.replace("’", "'");
   const conditionSearch = /DC (\d+) (\w+) saving throw(?:,)? or (be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(\w+)?\s?(?:for (\d+) (minute))?(.*)?(?:.|$)/;
   const match = text.match(conditionSearch);
-  console.warn("condition status", match);
+  // console.warn("condition status", match);
   if (match) {
     results.success = true;
     results.save = {
@@ -100,9 +105,11 @@ function generateConditionEffect(effect, text) {
       scaling: "flat",
     };
     // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
-    const group4Condition = DICTIONARY.character.damageTypes
-      .filter((type) => type.type === 1)
-      .find((type) => type.name.toLowerCase() === match[4].toLowerCase() || type.value.toLowerCase() === match[4].toLowerCase());
+    const group4Condition = match[4]
+      ? DICTIONARY.character.damageTypes
+        .filter((type) => type.type === 1)
+        .find((type) => type.name.toLowerCase() === match[4].toLowerCase() || type.value.toLowerCase() === match[4].toLowerCase())
+      : undefined;
     if (group4Condition) {
       results.condition = group4Condition.value;
       effect.changes.push(generateStatusEffectChange(group4Condition.name));
@@ -122,40 +129,43 @@ function getOvertimeDamage(text) {
   return undefined;
 }
 
+function effectCleanup(document, actor, monster, effect) {
+  if (effect.changes.length > 0) {
+    document.effects.push(effect);
+    let overTimeFlags = hasProperty(actor, "flags.monsterMunch.overTime") ? getProperty(actor, "flags.monsterMunch.overTime") : [];
+    overTimeFlags.push(document.name);
+    setProperty(actor, "flags.monsterMunch.overTime", overTimeFlags);
+    console.warn(`ITEM OVER TIME EFFECT: ${actor.name}, ${document.name}`);
+    logger.debug(`Generating damage over time effect for ${actor.name}, ${actor.name}`);
+  }
+  return { document, actor, monster };
+}
+
 export function generateOverTimeEffect(document, actor, monster) {
-  console.warn("Generating damage over time effect for", document.name);
+  logger.debug("Generating damage over time effect for", document.name);
   if (!document.effects) document.effects = [];
   let effect = baseMonsterFeatureEffect(document, `${document.name}`);
-
+  // add any condition effects
   effect = generateConditionEffect(effect, document.data.description.value);
 
-  const turn = startOrEnd(document.data.description.value);
-  console.warn("turn", turn);
+  const durationSeconds = hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
+    ? getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
+    : getDuration(document.data.description.value);
+  setProperty(effect, "duration.seconds", durationSeconds);
 
-  if (!turn) {
-    if (effect.changes.length > 0) document.effects.push(effect);
-    return document;
-  }
+  const turn = startOrEnd(document.data.description.value);
+  if (!turn) return effectCleanup(document, actor, monster, effect);
 
   const save = getFeatSave(document.data.description.value, {});
+  if (!save.dc) return effectCleanup(document, actor, monster, effect);
 
-  if (!save.dc) {
-    if (effect.changes.length > 0) document.effects.push(effect);
-    return document;
-  }
-
-  console.warn("save", save);
 
   const saveAbility = save.ability;
   const dc = save.dc;
 
   const dmg = getOvertimeDamage(document.data.description.value);
 
-  console.warn(dmg);
-  if (!dmg) {
-    if (effect.changes.length > 0) document.effects.push(effect);
-    return document;
-  }
+  if (!dmg) return effectCleanup(document, actor, monster, effect);
 
   const damage = hasProperty(document.flags, "monsterMunch.overTime.damage")
     ? getProperty(document.flags, "monsterMunch.overTime.damage")
@@ -163,34 +173,23 @@ export function generateOverTimeEffect(document, actor, monster) {
       total = [total, `${current[0]}[${current[1]}]`].join(" + ");
       return total;
     }, "");
-    // : document.data.damage.versatile.split("[")[0];
 
   const damageType = hasProperty(document.flags, "monsterMunch.overTime.damageType")
     ? getProperty(document.flags, "monsterMunch.overTime.damageType")
     : dmg.parts[0][1];
-    // : document.data.damage.versatile.plit("[")[1].split("]")[0];s
 
   const saveRemove = hasProperty(document.flags, "monsterMunch.overTime.saveRemove")
     ? getProperty(document.flags, "monsterMunch.overTime.saveRemove")
     : true;
-
-  const durationSeconds = hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
-    ? getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
-    : getDuration(document.data.description.value);
 
   const saveDamage = hasProperty(document.flags, "monsterMunch.overTime.saveDamage")
     ? getProperty(document.flags, "monsterMunch.overTime.saveDamage")
     : "nodamage";
 
   effect.changes.push(overTime({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
-  setProperty(effect, "duration.seconds", durationSeconds);
-
-  setProperty(actor.flags, "monsterMunch.overTimeEffect", true);
-
   document.effects.push(effect);
 
-  console.warn(`ITEM DAMAGE OVER TIME: ${actor.name}`, document);
-  return document;
+  return effectCleanup(document, actor, monster, effect);
 }
 
 

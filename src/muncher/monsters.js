@@ -55,6 +55,7 @@ async function getMonsterData(ids) {
       .then((data) => {
         if (!data.success) {
           munchNote(`API Failure: ${data.message}`);
+          logger.error(`API Failure:`, data.message);
           reject(data.message);
         }
         if (debugJson) {
@@ -74,8 +75,10 @@ async function getMonsterData(ids) {
           false,
           true
         );
-        if (data.failedMonsterNames && data.failedMonsterNames.length !== 0)
-          logger.error(`Failed to parse ${data.failedMonsterNames}`);
+        logger.info(`Parsed ${data.actors.length} monsters, failed ${data.failedMonsterNames.length} monsters`);
+        if (data.failedMonsterNames && data.failedMonsterNames.length !== 0) {
+          logger.error(`Failed to parse`, data.failedMonsterNames);
+        }
         resolve(data.actors);
       })
       .catch((error) => reject(error));

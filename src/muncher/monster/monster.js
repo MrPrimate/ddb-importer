@@ -196,6 +196,7 @@ export async function parseMonsters(monsterData, extra = false) {
 
   monsterData.forEach((monster) => {
     try {
+      logger.debug(`Attempting to parse ${monster.name}`);
       const foundryActor = parseMonster(monster, extra, useItemAC);
       foundryActors.push(foundryActor);
     } catch (err) {
