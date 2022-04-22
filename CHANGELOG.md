@@ -4,10 +4,11 @@
 * [Potentially BREAKING]: Actions are now imported as Features not Weapons by default.
 * Character: Some changes to support changes to Backgrounds in D&D 5e 1.6.0.
 * All imports: improved linking to compendium items for spells and items where the data from DDB is tagged.
-* Monsters: Improved detection of save vs damage for creatures using wording like the Quasit.
 * Improve some homebrew feat detection.
 * DDB Config load: now uses proxy
 * Items: will now add attunement requirements to the bottom of the description block.
+* Monsters: Improved detection of save vs damage for creatures using wording like the Quasit.
+* [EXPERIMENTAL] Monsters: New option to generate effects on monster features. This tries to generate effects where there might be conditions like "DC 18 Strength saving throw or be knocked prone." In my testing it targets 503 monsters. This should target most basic varieties of these saves, for example Poison on Drow crossbow. It won't do the fancier elements right now, or things whch might require a macro. It will try and create Overtime effects for sustained damage, e.g. Flumph tentacles.
 
 # 2.9.30
 
