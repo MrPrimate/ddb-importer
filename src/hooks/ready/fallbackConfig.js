@@ -702,6 +702,7 @@ export const fallbackDDBConfig = {
     { id: 69, name: "Leonin" },
     { id: 70, name: "Grippli" },
     { id: 71, name: "Skitterwidget" },
+    { id: 72, name: "Ziklight" },
   ],
   restoreTypes: [
     { id: 1, name: "Full", description: "Restore life with full HP" },
