@@ -1,3 +1,7 @@
+# 2.9.32
+
+* Character Importer: Arms of the Astral Self generated extra damage.
+
 # 2.9.31
 
 * Effects: Overtime saves now indicate if Start or End when rolled.

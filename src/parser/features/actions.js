@@ -154,7 +154,9 @@ function getDamage(action) {
 }
 
 const levelScaleInfusions = [
-  "Unarmed Strike"
+  "Unarmed Strike",
+  "Arms of the Astral Self (WIS)",
+  "Arms of the Astral Self (DEX)",
 ];
 
 /**
