@@ -1,6 +1,7 @@
 # 2.9.32
 
 * Character Importer: Arms of the Astral Self generated extra damage.
+* Fallback language added for Ziklight.
 
 # 2.9.31
 
