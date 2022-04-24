@@ -47,6 +47,8 @@ const SUPPORTED_FLAG_GROUPS = [
   "gm-notes",
   "greenFlameBladeChoice",
   "boomingBladeChoice",
+  "GritNGlory",
+  "gng",
 ];
 
 const EFFECTS_IGNORE_FLAG_GROUPS = [
