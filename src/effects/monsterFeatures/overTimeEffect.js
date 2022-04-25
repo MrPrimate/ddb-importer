@@ -146,24 +146,24 @@ export function generateOverTimeEffect(document, actor, monster) {
   if (!document.effects) document.effects = [];
   let effect = baseMonsterFeatureEffect(document, `${document.name}`);
   // add any condition effects
-  effect = generateConditionEffect(effect, document.data.description.value);
+  effect = generateConditionEffect(effect, document.system.description.value);
 
   const durationSeconds = hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     ? getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
-    : getDuration(document.data.description.value);
+    : getDuration(document.system.description.value);
   setProperty(effect, "duration.seconds", durationSeconds);
 
-  const turn = startOrEnd(document.data.description.value);
+  const turn = startOrEnd(document.system.description.value);
   if (!turn) return effectCleanup(document, actor, monster, effect);
 
-  const save = getFeatSave(document.data.description.value, {});
+  const save = getFeatSave(document.system.description.value, {});
   if (!save.dc) return effectCleanup(document, actor, monster, effect);
 
 
   const saveAbility = save.ability;
   const dc = save.dc;
 
-  const dmg = getOvertimeDamage(document.data.description.value);
+  const dmg = getOvertimeDamage(document.system.description.value);
 
   if (!dmg) return effectCleanup(document, actor, monster, effect);
 
