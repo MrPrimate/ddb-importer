@@ -4,7 +4,7 @@
 
 They require the cobalt token setting to be set.
 
-# My Core settings screen won't open
+## My Core settings screen won't open
 
 Open the Browser Developer Console (F12) and run the following:
 
@@ -12,13 +12,27 @@ Open the Browser Developer Console (F12) and run the following:
 DDBImporter.resetSecrets();
 ```
 
-# I tried the custom proxy and want to reset to use yours
+## I tried the custom proxy and want to reset to use yours
 
 Open the Browser Developer Console (F12) and run the following:
 
 ```javascript
 DDBImporter.resetProxy();
 ```
+
+## I see the message "Unable to open the Compendium"
+
+Open "Configure Settings" -> "Module Settings" -> "D&D Beyond Importer" -> "Compendiums".
+
+Ensure the Compendiums listed exist and are all different.
+
+Default compendiums are called things like "DDB Spells".
+
+If they are all the same, or are the first compendium in the list, chances are that Foundry has been unable to create default or select the chosen compendium.
+
+Create compendiums if required, select them in the drop downs then click "Save".
+
+![](./docs/compendiums.png)
 
 ## I get a key does not exist error!
 
@@ -28,8 +42,7 @@ I get an error along the lines of:
 The key xxxx does not exist in the EmbeddedCollection Collection
 ```
 
-This is a core Foundry bug and will hopefully be fixed in version 9 of the software. You can find out more [here](https://gitlab.com/foundrynet/foundryvtt/-/issues/5312) and [here](https://gitlab.com/foundrynet/foundryvtt/-/issues/5309).
-
+This is a core Foundry bug in v8 and is fixed in version 9 of the software.
 
 ## Clerics and Druids don't get their un-prepared spells
 
@@ -54,7 +67,7 @@ It might also be because your AC settings in the "Active Effects" tab is incorre
 
 First try adding a level and removing it, sometimes the underlying JSON can get stuck on another level.
 
-# Why do not all monsters have descriptions
+## Why do not all monsters have descriptions
 
 It uses the data that comes off the Encounter Builder as it's provide it's in JSON/structured way which makes parsing quick and "easy". However, not all the monsters there have the description that is on the full monster page.
 
