@@ -22,6 +22,7 @@ const TYPE_MAP = {
   feat: "feats",
   classes: "classes",
   class: "classes",
+  subclass: "classes",
   monster: "monster",
   backgrounds: "backgrounds",
   background: "backgrounds",
@@ -90,6 +91,12 @@ function looseMatch(item, typeValue) {
   if (startsMatchEntry) return startsMatchEntry.path;
   const startsMatchItem = iconMap[typeValue].find((entry) => sanitiseName(entry.name).split(":")[0].trim().startsWith(sanitisedName.split(":")[0].trim()));
   if (startsMatchItem) return startsMatchItem.path;
+
+  if (item.type === "subclass" && item.data.classIdentifier) {
+    const sanitisedClassName = sanitiseName(item.data.classIdentifier);
+    const subClassMatch = iconMap[typeValue].find((entry) => sanitiseName(entry.name).startsWith(sanitisedClassName));
+    if (subClassMatch) return subClassMatch.path;
+  }
 
   return null;
 }
