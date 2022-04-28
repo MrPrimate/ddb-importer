@@ -237,7 +237,7 @@ function findMatchingTagInIndex(type, tag) {
     ? getProperty(CONFIG.DDBI, `compendium.index.${type}`)
     : undefined;
   if (!index) {
-    logger.warn(`Unable to loaf compendium ${type}s`);
+    logger.warn(`Unable to load compendium ${type}s`);
     return tag;
   }
   const match = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === tag.replace("’", "'").toLowerCase());
@@ -278,9 +278,9 @@ function parseSRDLinks(text) {
   ]
     .flat()
     .forEach((entry) => {
-      const linkRegEx = new RegExp(`${entry.name}`, "ig");
-      function replaceRule(match) {
-        return `@Compendium[${entry.compendium}.${entry.documentName}]{${match}}`;
+      const linkRegEx = new RegExp(`(^| |\\(|\\[|>)(${entry.name})( |\\)|\\]|\\.|,|$|\n|<)`, "ig");
+      function replaceRule(match, p1, p2, p3) {
+        return `${p1}@Compendium[${entry.compendium}.${entry.documentName}]{${p2}}${p3}`;
       }
       text = text.replaceAll(linkRegEx, replaceRule);
     });
