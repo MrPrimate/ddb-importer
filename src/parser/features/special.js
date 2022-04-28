@@ -219,134 +219,8 @@ export function fixFeatures(features) {
   features.forEach((feature) => {
     const name = feature.flags.ddbimporter.originalName || feature.name;
     switch (name) {
-      case "Channel Divinity: Radiance of the Dawn":
-        feature.data.damage = {
-          parts: [["2d10[radiant] + @classes.cleric.levels", "radiant"]],
-          versatile: "",
-          value: "",
-        };
-        break;
-      case "Surprise Attack":
-        feature.data.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
-        feature.data.activation["type"] = "special";
-        break;
-      case "Eldritch Cannon: Force Ballista":
-        feature.data["target"]["value"] = 1;
-        feature.data["target"]["type"] = "creature";
-        feature.data["range"]["value"] = 120;
-        feature.data["range"]["units"] = "ft";
-        feature.data.ability = "int";
-        feature.data.actionType = "rsak";
-        feature.data.chatFlavor = "On hit pushed 5 ft away.";
-        feature.data.damage = { parts: [["2d8[force]", "force"]], versatile: "", value: "" };
-        break;
-      case "Eldritch Cannon: Protector":
-        feature.data["target"]["units"] = "any";
-        feature.data["target"]["type"] = "ally";
-        feature.data["range"]["value"] = 10;
-        feature.data.ability = "int";
-        feature.data.actionType = "heal";
-        feature.data.damage = { parts: [["1d8 + @mod", "temphp"]], versatile: "", value: "" };
-        break;
-      case "Eldritch Cannon: Flamethrower":
-        feature.data.damage = { parts: [["2d8[fire]", "fire"]], versatile: "", value: "" };
-        break;
-      case "Second Wind":
-        feature.data.damage = {
-          parts: [["1d10[healing] + @classes.fighter.levels", "healing"]],
-          versatile: "",
-          value: "",
-        };
-        feature.data.actionType = "heal";
-        feature.data["target"]["type"] = "self";
-        feature.data["range"]["type"] = "self";
-        break;
-      case "Healing Hands": {
-        feature.data.damage = {
-          parts: [["@details.level[healing]", "healing"]],
-          versatile: "",
-          value: "",
-        };
-        feature.data.actionType = "heal";
-        feature.data["target"]["type"] = "creature";
-        feature.data["range"] = {
-          type: "touch",
-          value: null,
-          long: null,
-          units: "touch"
-        };
-        break;
-      }
-      case "Dark One’s Blessing":
-      case "Dark One's Blessing": {
-        feature.data.damage = { parts: [["@classes.warlock.level + @mod", "temphp"]], versatile: "", value: "" };
-        feature.data.actionType = "heal";
-        feature.data.ability = "cha";
-        feature.data["target"]["type"] = "self";
-        feature.data["range"]["type"] = "self";
-        feature.data.activation.condition = "Reduce a hostile creature to 0 HP";
-        break;
-      }
-      case "Stone's Endurance":
-      case "Stone’s Endurance":
-        feature.data.damage = { parts: [["1d12 + @mod", ""]], versatile: "", value: "" };
-        feature.data.actionType = "other";
-        feature.data.ability = "con";
-        feature.data["target"]["type"] = "self";
-        feature.data["range"]["type"] = "self";
-        break;
-      case "Fighting Style: Interception":
-        feature.data.damage = { parts: [["1d10 + @prof", ""]], versatile: "", value: "" };
-        feature.data["target"]["type"] = "self";
-        feature.data["range"]["type"] = "self";
-        break;
-      case "Stunning Strike":
-        feature.data.actionType = "save";
-        feature.data.save = { ability: "con", dc: null, scaling: "wis" };
-        feature.data.target = { value: null, width: null, units: "touch", type: "creature" };
-        feature.data.range.units = "ft";
-        break;
-      case "Divine Intervention":
-        feature.data.damage = { parts: [["1d100", ""]], versatile: "", value: "" };
-        feature.data.actionType = "other";
-        break;
-      // add a rage effect
-      case "Starry Form: Archer":
-        feature.data.actionType = "rsak";
-        feature.data["target"]["value"] = 1;
-        feature.data["target"]["type"] = "creature";
-        feature.data["range"]["units"] = "ft";
-        break;
-      case "Starry Form: Chalice":
-        feature.data.damage.parts[0][1] = "healing";
-        feature.data.actionType = "heal";
-        feature.data["target"]["value"] = 1;
-        feature.data["target"]["type"] = "ally";
-        feature.data["range"]["value"] = 30;
-        feature.data["range"]["units"] = "ft";
-        feature.data.activation.type = "special";
-        break;
-      case "Starry Form: Dragon":
-        break;
-      case "Rage": {
-        feature.data.target = {
-          value: null,
-          width: null,
-          units: "",
-          type: "self",
-        };
-        feature.data.duration = {
-          value: 1,
-          units: "minute",
-        };
-        break;
-      }
-      case "Sneak Attack": {
-        feature.data.damage = { parts: [["(ceil(@classes.rogue.levels /2))d6", ""]], versatile: "", value: "" };
-        if (!feature.flags.ddbimporter.action) {
-          feature.data.actionType = "other";
-          feature.data.activation = { type: "special", cost: 0, condition: "" };
-        }
+      case "Arcane Propulsion Armor Gauntlet": {
+        feature.data.damage.parts[0][0] += " + @mod";
         break;
       }
       case "Bardic Inspiration": {
@@ -361,10 +235,183 @@ export function fixFeatures(features) {
           units: "",
           type: "creature",
         };
-        feature.data["range"]["value"] = 60;
-        feature.data["range"]["units"] = "ft";
+        feature.data.range.value = 60;
+        feature.data.range.units = "ft";
         break;
       }
+      case "Channel Divinity: Radiance of the Dawn":
+        feature.data.damage = {
+          parts: [["2d10[radiant] + @classes.cleric.levels", "radiant"]],
+          versatile: "",
+          value: "",
+        };
+        break;
+      case "Dark One’s Blessing":
+      case "Dark One's Blessing": {
+        feature.data.damage = { parts: [["@classes.warlock.level + @mod", "temphp"]], versatile: "", value: "" };
+        feature.data.actionType = "heal";
+        feature.data.ability = "cha";
+        feature.data.target.type = "self";
+        feature.data.range.type = "self";
+        feature.data.activation.condition = "Reduce a hostile creature to 0 HP";
+        break;
+      }
+      case "Deflect Missiles": {
+        feature.data.damage = { parts: [["1d10 + @mod + @classes.monk.levels"]], versatile: "", value: "" };
+        break;
+      }
+      case "Divine Intervention":
+        feature.data.damage = { parts: [["1d100", ""]], versatile: "", value: "" };
+        feature.data.actionType = "other";
+        break;
+      case "Eldritch Cannon: Force Ballista":
+        feature.data.target.value = 1;
+        feature.data.target.type = "creature";
+        feature.data.range.value = 120;
+        feature.data.range.units = "ft";
+        feature.data.ability = "int";
+        feature.data.actionType = "rsak";
+        feature.data.chatFlavor = "On hit pushed 5 ft away.";
+        feature.data.damage = { parts: [["2d8[force]", "force"]], versatile: "", value: "" };
+        break;
+      case "Eldritch Cannon: Flamethrower":
+        feature.data.damage = { parts: [["2d8[fire]", "fire"]], versatile: "", value: "" };
+        break;
+      case "Eldritch Cannon: Protector":
+        feature.data.target.units = "any";
+        feature.data.target.type = "ally";
+        feature.data.range.value = 10;
+        feature.data.ability = "int";
+        feature.data.actionType = "heal";
+        feature.data.damage = { parts: [["1d8 + @mod", "temphp"]], versatile: "", value: "" };
+        break;
+      case "Extra Attack": {
+        feature.data.activation = { type: "", cost: 0, condition: "" };
+        feature.data.actionType = "";
+        feature.data.range.value = null;
+        break;
+      }
+      case "Fighting Style: Interception":
+        feature.data.damage = { parts: [["1d10 + @prof", ""]], versatile: "", value: "" };
+        feature.data.target.type = "self";
+        feature.data.range.type = "self";
+        break;
+      case "Genie's Vessel: Genie's Wrath (Dao)": {
+        feature.data.activation.type = "special";
+        feature.data.target.value = 1;
+        feature.data.target.type = "creature";
+        feature.data.range.units = "spec";
+        feature.data.actionType = "util";
+        feature.data.duration.units = "inst";
+        feature.data.damage = { parts: [["@prof", "bludgeoning"]], versatile: "", value: "" };
+        break;
+      }
+      case "Healing Hands": {
+        feature.data.damage = {
+          parts: [["@details.level[healing]", "healing"]],
+          versatile: "",
+          value: "",
+        };
+        feature.data.actionType = "heal";
+        feature.data.target.type = "creature";
+        feature.data.range = {
+          type: "touch",
+          value: null,
+          long: null,
+          units: "touch"
+        };
+        break;
+      }
+      case "Healing Light": {
+        feature.data.damage = { parts: [["1d6"]], versatile: "", value: "" };
+        break;
+      }
+      case "Polearm Master - Bonus Attack": {
+        feature.data.actionType = "mwak";
+        feature.data.range = { value: 10, long: null, units: "ft" };
+        break;
+      }
+      case "Psionic Power: Recovery": {
+        feature.data.damage = { parts: [], versatile: "", value: "" };
+        setProperty(feature, "data.consume.amount", -1);
+        break;
+      }
+      case "Rage": {
+        feature.data.target = {
+          value: null,
+          width: null,
+          units: "",
+          type: "self",
+        };
+        feature.data.duration = {
+          value: 1,
+          units: "minute",
+        };
+        break;
+      }
+      case "Second Wind":
+        feature.data.damage = {
+          parts: [["1d10[healing] + @classes.fighter.levels", "healing"]],
+          versatile: "",
+          value: "",
+        };
+        feature.data.actionType = "heal";
+        feature.data.target.type = "self";
+        feature.data.range.type = "self";
+        break;
+      case "Shifting": {
+        feature.data.actionType = "heal";
+        feature.data.target.type = "self";
+        feature.data.range = { value: null, long: null, units: "self" };
+        feature.data.duration.units = "inst";
+        feature.data.ability = "con";
+        feature.data.actionType = "heal";
+        feature.data.damage = { parts: [["@details.level + max(1,@mod)", "temphp"]], versatile: "", value: "" };
+        break;
+      }
+      case "Sneak Attack": {
+        feature.data.damage = { parts: [["(ceil(@classes.rogue.levels /2))d6", ""]], versatile: "", value: "" };
+        if (!feature.flags.ddbimporter.action) {
+          feature.data.actionType = "other";
+          feature.data.activation = { type: "special", cost: 0, condition: "" };
+        }
+        break;
+      }
+      case "Surprise Attack":
+        feature.data.damage = { parts: [["2d6", ""]], versatile: "", value: "" };
+        feature.data.activation.type = "special";
+        break;
+      case "Starry Form: Archer":
+        feature.data.actionType = "rsak";
+        feature.data.target.value = 1;
+        feature.data.target.type = "creature";
+        feature.data.range.units = "ft";
+        break;
+      case "Starry Form: Chalice":
+        feature.data.damage.parts[0][1] = "healing";
+        feature.data.actionType = "heal";
+        feature.data.target.value = 1;
+        feature.data.target.type = "ally";
+        feature.data.range.value = 30;
+        feature.data.range.units = "ft";
+        feature.data.activation.type = "special";
+        break;
+      case "Starry Form: Dragon":
+        break;
+      case "Stone's Endurance":
+      case "Stone’s Endurance":
+        feature.data.damage = { parts: [["1d12 + @mod", ""]], versatile: "", value: "" };
+        feature.data.actionType = "other";
+        feature.data.ability = "con";
+        feature.data.target.type = "self";
+        feature.data.range.type = "self";
+        break;
+      case "Stunning Strike":
+        feature.data.actionType = "save";
+        feature.data.save = { ability: "con", dc: null, scaling: "wis" };
+        feature.data.target = { value: null, width: null, units: "touch", type: "creature" };
+        feature.data.range.units = "ft";
+        break;
       case "Superiority Dice": {
         if (!hasProperty(feature, "data.damage.parts")) break;
         // feature parses as all available dice, rather than 1 per us
@@ -373,44 +420,6 @@ export function fixFeatures(features) {
         } else {
           feature.data.damage.parts[0][0] = `1d${feature.data.damage.parts[0][0].split("d").pop()}`;
         }
-        break;
-      }
-      case "Deflect Missiles": {
-        feature.data.damage = { parts: [["1d10 + @mod + @classes.monk.levels"]], versatile: "", value: "" };
-        break;
-      }
-      case "Polearm Master - Bonus Attack": {
-        feature.data.actionType = "mwak";
-        feature.data.range = { value: 10, long: null, units: "ft" };
-        break;
-      }
-      case "Healing Light": {
-        feature.data.damage = { parts: [["1d6"]], versatile: "", value: "" };
-        break;
-      }
-      case "Arcane Propulsion Armor Gauntlet": {
-        feature.data.damage.parts[0][0] += " + @mod";
-        break;
-      }
-      case "Genie's Vessel: Genie's Wrath (Dao)": {
-        feature.data.activation.type = "special";
-        feature.data["target"]["value"] = 1;
-        feature.data["target"]["type"] = "creature";
-        feature.data["range"]["units"] = "spec";
-        feature.data.actionType = "util";
-        feature.data.duration.units = "inst";
-        feature.data.damage = { parts: [["@prof", "bludgeoning"]], versatile: "", value: "" };
-        break;
-      }
-      case "Psionic Power: Recovery": {
-        feature.data.damage = { parts: [], versatile: "", value: "" };
-        setProperty(feature, "data.consume.amount", -1);
-        break;
-      }
-      case "Extra Attack": {
-        feature.data.activation = { type: "", cost: 0, condition: "" };
-        feature.data.actionType = "";
-        feature.data["range"]["value"] = null;
         break;
       }
       // no default
