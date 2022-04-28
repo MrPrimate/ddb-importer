@@ -4,7 +4,7 @@
 * Improve detection of skill links into compendiums.
 * Subclass creation for D&D 5e v1.6.
 * Class and subclass add an identifier in D&D 5e v1.6.
-
+* Experimental Class parsing: now basic support for new subclasses. Subclasses are now named "Subclass (Class name)".
 
 # 2.9.32
 
