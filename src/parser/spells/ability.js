@@ -11,15 +11,16 @@ export function convertSpellCastingAbilityId(spellCastingAbilityId) {
 }
 
 // search through classinfo and determine spellcasting ability
-export function getSpellCastingAbility(classInfo) {
+export function getSpellCastingAbility(classInfo, checkSubclass = true, onlySubclass = false) {
   let spellCastingAbility = undefined;
-  if (hasSpellCastingAbility(classInfo.definition.spellCastingAbilityId)) {
+  if (!onlySubclass && hasSpellCastingAbility(classInfo.definition.spellCastingAbilityId)) {
     spellCastingAbility = convertSpellCastingAbilityId(classInfo.definition.spellCastingAbilityId);
   } else if (
+    checkSubclass &&
     classInfo.subclassDefinition &&
     hasSpellCastingAbility(classInfo.subclassDefinition.spellCastingAbilityId)
   ) {
-    // Arcane Trickster has spellcasting ID granted here
+    // e.g. Arcane Trickster has spellcasting ID granted here
     spellCastingAbility = convertSpellCastingAbilityId(classInfo.subclassDefinition.spellCastingAbilityId);
   } else {
     // special cases: No spellcaster, but can cast spells like totem barbarian, default to wis

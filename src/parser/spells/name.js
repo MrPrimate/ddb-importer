@@ -24,6 +24,6 @@ export function getName(data, character) {
   } else if (data.flags.ddbimporter.dndbeyond.nameOverride !== undefined) {
     return data.flags.ddbimporter.dndbeyond.nameOverride;
   } else {
-    return data.definition.name;
+    return data.definition.name.replace("’", "'");
   }
 }
