@@ -89,14 +89,20 @@ const getCharacterUpdatePolicyTypes = (invert = false) => {
   let itemTypes = ["background"];
 
   if (invert) {
-    if (!game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
+    if (!game.settings.get("ddb-importer", "character-update-policy-class")) {
+      itemTypes.push("class");
+      itemTypes.push("subclass");
+    }
     if (!game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
     if (!game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
     if (!game.settings.get("ddb-importer", "character-update-policy-equipment"))
       itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
     if (!game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
   } else {
-    if (game.settings.get("ddb-importer", "character-update-policy-class")) itemTypes.push("class");
+    if (game.settings.get("ddb-importer", "character-update-policy-class")) {
+      itemTypes.push("class");
+      itemTypes.push("subclass");
+    }
     if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
     if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
     if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
@@ -773,8 +779,8 @@ export default class CharacterImport extends FormApplication {
 
     // we have to break these out into class and non-class because of
     // https://gitlab.com/foundrynet/foundryvtt/-/issues/5312
-    const klassItems = items.filter((item) => item.type === "class");
-    const nonKlassItems = items.filter((item) => item.type !== "class");
+    const klassItems = items.filter((item) => ["class", "subclass"].includes(item.type));
+    const nonKlassItems = items.filter((item) => !["class", "subclass"].includes(item.type));
 
     logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, JSON.parse(JSON.stringify(klassItems)));
     await this.actor.createEmbeddedDocuments("Item", klassItems, options);
