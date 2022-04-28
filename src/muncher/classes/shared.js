@@ -3,7 +3,6 @@ import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { getImagePath } from "../import.js";
 import { generateTable } from "../table.js";
-import { getCompendiumLabel } from "../utils.js";
 import { parseTags } from "../../parser/templateStrings.js";
 
 const CLASS_TEMPLATE = {
@@ -107,6 +106,7 @@ export function getClassFeature(feature, klass, subClassName = "") {
   result.flags.ddbimporter['class'] = klass.name;
   result.flags.ddbimporter['classId'] = klass.id;
   result.flags.ddbimporter['subClass'] = subClassName;
+  result.flags.ddbimporter['parentClassId'] = klass.parentClassId;
   const requiredLevel = feature.requiredLevel ? ` ${feature.requiredLevel}` : "";
   result.data.requirements = `${klass.name}${requiredLevel}`;
 
@@ -120,7 +120,7 @@ export async function buildBaseClass(klass) {
   logger.debug(`Parsing ${klass.name}`);
   result.flags.obsidian.source.text = klass.name;
   result.type = "class";
-  result.identifier = klass.name.toLowerCase();
+  result.data.identifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
 
   let avatarUrl;
   let largeAvatarUrl;
@@ -260,35 +260,4 @@ export async function buildBaseClass(klass) {
   }
 
   return result;
-}
-
-export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreIds = []) {
-  logger.debug(`Parsing ${klass.name} features`);
-  let description = "<h3>Class Features</h3>\n\n";
-  let classFeatures = [];
-
-  const compendiumLabel = getCompendiumLabel("features");
-
-  klass.classFeatures.forEach((feature) => {
-    const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
-
-    // sort by level?
-    if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
-      const featureMatch = compendiumClassFeatures.find((match) =>
-        feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() &&
-        match.flags.ddbimporter &&
-        match.flags.ddbimporter.classId == klass.id
-      );
-      const title = (featureMatch)
-        ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>`
-        : `<p><b>${feature.name}</b></p>`;
-
-      // eslint-disable-next-line require-atomic-updates
-      description += `${title}\n${feature.description}\n\n`;
-      classFeatures.push(feature.name);
-    }
-
-  });
-
-  return description;
 }

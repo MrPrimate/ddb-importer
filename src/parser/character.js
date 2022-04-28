@@ -2,7 +2,7 @@ import getCharacter from "./character/index.js";
 import getActions from "./features/actions.js";
 import getFeatures from "./features/features.js";
 import { removeActionFeatures } from "./features/special.js";
-import getClasses from "./classes/index.js";
+import { getClasses } from "./classes/index.js";
 import { getCharacterSpells } from "./spells/getCharacterSpells.js";
 import { getItemSpells } from "./spells/getItemSpells.js";
 import { getDDBRace } from "../muncher/races/races.js";
@@ -26,7 +26,7 @@ export async function parseJson(currentActorId, ddb, resourceSelection = true) {
     logger.debug("Race parse complete");
     let features = [race, ...await getFeatures(ddb, character)];
     logger.debug("Feature parse complete");
-    let classes = getClasses(ddb, character);
+    let classes = await getClasses(ddb, character);
     logger.debug("Classes parse complete");
     let spells = getCharacterSpells(ddb, character);
     logger.debug("Character Spells parse complete");

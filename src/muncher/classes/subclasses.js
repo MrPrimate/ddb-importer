@@ -1,8 +1,10 @@
 import logger from "../../logger.js";
+import utils from "../../utils.js";
 import { parseTags } from "../../parser/templateStrings.js";
-import { buildBaseClass, getClassFeature, buildClassFeatures, NO_TRAITS } from "./shared.js";
+import { buildBaseClass, getClassFeature, NO_TRAITS } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
 import { munchNote, getCompendiumType } from "../utils.js";
+import { buildClassFeatures } from "../../parser/classes/index.js";
 
 async function buildSubClassBase(klass, subClass) {
   delete klass['_id'];
@@ -56,8 +58,18 @@ async function buildSubClassBase(klass, subClass) {
     klass.data.description.value.replace(imageMatch, image);
   }
 
-  // eslint-disable-next-line require-atomic-updates
-  klass.name += ` (${subClass.name})`;
+  const subClassSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
+
+  if (subClassSupport) {
+    klass.data.classIdentifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
+    klass.data.identifier = subClass.name.toLowerCase().replace(/\s|'|’/g, '-');
+    klass.type = "subclass";
+    klass.name = `${subClass.name} (${klass.name})`;
+  } else {
+    // eslint-disable-next-line require-atomic-updates
+    klass.name += ` (${subClass.name})`;
+  }
+
   // eslint-disable-next-line require-atomic-updates
   klass.data.description.value += `<h3>${subClass.name}</h3>\n${subClass.description}\n\n`;
 
@@ -84,6 +96,12 @@ export async function getSubClasses(data) {
   logger.debug("get subclasses started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
+  const classCompendium = getCompendiumType("class");
+  const featureCompendium = getCompendiumType("features");
+  const content = await classCompendium.getDocuments();
+  const fields = ["name", "flags.ddbimporter.classId", "flags.ddbimporter.class", "flags.ddbimporter.subClass", "flags.ddbimporter.parentClassId"];
+  const classFeatureIndex = await featureCompendium.getIndex({ fields });
+
   let subClasses = [];
   let classFeatures = [];
   let results = [];
@@ -91,36 +109,41 @@ export async function getSubClasses(data) {
   data.forEach((subClass) => {
     const classMatch = CONFIG.DDB.classConfigurations.find((k) => k.id === subClass.parentClassId);
     logger.debug(`${subClass.name} feature parsing started...`);
-    subClass.classFeatures.forEach((feature) => {
-      const existingFeature = classFeatures.some((f) => f.name === feature.name);
-      logger.debug(`${feature.name} feature starting...`);
-      if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
-        const parsedFeature = getClassFeature(feature, subClass, subClass.name);
-        classFeatures.push(parsedFeature);
-        results.push({ class: classMatch.name, subClass: subClass.name, feature: feature.name });
-      }
-    });
+    console.warn(subClass)
+    subClass.classFeatures
+      .filter((feature) =>
+        !classFeatureIndex.some((i) => feature.name === i.name &&
+        hasProperty(i, "flags.ddbimporter.classId") &&
+        subClass.parentClassId === i.flags.ddbimporter.classId)
+      )
+      .forEach((feature) => {
+        const existingFeature = classFeatures.some((f) => f.name === feature.name);
+        logger.debug(`${feature.name} feature starting...`);
+        if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
+          const parsedFeature = getClassFeature(feature, subClass, subClass.name);
+          classFeatures.push(parsedFeature);
+          results.push({ class: classMatch.name, subClass: subClass.name, feature: feature.name });
+        }
+      });
   });
 
+  classFeatures = classFeatures.filter((feature) =>
+    !classFeatureIndex.some((i) => feature.name === i.name &&
+    feature.flags.ddbimporter?.parentClassId && i.flags.ddbimporter?.classId &&
+    feature.flags.ddbimporter.parentClassId === i.flags.ddbimporter.classId)
+  );
   const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
   munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
-  const compendium = getCompendiumType("features");
-  const index = await compendium.getIndex();
-  const firstPassFeatures = await index.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
-
+  const importedIndex = await featureCompendium.getIndex();
+  const firstPassFeatures = await importedIndex.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
   let compendiumClassFeatures = [];
 
   await Promise.allSettled(firstPassFeatures.map(async (f) => {
-    const feature = await compendium.getDocument(f._id);
+    const feature = await featureCompendium.getDocument(f._id);
     compendiumClassFeatures.push(feature.toJSON());
   }));
-
-  // get base class
-  const classCompendium = getCompendiumType("class");
-  // const classIndex = await classCompendium.getIndex();
-  const content = await classCompendium.getDocuments();
 
   await Promise.all(data.map(async (subClass) => {
     const classMatch = content.find((i) => i.data.flags.ddbimporter['id'] == subClass.parentClassId);
