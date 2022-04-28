@@ -1,3 +1,11 @@
+# 2.9.33
+
+* Shifter race feature adds temphp now.
+* Improve detection of skill links into compendiums.
+* Subclass creation for D&D 5e v1.6.
+* Class and subclass add an identifier in D&D 5e v1.6.
+
+
 # 2.9.32
 
 * Character Importer: Arms of the Astral Self generated extra damage.
