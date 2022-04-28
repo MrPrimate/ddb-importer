@@ -120,6 +120,7 @@ export async function buildBaseClass(klass) {
   logger.debug(`Parsing ${klass.name}`);
   result.flags.obsidian.source.text = klass.name;
   result.type = "class";
+  result.identifier = klass.name.toLowerCase();
 
   let avatarUrl;
   let largeAvatarUrl;
@@ -261,7 +262,7 @@ export async function buildBaseClass(klass) {
   return result;
 }
 
-export async function buildClassFeatures(klass, compendiumClassFeatures) {
+export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreIds = []) {
   logger.debug(`Parsing ${klass.name} features`);
   let description = "<h3>Class Features</h3>\n\n";
   let classFeatures = [];
@@ -272,7 +273,7 @@ export async function buildClassFeatures(klass, compendiumClassFeatures) {
     const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
 
     // sort by level?
-    if (!classFeaturesAdded) {
+    if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
       const featureMatch = compendiumClassFeatures.find((match) =>
         feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() &&
         match.flags.ddbimporter &&
