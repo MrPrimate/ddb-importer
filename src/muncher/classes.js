@@ -108,43 +108,42 @@ export async function parseClasses() {
   const classesResults = await getClassesData();
 
   const subClassResults = await Promise.all([
-    // getSubClassesData("Cleric"),
-    // getSubClassesData("Druid"),
-    // getSubClassesData("Sorcerer"),
-    // getSubClassesData("Warlock"),
+    getSubClassesData("Cleric"),
+    getSubClassesData("Druid"),
+    getSubClassesData("Sorcerer"),
+    getSubClassesData("Warlock"),
     getSubClassesData("Wizard"),
-    // getSubClassesData("Paladin"),
-    // getSubClassesData("Ranger"),
-    // getSubClassesData("Bard"),
-    // getSubClassesData("Barbarian"),
-    // getSubClassesData("Fighter"),
-    // getSubClassesData("Artificer"),
-    // getSubClassesData("Rogue"),
-    // getSubClassesData("Monk"),
-    // getSubClassesData("Blood Hunter"),
+    getSubClassesData("Paladin"),
+    getSubClassesData("Ranger"),
+    getSubClassesData("Bard"),
+    getSubClassesData("Barbarian"),
+    getSubClassesData("Fighter"),
+    getSubClassesData("Artificer"),
+    getSubClassesData("Rogue"),
+    getSubClassesData("Monk"),
+    getSubClassesData("Blood Hunter"),
   ]);
 
-  // const classOptionsResults = await Promise.all([
-  //   getClassOptionsData("Cleric"),
-  //   getClassOptionsData("Druid"),
-  //   getClassOptionsData("Sorcerer"),
-  //   getClassOptionsData("Warlock"),
-  //   getClassOptionsData("Wizard"),
-  //   getClassOptionsData("Paladin"),
-  //   getClassOptionsData("Ranger"),
-  //   getClassOptionsData("Bard"),
-  //   getClassOptionsData("Barbarian"),
-  //   getClassOptionsData("Fighter"),
-  //   getClassOptionsData("Rogue"),
-  //   getClassOptionsData("Monk"),
-  //   getClassOptionsData("Blood Hunter"),
-  //   getClassOptionsData("Artificer"),
-  // ]);
+  const classOptionsResults = await Promise.all([
+    getClassOptionsData("Cleric"),
+    getClassOptionsData("Druid"),
+    getClassOptionsData("Sorcerer"),
+    getClassOptionsData("Warlock"),
+    getClassOptionsData("Wizard"),
+    getClassOptionsData("Paladin"),
+    getClassOptionsData("Ranger"),
+    getClassOptionsData("Bard"),
+    getClassOptionsData("Barbarian"),
+    getClassOptionsData("Fighter"),
+    getClassOptionsData("Rogue"),
+    getClassOptionsData("Monk"),
+    getClassOptionsData("Blood Hunter"),
+    getClassOptionsData("Artificer"),
+  ]);
 
-  // const results = classesResults.concat(subClassResults.flat(), classOptionsResults.flat());
+  const results = classesResults.concat(subClassResults.flat(), classOptionsResults.flat());
 
   // download(JSON.stringify(results), `classes-icon.json`, "application/json");
-const results = classesResults.concat(subClassResults.flat());
   return results;
 }
 

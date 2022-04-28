@@ -87,7 +87,8 @@ async function buildSubClassBase(klass, subClass) {
 async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
   let baseClass = await buildBaseClass(klass.flags.ddbimporter.data);
   let result = await buildSubClassBase(baseClass, subclass);
-  result.data.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures);
+  const ignoreIds = klass.flags.ddbimporter.data.classFeatures.map((f) => f.id);
+  result.data.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures, ignoreIds);
   result.data.description.value = parseTags(result.data.description.value);
   return result;
 }
@@ -109,7 +110,6 @@ export async function getSubClasses(data) {
   data.forEach((subClass) => {
     const classMatch = CONFIG.DDB.classConfigurations.find((k) => k.id === subClass.parentClassId);
     logger.debug(`${subClass.name} feature parsing started...`);
-    console.warn(subClass)
     subClass.classFeatures
       .filter((feature) =>
         !classFeatureIndex.some((i) => feature.name === i.name &&
@@ -127,16 +127,11 @@ export async function getSubClasses(data) {
       });
   });
 
-  classFeatures = classFeatures.filter((feature) =>
-    !classFeatureIndex.some((i) => feature.name === i.name &&
-    feature.flags.ddbimporter?.parentClassId && i.flags.ddbimporter?.classId &&
-    feature.flags.ddbimporter.parentClassId === i.flags.ddbimporter.classId)
-  );
   const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
   munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
-  const importedIndex = await featureCompendium.getIndex();
+  const importedIndex = await featureCompendium.getIndex({ fields });
   const firstPassFeatures = await importedIndex.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
   let compendiumClassFeatures = [];
 
