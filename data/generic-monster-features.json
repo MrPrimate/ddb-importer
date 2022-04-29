@@ -1,0 +1,7758 @@
+[
+  {
+    "name": "+1 Dagger",
+    "path": "icons/weapons/daggers/dagger-crooked-red.webp"
+  },
+  {
+    "name": "+1 Flail",
+    "path": "icons/weapons/maces/flail-cube-grey.webp"
+  },
+  {
+    "name": "+1 Handaxe",
+    "path": "icons/weapons/axes/shortaxe-yellow.webp"
+  },
+  {
+    "name": "+1 Longsword",
+    "path": "icons/weapons/swords/greatsword-guard.webp"
+  },
+  {
+    "name": "+1 Rapier",
+    "path": "icons/weapons/swords/greatsword-crossguard-flanged.webp"
+  },
+  {
+    "name": "+1 Shortsword",
+    "path": "icons/weapons/swords/shortsword-green.webp"
+  },
+  {
+    "name": "+2 Greatsword",
+    "path": "icons/weapons/swords/sword-jeweled-red.webp"
+  },
+  {
+    "name": "+2 Warhammer",
+    "path": "systems/dnd5e/icons/skills/yellow_21.jpg"
+  },
+  {
+    "name": "+3 Rapier",
+    "path": "icons/weapons/swords/greatsword-crossguard-flanged.webp"
+  },
+  {
+    "name": "1 Acid",
+    "path": "systems/dnd5e/icons/skills/arrow_15.jpg"
+  },
+  {
+    "name": "1 Beguiling Gaze",
+    "path": "systems/dnd5e/icons/skills/blue_17.jpg"
+  },
+  {
+    "name": "1 Poison Damage:",
+    "path": "systems/dnd5e/icons/spells/enchant-acid-2.jpg"
+  },
+  {
+    "name": "A Balhannoth's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "A Beholder's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "A Brass Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance.webp"
+  },
+  {
+    "name": "A Bronze Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-island.webp"
+  },
+  {
+    "name": "A Copper Dragon's Lair",
+    "path": "systems/dnd5e/icons/skills/blue_31.jpg"
+  },
+  {
+    "name": "A Death Tyrant's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "A Deep Crow's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "A Demilich's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "A Gold Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-island.webp"
+  },
+  {
+    "name": "A Morkoth's Lair",
+    "path": "icons/environment/wilderness/island.webp"
+  },
+  {
+    "name": "A Mummy Lord's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "A Red Dracolich's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-mountain.webp"
+  },
+  {
+    "name": "A Red Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-mountain.webp"
+  },
+  {
+    "name": "A Sapphire Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-mountain.webp"
+  },
+  {
+    "name": "A Sea Fury's Lair",
+    "path": "systems/dnd5e/icons/skills/blue_20.jpg"
+  },
+  {
+    "name": "A Silver Dragon's Lair",
+    "path": "systems/dnd5e/icons/skills/blue_30.jpg"
+  },
+  {
+    "name": "A Sphinx's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-dwarven-hill.webp"
+  },
+  {
+    "name": "A Taste of Undeath",
+    "path": "systems/dnd5e/icons/skills/affliction_08.jpg"
+  },
+  {
+    "name": "A Unicorn's Lair",
+    "path": "icons/environment/wilderness/cave-entrance.webp"
+  },
+  {
+    "name": "A Vampire's Lair",
+    "path": "systems/dnd5e/icons/skills/yellow_39.jpg"
+  },
+  {
+    "name": "A White Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-mountain.webp"
+  },
+  {
+    "name": "Aberrant Ground",
+    "path": "icons/commodities/materials/slime-white.webp"
+  },
+  {
+    "name": "Aberrant Quickness",
+    "path": "systems/dnd5e/icons/spells/rip-magenta-2.jpg"
+  },
+  {
+    "name": "Abolethic Vassal",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-1.jpg"
+  },
+  {
+    "name": "Absorb Attack",
+    "path": "systems/dnd5e/icons/spells/protect-eerie-2.jpg"
+  },
+  {
+    "name": "Acid Absorption",
+    "path": "icons/commodities/stone/ore-pile-green.webp"
+  },
+  {
+    "name": "Acid Breath",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Acid Lash",
+    "path": "systems/dnd5e/icons/skills/green_07.jpg"
+  },
+  {
+    "name": "Acid Saliva",
+    "path": "systems/dnd5e/icons/skills/green_29.jpg"
+  },
+  {
+    "name": "Acid Splash",
+    "path": "systems/dnd5e/icons/skills/affliction_20.jpg"
+  },
+  {
+    "name": "Acid Spray",
+    "path": "systems/dnd5e/icons/spells/needles-acid-2.jpg"
+  },
+  {
+    "name": "Acid Spray Gun",
+    "path": "systems/dnd5e/icons/spells/needles-acid-2.jpg"
+  },
+  {
+    "name": "Acid Squirt",
+    "path": "systems/dnd5e/icons/spells/fireball-acid-1.jpg"
+  },
+  {
+    "name": "Acid Vial",
+    "path": "systems/dnd5e/icons/items/potions/major-green.jpg"
+  },
+  {
+    "name": "Acid Vomit",
+    "path": "systems/dnd5e/icons/skills/affliction_16.jpg"
+  },
+  {
+    "name": "Acidic Blood",
+    "path": "systems/dnd5e/icons/skills/green_29.jpg"
+  },
+  {
+    "name": "Acidic Spittle",
+    "path": "systems/dnd5e/icons/skills/green_29.jpg"
+  },
+  {
+    "name": "Action Surge",
+    "path": "systems/dnd5e/icons/skills/red_03.jpg"
+  },
+  {
+    "name": "Adamantine Greatclub",
+    "path": "icons/weapons/clubs/club-banded-steel.webp"
+  },
+  {
+    "name": "Adamantine Plating",
+    "path": "systems/dnd5e/icons/items/armor/splint.png"
+  },
+  {
+    "name": "Adamantine Sixblade",
+    "path": "icons/weapons/sickles/sickle-blue-purple.webp"
+  },
+  {
+    "name": "Adaptive Skin",
+    "path": "icons/commodities/leather/scales-blue-white.webp"
+  },
+  {
+    "name": "Adhesive",
+    "path": "icons/commodities/materials/slime-white.webp"
+  },
+  {
+    "name": "Adhesive Blossoms",
+    "path": "icons/commodities/materials/slime-thick-green.webp"
+  },
+  {
+    "name": "Adhesive Filament",
+    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
+  },
+  {
+    "name": "Advanced Telepathy",
+    "path": "systems/dnd5e/icons/skills/beast_04.jpg"
+  },
+  {
+    "name": "Agile Flier",
+    "path": "icons/commodities/biological/wing-lizard-purple.webp"
+  },
+  {
+    "name": "Air Form",
+    "path": "systems/dnd5e/icons/skills/blue_13.jpg"
+  },
+  {
+    "name": "Alchemical Homunculus",
+    "path": "icons/environment/creatures/gargoyle-grey-blue.webp"
+  },
+  {
+    "name": "Alchemist's Fire",
+    "path": "systems/dnd5e/icons/spells/explosion-red-2.jpg"
+  },
+  {
+    "name": "Alien Mind",
+    "path": "systems/dnd5e/icons/skills/violet_05.jpg"
+  },
+  {
+    "name": "Alignment",
+    "path": "systems/dnd5e/icons/spells/haste-sky-2.jpg"
+  },
+  {
+    "name": "All Around Vision",
+    "path": "icons/equipment/neck/necklace-eye-orange.webp"
+  },
+  {
+    "name": "All-Around Vision",
+    "path": "icons/equipment/neck/necklace-eye-orange.webp"
+  },
+  {
+    "name": "Alluring Thrum",
+    "path": "icons/commodities/gems/gem-shattered-pink.webp"
+  },
+  {
+    "name": "Ambush",
+    "path": "systems/dnd5e/icons/skills/emerald_07.jpg"
+  },
+  {
+    "name": "Ambusher",
+    "path": "systems/dnd5e/icons/skills/emerald_07.jpg"
+  },
+  {
+    "name": "Amorphous Form",
+    "path": "icons/commodities/materials/liquid-purple.webp"
+  },
+  {
+    "name": "Amphora",
+    "path": "systems/dnd5e/icons/skills/emerald_05.jpg"
+  },
+  {
+    "name": "Amplify Lightning",
+    "path": "systems/dnd5e/icons/spells/lightning-jade-3.jpg"
+  },
+  {
+    "name": "An Anarch's Lair",
+    "path": "icons/environment/settlement/pyramid.webp"
+  },
+  {
+    "name": "An Elder Brain's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-mountain.webp"
+  },
+  {
+    "name": "Angelic Weapons",
+    "path": "icons/weapons/crossbows/crossbow-ornamental-winged.webp"
+  },
+  {
+    "name": "Animate Boulders",
+    "path": "icons/commodities/stone/ore-chunk-iron-black.webp"
+  },
+  {
+    "name": "Animate Chains",
+    "path": "icons/tools/fasteners/chain-hook-grey.webp"
+  },
+  {
+    "name": "Animate Golem",
+    "path": "icons/environment/creatures/golem-stone-purple.webp"
+  },
+  {
+    "name": "Animate Tentacle",
+    "path": "icons/commodities/biological/tentacle-pink.webp"
+  },
+  {
+    "name": "Animate Trees",
+    "path": "systems/dnd5e/icons/skills/green_26.jpg"
+  },
+  {
+    "name": "Animated Attack",
+    "path": "systems/dnd5e/icons/skills/weapon_11.jpg"
+  },
+  {
+    "name": "Animating Spores",
+    "path": "systems/dnd5e/icons/spells/fog-acid-1.jpg"
+  },
+  {
+    "name": "Annihilating Aura",
+    "path": "systems/dnd5e/icons/skills/affliction_09.jpg"
+  },
+  {
+    "name": "Antennae",
+    "path": "icons/commodities/biological/antenna-yellow.webp"
+  },
+  {
+    "name": "Antimagic Cone",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-3.jpg"
+  },
+  {
+    "name": "Antimagic Shell",
+    "path": "icons/environment/creatures/crustacean-mollusk-yellow.webp"
+  },
+  {
+    "name": "Antimagic Susceptibility",
+    "path": "icons/commodities/gems/pearl-brown-red.webp"
+  },
+  {
+    "name": "Antlers",
+    "path": "icons/commodities/bones/horn-antler-brown.webp"
+  },
+  {
+    "name": "Aquatic",
+    "path": "icons/environment/creatures/fish-smooth-grey-blue.webp"
+  },
+  {
+    "name": "Aquatic Invisibility",
+    "path": "icons/commodities/biological/eye-blue-gold.webp"
+  },
+  {
+    "name": "Arasta's Lair",
+    "path": "icons/environment/wilderness/tree-ash.webp"
+  },
+  {
+    "name": "Arc Lightning",
+    "path": "systems/dnd5e/icons/spells/lightning-blue-3.jpg"
+  },
+  {
+    "name": "Arcane Advantage",
+    "path": "systems/dnd5e/icons/spells/runes-blue-2.jpg"
+  },
+  {
+    "name": "Arcane Cataclysm",
+    "path": "systems/dnd5e/icons/spells/explosion-sky-3.jpg"
+  },
+  {
+    "name": "Arcane Eye",
+    "path": "systems/dnd5e/icons/skills/violet_02.jpg"
+  },
+  {
+    "name": "Arcane Recovery",
+    "path": "icons/sundries/books/book-reye-reptile-brown.webp"
+  },
+  {
+    "name": "Arcane Ward",
+    "path": "systems/dnd5e/icons/spells/protect-blue-1.jpg"
+  },
+  {
+    "name": "Archer",
+    "path": "systems/dnd5e/icons/items/weapons/bow-hunting.jpg"
+  },
+  {
+    "name": "Archer's Eye",
+    "path": "icons/environment/people/archer.webp"
+  },
+  {
+    "name": "Arclight Touch",
+    "path": "systems/dnd5e/icons/spells/lightning-jade-1.jpg"
+  },
+  {
+    "name": "Arm",
+    "path": "icons/commodities/tech/claw-mechanical.webp"
+  },
+  {
+    "name": "Arm Blade",
+    "path": "systems/dnd5e/icons/skills/weapon_23.jpg"
+  },
+  {
+    "name": "Arm Spike",
+    "path": "icons/commodities/claws/talon-red.webp"
+  },
+  {
+    "name": "Armblade",
+    "path": "systems/dnd5e/icons/skills/weapon_23.jpg"
+  },
+  {
+    "name": "Armor of Shadows",
+    "path": "systems/dnd5e/icons/spells/protect-blue-1.jpg"
+  },
+  {
+    "name": "Armor of Spiders",
+    "path": "icons/commodities/treasure/token-white-spider.webp"
+  },
+  {
+    "name": "Army Arcana",
+    "path": "systems/dnd5e/icons/spells/haste-royal-2.jpg"
+  },
+  {
+    "name": "Arrow-Catching Shield",
+    "path": "systems/dnd5e/icons/skills/yellow_34.jpg"
+  },
+  {
+    "name": "Art Imitates Life",
+    "path": "icons/commodities/treasure/figurine-idol.webp"
+  },
+  {
+    "name": "Artificial Mind",
+    "path": "icons/commodities/bones/skull-white-purple.webp"
+  },
+  {
+    "name": "As Water",
+    "path": "systems/dnd5e/icons/skills/water_08.jpg"
+  },
+  {
+    "name": "Ash Puff",
+    "path": "systems/dnd5e/icons/spells/fog-air-1.jpg"
+  },
+  {
+    "name": "Ashen Blade",
+    "path": "icons/weapons/sickles/sickle-hooked-worn.webp"
+  },
+  {
+    "name": "Assassinate",
+    "path": "systems/dnd5e/icons/skills/weapon_39.jpg"
+  },
+  {
+    "name": "Assault",
+    "path": "systems/dnd5e/icons/spells/enchant-royal-3.jpg"
+  },
+  {
+    "name": "Assume Form",
+    "path": "icons/commodities/biological/eye-tentacle-green-yellow.webp"
+  },
+  {
+    "name": "Astral Entity",
+    "path": "systems/dnd5e/icons/spells/light-jade-2.jpg"
+  },
+  {
+    "name": "At-Will Spell",
+    "path": "icons/sundries/books/book-face-blue.webp"
+  },
+  {
+    "name": "Attacker",
+    "path": "systems/dnd5e/icons/skills/weapon_41.jpg"
+  },
+  {
+    "name": "Attractive Pollen",
+    "path": "systems/dnd5e/icons/spells/fog-acid-1.jpg"
+  },
+  {
+    "name": "Aura of Annihilation",
+    "path": "systems/dnd5e/icons/skills/affliction_09.jpg"
+  },
+  {
+    "name": "Aura of Blood Lust",
+    "path": "systems/dnd5e/icons/skills/red_32.jpg"
+  },
+  {
+    "name": "Aura of Blood Thirst",
+    "path": "systems/dnd5e/icons/skills/red_32.jpg"
+  },
+  {
+    "name": "Aura of Erebos",
+    "path": "systems/dnd5e/icons/skills/shadow_01.jpg"
+  },
+  {
+    "name": "Aura of False Divinity",
+    "path": "systems/dnd5e/icons/spells/wind-grasp-magenta-3.jpg"
+  },
+  {
+    "name": "Aura of Hate",
+    "path": "systems/dnd5e/icons/skills/red_32.jpg"
+  },
+  {
+    "name": "Aura of Invulnerability",
+    "path": "systems/dnd5e/icons/skills/emerald_02.jpg"
+  },
+  {
+    "name": "Aura of Madness",
+    "path": "systems/dnd5e/icons/spells/horror-acid-2.jpg"
+  },
+  {
+    "name": "Aura of Mind Erosion",
+    "path": "systems/dnd5e/icons/skills/violet_26.jpg"
+  },
+  {
+    "name": "Aura of Murder",
+    "path": "systems/dnd5e/icons/skills/red_32.jpg"
+  },
+  {
+    "name": "Aura of Nightmares",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-3.jpg"
+  },
+  {
+    "name": "Aura of Radiance",
+    "path": "systems/dnd5e/icons/spells/light-sky-3.jpg"
+  },
+  {
+    "name": "Aura of Silence",
+    "path": "icons/commodities/gems/pearl-purple-dark.webp"
+  },
+  {
+    "name": "Aura of Terror",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-3.jpg"
+  },
+  {
+    "name": "Auril's Blessing",
+    "path": "systems/dnd5e/icons/spells/runes-blue-3.jpg"
+  },
+  {
+    "name": "Avalanche of Bones",
+    "path": "icons/commodities/bones/bones-stack-tan.webp"
+  },
+  {
+    "name": "Aversion of Fire",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Aversion to Fire",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Avoidance",
+    "path": "systems/dnd5e/icons/skills/red_27.jpg"
+  },
+  {
+    "name": "Awaken Greed",
+    "path": "icons/commodities/gems/gem-rough-round-pink.webp"
+  },
+  {
+    "name": "Awaken Grove Guardians",
+    "path": "systems/dnd5e/icons/skills/nature_01.jpg"
+  },
+  {
+    "name": "Awakened Mind",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-1.jpg"
+  },
+  {
+    "name": "Axehand",
+    "path": "icons/weapons/axes/axe-battle-worn-eye.webp"
+  },
+  {
+    "name": "Axiomatic Mind",
+    "path": "icons/commodities/tech/transmission.webp"
+  },
+  {
+    "name": "Azuredge",
+    "path": "icons/weapons/axes/axe-double-blue.webp"
+  },
+  {
+    "name": "Bad Flier",
+    "path": "icons/commodities/materials/feathers-brown.webp"
+  },
+  {
+    "name": "Baleful Baying",
+    "path": "icons/commodities/bones/skull-bat-grey.webp"
+  },
+  {
+    "name": "Balm of the Summer Court",
+    "path": "systems/dnd5e/icons/spells/leaf-royal-2.jpg"
+  },
+  {
+    "name": "Banishing Rebuke",
+    "path": "systems/dnd5e/icons/skills/blue_11.jpg"
+  },
+  {
+    "name": "Baphomet's Lair",
+    "path": "icons/environment/settlement/city-night-spire.webp"
+  },
+  {
+    "name": "Barbed Hide",
+    "path": "systems/dnd5e/icons/skills/blood_08.jpg"
+  },
+  {
+    "name": "Barbed Pole",
+    "path": "systems/dnd5e/icons/skills/blood_08.jpg"
+  },
+  {
+    "name": "Barbed Tail",
+    "path": "icons/commodities/biological/stinger-insect-yellow.webp"
+  },
+  {
+    "name": "Barbed Tentacles",
+    "path": "icons/commodities/biological/tentacle-thorned-green.webp"
+  },
+  {
+    "name": "Bardic Inspiration",
+    "path": "systems/dnd5e/icons/spells/haste-sky-2.jpg"
+  },
+  {
+    "name": "Barkskin",
+    "path": "icons/equipment/wrist/bracer-segmented-chitin.webp"
+  },
+  {
+    "name": "Bash",
+    "path": "icons/weapons/clubs/club-heavy-barbed-black.webp"
+  },
+  {
+    "name": "Bashin' Banjo",
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
+  },
+  {
+    "name": "Battle Command",
+    "path": "systems/dnd5e/icons/skills/shadow_13.jpg"
+  },
+  {
+    "name": "Battle Cry",
+    "path": "systems/dnd5e/icons/skills/affliction_24.jpg"
+  },
+  {
+    "name": "Battle Readiness",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-2.jpg"
+  },
+  {
+    "name": "Battleaxe",
+    "path": "icons/weapons/axes/axe-double-black.webp"
+  },
+  {
+    "name": "battleaxe, +1;Giant-sized +1 Battleaxe",
+    "path": "icons/weapons/axes/axe-double-blue.webp"
+  },
+  {
+    "name": "Battlefield Cunning",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-2.jpg"
+  },
+  {
+    "name": "Battlefield Inspiration",
+    "path": "systems/dnd5e/icons/skills/light_05.jpg"
+  },
+  {
+    "name": "Beak",
+    "path": "icons/commodities/bones/beak-hooked-red.webp"
+  },
+  {
+    "name": "Beaks",
+    "path": "icons/commodities/bones/beak-hooked-red.webp"
+  },
+  {
+    "name": "Beard",
+    "path": "icons/commodities/biological/tentacle-yellow.webp"
+  },
+  {
+    "name": "Bearhug",
+    "path": "icons/equipment/hand/glove-armored-leather-steel-brown.webp"
+  },
+  {
+    "name": "Beast of Burden",
+    "path": "icons/tools/smithing/horseshoe-steel-grey.webp"
+  },
+  {
+    "name": "Beer Shower",
+    "path": "systems/dnd5e/icons/skills/mech_9.jpg"
+  },
+  {
+    "name": "Belch Fire",
+    "path": "systems/dnd5e/icons/skills/red_07.jpg"
+  },
+  {
+    "name": "Bellow",
+    "path": "systems/dnd5e/icons/skills/affliction_24.jpg"
+  },
+  {
+    "name": "Bend Space",
+    "path": "systems/dnd5e/icons/spells/link-spirit-1.jpg"
+  },
+  {
+    "name": "Benign Transportation",
+    "path": "systems/dnd5e/icons/spells/link-blue-1.jpg"
+  },
+  {
+    "name": "Berserk",
+    "path": "systems/dnd5e/icons/spells/rip-acid-3.jpg"
+  },
+  {
+    "name": "Berserker Battleaxe",
+    "path": "icons/weapons/axes/axe-double-black.webp"
+  },
+  {
+    "name": "Bites",
+    "path": "icons/commodities/bones/teeth-sharp-white.webp"
+  },
+  {
+    "name": "Black Dragon Head: Acid Breath",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Black Earth Rod",
+    "path": "icons/weapons/staves/staff-ornate-hook.webp"
+  },
+  {
+    "name": "Blackstaff",
+    "path": "icons/weapons/staves/staff-animal-bird.webp"
+  },
+  {
+    "name": "Blade",
+    "path": "systems/dnd5e/icons/skills/weapon_23.jpg"
+  },
+  {
+    "name": "Blade Dash",
+    "path": "systems/dnd5e/icons/skills/weapon_24.jpg"
+  },
+  {
+    "name": "Blade of the Medusa",
+    "path": "icons/weapons/swords/greatsword-guard-jewel-green.webp"
+  },
+  {
+    "name": "Bladed Armor",
+    "path": "icons/equipment/wrist/bracer-spiked-steel.webp"
+  },
+  {
+    "name": "Bladed Chain",
+    "path": "icons/tools/fasteners/chain-hook-grey.webp"
+  },
+  {
+    "name": "Bladed Hide",
+    "path": "icons/commodities/leather/fur-pink.webp"
+  },
+  {
+    "name": "Bladed Wings",
+    "path": "icons/commodities/biological/wing-bird-white.webp"
+  },
+  {
+    "name": "Blades",
+    "path": "systems/dnd5e/icons/skills/weapon_34.jpg"
+  },
+  {
+    "name": "Blasphemous Word",
+    "path": "icons/commodities/treasure/token-engraved-eye-red.webp"
+  },
+  {
+    "name": "Blast Scepter",
+    "path": "icons/weapons/wands/wand-carved-fire.webp"
+  },
+  {
+    "name": "Blazing Edict",
+    "path": "systems/dnd5e/icons/spells/air-burst-sky-3.jpg"
+  },
+  {
+    "name": "Blessing of Bountiful Generosity",
+    "path": "systems/dnd5e/icons/skills/yellow_01.jpg"
+  },
+  {
+    "name": "Blessing of Mother Night",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-2.jpg"
+  },
+  {
+    "name": "Blessings of the Gods",
+    "path": "systems/dnd5e/icons/spells/light-eerie-3.jpg"
+  },
+  {
+    "name": "Blight",
+    "path": "systems/dnd5e/icons/skills/green_26.jpg"
+  },
+  {
+    "name": "Blind Senses",
+    "path": "systems/dnd5e/icons/skills/shadow_12.jpg"
+  },
+  {
+    "name": "Blinding Acid",
+    "path": "systems/dnd5e/icons/skills/affliction_17.jpg"
+  },
+  {
+    "name": "Blinding Breath",
+    "path": "systems/dnd5e/icons/spells/fog-air-2.jpg"
+  },
+  {
+    "name": "Blinding Dust",
+    "path": "systems/dnd5e/icons/spells/fog-air-3.jpg"
+  },
+  {
+    "name": "Blinding Gaze",
+    "path": "systems/dnd5e/icons/spells/light-blue-3.jpg"
+  },
+  {
+    "name": "Blinding Gleam",
+    "path": "systems/dnd5e/icons/spells/light-blue-3.jpg"
+  },
+  {
+    "name": "Blinding Light",
+    "path": "systems/dnd5e/icons/spells/light-blue-3.jpg"
+  },
+  {
+    "name": "Blinding Spittle",
+    "path": "icons/commodities/materials/liquid-green.webp"
+  },
+  {
+    "name": "Blizzard Veil",
+    "path": "systems/dnd5e/icons/spells/fire-arrows-sky-3.jpg"
+  },
+  {
+    "name": "Block the Path",
+    "path": "icons/commodities/stone/paver-brick-brown.webp"
+  },
+  {
+    "name": "Blood Boiling Hex",
+    "path": "systems/dnd5e/icons/spells/rip-acid-1.jpg"
+  },
+  {
+    "name": "Blood Curse of Binding",
+    "path": "systems/dnd5e/icons/skills/blood_10.jpg"
+  },
+  {
+    "name": "Blood Drain",
+    "path": "systems/dnd5e/icons/spells/rip-acid-2.jpg"
+  },
+  {
+    "name": "Blood Frenzy",
+    "path": "systems/dnd5e/icons/spells/rip-water-3.jpg"
+  },
+  {
+    "name": "Blood Reaper",
+    "path": "systems/dnd5e/icons/spells/rip-water-3.jpg"
+  },
+  {
+    "name": "Blood Witch Dance",
+    "path": "systems/dnd5e/icons/spells/link-royal-1.jpg"
+  },
+  {
+    "name": "Bloody Rampage",
+    "path": "systems/dnd5e/icons/skills/red_31.jpg"
+  },
+  {
+    "name": "Blue Dragon Head: Lightning Breath",
+    "path": "systems/dnd5e/icons/skills/ice_11.jpg"
+  },
+  {
+    "name": "Blurred Form",
+    "path": "systems/dnd5e/icons/spells/wind-grasp-eerie-2.jpg"
+  },
+  {
+    "name": "Blurred Movement",
+    "path": "systems/dnd5e/icons/spells/wind-grasp-eerie-2.jpg"
+  },
+  {
+    "name": "Body Flop",
+    "path": "icons/commodities/leather/leather-pelt-cured.webp"
+  },
+  {
+    "name": "Body Thief",
+    "path": "systems/dnd5e/icons/spells/link-eerie-3.jpg"
+  },
+  {
+    "name": "Boggle Oil",
+    "path": "icons/tools/laboratory/bowl-liquid-black.webp"
+  },
+  {
+    "name": "Bolster",
+    "path": "systems/dnd5e/icons/skills/blue_10.jpg"
+  },
+  {
+    "name": "Bolstering Presence",
+    "path": "systems/dnd5e/icons/skills/blue_06.jpg"
+  },
+  {
+    "name": "Bolt",
+    "path": "systems/dnd5e/icons/skills/emerald_01.jpg"
+  },
+  {
+    "name": "Bolt Launcher",
+    "path": "icons/weapons/crossbows/crossbow-loaded-black.webp"
+  },
+  {
+    "name": "Bolt of Ash",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-3.jpg"
+  },
+  {
+    "name": "Bond of the Black Earth",
+    "path": "systems/dnd5e/icons/skills/fire_03.jpg"
+  },
+  {
+    "name": "Bond:",
+    "path": "systems/dnd5e/icons/items/inventory/element-earth.jpg"
+  },
+  {
+    "name": "Bonded Mount",
+    "path": "icons/commodities/biological/fin-red-green.webp"
+  },
+  {
+    "name": "Bonding",
+    "path": "systems/dnd5e/icons/spells/link-spirit-1.jpg"
+  },
+  {
+    "name": "Bone Shortsword",
+    "path": "icons/weapons/swords/shortsword-hooked-blue.webp"
+  },
+  {
+    "name": "Bone Staff",
+    "path": "icons/weapons/staves/staff-animal-skull.webp"
+  },
+  {
+    "name": "Bone Staff",
+    "path": "icons/weapons/staves/staff-animal-skull.webp"
+  },
+  {
+    "name": "Boneless",
+    "path": "icons/commodities/materials/slime-thick-blue.webp"
+  },
+  {
+    "name": "Bonemelt Sprayer",
+    "path": "systems/dnd5e/icons/skills/affliction_20.jpg"
+  },
+  {
+    "name": "Bookmark",
+    "path": "icons/weapons/daggers/dagger-blue.webp"
+  },
+  {
+    "name": "Bottom Treader",
+    "path": "icons/equipment/feet/boots-plate-black.webp"
+  },
+  {
+    "name": "Boulder",
+    "path": "icons/commodities/stone/ore-chunk-iron-black.webp"
+  },
+  {
+    "name": "Boulder Guise",
+    "path": "icons/commodities/stone/boulder-black.webp"
+  },
+  {
+    "name": "Bound",
+    "path": "icons/equipment/neck/amulet-carved-stone-spiral-blue.webp"
+  },
+  {
+    "name": "Bound Together",
+    "path": "systems/dnd5e/icons/skills/water_01.jpg"
+  },
+  {
+    "name": "Branch",
+    "path": "icons/commodities/wood/kindling-stick-brown.webp"
+  },
+  {
+    "name": "Brave",
+    "path": "icons/commodities/tech/metal-blue.webp"
+  },
+  {
+    "name": "Brave Devotion",
+    "path": "icons/equipment/neck/amulet-carved-stone-hammer.webp"
+  },
+  {
+    "name": "Break Concentration",
+    "path": "systems/dnd5e/icons/spells/link-eerie-2.jpg"
+  },
+  {
+    "name": "Breath of Despair",
+    "path": "systems/dnd5e/icons/spells/fog-magenta-2.jpg"
+  },
+  {
+    "name": "Breath of Hopelessness",
+    "path": "systems/dnd5e/icons/spells/fog-magenta-2.jpg"
+  },
+  {
+    "name": "Breath Weapon",
+    "path": "systems/dnd5e/icons/spells/fog-orange-3.jpg"
+  },
+  {
+    "name": "Breath Weapons",
+    "path": "systems/dnd5e/icons/spells/fog-orange-3.jpg"
+  },
+  {
+    "name": "Brine Lurker",
+    "path": "systems/dnd5e/icons/spells/fog-blue-1.jpg"
+  },
+  {
+    "name": "Bringer of Plagues",
+    "path": "icons/commodities/bones/bones-fish-white.webp"
+  },
+  {
+    "name": "Brittle",
+    "path": "systems/dnd5e/icons/skills/yellow_03.jpg"
+  },
+  {
+    "name": "Broken Chain",
+    "path": "icons/tools/fasteners/chain-steel-grey.webp"
+  },
+  {
+    "name": "Broomstick",
+    "path": "icons/tools/hand/broom-straw-brown.webp"
+  },
+  {
+    "name": "Brute",
+    "path": "systems/dnd5e/icons/skills/blood_11.jpg"
+  },
+  {
+    "name": "Burden of Time",
+    "path": "systems/dnd5e/icons/skills/affliction_02.jpg"
+  },
+  {
+    "name": "Burning Breath",
+    "path": "systems/dnd5e/icons/spells/fog-orange-3.jpg"
+  },
+  {
+    "name": "Burning Fury",
+    "path": "systems/dnd5e/icons/skills/fire_11.jpg"
+  },
+  {
+    "name": "Burning Touch",
+    "path": "systems/dnd5e/icons/skills/fire_12.jpg"
+  },
+  {
+    "name": "Burrowing Worm",
+    "path": "icons/environment/creatures/bug-worm-toothed-green.webp"
+  },
+  {
+    "name": "Burst",
+    "path": "systems/dnd5e/icons/spells/explosion-royal-2.jpg"
+  },
+  {
+    "name": "Call the Void",
+    "path": "systems/dnd5e/icons/skills/shadow_01.jpg"
+  },
+  {
+    "name": "Call to Attack",
+    "path": "systems/dnd5e/icons/skills/weapon_02.jpg"
+  },
+  {
+    "name": "Call to Honor",
+    "path": "systems/dnd5e/icons/skills/ice_12.jpg"
+  },
+  {
+    "name": "Camouflage",
+    "path": "systems/dnd5e/icons/skills/green_18.jpg"
+  },
+  {
+    "name": "Cantrip",
+    "path": "icons/sundries/documents/document-symbol-eye.webp"
+  },
+  {
+    "name": "Captivating Presence",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Cargo Hauler",
+    "path": "icons/containers/boxes/crate-reinforced-beige.webp"
+  },
+  {
+    "name": "Cast Cantrip",
+    "path": "icons/sundries/documents/document-symbol-eye.webp"
+  },
+  {
+    "name": "Cast Spell",
+    "path": "icons/sundries/documents/document-symbol-eye.webp"
+  },
+  {
+    "name": "Caustic Bolt",
+    "path": "systems/dnd5e/icons/spells/beam-acid-3.jpg"
+  },
+  {
+    "name": "Caustic Spores",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Cavalry Training",
+    "path": "icons/environment/people/cavalry-heavy.webp"
+  },
+  {
+    "name": "Ceaseless Screaming",
+    "path": "systems/dnd5e/icons/skills/red_22.jpg"
+  },
+  {
+    "name": "Chain",
+    "path": "systems/dnd5e/icons/skills/red_06.jpg"
+  },
+  {
+    "name": "Chain Smash",
+    "path": "systems/dnd5e/icons/skills/red_06.jpg"
+  },
+  {
+    "name": "Chain Sweep",
+    "path": "icons/tools/fasteners/chain-hook-grey.webp"
+  },
+  {
+    "name": "Chains",
+    "path": "systems/dnd5e/icons/skills/red_06.jpg"
+  },
+  {
+    "name": "Chains of Obligation",
+    "path": "systems/dnd5e/icons/spells/shielding-eerie-2.jpg"
+  },
+  {
+    "name": "Chameleon Carapace",
+    "path": "icons/commodities/leather/scales-green.webp"
+  },
+  {
+    "name": "Chameleon Skin",
+    "path": "icons/commodities/leather/scales-green.webp"
+  },
+  {
+    "name": "Champion Challenge",
+    "path": "systems/dnd5e/icons/skills/weapon_42.jpg"
+  },
+  {
+    "name": "Change Appearance",
+    "path": "systems/dnd5e/icons/skills/blue_26.jpg"
+  },
+  {
+    "name": "Change Gravity",
+    "path": "systems/dnd5e/icons/spells/shielding-eerie-1.jpg"
+  },
+  {
+    "name": "Change Shape",
+    "path": "systems/dnd5e/icons/skills/blue_26.jpg"
+  },
+  {
+    "name": "Channel Divinity: Turn Undead",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Channel Magic",
+    "path": "systems/dnd5e/icons/spells/beam-blue-1.jpg"
+  },
+  {
+    "name": "Channel Negative Energy",
+    "path": "systems/dnd5e/icons/spells/beam-magenta-1.jpg"
+  },
+  {
+    "name": "Chaos Cloud",
+    "path": "systems/dnd5e/icons/spells/wind-magenta-2.jpg"
+  },
+  {
+    "name": "Chardalyn Flail",
+    "path": "icons/weapons/maces/flail-spiked-grey.webp"
+  },
+  {
+    "name": "Chardalyn Javelin",
+    "path": "icons/weapons/polearms/javelin-hooked.webp"
+  },
+  {
+    "name": "Chardalyn Madness",
+    "path": "icons/environment/creatures/monster-tentacles-eye-purple.webp"
+  },
+  {
+    "name": "Charge",
+    "path": "systems/dnd5e/icons/skills/red_03.jpg"
+  },
+  {
+    "name": "Charm",
+    "path": "systems/dnd5e/icons/skills/light_07.jpg"
+  },
+  {
+    "name": "Chatkcha",
+    "path": "icons/weapons/thrown/shuriken-double-red.webp"
+  },
+  {
+    "name": "Children of the Night",
+    "path": "systems/dnd5e/icons/skills/nature_08.jpg"
+  },
+  {
+    "name": "Chill Touch",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-1.jpg"
+  },
+  {
+    "name": "Chilling Gaze",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Chilling Grasp",
+    "path": "icons/commodities/biological/hand-clawed-grey.webp"
+  },
+  {
+    "name": "Chilling Mist",
+    "path": "systems/dnd5e/icons/spells/fog-blue-1.jpg"
+  },
+  {
+    "name": "Chimeric Creation",
+    "path": "icons/commodities/leather/fur-blue.webp"
+  },
+  {
+    "name": "Chomp",
+    "path": "icons/commodities/bones/bone-jaw-teeth-white.webp"
+  },
+  {
+    "name": "Chorus of the Conclave",
+    "path": "systems/dnd5e/icons/skills/blue_35.jpg"
+  },
+  {
+    "name": "Chromatic Orb",
+    "path": "systems/dnd5e/icons/skills/violet_05.jpg"
+  },
+  {
+    "name": "Chromatic Ray",
+    "path": "systems/dnd5e/icons/spells/beam-magenta-2.jpg"
+  },
+  {
+    "name": "Chromatic Resistance",
+    "path": "systems/dnd5e/icons/spells/protect-magenta-2.jpg"
+  },
+  {
+    "name": "Cinder Breath",
+    "path": "systems/dnd5e/icons/spells/fog-orange-1.jpg"
+  },
+  {
+    "name": "Clawed Gauntlet",
+    "path": "icons/weapons/fist/claw-leather-black.webp"
+  },
+  {
+    "name": "Claws of the Grave",
+    "path": "icons/commodities/biological/hand-clawed-blue.webp"
+  },
+  {
+    "name": "Clay Jug",
+    "path": "icons/containers/kitchenware/jug-terracotta-orange.webp"
+  },
+  {
+    "name": "Cloak of Shadows",
+    "path": "icons/equipment/back/cloak-collared-blue-iron.webp"
+  },
+  {
+    "name": "Cloak Sweep",
+    "path": "icons/equipment/back/cloak-plain-green.webp"
+  },
+  {
+    "name": "Clockwork Behir",
+    "path": "icons/commodities/tech/coil-steel-grey.webp"
+  },
+  {
+    "name": "Clockwork Mouse",
+    "path": "icons/commodities/tech/coil-steel-grey.webp"
+  },
+  {
+    "name": "Close Quarters Shooting",
+    "path": "systems/dnd5e/icons/skills/yellow_06.jpg"
+  },
+  {
+    "name": "Cloud of Dust",
+    "path": "systems/dnd5e/icons/spells/fog-air-2.jpg"
+  },
+  {
+    "name": "Cloud of Vermin",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Cold Absorption",
+    "path": "systems/dnd5e/icons/skills/ice_03.jpg"
+  },
+  {
+    "name": "Cold Aura",
+    "path": "systems/dnd5e/icons/skills/blue_04.jpg"
+  },
+  {
+    "name": "Cold Ray",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-3.jpg"
+  },
+  {
+    "name": "Cold Regeneration",
+    "path": "systems/dnd5e/icons/spells/heal-jade-2.jpg"
+  },
+  {
+    "name": "Collapse Distance",
+    "path": "systems/dnd5e/icons/skills/violet_12.jpg"
+  },
+  {
+    "name": "Combustion",
+    "path": "systems/dnd5e/icons/skills/fire_11.jpg"
+  },
+  {
+    "name": "Comet Staff",
+    "path": "icons/weapons/staves/staff-orb-purple.webp"
+  },
+  {
+    "name": "Command Allies",
+    "path": "systems/dnd5e/icons/skills/shadow_13.jpg"
+  },
+  {
+    "name": "Command Ally",
+    "path": "systems/dnd5e/icons/skills/shadow_13.jpg"
+  },
+  {
+    "name": "Command Hair",
+    "path": "systems/dnd5e/icons/skills/shadow_13.jpg"
+  },
+  {
+    "name": "Commander of Bones",
+    "path": "icons/equipment/neck/necklace-simple-bone-skull.webp"
+  },
+  {
+    "name": "Compel Demon",
+    "path": "systems/dnd5e/icons/spells/horror-red-3.jpg"
+  },
+  {
+    "name": "Cone of Cold",
+    "path": "systems/dnd5e/icons/skills/blue_13.jpg"
+  },
+  {
+    "name": "Confer Fire Resistance",
+    "path": "icons/commodities/gems/pearl-brown-red.webp"
+  },
+  {
+    "name": "Confounding Bite",
+    "path": "systems/dnd5e/icons/skills/beast_03.jpg"
+  },
+  {
+    "name": "Confusing Gaze",
+    "path": "icons/commodities/biological/eye-lizard-orange.webp"
+  },
+  {
+    "name": "Conjure Snakes",
+    "path": "systems/dnd5e/icons/skills/beast_03.jpg"
+  },
+  {
+    "name": "Constrict",
+    "path": "icons/commodities/bones/hurn-curved-yellow.webp"
+  },
+  {
+    "name": "Construct",
+    "path": "icons/commodities/tech/glass-electrode.webp"
+  },
+  {
+    "name": "Consume Life",
+    "path": "systems/dnd5e/icons/skills/affliction_11.jpg"
+  },
+  {
+    "name": "Consume Magic",
+    "path": "systems/dnd5e/icons/spells/link-eerie-2.jpg"
+  },
+  {
+    "name": "Contamination",
+    "path": "systems/dnd5e/icons/skills/affliction_13.jpg"
+  },
+  {
+    "name": "Control Gem",
+    "path": "icons/commodities/gems/gem-rough-round-pink.webp"
+  },
+  {
+    "name": "Convene the Ghost Council",
+    "path": "systems/dnd5e/icons/skills/ice_17.jpg"
+  },
+  {
+    "name": "Coordinated Assault",
+    "path": "systems/dnd5e/icons/skills/yellow_37.jpg"
+  },
+  {
+    "name": "Coral Rapier",
+    "path": "icons/weapons/daggers/dagger-double-simple-black.webp"
+  },
+  {
+    "name": "Corpse Burst",
+    "path": "systems/dnd5e/icons/spells/rip-magenta-3.jpg"
+  },
+  {
+    "name": "Corpse Stride",
+    "path": "systems/dnd5e/icons/skills/red_28.jpg"
+  },
+  {
+    "name": "Corpses",
+    "path": "systems/dnd5e/icons/skills/green_25.jpg"
+  },
+  {
+    "name": "Corrode Metal",
+    "path": "systems/dnd5e/icons/skills/weapon_19.jpg"
+  },
+  {
+    "name": "Corrosive Form",
+    "path": "icons/commodities/materials/slime-thick-green.webp"
+  },
+  {
+    "name": "Corrupt Water",
+    "path": "systems/dnd5e/icons/skills/affliction_16.jpg"
+  },
+  {
+    "name": "Corrupted Carrier",
+    "path": "systems/dnd5e/icons/spells/rip-acid-2.jpg"
+  },
+  {
+    "name": "Corrupted Healing",
+    "path": "systems/dnd5e/icons/skills/affliction_09.jpg"
+  },
+  {
+    "name": "Corrupted Vengeance",
+    "path": "systems/dnd5e/icons/spells/horror-acid-2.jpg"
+  },
+  {
+    "name": "Corrupting Guidance",
+    "path": "systems/dnd5e/icons/spells/horror-acid-2.jpg"
+  },
+  {
+    "name": "Corrupting Touch",
+    "path": "systems/dnd5e/icons/spells/beam-jade-1.jpg"
+  },
+  {
+    "name": "Corruption",
+    "path": "systems/dnd5e/icons/items/inventory/monster-disease.jpg"
+  },
+  {
+    "name": "Council of Five",
+    "path": "systems/dnd5e/icons/skills/water_03.jpg"
+  },
+  {
+    "name": "Counterflux Overcast",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-2.jpg"
+  },
+  {
+    "name": "Counterspell",
+    "path": "systems/dnd5e/icons/spells/shielding-eerie-3.jpg"
+  },
+  {
+    "name": "Crackling Death",
+    "path": "systems/dnd5e/icons/spells/explosion-sky-3.jpg"
+  },
+  {
+    "name": "Create Fire Elemental",
+    "path": "systems/dnd5e/icons/skills/fire_12.jpg"
+  },
+  {
+    "name": "Create Food and Water",
+    "path": "systems/dnd5e/icons/skills/green_32.jpg"
+  },
+  {
+    "name": "Create Gargoyle",
+    "path": "icons/commodities/treasure/statuette-gargoyle-green-gold.webp"
+  },
+  {
+    "name": "Create Green Slime",
+    "path": "icons/commodities/materials/slime-thick-green.webp"
+  },
+  {
+    "name": "Create Ice Mephit",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-2.jpg"
+  },
+  {
+    "name": "Create Soulblade",
+    "path": "systems/dnd5e/icons/spells/enchant-sky-2.jpg"
+  },
+  {
+    "name": "Create Specter",
+    "path": "systems/dnd5e/icons/skills/ice_17.jpg"
+  },
+  {
+    "name": "Create Whirlwind",
+    "path": "systems/dnd5e/icons/spells/wind-sky-3.jpg"
+  },
+  {
+    "name": "Creature Sense",
+    "path": "systems/dnd5e/icons/skills/beast_04.jpg"
+  },
+  {
+    "name": "Creeping Darkness",
+    "path": "systems/dnd5e/icons/skills/shadow_10.jpg"
+  },
+  {
+    "name": "Creeping Death",
+    "path": "systems/dnd5e/icons/skills/water_01.jpg"
+  },
+  {
+    "name": "Crippling Fear",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-2.jpg"
+  },
+  {
+    "name": "Croaked Decree",
+    "path": "systems/dnd5e/icons/spells/horror-acid-2.jpg"
+  },
+  {
+    "name": "Cruel Entertainment",
+    "path": "icons/containers/kitchenware/goblet-skeletal-black.webp"
+  },
+  {
+    "name": "Crumbling Colossus",
+    "path": "icons/commodities/stone/paver-gravel-grey.webp"
+  },
+  {
+    "name": "Crumbling Destruction",
+    "path": "icons/commodities/stone/paver-gravel-grey.webp"
+  },
+  {
+    "name": "Crush",
+    "path": "systems/dnd5e/icons/spells/rip-jade-3.jpg"
+  },
+  {
+    "name": "Crushing Hug",
+    "path": "systems/dnd5e/icons/spells/rip-jade-3.jpg"
+  },
+  {
+    "name": "Crushing Leap",
+    "path": "systems/dnd5e/icons/spells/rip-jade-3.jpg"
+  },
+  {
+    "name": "Crystal Spores",
+    "path": "systems/dnd5e/icons/spells/explosion-sky-1.jpg"
+  },
+  {
+    "name": "Crysteel Dagger",
+    "path": "icons/weapons/daggers/dagger-crooked-red.webp"
+  },
+  {
+    "name": "Cunning Action",
+    "path": "systems/dnd5e/icons/skills/violet_10.jpg"
+  },
+  {
+    "name": "Cunning Opportunist",
+    "path": "systems/dnd5e/icons/skills/emerald_11.jpg"
+  },
+  {
+    "name": "Curse",
+    "path": "systems/dnd5e/icons/spells/link-royal-3.jpg"
+  },
+  {
+    "name": "Curse of Poor Hospitality",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-1.jpg"
+  },
+  {
+    "name": "Curse of the Evil Eye",
+    "path": "systems/dnd5e/icons/skills/emerald_11.jpg"
+  },
+  {
+    "name": "Curse of the Husk",
+    "path": "systems/dnd5e/icons/skills/shadow_04.jpg"
+  },
+  {
+    "name": "Curtain-Call Scythe",
+    "path": "icons/weapons/sickles/scythe-bone-jagged.webp"
+  },
+  {
+    "name": "Customizable Storage",
+    "path": "icons/containers/chest/chest-simple-box-gold-brown.webp"
+  },
+  {
+    "name": "Dagger",
+    "path": "icons/weapons/daggers/dagger-curved-black.webp"
+  },
+  {
+    "name": "Dagger Thrower",
+    "path": "icons/weapons/thrown/dagger-simple.webp"
+  },
+  {
+    "name": "Damage Transfer",
+    "path": "systems/dnd5e/icons/skills/blood_04.jpg"
+  },
+  {
+    "name": "Dance, My Puppet!",
+    "path": "icons/commodities/treasure/doll-voodoo.webp"
+  },
+  {
+    "name": "Dark Advantage",
+    "path": "systems/dnd5e/icons/skills/blue_35.jpg"
+  },
+  {
+    "name": "Dark Devotion",
+    "path": "systems/dnd5e/icons/skills/blue_35.jpg"
+  },
+  {
+    "name": "Dark One's Blessing",
+    "path": "systems/dnd5e/icons/skills/blood_01.jpg"
+  },
+  {
+    "name": "Dark One's Own Luck",
+    "path": "systems/dnd5e/icons/skills/blood_01.jpg"
+  },
+  {
+    "name": "Darkness",
+    "path": "systems/dnd5e/icons/skills/shadow_10.jpg"
+  },
+  {
+    "name": "Darkness Aura",
+    "path": "systems/dnd5e/icons/skills/shadow_10.jpg"
+  },
+  {
+    "name": "Dart",
+    "path": "icons/weapons/thrown/dart-feathered.webp"
+  },
+  {
+    "name": "Deadly Critical",
+    "path": "systems/dnd5e/icons/skills/weapon_29.jpg"
+  },
+  {
+    "name": "Deadly Leap",
+    "path": "systems/dnd5e/icons/skills/affliction_25.jpg"
+  },
+  {
+    "name": "Deadly Reach",
+    "path": "systems/dnd5e/icons/skills/blood_06.jpg"
+  },
+  {
+    "name": "Deafening Clatter",
+    "path": "icons/commodities/bones/bones-stack-tan.webp"
+  },
+  {
+    "name": "Dealing with Onyx",
+    "path": "icons/commodities/bones/skull-bat-grey.webp"
+  },
+  {
+    "name": "Death Burn",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Death Curse",
+    "path": "systems/dnd5e/icons/skills/green_12.jpg"
+  },
+  {
+    "name": "Death Fangs",
+    "path": "icons/commodities/bones/teeth-sharp-white.webp"
+  },
+  {
+    "name": "Death Flash",
+    "path": "systems/dnd5e/icons/spells/explosion-royal-2.jpg"
+  },
+  {
+    "name": "Death Gaze",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Death Glare",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Death Lance",
+    "path": "systems/dnd5e/icons/skills/arrow_11.jpg"
+  },
+  {
+    "name": "Death Link",
+    "path": "systems/dnd5e/icons/skills/red_04.jpg"
+  },
+  {
+    "name": "Death Ray",
+    "path": "systems/dnd5e/icons/spells/beam-magenta-2.jpg"
+  },
+  {
+    "name": "Death Scream",
+    "path": "systems/dnd5e/icons/skills/red_22.jpg"
+  },
+  {
+    "name": "Deathly Choir",
+    "path": "systems/dnd5e/icons/skills/red_22.jpg"
+  },
+  {
+    "name": "Deathly Claw",
+    "path": "icons/commodities/bones/bone-foot-bird-brown.webp"
+  },
+  {
+    "name": "Debilitating Breath",
+    "path": "systems/dnd5e/icons/skills/ice_11.jpg"
+  },
+  {
+    "name": "Decrepit State",
+    "path": "systems/dnd5e/icons/skills/red_28.jpg"
+  },
+  {
+    "name": "Defender",
+    "path": "icons/equipment/shield/heater-steel-boss-red.webp"
+  },
+  {
+    "name": "Defensive Advantage",
+    "path": "icons/equipment/shield/kite-steel-boss-gold.webp"
+  },
+  {
+    "name": "Defensive Rebuke",
+    "path": "systems/dnd5e/icons/skills/weapon_16.jpg"
+  },
+  {
+    "name": "Deflect Attack",
+    "path": "systems/dnd5e/icons/skills/weapon_14.jpg"
+  },
+  {
+    "name": "Deflect Missile",
+    "path": "systems/dnd5e/icons/skills/red_11.jpg"
+  },
+  {
+    "name": "Deflect Missiles",
+    "path": "systems/dnd5e/icons/skills/red_11.jpg"
+  },
+  {
+    "name": "Deformed",
+    "path": "icons/commodities/stone/ore-pile-orange.webp"
+  },
+  {
+    "name": "Deluge",
+    "path": "systems/dnd5e/icons/skills/water_08.jpg"
+  },
+  {
+    "name": "Deluge",
+    "path": "systems/dnd5e/icons/skills/water_08.jpg"
+  },
+  {
+    "name": "Demiplanar Donjon",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "Demogorgon's Lair",
+    "path": "icons/environment/settlement/city-night-spire.webp"
+  },
+  {
+    "name": "Demon Staff",
+    "path": "icons/weapons/staves/staff-ornate-eye.webp"
+  },
+  {
+    "name": "Demon Staff",
+    "path": "icons/weapons/staves/staff-ornate-eye.webp"
+  },
+  {
+    "name": "Demonic Shadows",
+    "path": "systems/dnd5e/icons/skills/shadow_10.jpg"
+  },
+  {
+    "name": "Demonic Weapon",
+    "path": "icons/weapons/axes/axe-battle-eyes-red.webp"
+  },
+  {
+    "name": "Denizen of the Mist",
+    "path": "systems/dnd5e/icons/spells/fog-water-air-1.jpg"
+  },
+  {
+    "name": "Destructive Claws",
+    "path": "icons/commodities/claws/claws-white.webp"
+  },
+  {
+    "name": "Destructive Fist",
+    "path": "icons/equipment/hand/gauntlet-simple-leather-steel.webp"
+  },
+  {
+    "name": "Detect",
+    "path": "icons/tools/scribal/magnifying-glass.webp"
+  },
+  {
+    "name": "Detect Invisibility",
+    "path": "icons/tools/scribal/magnifying-glass.webp"
+  },
+  {
+    "name": "Detect Life",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-1.jpg"
+  },
+  {
+    "name": "Detect Sentience",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-1.jpg"
+  },
+  {
+    "name": "Detention",
+    "path": "systems/dnd5e/icons/spells/runes-magenta-2.jpg"
+  },
+  {
+    "name": "Devastating Roll",
+    "path": "systems/dnd5e/icons/spells/rock-plain-3.jpg"
+  },
+  {
+    "name": "Devil's Sight",
+    "path": "systems/dnd5e/icons/spells/evil-eye-red-2.jpg"
+  },
+  {
+    "name": "Devour Intellect",
+    "path": "systems/dnd5e/icons/items/inventory/monster-head.jpg"
+  },
+  {
+    "name": "Devour Soul",
+    "path": "systems/dnd5e/icons/items/inventory/monster-head.jpg"
+  },
+  {
+    "name": "Dexterous Target",
+    "path": "systems/dnd5e/icons/spells/rock-sky-2.jpg"
+  },
+  {
+    "name": "Diabolical Sense",
+    "path": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg"
+  },
+  {
+    "name": "Dimensional Form",
+    "path": "systems/dnd5e/icons/skills/blue_12.jpg"
+  },
+  {
+    "name": "Dimensional Lock",
+    "path": "systems/dnd5e/icons/skills/yellow_15.jpg"
+  },
+  {
+    "name": "Dimensional Rift",
+    "path": "systems/dnd5e/icons/skills/yellow_15.jpg"
+  },
+  {
+    "name": "Dire Cacophony",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-3.jpg"
+  },
+  {
+    "name": "Disassemble",
+    "path": "systems/dnd5e/icons/skills/red_28.jpg"
+  },
+  {
+    "name": "Discern Lie",
+    "path": "icons/commodities/biological/eye-red-pink.webp"
+  },
+  {
+    "name": "Discordant Song",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-3.jpg"
+  },
+  {
+    "name": "Discorporation",
+    "path": "systems/dnd5e/icons/skills/yellow_12.jpg"
+  },
+  {
+    "name": "Disentigrate",
+    "path": "systems/dnd5e/icons/spells/beam-jade-2.jpg"
+  },
+  {
+    "name": "Disfigured Second Head",
+    "path": "systems/dnd5e/icons/skills/violet_22.jpg"
+  },
+  {
+    "name": "Disgorge Allies",
+    "path": "systems/dnd5e/icons/skills/yellow_18.jpg"
+  },
+  {
+    "name": "Disgorge Zombie",
+    "path": "systems/dnd5e/icons/skills/red_28.jpg"
+  },
+  {
+    "name": "Disintegrate",
+    "path": "systems/dnd5e/icons/spells/beam-jade-2.jpg"
+  },
+  {
+    "name": "Disintegration",
+    "path": "systems/dnd5e/icons/spells/beam-jade-2.jpg"
+  },
+  {
+    "name": "Displacement",
+    "path": "systems/dnd5e/icons/skills/shadow_07.jpg"
+  },
+  {
+    "name": "Disrupt Life",
+    "path": "systems/dnd5e/icons/skills/blood_03.jpg"
+  },
+  {
+    "name": "Disruptive Touch",
+    "path": "icons/commodities/biological/hand-clawed-green.webp"
+  },
+  {
+    "name": "Distress Spores",
+    "path": "systems/dnd5e/icons/spells/wind-magenta-1.jpg"
+  },
+  {
+    "name": "Dive Attack",
+    "path": "systems/dnd5e/icons/skills/yellow_38.jpg"
+  },
+  {
+    "name": "Divine Awareness",
+    "path": "icons/commodities/biological/eye-red-pink.webp"
+  },
+  {
+    "name": "Divine Being",
+    "path": "systems/dnd5e/icons/spells/heal-sky-3.jpg"
+  },
+  {
+    "name": "Divine Display",
+    "path": "systems/dnd5e/icons/skills/light_03.jpg"
+  },
+  {
+    "name": "Divine Dread",
+    "path": "icons/equipment/neck/necklace-carved-bone-skull.webp"
+  },
+  {
+    "name": "Divine Eminence",
+    "path": "systems/dnd5e/icons/skills/light_06.jpg"
+  },
+  {
+    "name": "Divine Health",
+    "path": "systems/dnd5e/icons/spells/heal-jade-3.jpg"
+  },
+  {
+    "name": "Divine Insight",
+    "path": "systems/dnd5e/icons/skills/red_09.jpg"
+  },
+  {
+    "name": "Divine Rejuvenation",
+    "path": "systems/dnd5e/icons/spells/heal-jade-3.jpg"
+  },
+  {
+    "name": "Divine Resurrection",
+    "path": "systems/dnd5e/icons/spells/heal-jade-3.jpg"
+  },
+  {
+    "name": "Divine Strike",
+    "path": "systems/dnd5e/icons/skills/light_06.jpg"
+  },
+  {
+    "name": "Donjon Visit",
+    "path": "systems/dnd5e/icons/spells/runes-orange-2.jpg"
+  },
+  {
+    "name": "Doomvault Devotion",
+    "path": "systems/dnd5e/icons/spells/shielding-fire-2.jpg"
+  },
+  {
+    "name": "Double Crossbow",
+    "path": "systems/dnd5e/icons/skills/weapon_03.jpg"
+  },
+  {
+    "name": "Dracogenius",
+    "path": "icons/sundries/books/book-tooled-eye-gold-red.webp"
+  },
+  {
+    "name": "Draconic Majesty",
+    "path": "systems/dnd5e/icons/skills/green_21.jpg"
+  },
+  {
+    "name": "Dragon Fanatic",
+    "path": "icons/equipment/shield/kite-wooden-dragon-green.webp"
+  },
+  {
+    "name": "Dragon Wings",
+    "path": "icons/commodities/biological/wing-green.webp"
+  },
+  {
+    "name": "Dragon's Resistance",
+    "path": "icons/commodities/leather/scales-green.webp"
+  },
+  {
+    "name": "Dragonborn",
+    "path": "systems/dnd5e/icons/skills/fire_05.jpg"
+  },
+  {
+    "name": "Draining Kiss",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Dreadful",
+    "path": "systems/dnd5e/icons/skills/red_22.jpg"
+  },
+  {
+    "name": "Dreadful Aspect",
+    "path": "systems/dnd5e/icons/skills/water_03.jpg"
+  },
+  {
+    "name": "Dreadful Glare",
+    "path": "systems/dnd5e/icons/skills/water_07.jpg"
+  },
+  {
+    "name": "Dream Eater",
+    "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
+  },
+  {
+    "name": "Dreamwalker's Charm",
+    "path": "icons/commodities/treasure/broach-eye-silver-teal.webp"
+  },
+  {
+    "name": "Drill",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-1.jpg"
+  },
+  {
+    "name": "Drone",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-1.jpg"
+  },
+  {
+    "name": "Drop",
+    "path": "systems/dnd5e/icons/spells/ice-sky-1.jpg"
+  },
+  {
+    "name": "Dropped Rock",
+    "path": "systems/dnd5e/icons/spells/rock-plain-2.jpg"
+  },
+  {
+    "name": "Drown",
+    "path": "icons/weapons/polearms/trident-silver-blue.webp"
+  },
+  {
+    "name": "Drowning Hypnosis",
+    "path": "systems/dnd5e/icons/skills/water_01.jpg"
+  },
+  {
+    "name": "Drowning Kiss",
+    "path": "systems/dnd5e/icons/skills/green_08.jpg"
+  },
+  {
+    "name": "Dual Consciousness",
+    "path": "systems/dnd5e/icons/skills/blue_15.jpg"
+  },
+  {
+    "name": "Dual Mind",
+    "path": "systems/dnd5e/icons/skills/blue_15.jpg"
+  },
+  {
+    "name": "Dual Shields",
+    "path": "systems/dnd5e/icons/skills/weapon_44.jpg"
+  },
+  {
+    "name": "Dual Wand Wielder",
+    "path": "icons/weapons/wands/wand-carved-stone-shard.webp"
+  },
+  {
+    "name": "Duck and Cover",
+    "path": "icons/equipment/shield/heater-emossed-spiral-green.webp"
+  },
+  {
+    "name": "Duergar Resilience",
+    "path": "icons/commodities/treasure/statue-bust-stone-grey.webp"
+  },
+  {
+    "name": "Dwarven Resilience",
+    "path": "icons/commodities/treasure/statue-carved-figurehead.webp"
+  },
+  {
+    "name": "Dwarven Thrower",
+    "path": "icons/weapons/hammers/shorthammer-double-steel-embossed.webp"
+  },
+  {
+    "name": "Dyrrn's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "Earth Armor",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "Earth Glide",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "Earth Passage",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "Earth Phasing",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "Earth Tremors",
+    "path": "systems/dnd5e/icons/spells/air-burst-air-3.jpg"
+  },
+  {
+    "name": "Earth Walk",
+    "path": "icons/environment/wilderness/cave-entrance-rocky.webp"
+  },
+  {
+    "name": "Earth-Shaking Movement",
+    "path": "icons/commodities/biological/foot-black-grey.webp"
+  },
+  {
+    "name": "Earthen Defeat",
+    "path": "systems/dnd5e/icons/skills/mech_9.jpg"
+  },
+  {
+    "name": "Eat Memories",
+    "path": "icons/commodities/biological/tongue-violet.webp"
+  },
+  {
+    "name": "Echo Spell",
+    "path": "systems/dnd5e/icons/spells/runes-royal-1.jpg"
+  },
+  {
+    "name": "Echolocation",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-3.jpg"
+  },
+  {
+    "name": "Eerie Resemblance",
+    "path": "icons/commodities/biological/eye-tentacle-green-yellow.webp"
+  },
+  {
+    "name": "Eject Slime",
+    "path": "icons/commodities/materials/slime-thick-orange.webp"
+  },
+  {
+    "name": "Eldritch Arrow",
+    "path": "systems/dnd5e/icons/skills/arrow_11.jpg"
+  },
+  {
+    "name": "Eldritch Blast",
+    "path": "systems/dnd5e/icons/spells/fireball-eerie-1.jpg"
+  },
+  {
+    "name": "Eldritch Touch",
+    "path": "systems/dnd5e/icons/skills/shadow_21.jpg"
+  },
+  {
+    "name": "Eldritch Turret",
+    "path": "icons/weapons/artillery/cannon-engraved-gold.webp"
+  },
+  {
+    "name": "Electrified Body",
+    "path": "systems/dnd5e/icons/skills/violet_01.jpg"
+  },
+  {
+    "name": "Electrified Touch",
+    "path": "systems/dnd5e/icons/skills/violet_01.jpg"
+  },
+  {
+    "name": "Elemental Demise",
+    "path": "icons/commodities/gems/powder-raw-white.webp"
+  },
+  {
+    "name": "Elemental Gem",
+    "path": "icons/commodities/gems/gem-faceted-round-white.webp"
+  },
+  {
+    "name": "Elf",
+    "path": "icons/equipment/back/cloak-hooded-jewels-green.webp"
+  },
+  {
+    "name": "Elusive",
+    "path": "systems/dnd5e/icons/skills/violet_07.jpg"
+  },
+  {
+    "name": "Elven",
+    "path": "icons/equipment/back/cloak-hooded-jewels-green.webp"
+  },
+  {
+    "name": "Embrace",
+    "path": "icons/commodities/bones/hurn-curved-yellow.webp"
+  },
+  {
+    "name": "Emerge",
+    "path": "systems/dnd5e/icons/skills/green_11.jpg"
+  },
+  {
+    "name": "Emissary of the Sea",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-1.jpg"
+  },
+  {
+    "name": "Empathic Feedback",
+    "path": "systems/dnd5e/icons/skills/yellow_17.jpg"
+  },
+  {
+    "name": "Empowered Attacks",
+    "path": "systems/dnd5e/icons/spells/enchant-eerie-3.jpg"
+  },
+  {
+    "name": "Empowered Slam",
+    "path": "systems/dnd5e/icons/skills/ice_10.jpg"
+  },
+  {
+    "name": "Empowered Spell",
+    "path": "systems/dnd5e/icons/items/inventory/scroll-secret.jpg"
+  },
+  {
+    "name": "Empowered Spells",
+    "path": "systems/dnd5e/icons/items/inventory/scroll-secret.jpg"
+  },
+  {
+    "name": "Enchanting Presence",
+    "path": "systems/dnd5e/icons/spells/leaf-orange-3.jpg"
+  },
+  {
+    "name": "End Magic",
+    "path": "systems/dnd5e/icons/spells/rip-water-3.jpg"
+  },
+  {
+    "name": "Energy Drain",
+    "path": "systems/dnd5e/icons/spells/rip-magenta-3.jpg"
+  },
+  {
+    "name": "Enervating Focus",
+    "path": "systems/dnd5e/icons/spells/enchant-magenta-1.jpg"
+  },
+  {
+    "name": "Engine of Pain",
+    "path": "icons/weapons/axes/axe-battle-skull-black.webp"
+  },
+  {
+    "name": "Engulf",
+    "path": "systems/dnd5e/icons/skills/blue_20.jpg"
+  },
+  {
+    "name": "Enlarge",
+    "path": "systems/dnd5e/icons/skills/yellow_14.jpg"
+  },
+  {
+    "name": "Enormous Tentacle",
+    "path": "icons/commodities/biological/tentacle-purple-white.webp"
+  },
+  {
+    "name": "Enslave",
+    "path": "systems/dnd5e/icons/skills/water_07.jpg"
+  },
+  {
+    "name": "Entangling Plants",
+    "path": "systems/dnd5e/icons/spells/vines-acid-3.jpg"
+  },
+  {
+    "name": "Entangling Vines",
+    "path": "systems/dnd5e/icons/spells/vines-acid-3.jpg"
+  },
+  {
+    "name": "Enthralling Performance",
+    "path": "systems/dnd5e/icons/spells/leaf-orange-3.jpg"
+  },
+  {
+    "name": "Entropic Aura",
+    "path": "systems/dnd5e/icons/skills/emerald_09.jpg"
+  },
+  {
+    "name": "Entropic Touch",
+    "path": "systems/dnd5e/icons/skills/violet_28.jpg"
+  },
+  {
+    "name": "Envenomed Crossbow",
+    "path": "systems/dnd5e/icons/skills/arrow_08.jpg"
+  },
+  {
+    "name": "Ephemeral",
+    "path": "systems/dnd5e/icons/spells/fog-air-1.jpg"
+  },
+  {
+    "name": "Equipment",
+    "path": "icons/containers/bags/satchel-worn-leather-blue.webp"
+  },
+  {
+    "name": "Escape",
+    "path": "systems/dnd5e/icons/spells/wild-orange-1.jpg"
+  },
+  {
+    "name": "Ethereal Awareness",
+    "path": "systems/dnd5e/icons/spells/wild-jade-2.jpg"
+  },
+  {
+    "name": "Ethereal Jaunt",
+    "path": "icons/commodities/materials/glass-orb-teal.webp"
+  },
+  {
+    "name": "Ethereal Sight",
+    "path": "systems/dnd5e/icons/skills/violet_05.jpg"
+  },
+  {
+    "name": "Ethereal Stride",
+    "path": "systems/dnd5e/icons/skills/violet_05.jpg"
+  },
+  {
+    "name": "Etherealness",
+    "path": "systems/dnd5e/icons/spells/shielding-spirit-1.jpg"
+  },
+  {
+    "name": "Euphoria Breath",
+    "path": "systems/dnd5e/icons/spells/wind-magenta-2.jpg"
+  },
+  {
+    "name": "Evasion",
+    "path": "systems/dnd5e/icons/skills/fire_08.jpg"
+  },
+  {
+    "name": "Evil Eye",
+    "path": "icons/weapons/wands/wand-simple-eye.webp"
+  },
+  {
+    "name": "Exert Will",
+    "path": "systems/dnd5e/icons/skills/blood_13.jpg"
+  },
+  {
+    "name": "Expertise",
+    "path": "systems/dnd5e/icons/skills/red_25.jpg"
+  },
+  {
+    "name": "Exploitation of the Debtors",
+    "path": "icons/commodities/currency/coin-embossed-skull-silver.webp"
+  },
+  {
+    "name": "Explosive Bolt",
+    "path": "systems/dnd5e/icons/skills/arrow_10.jpg"
+  },
+  {
+    "name": "Explosive Retribution",
+    "path": "systems/dnd5e/icons/spells/explosion-red-3.jpg"
+  },
+  {
+    "name": "Explosive Tank",
+    "path": "systems/dnd5e/icons/spells/explosion-red-3.jpg"
+  },
+  {
+    "name": "Extra Attack",
+    "path": "icons/weapons/daggers/dagger-twin-curved-black.webp"
+  },
+  {
+    "name": "Extra Heads",
+    "path": "systems/dnd5e/icons/skills/violet_03.jpg"
+  },
+  {
+    "name": "Extract Brain",
+    "path": "icons/commodities/biological/organ-brain-pink-purple.webp"
+  },
+  {
+    "name": "Extradimensional Chamber",
+    "path": "systems/dnd5e/icons/skills/water_05.jpg"
+  },
+  {
+    "name": "Extraordinary Feature",
+    "path": "systems/dnd5e/icons/spells/wild-jade-3.jpg"
+  },
+  {
+    "name": "Extraordinary Leap",
+    "path": "icons/commodities/biological/legs-insect-brown.webp"
+  },
+  {
+    "name": "Eye of Corruption",
+    "path": "icons/commodities/biological/eye-purple.webp"
+  },
+  {
+    "name": "Eye of Fear",
+    "path": "icons/commodities/biological/eye-green-pink.webp"
+  },
+  {
+    "name": "Eye of Flame",
+    "path": "icons/equipment/neck/necklace-eye-orange.webp"
+  },
+  {
+    "name": "Eye of Frost",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Eye of the Law",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Eye Ray",
+    "path": "systems/dnd5e/icons/skills/violet_09.jpg"
+  },
+  {
+    "name": "Eye Rays",
+    "path": "systems/dnd5e/icons/skills/yellow_26.jpg"
+  },
+  {
+    "name": "Eye Thief",
+    "path": "icons/commodities/biological/eye-red-pink.webp"
+  },
+  {
+    "name": "Fading Eyesight",
+    "path": "systems/dnd5e/icons/skills/light_01.jpg"
+  },
+  {
+    "name": "Fallible Invisibility",
+    "path": "systems/dnd5e/icons/spells/fog-water-air-1.jpg"
+  },
+  {
+    "name": "Falling Apart",
+    "path": "systems/dnd5e/icons/skills/yellow_03.jpg"
+  },
+  {
+    "name": "False Appearance",
+    "path": "systems/dnd5e/icons/spells/shielding-eerie-1.jpg"
+  },
+  {
+    "name": "Familiar",
+    "path": "icons/environment/creatures/gargoyle-grey-blue.webp"
+  },
+  {
+    "name": "Fanatic Advantage",
+    "path": "icons/weapons/clubs/club-barbed-skull.webp"
+  },
+  {
+    "name": "Fanatical Advantage",
+    "path": "icons/weapons/clubs/club-barbed-skull.webp"
+  },
+  {
+    "name": "Fane-Eater",
+    "path": "icons/weapons/axes/axe-battle-eyes-red.webp"
+  },
+  {
+    "name": "Faultless Tracker",
+    "path": "systems/dnd5e/icons/skills/shadow_17.jpg"
+  },
+  {
+    "name": "Fear",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-2.jpg"
+  },
+  {
+    "name": "Fear Aura",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-2.jpg"
+  },
+  {
+    "name": "Fear Frenzy",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-2.jpg"
+  },
+  {
+    "name": "Fear Gaze",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-2.jpg"
+  },
+  {
+    "name": "Fear of Fire",
+    "path": "systems/dnd5e/icons/skills/yellow_18.jpg"
+  },
+  {
+    "name": "Fear Ray",
+    "path": "systems/dnd5e/icons/spells/beam-acid-2.jpg"
+  },
+  {
+    "name": "Fearful Voice",
+    "path": "systems/dnd5e/icons/skills/affliction_24.jpg"
+  },
+  {
+    "name": "Fearsome Apparition",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-2.jpg"
+  },
+  {
+    "name": "Fearsome Presence",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-2.jpg"
+  },
+  {
+    "name": "Feather Fall",
+    "path": "icons/commodities/materials/feather-curled-white.webp"
+  },
+  {
+    "name": "Feed on Death",
+    "path": "systems/dnd5e/icons/skills/affliction_09.jpg"
+  },
+  {
+    "name": "Feed on Fire",
+    "path": "systems/dnd5e/icons/skills/yellow_20.jpg"
+  },
+  {
+    "name": "Feed on the Crowd",
+    "path": "systems/dnd5e/icons/skills/red_02.jpg"
+  },
+  {
+    "name": "Feed on Weakness",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Feline Agility",
+    "path": "icons/commodities/claws/claw-blue-grey.webp"
+  },
+  {
+    "name": "Fetid Cloud",
+    "path": "systems/dnd5e/icons/spells/fog-acid-3.jpg"
+  },
+  {
+    "name": "Fey Ancestry",
+    "path": "systems/dnd5e/icons/skills/green_13.jpg"
+  },
+  {
+    "name": "Fey Charm",
+    "path": "systems/dnd5e/icons/skills/green_13.jpg"
+  },
+  {
+    "name": "Fey Presence",
+    "path": "systems/dnd5e/icons/skills/violet_22.jpg"
+  },
+  {
+    "name": "Fey Step",
+    "path": "systems/dnd5e/icons/skills/green_13.jpg"
+  },
+  {
+    "name": "Fiendish Blessing",
+    "path": "systems/dnd5e/icons/skills/shadow_09.jpg"
+  },
+  {
+    "name": "Fiendish Charm",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Fiery Death and Rebirth",
+    "path": "systems/dnd5e/icons/spells/haste-fire-3.jpg"
+  },
+  {
+    "name": "Fiery End",
+    "path": "systems/dnd5e/icons/skills/fire_13.jpg"
+  },
+  {
+    "name": "Fiery Strikes",
+    "path": "systems/dnd5e/icons/skills/red_21.jpg"
+  },
+  {
+    "name": "Fiery Talons",
+    "path": "systems/dnd5e/icons/skills/red_21.jpg"
+  },
+  {
+    "name": "Fiery Teleport",
+    "path": "systems/dnd5e/icons/spells/runes-orange-2.jpg"
+  },
+  {
+    "name": "Fiery Touch",
+    "path": "systems/dnd5e/icons/skills/red_21.jpg"
+  },
+  {
+    "name": "Fiery Weapons",
+    "path": "systems/dnd5e/icons/skills/fire_13.jpg"
+  },
+  {
+    "name": "Fight On, You Slugs",
+    "path": "icons/weapons/axes/shortaxe-tribal.webp"
+  },
+  {
+    "name": "Filament",
+    "path": "systems/dnd5e/icons/skills/blue_05.jpg"
+  },
+  {
+    "name": "Finger of Doom",
+    "path": "systems/dnd5e/icons/skills/yellow_23.jpg"
+  },
+  {
+    "name": "Fire Absorption",
+    "path": "icons/commodities/gems/pearl-fire-swirl.webp"
+  },
+  {
+    "name": "Fire Aura",
+    "path": "systems/dnd5e/icons/spells/light-air-fire-3.jpg"
+  },
+  {
+    "name": "Fire Banishment",
+    "path": "systems/dnd5e/icons/spells/fire-arrows-1.jpg"
+  },
+  {
+    "name": "Fire Bolt",
+    "path": "systems/dnd5e/icons/spells/beam-red-2.jpg"
+  },
+  {
+    "name": "Fire Breath",
+    "path": "systems/dnd5e/icons/skills/fire_05.jpg"
+  },
+  {
+    "name": "Fire Burst",
+    "path": "systems/dnd5e/icons/spells/explosion-red-2.jpg"
+  },
+  {
+    "name": "Fire Lance",
+    "path": "icons/commodities/metal/barstock-heated-steel.webp"
+  },
+  {
+    "name": "Fire Ray",
+    "path": "systems/dnd5e/icons/spells/beam-orange-2.jpg"
+  },
+  {
+    "name": "Fire Spray",
+    "path": "systems/dnd5e/icons/spells/needles-fire-1.jpg"
+  },
+  {
+    "name": "Firearms Knowledge",
+    "path": "icons/containers/ammunition/bullets-belt.webp"
+  },
+  {
+    "name": "Fireball",
+    "path": "systems/dnd5e/icons/spells/fireball-red-2.jpg"
+  },
+  {
+    "name": "Fireshield",
+    "path": "systems/dnd5e/icons/spells/protect-red-3.jpg"
+  },
+  {
+    "name": "First Roar",
+    "path": "systems/dnd5e/icons/skills/red_07.jpg"
+  },
+  {
+    "name": "First Strike",
+    "path": "systems/dnd5e/icons/skills/weapon_06.jpg"
+  },
+  {
+    "name": "Fission Staff",
+    "path": "icons/weapons/staves/staff-ornate-blue.webp"
+  },
+  {
+    "name": "Fist of Retribution",
+    "path": "icons/equipment/hand/gauntlet-simple-leather-steel.webp"
+  },
+  {
+    "name": "Fists",
+    "path": "systems/dnd5e/icons/skills/blood_11.jpg"
+  },
+  {
+    "name": "Flail",
+    "path": "icons/weapons/maces/flail-studded-grey.webp"
+  },
+  {
+    "name": "Flail of Madness",
+    "path": "systems/dnd5e/icons/skills/violet_10.jpg"
+  },
+  {
+    "name": "Flail of Pain",
+    "path": "systems/dnd5e/icons/skills/violet_10.jpg"
+  },
+  {
+    "name": "Flail of Paralysis",
+    "path": "systems/dnd5e/icons/skills/violet_10.jpg"
+  },
+  {
+    "name": "Flail Tentacle",
+    "path": "systems/dnd5e/icons/items/inventory/monster-tentacle.jpg"
+  },
+  {
+    "name": "Flail Tentacles",
+    "path": "systems/dnd5e/icons/items/inventory/monster-tentacle.jpg"
+  },
+  {
+    "name": "Flailing Claws",
+    "path": "icons/commodities/claws/claws-white.webp"
+  },
+  {
+    "name": "Flame Blast",
+    "path": "systems/dnd5e/icons/spells/beam-red-3.jpg"
+  },
+  {
+    "name": "Flame Jet",
+    "path": "systems/dnd5e/icons/spells/beam-red-3.jpg"
+  },
+  {
+    "name": "Flame Strike",
+    "path": "systems/dnd5e/icons/spells/beam-red-3.jpg"
+  },
+  {
+    "name": "Flame Tongue",
+    "path": "systems/dnd5e/icons/skills/yellow_07.jpg"
+  },
+  {
+    "name": "Flame tongue Greatsword",
+    "path": "systems/dnd5e/icons/skills/yellow_16.jpg"
+  },
+  {
+    "name": "Flame Tongue Longsword",
+    "path": "systems/dnd5e/icons/skills/yellow_16.jpg"
+  },
+  {
+    "name": "Flames of Akros",
+    "path": "systems/dnd5e/icons/skills/yellow_07.jpg"
+  },
+  {
+    "name": "Flaming Fury",
+    "path": "systems/dnd5e/icons/spells/haste-fire-2.jpg"
+  },
+  {
+    "name": "Flaming Orb",
+    "path": "systems/dnd5e/icons/spells/light-air-fire-3.jpg"
+  },
+  {
+    "name": "Flaming Weapon",
+    "path": "systems/dnd5e/icons/skills/yellow_16.jpg"
+  },
+  {
+    "name": "Flammable Blood",
+    "path": "icons/commodities/gems/pearl-fire-swirl.webp"
+  },
+  {
+    "name": "Flaw:",
+    "path": "systems/dnd5e/icons/items/inventory/element-earth.jpg"
+  },
+  {
+    "name": "Fleeting Anger",
+    "path": "systems/dnd5e/icons/items/inventory/monster-cat.jpg"
+  },
+  {
+    "name": "Fleeting Form",
+    "path": "icons/equipment/head/mask-carved-wood-brown.webp"
+  },
+  {
+    "name": "Flesh-Crushing Stride",
+    "path": "systems/dnd5e/icons/skills/yellow_05.jpg"
+  },
+  {
+    "name": "Flexible",
+    "path": "systems/dnd5e/icons/items/inventory/monster-snake.jpg"
+  },
+  {
+    "name": "Flickering Dagger",
+    "path": "systems/dnd5e/icons/spells/enchant-sky-2.jpg"
+  },
+  {
+    "name": "Flight",
+    "path": "systems/dnd5e/icons/spells/haste-royal-2.jpg"
+  },
+  {
+    "name": "Fling",
+    "path": "systems/dnd5e/icons/spells/rock-sky-3.jpg"
+  },
+  {
+    "name": "Flitterstep",
+    "path": "systems/dnd5e/icons/spells/air-burst-sky-1.jpg"
+  },
+  {
+    "name": "Flourish",
+    "path": "systems/dnd5e/icons/skills/weapon_11.jpg"
+  },
+  {
+    "name": "Flurry of Bites",
+    "path": "systems/dnd5e/icons/items/inventory/monster-head.jpg"
+  },
+  {
+    "name": "Flurry of Claws",
+    "path": "icons/commodities/claws/claws-white.webp"
+  },
+  {
+    "name": "Fluxbending Overcast",
+    "path": "systems/dnd5e/icons/items/inventory/element-air.jpg"
+  },
+  {
+    "name": "Flyby",
+    "path": "systems/dnd5e/icons/spells/haste-sky-3.jpg"
+  },
+  {
+    "name": "Flying Dagger",
+    "path": "systems/dnd5e/icons/skills/weapon_12.jpg"
+  },
+  {
+    "name": "Flying Shards",
+    "path": "systems/dnd5e/icons/skills/blue_19.jpg"
+  },
+  {
+    "name": "Flying Sword",
+    "path": "systems/dnd5e/icons/skills/weapon_12.jpg"
+  },
+  {
+    "name": "Focus",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-1.jpg"
+  },
+  {
+    "name": "Focused Conjuration",
+    "path": "systems/dnd5e/icons/spells/protect-jade-2.jpg"
+  },
+  {
+    "name": "Foe Smiter of Ilneval",
+    "path": "systems/dnd5e/icons/skills/weapon_33.jpg"
+  },
+  {
+    "name": "Foment Madness",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Fool's Scepter",
+    "path": "icons/weapons/staves/staff-orb-red.webp"
+  },
+  {
+    "name": "Forbiddance",
+    "path": "systems/dnd5e/icons/skills/blue_15.jpg"
+  },
+  {
+    "name": "Force Beam",
+    "path": "systems/dnd5e/icons/spells/beam-blue-3.jpg"
+  },
+  {
+    "name": "Force Blade",
+    "path": "systems/dnd5e/icons/skills/weapon_29.jpg"
+  },
+  {
+    "name": "Force Fist",
+    "path": "systems/dnd5e/icons/skills/ice_10.jpg"
+  },
+  {
+    "name": "Force Pike",
+    "path": "systems/dnd5e/icons/skills/arrow_02.jpg"
+  },
+  {
+    "name": "Force Strike",
+    "path": "systems/dnd5e/icons/spells/beam-blue-2.jpg"
+  },
+  {
+    "name": "Force-Empowered Rend",
+    "path": "systems/dnd5e/icons/skills/weapon_29.jpg"
+  },
+  {
+    "name": "Forced Obedience",
+    "path": "systems/dnd5e/icons/skills/shadow_14.jpg"
+  },
+  {
+    "name": "Forceful Slam",
+    "path": "systems/dnd5e/icons/skills/ice_10.jpg"
+  },
+  {
+    "name": "Foreleg",
+    "path": "systems/dnd5e/icons/items/inventory/chitin.jpg"
+  },
+  {
+    "name": "Foremother",
+    "path": "icons/weapons/swords/scimitar-blue.webp"
+  },
+  {
+    "name": "Forgetfulness",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Fork",
+    "path": "icons/weapons/staves/staff-hooked-banded.webp"
+  },
+  {
+    "name": "Form of Fire and Water",
+    "path": "systems/dnd5e/icons/skills/mech_9.jpg"
+  },
+  {
+    "name": "Formation Tactics",
+    "path": "systems/dnd5e/icons/skills/blue_23.jpg"
+  },
+  {
+    "name": "Fortitude",
+    "path": "systems/dnd5e/icons/spells/protect-sky-2.jpg"
+  },
+  {
+    "name": "Foster Peace",
+    "path": "icons/commodities/flowers/cornflower-blue.webp"
+  },
+  {
+    "name": "Foul",
+    "path": "systems/dnd5e/icons/items/inventory/monster-tumor.jpg"
+  },
+  {
+    "name": "Foul Absorption",
+    "path": "systems/dnd5e/icons/items/inventory/monster-skin.jpg"
+  },
+  {
+    "name": "Fragile Bones",
+    "path": "icons/commodities/bones/bone-fragments-grey.webp"
+  },
+  {
+    "name": "Fragmentation Grenade",
+    "path": "icons/weapons/thrown/bomb-fuse-black-pink.webp"
+  },
+  {
+    "name": "Fraz-Urb'luu's Lair",
+    "path": "icons/environment/settlement/wizard-castle.webp"
+  },
+  {
+    "name": "Freedom of Movement",
+    "path": "systems/dnd5e/icons/spells/wind-sky-1.jpg"
+  },
+  {
+    "name": "Freeze",
+    "path": "icons/commodities/gems/gem-rough-rectangular-teal.webp"
+  },
+  {
+    "name": "Freezing Body",
+    "path": "systems/dnd5e/icons/skills/blue_04.jpg"
+  },
+  {
+    "name": "Freezing Breath",
+    "path": "systems/dnd5e/icons/skills/ice_11.jpg"
+  },
+  {
+    "name": "Freezing Stare",
+    "path": "systems/dnd5e/icons/skills/ice_15.jpg"
+  },
+  {
+    "name": "Freezing Strikes",
+    "path": "systems/dnd5e/icons/spells/enchant-blue-2.jpg"
+  },
+  {
+    "name": "Friend of the Sea",
+    "path": "systems/dnd5e/icons/skills/blue_12.jpg"
+  },
+  {
+    "name": "Frighten Foe",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Frighten Foes",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Frightening Gaze",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Frightening Presence",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Frightening Screech",
+    "path": "systems/dnd5e/icons/skills/red_01.jpg"
+  },
+  {
+    "name": "Frightful Cackle",
+    "path": "systems/dnd5e/icons/spells/horror-acid-2.jpg"
+  },
+  {
+    "name": "Frightful Presence",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Frightful Word",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Frigid Aura",
+    "path": "systems/dnd5e/icons/spells/runes-blue-3.jpg"
+  },
+  {
+    "name": "Frigid Rebuke",
+    "path": "systems/dnd5e/icons/skills/ice_09.jpg"
+  },
+  {
+    "name": "Frigid Shield",
+    "path": "systems/dnd5e/icons/spells/protect-blue-3.jpg"
+  },
+  {
+    "name": "Frog Rider",
+    "path": "icons/environment/creatures/frog-spotted-green.webp"
+  },
+  {
+    "name": "Frost Breath",
+    "path": "systems/dnd5e/icons/skills/ice_11.jpg"
+  },
+  {
+    "name": "Funeral Pyre",
+    "path": "systems/dnd5e/icons/skills/red_30.jpg"
+  },
+  {
+    "name": "Fungal Rot",
+    "path": "icons/commodities/biological/pustules-red.webp"
+  },
+  {
+    "name": "Fungus Stride",
+    "path": "systems/dnd5e/icons/skills/emerald_03.jpg"
+  },
+  {
+    "name": "Furious Defense",
+    "path": "icons/tools/fasteners/chain-steel-grey.webp"
+  },
+  {
+    "name": "Fuse Damage",
+    "path": "systems/dnd5e/icons/spells/rip-jade-2.jpg"
+  },
+  {
+    "name": "Fused Form",
+    "path": "icons/sundries/documents/document-symbol-eye.webp"
+  },
+  {
+    "name": "Galvanic Overcast",
+    "path": "systems/dnd5e/icons/skills/emerald_01.jpg"
+  },
+  {
+    "name": "Garrote",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
+  },
+  {
+    "name": "Gatekeeper's Aura",
+    "path": "systems/dnd5e/icons/skills/affliction_08.jpg"
+  },
+  {
+    "name": "Gauntlets of Ogre Power",
+    "path": "icons/equipment/hand/gauntlet-cuffed-steel-grey.webp"
+  },
+  {
+    "name": "Gaze",
+    "path": "systems/dnd5e/icons/skills/blue_17.jpg"
+  },
+  {
+    "name": "Gemstone Eyes",
+    "path": "icons/equipment/finger/ring-eye-purple-yellow.webp"
+  },
+  {
+    "name": "Geryon's Lair",
+    "path": "icons/environment/settlement/watchtower-castle-night.webp"
+  },
+  {
+    "name": "Ghostblade",
+    "path": "systems/dnd5e/icons/skills/ice_12.jpg"
+  },
+  {
+    "name": "Ghostly Inhabitant",
+    "path": "systems/dnd5e/icons/spells/fog-water-air-2.jpg"
+  },
+  {
+    "name": "Giant Iron Maul",
+    "path": "icons/weapons/hammers/hammer-double-stone.webp"
+  },
+  {
+    "name": "Giant Slayer",
+    "path": "systems/dnd5e/icons/skills/yellow_14.jpg"
+  },
+  {
+    "name": "Gibbering",
+    "path": "systems/dnd5e/icons/spells/rip-sky-2.jpg"
+  },
+  {
+    "name": "Glaaar-pat",
+    "path": "systems/dnd5e/icons/spells/rip-sky-2.jpg"
+  },
+  {
+    "name": "Glaive",
+    "path": "icons/weapons/polearms/glaive-hooked-steel.webp"
+  },
+  {
+    "name": "Glass Longsword",
+    "path": "systems/dnd5e/icons/skills/weapon_07.jpg"
+  },
+  {
+    "name": "Glimpse the Temporal Flood",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Glowing",
+    "path": "systems/dnd5e/icons/spells/light-sky-1.jpg"
+  },
+  {
+    "name": "Gnome Cunning",
+    "path": "icons/commodities/gems/gem-rough-spiral-teal.webp"
+  },
+  {
+    "name": "Golden Pin",
+    "path": "icons/weapons/polearms/spear-flared-gold.webp"
+  },
+  {
+    "name": "Goring Rush",
+    "path": "systems/dnd5e/icons/skills/red_23.jpg"
+  },
+  {
+    "name": "Grappler",
+    "path": "systems/dnd5e/icons/skills/yellow_08.jpg"
+  },
+  {
+    "name": "Grasping Hand",
+    "path": "icons/equipment/hand/gauntlet-armored-leather-grey.webp"
+  },
+  {
+    "name": "Grasping Root",
+    "path": "systems/dnd5e/icons/spells/vines-jade-2.jpg"
+  },
+  {
+    "name": "Grasping Spout",
+    "path": "systems/dnd5e/icons/skills/water_08.jpg"
+  },
+  {
+    "name": "Grasping Tendrils",
+    "path": "systems/dnd5e/icons/skills/green_16.jpg"
+  },
+  {
+    "name": "Grave Bolt",
+    "path": "systems/dnd5e/icons/spells/lighting-royal-2.jpg"
+  },
+  {
+    "name": "Grave Bolts",
+    "path": "systems/dnd5e/icons/spells/lighting-royal-2.jpg"
+  },
+  {
+    "name": "Grave Calling Song",
+    "path": "icons/environment/settlement/graveyard.webp"
+  },
+  {
+    "name": "Grave Magic",
+    "path": "icons/environment/settlement/graveyard-tombstone-night.webp"
+  },
+  {
+    "name": "Graystaff Magic",
+    "path": "icons/weapons/staves/staff-animal-bird.webp"
+  },
+  {
+    "name": "Graz'zt's Lair",
+    "path": "icons/environment/settlement/palast.webp"
+  },
+  {
+    "name": "Greataxe",
+    "path": "icons/weapons/axes/axe-double-brown.webp"
+  },
+  {
+    "name": "greataxe, +1;+1 Greataxe",
+    "path": "icons/weapons/axes/axe-double-blue.webp"
+  },
+  {
+    "name": "Greatclub",
+    "path": "icons/weapons/clubs/club-simple-barbed-green.webp"
+  },
+  {
+    "name": "Greater Restoration",
+    "path": "systems/dnd5e/icons/spells/heal-royal-3.jpg"
+  },
+  {
+    "name": "Greatsword",
+    "path": "icons/weapons/swords/sword-guard.webp"
+  },
+  {
+    "name": "Green Dragon Head: Poison Breath",
+    "path": "systems/dnd5e/icons/skills/affliction_16.jpg"
+  },
+  {
+    "name": "Grim Harvest",
+    "path": "systems/dnd5e/icons/skills/green_25.jpg"
+  },
+  {
+    "name": "Grimvault",
+    "path": "systems/dnd5e/icons/skills/yellow_03.jpg"
+  },
+  {
+    "name": "Grinding Jaws",
+    "path": "systems/dnd5e/icons/skills/red_29.jpg"
+  },
+  {
+    "name": "Grounded Lightning",
+    "path": "systems/dnd5e/icons/skills/violet_06.jpg"
+  },
+  {
+    "name": "Gruumsh's Fury",
+    "path": "systems/dnd5e/icons/skills/blue_27.jpg"
+  },
+  {
+    "name": "Guardian Strike",
+    "path": "systems/dnd5e/icons/skills/weapon_17.jpg"
+  },
+  {
+    "name": "Guided Attack",
+    "path": "systems/dnd5e/icons/skills/yellow_16.jpg"
+  },
+  {
+    "name": "Guided Strike",
+    "path": "systems/dnd5e/icons/skills/yellow_16.jpg"
+  },
+  {
+    "name": "Guiding Bolt",
+    "path": "systems/dnd5e/icons/skills/violet_01.jpg"
+  },
+  {
+    "name": "Guiding Wind",
+    "path": "systems/dnd5e/icons/spells/wind-sky-2.jpg"
+  },
+  {
+    "name": "Gunslinger",
+    "path": "icons/containers/ammunition/bullets-belt.webp"
+  },
+  {
+    "name": "Gurt's Greataxe",
+    "path": "icons/weapons/axes/axe-double-blue.webp"
+  },
+  {
+    "name": "Gust",
+    "path": "systems/dnd5e/icons/spells/wind-blue-2.jpg"
+  },
+  {
+    "name": "Gust-Propelled Leap",
+    "path": "systems/dnd5e/icons/spells/wind-blue-2.jpg"
+  },
+  {
+    "name": "Gythka",
+    "path": "icons/weapons/polearms/spear-simple-crescent.webp"
+  },
+  {
+    "name": "Hail of Arrows",
+    "path": "systems/dnd5e/icons/skills/arrow_13.jpg"
+  },
+  {
+    "name": "Halberd",
+    "path": "icons/weapons/polearms/halberd-worn-steel.webp"
+  },
+  {
+    "name": "Halfling Nimbleness",
+    "path": "icons/equipment/feet/shoes-collared-leather-blue.webp"
+  },
+  {
+    "name": "Hallucination Spores",
+    "path": "systems/dnd5e/icons/spells/explosion-royal-1.jpg"
+  },
+  {
+    "name": "Hammer",
+    "path": "icons/weapons/hammers/hammer-double-engraved.webp"
+  },
+  {
+    "name": "Hammer of Justice",
+    "path": "systems/dnd5e/icons/skills/yellow_21.jpg"
+  },
+  {
+    "name": "Hammerfist",
+    "path": "systems/dnd5e/icons/skills/light_09.jpg"
+  },
+  {
+    "name": "Hand Crossbow",
+    "path": "systems/dnd5e/icons/items/weapons/crossbow-light.jpg"
+  },
+  {
+    "name": "Hand of Shargaas",
+    "path": "icons/commodities/biological/hand-clawed-brown.webp"
+  },
+  {
+    "name": "Hand of Vecna",
+    "path": "icons/commodities/biological/hand-clawed-green.webp"
+  },
+  {
+    "name": "Handaxe",
+    "path": "icons/weapons/axes/axe-broad-black.webp"
+  },
+  {
+    "name": "handaxe, +1;+1 Handaxe",
+    "path": "icons/weapons/axes/axe-tomahawk-engraved.webp"
+  },
+  {
+    "name": "handaxe, +1;+1 Handaxe",
+    "path": "icons/weapons/axes/axe-tomahawk-engraved.webp"
+  },
+  {
+    "name": "Harpoon",
+    "path": "icons/weapons/polearms/spear-simple-barbed.webp"
+  },
+  {
+    "name": "Harpoon Arm",
+    "path": "icons/weapons/polearms/spear-simple-barbed.webp"
+  },
+  {
+    "name": "Harvest the Dead",
+    "path": "icons/commodities/bones/skull-bowl-brown.webp"
+  },
+  {
+    "name": "Haste",
+    "path": "systems/dnd5e/icons/skills/armor_01.jpg"
+  },
+  {
+    "name": "Head",
+    "path": "systems/dnd5e/icons/skills/violet_11.jpg"
+  },
+  {
+    "name": "Headbutt",
+    "path": "icons/equipment/head/helm-spangen-engraved.webp"
+  },
+  {
+    "name": "Headfirst Charge",
+    "path": "systems/dnd5e/icons/skills/violet_13.jpg"
+  },
+  {
+    "name": "Headless",
+    "path": "icons/equipment/head/hood-chain-worn.webp"
+  },
+  {
+    "name": "Heal Self",
+    "path": "systems/dnd5e/icons/spells/heal-jade-2.jpg"
+  },
+  {
+    "name": "Healing",
+    "path": "systems/dnd5e/icons/skills/affliction_10.jpg"
+  },
+  {
+    "name": "Healing Touch",
+    "path": "systems/dnd5e/icons/skills/light_08.jpg"
+  },
+  {
+    "name": "Healing Toxicity",
+    "path": "systems/dnd5e/icons/skills/green_19.jpg"
+  },
+  {
+    "name": "Heart of Hruggek",
+    "path": "systems/dnd5e/icons/skills/nature_07.jpg"
+  },
+  {
+    "name": "Heart of the Dragon",
+    "path": "systems/dnd5e/icons/skills/affliction_22.jpg"
+  },
+  {
+    "name": "Heart of the Storm",
+    "path": "systems/dnd5e/icons/items/inventory/element-air.jpg"
+  },
+  {
+    "name": "Heart of the Troll",
+    "path": "icons/commodities/gems/pearl-brown-red.webp"
+  },
+  {
+    "name": "Heart Sight",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-1.jpg"
+  },
+  {
+    "name": "Heartcleaver",
+    "path": "systems/dnd5e/icons/skills/weapon_39.jpg"
+  },
+  {
+    "name": "Heartcleaver",
+    "path": "systems/dnd5e/icons/skills/weapon_39.jpg"
+  },
+  {
+    "name": "Hearth of Moonlight and Shadow",
+    "path": "systems/dnd5e/icons/skills/violet_12.jpg"
+  },
+  {
+    "name": "Hearts of the Kraken",
+    "path": "icons/commodities/biological/organ-heart-black.webp"
+  },
+  {
+    "name": "Heat Wave",
+    "path": "systems/dnd5e/icons/spells/explosion-orange-3.jpg"
+  },
+  {
+    "name": "Heated Body",
+    "path": "systems/dnd5e/icons/skills/yellow_20.jpg"
+  },
+  {
+    "name": "Heated Weapons",
+    "path": "systems/dnd5e/icons/skills/yellow_37.jpg"
+  },
+  {
+    "name": "Heavy Club",
+    "path": "icons/weapons/clubs/club-banded-barbed-black.webp"
+  },
+  {
+    "name": "Heavy Crossbow",
+    "path": "icons/weapons/crossbows/crossbow-slotted.webp"
+  },
+  {
+    "name": "Hellfire Lance",
+    "path": "systems/dnd5e/icons/skills/arrow_03.jpg"
+  },
+  {
+    "name": "Hellfire Orb",
+    "path": "icons/commodities/gems/pearl-fire-swirl.webp"
+  },
+  {
+    "name": "Hellfire Weapons",
+    "path": "systems/dnd5e/icons/spells/enchant-red-2.jpg"
+  },
+  {
+    "name": "Hellish Chains",
+    "path": "systems/dnd5e/icons/skills/red_06.jpg"
+  },
+  {
+    "name": "Hellish Morningstar",
+    "path": "systems/dnd5e/icons/skills/red_32.jpg"
+  },
+  {
+    "name": "Hellish Rebuke",
+    "path": "systems/dnd5e/icons/skills/red_32.jpg"
+  },
+  {
+    "name": "Hellish Rejuvenation",
+    "path": "systems/dnd5e/icons/skills/affliction_07.jpg"
+  },
+  {
+    "name": "Hellish Resistance",
+    "path": "systems/dnd5e/icons/spells/protect-red-1.jpg"
+  },
+  {
+    "name": "Hellish Weapons",
+    "path": "systems/dnd5e/icons/skills/red_32.jpg"
+  },
+  {
+    "name": "Helpful",
+    "path": "systems/dnd5e/icons/items/inventory/lantern.jpg"
+  },
+  {
+    "name": "Herd the Underworld",
+    "path": "icons/weapons/staves/staff-forest-hooked.webp"
+  },
+  {
+    "name": "Hidden Paths",
+    "path": "systems/dnd5e/icons/skills/yellow_39.jpg"
+  },
+  {
+    "name": "Hide",
+    "path": "systems/dnd5e/icons/skills/green_18.jpg"
+  },
+  {
+    "name": "Hide in Plain Sight",
+    "path": "systems/dnd5e/icons/skills/violet_07.jpg"
+  },
+  {
+    "name": "Hive Mind",
+    "path": "icons/commodities/biological/organ-brain-pink-purple.webp"
+  },
+  {
+    "name": "Hold Breath",
+    "path": "icons/commodities/gems/pearl-turquoise.webp"
+  },
+  {
+    "name": "Hold the Line",
+    "path": "systems/dnd5e/icons/skills/weapon_41.jpg"
+  },
+  {
+    "name": "Holy Avenger",
+    "path": "icons/weapons/swords/sword-guard-bronze.webp"
+  },
+  {
+    "name": "Hoof",
+    "path": "icons/commodities/bones/hooves-cloven-brown.webp"
+  },
+  {
+    "name": "Hook",
+    "path": "icons/tools/fasteners/chain-hook-grey.webp"
+  },
+  {
+    "name": "Hooked Dagger",
+    "path": "icons/weapons/daggers/dagger-curved-gold.webp"
+  },
+  {
+    "name": "Hooked Net",
+    "path": "icons/tools/fishing/net-simple-tan.webp"
+  },
+  {
+    "name": "Hooked Polearm",
+    "path": "icons/weapons/polearms/spear-hooked-spike.webp"
+  },
+  {
+    "name": "Hooked Spear",
+    "path": "icons/weapons/polearms/spear-hooked-spike.webp"
+  },
+  {
+    "name": "Hooves",
+    "path": "icons/commodities/bones/hooves-cloven-brown.webp"
+  },
+  {
+    "name": "Horn",
+    "path": "icons/commodities/bones/horn-simple-white.webp"
+  },
+  {
+    "name": "Horns",
+    "path": "icons/equipment/head/mask-horned-skull.webp"
+  },
+  {
+    "name": "Horrid Gnashing",
+    "path": "icons/commodities/bones/bone-jaw-teeth-red.webp"
+  },
+  {
+    "name": "Horrid Touch",
+    "path": "icons/equipment/hand/glove-simple-leather-purple.webp"
+  },
+  {
+    "name": "Horrific Appearance",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-3.jpg"
+  },
+  {
+    "name": "Horrifying Visage",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-3.jpg"
+  },
+  {
+    "name": "Horror Nimbus",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-3.jpg"
+  },
+  {
+    "name": "Hot Oil Spray",
+    "path": "icons/commodities/materials/liquid-purple.webp"
+  },
+  {
+    "name": "Howdah",
+    "path": "icons/environment/settlement/watchtower-wood.webp"
+  },
+  {
+    "name": "Howl",
+    "path": "systems/dnd5e/icons/skills/affliction_24.jpg"
+  },
+  {
+    "name": "Howling Babble",
+    "path": "icons/commodities/biological/tongue-red.webp"
+  },
+  {
+    "name": "Howling Defeat",
+    "path": "systems/dnd5e/icons/skills/affliction_24.jpg"
+  },
+  {
+    "name": "Hunger-Driven",
+    "path": "icons/commodities/biological/tongue-pink.webp"
+  },
+  {
+    "name": "Hurl Fire",
+    "path": "systems/dnd5e/icons/skills/fire_06.jpg"
+  },
+  {
+    "name": "Hurl Flame",
+    "path": "systems/dnd5e/icons/skills/fire_06.jpg"
+  },
+  {
+    "name": "Hurl Rock",
+    "path": "systems/dnd5e/icons/spells/rock-plain-2.jpg"
+  },
+  {
+    "name": "Hurled Stone",
+    "path": "systems/dnd5e/icons/spells/rock-plain-2.jpg"
+  },
+  {
+    "name": "Hypnosis",
+    "path": "systems/dnd5e/icons/skills/violet_09.jpg"
+  },
+  {
+    "name": "Hypnotic Gaze",
+    "path": "systems/dnd5e/icons/skills/violet_09.jpg"
+  },
+  {
+    "name": "Hythonia's Lair",
+    "path": "icons/environment/wilderness/island.webp"
+  },
+  {
+    "name": "Ice Dagger",
+    "path": "systems/dnd5e/icons/spells/ice-sky-1.jpg"
+  },
+  {
+    "name": "Ice Dart",
+    "path": "systems/dnd5e/icons/spells/ice-sky-1.jpg"
+  },
+  {
+    "name": "Ice Flurry",
+    "path": "systems/dnd5e/icons/spells/ice-sky-2.jpg"
+  },
+  {
+    "name": "Ice Longsword",
+    "path": "systems/dnd5e/icons/items/weapons/sword-death.jpg"
+  },
+  {
+    "name": "Ice Morningstar",
+    "path": "systems/dnd5e/icons/spells/enchant-blue-2.jpg"
+  },
+  {
+    "name": "Ice Sickle",
+    "path": "systems/dnd5e/icons/spells/enchant-blue-2.jpg"
+  },
+  {
+    "name": "Ice Spear",
+    "path": "systems/dnd5e/icons/spells/enchant-blue-2.jpg"
+  },
+  {
+    "name": "Ice Stasis",
+    "path": "systems/dnd5e/icons/skills/blue_08.jpg"
+  },
+  {
+    "name": "Ice Walk",
+    "path": "systems/dnd5e/icons/skills/ice_05.jpg"
+  },
+  {
+    "name": "Icy Doom",
+    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
+  },
+  {
+    "name": "Ideal:",
+    "path": "systems/dnd5e/icons/items/inventory/element-earth.jpg"
+  },
+  {
+    "name": "Idyllic Touch",
+    "path": "systems/dnd5e/icons/items/inventory/teeth.jpg"
+  },
+  {
+    "name": "Ignite Enemy",
+    "path": "systems/dnd5e/icons/skills/fire_11.jpg"
+  },
+  {
+    "name": "Ignited Illumination",
+    "path": "systems/dnd5e/icons/skills/yellow_30.jpg"
+  },
+  {
+    "name": "Illuminating Crystals",
+    "path": "icons/commodities/stone/ore-chunk-orange.webp"
+  },
+  {
+    "name": "Illumination",
+    "path": "systems/dnd5e/icons/skills/yellow_01.jpg"
+  },
+  {
+    "name": "Illusory Appearance",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Illusory Self",
+    "path": "systems/dnd5e/icons/skills/violet_03.jpg"
+  },
+  {
+    "name": "Ilneval's Command",
+    "path": "systems/dnd5e/icons/skills/affliction_24.jpg"
+  },
+  {
+    "name": "Imix's Blessing",
+    "path": "systems/dnd5e/icons/spells/haste-fire-2.jpg"
+  },
+  {
+    "name": "Imix's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "Immolating Gaze",
+    "path": "systems/dnd5e/icons/spells/evil-eye-red-3.jpg"
+  },
+  {
+    "name": "Immolation",
+    "path": "systems/dnd5e/icons/skills/fire_11.jpg"
+  },
+  {
+    "name": "Immutable Existence",
+    "path": "icons/commodities/treasure/token-runed-os-grey.webp"
+  },
+  {
+    "name": "Immutable Form",
+    "path": "icons/commodities/treasure/token-runed-os-grey.webp"
+  },
+  {
+    "name": "Implant Fear",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-2.jpg"
+  },
+  {
+    "name": "Imprison Soul",
+    "path": "systems/dnd5e/icons/skills/green_25.jpg"
+  },
+  {
+    "name": "Improved Critical",
+    "path": "systems/dnd5e/icons/skills/red_13.jpg"
+  },
+  {
+    "name": "Improved Defense",
+    "path": "icons/commodities/metal/mail-chain-steel.webp"
+  },
+  {
+    "name": "In the Air Node",
+    "path": "systems/dnd5e/icons/spells/fog-sky-2.jpg"
+  },
+  {
+    "name": "In the Earth Node",
+    "path": "systems/dnd5e/icons/spells/fog-air-2.jpg"
+  },
+  {
+    "name": "In the Fire Node",
+    "path": "systems/dnd5e/icons/spells/fog-orange-2.jpg"
+  },
+  {
+    "name": "In the Water Node",
+    "path": "systems/dnd5e/icons/skills/blue_36.jpg"
+  },
+  {
+    "name": "Incinerating Beam",
+    "path": "systems/dnd5e/icons/spells/beam-orange-3.jpg"
+  },
+  {
+    "name": "Incite Fanaticism",
+    "path": "systems/dnd5e/icons/skills/red_10.jpg"
+  },
+  {
+    "name": "Incite Rampage",
+    "path": "systems/dnd5e/icons/skills/red_10.jpg"
+  },
+  {
+    "name": "Incorporeal Dash",
+    "path": "systems/dnd5e/icons/spells/wind-grasp-eerie-1.jpg"
+  },
+  {
+    "name": "Incorporeal Movement",
+    "path": "systems/dnd5e/icons/spells/wind-grasp-eerie-1.jpg"
+  },
+  {
+    "name": "Indentured Spirits",
+    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
+  },
+  {
+    "name": "Independent Tentacles",
+    "path": "systems/dnd5e/icons/items/inventory/monster-tentacle.jpg"
+  },
+  {
+    "name": "Indomitable",
+    "path": "systems/dnd5e/icons/skills/red_01.jpg"
+  },
+  {
+    "name": "Inert",
+    "path": "icons/commodities/stone/masonry-block-cube-grey.webp"
+  },
+  {
+    "name": "Inescapable Destruction",
+    "path": "systems/dnd5e/icons/skills/ice_17.jpg"
+  },
+  {
+    "name": "Infernal Command",
+    "path": "systems/dnd5e/icons/spells/horror-red-3.jpg"
+  },
+  {
+    "name": "Infernal Command",
+    "path": "systems/dnd5e/icons/spells/horror-red-3.jpg"
+  },
+  {
+    "name": "Infernal Crossbow",
+    "path": "icons/weapons/crossbows/crossbow-ornamental-black.webp"
+  },
+  {
+    "name": "Infernal Dagger",
+    "path": "icons/weapons/daggers/dagger-ritual-brown.webp"
+  },
+  {
+    "name": "Infernal Despair",
+    "path": "systems/dnd5e/icons/skills/shadow_01.jpg"
+  },
+  {
+    "name": "Infernal Glare",
+    "path": "systems/dnd5e/icons/spells/evil-eye-red-3.jpg"
+  },
+  {
+    "name": "Infernal Legacy",
+    "path": "systems/dnd5e/icons/skills/red_02.jpg"
+  },
+  {
+    "name": "Infernal Tack",
+    "path": "icons/equipment/waist/belt-buckle-spiked-red.webp"
+  },
+  {
+    "name": "Infestation Spores",
+    "path": "icons/commodities/gems/powder-raw-white.webp"
+  },
+  {
+    "name": "Infoportation",
+    "path": "systems/dnd5e/icons/spells/runes-blue-2.jpg"
+  },
+  {
+    "name": "Information Overload",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Inject Toxin",
+    "path": "systems/dnd5e/icons/skills/arrow_15.jpg"
+  },
+  {
+    "name": "Ink Cloud",
+    "path": "systems/dnd5e/icons/skills/water_01.jpg"
+  },
+  {
+    "name": "Innate Spellcasting",
+    "path": "systems/dnd5e/icons/skills/affliction_22.jpg"
+  },
+  {
+    "name": "Insanity",
+    "path": "systems/dnd5e/icons/skills/yellow_17.jpg"
+  },
+  {
+    "name": "Insatiable Greed",
+    "path": "icons/commodities/currency/coin-embossed-skull-gold.webp"
+  },
+  {
+    "name": "Inscrutable",
+    "path": "icons/commodities/gems/pearl-brown.webp"
+  },
+  {
+    "name": "Inspire",
+    "path": "systems/dnd5e/icons/skills/yellow_17.jpg"
+  },
+  {
+    "name": "Instinctive Attack",
+    "path": "systems/dnd5e/icons/skills/green_08.jpg"
+  },
+  {
+    "name": "Instinctive Charm",
+    "path": "systems/dnd5e/icons/skills/violet_19.jpg"
+  },
+  {
+    "name": "Intensify Aura",
+    "path": "systems/dnd5e/icons/skills/ice_13.jpg"
+  },
+  {
+    "name": "Intercept Attack",
+    "path": "systems/dnd5e/icons/skills/weapon_13.jpg"
+  },
+  {
+    "name": "Intoxicating Touch",
+    "path": "systems/dnd5e/icons/spells/shielding-eerie-2.jpg"
+  },
+  {
+    "name": "Invisibility",
+    "path": "icons/commodities/materials/glass-orb.webp"
+  },
+  {
+    "name": "Invisibility Field",
+    "path": "icons/commodities/materials/glass-orb.webp"
+  },
+  {
+    "name": "Invisible in Fire",
+    "path": "icons/commodities/materials/glass-orb.webp"
+  },
+  {
+    "name": "Invisible in Water",
+    "path": "icons/commodities/materials/glass-orb.webp"
+  },
+  {
+    "name": "Invisible Passage",
+    "path": "icons/commodities/materials/glass-orb.webp"
+  },
+  {
+    "name": "Invoke Curse",
+    "path": "icons/weapons/staves/staff-ornate-banded-purple.webp"
+  },
+  {
+    "name": "Invoke Nightmare",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-3.jpg"
+  },
+  {
+    "name": "Iron Boots",
+    "path": "icons/equipment/feet/boots-armored-studded-steel.webp"
+  },
+  {
+    "name": "Iron Cauldron",
+    "path": "icons/tools/laboratory/cauldron-empty-black.webp"
+  },
+  {
+    "name": "Iron Fist",
+    "path": "icons/equipment/hand/gauntlet-simple-leather-steel.webp"
+  },
+  {
+    "name": "Iron Skull Flail",
+    "path": "icons/weapons/maces/flail-cube-grey.webp"
+  },
+  {
+    "name": "Ironbound Pursuit",
+    "path": "icons/equipment/feet/boots-armored-steel-purple.webp"
+  },
+  {
+    "name": "Ironfang",
+    "path": "icons/weapons/axes/pickaxe-jagged-black.webp"
+  },
+  {
+    "name": "Javelin",
+    "path": "icons/weapons/polearms/javelin-flared.webp"
+  },
+  {
+    "name": "Jaws of Semuanya",
+    "path": "icons/commodities/bones/bone-jaw-teeth-green.webp"
+  },
+  {
+    "name": "Joyful Presence",
+    "path": "icons/equipment/neck/necklace-vines-orange.webp"
+  },
+  {
+    "name": "Juiblex's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "Justify",
+    "path": "systems/dnd5e/icons/skills/yellow_35.jpg"
+  },
+  {
+    "name": "Karkethzerethzerus's Lair",
+    "path": "icons/environment/wilderness/cave-entrance.webp"
+  },
+  {
+    "name": "Keen Hearing",
+    "path": "icons/commodities/biological/ear-grey-brown.webp"
+  },
+  {
+    "name": "Keen Hearing and Sight",
+    "path": "systems/dnd5e/icons/skills/light_02.jpg"
+  },
+  {
+    "name": "Keen Hearing and Smell",
+    "path": "icons/commodities/biological/ear-grey-brown.webp"
+  },
+  {
+    "name": "Keen Senses",
+    "path": "icons/commodities/biological/ear-grey-brown.webp"
+  },
+  {
+    "name": "Keen Sight",
+    "path": "systems/dnd5e/icons/skills/light_02.jpg"
+  },
+  {
+    "name": "Keen Sight and Smell",
+    "path": "systems/dnd5e/icons/skills/light_02.jpg"
+  },
+  {
+    "name": "Keen Smell",
+    "path": "systems/dnd5e/icons/skills/red_04.jpg"
+  },
+  {
+    "name": "Keen Tracker",
+    "path": "systems/dnd5e/icons/skills/red_04.jpg"
+  },
+  {
+    "name": "Kicking Retreat",
+    "path": "icons/commodities/bones/hooves-cloven-grey.webp"
+  },
+  {
+    "name": "Killer Response",
+    "path": "systems/dnd5e/icons/skills/emerald_08.jpg"
+  },
+  {
+    "name": "King's Knife",
+    "path": "icons/weapons/daggers/knife-engraved-black.webp"
+  },
+  {
+    "name": "Kiss",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Knife",
+    "path": "icons/weapons/daggers/knife-engraved-black.webp"
+  },
+  {
+    "name": "Labyrinthine Recall",
+    "path": "icons/sundries/gaming/playing-cards-brown.webp"
+  },
+  {
+    "name": "Lair Actions",
+    "path": "systems/dnd5e/icons/skills/yellow_31.jpg"
+  },
+  {
+    "name": "Lair Actions.",
+    "path": "systems/dnd5e/icons/skills/yellow_31.jpg"
+  },
+  {
+    "name": "Lair of Luxury",
+    "path": "icons/environment/settlement/palast.webp"
+  },
+  {
+    "name": "Lance",
+    "path": "icons/weapons/polearms/spear-flared-blue.webp"
+  },
+  {
+    "name": "Lancing Bolt",
+    "path": "systems/dnd5e/icons/skills/blue_21.jpg"
+  },
+  {
+    "name": "Laser Pistol",
+    "path": "systems/dnd5e/icons/skills/weapon_37.jpg"
+  },
+  {
+    "name": "Lashing Shadows",
+    "path": "systems/dnd5e/icons/skills/violet_17.jpg"
+  },
+  {
+    "name": "Last Laugh",
+    "path": "systems/dnd5e/icons/items/inventory/teeth.jpg"
+  },
+  {
+    "name": "Leadership",
+    "path": "systems/dnd5e/icons/skills/blue_10.jpg"
+  },
+  {
+    "name": "Legendary Actions",
+    "path": "systems/dnd5e/icons/skills/blue_03.jpg"
+  },
+  {
+    "name": "Legendary Resistance",
+    "path": "systems/dnd5e/icons/skills/water_04.jpg"
+  },
+  {
+    "name": "Leviathan Will",
+    "path": "icons/environment/creatures/fish-angler-blue.webp"
+  },
+  {
+    "name": "Life Drain",
+    "path": "systems/dnd5e/icons/skills/blood_09.jpg"
+  },
+  {
+    "name": "Life Eater",
+    "path": "systems/dnd5e/icons/skills/blood_09.jpg"
+  },
+  {
+    "name": "Life Hunger",
+    "path": "systems/dnd5e/icons/skills/blood_09.jpg"
+  },
+  {
+    "name": "Life Leech",
+    "path": "systems/dnd5e/icons/skills/blood_09.jpg"
+  },
+  {
+    "name": "Life Sense",
+    "path": "systems/dnd5e/icons/items/inventory/monster-larva.jpg"
+  },
+  {
+    "name": "Life-Draining Tentacle",
+    "path": "systems/dnd5e/icons/skills/ice_08.jpg"
+  },
+  {
+    "name": "Light",
+    "path": "systems/dnd5e/icons/skills/yellow_01.jpg"
+  },
+  {
+    "name": "Light Crossbow",
+    "path": "icons/weapons/crossbows/crossbow-ornamental-winged.webp"
+  },
+  {
+    "name": "Light Hammer",
+    "path": "icons/weapons/hammers/shorthammer-double-bronze-worn.webp"
+  },
+  {
+    "name": "Light Intensity",
+    "path": "systems/dnd5e/icons/skills/yellow_01.jpg"
+  },
+  {
+    "name": "Light of Sekolah",
+    "path": "systems/dnd5e/icons/skills/yellow_01.jpg"
+  },
+  {
+    "name": "Light Sensitivity",
+    "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
+  },
+  {
+    "name": "Lightfooted",
+    "path": "icons/equipment/feet/shoes-leather-blue.webp"
+  },
+  {
+    "name": "Lightning Absorption",
+    "path": "systems/dnd5e/icons/items/inventory/rune-blue.jpg"
+  },
+  {
+    "name": "Lightning Backlash",
+    "path": "systems/dnd5e/icons/spells/lighting-eerie-2.jpg"
+  },
+  {
+    "name": "Lightning Blood",
+    "path": "icons/commodities/materials/liquid-blue.webp"
+  },
+  {
+    "name": "Lightning Bolt",
+    "path": "systems/dnd5e/icons/skills/blue_21.jpg"
+  },
+  {
+    "name": "Lightning Bolt Blades",
+    "path": "systems/dnd5e/icons/skills/blue_01.jpg"
+  },
+  {
+    "name": "Lightning Breath",
+    "path": "systems/dnd5e/icons/skills/ice_11.jpg"
+  },
+  {
+    "name": "Lightning Flail",
+    "path": "systems/dnd5e/icons/skills/violet_10.jpg"
+  },
+  {
+    "name": "Lightning Flare",
+    "path": "systems/dnd5e/icons/spells/lighting-fire-2.jpg"
+  },
+  {
+    "name": "Lightning Form",
+    "path": "systems/dnd5e/icons/spells/lighting-fire-3.jpg"
+  },
+  {
+    "name": "Lightning Jolt",
+    "path": "systems/dnd5e/icons/spells/lightning-jade-1.jpg"
+  },
+  {
+    "name": "Lightning Lance",
+    "path": "systems/dnd5e/icons/skills/blue_21.jpg"
+  },
+  {
+    "name": "Lightning Ray",
+    "path": "systems/dnd5e/icons/skills/violet_01.jpg"
+  },
+  {
+    "name": "Lightning Storm",
+    "path": "systems/dnd5e/icons/spells/lightning-jade-3.jpg"
+  },
+  {
+    "name": "Lightning Storm",
+    "path": "systems/dnd5e/icons/spells/lightning-jade-3.jpg"
+  },
+  {
+    "name": "Lightning Strike",
+    "path": "systems/dnd5e/icons/spells/lighting-sky-3.jpg"
+  },
+  {
+    "name": "Lightning Sword",
+    "path": "systems/dnd5e/icons/skills/blue_21.jpg"
+  },
+  {
+    "name": "Lightning Tusks",
+    "path": "systems/dnd5e/icons/spells/lighting-royal-2.jpg"
+  },
+  {
+    "name": "Limited Amphibiousness",
+    "path": "icons/commodities/biological/foot-amphibian-green.webp"
+  },
+  {
+    "name": "Limited Flight",
+    "path": "icons/commodities/biological/wing-lizard-yellow.webp"
+  },
+  {
+    "name": "Limited Magic Immunity",
+    "path": "systems/dnd5e/icons/spells/runes-magenta-1.jpg"
+  },
+  {
+    "name": "Limited Spines",
+    "path": "systems/dnd5e/icons/skills/shadow_16.jpg"
+  },
+  {
+    "name": "Limited Telepathy",
+    "path": "systems/dnd5e/icons/spells/link-eerie-1.jpg"
+  },
+  {
+    "name": "Liquid Form",
+    "path": "icons/commodities/materials/slime-thick-blue.webp"
+  },
+  {
+    "name": "Living Shadow",
+    "path": "systems/dnd5e/icons/skills/emerald_07.jpg"
+  },
+  {
+    "name": "Living Storm",
+    "path": "systems/dnd5e/icons/skills/blue_21.jpg"
+  },
+  {
+    "name": "Loathsome Limbs",
+    "path": "icons/commodities/biological/hand-gnarled-purple.webp"
+  },
+  {
+    "name": "Lob Acid",
+    "path": "systems/dnd5e/icons/spells/fireball-acid-1.jpg"
+  },
+  {
+    "name": "Local teleportation-field bracelets",
+    "path": "icons/equipment/wrist/bracer-studded-copper.webp"
+  },
+  {
+    "name": "Locus of the Firemind",
+    "path": "systems/dnd5e/icons/skills/yellow_15.jpg"
+  },
+  {
+    "name": "Lolth's Fickle Favor",
+    "path": "icons/commodities/currency/coins-inset-spider-gold.webp"
+  },
+  {
+    "name": "Longbow",
+    "path": "systems/dnd5e/icons/items/weapons/bow-long.jpg"
+  },
+  {
+    "name": "Longsword",
+    "path": "icons/weapons/swords/sword-guard-engraved.webp"
+  },
+  {
+    "name": "Longsword +2",
+    "path": "systems/dnd5e/icons/items/weapons/sword-arcane.jpg"
+  },
+  {
+    "name": "Longsword Attack",
+    "path": "systems/dnd5e/icons/spells/enchant-sky-2.jpg"
+  },
+  {
+    "name": "longsword, +1;+1 Longsword",
+    "path": "icons/weapons/swords/greatsword-crossguard-flanged-purple.webp"
+  },
+  {
+    "name": "Low Cunning",
+    "path": "systems/dnd5e/icons/skills/shadow_17.jpg"
+  },
+  {
+    "name": "Loyal Bodyguard",
+    "path": "icons/equipment/chest/breastplate-sculpted-green.webp"
+  },
+  {
+    "name": "Lucky",
+    "path": "icons/equipment/neck/necklace-charm-clover.webp"
+  },
+  {
+    "name": "Lunge",
+    "path": "systems/dnd5e/icons/skills/fire_13.jpg"
+  },
+  {
+    "name": "Lunging Attack",
+    "path": "systems/dnd5e/icons/skills/fire_13.jpg"
+  },
+  {
+    "name": "Lure",
+    "path": "icons/environment/creatures/fish-angler-blue.webp"
+  },
+  {
+    "name": "Luring Maestro",
+    "path": "icons/tools/instruments/chimes-wood-white.webp"
+  },
+  {
+    "name": "Luring Song",
+    "path": "icons/tools/instruments/harp-lap-brown.webp"
+  },
+  {
+    "name": "Lurkers in Shadow",
+    "path": "systems/dnd5e/icons/skills/green_18.jpg"
+  },
+  {
+    "name": "Mace",
+    "path": "icons/weapons/maces/mace-flanged-steel.webp"
+  },
+  {
+    "name": "Maddening Feast",
+    "path": "systems/dnd5e/icons/items/inventory/teeth.jpg"
+  },
+  {
+    "name": "Maddening Gaze",
+    "path": "icons/commodities/biological/eye-green-pink.webp"
+  },
+  {
+    "name": "Maddening Presence",
+    "path": "systems/dnd5e/icons/spells/horror-acid-2.jpg"
+  },
+  {
+    "name": "Maddening Secrets",
+    "path": "systems/dnd5e/icons/spells/horror-acid-2.jpg"
+  },
+  {
+    "name": "Maddening Touch",
+    "path": "icons/commodities/bones/bones-hand-grey.webp"
+  },
+  {
+    "name": "Madness of Baphomet",
+    "path": "systems/dnd5e/icons/spells/horror-red-3.jpg"
+  },
+  {
+    "name": "Madness of Belashyrra",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Madness of Demogorgon",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Madness of Fraz-Urb'luu",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Madness of Graz'zt",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Madness of Juiblex",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Madness of Orcus",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Madness of Yeenoghu",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Madness of Zuggtmoy",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Magic Club",
+    "path": "icons/weapons/clubs/club-simple-barbed-purple.webp"
+  },
+  {
+    "name": "Magic Missile",
+    "path": "systems/dnd5e/icons/spells/fire-arrows-sky-1.jpg"
+  },
+  {
+    "name": "Magic Resistance",
+    "path": "systems/dnd5e/icons/skills/blue_18.jpg"
+  },
+  {
+    "name": "Magic Resistance Aura",
+    "path": "systems/dnd5e/icons/skills/blue_18.jpg"
+  },
+  {
+    "name": "Magic Resistant Construction",
+    "path": "systems/dnd5e/icons/skills/blue_18.jpg"
+  },
+  {
+    "name": "Magic Staff",
+    "path": "icons/weapons/staves/staff-orb-purple.webp"
+  },
+  {
+    "name": "Magic Unarmed Strikes",
+    "path": "icons/equipment/hand/glove-simple-leather-brown-blue.webp"
+  },
+  {
+    "name": "Magic Weapons",
+    "path": "systems/dnd5e/icons/skills/affliction_06.jpg"
+  },
+  {
+    "name": "Magical Amulet",
+    "path": "icons/equipment/neck/amulet-carved-stone-purple.webp"
+  },
+  {
+    "name": "Magical Bolt of Fire",
+    "path": "systems/dnd5e/icons/skills/yellow_07.jpg"
+  },
+  {
+    "name": "Magical Gift",
+    "path": "systems/dnd5e/icons/items/inventory/present.jpg"
+  },
+  {
+    "name": "Magical Illusion",
+    "path": "systems/dnd5e/icons/skills/violet_17.jpg"
+  },
+  {
+    "name": "Magical Strike",
+    "path": "systems/dnd5e/icons/spells/beam-royal-2.jpg"
+  },
+  {
+    "name": "Magical Strike Melee Spell Attack:",
+    "path": "systems/dnd5e/icons/spells/beam-royal-2.jpg"
+  },
+  {
+    "name": "Malevolent Presence",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-3.jpg"
+  },
+  {
+    "name": "Malison Type",
+    "path": "systems/dnd5e/icons/skills/blue_34.jpg"
+  },
+  {
+    "name": "Mallet",
+    "path": "icons/weapons/hammers/hammer-double-steel-embossed.webp"
+  },
+  {
+    "name": "Mandibles",
+    "path": "icons/commodities/claws/claw-insect-grey-purple.webp"
+  },
+  {
+    "name": "Mantle Dependent",
+    "path": "icons/equipment/back/cloak-collared-leaves-green.webp"
+  },
+  {
+    "name": "Many-Tailed Whip",
+    "path": "icons/commodities/biological/stinger-insect-pink.webp"
+  },
+  {
+    "name": "Marshal Undead",
+    "path": "systems/dnd5e/icons/skills/red_28.jpg"
+  },
+  {
+    "name": "Martial Advantage",
+    "path": "systems/dnd5e/icons/skills/blue_27.jpg"
+  },
+  {
+    "name": "Martial Fury",
+    "path": "systems/dnd5e/icons/skills/blue_27.jpg"
+  },
+  {
+    "name": "Martial Prowess",
+    "path": "systems/dnd5e/icons/skills/blue_27.jpg"
+  },
+  {
+    "name": "Martial Role",
+    "path": "systems/dnd5e/icons/skills/weapon_21.jpg"
+  },
+  {
+    "name": "Mask of the Wild",
+    "path": "icons/equipment/head/hood-leather-orange-mask.webp"
+  },
+  {
+    "name": "Massive Arm",
+    "path": "icons/equipment/hand/gauntlet-armored-red-gold.webp"
+  },
+  {
+    "name": "Massive Frame",
+    "path": "systems/dnd5e/icons/skills/blue_07.jpg"
+  },
+  {
+    "name": "Master Attuner",
+    "path": "icons/commodities/gems/pearl-blue-gold.webp"
+  },
+  {
+    "name": "Master Chemister",
+    "path": "icons/commodities/gems/pearl-glass-purple.webp"
+  },
+  {
+    "name": "Master of Magic",
+    "path": "systems/dnd5e/icons/skills/violet_20.jpg"
+  },
+  {
+    "name": "Master of the Grave",
+    "path": "icons/environment/settlement/graveyard.webp"
+  },
+  {
+    "name": "Master of the Pallid Banner",
+    "path": "icons/commodities/bones/skull-white-purple.webp"
+  },
+  {
+    "name": "Master of Undeath",
+    "path": "systems/dnd5e/icons/skills/green_12.jpg"
+  },
+  {
+    "name": "Matalotok",
+    "path": "systems/dnd5e/icons/skills/yellow_21.jpg"
+  },
+  {
+    "name": "Maul",
+    "path": "icons/weapons/hammers/hammer-double-stone.webp"
+  },
+  {
+    "name": "Maw",
+    "path": "systems/dnd5e/icons/skills/blood_07.jpg"
+  },
+  {
+    "name": "Mechachimera",
+    "path": "systems/dnd5e/icons/skills/yellow_35.jpg"
+  },
+  {
+    "name": "Mechanical",
+    "path": "icons/commodities/tech/metal-claws.webp"
+  },
+  {
+    "name": "Melee Attack",
+    "path": "icons/weapons/staves/staff-spiked.webp"
+  },
+  {
+    "name": "Melt",
+    "path": "systems/dnd5e/icons/skills/ice_05.jpg"
+  },
+  {
+    "name": "Menacing Blows",
+    "path": "systems/dnd5e/icons/skills/blue_27.jpg"
+  },
+  {
+    "name": "Mental Fortitude",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-2.jpg"
+  },
+  {
+    "name": "Mental Resistance",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-2.jpg"
+  },
+  {
+    "name": "Merrshaulk's Slumber",
+    "path": "systems/dnd5e/icons/spells/air-burst-sky-3.jpg"
+  },
+  {
+    "name": "Mesmerizing Chirr",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-1.jpg"
+  },
+  {
+    "name": "Messy End",
+    "path": "systems/dnd5e/icons/spells/explosion-red-1.jpg"
+  },
+  {
+    "name": "Metal Fist",
+    "path": "icons/equipment/hand/gauntlet-simple-leather-steel.webp"
+  },
+  {
+    "name": "Metal Immunity",
+    "path": "systems/dnd5e/icons/skills/weapon_04.jpg"
+  },
+  {
+    "name": "Might of the Master",
+    "path": "systems/dnd5e/icons/skills/yellow_13.jpg"
+  },
+  {
+    "name": "Mimicry",
+    "path": "systems/dnd5e/icons/items/inventory/mask-bird.jpg"
+  },
+  {
+    "name": "Mind Blast",
+    "path": "systems/dnd5e/icons/spells/link-eerie-2.jpg"
+  },
+  {
+    "name": "Mind Bolt",
+    "path": "systems/dnd5e/icons/skills/violet_01.jpg"
+  },
+  {
+    "name": "Mind Control Spores",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Mind Fangs",
+    "path": "icons/equipment/neck/necklace-simple-claw-blue.webp"
+  },
+  {
+    "name": "Mind Mastery",
+    "path": "icons/environment/creatures/monster-tentacles-eye-purple.webp"
+  },
+  {
+    "name": "Mind Seed",
+    "path": "systems/dnd5e/icons/skills/blue_37.jpg"
+  },
+  {
+    "name": "Mind Siphon",
+    "path": "systems/dnd5e/icons/skills/blue_37.jpg"
+  },
+  {
+    "name": "Mind Thrust",
+    "path": "systems/dnd5e/icons/spells/link-royal-2.jpg"
+  },
+  {
+    "name": "Mind Tickle",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-1.jpg"
+  },
+  {
+    "name": "Mind Twist",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-1.jpg"
+  },
+  {
+    "name": "Mind-Breaking Howl",
+    "path": "systems/dnd5e/icons/spells/air-burst-air-2.jpg"
+  },
+  {
+    "name": "Mind-Breaking Touch",
+    "path": "systems/dnd5e/icons/spells/link-royal-2.jpg"
+  },
+  {
+    "name": "Mind-Poison Dagger",
+    "path": "systems/dnd5e/icons/spells/enchant-acid-2.jpg"
+  },
+  {
+    "name": "Minor Conjuration",
+    "path": "icons/commodities/treasure/glass-cube-teal.webp"
+  },
+  {
+    "name": "Missing Arm",
+    "path": "icons/commodities/biological/hand-clawed-tan.webp"
+  },
+  {
+    "name": "Mist Form",
+    "path": "systems/dnd5e/icons/spells/fog-orange-2.jpg"
+  },
+  {
+    "name": "Misty Escape",
+    "path": "systems/dnd5e/icons/spells/wind-magenta-1.jpg"
+  },
+  {
+    "name": "Misty Form",
+    "path": "systems/dnd5e/icons/spells/fog-magenta-1.jpg"
+  },
+  {
+    "name": "Moan",
+    "path": "systems/dnd5e/icons/skills/blue_37.jpg"
+  },
+  {
+    "name": "Morningstar",
+    "path": "icons/weapons/maces/mace-round-spiked-grey.webp"
+  },
+  {
+    "name": "Morningstar +2",
+    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+  },
+  {
+    "name": "Mount",
+    "path": "icons/environment/people/charge.webp"
+  },
+  {
+    "name": "Mountain Born",
+    "path": "systems/dnd5e/icons/skills/blue_31.jpg"
+  },
+  {
+    "name": "Mouth of Madness",
+    "path": "systems/dnd5e/icons/skills/red_22.jpg"
+  },
+  {
+    "name": "Move",
+    "path": "systems/dnd5e/icons/spells/wind-grasp-sky-1.jpg"
+  },
+  {
+    "name": "Mucous Cloud",
+    "path": "systems/dnd5e/icons/spells/fog-acid-3.jpg"
+  },
+  {
+    "name": "Mud Breath",
+    "path": "systems/dnd5e/icons/spells/wind-red-2.jpg"
+  },
+  {
+    "name": "Multiattack",
+    "path": "systems/dnd5e/icons/skills/red_34.jpg"
+  },
+  {
+    "name": "Multiheaded",
+    "path": "systems/dnd5e/icons/skills/violet_03.jpg"
+  },
+  {
+    "name": "Mushroom Portal",
+    "path": "systems/dnd5e/icons/items/inventory/monster-disease.jpg"
+  },
+  {
+    "name": "Musket",
+    "path": "icons/weapons/guns/gun-blunderbuss-steel.webp"
+  },
+  {
+    "name": "Narrow Dodge",
+    "path": "systems/dnd5e/icons/skills/red_27.jpg"
+  },
+  {
+    "name": "Natural Armor",
+    "path": "icons/equipment/back/cloak-fur-brown.webp"
+  },
+  {
+    "name": "Natural Shelter",
+    "path": "icons/environment/wilderness/cave-entrance.webp"
+  },
+  {
+    "name": "Necrotic Absorption",
+    "path": "systems/dnd5e/icons/skills/affliction_09.jpg"
+  },
+  {
+    "name": "Necrotic Body",
+    "path": "systems/dnd5e/icons/skills/green_25.jpg"
+  },
+  {
+    "name": "Necrotic Breath",
+    "path": "systems/dnd5e/icons/skills/water_03.jpg"
+  },
+  {
+    "name": "Necrotic Ink",
+    "path": "icons/tools/laboratory/bowl-liquid-black.webp"
+  },
+  {
+    "name": "Necrotic Touch",
+    "path": "systems/dnd5e/icons/skills/violet_11.jpg"
+  },
+  {
+    "name": "Needle",
+    "path": "icons/commodities/bones/horn-simple-grey.webp"
+  },
+  {
+    "name": "Needle Defense",
+    "path": "systems/dnd5e/icons/spells/protect-acid-1.jpg"
+  },
+  {
+    "name": "Needle Volley",
+    "path": "systems/dnd5e/icons/spells/needles-acid-1.jpg"
+  },
+  {
+    "name": "Needles",
+    "path": "systems/dnd5e/icons/spells/needles-acid-1.jpg"
+  },
+  {
+    "name": "Negative Energy Aura",
+    "path": "systems/dnd5e/icons/skills/emerald_09.jpg"
+  },
+  {
+    "name": "Negative Energy Cone",
+    "path": "systems/dnd5e/icons/skills/violet_26.jpg"
+  },
+  {
+    "name": "Net",
+    "path": "icons/tools/fishing/net-gold.webp"
+  },
+  {
+    "name": "Nightmare Haunting",
+    "path": "systems/dnd5e/icons/skills/affliction_03.jpg"
+  },
+  {
+    "name": "Nightmare Touch",
+    "path": "icons/equipment/shield/kite-decorative-steel-claws.webp"
+  },
+  {
+    "name": "Nilbogism",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Nimble",
+    "path": "icons/equipment/feet/boots-armored-green.webp"
+  },
+  {
+    "name": "Nimble Escape",
+    "path": "icons/equipment/feet/boots-armored-green.webp"
+  },
+  {
+    "name": "Nondetection",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-2.jpg"
+  },
+  {
+    "name": "Not Dead Yet",
+    "path": "systems/dnd5e/icons/skills/shadow_04.jpg"
+  },
+  {
+    "name": "Noxious Gust",
+    "path": "systems/dnd5e/icons/spells/fog-acid-1.jpg"
+  },
+  {
+    "name": "Noxious Touch",
+    "path": "icons/commodities/materials/liquid-green.webp"
+  },
+  {
+    "name": "Noxious Touch",
+    "path": "icons/commodities/materials/liquid-green.webp"
+  },
+  {
+    "name": "Numbing Aura",
+    "path": "systems/dnd5e/icons/spells/light-blue-3.jpg"
+  },
+  {
+    "name": "Nurtured One of Yurtrus",
+    "path": "systems/dnd5e/icons/skills/ice_13.jpg"
+  },
+  {
+    "name": "Oar",
+    "path": "icons/weapons/clubs/club-baton-blue.webp"
+  },
+  {
+    "name": "Oathbow",
+    "path": "systems/dnd5e/icons/items/weapons/bow-composite.jpg"
+  },
+  {
+    "name": "Of the Eyes",
+    "path": "icons/commodities/biological/eye-green-pink.webp"
+  },
+  {
+    "name": "Ogrémoch's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-mountain.webp"
+  },
+  {
+    "name": "Oil Puddle",
+    "path": "icons/commodities/materials/slime-purple.webp"
+  },
+  {
+    "name": "Olach Morrah",
+    "path": "icons/commodities/stone/rock-pile-grey.webp"
+  },
+  {
+    "name": "Olhydra's Armor",
+    "path": "systems/dnd5e/icons/spells/protect-eerie-2.jpg"
+  },
+  {
+    "name": "Olhydra's Lair",
+    "path": "systems/dnd5e/icons/skills/water_05.jpg"
+  },
+  {
+    "name": "One with Shadows",
+    "path": "icons/equipment/back/cloak-plain-blue.webp"
+  },
+  {
+    "name": "One with the Storm",
+    "path": "icons/commodities/gems/pearl-swirl-teal.webp"
+  },
+  {
+    "name": "One with the Worldsoul",
+    "path": "systems/dnd5e/icons/spells/wild-acid-2.jpg"
+  },
+  {
+    "name": "Ooze Cube",
+    "path": "icons/commodities/materials/slime-thick-blue.webp"
+  },
+  {
+    "name": "Ophidiophobia Aura",
+    "path": "systems/dnd5e/icons/spells/horror-acid-2.jpg"
+  },
+  {
+    "name": "Opportunistic Hunger",
+    "path": "icons/commodities/bones/skull-bat-grey.webp"
+  },
+  {
+    "name": "Orange Blossom",
+    "path": "icons/commodities/flowers/flowers-cherry-white.webp"
+  },
+  {
+    "name": "Orb of Dragon's Breath",
+    "path": "icons/commodities/gems/pearl-fire-swirl.webp"
+  },
+  {
+    "name": "Orcus's Lair",
+    "path": "icons/environment/settlement/city-night-spire.webp"
+  },
+  {
+    "name": "Otherworldly Perception",
+    "path": "systems/dnd5e/icons/skills/violet_09.jpg"
+  },
+  {
+    "name": "Out-of-Phase Movement",
+    "path": "systems/dnd5e/icons/skills/violet_16.jpg"
+  },
+  {
+    "name": "Outsize Strength",
+    "path": "systems/dnd5e/icons/skills/red_01.jpg"
+  },
+  {
+    "name": "Overbearing Pack",
+    "path": "systems/dnd5e/icons/skills/red_01.jpg"
+  },
+  {
+    "name": "Oversized Longbow",
+    "path": "icons/weapons/bows/bow-ornamental-silver-black.webp"
+  },
+  {
+    "name": "Ovipositor",
+    "path": "icons/environment/creatures/bug-larva-yellow.webp"
+  },
+  {
+    "name": "Pacifying Presence",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Pacifying Spores",
+    "path": "icons/commodities/gems/powder-raw-white.webp"
+  },
+  {
+    "name": "Pack Tactics",
+    "path": "icons/environment/wilderness/statue-hound-horned.webp"
+  },
+  {
+    "name": "Panpipes",
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
+  },
+  {
+    "name": "Paralysis",
+    "path": "systems/dnd5e/icons/skills/yellow_40.jpg"
+  },
+  {
+    "name": "Paralysis Gas",
+    "path": "systems/dnd5e/icons/spells/fog-magenta-3.jpg"
+  },
+  {
+    "name": "Paralyzing Beam",
+    "path": "systems/dnd5e/icons/spells/beam-magenta-3.jpg"
+  },
+  {
+    "name": "Paralyzing Breath",
+    "path": "systems/dnd5e/icons/spells/wind-magenta-1.jpg"
+  },
+  {
+    "name": "Paralyzing Claw",
+    "path": "icons/commodities/bones/bone-foot-bird-brown.webp"
+  },
+  {
+    "name": "Paralyzing Claw",
+    "path": "icons/commodities/bones/bone-foot-bird-brown.webp"
+  },
+  {
+    "name": "Paralyzing Ray",
+    "path": "systems/dnd5e/icons/spells/beam-jade-3.jpg"
+  },
+  {
+    "name": "Paralyzing Touch",
+    "path": "systems/dnd5e/icons/spells/beam-magenta-2.jpg"
+  },
+  {
+    "name": "Parry",
+    "path": "icons/weapons/swords/swords-short.webp"
+  },
+  {
+    "name": "Parry and Counter",
+    "path": "icons/weapons/swords/swords-short.webp"
+  },
+  {
+    "name": "Partial Freeze",
+    "path": "systems/dnd5e/icons/skills/ice_05.jpg"
+  },
+  {
+    "name": "Peal of Thunder",
+    "path": "systems/dnd5e/icons/skills/mech_9.jpg"
+  },
+  {
+    "name": "Peck",
+    "path": "icons/commodities/bones/beak-orange-green.webp"
+  },
+  {
+    "name": "Performer Type",
+    "path": "systems/dnd5e/icons/items/inventory/trinket-blue.jpg"
+  },
+  {
+    "name": "Petrified Death",
+    "path": "systems/dnd5e/icons/items/inventory/monster-cat.jpg"
+  },
+  {
+    "name": "Petrified Earth",
+    "path": "icons/commodities/treasure/statue-runed-blue-grey.webp"
+  },
+  {
+    "name": "Petrifying Breath",
+    "path": "systems/dnd5e/icons/spells/wind-magenta-1.jpg"
+  },
+  {
+    "name": "Petrifying Claws",
+    "path": "icons/commodities/claws/claws-white.webp"
+  },
+  {
+    "name": "Petrifying Gaze",
+    "path": "systems/dnd5e/icons/skills/violet_02.jpg"
+  },
+  {
+    "name": "Petrifying Secretions",
+    "path": "icons/commodities/treasure/statue-bust-stone-grey.webp"
+  },
+  {
+    "name": "Petrifying Touch",
+    "path": "icons/commodities/treasure/statue-bust-stone-grey.webp"
+  },
+  {
+    "name": "Petty Tyrant",
+    "path": "systems/dnd5e/icons/skills/yellow_17.jpg"
+  },
+  {
+    "name": "Phalanx Formation",
+    "path": "icons/equipment/shield/heater-steel-engraved-lance-rest.webp"
+  },
+  {
+    "name": "Phantasmal Dagger",
+    "path": "icons/weapons/daggers/dagger-ritual-green.webp"
+  },
+  {
+    "name": "Phantasmal Killer",
+    "path": "systems/dnd5e/icons/skills/affliction_08.jpg"
+  },
+  {
+    "name": "Phantasms",
+    "path": "systems/dnd5e/icons/skills/affliction_08.jpg"
+  },
+  {
+    "name": "Pick",
+    "path": "icons/weapons/axes/pickaxe-double-brown.webp"
+  },
+  {
+    "name": "Piercing Claw",
+    "path": "icons/commodities/bones/bone-foot-bird-brown.webp"
+  },
+  {
+    "name": "Pike",
+    "path": "icons/weapons/polearms/spear-hooked-rounded.webp"
+  },
+  {
+    "name": "Pincer",
+    "path": "icons/commodities/claws/claw-insect-grey.webp"
+  },
+  {
+    "name": "Pincer Staff",
+    "path": "icons/weapons/staves/staff-hooked-banded.webp"
+  },
+  {
+    "name": "Piscine Anatomy",
+    "path": "icons/environment/creatures/fish-crosshatched-blue-purple.webp"
+  },
+  {
+    "name": "Pistol",
+    "path": "icons/weapons/guns/gun-pistol-flintlock.webp"
+  },
+  {
+    "name": "Plague of Worms",
+    "path": "icons/environment/creatures/insect-worm.webp"
+  },
+  {
+    "name": "Planar Destruction",
+    "path": "systems/dnd5e/icons/skills/violet_12.jpg"
+  },
+  {
+    "name": "Plant Camouflage",
+    "path": "systems/dnd5e/icons/skills/green_20.jpg"
+  },
+  {
+    "name": "Platforms",
+    "path": "icons/environment/settlement/stable.webp"
+  },
+  {
+    "name": "Poison Breath",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Poison Mind",
+    "path": "systems/dnd5e/icons/skills/affliction_13.jpg"
+  },
+  {
+    "name": "Poison Quills",
+    "path": "systems/dnd5e/icons/spells/needles-acid-1.jpg"
+  },
+  {
+    "name": "Poison Sense",
+    "path": "systems/dnd5e/icons/spells/light-jade-1.jpg"
+  },
+  {
+    "name": "Poison Splash",
+    "path": "icons/commodities/materials/liquid-green.webp"
+  },
+  {
+    "name": "Poison Spores",
+    "path": "systems/dnd5e/icons/spells/fog-acid-1.jpg"
+  },
+  {
+    "name": "Poison Spray",
+    "path": "systems/dnd5e/icons/spells/needles-acid-1.jpg"
+  },
+  {
+    "name": "Poison Stinger",
+    "path": "icons/commodities/biological/stinger-insect-brown.webp"
+  },
+  {
+    "name": "Poison Strike",
+    "path": "systems/dnd5e/icons/skills/weapon_20.jpg"
+  },
+  {
+    "name": "Poison's Disciple",
+    "path": "systems/dnd5e/icons/skills/weapon_20.jpg"
+  },
+  {
+    "name": "Poisoned Daggers",
+    "path": "systems/dnd5e/icons/skills/weapon_43.jpg"
+  },
+  {
+    "name": "Poisoned Dart",
+    "path": "systems/dnd5e/icons/skills/arrow_08.jpg"
+  },
+  {
+    "name": "Poisoned Spine",
+    "path": "systems/dnd5e/icons/skills/affliction_15.jpg"
+  },
+  {
+    "name": "Poisonous Cloud",
+    "path": "systems/dnd5e/icons/spells/fog-acid-3.jpg"
+  },
+  {
+    "name": "Poisonous Pistol",
+    "path": "icons/weapons/guns/gun-green.webp"
+  },
+  {
+    "name": "Poisonous Skin",
+    "path": "icons/commodities/materials/slime-green.webp"
+  },
+  {
+    "name": "Poisonous Touch",
+    "path": "systems/dnd5e/icons/skills/green_07.jpg"
+  },
+  {
+    "name": "Polar Ray",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-3.jpg"
+  },
+  {
+    "name": "Polar Ray",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-3.jpg"
+  },
+  {
+    "name": "Polymorph Blade",
+    "path": "icons/weapons/swords/shortsword-broad-engraved.webp"
+  },
+  {
+    "name": "Poor Depth Perception",
+    "path": "icons/tools/navigation/spyglass-telescope-brass.webp"
+  },
+  {
+    "name": "Portent",
+    "path": "systems/dnd5e/icons/items/inventory/dice.jpg"
+  },
+  {
+    "name": "Possess Corpse",
+    "path": "systems/dnd5e/icons/skills/red_28.jpg"
+  },
+  {
+    "name": "Possessed Alignment",
+    "path": "systems/dnd5e/icons/skills/water_07.jpg"
+  },
+  {
+    "name": "Possession",
+    "path": "systems/dnd5e/icons/skills/red_28.jpg"
+  },
+  {
+    "name": "Potent Cantrips",
+    "path": "icons/sundries/documents/document-symbol-eye.webp"
+  },
+  {
+    "name": "Pounce",
+    "path": "icons/commodities/claws/claw-brown-black.webp"
+  },
+  {
+    "name": "Power of the Dragon Queen",
+    "path": "systems/dnd5e/icons/skills/green_21.jpg"
+  },
+  {
+    "name": "Powerful Build",
+    "path": "systems/dnd5e/icons/skills/yellow_14.jpg"
+  },
+  {
+    "name": "Precognitive Insight",
+    "path": "systems/dnd5e/icons/skills/blue_15.jpg"
+  },
+  {
+    "name": "Preemptive Strike",
+    "path": "systems/dnd5e/icons/skills/fire_13.jpg"
+  },
+  {
+    "name": "Prime Speaker's Trident",
+    "path": "icons/weapons/polearms/trident-silver-red.webp"
+  },
+  {
+    "name": "Probing Telepathy",
+    "path": "systems/dnd5e/icons/skills/blue_15.jpg"
+  },
+  {
+    "name": "Proboscis",
+    "path": "icons/commodities/biological/antenna-blue.webp"
+  },
+  {
+    "name": "Prone Deficiency",
+    "path": "icons/commodities/biological/shell-green.webp"
+  },
+  {
+    "name": "Protection",
+    "path": "icons/commodities/metal/clasp-steel-braid.webp"
+  },
+  {
+    "name": "Protective Thrall",
+    "path": "systems/dnd5e/icons/skills/blue_37.jpg"
+  },
+  {
+    "name": "Provoke Rage",
+    "path": "systems/dnd5e/icons/skills/yellow_17.jpg"
+  },
+  {
+    "name": "Pseudopod",
+    "path": "systems/dnd5e/icons/skills/ice_08.jpg"
+  },
+  {
+    "name": "Pseudopod blobs",
+    "path": "systems/dnd5e/icons/skills/ice_08.jpg"
+  },
+  {
+    "name": "Pseudopods",
+    "path": "systems/dnd5e/icons/skills/ice_08.jpg"
+  },
+  {
+    "name": "Psionic Ability",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-1.jpg"
+  },
+  {
+    "name": "Psionic Hub",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-1.jpg"
+  },
+  {
+    "name": "Psychedelic Orb",
+    "path": "icons/commodities/gems/pearl-swirl-teal.webp"
+  },
+  {
+    "name": "Psychic Conditioning",
+    "path": "systems/dnd5e/icons/spells/air-burst-air-3.jpg"
+  },
+  {
+    "name": "Psychic Crush",
+    "path": "systems/dnd5e/icons/skills/blue_20.jpg"
+  },
+  {
+    "name": "Psychic Defense",
+    "path": "systems/dnd5e/icons/spells/air-burst-air-3.jpg"
+  },
+  {
+    "name": "Psychic Defenses",
+    "path": "systems/dnd5e/icons/spells/air-burst-air-3.jpg"
+  },
+  {
+    "name": "Psychic Drain",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-1.jpg"
+  },
+  {
+    "name": "Psychic Engine",
+    "path": "systems/dnd5e/icons/spells/explosion-magenta-3.jpg"
+  },
+  {
+    "name": "Psychic Lash",
+    "path": "systems/dnd5e/icons/spells/link-eerie-3.jpg"
+  },
+  {
+    "name": "Psychic Leech",
+    "path": "systems/dnd5e/icons/spells/link-eerie-3.jpg"
+  },
+  {
+    "name": "Psychic Link",
+    "path": "systems/dnd5e/icons/spells/link-eerie-1.jpg"
+  },
+  {
+    "name": "Psychic Mirror",
+    "path": "systems/dnd5e/icons/skills/yellow_15.jpg"
+  },
+  {
+    "name": "Psychic Orb",
+    "path": "icons/commodities/gems/pearl-swirl-teal.webp"
+  },
+  {
+    "name": "Psychic Projection",
+    "path": "systems/dnd5e/icons/spells/link-eerie-1.jpg"
+  },
+  {
+    "name": "Psychic Pulse",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-1.jpg"
+  },
+  {
+    "name": "Psychic Screech",
+    "path": "systems/dnd5e/icons/spells/link-eerie-3.jpg"
+  },
+  {
+    "name": "Psychic Touch",
+    "path": "systems/dnd5e/icons/skills/shadow_21.jpg"
+  },
+  {
+    "name": "Psychic-Attuned Hammer",
+    "path": "systems/dnd5e/icons/skills/yellow_21.jpg"
+  },
+  {
+    "name": "Pummel",
+    "path": "systems/dnd5e/icons/skills/yellow_08.jpg"
+  },
+  {
+    "name": "Quarterstaff",
+    "path": "icons/weapons/staves/staff-simple-gold.webp"
+  },
+  {
+    "name": "Quench Magic",
+    "path": "icons/commodities/gems/pearl-purple-dark.webp"
+  },
+  {
+    "name": "Quick Step",
+    "path": "icons/equipment/feet/shoes-leather-simple-brown.webp"
+  },
+  {
+    "name": "Quickened Spell",
+    "path": "systems/dnd5e/icons/spells/runes-orange-2.jpg"
+  },
+  {
+    "name": "Quickness",
+    "path": "icons/commodities/claws/claw-bird-yellow.webp"
+  },
+  {
+    "name": "Quivering Palm",
+    "path": "systems/dnd5e/icons/skills/violet_28.jpg"
+  },
+  {
+    "name": "Radiant Blast",
+    "path": "systems/dnd5e/icons/skills/yellow_10.jpg"
+  },
+  {
+    "name": "Radiant Breath",
+    "path": "systems/dnd5e/icons/spells/fog-air-2.jpg"
+  },
+  {
+    "name": "Radiant Eyes",
+    "path": "systems/dnd5e/icons/skills/shadow_12.jpg"
+  },
+  {
+    "name": "Radiant Mirror",
+    "path": "systems/dnd5e/icons/skills/yellow_15.jpg"
+  },
+  {
+    "name": "Radiant Rebirth",
+    "path": "systems/dnd5e/icons/skills/yellow_38.jpg"
+  },
+  {
+    "name": "Radiant Spear",
+    "path": "icons/weapons/polearms/spear-hooked-broad.webp"
+  },
+  {
+    "name": "Radiant Strike",
+    "path": "systems/dnd5e/icons/skills/light_03.jpg"
+  },
+  {
+    "name": "Radiant Touch",
+    "path": "systems/dnd5e/icons/skills/light_08.jpg"
+  },
+  {
+    "name": "Rage",
+    "path": "systems/dnd5e/icons/skills/red_01.jpg"
+  },
+  {
+    "name": "Raise Ghoul",
+    "path": "systems/dnd5e/icons/skills/blood_12.jpg"
+  },
+  {
+    "name": "Rake",
+    "path": "icons/commodities/wood/kindling-stick-tan.webp"
+  },
+  {
+    "name": "Raking Vine",
+    "path": "systems/dnd5e/icons/spells/vines-plain-3.jpg"
+  },
+  {
+    "name": "Rally the Troops",
+    "path": "systems/dnd5e/icons/skills/red_01.jpg"
+  },
+  {
+    "name": "Rampage",
+    "path": "systems/dnd5e/icons/skills/red_01.jpg"
+  },
+  {
+    "name": "Rancid Degeneration",
+    "path": "systems/dnd5e/icons/spells/rip-acid-2.jpg"
+  },
+  {
+    "name": "Rapid Shifting",
+    "path": "systems/dnd5e/icons/skills/blue_01.jpg"
+  },
+  {
+    "name": "Rapier",
+    "path": "icons/weapons/swords/greatsword-crossguard-flanged.webp"
+  },
+  {
+    "name": "Rapport Spores",
+    "path": "systems/dnd5e/icons/spells/fog-magenta-1.jpg"
+  },
+  {
+    "name": "Raxivort's Blessing",
+    "path": "icons/containers/kitchenware/goblet-skeletal-grey.webp"
+  },
+  {
+    "name": "Raxivort's Tongue",
+    "path": "icons/commodities/biological/tongue-violet.webp"
+  },
+  {
+    "name": "Ray of Cold",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-3.jpg"
+  },
+  {
+    "name": "Ray of Cold",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-3.jpg"
+  },
+  {
+    "name": "Ray of Frost",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-2.jpg"
+  },
+  {
+    "name": "Ray of Sickness",
+    "path": "systems/dnd5e/icons/spells/beam-jade-2.jpg"
+  },
+  {
+    "name": "Reach to the Blaze",
+    "path": "systems/dnd5e/icons/skills/red_30.jpg"
+  },
+  {
+    "name": "Reach to the Wave",
+    "path": "systems/dnd5e/icons/skills/water_08.jpg"
+  },
+  {
+    "name": "Reactive",
+    "path": "systems/dnd5e/icons/skills/green_30.jpg"
+  },
+  {
+    "name": "Reactive Heads",
+    "path": "systems/dnd5e/icons/skills/green_30.jpg"
+  },
+  {
+    "name": "Read Thoughts",
+    "path": "systems/dnd5e/icons/skills/violet_02.jpg"
+  },
+  {
+    "name": "Reap Memory",
+    "path": "systems/dnd5e/icons/skills/violet_02.jpg"
+  },
+  {
+    "name": "Reaping Arms",
+    "path": "systems/dnd5e/icons/skills/ice_10.jpg"
+  },
+  {
+    "name": "Reaping Scythe",
+    "path": "systems/dnd5e/icons/skills/affliction_04.jpg"
+  },
+  {
+    "name": "Reckless",
+    "path": "systems/dnd5e/icons/skills/yellow_18.jpg"
+  },
+  {
+    "name": "Recorded Mimicry",
+    "path": "icons/commodities/bones/beak-orange-green.webp"
+  },
+  {
+    "name": "Red Blossom",
+    "path": "icons/commodities/flowers/rosaecia-red.webp"
+  },
+  {
+    "name": "Red Dragon Head: Fire Breath",
+    "path": "systems/dnd5e/icons/skills/fire_05.jpg"
+  },
+  {
+    "name": "Redirect Attack",
+    "path": "icons/equipment/shield/targe-copper-eye.webp"
+  },
+  {
+    "name": "Reduce",
+    "path": "icons/environment/creatures/monster-barbed-carapace-purple.webp"
+  },
+  {
+    "name": "Reduce to Ash",
+    "path": "systems/dnd5e/icons/skills/red_30.jpg"
+  },
+  {
+    "name": "Reduced Threat",
+    "path": "icons/commodities/flowers/cornflower-blue.webp"
+  },
+  {
+    "name": "Reel",
+    "path": "icons/tools/fishing/reel-brown-white.webp"
+  },
+  {
+    "name": "Reflective Carapace",
+    "path": "icons/commodities/biological/shell-tan.webp"
+  },
+  {
+    "name": "Regeneration",
+    "path": "systems/dnd5e/icons/spells/heal-royal-2.jpg"
+  },
+  {
+    "name": "Regional Effects",
+    "path": "systems/dnd5e/icons/skills/emerald_03.jpg"
+  },
+  {
+    "name": "Regional Effects.",
+    "path": "systems/dnd5e/icons/skills/emerald_03.jpg"
+  },
+  {
+    "name": "Rejoin Mount",
+    "path": "icons/environment/people/charge.webp"
+  },
+  {
+    "name": "Rejuvenation",
+    "path": "systems/dnd5e/icons/skills/affliction_01.jpg"
+  },
+  {
+    "name": "Relative Size",
+    "path": "systems/dnd5e/icons/skills/weapon_04.jpg"
+  },
+  {
+    "name": "Relentless",
+    "path": "systems/dnd5e/icons/skills/blood_03.jpg"
+  },
+  {
+    "name": "Relentless Endurance",
+    "path": "systems/dnd5e/icons/skills/blood_03.jpg"
+  },
+  {
+    "name": "Reliable Talent",
+    "path": "systems/dnd5e/icons/spells/haste-royal-2.jpg"
+  },
+  {
+    "name": "Rend Reality",
+    "path": "systems/dnd5e/icons/spells/shielding-eerie-2.jpg"
+  },
+  {
+    "name": "Rend the Field",
+    "path": "systems/dnd5e/icons/skills/red_20.jpg"
+  },
+  {
+    "name": "Rending Bite",
+    "path": "systems/dnd5e/icons/skills/red_29.jpg"
+  },
+  {
+    "name": "Repair",
+    "path": "systems/dnd5e/icons/skills/mech_10.jpg"
+  },
+  {
+    "name": "Repairable",
+    "path": "icons/tools/fasteners/bolts-roundhead.webp"
+  },
+  {
+    "name": "Repulsion Breath",
+    "path": "systems/dnd5e/icons/skills/blue_13.jpg"
+  },
+  {
+    "name": "Resistance",
+    "path": "systems/dnd5e/icons/spells/protect-jade-3.jpg"
+  },
+  {
+    "name": "Resonant Connection",
+    "path": "systems/dnd5e/icons/skills/green_22.jpg"
+  },
+  {
+    "name": "Retract",
+    "path": "icons/commodities/biological/shell-turtle-grey.webp"
+  },
+  {
+    "name": "Retreating Strike",
+    "path": "systems/dnd5e/icons/skills/weapon_31.jpg"
+  },
+  {
+    "name": "Retribution",
+    "path": "systems/dnd5e/icons/spells/lightning-jade-2.jpg"
+  },
+  {
+    "name": "Return the Favor",
+    "path": "systems/dnd5e/icons/skills/weapon_29.jpg"
+  },
+  {
+    "name": "Return to Nyx",
+    "path": "systems/dnd5e/icons/spells/fire-arrows-sky-3.jpg"
+  },
+  {
+    "name": "Return to Worms",
+    "path": "icons/environment/creatures/bug-worm-purple-blue.webp"
+  },
+  {
+    "name": "Reveal",
+    "path": "icons/equipment/head/mask-carved-scream-tan.webp"
+  },
+  {
+    "name": "Reversal",
+    "path": "systems/dnd5e/icons/skills/affliction_09.jpg"
+  },
+  {
+    "name": "Reversal of Fortune",
+    "path": "systems/dnd5e/icons/skills/shadow_18.jpg"
+  },
+  {
+    "name": "Revitalize",
+    "path": "systems/dnd5e/icons/spells/heal-jade-3.jpg"
+  },
+  {
+    "name": "Ring of Winter",
+    "path": "icons/equipment/finger/ring-cabochon-copper-blue.webp"
+  },
+  {
+    "name": "Riposte",
+    "path": "systems/dnd5e/icons/skills/weapon_21.jpg"
+  },
+  {
+    "name": "Rising Anger",
+    "path": "systems/dnd5e/icons/skills/blood_13.jpg"
+  },
+  {
+    "name": "Roar",
+    "path": "systems/dnd5e/icons/items/inventory/monster-cat.jpg"
+  },
+  {
+    "name": "Rock",
+    "path": "systems/dnd5e/icons/spells/rock-plain-3.jpg"
+  },
+  {
+    "name": "Rock Catching",
+    "path": "systems/dnd5e/icons/skills/yellow_05.jpg"
+  },
+  {
+    "name": "Rolling Charge",
+    "path": "systems/dnd5e/icons/spells/rock-orange-3.jpg"
+  },
+  {
+    "name": "Rolling Rock",
+    "path": "systems/dnd5e/icons/spells/rock-orange-3.jpg"
+  },
+  {
+    "name": "Rooooo-glog",
+    "path": "systems/dnd5e/icons/spells/heal-jade-1.jpg"
+  },
+  {
+    "name": "Root",
+    "path": "systems/dnd5e/icons/spells/vines-eerie-1.jpg"
+  },
+  {
+    "name": "Rope of Entanglement",
+    "path": "icons/sundries/survival/leather-strap-brown.webp"
+  },
+  {
+    "name": "Rotting Fist",
+    "path": "systems/dnd5e/icons/skills/ice_10.jpg"
+  },
+  {
+    "name": "Rotting Gaze",
+    "path": "icons/commodities/biological/eye-green-pink.webp"
+  },
+  {
+    "name": "Rotting Presence",
+    "path": "systems/dnd5e/icons/skills/affliction_11.jpg"
+  },
+  {
+    "name": "Rotting Touch",
+    "path": "icons/commodities/biological/pustules-brown.webp"
+  },
+  {
+    "name": "Royal Spear",
+    "path": "systems/dnd5e/icons/items/weapons/rod.jpg"
+  },
+  {
+    "name": "Ruin Dweller",
+    "path": "icons/environment/wilderness/wall-ruins.webp"
+  },
+  {
+    "name": "Ruinblade",
+    "path": "icons/weapons/swords/sword-guard-flanged.webp"
+  },
+  {
+    "name": "Running Leap",
+    "path": "icons/commodities/claws/claw-blue-grey.webp"
+  },
+  {
+    "name": "Rust Metal",
+    "path": "systems/dnd5e/icons/items/inventory/plate-bronze.jpg"
+  },
+  {
+    "name": "Rust Monster Cloak",
+    "path": "systems/dnd5e/icons/items/equipment/cloak-plain.jpg"
+  },
+  {
+    "name": "Rusted Longsword",
+    "path": "systems/dnd5e/icons/skills/nature_05.jpg"
+  },
+  {
+    "name": "Sacred Animation",
+    "path": "icons/commodities/treasure/statue-carved-figurehead.webp"
+  },
+  {
+    "name": "Sacred Flame",
+    "path": "systems/dnd5e/icons/skills/yellow_07.jpg"
+  },
+  {
+    "name": "Sadistic Revelry",
+    "path": "systems/dnd5e/icons/skills/blood_02.jpg"
+  },
+  {
+    "name": "Salt Vulnerability",
+    "path": "icons/commodities/materials/powder-grey.webp"
+  },
+  {
+    "name": "Savage",
+    "path": "systems/dnd5e/icons/skills/red_12.jpg"
+  },
+  {
+    "name": "Scaladar Link",
+    "path": "systems/dnd5e/icons/skills/green_23.jpg"
+  },
+  {
+    "name": "Scare",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-3.jpg"
+  },
+  {
+    "name": "Scepter",
+    "path": "icons/weapons/staves/staff-animal-skull.webp"
+  },
+  {
+    "name": "Scimitar",
+    "path": "icons/weapons/swords/scimitar-worn-blue.webp"
+  },
+  {
+    "name": "Scimitar of Speed",
+    "path": "icons/weapons/swords/scimitar-blue.webp"
+  },
+  {
+    "name": "Scimitar of Speed",
+    "path": "icons/weapons/swords/scimitar-blue.webp"
+  },
+  {
+    "name": "Scimitars",
+    "path": "systems/dnd5e/icons/skills/weapon_08.jpg"
+  },
+  {
+    "name": "Scintillating Shell",
+    "path": "systems/dnd5e/icons/spells/air-burst-air-2.jpg"
+  },
+  {
+    "name": "Scorchbringer",
+    "path": "systems/dnd5e/icons/skills/red_14.jpg"
+  },
+  {
+    "name": "Scorching Burst",
+    "path": "systems/dnd5e/icons/spells/needles-fire-3.jpg"
+  },
+  {
+    "name": "Scorching Ray",
+    "path": "systems/dnd5e/icons/spells/beam-orange-2.jpg"
+  },
+  {
+    "name": "Scourge",
+    "path": "systems/dnd5e/icons/skills/green_17.jpg"
+  },
+  {
+    "name": "Scouring Instruction",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Screaming Gale",
+    "path": "systems/dnd5e/icons/spells/wind-blue-3.jpg"
+  },
+  {
+    "name": "Scroll Service",
+    "path": "icons/commodities/treasure/case-red-silver.webp"
+  },
+  {
+    "name": "Sculpt Spells",
+    "path": "systems/dnd5e/icons/spells/runes-blue-2.jpg"
+  },
+  {
+    "name": "Scythe",
+    "path": "icons/weapons/sickles/scythe-wrapped-worn-red.webp"
+  },
+  {
+    "name": "Sea Legs",
+    "path": "icons/equipment/leg/pants-tasset-grey-blue.webp"
+  },
+  {
+    "name": "Searing Armor",
+    "path": "icons/equipment/shoulder/pauldron-segmented-steel-yellow.webp"
+  },
+  {
+    "name": "Searing Burst",
+    "path": "systems/dnd5e/icons/spells/needles-fire-3.jpg"
+  },
+  {
+    "name": "Seaweed Shape",
+    "path": "systems/dnd5e/icons/skills/green_20.jpg"
+  },
+  {
+    "name": "Second Head",
+    "path": "icons/commodities/bones/bones-lizard-brown.webp"
+  },
+  {
+    "name": "Second Roar",
+    "path": "systems/dnd5e/icons/spells/wild-orange-3.jpg"
+  },
+  {
+    "name": "Second Wind",
+    "path": "systems/dnd5e/icons/skills/blood_04.jpg"
+  },
+  {
+    "name": "Second-Story Work",
+    "path": "icons/sundries/misc/ladder-improvised.webp"
+  },
+  {
+    "name": "Secure Memory",
+    "path": "systems/dnd5e/icons/items/inventory/pearl.jpg"
+  },
+  {
+    "name": "See Invisible",
+    "path": "icons/tools/scribal/spectacles-glasses.webp"
+  },
+  {
+    "name": "Seething",
+    "path": "icons/environment/creatures/bug-larva-yellow.webp"
+  },
+  {
+    "name": "Self-Sacrifice",
+    "path": "systems/dnd5e/icons/skills/red_02.jpg"
+  },
+  {
+    "name": "Sense Alignment",
+    "path": "icons/equipment/head/mask-horned-brown.webp"
+  },
+  {
+    "name": "Sense Magic",
+    "path": "systems/dnd5e/icons/skills/violet_09.jpg"
+  },
+  {
+    "name": "Sense Thoughts",
+    "path": "icons/commodities/biological/eye-green-pink.webp"
+  },
+  {
+    "name": "Serrated Tail",
+    "path": "systems/dnd5e/icons/skills/blood_08.jpg"
+  },
+  {
+    "name": "Sever Psychic Link",
+    "path": "systems/dnd5e/icons/spells/slice-sky-3.jpg"
+  },
+  {
+    "name": "Sever Silver Cord",
+    "path": "systems/dnd5e/icons/spells/slice-orange-3.jpg"
+  },
+  {
+    "name": "severed arm",
+    "path": "systems/dnd5e/icons/skills/red_12.jpg"
+  },
+  {
+    "name": "severed head",
+    "path": "systems/dnd5e/icons/skills/red_12.jpg"
+  },
+  {
+    "name": "severed leg",
+    "path": "systems/dnd5e/icons/skills/red_12.jpg"
+  },
+  {
+    "name": "Shackling Chains",
+    "path": "icons/sundries/survival/cuffs-shackles-steel.webp"
+  },
+  {
+    "name": "Shadow Blade",
+    "path": "systems/dnd5e/icons/skills/ice_12.jpg"
+  },
+  {
+    "name": "Shadow Blend",
+    "path": "icons/commodities/stone/boulder-black.webp"
+  },
+  {
+    "name": "Shadow Breath",
+    "path": "systems/dnd5e/icons/spells/fog-sky-1.jpg"
+  },
+  {
+    "name": "Shadow Breath",
+    "path": "systems/dnd5e/icons/spells/fog-sky-1.jpg"
+  },
+  {
+    "name": "Shadow Caw",
+    "path": "systems/dnd5e/icons/spells/fog-sky-1.jpg"
+  },
+  {
+    "name": "Shadow Caw",
+    "path": "systems/dnd5e/icons/spells/fog-sky-1.jpg"
+  },
+  {
+    "name": "Shadow Jaunt",
+    "path": "systems/dnd5e/icons/spells/wind-sky-1.jpg"
+  },
+  {
+    "name": "Shadow Jump",
+    "path": "systems/dnd5e/icons/spells/wind-sky-1.jpg"
+  },
+  {
+    "name": "Shadow of Guilt",
+    "path": "icons/environment/creatures/gargoyle-grey-blue.webp"
+  },
+  {
+    "name": "Shadow Spear",
+    "path": "systems/dnd5e/icons/skills/weapon_40.jpg"
+  },
+  {
+    "name": "Shadow Stealth",
+    "path": "systems/dnd5e/icons/spells/wind-sky-1.jpg"
+  },
+  {
+    "name": "Shadow Stealth",
+    "path": "systems/dnd5e/icons/spells/wind-sky-1.jpg"
+  },
+  {
+    "name": "Shadow Step",
+    "path": "systems/dnd5e/icons/spells/wind-sky-2.jpg"
+  },
+  {
+    "name": "Shadow Stride",
+    "path": "systems/dnd5e/icons/spells/wind-sky-2.jpg"
+  },
+  {
+    "name": "Shadow Sword",
+    "path": "icons/weapons/swords/sword-guard-flanged.webp"
+  },
+  {
+    "name": "Shadow Teleport",
+    "path": "systems/dnd5e/icons/spells/wind-sky-2.jpg"
+  },
+  {
+    "name": "Shadowstep",
+    "path": "systems/dnd5e/icons/spells/wind-sky-2.jpg"
+  },
+  {
+    "name": "Shape Up, Ye Dog",
+    "path": "systems/dnd5e/icons/skills/emerald_06.jpg"
+  },
+  {
+    "name": "Shape Water",
+    "path": "systems/dnd5e/icons/skills/blue_36.jpg"
+  },
+  {
+    "name": "Shape-Shift",
+    "path": "systems/dnd5e/icons/skills/blue_26.jpg"
+  },
+  {
+    "name": "Shapechanger",
+    "path": "systems/dnd5e/icons/skills/blue_26.jpg"
+  },
+  {
+    "name": "Shapechanger Savant",
+    "path": "systems/dnd5e/icons/skills/blue_26.jpg"
+  },
+  {
+    "name": "Shards of a vorpal sword",
+    "path": "icons/commodities/metal/fragments-sword-steel.webp"
+  },
+  {
+    "name": "Shared Invisibility",
+    "path": "icons/commodities/materials/glass-orb.webp"
+  },
+  {
+    "name": "Shared Spellcasting",
+    "path": "icons/sundries/scrolls/scroll-symbol-eye-brown.webp"
+  },
+  {
+    "name": "Shargaas's Sight",
+    "path": "systems/dnd5e/icons/skills/emerald_11.jpg"
+  },
+  {
+    "name": "Shark Telepathy",
+    "path": "icons/commodities/bones/tooth-shark-brown-white.webp"
+  },
+  {
+    "name": "Sharktoothed Longsword",
+    "path": "icons/weapons/swords/sword-hooked-engraved.webp"
+  },
+  {
+    "name": "Sharpshooter",
+    "path": "systems/dnd5e/icons/skills/yellow_34.jpg"
+  },
+  {
+    "name": "Shed Skin",
+    "path": "icons/commodities/leather/scale-chitin-grey.webp"
+  },
+  {
+    "name": "Shell",
+    "path": "icons/commodities/biological/shell-worn-beige.webp"
+  },
+  {
+    "name": "Shell Camouflage",
+    "path": "icons/commodities/biological/shell-ridged-green.webp"
+  },
+  {
+    "name": "Shell Defense",
+    "path": "icons/commodities/biological/shell-ridged-blue.webp"
+  },
+  {
+    "name": "Shield",
+    "path": "systems/dnd5e/icons/items/armor/shield.png"
+  },
+  {
+    "name": "Shield Bash",
+    "path": "systems/dnd5e/icons/skills/weapon_14.jpg"
+  },
+  {
+    "name": "Shield Block",
+    "path": "systems/dnd5e/icons/skills/weapon_16.jpg"
+  },
+  {
+    "name": "Shield Charge",
+    "path": "systems/dnd5e/icons/skills/weapon_14.jpg"
+  },
+  {
+    "name": "Shielded Mind",
+    "path": "systems/dnd5e/icons/spells/shielding-eerie-3.jpg"
+  },
+  {
+    "name": "Shifting",
+    "path": "systems/dnd5e/icons/skills/beast_01.jpg"
+  },
+  {
+    "name": "Shifting Nightmare",
+    "path": "systems/dnd5e/icons/spells/horror-acid-3.jpg"
+  },
+  {
+    "name": "Shimmering Aura",
+    "path": "systems/dnd5e/icons/spells/shielding-eerie-3.jpg"
+  },
+  {
+    "name": "Shimmering Shield",
+    "path": "systems/dnd5e/icons/spells/shielding-spirit-3.jpg"
+  },
+  {
+    "name": "Shipboard Ballista",
+    "path": "icons/weapons/artillery/ballista-wood-green.webp"
+  },
+  {
+    "name": "Shock",
+    "path": "systems/dnd5e/icons/spells/lighting-eerie-1.jpg"
+  },
+  {
+    "name": "Shock Susceptibility",
+    "path": "systems/dnd5e/icons/spells/lighting-eerie-1.jpg"
+  },
+  {
+    "name": "Shocking Bolt",
+    "path": "systems/dnd5e/icons/spells/lighting-eerie-1.jpg"
+  },
+  {
+    "name": "Shocking Grasp",
+    "path": "systems/dnd5e/icons/spells/lighting-eerie-1.jpg"
+  },
+  {
+    "name": "Shocking Touch",
+    "path": "systems/dnd5e/icons/spells/lighting-eerie-1.jpg"
+  },
+  {
+    "name": "Shortbow",
+    "path": "icons/weapons/bows/shortbow-arrows-black.webp"
+  },
+  {
+    "name": "Shortsword",
+    "path": "icons/weapons/swords/shortsword-guard-gold.webp"
+  },
+  {
+    "name": "shortsword, +1;+1 Shortsword",
+    "path": "icons/weapons/swords/shortsword-guard-green.webp"
+  },
+  {
+    "name": "Shovel",
+    "path": "icons/tools/hand/shovel-spade-steel-grey.webp"
+  },
+  {
+    "name": "Shrapnel Blast",
+    "path": "systems/dnd5e/icons/spells/explosion-orange-2.jpg"
+  },
+  {
+    "name": "Shrapnel Explosion",
+    "path": "systems/dnd5e/icons/spells/explosion-orange-2.jpg"
+  },
+  {
+    "name": "Shriek",
+    "path": "systems/dnd5e/icons/skills/emerald_06.jpg"
+  },
+  {
+    "name": "Shroud Self",
+    "path": "systems/dnd5e/icons/skills/shadow_17.jpg"
+  },
+  {
+    "name": "Sickening Gaze",
+    "path": "icons/commodities/biological/eye-green-pink.webp"
+  },
+  {
+    "name": "Sickle",
+    "path": "systems/dnd5e/icons/items/inventory/sickle.jpg"
+  },
+  {
+    "name": "Silver Greatsword",
+    "path": "icons/weapons/swords/greatsword-crossguard-silver.webp"
+  },
+  {
+    "name": "Silver Hair",
+    "path": "systems/dnd5e/icons/spells/wind-sky-2.jpg"
+  },
+  {
+    "name": "Silver Sword",
+    "path": "icons/weapons/swords/shortsword-guard-silver.webp"
+  },
+  {
+    "name": "Silvered Shortsword",
+    "path": "icons/weapons/swords/shortsword-guard-silver.webp"
+  },
+  {
+    "name": "Silvered Skull Flail",
+    "path": "icons/weapons/maces/flail-cube-grey.webp"
+  },
+  {
+    "name": "Simple Weapon Wielder",
+    "path": "icons/weapons/clubs/club-simple-stone.webp"
+  },
+  {
+    "name": "Simulacrum",
+    "path": "systems/dnd5e/icons/skills/blue_37.jpg"
+  },
+  {
+    "name": "Siphon Life",
+    "path": "systems/dnd5e/icons/spells/rip-sky-1.jpg"
+  },
+  {
+    "name": "Six Heads",
+    "path": "icons/commodities/bones/bones-lizard-brown.webp"
+  },
+  {
+    "name": "Skewer",
+    "path": "icons/weapons/polearms/trident-curved-steel.webp"
+  },
+  {
+    "name": "Skull Flail",
+    "path": "icons/weapons/maces/flail-cube-grey.webp"
+  },
+  {
+    "name": "Slam",
+    "path": "icons/equipment/hand/gauntlet-tooled-leather-brown.webp"
+  },
+  {
+    "name": "Slash",
+    "path": "icons/weapons/daggers/dagger-bone-grey.webp"
+  },
+  {
+    "name": "Slayer",
+    "path": "systems/dnd5e/icons/skills/beast_02.jpg"
+  },
+  {
+    "name": "Slaying Longbow",
+    "path": "systems/dnd5e/icons/items/weapons/bow-hunting.jpg"
+  },
+  {
+    "name": "Sledgehammer",
+    "path": "icons/weapons/hammers/hammer-double-sledge-engraved.webp"
+  },
+  {
+    "name": "Sleep Breath",
+    "path": "systems/dnd5e/icons/spells/fog-water-air-3.jpg"
+  },
+  {
+    "name": "Sleep Gaze",
+    "path": "icons/commodities/biological/eye-lizard-green.webp"
+  },
+  {
+    "name": "Sleepless Reveler",
+    "path": "systems/dnd5e/icons/items/inventory/drum.jpg"
+  },
+  {
+    "name": "Sling",
+    "path": "systems/dnd5e/icons/items/weapons/sling.jpg"
+  },
+  {
+    "name": "Slippery",
+    "path": "systems/dnd5e/icons/skills/blue_20.jpg"
+  },
+  {
+    "name": "Slow",
+    "path": "systems/dnd5e/icons/skills/blue_05.jpg"
+  },
+  {
+    "name": "Slow Fall",
+    "path": "icons/equipment/finger/ring-winged-gold-blue.webp"
+  },
+  {
+    "name": "Slowing Breath",
+    "path": "systems/dnd5e/icons/spells/fog-water-air-3.jpg"
+  },
+  {
+    "name": "Smite",
+    "path": "systems/dnd5e/icons/skills/light_06.jpg"
+  },
+  {
+    "name": "Smoke Bomb",
+    "path": "systems/dnd5e/icons/skills/yellow_02.jpg"
+  },
+  {
+    "name": "Smoke Cloud",
+    "path": "systems/dnd5e/icons/spells/fog-air-3.jpg"
+  },
+  {
+    "name": "Smother",
+    "path": "icons/sundries/flags/banner-worn-red.webp"
+  },
+  {
+    "name": "Snake Hair",
+    "path": "icons/commodities/biological/tentacle-yellow.webp"
+  },
+  {
+    "name": "Snakebite",
+    "path": "icons/commodities/bones/teeth-pointed-white.webp"
+  },
+  {
+    "name": "Snakes",
+    "path": "icons/commodities/biological/tentacle-yellow.webp"
+  },
+  {
+    "name": "Snaky Hair",
+    "path": "icons/commodities/biological/tentacle-yellow.webp"
+  },
+  {
+    "name": "Snaky Hair",
+    "path": "icons/commodities/biological/tentacle-yellow.webp"
+  },
+  {
+    "name": "Snatch",
+    "path": "icons/commodities/bones/bone-foot-bird-brown.webp"
+  },
+  {
+    "name": "Sneak Attack",
+    "path": "systems/dnd5e/icons/skills/weapon_27.jpg"
+  },
+  {
+    "name": "Snow Camouflage",
+    "path": "systems/dnd5e/icons/skills/blue_06.jpg"
+  },
+  {
+    "name": "Snowball",
+    "path": "systems/dnd5e/icons/skills/blue_22.jpg"
+  },
+  {
+    "name": "Song of Domination",
+    "path": "icons/tools/instruments/megaphone.webp"
+  },
+  {
+    "name": "Song of Rest",
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
+  },
+  {
+    "name": "Sonic Scream",
+    "path": "systems/dnd5e/icons/skills/emerald_06.jpg"
+  },
+  {
+    "name": "Sorcery Points",
+    "path": "icons/commodities/gems/pearl-red-oval.webp"
+  },
+  {
+    "name": "Sorrowful Embrace",
+    "path": "systems/dnd5e/icons/skills/green_02.jpg"
+  },
+  {
+    "name": "Sorrowful Presence",
+    "path": "systems/dnd5e/icons/skills/blue_37.jpg"
+  },
+  {
+    "name": "Soul Binding",
+    "path": "systems/dnd5e/icons/skills/red_02.jpg"
+  },
+  {
+    "name": "Soul Rend",
+    "path": "systems/dnd5e/icons/spells/slice-spirit-3.jpg"
+  },
+  {
+    "name": "Soul Thirst",
+    "path": "systems/dnd5e/icons/skills/blue_37.jpg"
+  },
+  {
+    "name": "Soul-Stealing Gaze",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-1.jpg"
+  },
+  {
+    "name": "Soulblade",
+    "path": "systems/dnd5e/icons/spells/slice-spirit-3.jpg"
+  },
+  {
+    "name": "Sound the Horn",
+    "path": "systems/dnd5e/icons/items/inventory/horn.jpg"
+  },
+  {
+    "name": "Sow Discord",
+    "path": "systems/dnd5e/icons/spells/horror-acid-2.jpg"
+  },
+  {
+    "name": "Spawn Aberration",
+    "path": "systems/dnd5e/icons/skills/yellow_18.jpg"
+  },
+  {
+    "name": "Spawned Melee Weapon",
+    "path": "systems/dnd5e/icons/skills/violet_10.jpg"
+  },
+  {
+    "name": "Spawned Ranged Weapon",
+    "path": "systems/dnd5e/icons/skills/yellow_06.jpg"
+  },
+  {
+    "name": "Speak with Animals",
+    "path": "systems/dnd5e/icons/skills/green_13.jpg"
+  },
+  {
+    "name": "Speak with Beasts",
+    "path": "systems/dnd5e/icons/skills/green_13.jpg"
+  },
+  {
+    "name": "Speak with Beasts and Plants",
+    "path": "systems/dnd5e/icons/skills/green_24.jpg"
+  },
+  {
+    "name": "Speak with Frogs and Toads",
+    "path": "icons/environment/creatures/frog-spotted-green.webp"
+  },
+  {
+    "name": "Spear",
+    "path": "icons/weapons/polearms/spear-flared-green.webp"
+  },
+  {
+    "name": "Spear Launcher",
+    "path": "systems/dnd5e/icons/skills/weapon_40.jpg"
+  },
+  {
+    "name": "Spear the Helpless",
+    "path": "icons/weapons/polearms/spear-hooked-brown.webp"
+  },
+  {
+    "name": "Special Equipment",
+    "path": "icons/containers/bags/pack-leather-brown.webp"
+  },
+  {
+    "name": "Special Traits",
+    "path": "systems/dnd5e/icons/skills/yellow_29.jpg"
+  },
+  {
+    "name": "Spectral Armor and Shield",
+    "path": "icons/equipment/shield/kite-decorative-steel-claws.webp"
+  },
+  {
+    "name": "Spectral Duplicate",
+    "path": "systems/dnd5e/icons/skills/violet_03.jpg"
+  },
+  {
+    "name": "Spectral Longbow",
+    "path": "icons/weapons/bows/bow-ornamental-silver-black.webp"
+  },
+  {
+    "name": "Spectral Longsword",
+    "path": "systems/dnd5e/icons/skills/affliction_18.jpg"
+  },
+  {
+    "name": "Speed of Sekolah",
+    "path": "systems/dnd5e/icons/spells/wind-grasp-sky-1.jpg"
+  },
+  {
+    "name": "Spell Immunity",
+    "path": "systems/dnd5e/icons/spells/shielding-eerie-3.jpg"
+  },
+  {
+    "name": "Spell Mimicry",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-1.jpg"
+  },
+  {
+    "name": "Spell Reflection",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-3.jpg"
+  },
+  {
+    "name": "Spell Storing",
+    "path": "systems/dnd5e/icons/spells/runes-royal-3.jpg"
+  },
+  {
+    "name": "Spell Turning",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-3.jpg"
+  },
+  {
+    "name": "Spell Vitalization",
+    "path": "systems/dnd5e/icons/spells/haste-royal-3.jpg"
+  },
+  {
+    "name": "Spell Ward",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-3.jpg"
+  },
+  {
+    "name": "Spell-Resistant Carapace",
+    "path": "icons/commodities/biological/shell-green.webp"
+  },
+  {
+    "name": "Spellcaster",
+    "path": "systems/dnd5e/icons/spells/beam-magenta-3.jpg"
+  },
+  {
+    "name": "Spellcasting",
+    "path": "systems/dnd5e/icons/spells/beam-magenta-3.jpg"
+  },
+  {
+    "name": "Spellfire",
+    "path": "systems/dnd5e/icons/spells/runes-orange-3.jpg"
+  },
+  {
+    "name": "Spells",
+    "path": "systems/dnd5e/icons/spells/runes-magenta-2.jpg"
+  },
+  {
+    "name": "Spew Debris",
+    "path": "systems/dnd5e/icons/spells/rock-orange-1.jpg"
+  },
+  {
+    "name": "Spew Flame",
+    "path": "systems/dnd5e/icons/spells/fire-arrows-1.jpg"
+  },
+  {
+    "name": "Spider Climb",
+    "path": "systems/dnd5e/icons/skills/green_23.jpg"
+  },
+  {
+    "name": "Spider Staff",
+    "path": "icons/weapons/staves/staff-spiked-grey.webp"
+  },
+  {
+    "name": "Spike",
+    "path": "icons/commodities/biological/stinger-insect-brown.webp"
+  },
+  {
+    "name": "Spiked Bone Club",
+    "path": "icons/weapons/clubs/club-bone-blue.webp"
+  },
+  {
+    "name": "Spiked Chain",
+    "path": "icons/tools/fasteners/chain-hook-grey.webp"
+  },
+  {
+    "name": "Spiked Club",
+    "path": "icons/weapons/clubs/club-simple-barbed-green.webp"
+  },
+  {
+    "name": "Spiked Gauntlet",
+    "path": "icons/equipment/hand/glove-spiked-leather-grey.webp"
+  },
+  {
+    "name": "Spiked Gauntlets",
+    "path": "icons/equipment/hand/glove-spiked-leather-grey.webp"
+  },
+  {
+    "name": "Spiked Shield",
+    "path": "icons/equipment/shield/kite-steel-boss-gold.webp"
+  },
+  {
+    "name": "Spit",
+    "path": "icons/commodities/materials/liquid-orange.webp"
+  },
+  {
+    "name": "Spit Acid",
+    "path": "systems/dnd5e/icons/skills/green_08.jpg"
+  },
+  {
+    "name": "Spit Fire",
+    "path": "systems/dnd5e/icons/skills/fire_10.jpg"
+  },
+  {
+    "name": "Spit Poison",
+    "path": "systems/dnd5e/icons/skills/green_08.jpg"
+  },
+  {
+    "name": "Spit Rock",
+    "path": "systems/dnd5e/icons/spells/rock-sky-2.jpg"
+  },
+  {
+    "name": "Splinter",
+    "path": "systems/dnd5e/icons/spells/needles-blue-2.jpg"
+  },
+  {
+    "name": "Split",
+    "path": "systems/dnd5e/icons/skills/blue_20.jpg"
+  },
+  {
+    "name": "Spore Infusion",
+    "path": "systems/dnd5e/icons/spells/fog-magenta-1.jpg"
+  },
+  {
+    "name": "Spores",
+    "path": "systems/dnd5e/icons/spells/fog-acid-1.jpg"
+  },
+  {
+    "name": "Spray Bile",
+    "path": "systems/dnd5e/icons/skills/affliction_16.jpg"
+  },
+  {
+    "name": "Spring",
+    "path": "systems/dnd5e/icons/skills/beast_01.jpg"
+  },
+  {
+    "name": "Squash",
+    "path": "icons/equipment/feet/boots-plate-black.webp"
+  },
+  {
+    "name": "Squirt Bile",
+    "path": "systems/dnd5e/icons/skills/green_08.jpg"
+  },
+  {
+    "name": "Sseth's Blessing",
+    "path": "systems/dnd5e/icons/skills/green_27.jpg"
+  },
+  {
+    "name": "Stab",
+    "path": "icons/weapons/daggers/dagger-simple-stone-black.webp"
+  },
+  {
+    "name": "Stable",
+    "path": "icons/commodities/stone/masonry-block-cube-white.webp"
+  },
+  {
+    "name": "Staff of Frost",
+    "path": "icons/weapons/staves/staff-ornate-engraved-blue.webp"
+  },
+  {
+    "name": "Staff of Power",
+    "path": "icons/weapons/staves/staff-engraved-red.webp"
+  },
+  {
+    "name": "Staff of Svogthir",
+    "path": "icons/weapons/staves/staff-metal-mask.webp"
+  },
+  {
+    "name": "Staff of the Master",
+    "path": "icons/weapons/staves/staff-ornate-purple.webp"
+  },
+  {
+    "name": "Stalagma Steelshadow's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "Static Discharge",
+    "path": "systems/dnd5e/icons/spells/lightning-blue-1.jpg"
+  },
+  {
+    "name": "Steadfast",
+    "path": "icons/commodities/leather/leather-buckle-embossed-gold.webp"
+  },
+  {
+    "name": "Steal Memory",
+    "path": "systems/dnd5e/icons/skills/green_24.jpg"
+  },
+  {
+    "name": "Steam Breath",
+    "path": "systems/dnd5e/icons/spells/fog-sky-3.jpg"
+  },
+  {
+    "name": "Steel Defender",
+    "path": "icons/equipment/chest/collar-steel.webp"
+  },
+  {
+    "name": "Stench",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Stench of Death",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Stench Spray",
+    "path": "systems/dnd5e/icons/skills/affliction_16.jpg"
+  },
+  {
+    "name": "Sticky Leg",
+    "path": "systems/dnd5e/icons/items/inventory/chitin.jpg"
+  },
+  {
+    "name": "Sticky Shield",
+    "path": "icons/equipment/shield/heater-emossed-spiral-green.webp"
+  },
+  {
+    "name": "Sting",
+    "path": "icons/commodities/biological/stinger-insect-grey.webp"
+  },
+  {
+    "name": "Stinger",
+    "path": "icons/commodities/biological/stinger-insect-grey.webp"
+  },
+  {
+    "name": "Stinking Cloud",
+    "path": "systems/dnd5e/icons/spells/fog-acid-2.jpg"
+  },
+  {
+    "name": "Stomping Foot",
+    "path": "icons/equipment/feet/boots-armored-steel.webp"
+  },
+  {
+    "name": "Stone Camouflage",
+    "path": "icons/commodities/stone/paver-cobbles-blue.webp"
+  },
+  {
+    "name": "Stone Club",
+    "path": "icons/weapons/clubs/club-simple-stone.webp"
+  },
+  {
+    "name": "Stone Tell",
+    "path": "icons/commodities/stone/ore-chunk-magma-brown.webp"
+  },
+  {
+    "name": "Stone's Endurance",
+    "path": "systems/dnd5e/icons/skills/weapon_15.jpg"
+  },
+  {
+    "name": "Stone's Strength",
+    "path": "icons/environment/wilderness/cave-entrance-dwarven-hill.webp"
+  },
+  {
+    "name": "Stonecunning",
+    "path": "icons/commodities/treasure/statue-bust-stone-grey.webp"
+  },
+  {
+    "name": "Storm of Crows",
+    "path": "systems/dnd5e/icons/skills/violet_18.jpg"
+  },
+  {
+    "name": "Stout Resilience",
+    "path": "icons/commodities/treasure/plaque-wood-leaves.webp"
+  },
+  {
+    "name": "Strength Drain",
+    "path": "systems/dnd5e/icons/skills/blood_09.jpg"
+  },
+  {
+    "name": "Strike",
+    "path": "systems/dnd5e/icons/skills/weapon_33.jpg"
+  },
+  {
+    "name": "Stunning Gaze",
+    "path": "systems/dnd5e/icons/skills/emerald_11.jpg"
+  },
+  {
+    "name": "Stunning Roar",
+    "path": "systems/dnd5e/icons/skills/red_07.jpg"
+  },
+  {
+    "name": "Stunning Screech",
+    "path": "icons/commodities/bones/beak-hooked-red.webp"
+  },
+  {
+    "name": "Stunning Shriek",
+    "path": "systems/dnd5e/icons/skills/emerald_06.jpg"
+  },
+  {
+    "name": "Stunning Strike",
+    "path": "systems/dnd5e/icons/skills/fire_02.jpg"
+  },
+  {
+    "name": "Stunted Legs",
+    "path": "icons/commodities/biological/foot-amphibian-green.webp"
+  },
+  {
+    "name": "Stupefying Touch",
+    "path": "systems/dnd5e/icons/skills/violet_28.jpg"
+  },
+  {
+    "name": "Suave Defense",
+    "path": "icons/equipment/back/cape-layered-red.webp"
+  },
+  {
+    "name": "Sudden Rush",
+    "path": "icons/commodities/claws/claw-brown-black.webp"
+  },
+  {
+    "name": "Suffocate",
+    "path": "systems/dnd5e/icons/spells/fog-blue-3.jpg"
+  },
+  {
+    "name": "Suggestion",
+    "path": "systems/dnd5e/icons/skills/blue_35.jpg"
+  },
+  {
+    "name": "Sulfurous Impersonation",
+    "path": "systems/dnd5e/icons/skills/red_04.jpg"
+  },
+  {
+    "name": "Summon Demon",
+    "path": "systems/dnd5e/icons/skills/yellow_18.jpg"
+  },
+  {
+    "name": "Summon Devil",
+    "path": "systems/dnd5e/icons/skills/yellow_18.jpg"
+  },
+  {
+    "name": "Summon Earth Elemental",
+    "path": "icons/environment/wilderness/statue-hound-horned.webp"
+  },
+  {
+    "name": "Summon Elementals",
+    "path": "systems/dnd5e/icons/skills/fire_12.jpg"
+  },
+  {
+    "name": "Summon Erinyes",
+    "path": "systems/dnd5e/icons/skills/yellow_18.jpg"
+  },
+  {
+    "name": "Summon Ice Devil",
+    "path": "systems/dnd5e/icons/skills/ice_14.jpg"
+  },
+  {
+    "name": "Summon Mephits",
+    "path": "systems/dnd5e/icons/skills/yellow_18.jpg"
+  },
+  {
+    "name": "Summon Mount",
+    "path": "icons/environment/creatures/horse-white.webp"
+  },
+  {
+    "name": "Summon Servant",
+    "path": "systems/dnd5e/icons/skills/green_23.jpg"
+  },
+  {
+    "name": "Summon Shadow Demon",
+    "path": "systems/dnd5e/icons/skills/shadow_01.jpg"
+  },
+  {
+    "name": "Summon Slaadi",
+    "path": "systems/dnd5e/icons/skills/shadow_16.jpg"
+  },
+  {
+    "name": "Summon Specters",
+    "path": "systems/dnd5e/icons/skills/shadow_01.jpg"
+  },
+  {
+    "name": "Summon Swarm",
+    "path": "systems/dnd5e/icons/skills/green_23.jpg"
+  },
+  {
+    "name": "Summon Swarms of Insects",
+    "path": "systems/dnd5e/icons/skills/green_23.jpg"
+  },
+  {
+    "name": "Summon Undead",
+    "path": "systems/dnd5e/icons/skills/blood_10.jpg"
+  },
+  {
+    "name": "Summon Water Weird",
+    "path": "systems/dnd5e/icons/skills/water_08.jpg"
+  },
+  {
+    "name": "Summon Wraith",
+    "path": "systems/dnd5e/icons/skills/shadow_01.jpg"
+  },
+  {
+    "name": "Summon Yugoloth",
+    "path": "systems/dnd5e/icons/skills/blood_08.jpg"
+  },
+  {
+    "name": "Sun Sickness",
+    "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
+  },
+  {
+    "name": "Sunlight Banishment",
+    "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
+  },
+  {
+    "name": "Sunlight Hypersensitivity",
+    "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
+  },
+  {
+    "name": "Sunlight Sensitivity",
+    "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
+  },
+  {
+    "name": "Sunlight Weakness",
+    "path": "systems/dnd5e/icons/skills/shadow_02.jpg"
+  },
+  {
+    "name": "Superior Invisibility",
+    "path": "systems/dnd5e/icons/spells/fog-sky-1.jpg"
+  },
+  {
+    "name": "Suppress Magic",
+    "path": "systems/dnd5e/icons/items/inventory/element-earth.jpg"
+  },
+  {
+    "name": "Supreme Legal Authority",
+    "path": "systems/dnd5e/icons/items/armor/robe.jpg"
+  },
+  {
+    "name": "Supreme Legal Authority",
+    "path": "systems/dnd5e/icons/items/armor/robe.jpg"
+  },
+  {
+    "name": "Sure-Footed",
+    "path": "systems/dnd5e/icons/spells/wild-jade-2.jpg"
+  },
+  {
+    "name": "Surprise Attack",
+    "path": "systems/dnd5e/icons/skills/red_13.jpg"
+  },
+  {
+    "name": "Survivor",
+    "path": "icons/equipment/shield/heater-wooden-sword-green.webp"
+  },
+  {
+    "name": "Swallow",
+    "path": "icons/commodities/biological/organ-stomach.webp"
+  },
+  {
+    "name": "Swamp Camouflage",
+    "path": "systems/dnd5e/icons/skills/green_20.jpg"
+  },
+  {
+    "name": "Swarm",
+    "path": "systems/dnd5e/icons/spells/wind-magenta-2.jpg"
+  },
+  {
+    "name": "Swarm of Eyes",
+    "path": "icons/commodities/biological/eye-blue-gold.webp"
+  },
+  {
+    "name": "Swarming Rush",
+    "path": "systems/dnd5e/icons/spells/wind-sky-2.jpg"
+  },
+  {
+    "name": "Swat Away",
+    "path": "icons/commodities/biological/hand-clawed-scale-grey.webp"
+  },
+  {
+    "name": "Sway ship",
+    "path": "icons/environment/settlement/ship.webp"
+  },
+  {
+    "name": "Sweeping Axe",
+    "path": "systems/dnd5e/icons/skills/weapon_02.jpg"
+  },
+  {
+    "name": "Swift Animation",
+    "path": "systems/dnd5e/icons/skills/shadow_04.jpg"
+  },
+  {
+    "name": "Swift Sting",
+    "path": "systems/dnd5e/icons/skills/green_05.jpg"
+  },
+  {
+    "name": "Swimming Leap",
+    "path": "icons/commodities/materials/slime-blue.webp"
+  },
+  {
+    "name": "Swoop",
+    "path": "systems/dnd5e/icons/spells/wind-red-1.jpg"
+  },
+  {
+    "name": "Sword",
+    "path": "icons/weapons/swords/sword-guard-worn.webp"
+  },
+  {
+    "name": "Sword Cane",
+    "path": "icons/weapons/staves/staff-ornate.webp"
+  },
+  {
+    "name": "Sword of Fathoms",
+    "path": "systems/dnd5e/icons/skills/green_06.jpg"
+  },
+  {
+    "name": "Sword Talons",
+    "path": "systems/dnd5e/icons/skills/red_21.jpg"
+  },
+  {
+    "name": "Tackle",
+    "path": "icons/commodities/biological/hand-clawed-scale-grey.webp"
+  },
+  {
+    "name": "Tactical Discipline",
+    "path": "icons/equipment/shield/heater-steel-sword-yellow-black.webp"
+  },
+  {
+    "name": "Tactical Edge",
+    "path": "icons/equipment/shield/heater-steel-sword-yellow-black.webp"
+  },
+  {
+    "name": "Tactical Leadership",
+    "path": "icons/equipment/shield/heater-steel-sword-yellow-black.webp"
+  },
+  {
+    "name": "Tail",
+    "path": "icons/commodities/biological/tail-scaled-green.webp"
+  },
+  {
+    "name": "Tail Pincer",
+    "path": "icons/commodities/biological/stinger-insect-pink.webp"
+  },
+  {
+    "name": "Tail Ray",
+    "path": "systems/dnd5e/icons/spells/beam-magenta-2.jpg"
+  },
+  {
+    "name": "Tail Smash",
+    "path": "icons/commodities/biological/tail-scaled-green.webp"
+  },
+  {
+    "name": "Tail Spike",
+    "path": "icons/commodities/biological/stinger-insect-grey.webp"
+  },
+  {
+    "name": "Tail Spike Regrowth",
+    "path": "icons/commodities/bones/tooth-spiked-brown.webp"
+  },
+  {
+    "name": "Tail Spine",
+    "path": "icons/commodities/biological/stinger-insect-grey.webp"
+  },
+  {
+    "name": "Tail Stinger",
+    "path": "icons/commodities/biological/stinger-insect-grey.webp"
+  },
+  {
+    "name": "Tail Swipe",
+    "path": "systems/dnd5e/icons/skills/yellow_28.jpg"
+  },
+  {
+    "name": "Talisman of the Sphere",
+    "path": "systems/dnd5e/icons/skills/violet_05.jpg"
+  },
+  {
+    "name": "Talon",
+    "path": "icons/commodities/claws/claw-bird-pink.webp"
+  },
+  {
+    "name": "Talons",
+    "path": "icons/commodities/claws/claw-bird-pink.webp"
+  },
+  {
+    "name": "Talons",
+    "path": "icons/commodities/claws/claw-bird-pink.webp"
+  },
+  {
+    "name": "Taskmaster Whip",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
+  },
+  {
+    "name": "Taunt",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Telekinetic Fling",
+    "path": "systems/dnd5e/icons/skills/affliction_25.jpg"
+  },
+  {
+    "name": "Telekinetic Thrust",
+    "path": "systems/dnd5e/icons/skills/violet_08.jpg"
+  },
+  {
+    "name": "Telepathic Bond",
+    "path": "systems/dnd5e/icons/spells/link-blue-1.jpg"
+  },
+  {
+    "name": "Telepathic Hub",
+    "path": "systems/dnd5e/icons/skills/affliction_17.jpg"
+  },
+  {
+    "name": "Telepathic Shroud",
+    "path": "systems/dnd5e/icons/skills/affliction_21.jpg"
+  },
+  {
+    "name": "Teleport",
+    "path": "systems/dnd5e/icons/skills/yellow_12.jpg"
+  },
+  {
+    "name": "Teleport",
+    "path": "systems/dnd5e/icons/skills/yellow_12.jpg"
+  },
+  {
+    "name": "Teleportation",
+    "path": "systems/dnd5e/icons/skills/yellow_12.jpg"
+  },
+  {
+    "name": "Teleporter Ring",
+    "path": "systems/dnd5e/icons/skills/yellow_35.jpg"
+  },
+  {
+    "name": "Temporal Strike",
+    "path": "systems/dnd5e/icons/skills/mech_12.jpg"
+  },
+  {
+    "name": "Tendril",
+    "path": "systems/dnd5e/icons/skills/green_02.jpg"
+  },
+  {
+    "name": "Tendrils",
+    "path": "systems/dnd5e/icons/skills/green_02.jpg"
+  },
+  {
+    "name": "Tentacle",
+    "path": "icons/commodities/biological/tentacle-purple-white.webp"
+  },
+  {
+    "name": "Tentacle Attack",
+    "path": "systems/dnd5e/icons/skills/ice_08.jpg"
+  },
+  {
+    "name": "Tentacle Attack or Fling",
+    "path": "systems/dnd5e/icons/skills/ice_08.jpg"
+  },
+  {
+    "name": "Tentacle Grasp",
+    "path": "icons/commodities/biological/tentacle-yellow.webp"
+  },
+  {
+    "name": "Tentacle Rod",
+    "path": "icons/commodities/biological/tentacle-pink.webp"
+  },
+  {
+    "name": "Tentacle Rod",
+    "path": "icons/commodities/biological/tentacle-pink.webp"
+  },
+  {
+    "name": "Tentacle Slam",
+    "path": "icons/commodities/biological/tentacle-pink.webp"
+  },
+  {
+    "name": "Tentacle Whip",
+    "path": "systems/dnd5e/icons/items/inventory/monster-tentacle.jpg"
+  },
+  {
+    "name": "Tentacle Whip",
+    "path": "systems/dnd5e/icons/items/inventory/monster-tentacle.jpg"
+  },
+  {
+    "name": "Tentacles",
+    "path": "icons/commodities/biological/tentacle-purple-white.webp"
+  },
+  {
+    "name": "Tentacles",
+    "path": "icons/commodities/biological/tentacle-purple-white.webp"
+  },
+  {
+    "name": "Terrifying Command",
+    "path": "systems/dnd5e/icons/skills/shadow_13.jpg"
+  },
+  {
+    "name": "Terrifying Glare",
+    "path": "systems/dnd5e/icons/skills/emerald_11.jpg"
+  },
+  {
+    "name": "Terrifying Howl",
+    "path": "icons/commodities/bones/skull-bat-grey.webp"
+  },
+  {
+    "name": "Terror Dive",
+    "path": "systems/dnd5e/icons/skills/yellow_38.jpg"
+  },
+  {
+    "name": "That Thing You Need",
+    "path": "icons/containers/bags/sack-simple-leahter-green.webp"
+  },
+  {
+    "name": "Third Roar",
+    "path": "icons/commodities/bones/skull-bat-grey.webp"
+  },
+  {
+    "name": "Thorns",
+    "path": "systems/dnd5e/icons/spells/vines-plain-2.jpg"
+  },
+  {
+    "name": "Thorny Body",
+    "path": "systems/dnd5e/icons/items/inventory/plant-root.jpg"
+  },
+  {
+    "name": "Thrives on Company",
+    "path": "icons/environment/people/group.webp"
+  },
+  {
+    "name": "Thrown Urn",
+    "path": "icons/containers/kitchenware/jug-wrapped-red.webp"
+  },
+  {
+    "name": "Thunder Cannon",
+    "path": "icons/weapons/artillery/cannon-engraved-gold.webp"
+  },
+  {
+    "name": "Thunder Hooves",
+    "path": "icons/commodities/bones/hooves-cloven-grey.webp"
+  },
+  {
+    "name": "Thunderbolt",
+    "path": "systems/dnd5e/icons/spells/lightning-blue-3.jpg"
+  },
+  {
+    "name": "Thundercrack",
+    "path": "systems/dnd5e/icons/skills/blue_21.jpg"
+  },
+  {
+    "name": "Thunderous Slam",
+    "path": "systems/dnd5e/icons/spells/explosion-sky-2.jpg"
+  },
+  {
+    "name": "Thunderous Stomp",
+    "path": "systems/dnd5e/icons/spells/explosion-sky-2.jpg"
+  },
+  {
+    "name": "Thunderous Strike",
+    "path": "systems/dnd5e/icons/spells/explosion-sky-2.jpg"
+  },
+  {
+    "name": "Thunderous Touch",
+    "path": "systems/dnd5e/icons/spells/explosion-sky-2.jpg"
+  },
+  {
+    "name": "Tiamat's Blessing of Retribution",
+    "path": "systems/dnd5e/icons/skills/affliction_10.jpg"
+  },
+  {
+    "name": "Tidal Wave",
+    "path": "systems/dnd5e/icons/skills/emerald_08.jpg"
+  },
+  {
+    "name": "Tides of Chaos",
+    "path": "systems/dnd5e/icons/skills/emerald_08.jpg"
+  },
+  {
+    "name": "Tightening Embrace",
+    "path": "icons/commodities/bones/hurn-curved-yellow.webp"
+  },
+  {
+    "name": "Tinderstrike",
+    "path": "systems/dnd5e/icons/items/weapons/dagger-fire.jpg"
+  },
+  {
+    "name": "Tongue",
+    "path": "icons/commodities/biological/tongue-pink.webp"
+  },
+  {
+    "name": "Tongue Lash",
+    "path": "icons/commodities/biological/tongue-pink.webp"
+  },
+  {
+    "name": "Tools",
+    "path": "icons/tools/hand/hammer-simple-stone.webp"
+  },
+  {
+    "name": "Tooth Dagger",
+    "path": "icons/weapons/thrown/dagger-ringed-grey.webp"
+  },
+  {
+    "name": "Toothsome Staff",
+    "path": "icons/weapons/staves/staff-animal-skull.webp"
+  },
+  {
+    "name": "Touch",
+    "path": "systems/dnd5e/icons/skills/ice_16.jpg"
+  },
+  {
+    "name": "Touch",
+    "path": "systems/dnd5e/icons/skills/ice_16.jpg"
+  },
+  {
+    "name": "Touch of Frost",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-1.jpg"
+  },
+  {
+    "name": "Touch of Frost",
+    "path": "systems/dnd5e/icons/spells/beam-eerie-1.jpg"
+  },
+  {
+    "name": "Touch of Madness",
+    "path": "systems/dnd5e/icons/skills/violet_28.jpg"
+  },
+  {
+    "name": "Touch of Order",
+    "path": "systems/dnd5e/icons/skills/light_08.jpg"
+  },
+  {
+    "name": "Touch of Pain",
+    "path": "systems/dnd5e/icons/skills/violet_28.jpg"
+  },
+  {
+    "name": "Touch of the White Hand",
+    "path": "systems/dnd5e/icons/skills/light_08.jpg"
+  },
+  {
+    "name": "Towering Terror",
+    "path": "systems/dnd5e/icons/spells/horror-red-3.jpg"
+  },
+  {
+    "name": "Toxic Touch",
+    "path": "systems/dnd5e/icons/spells/beam-acid-1.jpg"
+  },
+  {
+    "name": "Toxic Web",
+    "path": "systems/dnd5e/icons/skills/violet_14.jpg"
+  },
+  {
+    "name": "Trackless",
+    "path": "icons/tools/scribal/magnifying-glass.webp"
+  },
+  {
+    "name": "Trampling Charge",
+    "path": "systems/dnd5e/icons/spells/wild-eerie-3.jpg"
+  },
+  {
+    "name": "Transfixing Gaze",
+    "path": "systems/dnd5e/icons/skills/emerald_11.jpg"
+  },
+  {
+    "name": "Transmuter's Stone",
+    "path": "icons/commodities/materials/glass-orb-teal.webp"
+  },
+  {
+    "name": "Transparent",
+    "path": "icons/commodities/materials/glass-orb-blue.webp"
+  },
+  {
+    "name": "Treasure",
+    "path": "icons/containers/chest/chest-reinforced-steel-pink.webp"
+  },
+  {
+    "name": "Treasure Sense",
+    "path": "icons/containers/chest/chest-reinforced-steel-oak-tan.webp"
+  },
+  {
+    "name": "Tree Stride",
+    "path": "systems/dnd5e/icons/spells/leaf-acid-2.jpg"
+  },
+  {
+    "name": "Tree Thrall",
+    "path": "icons/commodities/materials/plant-branch-brown-green.webp"
+  },
+  {
+    "name": "Trembling Strike",
+    "path": "systems/dnd5e/icons/skills/mech_9.jpg"
+  },
+  {
+    "name": "Trident",
+    "path": "icons/weapons/polearms/trident-ornate-red.webp"
+  },
+  {
+    "name": "Trident of Fish Command",
+    "path": "icons/weapons/polearms/trident-jeweled-purple.webp"
+  },
+  {
+    "name": "Trill",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-2.jpg"
+  },
+  {
+    "name": "Trumpet",
+    "path": "systems/dnd5e/icons/items/inventory/horn.jpg"
+  },
+  {
+    "name": "Trumpet of Blasting",
+    "path": "icons/commodities/bones/horn-drinking-white.webp"
+  },
+  {
+    "name": "Trumpet of Sparkles",
+    "path": "icons/tools/instruments/horn-red-brown.webp"
+  },
+  {
+    "name": "Tunneler",
+    "path": "icons/environment/wilderness/cave-entrance.webp"
+  },
+  {
+    "name": "Turn Immunity",
+    "path": "icons/commodities/bones/skull-white-purple.webp"
+  },
+  {
+    "name": "Turn Resistance",
+    "path": "systems/dnd5e/icons/skills/affliction_21.jpg"
+  },
+  {
+    "name": "Turn Resistance Aura",
+    "path": "systems/dnd5e/icons/skills/affliction_21.jpg"
+  },
+  {
+    "name": "Turning Defiance",
+    "path": "systems/dnd5e/icons/skills/affliction_21.jpg"
+  },
+  {
+    "name": "Turning Immunity",
+    "path": "icons/commodities/bones/skull-white-purple.webp"
+  },
+  {
+    "name": "Tusk",
+    "path": "icons/commodities/bones/tooth-canine-white.webp"
+  },
+  {
+    "name": "Tusks",
+    "path": "icons/commodities/bones/tooth-canine-white.webp"
+  },
+  {
+    "name": "Twisting Words",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Two Heads",
+    "path": "systems/dnd5e/icons/items/inventory/monster-skull.jpg"
+  },
+  {
+    "name": "Two-Headed",
+    "path": "systems/dnd5e/icons/items/inventory/monster-skull.jpg"
+  },
+  {
+    "name": "Umberlee's Wake",
+    "path": "systems/dnd5e/icons/skills/emerald_01.jpg"
+  },
+  {
+    "name": "Unarmed Strike",
+    "path": "icons/equipment/hand/gauntlet-simple-leather-brown-gold.webp"
+  },
+  {
+    "name": "Unarmored Defense",
+    "path": "icons/equipment/chest/shirt-simple-white.webp"
+  },
+  {
+    "name": "Unarmored Movement",
+    "path": "icons/equipment/feet/boots-collared-rounded-brown.webp"
+  },
+  {
+    "name": "Unbridled Fury",
+    "path": "systems/dnd5e/icons/skills/red_01.jpg"
+  },
+  {
+    "name": "Uncanny Dodge",
+    "path": "systems/dnd5e/icons/skills/armor_01.jpg"
+  },
+  {
+    "name": "Uncanny Senses",
+    "path": "icons/commodities/biological/eye-blue-gold.webp"
+  },
+  {
+    "name": "Uncanny Smell",
+    "path": "systems/dnd5e/icons/spells/fog-orange-2.jpg"
+  },
+  {
+    "name": "Undead Fortitude",
+    "path": "systems/dnd5e/icons/skills/blood_10.jpg"
+  },
+  {
+    "name": "Undead Nature",
+    "path": "systems/dnd5e/icons/skills/blood_12.jpg"
+  },
+  {
+    "name": "Undead Slayer",
+    "path": "systems/dnd5e/icons/skills/yellow_19.jpg"
+  },
+  {
+    "name": "Undertow",
+    "path": "systems/dnd5e/icons/skills/emerald_03.jpg"
+  },
+  {
+    "name": "Underwater Camouflage",
+    "path": "systems/dnd5e/icons/skills/emerald_03.jpg"
+  },
+  {
+    "name": "Underworld Bolt",
+    "path": "systems/dnd5e/icons/spells/lightning-magenta-3.jpg"
+  },
+  {
+    "name": "Undetectable",
+    "path": "icons/tools/scribal/lens-blue.webp"
+  },
+  {
+    "name": "Unerring Slam",
+    "path": "icons/weapons/hammers/hammer-double-studded.webp"
+  },
+  {
+    "name": "Unfettered",
+    "path": "systems/dnd5e/icons/skills/weapon_11.jpg"
+  },
+  {
+    "name": "Unnerving Mask",
+    "path": "icons/equipment/head/helm-spangen-ridged.webp"
+  },
+  {
+    "name": "Unreadable Face",
+    "path": "icons/equipment/head/mask-horned-brown.webp"
+  },
+  {
+    "name": "Unsettling Visage",
+    "path": "icons/equipment/head/mask-carved-scream-tan.webp"
+  },
+  {
+    "name": "Unstable",
+    "path": "systems/dnd5e/icons/skills/mech_8.jpg"
+  },
+  {
+    "name": "Unstable Mark",
+    "path": "icons/equipment/wrist/bracer-banded-leather-pink-gold.webp"
+  },
+  {
+    "name": "Unstoppable",
+    "path": "systems/dnd5e/icons/spells/protect-jade-3.jpg"
+  },
+  {
+    "name": "Unusual Nature",
+    "path": "systems/dnd5e/icons/skills/violet_16.jpg"
+  },
+  {
+    "name": "Unyielding",
+    "path": "systems/dnd5e/icons/skills/yellow_29.jpg"
+  },
+  {
+    "name": "Urchin-Spine Shortsword",
+    "path": "icons/weapons/swords/sword-hooked-worn.webp"
+  },
+  {
+    "name": "Vampire Weaknesses",
+    "path": "icons/equipment/back/cloak-collared-red-gold.webp"
+  },
+  {
+    "name": "Vampiric Bite",
+    "path": "systems/dnd5e/icons/skills/beast_02.jpg"
+  },
+  {
+    "name": "Vampiric Touch",
+    "path": "systems/dnd5e/icons/skills/beast_02.jpg"
+  },
+  {
+    "name": "Vanish",
+    "path": "systems/dnd5e/icons/spells/fog-sky-1.jpg"
+  },
+  {
+    "name": "Vaprak's Rage",
+    "path": "systems/dnd5e/icons/skills/red_10.jpg"
+  },
+  {
+    "name": "Variable Illumination",
+    "path": "systems/dnd5e/icons/spells/light-sky-1.jpg"
+  },
+  {
+    "name": "Veil of Shargaas",
+    "path": "systems/dnd5e/icons/skills/shadow_10.jpg"
+  },
+  {
+    "name": "Vengeful Glare",
+    "path": "systems/dnd5e/icons/skills/emerald_11.jpg"
+  },
+  {
+    "name": "Vengeful Strike",
+    "path": "systems/dnd5e/icons/skills/fire_13.jpg"
+  },
+  {
+    "name": "Vengeful Tracker",
+    "path": "systems/dnd5e/icons/spells/evil-eye-eerie-2.jpg"
+  },
+  {
+    "name": "Venom Spray",
+    "path": "systems/dnd5e/icons/skills/affliction_16.jpg"
+  },
+  {
+    "name": "Venomous Claws",
+    "path": "icons/commodities/bones/bone-foot-bird-brown.webp"
+  },
+  {
+    "name": "Ventriloquism",
+    "path": "systems/dnd5e/icons/items/inventory/teeth.jpg"
+  },
+  {
+    "name": "Vermin Friend",
+    "path": "icons/environment/creatures/bug-ant-red.webp"
+  },
+  {
+    "name": "Vexing Presence",
+    "path": "icons/environment/creatures/bug-worm-toothed-green.webp"
+  },
+  {
+    "name": "Vicious Mockery",
+    "path": "systems/dnd5e/icons/items/inventory/teeth.jpg"
+  },
+  {
+    "name": "Vicious Reprisal",
+    "path": "systems/dnd5e/icons/skills/red_31.jpg"
+  },
+  {
+    "name": "Vigilant",
+    "path": "systems/dnd5e/icons/skills/light_02.jpg"
+  },
+  {
+    "name": "Vile Curse",
+    "path": "systems/dnd5e/icons/skills/yellow_40.jpg"
+  },
+  {
+    "name": "Vine Staff",
+    "path": "icons/weapons/staves/staff-forest-spiral.webp"
+  },
+  {
+    "name": "Violate Corpse",
+    "path": "systems/dnd5e/icons/skills/green_25.jpg"
+  },
+  {
+    "name": "Visage of Desire",
+    "path": "systems/dnd5e/icons/skills/shadow_20.jpg"
+  },
+  {
+    "name": "Vitality Drain",
+    "path": "systems/dnd5e/icons/skills/affliction_08.jpg"
+  },
+  {
+    "name": "Voice Lock",
+    "path": "systems/dnd5e/icons/spells/air-burst-sky-1.jpg"
+  },
+  {
+    "name": "Voice of Command",
+    "path": "systems/dnd5e/icons/spells/air-burst-sky-2.jpg"
+  },
+  {
+    "name": "Voice of Harmony",
+    "path": "systems/dnd5e/icons/spells/air-burst-magenta-2.jpg"
+  },
+  {
+    "name": "Voice of Life",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-2.jpg"
+  },
+  {
+    "name": "Voice of Order",
+    "path": "systems/dnd5e/icons/spells/air-burst-sky-2.jpg"
+  },
+  {
+    "name": "Voice of the Kraken",
+    "path": "systems/dnd5e/icons/skills/ice_08.jpg"
+  },
+  {
+    "name": "Wail",
+    "path": "systems/dnd5e/icons/skills/red_10.jpg"
+  },
+  {
+    "name": "Wakeful",
+    "path": "icons/commodities/biological/eye-tentacle-grey-orange.webp"
+  },
+  {
+    "name": "Wall of Ice",
+    "path": "systems/dnd5e/icons/skills/blue_30.jpg"
+  },
+  {
+    "name": "Wand of Magic Missiles",
+    "path": "icons/weapons/wands/wand-gem-teal.webp"
+  },
+  {
+    "name": "Wand of Orcus",
+    "path": "icons/weapons/staves/staff-ornate-orb-steel-red.webp"
+  },
+  {
+    "name": "Wand of Orcus",
+    "path": "icons/weapons/staves/staff-ornate-orb-steel-red.webp"
+  },
+  {
+    "name": "War God's Blessing",
+    "path": "systems/dnd5e/icons/skills/shadow_13.jpg"
+  },
+  {
+    "name": "War Lute",
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
+  },
+  {
+    "name": "War Magic",
+    "path": "systems/dnd5e/icons/spells/enchant-red-2.jpg"
+  },
+  {
+    "name": "War Pick",
+    "path": "icons/tools/hand/pickaxe-steel-grey.webp"
+  },
+  {
+    "name": "Warforged Resilience",
+    "path": "icons/commodities/tech/cog-large-steel-white.webp"
+  },
+  {
+    "name": "Warhammer",
+    "path": "icons/weapons/hammers/hammer-drilling-spiked.webp"
+  },
+  {
+    "name": "Warleader's Helix",
+    "path": "systems/dnd5e/icons/skills/light_03.jpg"
+  },
+  {
+    "name": "Warlord's Command",
+    "path": "systems/dnd5e/icons/skills/shadow_13.jpg"
+  },
+  {
+    "name": "Warp",
+    "path": "systems/dnd5e/icons/items/inventory/monster-disease.jpg"
+  },
+  {
+    "name": "Warp Creature",
+    "path": "systems/dnd5e/icons/skills/blood_09.jpg"
+  },
+  {
+    "name": "Warp Reality",
+    "path": "systems/dnd5e/icons/skills/affliction_11.jpg"
+  },
+  {
+    "name": "Warp Shadow",
+    "path": "systems/dnd5e/icons/skills/blue_15.jpg"
+  },
+  {
+    "name": "Water Bound",
+    "path": "systems/dnd5e/icons/skills/blue_36.jpg"
+  },
+  {
+    "name": "Water Breathing",
+    "path": "systems/dnd5e/icons/spells/wind-blue-2.jpg"
+  },
+  {
+    "name": "Water Dependency",
+    "path": "systems/dnd5e/icons/spells/fog-blue-2.jpg"
+  },
+  {
+    "name": "Water Form",
+    "path": "systems/dnd5e/icons/skills/water_08.jpg"
+  },
+  {
+    "name": "Water Jet",
+    "path": "systems/dnd5e/icons/skills/emerald_08.jpg"
+  },
+  {
+    "name": "Water Lash",
+    "path": "systems/dnd5e/icons/skills/water_08.jpg"
+  },
+  {
+    "name": "Water Susceptibility",
+    "path": "icons/commodities/materials/slime-thick-blue.webp"
+  },
+  {
+    "name": "Water to Acid",
+    "path": "systems/dnd5e/icons/skills/affliction_16.jpg"
+  },
+  {
+    "name": "Water Walk",
+    "path": "icons/equipment/feet/shoes-pointed-blue.webp"
+  },
+  {
+    "name": "Watery Advantage",
+    "path": "icons/commodities/materials/slime-thick-blue.webp"
+  },
+  {
+    "name": "Watery Fall",
+    "path": "systems/dnd5e/icons/skills/blue_20.jpg"
+  },
+  {
+    "name": "Watery Stealth",
+    "path": "systems/dnd5e/icons/skills/blue_20.jpg"
+  },
+  {
+    "name": "Wave",
+    "path": "systems/dnd5e/icons/skills/emerald_08.jpg"
+  },
+  {
+    "name": "Wave",
+    "path": "systems/dnd5e/icons/skills/emerald_08.jpg"
+  },
+  {
+    "name": "Wave of Sorrow",
+    "path": "systems/dnd5e/icons/skills/emerald_08.jpg"
+  },
+  {
+    "name": "Wave of Weariness",
+    "path": "systems/dnd5e/icons/skills/emerald_08.jpg"
+  },
+  {
+    "name": "Wave Touch",
+    "path": "systems/dnd5e/icons/skills/emerald_08.jpg"
+  },
+  {
+    "name": "Wavecutter Blade",
+    "path": "systems/dnd5e/icons/items/weapons/sword-death.jpg"
+  },
+  {
+    "name": "Weakening Breath",
+    "path": "systems/dnd5e/icons/spells/fog-air-3.jpg"
+  },
+  {
+    "name": "Weakening Gaze",
+    "path": "systems/dnd5e/icons/skills/green_24.jpg"
+  },
+  {
+    "name": "Weapon Attack",
+    "path": "systems/dnd5e/icons/skills/blue_27.jpg"
+  },
+  {
+    "name": "Weapon Bond",
+    "path": "systems/dnd5e/icons/skills/weapon_11.jpg"
+  },
+  {
+    "name": "Weapon Invention",
+    "path": "systems/dnd5e/icons/items/inventory/flask-dark.jpg"
+  },
+  {
+    "name": "Web Garrote",
+    "path": "systems/dnd5e/icons/skills/blue_05.jpg"
+  },
+  {
+    "name": "Web of Hair",
+    "path": "icons/commodities/materials/material-webbing.webp"
+  },
+  {
+    "name": "Web Sense",
+    "path": "icons/commodities/treasure/token-white-spider.webp"
+  },
+  {
+    "name": "Webby Hands",
+    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
+  },
+  {
+    "name": "Weight of Ages",
+    "path": "icons/commodities/treasure/token-engraved-blue.webp"
+  },
+  {
+    "name": "Weighted Net",
+    "path": "icons/environment/traps/net.webp"
+  },
+  {
+    "name": "Weird Insight",
+    "path": "icons/commodities/biological/eye-lizard-orange.webp"
+  },
+  {
+    "name": "Whelm",
+    "path": "systems/dnd5e/icons/skills/blue_20.jpg"
+  },
+  {
+    "name": "Whirl",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
+  },
+  {
+    "name": "Whirling Blades",
+    "path": "systems/dnd5e/icons/skills/weapon_12.jpg"
+  },
+  {
+    "name": "Whirlpool",
+    "path": "systems/dnd5e/icons/skills/blue_25.jpg"
+  },
+  {
+    "name": "Whirlwind of Claws",
+    "path": "icons/commodities/claws/claws-white.webp"
+  },
+  {
+    "name": "Whirlwind of Weapons",
+    "path": "systems/dnd5e/icons/skills/blue_01.jpg"
+  },
+  {
+    "name": "Whispering Aura",
+    "path": "systems/dnd5e/icons/spells/wind-sky-1.jpg"
+  },
+  {
+    "name": "Whispers of Madness",
+    "path": "systems/dnd5e/icons/spells/wind-magenta-1.jpg"
+  },
+  {
+    "name": "White Dragon Head: Cold Breath",
+    "path": "systems/dnd5e/icons/spells/fog-blue-2.jpg"
+  },
+  {
+    "name": "Wholeness of Body",
+    "path": "systems/dnd5e/icons/skills/yellow_13.jpg"
+  },
+  {
+    "name": "Wicked Sickle",
+    "path": "systems/dnd5e/icons/skills/weapon_20.jpg"
+  },
+  {
+    "name": "Wide Berth",
+    "path": "systems/dnd5e/icons/skills/yellow_14.jpg"
+  },
+  {
+    "name": "Wild Shape",
+    "path": "systems/dnd5e/icons/skills/blue_01.jpg"
+  },
+  {
+    "name": "Wind Aura",
+    "path": "systems/dnd5e/icons/skills/blue_13.jpg"
+  },
+  {
+    "name": "Wind Javelin",
+    "path": "systems/dnd5e/icons/skills/blue_14.jpg"
+  },
+  {
+    "name": "Windvane",
+    "path": "systems/dnd5e/icons/skills/blue_01.jpg"
+  },
+  {
+    "name": "Wing Attack",
+    "path": "icons/commodities/biological/wing-green.webp"
+  },
+  {
+    "name": "Wings",
+    "path": "icons/commodities/biological/wing-bird-white.webp"
+  },
+  {
+    "name": "Winter Strike",
+    "path": "systems/dnd5e/icons/spells/enchant-blue-2.jpg"
+  },
+  {
+    "name": "Withering Gaze",
+    "path": "systems/dnd5e/icons/skills/green_24.jpg"
+  },
+  {
+    "name": "Withering Touch",
+    "path": "icons/equipment/hand/glove-simple-leather-purple.webp"
+  },
+  {
+    "name": "Wolf Bite",
+    "path": "icons/commodities/bones/bone-jaw-teeth-white.webp"
+  },
+  {
+    "name": "Wooden Cane",
+    "path": "icons/weapons/staves/staff-engraved-wood.webp"
+  },
+  {
+    "name": "Wooden Maul",
+    "path": "icons/weapons/hammers/hammer-double-wood.webp"
+  },
+  {
+    "name": "Wooden Toy",
+    "path": "icons/sundries/gaming/chess-knight-white.webp"
+  },
+  {
+    "name": "Word From Beyond",
+    "path": "systems/dnd5e/icons/skills/violet_12.jpg"
+  },
+  {
+    "name": "Worms",
+    "path": "icons/environment/creatures/bug-worm-toothed-grey.webp"
+  },
+  {
+    "name": "Wounded",
+    "path": "systems/dnd5e/icons/skills/blood_03.jpg"
+  },
+  {
+    "name": "Wounded Fury",
+    "path": "systems/dnd5e/icons/skills/blood_13.jpg"
+  },
+  {
+    "name": "Wrath of Mat'Selesnya",
+    "path": "systems/dnd5e/icons/skills/green_02.jpg"
+  },
+  {
+    "name": "Wreathed in Flame",
+    "path": "systems/dnd5e/icons/skills/yellow_18.jpg"
+  },
+  {
+    "name": "Wretched Pack Tactics",
+    "path": "systems/dnd5e/icons/skills/red_27.jpg"
+  },
+  {
+    "name": "Xil Xaxosz: Lingering Spite",
+    "path": "systems/dnd5e/icons/spells/explosion-sky-3.jpg"
+  },
+  {
+    "name": "Yan-C-Bin's Lair",
+    "path": "icons/environment/settlement/palast.webp"
+  },
+  {
+    "name": "Yeenoghu's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-vulcano.webp"
+  },
+  {
+    "name": "Yellow Blossom",
+    "path": "icons/commodities/flowers/lily-bloom.webp"
+  },
+  {
+    "name": "Yellow Musk",
+    "path": "systems/dnd5e/icons/spells/fog-orange-2.jpg"
+  },
+  {
+    "name": "Zariel's Lair",
+    "path": "icons/environment/settlement/city-night-spire.webp"
+  },
+  {
+    "name": "Zone of Calamity",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-3.jpg"
+  },
+  {
+    "name": "Zuggtmoy's Lair",
+    "path": "icons/environment/settlement/city-night.webp"
+  },
+  {
+    "name": "Web Walker",
+    "path": "icons/commodities/biological/legs-insect-brown.webp"
+  },
+  {
+    "name": "Whip",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
+  },
+  {
+    "name": "Whirlwind of Sand",
+    "path": "systems/dnd5e/icons/spells/wind-red-3.jpg"
+  },
+  {
+    "name": "Dream Breath",
+    "path": "systems/dnd5e/icons/skills/shadow_08.jpg"
+  },
+  {
+    "name": "Moonlight Breath",
+    "path": "systems/dnd5e/icons/spells/beam-sky-3.jpg"
+  },
+  {
+    "name": "A Moonstone Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-mountain-blue.webp"
+  },
+  {
+    "name": "A Amethyst Dragon's Lair",
+    "path": "icons/environment/wilderness/cave-entrance-island.webp"
+  },
+  {
+    "name": "Singularity Breath",
+    "path": "systems/dnd5e/icons/skills/violet_17.jpg"
+  },
+  {
+    "name": "Psionics",
+    "path": "systems/dnd5e/icons/spells/light-magenta-3.jpg"
+  },
+  {
+    "name": "Explosive Crystal",
+    "path": "systems/dnd5e/icons/spells/ice-sky-3.jpg"
+  },
+  {
+    "name": "Psychic Step",
+    "path": "icons/magic/movement/trail-streak-zigzag-teal.webp"
+  },
+  {
+    "name": "Crane Dance",
+    "path": "icons/creatures/abilities/wings-birdlike-blue.webp"
+  },
+  {
+    "name": "Thunder Strike",
+    "path": "icons/skills/melee/unarmed-punch-fist-white.webp"
+  },
+  {
+    "name": "Thunder Strike",
+    "path": "icons/skills/melee/unarmed-punch-fist-white.webp"
+  }
+]

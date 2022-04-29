@@ -2082,6 +2082,49 @@
   {
     "name": "Borrowed Knowledge",
     "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
+    "name": "Vortex Warp",
+    "path": "icons/magic/water/vortex-water-whirlpool-blue.webp"
+  },
+  {
+    "name": "Silvery Barbs",
+    "path": "icons/magic/control/energy-stream-link-white.webp"
+  },
+  {
+    "name": "Kinetic Jaunt",
+    "path": "icons/skills/movement/feet-bladed-boots-fire.webp"
+  },
+  {
+    "name": "Rime's Binding Ice",
+    "path": "icons/magic/water/barrier-ice-wall-explosion.webp"
+  },
+  {
+    "name": "Raulothim's Psychic Lance",
+    "path": "icons/magic/lightning/bolt-strike-beam-yellow.webp"
+  },
+  {
+    "name": "Nathair's Mischief",
+    "path": "icons/magic/light/orb-hands-humanoid-yellow.webp"
+  },
+  {
+    "name": "Fizban's Platinum Shield",
+    "path": "icons/magic/defensive/shield-barrier-flaming-pentagon-blue-yellow.webp"
+  },
+  {
+    "name": "Ashardalon's Stride",
+    "path": "icons/magic/fire/projectile-bolt-zigzag-orange.webp"
+  },
+  {
+    "name": "Wither and Bloom",
+    "path": "icons/magic/nature/plant-vines-skull-green.webp"
+  },
+  {
+    "name": "Summon Draconic Spirit",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Draconic Transformation",
+    "path": "icons/creatures/abilities/dragon-fire-breath-orange.webp"
   }
 ]
-

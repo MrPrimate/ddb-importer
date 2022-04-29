@@ -1,0 +1,527 @@
+[
+  {
+    "name": "A Quintessent's Lair",
+    "monster": "Storm Giant Quintessent",
+    "path": "systems/dnd5e/icons/skills/blue_31.jpg"
+  },
+  {
+    "name": "A Quintessent's Lair",
+    "monster": "Adult Red Dragon",
+    "path": "icons/environment/wilderness/cave-entrance-mountain.webp"
+  },
+  {
+    "name": "Aggressive",
+    "monster": "Underworld Cerberus",
+    "path": "systems/dnd5e/icons/skills/violet_11.jpg"
+  },
+  {
+    "name": "Aggressive",
+    "monster": "Orc Blade of Ilneval",
+    "path": "icons/equipment/hand/gauntlet-simple-leather-steel.webp"
+  },
+  {
+    "name": "Amorphous",
+    "monster": "Alkilith",
+    "path": "systems/dnd5e/icons/spells/fog-water-air-1.jpg"
+  },
+  {
+    "name": "Amorphous",
+    "monster": "Elder Oblex",
+    "path": "icons/commodities/materials/liquid-purple.webp"
+  },
+  {
+    "name": "Amphibious",
+    "monster": "Tromokratis",
+    "path": "systems/dnd5e/icons/skills/affliction_15.jpg"
+  },
+  {
+    "name": "Amphibious",
+    "monster": "Category 3 Krasis",
+    "path": "systems/dnd5e/icons/skills/emerald_05.jpg"
+  },
+  {
+    "name": "Amphibious",
+    "monster": "Huge Giant Crab",
+    "path": "icons/environment/creatures/crustacean-crab-yellow.webp"
+  },
+  {
+    "name": "Arcane Blast",
+    "monster": "Sul Khatesh",
+    "path": "systems/dnd5e/icons/spells/needles-blue-2.jpg"
+  },
+  {
+    "name": "Arcane Blast",
+    "monster": "Kalaraq Quori",
+    "path": "systems/dnd5e/icons/spells/needles-royal-3.jpg"
+  },
+  {
+    "name": "Attack",
+    "monster": "Tarrasque",
+    "path": "systems/dnd5e/icons/skills/red_21.jpg"
+  },
+  {
+    "name": "Attack",
+    "monster": "Rak Tulkhesh",
+    "path": "icons/weapons/axes/axe-battle-eyes-red.webp"
+  },
+  {
+    "name": "Attack",
+    "monster": "Sul Khatesh",
+    "path": "icons/weapons/fist/claw-hooked-grey.webp"
+  },
+  {
+    "name": "Attack",
+    "monster": "Empyrean",
+    "path": "icons/weapons/staves/staff-winged-red.webp"
+  },
+  {
+    "name": "Attack",
+    "monster": "Molydeus",
+    "path": "icons/weapons/axes/axe-battle-skull-black.webp"
+  },
+  {
+    "name": "Attack",
+    "monster": "Borborygmos",
+    "path": "systems/dnd5e/icons/skills/yellow_21.jpg"
+  },
+  {
+    "name": "Attack",
+    "monster": "The Lord of Blades",
+    "path": "systems/dnd5e/icons/skills/weapon_41.jpg"
+  },
+  {
+    "name": "Attack",
+    "monster": "Lazav",
+    "path": "icons/weapons/swords/swords-sharp-worn.webp"
+  },
+  {
+    "name": "Attack",
+    "monster": "Diderius",
+    "path": "icons/commodities/biological/hand-yellow-red.webp"
+  },
+  {
+    "name": "Attack",
+    "monster": "Auril (Second Form)",
+    "path": "systems/dnd5e/icons/skills/ice_07.jpg"
+  },
+  {
+    "name": "Bite",
+    "monster": "Tarrasque",
+    "path": "systems/dnd5e/icons/skills/red_29.jpg"
+  },
+  {
+    "name": "Bite",
+    "monster": "Kostchtchie",
+    "path": "systems/dnd5e/icons/skills/blood_07.jpg"
+  },
+  {
+    "name": "Bite",
+    "monster": "Ancient Red Dragon",
+    "path": "systems/dnd5e/icons/skills/red_07.jpg"
+  },
+  {
+    "name": "Bite",
+    "monster": "Yeenoghu",
+    "path": "icons/commodities/bones/bone-jaw-teeth-white.webp"
+  },
+  {
+    "name": "Bite",
+    "monster": "Skittering Horror",
+    "path": "icons/commodities/bones/teeth-sharp-white.webp"
+  },
+  {
+    "name": "Bite",
+    "monster": "Balhannoth",
+    "path": "icons/commodities/biological/mouth-toothed-purple.webp"
+  },
+  {
+    "name": "Bite",
+    "monster": "Balhannoth",
+    "path": "icons/commodities/biological/mouth-toothed-purple.webp"
+  },
+  {
+    "name": "Bite",
+    "monster": "Gloamwing",
+    "path": "icons/commodities/bones/tooth-spiked-brown.webp"
+  },
+  {
+    "name": "Bite",
+    "monster": "Tyrannosaurus Rex",
+    "path": "systems/dnd5e/icons/skills/yellow_43.jpg"
+  },
+  {
+    "name": "Bite",
+    "monster": "Giant Shark",
+    "path": "icons/commodities/bones/tooth-shark-brown-white.webp"
+  },
+  {
+    "name": "Bite",
+    "monster": "Skeletal Polar Bear",
+    "path": "systems/dnd5e/icons/skills/yellow_32.jpg"
+  },
+  {
+    "name": "Cast a Spell",
+    "monster": "Isperia",
+    "path": "icons/sundries/documents/document-symbol-eye.webp"
+  },
+  {
+    "name": "Cast a Spell",
+    "monster": "Molydeus (Summoner Variant)",
+    "path": "icons/sundries/books/book-embossed-jewel-gold-purple.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Tarrasque",
+    "path": "icons/commodities/claws/talon-red.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Tiamat",
+    "path": "icons/commodities/claws/claw-lizard-white-black.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Rakdos",
+    "path": "icons/commodities/claws/claws-white.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Belashyrra",
+    "path": "icons/commodities/claws/claw-insect-grey-purple.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Belashyrra",
+    "path": "icons/commodities/claws/claw-insect-grey-purple.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Astral Dreadnought",
+    "path": "icons/commodities/claws/claw-pincer-grey.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Astral Dreadnought",
+    "path": "icons/commodities/claws/claw-pincer-grey.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Isperia",
+    "path": "systems/dnd5e/icons/items/inventory/monster-paw.jpg"
+  },
+  {
+    "name": "Claw",
+    "monster": "Isperia",
+    "path": "systems/dnd5e/icons/items/inventory/monster-paw.jpg"
+  },
+  {
+    "name": "Claw",
+    "monster": "Steel Predator",
+    "path": "icons/weapons/fist/claw-red-black.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Gar Shatterkeel (Noncore)",
+    "path": "icons/commodities/claws/talon-white.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Gar Shatterkeel (Noncore)",
+    "path": "icons/commodities/claws/talon-white.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Deep Crow",
+    "path": "icons/commodities/claws/claw-bird-pink.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Eye of Fear and Flame",
+    "path": "icons/commodities/bones/bone-foot-bird-brown.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Goliath Werebear",
+    "path": "icons/commodities/claws/claw-bear-brown.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Huge Giant Crab",
+    "path": "icons/commodities/claws/claw-pincer-yellow.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Succubus",
+    "path": "icons/commodities/biological/hand-clawed-blue.webp"
+  },
+  {
+    "name": "Claw",
+    "monster": "Husk Zombie",
+    "path": "icons/commodities/biological/hand-clawed-brown.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Geryon",
+    "path": "icons/commodities/claws/claws-white.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Arasta",
+    "path": "icons/commodities/claws/claw-insect-grey-purple.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Arasta",
+    "path": "icons/commodities/claws/claw-insect-grey-purple.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Adult Sapphire Dragon",
+    "path": "icons/commodities/claws/claw-lizard-white-black.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Ice Devil",
+    "path": "icons/commodities/claws/talon-white.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Bag of Nails",
+    "path": "systems/dnd5e/icons/items/inventory/monster-paw.jpg"
+  },
+  {
+    "name": "Claws",
+    "monster": "Theran Chimera",
+    "path": "icons/commodities/claws/claw-bird-yellow.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Mechachimera",
+    "path": "icons/weapons/fist/claw-red-black.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Shadowghast",
+    "path": "icons/commodities/biological/hand-clawed-brown.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Skeletal Juggernaut",
+    "path": "icons/commodities/bones/bone-foot-bird-brown.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Tloques-Popolocas",
+    "path": "icons/commodities/biological/hand-clawed-blue.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Guardian Wolf",
+    "path": "icons/commodities/claws/claw-brown-black.webp"
+  },
+  {
+    "name": "Claws",
+    "monster": "Owlbear",
+    "path": "icons/commodities/claws/claw-bear-brown.webp"
+  },
+  {
+    "name": "Club",
+    "monster": "Amble",
+    "path": "icons/weapons/clubs/club-simple-black.webp"
+  },
+  {
+    "name": "Club",
+    "monster": "Locathah Hunter",
+    "path": "icons/weapons/clubs/club-banded-barbed-black.webp"
+  },
+  {
+    "name": "Cold Breath",
+    "monster": "Ancient Silver Dragon",
+    "path": "systems/dnd5e/icons/skills/ice_11.jpg"
+  },
+  {
+    "name": "Cold Breath",
+    "monster": "Abominable Yeti",
+    "path": "systems/dnd5e/icons/spells/fog-blue-2.jpg"
+  },
+  {
+    "name": "Death Burst",
+    "monster": "Frost Worm",
+    "path": "systems/dnd5e/icons/skills/emerald_01.jpg"
+  },
+  {
+    "name": "Death Burst",
+    "monster": "Stonemelder",
+    "path": "systems/dnd5e/icons/spells/air-burst-jade-2.jpg"
+  },
+  {
+    "name": "Death Throes",
+    "monster": "Balor",
+    "path": "systems/dnd5e/icons/spells/explosion-red-3.jpg"
+  },
+  {
+    "name": "Death Throes",
+    "monster": "Gauth",
+    "path": "systems/dnd5e/icons/spells/explosion-magenta-3.jpg"
+  },
+  {
+    "name": "Feed",
+    "monster": "Star Spawn Larva Mage",
+    "path": "systems/dnd5e/icons/skills/affliction_11.jpg"
+  },
+  {
+    "name": "Feed",
+    "monster": "Maw of Sekolah",
+    "path": "systems/dnd5e/icons/spells/horror-eerie-3.jpg"
+  },
+  {
+    "name": "Fire Form",
+    "monster": "Maegera the Dawn Titan",
+    "path": "systems/dnd5e/icons/skills/fire_10.jpg"
+  },
+  {
+    "name": "Fire Form",
+    "monster": "Phoenix",
+    "path": "systems/dnd5e/icons/skills/yellow_38.jpg"
+  },
+  {
+    "name": "Fist",
+    "monster": "Fraz-Urb'luu",
+    "path": "systems/dnd5e/icons/skills/blood_11.jpg"
+  },
+  {
+    "name": "Fist",
+    "monster": "Rihuud",
+    "path": "icons/equipment/hand/gauntlet-simple-leather-steel.webp"
+  },
+  {
+    "name": "Fist",
+    "monster": "Vladimir Horngaard",
+    "path": "systems/dnd5e/icons/skills/ice_10.jpg"
+  },
+  {
+    "name": "Gore",
+    "monster": "Baphomet",
+    "path": "systems/dnd5e/icons/skills/red_23.jpg"
+  },
+  {
+    "name": "Gore",
+    "monster": "Goristro",
+    "path": "icons/commodities/bones/horn-carved-drinking-white.webp"
+  },
+  {
+    "name": "Gore",
+    "monster": "Monstrous Peryton",
+    "path": "icons/commodities/bones/horn-antler-brown-red.webp"
+  },
+  {
+    "name": "Iron Scent",
+    "monster": "Rust Monster",
+    "path": "icons/commodities/tech/pipe-metal.webp"
+  },
+  {
+    "name": "Iron Scent",
+    "monster": "Khargra",
+    "path": "systems/dnd5e/icons/items/inventory/plate-bronze.jpg"
+  },
+  {
+    "name": "Multiple Heads",
+    "monster": "Tiamat",
+    "path": "icons/commodities/bones/bones-lizard-brown.webp"
+  },
+  {
+    "name": "Multiple Heads",
+    "monster": "Polukranos",
+    "path": "systems/dnd5e/icons/skills/violet_03.jpg"
+  },
+  {
+    "name": "Ram",
+    "monster": "Gold-Forged Sentinel",
+    "path": "systems/dnd5e/icons/items/weapons/club-horns.jpg"
+  },
+  {
+    "name": "Ram",
+    "monster": "Giant Elk",
+    "path": "icons/commodities/bones/horn-antler-brown.webp"
+  },
+  {
+    "name": "Siege Monster",
+    "monster": "Tarrasque",
+    "path": "icons/environment/wilderness/wall-ruins.webp"
+  },
+  {
+    "name": "Siege Monster",
+    "monster": "Rubblebelt Stalker",
+    "path": "icons/environment/settlement/city-wall.webp"
+  },
+  {
+    "name": "Staff",
+    "monster": "Acererak",
+    "path": "icons/weapons/staves/staff-skull-feathers-brown.webp"
+  },
+  {
+    "name": "Staff",
+    "monster": "Nagpa",
+    "path": "icons/weapons/staves/staff-ornate-orb-steel-red.webp"
+  },
+  {
+    "name": "Staff",
+    "monster": "Zephyros",
+    "path": "icons/weapons/staves/staff-ornate-wood-red.webp"
+  },
+  {
+    "name": "Staff",
+    "monster": "Nightmare Shepherd",
+    "path": "icons/weapons/staves/staff-orb-purple.webp"
+  },
+  {
+    "name": "Staff",
+    "monster": "Green Slaad",
+    "path": "icons/weapons/staves/staff-hooked-banded.webp"
+  },
+  {
+    "name": "Standing Leap",
+    "monster": "Crokek'toeck",
+    "path": "icons/commodities/claws/claw-blue-grey.webp"
+  },
+  {
+    "name": "Standing Leap",
+    "monster": "Torbit",
+    "path": "icons/commodities/biological/foot-amphibian-green.webp"
+  },
+  {
+    "name": "Stomp",
+    "monster": "Warforged Colossus",
+    "path": "icons/equipment/feet/boots-armored-steel.webp"
+  },
+  {
+    "name": "Stomp",
+    "monster": "Borborygmos",
+    "path": "icons/commodities/bones/hooves-cloven-brown.webp"
+  },
+  {
+    "name": "Stomp",
+    "monster": "Mammoth",
+    "path": "icons/commodities/biological/foot-black-grey.webp"
+  },
+  {
+    "name": "Web",
+    "monster": "Drow Arachnomancer",
+    "path": "icons/commodities/materials/material-webbing.webp"
+  },
+  {
+    "name": "Web",
+    "monster": "Ice Spider Queen",
+    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
+  },
+  {
+    "name": "Whirlwind",
+    "monster": "Air Elemental",
+    "path": "systems/dnd5e/icons/spells/wind-sky-3.jpg"
+  },
+  {
+    "name": "Whirlwind",
+    "monster": "Dust Devil",
+    "path": "systems/dnd5e/icons/spells/wind-red-3.jpg"
+  }
+]

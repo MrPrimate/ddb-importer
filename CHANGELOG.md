@@ -1,3 +1,7 @@
+# 2.9.34
+
+* Some new icons for missing monster features and spells. (Thanks @JacksonBockus#1378 and @MaxPat#7936)
+
 # 2.9.33
 
 * Shifter race feature adds temphp now.

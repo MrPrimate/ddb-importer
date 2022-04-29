@@ -157,6 +157,7 @@ const levelScaleInfusions = [
   "Unarmed Strike",
   "Arms of the Astral Self (WIS)",
   "Arms of the Astral Self (DEX)",
+  "Arms of the Astral Self: Summon",
 ];
 
 /**

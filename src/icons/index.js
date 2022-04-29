@@ -33,7 +33,7 @@ const FILE_MAP = {
   spells: ["spells.json"],
   feats: ["feats.json", "class-features.json", "races.json", "general.json"],
   classes: ["classes.json"],
-  monster: ["monster-features.json"],
+  monster: ["named-monster-features.json", "generic-monster-features.json"],
   backgrounds: ["backgrounds.json", "feats.json", "class-features.json", "races.json", "general.json"],
 };
 
@@ -110,10 +110,20 @@ function getIconPath(item, type, monsterName) {
     const sanitisedName = sanitiseName(entry.name);
     const sanitisedItemName = sanitiseName(item.name);
     if (type === "monster") {
-      return sanitisedName === sanitisedItemName.split("(")[0].trim() && sanitiseName(entry.monster) == sanitiseName(monsterName);
+      return sanitisedName === sanitisedItemName.split("(")[0].trim() && entry.monster && sanitiseName(entry.monster) == sanitiseName(monsterName);
     }
     return sanitisedName === sanitisedItemName;
   });
+
+  if (!iconMatch && type === "monster") {
+    const genericMonsterIconMatch = iconMap[typeValue].find((entry) => {
+      const sanitisedName = sanitiseName(entry.name);
+      const sanitisedItemName = sanitiseName(item.name);
+      return sanitisedName === sanitisedItemName;
+    });
+    if (genericMonsterIconMatch) return genericMonsterIconMatch.path;
+  }
+
   if (iconMatch) {
     return iconMatch.path;
   } else {
