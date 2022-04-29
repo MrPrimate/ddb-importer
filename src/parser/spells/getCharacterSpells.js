@@ -65,7 +65,7 @@ export function getCharacterSpells(ddb, character) {
       // as they may come from with different spell casting mods
       const duplicateSpell = items.findIndex(
         (existingSpell) =>
-          existingSpell.name === spell.definition.name &&
+          (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name &&
           classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class
       );
       if (!items[duplicateSpell]) {
@@ -143,7 +143,7 @@ export function getCharacterSpells(ddb, character) {
     // as they may come from with different spell casting mods
     const duplicateSpell = items.findIndex(
       (existingSpell) =>
-        existingSpell.name === spell.definition.name &&
+        (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name &&
         klass &&
         klass.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class &&
         spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot

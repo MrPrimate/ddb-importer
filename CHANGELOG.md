@@ -1,6 +1,7 @@
 # 2.9.34
 
 * Some new icons for missing monster features and spells. (Thanks @JacksonBockus#1378 and @MaxPat#7936)
+* Clerics with customised spell names would duplicate the spell, marking one as unprepared.
 
 # 2.9.33
 
