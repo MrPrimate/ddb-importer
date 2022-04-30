@@ -330,7 +330,7 @@ async function getFilteredItems(compendium, item, index, matchFlags) {
 // }
 
 async function updateCompendiumItems(compendium, inputItems, index, matchFlags) {
-  let promises = [];
+  let updates = [];
   inputItems.forEach(async (item) => {
     const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
     // we have a match, update first match
@@ -351,7 +351,7 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
     }
   });
 
-  // in v9 the table.update may not be returning all the updated items correctly
+  // in v10 the table.update may not be returning all the updated items correctly
   console.warn("table update results", updates);
 
   return updates;
@@ -405,7 +405,9 @@ async function createCompendiumItems(type, compendium, inputItems, index, matchF
       switch (type) {
         case "table":
         case "tables": {
+          console.warn("creating table", item);
           newItem = new RollTable(item);
+          console.warn("created table", newItem);
           break;
         }
         default: {
@@ -458,10 +460,12 @@ export async function updateCompendium(type, input, updateExisting = false, matc
 
     if (updateExisting) {
       updateResults = await updateCompendiumItems(compendium, inputItems, initialIndex, matchFlags);
+      logger.debug(`Updated ${updateResults.length} existing ${type} items in compendium`);
     }
 
     // create new items
     const createResults = await createCompendiumItems(type, compendium, inputItems, initialIndex, matchFlags);
+    logger.debug(`Created ${createResults.length} new ${type} items in compendium`);
     munchNote("", true);
 
     // compendium folders

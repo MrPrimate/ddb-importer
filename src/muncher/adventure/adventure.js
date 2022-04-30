@@ -284,7 +284,7 @@ export default class AdventureMunch extends FormApplication {
           logger.warn(`Folder structure file not found.`);
         }
 
-        if (adventure.system !== game.data.system.data.name) {
+        if (adventure.system !== game.data.system.id) {
           ui.notifications.error(`Invalid system for Adventure ${adventure.name}.  Expects ${adventure.system}`);
           throw new Error(`Invalid system for Adventure ${adventure.name}.  Expects ${adventure.system}`);
         }
