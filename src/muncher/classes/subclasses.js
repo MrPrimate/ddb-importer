@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import utils from "../../utils.js";
 import { parseTags } from "../../parser/templateStrings.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
@@ -58,17 +57,10 @@ async function buildSubClassBase(klass, subClass) {
     klass.system.description.value.replace(imageMatch, image);
   }
 
-  const subClassSupport = utils.versionCompare(game.data.system.version, "1.6.0") >= 0;
-
-  if (subClassSupport) {
-    klass.system.classIdentifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
-    klass.system.identifier = subClass.name.toLowerCase().replace(/\s|'|’/g, '-');
-    klass.type = "subclass";
-    klass.name = `${subClass.name} (${klass.name})`;
-  } else {
-    // eslint-disable-next-line require-atomic-updates
-    klass.name += ` (${subClass.name})`;
-  }
+  klass.system.classIdentifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
+  klass.system.identifier = subClass.name.toLowerCase().replace(/\s|'|’/g, '-');
+  klass.type = "subclass";
+  klass.name = `${subClass.name} (${klass.name})`;
 
   // eslint-disable-next-line require-atomic-updates
   klass.system.description.value += `<h3>${subClass.name}</h3>\n${subClass.description}\n\n`;

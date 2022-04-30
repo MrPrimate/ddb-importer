@@ -64,16 +64,6 @@ export function getSensesMap(data) {
 }
 
 export function getSensesLookup(data) {
-  // const low = "1.1.0";
-  // const high = "1.2.0"
-
-  // const compareLowHigh = utils.versionCompare(low, high);
-  // const compareSame = utils.versionCompare(high, high);
-  // const compareHighLow = utils.versionCompare(high, low);
-  // console.warn(`${compareLowHigh}-${compareSame}-${compareHighLow}`);
-  // // -1-0-1
-
-  // dnd5e 1.2.0 introduced a different sense system
   let senses;
 
   try {

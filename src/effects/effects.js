@@ -318,32 +318,29 @@ export function generateTokenMagicFXChange(macroValue, priority = 20) {
 
 export function generateATLChange(atlKey, mode, value, priority = 20) {
   let key = atlKey;
-  const version = (game.version ?? game.data.version);
-  const v9 = utils.versionCompare(version, "9.0") >= 0;
 
-  if (v9) {
-    switch (atlKey) {
-      case 'ATL.dimLight':
-        key = 'ATL.light.dim';
-        break;
-      case 'ATL.brightLight':
-        key = 'ATL.light.bright';
-        break;
-      case 'ATL.lightAnimation':
-        key = 'ATL.light.animation';
-        break;
-      case 'ATL.lightColor':
-        key = 'ATL.light.color';
-        break;
-      case 'ATL.lightAlpha':
-        key = 'ATL.light.alpha';
-        break;
-      case 'ATL.lightAngle':
-        key = 'ATL.light.angle';
-        break;
-      // no default
-    }
+  switch (atlKey) {
+    case 'ATL.dimLight':
+      key = 'ATL.light.dim';
+      break;
+    case 'ATL.brightLight':
+      key = 'ATL.light.bright';
+      break;
+    case 'ATL.lightAnimation':
+      key = 'ATL.light.animation';
+      break;
+    case 'ATL.lightColor':
+      key = 'ATL.light.color';
+      break;
+    case 'ATL.lightAlpha':
+      key = 'ATL.light.alpha';
+      break;
+    case 'ATL.lightAngle':
+      key = 'ATL.light.angle';
+      break;
+    // no default
   }
+
   return {
     key,
     mode,

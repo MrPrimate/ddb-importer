@@ -76,13 +76,10 @@ function parseFeature(feat, ddb, character, source, type) {
     });
     item.system.description.value += `</ul>`;
     features.push(item);
+    item.type = "background";
+    item.img = "icons/skills/trades/academics-book-study-purple.webp";
+    item.name = item.name.split("Background: ").pop();
 
-    const hasBackgroundType = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
-    if (hasBackgroundType) {
-      item.type = "background";
-      item.img = "icons/skills/trades/academics-book-study-purple.webp";
-      item.name = item.name.split("Background: ").pop();
-    }
   } else if (choices.length > 0) {
     logger.debug(`Found ${choices.map((c) => c.label).join(",")}`);
     choices.forEach((choice) => {

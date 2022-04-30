@@ -903,7 +903,7 @@ const utils = {
   },
 
   getTemplate: (type) => {
-    const templates = game.data.system.template;
+    const templates = game.data.template;
     for (let entityType in templates) {
       if (
         templates[entityType].types &&
