@@ -216,22 +216,22 @@ export async function getNPCImage(data, options) {
 
     if (dndBeyondTokenImageUrl.endsWith(npcType + "." + tokenExt)) {
       // eslint-disable-next-line require-atomic-updates
-      data.prototypeToken.img = await getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName, true, false);
+      data.prototypeToken.texture.src = await getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName, true, false);
     } else {
       // eslint-disable-next-line require-atomic-updates
-      data.prototypeToken.img = await getImagePath(dndBeyondTokenImageUrl, "npc-token", npcName, true, false);
+      data.prototypeToken.texture.src = await getImagePath(dndBeyondTokenImageUrl, "npc-token", npcName, true, false);
     }
   }
 
   // check avatar, if not use token image
   // eslint-disable-next-line require-atomic-updates
-  if (!data.img && data.prototypeToken.img) data.img = data.prototypeToken.img;
+  if (!data.img && data.prototypeToken.texture.src) data.img = data.prototypeToken.texture.src;
 
   // final check if image comes back as null
   // eslint-disable-next-line require-atomic-updates
   if (data.img === null) data.img = "icons/svg/mystery-man.svg";
   // eslint-disable-next-line require-atomic-updates
-  if (data.prototypeToken.img === null) data.prototypeToken.img = "icons/svg/mystery-man.svg";
+  if (data.prototypeToken.texture.src === null) data.prototypeToken.texture.src = "icons/svg/mystery-man.svg";
 
   // okays, but do we now want to tokenize that?
   const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize") &&
@@ -392,7 +392,7 @@ export function copyExistingMonsterImages(monsters, existingMonsters) {
     const existing = existingMonsters.find((m) => monster.name === m.name);
     if (existing) {
       monster.img = existing.img;
-      monster.prototypeToken.img = monster.prototypeToken ? monster.prototypeToken.img : monster.token.img;
+      monster.prototypeToken.texture.src = existing.prototypeToken.texture.src;
       return monster;
     } else {
       return monster;

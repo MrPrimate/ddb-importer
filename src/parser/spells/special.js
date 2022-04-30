@@ -82,7 +82,7 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Darkvision": {
-        spell.system["target"]["type"] = "creature";
+        spell.system.target.type = "creature";
         break;
       }
       // The target/range input data are incorrect on some AOE spells centred
@@ -158,24 +158,24 @@ export function fixSpells(ddb, items) {
       case "Call Lightning": {
         if (usingEffects) {
           spell.system.damage = { parts: [], versatile: "", value: "" };
-          spell.system["target"]["type"] = "self";
+          spell.system.target.type = "self";
           // spell.system.range = { value: null, units: "self", long: null };
           spell.system.save.ability = "";
         }
         break;
       }
       case "Control Weather": {
-        spell.system["target"]["type"] = "self";
+        spell.system.target.type = "self";
         spell.system.range = { value: 5, units: "mi", long: null };
         break;
       }
       case "Pyrotechnics":
-        spell.system["target"]["value"] = 15;
+        spell.system.target["value"] = 15;
         break;
       case "Absorb Elements":
         spell.system.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
         spell.system.chatFlavor = "Uses the damage type of the triggered attack: Acid, Cold, Fire, Lightning, or Poison.";
-        spell.system["target"]["value"] = 1;
+        spell.system.target["value"] = 1;
         break;
       case "Booming Blade":
         spell.system.damage = { parts: [["0", "thunder"]], versatile: "1d8", value: "" };
@@ -226,25 +226,25 @@ export function fixSpells(ddb, items) {
       }
       case "Armor of Agathys": {
         spell.system.actionType = "heal";
-        spell.system["target"]["type"] = "self";
+        spell.system.target.type = "self";
         spell.system.damage.parts[0] = ["5", "temphp"];
         spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
       }
       case "Arms of Hadar": {
-        spell.data["target"]["type"] = "special";
+        spell.system.target.type = "special";
         break;
       }
       case "False Life": {
         spell.system.actionType = "heal";
-        spell.system["target"]["type"] = "self";
+        spell.system.target.type = "self";
         spell.system.damage.parts[0] = ["1d4 + 4", "temphp"];
         spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
       }
       case "Divine Favor": {
         spell.system.actionType = "util";
-        spell.system["target"]["type"] = "self";
+        spell.system.target.type = "self";
         break;
       }
       case "Bones of the Earth": {
@@ -260,7 +260,7 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Protection from Energy":
-        spell.system["target"]["type"] = "creature";
+        spell.system.target.type = "creature";
         break;
       // no default
     }

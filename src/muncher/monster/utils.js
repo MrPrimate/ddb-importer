@@ -150,14 +150,7 @@ export function getDamage(description) {
 export function getAction(text, type = "action") {
   let action = type;
   // foundry doesn't support mythic actions pre 1.6
-  if (type === "mythic") {
-    const mythicActionSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
-    if (mythicActionSupport) {
-      action = "mythic";
-    } else {
-      action = "special";
-    }
-  }
+  if (type === "mythic") action = "mythic";
   const actionAction = text.toLowerCase().match(/as (a|an) action/);
   const bonusAction = text.toLowerCase().match(/as a bonus action/);
   const reAction = text.toLowerCase().match(/as a reaction/);

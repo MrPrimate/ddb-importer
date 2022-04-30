@@ -23,7 +23,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-world-monster-update-images");
     if (!updateImages) {
       actorUpdate.img = targetActor.img;
-      actorUpdate.prototypeToken.img = targetActor.prototypeToken.img;
+      actorUpdate.prototypeToken.texture.src = targetActor.prototypeToken.texture.src;
       actorUpdate.prototypeToken.scale = targetActor.prototypeToken.scale;
       actorUpdate.prototypeToken.randomImg = targetActor.prototypeToken.randomImg;
       actorUpdate.prototypeToken.mirrorX = targetActor.prototypeToken.mirrorX;

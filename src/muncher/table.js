@@ -241,6 +241,7 @@ export function generateTable(parentName, html, updateExisting, type = "") {
       // these updates are done async, and we continue. this is fine as we actually use the table name for linking
       if (!tableGenerated) {
         tables[finalName] = builtTables;
+        logger.debug(`Generated table`, builtTables);
         updateCompendium("tables", { tables: builtTables }, updateExisting);
       }
 

@@ -197,13 +197,7 @@ export async function getCharacterData(optionsIn) {
       const shouldChangeName = game.settings.get("ddb-importer", "character-update-policy-name");
       if (!shouldChangeName) {
         character.character.name = undefined;
-        const version = (game.version ?? game.data.version);
-        const v10 = utils.versionCompare(version, "10.0") >= 0;
-        if (v10) {
-          character.character.prototypeToken.name = undefined;
-        } else {
-          character.character.token.name = undefined;
-        }
+        character.character.prototypeToken.name = undefined;
       }
       data["character"] = character;
       return data;
@@ -412,10 +406,10 @@ export default class CharacterImport extends FormApplication {
       this.result.character.img = this.actor.img;
     }
 
-    if (this.actorOriginal.prototypeToken.img.includes("mystery-man")) {
-      this.result.character.prototypeToken.img = this.result.character.img;
+    if (this.actorOriginal.prototypeToken.texture.src.includes("mystery-man")) {
+      setProperty(this.result.character, "prototypeToken.texture.src", this.result.character.img);
     } else {
-      this.result.character.prototypeToken.img = this.actorOriginal.prototypeToken.img;
+      setProperty(this.result.character, "prototypeToken.texture.src", this.actorOriginal.prototypeToken.texture.src);
     }
   }
 

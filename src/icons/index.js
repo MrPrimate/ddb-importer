@@ -97,8 +97,8 @@ function looseMatch(item, typeValue) {
   const startsMatchItem = iconMap[typeValue].find((entry) => sanitiseName(entry.name).split(":")[0].trim().startsWith(sanitisedName.split(":")[0].trim()));
   if (startsMatchItem) return startsMatchItem.path;
 
-  if (item.type === "subclass" && item.data.classIdentifier) {
-    const sanitisedClassName = sanitiseName(item.data.classIdentifier);
+  if (item.type === "subclass" && item.system.classIdentifier) {
+    const sanitisedClassName = sanitiseName(item.system.classIdentifier);
     const subClassMatch = iconMap[typeValue].find((entry) => sanitiseName(entry.name).startsWith(sanitisedClassName));
     if (subClassMatch) return subClassMatch.path;
   }

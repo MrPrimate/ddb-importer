@@ -19,4 +19,5 @@ Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
 Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
 
 console.warn("SILENT MODE FOR DEBUG");
-CONFIG.debug.compatibility = CONST.COMPATIBILITY_MODES.SILENT
+const includeRgx = new RegExp("/module/ddb-importer/");
+CONFIG.compatibility.includePatterns.push(includeRgx);

@@ -6,7 +6,7 @@ const MODULE_NAME = "ddb-importer";
 const MODULE_AUTHOR = "MrPrimate";
 const _GITHUB_API_LATEST = `https://api.github.com/repos/${MODULE_AUTHOR}/${MODULE_NAME}/releases/latest`;
 const _GITHUB_MODULE_JSON_LATEST = `https://raw.githubusercontent.com/${MODULE_AUTHOR}/${MODULE_NAME}/master/module-template.json`;
-const MINIMUM_5E_VERSION = "1.5.5";
+const MINIMUM_5E_VERSION = "1.6.0";
 
 // eslint-disable-next-line consistent-return
 async function getLatestModuleVersion() {
@@ -36,7 +36,7 @@ export default async () => {
   try {
     if (!game.user.isGM) return;
     const { minimumCoreVersion, compatibleCoreVersion } = await getLatestModuleMinimumCoreVersion();
-    const compatibleMinimumSystem = utils.versionCompare(game.data.system.data.version, MINIMUM_5E_VERSION) >= 0;
+    const compatibleMinimumSystem = utils.versionCompare(game.data.system.version, MINIMUM_5E_VERSION) >= 0;
 
     if (!compatibleMinimumSystem) {
       ui.notifications.error(`${MODULE_TITLE} strongly recommends 5e system v${MINIMUM_5E_VERSION} to run correctly. Please update your 5e version.`, { permanent: true });
