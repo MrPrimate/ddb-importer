@@ -28,24 +28,116 @@ function getSources(data) {
   return sources;
 }
 
-export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreIds = []) {
+function generateScaleValueAdvancement(feature) {
+  // distance, numeric, dice, anything
+  let type = "string";
+
+  if (feature.levelScales[0].dice.diceString &&
+    (!feature.levelScales[0].dice.fixedValue || feature.levelScales[0].dice.fixedValue === "")
+  ) {
+    type = "dice";
+  } else if (feature.levelScales[0].fixedValue &&
+    feature.levelScales[0].fixedValue !== "" &&
+    Number.isInteger(feature.levelScales[0].fixedValue)
+  ) {
+    type = "numeric";
+  }
+
+  const scaleValue = {
+    type: "ScaleValue",
+    configuration: {
+      identifier: feature.name.toLowerCase().replace(/\s|'|’/g, '-'),
+      type,
+      scale: {},
+    },
+    value: {},
+    title: feature.name,
+    icon: "",
+    classRestriction: "",
+  };
+
+  feature.levelScales.forEach((scale) => {
+    if (type === "dice") {
+      scaleValue.configuration.scale[scale.level] = {
+        n: scale.dice.diceCount,
+        die: scale.dice.diceValue,
+      };
+    } else if (type === "numeric") {
+      scaleValue.configuration.scale[scale.level] = {
+        value: scale.fixedValue,
+      };
+    } else {
+      let value = (scale.dice.diceString && scale.dice.diceString !== "")
+        ? scale.dice.diceString
+        : "";
+      if (scale.dice.fixedValue && scale.dice.fixedValue !== "") {
+        value += ` + ${scale.dice.fixedValue}`;
+      }
+      if (value === "") {
+        value = scale.description;
+      }
+      scaleValue.configuration.scale[scale.level] = {
+        value,
+      };
+    }
+  });
+
+  return scaleValue;
+}
+
+function getClassFeatures(ddb, klass, klassDefinition, excludedIds = []) {
+  const excludedFeatures = ddb.character.optionalClassFeatures
+    .filter((f) => f.affectedClassFeatureId)
+    .map((f) => f.affectedClassFeatureId);
+
+  const optionFeatures = ddb.classOptions
+    ? ddb.classOptions
+      .filter((feature) => feature.classId === klassDefinition.id && !excludedIds.includes(feature.id))
+    : [];
+
+  const classFeatures = klass.classFeatures
+    .filter((feature) =>
+      !excludedFeatures.includes(feature.definition.id) &&
+      !excludedIds.includes(feature.definition.id) &&
+      feature.definition.classId === klassDefinition.id
+    )
+    .map((feature) => feature.definition);
+
+  return classFeatures.concat(optionFeatures)
+    .sort((a, b) => a.displayOrder - b.displayOrder)
+    .sort((a, b) => a.requiredLevel - b.requiredLevel);
+}
+
+function parseFeaturesForScaleValues(ddb, klass, klassDefinition, ignoreIds = []) {
+  const advancements = getClassFeatures(ddb, klass, klassDefinition, ignoreIds)
+    .filter((feature) => feature.levelScales?.length > 0)
+    .map((feature) => {
+      return generateScaleValueAdvancement(feature);
+    });
+  return advancements;
+}
+
+
+async function buildClassFeatures(ddb, klass, klassDefinition, compendiumClassFeatures, ignoreIds = []) {
   logger.debug(`Parsing ${klass.name} features`);
-  let description = "<h3>Class Features</h3>\n\n";
+  let description = "<h1>Class Features</h1>\n\n";
   let classFeatures = [];
 
   const compendiumLabel = getCompendiumLabel("features");
 
-  klass.classFeatures.forEach((feature) => {
+  console.warn(compendiumClassFeatures);
+
+  getClassFeatures(ddb, klass, klassDefinition, ignoreIds).forEach((feature) => {
     const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
 
-    // sort by level?
     if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
       const featureMatch = compendiumClassFeatures.find((match) =>
-        feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() &&
-        match.flags.ddbimporter &&
-        (match.flags.ddbimporter.class == klass.name ||
-          match.flags.ddbimporter.parentClassId == klass.id ||
-          match.flags.ddbimporter.classId == klass.id)
+        (feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() ||
+        `${feature.name} (${klassDefinition.name})`.trim().toLowerCase() == match.name.trim().toLowerCase()) &&
+        hasProperty(match, "flags.ddbimporter") &&
+        (match.flags.ddbimporter.class == klassDefinition.name ||
+          match.flags.ddbimporter.parentClassId == klassDefinition.id ||
+          match.flags.ddbimporter.classId == klassDefinition.id)
       );
       const title = (featureMatch)
         ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>`
@@ -102,14 +194,16 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
     subKlass.flags.ddbimporter.spellCastingAbility = spellCastingAbility;
   }
 
-  subKlass.data.description.value += "<h3>Description</h3>";
+  subKlass.data.description.value += "<h1>Description</h1>";
   subKlass.data.description.value += characterClass.subclassDefinition.description;
 
-  const ignoreIds = characterClass.definition.classFeatures.map((f) => f.id);
+  const baseClassFeatureIds = characterClass.definition.classFeatures.map((f) => f.id);
   // eslint-disable-next-line no-await-in-loop
-  subKlass.data.description.value += await buildClassFeatures(characterClass.subclassDefinition, featuresIndex, ignoreIds);
+  subKlass.data.description.value += await buildClassFeatures(ddb, characterClass, characterClass.subclassDefinition, featuresIndex, baseClassFeatureIds);
 
   subKlass.data.description.value = parseTemplateString(ddb, character, subKlass.data.description.value, subKlass).text;
+
+  subKlass.data.advancement = parseFeaturesForScaleValues(ddb, characterClass, characterClass.subclassDefinition, baseClassFeatureIds);
 
   return subKlass;
 }
@@ -145,14 +239,18 @@ export async function getClasses(ddb, character) {
     };
 
     /* eslint-disable require-atomic-updates */
-    klass.data.description.value = "<h3>Description</h3>";
+    klass.data.description.value = "<h1>Description</h1>";
     klass.data.description.value += characterClass.definition.description;
+    // get class features
+    const subClassFeatureIds = characterClass.subclassDefinition && characterClass.subclassDefinition.name
+      ? characterClass.subclassDefinition.classFeatures.filter((f) => f.id === characterClass.subclassDefinition.id).map((f) => f.id)
+      : [];
     // eslint-disable-next-line no-await-in-loop, require-atomic-updates
-    klass.data.description.value += await buildClassFeatures(characterClass.definition, featuresIndex);
+    klass.data.description.value += await buildClassFeatures(ddb, characterClass, characterClass.definition, featuresIndex, subClassFeatureIds);
 
     if (characterClass.definition.equipmentDescription) {
       // eslint-disable-next-line require-atomic-updates
-      klass.data.description.value += `<p><b>Starting Equipment</b></p>\n${characterClass.definition.equipmentDescription}\n\n`;
+      klass.data.description.value += `<h1>Starting Equipment</h1>\n${characterClass.definition.equipmentDescription}\n\n`;
     }
 
     klass.data.identifier = characterClass.definition.name.toLowerCase().replace(/\s|'|’/g, '-');
@@ -160,6 +258,23 @@ export async function getClasses(ddb, character) {
     klass.data.source = getSources(characterClass);
     klass.data.hitDice = `d${characterClass.definition.hitDice}`;
     klass.data.hitDiceUsed = characterClass.hitDiceUsed;
+    klass.data.advancement = [
+      // {
+      //   type: "HitPoints",
+      //   configuration: {},
+      //   value: {},
+      //   title: "",
+      //   icon: "",
+      //   classRestriction: "",
+      // },
+      // hp should be set like this - we don't actually know in DDB
+      // "value": {
+      //   "1": "max",
+      //   "2": "avg"
+      // },
+      ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.definition, subClassFeatureIds),
+    ];
+
 
     // There class object supports skills granted by the class.
     // Lets find and add them for future compatibility.

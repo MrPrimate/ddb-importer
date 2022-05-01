@@ -1,9 +1,9 @@
 import logger from "../../logger.js";
-import { buildBaseClass, getClassFeature, NO_TRAITS } from "./shared.js";
+import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
 import { munchNote, getCompendiumType } from "../utils.js";
 import { parseTags } from "../../parser/templateStrings.js";
-import { buildClassFeatures } from "../../parser/classes/index.js";
+// import { buildClassFeatures } from "../../parser/classes/index.js";
 
 async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);

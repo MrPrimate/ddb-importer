@@ -4,6 +4,7 @@ import DICTIONARY from "../../dictionary.js";
 import { getImagePath } from "../import.js";
 import { generateTable } from "../table.js";
 import { parseTags } from "../../parser/templateStrings.js";
+import { getCompendiumLabel } from "../utils.js";
 
 const CLASS_TEMPLATE = {
   "name": "",
@@ -89,6 +90,38 @@ function buildBase(data) {
   result.data.source = utils.parseSource(data);
 
   return result;
+}
+
+export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreIds = []) {
+  logger.debug(`Parsing ${klass.name} features`);
+  let description = "<h1>Class Features</h1>\n\n";
+  let classFeatures = [];
+
+  const compendiumLabel = getCompendiumLabel("features");
+
+  klass.classFeatures.forEach((feature) => {
+    const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
+
+    // sort by level?
+    if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
+      const featureMatch = compendiumClassFeatures.find((match) =>
+        feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() &&
+        match.flags.ddbimporter &&
+        (match.flags.ddbimporter.class == klass.name ||
+          match.flags.ddbimporter.parentClassId == klass.id ||
+          match.flags.ddbimporter.classId == klass.id)
+      );
+      const title = (featureMatch)
+        ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>`
+        : `<p><b>${feature.name}</b></p>`;
+
+      // eslint-disable-next-line require-atomic-updates
+      description += `${title}\n${feature.description}\n\n`;
+      classFeatures.push(feature.name);
+    }
+  });
+
+  return description;
 }
 
 export function getClassFeature(feature, klass, subClassName = "") {

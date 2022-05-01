@@ -3,6 +3,7 @@
 * Some new icons for missing monster features and spells. (Thanks @JacksonBockus#1378 and @MaxPat#7936)
 * Clerics with customised spell names would duplicate the spell, marking one as unprepared.
 * Improve some linking to SRD Rules when processing.
+* ScaleValue: Scale Values are now generated on classes. Currently class features do not use these, this will be implemented in a later update.
 
 # 2.9.33
 
