@@ -5,8 +5,8 @@ export function specialCases(monster) {
     case "Aboleth": {
       monster.items.forEach(function(item, index) {
         if (item.name === "Tentacle") {
-          this[index].data.formula = item.data.damage.parts[1][0];
-          this[index].data.damage.parts.splice(1, 1);
+          this[index].system.formula = item.system.damage.parts[1][0];
+          this[index].system.damage.parts.splice(1, 1);
         }
       }, monster.items);
       break;
@@ -15,11 +15,11 @@ export function specialCases(monster) {
     case "Flumph": {
       monster.items.forEach(function(item, index) {
         if (item.name === "Tendrils") {
-          if (item.data.damage.parts.length > 2) {
-            this[index].data.formula = item.data.damage.parts[2][0];
-            this[index].data.damage.parts.splice(2, 1);
+          if (item.system.damage.parts.length > 2) {
+            this[index].system.formula = item.system.damage.parts[2][0];
+            this[index].system.damage.parts.splice(2, 1);
           }
-          this[index].data.save.ability = "";
+          this[index].system.save.ability = "";
         }
       }, monster.items);
       break;
