@@ -58,7 +58,7 @@ function generateScaleValueAdvancement(feature) {
   feature.levelScales.forEach((scale) => {
     const die = scale.dice ? scale.dice : scale.die ? scale.die : undefined;
     if (type === "dice") {
-      die.scale[scale.level] = {
+      scaleValue.configuration.scale[scale.level] = {
         n: die.diceCount,
         die: die.diceValue,
       };
