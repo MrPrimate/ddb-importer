@@ -1,6 +1,7 @@
 # 2.9.35
 
 * Some spells like vampiric touch would add a null damage type (where there was a damage and heal type).
+* Some changes to dice scaling resulted in some custom spells failing import. Issue #232
 
 # 2.9.34
 
