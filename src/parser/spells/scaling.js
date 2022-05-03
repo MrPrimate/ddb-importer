@@ -109,11 +109,12 @@ export function getSpellScaling(data) {
           if (isHigherLevelDefinitions && modScaleType === "spellscale") {
             const definition = mod.atHigherLevels.higherLevelDefinitions[0];
             if (definition) {
+              const die = definition.dice ? definition.dice : definition.die ? definition.die : undefined;
               const modScaleDamage =
-                definition.dice && definition.dice.diceString // if dice string
-                  ? definition.dice.diceString // use dice string
-                  : definition.dice && definition.dice.fixedValue // else if fixed value
-                    ? definition.dice.fixedValue // use fixed value
+                die?.diceString // if dice string
+                  ? die.diceString // use dice string
+                  : die?.fixedValue // else if fixed value
+                    ? die.fixedValue // use fixed value
                     : definition.value; // else use value
 
               // some spells have multiple scaling damage (e.g. Wall of Ice,
@@ -128,14 +129,20 @@ export function getSpellScaling(data) {
               const existingMatch = diceFormula.exec(scaleDamage);
               const modMatch = diceFormula.exec(modScaleDamage);
 
-              if (!existingMatch || modMatch[1] > existingMatch[1]) {
+              const modMatchValue = modMatch
+                ? modMatch.length > 1 ? modMatch[1] : modMatch[0]
+                : undefined;
+
+              if (!existingMatch && !modMatch) {
+                scaleDamage = modScaleDamage;
+              } else if (!existingMatch || modMatchValue > existingMatch[1]) {
                 scaleDamage = modScaleDamage;
               }
             } else {
               logger.warn("No definition found for " + data.definition.name);
             }
           } else if (isHigherLevelDefinitions && modScaleType === "characterlevel") {
-            // cantrip support, important to set to a fixed vaue if using abilities like potent spellcasting
+            // cantrip support, important to set to a fixed value if using abilities like potent spellcasting
             scaleDamage = baseDamage;
           }
 
