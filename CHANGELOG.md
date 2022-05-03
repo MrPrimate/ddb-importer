@@ -1,6 +1,6 @@
 # 2.9.36
 
-* Scale Value generation was broken by previous.
+* Scale Value generation was broken by previous update.
 
 # 2.9.35
 
