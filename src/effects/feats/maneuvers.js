@@ -9,7 +9,9 @@ export async function maneuversEffect(ddb, character, document) {
   if (!fighterClass) return document;
   const combatSuperiority = fighterClass.classFeatures.find((feat) => feat.definition.name === "Combat Superiority");
   if (!combatSuperiority) return document;
-  const dieValue = combatSuperiority.levelScale.dice.diceValue;
+  const levelScale = combatSuperiority.levelScale;
+  const die = levelScale.dice ? levelScale.dice : levelScale.die ? levelScale.die : undefined;
+  const dieValue = die.diceValue;
 
   logger.debug(`Generating effect for ${document.name}`);
 

@@ -131,13 +131,14 @@ function getDamage(action) {
   // when the action type is not set to melee or ranged we don't apply the mod to damage
   const meleeOrRangedAction = action.attackTypeRange || action.rangeId;
   const modBonus = (action.statId || action.abilityModifierStatId) && !action.isOffhand && meleeOrRangedAction ? " + @mod" : "";
-  const fixedBonus = action.dice?.fixedValue ? ` + ${action.dice.fixedValue}` : "";
+  const die = action.dice ? action.dice : action.die ? action.die : undefined;
+  const fixedBonus = die?.fixedValue ? ` + ${die.fixedValue}` : "";
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
-  if (action.dice) {
-    if (action.dice.diceString) {
+  if (die) {
+    if (die.diceString) {
       const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-      const damageString = utils.parseDiceString(action.dice.diceString, modBonus, damageTag).diceString;
+      const damageString = utils.parseDiceString(die.diceString, modBonus, damageTag).diceString;
       damage = {
         parts: [[damageString, damageType]],
         versatile: "",
@@ -185,7 +186,8 @@ function getLevelScaleDice(ddb, character, action, feat) {
         templateString.id == action.id &&
         templateString.entityTypeId == action.entityTypeId
       );
-      let part = feature.levelScale.dice.diceString;
+      const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
+      let part = die.diceString;
       if (parsedString) {
         const modifier = parsedString.definitions.find((definition) => definition.type === "modifier");
         if (modifier) {
@@ -219,6 +221,7 @@ function martialArtsDamage(ddb, action) {
   } else {
     damageBonus = ` + ${damageBonus}`;
   }
+  const actionDie = action.dice ? action.dice : action.die ? action.die : undefined;
 
   // are we dealing with martial arts?
   if (isMartialArtists(ddb.character.classes)) {
@@ -226,16 +229,17 @@ function martialArtsDamage(ddb, action) {
       .filter((cls) => isMartialArtists([cls]))
       .map((cls) => {
         const feature = cls.classFeatures.find((feature) => feature.definition.name === "Martial Arts");
+        const levelScaleDie = feature?.levelScale?.dice ? feature.levelScale.dice : feature?.levelScale.die ? feature.levelScale.die : undefined;
 
-        if (feature && feature.levelScale && feature.levelScale.dice && feature.levelScale.dice.diceString) {
-          if (action.dice?.diceValue > feature.levelScale.dice.diceValue) {
-            return action.dice.diceString;
+        if (levelScaleDie?.diceString) {
+          if (actionDie?.diceValue > levelScaleDie.diceValue) {
+            return actionDie.diceString;
           }
-          return feature.levelScale.dice.diceString;
-        } else if (action.dice !== null) {
+          return levelScaleDie.diceString;
+        } else if (actionDie !== null && actionDie !== undefined) {
           // On some races bite is considered a martial art, damage
           // is different and on the action itself
-          return action.dice.diceString;
+          return actionDie.diceString;
         } else {
           return "1";
         }
@@ -249,11 +253,11 @@ function martialArtsDamage(ddb, action) {
       parts: [[damageString, damageType]],
       versatile: "",
     };
-  } else if (action.dice !== null) {
+  } else if (actionDie !== null && actionDie !== undefined) {
     // The Lizardfolk jaws have a different base damage, its' detailed in
     // dice so lets capture that for actions if it exists
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-    const damageString = utils.parseDiceString(action.dice.diceString, `${damageBonus} + @mod`, damageTag).diceString;
+    const damageString = utils.parseDiceString(actionDie.diceString, `${damageBonus} + @mod`, damageTag).diceString;
     return {
       parts: [[damageString, damageType]],
       versatile: "",

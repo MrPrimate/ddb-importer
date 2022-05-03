@@ -45,8 +45,9 @@ import { generateTable } from "../../muncher/table.js";
  */
 function getExtraDamage(ddb, restrictions) {
   return utils.filterBaseModifiers(ddb, "damage", null, restrictions).map((mod) => {
-    if (mod.dice) {
-      return [mod.dice.diceString, mod.subType];
+    const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+    if (die) {
+      return [die.diceString, mod.subType];
     } else if (mod.value) {
       return [mod.value, mod.subType];
     } else {

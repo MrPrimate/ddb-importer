@@ -108,8 +108,9 @@ function getDamage(data, magicalDamageBonus) {
   data.definition.grantedModifiers
     .filter((mod) => mod.type === "damage")
     .forEach((mod) => {
-      if (mod.dice) {
-        parts.push([mod.dice.diceString, mod.subType]);
+      const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+      if (die?.diceString) {
+        parts.push([die.diceString, mod.subType]);
       } else if (mod.value) {
         parts.push([`${mod.value}`, mod.subType]);
       }

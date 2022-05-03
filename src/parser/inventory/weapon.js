@@ -170,7 +170,8 @@ function getDamage(data, flags, betterRolls5e) {
   data.definition.grantedModifiers
     .filter((mod) => mod.type === "damage" && (!mod.restriction || mod.restriction === ""))
     .forEach((mod) => {
-      const damagePart = (mod.dice) ? mod.dice.diceString : mod.value;
+      const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+      const damagePart = die ? die.diceString : mod.value;
       if (damagePart) {
         const subDamageTagData = utils.getDamageTagForMod(mod);
         const damageParsed = utils.parseDiceString(damagePart, "", subDamageTagData.damageTag).diceString;
@@ -187,7 +188,8 @@ function getDamage(data, flags, betterRolls5e) {
   data.definition.grantedModifiers
     .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
     .forEach((mod) => {
-      const damagePart = (mod.dice) ? mod.dice.diceString : `${mod.value}`;
+      const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+      const damagePart = die ? die.diceString : `${mod.value}`;
       if (damagePart) {
         const subDamageTagData = utils.getDamageTagForMod(mod);
         const damageParsed = utils.parseDiceString(damagePart, "", subDamageTagData.damageTag).diceString;

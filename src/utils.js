@@ -407,7 +407,8 @@ const utils = {
     let diceString = "";
     let modBonus = 0;
     modifiers.forEach((modifier) => {
-      const fixedBonus = modifier.dice?.fixedValue ? modifier.dice.fixedValue : 0;
+      const die = modifier.dice ? modifier.dice : modifier.die ? modifier.die : undefined;
+      const fixedBonus = die.fixedValue ? die.fixedValue : 0;
       const statBonus = (modifier.statId)
         ? modifier.statId
         : modifier.abilityModifierStatId
@@ -417,11 +418,11 @@ const utils = {
         const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId);
         modBonus += character.data.abilities[ability.value].mod;
       }
-      if (modifier.dice) {
-        const mod = modifier.dice.diceString;
+      if (die) {
+        const mod = die.diceString;
         diceString += diceString === "" ? mod : " + " + mod;
-        if (modifier.dice.diceString) {
-          const mod = modifier.dice.diceString + modBonus + fixedBonus;
+        if (die.diceString) {
+          const mod = die.diceString + modBonus + fixedBonus;
           diceString += diceString === "" ? mod : " + " + mod;
         } else if (fixedBonus) {
           sum += fixedBonus + modBonus;

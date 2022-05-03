@@ -427,11 +427,12 @@ function extractModifierValue(modifier) {
     modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `+ @abilities.${ability}.mod`;
   }
 
-  const fixedBonus = modifier.dice?.fixedValue ? ` + ${modifier.dice.fixedValue}` : "";
+  const die = modifier.dice ? modifier.dice : modifier.die ? modifier.die : undefined;
 
-  if (modifier.dice) {
-    if (modifier.dice.diceString) {
-      value = modifier.dice.diceString + modBonus + fixedBonus;
+  if (die) {
+    const fixedBonus = die.fixedValue ? ` + ${die.fixedValue}` : "";
+    if (die.diceString) {
+      value = die.diceString + modBonus + fixedBonus;
     } else if (fixedBonus) {
       value = fixedBonus + modBonus;
     }
@@ -579,10 +580,11 @@ function addGlobalDamageBonus(modifiers, name) {
   const meleeRestrictions = ["Melee Weapon Attacks"];
   let changes = [];
   const meleeBonus = utils.filterModifiers(modifiers, "damage", null, meleeRestrictions)
-    .filter((mod) => mod.dice || mod.value)
+    .filter((mod) => mod.dice || mod.die || mod.value)
     .map((mod) => {
-      if (mod.dice) {
-        return utils.parseDiceString(mod.dice.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+      const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+      if (die) {
+        return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
       } else {
         return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
       }
@@ -593,10 +595,11 @@ function addGlobalDamageBonus(modifiers, name) {
   }
   const rangedRestrictions = ["Ranged Weapon Attacks"];
   const rangedBonus = utils.filterModifiers(modifiers, "damage", null, rangedRestrictions)
-    .filter((mod) => mod.dice || mod.value)
+    .filter((mod) => mod.dice || mod.die || mod.value)
     .map((mod) => {
-      if (mod.dice) {
-        return utils.parseDiceString(mod.dice.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+      const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+      if (die) {
+        return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
       } else {
         return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
       }
@@ -606,10 +609,11 @@ function addGlobalDamageBonus(modifiers, name) {
     changes.push(generateCustomChange(`${rangedBonus.join(" + ")}`, 18, "data.bonuses.rwak.damage"));
   }
   const bonus = utils.filterModifiers(modifiers, "damage", null)
-    .filter((mod) => mod.dice || mod.value)
+    .filter((mod) => mod.dice || mod.die || mod.value)
     .map((mod) => {
-      if (mod.dice) {
-        return utils.parseDiceString(mod.dice.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+      const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+      if (die) {
+        return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
       } else {
         return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
       }

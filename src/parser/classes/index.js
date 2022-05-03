@@ -31,10 +31,9 @@ function getSources(data) {
 function generateScaleValueAdvancement(feature) {
   // distance, numeric, dice, anything
   let type = "string";
+  const die = feature.levelScales[0]?.dice ? feature.levelScales[0]?.dice : feature.levelScales[0]?.die ? feature.levelScales[0]?.die : undefined;
 
-  if (feature.levelScales[0].dice.diceString &&
-    (!feature.levelScales[0].dice.fixedValue || feature.levelScales[0].dice.fixedValue === "")
-  ) {
+  if (die?.diceString && (!die.fixedValue || die.fixedValue === "")) {
     type = "dice";
   } else if (feature.levelScales[0].fixedValue &&
     feature.levelScales[0].fixedValue !== "" &&
@@ -57,21 +56,22 @@ function generateScaleValueAdvancement(feature) {
   };
 
   feature.levelScales.forEach((scale) => {
+    const die = scale.dice ? scale.dice : scale.die ? scale.die : undefined;
     if (type === "dice") {
-      scaleValue.configuration.scale[scale.level] = {
-        n: scale.dice.diceCount,
-        die: scale.dice.diceValue,
+      die.scale[scale.level] = {
+        n: die.diceCount,
+        die: die.diceValue,
       };
     } else if (type === "numeric") {
       scaleValue.configuration.scale[scale.level] = {
         value: scale.fixedValue,
       };
     } else {
-      let value = (scale.dice.diceString && scale.dice.diceString !== "")
-        ? scale.dice.diceString
+      let value = (die.diceString && die.diceString !== "")
+        ? die.diceString
         : "";
-      if (scale.dice.fixedValue && scale.dice.fixedValue !== "") {
-        value += ` + ${scale.dice.fixedValue}`;
+      if (die.fixedValue && die.fixedValue !== "") {
+        value += ` + ${die.fixedValue}`;
       }
       if (value === "") {
         value = scale.description;
@@ -119,13 +119,11 @@ function parseFeaturesForScaleValues(ddb, klass, klassDefinition, ignoreIds = []
 
 
 async function buildClassFeatures(ddb, klass, klassDefinition, compendiumClassFeatures, ignoreIds = []) {
-  logger.debug(`Parsing ${klass.name} features`);
+  logger.debug(`Parsing ${klassDefinition.name} features`);
   let description = "<h1>Class Features</h1>\n\n";
   let classFeatures = [];
 
   const compendiumLabel = getCompendiumLabel("features");
-
-  console.warn(compendiumClassFeatures);
 
   getClassFeatures(ddb, klass, klassDefinition, ignoreIds).forEach((feature) => {
     const classFeaturesAdded = classFeatures.some((f) => f === feature.name);

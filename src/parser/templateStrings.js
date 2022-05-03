@@ -37,10 +37,11 @@ export async function importCacheLoad() {
  * @param {*} feature
  */
 const getScalingValue = (feature) => {
+  const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
   if (feature && feature.levelScale && feature.levelScale.fixedValue) {
     return feature.levelScale.fixedValue;
-  } else if (feature && feature.levelScale && feature.levelScale.dice) {
-    return feature.levelScale.dice.diceString;
+  } else if (die) {
+    return die.diceString;
   } else {
     return "{{scalevalue-unknown}}";
   }
