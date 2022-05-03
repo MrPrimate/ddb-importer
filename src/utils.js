@@ -408,7 +408,7 @@ const utils = {
     let modBonus = 0;
     modifiers.forEach((modifier) => {
       const die = modifier.dice ? modifier.dice : modifier.die ? modifier.die : undefined;
-      const fixedBonus = die.fixedValue ? die.fixedValue : 0;
+      const fixedBonus = die?.fixedValue ? die.fixedValue : 0;
       const statBonus = (modifier.statId)
         ? modifier.statId
         : modifier.abilityModifierStatId

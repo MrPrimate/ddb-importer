@@ -23,22 +23,26 @@ function getDamage(data, actionType) {
       const healingModifier = data.definition.grantedModifiers.find(
         (mod) => mod.type === "bonus" && mod.subType === "hit-points"
       );
-      const healingDie = healingModifier.dice ? healingModifier.dice : healingModifier.die ? healingModifier.die : undefined;
-      if (healingModifier && healingDie?.diceString) {
-        damage.parts = [[healingDie.diceString + "[healing] ", "healing"]];
-      } else if (healingModifier && healingModifier.fixedValue) {
-        damage.parts = [[healingModifier.fixedValue + "[healing] ", "healing"]];
+      if (healingModifier) {
+        const healingDie = healingModifier.dice ? healingModifier.dice : healingModifier.die ? healingModifier.die : undefined;
+        if (healingDie?.diceString) {
+          damage.parts = [[healingDie.diceString + "[healing] ", "healing"]];
+        } else if (healingModifier.fixedValue) {
+          damage.parts = [[healingModifier.fixedValue + "[healing] ", "healing"]];
+        }
       }
       break;
     }
     case "rsak": {
       // damage potion
       const damageModifier = data.definition.grantedModifiers.find((mod) => mod.type === "damage" && (mod.dice || mod.die));
-      const damageDie = damageModifier.dice ? damageModifier.dice : damageModifier.die ? damageModifier.die : undefined;
-      if (damageModifier && damageDie?.diceString) {
-        damage.parts = [[damageDie.diceString + `[${damageModifier.subType}] `, damageModifier.subType]];
-      } else if (damageModifier && damageModifier.fixedValue) {
-        damage.parts = [[damageModifier.fixedValue + `[${damageModifier.subType}] `, damageModifier.subType]];
+      if (damageModifier) {
+        const damageDie = damageModifier.dice ? damageModifier.dice : damageModifier.die ? damageModifier.die : undefined;
+        if (damageDie?.diceString) {
+          damage.parts = [[damageDie.diceString + `[${damageModifier.subType}] `, damageModifier.subType]];
+        } else if (damageModifier.fixedValue) {
+          damage.parts = [[damageModifier.fixedValue + `[${damageModifier.subType}] `, damageModifier.subType]];
+        }
       }
       break;
     }
