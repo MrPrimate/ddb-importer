@@ -41,7 +41,7 @@ export function getDamage(data, spell) {
       const damageTag = hintOrRestriction ? `[${damageHint}${hintAndRestriction}${restriction}]` : "";
       const addMod = attack.usePrimaryStat || cantripBoost ? " + @mod" : "";
       let diceString = utils.parseDiceString(attack.die.diceString, addMod, damageTag).diceString;
-      result.parts.push([diceString, attack.subType]);
+      if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") result.parts.push([diceString, attack.subType]);
     });
 
     // This is probably just for Toll the dead.
@@ -67,7 +67,7 @@ export function getDamage(data, spell) {
       const diceString = heal.usePrimaryStat
         ? `${healValue} + @mod${healingBonus}`
         : `${healValue}${healingBonus}`;
-      result.parts.push([diceString, "healing"]);
+      if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") result.parts.push([diceString, "healing"]);
     });
   }
 

@@ -1,3 +1,7 @@
+# 2.9.35
+
+* Some spells like vampiric touch would add a null damage type (where there was a damage and heal type).
+
 # 2.9.34
 
 * Some new icons for missing monster features and spells. (Thanks @JacksonBockus#1378 and @MaxPat#7936)
