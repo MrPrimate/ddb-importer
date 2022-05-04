@@ -260,7 +260,7 @@ function replaceTag(match, p1, p2, p3, offset, string) {
     return findMatchingTagInIndex(p1, p2);
   } else if (["total cover", "half cover", "three-quaters cover"].includes(p2.toLowerCase())) {
     const coverMatch = CONFIG.DDBI.SRD_LOOKUP.index.find((entry) => entry.name.toLowerCase() === "cover");
-    return `@Compendium[dnd5e.rules.${coverMatch._id}]{${p2}}`;
+    if (coverMatch) return `@Compendium[dnd5e.rules.${coverMatch._id}]{${p2}}`;
   } else {
     const srdMatch = CONFIG.DDBI.SRD_LOOKUP.index.find((rule) => rule.name.toLowerCase() === p2.toLowerCase() ||
       rule.name.replace("’", "'").toLowerCase() === p2.replace("’", "'").toLowerCase().split("ing")[0]
