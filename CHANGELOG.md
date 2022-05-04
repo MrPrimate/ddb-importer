@@ -1,3 +1,7 @@
+# 2.9.37
+
+* Some parsing could fail is not using English language rule set. :flag_fr:
+
 # 2.9.36
 
 * Scale Value generation was broken by previous update.
