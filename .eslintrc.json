@@ -54,7 +54,8 @@
     "duplicate": true,
     "foundry": true,
     "MidiQOL": true,
-    "Sequence": true
+    "Sequence": true,
+    "ImagePopout": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

@@ -1,3 +1,7 @@
+# 2.9.38
+
+* Show Players Image had broken - now uses foundry ImagePopout function. Additional option to send to chat also added.
+
 # 2.9.37
 
 * Some parsing could fail is not using English language rule set. :flag_fr:

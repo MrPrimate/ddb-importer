@@ -3,6 +3,7 @@ import logger from "./logger.js";
 // init hooks
 import setupLogging from "./hooks/init/setupLogging.js";
 import { registerWindow } from "./hooks/init/window.js";
+import { chatHooks } from "./hooks/init/chatHooks.js";
 
 // ready hooks
 import registerSheets from "./hooks/ready/registerSheets.js";
@@ -34,6 +35,7 @@ import { activateUpdateHooks } from "./character/update.js";
 export function init() {
   setupLogging();
   registerWindow();
+  chatHooks();
   logger.info("Init");
 }
 

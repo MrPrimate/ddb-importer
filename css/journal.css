@@ -2,7 +2,7 @@ div.journal-sheet div.ddbimporter-image-container {
   position: relative;
 }
 
-div.journal-sheet div.ddbimporter-image-container a.ddbimporter-button {
+div.journal-sheet div.ddbimporter-image-container a.ddbimporter-show-image {
   max-width: 255px;
   background: #2f0000d6;
   -webkit-box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
@@ -20,6 +20,32 @@ div.journal-sheet div.ddbimporter-image-container a.ddbimporter-button {
   width: auto;
   -webkit-transform: translate(-20px, 20px);
           transform: translate(-20px, 20px);
+}
+
+div.journal-sheet div.ddbimporter-image-container a.ddbimporter-to-chat {
+  max-width: 255px;
+  background: #2f0000d6;
+  -webkit-box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
+          box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  margin-left: 10px;
+  display: block;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: auto;
+  -webkit-transform: translate(-20px, 60px);
+          transform: translate(-20px, 60px);
+}
+
+.ddbimporter-chat-image{
+  border-radius: 5px;
+  border-color: transparent;
+  width: 100%;
 }
 
 a.ddbimporter.roll{

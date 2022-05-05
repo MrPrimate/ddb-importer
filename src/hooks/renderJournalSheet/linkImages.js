@@ -1,5 +1,13 @@
 import utils from "../../utils.js";
 
+function imageToChat(src) {
+  const content = `<img class="ddbimporter-chat-image" data-src="${src}" src="${src}">`;
+
+  ChatMessage.create({
+    content,
+  });
+}
+
 export function linkImages(html) {
   if (!game.user.isGM) return;
   const displayImages = game.settings.get("ddb-importer", "show-image-to-players");
@@ -15,7 +23,8 @@ export function linkImages(html) {
   $(html)
     .find('div[data-edit="content"] img, div[data-edit="content"] video')
     .each((index, element) => {
-      const showPlayersButton = $("<a class='ddbimporter-button'><i class='fas fa-eye'></i>&nbsp;Show Players</a>");
+      const showPlayersButton = $("<a class='ddbimporter-show-image'><i class='fas fa-eye'></i>&nbsp;Show Players</a>");
+      const toChatButton = $("<a class='ddbimporter-to-chat'><i class='fas fa-eye'></i>&nbsp;To Chat</a>");
 
       $(element).wrap("<div class='ddbimporter-image-container'></div>");
       // show the button on mouseenter of the image
@@ -27,12 +36,15 @@ export function linkImages(html) {
           $(showPlayersButton).click((event) => {
             event.preventDefault();
             event.stopPropagation();
-            game.socket.emit("module.ddb-importer", {
-              sender: game.user.data._id,
-              action: "showImage",
-              src: $(element).attr("src"),
-              type: element.nodeName,
-            });
+            const popOut = new ImagePopout($(element).attr("src"), { shareable: true });
+            popOut.shareImage();
+          });
+          // eslint-disable-next-line no-invalid-this
+          $(this).append(toChatButton);
+          $(toChatButton).click((event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            imageToChat($(element).attr("src"));
           });
         });
       $(element)
