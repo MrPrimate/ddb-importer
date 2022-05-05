@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils.js";
-import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
+import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
 import { getInfusionActionData } from "../inventory/infusions.js";
 
 function getResourceFlags(character, action, flags) {
@@ -654,7 +654,7 @@ function getOtherActions(ddb, character, items) {
   return actions;
 }
 
-export default async function parseActions(ddb, character) {
+export default async function parseActions(ddb, character, classes) {
   let actions = [
     // Get Attack Actions that we know about, typically natural attacks etc
     ...getAttackActions(ddb, character),
@@ -691,6 +691,7 @@ export default async function parseActions(ddb, character) {
   });
 
   fixFeatures(actions);
+  setLevelScales(classes, actions);
   const results = await addExtraEffects(ddb, actions, character);
   return results;
 }

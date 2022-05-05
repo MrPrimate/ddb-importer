@@ -207,6 +207,49 @@ export function getDescription(ddb, character, feat, forceFull = false) {
   };
 }
 
+export function setLevelScales(classes, features) {
+  const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
+  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
+  if (scaleSupport && useScale) {
+    console.warn(classes)
+    features.forEach((feature) => {
+      const featureName = feature.name.toLowerCase().replace(/\s|'|’/g, '-');
+      const scaleKlass = classes.find((klass) => klass.data.advancement
+        .find((advancement) => advancement.type === "ScaleValue" &&
+          advancement.configuration.identifier === featureName
+        ));
+
+      if (scaleKlass) {
+        console.warn(scaleKlass);
+        const advancement = scaleKlass.data.advancement
+          .find((advancement) => advancement.type === "ScaleValue" &&
+            advancement.configuration.identifier === featureName
+          );
+        console.warn(feature);
+        console.warn(advancement);
+        if (hasProperty(feature, "data.damage.parts") && feature.data.damage.parts.length > 0) {
+          feature.data.damage.parts[0][0] = `@scale.${scaleKlass.data.identifier}.${featureName}`;
+        } else {
+          setProperty(feature, "data.damage.parts", [[`@scale.${scaleKlass.data.identifier}.${featureName}`]]);
+        }
+      }
+    });
+  }
+}
+
+
+function setLevelScale(feature) {
+  const className = getProperty(feature.flags, "ddbimporter.class");
+  const subClassName = getProperty(feature.flags, "ddbimporter.subclass");
+  const levelScales = getProperty(feature.flags, "ddbimporter.dndbeyond.levelScales");
+
+  if ((className || subClassName) && levelScales && levelScales.length > 0) {
+    const name = subClassName ? subClassName : className;
+    feature.data.damage.parts[0][0] = `@scale.${name.toLowerCase().replace(/\s|'|’/g, '-')}.${feature.name.toLowerCase().replace(/\s|'|’/g, '-')}`;
+  }
+  return feature;
+}
+
 
 /**
  * Some features we need to fix up or massage because they are modified
@@ -215,6 +258,7 @@ export function getDescription(ddb, character, feat, forceFull = false) {
  * @param {*} features
  */
 export function fixFeatures(features) {
+  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
   // eslint-disable-next-line complexity
   features.forEach((feature) => {
     const name = feature.flags.ddbimporter.originalName || feature.name;
@@ -429,6 +473,11 @@ export function fixFeatures(features) {
     feature.data.description.value = tableDescription;
     feature.data.description.chat = tableDescription;
     feature = setConsumeAmount(feature);
+
+
+    // if (useScale) {
+    //   feature = setLevelScale(feature);
+    // }
   });
 }
 

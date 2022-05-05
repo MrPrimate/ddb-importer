@@ -636,8 +636,13 @@ export default function () {
     default: false,
   });
 
-  //
-  //
+  game.settings.register("ddb-importer", "character-update-policy-use-scalevalue", {
+    scope: "player",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register("ddb-importer", "character-update-policy-add-item-effects", {
     scope: "player",
     config: false,

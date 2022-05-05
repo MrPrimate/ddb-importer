@@ -24,13 +24,13 @@ export async function parseJson(currentActorId, ddb, resourceSelection = true) {
     logger.debug("Character parse complete");
     let race = await getDDBRace(ddb);
     logger.debug("Race parse complete");
-    let features = [race, ...await getFeatures(ddb, character)];
-    logger.debug("Feature parse complete");
     let classes = await getClasses(ddb, character);
     logger.debug("Classes parse complete");
+    let features = [race, ...await getFeatures(ddb, character, classes)];
+    logger.debug("Feature parse complete");
     let spells = getCharacterSpells(ddb, character);
     logger.debug("Character Spells parse complete");
-    let actions = await getActions(ddb, character);
+    let actions = await getActions(ddb, character, classes);
     logger.debug("Action parse complete");
     let itemSpells = getItemSpells(ddb, character);
     logger.debug("Item Spells parse complete");
