@@ -360,10 +360,10 @@ export function fixFeatures(features) {
         break;
       }
       case "Quickened Healing": {
-        if (useScale) {
-          feature.data.damage.parts[0][0] += "[healing]";
-          feature.data.damage.parts[0][1] = "healing";
-        }
+        // if (useScale) {
+        //   feature.data.damage.parts[0][0] += "[healing]";
+        //   feature.data.damage.parts[0][1] = "healing";
+        // }
         break;
       }
       case "Rage": {

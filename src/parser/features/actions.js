@@ -158,7 +158,8 @@ const levelScaleInfusions = [
   "Unarmed Strike",
   "Arms of the Astral Self (WIS)",
   "Arms of the Astral Self (DEX)",
-  "Arms of the Astral Self: Summon",
+  "Arms of the Astral Self (DEX/STR)",
+  "Body of the Astral Self",
 ];
 
 /**
@@ -171,6 +172,10 @@ const levelScaleInfusions = [
  * @param {*} feat
  */
 function getLevelScaleDice(ddb, character, action, feat) {
+  const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
+  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
+
+  if (scaleSupport && useScale) return feat;
   const parts = ddb.character.classes
     .filter((cls) => cls.classFeatures.some((feature) =>
       feature.definition.id == action.componentId &&
@@ -187,7 +192,10 @@ function getLevelScaleDice(ddb, character, action, feat) {
         templateString.entityTypeId == action.entityTypeId
       );
       const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
-      let part = die.diceString;
+      const scaleValueLink = utils.getScaleValueLink(ddb, feature);
+      let part = scaleSupport && useScale && scaleValueLink !== undefined
+        ? scaleValueLink
+        : die.diceString;
       if (parsedString) {
         const modifier = parsedString.definitions.find((definition) => definition.type === "modifier");
         if (modifier) {
@@ -198,7 +206,10 @@ function getLevelScaleDice(ddb, character, action, feat) {
       return [part, ""];
     });
 
-  if (parts.length > 0 && !levelScaleInfusions.includes(action.name)) {
+  if (parts.length > 0 && scaleSupport && useScale) {
+    feat.data.damage.parts = parts;
+  } else if (parts.length > 0 && !levelScaleInfusions.includes(action.name)) {
+    console.error("TOTAL PART COUNT", {parts, action, feat})
     const combinedParts = hasProperty(feat, "data.damage.parts") && feat.data.damage.parts.length > 0
       ? feat.data.damage.parts.concat(parts)
       : parts;
@@ -225,6 +236,9 @@ function martialArtsDamage(ddb, action) {
 
   // are we dealing with martial arts?
   if (isMartialArtists(ddb.character.classes)) {
+    const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
+    const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
+
     const die = ddb.character.classes
       .filter((cls) => isMartialArtists([cls]))
       .map((cls) => {
@@ -232,10 +246,16 @@ function martialArtsDamage(ddb, action) {
         const levelScaleDie = feature?.levelScale?.dice ? feature.levelScale.dice : feature?.levelScale.die ? feature.levelScale.die : undefined;
 
         if (levelScaleDie?.diceString) {
+
+          const scaleValueLink = utils.getScaleValueLink(ddb, feature);
+          const scaleString = scaleSupport && useScale && scaleValueLink !== undefined
+            ? scaleValueLink
+            : levelScaleDie.diceString;
+
           if (actionDie?.diceValue > levelScaleDie.diceValue) {
             return actionDie.diceString;
           }
-          return levelScaleDie.diceString;
+          return scaleString;
         } else if (actionDie !== null && actionDie !== undefined) {
           // On some races bite is considered a martial art, damage
           // is different and on the action itself
@@ -246,7 +266,9 @@ function martialArtsDamage(ddb, action) {
       });
 
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-    const damageString = utils.parseDiceString(die, `${damageBonus} + @mod`, damageTag).diceString;
+    const damageString = scaleSupport && useScale && die.includes("@")
+      ? `${die}${damageTag}${damageBonus} + @mod`
+      : utils.parseDiceString(die, `${damageBonus} + @mod`, damageTag).diceString;
 
     // set the weapon damage
     return {
@@ -600,7 +622,6 @@ function actionFilter(action, parsedActions) {
  * @param {*} parsedActions
  */
 function getOtherActions(ddb, character, parsedActions) {
-  const attacksAsFeatures = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features");
   const otherActions = [
     // do class options here have a class id, needed for optional class features
     ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId)),
@@ -702,7 +723,7 @@ export default async function parseActions(ddb, character, classes) {
     }
   });
 
-  setLevelScales(classes, actions);
+  // setLevelScales(classes, actions);
   fixFeatures(actions);
   const results = await addExtraEffects(ddb, actions, character);
   return results;
