@@ -569,7 +569,7 @@ function getUnarmedStrike(ddb, character) {
  * @param {*} character
  */
 function getAttackActions(ddb, character) {
-  return [
+  const attackActions = [
     // do class options here have a class id, needed for optional class features
     ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId)),
     ddb.character.actions.race,
@@ -578,19 +578,30 @@ function getAttackActions(ddb, character) {
     getInfusionActionData(ddb),
   ]
     .flat()
-    .filter((action) => action.displayAsAttack)
+    .filter((action) => utils.displayAsAttack(ddb, action, character))
     .map((action) => {
       return getAttackAction(ddb, character, action);
     });
+  console.warn("attack actions", attackActions);
+  return attackActions;
+}
+
+function actionFilter(action, parsedActions) {
+  const attacksAsFeatures = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features");
+  const exists = parsedActions.some((attack) => attack.name === action.name);
+  // console.warn("action filter", {actionName: action.name, parsedActions, attacksAsFeatures, exists, total: attacksAsFeatures && exists});
+
+  return attacksAsFeatures && exists;
 }
 
 /**
  * Lets Parse remaining actions
  * @param {*} ddb
- * @param {*} items
+ * @param {*} parsedActions
  */
-function getOtherActions(ddb, character, items) {
-  const actions = [
+function getOtherActions(ddb, character, parsedActions) {
+  const attacksAsFeatures = game.settings.get("ddb-importer", "character-update-policy-use-actions-as-features");
+  const otherActions = [
     // do class options here have a class id, needed for optional class features
     ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId)),
     ddb.character.actions.race,
@@ -603,8 +614,8 @@ function getOtherActions(ddb, character, items) {
     .filter(
       (action) =>
         // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
-        !action.displayAsAttack ||
-        (action.displayAsAttack === true && !items.some((attack) => attack.name === action.name))
+        (!utils.displayAsAttack(ddb, action, character) && !actionFilter(action, parsedActions)) ||
+        (utils.displayAsAttack(ddb, action, character) && !parsedActions.some((attack) => attack.name === utils.getName(ddb, action, character)))
     )
     .map((action) => {
       logger.debug(`Getting Other Action ${action.name}`);
@@ -651,7 +662,8 @@ function getOtherActions(ddb, character, items) {
       return feature;
     });
 
-  return actions;
+    console.warn("other actions", otherActions);
+  return otherActions;
 }
 
 export default async function parseActions(ddb, character, classes) {
@@ -690,8 +702,8 @@ export default async function parseActions(ddb, character, classes) {
     }
   });
 
-  fixFeatures(actions);
   setLevelScales(classes, actions);
+  fixFeatures(actions);
   const results = await addExtraEffects(ddb, actions, character);
   return results;
 }
