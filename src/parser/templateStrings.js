@@ -41,6 +41,7 @@ export async function importCacheLoad() {
  */
 // eslint-disable-next-line complexity
 let parseMatch = (ddb, character, match, feature) => {
+  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
@@ -85,7 +86,7 @@ let parseMatch = (ddb, character, match, feature) => {
     const ability = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
 
     ability.forEach((ab) => {
-      const abilityModifier = characterAbilities[ab].mod;
+      const abilityModifier = useScale ? ` + @abilities.${ab}.mod` : characterAbilities[ab].mod;
       const abRegexp = RegExp(`modifier:${ab}`, "g");
       result = result.replace(abRegexp, abilityModifier);
     });
@@ -98,12 +99,14 @@ let parseMatch = (ddb, character, match, feature) => {
       ? ddb.character.classes.find((cls) => cls.definition.id == feature.classId)
       : utils.findClassByFeatureId(ddb, feature.componentId);
     if (cls) {
-      result = result.replace("classlevel", cls.level);
+      const clsLevel = useScale ? ` + @classes.${cls.definition.name.toLowerCase()}.level` : cls.level;
+      result = result.replace("classlevel", clsLevel);
     } else if (classOption) {
       // still not found a cls? could be an option
       const optionCls = utils.findClassByFeatureId(ddb, classOption.componentId);
       if (optionCls) {
-        result = result.replace("classlevel", optionCls.level);
+        const clsLevel = useScale ? ` + @classes.${optionCls.definition.name.toLowerCase()}.level` : optionCls.level;
+        result = result.replace("classlevel", clsLevel);
       } else {
         logger.error(
           `Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${feature.componentId}`
@@ -118,11 +121,12 @@ let parseMatch = (ddb, character, match, feature) => {
   }
 
   if (result.includes("characterlevel")) {
-    result = result.replace("characterlevel", character.flags.ddbimporter.dndbeyond.totalLevels);
+    const characterLevel = useScale ? " + @details.level" : character.flags.ddbimporter.dndbeyond.totalLevels;
+    result = result.replace("characterlevel", characterLevel);
   }
 
   if (result.includes("proficiency")) {
-    const profBonus = character.data.attributes.prof;
+    const profBonus = useScale ? " + @prof" : character.data.attributes.prof;
     result = result.replace("proficiency", profBonus);
   }
 
@@ -133,9 +137,9 @@ let parseMatch = (ddb, character, match, feature) => {
     const ability = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
 
     ability.forEach((ab) => {
-      const abilityModifier = characterAbilities[ab].value;
+      const abilityScore = useScale ? ` + @abilities.${ab}.value` : characterAbilities[ab].value;
       const abRegexp = RegExp(`abilityscore:${ab}`, "g");
-      result = result.replace(abRegexp, abilityModifier);
+      result = result.replace(abRegexp, abilityScore);
     });
   }
 
@@ -308,7 +312,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
     definitions: [],
   };
 
-  const fullMatchRegex = /(?:^|[ "'(])(\d*d\d\d*\s)?({{.*?}})(?:$|[. "')])/g;
+  const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)?({{.*?}})(?:$|[. "')+<])/g;
   const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
   fullMatches.forEach((match) => {
     result.text = result.text.replace(match, `[[/roll ${match}]]`);
@@ -335,8 +339,8 @@ export default function parseTemplateString(ddb, character, text, feature) {
     entry.type = typeSplit[0];
     if (typeSplit.length > 1) entry.subType = typeSplit[1];
     // do we have a dice string, e.g. sneak attack?
-    if (parsedMatch.match(dicePattern) || parsedMatch.startsWith("@")) {
-      entry.type = "dice";
+    if (parsedMatch.match(dicePattern) || parsedMatch.includes("@")) {
+      if (parsedMatch.match(dicePattern)) entry.type = "dice";
       entry.parsed = parsedMatch;
       result.text = result.text.replace(entry.replacePattern, entry.parsed);
     } else {
