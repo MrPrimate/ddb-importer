@@ -1,6 +1,11 @@
 # 2.9.38
 
 * Show Players Image had broken - now uses foundry ImagePopout function. Additional option to send to chat also added.
+* Generated Scale Values on Classes could not be edited.
+* A Scale Value rollable link are now inserted into descriptions in features where previously a fixed string for the current feature would be used. This can be changed back to the previous behaviour on the Advanced Settings tab.
+* Improvements to replacement values in text - these are now mostly rollable.
+* If importing DDB Actions as Features, and you had renamed features with a custom name, a conflict could occur with multiple identical named features.
+* If importing Actions as Weapons hidden actions on DDB will now import as features.
 
 # 2.9.37
 

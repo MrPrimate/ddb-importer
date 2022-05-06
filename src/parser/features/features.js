@@ -360,8 +360,8 @@ export default async function parseFeatures(ddb, character, classes) {
   });
 
   logger.debug("Feature fixes");
-  fixFeatures(items);
   setLevelScales(classes, items);
+  fixFeatures(items);
   const results = await addExtraEffects(ddb, items, character);
   // console.log("FEATURES");
   // console.error("FEATURES",JSON.parse(JSON.stringify(results)));
