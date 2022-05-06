@@ -20,6 +20,10 @@ Open the Browser Developer Console (F12) and run the following:
 DDBImporter.resetProxy();
 ```
 
+## My Characters Hit Points aren't right
+
+Sometimes DDB can get confused, especially if the character is created using the random or guided mode. Try adding and removing a level on DDB and then reimporting.
+
 ## I see the message "Unable to open the Compendium"
 
 Open "Configure Settings" -> "Module Settings" -> "D&D Beyond Importer" -> "Compendiums".
