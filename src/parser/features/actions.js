@@ -122,7 +122,7 @@ function isMartialArtists(classes) {
   return classes.some((cls) => cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"));
 }
 
-function getDamage(action) {
+function getDamage(ddb, action) {
   let damage = {};
   const damageType = action.damageTypeId
     ? DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name
@@ -135,9 +135,20 @@ function getDamage(action) {
   const fixedBonus = die?.fixedValue ? ` + ${die.fixedValue}` : "";
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
-  if (die) {
-    if (die.diceString) {
-      const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
+  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
+  const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
+  const scaleValueLink = utils.getScaleValueString(ddb, action).value;
+
+  const useScaleValueLink = useScale && scaleSupport && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
+
+  if (die || useScaleValueLink) {
+    const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
+    if (useScaleValueLink) {
+      damage = {
+        parts: [[`${scaleValueLink}${damageTag}${modBonus}${fixedBonus}`, damageType]],
+        versatile: "",
+      };
+    } else if (die.diceString) {
       const damageString = utils.parseDiceString(die.diceString, modBonus, damageTag).diceString;
       damage = {
         parts: [[damageString, damageType]],
@@ -192,8 +203,8 @@ function getLevelScaleDice(ddb, character, action, feat) {
         templateString.entityTypeId == action.entityTypeId
       );
       const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
-      const scaleValueLink = utils.getScaleValueLink(ddb, feature);
-      let part = scaleSupport && useScale && scaleValueLink !== undefined
+      const scaleValueLink = utils.getScaleValueString(ddb, action).value;
+      let part = scaleSupport && useScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
         ? scaleValueLink
         : die.diceString;
       if (parsedString) {
@@ -239,7 +250,7 @@ function martialArtsDamage(ddb, action) {
     const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
     const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
 
-    const die = ddb.character.classes
+    const dies = ddb.character.classes
       .filter((cls) => isMartialArtists([cls]))
       .map((cls) => {
         const feature = cls.classFeatures.find((feature) => feature.definition.name === "Martial Arts");
@@ -248,7 +259,7 @@ function martialArtsDamage(ddb, action) {
         if (levelScaleDie?.diceString) {
 
           const scaleValueLink = utils.getScaleValueLink(ddb, feature);
-          const scaleString = scaleSupport && useScale && scaleValueLink !== undefined
+          const scaleString = scaleSupport && useScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
             ? scaleValueLink
             : levelScaleDie.diceString;
 
@@ -265,10 +276,14 @@ function martialArtsDamage(ddb, action) {
         }
       });
 
+    const die = dies.length > 0 ? dies[0] : "";
+
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
     const damageString = scaleSupport && useScale && die.includes("@")
       ? `${die}${damageTag}${damageBonus} + @mod`
       : utils.parseDiceString(die, `${damageBonus} + @mod`, damageTag).diceString;
+
+    console.warn(action, die, damageString);
 
     // set the weapon damage
     return {
@@ -398,18 +413,18 @@ function calculateRange(action, weapon) {
   } else if (action.range && action.range.range) {
     weapon.data.range = {
       value: action.range.range,
-      units: "ft.",
+      units: "ft",
       long: action.range.long || "",
     };
   } else {
-    weapon.data.range = { value: 5, units: "ft.", long: "" };
+    weapon.data.range = { value: 5, units: "ft", long: "" };
   }
   return weapon;
 }
 
-function calculateSaveAttack(action, weapon) {
+function calculateSaveAttack(ddb, action, weapon) {
   weapon.data.actionType = "save";
-  weapon.data.damage = getDamage(action);
+  weapon.data.damage = getDamage(ddb, action);
 
   const fixedDC = (action.fixedSaveDc) ? action.fixedSaveDc : null;
   const scaling = (fixedDC) ? fixedDC : (action.abilityModifierStatId) ? DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
@@ -452,7 +467,7 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
     weapon.data.damage = martialArtsDamage(ddb, action);
     weapon.data.attackBonus = utils.filterBaseModifiers(ddb, "bonus", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
   } else {
-    weapon.data.damage = getDamage(action);
+    weapon.data.damage = getDamage(ddb, action);
   }
   return weapon;
 }
@@ -460,7 +475,7 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
 function getAttackType(ddb, character, action, weapon) {
   // lets see if we have a save stat for things like Dragon born Breath Weapon
   if (typeof action.saveStatId === "number") {
-    weapon = calculateSaveAttack(action, weapon);
+    weapon = calculateSaveAttack(ddb, action, weapon);
   } else if (action.actionType === 1) {
     if (action.attackTypeRange === 2) {
       weapon.data.actionType = "rwak";

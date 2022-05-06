@@ -246,6 +246,13 @@ export function fixFeatures(features) {
         feature.data.damage.parts[0][0] += " + @mod";
         break;
       }
+      case "Arms of the Astral Self: Summon": {
+        feature.data.target.type = "enemy";
+        feature.data.target.units = "all";
+        feature.data.range.value = 10;
+        feature.data.range.units = "ft";
+        break;
+      }
       case "Bardic Inspiration": {
         feature.data.actionType = "util";
         feature.data.duration = {

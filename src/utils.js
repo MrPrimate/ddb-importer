@@ -196,7 +196,7 @@ const utils = {
  * @param {*} feature
  */
   getExactScalingValue: (feature) => {
-    const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
+    const die = feature.levelScale?.dice ? feature.levelScale.dice : feature.levelScale?.die ? feature.levelScale.die : undefined;
     if (feature && feature.levelScale && feature.levelScale.fixedValue) {
       return feature.levelScale.fixedValue;
     } else if (die) {
@@ -239,6 +239,10 @@ const utils = {
     }
     if (!feat && classOption) {
       feat = utils.findComponentByComponentId(ddb, classOption.componentId);
+    }
+    if (!feat) {
+      console.warn("no scale value for ", feature);
+      return { name: undefined, value: undefined };
     }
     const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
     const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
