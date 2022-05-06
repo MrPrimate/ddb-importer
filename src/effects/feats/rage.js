@@ -1,11 +1,16 @@
 import { baseFeatEffect } from "../specialFeats.js";
+import utils from "../../utils.js";
 
 export function rageEffect(document) {
   let effect = baseFeatEffect(document, `${document.name}`);
 
-  const extraDamage = document.flags?.ddbimporter?.dndbeyond?.levelScale?.fixedValue
-    ? document.flags.ddbimporter.dndbeyond.levelScale.fixedValue
-    : 2;
+  const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
+
+  const extraDamage = scaleSupport
+    ? "@scale.barbarian.rage"
+    : document.flags?.ddbimporter?.dndbeyond?.levelScale?.fixedValue
+      ? document.flags.ddbimporter.dndbeyond.levelScale.fixedValue
+      : 2;
   effect.changes.push(
     {
       key: "data.bonuses.mwak.damage",
