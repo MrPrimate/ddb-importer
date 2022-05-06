@@ -192,6 +192,74 @@ const utils = {
   },
 
   /**
+ * Gets the levelscaling value for a feature
+ * @param {*} feature
+ */
+  getExactScalingValue: (feature) => {
+    const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
+    if (feature && feature.levelScale && feature.levelScale.fixedValue) {
+      return feature.levelScale.fixedValue;
+    } else if (die) {
+      return die.diceString;
+    } else {
+      return "{{scalevalue-unknown}}";
+    }
+  },
+
+  getScaleValueLink: (ddb, feature) => {
+    const featDefinition = feature.definition ? feature.definition : feature;
+
+    const klass = ddb.character.classes.find((cls) =>
+      (cls.definition.id === featDefinition.classId ||
+      cls.subclassDefinition?.id === featDefinition.classId) &&
+      featDefinition.levelScales?.length > 0
+    );
+    console.warn({feature, klass});
+
+    if (klass) {
+      const featureName = featDefinition.name.toLowerCase().replace(/\s|'|’/g, '-');
+      const klassName = klass.subclassDefinition?.id === featDefinition.classId
+        ? klass.subclassDefinition.name.toLowerCase().replace(/\s|'|’/g, '-')
+        : klass.definition.name.toLowerCase().replace(/\s|'|’/g, '-');
+      return `@scale.${klassName}.${featureName}`;
+    }
+
+    return undefined;
+
+  },
+
+  getScaleValueString: (ddb, feature) => {
+    const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
+      .flat()
+      .find((option) => option.definition.id === feature.componentId);
+
+    let feat = feature.levelScale ? feature : utils.findComponentByComponentId(ddb, feature.componentId);
+    if (!feat && hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
+      feat = utils.findComponentByComponentId(ddb, feature.flags.ddbimporter.dndbeyond.choice.componentId);
+    }
+    if (!feat && classOption) {
+      feat = utils.findComponentByComponentId(ddb, classOption.componentId);
+    }
+    const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
+    const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
+    const scaleValue = useScale && scaleSupport
+      ? utils.getScaleValueLink(ddb, feat)
+      : utils.getExactScalingValue(feat);
+
+    if (scaleValue) {
+      return {
+        name: feat.definition?.name ? feat.definition?.name : feat.name,
+        value: scaleValue,
+      };
+    }
+    // final fallback if scale value extraction fails
+    return {
+      name: feat.definition?.name ? feat.definition?.name : feat.name,
+      value: utils.getExactScalingValue(feat),
+    };
+  },
+
+  /**
    *
    * Gets the sourcebook for a subset of dndbeyond sources
    * @param {obj} definition item definition
@@ -1291,7 +1359,20 @@ const utils = {
       logger.error("Unable to determine name for:", item);
       return "Unknown thing.";
     }
-  }
+  },
+
+  displayAsAttack(ddb, item, character = null) {
+    const customDisplay = character
+      ? utils.getCustomValueFromCharacter(item, character, 16)
+      : utils.getCustomValue(item, ddb, 16);
+    if (typeof customDisplay == "boolean") {
+      return customDisplay;
+    } else if (hasProperty(item, "displayAsAttack")) {
+      return item.displayAsAttack;
+    } else {
+      return false;
+    }
+  },
 };
 
 export default utils;

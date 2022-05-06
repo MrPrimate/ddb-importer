@@ -43,8 +43,10 @@ function generateScaleValueAdvancement(feature) {
   }
 
   const scaleValue = {
+    _id: foundry.utils.randomID(),
     type: "ScaleValue",
     configuration: {
+      distance: { units: "" },
       identifier: feature.name.toLowerCase().replace(/\s|'|’/g, '-'),
       type,
       scale: {},
@@ -52,7 +54,7 @@ function generateScaleValueAdvancement(feature) {
     value: {},
     title: feature.name,
     icon: "",
-    classRestriction: "",
+    // classRestriction: "",
   };
 
   feature.levelScales.forEach((scale) => {
