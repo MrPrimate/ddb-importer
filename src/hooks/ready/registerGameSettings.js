@@ -640,7 +640,7 @@ export default function () {
     scope: "player",
     config: false,
     type: Boolean,
-    default: false,
+    default: true,
   });
 
   game.settings.register("ddb-importer", "character-update-policy-add-item-effects", {

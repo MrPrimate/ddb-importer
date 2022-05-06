@@ -118,6 +118,7 @@ export function getCharacterImportSettings() {
   const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
   const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
   const spellEffectText = `Generate active effects for spells. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, Item Macro${getInstalledIcon("itemMacroInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convenient Effects${getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}`;
+  const v6 = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
 
   // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
 
@@ -182,6 +183,14 @@ export function getCharacterImportSettings() {
   ];
 
   const advancedImportConfig = [
+    {
+      name: "use-scalevalue",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-use-scalevalue"),
+      title: "Generate Scale Value links in descriptions and damage",
+      description:
+        "If not enabled will use fixed value for the current level (D&D 0.1.6+ only)",
+      enabled: v6,
+    },
     {
       name: "use-override",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-use-override"),
