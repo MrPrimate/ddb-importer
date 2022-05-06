@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils.js";
-import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
+import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
 import { getInfusionActionData } from "../inventory/infusions.js";
 
 function getResourceFlags(character, action, flags) {
@@ -220,7 +220,6 @@ function getLevelScaleDice(ddb, character, action, feat) {
   if (parts.length > 0 && scaleSupport && useScale) {
     feat.data.damage.parts = parts;
   } else if (parts.length > 0 && !levelScaleInfusions.includes(action.name)) {
-    console.error("TOTAL PART COUNT", {parts, action, feat})
     const combinedParts = hasProperty(feat, "data.damage.parts") && feat.data.damage.parts.length > 0
       ? feat.data.damage.parts.concat(parts)
       : parts;
@@ -275,15 +274,11 @@ function martialArtsDamage(ddb, action) {
           return "1";
         }
       });
-
     const die = dies.length > 0 ? dies[0] : "";
-
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
     const damageString = scaleSupport && useScale && die.includes("@")
       ? `${die}${damageTag}${damageBonus} + @mod`
       : utils.parseDiceString(die, `${damageBonus} + @mod`, damageTag).diceString;
-
-    console.warn(action, die, damageString);
 
     // set the weapon damage
     return {
@@ -619,7 +614,7 @@ function getAttackActions(ddb, character) {
     .map((action) => {
       return getAttackAction(ddb, character, action);
     });
-  console.warn("attack actions", attackActions);
+  logger.debug("attack actions", attackActions);
   return attackActions;
 }
 
@@ -698,11 +693,11 @@ function getOtherActions(ddb, character, parsedActions) {
       return feature;
     });
 
-    console.warn("other actions", otherActions);
+  logger.debug("other actions", otherActions);
   return otherActions;
 }
 
-export default async function parseActions(ddb, character, classes) {
+export default async function parseActions(ddb, character) {
   let actions = [
     // Get Attack Actions that we know about, typically natural attacks etc
     ...getAttackActions(ddb, character),
@@ -738,7 +733,6 @@ export default async function parseActions(ddb, character, classes) {
     }
   });
 
-  // setLevelScales(classes, actions);
   fixFeatures(actions);
   const results = await addExtraEffects(ddb, actions, character);
   return results;

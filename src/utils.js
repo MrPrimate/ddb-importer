@@ -214,7 +214,6 @@ const utils = {
       cls.subclassDefinition?.id === featDefinition.classId) &&
       featDefinition.levelScales?.length > 0
     );
-    console.warn({feature, klass});
 
     if (klass) {
       const featureName = featDefinition.name.toLowerCase().replace(/\s|'|’/g, '-');
@@ -241,7 +240,7 @@ const utils = {
       feat = utils.findComponentByComponentId(ddb, classOption.componentId);
     }
     if (!feat) {
-      console.warn("no scale value for ", feature);
+      logger.debug("no scale value for ", feature);
       return { name: undefined, value: undefined };
     }
     const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
