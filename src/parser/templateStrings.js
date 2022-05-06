@@ -33,21 +33,6 @@ export async function importCacheLoad() {
 }
 
 /**
- * Gets the levelscaling value for a feature
- * @param {*} feature
- */
-const getScalingValue = (feature) => {
-  const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
-  if (feature && feature.levelScale && feature.levelScale.fixedValue) {
-    return feature.levelScale.fixedValue;
-  } else if (die) {
-    return die.diceString;
-  } else {
-    return "{{scalevalue-unknown}}";
-  }
-};
-
-/**
  * Parse a match and replace template values ready for evaluation
  * @param {*} ddb
  * @param {*} character
@@ -65,15 +50,9 @@ let parseMatch = (ddb, character, match, feature) => {
 
   // scalevalue
   if (result.includes("scalevalue")) {
-    let feat = feature.levelScale ? feature : utils.findComponentByComponentId(ddb, feature.componentId);
-    if (!feat && hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
-      feat = utils.findComponentByComponentId(ddb, feature.flags.ddbimporter.dndbeyond.choice.componentId);
-    }
-    if (!feat && classOption) {
-      feat = utils.findComponentByComponentId(ddb, classOption.componentId);
-    }
-    const scaleValue = getScalingValue(feat);
-    result = result.replace("scalevalue", scaleValue);
+    let scaleValue = utils.getScaleValueString(ddb, feature);
+    // if (scaleValue.value.startsWith("@")) scaleValue.value = `[[${scaleValue.value}]]{${scaleValue.name}}`;
+    result = result.replace("scalevalue", scaleValue.value);
   }
 
   // savedc:int
@@ -329,6 +308,12 @@ export default function parseTemplateString(ddb, character, text, feature) {
     definitions: [],
   };
 
+  const fullMatchRegex = /(?:^|[ "'(])(\d*d\d\d*\s)?({{.*?}})(?:$|[. "')])/g;
+  const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
+  fullMatches.forEach((match) => {
+    result.text = result.text.replace(match, `[[/roll ${match}]]`);
+  });
+
   const regexp = /{{(.*?)}}/g;
   // creates array from match groups and dedups
   const matches = [...new Set(Array.from(result.text.matchAll(regexp), (m) => m[1]))];
@@ -350,7 +335,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
     entry.type = typeSplit[0];
     if (typeSplit.length > 1) entry.subType = typeSplit[1];
     // do we have a dice string, e.g. sneak attack?
-    if (parsedMatch.match(dicePattern)) {
+    if (parsedMatch.match(dicePattern) || parsedMatch.startsWith("@")) {
       entry.type = "dice";
       entry.parsed = parsedMatch;
       result.text = result.text.replace(entry.replacePattern, entry.parsed);
