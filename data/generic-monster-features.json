@@ -7754,5 +7754,13 @@
   {
     "name": "Thunder Strike",
     "path": "icons/skills/melee/unarmed-punch-fist-white.webp"
+  },
+  {
+    "name": "Harmed by Running Water",
+    "path": "icons/magic/water/vortex-water-whirlpool-blue.webp"
+  },
+  {
+    "name": "Stake to the Heart",
+    "path": "icons/sundries/survival/stake-rough-heavy-brown.webp"
   }
 ]
