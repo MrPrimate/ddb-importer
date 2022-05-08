@@ -11,7 +11,7 @@ export default (app, html, data) => {
       }
       $('select[name="icon"]', html).append(`<option value="${iconFilename}" ${selected}>${label}</option>`);
     }
-    $('input[name="iconSize"]').val(Math.round(game.scenes.viewed.data.grid * 0.75));
+    $('input[name="iconSize"]').val(Math.round(game.scenes.viewed.system.grid * 0.75));
   } else {
     // user-placed map note
     const idx = data.entryName.length >= 2 ? parseInt(data.entryName.substr(0, 2)) : NaN;
@@ -24,6 +24,6 @@ export default (app, html, data) => {
       }
       $('select[name="icon"]', html).append(`<option value="${iconFilename}" ${selected}>${label}</option>`);
     }
-    $('input[name="iconSize"]').val(Math.round(game.scenes.viewed.data.grid * 0.75));
+    $('input[name="iconSize"]').val(Math.round(game.scenes.viewed.system.grid * 0.75));
   }
 };

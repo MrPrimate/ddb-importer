@@ -37,11 +37,11 @@ export async function spiritShroudEffect(document) {
   setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
   setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
 
-  document.data.damage = { parts: [], versatile: "", value: "" };
-  document.data['target']['type'] = "self";
-  document.data.range = { value: null, units: "self", long: null };
-  document.data.actionType = "other";
-  document.data.save.ability = "";
+  document.system.damage = { parts: [], versatile: "", value: "" };
+  document.system['target']['type'] = "self";
+  document.system.range = { value: null, units: "self", long: null };
+  document.system.actionType = "other";
+  document.system.save.ability = "";
 
   document.effects.push(effect);
   return document;

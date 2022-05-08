@@ -40,9 +40,9 @@ export async function createBonfireEffect(document) {
   document.effects.push(effect);
 
   setProperty(document, "flags.ddbimporter.effect", {
-    dice: document.data.damage.parts[0][0],
-    damageType: document.data.damage.parts[0][1],
-    save: document.data.save.ability,
+    dice: document.system.damage.parts[0][0],
+    damageType: document.system.damage.parts[0][1],
+    save: document.system.save.ability,
     sequencerFile: "jb2a.flames.01.orange",
     isCantrip: true,
     saveOnEntry: true,

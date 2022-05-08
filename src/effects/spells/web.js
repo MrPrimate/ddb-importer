@@ -44,13 +44,13 @@ export async function webEffect(document) {
     removalSave: null,
     saveRemoves: false,
     condition: "Restrained",
-    save: document.data.save.ability,
+    save: document.system.save.ability,
     // sequencerFile: "jb2a.web.02",
   });
 
   document.effects.push(effect);
-  document.data.actionType = "other";
-  document.data.save.ability = "";
+  document.system.actionType = "other";
+  document.system.save.ability = "";
 
   return document;
 }

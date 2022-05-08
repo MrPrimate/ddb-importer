@@ -30,7 +30,7 @@ export function checkScenes() {
   let fixedScenes = [];
   let badScenes = [];
   game.scenes.forEach((scene) => {
-    if (checkBase64(scene.data.thumb)) {
+    if (checkBase64(scene.system.thumb)) {
       logger.warn(`Scene ${scene.name} has base 64 thumb data - fixing!`);
       scene.createThumbnail().then((data) => {
         scene.update({ thumb: data.thumb }, { diff: false });
@@ -38,11 +38,11 @@ export function checkScenes() {
       });
       fixedScenes.push(scene.name);
     }
-    if (checkBase64(scene.data.img)) {
+    if (checkBase64(scene.system.img)) {
       logger.warn(`Scene ${scene.name} has base 64 Image data!`);
       ui.notifications.warn(`${scene.name} has a base64 encoded scene image - please fix`);
       badScenes.push(scene.name);
-    } else if (checkBase64(scene) && !checkBase64(scene.data.thumb)) {
+    } else if (checkBase64(scene) && !checkBase64(scene.system.thumb)) {
       logger.warn(`Scene ${scene.name} has unknown location base 64 data!`);
       logger.warn(scene);
       badScenes.push(scene.name);
