@@ -78,8 +78,8 @@ export function getAlignment(data) {
   return alignment.name;
 }
 
-export function getBackgroundData(data) {
-  let result = {
+function getBackgroundTemplate() {
+  return {
     name: "Background",
     description: "",
     id: null,
@@ -95,18 +95,10 @@ export function getBackgroundData(data) {
       entityTypeId: null,
     },
   };
+}
 
-  let bg = null;
-  if (data.character.background.hasCustomBackground === true) {
-    bg = data.character.background.customBackground;
-  } else if (data.character.background.definition !== null) {
-    bg = data.character.background.definition;
-  } else {
-    bg = data.character.background.customBackground;
-    if (bg.id) result.id = bg.id;
-    if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
-    return result;
-  }
+export function generateBackground(bg) {
+  let result = getBackgroundTemplate();
 
   if (bg.id) result.id = bg.id;
   if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
@@ -123,7 +115,7 @@ export function getBackgroundData(data) {
   }
   if (bg.definition) result.definition = bg.definition;
 
-  if (data.character.background.hasCustomBackground === true) {
+  if (bg.isHomebrew === true) {
     if (bg.featuresBackground) {
       result.description += `<h2>${bg.featuresBackground.name}</h2>`;
       result.description += bg.featuresBackground.shortDescription.replace("\r\n", "");
@@ -147,6 +139,7 @@ export function getBackgroundData(data) {
       result.characteristicsEntityTypeId = bg.characteristicsBackground.entityTypeId;
     }
   }
+
   if (bg.featureName) {
     result.description += `<h2>${bg.featureName}</h2>`;
     result.description += bg.featureDescription.replace("\r\n", "");
@@ -155,6 +148,24 @@ export function getBackgroundData(data) {
   result.definition.name = result.name;
   result.definition.description = result.description;
   return result;
+}
+
+export function getBackgroundData(data) {
+  let bg = null;
+  if (data.character.background.hasCustomBackground === true) {
+    bg = data.character.background.customBackground;
+    bg.isHomebrew = true;
+  } else if (data.character.background.definition !== null) {
+    bg = data.character.background.definition;
+  } else {
+    bg = data.character.background.customBackground;
+    let result = getBackgroundTemplate();
+    if (bg.id) result.id = bg.id;
+    if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
+    return result;
+  }
+
+  return generateBackground(bg);
 }
 
 export function getBiography(data) {

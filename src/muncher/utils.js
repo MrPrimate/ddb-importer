@@ -59,6 +59,8 @@ const compendiumLookup = [
   { type: "equipment", name: "entity-item-compendium" },
   { type: "table", compendium: "entity-table-compendium" },
   { type: "tables", compendium: "entity-table-compendium" },
+  { type: "background", compendium: "entity-background-compendium" },
+  { type: "backgrounds", compendium: "entity-background-compendium" },
 ];
 
 export function getCompendiumLabel(type) {
