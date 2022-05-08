@@ -35,7 +35,7 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
 };
 
 export const ddbCompendiums = [
-  // { name: "entity-background-compendium", label: "Backgrounds", type: "Item" },
+  { name: "entity-background-compendium", label: "Backgrounds", type: "Item" },
   { name: "entity-spell-compendium", label: "Spells", type: "Item" },
   { name: "entity-item-compendium", label: "Items", type: "Item" },
   { name: "entity-monster-compendium", label: "Monsters", type: "Actor" },
