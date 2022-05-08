@@ -245,7 +245,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   /**
-   * Define default options for the PartySummary application
+   * Define default options
    */
   static get defaultOptions() {
     const options = super.defaultOptions;

@@ -716,14 +716,14 @@ export default class AdventureMunch extends FormApplication {
   }
 
   static _updateProgress(total, count, type) {
-    const localizedType = `dbb-importer.label.${type}`;
+    const localizedType = `ddb-importer.label.${type}`;
     $(".import-progress-bar")
       .width(`${Math.trunc((count / total) * 100)}%`)
-      .html(`<span>${game.i18n.localize("dbb-importer.label.Working")} (${game.i18n.localize(localizedType)})...</span>`);
+      .html(`<span>${game.i18n.localize("ddb-importer.label.Working")} (${game.i18n.localize(localizedType)})...</span>`);
   }
 
   static _progressNote(note) {
     $(".import-progress-bar")
-      .html(`<span>${game.i18n.localize("dbb-importer.label.Working")} (${note})...</span>`);
+      .html(`<span>${game.i18n.localize("ddb-importer.label.Working")} (${note})...</span>`);
   }
 }

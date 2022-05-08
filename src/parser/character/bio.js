@@ -108,7 +108,6 @@ export function getBackgroundData(data) {
     return result;
   }
 
-
   if (bg.id) result.id = bg.id;
   if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
 
@@ -152,54 +151,6 @@ export function getBackgroundData(data) {
     result.description += `<h2>${bg.featureName}</h2>`;
     result.description += bg.featureDescription.replace("\r\n", "");
   }
-  // if (bg.skillProficienciesDescription && bg.skillProficienciesDescription !== "") {
-  //   result.description += `<h2>Skill Proficiencies</h2>`;
-  //   result.description += bg.skillProficienciesDescription.replace("\r\n", "");
-  // }
-  // if (bg.languagesDescription && bg.languagesDescription !== "") {
-  //   result.description += `<h2>Languages</h2>`;
-  //   result.description += bg.languagesDescription.replace("\r\n", "");
-  // }
-  // if (bg.toolProficienciesDescription && bg.toolProficienciesDescription !== "") {
-  //   result.description += `<h2>Tool Proficiencies</h2>`;
-  //   result.description += bg.toolProficienciesDescription.replace("\r\n", "");
-  // }
-  // if (bg.equipmentDescription && bg.equipmentDescription !== "") {
-  //   result.description += `<h2>Starting Equipment</h2>`;
-  //   result.description += bg.equipmentDescription.replace("\r\n", "");
-  // }
-  // if (bg.organization && bg.organization !== "") {
-  //   result.description += `<h2>Organization</h2>`;
-  //   result.description += bg.organization.replace("\r\n", "");
-  // }
-  // if (bg.contractsDescription && bg.contractsDescription !== "") {
-  //   result.description += `<h2>Contracts</h2>`;
-  //   result.description += bg.contractsDescription.replace("\r\n", "");
-  // }
-  // if (bg.spellsPreDescription && bg.spellsPreDescription !== "") {
-  //   result.description += `<h2>Spells</h2>`;
-  //   result.description += bg.spellsPreDescription.replace("\r\n", "");
-  // }
-  // if (bg.suggestedCharacteristicsDescription && bg.suggestedCharacteristicsDescription !== "") {
-  //   result.description += `<h2>Suggested Characteristics</h2>`;
-  //   result.description += bg.suggestedCharacteristicsDescription.replace("\r\n", "");
-  // }
-  // if (bg.personalityTraits && bg.personalityTraits.length > 0) {
-  //   result.description += `<h>Suggested Personality Traits</h2>`;
-  //   result.description += bg.personalityTraits.map((trait) => `<p>${trait}</p>`).join("");
-  // }
-  // if (bg.ideals && bg.ideals.length > 0) {
-  //   result.description += `<h>Suggested Ideals</h2>`;
-  //   result.description += bg.ideals.map((trait) => `<p>${trait}</p>`);
-  // }
-  // if (bg.bonds && bg.bonds.length > 0) {
-  //   result.description += `<h>Suggested Bonds</h2>`;
-  //   result.description += bg.bonds.map((trait) => `<p>${trait}</p>`);
-  // }
-  // if (bg.flaws && bg.flaws.length > 0) {
-  //   result.description += `<h>Suggested Flaws</h2>`;
-  //   result.description += bg.flaws.map((trait) => `<p>${trait}</p>`);
-  // }
   if (bg.spellListIds) result.spellListIds = bg.spellListIds;
   result.definition.name = result.name;
   result.definition.description = result.description;
@@ -207,64 +158,11 @@ export function getBackgroundData(data) {
 }
 
 export function getBiography(data) {
-  // let format = (heading, text) => {
-  //   text = text
-  //     .split("\n")
-  //     .map((text) => `<p>${text}</p>`)
-  //     .join("");
-  //   return `<h2>${heading}</h2>${text}`;
-  // };
+  const backstory = data.character.notes.backstory !== null
+    ? "<h1>Backstory</h1><p>" + data.character.notes.backstory + "</p>"
+    : "";
 
-  let backstory =
-    data.character.notes.backstory !== null ? "<h1>Backstory</h1><p>" + data.character.notes.backstory + "</p>" : "";
-
-  // if (data.character.background.hasCustomBackground === true) {
-  //   let bg = data.character.background.customBackground;
-
-  //   let result = bg.name ? "<h1>Background: " + bg.name + "</h1>" : "";
-  //   result += bg.description ? "<p>" + bg.description + "</p>" : "";
-  //   if (bg.featuresBackground) {
-  //     result += "<h2>" + bg.featuresBackground.name + "</h2>";
-  //     result += bg.featuresBackground.shortDescription.replace("\r\n", "");
-  //     result += "<h3>" + bg.featuresBackground.featureName + "</h3>";
-  //     result += bg.featuresBackground.featureDescription.replace("\r\n", "");
-  //   }
-  //   if (
-  //     bg.characteristicsBackground &&
-  //     bg.featuresBackground &&
-  //     bg.featuresBackground.entityTypeId != bg.characteristicsBackground.entityTypeId
-  //   ) {
-  //     result += "<h2>" + bg.characteristicsBackground.name + "</h2>";
-  //     result += bg.characteristicsBackground.shortDescription.replace("\r\n", "");
-  //     result += "<h3>" + bg.characteristicsBackground.featureName + "</h3>";
-  //     result += bg.characteristicsBackground.featureDescription.replace("\r\n", "");
-  //   }
-
-  //   return {
-  //     public: result + backstory,
-  //     value: result + backstory,
-  //   };
-  // } else if (data.character.background.definition !== null) {
-  //   let bg = data.character.background.definition;
-
-  //   let result = "<h1>Background: " + bg.name + "</h1>";
-  //   result += bg.shortDescription.replace("\r\n", "");
-  //   if (bg.featureName) {
-  //     result += "<h2>" + bg.featureName + "</h2>";
-  //     result += bg.featureDescription.replace("\r\n", "");
-  //   }
-  //   return {
-  //     public: result + backstory,
-  //     value: result + backstory,
-  //   };
-  // } else {
-  //   return {
-  //     public: "" + backstory,
-  //     value: "" + backstory,
-  //   };
-  // }
-
-  let background = getBackgroundData(data);
+  const background = getBackgroundData(data);
   return {
     public: background.description + backstory,
     value: background.description + backstory,
@@ -284,8 +182,3 @@ export function getDescription(data) {
 
   return result;
 }
-
-
-// "attunedItemsMax": "3",
-// "attunedItemsCount": 0,
-// "maxPreparedSpells": null,
