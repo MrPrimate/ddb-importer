@@ -18,7 +18,7 @@ export async function greaseEffect(document) {
     {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: `turn=end,label=${document.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=${document.data.save.ability},saveDamage=nodamage,killAnim=true,macro=${MACROS.AA_CONDITION_ON_ENTRY.name}`,
+      value: `turn=end,label=${document.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=${document.system.save.ability},saveDamage=nodamage,killAnim=true,macro=${MACROS.AA_CONDITION_ON_ENTRY.name}`,
       priority: "20",
     },
   );
@@ -58,7 +58,7 @@ export async function greaseEffect(document) {
     removalSave: null,
     saveRemoves: false,
     condition: "Prone",
-    save: document.data.save.ability,
+    save: document.system.save.ability,
     sequencerFile: "jb2a.grease.dark_green.loop",
   };
   setProperty(document, "flags.ddbimporter.effect", aaMacroFlags);

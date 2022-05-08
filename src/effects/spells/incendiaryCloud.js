@@ -14,7 +14,7 @@ export async function incendiaryCloudEffect(document) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value:
-        `label=${document.name} Turn End,turn=end, saveAbility=${document.data.save.ability}, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=${document.data.damage.parts[0][1]}`,
+        `label=${document.name} Turn End,turn=end, saveAbility=${document.system.save.ability}, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=${document.system.damage.parts[0][1]}`,
       priority: "20",
     },
   );
@@ -38,9 +38,9 @@ export async function incendiaryCloudEffect(document) {
   // setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
   setProperty(document, "flags.ddbimporter.effect", {
-    dice: document.data.damage.parts[0][0],
-    damageType: document.data.damage.parts[0][1],
-    save: document.data.save.ability,
+    dice: document.system.damage.parts[0][0],
+    damageType: document.system.damage.parts[0][1],
+    save: document.system.save.ability,
     sequencerFile: "jb2a.fumes.fire.orange",
   });
 

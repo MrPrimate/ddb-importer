@@ -14,7 +14,7 @@ export async function cloudkillEffect(document) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value:
-        `label=${document.name} (Start of Turn),turn=end, saveAbility=${document.data.save.ability}, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=${document.data.damage.parts[0][1]}`,
+        `label=${document.name} (Start of Turn),turn=end, saveAbility=${document.system.save.ability}, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=${document.system.damage.parts[0][1]}`,
       priority: "20",
     },
   );
@@ -38,16 +38,16 @@ export async function cloudkillEffect(document) {
   // setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
   setProperty(document, "flags.ddbimporter.effect", {
-    dice: document.data.damage.parts[0][0],
-    damageType: document.data.damage.parts[0][1],
-    save: document.data.save.ability,
+    dice: document.system.damage.parts[0][0],
+    damageType: document.system.damage.parts[0][1],
+    save: document.system.save.ability,
     sequencerFile: "jb2a.fog_cloud.2.green",
   });
 
   document.effects.push(effect);
-  document.data.damage = { parts: [], versatile: "", value: "" };
-  document.data.actionType = "other";
-  document.data.save.ability = "";
+  document.system.damage = { parts: [], versatile: "", value: "" };
+  document.system.actionType = "other";
+  document.system.save.ability = "";
 
   return document;
 }
