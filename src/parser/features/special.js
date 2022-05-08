@@ -6,7 +6,6 @@ import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { generateTable } from "../../muncher/table.js";
 import { generateExtraEffects } from "../../effects/specialFeats.js";
 import parseTemplateString from "../templateStrings.js";
-import { stripHtml } from "../../muncher/utils.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
   // console.warn(ddbItem);
@@ -138,18 +137,10 @@ function setConsumeAmount(feature) {
   return feature;
 }
 
-function renderLesserString(str) {
-  return stripHtml(str).replace(/&nbsp;/g, ' ').replace(/\xA0/g, ' ').replace(/\s\s+/g, ' ').trim().toLowerCase();
-}
-
-function stringKindaEqual(a, b) {
-  return renderLesserString(a) === renderLesserString(b);
-}
-
 function buildFullDescription(main, summary, title) {
   let result = "";
 
-  if (summary && !stringKindaEqual(main, summary) && summary.trim() !== "" && main.trim() !== "") {
+  if (summary && !utils.stringKindaEqual(main, summary) && summary.trim() !== "" && main.trim() !== "") {
     result += summary.trim();
     result += `
 <details>
@@ -194,7 +185,7 @@ export function getDescription(ddb, character, feat, forceFull = false) {
     description = "";
   }
 
-  if (stringKindaEqual(description, snippet)) snippet = "";
+  if (utils.stringKindaEqual(description, snippet)) snippet = "";
 
   // const fullDescription = description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet;
   const fullDescription = buildFullDescription(description, snippet);

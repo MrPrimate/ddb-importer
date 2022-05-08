@@ -1,6 +1,6 @@
 import { getSource } from "../source.js";
 import { getActionInfo, getAction, getUses, replaceRollable } from "../utils.js";
-import { stripHtml } from "../../utils.js";
+import utils from "../../utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../table.js";
 
@@ -114,6 +114,7 @@ export function getActions(monster, type = "action") {
     return [[], null];
   }
 
+  actions = utils.replaceHtmlSpaces(actions);
   actions = replaceRollable(actions);
 
   let splitActions = actions.split("<h3>Roleplaying Information</h3>");
@@ -292,7 +293,7 @@ export function getActions(monster, type = "action") {
   });
 
   dynamicActions = dynamicActions.map((da) => {
-    const actionDescription = stripHtml(da.data.description.value);
+    const actionDescription = utils.stripHtml(da.data.description.value);
     const actionInfo = getActionInfo(monster, da.name, actionDescription);
     const result = buildAction(da, actionInfo, actionDescription, type);
     if (hideDescription) {

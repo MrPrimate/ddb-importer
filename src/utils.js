@@ -10,6 +10,24 @@ const utils = {
     return true;
   },
 
+  stripHtml: (html) => {
+    let tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  },
+
+  replaceHtmlSpaces: (str) => {
+    return str.replace(/&nbsp;/g, ' ').replace(/\xA0/g, ' ').replace(/\s\s+/g, ' ').trim();
+  },
+
+  renderLesserString: (str) => {
+    return utils.replaceHtmlSpaces(utils.stripHtml(str)).trim().toLowerCase();
+  },
+
+  stringKindaEqual(a, b) {
+    return utils.renderLesserString(a) === utils.renderLesserString(b);
+  },
+
   getDamageType: (data) => {
     if (data.definition.damageType) {
       const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>

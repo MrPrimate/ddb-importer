@@ -7,6 +7,7 @@
 * If importing DDB Actions as Features, and you had renamed features with a custom name, a conflict could occur with multiple identical named features.
 * If importing Actions as Weapons hidden actions on DDB will now import as features.
 * Some missing icon additions from @JacksonBockus
+* Try and improve feature parsing on Homebrew monsters with some errant HTML characters @kuchrk24#3751
 
 # 2.9.37
 
