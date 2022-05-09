@@ -1203,16 +1203,20 @@ const utils = {
         uri = "https://assets.forge-vtt.com/" + userId + "/" + dir.current + "/" + filename;
       } else {
         // S3 Bucket
-        uri =
-          game.data.files.s3.endpoint.protocol +
-          "//" +
-          dir.bucket +
-          "." +
-          game.data.files.s3.endpoint.hostname +
-          "/" +
-          dir.current +
-          "/" +
-          filename;
+        if(game.modules.get('s3-path-url')?.active){
+          uri = window.S3PathURL.createS3URL(dir.bucket,dir.current+"/"+filename);
+        } else {
+          uri =
+            game.data.files.s3.endpoint.protocol +
+            "//" +
+            dir.bucket +
+            "." +
+            game.data.files.s3.endpoint.hostname +
+            "/" +
+            dir.current +
+            "/" +
+            filename;
+        }
       }
     } catch (exception) {
       throw new Error(
