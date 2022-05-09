@@ -117,10 +117,11 @@ function getDamage(data, flags, betterRolls5e) {
   // we can safely make these assumptions about GWF and Dueling because the
   // flags are only added for melee attacks
   const greatWeaponFighting = flags.classFeatures.includes("greatWeaponFighting") ? "r<=2" : "";
-  const dueling = flags.classFeatures.includes("Dueling") ? " + 2" : "";
   const offHand = flags.classFeatures.includes("OffHand");
   const twoWeapon = flags.classFeatures.includes("Two-Weapon Fighting");
   const twoHanded = data.definition.properties.find((property) => property.name === "Two-Handed");
+  const melee = data.definition.attackType === 1;
+  const dueling = flags.classFeatures.includes("Dueling") && !twoHanded && melee ? " + 2" : "";
   const mod = (offHand && !twoWeapon) ? "" : " + @mod";
 
   const baseDamageTagData = utils.getDamageTagForItem(data);
