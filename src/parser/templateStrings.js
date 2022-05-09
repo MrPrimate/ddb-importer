@@ -40,20 +40,22 @@ export async function importCacheLoad() {
  * @param {*} feature
  */
 // eslint-disable-next-line complexity
-let parseMatch = (ddb, character, match, feature) => {
-  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
+function parseMatch(ddb, character, match, feature) {
+  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description");
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
   const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
     .flat()
     .find((option) => option.definition.id === feature.componentId);
+  let linktext = `${result}`;
 
   // scalevalue
   if (result.includes("scalevalue")) {
     let scaleValue = utils.getScaleValueString(ddb, feature);
     // if (scaleValue.value.startsWith("@")) scaleValue.value = `[[${scaleValue.value}]]{${scaleValue.name}}`;
     result = result.replace("scalevalue", scaleValue.value);
+    linktext = result.replace("scalevalue", " (Scaled Value) ");
   }
 
   // savedc:int
@@ -75,6 +77,7 @@ let parseMatch = (ddb, character, match, feature) => {
         });
       const saveRegexp = RegExp(match[0], "g");
       result = result.replace(saveRegexp, Math.max(...saveDCs));
+      linktext = result.replace(saveRegexp, " (Save DC) ");
     });
   }
 
@@ -89,6 +92,7 @@ let parseMatch = (ddb, character, match, feature) => {
       const abilityModifier = useScale ? ` + @abilities.${ab}.mod` : characterAbilities[ab].mod;
       const abRegexp = RegExp(`modifier:${ab}`, "g");
       result = result.replace(abRegexp, abilityModifier);
+      linktext = result.replace(abRegexp, ` (${utils.capitalize(ab)} Modifier) `);
     });
   }
 
@@ -101,12 +105,14 @@ let parseMatch = (ddb, character, match, feature) => {
     if (cls) {
       const clsLevel = useScale ? ` + @classes.${cls.definition.name.toLowerCase()}.level` : cls.level;
       result = result.replace("classlevel", clsLevel);
+      linktext = result.replace("classlevel", ` (${cls.definition.name} Level) `);
     } else if (classOption) {
       // still not found a cls? could be an option
       const optionCls = utils.findClassByFeatureId(ddb, classOption.componentId);
       if (optionCls) {
         const clsLevel = useScale ? ` + @classes.${optionCls.definition.name.toLowerCase()}.level` : optionCls.level;
         result = result.replace("classlevel", clsLevel);
+        linktext = result.replace("classlevel", ` (${optionCls.definition.name} Level) `);
       } else {
         logger.error(
           `Unable to parse option class info. classOption ComponentId is: ${classOption.componentId}.  ComponentId is ${feature.componentId}`
@@ -123,11 +129,13 @@ let parseMatch = (ddb, character, match, feature) => {
   if (result.includes("characterlevel")) {
     const characterLevel = useScale ? " + @details.level" : character.flags.ddbimporter.dndbeyond.totalLevels;
     result = result.replace("characterlevel", characterLevel);
+    linktext = result.replace("characterlevel", ` (Character Level) `);
   }
 
   if (result.includes("proficiency")) {
     const profBonus = useScale ? " + @prof" : character.data.attributes.prof;
     result = result.replace("proficiency", profBonus);
+    linktext = result.replace("proficiency", ` (Proficiency Bonus) `);
   }
 
   // abilityscore:int
@@ -140,6 +148,7 @@ let parseMatch = (ddb, character, match, feature) => {
       const abilityScore = useScale ? ` + @abilities.${ab}.value` : characterAbilities[ab].value;
       const abRegexp = RegExp(`abilityscore:${ab}`, "g");
       result = result.replace(abRegexp, abilityScore);
+      linktext = result.replace(abRegexp, ` (${utils.capitalize(ab)} Score) `);
     });
   }
 
@@ -147,10 +156,14 @@ let parseMatch = (ddb, character, match, feature) => {
   if (result.includes("limiteduse")) {
     const limitedUse = feature.limitedUse?.maxUses || "";
     result = result.replace("limiteduse", limitedUse);
+    linktext = result.replace("limiteduse", ` (Has limited uses) `);
   }
 
-  return result;
-};
+  return {
+    parsed: result,
+    linktext,
+  };
+}
 
 /**
  * Apply the expression constraint
@@ -309,13 +322,17 @@ export default function parseTemplateString(ddb, character, text, feature) {
     damageTypeId: feature.damageTypeId ? feature.damageTypeId : null,
     text: text,
     resultString: "",
+    displayString: "",
     definitions: [],
   };
 
+  const useScaleText = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description")
+    ? "{Scaled Roll}"
+    : "";
   const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)?({{.*?}})(?:$|[. "')+<])/g;
   const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
   fullMatches.forEach((match) => {
-    result.text = result.text.replace(match, `[[/roll ${match}]]`);
+    result.text = result.text.replace(match, `[[/roll ${match}]]${useScaleText}`);
   });
 
   const regexp = /{{(.*?)}}/g;
@@ -333,7 +350,9 @@ export default function parseTemplateString(ddb, character, text, feature) {
 
     const splitRemoveUnsigned = match.split("#")[0];
     const splitMatchAt = splitRemoveUnsigned.split("@");
-    const parsedMatch = parseMatch(ddb, character, splitRemoveUnsigned, feature);
+    const parsedMatchData = parseMatch(ddb, character, splitRemoveUnsigned, feature);
+    const parsedMatch = parsedMatchData.parsed;
+    result.displayString += parsedMatchData.displayString;
     const dicePattern = /\d*d\d\d*/;
     const typeSplit = splitMatchAt[0].split(":");
     entry.type = typeSplit[0];
