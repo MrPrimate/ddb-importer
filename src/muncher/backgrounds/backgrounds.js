@@ -4,6 +4,7 @@ import { parseTags } from "../../parser/templateStrings.js";
 import utils from "../../utils.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
 import { munchNote } from "../utils.js";
+import { generateTable } from "../table.js";
 
 const BACKGROUND_TEMPLATE = {
   "name": "",
@@ -25,7 +26,7 @@ const BACKGROUND_TEMPLATE = {
       }
     },
   },
-  "img": null
+  "img": "icons/skills/trades/academics-book-study-purple.webp",
 };
 
 function buildBase(data) {
@@ -41,14 +42,15 @@ function buildBase(data) {
 
   result.data.source = utils.parseSource(data);
   result.data.description.value = parseTags(result.data.description.value);
+  result.data.description.value = generateTable(result.name, result.data.description.value, true, "background");
 
-  console.warn(data.name, { data, bgData, result });
+  // console.warn(data.name, { data, bgData, result });
 
   return result;
 }
 
 
-async function buildBackground(background) {
+function buildBackground(background) {
   let result = buildBase(background);
 
   return result;
@@ -61,7 +63,7 @@ export async function getBackgrounds(data) {
 
   let backgrounds = [];
 
-  console.warn(data);
+  // console.warn(data);
 
   data.forEach((background) => {
     logger.debug(`${background.name} background parsing started...`);
@@ -69,11 +71,13 @@ export async function getBackgrounds(data) {
     backgrounds.push(parsedBackground);
   });
 
+  // console.warn("backgrounds", backgrounds);
+
   const fiddledBackgrounds = await srdFiddling(backgrounds, "backgrounds");
   const finalBackgrounds = await daeFiddling(fiddledBackgrounds);
 
   munchNote(`Importing ${finalBackgrounds.length} backgrounds!`, true);
-  await updateCompendium("backgrounds", { feats: finalBackgrounds }, updateBool);
+  await updateCompendium("backgrounds", { backgrounds: finalBackgrounds }, updateBool);
 
   return finalBackgrounds;
 }

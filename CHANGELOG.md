@@ -11,6 +11,7 @@
 * Try and improve feature parsing on Homebrew monsters with some errant HTML characters @kuchrk24#3751
 * Background tables had stopped adding "Background:" in the name in D&D v1.6.
 * Improve handling of "Dueling" fighting style if not using effects.
+* First pass at Background parsing to compendiums. (Undying and God Tier until complete). This currently just generates descriptions and tables. Future enhancements will add advancements, split out background features to their own item, and improved table and description management.
 
 # 2.9.37
 

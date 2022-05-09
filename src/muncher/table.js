@@ -209,7 +209,7 @@ export function generateTable(parentName, html, updateExisting, type = "") {
   }
   if (parentName.startsWith("Background:")) {
     const parentNamesArray = parentName.split(":");
-    if (parentNamesArray.length > 2) parentNamesArray.pop();
+    // if (parentNamesArray.length > 2) parentNamesArray.pop();
     parentName = parentNamesArray.join(":");
   }
 

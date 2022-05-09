@@ -101,7 +101,7 @@ function getBackgroundTemplate() {
 export function generateBackground(bg) {
   let result = getBackgroundTemplate();
 
-  console.warn(bg)
+  // console.warn(bg)
 
   if (bg.id) result.id = bg.id;
   if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
