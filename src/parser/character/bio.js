@@ -1,4 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
+import utils from "../../utils.js";
 
 export function getBackground(data) {
   if (data.character.background.hasCustomBackground === false) {
@@ -100,6 +101,8 @@ function getBackgroundTemplate() {
 export function generateBackground(bg) {
   let result = getBackgroundTemplate();
 
+  console.warn(bg)
+
   if (bg.id) result.id = bg.id;
   if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
 
@@ -146,8 +149,41 @@ export function generateBackground(bg) {
   }
   if (bg.spellListIds) result.spellListIds = bg.spellListIds;
   result.definition.name = result.name;
+  result.description = utils.replaceHtmlSpaces(result.description);
   result.definition.description = result.description;
   return result;
+}
+
+export function generateBackgroundFeature(bg) {
+  let result = getBackgroundTemplate();
+  result.name = "Background Feature";
+
+  if (bg.isHomebrew === true) {
+    if (bg.featuresBackground) {
+      result.name = bg.featuresBackground.featureName;
+      result.description += bg.featuresBackground.featureDescription.replace("\r\n", "");
+      result.featuresId = bg.featuresBackground.id;
+      result.id = bg.featuresBackground.id;
+      result.featuresEntityTypeId = bg.featuresBackground.entityTypeId;
+      result.definition = bg.featuresBackground;
+    }
+    if (
+      bg.characteristicsBackground &&
+      bg.featuresBackground &&
+      bg.featuresBackground.entityTypeId != bg.characteristicsBackground.entityTypeId
+    ) {
+      result.name = bg.characteristicsBackground.featureName;
+      result.description += bg.characteristicsBackground.featureDescription.replace("\r\n", "");
+      result.characteristicsId = bg.characteristicsBackground.id;
+      result.characteristicsEntityTypeId = bg.characteristicsBackground.entityTypeId;
+    }
+  }
+
+  if (bg.featureName) {
+    result.name = bg.featureName;
+    result.description += bg.featureDescription.replace("\r\n", "");
+  }
+
 }
 
 export function getBackgroundData(data) {
@@ -169,14 +205,13 @@ export function getBackgroundData(data) {
 }
 
 export function getBiography(data) {
-  const backstory = data.character.notes.backstory !== null
+  const backstory = data.character.notes.backstory
     ? "<h1>Backstory</h1><p>" + data.character.notes.backstory + "</p>"
     : "";
 
-  const background = getBackgroundData(data);
   return {
-    public: background.description + backstory,
-    value: background.description + backstory,
+    public: backstory,
+    value: backstory,
   };
 }
 
