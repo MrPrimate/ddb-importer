@@ -180,7 +180,7 @@ function getItemFlags(ddb, data, character) {
     if (utils.hasChosenCharacterOption(ddb, "Dueling") && !addCharacterEffects) {
       flags.classFeatures.push("Dueling");
     }
-    // do we have dueling fighting style?
+    // do we have two weapon fighting style?
     if (utils.hasChosenCharacterOption(ddb, "Two-Weapon Fighting")) {
       flags.classFeatures.push("Two-Weapon Fighting");
     }

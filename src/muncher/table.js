@@ -199,14 +199,17 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
 
 var tables = {};
 
-export function generateTable(parentName, html, updateExisting) {
+export function generateTable(parentName, html, updateExisting, type = "") {
   const document = utils.htmlToDoc(html);
   const tableNodes = document.querySelectorAll("table");
   let tablesMatched = [];
   let updatedDocument = utils.htmlToDoc(html);
+  if (type === "background" && !parentName.startsWith("Background:")) {
+    parentName = `Background: ${parentName}`;
+  }
   if (parentName.startsWith("Background:")) {
     const parentNamesArray = parentName.split(":");
-    if (parentNamesArray.lenghth > 2) parentNamesArray.pop();
+    // if (parentNamesArray.length > 2) parentNamesArray.pop();
     parentName = parentNamesArray.join(":");
   }
 

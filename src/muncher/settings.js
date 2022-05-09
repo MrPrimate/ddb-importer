@@ -186,7 +186,15 @@ export function getCharacterImportSettings() {
     {
       name: "use-scalevalue",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-use-scalevalue"),
-      title: "Generate Scale Value links in descriptions and damage",
+      title: "Generate Scale Value links in damage fields",
+      description:
+        "If not enabled will use fixed value for the current level (D&D 0.1.6+ only)",
+      enabled: v6,
+    },
+    {
+      name: "use-scalevalue-description",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description"),
+      title: "Generate Scale Value links in descriptions",
       description:
         "If not enabled will use fixed value for the current level (D&D 0.1.6+ only)",
       enabled: v6,

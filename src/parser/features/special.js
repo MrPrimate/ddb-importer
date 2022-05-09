@@ -453,7 +453,7 @@ export function fixFeatures(features) {
       // no default
     }
 
-    const tableDescription = generateTable(feature.name, feature.data.description.value, true);
+    const tableDescription = generateTable(feature.name, feature.data.description.value, true, feature.type);
     feature.data.description.value = tableDescription;
     feature.data.description.chat = tableDescription;
     feature = setConsumeAmount(feature);

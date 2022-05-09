@@ -14,7 +14,7 @@ import checkVersion from "./hooks/ready/checkVersion.js";
 import { loadDDBConfig } from "./hooks/ready/ddbConfig.js";
 
 // monster muncher
-import { earlySettings } from "./hooks/renderMuncher/settings.js";
+import { earlySettings } from "./hooks/renderMuncher/earlySettings.js";
 import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
 import { addEncounterMuncher } from "./hooks/renderMuncher/addEncounterMuncher.js";
 

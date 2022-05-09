@@ -18,6 +18,7 @@ import { migrateExistingCompendium } from "./compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
 import { importCacheLoad } from "../parser/templateStrings.js";
 import { updateWorldMonsters } from "./tools.js";
+import { parseBackgrounds } from "./backgrounds.js";
 
 export function getSourcesLookups(selected) {
   const selections = CONFIG.DDB.sources
@@ -142,6 +143,11 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseFeats();
     });
+    html.find("#munch-backgrounds-start").click(async () => {
+      munchNote(`Downloading backgrounds...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.parseBackgrounds();
+    });
     html.find("#munch-classes-start").click(async () => {
       munchNote(`Downloading classes...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
@@ -257,8 +263,9 @@ export default class DDBMuncher extends Application {
         $('button[id^="munch-frames-start"]').prop('disabled', false);
         $('button[id^="munch-classes-start"]').prop('disabled', false);
       }
-      // if (tiers.experimentalMid) {
-      // }
+      if (tiers.experimentalMid) {
+        $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
+      }
     }
   }
 
@@ -329,6 +336,18 @@ export default class DDBMuncher extends Application {
     }
   }
 
+  static async parseBackgrounds() {
+    try {
+      logger.info("Munching backgrounds!");
+      const result = await parseBackgrounds();
+      munchNote(`Finished importing ${result.length} backgrounds!`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
+  }
 
   static async parseClasses() {
     try {

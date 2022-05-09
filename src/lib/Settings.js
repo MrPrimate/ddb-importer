@@ -460,7 +460,7 @@ export class DDBSetup extends FormApplication {
 
 function getCompendiumLookups(type, selected) {
   const excludedCompendiumPackages = [
-    "dnd5e", "dae", "midiqol", "magicitems",
+    "dnd5e", "dae", "midiqol", "magicitems", "midi-srd", "dae-srd",
   ];
 
   const selections = game.packs
@@ -507,6 +507,13 @@ export class DDBCompendiumSetup extends FormApplication {
     ];
 
     const compendiums = [
+      {
+        setting: "entity-background-compendium",
+        name: "Backgrounds",
+        type: "item",
+        current: game.settings.get("ddb-importer", "entity-background-compendium"),
+        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-background-compendium")),
+      },
       {
         setting: "entity-class-compendium",
         name: "Classes",
