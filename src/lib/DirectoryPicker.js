@@ -50,7 +50,9 @@ export class DirectoryPicker extends FilePicker {
     if (matches) {
       let source = matches[1];
       const current = matches[2].trim();
-      const [s3, bucket] = source.split(":");
+      const parts = source.split(":")
+      const s3 = parts[0];
+      const bucket = parts.slice(1).join(":");
       if (bucket !== undefined) {
         return {
           activeSource: s3,
