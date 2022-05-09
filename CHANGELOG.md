@@ -10,6 +10,7 @@
 * Rewrite some settings backend to allow for a "Reset to defaults" mode.
 * Try and improve feature parsing on Homebrew monsters with some errant HTML characters @kuchrk24#3751
 * Background tables had stopped adding "Background:" in the name in D&D v1.6.
+* Improve handling of "Dueling" fighting style if not using effects.
 
 # 2.9.37
 
