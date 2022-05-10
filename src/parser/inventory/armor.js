@@ -28,15 +28,18 @@ function getArmorType(data, character, flags) {
 
   // get the max dex modifier (Medium Armor: 2, Heavy: 0)
   let maxDexModifier;
-  switch (data.definition.type) {
-    case "Heavy Armor":
+  const armorType = nameEntry !== undefined ? nameEntry.value : idEntry !== undefined ? idEntry.value : "medium";
+
+  switch (armorType) {
+    case "heavy":
       maxDexModifier = 0;
       break;
-    case "Medium Armor":
-      maxDexModifier = flags.maxMediumArmorDex;
+    case "medium":
+      maxDexModifier = flags.maxMediumArmorDex || 2;
       break;
     default:
       maxDexModifier = null;
+      break;
   }
 
   const itemDexMaxAdjustment = utils.getModifierSum(utils.filterModifiers(data.definition.grantedModifiers, "set", "ac-max-dex-modifier"), character);
@@ -45,7 +48,7 @@ function getArmorType(data, character, flags) {
   }
 
   return {
-    type: nameEntry !== undefined ? nameEntry.value : idEntry !== undefined ? idEntry.value : "medium",
+    type: armorType,
     value: baseArmorClass + bonusArmorClass,
     dex: maxDexModifier,
   };

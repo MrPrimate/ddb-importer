@@ -1,3 +1,7 @@
+# 2.9.39
+
+* Item munch did not always add max dex to armors due to data change.
+
 # 2.9.38
 
 * Show Players Image had broken - now uses foundry ImagePopout function. Additional option to send to chat also added.
