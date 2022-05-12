@@ -64,6 +64,8 @@ export async function generateAC(monster, useItemAC) {
       } else if (!item.includes("with mage armor")) {
         if (item === "leather armor") {
           item = "leather";
+        } else if (item === "hide armor") {
+          item = "hide";
         } else if (item.startsWith("+")) {
           const bonusRegex = /(\+\d+)(?:\s+)(.*)/;
           const matches = item.match(bonusRegex);
@@ -71,12 +73,13 @@ export async function generateAC(monster, useItemAC) {
             item = `${matches[2]}, ${matches[1]}`;
           }
         }
-        const type = item.includes("ring") || item.includes("cloak") ? "trinket" : "equipment";
-        itemsToCheck.push({ name: item, type, flags: {}, data: { equipped: true } });
+        // const type = item.includes("ring") || item.includes("cloak") ? "trinket" : "equipment";
+        itemsToCheck.push({ name: item, type: "equipment", flags: {}, data: { equipped: true } });
       };
     });
   }
 
+  logger.debug("Checking for items", itemsToCheck);
   const compendium = await getEquipmentCompendium();
   const unAttunedItems = await loadPassedItemsFromCompendium(compendium, itemsToCheck, "inventory", { monsterMatch: true });
   const attunedItems = unAttunedItems.map((item) => {
@@ -84,7 +87,7 @@ export async function generateAC(monster, useItemAC) {
     return item;
   });
 
-
+  logger.debug("Found items", { unAttunedItems, attunedItems });
   const allItemsMatched = attunedItems.length > 0 && attunedItems.length == itemsToCheck.length;
   const badACMonster = BAD_AC_MONSTERS.includes(monster.name.toLowerCase());
 
