@@ -2,6 +2,7 @@
 
 * Item munch did not always add max dex to armors due to data change.
 * When using "experimental attempt to use items instead of setting flat AC" Rings of Protection were not detected. Hide armor is now also detected.
+* Option to exclude monsters marked as "Legacy" on DDB.
 
 # 2.9.38
 
