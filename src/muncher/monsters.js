@@ -34,6 +34,7 @@ async function getMonsterData(ids) {
     body.homebrewOnly = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
     body.searchTerm = encodeURIComponent(searchTerm);
     body.exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
+    body.excludeLegacy = game.settings.get("ddb-importer", "munching-policy-monster-exclude-legacy");
   }
 
   const debugJson = game.settings.get("ddb-importer", "debug-json");
