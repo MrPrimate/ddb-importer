@@ -46,7 +46,7 @@ export function getGlobalBonusAttackModifiers(lookupTable, data, character) {
   ["attack", "damage"].forEach((fvttType) => {
     if (lookupResults[fvttType].diceString === "") {
       if (lookupResults[fvttType].sum !== 0) {
-        result[fvttType] = lookupResults[fvttType].sum;
+        result[fvttType] = `${lookupResults[fvttType].sum}`;
       }
     } else {
       result[fvttType] = lookupResults[fvttType].diceString;
