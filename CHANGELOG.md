@@ -1,3 +1,7 @@
+# 2.9.40
+
+* Global bonuses could be ints not strings, breaking effects. (Thanks @JacksonBockus#1378)
+
 # 2.9.39
 
 * Item munch did not always add max dex to armors due to data change.
