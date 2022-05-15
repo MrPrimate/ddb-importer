@@ -38,8 +38,9 @@ export async function generateAC(monster, useItemAC) {
 
   let acItems = [];
 
+  const lowerDescription = monster.armorClassDescription.toLowerCase();
   const descriptionItems = monster.armorClassDescription
-    ? monster.armorClassDescription.toLowerCase().replace("(", "").replace(")", "")
+    ? lowerDescription.replace("(", "").replace(")", "")
       .split(";")[0]
       .split(",").map((item) => item.trim())
     : [];
@@ -58,9 +59,13 @@ export async function generateAC(monster, useItemAC) {
     descriptionItems.forEach((item) => {
       if (item == "natural" || item == "natural armor") {
         ac.calc = "natural";
-        if (monster.armorClassDescription.toLowerCase().includes("shield")) {
-          ac.flat = parseInt(ac.flat) - 2;
-        }
+
+        if (lowerDescription.includes("shield")) ac.flat = parseInt(ac.flat) - 2;
+        if (lowerDescription.includes("ring of protection")) ac.flat = parseInt(ac.flat) - 1;
+        if (lowerDescription.includes("cloak of protection")) ac.flat = parseInt(ac.flat) - 1;
+        if (lowerDescription.includes("+1") || lowerDescription.includes("+ 1")) ac.flat = parseInt(ac.flat) - 1;
+        if (lowerDescription.includes("+2") || lowerDescription.includes("+ 2")) ac.flat = parseInt(ac.flat) - 2;
+        if (lowerDescription.includes("+3") || lowerDescription.includes("+ 3")) ac.flat = parseInt(ac.flat) - 3;
       } else if (!item.includes("with mage armor")) {
         if (item === "leather armor") {
           item = "leather";
