@@ -149,7 +149,7 @@ export async function parseCritters(ids = null) {
   const monsterCount = finalMonsters.length;
   munchNote(`Importing ${monsterCount} monsters!`, true);
   for (const monster of finalMonsters) {
-    munchNote(`Importing ${monster.name} (${currentMonster}/${monsterCount})`, false, true);
+    munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name}`, false, true);
     logger.debug(`Importing ${monster.name}`);
     // eslint-disable-next-line no-await-in-loop
     const munched = await addNPC(monster);
