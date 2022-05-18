@@ -3,6 +3,7 @@
 * Global bonuses could be ints not strings, breaking effects. (Thanks @JacksonBockus#1378)
 * When using "experimental attempt to use items instead of setting flat AC" Rings of Protection were not added properly where Natural Armor was used (e.g. Amble)
 * Update monster munch notification.
+* If you had legacy monsters munched, but the update existing was not checked, the new monsters from Multiverse would not be imported.
 
 # 2.9.39
 

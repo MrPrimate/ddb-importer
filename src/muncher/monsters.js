@@ -101,13 +101,13 @@ export async function parseCritters(ids = null) {
 
   if (!updateBool || !updateImages) {
     munchNote(`Calculating which monsters to update...`, true);
-    const existingMonsters = await getCompendiumItems(monsters, "npc");
+    const existingMonsters = await getCompendiumItems(monsters, "npc", { keepDDBId: true });
     const existingMonstersTotal = existingMonsters.length + 1;
     if (!updateBool) {
       logger.debug("Removing existing monsters from import list");
       logger.debug(`Matched ${existingMonstersTotal}`);
       munchNote(`Removing ${existingMonstersTotal} from update...`);
-      monsters = await removeItems(monsters, existingMonsters);
+      monsters = await removeItems(monsters, existingMonsters, true);
     }
     if (!updateImages) {
       logger.debug("Copying monster images across...");
