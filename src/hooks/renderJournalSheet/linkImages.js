@@ -1,5 +1,3 @@
-import utils from "../../utils.js";
-
 function imageToChat(src) {
   const content = `<img class="ddbimporter-chat-image" data-src="${src}" src="${src}">`;
 
@@ -13,9 +11,9 @@ export function linkImages(html) {
   const displayImages = game.settings.get("ddb-importer", "show-image-to-players");
   // does this functionality exist from anther module?
   const funcExists = !displayImages ||
-    utils.isModuleInstalledAndActive("vtta-dndbeyond") ||
-    utils.isModuleInstalledAndActive("vtta-ddb") ||
-    utils.isModuleInstalledAndActive("token-hud-art-button");
+    game.modules.get("vtta-dndbeyond")?.active ||
+    game.modules.get("vtta-ddb")?.active ||
+    game.modules.get("token-hud-art-button")?.active;
 
   if (funcExists) return;
 

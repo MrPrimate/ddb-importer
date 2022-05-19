@@ -2,7 +2,7 @@ import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, copySupportedItemFlags, compendiumFolders } from "./import.js";
-import { getCompendiumType, munchNote } from "./utils.js";
+import { getCompendiumType, munchNote, getCompendiumLabel } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
 var compendiumLoaded = false;
@@ -134,6 +134,7 @@ async function addNPCToCompendium(npc) {
         compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.name });
         if (!compendiumNPC) {
           logger.debug("No changes made to base character", npcBasic);
+          compendiumNPC = existingNPC;
         }
       }
     } else {
@@ -152,10 +153,14 @@ async function addNPCToCompendium(npc) {
     }
 
     // using compendium folders?
-    if (compendiumNPC) await compendiumFolders(compendiumNPC, "npc");
+    if (compendiumNPC) {
+      await compendiumFolders(compendiumNPC, "npc");
+      return compendiumNPC;
+    }
   } else {
     logger.error("Error opening compendium, check your settings");
   }
+  return npc;
 }
 
 export async function addNPCDDBId(npc) {
@@ -189,6 +194,7 @@ export async function addNPCDDBId(npc) {
 }
 
 
+// eslint-disable-next-line complexity
 async function getNPCImage(data) {
   // check to see if we have munched flags to work on
   if (!data.flags || !data.flags.monsterMunch || !data.flags.monsterMunch.img) {
@@ -251,6 +257,16 @@ async function getNPCImage(data) {
   if (data.img === null) data.img = "icons/svg/mystery-man.svg";
   // eslint-disable-next-line require-atomic-updates
   if (data.token.img === null) data.token.img = "icons/svg/mystery-man.svg";
+
+  // okays, but do we now want to tokenize that?
+  const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize") &&
+    game.modules.get("vtta-tokenizer")?.active &&
+    utils.versionCompare(game.modules.get("vtta-tokenizer").data.version, "3.7.1") >= 0;
+  if (tokenizerReady) {
+    const compendiumLabel = getCompendiumLabel("monsters");
+    // eslint-disable-next-line require-atomic-updates
+    data.token.img = await window.Tokenizer.autoToken(data, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
+  }
 
   return true;
 }
@@ -487,8 +503,8 @@ export async function buildNPC(data, temporary = true, update = false, handleBui
   await swapItems(data);
 
   // DAE
-  const daeInstalled = utils.isModuleInstalledAndActive("dae") &&
-    (utils.isModuleInstalledAndActive("Dynamic-Effects-SRD") || utils.isModuleInstalledAndActive("midi-srd"));
+  const daeInstalled = game.modules.get("dae")?.active &&
+    (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
   const daeCopy = game.settings.get("ddb-importer", "munching-policy-dae-copy");
   if (daeInstalled && daeCopy) {
     munchNote(`Importing DAE Item for ${data.name}`);
@@ -527,8 +543,8 @@ export async function buildNPC(data, temporary = true, update = false, handleBui
 async function parseNPC (data) {
   let npc = await buildNPC(data);
   logger.info(`Processing actor ${npc.name} for the compendium`);
-  await addNPCToCompendium(npc);
-  return npc;
+  const compendiumNPC = await addNPCToCompendium(npc);
+  return compendiumNPC;
 }
 
 export function addNPC(data) {

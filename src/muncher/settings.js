@@ -114,8 +114,8 @@ export function getCharacterImportSettings() {
     game.settings.set("ddb-importer", "character-update-policy-add-spell-effects", false);
   }
   const daeInstalled = spellEffectModulesAvailable.daeInstalled;
-  const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-  const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
+  const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
+  const midiSRDInstalled = game.modules.get("midi-srd")?.active;
   const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
   const spellEffectText = `Generate active effects for spells. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, Item Macro${getInstalledIcon("itemMacroInstalled")}, About Time${getInstalledIcon("aboutTime")}, Times Up${getInstalledIcon("timesUp")}, and Convenient Effects${getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}`;
   const v6 = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
@@ -630,11 +630,11 @@ export function getMuncherSettings(includeHomebrew = true) {
   const tiers = getPatreonTiers(tier);
   const spellEffectModulesAvailable = spellEffectModules();
   const daeInstalled = spellEffectModulesAvailable.daeInstalled;
-  const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-  const midiSRDInstalled = utils.isModuleInstalledAndActive("midi-srd");
+  const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
+  const midiSRDInstalled = game.modules.get("midi-srd")?.active;
   const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
   const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
-  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   const compendiumFolderMonsterStyles = getCompendiumFolderLookups("monster");
   const compendiumFolderSpellStyles = getCompendiumFolderLookups("spell");
   const compendiumFolderItemStyles = getCompendiumFolderLookups("item");
@@ -697,6 +697,8 @@ export function getMuncherSettings(includeHomebrew = true) {
     ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
     : "Include homebrew?";
   const sourceDescription = `Importing from the following sources only: ${sourceNames.join(", ")}`;
+  const tokenizerReady = game.modules.get("vtta-tokenizer")?.active &&
+    utils.versionCompare(game.modules.get("vtta-tokenizer").data.version, "3.7.1") >= 0;
 
   const basicMonsterConfig = [
     {
@@ -734,6 +736,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       isChecked: game.settings.get("ddb-importer", "munching-policy-use-token-avatar-image"),
       description: "Use token image for avatar rather than avatar image (close up)",
       enabled: true,
+    },
+    {
+      name: "monster-tokenize",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-tokenize"),
+      description: "Auto tokenize monsters token image? (requires Tokenizer v3.7.1 or higher)",
+      enabled: tokenizerReady,
     },
     {
       name: "monster-retain-biography",
