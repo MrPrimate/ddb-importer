@@ -38,8 +38,9 @@ export async function generateAC(monster, useItemAC) {
 
   let acItems = [];
 
+  const lowerDescription = monster.armorClassDescription.toLowerCase();
   const descriptionItems = monster.armorClassDescription
-    ? monster.armorClassDescription.toLowerCase().replace("(", "").replace(")", "")
+    ? lowerDescription.replace("(", "").replace(")", "")
       .split(";")[0]
       .split(",").map((item) => item.trim())
     : [];
@@ -58,12 +59,18 @@ export async function generateAC(monster, useItemAC) {
     descriptionItems.forEach((item) => {
       if (item == "natural" || item == "natural armor") {
         ac.calc = "natural";
-        if (monster.armorClassDescription.toLowerCase().includes("shield")) {
-          ac.flat = parseInt(ac.flat) - 2;
-        }
+
+        if (lowerDescription.includes("shield")) ac.flat = parseInt(ac.flat) - 2;
+        if (lowerDescription.includes("ring of protection")) ac.flat = parseInt(ac.flat) - 1;
+        if (lowerDescription.includes("cloak of protection")) ac.flat = parseInt(ac.flat) - 1;
+        if (lowerDescription.includes("+1") || lowerDescription.includes("+ 1")) ac.flat = parseInt(ac.flat) - 1;
+        if (lowerDescription.includes("+2") || lowerDescription.includes("+ 2")) ac.flat = parseInt(ac.flat) - 2;
+        if (lowerDescription.includes("+3") || lowerDescription.includes("+ 3")) ac.flat = parseInt(ac.flat) - 3;
       } else if (!item.includes("with mage armor")) {
         if (item === "leather armor") {
           item = "leather";
+        } else if (item === "hide armor") {
+          item = "hide";
         } else if (item.startsWith("+")) {
           const bonusRegex = /(\+\d+)(?:\s+)(.*)/;
           const matches = item.match(bonusRegex);
@@ -71,12 +78,13 @@ export async function generateAC(monster, useItemAC) {
             item = `${matches[2]}, ${matches[1]}`;
           }
         }
-        const type = item.includes("ring") || item.includes("cloak") ? "trinket" : "equipment";
-        itemsToCheck.push({ name: item, type, flags: {}, data: { equipped: true } });
+        // const type = item.includes("ring") || item.includes("cloak") ? "trinket" : "equipment";
+        itemsToCheck.push({ name: item, type: "equipment", flags: {}, data: { equipped: true } });
       };
     });
   }
 
+  logger.debug("Checking for items", itemsToCheck);
   const compendium = await getEquipmentCompendium();
   const unAttunedItems = await loadPassedItemsFromCompendium(compendium, itemsToCheck, "inventory", { monsterMatch: true });
   const attunedItems = unAttunedItems.map((item) => {
@@ -84,7 +92,7 @@ export async function generateAC(monster, useItemAC) {
     return item;
   });
 
-
+  logger.debug("Found items", { unAttunedItems, attunedItems });
   const allItemsMatched = attunedItems.length > 0 && attunedItems.length == itemsToCheck.length;
   const badACMonster = BAD_AC_MONSTERS.includes(monster.name.toLowerCase());
 

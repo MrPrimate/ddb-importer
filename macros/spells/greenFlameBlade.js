@@ -196,7 +196,8 @@ async function attackNearby(originToken, ignoreIds) {
 
 if (args[0].tag === "OnUse"){
   if (lastArg.targets.length > 0) {
-    const caster = await fromUuid(lastArg.actorUuid);
+    const casterData = await fromUuid(lastArg.actorUuid);
+    const caster = casterData.actor ? casterData.actor : casterData;
     weaponAttack(caster, lastArg.itemData, lastArg.uuid, lastArg.targets[0]);
   } else {
     ui.notifications.error("Green Flame Blade: No target selected: please select a target and try again.");

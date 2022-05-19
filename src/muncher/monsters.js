@@ -34,6 +34,7 @@ async function getMonsterData(ids) {
     body.homebrewOnly = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
     body.searchTerm = encodeURIComponent(searchTerm);
     body.exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
+    body.excludeLegacy = game.settings.get("ddb-importer", "munching-policy-monster-exclude-legacy");
   }
 
   const debugJson = game.settings.get("ddb-importer", "debug-json");
@@ -100,13 +101,13 @@ export async function parseCritters(ids = null) {
 
   if (!updateBool || !updateImages) {
     munchNote(`Calculating which monsters to update...`, true);
-    const existingMonsters = await getCompendiumItems(monsters, "npc");
+    const existingMonsters = await getCompendiumItems(monsters, "npc", { keepDDBId: true });
     const existingMonstersTotal = existingMonsters.length + 1;
     if (!updateBool) {
       logger.debug("Removing existing monsters from import list");
       logger.debug(`Matched ${existingMonstersTotal}`);
       munchNote(`Removing ${existingMonstersTotal} from update...`);
-      monsters = await removeItems(monsters, existingMonsters);
+      monsters = await removeItems(monsters, existingMonsters, true);
     }
     if (!updateImages) {
       logger.debug("Copying monster images across...");
@@ -148,7 +149,7 @@ export async function parseCritters(ids = null) {
   const monsterCount = finalMonsters.length;
   munchNote(`Importing ${monsterCount} monsters!`, true);
   for (const monster of finalMonsters) {
-    munchNote(`Importing ${monster.name} (${currentMonster}/${monsterCount})`, false, true);
+    munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name}`, false, true);
     logger.debug(`Importing ${monster.name}`);
     // eslint-disable-next-line no-await-in-loop
     const munched = await addNPC(monster);

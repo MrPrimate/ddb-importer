@@ -752,6 +752,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       isChecked: game.settings.get("ddb-importer", "munching-policy-dae-copy"),
       description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE SRD/Midi SRD module).",
       enabled: daeInstalled && daeSRDContentAvailable,
+    },
+    {
+      name: "monster-exclude-legacy",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exclude-legacy"),
+      description: "Exclude legacy monsters from import? These are monsters replaced by newer versions e.g. in Monsters of the Multiverse.",
+      enabled: true,
     }
   ];
 

@@ -103,14 +103,16 @@ const gameFolderLookup = [
  * @param {*} items
  * @param {*} itemsToRemove
  */
-export async function removeItems(items, itemsToRemove) {
+export async function removeItems(items, itemsToRemove, matchDDBId = false) {
   return new Promise((resolve) => {
     resolve(
       items.filter(
         (item) =>
-          !itemsToRemove.some((originalItem) => (
-            item.name === originalItem.name || item.flags?.ddbimporter?.originalName === originalItem.name) &&
-            item.type === originalItem.type)
+          !itemsToRemove.some((originalItem) =>
+            (item.name === originalItem.name || item.flags?.ddbimporter?.originalName === originalItem.name) &&
+            item.type === originalItem.type &&
+            (!matchDDBId || (matchDDBId && item.flags?.ddbimporter?.id === originalItem.flags?.ddbimporter?.id))
+          )
       )
     );
   });
@@ -883,29 +885,32 @@ async function updateMatchingItems(oldItems, newItems, inOptions) {
     looseMatch: false,
     monster: false,
     keepId: false,
+    keepDDBId: false,
   };
   const options = mergeObject(defaultOptions, inOptions);
 
-  for (let item of newItems) {
-    // logger.debug(`checking ${item.name}`);
+  for (let newItem of newItems) {
+    let item = duplicate(newItem);
     const matched = await looseItemNameMatch(item, oldItems, options.looseMatch, options.monster); // eslint-disable-line no-await-in-loop
 
-    // logger.debug(`matched? ${JSON.stringify(matched)}`);
-    // console.log(matched);
-
     if (matched) {
+      const match = duplicate(matched);
+      // in some instances we want to keep the ddb id
+      if (options.keepDDBId && hasProperty(item, "flags.ddbimporter.id")) {
+        setProperty(match, "flags.ddbimporter.id", duplicate(item.flags.ddbimporter.id));
+      }
       if (!item.flags.ddbimporter) {
-        setProperty(item, "flags.ddbimporter", matched.flags.ddbimporter);
-      } else if (matched.flags.ddbimporter && item.flags.ddbimporter) {
-        const mergedFlags = mergeObject(item.flags.ddbimporter, matched.flags.ddbimporter);
+        setProperty(item, "flags.ddbimporter", match.flags.ddbimporter);
+      } else if (match.flags.ddbimporter && item.flags.ddbimporter) {
+        const mergedFlags = mergeObject(item.flags.ddbimporter, match.flags.ddbimporter);
         setProperty(item, "flags.ddbimporter", mergedFlags);
       }
-      if (!item.flags.monsterMunch && matched.flags.monsterMunch) {
-        setProperty(item, "flags.monsterMunch", matched.flags.monsterMunch);
+      if (!item.flags.monsterMunch && match.flags.monsterMunch) {
+        setProperty(item, "flags.monsterMunch", match.flags.monsterMunch);
       }
-      setProperty(item, "flags.ddbimporter.originalItemName", matched.name);
+      setProperty(item, "flags.ddbimporter.originalItemName", match.name);
       setProperty(item, "flags.ddbimporter.replaced", true);
-      item = updateCharacterItemFlags(matched, item);
+      item = updateCharacterItemFlags(match, item);
 
       if (!options.keepId) delete item["_id"];
       results.push(item);
@@ -931,7 +936,8 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
     monsterMatch: false,
     keepId: false,
     deleteCompendiumId: true,
-    indexFilter: {} // { fields: ["name", "flags.ddbimporter.id"] }
+    indexFilter: {}, // { fields: ["name", "flags.ddbimporter.id"] }
+    keepDDBId: false,
   };
   const options = mergeObject(defaultOptions, inOptions);
 
@@ -982,6 +988,7 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
     looseMatch: options.looseMatch,
     monster: options.monsterMatch,
     keepId: options.keepId,
+    keepDDBId: options.keepDDBId,
   };
 
   const results = await updateMatchingItems(items, loadedItems, matchingOptions);
@@ -992,19 +999,32 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
 /**
  * gets items from compendium
  * @param {*} items
+ * @param {*} type
+ * @param {*} options
  */
-export async function getCompendiumItems(items, type, compendiumLabel = null, looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true) {
-  if (!compendiumLabel) {
-    compendiumLabel = getCompendiumLabel(type);
+export async function getCompendiumItems(items, type, inOptions) {
+  const defaultOptions = {
+    compendiumLabel: null,
+    looseMatch: false,
+    monsterMatch: false,
+    keepId: false,
+    deleteCompendiumId: true,
+    keepDDBId: false,
+  };
+  const options = mergeObject(defaultOptions, inOptions);
+
+  if (!options.compendiumLabel) {
+    options.compendiumLabel = getCompendiumLabel(type);
   }
-  const compendium = await getCompendium(compendiumLabel, false);
+  const compendium = await getCompendium(options.compendiumLabel, false);
   if (!compendium) return [];
 
   const loadOptions = {
-    looseMatch,
-    monsterMatch,
-    keepId,
-    deleteCompendiumId,
+    looseMatch: options.looseMatch,
+    monsterMatch: options.monsterMatch,
+    keepId: options.keepId,
+    keepDDBId: options.keepDDBId,
+    deleteCompendiumId: options.deleteCompendiumId,
   };
   const results = await loadPassedItemsFromCompendium(compendium, items, type, loadOptions);
 
@@ -1176,7 +1196,12 @@ export async function daeFiddling(items) {
 }
 
 async function getCompendiumItemSpells(spells) {
-  const compendiumSpells = await getCompendiumItems(spells, "spell", null, true, false, true, false);
+  const getItemsOptions = {
+    looseMatch: true,
+    keepId: true,
+    deleteCompendiumId: false,
+  };
+  const compendiumSpells = await getCompendiumItems(spells, "spell", getItemsOptions);
   const lessCompendiumSpells = await removeItems(spells, compendiumSpells);
   const srdSpells = await getSRDCompendiumItems(lessCompendiumSpells, "spell", true, true);
   const foundSpells = compendiumSpells.concat(srdSpells);

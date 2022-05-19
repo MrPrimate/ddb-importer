@@ -751,6 +751,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-monster-exclude-legacy": {
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-use-compendium-folders": {
             scope: "player",
             type: Boolean,

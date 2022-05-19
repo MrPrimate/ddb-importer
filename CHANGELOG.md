@@ -1,3 +1,17 @@
+# 2.9.40
+
+* Global bonuses could be ints not strings, breaking effects. (Thanks @JacksonBockus#1378)
+* When using "experimental attempt to use items instead of setting flat AC" Rings of Protection were not added properly where Natural Armor was used (e.g. Amble)
+* Update monster munch notification.
+* If you had legacy monsters munched, but the update existing was not checked, the new monsters from Multiverse would not be imported.
+
+# 2.9.39
+
+* Item munch did not always add max dex to armors due to data change.
+* When using "experimental attempt to use items instead of setting flat AC" Rings of Protection were not detected. Hide armor is now also detected.
+* Option to exclude monsters marked as "Legacy" on DDB.
+* Greenflame Blade and Booming Blade macros would fail on NPCs when run from token sheet rather than actor sheet.
+
 # 2.9.38
 
 * Show Players Image had broken - now uses foundry ImagePopout function. Additional option to send to chat also added.
