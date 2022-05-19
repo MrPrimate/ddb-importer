@@ -3,7 +3,7 @@ import utils from "../../utils.js";
 
 function getDivineSmite() {
   const restriction = "Against undead or fiends";
-  const flags = utils.isModuleInstalledAndActive("betterrolls5e")
+  const flags = game.modules.get("betterrolls5e")?.active
     ? {
       betterRolls5e: {
         quickDamage: {
@@ -114,7 +114,7 @@ function getDivineSmite() {
     },
   };
 
-  if (utils.isModuleInstalledAndActive("betterrolls5e")) {
+  if (game.modules.get("betterrolls5e")?.active) {
     result.data.damage.parts.push([`${extraDamage}`, "radiant"]);
   } else {
     result.data.formula = `${regularDamage} + ${extraDamage}`;

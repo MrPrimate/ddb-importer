@@ -183,7 +183,7 @@ function getDamage(data, flags, betterRolls5e) {
 
   let chatFlavors = [];
   let otherFormulas = [];
-  const isBetterRolls = utils.isModuleInstalledAndActive("betterrolls5e");
+  const isBetterRolls = game.modules.get("betterrolls5e")?.active;
   // loop over restricted damage types
   // we do this so we can either break this out for midi users
   data.definition.grantedModifiers
@@ -253,7 +253,7 @@ export default function parseWeapon(data, character, flags) {
 
   // if using better rolls lets add some useful QOL information.
   // marks context as magical attack and makes alt click a versatile damage click
-  const brFlags = (utils.isModuleInstalledAndActive("betterrolls5e"))
+  const brFlags = game.modules.get("betterrolls5e")?.active
     ? {
       quickDamage: {
         context: {

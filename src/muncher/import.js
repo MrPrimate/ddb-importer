@@ -416,7 +416,7 @@ async function createCompendiumItems(type, compendium, compendiumItems, index, m
 export async function compendiumFolders(document, type) {
   // using compendium folders?
   const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
-  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   if (compendiumFolderAdd && compendiumFoldersInstalled) {
     // we create the compendium folder before import
     munchNote(`Adding ${document.name} to compendium folder`);
@@ -1187,8 +1187,8 @@ export async function srdFiddling(items, type) {
 
 export async function daeFiddling(items) {
   const fiddle = game.settings.get("ddb-importer", "munching-policy-use-dae-effects");
-  const installed = utils.isModuleInstalledAndActive("dae") &&
-    (utils.isModuleInstalledAndActive("Dynamic-Effects-SRD") || utils.isModuleInstalledAndActive("midi-srd"));
+  const installed = game.modules.get("dae")?.active &&
+    (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
 
   if (fiddle && installed) {
     return addItemsDAESRD(items);

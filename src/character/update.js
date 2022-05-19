@@ -1,5 +1,4 @@
 import logger from "../logger.js";
-import utils from "../utils.js";
 import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
 import { getCampaignId, getCompendiumType } from "../muncher/utils.js";
@@ -314,7 +313,7 @@ async function updateDDBCondition(actor, condition) {
 
 async function conditions(actor, ddbData) {
   return new Promise((resolve) => {
-    const dfConditionsOn = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
+    const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
     if (!game.settings.get("ddb-importer", "sync-policy-condition") || !dfConditionsOn) resolve([]);
     getActorConditionStates(actor, ddbData.ddb).then((conditions) => {
       let results = [];
@@ -1291,7 +1290,7 @@ export function activateUpdateHooks() {
     Hooks.on("createItem", (document) => activeUpdateAddOrDeleteItem(document, "CREATE"));
     Hooks.on("deleteItem", (document) => activeUpdateAddOrDeleteItem(document, "DELETE"));
     // conditions syncing relies of Conv Effects
-    const dfConditionsOn = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
+    const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
     if (dfConditionsOn) {
       Hooks.on("createActiveEffect", (document) => activeUpdateEffectTrigger(document, "CREATE"));
       Hooks.on("updateActiveEffect", (document) => activeUpdateEffectTrigger(document, "UPDATE"));

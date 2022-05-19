@@ -1,4 +1,3 @@
-import utils from "../utils.js";
 import logger from "../logger.js";
 import {
   generateStatusEffectChange as baseGenerateStatusEffectChange,
@@ -119,19 +118,19 @@ var installedModules;
 
 export function spellEffectModules() {
   if (installedModules) return installedModules;
-  const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
-  const advancedMacrosInstalled = utils.isModuleInstalledAndActive("advanced-macros");
-  const aboutTime = utils.isModuleInstalledAndActive("about-time");
-  const itemMacroInstalled = utils.isModuleInstalledAndActive("itemacro");
-  const timesUp = utils.isModuleInstalledAndActive("times-up");
-  const daeInstalled = utils.isModuleInstalledAndActive("dae");
-  const convenientEffectsInstalled = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
+  const midiQolInstalled = game.modules.get("midi-qol")?.active;
+  const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active;
+  const aboutTime = game.modules.get("about-time")?.active;
+  const itemMacroInstalled = game.modules.get("itemacro")?.active;
+  const timesUp = game.modules.get("times-up")?.active;
+  const daeInstalled = game.modules.get("dae")?.active;
+  const convenientEffectsInstalled = game.modules.get("dfreds-convenient-effects")?.active;
 
-  const activeAurasInstalled = utils.isModuleInstalledAndActive("ActiveAuras");
-  const atlInstalled = utils.isModuleInstalledAndActive("ATL");
-  const tokenAurasInstalled = utils.isModuleInstalledAndActive("token-auras");
-  const tokenMagicInstalled = utils.isModuleInstalledAndActive("tokenmagic");
-  const autoAnimationsInstalled = utils.isModuleInstalledAndActive("autoanimations");
+  const activeAurasInstalled = game.modules.get("ActiveAuras")?.active;
+  const atlInstalled = game.modules.get("ATL")?.active;
+  const tokenAurasInstalled = game.modules.get("token-auras")?.active;
+  const tokenMagicInstalled = game.modules.get("tokenmagic")?.active;
+  const autoAnimationsInstalled = game.modules.get("autoanimations")?.active;
   installedModules = {
     hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && aboutTime && timesUp && daeInstalled && convenientEffectsInstalled,
     midiQolInstalled,

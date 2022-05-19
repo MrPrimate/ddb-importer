@@ -568,13 +568,13 @@ export async function characterExtras(html, characterData, actor) {
     if (updateBool) await updateExtras(finalExtras, existingExtras);
     const importedExtras = await createExtras(finalExtras, existingExtras, folder.id);
 
-    const isAutomatedEvocations = utils.isModuleInstalledAndActive("automated-evocations");
+    const isAutomatedEvocations = game.modules.get("automated-evocations")?.active;
     if (isAutomatedEvocations) {
       const currentAutomatedEvocationSettings = {
         isLocal: actor.getFlag("automated-evocations", "isLocal"),
         companions: actor.getFlag("automated-evocations", "isLocal"),
       };
-  
+
       const companions = existingExtras.concat(importedExtras).map((extra) => {
         return {
           id: extra.id ? extra.id : extra._id,
@@ -589,7 +589,7 @@ export async function characterExtras(html, characterData, actor) {
         companions,
       };
       const mergedSettings = mergeObject(currentAutomatedEvocationSettings, newAutomatedEvocationSettings);
-  
+
       actor.setFlag("automated-evocations", "isLocal", mergedSettings.isLocal);
       actor.setFlag("automated-evocations", "companions", mergedSettings.companions);
     }

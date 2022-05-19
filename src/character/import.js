@@ -712,9 +712,9 @@ export default class CharacterImport extends FormApplication {
     const ddbGenericItemIcons = game.settings.get("ddb-importer", "character-update-policy-use-ddb-generic-item-icons");
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
     const daeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-dae-effect-copy");
-    const daeSRDInstalled = utils.isModuleInstalledAndActive("Dynamic-Effects-SRD");
-    const daeMidiInstalled = utils.isModuleInstalledAndActive("midi-srd");
-    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
+    const daeMidiInstalled = game.modules.get("midi-srd")?.active;
+    const daeInstalled = game.modules.get("dae")?.active;
     const addItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
     const addCharacterEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
 
@@ -880,7 +880,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   async fetchCharacterItems(html) {
-    const magicItemsInstalled = utils.isModuleInstalledAndActive("magicitems");
+    const magicItemsInstalled = game.modules.get("magicitems")?.active;
     // items for actor
     let items = [];
 

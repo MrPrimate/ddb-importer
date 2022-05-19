@@ -60,7 +60,7 @@ export async function parseSpells(ids = null) {
   await utils.generateCurrentFiles(uploadDirectory);
 
   const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
-  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   if (addToCompendiumFolder && compendiumFoldersInstalled) {
     munchNote(`Checking compendium folders..`, true);
     await createCompendiumFolderStructure("spells");

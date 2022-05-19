@@ -7,7 +7,6 @@ import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
-import { resetEquipment } from "./monster/ac.js";
 
 async function getMonsterData(ids) {
   const cobaltCookie = getCobalt();
@@ -88,7 +87,7 @@ async function getMonsterData(ids) {
 
 export async function parseCritters(ids = null) {
   checkMonsterCompendium();
-  resetEquipment();
+  setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
   const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -119,25 +118,12 @@ export async function parseCritters(ids = null) {
   munchNote(`Fiddling with the SRD data...`, true);
   const finalMonsters = await srdFiddling(monsters, "monsters");
 
-  // let features = [];
-  // let cr = [];
-  // console.warn(finalMonsters);
-  // finalMonsters.forEach((monster) => {
-  //   cr.push({name: monster.name, cr: monster.data.details.cr, type: monster.data.details.type });
-  // monster.items.forEach((feature) => {
-  //   features.push({ name: feature.name, monster: monster.name, srdImage: feature.img});
-  // })
-  // });
-  // download(JSON.stringify(features), `monster-features.json`, "application/json");
-  // download(JSON.stringify(cr), `monster-details.json`, "application/json");
-  // return 0;
-
   munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);
 
 
   const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
-  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   if (addToCompendiumFolder && compendiumFoldersInstalled) {
     munchNote(`Checking compendium folders..`, true);
     await createCompendiumFolderStructure("monsters");
@@ -157,7 +143,7 @@ export async function parseCritters(ids = null) {
     currentMonster += 1;
   }
   munchNote("", false, true);
-  resetEquipment();
+  setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
   if (ids !== null) {
     return Promise.all(monstersParsed);
@@ -167,7 +153,7 @@ export async function parseCritters(ids = null) {
 
 export async function fixCritters(ids = null) {
   checkMonsterCompendium();
-  resetEquipment();
+  setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
   logger.info("Check complete getting monster data...");
   let monsters = await getMonsterData(ids);

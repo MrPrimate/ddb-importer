@@ -46,7 +46,7 @@ const utils = {
 
   globalDamageTagInfo: (mod) => {
     const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
-    const midiInstalled = utils.isModuleInstalledAndActive("midi-qol");
+    const midiInstalled = game.modules.get("midi-qol")?.active;
     const damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !midiInstalled;
     const hintOrRestriction = globalDamageHints || damageRestrictionHints;
     const restriction = damageRestrictionHints && mod.restriction && mod.restriction !== "" ? mod.restriction : "";
@@ -339,7 +339,7 @@ const utils = {
   getActiveItemModifiers: (data, includeExcludedEffects = false) => {
     // are we adding effects to items?
     const addEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
-    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const daeInstalled = game.modules.get("dae")?.active;
     const excludedModifiers = (addEffects && daeInstalled && !includeExcludedEffects) ? getEffectExcludedModifiers("item", true, true) : [];
     // get items we are going to interact on
     const modifiers = data.character.inventory
@@ -371,7 +371,7 @@ const utils = {
     // are we adding effects to items?
     const featureEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
     const acEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects");
-    const daeInstalled = utils.isModuleInstalledAndActive("dae");
+    const daeInstalled = game.modules.get("dae")?.active;
     const excludedModifiers = ((featureEffects || acEffects) && daeInstalled &&
       (!includeExcludedEffects || (includeExcludedEffects && effectOnly)))
       ? getEffectExcludedModifiers(type, featureEffects, acEffects)
@@ -1265,10 +1265,6 @@ const utils = {
     }
 
     return 0;
-  },
-
-  isModuleInstalledAndActive: (moduleName) => {
-    return game.modules.has(moduleName) && game.modules.get(moduleName).active;
   },
 
   groupBy(arr, property) {

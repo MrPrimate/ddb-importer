@@ -111,7 +111,7 @@ function setSpecial(data, skills) {
 export function getSkills(data, character) {
   let result = {};
 
-  const addEffects = utils.isModuleInstalledAndActive("dae");
+  const addEffects = game.modules.get("dae")?.active;
   // dnd 1.5.0 +
   const SAVE_BONUSES = utils.versionCompare(game.data.system.data.version, "1.5.0") >= 0;
 

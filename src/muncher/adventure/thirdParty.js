@@ -1,7 +1,6 @@
 import Helpers from "./common.js";
 import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
-import utils from "../../utils.js";
 import { generateIcon } from "./icons.js";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
@@ -85,7 +84,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
     if (packageSelection) {
       const missingModules = [this._defaultRepoData.packages[packageSelection].module].filter((module) => {
-        return !utils.isModuleInstalledAndActive(module);
+        return !game.modules.get(module)?.active;
       });
 
       this._packageName = packageSelectionElement[0].selectedOptions[0].text;

@@ -1,5 +1,3 @@
-import utils from "../../utils.js";
-
 const CONDITION_TYPES = [
   { name: "Blinded", value: "blinded" },
   { name: "Charmed", value: "charmed" },
@@ -74,7 +72,7 @@ function getDamageAdjustments(monster, type) {
     } else if (adjustment && adjustment.slug === "bludgeoning-piercing-and-slashing-from-nonmagical-attacks") {
       values.push("physical");
     } else if (adjustment) {
-      const midiQolInstalled = utils.isModuleInstalledAndActive("midi-qol");
+      const midiQolInstalled = game.modules.get("midi-qol")?.active;
       if (midiQolInstalled) {
         if (adjustment.name.toLowerCase().includes("silvered")) {
           values.push("silver");

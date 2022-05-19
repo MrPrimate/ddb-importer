@@ -341,7 +341,7 @@ function enrichFlags(data, item) {
   if (data.definition.magic) {
     setProperty(item, "data.properties.mgc", true);
   }
-  if (utils.isModuleInstalledAndActive("betterrolls5e")) {
+  if (game.modules.get("betterrolls5e")?.active) {
     if (item.data.uses?.max && !item.flags?.betterRolls5e) {
       item.flags['betterRolls5e'] = {
         quickCharges: {
@@ -398,7 +398,7 @@ export default function getInventory(ddb, character, itemSpells) {
       }))
     : [];
 
-  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const daeInstalled = game.modules.get("dae")?.active;
   const compendiumItem = character.flags.ddbimporter.compendium;
   const addEffects = (compendiumItem)
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")

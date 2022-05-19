@@ -887,6 +887,11 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-monster-tokenize": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-update-images": {
             name: "ddb-importer.settings.munching-policy-update-images.name",
             hint: "ddb-importer.settings.munching-policy-update-images.hint",

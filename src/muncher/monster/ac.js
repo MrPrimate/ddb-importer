@@ -6,20 +6,17 @@ const BAD_AC_MONSTERS = [
   "arkhan the cruel"
 ];
 
-var equipmentCompendium;
-
-export function resetEquipment() {
-  equipmentCompendium = null;
-}
-
 async function getEquipmentCompendium() {
-  if (!equipmentCompendium) {
+  if (!hasProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY.compendium.equipment")) {
     const label = getCompendiumLabel("inventory");
     // eslint-disable-next-line require-atomic-updates
-    equipmentCompendium = await getCompendium(label);
-    if (!equipmentCompendium.indexed) await equipmentCompendium.getIndex();
+    const compendium = await getCompendium(label);
+    setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY.compendium.equipment", compendium);
+    if (!CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment.indexed) {
+      await CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment.getIndex();
+    }
   }
-  return equipmentCompendium;
+  return CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment;
 }
 
 export async function generateAC(monster, useItemAC) {

@@ -79,7 +79,7 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
 
 export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
   // can we apply any effects to this feature
-  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const daeInstalled = game.modules.get("dae")?.active;
   const compendiumItem = character.flags.ddbimporter.compendium;
   const addCharacterEffects = compendiumItem
     ? game.settings.get("ddb-importer", "munching-policy-add-effects")

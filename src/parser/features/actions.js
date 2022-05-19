@@ -5,7 +5,7 @@ import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./
 import { getInfusionActionData } from "../inventory/infusions.js";
 
 function getResourceFlags(character, action, flags) {
-  const linkItems = utils.isModuleInstalledAndActive("link-item-resource-5e");
+  const linkItems = game.modules.get("link-item-resource-5e")?.active;
   const resourceType = getProperty(character, "flags.ddbimporter.resources.type");
   if (resourceType !== "disable" && linkItems) {
     const hasResourceLink = getProperty(flags, "link-item-resource-5e.resource-link");
@@ -64,7 +64,7 @@ function addFlagHints(ddb, character, action, feature) {
   }
 
   // better rolls
-  if (utils.isModuleInstalledAndActive("betterrolls5e")) {
+  if (game.modules.get("betterrolls5e")?.active) {
     if (feature.data.uses?.max) {
       feature.flags.betterRolls5e = {
         "quickCharges": {

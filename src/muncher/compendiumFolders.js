@@ -262,7 +262,7 @@ async function createItemTypeCompendiumFolders(packName) {
 
 // create compendium folder structure
 export async function createCompendiumFolderStructure(type) {
-  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
 
   if (compendiumFoldersInstalled) {
     compendiumFolderTypeMonster = game.settings.get("ddb-importer", "munching-selection-compendium-folders-monster");
@@ -524,7 +524,7 @@ function getCompendiumFolderName(type, document) {
 }
 
 export async function addToCompendiumFolder(type, document, folders) {
-  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
 
   if (compendiumFoldersInstalled && (folders || game.customFolders?.fic?.folders)) {
     if (!folders) folders = game.customFolders.fic.folders;
@@ -559,7 +559,7 @@ export async function addToCompendiumFolder(type, document, folders) {
 
 // create compendium folders for existing things
 export async function migrateExistingCompendium(type) {
-  const compendiumFoldersInstalled = utils.isModuleInstalledAndActive("compendium-folders");
+  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
 
   if (!compendiumFoldersInstalled) {
     logger.warn("Compendium Folders module is not installed");

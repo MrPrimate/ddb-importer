@@ -21,7 +21,7 @@ export async function checkMacroFolder() {
 
 export function configureDependencies() {
   // allow item use macros on items
-  if (utils.isModuleInstalledAndActive("midi-qol")) {
+  if (game.modules.get("midi-qol")?.active) {
     let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
     if (!midiQOLSettings.allowUseMacro) {
       midiQOLSettings.allowUseMacro = true;
@@ -33,7 +33,7 @@ export function configureDependencies() {
   }
 
   // if dfreds status effects not added, add them
-  if (utils.isModuleInstalledAndActive("dfreds-convenient-effects")) {
+  if (game.modules.get("dfreds-convenient-effects")?.active) {
     const convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
     if (!convenientEffectStatusSettings || convenientEffectStatusSettings === "none") {
       game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
@@ -43,7 +43,7 @@ export function configureDependencies() {
     ui.notifications.warn("Convenient Effects needs to be installed for effects");
   }
 
-  if (utils.isModuleInstalledAndActive("itemacro")) {
+  if (game.modules.get("itemacro")?.active) {
     const itemMacroSheet = game.settings.get("itemacro", "charsheet");
     if (itemMacroSheet) {
       game.settings.get("itemacro", "charsheet", false);

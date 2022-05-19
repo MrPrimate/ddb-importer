@@ -168,7 +168,7 @@ function addACBonusEffect(modifiers, name, type) {
     logger.debug(`Generating ${type} bonus for ${name}`);
     const AUTO_AC = utils.versionCompare(game.data.system.data.version, "1.4.0") >= 0;
     if (AUTO_AC) {
-      const daeInstalled = utils.isModuleInstalledAndActive("dae");
+      const daeInstalled = game.modules.get("dae")?.active;
       // using bonus here adds them to the bonus field, but then items that add a bonsu don't get applied
       // (e.g. bracers of defense) if wearing something like robi of archmage.
       // this is set to value, and show up as separate line in ac calculation.
@@ -218,7 +218,7 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
 function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect) {
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
   const noACValue = !foundryItem.data?.armor?.value;
-  const daeInstalled = utils.isModuleInstalledAndActive("dae");
+  const daeInstalled = game.modules.get("dae")?.active;
   const daeBonusField = daeInstalled ? "data.attributes.ac.value" : "data.attributes.ac.bonus";
 
   if (noModifiers && noACValue) return [];

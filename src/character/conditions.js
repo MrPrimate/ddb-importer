@@ -1,4 +1,3 @@
-import utils from "../utils.js";
 import logger from "../logger.js";
 
 const CONDITION_MATRIX = [
@@ -69,7 +68,7 @@ export async function getActorConditionStates(actor, ddb) {
  * @param {*} actor
  */
 export async function setConditions(actor, ddb) {
-  const dfConditionsOn = utils.isModuleInstalledAndActive("dfreds-convenient-effects");
+  const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
   if (dfConditionsOn) {
     const conditionStates = await getActorConditionStates(actor, ddb);
     // console.warn(conditionStates);
