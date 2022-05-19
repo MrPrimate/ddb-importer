@@ -1,3 +1,8 @@
+# 2.9.41
+
+* Auto Tokenize is now an option during monster munch. This respects the existing update image settings.
+* Some code cleanup to use more modern Foundry style for module active checks.
+
 # 2.9.40
 
 * Global bonuses could be ints not strings, breaking effects. (Thanks @JacksonBockus#1378)
