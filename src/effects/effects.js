@@ -966,15 +966,20 @@ function addProficiencies(modifiers, name) {
  * @param {*} modifiers
  * @param {*} name
  */
-function addHPEffect(modifiers, name, consumable) {
+function addHPEffect(ddb, modifiers, name, consumable) {
   let changes = [];
 
   // HP per level
-  const hpPerLevel = utils.filterModifiers(modifiers, "bonus", "hit-points-per-level").reduce((a, b) => a + b.value, 0);
-  if (hpPerLevel && hpPerLevel > 0) {
-    logger.debug(`Generating HP Per Level effects for ${name}`);
-    changes.push(generateAddChange(`${hpPerLevel} * @details.level`, 14, "data.attributes.hp.max"));
-  }
+  utils.filterModifiers(modifiers, "bonus", "hit-points-per-level").forEach((bonus) => {
+    const cls = utils.findClassByFeatureId(ddb, bonus.componentId);
+    if (cls) {
+      logger.debug(`Generating HP Per Level effects for ${name} for class ${cls.definition.name}`);
+      changes.push(generateAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "data.attributes.hp.max"));
+    } else {
+      logger.debug(`Generating HP Per Level effects for ${name} for all levels`);
+      changes.push(generateAddChange(`${bonus.value} * @details.level`, 14, "data.attributes.hp.max"));
+    }
+  });
 
   const hpBonusModifiers = utils.filterModifiers(modifiers, "bonus", "hit-points");
   if (hpBonusModifiers.length > 0 && !consumable) {
@@ -1278,7 +1283,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   );
 
   const profs = addProficiencies(ddbItem.definition.grantedModifiers, foundryItem.name);
-  const hp = addHPEffect(ddbItem.definition.grantedModifiers, foundryItem.name, ddbItem.definition.isConsumable);
+  const hp = addHPEffect(ddb, ddbItem.definition.grantedModifiers, foundryItem.name, ddbItem.definition.isConsumable);
   const skillBonus = addSkillBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const initiative = addInitiativeBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const disadvantageAgainst = addAttackRollDisadvantage(ddbItem.definition.grantedModifiers, foundryItem.name);
