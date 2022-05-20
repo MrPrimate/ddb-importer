@@ -1,3 +1,7 @@
+# 2.9.42
+
+* Munching items with effects would break.
+
 # 2.9.41
 
 * Auto Tokenize is now an option during monster munch. This respects the existing update image settings.

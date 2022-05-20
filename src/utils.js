@@ -613,7 +613,7 @@ const utils = {
   },
 
   getComponentIdFromOptionValue: (ddb, type, optionId) => {
-    if (ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
+    if (ddb.character?.choices && ddb.character.choices[type] && Array.isArray(ddb.character.choices[type])) {
       // find a choice in the related choices-array
       const choice = ddb.character.choices[type].find(
         (characterChoice) => characterChoice.optionValue && characterChoice.optionValue === optionId
@@ -625,9 +625,11 @@ const utils = {
   },
 
   determineActualFeatureId: (data, featureId, type = "class") => {
-    const optionalFeatureReplacement = data.character.optionalClassFeatures
-      .filter((f) => f.classFeatureId === featureId)
-      .map((f) => f.affectedClassFeatureId);
+    const optionalFeatureReplacement = data.character?.optionalClassFeatures
+      ? data.character.optionalClassFeatures
+        .filter((f) => f.classFeatureId === featureId)
+        .map((f) => f.affectedClassFeatureId)
+      : [];
     // are we dealing with an optional class feature?
     const choiceFeature = utils.getComponentIdFromOptionValue(data, type, featureId);
 
