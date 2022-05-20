@@ -139,6 +139,22 @@ function parseMatch(ddb, character, match, feature) {
   }
 
   // abilityscore:int
+  if (result.includes("spellattack")) {
+    const regexp = /spellattack:([a-z]{3})/g;
+    // creates array from match groups and dedups
+    const ability = [...new Set(Array.from(result.matchAll(regexp), (m) => m[1]))];
+
+    ability.forEach((ab) => {
+      const rollString = useScale
+        ? ` + @abilities.${ab}.mod + @prof + @bonus.rsak.attack`
+        : `${characterAbilities[ab].value} + ${character.data.attributes.prof}`;
+      const abRegexp = RegExp(`spellattack:${ab}`, "g");
+      result = result.replace(abRegexp, rollString);
+      linktext = result.replace(abRegexp, ` (${utils.capitalize(ab)} Spell Attack) `);
+    });
+  }
+
+  // abilityscore:int
   if (result.includes("abilityscore")) {
     const regexp = /abilityscore:([a-z]{3})/g;
     // creates array from match groups and dedups
@@ -304,6 +320,19 @@ export function parseTags(text) {
   return text;
 }
 
+function fixRollables(text) {
+  // older chrome/chromium and electron app do not support replaceAll
+  if (typeof text.replaceAll !== "function") {
+    return text;
+  }
+  const diceMatchRegex = /<strong>\s*(\d*d\d\d*)\s*\+*\s*<\/strong>\s*\[\[\/roll/g;
+  const matches = text.match(diceMatchRegex);
+  if (matches) {
+    return text.replaceAll(diceMatchRegex, "[[/roll $1 ");
+  }
+  return text;
+}
+
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.
  * e.g. Each creature in the area must make a DC {{savedc:con}} saving throw.
@@ -390,6 +419,8 @@ export default function parseTemplateString(ddb, character, text, feature) {
   result.text = result.text.replace("+ +", "+");
   result.text = result.text.replace("++", "+");
   result.text = result.text.replace("+</strong>+", "+</strong>");
+
+  result.text = fixRollables(result.text);
 
   result.text = parseTags(result.text);
   character.flags.ddbimporter.dndbeyond.templateStrings.push(result);
