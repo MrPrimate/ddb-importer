@@ -4,7 +4,9 @@
 * Some code cleanup to use more modern Foundry style for module active checks.
 * Support rollable spellattacks in descriptions, e.g. for the Steel Defender.
 * Improve some template string replacement improvements.
-* Fix draconic resistence effect - if generating hp for effects, now takes class factors into account.
+* Fix draconic resistence effect - if generating hp for effects, now takes class factors into account. @Vintro#9554
+* Try and reduce custom homebrew language parse fail @MagRoader#2161
+
 
 # 2.9.40
 

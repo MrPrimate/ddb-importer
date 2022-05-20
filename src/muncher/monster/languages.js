@@ -46,7 +46,7 @@ export function getLanguages (monster) {
     const foundryLanguage = LANGUAGES.find((lang) => lang.name == language.name);
     if (foundryLanguage && lng.notes == '') {
       values.push(foundryLanguage.value);
-    } else {
+    } else if (language) {
       const notes = (lng.notes !== '') ? ` ${lng.notes}` : "";
       custom.push(language.name + notes);
     }
