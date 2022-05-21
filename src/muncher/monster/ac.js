@@ -35,7 +35,9 @@ export async function generateAC(monster, useItemAC) {
 
   let acItems = [];
 
-  const lowerDescription = monster.armorClassDescription.toLowerCase();
+  const lowerDescription = monster.armorClassDescription
+    ? monster.armorClassDescription.toLowerCase()
+    : "";
   const descriptionItems = monster.armorClassDescription
     ? lowerDescription.replace("(", "").replace(")", "")
       .split(";")[0]

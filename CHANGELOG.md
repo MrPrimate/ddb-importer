@@ -1,3 +1,7 @@
+# 2.9.43
+
+* Homebrew monsters with no armor description would fail to parse.
+
 # 2.9.42
 
 * Munching items with effects would break.
