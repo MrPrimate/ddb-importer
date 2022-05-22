@@ -48,45 +48,48 @@ import { ABILITIES } from "./abilities.js";
 // },
 export function getSkills (skills, monster) {
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
+  const validSkills = SKILLS.map((skill) => skill.name);
 
   const keys = Object.keys(skills);
-  keys.forEach((key) => {
-    let skill = skills[key];
-    const ability = ABILITIES.find((ab) => ab.value === skill.ability);
-    const stat = monster.stats.find((stat) => stat.statId === ability.id).value || 10;
-    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
-    const lookupSkill = SKILLS.find((s) => s.name == key);
-    const monsterSkill = monster.skills.find((s) => s.skillId == lookupSkill.valueId);
+  keys
+    .filter((key) => validSkills.includes(key))
+    .forEach((key) => {
+      let skill = skills[key];
+      const ability = ABILITIES.find((ab) => ab.value === skill.ability);
+      const stat = monster.stats.find((stat) => stat.statId === ability.id).value || 10;
+      const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
+      const lookupSkill = SKILLS.find((s) => s.name == key);
+      const monsterSkill = monster.skills.find((s) => s.skillId == lookupSkill.valueId);
 
-    skills[key].mod = mod;
+      skills[key].mod = mod;
 
-    const calculatedScore = proficiencyBonus + mod;
+      const calculatedScore = proficiencyBonus + mod;
 
-    if (monsterSkill) {
-      skills[key].value = 1;
-      skills[key].prof = proficiencyBonus;
-      skills[key].bonus = monsterSkill.additionalBonus || 0;
-    }
-
-    skills[key].total = calculatedScore;
-    skills[key].passive = 10 + calculatedScore;
-
-    if (monsterSkill && monsterSkill.value != calculatedScore) {
-      if (monsterSkill.value == calculatedScore + proficiencyBonus) {
-        skills[key].passive += proficiencyBonus;
-        skills[key].value = 2;
-        skills[key].total += proficiencyBonus;
-        skills[key].prof += proficiencyBonus;
-        skills[key].bonus = 0;
-      } else if (monsterSkill.value > calculatedScore + proficiencyBonus) {
-        skills[key].passive += proficiencyBonus;
-        skills[key].value = 2;
-        skills[key].total += proficiencyBonus;
-        skills[key].prof += proficiencyBonus;
+      if (monsterSkill) {
+        skills[key].value = 1;
+        skills[key].prof = proficiencyBonus;
+        skills[key].bonus = monsterSkill.additionalBonus || 0;
       }
-    }
 
-  });
+      skills[key].total = calculatedScore;
+      skills[key].passive = 10 + calculatedScore;
+
+      if (monsterSkill && monsterSkill.value != calculatedScore) {
+        if (monsterSkill.value == calculatedScore + proficiencyBonus) {
+          skills[key].passive += proficiencyBonus;
+          skills[key].value = 2;
+          skills[key].total += proficiencyBonus;
+          skills[key].prof += proficiencyBonus;
+          skills[key].bonus = 0;
+        } else if (monsterSkill.value > calculatedScore + proficiencyBonus) {
+          skills[key].passive += proficiencyBonus;
+          skills[key].value = 2;
+          skills[key].total += proficiencyBonus;
+          skills[key].prof += proficiencyBonus;
+        }
+      }
+
+    });
 
   return skills;
 }
@@ -114,37 +117,40 @@ export function getSkillsHTML (skills, monster) {
   });
 
   const keys = Object.keys(skills);
-  keys.forEach((key) => {
-    let skill = skills[key];
-    const ability = ABILITIES.find((ab) => ab.value === skill.ability);
-    const stat = monster.stats.find((stat) => stat.statId === ability.id).value || 10;
-    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
-    const lookupSkill = SKILLS.find((s) => s.name == key);
-    const monsterSkill = monster.skills.find((s) => s.skillId == lookupSkill.valueId);
+  const validSkills = SKILLS.map((skill) => skill.name);
+  keys
+    .filter((key) => validSkills.includes(key))
+    .forEach((key) => {
+      let skill = skills[key];
+      const ability = ABILITIES.find((ab) => ab.value === skill.ability);
+      const stat = monster.stats.find((stat) => stat.statId === ability.id).value || 10;
+      const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
+      const lookupSkill = SKILLS.find((s) => s.name == key);
+      const monsterSkill = monster.skills.find((s) => s.skillId == lookupSkill.valueId);
 
-    skills[key].mod = mod;
+      skills[key].mod = mod;
 
-    if (monsterSkill) {
-      skills[key].value = 1;
-      skills[key].prof = proficiencyBonus;
-      skills[key].bonus = monsterSkill.additionalBonus || 0;
-    }
-    const calculatedScore = skills[key].prof + mod + skills[key].bonus;
-    skills[key].total = calculatedScore;
-    skills[key].passive = 10 + calculatedScore;
-
-    const htmlSkill = skillsMaps.find((skl) => skl.name == lookupSkill.label);
-
-    if (htmlSkill) {
-      if (htmlSkill.value > calculatedScore) {
-        skills[key].passive += proficiencyBonus;
-        skills[key].value = 2;
-        skills[key].total += proficiencyBonus;
-        skills[key].prof += proficiencyBonus;
+      if (monsterSkill) {
+        skills[key].value = 1;
+        skills[key].prof = proficiencyBonus;
+        skills[key].bonus = monsterSkill.additionalBonus || 0;
       }
-    }
+      const calculatedScore = skills[key].prof + mod + skills[key].bonus;
+      skills[key].total = calculatedScore;
+      skills[key].passive = 10 + calculatedScore;
 
-  });
+      const htmlSkill = skillsMaps.find((skl) => skl.name == lookupSkill.label);
+
+      if (htmlSkill) {
+        if (htmlSkill.value > calculatedScore) {
+          skills[key].passive += proficiencyBonus;
+          skills[key].value = 2;
+          skills[key].total += proficiencyBonus;
+          skills[key].prof += proficiencyBonus;
+        }
+      }
+
+    });
 
   return skills;
 }
