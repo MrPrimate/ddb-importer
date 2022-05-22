@@ -23,7 +23,7 @@ export function bardicInspirationEffect(document) {
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.bardicInspiration.label.all",
+      key: "flags.midi-qol.optional.bardicInspiration.label",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "Bardic Inspiration",
       priority: "20",
