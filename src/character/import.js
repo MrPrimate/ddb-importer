@@ -17,7 +17,7 @@ import { download, getCampaignId, getCompendiumType } from "../muncher/utils.js"
 import { addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
-import { characterExtras } from "./extras.js";
+import { generateCharacterExtras } from "../muncher/extras/extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import { DDBCookie } from "../lib/Settings.js";
@@ -625,7 +625,7 @@ export default class CharacterImport extends FormApplication {
             download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
           }
           if (characterData.success) {
-            await characterExtras(html, characterData, this.actor);
+            await generateCharacterExtras(html, characterData, this.actor);
             CharacterImport.showCurrentTask(html, "Loading Extras", "Done.", false);
             $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
             this.close();

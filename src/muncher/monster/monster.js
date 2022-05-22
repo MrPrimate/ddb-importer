@@ -45,7 +45,8 @@ async function parseMonster(monster, extra, useItemAC) {
   foundryActor.flags.ddbimporter = {
     id: monster.id,
     entityTypeId: monster.entityTypeId,
-    creatureGroup: monster.creatureGroup ? monster.creatureGroup : null,
+    // creatureGroup: monster.creatureGroup ? monster.creatureGroup : null,
+    creatureGroupId: monster.creatureGroupId ? monster.creatureGroupId : null,
     creatureFlags: monster.creatureFlags ? monster.creatureFlags : [],
     automatedEvcoationAnimation: monster.automatedEvcoationAnimation ? monster.automatedEvcoationAnimation : undefined,
     version: CONFIG.DDBI.version,
