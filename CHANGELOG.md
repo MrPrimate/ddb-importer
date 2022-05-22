@@ -1,6 +1,8 @@
 # 2.9.43
 
 * Homebrew monsters with no armor description would fail to parse.
+* Prevent Skill Extensions 5e module breaking Monster Munch.
+* Effects: Bardic Inspiration label was incorrect
 
 # 2.9.42
 
