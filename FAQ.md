@@ -38,6 +38,13 @@ Create compendiums if required, select them in the drop downs then click "Save".
 
 ![](./docs/compendiums.png)
 
+
+## My monsters have a vision of can't see anything/can see everything!
+
+The monster muncher uses the Toekn Defaults to apply to your tokens. it will set the sight radius to the appropriate darkvision range, but the "Has Vision" option will grant the token a vision attribute or not. (i.e. can it see normally or full access).
+
+![](./docs/token_defaults.png)
+
 ## I get a key does not exist error!
 
 I get an error along the lines of:
