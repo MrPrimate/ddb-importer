@@ -233,6 +233,56 @@ const applyConstraint = (value, constraint) => {
   return result;
 };
 
+
+/**
+ * Apply the expression constraint
+ * @param {*} value
+ * @param {*} constraint
+ */
+const addConstraintEvaluations = (value, constraint) => {
+  // {{(classlevel/2)@rounddown#unsigned}}
+  // @ features
+  // @roundup
+  // @roundown
+  // min:1
+  // max:3
+  const splitConstraint = constraint.split(":");
+  const multiConstraint = splitConstraint[0].split("*");
+  const match = multiConstraint[0];
+
+  let result = value;
+
+  switch (match) {
+    case "max": {
+      result = `Math.max(${value}, ${splitConstraint[1]})`;
+      break;
+    }
+    case "min": {
+      result = `Math.min(${value}, ${splitConstraint[1]})`;
+      break;
+    }
+    case "roundup": {
+      result = `Math.ceil(${value})`;
+      break;
+    }
+    case "rounddown":
+    case "roundown": {
+      result = `Math.floor(${value})`;
+      break;
+    }
+    default: {
+      logger.debug(`Missed match is ${match}`);
+      logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`); // eslint-disable-line no-console
+    }
+  }
+
+  if (multiConstraint.length > 1) {
+    result = `${result}*${multiConstraint[1]}`;
+  }
+
+  return result;
+};
+
 const escapeRegExp = (string) => {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 };
@@ -325,11 +375,21 @@ function fixRollables(text) {
   if (typeof text.replaceAll !== "function") {
     return text;
   }
-  const diceMatchRegex = /<strong>\s*(\d*d\d\d*)\s*\+*\s*<\/strong>\s*\[\[\/roll/g;
+  const diceMatchRegex = /<strong>\+*\s*(\d*d\d\d*)\s*\+*\s*<\/strong>\+*\s*\[\[\/roll/g;
   const matches = text.match(diceMatchRegex);
   if (matches) {
     return text.replaceAll(diceMatchRegex, "[[/roll $1 ");
   }
+
+
+  // TODO : if [[/roll ]] anddoes not include a dice expression or scale value remove /roll
+  const noRollRegex = /(\[\[\/roll)([\w\s.,@\d+\\*/()]+(?![0-9]*d[0-9]+)(?!@scale\.)[\w\s.,@\d+\\*/()]+)(\]\]{Scaled Roll})/g;
+  const noRollMatches = text.match(noRollRegex);
+  console.warn({text, noRollMatches});
+  if (noRollMatches) {
+    return text.replaceAll(diceMatchRegex, "[[$2]]");
+  }
+
   return text;
 }
 
@@ -358,7 +418,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
   const useScaleText = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description")
     ? "{Scaled Roll}"
     : "";
-  const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)?({{.*?}})(?:$|[. "')+<])/g;
+  const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)?({{.*?}})(?:$|[., "')+<])/g;
   const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
   fullMatches.forEach((match) => {
     result.text = result.text.replace(match, `[[/roll ${match}]]${useScaleText}`);
@@ -390,6 +450,15 @@ export default function parseTemplateString(ddb, character, text, feature) {
     if (parsedMatch.match(dicePattern) || parsedMatch.includes("@")) {
       if (parsedMatch.match(dicePattern)) entry.type = "dice";
       entry.parsed = parsedMatch;
+      if (splitMatchAt.length > 1) {
+        entry.parsed += ")";
+        console.warn("split", splitMatchAt);
+        console.warn("parsed", duplicate(entry.parsed));
+        for (let i = 1; i < splitMatchAt.length; i++) {
+          console.warn(`split match ${i}`, splitMatchAt[i]);
+          entry.parsed = addConstraintEvaluations(entry.parsed, splitMatchAt[i]);
+        }
+      }
       result.text = result.text.replace(entry.replacePattern, entry.parsed);
     } else {
       // we try and eval the expression!
@@ -399,8 +468,10 @@ export default function parseTemplateString(ddb, character, text, feature) {
         const evalMatch = eval(parsedMatch);
         /* eslint-enable no-eval */
         if (splitMatchAt.length > 1) {
-          const constraintAdjusted = applyConstraint(evalMatch, splitMatchAt[1]);
-          entry.parsed = getNumber(constraintAdjusted);
+          for (let i = 1; i < splitMatchAt.length; i++) {
+            const constraintAdjusted = applyConstraint(evalMatch, splitMatchAt[i]);
+            entry.parsed = getNumber(constraintAdjusted);
+          }
         } else {
           entry.parsed = getNumber(evalMatch);
         }
@@ -416,11 +487,10 @@ export default function parseTemplateString(ddb, character, text, feature) {
     result.definitions.push(entry);
   });
 
+  result.text = fixRollables(result.text);
   result.text = result.text.replace("+ +", "+");
   result.text = result.text.replace("++", "+");
   result.text = result.text.replace("+</strong>+", "+</strong>");
-
-  result.text = fixRollables(result.text);
 
   result.text = parseTags(result.text);
   character.flags.ddbimporter.dndbeyond.templateStrings.push(result);

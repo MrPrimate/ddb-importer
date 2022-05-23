@@ -602,7 +602,8 @@ function enhanceParsedExtra(actor, extra) {
     }
   }
 
-  if ( // Damage Rolls Add Proficiency Bonus
+  if (
+    // Damage Rolls Add Proficiency Bonus
     (extra.flags?.ddbimporter?.creatureFlags?.includes("DRPB") && extra.flags?.ddbimporter?.creatureGroupId !== 3) ||
     // is this a artificer infusion? the infusion call actually adds this creature group, but we don't fetch that yet.
     extra.flags?.ddbimporter?.creatureGroupId === 12
@@ -647,7 +648,7 @@ export async function generateCharacterExtras(html, characterData, actor) {
   const munchSettings = setExtraMunchDefaults();
 
   try {
-    logger.debug(characterData);
+    logger.debug("characterData", characterData);
     if (ddbCharacter.creatures.length === 0) return;
 
     const folder = await utils.getOrCreateFolder(actor.folder, "Actor", `[Extras] ${actor.name}`);
@@ -659,6 +660,7 @@ export async function generateCharacterExtras(html, characterData, actor) {
         return creature;
       });
 
+    logger.debug("Extracted creatures", extractedCreatures);
     const parsedExtras = await parseMonsters(extractedCreatures, true);
     logger.debug("Parsed Extras:", duplicate(parsedExtras.actors));
 
