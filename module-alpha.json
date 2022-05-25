@@ -1,5 +1,5 @@
 {
-  "name": "ddb-importer",
+  "id": "ddb-importer",
   "author": "MrPrimate",
   "title": "[ALPHA] D&D Beyond Importer",
   "description": "ALPHA DDB Importer for Active Updates",
@@ -11,6 +11,10 @@
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "minimumCoreVersion": "10",
   "compatibleCoreVersion": "10",
+  "compatibility": {
+    "minimum": "10",
+    "verified": "10"
+  },
   "authors": [
     {
       "name": "MrPrimate",
