@@ -204,17 +204,12 @@ const applyConstraint = (value, constraint) => {
 
   let result = value;
 
-  console.warn("start constraint", {match, splitConstraint, multiConstraint, value})
-
   switch (match) {
     case "max": {
-      // if (splitConstraint[1] < result) result = splitConstraint[1];
       result = Math.min(splitConstraint[1], result);
       break;
     }
     case "min": {
-      console.warn("min", {constraint: splitConstraint[1], value})
-      // if (splitConstraint[1] > result) result = splitConstraint[1];
       result = Math.max(splitConstraint[1], result);
       break;
     }
@@ -235,7 +230,6 @@ const applyConstraint = (value, constraint) => {
 
   if (multiConstraint.length > 1) {
     const evalStatement = `${result}*${multiConstraint[1]}`;
-    console.warn("eval constraint", evalStatement.replace(")", ""))
     result = evaluateMath(evalStatement.replace(")", ""));
   }
 
@@ -246,8 +240,6 @@ const applyConstraint = (value, constraint) => {
       result = `+ ${result}`;
     }
   }
-
-  console.warn("result", result)
 
   return result;
 };
@@ -400,7 +392,6 @@ function replaceRoll(match, p1, p2) {
   }
   const isRollRegex = /([0-9]*d[0-9]+)|(@scale\.)/g;
   const isRollMatches = p2.match(isRollRegex);
-  console.warn({p2, isRollMatches})
   if (isRollMatches) {
     return match;
   } else if (Number.isInteger(parseInt(p2))) {
@@ -422,8 +413,8 @@ function fixRollables(text) {
   }
 
   const noRollRegex = /(\[\[\/roll)([\w\s.,@\d+\\*/()]*(?![0-9]*d[0-9]+)(?!@scale\.)[\w\s.,@\d+\\*/()]*)(\]\](?:{Scaled Roll})*)/g;
-  const noRollMatches = text.match(noRollRegex);
-  console.warn("noRollMatches", {text: duplicate(text), noRollMatches});
+  // const noRollMatches = text.match(noRollRegex);
+  // console.warn("noRollMatches", {text: duplicate(text), noRollMatches});
   text = text.replaceAll(noRollRegex, replaceRoll);
 
   return text;
@@ -451,8 +442,6 @@ export default function parseTemplateString(ddb, character, text, feature) {
     definitions: [],
   };
 
-  console.warn("feature text", text);
-
   const useScaleText = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description")
     ? "{Scaled Roll}"
     : "";
@@ -468,8 +457,8 @@ export default function parseTemplateString(ddb, character, text, feature) {
   // creates array from match groups and dedups
   const matches = [...new Set(Array.from(result.text.matchAll(regexp), (m) => m[1]))];
 
+  // eslint-disable-next-line complexity
   matches.forEach((match) => {
-    console.warn("match", duplicate(match));
     let entry = {
       parsed: null,
       match: match,
@@ -480,7 +469,11 @@ export default function parseTemplateString(ddb, character, text, feature) {
 
     const splitSigned = match.split("#");
     const splitRemoveUnsigned = splitSigned[0];
-    const signed = splitSigned.length > 1 ? splitSigned[1] : null;
+    const signed = splitSigned.length > 1
+      ? splitSigned[1]
+      : match.includes("modifier")
+        ? "signed"
+        : null;
     const splitMatchAt = splitRemoveUnsigned.split("@");
     const parsedMatchData = parseMatch(ddb, character, splitRemoveUnsigned, feature);
     const parsedMatch = parsedMatchData.parsed;
@@ -489,18 +482,14 @@ export default function parseTemplateString(ddb, character, text, feature) {
     const typeSplit = splitMatchAt[0].split(":");
     entry.type = typeSplit[0];
 
-    console.warn({parsedMatchData, parsed: parsedMatchData.parsed})
     if (typeSplit.length > 1) entry.subType = typeSplit[1];
     // do we have a dice string, e.g. sneak attack?
     if (parsedMatch.match(dicePattern) || parsedMatch.includes("@scale")) {
       if (parsedMatch.match(dicePattern)) entry.type = "dice";
       entry.parsed = parsedMatch;
       if (splitMatchAt.length > 1) {
-        console.warn("split", splitMatchAt);
-        console.warn("parsed", duplicate(entry.parsed));
         for (let i = 1; i < splitMatchAt.length; i++) {
           if (splitMatchAt[i].includes(")")) entry.parsed = entry.parsed.replace("(", "");
-          console.warn(`split match ${i}`, splitMatchAt[i]);
           entry.parsed = addConstraintEvaluations(entry.parsed, splitMatchAt[i]);
         }
       }
@@ -521,15 +510,10 @@ export default function parseTemplateString(ddb, character, text, feature) {
         for (let start = evalString.startsWith("("), end = evalString.endsWith(")"); start && end; start = evalString.startsWith("("), end = evalString.endsWith(")")) {
           evalString = evalString.replace(/^\(/, "").replace(/\)$/, "");
         }
-        console.warn("adjusted string", evalString);
         const evalMatch = evaluateMath(evalString);
-
         if (splitMatchAt.length > 1) {
           let evalConstraint = evalMatch;
           for (let i = 1; i < splitMatchAt.length; i++) {
-            // const constraintAdjusted = applyConstraint(evalConstraint, splitMatchAt[i]);
-            // // evalConstraint = constraintAdjusted.toString();
-            // evalConstraint = getNumber(constraintAdjusted, signed);
             evalConstraint = applyConstraint(evalConstraint, splitMatchAt[i]);
           }
           entry.parsed = getNumber(evalConstraint, signed);
