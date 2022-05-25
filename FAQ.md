@@ -4,6 +4,11 @@
 
 They require the cobalt token setting to be set.
 
+## How do I get the Cobalt key manually?
+
+Open up a page of DnDbeyond and be sure you're logged in.
+Hit F12 or CTRL + Shift + I > Application > Cookies > dndbeyond.com > Search for Cobalt > Copy the key from the Value Field
+
 ## My Core settings screen won't open
 
 Open the Browser Developer Console (F12) and run the following:
@@ -205,3 +210,34 @@ Use the following workflow:
 * If you want to use the DDB generated data but the SRD images, untick the "[Caution] Use SRD compendium things" and reimport you monsters. The image will not be updated, but the features/attacks etc will.
 
 If you like the SRD art them the ["Forgotten Adventures"](https://www.forgotten-adventures.net/product-category/tokens/) tokens and also the [Token Variant Art](https://foundryvtt.com/packages/token-variants) module which allows you to easily apply the art from such packs to tokens.
+
+
+## How can I purge a compendium of all content munched by DDBI?
+
+See the macro below, WARNING: All data removed by this can't be recovered unless you have a backup.
+
+Replace world.testcomp with whatever id you named your compendium and run this in the browser console.
+
+```javascript
+let pack = game.packs.get("world.testcomp")
+let docs = await pack.getDocuments()
+let count = 0, total = docs.length
+for (let i = 0; i < total; i++) {
+    if (docs[i].data.flags.ddbimporter != null) {
+        await docs[i].delete()
+    }
+    count++
+    console.log(`[${Math.floor(count / total * 100)}%] done (${count} of ${total} entries)`)
+}
+console.log("Finished!")
+```
+
+## How do I purge all the content in journals?
+
+Warning, Using the code below will delete the data beyond recovery unless a backup is used:
+
+```javascript
+JournalEntry.deleteDocuments([],{ deleteAll: true });
+Folder.deleteDocuments(game.folders.filter(f => f.type == "JournalEntry").map(f => f.id));
+```
+
