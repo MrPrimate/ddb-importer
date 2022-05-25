@@ -76,8 +76,8 @@ export function getCompendium(label, fail = true) {
   } else {
     if (fail) {
       logger.error(`Unable to find compendium ${label}`);
-      ui.notifications.error(`Unable to open the Compendium ${label}`);
-      throw new Error(`Unable to open the Compendium ${label}`);
+      ui.notifications.error(`Unable to open the Compendium ${label}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
+      throw new Error(`Unable to open the Compendium ${label}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums".`);
     }
     return undefined;
   }
@@ -91,9 +91,9 @@ export function getCompendiumType(type, fail = true) {
     return compendium;
   } else {
     logger.error(`Unable to find compendium ${compendiumLabel} for ${type} documents`);
-    ui.notifications.error(`Unable to open the Compendium ${compendiumLabel}`);
+    ui.notifications.error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
     if (fail) {
-      throw new Error(`Unable to open the Compendium ${compendiumLabel}`);
+      throw new Error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
     }
     return undefined;
   }
