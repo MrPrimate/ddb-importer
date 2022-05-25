@@ -3,6 +3,9 @@
 * Homebrew monsters with no armor description would fail to parse.
 * Prevent Skill Extensions 5e module breaking Monster Munch.
 * Effects: Bardic Inspiration label was incorrect
+* Improve template string parsing.
+* Extras/Companions import moved and refactored slightly for future enhancements.
+* Tweaks, improvements and reversions to template strings/scaling values in class features.
 
 # 2.9.42
 
