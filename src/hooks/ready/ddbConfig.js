@@ -43,6 +43,7 @@ function proxyConfig() {
       .then((data) => {
         if (!data.success) {
           logger.error(`API Failure: ${data.message}`);
+          setProperty(CONFIG, "DDB", fallbackDDBConfig);
           reject(data.message);
         }
         if (debugJson) {
@@ -51,8 +52,10 @@ function proxyConfig() {
         return data;
       })
       .then((data) => {
-        logger.info(`Retrieved DDB CONFIG DATA via proxy`);
-        setProperty(CONFIG, "DDB", data.data);
+        if (data.success) {
+          logger.info(`Retrieved DDB CONFIG DATA via proxy`);
+          setProperty(CONFIG, "DDB", data.data);
+        }
         logger.debug("DDB_CONFIG", CONFIG.DDB);
         resolve(data.data);
       })
