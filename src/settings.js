@@ -397,7 +397,12 @@ const SETTINGS = {
           "character-update-policy-use-scalevalue-description": {
             scope: "player",
             type: Boolean,
-            default: true,
+            default: false,
+          },
+          "character-update-policy-use-scalevalue-description-all": {
+            scope: "player",
+            type: Boolean,
+            default: false,
           },
           "character-update-policy-add-item-effects": {
             scope: "player",
