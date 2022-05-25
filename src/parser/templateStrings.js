@@ -447,7 +447,6 @@ export default function parseTemplateString(ddb, character, text, feature) {
     : "";
   const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)?({{.*?}})(?:$|[., "')+<])/g;
   const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
-  console.warn("fullMatches", fullMatches);
   fullMatches.forEach((match) => {
     const scaledText = match.includes("scalevalue") ? useScaleText : "";
     result.text = result.text.replace(match, `[[/roll ${match}]]${scaledText}`);
