@@ -50,6 +50,7 @@ async function parseMonster(monster, extra, useItemAC) {
     creatureFlags: monster.creatureFlags ? monster.creatureFlags : [],
     automatedEvcoationAnimation: monster.automatedEvcoationAnimation ? monster.automatedEvcoationAnimation : undefined,
     version: CONFIG.DDBI.version,
+    isLegacy: monster.isLegacy,
   };
 
   const removedHitPoints = monster.removedHitPoints ? monster.removedHitPoints : 0;
