@@ -86,7 +86,7 @@ async function createExtras(extras, existingExtras, folderId) {
 function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
   // beast master get to add proficiency bonus to current attacks, damage, ac
   // and saving throws and skills it is proficient in.
-  // extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
+  // extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
 
   let effect = {
     changes: [
@@ -128,7 +128,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
     disabled: false,
     selectedKey: [],
   };
-  ABILITIES.filter((ability) => extra.data.abilities[ability.value].proficient >= 1).forEach((ability) => {
+  ABILITIES.filter((ability) => extra.system.abilities[ability.value].proficient >= 1).forEach((ability) => {
     const boost = {
       key: `data.abilities.${ability.value}.save`,
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -138,7 +138,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
     effect.selectedKey.push(`data.abilities.${ability.value}.save`);
     effect.changes.push(boost);
   });
-  SKILLS.filter((skill) => extra.data.skills[skill.name].prof >= 1).forEach((skill) => {
+  SKILLS.filter((skill) => extra.system.skills[skill.name].prof >= 1).forEach((skill) => {
     const boost = {
       key: `data.skills.${skill.name}.mod`,
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -155,7 +155,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
 function generateArtificerDamageEffect(actor, extra) {
   // artificer uses the actors spell attack bonus, so is a bit trickier
   // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
-  extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
+  extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
 
   let effect = {
     changes: [
@@ -322,7 +322,7 @@ function addOwnerSkillProficiencies(characterData, mock) {
 
   SKILLS.forEach((skill) => {
     const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.skillId);
-    const characterProficient = characterData.character.character.data.skills[skill.name].value;
+    const characterProficient = characterData.character.character.system.skills[skill.name].value;
 
     const ability = ABILITIES.find((ab) => ab.value === skill.ability);
     const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
@@ -355,7 +355,7 @@ function addOwnerSaveProficiencies(characterData, mock) {
   let newSaves = [];
   ABILITIES.forEach((ability) => {
     const existingProficient = mock.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
-    const characterProficient = characterData.character.character.data.abilities[ability.value].proficient;
+    const characterProficient = characterData.character.character.system.abilities[ability.value].proficient;
 
     if (existingProficient || characterProficient) {
       const bonus = {
@@ -401,7 +401,7 @@ function addAverageHitPoints(ddbCharacter, actor, creature, mock) {
 
   // Max Hit Points Add Int Modifier
   if (mock.creatureFlags.includes("MHPAIM")) {
-    mock.averageHitPoints += parseInt(actor.data.data.abilities.int.mod);
+    mock.averageHitPoints += parseInt(actor.system.abilities.int.mod);
   }
 
   // Max Hit Points Add Monster CON Modifier
@@ -418,7 +418,7 @@ function addCreatureStats(mock, actor) {
   const characterStats = mock.stats
     .filter((stat) => mock.creatureGroup.ownerStats.includes(stat.statId))
     .map((stat) => {
-      const value = actor.data.data.abilities[ABILITIES.find((a) => a.id === stat.statId).value].value;
+      const value = actor.system.abilities[ABILITIES.find((a) => a.id === stat.statId).value].value;
       return { name: null, statId: stat.statId, value: value };
     });
 
@@ -490,7 +490,7 @@ function transformExtraToMonsterData(characterData, actor, creature) {
   mock = addCreatureStats(mock, actor);
 
   // permissions the same as
-  mock.permission = actor.data.permission;
+  mock.permission = actor.permission;
 
   if (mock.creatureGroup.description !== "") {
     mock.characteristicsDescription = `${mock.creatureGroup.description}\n\n${mock.characteristicsDescription}`;
@@ -502,7 +502,7 @@ function transformExtraToMonsterData(characterData, actor, creature) {
 
   // Armor Add Proficiency Bonus
   if (mock.creatureFlags.includes("ACPB")) {
-    mock.armorClass += actor.data.data.attributes.prof;
+    mock.armorClass += actor.system.attributes.prof;
   }
 
   // Evaluate Owner Skill Proficiencies
@@ -538,8 +538,8 @@ async function updateOrCreateExtras(actor, folder, parsedExtras) {
   // const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
 
   const existingExtras = await game.actors.contents
-    .filter((extra) => extra.data.folder === folder.id)
-    .map((extra) => extra.data);
+    .filter((extra) => extra.folder === folder.id)
+    .map((extra) => extra.system);
 
   if (!updateBool || !updateImages) {
     if (!updateImages) {
@@ -565,8 +565,8 @@ async function updateOrCreateExtras(actor, folder, parsedExtras) {
       return {
         id: extra.id ? extra.id : extra._id,
         number: 1,
-        animation: extra.data.flags?.ddbimporter?.automatedEvcoationAnimation
-          ? extra.data.flags?.ddbimporter?.automatedEvcoationAnimation
+        animation: extra.flags?.ddbimporter?.automatedEvcoationAnimation
+          ? extra.flags?.ddbimporter?.automatedEvcoationAnimation
           : "magic1",
       };
     });
@@ -583,7 +583,7 @@ async function updateOrCreateExtras(actor, folder, parsedExtras) {
 
 function enhanceParsedExtra(actor, extra) {
   const damageDiceExpression = /(\d*d\d+\s*\+*\s*)+/;
-  const characterProficiencyBonus = actor.data.data.attributes.prof;
+  const characterProficiencyBonus = actor.system.attributes.prof;
   const artificerBonusGroup = [10, 12];
 
   if (
@@ -598,7 +598,7 @@ function enhanceParsedExtra(actor, extra) {
       extra = generateArtificerDamageEffect(actor, extra, characterProficiencyBonus);
     } else {
       // who knows!
-      extra.data.details.cr = actor.data.flags.ddbimporter.dndbeyond.totalLevels;
+      extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
     }
   }
 
@@ -612,7 +612,7 @@ function enhanceParsedExtra(actor, extra) {
       if (item.type === "weapon") {
         let characterAbility;
 
-        item.data.damage.parts = item.data.damage.parts.map((part) => {
+        item.system.damage.parts = item.system.damage.parts.map((part) => {
           const match = part[0].match(damageDiceExpression);
           if (match) {
             let dice = match[0];
@@ -628,12 +628,12 @@ function enhanceParsedExtra(actor, extra) {
         });
 
         if (characterAbility) {
-          const ability = item.data.ability;
-          const mod = parseInt(extra.data.abilities[ability].mod);
-          const characterMod = parseInt(actor.data.data.abilities[characterAbility].mod);
+          const ability = item.system.ability;
+          const mod = parseInt(extra.system.abilities[ability].mod);
+          const characterMod = parseInt(actor.system.abilities[characterAbility].mod);
           // eslint-disable-next-line no-eval
-          const globalMod = parseInt(eval(actor.data.data.bonuses.rsak.attack || 0));
-          item.data.attackBonus = characterMod + globalMod - mod;
+          const globalMod = parseInt(eval(actor.system.bonuses.rsak.attack || 0));
+          item.system.attackBonus = characterMod + globalMod - mod;
         }
       }
       return item;
