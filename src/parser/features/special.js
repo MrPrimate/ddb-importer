@@ -160,34 +160,54 @@ function buildFullDescription(main, summary, title) {
   return result;
 }
 
+function getClassFeatureDescription(ddb, character, feat) {
+  const componentId = feat.definition?.componentId
+    ? feat.definition.componentId
+    : feat.componentId;
+  const componentTypeId = feat.definition?.componentTypeId
+    ? feat.definition.componentTypeId
+    : feat.componentTypeId;
+
+  const findFeatureKlass = ddb.character.classes
+    .find((cls) => cls.classFeatures.find((feature) =>
+      feature.definition.id == componentId &&
+      feature.definition.entityTypeId == componentTypeId
+    ));
+
+  if (findFeatureKlass) {
+    const feature = findFeatureKlass.classFeatures
+      .find((feature) =>
+        feature.definition.id == componentId &&
+        feature.definition.entityTypeId == componentTypeId
+      );
+    if (feature) {
+      return parseTemplateString(ddb, character, feature.definition.description, feat).text;
+    }
+  }
+  return "";
+
+}
+
+
 export function getDescription(ddb, character, feat, forceFull = false) {
   // for now none actions probably always want the full text
   const useFullSetting = game.settings.get("ddb-importer", "character-update-policy-use-full-description");
   const useFull = forceFull || useFullSetting;
   const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
-  let snippet = "";
-  let description = "";
+  const rawSnippet = feat.definition?.snippet
+    ? parseTemplateString(ddb, character, feat.definition.snippet, feat).text
+    : feat.snippet
+      ? parseTemplateString(ddb, character, feat.snippet, feat).text
+      : "";
 
-  if (feat.definition?.snippet) {
-    snippet = parseTemplateString(ddb, character, feat.definition.snippet, feat).text;
-  } else if (feat.snippet) {
-    snippet = parseTemplateString(ddb, character, feat.snippet, feat).text;
-  } else {
-    snippet = "";
-  }
+  const description = feat.definition?.description && feat.definition.description !== ""
+    ? parseTemplateString(ddb, character, feat.definition.description, feat).text
+    : feat.description && feat.description !== ""
+      ? parseTemplateString(ddb, character, feat.description, feat).text
+      : getClassFeatureDescription(ddb, character, feat);
 
-  if (feat.definition?.description) {
-    description = parseTemplateString(ddb, character, feat.definition.description, feat).text;
-  } else if (feat.description) {
-    description = parseTemplateString(ddb, character, feat.description, feat).text;
-  } else {
-    description = "";
-  }
-
-  if (utils.stringKindaEqual(description, snippet)) snippet = "";
-
-  // const fullDescription = description !== "" ? description + (snippet !== "" ? "<h3>Summary</h3>" + snippet : "") : snippet;
+  const snippet = utils.stringKindaEqual(description, rawSnippet) ? "" : rawSnippet;
   const fullDescription = buildFullDescription(description, snippet);
   const value = !useFull && snippet.trim() !== "" ? snippet : fullDescription;
 

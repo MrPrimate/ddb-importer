@@ -1,3 +1,7 @@
+# 2.9.44
+
+* Slightly improved description detection for some actions and features.
+
 # 2.9.43
 
 * Homebrew monsters with no armor description would fail to parse.
