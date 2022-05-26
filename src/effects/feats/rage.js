@@ -1,12 +1,10 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import utils from "../../utils.js";
 
 export function rageEffect(document) {
   let effect = baseFeatEffect(document, `${document.name}`);
 
-  const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
-
-  const extraDamage = scaleSupport
+  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
+  const extraDamage = useScale
     ? "@scale.barbarian.rage"
     : document.flags?.ddbimporter?.dndbeyond?.levelScale?.fixedValue
       ? document.flags.ddbimporter.dndbeyond.levelScale.fixedValue

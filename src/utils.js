@@ -261,9 +261,7 @@ const utils = {
       logger.debug("no scale value for ", feature);
       return { name: undefined, value: undefined };
     }
-    const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-    const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
-    const scaleValue = useScale && scaleSupport
+    const scaleValue = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue")
       ? utils.getScaleValueLink(ddb, feat)
       : utils.getExactScalingValue(feat);
 

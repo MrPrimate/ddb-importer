@@ -7,8 +7,6 @@ import { getSourcesLookups } from "./ddb.js";
 import { spellEffectModules } from "../effects/specialSpells.js";
 
 export function setRecommendedCharacterActiveEffectSettings(html) {
-  $(html).find("#character-import-policy-dae-copy").prop("checked", false);
-  game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
   $(html).find("#character-import-policy-dae-effect-copy").prop("checked", !spellEffectModules().hasCore);
   game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", !spellEffectModules().hasCore);
   $(html).find("#character-import-policy-add-spell-effects").prop("checked", spellEffectModules().hasCore);
@@ -123,7 +121,6 @@ export function getCharacterImportSettings() {
   const midiSRDInstalled = game.modules.get("midi-srd")?.active;
   const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
   const spellEffectText = `Generate active effects for spells. These require DAE${getInstalledIcon("daeInstalled")}, Midi-QOL${getInstalledIcon("midiQolInstalled")}, Advanced Macros${getInstalledIcon("advancedMacrosInstalled")}, Item Macro${getInstalledIcon("itemMacroInstalled")}, Times Up${getInstalledIcon("timesUp")}, and Convenient Effects${getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${getInstalledIcon("activeAurasInstalled")}, Active Token Effects${getInstalledIcon("atlInstalled")}, Token Magic FX${getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${getInstalledIcon("autoAnimationsInstalled")}`;
-  const v6 = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
 
   // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
 
@@ -199,16 +196,16 @@ export function getCharacterImportSettings() {
       isChecked: game.settings.get("ddb-importer", "character-update-policy-use-scalevalue"),
       title: "Generate Scale Value links in damage fields",
       description:
-        "If not enabled will use fixed value for the current level (D&D 0.1.6+ only)",
-      enabled: v6,
+        "If not enabled will use fixed value for the current level.",
+      enabled: true,
     },
     {
       name: "use-scalevalue-description",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description"),
       title: "Generate Scale Value links in descriptions",
       description:
-        "If not enabled will use fixed value for the current level (D&D 0.1.6+ only)",
-      enabled: v6,
+        "If not enabled will use fixed value for the current level.",
+      enabled: true,
     },
     {
       name: "use-override",
@@ -277,14 +274,6 @@ export function getCharacterImportSettings() {
         "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug. This will overwrite effects generated with the above options.",
       enabled: daeInstalled && daeSRDContentAvailable,
     },
-    // {
-    //   name: "dae-copy",
-    //   isChecked: game.settings.get("ddb-importer", "character-update-policy-dae-copy") && daeSRDContentAvailable,
-    //   title: "[Caution] Replace Items using DAE compendiums",
-    //   description:
-    //     "Replace parsed item with <i>Dynamic Active Effects Compendiums</i> for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This will remove any effects applied directly to your character/not via features/items. This may result in odd character AC's, HP etc. especially if the generate options above are unticked. Please try importing the character with this option disabled before logging a bug.",
-    //   enabled: daeInstalled && daeSRDContentAvailable,
-    // },
     {
       name: "active-effect-copy",
       isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
@@ -294,12 +283,6 @@ export function getCharacterImportSettings() {
       enabled: true,
     },
   ];
-
-  // dae migration function no longer sound
-  if (game.settings.get("ddb-importer", "character-update-policy-dae-copy")) {
-    game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
-    game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", true);
-  }
 
   const effectSelectionConfig = {
     class: [
@@ -609,8 +592,6 @@ export function updateActorSettings(html, event) {
     $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
     game.settings.set("ddb-importer", "character-update-policy-dae-effect-copy", false);
   } else if (selection === "dae-effect-copy" && checked) {
-    $(html).find("#character-import-policy-dae-copy").prop("checked", false);
-    game.settings.set("ddb-importer", "character-update-policy-dae-copy", false);
     $(html).find("#character-import-policy-add-item-effects").prop("checked", true);
     game.settings.set("ddb-importer", "character-update-policy-add-item-effects", true);
     $(html).find("#character-import-policy-add-character-effects").prop("checked", true);

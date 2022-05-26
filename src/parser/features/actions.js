@@ -146,11 +146,10 @@ function getDamage(ddb, action, feat) {
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
   const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-  const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
   const scaleValueLink = utils.getScaleValueString(ddb, action).value;
   const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
 
-  const useScaleValueLink = useScale && scaleSupport && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
+  const useScaleValueLink = useScale && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
 
   if (die || useScaleValueLink) {
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
@@ -196,10 +195,9 @@ const LEVEL_SCALE_INFUSIONS = [
  * @param {*} feat
  */
 function getLevelScaleDice(ddb, character, action, feat) {
-  const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
   const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
 
-  if (scaleSupport && useScale) return feat;
+  if (useScale) return feat;
   const parts = ddb.character.classes
     .filter((cls) => cls.classFeatures.some((feature) =>
       feature.definition.id == action.componentId &&
@@ -217,8 +215,7 @@ function getLevelScaleDice(ddb, character, action, feat) {
       );
       const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
       const scaleValueLink = utils.getScaleValueString(ddb, action).value;
-      const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
-      let part = scaleSupport && useScale && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
+      let part = useScale && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
         ? scaleValueLink
         : die.diceString;
       if (parsedString) {
@@ -231,8 +228,8 @@ function getLevelScaleDice(ddb, character, action, feat) {
       return [part, ""];
     });
 
-  if (parts.length > 0 && scaleSupport && useScale) {
-    feat.data.damage.parts = parts;
+  if (parts.length > 0 && useScale) {
+    feat.system.damage.parts = parts;
   } else if (parts.length > 0 && !LEVEL_SCALE_INFUSIONS.includes(action.name)) {
     const combinedParts = hasProperty(feat, "data.damage.parts") && feat.system.damage.parts.length > 0
       ? feat.system.damage.parts.concat(parts)
