@@ -2,7 +2,7 @@
 
   <!-- Character Import Header -->
   <header class="sheet-header">
-    <img class="character-icon" src="{{actor.systemprototypeToken.texture.src}}" data-edit="img">
+    <img class="character-icon" src="{{actor.prototypeToken.texture.src}}" data-edit="img">
     <h1 class="character-title">{{ actor.name }}</h1>
   </header>
 
@@ -10,15 +10,15 @@
     <div class="form-section">
     <div class="form-caption">
       URL
-      <span class="dndbeyond-url-status">{{#if actor.systemflags.ddbimporter.dndbeyond.characterId}}<i
+      <span class="dndbeyond-url-status">{{#if actor.flags.ddbimporter.dndbeyond.characterId}}<i
           class="fas fa-check-circle" style="color: green"></i>{{else}}<i></i>{{/if}}</span>
     </div>
     <div class="form-content" style="display: flex">
       <input type="text" name="dndbeyond-url" style="flex: 0 1 auto" ;
-        value="{{#if actor.systemflags.ddbimporter.dndbeyond.url}}{{actor.systemflags.ddbimporter.dndbeyond.url}}{{/if}}" />
+        value="{{#if actor.flags.ddbimporter.dndbeyond.url}}{{actor.flags.ddbimporter.dndbeyond.url}}{{/if}}" />
       <button type="button" id="open-dndbeyond-url" name="open-dndbeyond-url"
         style="flex-basis: 20px; flex-grow: 0;line-height: 20px;"
-        {{#if actor.systemflags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>
+        {{#if actor.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>
         <i class="fas fa-external-link-alt"></i></button>
     </div>
     <div class="form-caption">
@@ -26,7 +26,7 @@
     </div>
     <div class="form-content">
       <span
-        class="dndbeyond-character-id">{{#if actor.systemflags.ddbimporter.dndbeyond.characterId}}{{actor.systemflags.ddbimporter.dndbeyond.characterId}}{{else}}Not detected{{/if}}</span>
+        class="dndbeyond-character-id">{{#if actor.flags.ddbimporter.dndbeyond.characterId}}{{actor.flags.ddbimporter.dndbeyond.characterId}}{{else}}Not detected{{/if}}</span>
     </div>
 
   </div>
@@ -89,7 +89,7 @@
         <div class="form-description"></div>
         <div>
           <button type="button" id="dndbeyond-character-import-start"
-            {{#if actor.systemflags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>Start Import</button>
+            {{#if actor.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>Start Import</button>
         </div>
       </div>
     </div>
@@ -195,8 +195,8 @@
         <div class="form-description"></div>
         <div>
           <button type="button" id="dndbeyond-character-extras-start"
-            {{#if actor.systemflags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>
-            {{#if actor.systemflags.ddbimporter.dndbeyond.characterId}}Import Extras{{else}}Please Import the Character First{{/if}}</button>
+            {{#if actor.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>
+            {{#if actor.flags.ddbimporter.dndbeyond.characterId}}Import Extras{{else}}Please Import the Character First{{/if}}</button>
         </div>
       </div>
     </div>

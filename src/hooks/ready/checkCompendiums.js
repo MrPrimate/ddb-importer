@@ -9,6 +9,7 @@ let sanitize = (text) => {
 };
 
 let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => {
+  logger.debug(`Checking if ${settingName} exists`);
   const compendiumName = game.settings.get(SETTINGS.MODULE_ID, settingName);
   const compendium = await game.packs.get(compendiumName);
   if (compendium) {

@@ -555,11 +555,6 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
-          "character-update-policy-dae-copy": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-dae-effect-copy": {
             scope: "player",
             type: Boolean,

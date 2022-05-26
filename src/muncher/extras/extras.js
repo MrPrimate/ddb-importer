@@ -155,7 +155,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
 function generateArtificerDamageEffect(actor, extra) {
   // artificer uses the actors spell attack bonus, so is a bit trickier
   // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
-  extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
+  extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
 
   let effect = {
     changes: [

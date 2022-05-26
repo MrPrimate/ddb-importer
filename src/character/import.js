@@ -219,7 +219,7 @@ export async function getCharacterData(optionsIn) {
 export default class CharacterImport extends FormApplication {
   constructor(options, actor) {
     super(options);
-    this.actor = game.actors.get(actor.id ? actor.id : actor._id);
+    this.actor = game.actors.get(actor._id);
     this.migrateMetadata();
     this.actorOriginal = duplicate(this.actor);
     this.result = {};
@@ -228,7 +228,7 @@ export default class CharacterImport extends FormApplication {
 
   migrateMetadata() {
     if (this.actor.flags?.ddbimporter?.dndbeyond) {
-      const url = this.actor.flags.ddbimporter.dndbeyond.url || this.actor.flags.ddbimporter.dndbeyond.roUrl;
+      const url = this.actor.flags.ddbimporter.dndbeyond.url;
 
       if (url && !this.actor.flags.ddbimporter.characterId) {
         const characterId = getCharacterId(url);
