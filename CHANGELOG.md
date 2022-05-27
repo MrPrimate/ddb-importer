@@ -1,6 +1,7 @@
 # 2.9.44
 
 * Slightly improved description detection for some actions and features.
+* Add "Kruthik" language back into fallback config.
 
 # 2.9.43
 
