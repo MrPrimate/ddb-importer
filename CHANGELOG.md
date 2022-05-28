@@ -2,6 +2,8 @@
 
 * Slightly improved description detection for some actions and features.
 * Add "Kruthik" language back into fallback config.
+* Class munch now munches subclasses to separate compendium (new) and adds features as advancements.
+* During character munch, if features have been munched to a compendium, it will attempt to fill in the class advancement for you.
 
 # 2.9.43
 
