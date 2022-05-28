@@ -87,6 +87,18 @@ function generateScaleValueAdvancement(feature) {
   return scaleValue;
 }
 
+export function getHPAdvancement() {
+  return {
+    _id: foundry.utils.randomID(),
+    type: "HitPoints",
+    configuration: {},
+    value: {},
+    title: "",
+    icon: "",
+    classRestriction: "",
+  };
+}
+
 function getClassFeatures(ddb, klass, klassDefinition, excludedIds = []) {
   const excludedFeatures = ddb.character.optionalClassFeatures
     .filter((f) => f.affectedClassFeatureId)
@@ -110,6 +122,58 @@ function getClassFeatures(ddb, klass, klassDefinition, excludedIds = []) {
     .sort((a, b) => a.requiredLevel - b.requiredLevel);
 }
 
+function getFeatureCompendiumMatch(compendium, feature, klassDefinition) {
+  return compendium.find((match) =>
+    ((hasProperty(match, "flags.ddbimporter.featureName") && feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase()) ||
+      (!hasProperty(match, "flags.ddbimporter.featureName") &&
+        (feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() ||
+        `${feature.name} (${klassDefinition.name})`.trim().toLowerCase() == match.name.trim().toLowerCase()))
+    ) &&
+    hasProperty(match, "flags.ddbimporter") &&
+    (match.flags.ddbimporter.class == klassDefinition.name ||
+      match.flags.ddbimporter.parentClassId == klassDefinition.id ||
+      match.flags.ddbimporter.classId == klassDefinition.id)
+  );
+}
+
+async function generateFeatureAdvancements(ddb, klass, klassDefinition, compendiumClassFeatures, ignoreIds = []) {
+  logger.debug(`Parsing ${klass.name} features for advancement`);
+  const compendiumLabel = getCompendiumLabel("features");
+
+  let advancements = [];
+  getClassFeatures(ddb, klass, klassDefinition, ignoreIds)
+    .filter((feature) => !ignoreIds.includes(feature.id))
+    .forEach((feature) => {
+      const featureMatch = getFeatureCompendiumMatch(compendiumClassFeatures, feature, klassDefinition);
+
+      if (featureMatch) {
+        const levelAdvancement = advancements.findIndex((advancement) => advancement.level === feature.requiredLevel);
+
+        if (levelAdvancement == -1) {
+          const advancement = {
+            _id: foundry.utils.randomID(),
+            type: "ItemGrant",
+            configuration: {
+              items: [
+                `Compendium.${compendiumLabel}.${featureMatch._id}`
+              ]
+            },
+            value: {},
+            level: feature.requiredLevel,
+            title: "Features",
+            icon: "",
+            classRestriction: ""
+          };
+          advancements.push(advancement);
+        } else {
+          advancements[levelAdvancement].configuration.items.push(`Compendium.${compendiumLabel}.${featureMatch._id}`);
+        }
+      }
+    });
+
+  return advancements;
+}
+
 function parseFeaturesForScaleValues(ddb, klass, klassDefinition, ignoreIds = []) {
   const advancements = getClassFeatures(ddb, klass, klassDefinition, ignoreIds)
     .filter((feature) => feature.levelScales?.length > 0)
@@ -131,14 +195,7 @@ async function buildClassFeatures(ddb, klass, klassDefinition, compendiumClassFe
     const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
 
     if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
-      const featureMatch = compendiumClassFeatures.find((match) =>
-        (feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() ||
-        `${feature.name} (${klassDefinition.name})`.trim().toLowerCase() == match.name.trim().toLowerCase()) &&
-        hasProperty(match, "flags.ddbimporter") &&
-        (match.flags.ddbimporter.class == klassDefinition.name ||
-          match.flags.ddbimporter.parentClassId == klassDefinition.id ||
-          match.flags.ddbimporter.classId == klassDefinition.id)
-      );
+      const featureMatch = getFeatureCompendiumMatch(compendiumClassFeatures, feature, klassDefinition);
       const title = (featureMatch)
         ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>`
         : `<p><b>${feature.name}</b></p>`;
@@ -203,7 +260,10 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
 
   subKlass.data.description.value = parseTemplateString(ddb, character, subKlass.data.description.value, subKlass).text;
 
-  subKlass.data.advancement = parseFeaturesForScaleValues(ddb, characterClass, characterClass.subclassDefinition, baseClassFeatureIds);
+  subKlass.data.advancement = [
+    ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.subclassDefinition, baseClassFeatureIds),
+    ...await generateFeatureAdvancements(ddb, characterClass, characterClass.subclassDefinition, featuresIndex, baseClassFeatureIds),
+  ];
 
   return subKlass;
 }
@@ -259,20 +319,15 @@ export async function getClasses(ddb, character) {
     klass.data.hitDice = `d${characterClass.definition.hitDice}`;
     klass.data.hitDiceUsed = characterClass.hitDiceUsed;
     klass.data.advancement = [
-      // {
-      //   type: "HitPoints",
-      //   configuration: {},
-      //   value: {},
-      //   title: "",
-      //   icon: "",
-      //   classRestriction: "",
-      // },
+      getHPAdvancement(),
       // hp should be set like this - we don't actually know in DDB
       // "value": {
       //   "1": "max",
       //   "2": "avg"
       // },
       ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.definition, subClassFeatureIds),
+      // eslint-disable-next-line no-await-in-loop
+      ...await generateFeatureAdvancements(ddb, characterClass, characterClass.definition, featuresIndex, subClassFeatureIds),
     ];
 
 
