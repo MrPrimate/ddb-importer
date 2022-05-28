@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import { parseTags } from "../../parser/templateStrings.js";
-import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures } from "./shared.js";
+import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
 import { munchNote, getCompendiumType } from "../utils.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
@@ -90,6 +90,7 @@ async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
   const ignoreIds = klass.flags.ddbimporter.data.classFeatures.map((f) => f.id);
   result.data.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures, ignoreIds);
   result.data.description.value = parseTags(result.data.description.value);
+  result.data.advancement.push(...await generateFeatureAdvancements(subclass, compendiumSubClassFeatures, ignoreIds));
   return result;
 }
 
@@ -100,7 +101,7 @@ export async function getSubClasses(data) {
   const classCompendium = getCompendiumType("class");
   const featureCompendium = getCompendiumType("features");
   const content = await classCompendium.getDocuments();
-  const fields = ["name", "flags.ddbimporter.classId", "flags.ddbimporter.class", "flags.ddbimporter.subClass", "flags.ddbimporter.parentClassId"];
+  const fields = ["name", "flags.ddbimporter.classId", "flags.ddbimporter.class", "flags.ddbimporter.featureName", "flags.ddbimporter.subClass", "flags.ddbimporter.parentClassId"];
   const classFeatureIndex = await featureCompendium.getIndex({ fields });
 
   let subClasses = [];
@@ -112,7 +113,7 @@ export async function getSubClasses(data) {
     logger.debug(`${subClass.name} feature parsing started...`);
     subClass.classFeatures
       .filter((feature) =>
-        !classFeatureIndex.some((i) => feature.name === i.name &&
+        !classFeatureIndex.some((i) => feature.name === i.flags.ddbimporter.featureName &&
         hasProperty(i, "flags.ddbimporter.classId") &&
         subClass.parentClassId === i.flags.ddbimporter.classId)
       )
@@ -129,6 +130,7 @@ export async function getSubClasses(data) {
 
   const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
   munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
+  logger.debug(`Importing ${fiddledClassFeatures.length} features!`, classFeatures);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
   const importedIndex = await featureCompendium.getIndex({ fields });
@@ -140,16 +142,20 @@ export async function getSubClasses(data) {
     compendiumClassFeatures.push(feature.toJSON());
   }));
 
+  logger.debug("Features fetched", compendiumClassFeatures);
+
   await Promise.all(data.map(async (subClass) => {
     const classMatch = content.find((i) => i.data.flags.ddbimporter['id'] == subClass.parentClassId);
     const builtClass = await buildSubClass(classMatch.data, subClass, compendiumClassFeatures);
     subClasses.push(builtClass);
   }));
 
-  const fiddledClasses = await srdFiddling(subClasses, "classes");
+  logger.debug("Subclass build finished", subClasses);
+
+  const fiddledClasses = await srdFiddling(subClasses, "subclasses");
   munchNote(`Importing ${fiddledClasses.length} subclasses!`, true);
 
-  await updateCompendium("classes", { classes: fiddledClasses }, updateBool);
+  await updateCompendium("subclasses", { subclasses: fiddledClasses }, updateBool);
 
   // return fiddledClasses.concat(fiddledClassFeatures);
   return results;

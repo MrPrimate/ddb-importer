@@ -1,14 +1,17 @@
 import logger from "../../logger.js";
-import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures } from "./shared.js";
+import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
 import { munchNote, getCompendiumType } from "../utils.js";
 import { parseTags } from "../../parser/templateStrings.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
+import { getHPAdvancement } from "../../parser/classes/index.js";
 
 async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);
+  result.data.advancement.push(getHPAdvancement());
   result.data.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
   result.data.description.value = parseTags(result.data.description.value);
+  result.data.advancement.push(...await generateFeatureAdvancements(klass, compendiumClassFeatures));
   return result;
 }
 
@@ -22,19 +25,25 @@ export async function getClasses(data) {
 
   data.forEach((klass) => {
     logger.debug(`${klass.name} feature parsing started...`);
-    klass.classFeatures.forEach((feature) => {
-      const existingFeature = classFeatures.some((f) => f.name === feature.name);
-      logger.debug(`${feature.name} feature starting...`);
-      if (!NO_TRAITS.includes(feature.name) && !existingFeature) {
-        const parsedFeature = getClassFeature(feature, klass);
-        classFeatures.push(parsedFeature);
-        results.push({ class: klass.name, subClass: "", feature: feature.name });
-      }
-    });
+    klass.classFeatures
+      .sort((a, b) => a.requiredLevel - b.requiredLevel)
+      .forEach((feature) => {
+        const existingFeature = classFeatures.some((f) =>
+          f.flags.ddbimporter.featureName === feature.name &&
+          f.flags.ddbimporter.classId === klass.id
+        );
+        logger.debug(`${feature.name} feature starting...`);
+        if (!NO_TRAITS.includes(feature.name) && !existingFeature) {
+          const parsedFeature = getClassFeature(feature, klass);
+          classFeatures.push(parsedFeature);
+          results.push({ class: klass.name, subClass: "", feature: feature.name });
+        }
+      });
   });
 
   const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
   munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
+  logger.debug(`Importing ${fiddledClassFeatures.length} features!`, classFeatures);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
   const compendium = getCompendiumType("features");
@@ -52,6 +61,8 @@ export async function getClasses(data) {
     const builtClass = await buildClass(klass, compendiumClassFeatures);
     klasses.push(builtClass);
   }));
+
+  logger.debug("Class build finished", klasses);
 
   const fiddledClasses = await srdFiddling(klasses, "classes");
   munchNote(`Importing ${fiddledClasses.length} classes!`, true);

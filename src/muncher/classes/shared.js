@@ -32,8 +32,6 @@ const CLASS_TEMPLATE = {
 
 export const NO_TRAITS = [
   "Speed",
-  "Ability Score Increase",
-  "Ability Score Improvement",
   "Size",
   "Feat",
   "Languages",
@@ -42,6 +40,8 @@ export const NO_TRAITS = [
 ];
 
 export const FEATURE_DUP = [
+  "Ability Score Increase",
+  "Ability Score Improvement",
   "Expertise",
   "Fighting Style",
   "Land's Stride",
@@ -92,6 +92,50 @@ function buildBase(data) {
   return result;
 }
 
+export async function generateFeatureAdvancements(klass, compendiumClassFeatures, ignoreIds = []) {
+  logger.debug(`Parsing ${klass.name} features for advancement`);
+  const compendiumLabel = getCompendiumLabel("features");
+
+  let advancements = [];
+  klass.classFeatures
+    .filter((feature) => !ignoreIds.includes(feature.id))
+    .forEach((feature) => {
+      const featureMatch = compendiumClassFeatures.find((match) =>
+        feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase() &&
+        match.flags.ddbimporter &&
+        (match.flags.ddbimporter.class == klass.name ||
+          match.flags.ddbimporter.parentClassId == klass.id ||
+          match.flags.ddbimporter.classId == klass.id)
+      );
+
+      if (featureMatch) {
+        const levelAdvancement = advancements.findIndex((advancement) => advancement.level === feature.requiredLevel);
+
+        if (levelAdvancement == -1) {
+          const advancement = {
+            _id: foundry.utils.randomID(),
+            type: "ItemGrant",
+            configuration: {
+              items: [
+                `Compendium.${compendiumLabel}.${featureMatch._id}`
+              ]
+            },
+            value: {},
+            level: feature.requiredLevel,
+            title: "Features",
+            icon: "",
+            classRestriction: ""
+          };
+          advancements.push(advancement);
+        } else {
+          advancements[levelAdvancement].configuration.items.push(`Compendium.${compendiumLabel}.${featureMatch._id}`);
+        }
+      }
+    });
+
+  return advancements;
+}
+
 export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreIds = []) {
   logger.debug(`Parsing ${klass.name} features`);
   let description = "<h1>Class Features</h1>\n\n";
@@ -105,7 +149,7 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
     // sort by level?
     if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
       const featureMatch = compendiumClassFeatures.find((match) =>
-        feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() &&
+        feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase() &&
         match.flags.ddbimporter &&
         (match.flags.ddbimporter.class == klass.name ||
           match.flags.ddbimporter.parentClassId == klass.id ||
@@ -134,6 +178,7 @@ export function getClassFeature(feature, klass, subClassName = "") {
   result.name = (duplicateFeature) ? `${feature.name} (${klass.name})` : feature.name;
 
   result.flags.ddbimporter['featureId'] = feature.id;
+  result.flags.ddbimporter['featureName'] = feature.name;
   result.flags.ddbimporter['requiredLevel'] = feature.requiredLevel;
   result.flags.ddbimporter['prerequisite'] = feature.prerequisite;
   result.flags.ddbimporter['class'] = klass.name;
@@ -154,6 +199,7 @@ export async function buildBaseClass(klass) {
   result.flags.obsidian.source.text = klass.name;
   result.type = "class";
   result.data.identifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
+  result.data.advancement = [];
 
   let avatarUrl;
   let largeAvatarUrl;
