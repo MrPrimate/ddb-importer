@@ -38,6 +38,8 @@ const compendiumLookup = [
   { type: "feat", compendium: "entity-feature-compendium" },
   { type: "classes", compendium: "entity-class-compendium" },
   { type: "class", compendium: "entity-class-compendium" },
+  { type: "subclasses", compendium: "entity-subclass-compendium" },
+  { type: "subclass", compendium: "entity-subclass-compendium" },
   { type: "races", compendium: "entity-race-compendium" },
   { type: "race", compendium: "entity-race-compendium" },
   { type: "traits", compendium: "entity-trait-compendium" },

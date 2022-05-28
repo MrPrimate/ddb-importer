@@ -65,7 +65,21 @@
         "hint": "Embed macros into items? If not selected, item macro will call DDB Importer to generate and run the appropriate macro on the fly. Advantages: don't need to remunch spells to get macro, less data stored in world. Disadvantages: harder to debug, need to be running DDB Importer."
       },
       "show-image-to-players.name": "Show the show image to players button?",
-      "show-image-to-players.hint": "In journals provide hover-over button to show image to players? (Reload required)"
+      "show-image-to-players.hint": "In journals provide hover-over button to show image to players? (Reload required)",
+      "dynamic-sync": {
+        "dynamic-sync": "Enable Dynamic Sync?",
+        "dynamic-sync-policy-currency": "Currency?",
+        "dynamic-sync-policy-hitpoints": "Hit Points?",
+        "dynamic-sync-policy-hitdice": "Hit Dice?",
+        "dynamic-sync-policy-action-use": "Action usage?",
+        "dynamic-sync-policy-inspiration": "Inspiration?",
+        "dynamic-sync-policy-condition": "Exhaustion?",
+        "dynamic-sync-policy-deathsaves": "Death Saves?",
+        "dynamic-sync-policy-spells-prepared": "Spells Prepared?",
+        "dynamic-sync-policy-spells-slots": "Spell Slots?",
+        "dynamic-sync-policy-equipment": "Equipment?",
+        "dynamic-sync-policy-xp": "XP?"
+      }
     },
     "item-type": {
       "background": "Background",

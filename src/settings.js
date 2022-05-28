@@ -1,9 +1,25 @@
 import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 
+const COMPENDIUMS = [
+  { title: "Backgrounds", setting: "entity-background-compendium", type: "Item" },
+  { title: "Classes", setting: "entity-class-compendium", type: "Item" },
+  { title: "Subclasses", setting: "entity-subclass-compendium", type: "Item" },
+  { title: "Class Features", setting: "entity-feature-compendium", type: "Item" },
+  { title: "Feats", setting: "entity-feat-compendium", type: "Item" },
+  { title: "Items", setting: "entity-item-compendium", type: "Item" },
+  { title: "Monsters", setting: "entity-monster-compendium", type: "Actor" },
+  { title: "Races", setting: "entity-race-compendium", type: "Item" },
+  { title: "Racial Traits", setting: "entity-trait-compendium", type: "Item" },
+  { title: "Spells", setting: "entity-spell-compendium", type: "Item" },
+  { title: "Tables", setting: "entity-table-compendium", type: "RollTable" },
+  { title: "Override", setting: "entity-override-compendium", type: "Item" },
+];
+
 const SETTINGS = {
   MODULE_ID: "ddb-importer",
   FLAG_NAME: "ddbimporter",
   MODULE_NAME: "D&D Beyond Importer",
+  COMPENDIUMS: COMPENDIUMS,
   DEFAULT_SETTINGS: {
     // these settigs are loaded during renderSidebarTab
     EARLY: {
@@ -60,41 +76,11 @@ const SETTINGS = {
           default: true,
         },
       },
-      COMPENDIUMS: {
-        "entity-background-compendium": {
+      COMPENDIUMS: Object.fromEntries(
+        COMPENDIUMS.map((comp) => [comp.setting, {
           type: String,
-        },
-        "entity-item-compendium": {
-          type: String,
-        },
-        "entity-feature-compendium": {
-          type: String,
-        },
-        "entity-class-compendium": {
-          type: String,
-        },
-        "entity-race-compendium": {
-          type: String,
-        },
-        "entity-trait-compendium": {
-          type: String,
-        },
-        "entity-feat-compendium": {
-          type: String,
-        },
-        "entity-spell-compendium": {
-          type: String,
-        },
-        "entity-override-compendium": {
-          type: String,
-        },
-        "entity-table-compendium": {
-          type: String,
-        },
-        "entity-monster-compendium": {
-          type: String,
-        },
-      },
+        }])
+      ),
       // dir locations
       DIRECTORIES: {
         "image-upload-directory": {

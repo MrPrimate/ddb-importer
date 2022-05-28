@@ -3,6 +3,7 @@ import { setPatreonTier, getPatreonTiers, BAD_DIRS, getPatreonValidity, getCampa
 import DDBMuncher from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
+import SETTINGS from "../settings.js";
 
 const POPUPS = {
   json: null,
@@ -27,7 +28,7 @@ function renderPopup(type, url) {
 }
 
 export function isSetupComplete(needsCobalt = true) {
-  const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
+  const uploadDir = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
   const dataDirSet = !BAD_DIRS.includes(uploadDir);
   const cobalt = getCobalt() != "";
   const setupComplete = dataDirSet && (cobalt || !needsCobalt);
@@ -36,7 +37,7 @@ export function isSetupComplete(needsCobalt = true) {
 
 async function linkToPatreon() {
 
-  const proxy = game.settings.get("ddb-importer", "api-endpoint");
+  const proxy = game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
   const patreonId = "oXQUxnRAbV6mq2DXlsXY2uDYQpU-Ea2ds0G_5hIdi0Bou33ZRJgvV8Ub3zsEQcHp";
   const patreonAuthUrl = `${proxy}/patreon/auth`;
   const patreonScopes = encodeURI("identity identity[email]");
@@ -70,9 +71,9 @@ async function linkToPatreon() {
 
     POPUPS["web"].close();
 
-    game.settings.set("ddb-importer", "beta-key", data.key);
-    game.settings.set("ddb-importer", "patreon-user", data.email);
-    game.settings.set("ddb-importer", "patreon-tier", data.tier);
+    game.settings.set(SETTINGS.MODULE_ID, "beta-key", data.key);
+    game.settings.set(SETTINGS.MODULE_ID, "patreon-user", data.email);
+    game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", data.tier);
 
     $('#ddb-patreon-user').text(data.email);
     $('#ddb-patreon-tier').text(data.tier);
@@ -90,8 +91,8 @@ async function linkToPatreon() {
 
 function getDDBCampaigns(cobalt = null) {
   const cobaltCookie = cobalt ? cobalt : getCobalt();
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const parsingApi = game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
+  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
   const body = { cobalt: cobaltCookie, betaKey: betaKey };
 
   return new Promise((resolve, reject) => {
@@ -149,8 +150,8 @@ export async function getAvailableCampaigns() {
 async function setCobaltCookie(value, local) {
   await checkCobaltCookie(value);
   await setCobalt(value);
-  await game.settings.set("ddb-importer", "cobalt-cookie-local", local);
-  const runCookieMigrate = local != game.settings.get("ddb-importer", "cobalt-cookie-local");
+  await game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", local);
+  const runCookieMigrate = local != game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
   if (runCookieMigrate && local) {
     moveCobaltToLocal();
   } else if (runCookieMigrate && !local) {
@@ -184,11 +185,11 @@ export class DDBKeyChange extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const key = game.settings.get("ddb-importer", "beta-key");
+    const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
     const setupConfig = {
       "beta-key": key,
     };
-    const patreonUser = game.settings.get("ddb-importer", "patreon-user");
+    const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
     const check = await getPatreonValidity(key);
 
     return {
@@ -204,16 +205,16 @@ export class DDBKeyChange extends FormApplication {
   // eslint-disable-next-line no-unused-vars
   async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
-    const currentKey = game.settings.get("ddb-importer", "beta-key");
+    const currentKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
     if (currentKey !== formData['beta-key']) {
-      await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
+      await game.settings.set(SETTINGS.MODULE_ID, "beta-key", formData['beta-key']);
       await setPatreonTier();
     }
 
-    const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
+    const callMuncher = game.settings.get(SETTINGS.MODULE_ID, "settings-call-muncher");
 
     if (callMuncher) {
-      game.settings.set("ddb-importer", "settings-call-muncher", false);
+      game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", false);
       new DDBMuncher().render(true);
     }
 
@@ -223,7 +224,7 @@ export class DDBKeyChange extends FormApplication {
 export async function isValidKey() {
   let validKey = false;
 
-  const key = game.settings.get("ddb-importer", "beta-key");
+  const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
   if (key === "") {
     validKey = true;
   } else {
@@ -232,7 +233,7 @@ export async function isValidKey() {
       validKey = true;
     } else {
       validKey = false;
-      game.settings.set("ddb-importer", "settings-call-muncher", true);
+      game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", true);
       new DDBKeyChange().render(true);
     }
   }
@@ -286,10 +287,10 @@ export class DDBCookie extends FormApplication {
     if (!cobaltStatus.success) {
       new DDBCookie().render(true);
     } else {
-      const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
+      const callMuncher = game.settings.get(SETTINGS.MODULE_ID, "settings-call-muncher");
 
       if (callMuncher) {
-        game.settings.set("ddb-importer", "settings-call-muncher", false);
+        game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", false);
         new DDBMuncher().render(true);
       }
     }
@@ -327,20 +328,20 @@ export class DDBSetup extends FormApplication {
     const cobalt = getCobalt();
     const isCobalt = cobalt != "";
     const cobaltStatus = await checkCobalt("", cobalt);
-    const cobaltLocal = game.settings.get("ddb-importer", "cobalt-cookie-local");
-    const hasKey = game.settings.get("ddb-importer", "beta-key") != "";
-    const key = game.settings.get("ddb-importer", "beta-key");
+    const cobaltLocal = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
+    const hasKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key") != "";
+    const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
     const campaignId = getCampaignId();
-    const tier = game.settings.get("ddb-importer", "patreon-tier");
-    const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
-    const otherUploadDir = game.settings.get("ddb-importer", "other-image-upload-directory");
-    const frameUploadDir = game.settings.get("ddb-importer", "frame-image-upload-directory");
+    const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
+    const uploadDir = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
+    const otherUploadDir = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
+    const frameUploadDir = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
     const dataDirSet = !BAD_DIRS.includes(uploadDir) && !BAD_DIRS.includes(otherUploadDir);
-    const patreonUser = game.settings.get("ddb-importer", "patreon-user");
+    const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
     const validKeyObject = hasKey ? await getPatreonValidity(key) : false;
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
     const availableCampaigns = isCobalt && cobaltStatus.success ? await getAvailableCampaigns() : [];
-    const useWebP = game.settings.get("ddb-importer", "use-webp");
+    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
 
     availableCampaigns.forEach((campaign) => {
       const selected = campaign.id == campaignId;
@@ -417,25 +418,25 @@ export class DDBSetup extends FormApplication {
     const otherImageDir = formData['other-image-upload-directory'];
     const frameImageDir = formData['frame-image-upload-directory'];
     const useWebP = formData['image-use-webp'];
-    const currentKey = game.settings.get("ddb-importer", "beta-key");
+    const currentKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
 
     if (currentKey !== formData['beta-key']) {
-      await game.settings.set("ddb-importer", "beta-key", formData['beta-key']);
+      await game.settings.set(SETTINGS.MODULE_ID, "beta-key", formData['beta-key']);
       await setPatreonTier();
     }
 
-    await game.settings.set("ddb-importer", "image-upload-directory", imageDir);
-    await game.settings.set("ddb-importer", "other-image-upload-directory", otherImageDir);
-    await game.settings.set("ddb-importer", "frame-image-upload-directory", frameImageDir);
-    await game.settings.set("ddb-importer", "campaign-id", campaignId);
-    await game.settings.set("ddb-importer", "use-webp", useWebP);
+    await game.settings.set(SETTINGS.MODULE_ID, "image-upload-directory", imageDir);
+    await game.settings.set(SETTINGS.MODULE_ID, "other-image-upload-directory", otherImageDir);
+    await game.settings.set(SETTINGS.MODULE_ID, "frame-image-upload-directory", frameImageDir);
+    await game.settings.set(SETTINGS.MODULE_ID, "campaign-id", campaignId);
+    await game.settings.set(SETTINGS.MODULE_ID, "use-webp", useWebP);
 
     await setCobaltCookie(cobaltCookie, cobaltCookieLocal);
 
     const imageDirSet = !BAD_DIRS.includes(imageDir);
     const otherImageDirSet = !BAD_DIRS.includes(otherImageDir);
 
-    const callMuncher = game.settings.get("ddb-importer", "settings-call-muncher");
+    const callMuncher = game.settings.get(SETTINGS.MODULE_ID, "settings-call-muncher");
 
     if (!imageDirSet || !otherImageDirSet || !frameImageDir) {
       $('#munching-task-setup').text(`Please set the image upload directory(s) to something other than the root.`);
@@ -451,7 +452,7 @@ export class DDBSetup extends FormApplication {
       DirectoryPicker.verifyPath(DirectoryPicker.parse(frameImageDir));
 
       if (callMuncher) {
-        game.settings.set("ddb-importer", "settings-call-muncher", false);
+        game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", false);
         new DDBMuncher().render(true);
       }
     }
@@ -500,91 +501,18 @@ export class DDBCompendiumSetup extends FormApplication {
     const settings = [
       {
         name: "auto-create-compendium",
-        isChecked: game.settings.get("ddb-importer", "auto-create-compendium"),
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium"),
         description: "Create default compendiums if missing?",
         enabled: true,
       },
     ];
 
-    const compendiums = [
-      {
-        setting: "entity-background-compendium",
-        name: "Backgrounds",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-background-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-background-compendium")),
-      },
-      {
-        setting: "entity-class-compendium",
-        name: "Classes",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-class-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-class-compendium")),
-      },
-      {
-        setting: "entity-feature-compendium",
-        name: "Class features",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-feature-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-feature-compendium")),
-      },
-      {
-        setting: "entity-feat-compendium",
-        name: "Feats",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-feat-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-feat-compendium")),
-      },
-      {
-        setting: "entity-item-compendium",
-        name: "Items",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-item-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-item-compendium")),
-      },
-      {
-        setting: "entity-monster-compendium",
-        name: "Monsters",
-        type: "actor",
-        current: game.settings.get("ddb-importer", "entity-monster-compendium"),
-        compendiums: getCompendiumLookups("Actor", game.settings.get("ddb-importer", "entity-monster-compendium")),
-      },
-      {
-        setting: "entity-race-compendium",
-        name: "Races",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-race-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-race-compendium")),
-      },
-      {
-        setting: "entity-trait-compendium",
-        name: "Racial traits",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-trait-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-trait-compendium")),
-      },
-      {
-        setting: "entity-spell-compendium",
-        name: "Spells",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-spell-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-spell-compendium")),
-      },
-      {
-        setting: "entity-table-compendium",
-        name: "Tables",
-        type: "RollTable",
-        current: game.settings.get("ddb-importer", "entity-table-compendium"),
-        compendiums: getCompendiumLookups("RollTable", game.settings.get("ddb-importer", "entity-table-compendium")),
-      },
-      {
-        setting: "entity-override-compendium",
-        name: "Override",
-        type: "item",
-        current: game.settings.get("ddb-importer", "entity-override-compendium"),
-        compendiums: getCompendiumLookups("Item", game.settings.get("ddb-importer", "entity-override-compendium")),
-      },
-    ];
+    const compendiums = SETTINGS.COMPENDIUMS.map((comp) => ({
+      setting: comp.setting,
+      name: comp.title,
+      current: game.settings.get(SETTINGS.MODULE_ID, comp.setting),
+      compendiums: getCompendiumLookups(comp.type, game.settings.get(SETTINGS.MODULE_ID, comp.setting)),
+    }));
 
     return {
       settings,
@@ -597,14 +525,14 @@ export class DDBCompendiumSetup extends FormApplication {
   async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
     for (const [key, value] of Object.entries(formData)) {
-      game.settings.set("ddb-importer", key, value);
+      game.settings.set(SETTINGS.MODULE_ID, key, value);
     }
   }
 }
 
 
 function getGMUsers() {
-  const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+  const updateUser = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-user");
 
   const gmUsers = game.users
     .filter((user) => user.isGM)
@@ -638,84 +566,27 @@ export class DDBDynamicUpdateSetup extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const tier = game.settings.get("ddb-importer", "patreon-tier");
+    const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
     const tiers = getPatreonTiers(tier);
     const enabled = tiers.experimentalMid;
 
+    const policySettings = Object.keys(SETTINGS.DEFAULT_SETTINGS.READY.CHARACTER.DYNAMIC_SYNC)
+      .map((key) => {
+        return {
+          name: key,
+          isChecked: enabled && game.settings.get(SETTINGS.MODULE_ID, key),
+          description: game.i18n.localize(`${SETTINGS.MODULE_ID}.settings.dynamic-sync.${key}`),
+          enabled,
+        };
+      });
     const settings = [
       {
         name: "dynamic-sync",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync"),
-        description: "Enable Dynamic Sync?",
+        isChecked: enabled && game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync"),
+        description: game.i18n.localize(`${SETTINGS.MODULE_ID}.settings.dynamic-sync.dynamic-sync`),
         enabled,
       },
-      {
-        name: "dynamic-sync-policy-currency",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-currency"),
-        description: "Currency?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-hitpoints",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-hitpoints"),
-        description: "Hit Points?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-hitdice",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-hitdice"),
-        description: "Hit Dice?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-action-use",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-action-use"),
-        description: "Action usage?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-inspiration",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-inspiration"),
-        description: "Inspiration?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-condition",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-condition"),
-        description: "Exhaustion?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-deathsaves",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-deathsaves"),
-        description: "Death Saves?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-spells-prepared",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-spells-prepared"),
-        description: "Spells Prepared?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-spells-slots",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-spells-slots"),
-        description: "Spell Slots?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-equipment",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-equipment"),
-        description: "Equipment?",
-        enabled,
-      },
-      {
-        name: "dynamic-sync-policy-xp",
-        isChecked: enabled && game.settings.get("ddb-importer", "dynamic-sync-policy-xp"),
-        description: "XP?",
-        enabled,
-      },
-    ];
+    ].concat(policySettings);
     const gmUsers = getGMUsers();
 
     return {
@@ -728,12 +599,12 @@ export class DDBDynamicUpdateSetup extends FormApplication {
   // eslint-disable-next-line class-methods-use-this
   async _updateObject(event, formData) {
     event.preventDefault();
-    const initial = game.settings.get("ddb-importer", "dynamic-sync");
+    const initial = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync");
     for (const [key, value] of Object.entries(formData)) {
       // eslint-disable-next-line no-await-in-loop
-      await game.settings.set("ddb-importer", key, value);
+      await game.settings.set(SETTINGS.MODULE_ID, key, value);
     }
-    const post = game.settings.get("ddb-importer", "dynamic-sync");
+    const post = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync");
 
     if (initial != post) {
       logger.warn("RELOADING!");

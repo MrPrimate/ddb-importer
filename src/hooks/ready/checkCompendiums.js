@@ -1,4 +1,5 @@
 import logger from '../../logger.js';
+import SETTINGS from '../../settings.js';
 
 let sanitize = (text) => {
   if (text && typeof text === "string") {
@@ -8,7 +9,7 @@ let sanitize = (text) => {
 };
 
 let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => {
-  const compendiumName = game.settings.get("ddb-importer", settingName);
+  const compendiumName = game.settings.get(SETTINGS.MODULE_ID, settingName);
   const compendium = await game.packs.get(compendiumName);
   if (compendium) {
     logger.info(`Compendium '${compendiumName}' found, will not create compendium.`);
@@ -28,39 +29,25 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
         name: name,
         package: "world",
       });
-      await game.settings.set("ddb-importer", settingName, `world.${name}`);
+      await game.settings.set(SETTINGS.MODULE_ID, settingName, `world.${name}`);
     }
     return true;
   }
 };
 
-export const ddbCompendiums = [
-  { name: "entity-background-compendium", label: "Backgrounds", type: "Item" },
-  { name: "entity-spell-compendium", label: "Spells", type: "Item" },
-  { name: "entity-item-compendium", label: "Items", type: "Item" },
-  { name: "entity-monster-compendium", label: "Monsters", type: "Actor" },
-  { name: "entity-feat-compendium", label: "Feats", type: "Item" },
-  { name: "entity-feature-compendium", label: "Class Features", type: "Item" },
-  { name: "entity-class-compendium", label: "Classes", type: "Item" },
-  { name: "entity-trait-compendium", label: "Racial Traits", type: "Item" },
-  { name: "entity-race-compendium", label: "Races", type: "Item" },
-  { name: "entity-override-compendium", label: "Override", type: "Item" },
-  { name: "entity-table-compendium", label: "Tables", type: "RollTable" },
-];
-
 export function getCompendiumNames() {
-  return ddbCompendiums.map((ddbCompendium) => {
-    return game.settings.get("ddb-importer", ddbCompendium.name);
+  return SETTINGS.COMPENDIUMS.map((ddbCompendium) => {
+    return game.settings.get(SETTINGS.MODULE_ID, ddbCompendium.setting);
   });
 }
 
 export default async function () {
-  const autoCreate = game.settings.get("ddb-importer", "auto-create-compendium");
+  const autoCreate = game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium");
 
   if (autoCreate) {
     let promises = [];
-    ddbCompendiums.forEach((compendium) => {
-      promises.push(createIfNotExists(compendium.name, compendium.type, compendium.label));
+    SETTINGS.COMPENDIUMS.forEach((compendium) => {
+      promises.push(createIfNotExists(compendium.setting, compendium.type, compendium.title));
     });
     let results = await Promise.all(promises);
 
