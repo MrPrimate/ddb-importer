@@ -10,7 +10,7 @@ const INDEX_COMPENDIUMS = [
 
 function evaluateMath(obj) {
   // eslint-disable-next-line no-new-func
-  return Function('"use strict";return ' + obj)();
+  return Function('"use strict";return ' + obj.replace(/\+\s*\+/g, "+"))();
 }
 
 export async function loadDDBCompendiumIndexes() {
