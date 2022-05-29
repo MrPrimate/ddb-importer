@@ -1,3 +1,8 @@
+# 2.9.45
+
+* Some actor processing could fail if attempting to generate Midi-QoL effects on monsters.
+* Race and racial features parsing improved to support Monsters of the Multiverse.
+
 # 2.9.44
 
 * Slightly improved description detection for some actions and features.
