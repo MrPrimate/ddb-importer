@@ -26,11 +26,16 @@ const TYPE_MAP = {
   monster: "monster",
   backgrounds: "backgrounds",
   background: "backgrounds",
+  traits: "traits",
+  races: "races",
+  race: "races",
 };
 
 const FILE_MAP = {
   items: ["items.json", "class-features.json", "races.json"],
+  traits: ["class-features.json", "races.json", "general.json", "items.json"],
   spells: ["spells.json"],
+  races: ["races.json"],
   feats: ["feats.json", "class-features.json", "races.json", "general.json"],
   classes: ["classes.json"],
   monster: ["named-monster-features.json", "generic-monster-features.json"],
