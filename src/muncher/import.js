@@ -291,17 +291,12 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
 }
 
 function flagMatch(item1, item2, matchFlags) {
+  // console.warn("flagMatch", {item1, item2, matchFlags});
   if (matchFlags.length === 0) return true;
-  let matched = false;
-  matchFlags.forEach((flag) => {
-    if (item1.flags.ddbimporter[flag] &&
-      item2.flags.ddbimporter[flag] &&
-      item1.flags.ddbimporter[flag] === item2.flags.ddbimporter[flag]
-    ) {
-      matched = true;
-    }
-  });
-
+  const matched = matchFlags.some((flag) =>
+    item1.flags.ddbimporter[flag] && item2.flags.ddbimporter[flag] &&
+    item1.flags.ddbimporter[flag] === item2.flags.ddbimporter[flag]
+  );
   return matched;
 }
 
@@ -331,9 +326,9 @@ async function getFilteredItems(compendium, item, index, matchFlags) {
 //   return Promise.all(results);
 // }
 
-async function updateCompendiumItems(compendium, compendiumItems, index, matchFlags) {
+async function updateCompendiumItems(compendium, inputItems, index, matchFlags) {
   let promises = [];
-  compendiumItems.forEach(async (item) => {
+  inputItems.forEach(async (item) => {
     const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
     // we have a match, update first match
     if (existingItems.length >= 1) {
@@ -383,10 +378,10 @@ export async function updateMidiFlags() {
 
 // window.updateMidiFlags = updateMidiFlags;
 
-async function createCompendiumItems(type, compendium, compendiumItems, index, matchFlags) {
+async function createCompendiumItems(type, compendium, inputItems, index, matchFlags) {
   let promises = [];
   // compendiumItems.forEach(async (item) => {
-  for (const item of compendiumItems) {
+  for (const item of inputItems) {
     // eslint-disable-next-line no-await-in-loop
     const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
     // we have a single match
@@ -434,18 +429,24 @@ export async function updateCompendium(type, input, updateExisting = false, matc
   if (game.user.isGM) {
     const initialIndex = await compendium.getIndex();
     // remove duplicate items based on name and type
-    const compendiumItems = [...new Map(input[type].map((item) => [item["name"] + item["type"], item])).values()];
+    const inputItems = [...new Map(input[type].map((item) => {
+      let filterItem = item["name"] + item["type"];
+      matchFlags.forEach((flag) => {
+        filterItem += item.flags.ddbimporter[flag];
+      });
+      return [filterItem, item];
+    })).values()];
 
     let updateResults = [];
     // update existing items
-    munchNote(`Creating and updating ${compendiumItems.length} new ${type} items in compendium...`, true);
+    munchNote(`Creating and updating ${inputItems.length} new ${type} items in compendium...`, true);
 
     if (updateExisting) {
-      updateResults = await updateCompendiumItems(compendium, compendiumItems, initialIndex, matchFlags);
+      updateResults = await updateCompendiumItems(compendium, inputItems, initialIndex, matchFlags);
     }
 
     // create new items
-    const createResults = await createCompendiumItems(type, compendium, compendiumItems, initialIndex, matchFlags);
+    const createResults = await createCompendiumItems(type, compendium, inputItems, initialIndex, matchFlags);
     munchNote("", true);
 
     // compendium folders

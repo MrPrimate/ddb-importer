@@ -6,6 +6,34 @@ import { munchNote, getCompendiumType, getCompendiumLabel } from "../utils.js";
 
 const FEATURE_DUP = [
   "Breath Weapon",
+  "Natural Armor",
+  "Darkvision",
+  "Flight",
+  "Hunter's Lore",
+  "Claws",
+  "Beak",
+  "Spells of the Mark",
+  "Shifting Feature",
+  "Creature Type",
+  "Aggressive",
+  "Amphibious",
+  "Ancestral Legacy",
+  "Bite",
+  "Cantrip",
+  "Celestial Resistance",
+  "Charge",
+  "Child of the Sea",
+  "Draconic Resistance",
+  "Fey Ancestry",
+  "Hold Breath",
+  "Hooves",
+  "Horns",
+  "Magic Resistance",
+  "Mental Discipline",
+  "Natural Athlete",
+  "Powerful Build",
+  "Sunlight Sensitivity",
+  "Superior Darkvision",
 ];
 
 const RACE_TEMPLATE = {
@@ -34,12 +62,14 @@ const RACE_TEMPLATE = {
 function buildBase(data) {
   let result = JSON.parse(JSON.stringify(RACE_TEMPLATE));
 
-  result.name = (data.fullName) ? data.fullName : data.name;
+  result.name = (data.fullName) ? data.fullName.replace("’", "'") : data.name.replace("’", "'");
   result.data.description.value += `${data.description}\n\n`;
 
   result.flags.ddbimporter = {
     entityRaceId: data.entityRaceId,
     version: CONFIG.DDBI.version,
+    sourceId: data.sources.length > 0 ? [0].sourceId : -1, // is homebrew
+    baseName: (data.fullName) ? data.fullName.replace("’", "'") : data.name.replace("’", "'")
   };
 
   if (data.moreDetailsUrl) {
@@ -61,6 +91,15 @@ async function buildRace(race, compendiumRacialTraits) {
   let largeAvatarUrl;
   let portraitAvatarUrl;
 
+  result.flags.ddbimporter.baseRaceId = race.baseRaceId;
+  result.flags.ddbimporter.baseName = race.baseName;
+  result.flags.ddbimporter.baseRaceName = race.baseRaceName;
+  result.flags.ddbimporter.fullName = race.fullName;
+  result.flags.ddbimporter.subRaceShortName = race.subRaceShortName;
+  result.flags.ddbimporter.isHomebrew = race.isHomebrew;
+  result.flags.ddbimporter.moreDetailsUrl = race.moreDetailsUrl;
+  result.flags.ddbimporter.featIds = race.featIds;
+
   if (race.portraitAvatarUrl) {
     portraitAvatarUrl = await getImagePath(race.portraitAvatarUrl, "race-portrait", race.fullName);
     result.img = portraitAvatarUrl;
@@ -80,20 +119,21 @@ async function buildRace(race, compendiumRacialTraits) {
     // eslint-disable-next-line require-atomic-updates
     result.flags.ddbimporter['largeAvatarUrl'] = race.largeAvatarUrl;
     if (!result.img) {
-      // eslint-disable-next-line require-atomic-updates
       result.img = largeAvatarUrl;
     }
   }
 
   const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
-  // eslint-disable-next-line require-atomic-updates
   result.data.description.value += image;
 
   const compendiumLabel = getCompendiumLabel("traits");
 
   race.racialTraits.forEach((f) => {
     const feature = f.definition;
-    const featureMatch = compendiumRacialTraits.find((match) => feature.name === match.name && match.flags?.ddbimporter?.entityRaceId && match.flags.ddbimporter.entityRaceId === feature.entityRaceId);
+    const featureMatch = compendiumRacialTraits.find((match) =>
+      feature.name.replace("’", "'") === match.flags.ddbimporter.baseName && match.flags?.ddbimporter?.entityRaceId &&
+      match.flags.ddbimporter.entityRaceId === feature.entityRaceId
+    );
     const title = (featureMatch) ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>` : `<p><b>${feature.name}</b></p>`;
     result.data.description.value += `${title}\n${feature.description}\n\n`;
   });
@@ -106,7 +146,8 @@ async function buildRace(race, compendiumRacialTraits) {
 async function getRacialTraitsLookup(racialTraits, fail = true) {
   const compendium = getCompendiumType("traits", fail);
   if (compendium) {
-    const index = await compendium.getIndex({ fields: ["name", "flags.ddbimporter.entityRaceId"] });
+    const flags = ["name", "flags.ddbimporter.entityRaceId", "flags.ddbimporter.baseName"];
+    const index = await compendium.getIndex({ fields: flags });
     const traitIndex = await index.filter((i) => racialTraits.some((orig) => i.name === orig.name));
     return traitIndex;
   } else {
@@ -126,7 +167,7 @@ function getRacialTrait(trait, fullName) {
 
   let result = buildBase(trait);
 
-  const duplicateFeature = FEATURE_DUP.includes(result.name);
+  const duplicateFeature = FEATURE_DUP.includes(result.name.replace("’", "'"));
   result.name = (duplicateFeature) ? `${result.name} (${fullName})` : result.name;
 
   result.flags.ddbimporter['spellListIds'] = trait.spellListIds;
@@ -134,15 +175,21 @@ function getRacialTrait(trait, fullName) {
   result.flags.ddbimporter['race'] = fullName;
   result.data.requirements = fullName;
 
+  result.data.description.value = parseTags(result.data.description.value);
+
   return result;
 }
 
 const NO_TRAITS = [
   "Speed",
   "Ability Score Increase",
+  "Ability Score Increases",
   "Size",
   "Feat",
   "Languages",
+  "Extra Language",
+  "Age",
+  "Alignment",
 ];
 
 export async function getRaces(data) {
@@ -152,6 +199,9 @@ export async function getRaces(data) {
   let results = [];
   let races = [];
   let racialFeatures = [];
+
+  // const legacyRaces =
+  // setProperty(CONFIG, "DDBI.MUNCHER.RACES.LEGACY", duplicateRaces);
 
   data.forEach((race) => {
     logger.debug(`${race.fullName} features parsing started...`);
@@ -167,7 +217,8 @@ export async function getRaces(data) {
 
   const fiddledRacialFeatures = await srdFiddling(racialFeatures, "traits");
   munchNote(`Importing ${fiddledRacialFeatures.length} traits!`, true);
-  await updateCompendium("traits", { traits: fiddledRacialFeatures }, updateBool);
+  logger.debug("Generated Racial Traits", fiddledRacialFeatures);
+  await updateCompendium("traits", { traits: fiddledRacialFeatures }, updateBool, ["entityRaceId"]);
 
   const compendiumRacialTraits = await getRacialTraitsLookup(fiddledRacialFeatures);
 
@@ -177,10 +228,14 @@ export async function getRaces(data) {
     races.push(builtRace);
   }));
 
+  logger.debug("Pre-fiddled races", duplicate(races));
+
   const fiddledRaces = await srdFiddling(races, "races");
   munchNote(`Importing ${fiddledRaces.length} races!`, true);
 
-  await updateCompendium("races", { races: fiddledRaces }, updateBool);
+  logger.debug("Fiddled races", fiddledRaces);
+
+  await updateCompendium("races", { races: fiddledRaces }, updateBool, ["entityRaceId"]);
 
   return results;
 }
