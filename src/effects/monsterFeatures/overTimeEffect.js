@@ -176,7 +176,7 @@ export function generateOverTimeEffect(document, actor, monster) {
 
   const damageType = hasProperty(document.flags, "monsterMunch.overTime.damageType")
     ? getProperty(document.flags, "monsterMunch.overTime.damageType")
-    : dmg.parts[0][1];
+    : dmg.parts.length > 0 ? dmg.parts[0][1] : "";
 
   const saveRemove = hasProperty(document.flags, "monsterMunch.overTime.saveRemove")
     ? getProperty(document.flags, "monsterMunch.overTime.saveRemove")
