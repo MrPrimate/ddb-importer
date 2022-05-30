@@ -1,3 +1,8 @@
+# 2.9.46
+
+* Fix broken icon link for Assassin's Infiltration Expertise.
+* When importing classes into compendiums with existing items, the import could fail.
+
 # 2.9.45
 
 * Some actor processing could fail if attempting to generate Midi-QoL effects on monsters.

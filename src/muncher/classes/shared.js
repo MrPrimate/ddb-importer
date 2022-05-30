@@ -100,13 +100,16 @@ export async function generateFeatureAdvancements(klass, compendiumClassFeatures
   klass.classFeatures
     .filter((feature) => !ignoreIds.includes(feature.id))
     .forEach((feature) => {
-      const featureMatch = compendiumClassFeatures.find((match) =>
-        feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase() &&
-        match.flags.ddbimporter &&
-        (match.flags.ddbimporter.class == klass.name ||
-          match.flags.ddbimporter.parentClassId == klass.id ||
-          match.flags.ddbimporter.classId == klass.id)
-      );
+      const featureMatch = compendiumClassFeatures.find((match) => {
+        const matchName = hasProperty(match, "flags.ddbimporter.featureName")
+          ? getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
+          : match.name.trim().toLowerCase();
+        return feature.name.trim().toLowerCase() == matchName &&
+          hasProperty(match, "flags.ddbimporter") &&
+          (match.flags.ddbimporter.class == klass.name ||
+            match.flags.ddbimporter.parentClassId == klass.id ||
+            match.flags.ddbimporter.classId == klass.id);
+      });
 
       if (featureMatch) {
         const levelAdvancement = advancements.findIndex((advancement) => advancement.level === feature.requiredLevel);
@@ -148,13 +151,16 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
 
     // sort by level?
     if (!classFeaturesAdded && !ignoreIds.includes(feature.id)) {
-      const featureMatch = compendiumClassFeatures.find((match) =>
-        feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase() &&
-        match.flags.ddbimporter &&
-        (match.flags.ddbimporter.class == klass.name ||
-          match.flags.ddbimporter.parentClassId == klass.id ||
-          match.flags.ddbimporter.classId == klass.id)
-      );
+      const featureMatch = compendiumClassFeatures.find((match) => {
+        const matchName = hasProperty(match, "flags.ddbimporter.featureName")
+          ? getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
+          : match.name.trim().toLowerCase();
+        return feature.name.trim().toLowerCase() == matchName &&
+          hasProperty(match, "flags.ddbimporter") &&
+          (match.flags.ddbimporter.class == klass.name ||
+            match.flags.ddbimporter.parentClassId == klass.id ||
+            match.flags.ddbimporter.classId == klass.id);
+      });
       const title = (featureMatch)
         ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>`
         : `<p><b>${feature.name}</b></p>`;
