@@ -183,6 +183,7 @@ function getDamage(data, flags, betterRolls5e) {
 
   let chatFlavors = [];
   let otherFormulas = [];
+  let restrictions = [];
   const isBetterRolls = game.modules.get("betterrolls5e")?.active;
   // loop over restricted damage types
   // we do this so we can either break this out for midi users
@@ -194,6 +195,8 @@ function getDamage(data, flags, betterRolls5e) {
       if (damagePart) {
         const subDamageTagData = utils.getDamageTagForMod(mod);
         const damageParsed = utils.parseDiceString(damagePart, "", subDamageTagData.damageTag).diceString;
+
+        restrictions.push(mod.restriction);
 
         if (isBetterRolls) {
           const attackNum = parts.length;
@@ -221,7 +224,7 @@ function getDamage(data, flags, betterRolls5e) {
     versatile: versatile,
   };
 
-  return [result, betterRolls5e, otherFormula, chatFlavor];
+  return [result, betterRolls5e, otherFormula, chatFlavor, restrictions];
 }
 
 function getActionType(data) {
@@ -335,7 +338,8 @@ export default function parseWeapon(data, character, flags) {
     weapon.data.damage,
     weapon.flags.betterRolls5e,
     weapon.data.formula,
-    weapon.data.chatFlavor
+    weapon.data.chatFlavor,
+    weapon.flags.ddbimporter.dndbeyond.restrictions,
   ] = getDamage(data, flags, weapon.flags.betterRolls5e);
 
 
