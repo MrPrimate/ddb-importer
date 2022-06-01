@@ -57,6 +57,11 @@ export function rageEffect(document) {
     startRound: null,
     startTurn: null,
   };
+  document.data.damage = {
+    parts: [["", ""]],
+    versatile: "",
+    value: "",
+  };
   document.effects.push(effect);
   return document;
 }
