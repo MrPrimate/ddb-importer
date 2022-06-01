@@ -119,6 +119,9 @@ function getDivineSmite() {
   } else {
     result.data.formula = `${regularDamage} + ${extraDamage}`;
     result.data.chatFlavor = `Use Other damage ${restriction.toLowerCase()}`;
+    if (game.modules.get("midi-qol")?.active) {
+      result.data.activation.condition = `["undead", "fiend"].includes("@raceOrType")`;
+    }
   }
 
   return result;
