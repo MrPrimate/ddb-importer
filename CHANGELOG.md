@@ -2,6 +2,8 @@
 
 * Fix broken icon link for Assassin's Infiltration Expertise.
 * When importing classes into compendiums with existing items, the import could fail.
+* Barbarian Rage damage would apply to self if processing with scale values.
+* The Divine Smite generated spell will now have activation conditions set to roll other damage, if using midi qol.
 
 # 2.9.45
 
