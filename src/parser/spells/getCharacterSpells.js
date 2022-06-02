@@ -57,7 +57,13 @@ export function getCharacterSpells(ddb, character) {
             healingBoost: healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
           },
-        }
+        },
+        "spell-class-filter-for-5e": {
+          parentClass: classInfo.definition.name.toLowerCase(),
+        },
+        // "spellbook-assistant-manager": {
+        //   class: classInfo.definition.name.toLowerCase(),
+        // }
       };
 
       // Check for duplicate spells, normally domain ones

@@ -50,6 +50,8 @@ const SUPPORTED_FLAG_GROUPS = [
   "boomingBladeChoice",
   "GritNGlory",
   "gng",
+  "spellbook-assistant-manager",
+  "spell-class-filter-for-5e",
 ];
 
 const EFFECTS_IGNORE_FLAG_GROUPS = [

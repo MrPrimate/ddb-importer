@@ -1,3 +1,7 @@
+# 2.9.47
+
+* Support for adding class name to "Multiclass Spellbook filter for 5e" module and retaining existing changes.
+
 # 2.9.46
 
 * Fix broken icon link for Assassin's Infiltration Expertise.

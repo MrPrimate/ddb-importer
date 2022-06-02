@@ -34,6 +34,8 @@ export function parseSpell(data, character) {
         tags: data.definition.tags,
         version: CONFIG.DDBI.version,
       },
+      // "spellbook-assistant-manager": data.flags["spellbook-assistant-manager"],
+      "spell-class-filter-for-5e": data.flags["spell-class-filter-for-5e"],
     },
   };
 
