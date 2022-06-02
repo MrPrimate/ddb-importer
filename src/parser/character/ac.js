@@ -354,12 +354,12 @@ export function getArmorClass(ddb, character) {
       effects: [overRideEffect],
       override: {
         flat: overRideAC.value,
-        calc: "default",
+        calc: "flat",
         formula: "",
       },
       auto: {
         flat: overRideAC.value,
-        calc: "default",
+        calc: "flat",
         formula: "",
       },
     };
@@ -515,7 +515,7 @@ export function getArmorClass(ddb, character) {
     effects: results.effects,
     override: {
       flat: results.maxValue,
-      calc: "default",
+      calc: "flat",
       formula: "",
     },
     auto: {
