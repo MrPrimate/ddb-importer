@@ -195,21 +195,21 @@ export async function addNPCDDBId(npc) {
 
 
 // eslint-disable-next-line complexity
-async function getNPCImage(data) {
+export async function getNPCImage(data, { forceUpdate = false, forceUseFullToken = false, forceUseTokenAvatar = false, disableAutoTokenizeOverride = false }) {
   // check to see if we have munched flags to work on
   if (!data.flags || !data.flags.monsterMunch || !data.flags.monsterMunch.img) {
-    return false;
+    return data;
   }
 
-  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images") || forceUpdate;
   if (!updateImages && data.img !== "icons/svg/mystery-man.svg") {
-    return false;
+    return data;
   }
 
   let dndBeyondImageUrl = data.flags.monsterMunch.img;
   let dndBeyondTokenImageUrl = data.flags.monsterMunch.tokenImg;
-  const useAvatarAsToken = game.settings.get("ddb-importer", "munching-policy-use-full-token-image");
-  const useTokenAsAvatar = game.settings.get("ddb-importer", "munching-policy-use-token-avatar-image");
+  const useAvatarAsToken = game.settings.get("ddb-importer", "munching-policy-use-full-token-image") || forceUseFullToken;
+  const useTokenAsAvatar = game.settings.get("ddb-importer", "munching-policy-use-token-avatar-image") || forceUseTokenAvatar;
   if (useAvatarAsToken) {
     dndBeyondTokenImageUrl = dndBeyondImageUrl;
   } else if (useTokenAsAvatar) {
@@ -260,6 +260,7 @@ async function getNPCImage(data) {
 
   // okays, but do we now want to tokenize that?
   const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize") &&
+    !disableAutoTokenizeOverride &&
     game.modules.get("vtta-tokenizer")?.active &&
     utils.versionCompare(game.modules.get("vtta-tokenizer").data.version, "3.7.1") >= 0;
   if (tokenizerReady) {
@@ -268,7 +269,7 @@ async function getNPCImage(data) {
     data.token.img = await window.Tokenizer.autoToken(data, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
   }
 
-  return true;
+  return data;
 }
 
 function getSpellEdgeCase(spell, type, spellList) {

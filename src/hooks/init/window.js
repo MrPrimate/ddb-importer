@@ -3,7 +3,7 @@ import { parseMonsters } from "../../muncher/monster/monster.js";
 import { parseSpells } from "../../muncher/spells.js";
 import { parseItems } from "../../muncher/items.js";
 import { parseCritters, fixCritters } from "../../muncher/monsters.js";
-import { updateWorldMonsters } from "../../muncher/tools.js";
+import { updateWorldMonsters, resetCompendiumActorImages } from "../../muncher/tools.js";
 import { migrateExistingCompendium, createCompendiumFolderStructure } from "../../muncher/compendiumFolders.js";
 import { parseEncounters, DDBEncounterMunch } from "../../muncher/encounters.js";
 import { generateAdventureConfig } from "../../muncher/adventure.js";
@@ -17,6 +17,7 @@ import { getCompendiumNames } from "../ready/checkCompendiums.js";
 import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "../../effects/macros.js";
 import { iconPath } from "../../icons/index.js";
 import { loadSRDRules, importCacheLoad } from "../../parser/templateStrings.js";
+import { getNPCImage } from "../../muncher/importMonster.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -77,5 +78,7 @@ export function registerWindow() {
     importCacheLoad,
     fixCritters,
     macros: MACROS,
+    getNPCImage,
+    resetCompendiumActorImages,
   };
 }

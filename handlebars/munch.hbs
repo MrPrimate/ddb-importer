@@ -26,7 +26,8 @@
     <a class="item" data-tab="monsters"><i class="fas fa-pastafarianism"></i> Monsters</a>
     <a class="item" data-tab="adventures"><i class="fas fa-book-reader"></i> Adventures</a>
     <a class="item" data-tab="tools"><i class="fas fa-tools"></i> Tools</a>
-    <a class="item" data-tab="experimental"><i class="fas fa-flask"></i> Experimental</a>
+    <a class="item" data-tab="characters"><i class="fas fa-users "></i> Characters</a>
+    {{!-- <a class="item" data-tab="experimental"><i class="fas fa-flask"></i> Experimental</a> --}}
     <a class="item" data-tab="help"><i class="fas fa-info-circle"></i> Help</a>
   </nav>
 
@@ -132,7 +133,7 @@
                   <div style="text-align:center"><b>{{sourceDescription}}</b></div>
                   {{/if}}
                   <button type="button" id="munch-monsters-start" class="munch-button"
-                      {{#if tiers.all}}enabled{{else}}disabled{{/if}}>{{#if tiers.all}}Monster Munch!{{else}}Monster Munch for Patreon Supporters!{{/if}}</button>
+                      {{#if tiers.all}}enabled{{else}}disabled{{/if}}>{{#if tiers.all}}Monster Munch!{{else}}Monster Munch for Patreon Supporters! (or run your own proxy){{/if}}</button>
               </div>
               <div style="text-align:center"><i>Make sure you have imported spells before Monsters!</i> Tokens will use default token settings in v9.</div>
           </div>
@@ -145,6 +146,10 @@
           <div class="form-description"></div>
               <div>
                   <h2>Tools</h2>
+                  <p>Reset compendium actor images back to munch defaults.</p>
+                  <div>
+                    <button type="button" id="munch-reset-images" class="munch-button"><i class="fas fa-person-booth"></i> Reset compendium actor images</button>
+                  </div>
                   <p>Check scenes for base64 data, and fix if possible (can improve load times).</p>
                   <div>
                     <button type="button" id="munch-fix-base64" class="munch-button"><i class="fas fa-map"></i> Check & fix Scenes</button>
@@ -157,7 +162,12 @@
                   </div>
                   {{/each}}
                   <div>
-                    <button type="button" id="munch-world-monster-update" class="munch-button"><i class="fas fa-map"></i> Update world monsters</button>
+                    <button type="button" id="munch-world-monster-update" class="munch-button"><i class="fas fa-user-edit"></i> Update world monsters</button>
+                  </div>
+                  <div>
+                    <p>Munch token frames from D&D Beyond.</p>
+                    <button type="button" id="munch-frames-start" class="munch-button"
+                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}><i class="fas fa-universal-access"></i>{{#if tiers.supporter}}Token Frame Munch{{else}}Token Frames for Patreon Supporters{{/if}}</button>
                   </div>
                   <hr>
                   <h2>Compendium Folders Migration</h2>
@@ -196,13 +206,13 @@
           </div>
       </div>
   </section>
-<!-- Experimental -->
-  <section class="tab" data-tab="experimental">
+<!-- Character -->
+  <section class="tab" data-tab="characters">
   <div class="form-section">
       <div class="form-description">
           <div class="form-description"></div>
               <div>
-                  <h4>These features are experimental. Races and Feats are working well. Class Features are not entirely complete and rough around the edges.</h4>
+                  <h4>Races and Feats are working well. Class Features are not entirely complete.</h4>
               </div>
                 <div>
                   <button type="button" id="munch-classes-start" class="munch-button"
@@ -213,10 +223,7 @@
                       {{#if tiers.experimentalMid}}enabled{{else}}disabled{{/if}}>{{#if tiers.experimentalMid}}[Experimental] Background Munch{{else}} Background in Beta - coming to coffee tier soon{{/if}}</button>
                   <button type="button" id="munch-races-start" class="munch-button"
                       {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Race and Racial Traits Munch{{else}}Races for Patreon Supporters{{/if}}</button>
-                  <button type="button" id="munch-frames-start" class="munch-button"
-                      {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}Token Frame Munch{{else}}Token Frames for Undying and God Tier Supporters{{/if}}</button>
               </div>
-
           </div>
       </div>
   </section>

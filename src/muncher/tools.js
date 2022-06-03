@@ -1,6 +1,7 @@
 import logger from "../logger.js";
 import { munchNote, getCompendium, getCompendiumLabel } from "./utils.js";
 import { copySupportedItemFlags } from "./import.js";
+import { getNPCImage } from "./importMonster.js";
 
 let totalTargets = 0;
 let count = 0;
@@ -100,5 +101,23 @@ export async function updateWorldMonsters() {
   } else {
     logger.error("Error opening compendium, check your settings");
   }
+  return results;
+}
+
+export async function resetCompendiumActorImages(compendiumName = null) {
+  const monsterCompendiumLabel = compendiumName ? compendiumName : getCompendiumLabel("monster");
+  const monsterCompendium = await getCompendium(monsterCompendiumLabel);
+  const fields = ["name", "token.img", "flags.monsterMunch", "data.details.type.value", "img"];
+  const index = await monsterCompendium.getIndex({ fields });
+
+  const updates = await Promise.all(index.map(async (i) => {
+    const options = { forceUpdate: true, disableAutoTokenizeOverride: true };
+    const update = await getNPCImage(i, options);
+    logger.info(`Resetting ${i.name}`, update);
+    return update;
+  }));
+
+  const results = await Actor.updateDocuments(updates, { pack: monsterCompendiumLabel });
+  logger.debug("Reset results", results);
   return results;
 }

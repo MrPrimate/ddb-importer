@@ -2,6 +2,8 @@
 
 * Support for adding class name to "Multiclass Spellbook filter for 5e" module and retaining existing changes.
 * Override AC had stopped working in newer 5e system versions.
+* Option to reset the tokens and avatars to DDB Defaults in Tools section.
+* Small UI tweaks.
 
 # 2.9.46
 

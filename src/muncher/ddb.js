@@ -17,7 +17,7 @@ import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
 import { importCacheLoad } from "../parser/templateStrings.js";
-import { updateWorldMonsters } from "./tools.js";
+import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
 import { parseBackgrounds } from "./backgrounds.js";
 
 export function getSourcesLookups(selected) {
@@ -194,6 +194,11 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.updateWorldMonsters();
     });
+    html.find("#munch-reset-images").click(async () => {
+      munchNote(`Resetting images...`, true);
+      $('button[id^="munch-"]').prop('disabled', true);
+      DDBMuncher.resetCompendiumActorImages();
+    });
 
     // watch the change of the import-policy-selector checkboxes
     $(html)
@@ -252,6 +257,7 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-migrate-compendium-spell"]').prop('disabled', false);
       $('button[id^="munch-migrate-compendium-item"]').prop('disabled', false);
       $('button[id^="munch-fix-base64"]').prop('disabled', false);
+      $('button[id^="munch-reset-images"]').prop('disabled', false);
 
       if (tiers.all) {
         $('button[id^="munch-monsters-start"]').prop('disabled', false);
@@ -416,6 +422,14 @@ export default class DDBMuncher extends Application {
       if (results.fixedScenes.length > 0) notifyString += ` Fixing ${results.fixedScenes.length} scenes (wait untill uploads complete).`;
       if (results.badScenes.length > 0) notifyString += ` Found ${results.badScenes.length} scenes that I couldn't fix.`;
     }
+    munchNote(notifyString, true);
+    DDBMuncher.enableButtons();
+  }
+
+  static async resetCompendiumActorImages() {
+    logger.info("Resetting compendium actor images");
+    const results = await resetCompendiumActorImages();
+    const notifyString = `Reset ${results.length} compendium actors.`;
     munchNote(notifyString, true);
     DDBMuncher.enableButtons();
   }
