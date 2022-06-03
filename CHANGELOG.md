@@ -1,3 +1,7 @@
+# 2.9.48
+
+* Fix broke monster importer.
+
 # 2.9.47
 
 * Support for adding class name to "Multiclass Spellbook filter for 5e" module and retaining existing changes.
