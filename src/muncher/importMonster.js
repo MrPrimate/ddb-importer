@@ -195,21 +195,23 @@ export async function addNPCDDBId(npc) {
 
 
 // eslint-disable-next-line complexity
-export async function getNPCImage(data, { forceUpdate = false, forceUseFullToken = false, forceUseTokenAvatar = false, disableAutoTokenizeOverride = false }) {
+export async function getNPCImage(data, options) {
+  const defaultOptions = { forceUpdate: false, forceUseFullToken: false, forceUseTokenAvatar: false, disableAutoTokenizeOverride: false };
+  const mergedOptions = mergeObject(defaultOptions, options);
   // check to see if we have munched flags to work on
   if (!data.flags || !data.flags.monsterMunch || !data.flags.monsterMunch.img) {
     return data;
   }
 
-  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images") || forceUpdate;
+  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images") || mergedOptions.forceUpdate;
   if (!updateImages && data.img !== "icons/svg/mystery-man.svg") {
     return data;
   }
 
   let dndBeyondImageUrl = data.flags.monsterMunch.img;
   let dndBeyondTokenImageUrl = data.flags.monsterMunch.tokenImg;
-  const useAvatarAsToken = game.settings.get("ddb-importer", "munching-policy-use-full-token-image") || forceUseFullToken;
-  const useTokenAsAvatar = game.settings.get("ddb-importer", "munching-policy-use-token-avatar-image") || forceUseTokenAvatar;
+  const useAvatarAsToken = game.settings.get("ddb-importer", "munching-policy-use-full-token-image") || mergedOptions.forceUseFullToken;
+  const useTokenAsAvatar = game.settings.get("ddb-importer", "munching-policy-use-token-avatar-image") || mergedOptions.forceUseTokenAvatar;
   if (useAvatarAsToken) {
     dndBeyondTokenImageUrl = dndBeyondImageUrl;
   } else if (useTokenAsAvatar) {
@@ -260,7 +262,7 @@ export async function getNPCImage(data, { forceUpdate = false, forceUseFullToken
 
   // okays, but do we now want to tokenize that?
   const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize") &&
-    !disableAutoTokenizeOverride &&
+    !mergedOptions.disableAutoTokenizeOverride &&
     game.modules.get("vtta-tokenizer")?.active &&
     utils.versionCompare(game.modules.get("vtta-tokenizer").data.version, "3.7.1") >= 0;
   if (tokenizerReady) {
