@@ -34,7 +34,7 @@ export async function parseJson(currentActorId, ddb, resourceSelection = true) {
     logger.debug("Action parse complete");
     let itemSpells = getItemSpells(ddb, character);
     logger.debug("Item Spells parse complete");
-    let inventory = getInventory(ddb, character, itemSpells);
+    let inventory = await getInventory(ddb, character, itemSpells);
     logger.debug("Inventory parse complete");
 
     [actions, features] = removeActionFeatures(actions, features);

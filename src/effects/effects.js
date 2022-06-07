@@ -12,6 +12,7 @@ import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { featureEffectAdjustment } from "./specialFeats.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem } from "./acEffects.js";
+import { addRestrictionFlags } from "./restrictions.js";
 // import { spellEffectAdjustment } from "./specialSpells.js";
 
 /**

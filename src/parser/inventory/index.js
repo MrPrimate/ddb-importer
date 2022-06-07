@@ -33,6 +33,7 @@ import { fixItems } from "./special.js";
 import { generateEffects } from "../../effects/effects.js";
 import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { parseInfusion } from "./infusions.js";
+import { addRestrictionFlags } from "../../effects/restrictions.js";
 
 // tables
 import { generateTable } from "../../muncher/table.js";
@@ -366,7 +367,7 @@ function enrichFlags(data, item) {
   if (data.definition?.stackable) item.flags.ddbimporter.dndbeyond['stackable'] = data.definition.stackable;
 }
 
-export default function getInventory(ddb, character, itemSpells) {
+export default async function getInventory(ddb, character, itemSpells) {
   let items = [];
   // first, check custom name, price or weight
   ddb.character.characterValues.forEach((cv) => {
@@ -438,6 +439,9 @@ export default function getInventory(ddb, character, itemSpells) {
         // always generate other item ac effects
         item = generateBaseACItemEffect(ddb, character, ddbItem, item, compendiumItem);
       }
+
+      // eslint-disable-next-line no-await-in-loop
+      if (addEffects) item = await addRestrictionFlags(item);
 
       if (!compendiumItem) item = parseInfusion(ddb, character, item, ddbItem, compendiumItem);
 

@@ -2,6 +2,7 @@
 
 * Updating characters on DDB could fail if racial traits had been munched with the old format into a compendium.
 * Remove dependency on About Time.
+* If using midi-qol and generating item effects, some items will now have restrictions applied to help with damage detection. This is MVP and some weapons still require some additional work. Currently supported: Wounding.
 
 # 2.9.48
 
