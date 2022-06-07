@@ -120,7 +120,6 @@ export function spellEffectModules() {
   if (installedModules) return installedModules;
   const midiQolInstalled = game.modules.get("midi-qol")?.active;
   const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active;
-  const aboutTime = game.modules.get("about-time")?.active;
   const itemMacroInstalled = game.modules.get("itemacro")?.active;
   const timesUp = game.modules.get("times-up")?.active;
   const daeInstalled = game.modules.get("dae")?.active;
@@ -132,11 +131,10 @@ export function spellEffectModules() {
   const tokenMagicInstalled = game.modules.get("tokenmagic")?.active;
   const autoAnimationsInstalled = game.modules.get("autoanimations")?.active;
   installedModules = {
-    hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && aboutTime && timesUp && daeInstalled && convenientEffectsInstalled,
+    hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
     midiQolInstalled,
     itemMacroInstalled,
     advancedMacrosInstalled,
-    aboutTime,
     timesUp,
     daeInstalled,
     convenientEffectsInstalled,

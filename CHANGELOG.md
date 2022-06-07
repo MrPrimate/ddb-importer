@@ -1,6 +1,7 @@
 # 2.9.49
 
 * Updating characters on DDB could fail if racial traits had been munched with the old format into a compendium.
+* Remove dependency on About Time.
 
 # 2.9.48
 

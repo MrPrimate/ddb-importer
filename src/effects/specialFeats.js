@@ -42,7 +42,6 @@ export function featEffectModules() {
   if (installedModules) return installedModules;
   const midiQolInstalled = game.modules.get("midi-qol")?.active;
   const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active;
-  const aboutTime = game.modules.get("about-time")?.active;
   const itemMacroInstalled = game.modules.get("itemacro")?.active;
   const timesUp = game.modules.get("times-up")?.active;
   const daeInstalled = game.modules.get("dae")?.active;
@@ -58,14 +57,12 @@ export function featEffectModules() {
       itemMacroInstalled &&
       midiQolInstalled &&
       advancedMacrosInstalled &&
-      aboutTime &&
       timesUp &&
       daeInstalled &&
       convenientEffectsInstalled,
     midiQolInstalled,
     itemMacroInstalled,
     advancedMacrosInstalled,
-    aboutTime,
     timesUp,
     daeInstalled,
     convenientEffectsInstalled,
