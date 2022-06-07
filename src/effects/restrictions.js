@@ -28,16 +28,27 @@ async function woundingWeaponEffect(document) {
   return document;
 }
 
+async function lifeStealingEffect(document) {
+  let effect = baseItemEffect(document, document.name);
+  const itemMacroText = await loadMacroFile("item", "lifeStealing.js");
+  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  document.effects.push(effect);
+  return document;
+}
+
 const RESTRICTION_MAPPINGS = [
   {
-    name: "Extra Critical",
+    // name: "Extra Critical",
     ddb: ["20 on the Attack Roll"],
     restriction: `@workflow.diceRoll === 20`,
   },
   {
-    name: "Life-Stealing",
+    name: "of Life Stealing",
     ddb: ["20 on the Attack Roll, Not Construct or Undead"],
     restriction: `@workflow.diceRoll === 20 && !(["construct", "undead"].includes("@raceOrType"))`,
+    effect: true,
+    effectFunction: lifeStealingEffect,
   },
   {
     name: "Bloodaxe",
@@ -45,7 +56,7 @@ const RESTRICTION_MAPPINGS = [
     restriction: `!(["construct", "undead"].includes("@raceOrType"))`,
   },
   {
-    name: "Plants",
+    // name: "Plants",
     ddb: ["against a plant (an ordinary plant or a creature with the Plant type) or a wooden object that isn’t being worn or carried"],
     restriction: `["plant"].includes("@raceOrType")`
   },
@@ -63,7 +74,7 @@ const RESTRICTION_MAPPINGS = [
     restriction: ``,
   },
   {
-    name: "Undead",
+    // name: "Undead",
     ddb: [
       "Against Undead Targets",
       "Against undead targets.",
@@ -73,12 +84,12 @@ const RESTRICTION_MAPPINGS = [
     restriction: `["undead"].includes("@raceOrType")`,
   },
   {
-    name: "Dragon",
+    // name: "Dragon",
     ddb: ["When you hit a dragon with this weapon"],
     restriction: `["dragon"].includes("@raceOrType")`,
   },
   {
-    name: "Wounding",
+    name: "of Wounding",
     ddb: ["Per Wound, DC 15 Constitution Save Ends Effect"],
     restriction: "",
     effect: true,
@@ -127,7 +138,7 @@ const RESTRICTION_MAPPINGS = [
     restriction: `false`,
   },
   {
-    name: "Giants",
+    // name: "Giants",
     ddb: ["Against Giants"],
     restriction: `["giant"].includes("@raceOrType")`,
   },
@@ -168,10 +179,16 @@ export async function addRestrictionFlags(document) {
   if (!game.modules.get("midi-qol")?.active) return document;
   const restrictions = getProperty(document, "flags.ddbimporter.dndbeyond.restrictions");
   if (!restrictions || restrictions.length == 0) return document;
+  const name = document.flags.ddbimporter.originalName || document.name;
 
-  const restriction = RESTRICTION_MAPPINGS.find((r) => {
-    return r.ddb.map((m) => m.toLowerCase())[0].includes(restrictions[0].toLowerCase());
+  const nameMatch = RESTRICTION_MAPPINGS.find((r) => {
+    return r.name && name.toLowerCase()[0].includes(r.name.toLowerCase());
   });
+  const restriction = nameMatch
+    ? nameMatch
+    : RESTRICTION_MAPPINGS.find((r) => {
+      return r.ddb.map((m) => m.toLowerCase())[0].includes(restrictions[0].toLowerCase());
+    });
 
   if (restriction) {
     let restrictionText = restriction.restriction;
@@ -192,8 +209,7 @@ export async function addRestrictionFlags(document) {
   // effects needed for:
   // mace of disruption
   // oathbow
-  // sharpness
-  // devils glaive
+  // sharpness - needs light effect
   // sunswords
   // "Javelin of Lightning"
   // dwarven thrower
