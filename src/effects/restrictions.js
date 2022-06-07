@@ -180,6 +180,9 @@ export async function addRestrictionFlags(document) {
       restrictionText += ` && @item.attunement !== 1`;
     }
     setProperty(document, "data.activation.condition", restrictionText);
+    if (restriction.effectRestrictionACtivation) {
+      setProperty(document, "flags.midi-qol.effectActivation", true);
+    }
 
     if (restriction.effect) {
       document = await restriction.effectFunction(document);
