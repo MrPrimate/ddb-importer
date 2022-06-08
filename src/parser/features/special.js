@@ -461,10 +461,11 @@ export function fixFeatures(features) {
         feature.data.range.units = "ft";
         break;
       case "Superiority Dice": {
-        if (!hasProperty(feature, "data.damage.parts")) break;
-        // feature parses as all available dice, rather than 1 per us
-        if (feature.data.damage?.parts?.length === 0) {
+        if (utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0) {
+          setProperty(feature.data, "damage.parts", [["@scale.battle-master.combat-superiority-die"]]);
+        } else if (!hasProperty(feature, "data.damage.parts") || feature.data.damage?.parts?.length === 0) {
           feature.data.damage.parts = [["1d6"]];
+        // feature parses as all available dice, rather than 1 per us
         } else {
           feature.data.damage.parts[0][0] = `1d${feature.data.damage.parts[0][0].split("d").pop()}`;
         }

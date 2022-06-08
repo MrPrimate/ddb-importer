@@ -4,6 +4,7 @@ import { getCompendiumType, getCompendiumLabel } from '../../muncher/utils.js';
 import utils from '../../utils.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import parseTemplateString from "../templateStrings.js";
+import { SPECIAL_ADVANCEMENTS } from './special.js';
 
 /**
  * Fetches the sources and pages for class and subclass
@@ -175,12 +176,23 @@ async function generateFeatureAdvancements(ddb, klass, klassDefinition, compendi
 }
 
 function parseFeaturesForScaleValues(ddb, klass, klassDefinition, ignoreIds = []) {
+  let specialFeatures = [];
   const advancements = getClassFeatures(ddb, klass, klassDefinition, ignoreIds)
     .filter((feature) => feature.levelScales?.length > 0)
     .map((feature) => {
-      return generateScaleValueAdvancement(feature);
+      let advancement = generateScaleValueAdvancement(feature);
+      const specialLookup = SPECIAL_ADVANCEMENTS[advancement.title];
+      if (specialLookup) {
+        if (specialLookup.additionalAdvancements) {
+          specialLookup.additionalFunctions.forEach((fn) => {
+            specialFeatures.push(fn(advancement));
+          });
+        }
+        if (specialLookup.fixFunction) advancement = specialLookup.fixFunction(advancement);
+      }
+      return advancement;
     });
-  return advancements;
+  return advancements.concat(specialFeatures);
 }
 
 

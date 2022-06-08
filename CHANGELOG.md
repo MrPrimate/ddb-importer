@@ -1,3 +1,7 @@
+# 2.9.50
+
+* Combat Superiority Dice parsing was broken when using Scale Values/Advancements in v1.6.* of D&D 5e.
+
 # 2.9.49
 
 * Updating characters on DDB could fail if racial traits had been munched with the old format into a compendium.
