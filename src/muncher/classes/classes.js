@@ -10,7 +10,7 @@ async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);
   result.system.advancement.push(getHPAdvancement());
   result.system.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
-  result.system.description.value = parseTags(result.data.description.value);
+  result.system.description.value = parseTags(result.system.description.value);
   result.system.advancement.push(...await generateFeatureAdvancements(klass, compendiumClassFeatures));
   return result;
 }
