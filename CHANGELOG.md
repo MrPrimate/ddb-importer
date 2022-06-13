@@ -1,3 +1,7 @@
+# 2.9.51
+
+* Thunder Step and Word of Radiance will no longer damage self if using Midi-QoL.
+
 # 2.9.50
 
 * Combat Superiority Dice parsing was broken when using Scale Values/Advancements in v1.6.* of D&D 5e.

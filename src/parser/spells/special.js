@@ -91,8 +91,11 @@ export function fixSpells(ddb, items) {
       // i.e. affects all creatures within 5 ft of caster
       case "Thunderclap":
       case "Word of Radiance":
-        spell.data.range = { value: null, units: "self", long: null };
+        spell.data.range = { value: null, units: "spec", long: null };
         spell.data.target = { value: 15, units: "ft", type: "cube" };
+        break;
+      case "Thunder Step":
+        spell.data.range = { value: null, units: "spec", long: null };
         break;
       case "Sleep": {
         spell.data.damage = { parts: [["5d8", ""]], versatile: "", value: "" };
