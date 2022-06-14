@@ -228,7 +228,7 @@ async function createItemTypeCompendiumFolders(packName) {
     // eslint-disable-next-line no-await-in-loop
     const folder = await createCompendiumFolderWithParent(packName, folderName, equipmentFolders["trinket"], "#444444");
     trinketFolders[folderName] = folder;
-    promises.push(folder);;
+    promises.push(folder);
   }
 
   for (const folderName of consumableFolderNames) {
