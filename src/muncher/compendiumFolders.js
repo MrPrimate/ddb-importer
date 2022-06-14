@@ -223,37 +223,37 @@ async function createItemTypeCompendiumFolders(packName) {
     promises.push(folder);
   }
 
-  trinketFolderNames.forEach((folderName) => {
+  for (const folderName of trinketFolderNames) {
     logger.info(`Creating Equipment\\Trinket folder '${folderName}'`);
-    createCompendiumFolderWithParent(packName, folderName, equipmentFolders["trinket"], "#444444").then((folder) => {
-      trinketFolders[folderName] = folder;
-      promises.push(folder);
-    });
-  });
+    // eslint-disable-next-line no-await-in-loop
+    const folder = await createCompendiumFolderWithParent(packName, folderName, equipmentFolders["trinket"], "#444444");
+    trinketFolders[folderName] = folder;
+    promises.push(folder);;
+  }
 
-  consumableFolderNames.forEach((folderName) => {
+  for (const folderName of consumableFolderNames) {
     logger.info(`Creating Consumable folder '${folderName}'`);
-    createCompendiumFolderWithParent(packName, folderName, rootItemFolders["consumable"], "#222222").then((folder) => {
-      consumableFolders[folderName] = folder;
-      promises.push(folder);
-    });
-  });
+    // eslint-disable-next-line no-await-in-loop
+    const folder = await createCompendiumFolderWithParent(packName, folderName, rootItemFolders["consumable"], "#222222");
+    consumableFolders[folderName] = folder;
+    promises.push(folder);
+  }
 
-  lootFolderNames.forEach((folderName) => {
+  for (const folderName of lootFolderNames) {
     logger.info(`Creating Loot folder '${folderName}'`);
-    createCompendiumFolderWithParent(packName, folderName, rootItemFolders["loot"], "#222222").then((folder) => {
-      lootFolders[folderName] = folder;
-      promises.push(folder);
-    });
-  });
+    // eslint-disable-next-line no-await-in-loop
+    const folder = await createCompendiumFolderWithParent(packName, folderName, rootItemFolders["loot"], "#222222");
+    lootFolders[folderName] = folder;
+    promises.push(folder);
+  }
 
-  backpackFolderNames.forEach((folderName) => {
+  for (const folderName of backpackFolderNames) {
     logger.info(`Creating Backpack folder '${folderName}'`);
-    createCompendiumFolderWithParent(packName, folderName, rootItemFolders["backpack"], "#222222").then((folder) => {
-      backpackFolders[folderName] = folder;
-      promises.push(folder);
-    });
-  });
+    // eslint-disable-next-line no-await-in-loop
+    const folder = await createCompendiumFolderWithParent(packName, folderName, rootItemFolders["backpack"], "#222222");
+    backpackFolders[folderName] = folder;
+    promises.push(folder);
+  }
 
   return new Promise((resolve) => {
     resolve(promises);
