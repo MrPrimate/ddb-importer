@@ -5,6 +5,7 @@ export function uncannyDodgeEffect(document) {
   effect.changes.push(
     { key: "flags.midi-qol.uncanny-dodge", value: "1", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 10 },
   );
+  effect.flags.dae.specialDuration = ["turnStart", "isDamaged"];
   document.effects.push(effect);
   return document;
 }

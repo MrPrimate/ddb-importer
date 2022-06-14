@@ -1,3 +1,7 @@
+# 2.9.52
+
+* Uncanny Dodge now expires after damage.
+
 # 2.9.51
 
 * Thunder Step and Word of Radiance will no longer damage self if using Midi-QoL.
