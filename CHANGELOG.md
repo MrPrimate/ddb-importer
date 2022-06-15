@@ -1,6 +1,7 @@
 # 2.9.52
 
 * Uncanny Dodge now expires after damage.
+* Source filter was not enabled unless you were a patreon (unintended).
 
 # 2.9.51
 
