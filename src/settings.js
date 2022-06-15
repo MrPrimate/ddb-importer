@@ -229,6 +229,8 @@ const SETTINGS = {
           default: false,
         },
         "update-check": {
+          name: "ddb-importer.settings.update-check.name",
+          config: true,
           type: Boolean,
           default: true,
         },

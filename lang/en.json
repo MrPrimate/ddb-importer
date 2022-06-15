@@ -2,6 +2,7 @@
   "ddb-importer": {
     "module-name": "D&D Beyond Importer",
     "settings": {
+      "update-check.name": "Check for available updates?",
       "log-level.name": "Log Level",
       "log-level.hint": "The level of console log statements that should be displayed in the console.",
       "show-munch-top": {
