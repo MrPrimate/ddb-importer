@@ -1,5 +1,5 @@
-import { baseSpellEffect, spellEffectModules, generateATLChange, generateStatusEffectChange } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
+import { baseSpellEffect } from "../specialSpells.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 
 export async function auraOfLifeEffect(document) {
   let effect = baseSpellEffect(document, document.name);
