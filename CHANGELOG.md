@@ -2,6 +2,8 @@
 
 * Uncanny Dodge now expires after damage.
 * Source filter was not enabled unless you were a patreon (unintended).
+* Previously hidden option to disable update notification is now visible in module settings. (Most requested feature ever?).
+* Spell Effects: Aura of Life.
 
 # 2.9.51
 

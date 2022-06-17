@@ -13,6 +13,7 @@ import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
 import { animalFriendshipEffect } from "./spells/animalFriendship.js";
 import { arcaneSwordEffect } from "./spells/arcaneSword.js";
+import { auraOfLifeEffect } from "./spells/auraOfLife.js";
 import { baneEffect } from "./spells/bane.js";
 import { banishmentEffect } from "./spells/banishment.js";
 import { barkskinEffect } from "./spells/barkskin.js";
@@ -229,6 +230,10 @@ export async function spellEffectAdjustment(document) {
     case "Mordenkainen's Sword":
     case "Arcane Sword": {
       document = await arcaneSwordEffect(document);
+      break;
+    }
+    case "Aura of Life": {
+      document = await auraOfLifeEffect(document);
       break;
     }
     case "Bane": {
