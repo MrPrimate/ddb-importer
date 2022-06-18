@@ -12,6 +12,7 @@ import { sculptSpellsEffect } from "./feats/sculptSpells.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { bladesongEffect } from "./feats/bladesong.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
+import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -99,6 +100,10 @@ export async function generateExtraEffects(ddb, character, document) {
   switch (name) {
     case "Bladesong": {
       document = await bladesongEffect(document);
+      break;
+    }
+    case "Defensive Duelist": {
+      document = defensiveDuelistEffect(document);
       break;
     }
     case "Deflect Missiles": {
