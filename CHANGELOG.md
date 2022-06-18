@@ -5,6 +5,7 @@
 * Previously hidden option to disable update notification is now visible in module settings. (Most requested feature ever?).
 * Spell Effects: Aura of Life.
 * Feature Effects: Fighting Style: Interception. Defensive Duelist.
+* Monk Quickened Healing fixes.
 * Some improvements to DDB tag replacement parsing for magic items.
 
 # 2.9.51

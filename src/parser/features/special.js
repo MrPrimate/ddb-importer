@@ -293,7 +293,7 @@ export function fixFeatures(features) {
         feature.data.actionType = "heal";
         feature.data.ability = "cha";
         feature.data.target.type = "self";
-        feature.data.range.type = "self";
+        feature.data.range.units = "self";
         feature.data.activation.condition = "Reduce a hostile creature to 0 HP";
         break;
       }
@@ -335,7 +335,7 @@ export function fixFeatures(features) {
       case "Fighting Style: Interception":
         feature.data.damage = { parts: [["1d10 + @prof", ""]], versatile: "", value: "" };
         feature.data.target.type = "self";
-        feature.data.range.type = "self";
+        feature.data.range.units = "self";
         break;
       case "Genie's Vessel: Genie's Wrath (Dao)": {
         feature.data.activation.type = "special";
@@ -378,10 +378,13 @@ export function fixFeatures(features) {
         break;
       }
       case "Quickened Healing": {
-        // if (useScale) {
-        //   feature.data.damage.parts[0][0] += "[healing]";
-        //   feature.data.damage.parts[0][1] = "healing";
-        // }
+        feature.data.actionType = "heal";
+        feature.data.target.type = "self";
+        feature.data.range.units = "self";
+        if (useScale) {
+          feature.data.damage.parts[0][0] += " + @prof[healing]";
+          feature.data.damage.parts[0][1] = "healing";
+        }
         break;
       }
       case "Rage": {
@@ -405,7 +408,7 @@ export function fixFeatures(features) {
         };
         feature.data.actionType = "heal";
         feature.data.target.type = "self";
-        feature.data.range.type = "self";
+        feature.data.range.units = "self";
         break;
       case "Shifting": {
         feature.data.actionType = "heal";
@@ -452,7 +455,7 @@ export function fixFeatures(features) {
         feature.data.actionType = "other";
         feature.data.ability = "con";
         feature.data.target.type = "self";
-        feature.data.range.type = "self";
+        feature.data.range.units = "self";
         break;
       case "Stunning Strike":
         feature.data.actionType = "save";
