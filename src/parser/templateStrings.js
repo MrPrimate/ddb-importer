@@ -6,6 +6,7 @@ import { loadCompendiumIndex } from "../muncher/utils.js";
 const INDEX_COMPENDIUMS = [
   "spell",
   "item",
+  "magicitem",
 ];
 
 function evaluateMath(obj) {
@@ -318,10 +319,17 @@ function findMatchingTagInIndex(type, tag) {
     logger.warn(`Unable to load compendium ${type}s`);
     return tag;
   }
-  const match = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === tag.replace("’", "'").toLowerCase());
+  const match = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === tag.replace("’", "'").replace("&nbsp;", " ").toLowerCase());
   if (match) {
     const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
     return `@Compendium[${label}.${match._id}]{${tag}}`;
+  } else if (tag.includes(";")) {
+    const tagSplit = tag.replace("&nbsp;", " ").replace("’", "'").split(";")[0];
+    const splitMatch = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === tagSplit.toLowerCase());
+    if (splitMatch) {
+      const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
+      return `@Compendium[${label}.${splitMatch._id}]{${tagSplit}}`;
+    }
   }
   logger.info(`Unable to find tag parse compendium match in ${type} for ${tag}`);
   return tag;

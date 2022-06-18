@@ -52,6 +52,7 @@ const compendiumLookup = [
   { type: "inventory", compendium: "entity-item-compendium" },
   { type: "item", compendium: "entity-item-compendium" },
   { type: "items", compendium: "entity-item-compendium" },
+  { type: "magicitem", compendium: "entity-item-compendium" },
   { type: "weapon", compendium: "entity-item-compendium" },
   { type: "consumable", compendium: "entity-item-compendium" },
   { type: "tool", compendium: "entity-item-compendium" },
