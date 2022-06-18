@@ -37,6 +37,7 @@ import { addRestrictionFlags } from "../../effects/restrictions.js";
 
 // tables
 import { generateTable } from "../../muncher/table.js";
+import { fixForItemCollections } from "./itemCollections.js";
 
 /**
  * We get extra damage to a weapon attack here, for example Improved
@@ -262,8 +263,17 @@ function addExtraDDBFlags(data, item) {
   }
 
   // container info
-  if (data.containerEntityId) item.flags.ddbimporter['containerEntityId'] = data.containerEntityId;
-  if (data.containerEntityTypeId) item.flags.ddbimporter['containerEntityTypeId'] = data.containerEntityTypeId;
+  if (data.containerEntityId) setProperty(item, "flags.ddbimporter.containerEntityId", data.containerEntityId);
+  if (data.containerEntityTypeId) setProperty(item, "flags.ddbimporter.containerEntityTypeId", data.containerEntityTypeId);
+
+  setProperty(item, "flags.ddbimporter.dndbeyond.isConsumable", data.definition.isConsumable);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isContainer", data.definition.isContainer);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", data.definition.isCustomItem);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isHomebrew", data.definition.isHomebrew);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isMonkWeapon", data.definition.isMonkWeapon);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isPack", data.definition.isPack);
+  setProperty(item, "flags.ddbimporter.dndbeyond.levelInfusionGranted", data.definition.levelInfusionGranted);
+
   return item;
 }
 
@@ -450,5 +460,6 @@ export default async function getInventory(ddb, character, itemSpells) {
   }
 
   fixItems(items);
+  items = fixForItemCollections(ddb, items);
   return items;
 }
