@@ -11,6 +11,7 @@ import { maneuversEffect } from "./feats/maneuvers.js";
 import { sculptSpellsEffect } from "./feats/sculptSpells.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { bladesongEffect } from "./feats/bladesong.js";
+import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -107,6 +108,10 @@ export async function generateExtraEffects(ddb, character, document) {
     case "Empty Body":
     case "Ki: Empty Body": {
       document = await kiEmptyBodyEffect(document);
+      break;
+    }
+    case "Fighting Style: Interception": {
+      document = fightingStyleInterceptionEffect(document);
       break;
     }
     // no default
