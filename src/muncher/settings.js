@@ -180,6 +180,12 @@ export function getCharacterImportSettings() {
         "Ignore items on character sheet that have not been imported from D&D Beyond. This will remove items that have been removed from the DDB character since the last import, but will keep items added to the character within Foundry.",
       enabled: true,
     },
+    {
+      name: "use-item-containers",
+      isChecked: game.modules.get("itemcollection")?.active && game.settings.get("ddb-importer", "character-update-policy-use-item-containers"),
+      description: "If Item Containers module is installed, put items in containers to match DDB layout",
+      enabled: game.modules.get("itemcollection")?.active,
+    },
   ];
 
   const advancedImportConfig = [

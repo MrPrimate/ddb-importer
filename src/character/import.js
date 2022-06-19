@@ -31,7 +31,7 @@ import {
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
 import { setConditions } from "./conditions.js";
 import { autoLinkResources } from "../parser/character/resources.js";
-import { addContainerItemsToContainers } from "./itemCollections.js";
+import { addContainerItemsToContainers, addContainerItemsToActor } from "./itemCollections.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -1086,6 +1086,9 @@ export default class CharacterImport extends FormApplication {
 
   async parseCharacterData(html, data) {
     this.result = data.character;
+
+    await addContainerItemsToActor(data.ddb, this.actor);
+
     this.importId = randomID();
     setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
     await this.addImportIdToItems();

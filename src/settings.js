@@ -238,6 +238,11 @@ const SETTINGS = {
       // character settings
       CHARACTER: {
         IMPORT: {
+          "character-update-policy-use-item-containers": {
+            scope: "player",
+            type: Boolean,
+            default: true,
+          },
           "pact-spells-prepared": {
             type: Boolean,
             default: false,
