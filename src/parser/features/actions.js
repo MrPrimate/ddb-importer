@@ -171,6 +171,8 @@ const levelScaleInfusions = [
   "Arms of the Astral Self (DEX)",
   "Arms of the Astral Self (DEX/STR)",
   "Body of the Astral Self",
+  "Starry Form: Archer",
+  "Sneak Attack",
 ];
 
 /**

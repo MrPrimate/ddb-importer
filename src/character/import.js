@@ -31,6 +31,7 @@ import {
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
 import { setConditions } from "./conditions.js";
 import { autoLinkResources } from "../parser/character/resources.js";
+import { addContainerItemsToContainers } from "./itemCollections.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -1189,6 +1190,7 @@ export default class CharacterImport extends FormApplication {
 
     await autoLinkResources(this.actor);
     await setConditions(this.actor, data.ddb);
+    await addContainerItemsToContainers(data.ddb, this.actor);
     await updateDynamicUpdates(this.actor, activeUpdateState);
     this.actor.render();
   }
