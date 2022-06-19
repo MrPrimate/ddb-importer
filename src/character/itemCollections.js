@@ -1,3 +1,27 @@
+export function getItemCollectionItems(actor) {
+  if (!game.modules.get("itemcollection")?.active) return [];
+  const topLevelItems = actor.items
+    .filter((item) =>
+      hasProperty(item.data, "flags.ddbimporter.id") &&
+      hasProperty(item.data, "flags.ddbimporter.containerEntityId") &&
+      item.data.flags.ddbimporter.containerEntityId === ddb.character.id &&
+      !item.data.flags.ddbimporter?.ignoreItemImport
+    );
+
+  const itemCollectionItems = topLevelItems
+    .map((topLevelItem) => {
+      const items = (getProperty(topLevelItem.data.flags, "itemcollection.contentsData") ?? [])
+        .map((item) => {
+          const containerId = getProperty(topLevelItem.data, "flags.ddbimporter.id");
+          setProperty(item, "flags.ddbimporter.containerEntityId", containerId);
+          return item;
+        });
+      return items;
+    })
+    .flat();
+  return itemCollectionItems;
+}
+
 /* eslint-disable no-await-in-loop */
 export async function addContainerItemsToContainers(ddb, actor) {
   if (!game.modules.get("itemcollection")?.active || !game.settings.get("ddb-importer", "character-update-policy-use-item-containers")) return;
