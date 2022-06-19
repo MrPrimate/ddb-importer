@@ -170,3 +170,16 @@ export function getSingleItemWeight(data) {
   const weight = totalWeight / bundleSize;
   return weight;
 }
+
+export function getCapacity(data) {
+
+  const capacity = (data.definition.capacityWeight !== null)
+    ? {
+      "type": "weight",
+      "value": data.definition.capacityWeight,
+      "weightless": data.definition.weightMultiplier === 0,
+    }
+    : {};
+
+  return capacity;
+}

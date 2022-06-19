@@ -1,5 +1,13 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
+import {
+  getItemRarity,
+  getEquipped,
+  getUses,
+  getSingleItemWeight,
+  getQuantity,
+  getDescription,
+  getCapacity,
+} from "./common.js";
 
 export default function parseWonderous(data) {
   /**
@@ -44,6 +52,7 @@ export default function parseWonderous(data) {
   item.data.rarity = getItemRarity(data);
   item.data.identified = true;
   item.data.uses = getUses(data);
+  item.data.capacity = getCapacity(data);
 
   return item;
 }

@@ -1,5 +1,5 @@
 import utils from "../../utils.js";
-import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
+import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription, getCapacity } from "./common.js";
 
 function getItemType(data) {
   let result = {
@@ -57,17 +57,6 @@ function getItemType(data) {
   return result;
 }
 
-function addContainerInformation(data, item) {
-  if (data.definition.capacityWeight !== null) {
-    item.data.capacity = {
-      "type": "weight",
-      "value": data.definition.capacityWeight,
-      "weightless": false
-    };
-  }
-  return item;
-}
-
 export default function parseLoot(data, itemType) {
   const type = getItemType(data);
 
@@ -98,7 +87,7 @@ export default function parseLoot(data, itemType) {
   loot.data.cost = data.definition.cost;
 
   if (type.type === "backpack") {
-    loot = addContainerInformation(data, loot);
+    loot.data.capacity = getCapacity(data);
   }
   return loot;
 }
