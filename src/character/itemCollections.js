@@ -15,6 +15,7 @@ export function getItemCollectionItems(actor) {
       const items = (getProperty(topLevelItem.data.flags, "itemcollection.contentsData") ?? [])
         .map((item) => {
           setProperty(item, "flags.ddbimporter.containerEntityId", containerId);
+          setProperty(item, "flags.ddbimporter.updateDocumentId", topLevelItem.id);
           return item;
         });
       return items;
