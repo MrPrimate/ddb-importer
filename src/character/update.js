@@ -21,6 +21,17 @@ function activeUpdate() {
   return dynamicSync && gmSyncUser;
 }
 
+function getFoundryItems(actor) {
+  const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
+  const itemCollections = getItemCollectionItems(actor);
+  const actorItems = duplicate(actor.data.items).map((item) => {
+    setProperty(item, "flags.ddbimporter.containerEntityId", parseInt(characterId));
+    delete item.flags.ddbimporter.updateDocumentId;
+    return item;
+  });
+  return actorItems.concat(itemCollections);
+}
+
 export async function getUpdateItemIndex() {
   if (itemIndex) return itemIndex;
   const compendium = await getCompendiumType("item", false);
@@ -596,16 +607,37 @@ async function addDDBEquipment(actor, itemsToAdd) {
           return updatedItem;
         });
 
-      logger.debug("Character item updates:", itemUpdates);
+      const characterItems = itemUpdates.filter((i) => !hasProperty(i, "flags.ddbimporter.updateDocumentId"));
+      const containerItems = itemUpdates.filter((i) => hasProperty(i, "flags.ddbimporter.updateDocumentId"));
+      const containerIds = [...new Set(containerItems.map((i) => i.flags.ddbimporter.updateDocumentId))];
+
+      logger.debug("Character item updates:", characterItems);
+      logger.debug("Container item updates:", containerItems);
       logger.debug("Character custom item updates:", customItems);
 
       try {
-        if (itemUpdates.length > 0) await actor.updateEmbeddedDocuments("Item", itemUpdates);
+        if (characterItems.length > 0) await actor.updateEmbeddedDocuments("Item", characterItems);
         if (customItems.length > 0) await actor.updateEmbeddedDocuments("Item", customItems);
+        for (const containerId of containerIds) {
+          const containerItemsToUpdate = containerItems
+            .filter((i) => i.flags.ddbimporter.updateDocumentId === containerId)
+            .map((i) => {
+              delete i.flags.ddbimporter.updateDocumentId;
+              return i;
+            });
+          const containerDocument = actor.getEmbeddedDocument("Item", containerId);
+          // eslint-disable-next-line max-depth
+          if (containerItemsToUpdate.length > 0) {
+            logger.debug(`Updating container ${containerDocument.name} with items:`, containerItemsToUpdate);
+            // eslint-disable-next-line no-await-in-loop
+            await containerDocument.updateEmbeddedDocuments("Item", containerItemsToUpdate);
+          }
+        }
       } catch (err) {
         logger.error(`Unable to update character with equipment, got the error:`, err);
         logger.error(`Update payload:`, itemUpdates);
         logger.error(`Update custom payload:`, customItems);
+        logger.error(`Update containerIds:`, containerIds);
       }
 
     } catch (err) {
@@ -628,7 +660,7 @@ async function addEquipment(actor, ddbData) {
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
   const ddbItems = ddbData.character.inventory;
 
-  const items = getItemCollectionItems(actor).concat(duplicate(actor.data.items));
+  const items = getFoundryItems(actor);
   const itemsToAdd = items.filter((item) =>
     !item.flags.ddbimporter?.action &&
     item.data.quantity !== 0 &&
@@ -673,17 +705,19 @@ async function updateCustomNames(actor, ddbData) {
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
   const ddbItems = ddbData.character.inventory;
 
-  const foundryItems = getItemCollectionItems(actor).concat(duplicate(actor.data.items));
+  const foundryItems = getFoundryItems(actor);
 
   const itemsToName = foundryItems.filter((item) =>
     item.data.quantity !== 0 &&
     (DICTIONARY.types.inventory.includes(item.type) || item.flags.ddbimporter?.action) &&
     item.flags.ddbimporter?.id &&
-    ddbItems.some((s) =>
-      s.flags.ddbimporter?.id === item.flags.ddbimporter.id &&
-      s.type === item.type && s.name !== item.name
+    ddbItems.some((ddbItem) =>
+      ddbItem.flags.ddbimporter?.id === item.flags.ddbimporter.id &&
+      ddbItem.type === item.type && ddbItem.name !== item.name
     )
   );
+
+  console.warn("itemsToName", itemsToName);
 
   return updateDDBCustomNames(actor, itemsToName);
 }
@@ -710,7 +744,7 @@ async function removeEquipment(actor, ddbData) {
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
   const ddbItems = ddbData.character.inventory;
 
-  const items = getItemCollectionItems(actor).concat(duplicate(actor.data.items));
+  const items = getFoundryItems(actor);
   const itemsToRemove = ddbItems.filter((item) =>
     (!items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action) ||
     items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action && s.data.quantity == 0)) &&
@@ -728,9 +762,18 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   const itemsToQuantity = updateItemDetails.itemsToQuantity || [];
   const itemsToName = updateItemDetails.itemsToName || [];
   const customItems = updateItemDetails.customItems || [];
+  const itemsToMove = updateItemDetails.itemsToMove || [];
 
   let promises = [];
 
+  itemsToMove.forEach((item) => {
+    const itemData = {
+      itemId: item.flags.ddbimporter.id,
+      containerEntityId: item.flags.ddbimporter.containerEntityId,
+      containerEntityTypeId: item.flags.ddbimporter.containerEntityTypeId,
+    };
+    promises.push(updateCharacterCall(actor, "equipment/move", itemData));
+  });
   itemsToEquip.forEach((item) => {
     const itemData = { itemId: item.flags.ddbimporter.id, value: item.data.equipped };
     promises.push(updateCharacterCall(actor, "equipment/equipped", itemData));
@@ -760,7 +803,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
       : ddbItems.find((dItem) => dItem.id === item.flags.ddbimporter.id).entityTypeId;
     const customData = {
       customValues: {
-        characterId: parseInt(actor.flags.ddbimporter.dndbeyond.characterId),
+        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
         contextId: null,
         contextTypeId: null,
         notes: null,
@@ -777,7 +820,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     const customData = {
       itemState: "UPDATE",
       customValues: {
-        characterId: parseInt(actor.flags.ddbimporter.dndbeyond.characterId),
+        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
         id: item.flags.ddbimporter.id,
         name: item.name,
         description: item.data.description.value,
@@ -805,7 +848,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     ddbItems = ddbItems.concat(addEquipmentResults.data.addItems);
   }
 
-  const foundryItems = getItemCollectionItems(actor).concat(duplicate(actor.data.items));
+  const foundryItems = getFoundryItems(actor);
 
   const itemsToEquip = foundryItems.filter((item) =>
     !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
@@ -855,10 +898,10 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     ddbItems.some((dItem) =>
       // item.flags.ddbimporter.id === dItem.id &&
       item.flags.ddbimporter.originalName === dItem.definition.name &&
-      item.flags.ddbimporter.originalName !== item.data.name &&
+      item.flags.ddbimporter.originalName !== item.name &&
       !item.data.quantity == 0 &&
       dItem.id === item.flags.ddbimporter?.id &&
-      item.data.name !== dItem.definition.name
+      item.name !== dItem.definition.name
     )
   );
 
@@ -866,15 +909,25 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   const customItems = foundryItems.filter((item) =>
     item.flags.ddbimporter?.id &&
     item.data.quantity !== 0 &&
-    item.flags.ddbimporter?.custom &&
+    hasProperty(item, "flags.ddbimporter.custom") && item.flags.ddbimporter.custom === true &&
     customDDBItems.some((dItem) => dItem.id === item.flags.ddbimporter.id &&
       (
-        item.data.name !== dItem.name ||
+        item.name !== dItem.name ||
         item.data.description.value != dItem.description ||
         item.data.quantity != dItem.quantity ||
         item.data.weight != dItem.weight ||
         item.data.price != dItem.cost
       )
+    )
+  );
+
+  const itemsToMove = foundryItems.filter((item) =>
+    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
+    hasProperty(item, "flags.ddbimporter.containerEntityId") &&
+    ddbItems.some((dItem) =>
+      item.flags.ddbimporter.id === dItem.id &&
+      dItem.id === item.flags.ddbimporter?.id &&
+      item.flags.ddbimporter.containerEntityId !== dItem.containerEntityId
     )
   );
 
@@ -885,6 +938,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     itemsToQuantity,
     itemsToName,
     customItems,
+    itemsToMove,
   };
 
   return updateDDBEquipmentStatus(actor, itemsToUpdate, ddbItems);
@@ -916,7 +970,7 @@ async function actionUseStatus(actor, ddbData) {
 
   let ddbActions = ddbData.character.actions;
 
-  const foundryItems = getItemCollectionItems(actor).concat(duplicate(actor.data.items));
+  const foundryItems = getFoundryItems(actor);
 
   const actionsToCharge = foundryItems.filter((item) =>
     (item.flags.ddbimporter?.action || item.type === "feat") &&
@@ -1098,6 +1152,7 @@ async function generateDynamicItemChange(actor, document, update) {
     itemsToQuantity: [],
     itemsToName: [],
     customItems: [],
+    itemsToMove: [],
   };
 
   // console.warn("Document", document);
@@ -1142,6 +1197,11 @@ async function generateDynamicItemChange(actor, document, update) {
     }
     if (update.name) {
       updateItemDetails.itemsToName.push(duplicate(document.data));
+    }
+    if (update.flags?.itemcollection?.contentsData) {
+      const doc = duplicate(document.data);
+      const contentsData = update.flags.itemcollection.contentsData;
+      updateItemDetails.itemsToMove.push(doc.concat(contentsData));
     }
   }
 

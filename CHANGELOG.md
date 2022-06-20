@@ -1,5 +1,6 @@
 # 2.9.52
 
+* Beta: Item Containers Support. If the Item Containers module is installed, then when importing you can select to place items in containers on DDB into containers in Foundry. The update to DDB functionality may not always work as expected if using this mode.
 * Uncanny Dodge now expires after damage.
 * Source filter was not enabled unless you were a patreon (unintended).
 * Previously hidden option to disable update notification is now visible in module settings. (Most requested feature ever?).
