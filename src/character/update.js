@@ -717,8 +717,6 @@ async function updateCustomNames(actor, ddbData) {
     )
   );
 
-  console.warn("itemsToName", itemsToName);
-
   return updateDDBCustomNames(actor, itemsToName);
 }
 
@@ -1201,7 +1199,7 @@ async function generateDynamicItemChange(actor, document, update) {
     if (update.flags?.itemcollection?.contentsData) {
       const doc = duplicate(document.data);
       const contentsData = update.flags.itemcollection.contentsData;
-      updateItemDetails.itemsToMove.push(doc.concat(contentsData));
+      updateItemDetails.itemsToMove.push(doc, ...contentsData);
     }
   }
 
@@ -1301,13 +1299,32 @@ async function activeUpdateAddOrDeleteItem(document, state) {
       const action = document.data.flags.ddbimporter?.action || document.type === "feat";
       if (!action) {
         logger.debug(`Attempting to ${state.toLowerCase()} new Item`, document);
+
         switch (state) {
-          case "CREATE":
-            promises.push(addDDBEquipment(parentActor, [document.toObject()]));
+          case "CREATE": {
+            const characterId = parentActor.data.flags.ddbimporter.id;
+            const containerId = document.data.flags?.ddbimporter?.containerEntityId;
+            console.warn("create details", { characterId, containerId, document });
+            if (Number.isInteger(containerId) && parseInt(characterId) != parseInt(containerId)) {
+              // update item container
+              document.update({
+                "flags.ddbimporter.containerEntityId": characterId,
+              });
+            } else {
+              promises.push(addDDBEquipment(parentActor, [document.toObject()]));
+            }
             break;
-          case "DELETE":
-            promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
+          }
+          case "DELETE": {
+            const collectionItems = getItemCollectionItems(parentActor);
+            console.warn("delete details", { collectionItems, document });
+            if (collectionItems.map((item) => item._id).includes(document.id)) {
+              // we don't have to handle deletes as the item collection move is handled above
+            } else {
+              promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
+            }
             break;
+          }
           // no default
         }
       }

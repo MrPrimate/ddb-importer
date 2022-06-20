@@ -78,6 +78,7 @@
         "dynamic-sync-policy-deathsaves": "Death Saves?",
         "dynamic-sync-policy-spells-prepared": "Spells Prepared?",
         "dynamic-sync-policy-spells-slots": "Spell Slots?",
+        "dynamic-sync-policy-spells-sync": "Spells Known?",
         "dynamic-sync-policy-equipment": "Equipment?",
         "dynamic-sync-policy-xp": "XP?"
       }
