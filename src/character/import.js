@@ -1087,6 +1087,10 @@ export default class CharacterImport extends FormApplication {
   async parseCharacterData(html, data) {
     this.result = data.character;
 
+    // disable active sync
+    const activeUpdateState = getCurrentDynamicUpdateState(this.actor);
+    await disableDynamicUpdates(this.actor);
+
     await addContainerItemsToActor(data.ddb, this.actor);
 
     this.importId = randomID();
@@ -1094,10 +1098,6 @@ export default class CharacterImport extends FormApplication {
     await this.addImportIdToItems();
 
     logger.debug("Current Actor:", this.actorOriginal);
-
-    // disable active sync
-    const activeUpdateState = getCurrentDynamicUpdateState(this.actor);
-    await disableDynamicUpdates(this.actor);
 
     // handle active effects
     const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");

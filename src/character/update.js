@@ -1196,10 +1196,15 @@ async function generateDynamicItemChange(actor, document, update) {
     if (update.name) {
       updateItemDetails.itemsToName.push(duplicate(document.data));
     }
-    if (update.flags?.itemcollection?.contentsData) {
-      const doc = duplicate(document.data);
-      const contentsData = update.flags.itemcollection.contentsData;
-      updateItemDetails.itemsToMove.push(doc, ...contentsData);
+    if (update.flags?.itemcollection?.contentsData && hasProperty(document, "data.flags.ddbimporter.id")) {
+      const contentsData = update.flags.itemcollection.contentsData
+        .filter((item) => hasProperty(item, "flags.ddbimporter.id"))
+        .map((item) => {
+          setProperty(item, "flags.ddbimporter.containerEntityId", document.data.flags.ddbimporter.id);
+          setProperty(item, "flags.ddbimporter.containerEntityTypeId", document.data.flags.ddbimporter.entityTypeId);
+          return item;
+        });
+      updateItemDetails.itemsToMove.push(...contentsData);
     }
   }
 
@@ -1292,7 +1297,7 @@ async function activeUpdateAddOrDeleteItem(document, state) {
     const syncEquipment = game.settings.get("ddb-importer", "dynamic-sync-policy-equipment");
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
-    const actorActiveUpdate = parentActor && parentActor.data.flags.ddbimporter?.activeUpdate;
+    const actorActiveUpdate = parentActor && getProperty(parentActor, "data.flags.ddbimporter.activeUpdate");
 
     if (parentActor && actorActiveUpdate && syncEquipment) {
       logger.debug(`Preparing to ${state.toLowerCase()} item on DDB...`);
@@ -1307,9 +1312,16 @@ async function activeUpdateAddOrDeleteItem(document, state) {
             console.warn("create details", { characterId, containerId, document });
             if (Number.isInteger(containerId) && parseInt(characterId) != parseInt(containerId)) {
               // update item container
+              console.warn("UPATING", document);
               document.update({
                 "flags.ddbimporter.containerEntityId": characterId,
               });
+              const itemData = {
+                itemId: document.flags.ddbimporter.id,
+                containerEntityId: characterId,
+                containerEntityTypeId: 1581111423,
+              };
+              promises.push(updateCharacterCall(parentActor, "equipment/move", itemData));
             } else {
               promises.push(addDDBEquipment(parentActor, [document.toObject()]));
             }
@@ -1317,9 +1329,13 @@ async function activeUpdateAddOrDeleteItem(document, state) {
           }
           case "DELETE": {
             const collectionItems = getItemCollectionItems(parentActor);
-            console.warn("delete details", { collectionItems, document });
-            if (collectionItems.map((item) => item._id).includes(document.id)) {
+            const collectionItemDDBIds = collectionItems
+              .filter((item) => hasProperty(item, "flags.ddbimporter.id"))
+              .map((item) => item.flags.ddbimporter.id);
+            console.warn("delete details", { collectionItems, collectionItemDDBIds, document });
+            if (hasProperty(document, "data.flags.ddbimporter.id") && collectionItemDDBIds.includes(document.data.flags.ddbimporter.id)) {
               // we don't have to handle deletes as the item collection move is handled above
+              console.warn("NOT REMOVING", document);
             } else {
               promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
             }
