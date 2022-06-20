@@ -7,6 +7,7 @@ import DICTIONARY from "../dictionary.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates, setActiveSyncSpellsFlag } from "./utils.js";
 import { getActorConditionStates, getCondition } from "./conditions.js";
+import { getItemCollectionItems } from "./itemCollections.js";
 
 var itemIndex;
 
@@ -619,14 +620,15 @@ async function addEquipment(actor, ddbData) {
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
   const ddbItems = ddbData.character.inventory;
 
-  const itemsToAdd = actor.data.items.filter((item) =>
-    !item.data.flags.ddbimporter?.action &&
-    item.data.data.quantity !== 0 &&
+  const items = getItemCollectionItems(actor).concat(duplicate(actor.data.items));
+  const itemsToAdd = items.filter((item) =>
+    !item.flags.ddbimporter?.action &&
+    item.data.quantity !== 0 &&
     DICTIONARY.types.inventory.includes(item.type) &&
-    !item.data.flags.ddbimporter?.custom &&
-    (!item.data.flags.ddbimporter?.id ||
-    !ddbItems.some((s) => s.flags.ddbimporter?.id === item.data.flags.ddbimporter?.id && s.type === item.type))
-  ).map((item) => item.toObject());
+    !item.flags.ddbimporter?.custom &&
+    (!item.flags.ddbimporter?.id ||
+    !ddbItems.some((s) => s.flags.ddbimporter?.id === item.flags.ddbimporter?.id && s.type === item.type))
+  );
 
   return addDDBEquipment(actor, itemsToAdd);
 }
@@ -699,9 +701,10 @@ async function removeEquipment(actor, ddbData) {
   if (syncItemReady && !game.settings.get("ddb-importer", "sync-policy-equipment")) return [];
   const ddbItems = ddbData.character.inventory;
 
+  const items = getItemCollectionItems(actor).concat(duplicate(actor.data.items));
   const itemsToRemove = ddbItems.filter((item) =>
-    (!actor.data.items.some((s) => (item.flags.ddbimporter?.id === s.data.flags.ddbimporter?.id && s.type === item.type) && !s.data.flags.ddbimporter?.action) ||
-    actor.data.items.some((s) => (item.flags.ddbimporter?.id === s.data.flags.ddbimporter?.id && s.type === item.type) && !s.data.flags.ddbimporter?.action && s.data.data.quantity == 0)) &&
+    (!items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action) ||
+    items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action && s.data.quantity == 0)) &&
     DICTIONARY.types.inventory.includes(item.type) &&
     item.flags.ddbimporter?.id
   );

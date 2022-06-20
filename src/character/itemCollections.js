@@ -1,24 +1,26 @@
 export function getItemCollectionItems(actor) {
-  if (!game.modules.get("itemcollection")?.active) return [];
+  const characterId = getProperty(actor.data, "flags.ddbimporter.dndbeyond.characterId");
+  if (!game.modules.get("itemcollection")?.active && !Number.isInteger(characterId)) return [];
   const topLevelItems = actor.items
     .filter((item) =>
       hasProperty(item.data, "flags.ddbimporter.id") &&
       hasProperty(item.data, "flags.ddbimporter.containerEntityId") &&
-      item.data.flags.ddbimporter.containerEntityId === ddb.character.id &&
+      item.data.flags.ddbimporter.containerEntityId === parseInt(characterId) &&
       !item.data.flags.ddbimporter?.ignoreItemImport
     );
 
   const itemCollectionItems = topLevelItems
     .map((topLevelItem) => {
+      const containerId = getProperty(topLevelItem.data, "flags.ddbimporter.id");
       const items = (getProperty(topLevelItem.data.flags, "itemcollection.contentsData") ?? [])
         .map((item) => {
-          const containerId = getProperty(topLevelItem.data, "flags.ddbimporter.id");
           setProperty(item, "flags.ddbimporter.containerEntityId", containerId);
           return item;
         });
       return items;
     })
     .flat();
+  console.warn("itemCollectionItems", itemCollectionItems);
   return itemCollectionItems;
 }
 
