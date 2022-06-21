@@ -765,6 +765,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   let promises = [];
 
   itemsToMove.forEach((item) => {
+    console.warn(item);
     const itemData = {
       itemId: item.flags.ddbimporter.id,
       containerEntityId: item.flags.ddbimporter.containerEntityId,
@@ -1197,16 +1198,27 @@ async function generateDynamicItemChange(actor, document, update) {
       updateItemDetails.itemsToName.push(duplicate(document.data));
     }
     if (update.flags?.itemcollection?.contentsData && hasProperty(document, "data.flags.ddbimporter.id")) {
-      const contentsData = update.flags.itemcollection.contentsData
-        .filter((item) => hasProperty(item, "flags.ddbimporter.id"))
-        .map((item) => {
-          setProperty(item, "flags.ddbimporter.containerEntityId", document.data.flags.ddbimporter.id);
-          setProperty(item, "flags.ddbimporter.containerEntityTypeId", document.data.flags.ddbimporter.entityTypeId);
-          return item;
-        });
-      updateItemDetails.itemsToMove.push(...contentsData);
+      const newItems = [];
+      const moveItems = [];
+      for (const item of update.flags.itemcollection.contentsData) {
+        setProperty(item, "flags.ddbimporter.containerEntityId", document.data.flags.ddbimporter.id);
+        setProperty(item, "flags.ddbimporter.containerEntityTypeId", document.data.flags.ddbimporter.entityTypeId);
+        if (parseInt(item.flags.ddbimporter.id) === 0) {
+          setProperty(item, "flags.ddbimporter.updateDocumentId", document.id);
+          newItems.push(item);
+        } else {
+          moveItems.push(item);
+        }
+      }
+
+      console.warn("Creating", { document, update, newItems });
+      addDDBEquipment(actor, newItems);
+      console.warn("Moving", { document, update, moveItems});
+      updateItemDetails.itemsToMove.push(...moveItems);
     }
   }
+
+  console.warn("UpdateItemDetails", updateItemDetails);
 
   return updateDDBEquipmentStatus(actor, updateItemDetails, []);
 
@@ -1307,7 +1319,7 @@ async function activeUpdateAddOrDeleteItem(document, state) {
 
         switch (state) {
           case "CREATE": {
-            const characterId = parentActor.data.flags.ddbimporter.id;
+            const characterId = parentActor.data.flags.ddbimporter.dndbeyond.characterId;
             const containerId = document.data.flags?.ddbimporter?.containerEntityId;
             console.warn("create details", { characterId, containerId, document });
             if (Number.isInteger(containerId) && parseInt(characterId) != parseInt(containerId)) {
@@ -1317,7 +1329,7 @@ async function activeUpdateAddOrDeleteItem(document, state) {
                 "flags.ddbimporter.containerEntityId": characterId,
               });
               const itemData = {
-                itemId: document.flags.ddbimporter.id,
+                itemId: document.data.flags.ddbimporter.id,
                 containerEntityId: characterId,
                 containerEntityTypeId: 1581111423,
               };
