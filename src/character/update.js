@@ -765,7 +765,6 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   let promises = [];
 
   itemsToMove.forEach((item) => {
-    console.warn(item);
     const itemData = {
       itemId: item.flags.ddbimporter.id,
       containerEntityId: item.flags.ddbimporter.containerEntityId,
@@ -1211,14 +1210,12 @@ async function generateDynamicItemChange(actor, document, update) {
         }
       }
 
-      console.warn("Creating", { document, update, newItems });
       addDDBEquipment(actor, newItems);
-      console.warn("Moving", { document, update, moveItems});
       updateItemDetails.itemsToMove.push(...moveItems);
     }
   }
 
-  console.warn("UpdateItemDetails", updateItemDetails);
+  logger.debug("UpdateItemDetails", updateItemDetails);
 
   return updateDDBEquipmentStatus(actor, updateItemDetails, []);
 
@@ -1319,22 +1316,22 @@ async function activeUpdateAddOrDeleteItem(document, state) {
 
         switch (state) {
           case "CREATE": {
-            const characterId = parentActor.data.flags.ddbimporter.dndbeyond.characterId;
+            const characterId = parseInt(parentActor.data.flags.ddbimporter.dndbeyond.characterId);
             const containerId = document.data.flags?.ddbimporter?.containerEntityId;
-            console.warn("create details", { characterId, containerId, document });
-            if (Number.isInteger(containerId) && parseInt(characterId) != parseInt(containerId)) {
+            if (Number.isInteger(containerId) && characterId != parseInt(containerId)) {
               // update item container
-              console.warn("UPATING", document);
+              logger.debug(`Moving item from container`, document);
               document.update({
                 "flags.ddbimporter.containerEntityId": characterId,
               });
               const itemData = {
-                itemId: document.data.flags.ddbimporter.id,
+                itemId: parseInt(document.data.flags.ddbimporter.id),
                 containerEntityId: characterId,
                 containerEntityTypeId: 1581111423,
               };
               promises.push(updateCharacterCall(parentActor, "equipment/move", itemData));
             } else {
+              logger.debug(`Creating item`, document);
               promises.push(addDDBEquipment(parentActor, [document.toObject()]));
             }
             break;
@@ -1344,10 +1341,11 @@ async function activeUpdateAddOrDeleteItem(document, state) {
             const collectionItemDDBIds = collectionItems
               .filter((item) => hasProperty(item, "flags.ddbimporter.id"))
               .map((item) => item.flags.ddbimporter.id);
-            console.warn("delete details", { collectionItems, collectionItemDDBIds, document });
-            if (hasProperty(document, "data.flags.ddbimporter.id") && collectionItemDDBIds.includes(document.data.flags.ddbimporter.id)) {
+            if (hasProperty(document, "data.flags.ddbimporter.id") &&
+              collectionItemDDBIds.includes(document.data.flags.ddbimporter.id)
+            ) {
               // we don't have to handle deletes as the item collection move is handled above
-              console.warn("NOT REMOVING", document);
+              logger.debug(`Moving item to container`, document);
             } else {
               promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
             }
