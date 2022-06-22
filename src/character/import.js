@@ -1135,6 +1135,9 @@ export default class CharacterImport extends FormApplication {
         this.result.character.data.details[option] = this.actorOriginal.data.details[option];
       });
     }
+    if (!game.settings.get("ddb-importer", "character-update-policy-spell-use")) {
+      this.result.character.data.spells = this.actorOriginal.data.spells;
+    }
     if (!game.settings.get("ddb-importer", "character-update-policy-languages")) {
       this.result.character.data.traits.languages = this.actorOriginal.data.traits.languages;
     }

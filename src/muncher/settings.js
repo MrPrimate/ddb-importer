@@ -74,6 +74,11 @@ export function getCharacterImportSettings() {
       isChecked: game.settings.get("ddb-importer", "character-update-policy-languages"),
       description: "Languages",
     },
+    {
+      name: "spell-use",
+      isChecked: game.settings.get("ddb-importer", "character-update-policy-spell-use"),
+      description: "Spell Slots",
+    }
   ];
   const importPolicies2 = [
     {

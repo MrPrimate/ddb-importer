@@ -1,13 +1,14 @@
 # 2.9.52
 
-* Beta: Item Containers Support. If the Item Containers module is installed, then when importing you can select to place items in containers on DDB into containers in Foundry. The update to DDB functionality may not always work as expected if using this mode.
+* Beta: Item Containers Support. Requires Item Containers/Collections module by @tposney#1462. When importing you can select to place items in containers on DDB into containers in Foundry. The update to DDB functionality may not always work as expected if using this mode, I think I have tested all combos though.
 * Uncanny Dodge now expires after damage.
 * Source filter was not enabled unless you were a patreon (unintended).
-* Previously hidden option to disable update notification is now visible in module settings. (Most requested feature ever?).
+* Hidden option to disable update notification is now visible in module settings. (Most requested feature ever?).
 * Spell Effects: Aura of Life.
 * Feature Effects: Fighting Style: Interception. Defensive Duelist.
 * Monk Quickened Healing fixes.
 * Some improvements to DDB tag replacement parsing for magic items.
+* Character Import: You can now choose to keep current spell slots during import.
 
 # 2.9.51
 

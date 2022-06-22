@@ -472,6 +472,11 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
+          "character-update-policy-spell-use": {
+            scope: "player",
+            type: Boolean,
+            default: true,
+          },
           "character-update-policy-languages": {
             scope: "player",
             type: Boolean,
