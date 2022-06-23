@@ -22,7 +22,7 @@ export function fightingStyleInterceptionEffect(document) {
       priority: "20",
     },
     {
-      key: "flags.midi-qol.DR.mrsk",
+      key: "flags.midi-qol.DR.rsak",
       mode: 2,
       value: "1d10 + @data.attributes.prof",
       priority: "20",

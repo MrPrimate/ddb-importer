@@ -1,3 +1,7 @@
+# 2.9.53
+
+* Typo in Interception Fighting Style.
+
 # 2.9.52
 
 * Beta: Item Containers Support. Requires Item Containers/Collections module by @tposney#1462. When importing you can select to place items in containers on DDB into containers in Foundry. The update to DDB functionality may not always work as expected if using this mode, I think I have tested all combos though.
