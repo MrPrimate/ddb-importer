@@ -2,7 +2,7 @@
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
-import { addNPC, generateIconMap, copyExistingMonsterImages, checkMonsterCompendium, addNPCDDBId } from "./importMonster.js";
+import { addNPC, generateIconMap, copyExistingMonsterImages, checkMonsterCompendium, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -133,15 +133,19 @@ export async function parseCritters(ids = null) {
   let monstersParsed = [];
   let currentMonster = 1;
   const monsterCount = finalMonsters.length;
-  munchNote(`Importing ${monsterCount} monsters!`, true);
+  munchNote(`Preparing dinner for ${monsterCount} monsters!`, true);
   for (const monster of finalMonsters) {
-    munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name}`, false, true);
-    logger.debug(`Importing ${monster.name}`);
+    munchNote(`[${currentMonster}/${monsterCount}] Preparing ${monster.name} data`, false, true);
+    logger.debug(`Calculating ${monster.name} data`);
     // eslint-disable-next-line no-await-in-loop
     const munched = await addNPC(monster);
     monstersParsed.push(munched);
     currentMonster += 1;
   }
+  logger.debug("Monsters Parsed", monstersParsed);
+  munchNote(`Importing ${monstersParsed.length} monsters`, false, true);
+  logger.debug(`Importing ${monstersParsed.length} monsters`);
+  await addNPCsToCompendium(monstersParsed);
   munchNote("", false, true);
   setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 

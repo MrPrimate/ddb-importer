@@ -61,15 +61,13 @@ export function checkMonsterCompendium() {
   return getMonsterCompendium();
 }
 
-async function addNPCToCompendium(npc) {
+async function getCompendiumActorData(npc) {
   const compendium = getMonsterCompendium();
+  const npcBasic = duplicate(npc);
   if (compendium) {
-    let npcBasic = duplicate(npc);
-    // delete npcBasic.items;
-    let npcItems = npc.items;
     // v8 doesn't like null _ids with keepId set
     if (!game.version) {
-      npcItems = npcItems.map((i) => {
+      npc.items = npc.items.map((i) => {
         if (!i._id) i._id = randomID();
         if (i.effects && i.effects.length > 0) {
           i.effects = i.effects.map((e) => {
@@ -81,8 +79,6 @@ async function addNPCToCompendium(npc) {
       });
     }
 
-    // unlock the compendium for update/create
-    compendium.configure({ locked: false });
     const monsterIndexFields = ["name", "flags.ddbimporter.id"];
 
     const index = await compendium.getIndex({ fields: monsterIndexFields });
@@ -92,7 +88,6 @@ async function addNPCToCompendium(npc) {
       entity.flags.ddbimporter.id == npcBasic.flags.ddbimporter.id
     );
 
-    let compendiumNPC;
     if (npcMatch) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
         const existingNPC = await compendium.getDocument(npcMatch._id);
@@ -124,14 +119,30 @@ async function addNPCToCompendium(npc) {
         npcBasic._id = npcMatch._id;
         await copySupportedItemFlags(existingNPC.toObject(), npcBasic);
 
-        // remove and re-add items
-        await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-        logger.debug("New npcItems", duplicate(npcItems));
-        await existingNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
-        delete npcBasic.items;
+      }
+    }
+  } else {
+    logger.error("Error opening compendium, check your settings");
+  }
+  return npcBasic;
+}
+
+
+async function addNPCToCompendium(npc) {
+  const compendium = getMonsterCompendium();
+  if (compendium) {
+    const npcBasic = duplicate(npc);
+
+    // unlock the compendium for update/create
+    compendium.configure({ locked: false });
+
+    let compendiumNPC;
+    if (hasProperty(npc, "_id")) {
+      if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
+        const existingNPC = await compendium.getDocument(npc._id);
 
         logger.debug("NPC Core data", duplicate(npcBasic));
-        compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.name });
+        compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, recursive: false });
         if (!compendiumNPC) {
           logger.debug("No changes made to base character", npcBasic);
           compendiumNPC = existingNPC;
@@ -141,15 +152,11 @@ async function addNPCToCompendium(npc) {
       // create the new npc
       logger.debug(`Creating NPC actor ${npcBasic.name}`);
       const options = {
-        temporary: true,
         displaySheet: false,
+        pack: compendium.collection,
       };
-      delete npcBasic.items;
       logger.debug("NPC", duplicate(npcBasic));
-      const newNPC = await Actor.create(npcBasic, options);
-      logger.debug("npcItems", duplicate(npcItems));
-      compendiumNPC = await compendium.importDocument(newNPC);
-      await compendiumNPC.createEmbeddedDocuments("Item", npcItems, { keepId: true });
+      compendiumNPC = await Actor.create(npcBasic, options);
     }
 
     // using compendium folders?
@@ -161,6 +168,37 @@ async function addNPCToCompendium(npc) {
     logger.error("Error opening compendium, check your settings");
   }
   return npc;
+}
+
+
+export async function addNPCsToCompendium(npcs) {
+  const compendium = getMonsterCompendium();
+  let results = [];
+  if (compendium) {
+    // unlock the compendium for update/create
+    compendium.configure({ locked: false });
+
+    const options = { pack: compendium.collection, displaySheet: false, recursive: false };
+
+    if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
+      const updateNPCs = npcs.filter((npc) => hasProperty(npc, "_id"));
+      const updateResults = await Actor.updateDocuments(updateNPCs, options);
+      results = results.concat(updateResults);
+    }
+
+    const newNPCs = npcs.filter((npc) => !hasProperty(npc, "_id"));
+    const createResults = await Actor.createDocuments(newNPCs, options);
+    results = results.concat(createResults);
+
+    // // using compendium folders?
+    // if (compendiumNPC) {
+    //   await compendiumFolders(compendiumNPC, "npc");
+    //   return compendiumNPC;
+    // }
+  } else {
+    logger.error("Error opening compendium, check your settings");
+  }
+  return results;
 }
 
 export async function addNPCDDBId(npc) {
@@ -544,10 +582,10 @@ export async function buildNPC(data, temporary = true, update = false, handleBui
 }
 
 async function parseNPC (data) {
-  let npc = await buildNPC(data);
-  logger.info(`Processing actor ${npc.name} for the compendium`);
-  const compendiumNPC = await addNPCToCompendium(npc);
-  return compendiumNPC;
+  const buildNpc = await buildNPC(data);
+  const mergedNPC = await getCompendiumActorData(buildNpc);
+  logger.info(`Processing actor ${mergedNPC.name} for the compendium`);
+  return mergedNPC;
 }
 
 export function addNPC(data) {

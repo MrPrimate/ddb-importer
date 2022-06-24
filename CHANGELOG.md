@@ -1,6 +1,7 @@
 # 2.9.53
 
 * Typo in Interception Fighting Style.
+* Move to new monster import mechanism to try and improve speed. (Thanks to @kaelad#1693 for some great ideas).
 
 # 2.9.52
 
