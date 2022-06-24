@@ -11,8 +11,8 @@ export function fixForItemCollections(ddb, items) {
       item.type = "backpack";
     }
     if (item.type === "backpack") {
-      setProperty(item, "flags.itemcollection.bagWeight", item.data.weight);
-      setProperty(item, "flags.itemcollection.bagPrice", item.data.cost);
+      setProperty(item, "flags.itemcollection.bagWeight", item.system.weight);
+      setProperty(item, "flags.itemcollection.bagPrice", item.system.cost);
       setProperty(item, "flags.core.sheetClass", "dnd5e.ItemSheet5eWithBags");
     }
     if (hasProperty(item, "flags.ddbimporter.id") &&
