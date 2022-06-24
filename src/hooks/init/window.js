@@ -9,7 +9,7 @@ import { parseEncounters, DDBEncounterMunch } from "../../muncher/encounters.js"
 import { generateAdventureConfig } from "../../muncher/adventure.js";
 import { updateDDBCharacter } from "../../character/update.js";
 import { importCharacter, importCharacterById } from "../../character/import.js";
-import { getPatreonTier, getPatreonTiers, setPatreonTier, checkPatreon } from "../../muncher/utils.js";
+import { getPatreonTier, getPatreonTiers, setPatreonTier, checkPatreon, getCompendiumLabel, getCompendiumType } from "../../muncher/utils.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 import { base64Check } from "../../lib/Base64Check.js";
 import { getFeats } from "../../muncher/feats/feats.js";
@@ -80,5 +80,7 @@ export function registerWindow() {
     macros: MACROS,
     getNPCImage,
     resetCompendiumActorImages,
+    getCompendiumLabel,
+    getCompendiumType,
   };
 }
