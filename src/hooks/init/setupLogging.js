@@ -1,16 +1,18 @@
-export default function () {
-  let enabledDebugLogging = false;
+import { download } from "../../muncher/utils.js";
 
-  let defaults = {
-    general: enabledDebugLogging,
-    messaging: enabledDebugLogging,
-    character: enabledDebugLogging,
-    extension: enabledDebugLogging,
+function downloadLog() {
+  download(JSON.stringify(CONFIG.debug.ddbimporter.log), `ddbimporter-log-data.json`, "application/json");
+  setProperty(CONFIG.debug, "ddbimporter.log", []);
+}
+
+export default function () {
+  const enabledDebugLogging = false;
+
+  const defaults = {
+    record: enabledDebugLogging,
+    log: [],
+    download: downloadLog,
   };
 
-  if (!CONFIG.debug.ddbimporter) {
-    CONFIG.debug.ddbimporter = { dndbeyond: defaults };
-  } else {
-    CONFIG.debug.ddbimporter.dndbeyond = defaults;
-  }
+  setProperty(CONFIG.debug, "ddbimporter", defaults);
 }

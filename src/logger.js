@@ -19,7 +19,16 @@ const logger = {
     }
 
   },
+  _addToLogFile: (logLevel, data) => {
+    if (getProperty(CONFIG.debug, "ddbimporter.record") === true) {
+      CONFIG.debug.ddbimporter.log.push({
+        level: logLevel,
+        data: data,
+      });
+    }
+  },
   log: (logLevel, ...data) => {
+    logger._addToLogFile(logLevel, data);
     if (!logger._showMessage(logLevel, data)) {
       return;
     }

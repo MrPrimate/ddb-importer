@@ -241,3 +241,20 @@ JournalEntry.deleteDocuments([],{ deleteAll: true });
 Folder.deleteDocuments(game.folders.filter(f => f.type == "JournalEntry").map(f => f.id));
 ```
 
+## I want to send you a useful log info
+
+Open the console (F12) and type:
+
+```javascript
+CONFIG.debug.ddbimporter.record = true;
+```
+
+Perform the action which errors.
+
+In the console enter:
+
+```javascript
+CONFIG.debug.ddbimporter.download();
+```
+
+This will download a file to send to me.

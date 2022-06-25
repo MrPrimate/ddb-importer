@@ -3,6 +3,7 @@
 * Typo in Interception Fighting Style.
 * New bulk mode monster import mechanism to try and improve speed, optional. (Thanks to @kaelad#1693 for some great ideas).
 * Option when monster munching to append "(Legacy)" to legacy monster names.
+* Some improvements to aid in debug logging.
 
 # 2.9.52
 
