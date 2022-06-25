@@ -777,7 +777,13 @@ export function getMuncherSettings(includeHomebrew = true) {
       isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exclude-legacy"),
       description: "Exclude legacy monsters from import? These are monsters replaced by newer versions e.g. in Monsters of the Multiverse.",
       enabled: true,
-    }
+    },
+    {
+      name: "monster-bulk-import",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-bulk-import"),
+      description: "Use bulk import mode? Experimental, may be unstable on some systems, but potentially faster.",
+      enabled: true,
+    },
   ];
 
   const homebrewMonsterConfig = includeHomebrew

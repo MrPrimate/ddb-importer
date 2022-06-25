@@ -581,16 +581,21 @@ export async function buildNPC(data, temporary = true, update = false, handleBui
 
 }
 
-async function parseNPC (data) {
+async function parseNPC (data, bulkImport) {
   const buildNpc = await buildNPC(data);
   const mergedNPC = await getCompendiumActorData(buildNpc);
   logger.info(`Processing actor ${mergedNPC.name} for the compendium`);
-  return mergedNPC;
+  if (bulkImport) {
+    return mergedNPC;
+  } else {
+    const compendiumNPC = await addNPCToCompendium(mergedNPC);
+    return compendiumNPC;
+  }
 }
 
-export function addNPC(data) {
+export function addNPC(data, bulkImport) {
   return new Promise((resolve, reject) => {
-    parseNPC(data)
+    parseNPC(data, bulkImport)
       .then((npc) => {
         resolve(npc);
       })

@@ -91,11 +91,14 @@ export async function parseCritters(ids = null) {
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
   const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
+  const bulkImport = game.settings.get("ddb-importer", "munching-policy-monster-bulk-import");
 
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
+  munchNote(`Checking existing image files...`);
   await utils.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete getting monster data...");
+  munchNote(`Getting monster data from DDB...`);
   let monsters = await getMonsterData(ids);
 
   if (!updateBool || !updateImages) {
@@ -135,17 +138,23 @@ export async function parseCritters(ids = null) {
   const monsterCount = finalMonsters.length;
   munchNote(`Preparing dinner for ${monsterCount} monsters!`, true);
   for (const monster of finalMonsters) {
-    munchNote(`[${currentMonster}/${monsterCount}] Preparing ${monster.name} data`, false, true);
-    logger.debug(`Calculating ${monster.name} data`);
+    if (bulkImport) {
+      munchNote(`[${currentMonster}/${monsterCount}] Checking dietary requirements for ${monster.name}`, false, true);
+    } else {
+      munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name}`, false, true);
+    }
+    logger.debug(`Importing/second parse of ${monster.name} data`);
     // eslint-disable-next-line no-await-in-loop
-    const munched = await addNPC(monster);
+    const munched = await addNPC(monster, bulkImport);
     monstersParsed.push(munched);
     currentMonster += 1;
   }
   logger.debug("Monsters Parsed", monstersParsed);
-  munchNote(`Importing ${monstersParsed.length} monsters`, false, true);
-  logger.debug(`Importing ${monstersParsed.length} monsters`);
-  await addNPCsToCompendium(monstersParsed);
+  if (bulkImport) {
+    munchNote(`Importing ${monstersParsed.length} monsters`, false, true);
+    logger.debug(`Importing ${monstersParsed.length} monsters`);
+    await addNPCsToCompendium(monstersParsed);
+  }
   munchNote("", false, true);
   setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 

@@ -936,6 +936,10 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
+          "munching-policy-monster-bulk-import": {
+            type: Boolean,
+            default: false,
+          },
         },
         ENCOUNTER: {
           "encounter-import-policy-create-scene": {
