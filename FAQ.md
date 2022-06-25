@@ -17,6 +17,17 @@ Open the Browser Developer Console (F12) and run the following:
 DDBImporter.resetSecrets();
 ```
 
+## My Muncher window never appears
+
+I just get a UI message `Checking your DDB details - this might take a few seconds!`.
+
+Open the Browser Developer Console (F12) and run the following:
+
+```javascript
+DDBImporter.resetSecrets();
+```
+
+
 ## I tried the custom proxy and want to reset to use yours
 
 Open the Browser Developer Console (F12) and run the following:
