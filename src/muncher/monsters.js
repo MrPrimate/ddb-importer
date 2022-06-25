@@ -3,7 +3,7 @@ import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, checkMonsterCompendium, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
-import { parseMonsters } from "./monster/monster.js";
+import { legacyNameMonsters, parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
@@ -100,6 +100,8 @@ export async function parseCritters(ids = null) {
   logger.info("Check complete getting monster data...");
   munchNote(`Getting monster data from DDB...`);
   let monsters = await getMonsterData(ids);
+
+  monsters = legacyNameMonsters(monsters);
 
   if (!updateBool || !updateImages) {
     munchNote(`Calculating which monsters to update...`, true);

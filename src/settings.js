@@ -758,6 +758,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-monster-legacy-postfix": {
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-use-compendium-folders": {
             scope: "player",
             type: Boolean,

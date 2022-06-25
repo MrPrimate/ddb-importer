@@ -81,11 +81,14 @@ async function getCompendiumActorData(npc) {
 
     const monsterIndexFields = ["name", "flags.ddbimporter.id"];
 
+    const legacyName = game.settings.get("ddb-importer", "munching-policy-monster-legacy-postfix");
     const index = await compendium.getIndex({ fields: monsterIndexFields });
     const npcMatch = index.contents.find((entity) =>
-      entity.flags?.ddbimporter?.id &&
-      entity.name.toLowerCase() === npcBasic.name.toLowerCase() &&
-      entity.flags.ddbimporter.id == npcBasic.flags.ddbimporter.id
+      hasProperty(entity, "flags.ddbimporter.id") &&
+      entity.flags.ddbimporter.id == npcBasic.flags.ddbimporter.id &&
+      ((!legacyName && entity.name.toLowerCase() === npcBasic.name.toLowerCase()) ||
+        (legacyName && npcBasic.flags.ddbimporter.isLegacy && npcBasic.name.toLowerCase().startsWith(entity.name.toLowerCase())) ||
+        (legacyName && entity.name.toLowerCase() === npcBasic.name.toLowerCase()))
     );
 
     if (npcMatch) {

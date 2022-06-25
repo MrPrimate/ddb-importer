@@ -207,8 +207,6 @@ export async function parseMonsters(monsterData, extra = false) {
       logger.error(err.stack);
       failedMonsterNames.push(monster.name);
     }
-
-
   });
 
   const result = {
@@ -219,3 +217,15 @@ export async function parseMonsters(monsterData, extra = false) {
   return result;
 }
 
+export function legacyNameMonsters(monsters) {
+  const legacyName = game.settings.get("ddb-importer", "munching-policy-monster-legacy-postfix");
+  if (legacyName) {
+    monsters.forEach((monster) => {
+      if (monster.flags.ddbimporter.isLegacy) {
+        monster.name += " (Legacy)";
+        monster.token.name += " (Legacy)";
+      }
+    });
+  }
+  return monsters;
+}

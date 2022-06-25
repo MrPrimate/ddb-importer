@@ -779,6 +779,12 @@ export function getMuncherSettings(includeHomebrew = true) {
       enabled: true,
     },
     {
+      name: "monster-legacy-postfix",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-legacy-postfix"),
+      description: "Append (Legacy) to Legacy monster names? These are monsters replaced by newer versions e.g. in Monsters of the Multiverse.",
+      enabled: true,
+    },
+    {
       name: "monster-bulk-import",
       isChecked: game.settings.get("ddb-importer", "munching-policy-monster-bulk-import"),
       description: "Use bulk import mode? Experimental, may be unstable on some systems, but potentially faster.",
