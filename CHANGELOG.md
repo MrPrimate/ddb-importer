@@ -1,3 +1,9 @@
+# 2.9.54
+
+* Some fixes and extra debugging for Update to DDB functionality.
+* Some updates did not work with certain midi-effects.
+* If creating Midi-QOL effects on monsters, will now generate Legendary Resistance effect.
+
 # 2.9.53
 
 * Typo in Interception Fighting Style.
