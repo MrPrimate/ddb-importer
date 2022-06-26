@@ -13,6 +13,6 @@ export async function newNPC(name) {
     },
   };
   setProperty(npc, "flags", flags);
-  delete npc._id;
+  // delete npc._id;
   return npc;
 };

@@ -61,6 +61,20 @@ export function checkMonsterCompendium() {
   return getMonsterCompendium();
 }
 
+async function getMonsterIndexMonster(compendium, npc) {
+  const monsterIndexFields = ["name", "flags.ddbimporter.id"];
+  const legacyName = game.settings.get("ddb-importer", "munching-policy-monster-legacy-postfix");
+  const index = await compendium.getIndex({ fields: monsterIndexFields });
+  const npcMatch = index.contents.find((entity) =>
+    hasProperty(entity, "flags.ddbimporter.id") &&
+    entity.flags.ddbimporter.id == npc.flags.ddbimporter.id &&
+    ((!legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()) ||
+      (legacyName && npc.flags.ddbimporter.isLegacy && npc.name.toLowerCase().startsWith(entity.name.toLowerCase())) ||
+      (legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()))
+  );
+  return npcMatch;
+}
+
 async function getCompendiumActorData(npc) {
   const compendium = getMonsterCompendium();
   const npcBasic = duplicate(npc);
@@ -79,17 +93,7 @@ async function getCompendiumActorData(npc) {
       });
     }
 
-    const monsterIndexFields = ["name", "flags.ddbimporter.id"];
-
-    const legacyName = game.settings.get("ddb-importer", "munching-policy-monster-legacy-postfix");
-    const index = await compendium.getIndex({ fields: monsterIndexFields });
-    const npcMatch = index.contents.find((entity) =>
-      hasProperty(entity, "flags.ddbimporter.id") &&
-      entity.flags.ddbimporter.id == npcBasic.flags.ddbimporter.id &&
-      ((!legacyName && entity.name.toLowerCase() === npcBasic.name.toLowerCase()) ||
-        (legacyName && npcBasic.flags.ddbimporter.isLegacy && npcBasic.name.toLowerCase().startsWith(entity.name.toLowerCase())) ||
-        (legacyName && entity.name.toLowerCase() === npcBasic.name.toLowerCase()))
-    );
+    const npcMatch = getMonsterIndexMonster(compendium, npcBasic);
 
     if (npcMatch) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
@@ -140,12 +144,14 @@ async function addNPCToCompendium(npc) {
     compendium.configure({ locked: false });
 
     let compendiumNPC;
-    if (hasProperty(npc, "_id")) {
+    if (hasProperty(npc, "_id") && compendium.index.has(npc._id)) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
         const existingNPC = await compendium.getDocument(npc._id);
 
-        logger.debug("NPC Core data", duplicate(npcBasic));
-        compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, recursive: false });
+        logger.debug("NPC Update Data", duplicate(npcBasic));
+        await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
+        await existingNPC.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+        compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, recursive: true, keepId: true });
         if (!compendiumNPC) {
           logger.debug("No changes made to base character", npcBasic);
           compendiumNPC = existingNPC;
@@ -157,8 +163,9 @@ async function addNPCToCompendium(npc) {
       const options = {
         displaySheet: false,
         pack: compendium.collection,
+        keepId: true,
       };
-      logger.debug("NPC", duplicate(npcBasic));
+      logger.debug("NPC New Data", duplicate(npcBasic));
       compendiumNPC = await Actor.create(npcBasic, options);
     }
 
@@ -181,15 +188,22 @@ export async function addNPCsToCompendium(npcs) {
     // unlock the compendium for update/create
     compendium.configure({ locked: false });
 
-    const options = { pack: compendium.collection, displaySheet: false, recursive: false };
+    const options = {
+      pack: compendium.collection,
+      displaySheet: false,
+      recursive: false,
+      keepId: true,
+    };
 
     if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
-      const updateNPCs = npcs.filter((npc) => hasProperty(npc, "_id"));
+      const updateNPCs = npcs.filter((npc) => hasProperty(npc, "_id") && compendium.index.has(npc._id));
+      logger.debug("NPC Update Data", duplicate(updateNPCs));
       const updateResults = await Actor.updateDocuments(updateNPCs, options);
       results = results.concat(updateResults);
     }
 
-    const newNPCs = npcs.filter((npc) => !hasProperty(npc, "_id"));
+    const newNPCs = npcs.filter((npc) => !hasProperty(npc, "_id") || !compendium.index.has(npc._id));
+    logger.debug("NPC New Data", duplicate(newNPCs));
     const createResults = await Actor.createDocuments(newNPCs, options);
     results = results.concat(createResults);
 

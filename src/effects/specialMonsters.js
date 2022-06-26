@@ -1,6 +1,8 @@
+import { getCompendiumLabel } from "../muncher/utils.js";
 import { configureDependencies } from "./macros.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
+import { generateLegendaryEffect } from "./monsterFeatures/legendary.js";
 import { generateOverTimeEffect } from "./monsterFeatures/overTimeEffect.js";
 
 export function baseMonsterFeatureEffect(document, label) {
@@ -68,6 +70,27 @@ export function monsterFeatEffectModules() {
 
 var configured;
 
+function transferEffectsToActor(document) {
+  if (!document.effects) document.effects = [];
+  const compendiumLabel = getCompendiumLabel("monsters");
+
+  // loop over items and item effect and transfer any effects to the actor
+  document.items.forEach((item) => {
+    item.effects.forEach((effect) => {
+      if (effect.transfer) {
+        const transferEffect = duplicate(effect);
+        effect.id = randomID();
+        transferEffect.id = randomID();
+        transferEffect.transfer = false;
+        transferEffect.origin = `Compendium.${compendiumLabel}.${document.id}.Item.${effect.id}`;
+        document.effects.push(transferEffect);
+      }
+    });
+  });
+
+  return document;
+}
+
 /**
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
@@ -90,10 +113,14 @@ export async function monsterFeatureEffectAdjustment(document, monster) {
 
   // damage over time effects
   document.items.forEach(function(item, index) {
+    // Legendary Resistance Effects
+    if (item.name.startsWith("Legendary Resistance")) item = generateLegendaryEffect(item);
+    // auto overtime effect
     const overTimeResults = generateOverTimeEffect(item, document, monster);
     this[index] = overTimeResults.document;
     document = overTimeResults.actor;
   }, document.items);
 
+  document = transferEffectsToActor(document);
   return document;
 }
