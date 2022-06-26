@@ -954,9 +954,9 @@ async function updateDDBActionUseStatus(actor, actions) {
   let promises = [];
   actions.forEach((action) => {
     const actionData = {
-      actionId: action.data.flags.ddbimporter.id,
-      entityTypeId: action.data.flags.ddbimporter.entityTypeId,
-      uses: parseInt(action.data.data.uses.max) - parseInt(action.data.data.uses.value)
+      actionId: action.flags.ddbimporter.id,
+      entityTypeId: action.flags.ddbimporter.entityTypeId,
+      uses: parseInt(action.data.uses.max) - parseInt(action.data.uses.value)
     };
     promises.push(updateActionUseStatus(actor, actionData));
   });
@@ -1274,7 +1274,7 @@ async function activeUpdateUpdateItem(document, update) {
       if (action && syncActionUse && isDDBItem) {
         if (update.data?.uses) {
           logger.debug("Updating action uses", update);
-          updateDDBActionUseStatus(parentActor, [document]);
+          updateDDBActionUseStatus(parentActor, [duplicate(document)]);
         } else {
           resolve([]);
         }
