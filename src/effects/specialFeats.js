@@ -13,6 +13,7 @@ import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { bladesongEffect } from "./feats/bladesong.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
+import { indomitableEffect } from "./feats/indomitable.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -117,6 +118,10 @@ export async function generateExtraEffects(ddb, character, document) {
     }
     case "Fighting Style: Interception": {
       document = fightingStyleInterceptionEffect(document);
+      break;
+    }
+    case "Indomitable": {
+      document = indomitableEffect(document);
       break;
     }
     // no default

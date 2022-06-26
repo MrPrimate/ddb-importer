@@ -1,28 +1,27 @@
 import { baseItemEffect } from "../effects.js";
 
-export function generateLegendaryEffect(document) {
+export function indomitableEffect(document) {
   let effect = baseItemEffect(document, document.name);
   effect.changes.push(
     {
-      key: "flags.midi-qol.optional.LegRes.save.fail",
+      key: "flags.midi-qol.optional.Indomitable.save.fail",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: "success",
+      value: "reroll",
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.LegRes.count",
+      key: "flags.midi-qol.optional.Indomitable.count",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: "@resources.legres.value",
+      value: "ItemUses.Indomitable",
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.LegRes.label",
+      key: "flags.midi-qol.optional.Indomitable.label",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: "Use Legendary Resistance to Succeed?",
+      value: "Use Indomitable to Succeed?",
       priority: "20",
     }
   );
-
   document.effects.push(effect);
   return document;
 }
