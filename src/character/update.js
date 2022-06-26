@@ -91,7 +91,8 @@ async function updateCharacterCall(actor, path, bodyContent) {
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
-          logger.warn("Update failed:", data.message);
+          logger.error(`Update failed for ${actor.name}:`, data.message);
+          ui.notifications.error(`Update failed: (${actor.name}) ${data.message}`);
           resolve(data);
         }
         logger.debug(`${path} updated`);
@@ -530,7 +531,7 @@ async function deleteDDBCustomItems(actor, itemsToDelete) {
         }
       };
       const result = updateCharacterCall(actor, "custom/item", customData).then((data) => {
-        setProperty(item, "flags.ddbimporter.id", data.data.id);
+        setProperty(item, "flags.ddbimporter.id", data.id);
         setProperty(item, "flags.ddbimporter.custom", true);
         return item;
       });
@@ -1268,6 +1269,7 @@ async function activeUpdateUpdateItem(document, update) {
         updateDDBCustomNames(parentActor, [document.toObject()]);
       }
 
+      logger.debug("active update item details", { action, syncActionUse, isDDBItem });
       // is this a DDB action, or do we treat this as an item?
       if (action && syncActionUse && isDDBItem) {
         if (update.data?.uses) {
@@ -1289,7 +1291,7 @@ async function activeUpdateUpdateItem(document, update) {
           if (failures) setActiveSyncSpellsFlag(parentActor, false);
           resolve(results);
         });
-      } else if (syncEquipment) {
+      } else if (syncEquipment && !action) {
         resolve(generateDynamicItemChange(parentActor, document, update));
       }
     }
