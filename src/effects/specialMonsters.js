@@ -79,10 +79,11 @@ function transferEffectsToActor(document) {
     item.effects.forEach((effect) => {
       if (effect.transfer) {
         const transferEffect = duplicate(effect);
-        effect.id = randomID();
-        transferEffect.id = randomID();
+        if (!hasProperty(item, "_id")) item._id = randomID();
+        if (!hasProperty(effect, "_id")) effect._id = randomID();
+        transferEffect._id = randomID();
         transferEffect.transfer = false;
-        transferEffect.origin = `Compendium.${compendiumLabel}.${document.id}.Item.${effect.id}`;
+        transferEffect.origin = `Compendium.${compendiumLabel}.${document._id}.Item.${item._id}`;
         document.effects.push(transferEffect);
       }
     });

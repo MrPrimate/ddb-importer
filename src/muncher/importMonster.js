@@ -1,50 +1,13 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
-import DICTIONARY from "../dictionary.js";
-import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, copySupportedItemFlags, compendiumFolders } from "./import.js";
+import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compendiumFolders } from "./import.js";
 import { getCompendiumType, munchNote, getCompendiumLabel } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
 var compendiumLoaded = false;
 var monsterCompendium;
 
-/**
- *
- * @param {[string]} items Array of Strings or
- */
-async function retrieveCompendiumItems(items, compendiumName) {
-  const GET_ENTITY = true;
-
-  const itemNames = items.map((item) => {
-    if (typeof item === "string") return item;
-    if (typeof item === "object" && Object.prototype.hasOwnProperty.call(item, "name")) return item.name;
-    return "";
-  });
-
-  const results = await utils.queryCompendiumEntries(compendiumName, itemNames, GET_ENTITY);
-  const cleanResults = results.filter((item) => item !== null);
-
-  return cleanResults;
-}
-
-
-/**
- *
- * @param {[items]} spells Array of Strings or items
- */
-async function retrieveSpells(spells) {
-  const compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
-  const compendiumItems = await retrieveCompendiumItems(spells, compendiumName);
-  const itemData = compendiumItems.map((i) => {
-    let spell = i.toObject();
-    delete spell._id;
-    return spell;
-  });
-
-  return itemData;
-}
-
-function getMonsterCompendium() {
+export function getMonsterCompendium() {
   if (compendiumLoaded) return monsterCompendium;
   monsterCompendium = getCompendiumType("monster", false);
   if (monsterCompendium) {
@@ -60,80 +23,6 @@ export function checkMonsterCompendium() {
   monsterCompendium = undefined;
   return getMonsterCompendium();
 }
-
-async function getMonsterIndexMonster(compendium, npc) {
-  const monsterIndexFields = ["name", "flags.ddbimporter.id"];
-  const legacyName = game.settings.get("ddb-importer", "munching-policy-monster-legacy-postfix");
-  const index = await compendium.getIndex({ fields: monsterIndexFields });
-  const npcMatch = index.contents.find((entity) =>
-    hasProperty(entity, "flags.ddbimporter.id") &&
-    entity.flags.ddbimporter.id == npc.flags.ddbimporter.id &&
-    ((!legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()) ||
-      (legacyName && npc.flags.ddbimporter.isLegacy && npc.name.toLowerCase().startsWith(entity.name.toLowerCase())) ||
-      (legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()))
-  );
-  return npcMatch;
-}
-
-async function getCompendiumActorData(npc) {
-  const compendium = getMonsterCompendium();
-  const npcBasic = duplicate(npc);
-  if (compendium) {
-    // v8 doesn't like null _ids with keepId set
-    if (!game.version) {
-      npc.items = npc.items.map((i) => {
-        if (!i._id) i._id = randomID();
-        if (i.effects && i.effects.length > 0) {
-          i.effects = i.effects.map((e) => {
-            if (!e._id) e._id = randomID();
-            return e;
-          });
-        }
-        return i;
-      });
-    }
-
-    const npcMatch = getMonsterIndexMonster(compendium, npcBasic);
-
-    if (npcMatch) {
-      if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
-        const existingNPC = await compendium.getDocument(npcMatch._id);
-
-        const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-        if (!updateImages && existingNPC.data.img !== "icons/svg/mystery-man.svg") {
-          npcBasic.img = existingNPC.data.img;
-        }
-        if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
-          npcBasic.token.img = existingNPC.data.token.img;
-          npcBasic.token.scale = existingNPC.data.token.scale;
-          npcBasic.token.randomImg = existingNPC.data.token.randomImg;
-          npcBasic.token.mirrorX = existingNPC.data.token.mirrorX;
-          npcBasic.token.mirrorY = existingNPC.data.token.mirrorY;
-          npcBasic.token.lockRotation = existingNPC.data.token.lockRotation;
-          npcBasic.token.rotation = existingNPC.data.token.rotation;
-          npcBasic.token.alpha = existingNPC.data.token.alpha;
-          npcBasic.token.lightAlpha = existingNPC.data.token.lightAlpha;
-          npcBasic.token.lightAnimation = existingNPC.data.token.lightAnimation;
-          npcBasic.token.tint = existingNPC.data.token.tint;
-          npcBasic.token.lightColor = existingNPC.data.token.lightColor;
-        }
-
-        const retainBiography = game.settings.get("ddb-importer", "munching-policy-monster-retain-biography");
-        if (retainBiography) {
-          npcBasic.data.details.biography = existingNPC.data.data.details.biography;
-        }
-
-        npcBasic._id = npcMatch._id;
-        await copySupportedItemFlags(existingNPC.toObject(), npcBasic);
-
-      }
-    }
-  } else {
-    logger.error("Error opening compendium, check your settings");
-  }
-  return npcBasic;
-}
-
 
 async function addNPCToCompendium(npc) {
   const compendium = getMonsterCompendium();
@@ -179,7 +68,6 @@ async function addNPCToCompendium(npc) {
   }
   return npc;
 }
-
 
 export async function addNPCsToCompendium(npcs) {
   const compendium = getMonsterCompendium();
@@ -329,181 +217,6 @@ export async function getNPCImage(data, options) {
   return data;
 }
 
-function getSpellEdgeCase(spell, type, spellList) {
-  const edgeCases = spellList.edgeCases;
-  const edgeCase = edgeCases.find((edge) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
-
-  if (edgeCase) {
-    logger.debug(`Spell edge case for ${spell.name}`);
-    switch (edgeCase.edge.toLowerCase()) {
-      case "self":
-      case "self only":
-        spell.data.target.type = "self";
-        logger.debug("spell target changed to self");
-        break;
-      // no default
-    }
-    spell.name = `${spell.name} (${edgeCase.edge})`;
-    spell.data.description.chat = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.data.description.chat}`;
-    spell.data.description.value = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.data.description.value}`;
-
-    const diceSearch = /(\d+)d(\d+)/;
-    const diceMatch = edgeCase.edge.match(diceSearch);
-    if (diceMatch) {
-      if (spell.data.damage.parts[0] && spell.data.damage.parts[0][0]) {
-        spell.data.damage.parts[0][0] = diceMatch[0];
-      } else if (spell.data.damage.parts[0]) {
-        spell.data.damage.parts[0] = [diceMatch[0]];
-      } else {
-        spell.data.damage.parts = [[diceMatch[0]]];
-      }
-    }
-
-    // save DC 12
-    const saveSearch = /save DC (\d+)/;
-    const saveMatch = edgeCase.edge.match(saveSearch);
-    if (saveMatch) {
-      spell.data.save.dc = saveMatch[1];
-      spell.data.save.scaling = "flat";
-    }
-
-  }
-
-  // remove material components?
-  if (!spellList.material) {
-    spell.data.materials = {
-      value: "",
-      consumed: false,
-      cost: 0,
-      supply: 0
-    };
-    spell.data.components.material = false;
-  }
-
-}
-
-async function addSpells(data) {
-  // check to see if we have munched flags to work on
-  if (!data.flags || !data.flags.monsterMunch || !data.flags.monsterMunch.spellList) {
-    return;
-  }
-
-  const spellList = data.flags.monsterMunch.spellList;
-  logger.debug(`Spell List for edgecases`, spellList);
-  const atWill = spellList.atwill;
-  const klass = spellList.class;
-  const innate = spellList.innate;
-  const pact = spellList.pact;
-
-  if (atWill.length !== 0) {
-    logger.debug("Retrieving at Will spells:", atWill);
-    let spells = await retrieveSpells(atWill);
-    spells = spells.filter((spell) => spell !== null).map((spell) => {
-      if (spell.data.level == 0) {
-        spell.data.preparation = {
-          mode: "prepared",
-          prepared: false,
-        };
-      } else {
-        spell.data.preparation = {
-          mode: "atwill",
-          prepared: false,
-        };
-        spell.data.uses = {
-          value: null,
-          max: null,
-          per: "",
-        };
-      }
-      getSpellEdgeCase(spell, "atwill", spellList);
-      return spell;
-    });
-    // eslint-disable-next-line require-atomic-updates
-    data.items = data.items.concat(spells);
-  }
-
-  // class spells
-  if (klass.length !== 0) {
-    logger.debug("Retrieving class spells:", klass);
-    let spells = await retrieveSpells(klass);
-    spells = spells.filter((spell) => spell !== null).map((spell) => {
-      spell.data.preparation = {
-        mode: "prepared",
-        prepared: true,
-      };
-      getSpellEdgeCase(spell, "class", spellList);
-      return spell;
-    });
-    // eslint-disable-next-line require-atomic-updates
-    data.items = data.items.concat(spells);
-  }
-
-  // pact spells
-  if (pact.length !== 0) {
-    logger.debug("Retrieving pact spells:", pact);
-    let spells = await retrieveSpells(pact);
-    spells = spells.filter((spell) => spell !== null).map((spell) => {
-      spell.data.preparation = {
-        mode: "pact",
-        prepared: true,
-      };
-      getSpellEdgeCase(spell, "pact", spellList);
-      return spell;
-    });
-    // eslint-disable-next-line require-atomic-updates
-    data.items = data.items.concat(spells);
-  }
-
-  // innate spells
-  if (innate.length !== 0) {
-    // innate:
-    // {name: "", type: "srt/lng/day", value: 0}
-    logger.debug("Retrieving innate spells:", innate);
-    const spells = await retrieveSpells(innate);
-    const innateSpells = spells.filter((spell) => spell !== null)
-      .map((spell) => {
-        const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
-        if (spellInfo) {
-          const isAtWill = hasProperty(spellInfo, "innate") && !spellInfo.innate;
-          if (spell.data.level == 0) {
-            spell.data.preparation = {
-              mode: "prepared",
-              prepared: false,
-            };
-          } else {
-            spell.data.preparation = {
-              mode: isAtWill ? "atwill" : "innate",
-              prepared: !isAtWill,
-            };
-          }
-          if (isAtWill && spellInfo.type === "atwill") {
-            spell.data.uses = {
-              value: null,
-              max: null,
-              per: "",
-            };
-          } else {
-            const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
-            const per = spellInfo.type === "atwill"
-              ? null
-              : (perLookup && perLookup.type)
-                ? perLookup.type
-                : "day";
-            spell.data.uses = {
-              value: spellInfo.value,
-              max: spellInfo.value,
-              per: per,
-            };
-          }
-          getSpellEdgeCase(spell, "innate", spellList);
-        }
-        return spell;
-      });
-    // eslint-disable-next-line require-atomic-updates
-    data.items = data.items.concat(innateSpells);
-  }
-}
-
 async function swapItems(data) {
   const swap = game.settings.get("ddb-importer", "munching-policy-monster-items");
 
@@ -555,8 +268,6 @@ async function linkResourcesConsumption(actor) {
 export async function buildNPC(data, temporary = true, update = false, handleBuild = false) {
   logger.debug("Importing Images");
   await getNPCImage(data);
-  logger.debug("Importing Spells");
-  await addSpells(data);
   logger.debug("Checking Items");
   await swapItems(data);
 
@@ -600,12 +311,11 @@ export async function buildNPC(data, temporary = true, update = false, handleBui
 
 async function parseNPC (data, bulkImport) {
   const buildNpc = await buildNPC(data);
-  const mergedNPC = await getCompendiumActorData(buildNpc);
-  logger.info(`Processing actor ${mergedNPC.name} for the compendium`);
+  logger.info(`Processing actor ${buildNpc.name} for the compendium`);
   if (bulkImport) {
-    return mergedNPC;
+    return buildNpc;
   } else {
-    const compendiumNPC = await addNPCToCompendium(mergedNPC);
+    const compendiumNPC = await addNPCToCompendium(buildNpc);
     return compendiumNPC;
   }
 }
