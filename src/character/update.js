@@ -9,15 +9,10 @@ import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdat
 import { getActorConditionStates, getCondition } from "./conditions.js";
 import { getItemCollectionItems } from "./itemCollections.js";
 
-var itemIndex;
-
 function activeUpdate() {
   const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
   const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
   const gmSyncUser = game.user.isGM && game.user.id == updateUser;
-  // console.warn(`Dynamic sync: ${dynamicSync}`);
-  // console.warn(`Dynamic sync user: ${updateUser}`);
-  // console.warn(`gmSyncUser: ${gmSyncUser}`);
   return dynamicSync && gmSyncUser;
 }
 
@@ -32,8 +27,8 @@ function getFoundryItems(actor) {
   return actorItems.concat(itemCollections);
 }
 
-export async function getUpdateItemIndex() {
-  if (itemIndex) return itemIndex;
+async function getUpdateItemIndex() {
+  if (hasProperty(CONFIG, "DDBI.update.itemIndex")) return getProperty(CONFIG, "DDBI.update.itemIndex");
   const compendium = await getCompendiumType("item", false);
 
   const indexFields = [
@@ -43,7 +38,8 @@ export async function getUpdateItemIndex() {
     "flags.ddbimporter.definitionEntityTypeId",
   ];
   // eslint-disable-next-line require-atomic-updates
-  itemIndex = await compendium.getIndex({ fields: indexFields });
+  const itemIndex = await compendium.getIndex({ fields: indexFields });
+  setProperty(CONFIG, "DDBI.update.itemIndex", itemIndex);
 
   return itemIndex;
 }
@@ -91,8 +87,14 @@ async function updateCharacterCall(actor, path, bodyContent) {
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
-          logger.error(`Update failed for ${actor.name}:`, data.message);
-          ui.notifications.error(`Update failed: (${actor.name}) ${data.message}`);
+          const errorData = {
+            message: data.message,
+            bodyContent,
+            characterId,
+            dynamicSync,
+          };
+          logger.error(`Update failed for ${actor.name}:`, errorData);
+          ui.notifications.error(`Update failed: (${actor.name}) ${data.message} (see console log (F12) for more details)`);
           resolve(data);
         }
         logger.debug(`${path} updated`);
@@ -100,8 +102,13 @@ async function updateCharacterCall(actor, path, bodyContent) {
       })
       .then((data) => resolve(data))
       .catch((error) => {
-        logger.error(`Setting ${path} failed`);
-        logger.error(error);
+        const errorData = {
+          error,
+          bodyContent,
+          characterId,
+          dynamicSync,
+        };
+        logger.error(`Setting ${path} failed`, errorData);
         logger.error(error.stack);
         reject(error);
       });
