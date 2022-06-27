@@ -108,6 +108,7 @@ import { stoneskinEffect } from "./spells/stoneskin.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
 import { sunbeamEffect } from "./spells/sunbeam.js";
 import { tolltheDeadEffect } from "./spells/tolltheDead.js";
+import { thunderousSmiteEffect } from "./spells/thunderousSmite.js";
 import { trueStrikeEffect } from "./spells/trueStrike.js";
 import { viciousMockeryEffect } from "./spells/viciousMockery.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
@@ -615,6 +616,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Toll the Dead": {
       document = await tolltheDeadEffect(document);
+      break;
+    }
+    case "Thunderous Smite": {
+      document = await thunderousSmiteEffect(document);
       break;
     }
     case "True Strike": {

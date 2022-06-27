@@ -2,6 +2,7 @@
 
 * Effect: Uncanny Dodge was no longer working.
 * Effect: Support Blessed Healer feature.
+* Effect: Branding Smite and Thunderous Smite spells.
 
 # 2.9.54
 
