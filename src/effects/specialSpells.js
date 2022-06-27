@@ -160,7 +160,7 @@ export function baseSpellEffect(document, label) {
     flags: {
       dae: {
         transfer: false,
-        stackable: false,
+        stackable: "none",
       },
       ddbimporter: {
         disabled: false,

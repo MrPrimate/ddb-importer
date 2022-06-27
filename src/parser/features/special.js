@@ -280,6 +280,15 @@ export function fixFeatures(features) {
         feature.data.range.units = "ft";
         break;
       }
+      case "Blessed Healer": {
+        feature.data.activation.type = "special";
+        feature.data.activation.cost = null;
+        feature.data.actionType = "heal";
+        feature.data["target"]["type"] = "self";
+        feature.data.range = { value: null, units: "self", long: null };
+        feature.data.uses = { value: null, max: "0", per: "", type: "" };
+        break;
+      }
       case "Channel Divinity: Radiance of the Dawn":
         feature.data.damage = {
           parts: [["2d10[radiant] + @classes.cleric.levels", "radiant"]],
@@ -479,7 +488,8 @@ export function fixFeatures(features) {
 
     const tableDescription = generateTable(feature.name, feature.data.description.value, true, feature.type);
     feature.data.description.value = tableDescription;
-    feature.data.description.chat = tableDescription;
+    const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
+    feature.data.description.chat = chatAdd ? tableDescription : "";
     feature = setConsumeAmount(feature);
 
 

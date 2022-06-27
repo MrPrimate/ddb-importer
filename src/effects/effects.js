@@ -251,7 +251,7 @@ export function baseItemEffect(foundryItem, label) {
     flags: {
       dae: {
         transfer: true,
-        stackable: false,
+        stackable: "none",
         // armorEffect: true
       },
       ddbimporter: {
