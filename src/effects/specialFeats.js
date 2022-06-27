@@ -14,6 +14,7 @@ import { bladesongEffect } from "./feats/bladesong.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { indomitableEffect } from "./feats/indomitable.js";
+import { blessedHealerEffect } from "./feats/blessedHealer.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -27,7 +28,7 @@ export function baseFeatEffect(document, label) {
     flags: {
       dae: {
         transfer: false,
-        stackable: false,
+        stackable: "none",
       },
       ddbimporter: {
         disabled: false,
@@ -101,6 +102,10 @@ export async function generateExtraEffects(ddb, character, document) {
   switch (name) {
     case "Bladesong": {
       document = await bladesongEffect(document);
+      break;
+    }
+    case "Blessed Healer": {
+      document = await blessedHealerEffect(document);
       break;
     }
     case "Defensive Duelist": {

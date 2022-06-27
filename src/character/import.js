@@ -1168,6 +1168,12 @@ export default class CharacterImport extends FormApplication {
       this.result.character.flags.dnd5e["wildMagic"] = true;
     }
 
+    // midi fixes
+    const actorOnUseMacroName = getProperty(this.result.character, "flags.midi-qol.onUseMacroName");
+    if (!actorOnUseMacroName || actorOnUseMacroName === "") {
+      setProperty(this.result.character, "flags.midi-qol.onUseMacroName", "[postActiveEffects]");
+    }
+
     // basic import
     CharacterImport.showCurrentTask(html, "Updating core character information");
     logger.debug("Character data importing: ", this.result.character);
