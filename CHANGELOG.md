@@ -3,6 +3,8 @@
 * Effect: Uncanny Dodge was no longer working.
 * Effect: Support Blessed Healer feature.
 * Effect: Branding Smite and Thunderous Smite spells.
+* Effects: Some instance of effects that add would require a + before the effect value in order to calculate correctly if multiple bonuses are applied.
+* Character Import: when a character fails to import, the importer will now try to restore the original actor.
 
 # 2.9.54
 
