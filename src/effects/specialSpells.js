@@ -643,5 +643,8 @@ export async function spellEffectAdjustment(document) {
     }
     // no default
   }
+  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
+    setProperty(document, "flags.ddbimporter.effectsApplied", true);
+  }
   return document;
 }

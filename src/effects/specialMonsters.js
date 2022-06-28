@@ -120,6 +120,10 @@ export async function monsterFeatureEffectAdjustment(document, monster) {
     const overTimeResults = generateOverTimeEffect(item, document, monster);
     this[index] = overTimeResults.document;
     document = overTimeResults.actor;
+
+    if (item.effects.length > 0 || hasProperty(item.flags, "itemacro")) {
+      setProperty(item, "flags.ddbimporter.effectsApplied", true);
+    }
   }, document.items);
 
   document = transferEffectsToActor(document);

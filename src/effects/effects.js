@@ -1414,8 +1414,10 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
     // no default
   }
 
-  if (foundryItem.effects?.length > 0)
-    logger.debug(`${type} effect ${foundryItem.name}:`, JSON.parse(JSON.stringify(foundryItem)));
+  if (foundryItem.effects?.length > 0 || hasProperty(foundryItem.flags, "itemacro")) {
+    logger.debug(`${type} effect ${foundryItem.name}:`, duplicate(foundryItem));
+    setProperty(foundryItem, "flags.ddbimporter.effectsApplied", true);
+  }
   return foundryItem;
 
 }
