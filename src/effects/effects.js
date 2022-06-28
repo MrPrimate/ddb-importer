@@ -363,7 +363,11 @@ export function generateChange(bonus, priority, key, mode) {
 }
 
 export function generateAddChange(bonus, priority, key) {
-  return generateChange(bonus, priority, key, CONST.ACTIVE_EFFECT_MODES.ADD);
+  const bonusValue = (Number.isInteger(bonus) && bonus >= 0) || // if bonus is a positive integer
+    (!Number.isInteger(bonus) && !bonus.trim().startsWith("+") && !bonus.trim().startsWith("-")) // not an int and does not start with + or -
+    ? `+${bonus}`
+    : bonus;
+  return generateChange(bonusValue, priority, key, CONST.ACTIVE_EFFECT_MODES.ADD);
 }
 
 export function generateCustomChange(bonus, priority, key) {
@@ -371,7 +375,11 @@ export function generateCustomChange(bonus, priority, key) {
 }
 
 export function generateCustomBonusChange(bonus, priority, key) {
-  return generateChange(`+${bonus}`, priority, key, CONST.ACTIVE_EFFECT_MODES.CUSTOM);
+  const bonusValue = (Number.isInteger(bonus) && bonus >= 0) || // if bonus is a positive integer
+    (!Number.isInteger(bonus) && !bonus.trim().startsWith("+") && !bonus.trim().startsWith("-")) // not an int and does not start with + or -
+    ? `+${bonus}`
+    : bonus;
+  return generateChange(bonusValue, priority, key, CONST.ACTIVE_EFFECT_MODES.CUSTOM);
 }
 
 export function generateUpgradeChange(bonus, priority, key) {
