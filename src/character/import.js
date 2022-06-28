@@ -532,7 +532,7 @@ export default class CharacterImport extends FormApplication {
           }
           if (characterData.success) {
             // begin parsing the character data
-            await this.parseCharacterData(html, characterData);
+            await this.processCharacterData(html, characterData);
             CharacterImport.showCurrentTask(html, "Loading Character data", "Done.", false);
             this.close();
           } else {
@@ -540,14 +540,17 @@ export default class CharacterImport extends FormApplication {
             return false;
           }
         } catch (error) {
-          switch (error) {
+          switch (error.message) {
+            case "ImportFailure":
+              logger.error("Failure");
+              break;
             case "Forbidden":
               CharacterImport.showCurrentTask(html, "Error retrieving Character: " + error, error, true);
               break;
             default:
               logger.error(error);
               logger.error(error.stack);
-              CharacterImport.showCurrentTask(html, "Error parsing Character: " + error, error, true);
+              CharacterImport.showCurrentTask(html, "Error processing Character: " + error, error, true);
               break;
           }
           return false;
@@ -635,14 +638,17 @@ export default class CharacterImport extends FormApplication {
             return false;
           }
         } catch (error) {
-          switch (error) {
+          switch (error.message) {
+            case "ImportFailure":
+              logger.error("Failure");
+              break;
             case "Forbidden":
               CharacterImport.showCurrentTask(html, "Error retrieving Character: " + error, error, true);
               break;
             default:
               logger.error(error);
               logger.error(error.stack);
-              CharacterImport.showCurrentTask(html, "Error parsing Character: " + error, error, true);
+              CharacterImport.showCurrentTask(html, "Error processing Character: " + error, error, true);
               break;
           }
           return false;
@@ -1084,127 +1090,143 @@ export default class CharacterImport extends FormApplication {
     this.result.spells = addImportId(this.result.spells);
   }
 
-  async parseCharacterData(html, data) {
+  async resetActor() {
+    await this.actor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
+    await this.actor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+    await this.actor.update(this.actorOriginal, { recursive: true, keepId: true });
+  }
+
+  async processCharacterData(html, data) {
     this.result = data.character;
 
     // disable active sync
     const activeUpdateState = getCurrentDynamicUpdateState(this.actor);
     await disableDynamicUpdates(this.actor);
 
-    await addContainerItemsToActor(data.ddb, this.actor);
+    try {
+      await addContainerItemsToActor(data.ddb, this.actor);
 
-    this.importId = randomID();
-    setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
-    await this.addImportIdToItems();
+      this.importId = randomID();
+      setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
+      await this.addImportIdToItems();
 
-    logger.debug("Current Actor:", this.actorOriginal);
+      logger.debug("Current Actor:", this.actorOriginal);
 
-    // handle active effects
-    const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
-    CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
-    this.fixUpCharacterEffects(this.result.character);
-    let items = await this.fetchCharacterItems(html);
-    await this.removeActiveEffects(activeEffectCopy);
+      // handle active effects
+      const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
+      CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
+      this.fixUpCharacterEffects(this.result.character);
+      let items = await this.fetchCharacterItems(html);
+      await this.removeActiveEffects(activeEffectCopy);
 
-    // update image
-    await this.updateImage(html, data.ddb);
+      // update image
+      await this.updateImage(html, data.ddb);
 
-    // manage updates of basic character data more intelligently
-    // revert some data if update not wanted
-    if (!game.settings.get("ddb-importer", "character-update-policy-hp")) {
-      this.result.character.data.attributes.hp = this.actorOriginal.data.attributes.hp;
+      // manage updates of basic character data more intelligently
+      // revert some data if update not wanted
+      if (!game.settings.get("ddb-importer", "character-update-policy-hp")) {
+        this.result.character.data.attributes.hp = this.actorOriginal.data.attributes.hp;
+      }
+      if (!game.settings.get("ddb-importer", "character-update-policy-hit-die")) {
+        this.result.character.data.attributes.hd = this.actorOriginal.data.attributes.hd;
+        this.result.classes = this.result.classes.map((klass) => {
+          const originalKlass = this.actorOriginal.items.find(
+            (original) => original.name === klass.name && original.type === "class"
+          );
+          if (originalKlass) {
+            klass.data.hitDiceUsed = originalKlass.data.hitDiceUsed;
+          }
+          return klass;
+        });
+      }
+      if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
+        this.result.character.data.currency = this.actorOriginal.data.currency;
+      }
+      if (!game.settings.get("ddb-importer", "character-update-policy-bio")) {
+        const bioUpdates = ["alignment", "appearance", "background", "biography", "bond", "flaw", "ideal", "trait"];
+        bioUpdates.forEach((option) => {
+          this.result.character.data.details[option] = this.actorOriginal.data.details[option];
+        });
+      }
+      if (!game.settings.get("ddb-importer", "character-update-policy-spell-use")) {
+        this.result.character.data.spells = this.actorOriginal.data.spells;
+      }
+      if (!game.settings.get("ddb-importer", "character-update-policy-languages")) {
+        this.result.character.data.traits.languages = this.actorOriginal.data.traits.languages;
+      }
+      // if resource mode is in disable and not asking, then we use the previous resources
+      if (
+        hasProperty(this.result.character, "flags.ddbimporter.resources.ask") &&
+        !this.result.character.flags.ddbimporter.resources.ask &&
+        this.result.character.flags.ddbimporter.resources.type === "disable"
+      ) {
+        this.result.character.data.resources = this.actorOriginal.data.resources;
+      }
+
+      // flag as having items ids
+      this.result.character.flags.ddbimporter["syncItemReady"] = true;
+      this.result.character.flags.ddbimporter["syncActionReady"] = true;
+      this.result.character.flags.ddbimporter["activeUpdate"] = false;
+      this.result.character.flags.ddbimporter["activeSyncSpells"] = true;
+      // remove unneeded flags (used for character parsing)
+      this.result.character.flags.ddbimporter.dndbeyond["templateStrings"] = null;
+      this.result.character.flags.ddbimporter.dndbeyond["characterValues"] = null;
+      this.result.character.flags.ddbimporter.dndbeyond["proficiencies"] = null;
+      this.result.character.flags.ddbimporter.dndbeyond["proficienciesIncludingEffects"] = null;
+      this.result.character.flags.ddbimporter.dndbeyond["effectAbilities"] = null;
+      this.result.character.flags.ddbimporter.dndbeyond["abilityOverrides"] = null;
+      setProperty(this.result.character.flags, "ddb-importer.version", CONFIG.DDBI.version);
+
+      if (this.actorOriginal.flags.dnd5e?.wildMagic === true) {
+        this.result.character.flags.dnd5e["wildMagic"] = true;
+      }
+
+      // midi fixes
+      const actorOnUseMacroName = getProperty(this.result.character, "flags.midi-qol.onUseMacroName");
+      if (!actorOnUseMacroName || actorOnUseMacroName === "") {
+        setProperty(this.result.character, "flags.midi-qol.onUseMacroName", "[postActiveEffects]");
+      }
+
+      // basic import
+      CharacterImport.showCurrentTask(html, "Updating core character information");
+      logger.debug("Character data importing: ", this.result.character);
+      await this.actor.update(this.result.character);
+
+      // copy existing journal notes
+      this.copyExistingJournalNotes();
+
+      // items import
+      await this.processCharacterItems(html, items);
+
+      if (activeEffectCopy) {
+        // find effects with a matching name that existed on previous actor
+        // and that have a different active state and activate them
+        const targetEffects = this.actor.data.effects.filter((ae) => {
+          const previousEffectDiff = this.actorOriginal.effects.find(
+            (oae) => oae.label === ae.label && oae.disabled !== ae.disabled
+          );
+          if (previousEffectDiff) return true;
+          return false;
+        });
+        targetEffects.forEach((ae) => {
+          this.actor.updateEmbeddedDocument("ActiveEffect", { _id: ae._id, disabled: !ae.disabled });
+        });
+      }
+
+      await autoLinkResources(this.actor);
+      await setConditions(this.actor, data.ddb);
+      await addContainerItemsToContainers(data.ddb, this.actor);
+
+    } catch (error) {
+      logger.error("Error importing character: ", error);
+      logger.error(error.stack);
+      CharacterImport.showCurrentTask(html, "Error importing character, attempting rolling back, see console (F12) for details.", error, true);
+      await this.resetActor();
+      throw new Error("ImportFailure");
+    } finally {
+      await updateDynamicUpdates(this.actor, activeUpdateState);
+      this.actor.render();
     }
-    if (!game.settings.get("ddb-importer", "character-update-policy-hit-die")) {
-      this.result.character.data.attributes.hd = this.actorOriginal.data.attributes.hd;
-      this.result.classes = this.result.classes.map((klass) => {
-        const originalKlass = this.actorOriginal.items.find(
-          (original) => original.name === klass.name && original.type === "class"
-        );
-        if (originalKlass) {
-          klass.data.hitDiceUsed = originalKlass.data.hitDiceUsed;
-        }
-        return klass;
-      });
-    }
-    if (!game.settings.get("ddb-importer", "character-update-policy-currency")) {
-      this.result.character.data.currency = this.actorOriginal.data.currency;
-    }
-    if (!game.settings.get("ddb-importer", "character-update-policy-bio")) {
-      const bioUpdates = ["alignment", "appearance", "background", "biography", "bond", "flaw", "ideal", "trait"];
-      bioUpdates.forEach((option) => {
-        this.result.character.data.details[option] = this.actorOriginal.data.details[option];
-      });
-    }
-    if (!game.settings.get("ddb-importer", "character-update-policy-spell-use")) {
-      this.result.character.data.spells = this.actorOriginal.data.spells;
-    }
-    if (!game.settings.get("ddb-importer", "character-update-policy-languages")) {
-      this.result.character.data.traits.languages = this.actorOriginal.data.traits.languages;
-    }
-    // if resource mode is in disable and not asking, then we use the previous resources
-    if (
-      hasProperty(this.result.character, "flags.ddbimporter.resources.ask") &&
-      !this.result.character.flags.ddbimporter.resources.ask &&
-      this.result.character.flags.ddbimporter.resources.type === "disable"
-    ) {
-      this.result.character.data.resources = this.actorOriginal.data.resources;
-    }
-
-    // flag as having items ids
-    this.result.character.flags.ddbimporter["syncItemReady"] = true;
-    this.result.character.flags.ddbimporter["syncActionReady"] = true;
-    this.result.character.flags.ddbimporter["activeUpdate"] = false;
-    this.result.character.flags.ddbimporter["activeSyncSpells"] = true;
-    // remove unneeded flags (used for character parsing)
-    this.result.character.flags.ddbimporter.dndbeyond["templateStrings"] = null;
-    this.result.character.flags.ddbimporter.dndbeyond["characterValues"] = null;
-    this.result.character.flags.ddbimporter.dndbeyond["proficiencies"] = null;
-    this.result.character.flags.ddbimporter.dndbeyond["proficienciesIncludingEffects"] = null;
-    this.result.character.flags.ddbimporter.dndbeyond["effectAbilities"] = null;
-    this.result.character.flags.ddbimporter.dndbeyond["abilityOverrides"] = null;
-    setProperty(this.result.character.flags, "ddb-importer.version", CONFIG.DDBI.version);
-
-    if (this.actorOriginal.flags.dnd5e?.wildMagic === true) {
-      this.result.character.flags.dnd5e["wildMagic"] = true;
-    }
-
-    // midi fixes
-    const actorOnUseMacroName = getProperty(this.result.character, "flags.midi-qol.onUseMacroName");
-    if (!actorOnUseMacroName || actorOnUseMacroName === "") {
-      setProperty(this.result.character, "flags.midi-qol.onUseMacroName", "[postActiveEffects]");
-    }
-
-    // basic import
-    CharacterImport.showCurrentTask(html, "Updating core character information");
-    logger.debug("Character data importing: ", this.result.character);
-    await this.actor.update(this.result.character);
-
-    // copy existing journal notes
-    this.copyExistingJournalNotes();
-
-    // items import
-    await this.processCharacterItems(html, items);
-
-    if (activeEffectCopy) {
-      // find effects with a matching name that existed on previous actor
-      // and that have a different active state and activate them
-      const targetEffects = this.actor.data.effects.filter((ae) => {
-        const previousEffectDiff = this.actorOriginal.effects.find(
-          (oae) => oae.label === ae.label && oae.disabled !== ae.disabled
-        );
-        if (previousEffectDiff) return true;
-        return false;
-      });
-      targetEffects.forEach((ae) => {
-        this.actor.updateEmbeddedDocument("ActiveEffect", { _id: ae._id, disabled: !ae.disabled });
-      });
-    }
-
-    await autoLinkResources(this.actor);
-    await setConditions(this.actor, data.ddb);
-    await addContainerItemsToContainers(data.ddb, this.actor);
-    await updateDynamicUpdates(this.actor, activeUpdateState);
-    this.actor.render();
   }
 }
 
@@ -1238,19 +1260,22 @@ export async function importCharacterById(characterId, html) {
     }
     if (characterData.success) {
       const importer = new CharacterImport(CharacterImport.defaultOptions, actor);
-      await importer.parseCharacterData(html, characterData);
+      await importer.processCharacterData(html, characterData);
       return actor;
     } else {
       logger.error("ERROR:", characterData.message);
       return undefined;
     }
   } catch (error) {
-    switch (error) {
+    switch (error.message) {
+      case "ImportFailure":
+        logger.error("Failure");
+        break;
       case "Forbidden":
         logger.error("Error retrieving Character: ", error);
         break;
       default:
-        logger.error("Error parsing Character: ", error);
+        logger.error("Error importing Character: ", error);
         logger.error(error.stack);
         break;
     }
@@ -1279,7 +1304,7 @@ export async function importCharacter(actor, html) {
     if (characterData.success) {
       // begin parsing the character data
       const importer = new CharacterImport(CharacterImport.defaultOptions, actorData);
-      await importer.parseCharacterData(html, characterData);
+      await importer.processCharacterData(html, characterData);
       CharacterImport.showCurrentTask(html, "Loading Character data", "Done.", false);
       logger.info("Loading Character data");
       return true;
@@ -1288,12 +1313,15 @@ export async function importCharacter(actor, html) {
       return false;
     }
   } catch (error) {
-    switch (error) {
+    switch (error.message) {
+      case "ImportFailure":
+        logger.error("Failure");
+        break;
       case "Forbidden":
         logger.error("Error retrieving Character: ", error);
         break;
       default:
-        logger.error("Error parsing Character: ", error);
+        logger.error("Error processing Character: ", error);
         logger.error(error.stack);
         break;
     }
