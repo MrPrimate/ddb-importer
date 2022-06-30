@@ -684,7 +684,7 @@ export async function getDDBGenericItemIcons(items, download) {
       } else if (item.flags.ddbimporter.dndbeyond.type) {
         generic = genericLoots.find((i) => i.name === item.flags.ddbimporter.dndbeyond.type);
       }
-      if (generic && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
+      if (generic && (!item.img || item.img == "" || item.img == CONST.DEFAULT_TOKEN)) {
         item.img = generic.img;
       }
     }
@@ -717,7 +717,7 @@ export async function getDDBSpellSchoolIcons(items, download) {
     // logger.debug(item.flags.ddbimporter.dndbeyond);
     if (item.type == "spell") {
       const school = schools.find((school) => school.id === item.system.school);
-      if (school && (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg")) {
+      if (school && (!item.img || item.img == "" || item.img == CONST.DEFAULT_TOKEN)) {
         item.img = school.img;
       }
     }
@@ -733,7 +733,7 @@ export async function getDDBEquipmentIcons(items, download) {
     // logger.debug(item.name);
     // logger.debug(item.flags.ddbimporter.dndbeyond);
     if (DICTIONARY.types.inventory.includes(item.type)) {
-      if (!item.img || item.img == "" || item.img == "icons/svg/mystery-man.svg") {
+      if (!item.img || item.img == "" || item.img == CONST.DEFAULT_TOKEN) {
         const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
         if (imageMatch && imageMatch.img) {
           item.img = imageMatch.img;
@@ -1100,10 +1100,10 @@ export function addItemEffectIcons(items) {
   logger.debug("Adding Icons to effects");
 
   items.forEach((item) => {
-    if (item.effects && (item.img || item.img !== "" || item.img !== "icons/svg/mystery-man.svg")) {
+    if (item.effects && (item.img || item.img !== "" || item.img !== CONST.DEFAULT_TOKEN)) {
       item.effects.forEach((effect) => {
 
-        if (!effect.icon || effect.icon === "" || effect.icon === "icons/svg/mystery-man.svg") {
+        if (!effect.icon || effect.icon === "" || effect.icon === CONST.DEFAULT_TOKEN) {
           effect.icon = item.img;
         }
       });
@@ -1121,7 +1121,7 @@ export function addACEffectIcons(effects) {
   logger.debug("Adding Icons to AC effects");
 
   // effects.forEach((item) => {
-  //   if (!effect.icon || effect.icon === "" || effect.icon === "icons/svg/mystery-man.svg") {
+  //   if (!effect.icon || effect.icon === "" || effect.icon === CONST.DEFAULT_TOKEN) {
   //     effect.icon = item.img;
   //   }
   // });
