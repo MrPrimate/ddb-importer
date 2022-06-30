@@ -1,3 +1,8 @@
+# 2.9.56
+
+* Witchbolt would not work if triggered by player.
+* Attempt to catch an issue munching subclasses into an existing compendium.
+
 # 2.9.55
 
 * Effect: Uncanny Dodge was no longer working.
