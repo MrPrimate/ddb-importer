@@ -89,7 +89,7 @@ async function updateCharacterCall(actor, path, bodyContent) {
         if (!data.success) {
           const errorData = {
             path,
-            message: data.message,
+            errorData: data,
             bodyContent,
             characterId,
             dynamicSync,
