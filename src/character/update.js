@@ -88,6 +88,7 @@ async function updateCharacterCall(actor, path, bodyContent) {
       .then((data) => {
         if (!data.success) {
           const errorData = {
+            path,
             message: data.message,
             bodyContent,
             characterId,
@@ -933,7 +934,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     ddbItems.some((dItem) =>
       item.flags.ddbimporter.id === dItem.id &&
       dItem.id === item.flags.ddbimporter?.id &&
-      item.flags.ddbimporter.containerEntityId !== dItem.containerEntityId
+      parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId)
     )
   );
 
