@@ -7,7 +7,7 @@ export async function witchBoltEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "witchBolt.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
 
-  effect.changes.push(generateMacroChange("", 20, true));
+  effect.changes.push(generateMacroChange("", 20));
 
   document.effects.push(effect);
 

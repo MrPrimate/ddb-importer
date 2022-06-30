@@ -13,7 +13,7 @@ export async function faerieFireEffect(document) {
   if (game.modules.get("ATL")?.active) {
     const itemMacroText = await loadMacroFile("spell", "faerieFire.js");
     document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
-    effect.changes.push(generateMacroChange("", 20, true));
+    effect.changes.push(generateMacroChange("", 20));
   }
 
   if (spellEffectModules().tokenMagicInstalled) {
