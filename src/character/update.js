@@ -73,7 +73,13 @@ async function updateCharacterCall(actor, path, bodyContent) {
     ? `${parsingApi}/dynamic/update/${path}`
     : `${parsingApi}/proxy/update/${path}`;
 
-  logger.debug("Update body:", bodyContent);
+  logger.debug("Update info:", {
+    url,
+    path,
+    characterId,
+    bodyContent,
+    dynamicSync,
+  });
 
   return new Promise((resolve, reject) => {
     fetch(url, {
@@ -88,6 +94,7 @@ async function updateCharacterCall(actor, path, bodyContent) {
       .then((data) => {
         if (!data.success) {
           const errorData = {
+            url,
             path,
             errorData: data,
             bodyContent,
@@ -98,7 +105,7 @@ async function updateCharacterCall(actor, path, bodyContent) {
           ui.notifications.error(`Update failed: (${actor.name}) ${data.message} (see console log (F12) for more details)`);
           resolve(data);
         }
-        logger.debug(`${path} updated`);
+        logger.debug(`${path} updated, response`, data);
         return data;
       })
       .then((data) => resolve(data))
