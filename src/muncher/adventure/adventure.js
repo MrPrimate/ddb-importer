@@ -61,7 +61,6 @@ export default class AdventureMunch extends FormApplication {
     if (folders) {
       const maintainFolders = adventure?.options?.folders;
       let itemFolder = null;
-      console.warn(adventure);
       if (!maintainFolders) {
         const importTypes = ["Scene", "Actor", "Item", "JournalEntry", "RollTable"];
         await Helpers.asyncForEach(importTypes, async (importType) => {

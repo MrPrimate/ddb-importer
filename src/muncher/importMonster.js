@@ -172,7 +172,7 @@ export async function getNPCImage(data, options) {
   const defaultOptions = { forceUpdate: false, forceUseFullToken: false, forceUseTokenAvatar: false, disableAutoTokenizeOverride: false, type: "monster" };
   const mergedOptions = mergeObject(defaultOptions, options);
   // check to see if we have munched flags to work on
-  if (!data.flags || !data.flags.monsterMunch || CONST.DEFAULT_TOKEN) {
+  if (!data.flags || !data.flags.monsterMunch || !data.flags.monsterMunch.img) {
     return data;
   }
 
