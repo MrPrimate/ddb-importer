@@ -1022,7 +1022,7 @@ export async function updateDDBCharacter(actor) {
   };
   let ddbData = await getCharacterData(characterDataOptions);
 
-  logger.debug("Current actor:", actor.data);
+  logger.debug("Current actor:", duplicate(actor));
   logger.debug("DDB Parsed data:", ddbData);
 
   let singlePromises = []
