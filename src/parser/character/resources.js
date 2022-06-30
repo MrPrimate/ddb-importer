@@ -215,7 +215,7 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
           "character": character.name,
           "img": ddb.character.decorations?.avatarUrl
             ? ddb.character.decorations.avatarUrl
-            : "icons/svg/mystery-man.svg",
+            : CONST.DEFAULT_TOKEN,
           "cssClass": "character-resource-selection sheet"
         },
         buttons: {
