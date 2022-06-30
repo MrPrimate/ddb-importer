@@ -113,8 +113,9 @@ export async function getSubClasses(data) {
     logger.debug(`${subClass.name} feature parsing started...`);
     subClass.classFeatures
       .filter((feature) =>
-        !classFeatureIndex.some((i) => feature.name === i.flags.ddbimporter.featureName &&
-        hasProperty(i, "flags.ddbimporter.classId") &&
+        !classFeatureIndex.some((i) => hasProperty(i, "flags.ddbimporter.classId") &&
+        hasProperty(i, "flags.ddbimporter.featureName") &&
+        feature.name === i.flags.ddbimporter.featureName &&
         subClass.parentClassId === i.flags.ddbimporter.classId)
       )
       .forEach((feature) => {
