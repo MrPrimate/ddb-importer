@@ -1,7 +1,8 @@
 # 2.9.56
 
-* Witchbolt would not work if triggered by player.
+* Witchbolt would not work if triggered by player. There is still an issue where the round prompt will ask the DM rather than player to decide what to do.
 * Attempt to catch an issue munching subclasses into an existing compendium.
+* Update character debug additions to aid troubleshooting.
 
 # 2.9.55
 
