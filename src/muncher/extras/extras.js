@@ -489,8 +489,8 @@ function transformExtraToMonsterData(characterData, actor, creature) {
   // stats
   mock = addCreatureStats(mock, actor);
 
-  // permissions the same as
-  mock.permission = actor.permission;
+  // ownership the same as actor
+  mock.ownership = actor.ownership;
 
   if (mock.creatureGroup.description !== "") {
     mock.characteristicsDescription = `${mock.creatureGroup.description}\n\n${mock.characteristicsDescription}`;
