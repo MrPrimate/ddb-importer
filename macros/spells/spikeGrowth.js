@@ -1,7 +1,4 @@
-if (!game.modules.get("advanced-macros")?.active) {
-  ui.notifications.error("Advanced Macros is not enabled");
-  return;
-} else if (!game.modules.get("ActiveAuras")?.active) {
+if (!game.modules.get("ActiveAuras")?.active) {
   ui.notifications.error("ActiveAuras is not enabled");
   return;
 }

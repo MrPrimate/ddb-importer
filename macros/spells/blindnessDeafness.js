@@ -1,7 +1,3 @@
-if (!game.modules.get("advanced-macros")?.active) {
-  ui.notifications.error("Please enable the Advanced Macros module");
-  return;
-}
 if (!game.modules.get("dfreds-convenient-effects")?.active) {
   ui.notifications.error("Please enable the CE module");
   return;

@@ -1,5 +1,3 @@
-if (!game.modules.get("advanced-macros")?.active) { ui.notifications.error("Advanced Macros is not enabled"); return; }
-
 const lastArg = args[args.length - 1];
 
 const castItemName = "Storm Sphere Attack";

@@ -1,5 +1,3 @@
-if(!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module")
-
 const lastArg = args[args.length - 1];
 const target = await fromUuid(lastArg.tokenUuid);
 
