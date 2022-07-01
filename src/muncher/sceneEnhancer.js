@@ -410,7 +410,7 @@ export class SceneEnhancerExport extends Application {
   async buttonClick(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
 
-    let sceneFlags = JSON.parse(JSON.stringify(this.scene.data.flags));
+    let sceneFlags = duplicate(this.scene.data.flags);
 
     if (!sceneFlags.ddb) sceneFlags.ddb = {};
     if (!sceneFlags.ddbimporter) sceneFlags.ddbimporter = {};

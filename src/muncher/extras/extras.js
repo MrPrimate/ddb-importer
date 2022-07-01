@@ -449,7 +449,7 @@ function addCreatureFlags(creature, mock) {
 function transformExtraToMonsterData(characterData, actor, creature) {
   let ddbCharacter = characterData.ddb.character;
   logger.debug("Extra data", creature);
-  let mock = JSON.parse(JSON.stringify(creature.definition));
+  let mock = duplicate(creature.definition);
 
   mock.id = creature.id;
   mock.entityTypeId = creature.entityTypeId;

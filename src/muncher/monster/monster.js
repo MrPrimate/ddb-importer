@@ -480,9 +480,9 @@ async function parseMonster(monster, extra, useItemAC) {
     foundryActor = await monsterFeatureEffectAdjustment(foundryActor, monster);
   }
 
-  // logger.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
+  // logger.warn("Monster:", duplicate(foundryActor));
   // console.warn("Data:", monster);
-  // console.warn("Monster:", JSON.parse(JSON.stringify(foundryActor)));
+  // console.warn("Monster:", dulicate(foundryActor));
   // logger.info(foundryActor.data.resources);
   // logger.info(foundryActor.data.traits.languages);
 
