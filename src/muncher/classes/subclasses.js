@@ -139,7 +139,7 @@ export async function getSubClasses(data) {
 
   await Promise.all(data.map(async (subClass) => {
     const classMatch = content.find((i) => i.flags.ddbimporter['id'] == subClass.parentClassId);
-    const builtClass = await buildSubClass(classMatch.system, subClass, compendiumClassFeatures);
+    const builtClass = await buildSubClass(classMatch, subClass, compendiumClassFeatures);
     subClasses.push(builtClass);
   }));
 
