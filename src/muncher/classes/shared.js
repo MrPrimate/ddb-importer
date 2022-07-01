@@ -70,7 +70,7 @@ export const FEATURE_DUP = [
 ];
 
 function buildBase(data) {
-  let result = JSON.parse(JSON.stringify(CLASS_TEMPLATE));
+  let result = duplicate(CLASS_TEMPLATE);
   const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
   result.name = data.name;

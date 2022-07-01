@@ -327,7 +327,7 @@ function checkAbilities(abilities, mods, proficiencyBonus, target, negatives = f
 }
 
 function getWeaponAttack(resultData, proficiencyBonus) {
-  let result = JSON.parse(JSON.stringify(resultData));
+  let result = duplicate(resultData);
   const abilities = ["str", "dex", "int", "wis", "cha", "con"];
   let initialAbilities = [];
   let weaponAbilities = ["str", "dex"];

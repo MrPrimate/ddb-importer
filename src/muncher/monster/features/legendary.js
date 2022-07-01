@@ -70,7 +70,7 @@ export function getLegendaryActions(monster, monsterActions) {
 
     action.flags.monsterMunch = {};
     if (actionMatch) {
-      action = JSON.parse(JSON.stringify(actionMatch));
+      action = duplicate(actionMatch);
       action.flags.monsterMunch['actionCopy'] = true;
     } else {
       action.flags.monsterMunch['actionCopy'] = false;

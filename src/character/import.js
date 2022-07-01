@@ -190,7 +190,7 @@ export async function getCharacterData(optionsIn) {
       ddb = data.ddb;
     }
 
-    logger.debug("DDB Data to parse:", JSON.parse(JSON.stringify(ddb)));
+    logger.debug("DDB Data to parse:", duplicate(ddb));
     logger.debug("currentActorId", options.currentActorId);
     try {
       const character = await parseJson(options.currentActorId, ddb, options.resourceSelection);
@@ -221,7 +221,7 @@ export default class CharacterImport extends FormApplication {
     super(options);
     this.actor = game.actors.get(actor.id ? actor.id : actor._id);
     this.migrateMetadata();
-    this.actorOriginal = JSON.parse(JSON.stringify(this.actor));
+    this.actorOriginal = duplicate(this.actor);
     this.result = {};
     this.nonMatchedItemIds = [];
   }
@@ -673,14 +673,10 @@ export default class CharacterImport extends FormApplication {
 
           CharacterImport.showCurrentTask(html, "Saving reference");
           await this.actor.update({
-            flags: {
-              ddbimporter: {
-                dndbeyond: {
-                  url: URL,
-                  apiEndpointUrl: apiEndpointUrl,
-                  characterId: characterId,
-                },
-              },
+            "flags.ddbimporter.dndbeyond": {
+              url: URL,
+              apiEndpointUrl,
+              characterId,
             },
           });
           CharacterImport.showCurrentTask(html, "Status");
@@ -781,7 +777,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   async createCharacterItems(items, keepIds) {
-    const options = JSON.parse(JSON.stringify(DISABLE_FOUNDRY_UPGRADE));
+    const options = duplicate(DISABLE_FOUNDRY_UPGRADE);
     if (keepIds) options["keepId"] = true;
 
     // we have to break these out into class and non-class because of
@@ -789,13 +785,10 @@ export default class CharacterImport extends FormApplication {
     const klassItems = items.filter((item) => ["class", "subclass"].includes(item.type));
     const nonKlassItems = items.filter((item) => !["class", "subclass"].includes(item.type));
 
-    logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, JSON.parse(JSON.stringify(klassItems)));
+    logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, duplicate(klassItems));
     await this.actor.createEmbeddedDocuments("Item", klassItems, options);
 
-    logger.debug(
-      `Adding the following non-class items, keep Ids? ${keepIds}`,
-      JSON.parse(JSON.stringify(nonKlassItems))
-    );
+    logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, duplicate(nonKlassItems));
     await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
   }
 
@@ -914,6 +907,7 @@ export default class CharacterImport extends FormApplication {
     // If there is no magicitems module fall back to importing the magic
     // item spells as normal spells fo the character
     if (!magicItemsInstalled) {
+      logger.debug("No magic items module found, adding spells to sheet.");
       items.push(
         this.result.itemSpells.filter((item) => {
           const active = item.flags.ddbimporter.dndbeyond && item.flags.ddbimporter.dndbeyond.active === true;
@@ -1004,6 +998,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   async removeActiveEffects(activeEffectCopy) {
+    logger.debug("Removing active effects");
     // remove current active effects
     const excludedItems = filterActorItemsByUserSelection(this.actorOriginal, true);
     const ignoredItemIds = this.actorOriginal.items

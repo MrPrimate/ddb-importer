@@ -11,7 +11,7 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
   // console.warn(ddbItem);
   // console.log(choice);
   if (ddbItem.grantedModifiers) return ddbItem;
-  let modifierItem = JSON.parse(JSON.stringify(ddbItem));
+  let modifierItem = duplicate(ddbItem);
   const modifiers = [
     utils.getChosenClassModifiers(ddb, true, true),
     utils.getModifiers(ddb, "race", true, true),

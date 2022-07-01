@@ -99,8 +99,8 @@ export function getInfusionActionData(ddb) {
           action.name = `${itemName}[Infusion] ${infusionDetail.name}`;
         }
         action.infusionFlags = {
-          maps: [JSON.parse(JSON.stringify(itemLookup))],
-          applied: [JSON.parse(JSON.stringify(infusionDetail))],
+          maps: [duplicate(itemLookup)],
+          applied: [duplicate(infusionDetail)],
           infused: true,
         };
         return action;
@@ -130,7 +130,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     // console.warn(foundryItem);
 
     // get modifiers && generate effects
-    const ddbInfusionItem = JSON.parse(JSON.stringify(ddbItem));
+    const ddbInfusionItem = duplicate(ddbItem);
     ddbInfusionItem.definition.grantedModifiers = getInfusionModifiers(infusionItemMap, infusionDetail);
 
     foundryItem = generateEffects(ddb, character, ddbInfusionItem, foundryItem, compendiumItem, "infusion");

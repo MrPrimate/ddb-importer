@@ -60,7 +60,7 @@ const RACE_TEMPLATE = {
 };
 
 function buildBase(data) {
-  let result = JSON.parse(JSON.stringify(RACE_TEMPLATE));
+  let result = duplicate(RACE_TEMPLATE);
 
   result.name = (data.fullName) ? data.fullName.replace("’", "'") : data.name.replace("’", "'");
   result.data.description.value += `${data.description}\n\n`;

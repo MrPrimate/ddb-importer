@@ -294,7 +294,7 @@ export default class ThirdPartyMunch extends FormApplication {
           const tokenData = await worldActor.getTokenData();
           delete tokenData.y;
           delete tokenData.x;
-          const jsonTokenData = JSON.parse(JSON.stringify(tokenData));
+          const jsonTokenData = duplicate(tokenData);
           const newToken = mergeObject(jsonTokenData, sceneToken);
           logger.debug(`${token.name} token data for id ${token.actorId}`, newToken);
           return newToken;
@@ -441,7 +441,7 @@ export default class ThirdPartyMunch extends FormApplication {
       const adjustedScenes = await Promise.all(this._scenePackage.scenes
         .filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens)
         .map(async (scene) => {
-          const mockScene = JSON.parse(JSON.stringify(scene));
+          const mockScene = duplicate(scene);
           if (mockScene.flags?.ddbimporter?.export?.actors && mockScene.flags?.ddb?.tokens) {
             const mockAdventure = ThirdPartyMunch._generateMockAdventure(mockScene);
             await ThirdPartyMunch._checkForMissingData(mockAdventure, []);
@@ -457,7 +457,7 @@ export default class ThirdPartyMunch extends FormApplication {
           return mockScene;
         }));
 
-      logger.debug("adjustedScenes", JSON.parse(JSON.stringify(adjustedScenes)));
+      logger.debug("adjustedScenes", duplicate(adjustedScenes));
 
       logger.debug("About to generate Token Actors");
       // load token actors into world
@@ -471,7 +471,7 @@ export default class ThirdPartyMunch extends FormApplication {
       const tokenAdjustedScenes = await Promise.all(adjustedScenes
         .map(async (scene) => {
           logger.debug(`Updating scene tokens for ${scene.name}`);
-          const newScene = JSON.parse(JSON.stringify(scene));
+          const newScene = duplicate(scene);
           newScene.tokens = await ThirdPartyMunch._linkSceneTokens(scene);
           return newScene;
         })

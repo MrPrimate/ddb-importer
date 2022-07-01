@@ -187,7 +187,7 @@ export default class AdventureMunch extends FormApplication {
             let updatedData = {};
             switch (obj.documentName) {
               case "Scene": {
-                const scene = JSON.parse(JSON.stringify(obj.data));
+                const scene = duplicate(obj.data);
                 // this is a scene we need to update links to all items
                 logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
                 let deadTokenIds = [];
@@ -200,7 +200,7 @@ export default class AdventureMunch extends FormApplication {
                       const tokenData = await worldActor.getTokenData();
                       delete tokenData.y;
                       delete tokenData.x;
-                      const jsonTokenData = JSON.parse(JSON.stringify(tokenData));
+                      const jsonTokenData = duplicate(tokenData);
                       const updateData = mergeObject(jsonTokenData, sceneToken);
                       logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
                       await obj.updateEmbeddedDocuments("Token", [updateData], { keepId: true });

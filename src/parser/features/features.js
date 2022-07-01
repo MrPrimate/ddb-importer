@@ -70,7 +70,7 @@ function parseFeature(feat, ddb, character, source, type) {
     item.data.description.value += `<h3>Choices</h3><ul>`;
     item.data.source = source;
     choices.forEach((choice) => {
-      let choiceItem = JSON.parse(JSON.stringify(item));
+      let choiceItem = duplicate(item);
       item = addFeatEffects(ddb, character, feat, choiceItem, choice, type);
       item.data.description.value += `<li>${choice.label}</li>`;
     });
@@ -87,8 +87,8 @@ function parseFeature(feat, ddb, character, source, type) {
     logger.debug(`Found ${choices.map((c) => c.label).join(",")}`);
     choices.forEach((choice) => {
       logger.debug(`Adding choice ${choice.label}`);
-      let choiceItem = JSON.parse(JSON.stringify(item));
-      let choiceFeat = feat.definition ? JSON.parse(JSON.stringify(feat.definition)) : JSON.parse(JSON.stringify(feat));
+      let choiceItem = duplicate(item);
+      let choiceFeat = feat.definition ? duplicate(feat.definition) : duplicate(feat);
 
       if (item.name === choice.label) return;
 
@@ -196,7 +196,7 @@ function parseClassFeatures(ddb, character) {
             : undefined;
           item.flags.obsidian.source.text = klassName;
           // add feature to all features list
-          classesFeatureList.push(JSON.parse(JSON.stringify(item)));
+          classesFeatureList.push(duplicate(item));
           return item;
         });
       })
@@ -241,7 +241,7 @@ function parseClassFeatures(ddb, character) {
               ? klass.subclassDefinition.name
               : undefined;
             // add feature to all features list
-            subClassesFeatureList.push(JSON.parse(JSON.stringify(item)));
+            subClassesFeatureList.push(duplicate(item));
             return item;
           });
         })
@@ -364,6 +364,6 @@ export default async function parseFeatures(ddb, character, classes) {
   fixFeatures(items);
   const results = await addExtraEffects(ddb, items, character);
   // console.log("FEATURES");
-  // console.error("FEATURES",JSON.parse(JSON.stringify(results)));
+  // console.error("FEATURES",duplicate(results));
   return results;
 }

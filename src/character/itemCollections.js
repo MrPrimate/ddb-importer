@@ -43,7 +43,7 @@ export async function addContainerItemsToContainers(ddb, actor) {
         item.data.flags.ddbimporter.containerEntityId === topLevelItem.data.flags.ddbimporter.id
       )
       .map((item) => {
-        return item.data.toJSON();
+        return duplicate(item);
       });
 
     if (itemsToImport.length > 0) {

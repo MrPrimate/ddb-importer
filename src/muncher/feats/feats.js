@@ -28,7 +28,7 @@ const FEAT_TEMPLATE = {
 };
 
 function buildBase(data) {
-  let result = JSON.parse(JSON.stringify(FEAT_TEMPLATE));
+  let result = duplicate(FEAT_TEMPLATE);
 
   result.name = data.name;
   result.data.description.value += `${data.description}\n\n`;
