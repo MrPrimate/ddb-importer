@@ -187,7 +187,7 @@ export default class AdventureMunch extends FormApplication {
             let updatedData = {};
             switch (obj.documentName) {
               case "Scene": {
-                const scene = duplicate(obj.data);
+                const scene = duplicate(obj);
                 // this is a scene we need to update links to all items
                 logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
                 let deadTokenIds = [];
