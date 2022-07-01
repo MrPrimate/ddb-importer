@@ -6,12 +6,12 @@ export function linkTables(type, html) {
   switch (type) {
     case "journal":
       content = $(html).find(`div[data-edit="content"]`);
-      findString = "a.entity-link[data-entity='RollTable']";
+      findString = "a.content-link[data-entity='RollTable']";
       break;
     case "item": {
       const tableCompendium = game.settings.get("ddb-importer", "entity-table-compendium");
       content = $(html).find(`div[data-edit="data.description.value"]`);
-      findString = `a.entity-link[data-pack='${tableCompendium}']`;
+      findString = `a.content-link[data-pack='${tableCompendium}']`;
       break;
     }
     // no default
@@ -40,7 +40,7 @@ export function linkTables(type, html) {
           const rollMode = event.shiftKey ? "selfroll" : "roll";
 
           // fix: Table description is undefined
-          if (!table.system.description) table.system.description = table.name;
+          if (!table.description) table.description = table.name;
 
           const draw = await table.roll();
 
