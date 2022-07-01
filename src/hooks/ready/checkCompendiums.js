@@ -9,7 +9,7 @@ let sanitize = (text) => {
 };
 
 let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => {
-  logger.debug(`Checking if ${settingName} exists`);
+  logger.debug(`Checking if ${settingName} exists for ${SETTINGS.MODULE_ID}`);
   const compendiumName = game.settings.get(SETTINGS.MODULE_ID, settingName);
   const compendium = await game.packs.get(compendiumName);
   if (compendium) {
@@ -25,7 +25,7 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
     } else {
       // create a compendium for the user
       await CompendiumCollection.createCompendium({
-        entity: compendiumType,
+        type: compendiumType,
         label: `DDB ${compendiumLabel}`,
         name: name,
         package: "world",
@@ -46,18 +46,8 @@ export default async function () {
   const autoCreate = game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium");
 
   if (autoCreate) {
-    let promises = [];
     SETTINGS.COMPENDIUMS.forEach((compendium) => {
-      promises.push(createIfNotExists(compendium.setting, compendium.type, compendium.title));
+      createIfNotExists(compendium.setting, compendium.type, compendium.title);
     });
-    let results = await Promise.all(promises);
-
-    const reload = results.some((result) => result.value);
-
-    if (reload) {
-      logger.warn("RELOADING!");
-      // location.reload();
-    }
   }
-
 }
