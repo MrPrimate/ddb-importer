@@ -30,7 +30,7 @@ const BACKGROUND_TEMPLATE = {
 };
 
 function buildBase(data) {
-  let result = JSON.parse(JSON.stringify(BACKGROUND_TEMPLATE));
+  let result = duplicate(BACKGROUND_TEMPLATE);
   const bgData = generateBackground(data);
   result.name = data.name;
   result.data.description.value += `${bgData.description}\n\n`;
