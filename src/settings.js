@@ -80,6 +80,7 @@ const SETTINGS = {
       COMPENDIUMS: Object.fromEntries(
         COMPENDIUMS.map((comp) => [comp.setting, {
           type: String,
+          default: `DDB ${comp.title}`,
         }])
       ),
       // dir locations
