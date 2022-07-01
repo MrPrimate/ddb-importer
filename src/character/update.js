@@ -50,7 +50,8 @@ async function getCompendiumItemInfo(item) {
   return match;
 }
 
-async function updateCharacterCall(actor, path, bodyContent) {
+// flavor is just useful for debugging
+async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const characterId = actor.data.flags.ddbimporter.dndbeyond.characterId;
   const cobaltCookie = getCobalt(actor.id);
   const dynamicSync = activeUpdate();
@@ -79,6 +80,7 @@ async function updateCharacterCall(actor, path, bodyContent) {
     characterId,
     bodyContent,
     dynamicSync,
+    flavor,
   });
 
   return new Promise((resolve, reject) => {
@@ -100,6 +102,7 @@ async function updateCharacterCall(actor, path, bodyContent) {
             bodyContent,
             characterId,
             dynamicSync,
+            flavor,
           };
           logger.error(`Update failed for ${actor.name}:`, errorData);
           ui.notifications.error(`Update failed: (${actor.name}) ${data.message} (see console log (F12) for more details)`);
@@ -130,7 +133,7 @@ async function updateDDBSpellSlotsPact(actor) {
       pact: true,
     };
     spellSlotPackData.spellslots[`level${actor.data.data.spells.pact.level}`] = actor.data.data.spells.pact.value;
-    const spellPactSlots = updateCharacterCall(actor, "spell/slots", spellSlotPackData);
+    const spellPactSlots = updateCharacterCall(actor, "spell/slots", spellSlotPackData, "Pact Spell Slots");
     resolve(spellPactSlots);
   });
 }
@@ -161,7 +164,7 @@ async function updateDynamicDDBSpellSlots(actor, update) {
       }
     }
     if (spellSlotData["update"]) {
-      resolve(updateCharacterCall(actor, "spells/slots", spellSlotData));
+      resolve(updateCharacterCall(actor, "spells/slots", spellSlotData, "Spell slots"));
     } else {
       resolve();
     }
@@ -182,7 +185,7 @@ async function spellSlots(actor, ddbData) {
       }
     }
     if (spellSlotData["update"]) {
-      resolve(updateCharacterCall(actor, "spells/slots", spellSlotData));
+      resolve(updateCharacterCall(actor, "spells/slots", spellSlotData, "Spell slots"));
     } else {
       resolve();
     }
@@ -199,7 +202,7 @@ async function updateDDBCurrency(actor) {
       cp: Number.isInteger(actor.data.data.currency.cp) ? actor.data.data.currency.cp : 0,
     };
 
-    resolve(updateCharacterCall(actor, "currency", value));
+    resolve(updateCharacterCall(actor, "currency", value, "Currency"));
 
   });
 }
@@ -229,7 +232,7 @@ async function currency(actor, ddbData) {
 
 async function updateDDBXP(actor) {
   return new Promise((resolve) => {
-    resolve(updateCharacterCall(actor, "xp", { currentXp: actor.data.data.details.xp.value }));
+    resolve(updateCharacterCall(actor, "xp", { currentXp: actor.data.data.details.xp.value }, "XP"));
   });
 }
 
@@ -254,7 +257,7 @@ async function updateDDBHitPoints(actor) {
       removedHitPoints,
       temporaryHitPoints,
     };
-    resolve(updateCharacterCall(actor, "hitpoints", hitPointData));
+    resolve(updateCharacterCall(actor, "hitpoints", hitPointData, "HP"));
   });
 }
 
@@ -278,7 +281,7 @@ async function updateDDBInspiration(actor) {
   return new Promise((resolve) => {
     const inspiration = updateCharacterCall(actor, "inspiration", {
       inspiration: actor.data.data.attributes.inspiration,
-    });
+    }, "Inspiration");
     resolve(inspiration);
   });
 }
@@ -307,7 +310,7 @@ async function updateDDBExhaustion(actor) {
       exhaustionData["totalHP"] = actor.data.data.attributes.hp.max;
       exhaustionData["addCondition"] = true;
     }
-    resolve(updateCharacterCall(actor, "condition", exhaustionData));
+    resolve(updateCharacterCall(actor, "condition", exhaustionData, "Exhaustion"));
   });
 }
 
@@ -335,7 +338,7 @@ async function updateDDBCondition(actor, condition) {
       totalHP: actor.data.data.attributes.hp.max,
     };
 
-    resolve(updateCharacterCall(actor, "condition", conditionData));
+    resolve(updateCharacterCall(actor, "condition", conditionData, { condition }));
   });
 }
 
@@ -362,7 +365,7 @@ async function updateDDBDeathSaves(actor) {
       failCount: actor.data.data.attributes.death.failure,
       successCount: actor.data.data.attributes.death.success,
     };
-    resolve(updateCharacterCall(actor, "deathsaves", deathSaveData));
+    resolve(updateCharacterCall(actor, "deathsaves", deathSaveData, "Death Saves"));
   });
 }
 
@@ -387,7 +390,7 @@ async function updateDDBHitDice(actor, klass, update) {
         resetMaxHpModifier: false,
       };
       hitDiceData.classHitDiceUsed[klass.data.flags.ddbimporter.id] = update.data.hitDiceUsed;
-      resolve(updateCharacterCall(actor, "hitdice", { shortRest: hitDiceData }));
+      resolve(updateCharacterCall(actor, "hitdice", { shortRest: hitDiceData }, "Hit Dice"));
     } else {
       resolve();
     }
@@ -427,7 +430,7 @@ async function hitDice(actor, ddbData) {
 
 async function updateSpellsPrepared(actor, spellPreparedData) {
   return new Promise((resolve) => {
-    resolve(updateCharacterCall(actor, "spell/prepare", spellPreparedData));
+    resolve(updateCharacterCall(actor, "spell/prepare", spellPreparedData, "Spells Prepared"));
   });
 }
 
@@ -449,6 +452,7 @@ async function updateDDBSpellsPrepared(actor, spells) {
         prepared: spell.data.data.preparation.prepared === true,
       }
     };
+    logger.debug(`Updating spell prepared state for ${spell.name} to ${spellPreparedData.spellInfo.prepared}`);
     return spellPreparedData;
   });
 
@@ -545,7 +549,7 @@ async function deleteDDBCustomItems(actor, itemsToDelete) {
           id: item.flags.ddbimporter.id,
         }
       };
-      const result = updateCharacterCall(actor, "custom/item", customData).then((data) => {
+      const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
         setProperty(item, "flags.ddbimporter.id", data.id);
         setProperty(item, "flags.ddbimporter.custom", true);
         return item;
@@ -569,7 +573,7 @@ async function addDDBCustomItems(actor, itemsToAdd) {
         description: item.data.description.value,
       }
     };
-    const result = updateCharacterCall(actor, "custom/item", customData).then((data) => {
+    const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
       setProperty(item, "flags.ddbimporter.id", data.data.id);
       setProperty(item, "flags.ddbimporter.custom", true);
       return item;
@@ -603,7 +607,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
   }
 
   if (addItemData.equipment.length > 0) {
-    const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData);
+    const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData, "Adding equipment");
     try {
       const itemUpdates = itemResults.data.addItems
         .filter((addedItem) => ddbEnrichedItems.some((i) =>
@@ -708,7 +712,7 @@ async function updateDDBCustomNames(actor, items) {
       }
     };
     // custom name on standard equipment
-    promises.push(updateCharacterCall(actor, "equipment/custom", customData));
+    promises.push(updateCharacterCall(actor, "equipment/custom", customData, "Updating custom names"));
   });
 
   return Promise.all(promises);
@@ -745,7 +749,7 @@ async function removeDDBEquipment(actor, itemsToRemove) {
       if (item.flags?.ddbimporter?.custom) {
         promises.push(deleteDDBCustomItems(actor, [item]));
       } else {
-        promises.push(updateCharacterCall(actor, "equipment/remove", { itemId: parseInt(item.flags.ddbimporter.id) }));
+        promises.push(updateCharacterCall(actor, "equipment/remove", { itemId: parseInt(item.flags.ddbimporter.id) }, "Removing equipment"));
       }
     }
   });
@@ -786,29 +790,29 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
       containerEntityId: item.flags.ddbimporter.containerEntityId,
       containerEntityTypeId: item.flags.ddbimporter.containerEntityTypeId,
     };
-    promises.push(updateCharacterCall(actor, "equipment/move", itemData));
+    promises.push(updateCharacterCall(actor, "equipment/move", itemData, { name: item.name }));
   });
   itemsToEquip.forEach((item) => {
     const itemData = { itemId: item.flags.ddbimporter.id, value: item.data.equipped };
-    promises.push(updateCharacterCall(actor, "equipment/equipped", itemData));
+    promises.push(updateCharacterCall(actor, "equipment/equipped", itemData, { name: item.name }));
   });
   itemsToAttune.forEach((item) => {
     const itemData = { itemId: item.flags.ddbimporter.id, value: (item.data.attunement === 2) };
-    promises.push(updateCharacterCall(actor, "equipment/attuned", itemData));
+    promises.push(updateCharacterCall(actor, "equipment/attuned", itemData, { name: item.name }));
   });
   itemsToCharge.forEach((item) => {
     const itemData = {
       itemId: item.flags.ddbimporter.id,
       charges: parseInt(item.data.uses.max) - parseInt(item.data.uses.value),
     };
-    promises.push(updateCharacterCall(actor, "equipment/charges", itemData));
+    promises.push(updateCharacterCall(actor, "equipment/charges", itemData, { name: item.name }));
   });
   itemsToQuantity.forEach((item) => {
     const itemData = {
       itemId: item.flags.ddbimporter.id,
       quantity: parseInt(item.data.quantity),
     };
-    promises.push(updateCharacterCall(actor, "equipment/quantity", itemData));
+    promises.push(updateCharacterCall(actor, "equipment/quantity", itemData, { name: item.name }));
   });
   itemsToName.forEach((item) => {
     // historically items may not have this metadata
@@ -827,7 +831,8 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
         valueTypeId: `${entityTypeId}`,
       }
     };
-    promises.push(updateCharacterCall(actor, "equipment/custom", customData));
+    const flavor = { detail: "Updating Name", name: item.name, originalName: item.flags?.ddbimporter?.originalName };
+    promises.push(updateCharacterCall(actor, "equipment/custom", customData, flavor));
   });
 
   customItems.forEach((item) => {
@@ -844,7 +849,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
         quantity: parseInt(item.data.quantity),
       }
     };
-    promises.push(updateCharacterCall(actor, "custom/item", customData));
+    promises.push(updateCharacterCall(actor, "custom/item", customData, "Updating Custom Item"));
   });
 
   return Promise.all(promises);
@@ -935,15 +940,16 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     )
   );
 
-  const itemsToMove = foundryItems.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
-    hasProperty(item, "flags.ddbimporter.containerEntityId") &&
-    ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id &&
-      dItem.id === item.flags.ddbimporter?.id &&
-      parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId)
-    )
-  );
+  const itemsToMove = game.modules.get("itemcollection")?.active
+    ? foundryItems.filter((item) =>
+      !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
+      hasProperty(item, "flags.ddbimporter.containerEntityId") &&
+      ddbItems.some((dItem) =>
+        item.flags.ddbimporter.id === dItem.id &&
+        dItem.id === item.flags.ddbimporter?.id &&
+        parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId)
+      ))
+    : [];
 
   const itemsToUpdate = {
     itemsToEquip,
@@ -959,9 +965,9 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
 
 }
 
-async function updateActionUseStatus(actor, actionData) {
+async function updateActionUseStatus(actor, actionData, actionName) {
   return new Promise((resolve) => {
-    resolve(updateCharacterCall(actor, "action/use", actionData));
+    resolve(updateCharacterCall(actor, "action/use", actionData, `Action Use for ${actionName}`));
   });
 }
 
@@ -973,7 +979,7 @@ async function updateDDBActionUseStatus(actor, actions) {
       entityTypeId: action.flags.ddbimporter.entityTypeId,
       uses: parseInt(action.data.uses.max) - parseInt(action.data.uses.value)
     };
-    promises.push(updateActionUseStatus(actor, actionData));
+    promises.push(updateActionUseStatus(actor, actionData, action.name));
   });
   return Promise.all(promises);
 }
@@ -1346,7 +1352,8 @@ async function activeUpdateAddOrDeleteItem(document, state) {
                 containerEntityId: characterId,
                 containerEntityTypeId: 1581111423,
               };
-              promises.push(updateCharacterCall(parentActor, "equipment/move", itemData));
+              const flavor = { summary: "Moving item to character", name: document.name, containerId: duplicate(containerId) };
+              promises.push(updateCharacterCall(parentActor, "equipment/move", itemData, flavor));
             } else {
               logger.debug(`Creating item`, document);
               promises.push(addDDBEquipment(parentActor, [document.toObject()]));
