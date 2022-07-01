@@ -177,7 +177,7 @@ export async function getNPCImage(data, options) {
   }
 
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images") || mergedOptions.forceUpdate;
-  if (!updateImages && data.img !== "icons/svg/mystery-man.svg") {
+  if (!updateImages && data.img !== CONST.DEFAULT_TOKEN) {
     return data;
   }
 
@@ -229,9 +229,9 @@ export async function getNPCImage(data, options) {
 
   // final check if image comes back as null
   // eslint-disable-next-line require-atomic-updates
-  if (data.img === null) data.img = "icons/svg/mystery-man.svg";
+  if (data.img === null) data.img = CONST.DEFAULT_TOKEN;
   // eslint-disable-next-line require-atomic-updates
-  if (data.prototypeToken.texture.src === null) data.prototypeToken.texture.src = "icons/svg/mystery-man.svg";
+  if (data.prototypeToken.texture.src === null) data.prototypeToken.texture.src = CONST.DEFAULT_TOKEN;
 
   // okays, but do we now want to tokenize that?
   const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize") &&
