@@ -516,8 +516,7 @@ export default class Helpers {
         if (lookupValue) {
           const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
           if (lookupEntry) {
-            const documentRef = lookupEntry.documentName ? lookupEntry.documentName : lookupEntry._id;
-            doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@Compendium[${lookupEntry.compendium}.${documentRef}]{${node.textContent}}`);
+            doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@Compendium[${lookupEntry.compendium}.${lookupEntry._id}]{${node.textContent}}`);
           } else {
             logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}`);
           }
