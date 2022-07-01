@@ -246,7 +246,7 @@ export class DDBEncounterMunch extends Application {
           name: monsterInPack.name,
           id: monsterInPack._id,
           quantity: monster.quantity,
-          journalLink: `@Compendium[${compendiumName}.${monsterInPack.name}]{${monsterInPack.name}}`,
+          journalLink: `@Compendium[${compendiumName}.${monsterInPack._id}]{${monsterInPack.name}}`,
         };
         if (journalMonsterInfo.has(monsterData.ddbId)) {
           monsterData = journalMonsterInfo.get(monsterData.ddbId);

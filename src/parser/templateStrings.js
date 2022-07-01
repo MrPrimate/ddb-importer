@@ -371,7 +371,7 @@ function parseSRDLinks(text) {
     .forEach((entry) => {
       const linkRegEx = new RegExp(`(^| |\\(|\\[|>)(${entry.name})( |\\)|\\]|\\.|,|$|\n|<)`, "ig");
       function replaceRule(match, p1, p2, p3) {
-        return `${p1}@Compendium[${entry.compendium}.${entry.documentName}]{${p2}}${p3}`;
+        return `${p1}@Compendium[${entry.compendium}.${entry._id}]{${p2}}${p3}`;
       }
       text = text.replaceAll(linkRegEx, replaceRule);
     });
