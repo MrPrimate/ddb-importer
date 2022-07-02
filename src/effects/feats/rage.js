@@ -58,7 +58,7 @@ export function rageEffect(document) {
     startTurn: null,
   };
   document.data.damage = {
-    parts: [["", ""]],
+    parts: [],
     versatile: "",
     value: "",
   };
