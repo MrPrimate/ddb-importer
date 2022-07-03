@@ -109,11 +109,12 @@ export class DirectoryPicker extends FilePicker {
   }
 
   static async forgeCreateDirectory(target) {
-    if (!target) return;
+    if (!target) return undefined;
     const response = await ForgeAPI.call('assets/new-folder', { path: target });
     if (!response || response.error) {
       throw new Error(response ? response.error : "Unknown error while creating directory.");
     }
+    return response;
   }
 
   /**

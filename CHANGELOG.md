@@ -1,3 +1,7 @@
+# 2.9.57
+
+* Feature effect: Rage created a damage field when it shouldn't
+
 # 2.9.56
 
 * Witchbolt would not work if triggered by player. There is still an issue where the round prompt will ask the DM rather than player to decide what to do.
