@@ -1,6 +1,7 @@
 # 2.9.57
 
 * Feature effect: Rage created a damage field when it shouldn't
+* Subclasses now have their own icons (Many thanks to @MaxPat#7936)
 
 # 2.9.56
 

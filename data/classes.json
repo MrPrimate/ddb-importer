@@ -50,5 +50,461 @@
   {
     "name": "Wizard",
     "path": "systems/dnd5e/icons/skills/blue_13.jpg"
+  },
+  {
+    "name": "Aberrant Mind",
+    "path": "icons/creatures/magical/humanoid-silhouette-aliens-green.webp"
+  },
+  {
+    "name": "Alchemist",
+    "path": "icons/tools/laboratory/vials-blue-pink.webp"
+  },
+  {
+    "name": "Arcana Domain",
+    "path": "icons/magic/light/orbs-firefly-hand-yellow.webp"
+  },
+  {
+    "name": "Arcane Archer",
+    "path": "icons/environment/people/archer.webp"
+  },
+  {
+    "name": "Arcane Trickster",
+    "path": "icons/magic/light/hand-sparks-smoke-green.webp"
+  },
+  {
+    "name": "Armorer",
+    "path": "icons/equipment/chest/breastplate-layered-gilded-orange.webp"
+  },
+  {
+    "name": "Artillerist",
+    "path": "icons/weapons/artillery/cannon-engraved-gold.webp"
+  },
+  {
+    "name": "Assassin",
+    "path": "icons/skills/melee/strike-dagger-skull-white.webp"
+  },
+  {
+    "name": "Banneret Purple Dragon Knight",
+    "path": "icons/sundries/flags/banner-symbol-sun-gold-red.webp"
+  },
+  {
+    "name": "Battle Master",
+    "path": "icons/environment/people/infantry-armored.webp"
+  },
+  {
+    "name": "Battle Smith",
+    "path": "icons/tools/smithing/anvil.webp"
+  },
+  {
+    "name": "Beast Master",
+    "path": "icons/creatures/abilities/paw-print-yellow.webp"
+  },
+  {
+    "name": "Bladesinging",
+    "path": "icons/skills/melee/weapons-crossed-swords-teal.webp"
+  },
+  {
+    "name": "Cavalier",
+    "path": "icons/environment/people/cavalry-heavy.webp"
+  },
+  {
+    "name": "Champion",
+    "path": "icons/skills/melee/maneuver-greatsword-yellow.webp"
+  },
+  {
+    "name": "Circle of Dreams",
+    "path": "icons/magic/nature/meteorite-purple.webp"
+  },
+  {
+    "name": "Circle of Spores",
+    "path": "icons/magic/nature/mushrooms-fire-glow-blue.webp"
+  },
+  {
+    "name": "Circle of Stars",
+    "path": "icons/skills/trades/academics-astronomy-navigation-purple.webp"
+  },
+  {
+    "name": "Circle of the Land",
+    "path": "icons/environment/wilderness/island.webp"
+  },
+  {
+    "name": "Circle of the Moon",
+    "path": "icons/magic/nature/symbol-moon-stars-white.webp"
+  },
+  {
+    "name": "Circle of the Shepherd",
+    "path": "icons/creatures/mammals/spirit-deer-herd-blue.webp"
+  },
+  {
+    "name": "Circle of Wildfire",
+    "path": "icons/magic/fire/flame-burning-tree-stump.webp"
+  },
+  {
+    "name": "Clockwork Soul",
+    "path": "icons/commodities/tech/watch.webp"
+  },
+  {
+    "name": "College of Creation",
+    "path": "icons/magic/light/orb-hands-humanoid-yellow.webp"
+  },
+  {
+    "name": "College of Eloquence",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "College of Glamour",
+    "path": "icons/magic/nature/leaf-juggle-humanoid-green.webp"
+  },
+  {
+    "name": "College of Lore",
+    "path": "icons/skills/trades/academics-book-study-runes.webp"
+  },
+  {
+    "name": "College of Spirits",
+    "path": "icons/magic/death/undead-ghosts-trio-blue.webp"
+  },
+  {
+    "name": "College of Swords",
+    "path": "icons/weapons/swords/sword-broad-serrated-blue.webp"
+  },
+  {
+    "name": "College of Valor",
+    "path": "icons/skills/trades/music-singing-voice-blue.webp"
+  },
+  {
+    "name": "College of Whispers",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Death Domain",
+    "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
+  },
+  {
+    "name": "Divine Soul",
+    "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
+  },
+  {
+    "name": "Draconic Bloodline",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Drakewarden",
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
+  },
+  {
+    "name": "Echo Knight",
+    "path": "icons/magic/control/energy-stream-link-white.webp"
+  },
+  {
+    "name": "Eldritch Knight",
+    "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
+  },
+  {
+    "name": "Fey Wanderer",
+    "path": "icons/environment/wilderness/portal.webp"
+  },
+  {
+    "name": "Forge Domain",
+    "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
+  },
+  {
+    "name": "Gloom Stalker",
+    "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
+  },
+  {
+    "name": "Grave Domain",
+    "path": "icons/magic/death/grave-tombstone-glow-teal.webp"
+  },
+  {
+    "name": "Horizon Walker",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
+    "name": "Hunter",
+    "path": "icons/skills/targeting/crosshair-scope-sniper-green.webp"
+  },
+  {
+    "name": "Inquisitive",
+    "path": "icons/creatures/eyes/human-single-brown.webp"
+  },
+  {
+    "name": "Knowledge Domain",
+    "path": "icons/skills/trades/academics-book-study-runes.webp"
+  },
+  {
+    "name": "Life Domain",
+    "path": "icons/magic/death/undead-ghosts-trio-blue.webp"
+  },
+  {
+    "name": "Light Domain",
+    "path": "icons/weapons/swords/sword-broad-serrated-blue.webp"
+  },
+  {
+    "name": "Mastermind",
+    "path": "icons/skills/trades/music-singing-voice-blue.webp"
+  },
+  {
+    "name": "Monster Slayer",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Nature Domain",
+    "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
+  },
+  {
+    "name": "Oath of Conquest",
+    "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
+  },
+  {
+    "name": "Oath of Devotion",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Oath of Glory",
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
+  },
+  {
+    "name": "Oath of Redemption",
+    "path": "icons/magic/control/energy-stream-link-white.webp"
+  },
+  {
+    "name": "Oath of the Ancients",
+    "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
+  },
+  {
+    "name": "Oath of the Crown",
+    "path": "icons/environment/wilderness/portal.webp"
+  },
+  {
+    "name": "Oath of the Watchers",
+    "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
+  },
+  {
+    "name": "Oath of Vengeance",
+    "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
+  },
+  {
+    "name": "Oathbreaker",
+    "path": "icons/magic/death/grave-tombstone-glow-teal.webp"
+  },
+  {
+    "name": "Order Domain",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
+    "name": "Order of Scribes",
+    "path": "icons/skills/targeting/crosshair-scope-sniper-green.webp"
+  },
+  {
+    "name": "Path of the Ancestral Guardian",
+    "path": "icons/creatures/eyes/human-single-brown.webp"
+  },
+  {
+    "name": "Path of the Battlerager",
+    "path": "icons/skills/trades/academics-book-study-runes.webp"
+  },
+  {
+    "name": "Path of the Beast",
+    "path": "icons/magic/death/undead-ghosts-trio-blue.webp"
+  },
+  {
+    "name": "Path of the Berserker",
+    "path": "icons/weapons/swords/sword-broad-serrated-blue.webp"
+  },
+  {
+    "name": "Path of the Storm Herald",
+    "path": "icons/skills/trades/music-singing-voice-blue.webp"
+  },
+  {
+    "name": "Path of the Totem Warrior",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Path of the Zealot",
+    "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
+  },
+  {
+    "name": "Path of Wild Magic",
+    "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
+  },
+  {
+    "name": "Peace Domain",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Phantom",
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
+  },
+  {
+    "name": "Psi Warrior",
+    "path": "icons/magic/control/energy-stream-link-white.webp"
+  },
+  {
+    "name": "Rune Knight",
+    "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
+  },
+  {
+    "name": "Samurai",
+    "path": "icons/environment/wilderness/portal.webp"
+  },
+  {
+    "name": "School of Abjuration",
+    "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
+  },
+  {
+    "name": "School of Conjuration",
+    "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
+  },
+  {
+    "name": "School of Divination",
+    "path": "icons/magic/death/grave-tombstone-glow-teal.webp"
+  },
+  {
+    "name": "School of Enchantment",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
+    "name": "School of Evocation",
+    "path": "icons/skills/targeting/crosshair-scope-sniper-green.webp"
+  },
+  {
+    "name": "School of Illusion",
+    "path": "icons/creatures/eyes/human-single-brown.webp"
+  },
+  {
+    "name": "School of Necromancy",
+    "path": "icons/skills/trades/academics-book-study-runes.webp"
+  },
+  {
+    "name": "School of Transmutation",
+    "path": "icons/magic/death/undead-ghosts-trio-blue.webp"
+  },
+  {
+    "name": "School of War Magic",
+    "path": "icons/weapons/swords/sword-broad-serrated-blue.webp"
+  },
+  {
+    "name": "Scout",
+    "path": "icons/skills/trades/music-singing-voice-blue.webp"
+  },
+  {
+    "name": "Shadow Magic",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Soulknife",
+    "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
+  },
+  {
+    "name": "Storm Sorcery",
+    "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
+  },
+  {
+    "name": "Swarmkeeper",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Swashbuckler",
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
+  },
+  {
+    "name": "Tempest Domain",
+    "path": "icons/magic/control/energy-stream-link-white.webp"
+  },
+  {
+    "name": "The Archfey",
+    "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
+  },
+  {
+    "name": "The Celestial",
+    "path": "icons/environment/wilderness/portal.webp"
+  },
+  {
+    "name": "The Fathomless",
+    "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
+  },
+  {
+    "name": "The Fiend",
+    "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
+  },
+  {
+    "name": "The Genie",
+    "path": "icons/magic/death/grave-tombstone-glow-teal.webp"
+  },
+  {
+    "name": "The Great Old One",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
+    "name": "The Hexblade",
+    "path": "icons/skills/targeting/crosshair-scope-sniper-green.webp"
+  },
+  {
+    "name": "The Undead",
+    "path": "icons/creatures/eyes/human-single-brown.webp"
+  },
+  {
+    "name": "The Undying",
+    "path": "icons/skills/trades/academics-book-study-runes.webp"
+  },
+  {
+    "name": "Thief",
+    "path": "icons/magic/death/undead-ghosts-trio-blue.webp"
+  },
+  {
+    "name": "Trickery Domain",
+    "path": "icons/weapons/swords/sword-broad-serrated-blue.webp"
+  },
+  {
+    "name": "Twilight Domain",
+    "path": "icons/skills/trades/music-singing-voice-blue.webp"
+  },
+  {
+    "name": "War Domain",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Way of Mercy",
+    "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
+  },
+  {
+    "name": "Way of Shadow",
+    "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
+  },
+  {
+    "name": "Way of The Ascendant Dragon",
+    "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Way of the Astral Self",
+    "path": "icons/creatures/abilities/dragon-breath-purple.webp"
+  },
+  {
+    "name": "Way of the Drunken Master",
+    "path": "icons/magic/control/energy-stream-link-white.webp"
+  },
+  {
+    "name": "Way of the Four Elements",
+    "path": "icons/magic/unholy/hand-weapon-glow-black-green.webp"
+  },
+  {
+    "name": "Way of the Kensei",
+    "path": "icons/environment/wilderness/portal.webp"
+  },
+  {
+    "name": "Way of the Long Death",
+    "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
+  },
+  {
+    "name": "Way of the Open Hand",
+    "path": "icons/magic/nature/stealth-hide-eyes-pink.webp"
+  },
+  {
+    "name": "Way of the Sun Soul",
+    "path": "icons/magic/death/grave-tombstone-glow-teal.webp"
+  },
+  {
+    "name": "Wild Magic",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
   }
 ]
