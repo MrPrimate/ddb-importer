@@ -79,6 +79,10 @@ function buildBase(data) {
   result.data.source = utils.parseSource(data);
 
   if (data.isSubRace && data.baseRaceName) result.data.requirements = data.baseRaceName;
+  const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+  if (legacyName && data.isLegacy) {
+    result.name += " (Legacy)";
+  }
 
   return result;
 }
@@ -97,6 +101,8 @@ async function buildRace(race, compendiumRacialTraits) {
   result.flags.ddbimporter.fullName = race.fullName;
   result.flags.ddbimporter.subRaceShortName = race.subRaceShortName;
   result.flags.ddbimporter.isHomebrew = race.isHomebrew;
+  result.flags.ddbimporter.isLegacy = race.isLegacy;
+  result.flags.ddbimporter.isSubRace = race.isSubRace;
   result.flags.ddbimporter.moreDetailsUrl = race.moreDetailsUrl;
   result.flags.ddbimporter.featIds = race.featIds;
 
@@ -163,13 +169,20 @@ export async function getDDBRace(ddb) {
   return builtRace;
 }
 
-function getRacialTrait(trait, fullName) {
+function getRacialTrait(trait, fullName, isLegacy) {
   logger.debug("Race trait build started");
 
   let result = buildBase(trait);
 
   const duplicateFeature = FEATURE_DUP.includes(result.name.replace("’", "'"));
   result.name = (duplicateFeature) ? `${result.name} (${fullName})` : result.name;
+
+  const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+  if (legacyName && isLegacy) {
+    // result.name += " (Legacy)";
+    logger.debug(`Trait name ${result.name} is legacy`);
+  }
+
 
   result.flags.ddbimporter['spellListIds'] = trait.spellListIds;
   result.flags.ddbimporter['definitionKey'] = trait.definitionKey;
@@ -204,17 +217,20 @@ export async function getRaces(data) {
   // const legacyRaces =
   // setProperty(CONFIG, "DDBI.MUNCHER.RACES.LEGACY", duplicateRaces);
 
-  data.forEach((race) => {
-    logger.debug(`${race.fullName} features parsing started...`);
-    race.racialTraits.forEach((trait) => {
-      logger.debug(`${trait.definition.name} trait starting...`);
-      if (!trait.definition.hideInSheet && !NO_TRAITS.includes(trait.definition.name)) {
-        const parsedTrait = getRacialTrait(trait.definition, race.fullName);
-        racialFeatures.push(parsedTrait);
-        results.push({ race: race.fullName, trait: trait.definition.name });
-      }
+  const excludeLegacy = game.settings.get("ddb-importer", "munching-policy-exclude-legacy");
+  data
+    .filter((race) => !excludeLegacy || (excludeLegacy && !race.isLegacy))
+    .forEach((race) => {
+      logger.debug(`${race.fullName} features parsing started...`);
+      race.racialTraits.forEach((trait) => {
+        logger.debug(`${trait.definition.name} trait starting...`);
+        if (!trait.definition.hideInSheet && !NO_TRAITS.includes(trait.definition.name)) {
+          const parsedTrait = getRacialTrait(trait.definition, race.fullName, race.isLegacy);
+          racialFeatures.push(parsedTrait);
+          results.push({ race: race.fullName, trait: trait.definition.name });
+        }
+      });
     });
-  });
 
   const fiddledRacialFeatures = await srdFiddling(racialFeatures, "traits");
   munchNote(`Importing ${fiddledRacialFeatures.length} traits!`, true);
@@ -223,11 +239,14 @@ export async function getRaces(data) {
 
   const compendiumRacialTraits = await getRacialTraitsLookup(fiddledRacialFeatures);
 
-  await Promise.allSettled(data.map(async (race) => {
-    logger.debug(`${race.fullName} race parsing started...`);
-    const builtRace = await buildRace(race, compendiumRacialTraits);
-    races.push(builtRace);
-  }));
+  await Promise.allSettled(data
+    .filter((race) => !excludeLegacy || (excludeLegacy && !race.isLegacy))
+    .map(async (race) => {
+      logger.debug(`${race.fullName} race parsing started...`);
+      const builtRace = await buildRace(race, compendiumRacialTraits);
+      races.push(builtRace);
+    })
+  );
 
   logger.debug("Pre-fiddled races", duplicate(races));
 

@@ -754,11 +754,11 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "munching-policy-monster-exclude-legacy": {
+          "munching-policy-exclude-legacy": {
             type: Boolean,
             default: false,
           },
-          "munching-policy-monster-legacy-postfix": {
+          "munching-policy-legacy-postfix": {
             type: Boolean,
             default: false,
           },

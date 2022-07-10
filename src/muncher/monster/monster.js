@@ -293,7 +293,7 @@ async function copyExistingMonsterProperties(compendium, foundryActor) {
 
 async function getMonsterIndexMonster(compendium, npc) {
   const monsterIndexFields = ["name", "flags.ddbimporter.id"];
-  const legacyName = game.settings.get("ddb-importer", "munching-policy-monster-legacy-postfix");
+  const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
   const index = await compendium.getIndex({ fields: monsterIndexFields });
   const npcMatch = index.contents.find((entity) =>
     hasProperty(entity, "flags.ddbimporter.id") &&
@@ -462,7 +462,7 @@ async function parseMonster(monster, extra, useItemAC) {
 
   foundryActor.items = items;
 
-  const legacyName = game.settings.get("ddb-importer", "munching-policy-monster-legacy-postfix");
+  const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
   if (legacyName) {
     if (monster.isLegacy) {
       foundryActor.name += " (Legacy)";

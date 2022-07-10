@@ -773,18 +773,6 @@ export function getMuncherSettings(includeHomebrew = true) {
       enabled: daeInstalled && daeSRDContentAvailable,
     },
     {
-      name: "monster-exclude-legacy",
-      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-exclude-legacy"),
-      description: "Exclude legacy monsters from import? These are monsters replaced by newer versions e.g. in Monsters of the Multiverse.",
-      enabled: true,
-    },
-    {
-      name: "monster-legacy-postfix",
-      isChecked: game.settings.get("ddb-importer", "munching-policy-monster-legacy-postfix"),
-      description: "Append (Legacy) to Legacy monster names? These are monsters replaced by newer versions e.g. in Monsters of the Multiverse.",
-      enabled: true,
-    },
-    {
       name: "monster-bulk-import",
       isChecked: game.settings.get("ddb-importer", "munching-policy-monster-bulk-import"),
       description: "Use bulk import mode? Experimental, may be unstable on some systems, but potentially faster.",
@@ -865,6 +853,18 @@ export function getMuncherSettings(includeHomebrew = true) {
       isChecked: game.settings.get("ddb-importer", "munching-policy-use-srd"),
       description:
         "[CAUTION] Use SRD compendium things instead of importing. This is not recommended, and may break adventure munching functionality.",
+      enabled: true,
+    },
+    {
+      name: "exclude-legacy",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-exclude-legacy"),
+      description: "Exclude legacy monsters/races from import? These are replaced by newer versions e.g. in Monsters of the Multiverse.",
+      enabled: true,
+    },
+    {
+      name: "legacy-postfix",
+      isChecked: game.settings.get("ddb-importer", "munching-policy-legacy-postfix"),
+      description: "Append (Legacy) to Legacy monster/race names? These are replaced by newer versions e.g. in Monsters of the Multiverse.",
       enabled: true,
     },
     {
