@@ -81,7 +81,7 @@ export function parseSpell(data, character) {
   spell.data.chatFlavor = chatFlavor;
   spell.data.save = getSave(data);
   spell.data.scaling = getSpellScaling(data);
-  spell.data.uses = getUses(data);
+  spell.data.uses = getUses(data, character);
 
   // attach the spell ability id to the spell data so VTT always uses the
   // correct one, useful if multi-classing and spells have different
