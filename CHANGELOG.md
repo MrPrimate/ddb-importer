@@ -2,6 +2,7 @@
 
 * Spells with limited uses based on proficiency now render uses correctly.
 * Some spells from races would not parse the duration correctly if different from original spell.
+* Feature effect: Rune Carver Giant's Might effect.
 
 # 2.9.57
 

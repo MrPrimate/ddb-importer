@@ -356,6 +356,15 @@ export function fixFeatures(features) {
         feature.data.damage = { parts: [["@prof", "bludgeoning"]], versatile: "", value: "" };
         break;
       }
+      case "Giant's Might": {
+        feature.data["target"]["type"] = "self";
+        feature.data.range = { value: null, units: "self", long: null };
+        feature.data.duration = {
+          value: 1,
+          units: "minute",
+        };
+        break;
+      }
       case "Healing Hands": {
         feature.data.damage = {
           parts: [["@details.level[healing]", "healing"]],

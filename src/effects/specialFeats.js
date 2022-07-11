@@ -15,6 +15,7 @@ import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { indomitableEffect } from "./feats/indomitable.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
+import { giantsMarkEffect } from "./feats/giantsMight.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -123,6 +124,10 @@ export async function generateExtraEffects(ddb, character, document) {
     }
     case "Fighting Style: Interception": {
       document = fightingStyleInterceptionEffect(document);
+      break;
+    }
+    case "Giant's Might": {
+      document = giantsMarkEffect(document);
       break;
     }
     case "Indomitable": {
