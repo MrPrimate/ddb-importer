@@ -16,6 +16,7 @@ import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { indomitableEffect } from "./feats/indomitable.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
 import { giantsMarkEffect } from "./feats/giantsMight.js";
+import { recklessAttackEffect } from "./feats/recklessAttack.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -101,37 +102,13 @@ export async function generateExtraEffects(ddb, character, document) {
     document = await maneuversEffect(ddb, character, document);
   }
   switch (name) {
-    case "Bladesong": {
-      document = await bladesongEffect(document);
-      break;
-    }
     case "Blessed Healer": {
       document = await blessedHealerEffect(document);
-      break;
-    }
-    case "Defensive Duelist": {
-      document = defensiveDuelistEffect(document);
-      break;
-    }
-    case "Deflect Missiles": {
-      document = deflectMissilesEffect(document);
       break;
     }
     case "Empty Body":
     case "Ki: Empty Body": {
       document = await kiEmptyBodyEffect(document);
-      break;
-    }
-    case "Fighting Style: Interception": {
-      document = fightingStyleInterceptionEffect(document);
-      break;
-    }
-    case "Giant's Might": {
-      document = giantsMarkEffect(document);
-      break;
-    }
-    case "Indomitable": {
-      document = indomitableEffect(document);
       break;
     }
     // no default
@@ -146,6 +123,7 @@ export async function generateExtraEffects(ddb, character, document) {
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
  */
+// eslint-disable-next-line complexity
 export function featureEffectAdjustment(ddb, character, document) {
   const midiQolInstalled = game.modules.get("midi-qol")?.active;
   const name = document.flags.ddbimporter.originalName || document.name;
@@ -156,8 +134,8 @@ export function featureEffectAdjustment(ddb, character, document) {
       document = paladinDefaultAuraEffect(document);
       break;
     }
-    case "Unarmored Movement": {
-      document = unarmoredMovementEffect(document);
+    case "Bladesong": {
+      document = bladesongEffect(document);
       break;
     }
     case "Bardic Inspiration": {
@@ -166,25 +144,53 @@ export function featureEffectAdjustment(ddb, character, document) {
       }
       break;
     }
-    case "Rage": {
-      document = rageEffect(document);
+    case "Defensive Duelist": {
+      document = defensiveDuelistEffect(document);
       break;
     }
-    case "War Caster":
-    case "Warcaster": {
-      document = warCasterEffect(document);
+    case "Deflect Missiles": {
+      document = deflectMissilesEffect(document);
+      break;
+    }
+    case "Fighting Style: Interception": {
+      document = fightingStyleInterceptionEffect(document);
+      break;
+    }
+    case "Giant's Might": {
+      document = giantsMarkEffect(document);
+      break;
+    }
+    case "Indomitable": {
+      document = indomitableEffect(document);
       break;
     }
     case "Potent Cantrip": {
       document = potentCantripEffect(document);
       break;
     }
+    case "Rage": {
+      document = rageEffect(document);
+      break;
+    }
+    case "Reckless Attack": {
+      document = recklessAttackEffect(document);
+      break;
+    }
     case "Sculpt Spells": {
       document = sculptSpellsEffect(document);
       break;
     }
+    case "Unarmored Movement": {
+      document = unarmoredMovementEffect(document);
+      break;
+    }
     case "Uncanny Dodge": {
       document = uncannyDodgeEffect(document);
+      break;
+    }
+    case "War Caster":
+    case "Warcaster": {
+      document = warCasterEffect(document);
       break;
     }
     // no default
