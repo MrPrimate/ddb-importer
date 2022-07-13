@@ -4,7 +4,7 @@ import utils from "../../utils.js";
 import { generateEffects } from "../../effects/effects.js";
 import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { generateTable } from "../../muncher/table.js";
-import { generateExtraEffects } from "../../effects/specialFeats.js";
+import { featureEffectAdjustment } from "../../effects/specialFeats.js";
 import parseTemplateString from "../templateStrings.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
@@ -516,7 +516,7 @@ export async function addExtraEffects(ddb, documents, character) {
 
   if (addCharacterEffects) {
     const results = await Promise.all(documents.map((document) => {
-      return generateExtraEffects(ddb, character, document);
+      return featureEffectAdjustment(ddb, character, document);
     }));
     return results;
   } else {

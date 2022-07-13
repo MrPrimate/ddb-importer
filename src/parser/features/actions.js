@@ -122,7 +122,17 @@ function isMartialArtists(classes) {
   return classes.some((cls) => cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"));
 }
 
-function getDamage(ddb, action) {
+const LEVEL_SCALE_EXCLUSION = [
+  "Fire Rune",
+  "Cloud Rune",
+  "Stone Rune",
+  "Frost Rune",
+  "Hill Rune",
+  "Storm Rune",
+];
+
+// eslint-disable-next-line complexity
+function getDamage(ddb, action, feat) {
   let damage = {};
   const damageType = action.damageTypeId
     ? DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name
@@ -138,8 +148,9 @@ function getDamage(ddb, action) {
   const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
   const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
   const scaleValueLink = utils.getScaleValueString(ddb, action).value;
+  const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
 
-  const useScaleValueLink = useScale && scaleSupport && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
+  const useScaleValueLink = useScale && scaleSupport && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
 
   if (die || useScaleValueLink) {
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
@@ -165,7 +176,7 @@ function getDamage(ddb, action) {
   return damage;
 }
 
-const levelScaleInfusions = [
+const LEVEL_SCALE_INFUSIONS = [
   "Unarmed Strike",
   "Arms of the Astral Self (WIS)",
   "Arms of the Astral Self (DEX)",
@@ -206,7 +217,8 @@ function getLevelScaleDice(ddb, character, action, feat) {
       );
       const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
       const scaleValueLink = utils.getScaleValueString(ddb, action).value;
-      let part = scaleSupport && useScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
+      const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
+      let part = scaleSupport && useScale && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
         ? scaleValueLink
         : die.diceString;
       if (parsedString) {
@@ -221,7 +233,7 @@ function getLevelScaleDice(ddb, character, action, feat) {
 
   if (parts.length > 0 && scaleSupport && useScale) {
     feat.data.damage.parts = parts;
-  } else if (parts.length > 0 && !levelScaleInfusions.includes(action.name)) {
+  } else if (parts.length > 0 && !LEVEL_SCALE_INFUSIONS.includes(action.name)) {
     const combinedParts = hasProperty(feat, "data.damage.parts") && feat.data.damage.parts.length > 0
       ? feat.data.damage.parts.concat(parts)
       : parts;
@@ -421,7 +433,7 @@ function calculateRange(action, weapon) {
 
 function calculateSaveAttack(ddb, action, weapon) {
   weapon.data.actionType = "save";
-  weapon.data.damage = getDamage(ddb, action);
+  weapon.data.damage = getDamage(ddb, action, weapon);
 
   const fixedDC = (action.fixedSaveDc) ? action.fixedSaveDc : null;
   const scaling = (fixedDC) ? fixedDC : (action.abilityModifierStatId) ? DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
@@ -464,7 +476,7 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
     weapon.data.damage = martialArtsDamage(ddb, action);
     weapon.data.attackBonus = utils.filterBaseModifiers(ddb, "bonus", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
   } else {
-    weapon.data.damage = getDamage(ddb, action);
+    weapon.data.damage = getDamage(ddb, action, weapon);
   }
   return weapon;
 }

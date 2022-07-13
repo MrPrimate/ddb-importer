@@ -85,7 +85,8 @@ var configured;
 /**
  * These are effects that can't be generated dynamically and have extra requirements
  */
-export async function generateExtraEffects(ddb, character, document) {
+// eslint-disable-next-line complexity
+export async function featureEffectAdjustment(ddb, character, document) {
   if (!document.effects) document.effects = [];
 
   // check that we can gen effects
@@ -102,32 +103,6 @@ export async function generateExtraEffects(ddb, character, document) {
     document = await maneuversEffect(ddb, character, document);
   }
   switch (name) {
-    case "Blessed Healer": {
-      document = await blessedHealerEffect(document);
-      break;
-    }
-    case "Empty Body":
-    case "Ki: Empty Body": {
-      document = await kiEmptyBodyEffect(document);
-      break;
-    }
-    // no default
-  }
-  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
-    setProperty(document, "flags.ddbimporter.effectsApplied", true);
-  }
-  return document;
-}
-
-/**
- * This function is mainly for effects that can't be dynamically generated
- * @param {*} document
- */
-// eslint-disable-next-line complexity
-export function featureEffectAdjustment(ddb, character, document) {
-  const midiQolInstalled = game.modules.get("midi-qol")?.active;
-  const name = document.flags.ddbimporter.originalName || document.name;
-  switch (name) {
     // if using active auras add the aura effect
     case "Aura of Courage":
     case "Aura of Protection": {
@@ -139,9 +114,11 @@ export function featureEffectAdjustment(ddb, character, document) {
       break;
     }
     case "Bardic Inspiration": {
-      if (midiQolInstalled) {
-        document = bardicInspirationEffect(document);
-      }
+      document = bardicInspirationEffect(document);
+      break;
+    }
+    case "Blessed Healer": {
+      document = await blessedHealerEffect(document);
       break;
     }
     case "Defensive Duelist": {
@@ -150,6 +127,11 @@ export function featureEffectAdjustment(ddb, character, document) {
     }
     case "Deflect Missiles": {
       document = deflectMissilesEffect(document);
+      break;
+    }
+    case "Empty Body":
+    case "Ki: Empty Body": {
+      document = await kiEmptyBodyEffect(document);
       break;
     }
     case "Fighting Style: Interception": {
@@ -195,7 +177,6 @@ export function featureEffectAdjustment(ddb, character, document) {
     }
     // no default
   }
-
   if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
     setProperty(document, "flags.ddbimporter.effectsApplied", true);
   }

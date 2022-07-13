@@ -14,30 +14,26 @@ export function giantsMarkEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     value: "1",
     priority: "5",
-  });
-
-  effect.changes.push({
+  },
+  {
     key: "flags.midi-qol.advantage.ability.check.str",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     value: "1",
     priority: "5",
-  });
-
-  effect.changes.push({
+  },
+  {
     key: "flags.midi-qol.optional.giantsmight.label",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     value: "Giant's Might Bonus Damage",
     priority: "5",
-  });
-
-  effect.changes.push({
+  },
+  {
     key: "flags.midi-qol.optional.giantsmight.count",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     value: "each-round",
     priority: "5",
-  });
-
-  effect.changes.push({
+  },
+  {
     key: "flags.midi-qol.optional.giantsmight.damage.all",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     value: `${document.data.damage.parts[0][0]}`,

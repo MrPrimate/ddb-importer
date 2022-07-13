@@ -51,4 +51,10 @@ export const SPECIAL_ADVANCEMENTS = {
     additionalAdvancements: true,
     additionalFunctions: [addAdditionalUses, addSingularDie],
   },
+  "Rune Carver": {
+    fix: true,
+    fixFunction: renameTotal,
+    additionalAdvancements: false,
+    additionalFunctions: [],
+  },
 };
