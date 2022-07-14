@@ -17,6 +17,12 @@ import { indomitableEffect } from "./feats/indomitable.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
 import { giantsMarkEffect } from "./feats/giantsMight.js";
 import { recklessAttackEffect } from "./feats/recklessAttack.js";
+import { cloudRuneEffect } from "./feats/cloudRune.js";
+import { fireRuneEffect } from "./feats/fireRune.js";
+import { frostRuneEffect } from "./feats/frostRune.js";
+import { stoneRuneEffect } from "./feats/stoneRune.js";
+import { hillRuneEffect } from "./feats/hillRune.js";
+import { stormRuneEffect } from "./feats/stormRune.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -121,6 +127,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       document = await blessedHealerEffect(document);
       break;
     }
+    case "Cloud Rune": {
+      document = cloudRuneEffect(document);
+      break;
+    }
     case "Defensive Duelist": {
       document = defensiveDuelistEffect(document);
       break;
@@ -138,8 +148,20 @@ export async function featureEffectAdjustment(ddb, character, document) {
       document = fightingStyleInterceptionEffect(document);
       break;
     }
+    case "Fire Rune": {
+      document = fireRuneEffect(document);
+      break;
+    }
+    case "Frost Rune": {
+      document = frostRuneEffect(document);
+      break;
+    }
     case "Giant's Might": {
       document = giantsMarkEffect(document);
+      break;
+    }
+    case "Hill Rune": {
+      document = hillRuneEffect(document);
       break;
     }
     case "Indomitable": {
@@ -160,6 +182,14 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Sculpt Spells": {
       document = sculptSpellsEffect(document);
+      break;
+    }
+    case "Stone Rune": {
+      document = stoneRuneEffect(document);
+      break;
+    }
+    case "Storm Rune": {
+      document = stormRuneEffect(document);
       break;
     }
     case "Unarmored Movement": {
