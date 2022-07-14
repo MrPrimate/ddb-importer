@@ -372,7 +372,7 @@ export async function spellEffectAdjustment(document) {
       break;
     }
     case "Faerie Fire": {
-      document = faerieFireEffect(document);
+      document = await faerieFireEffect(document);
       break;
     }
     case "Fear": {
@@ -635,7 +635,7 @@ export async function spellEffectAdjustment(document) {
       break;
     }
     case "Web": {
-      document = webEffect(document);
+      document = await webEffect(document);
       break;
     }
     case "Witch Bolt": {
@@ -643,8 +643,13 @@ export async function spellEffectAdjustment(document) {
     }
     // no default
   }
-  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
-    setProperty(document, "flags.ddbimporter.effectsApplied", true);
+  try {
+    if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
+      setProperty(document, "flags.ddbimporter.effectsApplied", true);
+    }
+  } catch (err) {
+    await Promise.all(document);
+    logger.error("Error applying effects: ", { err, document });
   }
   return document;
 }
