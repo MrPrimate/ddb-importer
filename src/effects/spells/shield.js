@@ -3,7 +3,7 @@ import { baseSpellEffect, generateTokenMagicFXChange, spellEffectModules } from 
 export function shieldEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
-    key: "data.attributes.ac.bonus",
+    key: "system.attributes.ac.bonus",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     value: "+5",
     priority: "20",

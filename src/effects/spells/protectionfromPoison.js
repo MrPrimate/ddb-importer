@@ -3,7 +3,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 export function protectionfromPoisonEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
-    key: "data.traits.dr.value",
+    key: "system.traits.dr.value",
     value: "poison",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: 0,

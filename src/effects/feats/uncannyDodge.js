@@ -10,9 +10,9 @@ export function uncannyDodgeEffect(document) {
   });
   effect.flags.dae.specialDuration = ["1Reaction"];
   document.data["target"]["type"] = "self";
-  document.data.range = { value: null, units: "self", long: null };
-  document.data.actionType = null;
-  document.data.activation.type = "reactiondamage";
+  document.system.range = { value: null, units: "self", long: null };
+  document.system.actionType = null;
+  document.system.activation.type = "reactiondamage";
   document.effects.push(effect);
   return document;
 }

@@ -13,7 +13,7 @@ export async function spiritShroudEffect(document) {
       priority: 20
     },
     {
-      key: "data.attributes.movement.all",
+      key: "system.attributes.movement.all",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: "-10",
       priority: "15",

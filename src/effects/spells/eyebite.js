@@ -8,8 +8,8 @@ export async function eyebiteEffect(document) {
   effect.flags.dae.macroRepeat = "startEveryTurn";
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
-  setProperty(document, "data.actionType", "other");
-  setProperty(document, "data.save.ability", "");
+  setProperty(document, "system.actionType", "other");
+  setProperty(document, "system.save.ability", "");
 
   return document;
 }

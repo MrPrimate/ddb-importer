@@ -4,7 +4,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 export function absorbElementsEffect(document) {
   const effect = baseSpellEffect(document, `${document.name} - Extra Damage`);
   effect.changes.push({
-    key: "data.bonuses.mwak.damage",
+    key: "system.bonuses.mwak.damage",
     value: `(@item.level)d6`,
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: 0,

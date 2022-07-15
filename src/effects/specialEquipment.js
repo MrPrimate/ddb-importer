@@ -16,7 +16,7 @@ export function equipmentEffectAdjustment(document) {
     case "Armor of Invulnerability": {
       // this effect is 1/day, we have to add it
       let effect = baseItemEffect(document, `${document.name} - Invulnerability`);
-      effect.changes.push(generateAddChange("physical", 20, "data.traits.di.value"));
+      effect.changes.push(generateAddChange("physical", 20, "system.traits.di.value"));
       effect.duration = {
         startTime: null,
         seconds: 600,
@@ -51,7 +51,7 @@ export function equipmentEffectAdjustment(document) {
     case "Bracers of Archery": {
       // +2 damage to longbows/shortbows translates to +2 ranged weapon damage
       document.effects[0].changes.push({
-        key: "data.bonuses.rwak.damage",
+        key: "system.bonuses.rwak.damage",
         value: "+2",
         mode: 0,
         priority: 20,
@@ -84,13 +84,13 @@ export function equipmentEffectAdjustment(document) {
     }
     case "Belashyrra’s Beholder Crown": {
       let effect = baseItemEffect(document, `${document.name} - Constant Effects`);
-      effect.changes.push(generateUpgradeChange(120, 10, "data.attributes.senses.darkvision"));
+      effect.changes.push(generateUpgradeChange(120, 10, "system.attributes.senses.darkvision"));
       document.effects.push(effect);
       break;
     }
     case "Boots of Speed": {
       let effect = baseItemEffect(document, `${document.name} - Invulnerability`);
-      effect.changes.push(generateMultiplyChange(2, 20, "data.attributes.movement.walk"));
+      effect.changes.push(generateMultiplyChange(2, 20, "system.attributes.movement.walk"));
       effect.duration = {
         startTime: null,
         seconds: 600,

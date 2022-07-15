@@ -4,7 +4,7 @@ import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../ma
 export async function darkvisionEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
-    key: "data.attributes.senses.darkvision",
+    key: "system.attributes.senses.darkvision",
     value: "60",
     mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
     priority: 20,

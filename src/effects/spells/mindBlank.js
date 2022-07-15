@@ -4,7 +4,7 @@ export function mindBlankEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
-      key: 'data.traits.di.value',
+      key: 'system.traits.di.value',
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       value: 'psychic',
       priority: "20",

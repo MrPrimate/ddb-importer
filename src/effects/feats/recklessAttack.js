@@ -38,9 +38,9 @@ export function recklessAttackEffect(document) {
   document.effects.push(defenseEffect);
 
   document.data["target"]["type"] = "self";
-  document.data.range = { value: null, units: "self", long: null };
-  document.data.actionType = null;
-  document.data.activation = { type: "none", cost: null, condition: "" };
+  document.system.range = { value: null, units: "self", long: null };
+  document.system.actionType = null;
+  document.system.activation = { type: "none", cost: null, condition: "" };
 
   return document;
 }

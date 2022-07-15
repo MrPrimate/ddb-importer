@@ -3,7 +3,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 export function alterSelfEffect(document) {
   let effectAquaticAdaptation = baseSpellEffect(document, document.name);
   effectAquaticAdaptation.changes.push({
-    key: "data.attributes.movement.swim",
+    key: "system.attributes.movement.swim",
     value: "@attributes.movement.walk",
     mode: 4,
     priority: 20,

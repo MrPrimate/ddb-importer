@@ -8,7 +8,7 @@ export async function spiritGuardiansEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
-      key: "data.attributes.movement.all",
+      key: "system.attributes.movement.all",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: "/2",
       priority: "20",

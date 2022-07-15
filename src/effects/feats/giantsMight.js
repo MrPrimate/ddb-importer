@@ -36,11 +36,11 @@ export function giantsMarkEffect(document) {
   {
     key: "flags.midi-qol.optional.giantsmight.damage.all",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    value: `${document.data.damage.parts[0][0]}`,
+    value: `${document.system.damage.parts[0][0]}`,
     priority: "5",
   });
 
-  document.data.damage.parts = [];
+  document.system.damage.parts = [];
 
   document.effects.push(effect);
   return document;

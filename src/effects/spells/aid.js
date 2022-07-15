@@ -4,7 +4,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 export async function aidEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
-    key: "data.attributes.hp.max",
+    key: "system.attributes.hp.max",
     value: "5 * (@spellLevel - 1)",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     priority: 20,

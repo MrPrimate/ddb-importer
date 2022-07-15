@@ -10,7 +10,7 @@ export async function huntersMarkEffect(document) {
 
   setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
-  setProperty(document, "data.actionType", "util");
+  setProperty(document, "system.actionType", "util");
 
   document.effects.push(effect);
 

@@ -22,9 +22,9 @@ export async function brandingSmiteEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "brandingSmite.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
 
-  document.data.actionType = "other";
-  document.data.target.type = "self";
-  document.data.damage.parts = [];
+  document.system.actionType = "other";
+  document.system.target.type = "self";
+  document.system.damage.parts = [];
   document.effects.push(effect);
   setProperty(document, "flags.midi-qol.onUseMacroName", "");
 

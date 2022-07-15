@@ -4,7 +4,7 @@ import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../ma
 export async function heroismEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
-    key: "data.traits.ci.value",
+    key: "system.traits.ci.value",
     value: "frightened",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: 20,
