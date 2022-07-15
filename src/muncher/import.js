@@ -346,13 +346,12 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
 
       const tableUpdate = await existing.update(item, { pack: compendium.metadata.id });
       // v10 bug - left in until fixed - tables don't update correctly
-      if (tableUpdate === undefined) console.warn("Undefined table update");
+      // if (tableUpdate === undefined) console.warn("Undefined table update");
       updates.push(tableUpdate);
     }
   });
 
   // in v10 the table.update may not be returning all the updated items correctly
-  console.warn("table update results", updates);
 
   return updates;
   // const results = await RollTable.updateDocuments(updates, { pack: compendium.metadata.id });
@@ -405,9 +404,7 @@ async function createCompendiumItems(type, compendium, inputItems, index, matchF
       switch (type) {
         case "table":
         case "tables": {
-          console.warn("creating table", item);
           newItem = new RollTable(item);
-          console.warn("created table", newItem);
           break;
         }
         default: {
