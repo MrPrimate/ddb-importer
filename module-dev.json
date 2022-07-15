@@ -13,6 +13,11 @@
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "minimumCoreVersion": "0.8.9",
   "compatibleCoreVersion": "9",
+  "compatibility": {
+    "minimum": "0.8.9",
+    "verified": 9,
+    "max": 9
+  },
   "authors": [
     {
       "name": "MrPrimate",
