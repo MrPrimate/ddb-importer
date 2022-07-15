@@ -1,14 +1,15 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { generateStatusEffectChange } from "../effects.js";
 
-export async function fireRuneEffect(document) {
-  let baseEffect = baseFeatEffect(document, document.name);
+export function fireRuneEffect(document) {
   setProperty(document, "data.range.units", "");
-  setProperty(baseEffect, "duration.seconds", 60);
   setProperty(document, "data.target.value", 1);
   setProperty(document, "data.target.type", "creature");
 
-  baseEffect.changes.push(generateStatusEffectChange("Restrained"));
+  let baseEffect = baseFeatEffect(document, document.name);
+  setProperty(baseEffect, "duration.seconds", 60);
+
+  baseEffect.changes.push(generateStatusEffectChange("Restrained", 20, true));
   baseEffect.changes.push(
     {
       key: "flags.midi-qol.OverTime",
@@ -23,8 +24,6 @@ export async function fireRuneEffect(document) {
       priority: "20",
     }
   );
-
-  // Missing: prof bonus expertise for tool
 
   document.effects.push(baseEffect);
   return document;

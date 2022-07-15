@@ -1,21 +1,10 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
-export async function hillRuneEffect(document) {
-
-  let baseEffect = baseFeatEffect(document, document.name);
+export function hillRuneEffect(document) {
   setProperty(document, "data.target.type", "self");
-  setProperty(document, "data.range.units", "");
-  setProperty(document, "data.range.value", null);
-
-  baseEffect.changes.push(
-    {
-      key: "data.traits.dr.value",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "poison",
-      priority: "20",
-    },
-  );
-  // Missing : advantage of saving throws against being poisoned
+  setProperty(document, "data.range.units", "self");
+  setProperty(document, "data.range.value", "");
+  setProperty(document, "data.actionType", null);
 
   let bonusEffect = baseFeatEffect(document, `${document.name} (Temporary)`);
   bonusEffect.changes.push(
@@ -40,7 +29,6 @@ export async function hillRuneEffect(document) {
   );
   setProperty(bonusEffect, "duration.seconds", 60);
 
-
-  document.effects.push(baseEffect);
+  document.effects.push(bonusEffect);
   return document;
 }

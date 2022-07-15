@@ -1,22 +1,12 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
-export async function stormRuneEffect(document) {
+export function stormRuneEffect(document) {
 
   let baseEffect = baseFeatEffect(document, document.name);
   setProperty(document, "data.target.type", "self");
-  setProperty(document, "data.range.units", "");
-  setProperty(document, "data.range.value", null);
-
-  baseEffect.transfer = true;
-  baseEffect.changes.push(
-    {
-      key: "flags.midi-qol.advantage.skill.arc",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "1",
-      priority: "20",
-    },
-  );
-  // Missing : can't be surprised
+  setProperty(document, "data.range.units", "self");
+  setProperty(document, "data.range.value", "");
+  setProperty(document, "data.actionType", null);
 
   document.effects.push(baseEffect);
 

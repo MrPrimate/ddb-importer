@@ -23,6 +23,7 @@ import { frostRuneEffect } from "./feats/frostRune.js";
 import { stoneRuneEffect } from "./feats/stoneRune.js";
 import { hillRuneEffect } from "./feats/hillRune.js";
 import { stormRuneEffect } from "./feats/stormRune.js";
+import { runeCarverEffect } from "./feats/runeCarver.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -108,6 +109,9 @@ export async function featureEffectAdjustment(ddb, character, document) {
   if (name.startsWith("Maneuvers: ")) {
     document = await maneuversEffect(ddb, character, document);
   }
+  if (name.startsWith("Rune Carver: ")) {
+    document = await runeCarverEffect(document);
+  }
   switch (name) {
     // if using active auras add the aura effect
     case "Aura of Courage":
@@ -185,7 +189,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
       break;
     }
     case "Stone Rune": {
-      document = stoneRuneEffect(document);
+      document = await stoneRuneEffect(document);
       break;
     }
     case "Storm Rune": {

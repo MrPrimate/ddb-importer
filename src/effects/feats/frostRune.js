@@ -1,29 +1,10 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
-export async function frostRuneEffect(document) {
-  let baseEffect = baseFeatEffect(document, document.name);
+export function frostRuneEffect(document) {
   setProperty(document, "data.target.type", "self");
-  setProperty(document, "data.range.units", "");
-  setProperty(document, "data.range.value", null);
-
-  baseEffect.transfer = true;
-  baseEffect.changes.push(
-    {
-      key: "flags.midi-qol.advantage.skill.ani",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "1",
-      priority: "20",
-    },
-    {
-      key: "flags.midi-qol.advantage.skill.itm",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "1",
-      priority: "20",
-    },
-  );
-
-  document.effects.push(baseEffect);
-
+  setProperty(document, "data.range.units", "self");
+  setProperty(document, "data.range.value", "");
+  setProperty(document, "data.actionType", null);
 
   let bonusEffect = baseFeatEffect(document, `${document.name} (Sturdiness)`);
   bonusEffect.changes.push(
