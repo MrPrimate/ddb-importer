@@ -2,7 +2,6 @@ import { baseFeatEffect } from "../specialFeats.js";
 import { generateStatusEffectChange } from "../effects.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 import logger from "../../logger.js";
-import utils from "../../utils.js";
 
 // eslint-disable-next-line complexity
 export async function maneuversEffect(ddb, character, document) {
