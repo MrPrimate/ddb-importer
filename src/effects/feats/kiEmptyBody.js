@@ -4,8 +4,8 @@ import { generateMacroChange, generateItemMacroFlag, loadMacroFile } from "../ma
 export async function kiEmptyBodyEffect(document) {
   let effect = baseFeatEffect(document, document.name);
   effect.changes.push(
-    { key: "data.traits.dr.all", value: "", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
-    { key: "data.traits.dv.value", value: "force", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 }
+    { key: "system.traits.dr.all", value: "", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },
+    { key: "system.traits.dv.value", value: "force", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 }
   );
 
   document.system["target"]["type"] = "self";

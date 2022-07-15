@@ -10,12 +10,7 @@ export async function maneuversEffect(ddb, character, document) {
   if (!fighterClass) return document;
   const combatSuperiority = fighterClass.classFeatures.find((feat) => feat.definition.name === "Combat Superiority");
   if (!combatSuperiority) return document;
-  const levelScale = combatSuperiority.levelScale;
-  const die = levelScale.dice ? levelScale.dice : levelScale.die ? levelScale.die : undefined;
-  const dieValue = die.diceValue;
-  const diceString = (utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0)
-    ? "@scale.battle-master.combat-superiority-die"
-    : `1d${dieValue}`;
+  const diceString = "@scale.battle-master.combat-superiority-die";
 
   logger.debug(`Generating effect for ${document.name}`);
 
@@ -24,9 +19,9 @@ export async function maneuversEffect(ddb, character, document) {
 
   const name = document.flags.ddbimporter.originalName || document.name;
   let effect = baseFeatEffect(document, document.name);
-  setProperty(document, "data.range.units", "");
-  setProperty(document, "data.range.value", null);
-  setProperty(document, "data.target.type", "self");
+  setProperty(document, "system.range.units", "");
+  setProperty(document, "system.range.value", null);
+  setProperty(document, "system.target.type", "self");
 
   // special durations
   switch (name) {
@@ -79,7 +74,7 @@ export async function maneuversEffect(ddb, character, document) {
       break;
     }
     case "Maneuvers: Trip Attack": {
-      setProperty(document, "data.duration.units", "inst");
+      setProperty(document, "system.duration.units", "inst");
       break;
     }
     case "Maneuvers: Menacing Attack":
@@ -93,7 +88,7 @@ export async function maneuversEffect(ddb, character, document) {
       break;
     }
     case "Maneuvers: Parry": {
-      setProperty(document, "data.duration.units", "inst");
+      setProperty(document, "system.duration.units", "inst");
       setProperty(effect, "flags.dae.specialDuration", ["isDamaged"]);
       break;
     }
@@ -101,7 +96,7 @@ export async function maneuversEffect(ddb, character, document) {
   }
 
   const damageEffect = {
-    "key": "data.bonuses.mwak.damage",
+    "key": "system.bonuses.mwak.damage",
     "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
     "value": `+ ${diceString}`,
     "priority": "20"
@@ -111,7 +106,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Riposte":
     case "Maneuvers: Brace": {
       // manual reaction types
-      setProperty(document, "data.activation.type", "reactionmanual");
+      setProperty(document, "system.activation.type", "reactionmanual");
       effect.changes.push(damageEffect);
       document.effects.push(effect);
       break;
@@ -149,7 +144,7 @@ export async function maneuversEffect(ddb, character, document) {
       ["per", "itm", "prf"].forEach((skill) => {
         effect.changes.push(
           {
-            "key": `data.skills.${skill}.value`,
+            "key": `system.skills.${skill}.value`,
             "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
             "value": `+ ${diceString}`,
             "priority": "20"
@@ -163,7 +158,7 @@ export async function maneuversEffect(ddb, character, document) {
       ["inv", "his", "ins"].forEach((skill) => {
         effect.changes.push(
           {
-            "key": `data.skills.${skill}.value`,
+            "key": `system.skills.${skill}.value`,
             "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
             "value": `+ ${diceString}`,
             "priority": "20"
@@ -176,13 +171,13 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Ambush": {
       effect.changes.push(
         {
-          "key": "data.skills.ste.value",
+          "key": "system.skills.ste.value",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
           "priority": "20"
         },
         {
-          "key": "data.attributes.init.bonus",
+          "key": "system.attributes.init.bonus",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
           "priority": "20"
@@ -195,7 +190,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Bait and Switch": {
       effect.changes.push(
         {
-          "key": "data.attributes.ac.bonus",
+          "key": "system.attributes.ac.bonus",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
           "priority": "20"
@@ -207,7 +202,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Grappling Strike": {
       effect.changes.push(
         {
-          "key": "data.skills.ath.value",
+          "key": "system.skills.ath.value",
           "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
           "value": `+ ${diceString}`,
           "priority": "20"
@@ -225,7 +220,7 @@ export async function maneuversEffect(ddb, character, document) {
       break;
     }
     case "Maneuvers: Parry": {
-      setProperty(document, "data.activation.type", "reactiondamage");
+      setProperty(document, "system.activation.type", "reactiondamage");
       effect.changes.push(
         {
           "key": "flags.midi-qol.DR.all",
@@ -261,8 +256,8 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Bait and Switch":
     case "Maneuvers: Commander’s Strike":
     case "Maneuvers: Commander's Strike": {
-      setProperty(document, "data.target.value", 1);
-      setProperty(document, "data.target.type", "creature");
+      setProperty(document, "system.target.value", 1);
+      setProperty(document, "system.target.type", "creature");
       break;
     }
     // no default
@@ -279,7 +274,7 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Sweeping Attack":
     case "Maneuvers: Disarming Attack":
     case "Maneuvers: Pushing Attack": {
-      setProperty(document, "data.damage.parts", [[diceString]]);
+      setProperty(document, "system.damage.parts", [[diceString]]);
       break;
     }
     // no default
@@ -287,7 +282,7 @@ export async function maneuversEffect(ddb, character, document) {
 
   switch (name) {
     case "Maneuvers: Precision Attack": {
-      setProperty(document, "data.damage.parts", [[diceString, "midi-none"]]);
+      setProperty(document, "system.damage.parts", [[diceString, "midi-none"]]);
       break;
     }
     // no default
@@ -299,15 +294,15 @@ export async function maneuversEffect(ddb, character, document) {
     case "Maneuvers: Disarming Attack":
     case "Maneuvers: Pushing Attack": {
       setProperty(effect, "flags.midiProperties.fulldam", true);
-      setProperty(document, "data.damage.parts", [[diceString]]);
-      setProperty(document, "data.save", { ability: "str", dc: null, "scaling": ability });
+      setProperty(document, "system.damage.parts", [[diceString]]);
+      setProperty(document, "system.save", { ability: "str", dc: null, "scaling": ability });
       break;
     }
     case "Maneuvers: Menacing Attack":
     case "Maneuvers: Goading Attack": {
       setProperty(effect, "flags.midiProperties.fulldam", true);
-      setProperty(document, "data.damage.parts", [[diceString]]);
-      setProperty(document, "data.save", { ability: "wis", dc: null, "scaling": ability });
+      setProperty(document, "system.damage.parts", [[diceString]]);
+      setProperty(document, "system.save", { ability: "wis", dc: null, "scaling": ability });
       break;
     }
     // no default

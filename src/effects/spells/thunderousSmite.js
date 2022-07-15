@@ -22,10 +22,10 @@ export async function thunderousSmiteEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "thunderousSmite.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
 
-  document.data.actionType = "other";
-  document.data.target.type = "self";
-  document.data.save.ability = "";
-  document.data.damage.parts = [];
+  document.system.actionType = "other";
+  document.system.target.type = "self";
+  document.system.save.ability = "";
+  document.system.damage.parts = [];
   document.effects.push(effect);
   setProperty(document, "flags.midi-qol.onUseMacroName", "");
 

@@ -3,14 +3,14 @@ import { baseFeatEffect } from "../specialFeats.js";
 export function bladesongEffect(document) {
   let effect = baseFeatEffect(document, `${document.name}`);
 
-  setProperty(document, "data.range", { value: null, units: "self", long: null });
-  setProperty(document, "data.range.value", null);
-  setProperty(document, "data.target.type", "self");
+  setProperty(document, "system.range", { value: null, units: "self", long: null });
+  setProperty(document, "system.range.value", null);
+  setProperty(document, "system.target.type", "self");
   setProperty(effect, "flags.dae.selfTarget", true);
 
   effect.changes.push(
     {
-      key: "data.attributes.ac.bonus",
+      key: "system.attributes.ac.bonus",
       value: "max(@abilities.int.mod,1)",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,
@@ -28,7 +28,7 @@ export function bladesongEffect(document) {
       priority: 20,
     },
     {
-      key: "data.attributes.movement.walk",
+      key: "system.attributes.movement.walk",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       value: "10",
       priority: "20",

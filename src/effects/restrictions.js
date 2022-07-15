@@ -193,10 +193,10 @@ export async function addRestrictionFlags(document) {
   if (restriction) {
     let restrictionText = restriction.restriction;
 
-    if (document.data.attunement > 0 && !["", "false"].includes(restriction.restriction)) {
+    if (document.system.attunement > 0 && !["", "false"].includes(restriction.restriction)) {
       restrictionText += ` && @item.attunement !== 1`;
     }
-    setProperty(document, "data.activation.condition", restrictionText);
+    setProperty(document, "system.activation.condition", restrictionText);
     if (restriction.effectRestrictionACtivation) {
       setProperty(document, "flags.midi-qol.effectActivation", true);
     }

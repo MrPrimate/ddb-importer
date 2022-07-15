@@ -4,7 +4,7 @@ export function passWithoutTraceEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
-      key: 'data.skills.ste.bonuses.check',
+      key: 'system.skills.ste.bonuses.check',
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       value: '+ 10',
       priority: "20",

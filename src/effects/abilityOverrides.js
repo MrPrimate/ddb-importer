@@ -33,7 +33,7 @@ export function abilityOverrideEffects(overrides) {
 
   DICTIONARY.character.abilities.forEach((ability) => {
     if (overrides[ability.value] === 0) return;
-    effects.changes.push(generateOverrideChange(overrides[ability.value], 50, `data.abilities.${ability.value}.value`));
+    effects.changes.push(generateOverrideChange(overrides[ability.value], 50, `system.abilities.${ability.value}.value`));
   });
 
   return effects;

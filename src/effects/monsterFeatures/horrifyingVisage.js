@@ -1,9 +1,9 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function horrifyingVisageEffect(document) {
-  setProperty(document, "data.duration", { value: 1, units: "minute" });
-  setProperty(document, "data.target", { value: 60, width: null, units: "ft", type: "enemy" });
-  setProperty(document, "data.range", { value: 60, long: null, units: "spec" });
+  setProperty(document, "system.duration", { value: 1, units: "minute" });
+  setProperty(document, "system.target", { value: 60, width: null, units: "ft", type: "enemy" });
+  setProperty(document, "system.range", { value: 60, long: null, units: "spec" });
 
   let effect = baseFeatEffect(document, document.name);
   effect.changes.push(

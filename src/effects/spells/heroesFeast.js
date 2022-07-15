@@ -4,8 +4,8 @@ import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../ma
 export async function heroesFeastEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
-    { key: "data.traits.di.value", value: "poison", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 },
-    { key: "data.traits.ci.value", value: "frightened", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 }
+    { key: "system.traits.di.value", value: "poison", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 },
+    { key: "system.traits.ci.value", value: "frightened", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 }
   );
   const itemMacroText = await loadMacroFile("spell", "heroesFeast.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);

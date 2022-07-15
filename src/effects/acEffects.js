@@ -58,7 +58,7 @@ export function generateFixedACEffect(formula, label, alwaysActive = false, prio
   effect.origin = "AC";
 
   const change = {
-    key: "data.attributes.ac.value",
+    key: "system.attributes.ac.value",
     value: formula,
     mode,
     priority,
@@ -126,7 +126,7 @@ function addACSetEffect(modifiers, name, subType) {
       generateUpgradeChange(
         effectString,
         15,
-        "data.attributes.ac.value"
+        "system.attributes.ac.value"
       )
     );
   }
@@ -172,9 +172,9 @@ function addACBonusEffect(modifiers, name, type) {
     // this is set to value, and show up as separate line in ac calculation.
     // we set this to bonus if dae is not installed as itherwise it is not applied.
     if (daeInstalled) {
-      changes.push(generateAddChange(bonus, 18, "data.attributes.ac.value"));
+      changes.push(generateAddChange(bonus, 18, "system.attributes.ac.value"));
     } else {
-      changes.push(generateAddChange(bonus, 18, "data.attributes.ac.bonus"));
+      changes.push(generateAddChange(bonus, 18, "system.attributes.ac.bonus"));
     }
   }
   return changes;
@@ -214,7 +214,7 @@ function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCom
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
   const noACValue = !foundryItem.system?.armor?.value;
   const daeInstalled = game.modules.get("dae")?.active;
-  const daeBonusField = daeInstalled ? "data.attributes.ac.value" : "data.attributes.ac.bonus";
+  const daeBonusField = daeInstalled ? "system.attributes.ac.value" : "system.attributes.ac.bonus";
 
   if (noModifiers && noACValue) return [];
   // console.error(`Item: ${foundryItem.name}`, ddbItem);

@@ -55,7 +55,7 @@ export async function runeCarverEffect(document) {
           priority: "20",
         },
         {
-          key: "data.attributes.senses.darkvision",
+          key: "system.attributes.senses.darkvision",
           value: "120",
           mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
           priority: 20,
@@ -73,7 +73,7 @@ export async function runeCarverEffect(document) {
     case "Rune Carver: Hill Rune": {
       baseEffect.changes.push(
         {
-          key: "data.traits.dr.value",
+          key: "system.traits.dr.value",
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           value: "poison",
           priority: "20",
@@ -99,10 +99,10 @@ export async function runeCarverEffect(document) {
   }
 
   if (baseEffect.changes.length > 0) {
-    setProperty(document, "data.target.type", "self");
-    setProperty(document, "data.range.units", "self");
-    setProperty(document, "data.range.value", "");
-    setProperty(document, "data.actionType", null);
+    setProperty(document, "system.target.type", "self");
+    setProperty(document, "system.range.units", "self");
+    setProperty(document, "system.range.value", "");
+    setProperty(document, "system.actionType", null);
     document.effects.push(baseEffect);
   }
   return document;

@@ -8,7 +8,7 @@ export async function callLightningEffect(document) {
   effect.changes.push(generateMacroChange("@spellLevel"));
   setProperty(effect, "flags.dae.selfTarget", true);
   document.effects.push(effect);
-  setProperty(document, "data.actionType", "other");
+  setProperty(document, "system.actionType", "other");
 
   return document;
 }

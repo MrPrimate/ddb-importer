@@ -3,10 +3,10 @@ import { baseFeatEffect } from "../specialFeats.js";
 export function stormRuneEffect(document) {
 
   let baseEffect = baseFeatEffect(document, document.name);
-  setProperty(document, "data.target.type", "self");
-  setProperty(document, "data.range.units", "self");
-  setProperty(document, "data.range.value", "");
-  setProperty(document, "data.actionType", null);
+  setProperty(document, "system.target.type", "self");
+  setProperty(document, "system.range.units", "self");
+  setProperty(document, "system.range.value", "");
+  setProperty(document, "system.actionType", null);
 
   document.effects.push(baseEffect);
 

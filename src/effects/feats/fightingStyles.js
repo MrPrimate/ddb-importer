@@ -6,38 +6,38 @@ export function fightingStyleInterceptionEffect(document) {
     {
       key: "flags.midi-qol.DR.rwak",
       mode: 0,
-      value: "1d10 + @data.attributes.prof",
+      value: "1d10 + @system.attributes.prof",
       priority: "20",
     },
     {
       key: "flags.midi-qol.DR.mwak",
       mode: 2,
-      value: "1d10 + @data.attributes.prof",
+      value: "1d10 + @system.attributes.prof",
       priority: "20",
     },
     {
       key: "flags.midi-qol.DR.msak",
       mode: 2,
-      value: "1d10 + @data.attributes.prof",
+      value: "1d10 + @system.attributes.prof",
       priority: "20",
     },
     {
       key: "flags.midi-qol.DR.rsak",
       mode: 2,
-      value: "1d10 + @data.attributes.prof",
+      value: "1d10 + @system.attributes.prof",
       priority: "20",
     }
   );
   setProperty(effect, "duration.turns", 1);
   setProperty(effect, "flags.dae.specialDuration", ["isDamaged"]);
-  document.data.target = {
+  document.system.target = {
     value: 1,
     width: null,
     units: "",
     type: "creature",
   };
-  document.data.damage.parts = [];
-  document.data.duration = {
+  document.system.damage.parts = [];
+  document.system.duration = {
     value: null,
     units: "inst",
   };

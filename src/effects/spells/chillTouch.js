@@ -4,7 +4,7 @@ import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../ma
 export async function chillTouchEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push({
-    key: "data.traits.di.value",
+    key: "system.traits.di.value",
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     value: "healing",
     priority: "30",

@@ -11,25 +11,25 @@ export function rageEffect(document) {
       : 2;
   effect.changes.push(
     {
-      key: "data.bonuses.mwak.damage",
+      key: "system.bonuses.mwak.damage",
       value: `${extraDamage}`,
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 0,
     },
     {
-      key: "data.traits.dr.value",
+      key: "system.traits.dr.value",
       value: "piercing",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 0,
     },
     {
-      key: "data.traits.dr.value",
+      key: "system.traits.dr.value",
       value: "slashing",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,
     },
     {
-      key: "data.traits.dr.value",
+      key: "system.traits.dr.value",
       value: "bludgeoning",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,
@@ -55,7 +55,7 @@ export function rageEffect(document) {
     startRound: null,
     startTurn: null,
   };
-  document.data.damage = {
+  document.system.damage = {
     parts: [],
     versatile: "",
     value: "",

@@ -21,7 +21,7 @@ export async function silenceEffect(document) {
       priority: "50",
     },
     {
-      key: "data.traits.di.value",
+      key: "system.traits.di.value",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "thunder",
       priority: "50",

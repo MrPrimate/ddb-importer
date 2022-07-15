@@ -5,7 +5,7 @@ export async function auraOfLifeEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
-      key: "data.traits.dr.value",
+      key: "system.traits.dr.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       value: "necrotic",
       priority: "20",
@@ -37,9 +37,9 @@ export async function auraOfLifeEffect(document) {
   // setProperty(effect, "duration.seconds", 600);
   setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
   effect.changes.push(generateMacroChange("@token"));
-  document.data.actionType = "other";
-  document.data.damage.parts = [];
-  document.data.range = { value: null, units: "self", long: null };
+  document.system.actionType = "other";
+  document.system.damage.parts = [];
+  document.system.range = { value: null, units: "self", long: null };
   document.data['target']['type'] = "self";
 
   document.effects.push(effect);
