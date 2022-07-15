@@ -241,7 +241,7 @@ export async function getNPCImage(data, options) {
   if (tokenizerReady) {
     const compendiumLabel = getCompendiumLabel(options.type);
     // eslint-disable-next-line require-atomic-updates
-    data.prototypeToken.img = await window.Tokenizer.autoToken(data, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
+    data.prototypeToken.texture.src = await window.Tokenizer.autoToken(data, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
   }
 
   return data;

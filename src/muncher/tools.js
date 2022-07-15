@@ -107,7 +107,7 @@ export async function updateWorldMonsters() {
 export async function resetCompendiumActorImages(compendiumName = null, type = "monster") {
   const monsterCompendiumLabel = compendiumName ? compendiumName : getCompendiumLabel(type);
   const monsterCompendium = await getCompendium(monsterCompendiumLabel);
-  const fields = ["name", "token.img", "flags.monsterMunch", "data.details.type.value", "img"];
+  const fields = ["name", "flags.monsterMunch", "system.details.type.value", "img", "prototypeToken.texture.src"];
   const index = await monsterCompendium.getIndex({ fields });
 
   const updates = await Promise.all(index.map(async (i) => {
