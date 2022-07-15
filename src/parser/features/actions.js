@@ -196,6 +196,7 @@ const LEVEL_SCALE_INFUSIONS = [
  */
 function getLevelScaleDice(ddb, character, action, feat) {
   const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
+  const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
 
   if (useScale) return feat;
   const parts = ddb.character.classes
