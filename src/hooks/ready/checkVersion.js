@@ -39,7 +39,7 @@ export default async () => {
     const compatibleMinimumSystem = utils.versionCompare(game.data.system.data.version, MINIMUM_5E_VERSION) >= 0;
 
     if (!compatibleMinimumSystem) {
-      ui.notifications.error(`${MODULE_TITLE} strongly recommends 5e system v${MINIMUM_5E_VERSION} to run correctly. Pleas update your 5e version.`, { permanent: true });
+      ui.notifications.error(`${MODULE_TITLE} strongly recommends 5e system v${MINIMUM_5E_VERSION} to run correctly. Please update your 5e version.`, { permanent: true });
     }
 
     // check version number only for GMs
