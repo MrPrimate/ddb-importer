@@ -24,6 +24,49 @@ export function checkMonsterCompendium() {
   return getMonsterCompendium();
 }
 
+// check items to see if retaining item, img or resources
+async function existingItemRetentionCheck(currentItems, newItems, checkId = true) {
+  const returnItems = [];
+
+  await newItems.forEach((item) => {
+    const existingItem = currentItems.find((owned) => {
+      const simpleMatch =
+        item.name === owned.data.name &&
+        item.type === owned.data.type &&
+        ((checkId && item.flags?.ddbimporter?.id === owned.data.flags?.ddbimporter?.id) || !checkId);
+
+      return simpleMatch;
+    });
+
+    if (existingItem) {
+      if (existingItem.data.flags.ddbimporter?.ignoreItemImport) {
+        returnItems.push(duplicate(existingItem));
+      } else {
+        item["_id"] = existingItem.id;
+        if (getProperty(existingItem, "data.flags.ddbimporter.ignoreIcon") === true) {
+          item.img = existingItem.data.img;
+          setProperty(item, "flags.ddbimporter.ignoreIcon", true);
+        }
+        if (getProperty(existingItem, "data.flags.ddbimporter.retainResourceConsumption")) {
+          item.data.consume = existingItem.data.data.consume;
+          setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
+          if (hasProperty(existingItem, "data.flags.link-item-resource-5e")) {
+            setProperty(item, "flags.link-item-resource-5e", existingItem.data.flags["link-item-resource-5e"]);
+          }
+        }
+
+        returnItems.push(item);
+      }
+    } else {
+      returnItems.push(item);
+    }
+  });
+
+  logger.debug("Finished retaining items");
+  return returnItems;
+}
+
+
 async function addNPCToCompendium(npc) {
   const compendium = getMonsterCompendium();
   if (compendium) {
@@ -36,6 +79,13 @@ async function addNPCToCompendium(npc) {
     if (hasProperty(npc, "_id") && compendium.index.has(npc._id)) {
       if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
         const existingNPC = await compendium.getDocument(npc._id);
+
+        const monsterTaggedItems = npcBasic.items.map((item) => {
+          setProperty(item, "flags.ddbimporter.parentId", npc._id);
+          return item;
+        });
+        const existingItems = existingNPC.getEmbeddedCollection("Item");
+        npcBasic.items = await existingItemRetentionCheck(existingItems, monsterTaggedItems, false);
 
         logger.debug("NPC Update Data", duplicate(npcBasic));
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });

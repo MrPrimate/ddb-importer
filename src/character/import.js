@@ -825,7 +825,7 @@ export default class CharacterImport extends FormApplication {
     }
   }
 
-  // returns items not updated
+  // checks for existing items, and depending on options will keep or replace with imported item
   async mergeExistingItems(html, items) {
     if (this.actorOriginal.flags.ddbimporter) {
       const ownedItems = this.actor.getEmbeddedCollection("Item");
