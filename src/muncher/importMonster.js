@@ -13,26 +13,30 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
       const simpleMatch =
         item.name === owned.data.name &&
         item.type === owned.data.type &&
-        ((checkId && item.flags?.ddbimporter?.id === owned.data.flags?.ddbimporter?.id) || !checkId);
+        ((checkId && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id) || !checkId);
 
       return simpleMatch;
     });
 
     if (existingItem) {
-      if (existingItem.data.flags.ddbimporter?.ignoreItemImport) {
+      if (existingItem.flags.ddbimporter?.ignoreItemImport) {
         returnItems.push(duplicate(existingItem));
       } else {
         item["_id"] = existingItem.id;
-        if (getProperty(existingItem, "data.flags.ddbimporter.ignoreIcon") === true) {
+        if (getProperty(existingItem, "flags.ddbimporter.ignoreIcon") === true) {
           item.img = existingItem.data.img;
           setProperty(item, "flags.ddbimporter.ignoreIcon", true);
         }
-        if (getProperty(existingItem, "data.flags.ddbimporter.retainResourceConsumption")) {
-          item.data.consume = existingItem.data.data.consume;
+        if (getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {
+          item.system.consume = existingItem.system.consume;
           setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
-          if (hasProperty(existingItem, "data.flags.link-item-resource-5e")) {
-            setProperty(item, "flags.link-item-resource-5e", existingItem.data.flags["link-item-resource-5e"]);
+          if (hasProperty(existingItem, "flags.link-item-resource-5e")) {
+            setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
           }
+        }
+
+        if (item.effects.length == 0 && existingItem.effects.length > 0) {
+          item.effects = duplicate(existingItem.getEmbeddedCollection("ActiveEffect"));
         }
 
         returnItems.push(item);

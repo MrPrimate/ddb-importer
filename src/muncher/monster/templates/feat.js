@@ -5,6 +5,7 @@ export function newFeat(name) {
     name: name,
     type: "feat",
     system: JSON.parse(utils.getTemplate("feat")),
+    effects: [],
     flags: {
       ddbimporter: {
         dndbeyond: {
