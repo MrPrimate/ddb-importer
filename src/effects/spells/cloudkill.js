@@ -1,11 +1,11 @@
 import { baseSpellEffect, spellEffectModules } from "../specialSpells.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
 
 export async function cloudkillEffect(document) {
   // we require active auras for this effect
   if (!spellEffectModules().activeAurasInstalled) return document;
 
-  const itemMacroText = await loadMacroFile("generic", "activeAuraDamageOnEntry.js");
+  const itemMacroText = await loadMacroFile("generic", MACROS.AA_DAMAGE_ON_ENTRY.file);
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);

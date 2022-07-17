@@ -24,6 +24,7 @@ import { stoneRuneEffect } from "./feats/stoneRune.js";
 import { hillRuneEffect } from "./feats/hillRune.js";
 import { stormRuneEffect } from "./feats/stormRune.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
+import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -202,6 +203,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Uncanny Dodge": {
       document = uncannyDodgeEffect(document);
+      break;
+    }
+    case "Vigilant Blessing": {
+      document = vigilantBlessingEffect(document);
       break;
     }
     case "War Caster":
