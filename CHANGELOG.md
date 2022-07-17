@@ -4,7 +4,8 @@
 * Some spells from races would not parse the duration correctly if different from original spell.
 * Feature effect: Rune Carver Giant's Might effect.
 * Effect: Rune Carver Runes.
-* Effect: Reckless Attack
+* Effect: Reckless Attack.
+* Effect: Vigilant Blessing.
 * Monster import will now respect items that have exclusion, resource linking or icon change flags on them. This only works in original munching mode, not bulk.
 
 # 2.9.57
