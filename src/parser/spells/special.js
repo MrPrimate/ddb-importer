@@ -220,6 +220,10 @@ export function fixSpells(ddb, items) {
         }
         break;
       }
+      case "Spike Growth": {
+        spell.data.actionType = "other";
+        break;
+      }
       case "Armor of Agathys": {
         spell.data.actionType = "heal";
         spell.data["target"]["type"] = "self";
