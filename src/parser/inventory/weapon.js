@@ -210,7 +210,7 @@ function getDamage(data, flags, betterRolls5e) {
     });
 
   const otherFormula = otherFormulas.join(" + ");
-  const chatFlavor = isBetterRolls ? "" : `Other damage: ${chatFlavors.join(", ")}`;
+  const chatFlavor = isBetterRolls || chatFlavors.length === 0 ? "" : `Roll Other damage: ${chatFlavors.join(", ")}`;
 
   // add damage modifiers from other sources like improved divine smite
   if (flags.damage.parts) {

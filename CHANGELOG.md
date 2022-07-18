@@ -7,6 +7,7 @@
 * Effect: Reckless Attack.
 * Effect: Vigilant Blessing.
 * Monster import will now respect items that have exclusion, resource linking or icon change flags on them. This only works in original munching mode, not bulk.
+* 'Chat Message Flavor' field was not left empty for weapons when no information was suitable to be placed there.
 
 # 2.9.57
 
