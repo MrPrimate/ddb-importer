@@ -1,3 +1,7 @@
+# 2.9.59
+
+* Effect: Steady Aim: Some correction to name, and movement reduction effect.
+
 # 2.9.58
 
 * Spells with limited uses based on proficiency now render uses correctly.
