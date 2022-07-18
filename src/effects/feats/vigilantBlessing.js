@@ -9,8 +9,8 @@ export function vigilantBlessingEffect(document) {
     priority: 30,
   });
   effect.flags.dae.specialDuration = ["Initiative"];
-  document.data["target"]["type"] = "creature";
-  document.data.actionType = null;
+  document.system["target"]["type"] = "creature";
+  document.system.actionType = null;
   document.effects.push(effect);
   return document;
 }

@@ -11,8 +11,8 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
   await newItems.forEach((item) => {
     const existingItem = currentItems.find((owned) => {
       const simpleMatch =
-        item.name === owned.data.name &&
-        item.type === owned.data.type &&
+        item.name === owned.name &&
+        item.type === owned.type &&
         ((checkId && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id) || !checkId);
 
       return simpleMatch;
@@ -24,7 +24,7 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
       } else {
         item["_id"] = existingItem.id;
         if (getProperty(existingItem, "flags.ddbimporter.ignoreIcon") === true) {
-          item.img = existingItem.data.img;
+          item.img = existingItem.img;
           setProperty(item, "flags.ddbimporter.ignoreIcon", true);
         }
         if (getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {

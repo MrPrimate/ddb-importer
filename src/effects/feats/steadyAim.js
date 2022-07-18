@@ -13,10 +13,10 @@ export function steadyAimEffect(document) {
   effect.flags.dae.specialDuration = ["1Attack"];
   setProperty(effect, "duration.turns", 1);
 
-  document.data["target"]["type"] = "self";
-  document.data.range = { value: null, units: "self", long: null };
-  document.data.actionType = null;
-  document.data.duration = {
+  document.system["target"]["type"] = "self";
+  document.system.range = { value: null, units: "self", long: null };
+  document.system.actionType = null;
+  document.system.duration = {
     value: 1,
     units: "turn",
   };
