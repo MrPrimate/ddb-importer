@@ -7,6 +7,7 @@ const lastArg = args[args.length - 1];
 console.warn(args);
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
+  const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
   const dataTracker = {
     randomId: randomID(),
     targetUuids: lastArg.targetUuids,
@@ -61,15 +62,6 @@ async function applySpikeGrowthDamage() {
 
 }
 
-// function getPositionData(token) {
-//   const position = {
-//     x: token.data.x,
-//     y: token.data.y,
-//     elevation: token.data.elevation,
-//   };
-//   return position;
-// }
-
 function getDamageTestString(token, flags) {
   return `${flags.origin}-${flags.round}-${flags.turn}-${flags.randomId}-${token.data.x}-${token.data.y}-${token.data.elevation}`;
 }
@@ -90,14 +82,11 @@ if (args[0] === "on") {
       round: game.combat.round,
       turn: game.combat.turn,
       firstRound: true,
-      position: getPositionData(target),
     };
 
   const testString = getDamageTestString(target, targetTokenTracker);
   const existingTestString = hasProperty(targetTokenTracker, "testString");
-
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
-  const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
 
   if (castTurn && originalTarget && targetTokenTracker.firstRound) {
     console.debug(`Token ${target.name} is part of the original target for ${item.name}`);
@@ -106,7 +95,6 @@ if (args[0] === "on") {
     await applySpikeGrowthDamage();
   }
 
-  // targetTokenTracker["position"] = getPositionData(target);
   targetTokenTracker["testString"] = testString;
   await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
 }
@@ -116,13 +104,13 @@ if (args[0] === "off") {
   const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
   const target = canvas.tokens.get(lastArg.tokenId);
   const targetTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
-  const currentTrackerFlag = getPositionData(target);
-  const isSame = isObjectEmpty(diffObject(targetTrackerFlag.positionData, currentTrackerFlag));
+  const testString = getDamageTestString(target, targetTrackerFlag);
+  const isSame = testString === targetTrackerFlag.testString;
 
   console.warn("isSame", {
     target,
     targetTrackerFlag,
-    currentTrackerFlag,
+    testString,
     isSame,
   });
 
@@ -130,7 +118,7 @@ if (args[0] === "off") {
     await applySpikeGrowthDamage();
     const token = await fromUuid(lastArg.tokenUuid);
     targetTrackerFlag["testString"] = getDamageTestString(token, targetTrackerFlag);
-    await DAE.setFlag(token, `${safeName}PositionTracker`, targetTrackerFlag);
+    await DAE.setFlag(token, `${safeName}Tracker`, targetTrackerFlag);
     await ActiveAuras.MainAura(token, "movement update", token.parent.id);
   }
 

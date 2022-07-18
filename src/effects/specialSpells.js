@@ -101,6 +101,7 @@ import { silenceEffect } from "./spells/silence.js";
 import { sleepEffect } from "./spells/sleep.js";
 import { slowEffect } from "./spells/slow.js";
 import { spiderClimbEffect } from "./spells/spiderClimb.js";
+import { spikeGrowthEffect } from "./spells/spikeGrowth.js";
 import { spiritGuardiansEffect } from "./spells/spiritGuardians.js";
 import { spiritShroudEffect } from "./spells/spiritShroud.js";
 import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
@@ -588,6 +589,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Spider Climb": {
       document = spiderClimbEffect(document);
+      break;
+    }
+    case "Spike Growth": {
+      document = await spikeGrowthEffect(document);
       break;
     }
     case "Spirit Guardians": {

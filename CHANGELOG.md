@@ -2,10 +2,8 @@
 
 * Spells with limited uses based on proficiency now render uses correctly.
 * Some spells from races would not parse the duration correctly if different from original spell.
-* Feature effect: Rune Carver Giant's Might effect.
-* Effect: Rune Carver Runes.
-* Effect: Reckless Attack.
-* Effect: Vigilant Blessing.
+* Feature effect: Rune Carver Giant's Might effect. Rune Carver Runes. Reckless Attack. Vigilant Blessing. Steady Aim.
+* Spell effect: Spike Growth. (Requires Active Auras).
 * Monster import will now respect items that have exclusion, resource linking or icon change flags on them. This only works in original munching mode, not bulk.
 * 'Chat Message Flavor' field was not left empty for weapons when no information was suitable to be placed there.
 
