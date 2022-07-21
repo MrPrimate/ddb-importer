@@ -1,6 +1,7 @@
 # 2.9.59
 
 * Effect: Steady Aim: Some correction to name, and movement reduction effect.
+* Character Import: Some different subclass combos could cause an update error on character import as spells conflicted.
 
 # 2.9.58
 

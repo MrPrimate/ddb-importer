@@ -69,17 +69,19 @@ export function getCharacterSpells(ddb, character) {
       // Check for duplicate spells, normally domain ones
       // We will import spells from a different class that are the same though
       // as they may come from with different spell casting mods
+      const parsedSpell = parseSpell(spell, character);
       const duplicateSpell = items.findIndex(
         (existingSpell) =>
           (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name &&
-          classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class
+          // some spells come from different classes but end up having the same ddb id
+          (classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class || spell.id === existingSpell.flags.ddbimporter.dndbeyond.id)
       );
       if (!items[duplicateSpell]) {
-        items.push(parseSpell(spell, character));
-      } else if (spell.alwaysPrepared) {
+        items.push(parsedSpell);
+      } else if (spell.alwaysPrepared || parsedSpell.data.preparation.mode === "always") {
         // if our new spell is always known we overwrite!
         // it's probably domain
-        items[duplicateSpell] = parseSpell(spell, character);
+        items[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.definition.name}.`);
