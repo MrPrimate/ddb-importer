@@ -78,7 +78,7 @@ export function getCharacterSpells(ddb, character) {
       );
       if (!items[duplicateSpell]) {
         items.push(parsedSpell);
-      } else if (spell.alwaysPrepared || parsedSpell.data.preparation.mode === "always") {
+      } else if (spell.alwaysPrepared || parsedSpell.system.preparation.mode === "always") {
         // if our new spell is always known we overwrite!
         // it's probably domain
         items[duplicateSpell] = parsedSpell;
