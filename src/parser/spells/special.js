@@ -221,7 +221,7 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Spike Growth": {
-        spell.data.actionType = "other";
+        spell.system.actionType = "other";
         break;
       }
       case "Armor of Agathys": {
