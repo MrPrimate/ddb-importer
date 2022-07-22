@@ -12,6 +12,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
 
   for (let targetActor of targetActors) {
     munchNote(`Updating ${count}/${totalTargets} world monsters`);
+    console.warn(`Updating ${count}/${totalTargets} world monsters`, targetActor);
     const monsterItems = sourceActor.items.toObject().map((item) => {
       delete item._id;
       return item;
@@ -19,6 +20,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     const actorUpdate = duplicate(sourceActor);
     // pop items in later
     delete actorUpdate.items;
+
 
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-world-monster-update-images");
     if (!updateImages) {
@@ -43,7 +45,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     }
 
     actorUpdate._id = targetActor.id;
-    actorUpdate.folder = targetActor.folder;
+    if (targetActor.folder) actorUpdate.folder = targetActor.folder._id;
     actorUpdate.sort = targetActor.sort;
     actorUpdate.ownership = targetActor.ownership;
     // eslint-disable-next-line no-await-in-loop
@@ -73,25 +75,26 @@ export async function updateWorldMonsters() {
   if (monsterCompendium) {
     const monsterIndices = ["name", "flags.ddbimporter.id"];
     const index = await monsterCompendium.getIndex({ fields: monsterIndices });
-    totalTargets = game.actors.filter((a) => a.type === "npc" && a.flags.ddbimporter?.id).length;
+    totalTargets = game.actors.filter((a) => a.type === "npc" && hasProperty(a, "flags.ddbimporter.id")).length;
     count = 0;
     munchNote(`Updating ${count}/${totalTargets} world monsters`);
+    logger.debug(`Checking ${totalTargets} world monsters`);
 
     for (const [key, value] of index.entries()) {
 
-      const worldMatch = game.actors.filter((actor) =>
+      const worldMatches = game.actors.filter((actor) =>
         actor.flags?.ddbimporter?.id &&
         actor.name === value.name &&
         actor.flags.ddbimporter.id == value.flags?.ddbimporter?.id
       );
 
-      if (worldMatch.length > 0) {
-        munchNote(`Found ${value.name} world monsters`, true);
+      if (worldMatches.length > 0) {
+        munchNote(`Found ${value.name} world monster`, true);
         logger.debug(`Matched ${value.name} (${key})`);
         // eslint-disable-next-line no-await-in-loop
         const monster = await monsterCompendium.getDocument(value._id);
         // eslint-disable-next-line no-await-in-loop
-        let updatedActors = await updateActorsWithActor(worldMatch, monster, count);
+        let updatedActors = await updateActorsWithActor(worldMatches, monster, count);
         results.push(updatedActors);
       }
     }
