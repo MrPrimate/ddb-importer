@@ -9,6 +9,10 @@ async function parseVehicle(ddb) {
 
   let vehicle = duplicate(await newVehicle(ddb.name));
   let items = [];
+  let configurations = {};
+  ddb.configurations.forEach((c) => {
+    configurations[c.key] = c.value;
+  });
 
   let img = ddb.largeAvatarUrl;
   // foundry doesn't support gifs
@@ -23,14 +27,11 @@ async function parseVehicle(ddb) {
   };
   vehicle.flags.ddbimporter = {
     id: ddb.id,
-    entityTypeId: ddb.entityTypeId,
-    // creatureGroup: monster.creatureGroup ? monster.creatureGroup : null,
-    creatureGroupId: ddb.creatureGroupId ? ddb.creatureGroupId : null,
-    creatureFlags: ddb.creatureFlags ? ddb.creatureFlags : [],
-    automatedEvcoationAnimation: ddb.automatedEvcoationAnimation ? ddb.automatedEvcoationAnimation : undefined,
     version: CONFIG.DDBI.version,
-    isLegacy: ddb.isLegacy,
+    configurations,
   };
+
+
 
   // const removedHitPoints = ddb.removedHitPoints ? ddb.removedHitPoints : 0;
   // const temporaryHitPoints = ddb.temporaryHitPoints ? ddb.removedHitPoints : 0;
