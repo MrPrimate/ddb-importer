@@ -15,7 +15,7 @@ export function getExhaustion(data) {
 }
 
 let getGenericConditionAffect = (data, condition, typeId) => {
-  const damageTypes = DICTIONARY.character.damageTypes
+  const damageTypes = DICTIONARY.character.damageAdjustments
     .filter((type) => type.kind === condition && type.type === typeId)
     .map((type) => type.value);
 
@@ -24,7 +24,7 @@ let getGenericConditionAffect = (data, condition, typeId) => {
     .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType) &&
       (modifier.restriction === "" || !modifier.restriction))
     .map((modifier) => {
-      const entry = DICTIONARY.character.damageTypes.find(
+      const entry = DICTIONARY.character.damageAdjustments.find(
         (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
       );
       return entry ? entry.foundryValue || entry.value : undefined;
@@ -34,7 +34,7 @@ let getGenericConditionAffect = (data, condition, typeId) => {
     data.character.customDefenseAdjustments
       .filter((adjustment) => adjustment.type === typeId)
       .map((adjustment) => {
-        const entry = DICTIONARY.character.damageTypes.find(
+        const entry = DICTIONARY.character.damageAdjustments.find(
           (type) =>
             (type.id === adjustment.id || type.id === adjustment.adjustmentId) &&
             type.type === adjustment.type &&

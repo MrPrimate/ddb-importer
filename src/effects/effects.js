@@ -637,7 +637,7 @@ function addGlobalDamageBonus(modifiers, name) {
 // Get list of generic conditions/damages
 //
 function getGenericConditionAffect(modifiers, condition, typeId) {
-  const damageTypes = DICTIONARY.character.damageTypes
+  const damageTypes = DICTIONARY.character.damageAdjustments
     .filter((type) => type.kind === condition && type.type === typeId)
     .map((type) => type.value);
 
@@ -657,7 +657,7 @@ function getGenericConditionAffect(modifiers, condition, typeId) {
     .filterModifiers(modifiers, condition, null, restrictions)
     .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType))
     .map((modifier) => {
-      const entry = DICTIONARY.character.damageTypes.find(
+      const entry = DICTIONARY.character.damageAdjustments.find(
         (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
       );
       return entry ? entry.foundryValue || entry.value : undefined;

@@ -177,7 +177,7 @@ const DICTIONARY = {
       { name: "Natural Armor", value: "natural" },
       { name: "Shield", value: "shield" },
     ],
-    damageTypes: [
+    damageAdjustments: [
       { id: 1, type: 2, kind: "resistance", name: "Bludgeoning", value: "bludgeoning" },
       { id: 2, type: 2, kind: "resistance", name: "Piercing", value: "piercing" },
       { id: 3, type: 2, kind: "resistance", name: "Slashing", value: "slashing" },
