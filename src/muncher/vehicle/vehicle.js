@@ -3,9 +3,35 @@ import { copySupportedItemFlags } from "../import.js";
 import { getMonsterCompendium } from "../importMonster.js";
 import utils from "../../utils.js";
 import DICTIONARY from "../../dictionary.js";
+
 import { newVehicle } from './templates/vehicle.js';
 
-async function parseVehicle(ddb) {
+import {
+  getDamageImmunities,
+  getDamageResistances,
+  getDamageVulnerabilities,
+  getConditionImmunities,
+} from "./conditions.js";
+import { getAbilities } from "./abilities.js";
+// import { getSkills, getSkillsHTML } from "./skills.js";
+// import { getLanguages } from "./languages.js";
+// import { getHitPoints } from "./hp.js";
+// import { getSpeed } from "./movement.js";
+import { getSize } from "./size.js";
+// import { getSource } from "./source.js";
+// import { getEnvironments } from "./environments.js";
+// import { getLairActions } from "./features/lair.js";
+// import { getLegendaryActions } from "./features/legendary.js";
+// import { getActions } from "./features/actions.js";
+// import { getSpecialTraits } from "./features/specialtraits.js";
+// import { getSpells } from "./spells.js";
+// import { getType } from "./type.js";
+// import { generateAC } from "./ac.js";
+// import { specialCases } from "./special.js";
+// import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js";
+
+
+async function parseVehicle(ddb, extra = {}) {
 
   let vehicle = duplicate(await newVehicle(ddb.name));
   let items = [];
@@ -31,28 +57,17 @@ async function parseVehicle(ddb) {
     configurations,
   };
 
-
-
   // const removedHitPoints = ddb.removedHitPoints ? ddb.removedHitPoints : 0;
   // const temporaryHitPoints = ddb.temporaryHitPoints ? ddb.removedHitPoints : 0;
 
-  // // abilities
-  // vehicle.data.abilities = getAbilities(vehicle.data.abilities, ddb);
+  // abilities
+  vehicle.data.abilities = getAbilities(vehicle.data.abilities, ddb);
 
-  // // skills
-  // vehicle.data.skills = (extra)
-  //   ? getSkills(vehicle.data.skills, ddb)
-  //   : getSkillsHTML(vehicle.data.skills, ddb);
+  // Conditions
+  vehicle.data.traits.di = getDamageImmunities(ddb);
+  vehicle.data.traits.ci = getConditionImmunities(ddb);
 
-  // // Senses
-  // vehicle.data.attributes.senses = getSenses(ddb);
-  // vehicle.token = await getTokenSenses(vehicle.token, ddb);
-
-  // // Conditions
-  // vehicle.data.traits.di = getDamageImmunities(ddb);
-  // vehicle.data.traits.dr = getDamageResistances(ddb);
-  // vehicle.data.traits.dv = getDamageVulnerabilities(ddb);
-  // vehicle.data.traits.ci = getConditionImmunities(ddb);
+  // size
   // const size = getSize(ddb);
   // vehicle.data.traits.size = size.value;
   // vehicle.token.width = size.token.value;
