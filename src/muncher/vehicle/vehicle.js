@@ -1,8 +1,7 @@
 import logger from '../../logger.js';
-import { copySupportedItemFlags } from "../import.js";
-import { getMonsterCompendium } from "../importMonster.js";
 import utils from "../../utils.js";
 import DICTIONARY from "../../dictionary.js";
+import { existingActorCheck } from "../utils.js";
 
 import { newVehicle } from './templates/vehicle.js';
 
@@ -68,22 +67,17 @@ async function parseVehicle(ddb, extra = {}) {
   vehicle.data.traits.ci = getConditionImmunities(ddb);
 
   // size
-  // const size = getSize(ddb);
-  // vehicle.data.traits.size = size.value;
-  // vehicle.token.width = size.token.value;
-  // vehicle.token.height = size.token.value;
-  // vehicle.token.scale = size.token.scale;
+  const size = getSize(ddb);
+  vehicle.data.traits.size = size.value;
+  vehicle.token.width = size.token.value;
+  vehicle.token.height = size.token.value;
+  vehicle.token.scale = size.token.scale;
 
-
-  // // languages
-  // vehicle.data.traits.languages = getLanguages(ddb);
-
+  // TODO: this varies depending on the vehicle type
   // // attributes
   // vehicle.data.attributes.hp = getHitPoints(ddb, removedHitPoints, temporaryHitPoints);
   // const movement = getSpeed(ddb);
   // vehicle.data.attributes.movement = movement['movement'];
-
-  // vehicle.data.attributes.prof = CONFIG.DDB.challengeRatings.find((cr) => cr.id == ddb.challengeRatingId).proficiencyBonus;
 
   // // ac
   // const ac = await generateAC(ddb, useItemAC);
@@ -91,100 +85,42 @@ async function parseVehicle(ddb, extra = {}) {
   // vehicle.flags.ddbimporter.flatAC = ac.flatAC;
   // items.push(...ac.ddbItems);
 
-  // // details
-  // const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == ddb.challengeRatingId);
-  // vehicle.data.details.type = getType(ddb);
-  // const alignment = CONFIG.DDB.alignments.find((c) => ddb.alignmentId == c.id);
-  // vehicle.data.details.alignment = alignment ? alignment.name : "";
-  // vehicle.data.details.cr = cr.value;
+  // TODO:
+
+  // levels
+  // thresholds damage
+  // thresholds mishaps
+  // capacity people
+  // capacity cargo
+  // weight
+  // travel pace
+  // vehicle type
+  // fuel data
+  // components
+
+
+  // details
   vehicle.data.details.source = utils.getSourceData(ddb);
-  // vehicle.data.details.xp = {
-  //   value: cr.xp
-  // };
-  // vehicle.data.details.environment = getEnvironments(ddb);
-  // vehicle.data.details.biography.value = ddb.characteristicsDescription;
+  vehicle.data.details.biography.value = ddb.description;
 
-  // let actions, lairActions, legendaryActions, specialTraits, reactions, bonus, mythic;
-  // let characterDescriptionAction, characterDescriptionReaction, unexpectedDescription;
+  if (ddb.actionsText) {
+    vehicle.data.details.biography.value += `<h2>Actions</h2>\n<p>${ddb.actionsText}</p>`;
+    const componentActionSummaries = ddb.componentActionSummaries.map((feature) => {
+      return `<h3>${feature.name}</h3>\n<p>${feature.description}</p>`;
+    }).join('\n')
+    vehicle.data.details.biography.value += `\n<p>${componentActionSummaries}</p>`;
+  } else if (ddb.features.length > 0) {
+    const featuresText = ddb.features.map((feature) => {
+      return `<h3>${feature.name}</h3>\n<p>${feature.description}</p>`;
+    }).join('\n');
+    vehicle.data.details.biography.value += `<h2>Features</h2>\n<p>${featuresText}</p>`;
+  }
 
-  // [actions, characterDescriptionAction] = getActions(ddb);
-  // items.push(...actions);
+  vehicle.items = items;
 
-  // if (ddb.hasLair) {
-  //   lairActions = getLairActions(ddb);
-  //   items.push(...lairActions.lairActions);
-  //   vehicle.data.resources["lair"] = lairActions.resource;
-  // }
 
-  // if (ddb.legendaryActionsDescription != "") {
-  //   legendaryActions = getLegendaryActions(ddb, actions);
-  //   items.push(...legendaryActions.legendaryActions);
-  //   vehicle.data.resources["legact"] = legendaryActions.actions;
-  //   vehicle.token.bar2 = {
-  //     attribute: "resources.legact"
-  //   };
-  // }
+  vehicle = await existingActorCheck("vehicle", vehicle);
 
-  // if (ddb.specialTraitsDescription != "") {
-  //   specialTraits = getSpecialTraits(ddb, actions);
-  //   items.push(...specialTraits.specialActions);
-  //   vehicle.data.resources["legres"] = specialTraits.resistance;
-  // }
-
-  // [reactions, characterDescriptionReaction] = getActions(ddb, "reaction");
-  // items.push(...reactions);
-  // [bonus, unexpectedDescription] = getActions(ddb, "bonus");
-  // items.push(...bonus);
-  // [mythic, unexpectedDescription] = getActions(ddb, "mythic");
-  // items.push(...mythic);
-
-  // if (unexpectedDescription) {
-  //   logger.warn(`Unexpected description for ${ddb.name}`);
-  // }
-  // if (characterDescriptionAction) {
-  //   vehicle.data.details.biography.value += characterDescriptionAction;
-  // }
-  // if (characterDescriptionReaction) {
-  //   vehicle.data.details.biography.value += characterDescriptionReaction;
-  // }
-  // if (specialTraits?.characterDescription) {
-  //   vehicle.data.details.biography.value += specialTraits.characterDescription;
-  // }
-
-  // // Spellcasting
-  // const spellcastingData = getSpells(ddb);
-  // vehicle.data.attributes.spellcasting = spellcastingData.spellcasting;
-  // vehicle.data.attributes.spelldc = spellcastingData.spelldc;
-  // vehicle.data.attributes.spellLevel = spellcastingData.spellLevel;
-  // vehicle.data.details.spellLevel = spellcastingData.spellLevel;
-  // vehicle.data.spells = spellcastingData.spells;
-  // vehicle.flags.monsterMunch['spellList'] = spellcastingData.spellList;
-
-  // const badItems = items.filter((i) => i.name === "" || !i.name);
-  // if (badItems.length > 0) {
-  //   logger.error(`${ddb.name} - ${badItems.length} items have no name.`, badItems);
-  //   items = items.filter((i) => i.name && i.name !== "");
-  // }
-
-  // vehicle.items = items;
-
-  // const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-  // if (legacyName) {
-  //   if (ddb.isLegacy) {
-  //     vehicle.name += " (Legacy)";
-  //     vehicle.token.name += " (Legacy)";
-  //   }
-  // }
-
-  // vehicle = await existingMonsterCheck(vehicle);
-
-  // logger.debug("Importing Spells");
-  // vehicle = await addSpells(vehicle);
-
-  // vehicle = specialCases(vehicle);
-  // if (game.settings.get("ddb-importer", "munching-policy-add-monster-effects")) {
-  //   vehicle = await monsterFeatureEffectAdjustment(vehicle, ddb);
-  // }
 
   return vehicle;
 }

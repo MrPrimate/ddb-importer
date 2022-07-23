@@ -1,0 +1,32 @@
+
+export function getType(monster) {
+
+  const result = {
+    "value": "",
+    "subtype": "",
+    "swarm": "",
+    // "swarm": {
+    //   "isSwarm": false,
+    //   "size": ""
+    // },
+    "custom": ""
+  };
+
+  const type = CONFIG.DDB.monsterTypes.find((c) => monster.typeId == c.id);
+  if (!type) {
+    result.custom = "Unknown";
+    return result;
+  }
+
+  const typeName = type.name.toLowerCase();
+
+  if (CONFIG.DND5E.creatureTypes[typeName]) result.value = typeName;
+
+  result.subtype = CONFIG.DDB.monsterSubTypes
+    .filter((c) => monster.subTypes.includes(c.id))
+    .map((c) => c.name)
+    .join(", ");
+
+  return result;
+
+}
