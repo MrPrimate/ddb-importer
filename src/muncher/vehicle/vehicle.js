@@ -97,6 +97,7 @@ async function parseVehicle(ddb, extra = {}) {
   // vehicle type
   // fuel data
   // components
+  // dimensions
 
 
   // details
