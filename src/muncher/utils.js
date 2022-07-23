@@ -1,4 +1,5 @@
 import logger from "../logger.js";
+import { copySupportedItemFlags } from "./import.js";
 
 export const BAD_DIRS = ["[data]", "[data] ", "", null];
 
@@ -102,14 +103,14 @@ export function getCompendiumType(type, fail = true) {
   }
 }
 
-export async function loadCompendiumIndex(name) {
-  const compendiumLabel = getCompendiumLabel(name);
-  setProperty(CONFIG.DDBI, `compendium.label.${name}`, compendiumLabel);
+export async function loadCompendiumIndex(type, indexOptions = {}) {
+  const compendiumLabel = getCompendiumLabel(type);
+  setProperty(CONFIG.DDBI, `compendium.label.${type}`, compendiumLabel);
   const compendium = await getCompendium(compendiumLabel);
 
   if (compendium) {
-    const index = await compendium.getIndex();
-    setProperty(CONFIG.DDBI, `compendium.index.${name}`, index);
+    const index = await compendium.getIndex(indexOptions);
+    setProperty(CONFIG.DDBI, `compendium.index.${type}`, index);
     return index;
   } else {
     return undefined;
@@ -222,3 +223,80 @@ export async function setPatreonTier() {
   const tier = await getPatreonTier();
   game.settings.set("ddb-importer", "patreon-tier", tier);
 }
+
+/* eslint-disable require-atomic-updates */
+async function copyExistingActorProperties(type, foundryActor) {
+  const compendium = getCompendiumType(type);
+  // v8 doesn't like null _ids with keepId set
+  if (!game.version) {
+    foundryActor.items = foundryActor.items.map((i) => {
+      if (!i._id) i._id = randomID();
+      if (i.effects && i.effects.length > 0) {
+        i.effects = i.effects.map((e) => {
+          if (!e._id) e._id = randomID();
+          return e;
+        });
+      }
+      return i;
+    });
+  }
+
+  if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
+    const existingNPC = await compendium.getDocument(foundryActor._id);
+
+    const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+    if (!updateImages && existingNPC.data.img !== "icons/svg/mystery-man.svg") {
+      foundryActor.img = existingNPC.data.img;
+    }
+    if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
+      foundryActor.token.img = existingNPC.data.token.img;
+      foundryActor.token.scale = existingNPC.data.token.scale;
+      foundryActor.token.randomImg = existingNPC.data.token.randomImg;
+      foundryActor.token.mirrorX = existingNPC.data.token.mirrorX;
+      foundryActor.token.mirrorY = existingNPC.data.token.mirrorY;
+      foundryActor.token.lockRotation = existingNPC.data.token.lockRotation;
+      foundryActor.token.rotation = existingNPC.data.token.rotation;
+      foundryActor.token.alpha = existingNPC.data.token.alpha;
+      foundryActor.token.lightAlpha = existingNPC.data.token.lightAlpha;
+      foundryActor.token.lightAnimation = existingNPC.data.token.lightAnimation;
+      foundryActor.token.tint = existingNPC.data.token.tint;
+      foundryActor.token.lightColor = existingNPC.data.token.lightColor;
+    }
+
+    const retainBiography = game.settings.get("ddb-importer", "munching-policy-monster-retain-biography");
+    if (retainBiography) {
+      foundryActor.data.details.biography = existingNPC.data.data.details.biography;
+    }
+
+    await copySupportedItemFlags(existingNPC.toObject(), foundryActor);
+  }
+
+  return foundryActor;
+}
+/* eslint-enable require-atomic-updates */
+
+export async function getActorIndexActor(type, npc) {
+  const monsterIndexFields = ["name", "flags.ddbimporter.id"];
+  const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+  const index = await loadCompendiumIndex(type, { fields: monsterIndexFields });
+  const npcMatch = index.contents.find((entity) =>
+    hasProperty(entity, "flags.ddbimporter.id") &&
+    entity.flags.ddbimporter.id == npc.flags.ddbimporter.id &&
+    ((!legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()) ||
+      (legacyName && npc.flags.ddbimporter.isLegacy && npc.name.toLowerCase().startsWith(entity.name.toLowerCase())) ||
+      (legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()))
+  );
+  return npcMatch;
+}
+
+export async function existingActorCheck(type, foundryActor) {
+  const matchingActor = await getActorIndexActor(type, foundryActor);
+  if (matchingActor) {
+    logger.debug(`Found existing ${type}, updating: ${matchingActor.name}`);
+    // eslint-disable-next-line require-atomic-updates
+    foundryActor._id = matchingActor._id;
+    foundryActor = await copyExistingActorProperties(type, foundryActor);
+  }
+  return foundryActor;
+}
+

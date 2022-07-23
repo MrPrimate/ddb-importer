@@ -2,7 +2,7 @@
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
-import { addNPC, generateIconMap, copyExistingMonsterImages, checkMonsterCompendium, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
+import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -86,7 +86,6 @@ async function getMonsterData(ids) {
 }
 
 export async function parseCritters(ids = null) {
-  checkMonsterCompendium();
   setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
   const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
@@ -165,7 +164,6 @@ export async function parseCritters(ids = null) {
 }
 
 export async function fixCritters(ids = null) {
-  checkMonsterCompendium();
   setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
   logger.info("Check complete getting monster data...");

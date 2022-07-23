@@ -4,26 +4,6 @@ import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copyS
 import { getCompendiumType, munchNote, getCompendiumLabel } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
-var compendiumLoaded = false;
-var monsterCompendium;
-
-export function getMonsterCompendium() {
-  if (compendiumLoaded) return monsterCompendium;
-  monsterCompendium = getCompendiumType("monster", false);
-  if (monsterCompendium) {
-    // eslint-disable-next-line require-atomic-updates
-    compendiumLoaded = true;
-    return monsterCompendium;
-  }
-  return undefined;
-}
-
-export function checkMonsterCompendium() {
-  compendiumLoaded = false;
-  monsterCompendium = undefined;
-  return getMonsterCompendium();
-}
-
 // check items to see if retaining item, img or resources
 async function existingItemRetentionCheck(currentItems, newItems, checkId = true) {
   const returnItems = [];
@@ -68,7 +48,7 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 
 
 async function addNPCToCompendium(npc) {
-  const compendium = getMonsterCompendium();
+  const compendium = getCompendiumType("monster", false);
   if (compendium) {
     const npcBasic = duplicate(npc);
 
@@ -120,7 +100,7 @@ async function addNPCToCompendium(npc) {
 }
 
 export async function addNPCsToCompendium(npcs) {
-  const compendium = getMonsterCompendium();
+  const compendium = getCompendiumType("monster", false);
   let results = [];
   if (compendium) {
     // unlock the compendium for update/create
@@ -158,7 +138,7 @@ export async function addNPCsToCompendium(npcs) {
 
 export async function addNPCDDBId(npc) {
   let npcBasic = duplicate(npc);
-  const compendium = getMonsterCompendium();
+  const compendium = getCompendiumType("monster", false);
   if (compendium) {
     // unlock the compendium for update/create
     compendium.configure({ locked: false });

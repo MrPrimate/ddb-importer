@@ -1,7 +1,6 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
-import { checkMonsterCompendium } from "../importMonster.js";
 import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
@@ -576,8 +575,7 @@ export default class Helpers {
   }
 
   static async generateTokenActors(scene) {
-    const monsterCompendium = checkMonsterCompendium();
-
+    const monsterCompendium = getCompendiumType("monster", false);
     const tokens = await Helpers.linkDDBActors(scene.tokens);
 
     const neededActors = tokens

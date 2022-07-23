@@ -25,10 +25,9 @@ import { generateAC } from "./ac.js";
 import { newNPC } from "./templates/monster.js";
 import { specialCases } from "./special.js";
 import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js";
+import { existingActorCheck } from "../utils.js";
 
 import logger from '../../logger.js';
-import { copySupportedItemFlags } from "../import.js";
-import { getMonsterCompendium } from "../importMonster.js";
 import utils from "../../utils.js";
 import DICTIONARY from "../../dictionary.js";
 
@@ -243,79 +242,6 @@ async function addSpells(monster) {
   return monster;
 }
 
-async function copyExistingMonsterProperties(compendium, foundryActor) {
-  // v8 doesn't like null _ids with keepId set
-  if (!game.version) {
-    foundryActor.items = foundryActor.items.map((i) => {
-      if (!i._id) i._id = randomID();
-      if (i.effects && i.effects.length > 0) {
-        i.effects = i.effects.map((e) => {
-          if (!e._id) e._id = randomID();
-          return e;
-        });
-      }
-      return i;
-    });
-  }
-
-  if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
-    const existingNPC = await compendium.getDocument(foundryActor._id);
-
-    const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-    if (!updateImages && existingNPC.data.img !== "icons/svg/mystery-man.svg") {
-      foundryActor.img = existingNPC.data.img;
-    }
-    if (!updateImages && existingNPC.data.token.img !== "icons/svg/mystery-man.svg") {
-      foundryActor.token.img = existingNPC.data.token.img;
-      foundryActor.token.scale = existingNPC.data.token.scale;
-      foundryActor.token.randomImg = existingNPC.data.token.randomImg;
-      foundryActor.token.mirrorX = existingNPC.data.token.mirrorX;
-      foundryActor.token.mirrorY = existingNPC.data.token.mirrorY;
-      foundryActor.token.lockRotation = existingNPC.data.token.lockRotation;
-      foundryActor.token.rotation = existingNPC.data.token.rotation;
-      foundryActor.token.alpha = existingNPC.data.token.alpha;
-      foundryActor.token.lightAlpha = existingNPC.data.token.lightAlpha;
-      foundryActor.token.lightAnimation = existingNPC.data.token.lightAnimation;
-      foundryActor.token.tint = existingNPC.data.token.tint;
-      foundryActor.token.lightColor = existingNPC.data.token.lightColor;
-    }
-
-    const retainBiography = game.settings.get("ddb-importer", "munching-policy-monster-retain-biography");
-    if (retainBiography) {
-      foundryActor.data.details.biography = existingNPC.data.data.details.biography;
-    }
-
-    await copySupportedItemFlags(existingNPC.toObject(), foundryActor);
-  }
-
-  return foundryActor;
-}
-
-async function getMonsterIndexMonster(compendium, npc) {
-  const monsterIndexFields = ["name", "flags.ddbimporter.id"];
-  const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-  const index = await compendium.getIndex({ fields: monsterIndexFields });
-  const npcMatch = index.contents.find((entity) =>
-    hasProperty(entity, "flags.ddbimporter.id") &&
-    entity.flags.ddbimporter.id == npc.flags.ddbimporter.id &&
-    ((!legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()) ||
-      (legacyName && npc.flags.ddbimporter.isLegacy && npc.name.toLowerCase().startsWith(entity.name.toLowerCase())) ||
-      (legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()))
-  );
-  return npcMatch;
-}
-
-async function existingMonsterCheck(foundryActor) {
-  const compendium = getMonsterCompendium();
-  const matchingActor = await getMonsterIndexMonster(compendium, foundryActor);
-  if (matchingActor) {
-    logger.debug("Found existing monster, updating:", matchingActor.name);
-    foundryActor._id = matchingActor._id;
-    foundryActor = await copyExistingMonsterProperties(compendium, foundryActor);
-  }
-  return foundryActor;
-}
-
 // eslint-disable-next-line complexity
 async function parseMonster(monster, extra, useItemAC) {
   let foundryActor = duplicate(await newNPC(monster.name));
@@ -470,7 +396,7 @@ async function parseMonster(monster, extra, useItemAC) {
     }
   }
 
-  foundryActor = await existingMonsterCheck(foundryActor);
+  foundryActor = await existingActorCheck("monster", foundryActor);
 
   logger.debug("Importing Spells");
   foundryActor = await addSpells(foundryActor);

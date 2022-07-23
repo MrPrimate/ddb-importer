@@ -1,6 +1,4 @@
-// Main module class
-import { checkMonsterCompendium } from "./importMonster.js";
-import { munchNote, download, getPatreonTiers, getCompendiumLabel } from "./utils.js";
+import { munchNote, download, getPatreonTiers, getCompendiumLabel, getCompendiumType } from "./utils.js";
 import logger from "../logger.js";
 import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -126,7 +124,7 @@ export class DDBEncounterMunch extends Application {
   async parseEncounter(id) {
     logger.debug(`Looking for Encounter "${id}"`);
     if (!CONFIG.DDBI.ENCOUNTERS) return this.encounter;
-    const monsterPack = checkMonsterCompendium();
+    const monsterPack = getCompendiumType("monster", false);
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
     // console.warn(CONFIG.DDBI.ENCOUNTERS);
@@ -231,7 +229,7 @@ export class DDBEncounterMunch extends Application {
       logger.debug("Finised Importing missing monsters from DDB");
     }
 
-    const monsterPack = checkMonsterCompendium();
+    const monsterPack = getCompendiumType("monster", false);
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
     const compendiumName = getCompendiumLabel("monster");
 
