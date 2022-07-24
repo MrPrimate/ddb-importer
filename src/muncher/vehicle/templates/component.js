@@ -1,10 +1,10 @@
 import utils from '../../../utils.js';
 
-export function newFeat(name) {
+export function newComponent(name, type) {
   let feat = {
     name: name,
-    type: "feat",
-    data: JSON.parse(utils.getTemplate("feat")),
+    type: type,
+    data: JSON.parse(utils.getTemplate(type)),
     flags: {
       ddbimporter: {
         dndbeyond: {
