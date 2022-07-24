@@ -34,13 +34,13 @@ const DAMAGE_TYPES = [
   "thunder",
 ];
 
-export function getDamageImmunities(vehicle) {
+export function getDamageImmunities(ddb) {
   const config = CONFIG.DDB.damageTypes;
 
   let values = [];
   let custom = [];
 
-  vehicle.damageImmunities.forEach((adj) => {
+  ddb.damageImmunities.forEach((adj) => {
     const adjustment = config.find((cadj) => adj === cadj.id);
     if (adjustment && DAMAGE_TYPES.includes(adjustment.name.toLowerCase())) {
       values.push(adjustment.name.toLowerCase());
@@ -72,7 +72,7 @@ export function getDamageImmunities(vehicle) {
   return adjustments;
 }
 
-export function getConditionImmunities(vehicle) {
+export function getConditionImmunities(ddb) {
   const config = CONFIG.DDB.conditions.map((condition) => {
     return {
       id: condition.definition.id,
@@ -85,7 +85,7 @@ export function getConditionImmunities(vehicle) {
   let values = [];
   let custom = [];
 
-  vehicle.conditionImmunities.forEach((adj) => {
+  ddb.conditionImmunities.forEach((adj) => {
     const adjustment = config.find((cadj) => adj === cadj.id);
     const valueAdjustment = CONDITION_TYPES.find((condition) => condition.name.toLowerCase() == adjustment.name.toLowerCase());
     if (adjustment && valueAdjustment) {

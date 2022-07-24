@@ -1,17 +1,3 @@
-// "creatureSizes": [{
-//   "id": 2,
-//   "entityTypeId": 127108918,
-//   "name": "Tiny",
-//   "weightType": 1
-// }, {
-
-
-//   "traits": {
-//     "size": "grg",
-
-
-//     "sizeId": 7,
-
 import logger from '../../logger.js';
 
 const SIZES = [
@@ -28,14 +14,14 @@ export function getSizeFromId(sizeId) {
   const sizeData = SIZES.find((s) => size == s.name);
 
   if (!sizeData) {
-    logger.warn(`No size found for, using medium`, size);
+    logger.warn(`No size found, using medium`, size);
     return { name: "Medium", value: "med", size: 1 };
   }
   return sizeData;
 }
 
-export function getSize (monster) {
-  const sizeData = getSizeFromId(monster.sizeId);
+export function getSize (ddb) {
+  const sizeData = getSizeFromId(ddb.sizeId);
   const token = {
     scale: sizeData.size >= 1 ? 1 : sizeData.size,
     value: sizeData.size >= 1 ? sizeData.size : 1,

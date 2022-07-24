@@ -7,34 +7,24 @@ import { newVehicle } from './templates/vehicle.js';
 
 import {
   getDamageImmunities,
-  getDamageResistances,
-  getDamageVulnerabilities,
   getConditionImmunities,
 } from "./conditions.js";
-import { getAbilities } from "./abilities.js";
-// import { getSkills, getSkillsHTML } from "./skills.js";
-// import { getLanguages } from "./languages.js";
+import { getAbilities, getAbilityMods } from "./abilities.js";
+import { getSize } from "./size.js";
+import { getCapacity } from './capacity.js';
+import { FLIGHT_IDS, getMovement } from './movement.js';
+import { processComponents } from './components/components.js';
+
 // import { getHitPoints } from "./hp.js";
 // import { getSpeed } from "./movement.js";
-import { getSize } from "./size.js";
-// import { getSource } from "./source.js";
-// import { getEnvironments } from "./environments.js";
-// import { getLairActions } from "./features/lair.js";
-// import { getLegendaryActions } from "./features/legendary.js";
-// import { getActions } from "./features/actions.js";
-// import { getSpecialTraits } from "./features/specialtraits.js";
-// import { getSpells } from "./spells.js";
 // import { getType } from "./type.js";
 // import { generateAC } from "./ac.js";
-// import { specialCases } from "./special.js";
-// import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js";
 
 
 async function parseVehicle(ddb, extra = {}) {
 
   let vehicle = duplicate(await newVehicle(ddb.name));
-  let items = [];
-  let configurations = {};
+  const configurations = {};
   ddb.configurations.forEach((c) => {
     configurations[c.key] = c.value;
   });
@@ -73,52 +63,92 @@ async function parseVehicle(ddb, extra = {}) {
   vehicle.token.height = size.token.value;
   vehicle.token.scale = size.token.scale;
 
-  // TODO: this varies depending on the vehicle type
-  // // attributes
-  // vehicle.data.attributes.hp = getHitPoints(ddb, removedHitPoints, temporaryHitPoints);
-  // const movement = getSpeed(ddb);
-  // vehicle.data.attributes.movement = movement['movement'];
+  vehicle.data.attributes.capacity = getCapacity(ddb);
 
+  if (configurations.ST === "dimension") {
+    vehicle.data.traits.dimensions = `(${ddb.length} ft. by ${ddb.width} ft.)`;
+  }
+  if (configurations.ST === "weight") {
+    vehicle.data.traits.dimensions = `(${ddb.weight} lb.)`;
+  }
+
+  const movement = duplicate(vehicle.data.attributes.movement);
+  vehicle.data.attributes.movement = getMovement(ddb, configurations, movement);
+
+  const primaryComponent = ddb.components.find((c) => c.isPrimaryComponent);
   // // ac
-  // const ac = await generateAC(ddb, useItemAC);
-  // vehicle.data.attributes.ac = ac.ac;
-  // vehicle.flags.ddbimporter.flatAC = ac.flatAC;
-  // items.push(...ac.ddbItems);
+  // if we are using actor level HP apply
+  if (!configurations.ECHP && primaryComponent) {
+    vehicle.data.attributes.hp.value = primaryComponent.hitPoints;
+    vehicle.data.attributes.hp.max = primaryComponent.hitPoints;
+    if (!configurations.ECMT && Number.isInteger(primaryComponent.mishapThreshold)) {
+      vehicle.data.attributes.hp.mt = primaryComponent.mishapThreshold;
+    }
+    if (!configurations.ECDT && Number.isInteger(primaryComponent.damageThreshold)) {
+      vehicle.data.attributes.hp.dt = primaryComponent.damageThreshold;
+    }
+  }
+  // if we are using actor level AC apply
+  if (configurations.ECACM && primaryComponent) {
+    const mods = getAbilityMods(ddb);
+    vehicle.data.attributes.ac.motionless = primaryComponent.armorClass;
+    vehicle.data.attributes.ac.flat = primaryComponent.armorClass + mods["dex"];
+  }
+
+  vehicle.data.vehicleType = FLIGHT_IDS.includes(ddb.id)
+    ? "air"
+    : configurations.DT === "ship"
+      ? "water"
+      : "land";
+
+  vehicle.items = processComponents(ddb, configurations);
 
   // TODO:
-
-  // levels
   // thresholds damage
   // thresholds mishaps
-  // capacity people
-  // capacity cargo
-  // weight
-  // travel pace
-  // vehicle type
   // fuel data
   // components
   // dimensions
+
+  // component:
+  // - hp
+  // - ac
+  // - speed
 
 
   // details
   vehicle.data.details.source = utils.getSourceData(ddb);
   vehicle.data.details.biography.value = ddb.description;
 
+  if (configurations.EAS) {
+    vehicle.data.attributes.actions.stations = true;
+  }
+
   if (ddb.actionsText) {
     vehicle.data.details.biography.value += `<h2>Actions</h2>\n<p>${ddb.actionsText}</p>`;
     const componentActionSummaries = ddb.componentActionSummaries.map((feature) => {
       return `<h3>${feature.name}</h3>\n<p>${feature.description}</p>`;
-    }).join('\n')
+    }).join('\n');
     vehicle.data.details.biography.value += `\n<p>${componentActionSummaries}</p>`;
+
+    const actionsRegex = /On its turn(?:,*) the (?:.*?) can take (\d+) action/g;
+    const actionsMatch = ddb.actionsText.match(actionsRegex);
+    const numberOfActions = actionsMatch ? parseInt(actionsMatch[1]) : 1;
+
+    const actionThresholds = {
+      "0": "0",
+      "1": "1",
+      "2": "2",
+    };
+    vehicle.data.attributes.actions.value = numberOfActions;
+    vehicle.data.attributes.actions.thresholds = actionThresholds;
+
   } else if (ddb.features.length > 0) {
     const featuresText = ddb.features.map((feature) => {
       return `<h3>${feature.name}</h3>\n<p>${feature.description}</p>`;
     }).join('\n');
     vehicle.data.details.biography.value += `<h2>Features</h2>\n<p>${featuresText}</p>`;
   }
-
-  vehicle.items = items;
-
 
   vehicle = await existingActorCheck("vehicle", vehicle);
 
