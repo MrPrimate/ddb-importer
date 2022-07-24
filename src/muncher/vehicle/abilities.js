@@ -32,13 +32,13 @@ export const ABILITIES = [
 // },
 /**
  * Retrieves character abilities, including proficiency on saving throws
- * @param {obj} vehicle JSON Import
+ * @param {obj} ddb JSON Import
  * @param {obj} CONFIG.DDB config
  */
-export function getAbilities(abilities, vehicle) {
+export function getAbilities(abilities, ddb) {
   // go through every ability
   ABILITIES.forEach((ability) => {
-    const value = vehicle.stats.find((stat) => stat.id === ability.id).value || 0;
+    const value = ddb.stats.find((stat) => stat.id === ability.id).value || 0;
     const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
     abilities[ability.value]['value'] = value;
@@ -51,11 +51,11 @@ export function getAbilities(abilities, vehicle) {
 }
 
 
-export function getAbilityMods(vehicle) {
+export function getAbilityMods(ddb) {
   let abilities = {};
 
   ABILITIES.forEach((ability) => {
-    const value = vehicle.stats.find((stat) => stat.id === ability.id).value || 0;
+    const value = ddb.stats.find((stat) => stat.id === ability.id).value || 0;
     const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
     abilities[ability.value] = mod;
   });

@@ -1,5 +1,5 @@
 
-export function getType(monster) {
+export function getType(ddb) {
 
   const result = {
     "value": "",
@@ -12,7 +12,7 @@ export function getType(monster) {
     "custom": ""
   };
 
-  const type = CONFIG.DDB.monsterTypes.find((c) => monster.typeId == c.id);
+  const type = CONFIG.DDB.monsterTypes.find((c) => ddb.typeId == c.id);
   if (!type) {
     result.custom = "Unknown";
     return result;
@@ -23,7 +23,7 @@ export function getType(monster) {
   if (CONFIG.DND5E.creatureTypes[typeName]) result.value = typeName;
 
   result.subtype = CONFIG.DDB.monsterSubTypes
-    .filter((c) => monster.subTypes.includes(c.id))
+    .filter((c) => ddb.subTypes.includes(c.id))
     .map((c) => c.name)
     .join(", ");
 
