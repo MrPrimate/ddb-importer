@@ -13,7 +13,7 @@ import { getAbilities, getAbilityMods } from "./abilities.js";
 import { getSize } from "./size.js";
 import { getCapacity } from './capacity.js';
 import { FLIGHT_IDS, getMovement } from './movement.js';
-import { processComponents } from './components/components.js';
+import { processComponents } from './components.js';
 
 // import { getHitPoints } from "./hp.js";
 // import { getSpeed } from "./movement.js";
