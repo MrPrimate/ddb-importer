@@ -3,14 +3,16 @@ import DICTIONARY from "../../dictionary.js";
 
 const TYPE_MAPPING = {
   hull: "equipment",
+  helm: "equipment",
   weapon: "weapon",
   movement: "equipment",
-  control: "movement",
+  control: "equipment",
   // "crew" action: feat
   // "action", action: feat
   feature: "feat",
   // "loot": loot
 };
+
 function getWeaponType(action) {
   const entry = DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === action.attackSubtype);
   const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === action.attackTypeRange);
@@ -197,6 +199,14 @@ function buildComponents(ddb, configurations, component) {
       }
     }
 
+    if (component.armorClass) {
+      item.data.armor = {
+        value: parseInt(component.armorClass),
+        type: "vehicle",
+        dex: null
+      };
+    }
+
   }
 
   if (types.includes("weapon") && component.definition.actions > 0) {
@@ -220,7 +230,8 @@ export function processComponents(ddb, configurations) {
   }).flat();
 
   const featureItems = ddb.features.map((feature) => {
-    setProperty(feature, "definition.types.type", "feature");
+    setProperty(feature, "definition.types", [{ type: "feature" }]);
+    setProperty(feature, "definition.name", feature.name);
     const builtItems = buildComponents(ddb, configurations, feature);
     return builtItems;
   }).flat();
