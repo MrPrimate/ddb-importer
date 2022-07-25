@@ -8,13 +8,13 @@ export function getCapacity(ddb) {
     capacity.cargo = ddb.cargoCapacity;
   }
 
-  if (ddb.creatureCapacity && ddb.creatureCapacity > 0) {
+  if (ddb.creatureCapacity && ddb.creatureCapacity.length > 0) {
     const capacityStrings = ddb.creatureCapacity.map((c) => {
       const size = c.sizeId
-        ? CONFIG.DDB.creatureSizes.find((s) => s.id == c.sizeId).name.toLowerCase()
+        ? `${CONFIG.DDB.creatureSizes.find((s) => s.id == c.sizeId).name.toLowerCase()} `
         : "";
 
-      return `${c.capacity} ${size} ${c.type}`;
+      return `${c.capacity} ${size}${c.type}`;
     });
     capacity.creature = capacityStrings.join(", ");
   }
