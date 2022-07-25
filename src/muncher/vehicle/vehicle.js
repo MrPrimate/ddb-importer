@@ -10,6 +10,7 @@ import { getSize } from "./size.js";
 import { getCapacity } from './capacity.js';
 import { FLIGHT_IDS, getMovement } from './movement.js';
 import { processComponents } from './components.js';
+import { ACTION_THRESHOLDS } from './threshold.js';
 
 async function parseVehicle(ddb, extra = {}) {
 
@@ -115,14 +116,8 @@ async function parseVehicle(ddb, extra = {}) {
     const actionsMatch = ddb.actionsText.match(actionsRegex);
     const numberOfActions = actionsMatch ? parseInt(actionsMatch[1]) : 1;
 
-    const actionThresholds = {
-      "0": "0",
-      "1": "1",
-      "2": "2",
-    };
-    // TODO: parse out action thresholds from actionsText
     vehicle.data.attributes.actions.value = numberOfActions;
-    vehicle.data.attributes.actions.thresholds = actionThresholds;
+    vehicle.data.attributes.actions.thresholds = ACTION_THRESHOLDS.find((t) => t.id === ddb.id);
 
   } else if (ddb.features.length > 0) {
     const featuresText = ddb.features.map((feature) => {
