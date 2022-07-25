@@ -19,7 +19,7 @@ import { createGMMacros } from "../effects/macros.js";
 import { importCacheLoad } from "../parser/templateStrings.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
 import { parseBackgrounds } from "./backgrounds.js";
-import { parseTransports } from "./vehicle.js";
+import { parseTransports } from "./vehicles.js";
 
 export function getSourcesLookups(selected) {
   const selections = CONFIG.DDB.sources
