@@ -19,6 +19,7 @@ import { createGMMacros } from "../effects/macros.js";
 import { importCacheLoad } from "../parser/templateStrings.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
 import { parseBackgrounds } from "./backgrounds.js";
+import { parseTransports } from "./vehicle.js";
 
 export function getSourcesLookups(selected) {
   const selections = CONFIG.DDB.sources
@@ -107,17 +108,27 @@ export default class DDBMuncher extends Application {
     return options;
   }
 
-  static startMunch() {
+  static munchMonsters() {
     munchNote(`Downloading monsters...`, true);
     $('button[id^="munch-"]').prop('disabled', true);
     $('button[id^="adventure-config-start"]').prop('disabled', true);
     DDBMuncher.parseCritters();
   }
 
+  static munchVehicles() {
+    munchNote(`Downloading vehicles...`, true);
+    $('button[id^="munch-"]').prop('disabled', true);
+    $('button[id^="adventure-config-start"]').prop('disabled', true);
+    DDBMuncher.parseTransports();
+  }
+
   activateListeners(html) {
     super.activateListeners(html);
     html.find("#munch-monsters-start").click(async () => {
-      DDBMuncher.startMunch();
+      DDBMuncher.munchMonsters();
+    });
+    html.find("#munch-vehicles-start").click(async () => {
+      DDBMuncher.munchVehicles();
     });
     html.find("#munch-source-select").click(async () => {
       new DDBSources().render(true);
@@ -219,7 +230,7 @@ export default class DDBMuncher extends Application {
     html.find("#monster-munch-filter").on("keyup", (event) => {
       event.preventDefault();
       if (event.key !== "Enter") return; // Use `.key` instead.
-      DDBMuncher.startMunch();
+      DDBMuncher.munchMonsters();
     });
 
     // compendium style migrations
@@ -268,9 +279,10 @@ export default class DDBMuncher extends Application {
         $('button[id^="munch-feats-start"]').prop('disabled', false);
         $('button[id^="munch-frames-start"]').prop('disabled', false);
         $('button[id^="munch-classes-start"]').prop('disabled', false);
+        $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
       }
       if (tiers.experimentalMid) {
-        $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
+        $('button[id^="munch-vehicles-start"]').prop('disabled', false);
       }
     }
   }
@@ -286,7 +298,19 @@ export default class DDBMuncher extends Application {
       logger.error(error);
       logger.error(error.stack);
     }
+  }
 
+  static async parseTransports() {
+    try {
+      logger.info("Munching vehicles!");
+      const result = await parseTransports();
+      munchNote(`Finished importing ${result} vehicles!`, true);
+      munchNote("");
+      DDBMuncher.enableButtons();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
   }
 
   static async parseSpells() {
