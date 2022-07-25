@@ -47,8 +47,8 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 }
 
 
-async function addNPCToCompendium(npc) {
-  const compendium = getCompendiumType("monster", false);
+async function addNPCToCompendium(npc, type = "monster") {
+  const compendium = getCompendiumType(type, false);
   if (compendium) {
     const npcBasic = duplicate(npc);
 
@@ -99,8 +99,8 @@ async function addNPCToCompendium(npc) {
   return npc;
 }
 
-export async function addNPCsToCompendium(npcs) {
-  const compendium = getCompendiumType("monster", false);
+export async function addNPCsToCompendium(npcs, type = "monster") {
+  const compendium = getCompendiumType(type, false);
   let results = [];
   if (compendium) {
     // unlock the compendium for update/create
@@ -136,9 +136,9 @@ export async function addNPCsToCompendium(npcs) {
   return results;
 }
 
-export async function addNPCDDBId(npc) {
+export async function addNPCDDBId(npc, type = "monster") {
   let npcBasic = duplicate(npc);
-  const compendium = getCompendiumType("monster", false);
+  const compendium = getCompendiumType(type, false);
   if (compendium) {
     // unlock the compendium for update/create
     compendium.configure({ locked: false });
@@ -169,7 +169,7 @@ export async function addNPCDDBId(npc) {
 
 // eslint-disable-next-line complexity
 export async function getNPCImage(data, options) {
-  const defaultOptions = { forceUpdate: false, forceUseFullToken: false, forceUseTokenAvatar: false, disableAutoTokenizeOverride: false };
+  const defaultOptions = { forceUpdate: false, forceUseFullToken: false, forceUseTokenAvatar: false, disableAutoTokenizeOverride: false, type: "monster" };
   const mergedOptions = mergeObject(defaultOptions, options);
   // check to see if we have munched flags to work on
   if (!data.flags || !data.flags.monsterMunch || !data.flags.monsterMunch.img) {
@@ -191,7 +191,7 @@ export async function getNPCImage(data, options) {
     dndBeyondImageUrl = dndBeyondTokenImageUrl;
   }
 
-  const npcType = data.data.details.type.value;
+  const npcType = options.type.startsWith("vehicle") ? "vehicle" : data.data.details.type.value;
   const genericNPCName = npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
   const npcName = data.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
 
@@ -239,7 +239,7 @@ export async function getNPCImage(data, options) {
     game.modules.get("vtta-tokenizer")?.active &&
     utils.versionCompare(game.modules.get("vtta-tokenizer").data.version, "3.7.1") >= 0;
   if (tokenizerReady) {
-    const compendiumLabel = getCompendiumLabel("monsters");
+    const compendiumLabel = getCompendiumLabel(options.type);
     // eslint-disable-next-line require-atomic-updates
     data.token.img = await window.Tokenizer.autoToken(data, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
   }
@@ -295,9 +295,9 @@ async function linkResourcesConsumption(actor) {
 }
 
 // async function buildNPC(data, srdIconLibrary, iconMap) {
-export async function buildNPC(data, temporary = true, update = false, handleBuild = false) {
+export async function buildNPC(data, type = "monster", temporary = true, update = false, handleBuild = false) {
   logger.debug("Importing Images");
-  await getNPCImage(data);
+  await getNPCImage(data, { type });
   logger.debug("Checking Items");
   await swapItems(data);
 
@@ -339,25 +339,25 @@ export async function buildNPC(data, temporary = true, update = false, handleBui
 
 }
 
-async function parseNPC (data, bulkImport) {
-  const buildNpc = await buildNPC(data);
-  logger.info(`Processing actor ${buildNpc.name} for the compendium`);
+async function parseNPC (data, bulkImport, type) {
+  const buildNpc = await buildNPC(data, type);
+  logger.info(`Processing ${type} ${buildNpc.name} for the compendium`);
   if (bulkImport) {
     return buildNpc;
   } else {
-    const compendiumNPC = await addNPCToCompendium(buildNpc);
+    const compendiumNPC = await addNPCToCompendium(buildNpc, type);
     return compendiumNPC;
   }
 }
 
-export function addNPC(data, bulkImport) {
+export function addNPC(data, bulkImport, type) {
   return new Promise((resolve, reject) => {
-    parseNPC(data, bulkImport)
+    parseNPC(data, bulkImport, type)
       .then((npc) => {
         resolve(npc);
       })
       .catch((error) => {
-        logger.error(`error parsing NPC: ${error} ${data.name}`);
+        logger.error(`error parsing NPC type ${type}: ${error} ${data.name}`);
         logger.error(error.stack);
         reject(error);
       });

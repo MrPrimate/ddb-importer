@@ -104,14 +104,14 @@ export async function updateWorldMonsters() {
   return results;
 }
 
-export async function resetCompendiumActorImages(compendiumName = null) {
-  const monsterCompendiumLabel = compendiumName ? compendiumName : getCompendiumLabel("monster");
+export async function resetCompendiumActorImages(compendiumName = null, type = "monster") {
+  const monsterCompendiumLabel = compendiumName ? compendiumName : getCompendiumLabel(type);
   const monsterCompendium = await getCompendium(monsterCompendiumLabel);
   const fields = ["name", "token.img", "flags.monsterMunch", "data.details.type.value", "img"];
   const index = await monsterCompendium.getIndex({ fields });
 
   const updates = await Promise.all(index.map(async (i) => {
-    const options = { forceUpdate: true, disableAutoTokenizeOverride: true };
+    const options = { forceUpdate: true, disableAutoTokenizeOverride: true, type };
     const update = await getNPCImage(i, options);
     logger.info(`Resetting ${i.name}`, update);
     return update;
