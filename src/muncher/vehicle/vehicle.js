@@ -1,25 +1,15 @@
 import logger from '../../logger.js';
 import utils from "../../utils.js";
 import DICTIONARY from "../../dictionary.js";
+
 import { existingActorCheck } from "../utils.js";
-
 import { newVehicle } from './templates/vehicle.js';
-
-import {
-  getDamageImmunities,
-  getConditionImmunities,
-} from "./conditions.js";
+import { getDamageImmunities, getConditionImmunities } from "./conditions.js";
 import { getAbilities, getAbilityMods } from "./abilities.js";
 import { getSize } from "./size.js";
 import { getCapacity } from './capacity.js';
 import { FLIGHT_IDS, getMovement } from './movement.js';
 import { processComponents } from './components.js';
-
-// import { getHitPoints } from "./hp.js";
-// import { getSpeed } from "./movement.js";
-// import { getType } from "./type.js";
-// import { generateAC } from "./ac.js";
-
 
 async function parseVehicle(ddb, extra = {}) {
 
@@ -103,18 +93,8 @@ async function parseVehicle(ddb, extra = {}) {
 
   vehicle.items = processComponents(ddb, configurations);
 
-  // TODO:
-  // thresholds damage
-  // thresholds mishaps
+  // No 5e support for vehicles yet:
   // fuel data
-  // components
-  // dimensions
-
-  // component:
-  // - hp
-  // - ac
-  // - speed
-
 
   // details
   vehicle.data.details.source = utils.getSourceData(ddb);
@@ -140,6 +120,7 @@ async function parseVehicle(ddb, extra = {}) {
       "1": "1",
       "2": "2",
     };
+    // TODO: parse out action thresholds from actionsText
     vehicle.data.attributes.actions.value = numberOfActions;
     vehicle.data.attributes.actions.thresholds = actionThresholds;
 
@@ -152,6 +133,32 @@ async function parseVehicle(ddb, extra = {}) {
 
   vehicle = await existingActorCheck("vehicle", vehicle);
 
-
   return vehicle;
+}
+
+
+export async function parseVehicles(ddbData, extra = false) {
+
+  let foundryActors = [];
+  let failedVehicleNames = [];
+
+  ddbData.forEach((vehicle) => {
+    try {
+      logger.debug(`Attempting to parse ${vehicle.name}`);
+      const foundryActor = parseVehicle(vehicle, extra);
+      foundryActors.push(foundryActor);
+    } catch (err) {
+      logger.error(`Failed parsing ${vehicle.name}`);
+      logger.error(err);
+      logger.error(err.stack);
+      failedVehicleNames.push(vehicle.name);
+    }
+  });
+
+  const result = {
+    actors: await Promise.all(foundryActors),
+    failedVehicleNames,
+  };
+
+  return result;
 }

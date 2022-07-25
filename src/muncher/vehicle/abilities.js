@@ -39,7 +39,9 @@ export function getAbilities(abilities, ddb) {
   // go through every ability
   ABILITIES.forEach((ability) => {
     const value = ddb.stats.find((stat) => stat.id === ability.id).value || 0;
-    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
+    const mod = value === 0
+      ? -5
+      : CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
     abilities[ability.value]['value'] = value;
     abilities[ability.value]['proficient'] = 0;
@@ -56,7 +58,10 @@ export function getAbilityMods(ddb) {
 
   ABILITIES.forEach((ability) => {
     const value = ddb.stats.find((stat) => stat.id === ability.id).value || 0;
-    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
+    const mod = value === 0
+      ? -5
+      : CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
+
     abilities[ability.value] = mod;
   });
 
