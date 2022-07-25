@@ -1,6 +1,6 @@
 import { getCampaignId, download, getCompendium, getCompendiumLabel } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { getVehicleData } from "./vehicle.js";
+import { getVehicleData } from "./vehicles.js";
 
 async function getMonsterMap () {
   // ddb://monsters

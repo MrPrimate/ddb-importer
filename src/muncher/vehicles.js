@@ -168,6 +168,3 @@ export async function parseTransports(ids = null) {
   }
   return vehicleCount;
 }
-
-
-window.parseTransports = parseTransports;

@@ -3,6 +3,7 @@ import { parseMonsters } from "../../muncher/monster/monster.js";
 import { parseSpells } from "../../muncher/spells.js";
 import { parseItems } from "../../muncher/items.js";
 import { parseCritters, fixCritters } from "../../muncher/monsters.js";
+import { parseTransports } from "../../muncher/vehicles.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../../muncher/tools.js";
 import { migrateExistingCompendium, createCompendiumFolderStructure } from "../../muncher/compendiumFolders.js";
 import { parseEncounters, DDBEncounterMunch } from "../../muncher/encounters.js";
@@ -62,6 +63,7 @@ export function registerWindow() {
     migrateCompendiums,
     migrateExistingCompendiumToCompendiumFolders: migrateExistingCompendium,
     parseCritters,
+    parseTransports,
     parseEncounters,
     parseFeats: getFeats,
     parseItems,
