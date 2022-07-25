@@ -144,7 +144,7 @@ export async function parseCritters(ids = null) {
     }
     logger.debug(`Importing/second parse of ${monster.name} data`);
     // eslint-disable-next-line no-await-in-loop
-    const munched = await addNPC(monster, bulkImport);
+    const munched = await addNPC(monster, bulkImport, "monster");
     monstersParsed.push(munched);
     currentMonster += 1;
   }
@@ -152,7 +152,7 @@ export async function parseCritters(ids = null) {
   if (bulkImport) {
     munchNote(`Importing ${monstersParsed.length} monsters`, false, true);
     logger.debug(`Importing ${monstersParsed.length} monsters`);
-    await addNPCsToCompendium(monstersParsed);
+    await addNPCsToCompendium(monstersParsed, "monster");
   }
   munchNote("", false, true);
   setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
@@ -172,7 +172,7 @@ export async function fixCritters(ids = null) {
   for (const monster of monsters) {
     logger.warn(`Fixing ${monster.name}`);
     // eslint-disable-next-line no-await-in-loop
-    await addNPCDDBId(monster);
+    await addNPCDDBId(monster, "monster");
   }
 
   logger.info("Update complete!");
