@@ -8,6 +8,7 @@ const COMPENDIUMS = [
   { title: "Feats", setting: "entity-feat-compendium", type: "Item" },
   { title: "Items", setting: "entity-item-compendium", type: "Item" },
   { title: "Monsters", setting: "entity-monster-compendium", type: "Actor" },
+  { title: "Vehicles", setting: "entity-vehicle-compendium", type: "Actor" },
   { title: "Races", setting: "entity-race-compendium", type: "Item" },
   { title: "Racial Traits", setting: "entity-trait-compendium", type: "Item" },
   { title: "Spells", setting: "entity-spell-compendium", type: "Item" },
