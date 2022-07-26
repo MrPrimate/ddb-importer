@@ -13,11 +13,11 @@ const TYPE_MAPPING = {
   // "loot": loot
 };
 
-function getWeaponType(action) {
-  const entry = DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === action.attackSubtype);
-  const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === action.attackTypeRange);
-  return entry ? entry.value : range ? `simple${range.value}` : "simpleM";
-}
+// function getWeaponType(action) {
+//   const entry = DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === action.attackSubtype);
+//   const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === action.attackTypeRange);
+//   return entry ? entry.value : range ? `simple${range.value}` : "simpleM";
+// }
 
 function getActivation(action, crew=false) {
   if (action.activation) {
@@ -88,6 +88,27 @@ function getSaveAbility(description) {
   }
 }
 
+function getActionType(action) {
+  let actionType = "rwak";
+  // lets see if we have a save stat for things like Dragon born Breath Weapon
+  if (typeof action.saveStatId === "number") {
+    actionType = "save";
+  } else if (action.actionType === 1) {
+    if (action.attackTypeRange === 2) {
+      actionType = "rwak";
+    } else {
+      actionType = "mwak";
+    }
+  } else if (action.rangeId && action.rangeId === 1) {
+    actionType = "mwak";
+  } else if (action.rangeId && action.rangeId === 2) {
+    actionType = "rwak";
+  } else {
+    actionType = "other";
+  }
+  return actionType;
+}
+
 
 function getWeaponProperties(action, weapon) {
   if (action.name) weapon.name += `: ${action.name}`;
@@ -96,6 +117,7 @@ function getWeaponProperties(action, weapon) {
   if (action.fixedToHit !== null) {
     weapon.data.attackBonus = `${action.fixedToHit}`;
   }
+  // weapon.data.weaponType = getWeaponType(action);
   weapon.data.weaponType = "siege";
   weapon.data.target = {
     "value": 1,
@@ -120,10 +142,13 @@ function getWeaponProperties(action, weapon) {
     };
   }
 
-  weapon.data.actionType = getWeaponType(action);
+  weapon.data.equipped = true;
+  weapon.data.actionType = getActionType(action);
   weapon.data.uses = getLimitedUse(action);
   weapon.data.activation = getActivation(action, weapon.data.activation.type === "crew");
   weapon = calculateRange(action, weapon);
+
+  return weapon;
 
 }
 
@@ -132,13 +157,20 @@ function buildComponents(ddb, configurations, component) {
   const results = [];
   const types = component.definition.types.map((t) => t.type);
 
+  console.warn("types", types);
   if (!TYPE_MAPPING[types[0]]) {
-    console.warn("BAD TYPE", component);
+    console.error("BAD TYPE", component);
   }
 
   const item = duplicate(newComponent(component.definition.name, TYPE_MAPPING[types[0]]));
 
+  if (types[0] === "equipment") {
+    setProperty(item, "data.armor.type", "vehicle");
+  }
+
   if (component.description) item.data.description.value = component.description;
+
+  item.data.quantity = component.count;
 
   if (component.groupType === "action-station") {
     item.data.activation.type = "crew";
@@ -157,31 +189,25 @@ function buildComponents(ddb, configurations, component) {
         break;
     }
 
-    if (component.hitPoints) {
-      item.data.hp = {
-        value: component.hitPoints,
-        max: component.hitPoints,
-        dt: null,
-        conditions: ""
-      };
-      if (component.damageThreshold) {
-        item.data.hp.dt = component.damageThreshold;
-      }
-    }
+  } else if (component.definition.groupType === "component") {
 
-  } else if (component.groupType === "component") {
-
-    if (component.speeds && component.speeds.length > 0) {
+    if (component.definition.speeds && component.definition.speeds.length > 0) {
       item.data.speed = {
-        value: component.speeds[0].modes[0].value,
-        conditions: component.speeds[0].modes[0].description ? component.speeds[0].modes[0].description : "",
+        value: component.definition.speeds[0].modes[0].value,
+        conditions: component.definition.speeds[0].modes[0].description
+          ? component.definition.speeds[0].modes[0].description
+          : "",
       };
-      if (component.speeds[0].modes.length > 1) {
+      if (component.definition.speeds[0].modes.length > 1) {
         const speedConditions = [];
-        for (let i = 1; i < component.speeds[0].modes.length; i++) {
-          const speedValue = component.speeds[0].modes[i].value;
-          const speedCondition = component.speeds[0].modes[i].description ? component.speeds[0].modes[i].description : "";
-          const speedRestriction = component.speeds[0].modes[i].restrictionsText ? component.speeds[0].modes[i].restrictionsText : "";
+        for (let i = 1; i < component.definition.speeds[0].modes.length; i++) {
+          const speedValue = component.definition.speeds[0].modes[i].value;
+          const speedCondition = component.definition.speeds[0].modes[i].description
+            ? component.definition.speeds[0].modes[i].description
+            : "";
+          const speedRestriction = component.definition.speeds[0].modes[i].restrictionsText
+            ? component.definition.speeds[0].modes[i].restrictionsText
+            : "";
           speedConditions.push(`${speedValue} ${speedCondition}${speedRestriction}`);
         }
 
@@ -199,19 +225,40 @@ function buildComponents(ddb, configurations, component) {
       }
     }
 
-    if (component.armorClass) {
+    if (Number.isInteger(component.definition.armorClass)) {
       item.data.armor = {
-        value: parseInt(component.armorClass),
+        value: parseInt(component.definition.armorClass),
         type: "vehicle",
         dex: null
       };
     }
 
+    if (Number.isInteger(component.definition.hitPoints)) {
+      item.data.hp = {
+        value: parseInt(component.definition.hitPoints),
+        max: parseInt(component.definition.hitPoints),
+        dt: null,
+        conditions: ""
+      };
+      if (component.definition.damageThreshold) {
+        item.data.hp.dt = component.definition.damageThreshold;
+      }
+    }
+
   }
 
-  if (types.includes("weapon") && component.definition.actions > 0) {
+  console.warn("CHECKS", {
+    component,
+    types,
+    includesWeapon: types.includes("weapon"),
+  })
+
+  if (types.includes("weapon") && component.definition.actions.length > 0) {
+    console.warn("processing weapon", component);
     component.definition.actions.forEach((action) => {
-      results.push(getWeaponProperties(action, duplicate(item)));
+      const actionItem = getWeaponProperties(action, duplicate(item));
+      console.warn("action item", actionItem);
+      results.push(actionItem);
     });
   } else {
     results.push(item);
@@ -224,7 +271,18 @@ function buildComponents(ddb, configurations, component) {
 export function processComponents(ddb, configurations) {
   const components = ddb.components.sort((c) => c.displayOrder);
 
-  const componentItems = components.map((component) => {
+  const componentCount = {};
+  const uniqueComponents = [];
+  components.forEach((component) => {
+    const key = component.definitionKey;
+    const count = componentCount[key] || 0;
+    if (count === 0) uniqueComponents.push(component);
+    componentCount[key] = count + 1;
+  });
+
+
+  const componentItems = uniqueComponents.map((component) => {
+    component.count = componentCount[component.definitionKey];
     const builtItems = buildComponents(ddb, configurations, component);
     return builtItems;
   }).flat();

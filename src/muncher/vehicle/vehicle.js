@@ -12,6 +12,7 @@ import { FLIGHT_IDS, getMovement } from './movement.js';
 import { processComponents } from './components.js';
 import { ACTION_THRESHOLDS } from './threshold.js';
 
+// eslint-disable-next-line complexity
 async function parseVehicle(ddb, extra = {}) {
 
   let vehicle = duplicate(await newVehicle(ddb.name));
@@ -98,7 +99,7 @@ async function parseVehicle(ddb, extra = {}) {
   // fuel data
 
   // details
-  vehicle.data.details.source = utils.getSourceData(ddb);
+  vehicle.data.details.source = utils.parseSource(ddb);
   vehicle.data.details.biography.value = ddb.description;
 
   if (configurations.EAS) {
@@ -117,7 +118,8 @@ async function parseVehicle(ddb, extra = {}) {
     const numberOfActions = actionsMatch ? parseInt(actionsMatch[1]) : 1;
 
     vehicle.data.attributes.actions.value = numberOfActions;
-    vehicle.data.attributes.actions.thresholds = ACTION_THRESHOLDS.find((t) => t.id === ddb.id);
+    const actionThreshold = ACTION_THRESHOLDS.find((t) => t.id === ddb.id);
+    vehicle.data.attributes.actions.thresholds = actionThreshold ? actionThreshold.thresholds : [];
 
   } else if (ddb.features.length > 0) {
     const featuresText = ddb.features.map((feature) => {
@@ -154,6 +156,8 @@ export async function parseVehicles(ddbData, extra = false) {
     actors: await Promise.all(foundryActors),
     failedVehicleNames,
   };
+
+  console.warn("result", result)
 
   return result;
 }
