@@ -2,6 +2,7 @@
 
 * Effect: Steady Aim: Some correction to name, and movement reduction effect.
 * Character Import: Some different subclass combos could cause an update error on character import as spells conflicted.
+* Add missing compendiums to character import when using load from compendiums option.
 
 # 2.9.58
 

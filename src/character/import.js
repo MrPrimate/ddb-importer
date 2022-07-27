@@ -961,8 +961,22 @@ export default class CharacterImport extends FormApplication {
       const compendiumFeatureItems = await getCompendiumItems(items, "features");
       const compendiumInventoryItems = await getCompendiumItems(items, "inventory");
       const compendiumSpellItems = await getCompendiumItems(items, "spells");
+      const compendiumClassItems = await getCompendiumItems(items, "classes");
+      const compendiumsubClassItems = await getCompendiumItems(items, "subclasses");
+      const compendiumRaceItems = await getCompendiumItems(items, "races");
+      const compendiumTraitsItems = await getCompendiumItems(items, "traits");
+      const compendiumBackgroundsItems = await getCompendiumItems(items, "backgrounds");
 
-      compendiumItems = compendiumItems.concat(compendiumInventoryItems, compendiumSpellItems, compendiumFeatureItems);
+      compendiumItems = compendiumItems.concat(
+        compendiumInventoryItems,
+        compendiumSpellItems,
+        compendiumFeatureItems,
+        compendiumClassItems,
+        compendiumsubClassItems,
+        compendiumRaceItems,
+        compendiumTraitsItems,
+        compendiumBackgroundsItems,
+      );
       // remove existing items from those to be imported
       items = await CharacterImport.removeItems(items, compendiumItems);
     }
