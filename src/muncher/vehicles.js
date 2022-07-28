@@ -1,8 +1,8 @@
 import logger from "../logger.js";
 import utils from "../utils.js";
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
-import { munchNote, getCampaignId, download, getCompendium, getCompendiumLabel } from "./utils.js";
-import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
+import { munchNote, getCampaignId, download } from "./utils.js";
+import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium } from "./importMonster.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { parseVehicles } from "./vehicle/vehicle.js";
 // import { createCompendiumFolderStructure } from "./compendiumFolders.js";
