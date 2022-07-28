@@ -9,14 +9,11 @@ export function deflectMissilesEffect(document) {
     priority: 0,
   });
   effect.flags.dae.specialDuration = ["1Reaction"];
-
+  setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(document, "data.activation.type", "reactiondamage");
 
   document.data["target"]["type"] = "self";
   document.data.range = { value: null, units: "self", long: null };
-
-  // document.data.damage = { parts: [], versatile: "", value: "" };
-  // document.data.duration = { value: 1, units: "min" };
 
   document.effects.push(effect);
   return document;

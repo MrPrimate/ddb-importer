@@ -7,10 +7,11 @@ export async function moonbeamEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "moonbeam.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("@spellLevel"));
+  setProperty(effect, "flags.dae.selfTarget", true);
   document.effects.push(effect);
   document.data.damage = { parts: [], versatile: "", value: "" };
   document.data['target']['type'] = "self";
-  document.data.range = { value: null, units: "self", long: null };
+  // document.data.range = { value: null, units: "self", long: null };
   document.data.actionType = "other";
   document.data.save.ability = "";
 

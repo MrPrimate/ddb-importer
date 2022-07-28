@@ -12,6 +12,7 @@ export function defensiveDuelistEffect(document) {
   );
   setProperty(effect, "duration.turns", 1);
   setProperty(effect, "flags.dae.specialDuration", ["isAttacked"]);
+  setProperty(effect, "flags.dae.selfTarget", true);
   document.data.target = {
     value: null,
     width: null,

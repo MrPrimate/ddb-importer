@@ -159,7 +159,7 @@ export function fixSpells(ddb, items) {
         if (usingEffects) {
           spell.data.damage = { parts: [], versatile: "", value: "" };
           spell.data["target"]["type"] = "self";
-          spell.data.range = { value: null, units: "self", long: null };
+          // spell.data.range = { value: null, units: "self", long: null };
           spell.data.save.ability = "";
         }
         break;

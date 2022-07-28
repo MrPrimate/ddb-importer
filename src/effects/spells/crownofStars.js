@@ -9,6 +9,7 @@ export async function crownofStarsEffect(document) {
     effect.changes.push(generateATLChange("ATL.dimLight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '60'));
     effect.changes.push(generateATLChange("ATL.brightLight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '30'));
   }
+  setProperty(effect, "flags.dae.selfTarget", true);
 
   const itemMacroText = await loadMacroFile("spell", "crownofStars.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);

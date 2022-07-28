@@ -6,6 +6,7 @@ export async function callLightningEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "callLightning.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("@spellLevel"));
+  setProperty(effect, "flags.dae.selfTarget", true);
   document.effects.push(effect);
   setProperty(document, "data.actionType", "other");
 

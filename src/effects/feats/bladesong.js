@@ -6,6 +6,7 @@ export function bladesongEffect(document) {
   setProperty(document, "data.range", { value: null, units: "self", long: null });
   setProperty(document, "data.range.value", null);
   setProperty(document, "data.target.type", "self");
+  setProperty(effect, "flags.dae.selfTarget", true);
 
   effect.changes.push(
     {

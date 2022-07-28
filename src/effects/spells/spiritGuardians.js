@@ -37,12 +37,12 @@ export async function spiritGuardiansEffect(document) {
     displayTemp: true,
   };
   effect.changes.push(generateMacroChange("@token @spellLevel @attributes.spelldc"));
-
+  setProperty(effect, "flags.dae.selfTarget", true);
   document.effects.push(effect);
 
   document.data.damage = { parts: [], versatile: "", value: "" };
   document.data['target']['type'] = "self";
-  document.data.range = { value: null, units: "self", long: null };
+  document.data.range = { value: 15, units: "ft", long: null };
   document.data.actionType = "";
   document.data.save.ability = "";
 
