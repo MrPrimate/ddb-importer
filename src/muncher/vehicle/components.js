@@ -1,5 +1,6 @@
 import { newComponent } from "./templates/component.js";
 import DICTIONARY from "../../dictionary.js";
+import logger from "../../logger.js";
 
 const TYPE_MAPPING = {
   hull: "equipment",
@@ -19,19 +20,14 @@ const TYPE_MAPPING = {
 //   return entry ? entry.value : range ? `simple${range.value}` : "simpleM";
 // }
 
-function getActivation(action, crew=false) {
-  if (action.activation) {
-    const actionType = DICTIONARY.actions.activationTypes.find((type) => type.id === action.activation.activationType);
-    const activation = !actionType
-      ? {}
-      : {
-        type: crew ? "crew" : actionType.value,
-        cost: action.activation.activationTime || 1,
-        condition: "",
-      };
-    return activation;
-  }
-  return {};
+function getActivation(action, crew = false) {
+  const actionType = DICTIONARY.actions.activationTypes.find((type) => type.id === action.activation?.activationType);
+  const activation = {
+    type: crew ? "crew" : actionType ? actionType.value : "action",
+    cost: action.activation?.activationTime || 1,
+    condition: "",
+  };
+  return activation;
 }
 
 function getLimitedUse(action) {
@@ -70,7 +66,7 @@ function calculateRange(action, weapon) {
     weapon.data.range = {
       value: action.range.range,
       units: "ft",
-      long: action.range.long || "",
+      long: action.range.longRange || "",
     };
   } else {
     weapon.data.range = { value: 5, units: "ft", long: "" };
@@ -91,7 +87,7 @@ function getSaveAbility(description) {
 function getActionType(action) {
   let actionType = "rwak";
   // lets see if we have a save stat for things like Dragon born Breath Weapon
-  if (typeof action.saveStatId === "number") {
+  if (typeof action.saveStatId === "number" || action.fixedSaveDc) {
     actionType = "save";
   } else if (action.actionType === 1) {
     if (action.attackTypeRange === 2) {
@@ -137,8 +133,8 @@ function getWeaponProperties(action, weapon) {
       : getSaveAbility(action.description);
     weapon.data.save = {
       ability: saveAbility,
-      dc: action.fixedSaveDc,
-      scaling: action.fixedSaveDc,
+      dc: Number.parseInt(action.fixedSaveDc),
+      scaling: "flat",
     };
   }
 
@@ -156,12 +152,6 @@ function getWeaponProperties(action, weapon) {
 function buildComponents(ddb, configurations, component) {
   const results = [];
   const types = component.definition.types.map((t) => t.type);
-
-  console.warn("types", types);
-  if (!TYPE_MAPPING[types[0]]) {
-    console.error("BAD TYPE", component);
-  }
-
   const item = duplicate(newComponent(component.definition.name, TYPE_MAPPING[types[0]]));
 
   if (types[0] === "equipment") {
@@ -171,6 +161,18 @@ function buildComponents(ddb, configurations, component) {
   if (component.description) item.data.description.value = component.description;
 
   item.data.quantity = component.count;
+
+  item.data.armor = {
+    value: null,
+    type: "vehicle",
+    dex: null
+  };
+  item.data.hp = {
+    value: null,
+    max: null,
+    dt: null,
+    conditions: ""
+  };
 
   if (component.groupType === "action-station") {
     item.data.activation.type = "crew";
@@ -244,20 +246,13 @@ function buildComponents(ddb, configurations, component) {
         item.data.hp.dt = component.definition.damageThreshold;
       }
     }
-
   }
 
-  console.warn("CHECKS", {
-    component,
-    types,
-    includesWeapon: types.includes("weapon"),
-  })
-
   if (types.includes("weapon") && component.definition.actions.length > 0) {
-    console.warn("processing weapon", component);
+    logger.debug("processing weapon", component);
     component.definition.actions.forEach((action) => {
       const actionItem = getWeaponProperties(action, duplicate(item));
-      console.warn("action item", actionItem);
+      logger.debug("action item", actionItem);
       results.push(actionItem);
     });
   } else {

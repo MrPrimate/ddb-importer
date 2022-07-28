@@ -1,6 +1,5 @@
 import logger from '../../logger.js';
 import utils from "../../utils.js";
-import DICTIONARY from "../../dictionary.js";
 
 import { existingActorCheck } from "../utils.js";
 import { newVehicle } from './templates/vehicle.js';
@@ -15,6 +14,7 @@ import { ACTION_THRESHOLDS } from './threshold.js';
 // eslint-disable-next-line complexity
 async function parseVehicle(ddb, extra = {}) {
 
+  logger.debug("Parsing vehicle", { extra });
   let vehicle = duplicate(await newVehicle(ddb.name));
   const configurations = {};
   ddb.configurations.forEach((c) => {
@@ -71,20 +71,21 @@ async function parseVehicle(ddb, extra = {}) {
   // // ac
   // if we are using actor level HP apply
   if (!configurations.ECHP && primaryComponent) {
-    vehicle.data.attributes.hp.value = primaryComponent.hitPoints;
-    vehicle.data.attributes.hp.max = primaryComponent.hitPoints;
-    if (!configurations.ECMT && Number.isInteger(primaryComponent.mishapThreshold)) {
-      vehicle.data.attributes.hp.mt = primaryComponent.mishapThreshold;
+    vehicle.data.attributes.hp.value = primaryComponent.definition.hitPoints;
+    vehicle.data.attributes.hp.max = primaryComponent.definition.hitPoints;
+    if (!configurations.ECMT && Number.isInteger(primaryComponent.definition.mishapThreshold)) {
+      vehicle.data.attributes.hp.mt = primaryComponent.definition.mishapThreshold;
     }
-    if (!configurations.ECDT && Number.isInteger(primaryComponent.damageThreshold)) {
-      vehicle.data.attributes.hp.dt = primaryComponent.damageThreshold;
+    if (!configurations.ECDT && Number.isInteger(primaryComponent.definition.damageThreshold)) {
+      vehicle.data.attributes.hp.dt = primaryComponent.definition.damageThreshold;
     }
   }
+
   // if we are using actor level AC apply
   if (configurations.ECACM && primaryComponent) {
     const mods = getAbilityMods(ddb);
-    vehicle.data.attributes.ac.motionless = primaryComponent.armorClass;
-    vehicle.data.attributes.ac.flat = primaryComponent.armorClass + mods["dex"];
+    vehicle.data.attributes.ac.motionless = primaryComponent.definition.armorClass;
+    vehicle.data.attributes.ac.flat = primaryComponent.definition.armorClass + mods["dex"];
   }
 
   vehicle.data.vehicleType = FLIGHT_IDS.includes(ddb.id)
@@ -156,8 +157,6 @@ export async function parseVehicles(ddbData, extra = false) {
     actors: await Promise.all(foundryActors),
     failedVehicleNames,
   };
-
-  console.warn("result", result)
 
   return result;
 }
