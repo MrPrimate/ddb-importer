@@ -4,6 +4,7 @@
 * Character Import: Some different subclass combos could cause an update error on character import as spells conflicted.
 * Add missing compendiums to character import when using load from compendiums option.
 * Some spells with effects tweaked to use selfTarget from latest DAE to keep native range.
+* Vehicle Parsing is now available in BETA for Undying and God tier patrons.
 
 # 2.9.58
 
