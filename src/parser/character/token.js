@@ -1,4 +1,4 @@
-import { getSensesLookup } from "./senses.js";
+import { getSensesMap } from "./senses.js";
 import logger from "../../logger.js";
 
 function getTokenSenses(ddb) {
@@ -7,21 +7,38 @@ function getTokenSenses(ddb) {
   let tokenData = {
     actorLink: true,
     name: ddb.character.name,
+    sight: {
+      enabled: true,
+      range: 0,
+      angle: 360,
+      color: null,
+      attenuation: 0,
+      brightness: 0,
+      saturation: 0,
+      contrast: 0,
+      visionMode: "basic",
+    },
   };
-  const senses = getSensesLookup(ddb);
+  const senses = getSensesMap(ddb);
   // darkvision: 0,
   // blindsight: 0,
   // tremorsense: 0,
   // truesight: 0,
 
-  // These values in senses grant bright sight
-  const devilSight = senses.special.includes("You can see normally in darkness");
-  let brightSights = [senses.truesight, senses.blindsight];
-  if (devilSight) brightSights.push(senses.darkvision);
-  setProperty(tokenData, "brightSight", Math.max(...brightSights));
+  for (const [key, value] of Object.entries(senses)) {
+    logger.debug(`${key}: ${value}`);
+    if (value > 0 && value > tokenData.sight.range && hasProperty(CONFIG.Canvas.visionModes, key)) {
+      setProperty(tokenData, "sight.visionMode", key);
+      setProperty(tokenData, "sight.range", value);
+      tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes[key].vision.defaults);
+    }
+  }
 
-  // Darkvision
-  setProperty(tokenData, "dimSight", senses.darkvision);
+  const devilSight = senses.special.includes("You can see normally in darkness");
+  if (devilSight) {
+    setProperty(tokenData, "sight.visionMode", "basic");
+    tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.basic.vision.defaults);
+  }
 
   return tokenData;
 }
