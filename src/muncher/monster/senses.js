@@ -3,11 +3,11 @@ export function getTextSenses(monster) {
 }
 
 const SENSE_MAP = {
-  Blindsight: "dimSight",
-  Darkvision: "dimSight",
-  Tremorsense: "brightSight",
-  Truesight: "brightSight",
-  Unknown: "dimsight",
+  Blindsight: "detectInvisibility",
+  Darkvision: "darkvision",
+  Tremorsense: "tremorsense",
+  Truesight: "detectInvisibility",
+  Unknown: "basic",
 };
 
 //   "senses": [{
@@ -41,7 +41,12 @@ export function getTokenSenses(token, monster) {
       const senseType = SENSE_MAP[senseMatch.name];
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
-        token[senseType] = parseInt(rangeMatch[1]);
+        const value = parseInt(rangeMatch[1]);
+        if (value > 0 && value > token.sight.range && hasProperty(CONFIG.Canvas.visionModes, senseType)) {
+          setProperty(token.sight, "visionMode", senseType);
+          setProperty(token.sight, "range", value);
+          token.sight = mergeObject(token.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
+        }
       }
     }
   });
