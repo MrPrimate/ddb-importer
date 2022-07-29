@@ -27,7 +27,7 @@ async function parseVehicle(ddb, extra = {}) {
   if (img && img.match(/.gif$/)) {
     img = null;
   }
-  vehicle.token.name = ddb.name;
+  vehicle.prototypeToken.name = ddb.name;
   vehicle.flags.monsterMunch = {
     url: ddb.url,
     img: (img) ? img : ddb.avatarUrl,
@@ -43,42 +43,42 @@ async function parseVehicle(ddb, extra = {}) {
   // const temporaryHitPoints = ddb.temporaryHitPoints ? ddb.removedHitPoints : 0;
 
   // abilities
-  vehicle.data.abilities = getAbilities(vehicle.data.abilities, ddb);
+  vehicle.system.abilities = getAbilities(vehicle.system.abilities, ddb);
 
   // Conditions
-  vehicle.data.traits.di = getDamageImmunities(ddb);
-  vehicle.data.traits.ci = getConditionImmunities(ddb);
+  vehicle.system.traits.di = getDamageImmunities(ddb);
+  vehicle.system.traits.ci = getConditionImmunities(ddb);
 
   // size
   const size = getSize(ddb);
-  vehicle.data.traits.size = size.value;
-  vehicle.token.width = size.token.value;
-  vehicle.token.height = size.token.value;
-  vehicle.token.scale = size.token.scale;
+  vehicle.system.traits.size = size.value;
+  vehicle.prototypeToken.width = size.token.value;
+  vehicle.prototypeToken.height = size.token.value;
+  vehicle.prototypeToken.scale = size.token.scale;
 
-  vehicle.data.attributes.capacity = getCapacity(ddb);
+  vehicle.system.attributes.capacity = getCapacity(ddb);
 
   if (configurations.ST === "dimension") {
-    vehicle.data.traits.dimensions = `(${ddb.length} ft. by ${ddb.width} ft.)`;
+    vehicle.system.traits.dimensions = `(${ddb.length} ft. by ${ddb.width} ft.)`;
   }
   if (configurations.ST === "weight") {
-    vehicle.data.traits.dimensions = `(${ddb.weight} lb.)`;
+    vehicle.system.traits.dimensions = `(${ddb.weight} lb.)`;
   }
 
-  const movement = duplicate(vehicle.data.attributes.movement);
-  vehicle.data.attributes.movement = getMovement(ddb, configurations, movement);
+  const movement = duplicate(vehicle.system.attributes.movement);
+  vehicle.system.attributes.movement = getMovement(ddb, configurations, movement);
 
   const primaryComponent = ddb.components.find((c) => c.isPrimaryComponent);
   // // ac
   // if we are using actor level HP apply
-  if (configurations.ECCR && primaryComponent) {
-    vehicle.data.attributes.hp.value = primaryComponent.definition.hitPoints;
-    vehicle.data.attributes.hp.max = primaryComponent.definition.hitPoints;
+  if (!configurations.ECCR && primaryComponent) {
+    vehicle.system.attributes.hp.value = primaryComponent.definition.hitPoints;
+    vehicle.system.attributes.hp.max = primaryComponent.definition.hitPoints;
     if (!configurations.ECMT && Number.isInteger(primaryComponent.definition.mishapThreshold)) {
-      vehicle.data.attributes.hp.mt = primaryComponent.definition.mishapThreshold;
+      vehicle.system.attributes.hp.mt = primaryComponent.definition.mishapThreshold;
     }
     if (!configurations.ECDT && Number.isInteger(primaryComponent.definition.damageThreshold)) {
-      vehicle.data.attributes.hp.dt = primaryComponent.definition.damageThreshold;
+      vehicle.system.attributes.hp.dt = primaryComponent.definition.damageThreshold;
     }
   }
 
@@ -86,11 +86,11 @@ async function parseVehicle(ddb, extra = {}) {
   if (configurations.PCMT === "vehicle" && primaryComponent) {
     const mods = getAbilityMods(ddb);
     if (configurations.DT === "spelljammer") {
-      vehicle.data.attributes.ac.motionless = primaryComponent.definition.armorClassDescription;
-      vehicle.data.attributes.ac.flat = primaryComponent.definition.armorClass;
+      vehicle.system.attributes.ac.motionless = primaryComponent.definition.armorClassDescription;
+      vehicle.system.attributes.ac.flat = primaryComponent.definition.armorClass;
     } else {
-      vehicle.data.attributes.ac.motionless = primaryComponent.definition.armorClass;
-      vehicle.data.attributes.ac.flat = primaryComponent.definition.armorClass + mods["dex"];
+      vehicle.system.attributes.ac.motionless = primaryComponent.definition.armorClass;
+      vehicle.system.attributes.ac.flat = primaryComponent.definition.armorClass + mods["dex"];
     }
   }
 
@@ -106,33 +106,33 @@ async function parseVehicle(ddb, extra = {}) {
   // fuel data
 
   // details
-  vehicle.data.details.source = utils.parseSource(ddb);
-  vehicle.data.details.biography.value = parseTags(ddb.description);
+  vehicle.system.details.source = utils.parseSource(ddb);
+  vehicle.system.details.biography.value = parseTags(ddb.description);
 
   if (configurations.EAS) {
-    vehicle.data.attributes.actions.stations = true;
+    vehicle.system.attributes.actions.stations = true;
   }
 
   if (ddb.actionsText) {
-    vehicle.data.details.biography.value += `<h2>Actions</h2>\n<p>${ddb.actionsText}</p>`;
+    vehicle.system.details.biography.value += `<h2>Actions</h2>\n<p>${ddb.actionsText}</p>`;
     const componentActionSummaries = ddb.componentActionSummaries.map((feature) => {
       return `<h3>${feature.name}</h3>\n<p>${feature.description}</p>`;
     }).join('\n');
-    vehicle.data.details.biography.value += `\n<p>${componentActionSummaries}</p>`;
+    vehicle.system.details.biography.value += `\n<p>${componentActionSummaries}</p>`;
 
     const actionsRegex = /On its turn(?:,*) the (?:.*?) can take (\d+) action/g;
     const actionsMatch = ddb.actionsText.match(actionsRegex);
     const numberOfActions = actionsMatch ? parseInt(actionsMatch[1]) : 1;
 
-    vehicle.data.attributes.actions.value = numberOfActions;
+    vehicle.system.attributes.actions.value = numberOfActions;
     const actionThreshold = ACTION_THRESHOLDS.find((t) => t.id === ddb.id);
-    vehicle.data.attributes.actions.thresholds = actionThreshold ? actionThreshold.thresholds : [];
+    vehicle.system.attributes.actions.thresholds = actionThreshold ? actionThreshold.thresholds : [];
 
   } else if (ddb.features.length > 0) {
     const featuresText = ddb.features.map((feature) => {
       return `<h3>${feature.name}</h3>\n<p>${feature.description}</p>`;
     }).join('\n');
-    vehicle.data.details.biography.value += `<h2>Features</h2>\n<p>${featuresText}</p>`;
+    vehicle.system.details.biography.value += `<h2>Features</h2>\n<p>${featuresText}</p>`;
   }
 
   vehicle = await existingActorCheck("vehicle", vehicle);

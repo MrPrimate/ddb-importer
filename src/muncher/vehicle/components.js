@@ -57,20 +57,20 @@ function getLimitedUse(action) {
 
 function calculateRange(action, weapon) {
   if (action.range && action.range.aoeType && action.range.aoeSize) {
-    weapon.data.range = { value: null, units: "self", long: "" };
-    weapon.data.target = {
+    weapon.system.range = { value: null, units: "self", long: "" };
+    weapon.system.target = {
       value: action.range.aoeSize,
       type: DICTIONARY.actions.aoeType.find((type) => type.id === action.range.aoeType)?.value,
       units: "ft",
     };
   } else if (action.range && action.range.range) {
-    weapon.data.range = {
+    weapon.system.range = {
       value: action.range.range,
       units: "ft",
       long: action.range.longRange || "",
     };
   } else {
-    weapon.data.range = { value: 5, units: "ft", long: "" };
+    weapon.system.range = { value: 5, units: "ft", long: "" };
   }
   return weapon;
 }
@@ -109,40 +109,40 @@ function getActionType(action) {
 
 function getWeaponProperties(action, weapon) {
   if (action.name) weapon.name += `: ${action.name}`;
-  weapon.data.description.value += `\n${action.description}`;
+  weapon.system.description.value += `\n${action.description}`;
 
   if (action.fixedToHit !== null) {
-    weapon.data.attackBonus = `${action.fixedToHit}`;
+    weapon.system.attackBonus = `${action.fixedToHit}`;
   }
-  // weapon.data.weaponType = getWeaponType(action);
-  weapon.data.weaponType = "siege";
-  weapon.data.target = {
+  // weapon.system.weaponType = getWeaponType(action);
+  weapon.system.weaponType = "siege";
+  weapon.system.target = {
     "value": 1,
     "width": null,
     "units": "",
     "type": "creature"
   };
-  if (Number.isInteger(action.numberOfTargets)) weapon.data.target.value = action.numberOfTargets;
+  if (Number.isInteger(action.numberOfTargets)) weapon.system.target.value = action.numberOfTargets;
 
   const damageType = DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name;
 
-  if (hasProperty(action, "dice.diceString")) weapon.data.damage.parts = [[action.dice.diceString, damageType]];
+  if (action.dice?.diceString) weapon.system.damage.parts = [[action.dice.diceString, damageType]];
 
   if (action.fixedSaveDc) {
     const saveAbility = (action.saveStatId)
       ? DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value
       : getSaveAbility(action.description);
-    weapon.data.save = {
+    weapon.system.save = {
       ability: saveAbility,
       dc: Number.parseInt(action.fixedSaveDc),
       scaling: "flat",
     };
   }
 
-  weapon.data.equipped = true;
-  weapon.data.actionType = getActionType(action);
-  weapon.data.uses = getLimitedUse(action);
-  weapon.data.activation = getActivation(action, weapon.data.activation.type === "crew");
+  weapon.system.equipped = true;
+  weapon.system.actionType = getActionType(action);
+  weapon.system.uses = getLimitedUse(action);
+  weapon.system.activation = getActivation(action, weapon.system.activation.type === "crew");
   weapon = calculateRange(action, weapon);
 
   return weapon;
@@ -159,16 +159,16 @@ function buildComponents(ddb, configurations, component) {
     setProperty(item, "data.armor.type", "vehicle");
   }
 
-  if (component.description) item.data.description.value = parseTags(component.description);
+  if (component.description) item.system.description.value = parseTags(component.description);
 
-  item.data.quantity = component.count;
+  item.system.quantity = component.count;
 
-  item.data.armor = {
+  item.system.armor = {
     value: null,
     type: "vehicle",
     dex: null
   };
-  item.data.hp = {
+  item.system.hp = {
     value: null,
     max: null,
     dt: null,
@@ -176,26 +176,26 @@ function buildComponents(ddb, configurations, component) {
   };
 
   if (component.groupType === "action-station") {
-    item.data.activation.type = "crew";
+    item.system.activation.type = "crew";
     switch (component.definition.coverType) {
       case "full":
-        item.data.cover = 1;
+        item.system.cover = 1;
         break;
       case "half":
-        item.data.cover = 0.5;
+        item.system.cover = 0.5;
         break;
       case "three-quarters":
-        item.data.cover = 0.75;
+        item.system.cover = 0.75;
         break;
       default:
-        item.data.cover = undefined;
+        item.system.cover = undefined;
         break;
     }
 
   } else if (component.definition.groupType === "component") {
 
     if (component.definition.speeds && component.definition.speeds.length > 0) {
-      item.data.speed = {
+      item.system.speed = {
         value: component.definition.speeds[0].modes[0].value,
         conditions: component.definition.speeds[0].modes[0].description
           ? component.definition.speeds[0].modes[0].description
@@ -223,13 +223,13 @@ function buildComponents(ddb, configurations, component) {
           });
         }
         if (speedConditions.length > 0) {
-          item.data.speed.conditions += speedConditions.join("; ");
+          item.system.speed.conditions += speedConditions.join("; ");
         }
       }
     }
 
     if (Number.isInteger(component.definition.armorClass)) {
-      item.data.armor = {
+      item.system.armor = {
         value: parseInt(component.definition.armorClass),
         type: "vehicle",
         dex: null
@@ -237,14 +237,14 @@ function buildComponents(ddb, configurations, component) {
     }
 
     if (Number.isInteger(component.definition.hitPoints)) {
-      item.data.hp = {
+      item.system.hp = {
         value: parseInt(component.definition.hitPoints),
         max: parseInt(component.definition.hitPoints),
         dt: null,
         conditions: ""
       };
       if (component.definition.damageThreshold) {
-        item.data.hp.dt = component.definition.damageThreshold;
+        item.system.hp.dt = component.definition.damageThreshold;
       }
     }
   }
