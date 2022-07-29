@@ -4,7 +4,7 @@ export async function newVehicle(name) {
     displaySheet: false,
   };
   const vehicleClass = await Actor.create({ name, type: "vehicle" }, options);
-  let vehicle = vehicleClass.data.toObject();
+  let vehicle = vehicleClass.toObject();
   const flags = {
     dnd5e: {},
     monsterMunch: {},
