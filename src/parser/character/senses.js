@@ -1,6 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils.js";
-import logger from "../../logger.js";
 
 export function getSensesMap(data) {
   let senses = {
@@ -61,20 +60,6 @@ export function getSensesMap(data) {
 
   return senses;
 
-}
-
-export function getSensesLookup(data) {
-  let senses;
-
-  try {
-    senses = getSensesMap(data);
-  } catch (err) {
-    logger.error(err);
-    logger.error(err.stack);
-    throw new Error("Sense parsing failed. You might need to update your D&D 5e system to a newer version");
-  }
-
-  return senses;
 }
 
 export function getSenses(data) {
