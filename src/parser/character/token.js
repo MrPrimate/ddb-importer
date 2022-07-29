@@ -1,6 +1,13 @@
 import { getSensesMap } from "./senses.js";
 import logger from "../../logger.js";
 
+const SENSE_MAP = {
+  blindsight: "detectInvisibility",
+  darkvision: "darkvision",
+  tremorsense: "tremorsense",
+  truesight: "detectInvisibility",
+};
+
 function getTokenSenses(ddb) {
   // Default to the most basic token setup.
   // everything else can be handled by the user / Token Mold
@@ -26,11 +33,11 @@ function getTokenSenses(ddb) {
   // truesight: 0,
 
   for (const [key, value] of Object.entries(senses)) {
-    logger.debug(`${key}: ${value}`);
-    if (value > 0 && value > tokenData.sight.range && hasProperty(CONFIG.Canvas.visionModes, key)) {
-      setProperty(tokenData, "sight.visionMode", key);
+    if (value > 0 && value > tokenData.sight.range && hasProperty(SENSE_MAP, key)) {
+      const visionMode = SENSE_MAP[key];
+      setProperty(tokenData, "sight.visionMode", visionMode);
       setProperty(tokenData, "sight.range", value);
-      tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes[key].vision.defaults);
+      tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes[visionMode].vision.defaults);
     }
   }
 
