@@ -13,18 +13,18 @@ function getCantripDice(actor) {
 async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const item = await fromUuid(itemUuid);
   const caster = item.parent;
-  const isCantrip = item.data.flags.ddbimporter.effect.isCantrip;
-  const damageDice = item.data.flags.ddbimporter.effect.dice;
-  const damageType = item.data.flags.ddbimporter.effect.damageType;
-  const saveAbility = item.data.flags.ddbimporter.effect.save;
+  const ddbEffectFlags = item.data.flags.ddbimporter.effect;
+  const isCantrip = ddbEffectFlags.isCantrip;
+  const damageDice = ddbEffectFlags.dice;
+  const damageType = ddbEffectFlags.damageType;
+  const saveAbility = ddbEffectFlags.save;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
   const scalingDiceArray = item.data.data.scaling.formula.split("d");
   const scalingDiceNumber = itemLevel - item.data.data.level;
   const upscaledDamage =  isCantrip
     ? `${getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
-  const damageRoll = await new Roll(upscaledDamage).evaluate({ async: true });
-  if (game.dice3d) game.dice3d.showForRoll(damageRoll);
+
   const workflowItemData = duplicate(item.data);
   workflowItemData.data.target = { value: 1, units: "", type: "creature" };
   workflowItemData.data.save.ability = saveAbility;
@@ -38,23 +38,44 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   setProperty(workflowItemData, "flags.dae", {});
   setProperty(workflowItemData, "effects", []);
   delete workflowItemData._id;
-  workflowItemData.name = `${workflowItemData.name}: Turn Entry Damage`;
-  // console.warn("workflowItemData", workflowItemData);
 
-  await new MidiQOL.DamageOnlyWorkflow(
-    caster,
-    casterToken.data,
-    damageRoll.total,
-    damageType,
-    [targetToken],
-    damageRoll,
-    {
-      flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
-      itemCardId: "new",
-      itemData: workflowItemData,
-      isCritical: false,
-    }
-  );
+  const saveOnEntry = ddbEffectFlags.saveOnEntry;
+  console.warn("saveOnEntry", {ddbEffectFlags, saveOnEntry});
+  if (saveOnEntry) {
+    const entryItem = new CONFIG.Item.documentClass(workflowItemData, { parent: caster });
+    console.warn("Saving item on entry", {entryItem, targetToken});
+    const options = {
+      showFullCard: false,
+      createWorkflow: true,
+      targetUuids: [targetToken.document.uuid],
+      configureDialog: false,
+      versatile: false,
+      consumeResource: false,
+      consumeSlot: false,
+    };
+    await MidiQOL.completeItemRoll(entryItem, options);
+  } else {
+    const damageRoll = await new Roll(upscaledDamage).evaluate({ async: true });
+    if (game.dice3d) game.dice3d.showForRoll(damageRoll);
+
+    workflowItemData.name = `${workflowItemData.name}: Turn Entry Damage`;
+    // console.warn("workflowItemData", workflowItemData);
+
+    await new MidiQOL.DamageOnlyWorkflow(
+      caster,
+      casterToken.data,
+      damageRoll.total,
+      damageType,
+      [targetToken],
+      damageRoll,
+      {
+        flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
+        itemCardId: "new",
+        itemData: workflowItemData,
+        isCritical: false,
+      }
+    );
+  }
 
 }
 

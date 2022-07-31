@@ -1,3 +1,7 @@
+# 2.9.60
+
+* Spell Effect: Create Bonfire effect triggered at start and end, and save did not happen for damage on entry.
+
 # 2.9.59
 
 * Effect: Steady Aim: Some correction to name, and movement reduction effect.

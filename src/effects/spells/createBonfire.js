@@ -14,13 +14,6 @@ export async function createBonfireEffect(document) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value:
-        "turn=start,label=Create Bonfire (Start of Turn),damageRoll=(@cantripDice)d8,damageType=fire,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true",
-      priority: "20",
-    },
-    {
-      key: "flags.midi-qol.OverTime",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value:
         "turn=end,label=Create Bonfire (End of Turn),damageRoll=(@cantripDice)d8,damageType=fire,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true",
       priority: "20",
     },
@@ -52,6 +45,7 @@ export async function createBonfireEffect(document) {
     save: document.data.save.ability,
     sequencerFile: "jb2a.flames.01.orange",
     isCantrip: true,
+    saveOnEntry: true,
   });
 
   return document;
