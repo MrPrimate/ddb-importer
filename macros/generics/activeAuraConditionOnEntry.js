@@ -16,9 +16,9 @@ async function attemptRemoval(targetToken, condition, item) {
           label: "Yes",
           callback: async () => {
             const caster = item.parent;
-            const saveDc = caster.data.data.attributes.spelldc;
-            const removalCheck = item.data.flags.ddbimporter.effect.removalCheck;
-            const removalSave = item.data.flags.ddbimporter.effect.removalSave;
+            const saveDc = caster.system.attributes.spelldc;
+            const removalCheck = item.flags.ddbimporter.effect.removalCheck;
+            const removalSave = item.flags.ddbimporter.effect.removalSave;
             const ability = removalCheck ? removalCheck : removalSave;
             const type = removalCheck ? "check" : "save";
             const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
@@ -46,13 +46,13 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
   if (!game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
     const caster = item.parent;
     const workflowItemData = duplicate(item.data);
-    workflowItemData.data.target = { value: 1, units: "", type: "creature" };
-    workflowItemData.data.save.ability = item.data.flags.ddbimporter.effect.save;
-    workflowItemData.data.components.concentration = false;
-    workflowItemData.data.level = itemLevel;
-    workflowItemData.data.duration = { value: null, units: "inst" };
-    workflowItemData.data.target = { value: null, width: null, units: "", type: "creature" };
-    workflowItemData.data.preparation.mode = "atwill";
+    workflowItemData.system.target = { value: 1, units: "", type: "creature" };
+    workflowItemData.system.save.ability = item.flags.ddbimporter.effect.save;
+    workflowItemData.system.components.concentration = false;
+    workflowItemData.system.level = itemLevel;
+    workflowItemData.system.duration = { value: null, units: "inst" };
+    workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
+    workflowItemData.system.preparation.mode = "atwill";
     setProperty(workflowItemData, "flags.itemacro", {});
     setProperty(workflowItemData, "flags.midi-qol", {});
     setProperty(workflowItemData, "flags.dae", {});
@@ -160,13 +160,13 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
       round: game.combat.round,
       turn: game.combat.turn,
       hasLeft: false,
-      condition: item.data.flags.ddbimporter.effect.condition,
+      condition: item.flags.ddbimporter.effect.condition,
     };
 
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
   const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
   const everyEntry = hasProperty(item.data, "flags.ddbimporter.effect.everyEntry")
-    ? item.data.flags.ddbimporter.effect.everyEntry
+    ? item.flags.ddbimporter.effect.everyEntry
     : false;
 
   // if:
@@ -183,7 +183,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     await applyCondition(targetTokenTracker.condition, target, item, targetItemTracker.spellLevel);
   }
   await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
-  const allowVsRemoveCondition = item.data.flags.ddbimporter.effect.allowVsRemoveCondition;
+  const allowVsRemoveCondition = item.flags.ddbimporter.effect.allowVsRemoveCondition;
   const effectApplied = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
   if (currentTokenCombatTurn && allowVsRemoveCondition && effectApplied) {

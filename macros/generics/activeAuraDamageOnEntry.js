@@ -6,32 +6,32 @@ if(!game.modules.get("ActiveAuras")?.active) {
 const lastArg = args[args.length - 1];
 
 function getCantripDice(actor) {
-  const level = actor.type === "character" ? actor.data.details.level : actor.data.details.cr;
+  const level = actor.type === "character" ? actor.system.details.level : actor.system.details.cr;
   return 1 + Math.floor((level + 1) / 6);
 }
 
 async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const item = await fromUuid(itemUuid);
   const caster = item.parent;
-  const ddbEffectFlags = item.data.flags.ddbimporter.effect;
+  const ddbEffectFlags = item.flags.ddbimporter.effect;
   const isCantrip = ddbEffectFlags.isCantrip;
   const damageDice = ddbEffectFlags.dice;
   const damageType = ddbEffectFlags.damageType;
   const saveAbility = ddbEffectFlags.save;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
-  const scalingDiceArray = item.data.data.scaling.formula.split("d");
-  const scalingDiceNumber = itemLevel - item.data.data.level;
+  const scalingDiceArray = item.system.scaling.formula.split("d");
+  const scalingDiceNumber = itemLevel - item.system.level;
   const upscaledDamage =  isCantrip
     ? `${getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
 
   const workflowItemData = duplicate(item.data);
-  workflowItemData.data.target = { value: 1, units: "", type: "creature" };
-  workflowItemData.data.save.ability = saveAbility;
-  workflowItemData.data.components.concentration = false;
-  workflowItemData.data.level = itemLevel;
-  workflowItemData.data.duration = { value: null, units: "inst" };
-  workflowItemData.data.target = { value: null, width: null, units: "", type: "creature" };
+  workflowItemData.system.target = { value: 1, units: "", type: "creature" };
+  workflowItemData.system.save.ability = saveAbility;
+  workflowItemData.system.components.concentration = false;
+  workflowItemData.system.level = itemLevel;
+  workflowItemData.system.duration = { value: null, units: "inst" };
+  workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
 
   setProperty(workflowItemData, "flags.itemacro", {});
   setProperty(workflowItemData, "flags.midi-qol", {});
@@ -82,7 +82,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
 async function attachSequencerFileToTemplate(templateUuid, sequencerFile, originUuid) {
   if (game.modules.get("sequencer")?.active) {
     if (Sequencer.Database.entryExists(sequencerFile)) {
-      console.debug("Trying to apply sequencer effect", sequencerFile);
+      console.debug("Trying to apply sequencer effect", {sequencerFile, templateUuid});
       const template = await fromUuid(templateUuid);
       new Sequence()
       .effect()
