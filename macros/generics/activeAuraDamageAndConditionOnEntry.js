@@ -12,14 +12,14 @@ function getHighestAbility(actor, abilities) {
     return abilities;
   } else if (Array.isArray(abilities)) {
     return abilities.reduce((prv, current) => {
-      if (actor.data.abilities[current].value > actor.data.abilities[prv].value) return current;
+      if (actor.system.abilities[current].value > actor.system.abilities[prv].value) return current;
       else return prv;
     }, abilities[0]);
   }
 }
 
 function getCantripDice(actor) {
-  const level = actor.type === "character" ? actor.data.details.level : actor.data.details.cr;
+  const level = actor.type === "character" ? actor.system.details.level : actor.system.details.cr;
   return 1 + Math.floor((level + 1) / 6);
 }
 
@@ -33,9 +33,9 @@ async function attemptRemoval(targetToken, condition, item) {
           label: "Yes",
           callback: async () => {
             const caster = item.parent;
-            const saveDc = caster.data.data.attributes.spelldc;
-            const removalCheck = item.data.flags.ddbimporter.effect.removalCheck;
-            const removalSave = item.data.flags.ddbimporter.effect.removalSave;
+            const saveDc = caster.system.attributes.spelldc;
+            const removalCheck = item.system.flags.ddbimporter.effect.removalCheck;
+            const removalSave = item.system.flags.ddbimporter.effect.removalSave;
             const ability = removalCheck ? getHighestAbility(targetToken.actor.data, removalCheck) : getHighestAbility(targetToken.actor.data, removalSave);
             const type = removalCheck ? "check" : "save";
             const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
@@ -63,13 +63,13 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
   if (!game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
     const caster = item.parent;
     const workflowItemData = duplicate(item.data);
-    workflowItemData.data.target = { value: 1, units: "", type: "creature" };
-    workflowItemData.data.save.ability = item.data.flags.ddbimporter.effect.save;
-    workflowItemData.data.components.concentration = false;
-    workflowItemData.data.level = itemLevel;
-    workflowItemData.data.duration = { value: null, units: "inst" };
-    workflowItemData.data.target = { value: null, width: null, units: "", type: "creature" };
-    workflowItemData.data.preparation.mode = "atwill";
+    workflowItemData.system.target = { value: 1, units: "", type: "creature" };
+    workflowItemData.system.save.ability = item.flags.ddbimporter.effect.save;
+    workflowItemData.system.components.concentration = false;
+    workflowItemData.system.level = itemLevel;
+    workflowItemData.system.duration = { value: null, units: "inst" };
+    workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
+    workflowItemData.system.preparation.mode = "atwill";
     setProperty(workflowItemData, "flags.itemacro", {});
     setProperty(workflowItemData, "flags.midi-qol", {});
     setProperty(workflowItemData, "flags.dae", {});
@@ -121,25 +121,25 @@ async function attachSequencerFileToTemplate(templateUuid, sequencerFile, origin
 async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const item = await fromUuid(itemUuid);
   const caster = item.parent;
-  const isCantrip = item.data.flags.ddbimporter.effect.isCantrip;
-  const damageDice = item.data.flags.ddbimporter.effect.dice;
-  const damageType = item.data.flags.ddbimporter.effect.damageType;
-  const saveAbility = item.data.flags.ddbimporter.effect.save;
+  const isCantrip = item.flags.ddbimporter.effect.isCantrip;
+  const damageDice = item.flags.ddbimporter.effect.dice;
+  const damageType = item.flags.ddbimporter.effect.damageType;
+  const saveAbility = item.flags.ddbimporter.effect.save;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
-  const scalingDiceArray = item.data.data.scaling.formula.split("d");
-  const scalingDiceNumber = itemLevel - item.data.data.level;
+  const scalingDiceArray = item.system.scaling.formula.split("d");
+  const scalingDiceNumber = itemLevel - item.system.level;
   const upscaledDamage =  isCantrip
     ? `${getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
   const damageRoll = await new Roll(upscaledDamage).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll);
   const workflowItemData = duplicate(item.data);
-  workflowItemData.data.target = { value: 1, units: "", type: "creature" };
-  workflowItemData.data.save.ability = saveAbility;
-  workflowItemData.data.components.concentration = false;
-  workflowItemData.data.level = itemLevel;
-  workflowItemData.data.duration = { value: null, units: "inst" };
-  workflowItemData.data.target = { value: null, width: null, units: "", type: "creature" };
+  workflowItemData.system.target = { value: 1, units: "", type: "creature" };
+  workflowItemData.system.save.ability = saveAbility;
+  workflowItemData.system.components.concentration = false;
+  workflowItemData.system.level = itemLevel;
+  workflowItemData.system.duration = { value: null, units: "inst" };
+  workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
 
   setProperty(workflowItemData, "flags.itemacro", {});
   setProperty(workflowItemData, "flags.midi-qol", {});
@@ -234,7 +234,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 } else if (args[0] == "on" || args[0] == "each") {
   const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
-  const ddbEffectFlags = item.data.flags.ddbimporter.effect;
+  const ddbEffectFlags = item.flags.ddbimporter.effect;
   // sometimes the round info has not updated, so we pause a bit
   if (args[0] == "each") await wait(500);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
@@ -255,7 +255,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
   const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
   const everyEntry = hasProperty(item.data, "flags.ddbimporter.effect.everyEntry")
-    ? item.data.flags.ddbimporter.effect.everyEntry
+    ? item.flags.ddbimporter.effect.everyEntry
     : false;
 
   // if:
@@ -296,7 +296,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   targetTokenTracker.turn = game.combat.turn;
   targetTokenTracker.round = game.combat.round;
   await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
-  const allowVsRemoveCondition = item.data.flags.ddbimporter.effect.allowVsRemoveCondition;
+  const allowVsRemoveCondition = item.flags.ddbimporter.effect.allowVsRemoveCondition;
   const hasConditionAppliedEnd = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
   if (currentTokenCombatTurn && allowVsRemoveCondition && hasConditionAppliedEnd) {
