@@ -18,6 +18,6 @@ Hooks.on("renderItemSheet", renderItemSheet);
 Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
 Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
 
-console.warn("SILENT MODE FOR DEBUG");
-const includeRgx = new RegExp("/module/ddb-importer/");
-CONFIG.compatibility.includePatterns.push(includeRgx);
+// console.warn("SILENT MODE FOR DEBUG");
+// const includeRgx = new RegExp("/module/ddb-importer/");
+// CONFIG.compatibility.includePatterns.push(includeRgx);

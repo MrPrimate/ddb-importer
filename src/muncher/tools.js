@@ -12,7 +12,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
 
   for (let targetActor of targetActors) {
     munchNote(`Updating ${count}/${totalTargets} world monsters`);
-    console.warn(`Updating ${count}/${totalTargets} world monsters`, targetActor);
+    logger.debug(`Updating ${count}/${totalTargets} world monsters`, targetActor);
     const monsterItems = sourceActor.items.toObject().map((item) => {
       delete item._id;
       return item;
