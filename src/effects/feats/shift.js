@@ -2,8 +2,6 @@ import parseTemplateString from "../../parser/templateStrings.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function shiftEffect(ddb, character, document) {
-
-  console.warn(ddb);
   const isBeasthide = ddb.character.options.race.find((trait) => trait.definition.name === "Beasthide");
   const isSwiftstride = ddb.character.options.race.find((trait) => trait.definition.name === "Swiftstride");
   const isWildhunt = ddb.character.options.race.find((trait) => trait.definition.name === "Wildhunt");
