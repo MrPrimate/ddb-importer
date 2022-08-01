@@ -26,6 +26,7 @@ import { stormRuneEffect } from "./feats/stormRune.js";
 import { runeCarverEffect } from "./feats/runeCarver.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { steadyAimEffect } from "./feats/steadyAim.js";
+import { shiftEffect } from "./feats/shift.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -188,6 +189,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Sculpt Spells": {
       document = sculptSpellsEffect(document);
+      break;
+    }
+    case "Shift": {
+      document = shiftEffect(ddb, character, document);
       break;
     }
     case "Steady Aim": {

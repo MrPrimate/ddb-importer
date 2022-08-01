@@ -438,6 +438,19 @@ export function fixFeatures(features) {
         feature.data.damage = { parts: [["@details.level + max(1,@mod)", "temphp"]], versatile: "", value: "" };
         break;
       }
+      case "Shift": {
+        feature.data.actionType = "heal";
+        feature.data.target.type = "self";
+        feature.data.range = { value: null, long: null, units: "self" };
+        feature.data.duration = {
+          value: 1,
+          units: "minute",
+        };
+        feature.data.ability = "con";
+        feature.data.actionType = "heal";
+        feature.data.damage = { parts: [["2 * @prof", "temphp"]], versatile: "", value: "" };
+        break;
+      }
       case "Sneak Attack": {
         if (!useScale) feature.data.damage = { parts: [["(ceil(@classes.rogue.levels /2))d6", ""]], versatile: "", value: "" };
         if (!feature.flags.ddbimporter.action) {
