@@ -13,7 +13,7 @@ Hooks.once("init", init);
 Hooks.once("ready", onceReady);
 Hooks.on("ready", onReady);
 Hooks.on("renderSidebarTab", renderSidebarTab);
-Hooks.on("renderJournalSheet", renderJournalSheet);
+Hooks.on("renderJournalPageSheet", renderJournalSheet);
 Hooks.on("renderItemSheet", renderItemSheet);
 Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
 Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
