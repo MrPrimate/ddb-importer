@@ -40,7 +40,7 @@ export async function auraOfLifeEffect(document) {
   document.system.actionType = "other";
   document.system.damage.parts = [];
   document.system.range = { value: null, units: "self", long: null };
-  document.data['target']['type'] = "self";
+  document.system['target']['type'] = "self";
 
   document.effects.push(effect);
   return document;
