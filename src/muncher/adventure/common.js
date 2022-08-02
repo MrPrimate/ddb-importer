@@ -14,6 +14,7 @@ const COMPENDIUM_MAP = {
   "armor": "items",
   "adventuring-gear": "items",
   "monsters": "monsters",
+  "vehicles": "vehicles",
 };
 
 const DDB_MAP = {
@@ -23,6 +24,7 @@ const DDB_MAP = {
   "armor": "equipment",
   "adventuring-gear": "equipment",
   "monsters": "monsters",
+  "vehicles": "vehicles",
 };
 
 export default class Helpers {
