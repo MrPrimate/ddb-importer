@@ -58,39 +58,12 @@ export default class AdventureMunch extends FormApplication {
   }
 
   static async _createFolders(adventure, folders) {
-    if (folders) {
-      const maintainFolders = adventure?.options?.folders;
-      let itemFolder = null;
-      if (!maintainFolders) {
-        const importTypes = ["Scene", "Actor", "Item", "JournalEntry", "RollTable"];
-        await Helpers.asyncForEach(importTypes, async (importType) => {
-          itemFolder = game.folders.find((folder) => {
-            return folder.name === adventure.name && folder.type === importType;
-          });
+    CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
+    CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = null;
 
-          if (!itemFolder) {
-            logger.debug(`Creating folder ${adventure.name} - ${importType}`);
-
-            // eslint-disable-next-line require-atomic-updates
-            itemFolder = await Folder.create({
-              color: adventure.folderColour ? adventure.folderColour : "#FF0000",
-              name: adventure.name,
-              parent: null,
-              type: importType
-            }, { keepId: true });
-          }
-
-          CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[importType] = itemFolder.id;
-        });
-      } else {
-        CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
-        CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = null;
-      }
-
-      // the folder list could be out of order, we need to create all folders with parent null first
-      const firstLevelFolders = folders.filter((folder) => folder.parent === null);
-      await Helpers.importFolder(itemFolder, firstLevelFolders, adventure, folders);
-    }
+    // the folder list could be out of order, we need to create all folders with parent null first
+    const firstLevelFolders = folders.filter((folder) => folder.parent === null);
+    await Helpers.importFolder(firstLevelFolders, adventure, folders);
   }
 
   /** @override */

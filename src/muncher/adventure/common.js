@@ -247,13 +247,14 @@ export default class Helpers {
     });
   }
 
-  static async importFolder(parentFolder, folders, adventure, folderList) {
+  static async importFolder(folders, adventure, folderList) {
     await this.asyncForEach(folders, async (f) => {
       let folderData = f;
 
-      let newFolder = game.folders.find((folder) => {
-        return (folder._id === folderData._id || folder.flags.importid === folderData._id) && folder.type === folderData.type;
-      });
+      let newFolder = game.folders.find((folder) =>
+        (folder._id === folderData._id || folder.flags.importid === folderData._id) &&
+        folder.type === folderData.type
+      );
 
       if (!newFolder) {
         if (folderData.parent !== null) {
@@ -266,6 +267,8 @@ export default class Helpers {
 
         newFolder = await Folder.create(folderData, { keepId: true });
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
+      } else {
+        logger.debug(`Found existing folder ${newFolder._id} with data:`, folderData, newFolder);
       }
 
       // eslint-disable-next-line require-atomic-updates
@@ -276,7 +279,7 @@ export default class Helpers {
       });
 
       if (childFolders.length > 0) {
-        await this.importFolder(newFolder, childFolders, adventure, folderList);
+        await this.importFolder(childFolders, adventure, folderList);
       }
     });
   }
