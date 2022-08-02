@@ -19,16 +19,19 @@ function getNotes(scene, bookCode) {
   const notes = scene.notes
     // the user might have placed a note, unless it is based on an imported Journal Entry, we will not carry
     // that one over
-    .filter((note) => relatedJournalEntries.some((journal) => journal.id === note.system.entryId))
+    .filter((note) => relatedJournalEntries.some((journal) => journal.id === note.entryId))
     .map((note) => {
-      const journal = relatedJournalEntries.find((journal) => journal.id === note.system.entryId);
+      const journal = relatedJournalEntries.find((journal) => journal.id === note.entryId);
+      const page = note.pageId
+        ? journal.pages.find((page) => page._id === note.pageId)
+        : journal;
       const idx = parseInt(journal.flags.ddb.ddbId);
       // removed un-needed userdata
-      const flags = journal.flags.ddb;
+      const flags = page.flags.ddb;
       if (flags?.userData) delete flags.userData;
       return {
         index: idx,
-        label: journal.name,
+        label: page.name,
         flags: {
           ddb: flags,
         },
@@ -164,7 +167,7 @@ export function collectSceneData(scene, bookCode) {
   if (data.flags.ddb?.userData) delete data.flags.ddb.userData;
 
   data.flags.ddb.notes = notes;
-  data.flags.ddb.img = `assets/${scene.img.split("assets/").pop()}`;
+  data.flags.ddb.img = `assets/${scene.background.src.split("assets/").pop()}`;
 
   if (!data.flags.ddbimporter) data.flags.ddbimporter = {};
   data.flags.ddbimporter['version'] = game.modules.get("ddb-importer").data.version;
