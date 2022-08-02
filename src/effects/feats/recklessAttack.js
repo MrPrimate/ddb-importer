@@ -37,7 +37,7 @@ export function recklessAttackEffect(document) {
 
   document.effects.push(defenseEffect);
 
-  document.data["target"]["type"] = "self";
+  document.system["target"]["type"] = "self";
   document.system.range = { value: null, units: "self", long: null };
   document.system.actionType = null;
   document.system.activation = { type: "none", cost: null, condition: "" };
