@@ -342,6 +342,15 @@ export default class AdventureMunch extends FormApplication {
           });
         }
 
+        if (item.pages?.length) {
+          await Helpers.asyncForEach(item.pages, async (page) => {
+            if (page.src) {
+              // eslint-disable-next-line require-atomic-updates
+              page.src = await Helpers.importImage(page.src, zip, adventure);
+            }
+          });
+        }
+
         switch (data.info.entity) {
           case "Item":
             obj = new Item(item, { temporary: true });
@@ -643,6 +652,16 @@ export default class AdventureMunch extends FormApplication {
         });
       }
 
+
+      if (data?.pages?.length) {
+        await Helpers.asyncForEach(data.pages, async (page) => {
+          if (page.src) {
+            // eslint-disable-next-line require-atomic-updates
+            page.src = await Helpers.importImage(page.src, zip, adventure);
+          }
+        });
+      }
+
       if (importType === "Scene") {
         if (data.tokens) {
           await Helpers.generateTokenActors(data);
@@ -667,16 +686,21 @@ export default class AdventureMunch extends FormApplication {
           // eslint-disable-next-line require-atomic-updates
           data.text = Helpers.foundryCompendiumReplace(data.text);
         });
-      } else if (importType === "JournalEntry" && data.content) {
-        const journalImages = Helpers.reMatchAll(/(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/, data.content);
-        if (journalImages) {
-          await Helpers.asyncForEach(journalImages, async (result) => {
-            const path = await Helpers.importImage(result[2], zip, adventure);
-            data.content = data.content.replace(result[0], `${result[1]}="${path}"`);
-          });
-        }
-        logger.debug(`Updating DDB links for ${data.name}`);
-        data.content = Helpers.foundryCompendiumReplace(data.content);
+      } else if (importType === "JournalEntry") {
+        await Helpers.asyncForEach(data.pages, async (page) => {
+          if (page.text.content) {
+            const journalImages = Helpers.reMatchAll(/(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/, page.text.content);
+            if (journalImages) {
+              logger.debug(`Updating Image links for ${page.name}`);
+              await Helpers.asyncForEach(journalImages, async (result) => {
+                const path = await Helpers.importImage(result[2], zip, adventure);
+                page.text.content = page.text.content.replace(result[0], `${result[1]}="${path}"`);
+              });
+            }
+            logger.debug(`Updating DDB links for ${page.name}`);
+            page.text.content = Helpers.foundryCompendiumReplace(page.text.content);
+          }
+        });
       }
 
       data.flags.importid = data._id;
