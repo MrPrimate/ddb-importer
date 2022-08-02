@@ -14,7 +14,7 @@ export function linkImages(html, data) {
 
   // mark all images
   $(html)
-    .find('div[data-edit="content"] img, div[data-edit="content"] video')
+    .find('img')
     .each((index, element) => {
       const showPlayersButton = $("<a class='ddbimporter-show-image'><i class='fas fa-eye'></i>&nbsp;Show Players Image</a>");
       const toChatButton = $("<a class='ddbimporter-to-chat'><i class='fas fa-comment'></i>&nbsp;To Chat</a>");
