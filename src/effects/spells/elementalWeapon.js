@@ -8,9 +8,9 @@ export async function elementalWeaponEffect(document) {
   effect.changes.push(generateMacroChange("@item.level", 0));
   document.effects.push(effect);
 
-  document.data.damage.parts = [];
-  document.data.actionType = "other";
-  document.data.chatFlavor = "";
+  document.system.damage.parts = [];
+  document.system.actionType = "other";
+  document.system.chatFlavor = "";
 
   return document;
 }
