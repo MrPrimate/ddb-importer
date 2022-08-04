@@ -44,6 +44,7 @@ import { dominateBeastEffect } from "./spells/dominateBeast.js";
 import { dominateMonsterEffect } from "./spells/dominateMonster.js";
 import { dominatePersonEffect } from "./spells/dominatePerson.js";
 import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
+import { elementalWeaponEffect } from "./spells/elementalWeapon.js";
 import { enlargeReduceEffect } from "./spells/enlargeReduce.js";
 import { entangleEffect } from "./spells/entangle.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
@@ -354,6 +355,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Dominate Person": {
       document = dominatePersonEffect(document);
+      break;
+    }
+    case "Elemental Weapon": {
+      document = await elementalWeaponEffect(document);
       break;
     }
     case "Enhance Ability": {

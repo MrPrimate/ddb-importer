@@ -3,6 +3,7 @@
 * Spell Effect: Create Bonfire effect triggered at start and end, and save did not happen for damage on entry.
 * Effect Bardic Inspiration: did not work for skill bonuses.
 * Shifter race (MoM) effects.
+* Spell Effect: Elemental Weapon @ghata (Michael)#3056
 
 # 2.9.59
 
