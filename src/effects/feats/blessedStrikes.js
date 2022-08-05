@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function blessedStrikesEffect(document) {
-  if (document.data.actionType === null) return document;
+  if (document.system.actionType === null) return document;
   let effect = baseFeatEffect(document, document.name);
 
   effect.changes.push(
@@ -20,13 +20,13 @@ export function blessedStrikesEffect(document) {
     {
       key: "flags.midi-qol.optional.blessedstrikes.damage.all",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: `${document.data.damage.parts[0][0]}`,
+      value: `${document.system.damage.parts[0][0]}`,
       priority: "5",
     },
   );
 
-  document.data.damage.parts = [];
-  document.data.actionType = null;
+  document.system.damage.parts = [];
+  document.system.actionType = null;
   effect.transfer = true;
 
   document.effects.push(effect);
