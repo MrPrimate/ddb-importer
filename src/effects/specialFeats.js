@@ -27,6 +27,7 @@ import { runeCarverEffect } from "./feats/runeCarver.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { steadyAimEffect } from "./feats/steadyAim.js";
 import { shiftEffect } from "./feats/shift.js";
+import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -132,6 +133,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Blessed Healer": {
       document = await blessedHealerEffect(document);
+      break;
+    }
+    case "Blessed Strikes": {
+      document = blessedStrikesEffect(document);
       break;
     }
     case "Cloud Rune": {

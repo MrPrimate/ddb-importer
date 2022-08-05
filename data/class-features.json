@@ -1,5 +1,12 @@
 [
   {
+    "name": "Blessed Strikes",
+    "class": "Cleric",
+    "class_feature": "Blessed Strikes",
+    "subclass": "",
+    "path": "icons/magic/holy/projectiles-blades-salvo-yellow.webp"
+  },
+  {
     "name": "Abjuration Savant",
     "class_feature": "Abjuration Savant",
     "class": "Wizard",
