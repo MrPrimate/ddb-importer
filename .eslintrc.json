@@ -56,7 +56,10 @@
     "MidiQOL": true,
     "Sequence": true,
     "ImagePopout": true,
-    "ChatPopout": true
+    "ChatPopout": true,
+    "JournalSheet": true,
+    "Journal": true,
+    "JournalEntryPage": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,
