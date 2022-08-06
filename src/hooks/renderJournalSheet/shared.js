@@ -17,34 +17,84 @@ export function imageToChat(src) {
   });
 }
 
-export async function createAndShowPlayerHandout(name, content, type, bookCode) {
-  const subFolderName = bookCode
+async function getJournal(bookCode) {
+  const folder = await utils.getFolder("journal", "", "Player Handouts", "#515fc8", "#515fc8", false);
+  const journalName = bookCode
     ? getBookName(bookCode)
-    : "";
-  const folder = await utils.getFolder("journal", subFolderName, "Player Handouts", "#515fc8", "#515fc8", false);
+    : "Handout Pages";
+  const existingJournal = game.journal.find((journal) =>
+    journal.name === journalName && journal.folder.id === folder.id
+  );
+  if (existingJournal) {
+    return existingJournal;
+  } else {
+    const journal = await JournalEntry.create(
+      {
+        name: journalName,
+        folder: folder.id,
+        ownership: {
+          default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER,
+        },
+        flags: {
+          ddb: {
+            bookCode,
+          },
+        },
+      },
+      {
+        displaySheet: false,
+      }
+    );
+    return journal;
+  }
+}
 
-  const options = {
-    displaySheet: false,
-  };
-  const data = {
+async function createPage(journal, name, type, content) {
+  const page = {
+    _id: randomID(),
     name,
-    folder: folder.id,
-    permission: {
-      default: CONST.DOCUMENT_PERMISSION_LEVELS.OBSERVER,
+    type,
+    text: {},
+    title: {
+      show: true,
     },
+    ownership: {
+      default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER,
+    }
   };
   switch (type) {
     case "image": {
-      data.img = content;
+      page.title.show = true;
+      page.src = content;
       break;
     }
     case "text":
     default: {
-      data.content = content;
+      page.text.content = content;
     }
   }
 
-  const tempJournal = await JournalEntry.create(data, options);
+  await JournalEntryPage.create(page, { parent: journal, keepId: true, displaySheet: false });
+  return journal.pages.find((jp) => page._id === jp._id);
+}
 
-  tempJournal.show(type, true);
+export async function createAndShowPlayerHandout(name, content, type, bookCode) {
+
+  const journal = await getJournal(bookCode);
+
+  const existingPage = journal.pages.find((page) => {
+    const nameCheck = page.name === name;
+    const typeCheck = type === "image"
+      ? page.src === content
+      : type === "text"
+        ? page.text?.content === content
+        : true;
+    return nameCheck && typeCheck;
+  });
+
+  const page = existingPage
+    ? existingPage
+    : await createPage(journal, name, type, content);
+
+  Journal.showDialog(page);
 }

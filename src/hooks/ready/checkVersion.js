@@ -29,7 +29,7 @@ async function getLatestModuleMinimumCoreVersion() {
 }
 
 export default async () => {
-  const moduleInfo = game.modules.get(MODULE_NAME).data;
+  const moduleInfo = game.modules.get(MODULE_NAME);
   const installedVersion = moduleInfo.version;
   setProperty(CONFIG, "DDBI.version", installedVersion);
   const foundryVersion = game.version ? game.version : game.data.version;
