@@ -1393,6 +1393,40 @@ const utils = {
       return false;
     }
   },
+
+  async namePrompt(question) {
+    const content = `
+    <label class="text-label">
+      <input type="text" name="name"/>
+    </label>
+  `;
+    const name = await new Promise((resolve) => {
+      new Dialog({
+        title: question,
+        content,
+        buttons: {
+          ok: {
+            label: "Okay",
+            callback: async (html) => {
+              const value = html.find("input[type='text'][name='name']").val();
+              resolve(value);
+            },
+          },
+          cancel: {
+            label: "Cancel",
+            callback: () => {
+              resolve("");
+            },
+          }
+        },
+        default: "ok",
+        close: () => {
+          resolve("");
+        },
+      }).render(true);
+    });
+    return name;
+  }
 };
 
 export default utils;

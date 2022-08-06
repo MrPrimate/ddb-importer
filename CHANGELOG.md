@@ -2,6 +2,8 @@
 
 * Feature Effects: Blessed Strikes (Cleric).
 * Unarmed Strike attack generation will now respect the Show Unarmed Strike Option on the DDB character sheet.
+* Read Alouds can now be sent to a chat, or you can create a player viewable Journal with the content.
+* When showing an image in a Journal using the DDB hover over option, you can now choose to create a player journal for this image, instead of just showing it.
 
 # 2.9.60
 

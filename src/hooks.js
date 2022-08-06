@@ -25,6 +25,7 @@ import { onSocketMessage } from "./hooks/socket/onSocketMessage.js";
 import { linkTables } from "./hooks/renderJournalSheet/linkTables.js";
 import { linkImages } from "./hooks/renderJournalSheet/linkImages.js";
 import adventureFlags from "./hooks/renderJournalSheet/adventure.js";
+import { showReadAlouds } from "./hooks/renderJournalSheet/linkReadAlouds.js";
 
 import registerNotifications from "./lib/Notification.js";
 
@@ -87,6 +88,7 @@ export function renderItemSheet(sheet, html) {
 
 export function renderJournalSheet(sheet, html, data) {
   linkTables("journal", html);
-  linkImages(html);
+  linkImages(html, data);
   adventureFlags(sheet, html, data);
+  showReadAlouds(html, data);
 }

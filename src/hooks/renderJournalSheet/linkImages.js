@@ -1,12 +1,7 @@
-function imageToChat(src) {
-  const content = `<img class="ddbimporter-chat-image" data-src="${src}" src="${src}">`;
+import utils from "../../utils.js";
+import { createAndShowPlayerHandout, imageToChat } from "./shared.js";
 
-  ChatMessage.create({
-    content,
-  });
-}
-
-export function linkImages(html) {
+export function linkImages(html, data) {
   if (!game.user.isGM) return;
   const displayImages = game.settings.get("ddb-importer", "show-image-to-players");
   // does this functionality exist from anther module?
@@ -21,8 +16,8 @@ export function linkImages(html) {
   $(html)
     .find('div[data-edit="content"] img, div[data-edit="content"] video')
     .each((index, element) => {
-      const showPlayersButton = $("<a class='ddbimporter-show-image'><i class='fas fa-eye'></i>&nbsp;Show Players</a>");
-      const toChatButton = $("<a class='ddbimporter-to-chat'><i class='fas fa-eye'></i>&nbsp;To Chat</a>");
+      const showPlayersButton = $("<a class='ddbimporter-show-image'><i class='fas fa-eye'></i>&nbsp;Show Players Image</a>");
+      const toChatButton = $("<a class='ddbimporter-to-chat'><i class='fas fa-comment'></i>&nbsp;To Chat</a>");
 
       $(element).wrap("<div class='ddbimporter-image-container'></div>");
       // show the button on mouseenter of the image
@@ -34,8 +29,23 @@ export function linkImages(html) {
           $(showPlayersButton).click((event) => {
             event.preventDefault();
             event.stopPropagation();
-            const popOut = new ImagePopout($(element).attr("src"), { shareable: true });
-            popOut.shareImage();
+            const src = $(element).attr("src");
+            Dialog.confirm({
+              title: "Would you like to create a handout for the image?",
+              content: "<p>Create a player viewable handout? (No will show the image only)</p>",
+              yes: async () => {
+                const name = await utils.namePrompt("What would you like to call the Handout?");
+                if (name && name !== "") {
+                  const bookCode = data.data?.flags?.ddb?.bookCode;
+                  createAndShowPlayerHandout(name, src, "image", bookCode);
+                }
+              },
+              no: () => {
+                const popOut = new ImagePopout(src, { shareable: true });
+                popOut.shareImage();
+              },
+              defaultYes: true
+            });
           });
           // eslint-disable-next-line no-invalid-this
           $(this).append(toChatButton);
@@ -49,7 +59,7 @@ export function linkImages(html) {
         .parent()
         .mouseleave(function removeHover() {
           // eslint-disable-next-line no-invalid-this
-          $(this).find("a").remove();
+          $(this).find("a.ddbimporter-show-image, a.ddbimporter-to-chat").remove();
         });
     });
 }

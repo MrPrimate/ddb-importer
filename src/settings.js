@@ -158,6 +158,13 @@ const SETTINGS = {
           type: Boolean,
           default: true,
         },
+        "show-read-alouds-button": {
+          name: "ddb-importer.settings.show-read-alouds-button.name",
+          hint: "ddb-importer.settings.show-read-alouds-button.hint",
+          config: true,
+          type: Boolean,
+          default: true,
+        },
       },
       PERMISSIONS: {
         "restrict-to-trusted": {

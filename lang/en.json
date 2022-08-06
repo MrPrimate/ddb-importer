@@ -67,6 +67,8 @@
       },
       "show-image-to-players.name": "Show the show image to players button?",
       "show-image-to-players.hint": "In journals provide hover-over button to show image to players? (Reload required)",
+      "show-read-alouds-button.name": "Show the show read aloud to players button?",
+      "show-read-alouds-button.hint": "In journals provide hover-over button to show the read aloud to players? (Reload required)",
       "dynamic-sync": {
         "dynamic-sync": "Enable Dynamic Sync?",
         "dynamic-sync-policy-currency": "Currency?",

@@ -55,7 +55,8 @@
     "foundry": true,
     "MidiQOL": true,
     "Sequence": true,
-    "ImagePopout": true
+    "ImagePopout": true,
+    "ChatPopout": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,
