@@ -1,6 +1,7 @@
 # 2.9.61
 
 * Feature Effects: Blessed Strikes (Cleric).
+* Unarmed Strike attack generation will now respect the Show Unarmed Strike Option on the DDB character sheet.
 
 # 2.9.60
 

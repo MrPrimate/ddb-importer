@@ -715,9 +715,9 @@ export default async function parseActions(ddb, character) {
   let actions = [
     // Get Attack Actions that we know about, typically natural attacks etc
     ...getAttackActions(ddb, character),
-    // Everyone has an Unarmed Strike
-    getUnarmedStrike(ddb, character),
   ];
+  // Everyone has an Unarmed Strike, but some choose not to use it
+  if (ddb.character.preferences.showUnarmedStrike) actions.push(getUnarmedStrike(ddb, character));
   actions = [
     ...actions,
     // Try and parse other relevant actions
