@@ -1,5 +1,4 @@
 // import logger from "../logger.js";
-import utils from "../utils.js";
 import logger from "../logger.js";
 import { getPatreonTiers } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
