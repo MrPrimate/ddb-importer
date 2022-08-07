@@ -496,7 +496,7 @@ export default class AdventureMunch extends FormApplication {
 
     let fileData = [];
     let hasVersions = false;
-    const moduleInfo = game.modules.get("ddb-importer").data;
+    const moduleInfo = game.modules.get("ddb-importer");
     const installedVersion = moduleInfo.version;
 
     await Helpers.asyncForEach(dataFiles, async (file) => {
