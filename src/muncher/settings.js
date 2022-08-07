@@ -689,8 +689,7 @@ export function getMuncherSettings(includeHomebrew = true) {
     ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
     : "Include homebrew?";
   const sourceDescription = `Importing from the following sources only: ${sourceNames.join(", ")}`;
-  const tokenizerReady = game.modules.get("vtta-tokenizer")?.active &&
-    utils.versionCompare(game.modules.get("vtta-tokenizer").data.version, "3.7.1") >= 0;
+  const tokenizerReady = game.modules.get("vtta-tokenizer")?.active;
 
   const basicMonsterConfig = [
     {
@@ -732,7 +731,7 @@ export function getMuncherSettings(includeHomebrew = true) {
     {
       name: "monster-tokenize",
       isChecked: game.settings.get("ddb-importer", "munching-policy-monster-tokenize"),
-      description: "Auto tokenize monsters token image? (requires Tokenizer v3.7.1 or higher)",
+      description: "Auto tokenize monsters token image?",
       enabled: tokenizerReady,
     },
     {
