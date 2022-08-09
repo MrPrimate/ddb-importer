@@ -997,7 +997,7 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
 
       return docData;
     });
-    setProperty(item, "flags.ddbimporter.pack", `${compendium.metadata.package}.${compendium.metadata.name}`);
+    setProperty(item, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
     loadedItems.push(item);
   }
   logger.debug(`compendium ${type} loaded items:`, loadedItems);
