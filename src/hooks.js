@@ -83,7 +83,8 @@ export function renderSidebarTab(app, html) {
 
 export function renderItemSheet(sheet, html) {
   linkTables("item", html);
-  linkImages(html);
+  // link images disabled un v10
+  // linkImages(html);
 }
 
 export function renderJournalSheet(sheet, html, data) {
