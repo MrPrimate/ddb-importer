@@ -11,7 +11,7 @@ function valueLimit(val, min, max) {
  * Select for weapon and apply bonus based on spell level
  */
 if (args[0] === "on") {
-  const weapons = targetActor.items.filter((i) => i.data.type === "weapon");
+  const weapons = targetActor.items.filter((i) => i.system.type === "weapon");
   let weapon_content = "";
 
   //Filter for weapons
@@ -19,7 +19,7 @@ if (args[0] === "on") {
     weapon_content += `<label class="radio-label">
   <input type="radio" name="weapon" value="${weapon.id}">
   <img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">
-  ${weapon.data.name}
+  ${weapon.name}
 </label>`;
   });
 
@@ -77,19 +77,19 @@ if (args[0] === "on") {
           let copyItem = duplicate(weaponItem);
           const spellLevel = Math.floor(args[1] / 2);
           const bonus = valueLimit(spellLevel, 1, 3);
-          const wpDamage = copyItem.data.damage.parts[0][0];
-          const verDamage = copyItem.data.damage.versatile;
+          const wpDamage = copyItem.system.damage.parts[0][0];
+          const verDamage = copyItem.system.damage.versatile;
           DAE.setFlag(targetActor, "magicWeapon", {
-            damage: weaponItem.data.data.attackBonus,
+            damage: weaponItem.system.attackBonus,
             weapon: itemId,
             weaponDmg: wpDamage,
             verDmg: verDamage,
-            mgc: copyItem.data.properties.mgc,
+            mgc: copyItem.system.properties.mgc,
           });
-          if (copyItem.data.attackBonus === "") copyItem.data.attackBonus = "0";
-          copyItem.data.attackBonus = `${parseInt(copyItem.data.attackBonus) + bonus}`;
-          copyItem.data.damage.parts[0][0] = wpDamage + " + " + bonus;
-          copyItem.data.properties.mgc = true;
+          if (copyItem.system.attackBonus === "") copyItem.system.attackBonus = "0";
+          copyItem.system.attackBonus = `${parseInt(copyItem.system.attackBonus) + bonus}`;
+          copyItem.system.damage.parts[0][0] = wpDamage + " + " + bonus;
+          copyItem.system.properties.mgc = true;
           if (verDamage !== "" && verDamage !== null) copyItem.data.damage.versatile = verDamage + " + " + bonus;
           targetActor.updateEmbeddedDocuments("Item", [copyItem]);
         },
@@ -106,10 +106,10 @@ if (args[0] === "off") {
   const { damage, weapon, weaponDmg, verDmg, mgc } = DAE.getFlag(targetActor, "magicWeapon");
   const weaponItem = targetActor.items.get(weapon);
   let copyItem = duplicate(weaponItem);
-  copyItem.data.attackBonus = damage;
-  copyItem.data.damage.parts[0][0] = weaponDmg;
-  copyItem.data.properties.mgc = mgc;
-  if (verDmg !== "" && verDmg !== null) copyItem.data.damage.versatile = verDmg;
+  copyItem.system.attackBonus = damage;
+  copyItem.system.damage.parts[0][0] = weaponDmg;
+  copyItem.system.properties.mgc = mgc;
+  if (verDmg !== "" && verDmg !== null) copyItem.system.damage.versatile = verDmg;
   targetActor.updateEmbeddedDocuments("Item", [copyItem]);
   DAE.unsetFlag(targetActor, "magicWeapon");
 }
