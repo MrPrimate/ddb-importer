@@ -1,7 +1,7 @@
 # 2.9.62
 
-* BREAKING CHANGE: UPDATE TO D&D BEYOND - there is a chance that some custom items may no longer update correctly to D&D Beyond. If an error UI message pops up, ensure that the items on DDB reflect your character in Foundry and reimport.
-* Some actors could choke during import if using Item Containers/Collections module.
+* BREAKING CHANGE: UPDATE TO D&D BEYOND - there is a chance that some custom items may no longer update correctly to D&D Beyond. If an error UI message pops up, ensure that the items on DDB reflect your character in Foundry and reimport. @Ref Lansky#3878
+* Some actors could choke during import if using Item Containers/Collections module. @Zarnsy#8323
 
 # 2.9.61
 
