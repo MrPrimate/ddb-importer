@@ -1,3 +1,7 @@
+# 2.9.62
+
+* Some actors could choke during import if using Item Containers/Collections module.
+
 # 2.9.61
 
 * Feature Effects: Blessed Strikes (Cleric).
