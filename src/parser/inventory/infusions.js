@@ -73,7 +73,7 @@ function addMagicBonus(character, item, modifiers) {
   if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
     item.system.damage.parts[0][0] += ` + ${magicBonus}`;
     item.system.attackBonus += magicBonus;
-    setProperty(item, "data.properties.mgc", true);
+    setProperty(item, "system.properties.mgc", true);
     // to do add infusion description to item
   }
   return item;
@@ -143,7 +143,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     foundryItem.flags.infusions.maps.push(infusionItemMap);
 
     // set magic properties
-    setProperty(foundryItem, "data.properties.mgc", true);
+    setProperty(foundryItem, "system.properties.mgc", true);
 
     // Update Item description
     foundryItem.system.description.value += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.description}</p></div>`;
