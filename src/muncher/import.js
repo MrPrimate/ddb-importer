@@ -52,6 +52,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "gng",
   "spellbook-assistant-manager",
   "spell-class-filter-for-5e",
+  "forien-unidentified-items",
 ];
 
 const EFFECTS_IGNORE_FLAG_GROUPS = [

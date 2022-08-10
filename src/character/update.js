@@ -67,6 +67,7 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
     characterId,
     campaignId: proxyCampaignId,
     dynamicSync,
+    customApiVersion: 5.1,
   };
   const body = { ...coreBody, ...bodyContent };
 
@@ -546,15 +547,25 @@ async function deleteDDBCustomItems(actor, itemsToDelete) {
         itemState: "DELETE",
         customValues: {
           characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
-          id: item.flags.ddbimporter.id,
+          id: item.flags.ddbimporter.definitionId,
+          mappingId: item.flags.ddbimporter.id,
+          partyId: null,
         }
       };
-      const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
-        setProperty(item, "flags.ddbimporter.id", data.id);
-        setProperty(item, "flags.ddbimporter.custom", true);
-        return item;
-      });
-      customItemResults.push(result);
+      if (getProperty(customData, "customValues.id") !== undefined &&
+        getProperty(customData, "customValues.mappingId") !== undefined
+      ) {
+        const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
+          setProperty(item, "flags.ddbimporter.delete", data);
+          setProperty(item, "flags.ddbimporter.custom", true);
+          setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", true);
+          return item;
+        });
+        customItemResults.push(result);
+      } else {
+        logger.error(`Custom item ${item.name} is missing metadata, please manually update and re-import`);
+        ui.notifications.error(`Custom item ${item.name} is missing metadata, please manually update and re-import`);
+      }
     }
 
     resolve(customItemResults);
@@ -565,17 +576,32 @@ async function addDDBCustomItems(actor, itemsToAdd) {
   let customItemResults = [];
   for (let i = 0; i < itemsToAdd.length; i++) {
     const item = itemsToAdd[i];
+    const containerEntityId = hasProperty(item, "flags.ddbimporter.containerEntityId")
+      ? parseInt(item.flags.ddbimporter.containerEntityId)
+      : parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId);
+    const containerEntityTypeId = hasProperty(item, "flags.ddbimporter.containerEntityTypeId")
+      ? parseInt(item.flags.ddbimporter.containerEntityTypeId)
+      : parseInt("1581111423");
     const customData = {
       itemState: "NEW",
       customValues: {
         characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+        containerEntityId,
+        containerEntityTypeId,
         name: item.name,
         description: item.data.description.value,
+        quantity: parseInt(item.data.quantity),
+        cost: null,
+        weight: Number.isInteger(item.data.weight) ? parseInt(item.data.weight) : 0,
       }
     };
     const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
-      setProperty(item, "flags.ddbimporter.id", data.data.id);
+      setProperty(item, "flags.ddbimporter.id", data.data.addItems[0].id);
       setProperty(item, "flags.ddbimporter.custom", true);
+      setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", true);
+      setProperty(item, "flags.ddbimporter.definitionId", data.data.addItems[0].definition.id);
+      setProperty(item, "flags.ddbimporter.containerEntityId", data.data.addItems[0].definition.containerEntityId);
+      setProperty(item, "flags.ddbimporter.containerEntityTypeId", data.data.addItems[0].definition.containerEntityTypeId);
       return item;
     });
     customItemResults.push(result);
@@ -835,22 +861,35 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
     promises.push(updateCharacterCall(actor, "equipment/custom", customData, flavor));
   });
 
-  customItems.forEach((item) => {
-    const customData = {
-      itemState: "UPDATE",
-      customValues: {
-        characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
-        id: item.flags.ddbimporter.id,
-        name: item.name,
-        description: item.data.description.value,
-        // revist these need to be ints
-        // weight: `${item.data.weight}`,
-        // cost: ${item.data.price},
-        quantity: parseInt(item.data.quantity),
+  customItems
+    .filter((item) => {
+      const isValid = getProperty(item, "data.flags.ddbimporter.id") !== undefined &&
+       getProperty(item, "data.flags.ddbimporter.definitionId") !== undefined;
+      if (!isValid) {
+        logger.error(`Custom item ${item.name} is missing metadata, please manually update and re-import`);
+        ui.notifications.error(`Custom item ${item.name} is missing metadata, please manually update and re-import`);
       }
-    };
-    promises.push(updateCharacterCall(actor, "custom/item", customData, "Updating Custom Item"));
-  });
+      return isValid;
+    })
+    .forEach((item) => {
+      const customData = {
+        itemState: "UPDATE",
+        customValues: {
+          characterId: parseInt(actor.data.flags.ddbimporter.dndbeyond.characterId),
+          id: item.flags.ddbimporter.definitionId,
+          mappingId: item.flags.ddbimporter.id,
+          name: item.name,
+          description: item.data.description.value,
+          // revist these need to be ints
+          // weight: `${item.data.weight}`,
+          // cost: ${item.data.price},
+          cost: null,
+          weight: Number.isInteger(item.data.weight) ? parseInt(item.data.weight) : 0,
+          quantity: parseInt(item.data.quantity),
+        }
+      };
+      promises.push(updateCharacterCall(actor, "custom/item", customData, "Updating Custom Item"));
+    });
 
   return Promise.all(promises);
 }
@@ -928,14 +967,15 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   const customItems = foundryItems.filter((item) =>
     item.flags.ddbimporter?.id &&
     item.data.quantity !== 0 &&
-    hasProperty(item, "flags.ddbimporter.custom") && item.flags.ddbimporter.custom === true &&
+    (getProperty(item, "flags.ddbimporter.custom") === true || getProperty(item, "flags.ddbimporter.isCustom") === true) &&
     customDDBItems.some((dItem) => dItem.id === item.flags.ddbimporter.id &&
       (
         item.name !== dItem.name ||
         item.data.description.value != dItem.description ||
         item.data.quantity != dItem.quantity ||
-        item.data.weight != dItem.weight ||
-        item.data.price != dItem.cost
+        item.data.weight != dItem.weight
+        //  ||
+        // item.data.price != dItem.cost
       )
     )
   );
@@ -1178,7 +1218,7 @@ async function generateDynamicItemChange(actor, document, update) {
   // console.warn("Document", document);
   // console.warn("ItemUpdate", update);
 
-  if (document.data.flags.ddbimporter?.custom) {
+  if (getProperty(document, "data.flags.ddbimporter.custom") === true || getProperty(document, "data.flags.ddbimporter.isCustom") === true) {
     if (update.name || update.data?.description || update.data?.weight || update.data?.price || update.data?.quantity) {
       updateItemDetails.customItems.push(duplicate(document.data));
     }

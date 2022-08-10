@@ -392,23 +392,6 @@ export default async function getInventory(ddb, character, itemSpells) {
   });
 
   // now parse all items
-
-  const customItems = ddb.character.customItems
-    ? ddb.character.customItems
-      .filter((customItem) => {
-        const customItemMatch = ddb.character.inventory.some((item) =>
-          customItem.id === item.definition.id &&
-          customItem.name === item.definition.name &&
-          item.definition.isCustomItem
-        );
-        return !customItemMatch;
-      })
-      .map((customItem) => ({
-        id: customItem.id,
-        definition: customItem,
-      }))
-    : [];
-
   const daeInstalled = game.modules.get("dae")?.active;
   const compendiumItem = character.flags.ddbimporter.compendium;
   const addEffects = (compendiumItem)
@@ -418,7 +401,7 @@ export default async function getInventory(ddb, character, itemSpells) {
     ? game.settings.get("ddb-importer", "munching-policy-add-ac-armor-effects")
     : false;
 
-  for (let ddbItem of ddb.character.inventory.concat(customItems)) {
+  for (let ddbItem of ddb.character.inventory) {
     const originalName = ddbItem.definition.name;
     ddbItem.definition.name = utils.getName(ddb, ddbItem, character);
     const flags = getItemFlags(ddb, ddbItem, character);
