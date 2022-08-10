@@ -69,7 +69,9 @@ export async function addContainerItemsToActor(ddb, actor) {
   for (const topLevelItem of topLevelItems) {
     const itemsToImport = duplicate(getProperty(topLevelItem.data.flags, "itemcollection.contentsData") ?? [])
       .map((item) => {
-        delete item.flags.ddbimporter.updateDocumentId;
+        if (hasProperty(item, "flags.ddbimporter.updateDocumentId")) {
+          delete item.flags.ddbimporter.updateDocumentId;
+        }
         return item;
       });
     const itemsToDelete = itemsToImport.map((item) => item._id);
