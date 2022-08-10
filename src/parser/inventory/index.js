@@ -351,7 +351,7 @@ function parseItem(ddb, data, character, flags) {
 
 function enrichFlags(data, item) {
   if (data.definition.magic) {
-    setProperty(item, "data.properties.mgc", true);
+    setProperty(item, "system.properties.mgc", true);
   }
   if (game.modules.get("betterrolls5e")?.active) {
     if (item.system.uses?.max && !item.flags?.betterRolls5e) {

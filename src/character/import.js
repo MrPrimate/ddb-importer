@@ -437,9 +437,8 @@ export default class CharacterImport extends FormApplication {
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.experimentalMid;
     const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
     const resourceSelection =
-      !hasProperty(this.actor, "data.flags.ddbimporter.resources.ask") ||
-      (hasProperty(this.actor, "data.flags.ddbimporter.resources.ask") &&
-        this.actor.flags.ddbimporter.resources.ask);
+      !hasProperty(this.actor, "flags.ddbimporter.resources.ask") ||
+      getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
 
     const itemsMunched = syncEnabled && itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
 
@@ -787,11 +786,14 @@ export default class CharacterImport extends FormApplication {
     const klassItems = items.filter((item) => ["class", "subclass"].includes(item.type));
     const nonKlassItems = items.filter((item) => !["class", "subclass"].includes(item.type));
 
-    logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, duplicate(klassItems));
-    await this.actor.createEmbeddedDocuments("Item", klassItems, options);
-
-    logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, duplicate(nonKlassItems));
-    await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
+    if (klassItems.length > 0) {
+      logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, { options, items: duplicate(klassItems) });
+      await this.actor.createEmbeddedDocuments("Item", klassItems, options);
+    }
+    if (nonKlassItems.length > 0) {
+      logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, { options, items: duplicate(nonKlassItems) });
+      await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
+    }
   }
 
   async importCharacterItems(html, items, keepIds = false) {
