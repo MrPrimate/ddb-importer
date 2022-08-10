@@ -4,10 +4,10 @@ const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 // we see if the equipped weapons have base weapon set and filter on that, otherwise we just get all weapons
 const filteredWeapons = target.items
-  .filter((i) => i.data.type === "weapon" && (i.data.data.baseItem === "club" || i.data.data.baseItem === "quarterstaff"));
+  .filter((i) => i.data.type === "weapon" && (i.system.baseItem === "club" || i.system.baseItem === "quarterstaff"));
 const weapons = (filteredWeapons.length > 0)
   ? filteredWeapons
-  : target.items.filter((i) => i.data.type === "weapon");
+  : target.items.filter((i) => i.system.type === "weapon");
 
 const weaponContent = weapons.map((w) => `<option value=${w.id}>${w.name}</option>`).join("");
 
@@ -34,9 +34,9 @@ if (args[0] === "on") {
           await DAE.setFlag(target, "shillelagh", {
             id: itemId,
             name: weaponItem.name,
-            damage: weaponItem.data.data.damage.parts[0][0],
-            ability: weaponItem.data.data.ability,
-            magical: getProperty(weaponItem, "data.properties.mgc") || false,
+            damage: weaponItem.system.damage.parts[0][0],
+            ability: weaponItem.system.ability,
+            magical: getProperty(weaponItem, "system.properties.mgc") || false,
           });
           const damage = weaponCopy.data.damage.parts[0][0];
           const targetAbilities = target.data.data.abilities;
@@ -61,10 +61,10 @@ if (args[0] === "off") {
   const flag = DAE.getFlag(target, "shillelagh");
   const weaponItem = target.getEmbeddedDocument("Item", flag.id);
   const weaponCopy = duplicate(weaponItem);
-  weaponCopy.data.damage.parts[0][0] = flag.damage;
-  weaponCopy.data.ability = flag.ability;
+  weaponCopy.system.damage.parts[0][0] = flag.damage;
+  weaponCopy.system.ability = flag.ability;
   weaponCopy.name = flag.name;
-  setProperty(weaponCopy, "data.properties.mgc", flag.magical);
+  setProperty(weaponCopy, "system.properties.mgc", flag.magical);
   await target.updateEmbeddedDocuments("Item", [weaponCopy]);
   await DAE.unsetFlag(target, "shillelagh");
   await ChatMessage.create({ content: weaponCopy.name + " returns to normal" });
