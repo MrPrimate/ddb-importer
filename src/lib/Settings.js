@@ -299,11 +299,6 @@ export class DDBCookie extends FormApplication {
 
 
 // eslint-disable-next-line no-unused-vars
-Hooks.on("renderDDBSetup", (app, html, user) => {
-  DirectoryPicker.processHtml(html);
-});
-
-// eslint-disable-next-line no-unused-vars
 Hooks.on("renderma", (app, html, user) => {
   DirectoryPicker.processHtml(html);
 });
@@ -333,15 +328,10 @@ export class DDBSetup extends FormApplication {
     const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
     const campaignId = getCampaignId();
     const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
-    const uploadDir = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
-    const otherUploadDir = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
-    const frameUploadDir = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
-    const dataDirSet = !BAD_DIRS.includes(uploadDir) && !BAD_DIRS.includes(otherUploadDir);
     const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
     const validKeyObject = hasKey ? await getPatreonValidity(key) : false;
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
     const availableCampaigns = isCobalt && cobaltStatus.success ? await getAvailableCampaigns() : [];
-    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
 
     availableCampaigns.forEach((campaign) => {
       const selected = campaign.id == campaignId;
@@ -349,16 +339,13 @@ export class DDBSetup extends FormApplication {
     });
 
     const setupConfig = {
-      "image-upload-directory": uploadDir,
-      "other-image-upload-directory": otherUploadDir,
-      "frame-image-upload-directory": frameUploadDir,
       "cobalt-cookie": cobalt,
       "available-campaigns": availableCampaigns,
       "campaign-id": campaignId,
       "beta-key": key,
     };
 
-    const setupComplete = dataDirSet && isCobalt;
+    const setupComplete = isCobalt;
 
     return {
       cobalt: isCobalt,
@@ -369,7 +356,6 @@ export class DDBSetup extends FormApplication {
       patreonLinked: patreonUser && patreonUser != "",
       patreonUser,
       validKey,
-      useWebP,
     };
   }
 
@@ -409,15 +395,10 @@ export class DDBSetup extends FormApplication {
   /** @override */
   async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
-    const imageDir = formData['image-upload-directory'];
     const campaignSelect = formData['campaign-select'];
-    // console.warn(formData);
     const campaignId = campaignSelect == 0 ? "" : campaignSelect;
     const cobaltCookie = formData['cobalt-cookie'];
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
-    const otherImageDir = formData['other-image-upload-directory'];
-    const frameImageDir = formData['frame-image-upload-directory'];
-    const useWebP = formData['image-use-webp'];
     const currentKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
 
     if (currentKey !== formData['beta-key']) {
@@ -425,36 +406,18 @@ export class DDBSetup extends FormApplication {
       await setPatreonTier();
     }
 
-    await game.settings.set(SETTINGS.MODULE_ID, "image-upload-directory", imageDir);
-    await game.settings.set(SETTINGS.MODULE_ID, "other-image-upload-directory", otherImageDir);
-    await game.settings.set(SETTINGS.MODULE_ID, "frame-image-upload-directory", frameImageDir);
     await game.settings.set(SETTINGS.MODULE_ID, "campaign-id", campaignId);
-    await game.settings.set(SETTINGS.MODULE_ID, "use-webp", useWebP);
-
     await setCobaltCookie(cobaltCookie, cobaltCookieLocal);
-
-    const imageDirSet = !BAD_DIRS.includes(imageDir);
-    const otherImageDirSet = !BAD_DIRS.includes(otherImageDir);
 
     const callMuncher = game.settings.get(SETTINGS.MODULE_ID, "settings-call-muncher");
 
-    if (!imageDirSet || !otherImageDirSet || !frameImageDir) {
-      $('#munching-task-setup').text(`Please set the image upload directory(s) to something other than the root.`);
-      $('#ddb-importer-settings').css("height", "auto");
-      throw new Error(`Please set the image upload directory to something other than the root.`);
-    } else if (callMuncher && cobaltCookie === "") {
+    if (callMuncher && cobaltCookie === "") {
       $('#munching-task-setup').text(`To use Muncher you need to set a Cobalt Cookie value!`);
       $('#ddb-importer-settings').css("height", "auto");
       throw new Error(`To use Muncher you need to set a Cobalt Cookie value!`);
-    } else {
-      DirectoryPicker.verifyPath(DirectoryPicker.parse(imageDir));
-      DirectoryPicker.verifyPath(DirectoryPicker.parse(otherImageDir));
-      DirectoryPicker.verifyPath(DirectoryPicker.parse(frameImageDir));
-
-      if (callMuncher) {
-        game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", false);
-        new DDBMuncher().render(true);
-      }
+    } else if (callMuncher) {
+      game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", false);
+      new DDBMuncher().render(true);
     }
   }
 }
@@ -613,3 +576,99 @@ export class DDBDynamicUpdateSetup extends FormApplication {
   }
 }
 
+export class DDBLocationSetup extends FormApplication {
+  static get defaultOptions() {
+    const options = super.defaultOptions;
+    options.id = "ddb-importer-folders";
+    options.template = "modules/ddb-importer/handlebars/filePaths.hbs";
+    options.width = 500;
+    return options;
+  }
+
+  get title() { // eslint-disable-line class-methods-use-this
+    // improve localisation
+    // game.i18n.localize("")
+    return "DDB Importer Location Settings";
+  }
+
+  // in foundry v10 we no longer get read only form elements back
+  /** @override */
+  _getSubmitData(updateData = {}) {
+    let data = super._getSubmitData(updateData);
+
+    for (const element of this.form.elements) {
+      if (element.readOnly) {
+        const name = element.name;
+        const field = this.form.elements[name];
+        setProperty(data, name, field.value);
+      }
+    }
+
+    return data;
+  }
+
+  /** @override */
+  async getData() { // eslint-disable-line class-methods-use-this
+    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
+    const directories = [];
+
+    for (const [key, value] of Object.entries(SETTINGS.DEFAULT_SETTINGS.READY.DIRECTORIES)) {
+      directories.push({
+        key,
+        value: game.settings.get(SETTINGS.MODULE_ID, key),
+        name: game.i18n.localize(value.name),
+        description: game.i18n.localize(value.hint),
+      });
+    }
+
+    return {
+      directories,
+      useWebP,
+    };
+  }
+
+  /** @override */
+  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
+    event.preventDefault();
+
+    const useWebP = formData['image-use-webp'];
+
+    await game.settings.set(SETTINGS.MODULE_ID, "use-webp", useWebP);
+
+    const directoryStatus = [];
+
+    for (const key of Object.keys(SETTINGS.DEFAULT_SETTINGS.READY.DIRECTORIES)) {
+      const value = formData[key];
+      // eslint-disable-next-line no-await-in-loop
+      await game.settings.set(SETTINGS.MODULE_ID, key, value);
+      directoryStatus.push({
+        key,
+        value,
+        isBad: BAD_DIRS.includes(value),
+        // eslint-disable-next-line no-await-in-loop
+        isValid: await DirectoryPicker.verifyPath(DirectoryPicker.parse(value)),
+      });
+    }
+
+    if (directoryStatus.some((dir) => dir.isBad)) {
+      $('#munching-folder-setup').text(`Please set the image upload directory(s) to something other than the root.`);
+      $('#ddb-importer-folders').css("height", "auto");
+      logger.error("Error setting Image directory", {
+        directoryStatus,
+      });
+      throw new Error(`Please set the image upload directory to something other than the root.`);
+    } else if (directoryStatus.some((dir) => !dir.isValid)) {
+      $('#munching-folder-setup').text(`Directory Validation Failed.`);
+      $('#ddb-importer-folders').css("height", "auto");
+      logger.error("Error validating Image directory", {
+        directoryStatus,
+      });
+      throw new Error(`Directory Validation Failed.`);
+    }
+  }
+}
+
+// eslint-disable-next-line no-unused-vars
+Hooks.on("renderDDBLocationSetup", (app, html, user) => {
+  DirectoryPicker.processHtml(html);
+});
