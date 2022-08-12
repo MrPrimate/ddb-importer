@@ -1,0 +1,26 @@
+<div class="form-description">
+  <form id="ddb-importer-settings" autocomplete="off" onsubmit="event.preventDefault();">
+    <h3>[Required] A location for uploads</h3>
+    <p>These can't be stored in your root data folder, DDB Importer has created a default place for them to live. You can change it here.</p>
+
+    <hr>
+    {{#each directories}}
+    <h4>{{this.name}}</h4>
+    <p>{{this.description}}</p>
+    <div class="form-content" style="display: flex">
+      <input class="setup-config" type="text" data-dtype="Directory" name="{{this.key}}" style="flex: 0 1 auto" ;
+        value="{{this.value}}" />
+    </div>
+    {{/each}}
+
+    <hr>
+    <h3>Image settings</h3>
+      <input {{#if useWebP}}checked{{/if}} class="setup-config" type="checkbox" name="image-use-webp" data-section="useWebP" style="flex: 0 1 auto"> Convert images to webp?
+    <hr>
+
+    <div class="munching-folder-setup" id="munching-folder-setup" style="color: red">
+    </div>
+    <button id="munch-settings" class="munch-button" type="submit">Save</button>
+  </form>
+</div>
+

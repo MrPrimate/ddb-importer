@@ -39,28 +39,6 @@
       value="{{setupConfig.beta-key}}" />
       <p><i>Note: this will be auto filled when you connect to patreon, and the key will be valid for a month.</i></p>
     <hr>
-    <h3>[Required] A location for image uploads</h3>
-    <p>These can't be stored in your root data folder, create a place for them to live.</p>
-    <p>Player Character Images:</p>
-    <div class="form-content" style="display: flex">
-      <input class="setup-config" type="text" data-dtype="Directory" name="image-upload-directory" style="flex: 0 1 auto" ;
-        value="{{setupConfig.image-upload-directory}}" />
-    </div>
-    <p>Other Images:</p>
-    <div class="form-content" style="display: flex">
-      <input class="setup-config" type="text" data-dtype="Directory" name="other-image-upload-directory" style="flex: 0 1 auto" ;
-        value="{{setupConfig.other-image-upload-directory}}" />
-    </div>
-    <p>Avatar Frame Images:</p>
-    <div class="form-content" style="display: flex">
-      <input class="setup-config" type="text" data-dtype="Directory" name="frame-image-upload-directory" style="flex: 0 1 auto" ;
-        value="{{setupConfig.frame-image-upload-directory}}" />
-    </div>
-    <p>Convert images to webp?</p>
-    <div class="form-content" style="display: flex">
-      <input {{#if useWebP}}checked{{/if}} type="checkbox" name="image-use-webp" data-section="useWebP">
-    </div>
-    <hr>
     <p>If you need to change these settings in the future, you can do it in the module settings page.</p>
     <hr>
     <div class="munching-task-setup" id="munching-task-setup" style="color: red">

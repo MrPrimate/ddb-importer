@@ -71,7 +71,7 @@ export class DirectoryPicker extends FilePicker {
   // Adds a FilePicker-Simulator-Button next to the input fields
   static processHtml(html) {
     $(html)
-      .find(`input[data-dtype="Directory"]`)
+      .find(`input[data-dtype="Directory"], .ddb-directory`)
       .each((index, element) => {
         // disable the input field raw editing
         $(element).prop("readonly", true);

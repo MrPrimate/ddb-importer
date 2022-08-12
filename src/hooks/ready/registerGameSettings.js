@@ -1,5 +1,5 @@
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
-import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup } from "../../lib/Settings.js";
+import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup, DDBLocationSetup } from "../../lib/Settings.js";
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 
@@ -71,6 +71,15 @@ export default function () {
     hint: `${SETTINGS.MODULE_ID}.settings.compendium-setup.hint`,
     icon: 'fas fa-wrench',
     type: DDBCompendiumSetup,
+    restricted: true
+  });
+
+  game.settings.registerMenu(SETTINGS.MODULE_ID, 'folderMenu', {
+    name: `${SETTINGS.MODULE_ID}.settings.folder-setup.name`,
+    label: `${SETTINGS.MODULE_ID}.settings.folder-setup.name`,
+    hint: `${SETTINGS.MODULE_ID}.settings.folder-setup.hint`,
+    icon: 'fas fa-wrench',
+    type: DDBLocationSetup,
     restricted: true
   });
 
