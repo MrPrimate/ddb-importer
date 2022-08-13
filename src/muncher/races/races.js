@@ -189,7 +189,7 @@ function getRacialTrait(trait, fullName, isLegacy) {
   result.flags.ddbimporter['race'] = fullName;
   result.system.requirements = fullName;
 
-  result.data.description.value = parseTags(result.data.description.value);
+  result.system.description.value = parseTags(result.system.description.value);
 
   return result;
 }
