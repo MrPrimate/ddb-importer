@@ -1,5 +1,5 @@
 function getCustomName(data, character) {
-  if (!hasProperty(character, "flags.ddbimporter.dndbeyond.characterValues")) return null;
+  if (!character || (character && !hasProperty(character, "flags.ddbimporter.dndbeyond.characterValues"))) return null;
   const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
   const customValue = characterValues.filter((value) => value.valueId == data.id && value.valueTypeId == data.entityTypeId);
 
