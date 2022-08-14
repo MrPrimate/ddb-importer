@@ -50,15 +50,15 @@ function eyebiteDialog() {
     buttons: {
       one: {
         label: "Asleep",
-        callback: async () => await eyebite("Unconscious"),
+        callback: async () => await eyebite("asleep"),
       },
       two: {
         label: "Panicked",
-        callback: async () => await eyebite("Frightened"),
+        callback: async () => await eyebite("panicked"),
       },
       three: {
         label: "Sickened",
-        callback: async () => await eyebite("Poisoned"),
+        callback: async () => await eyebite("sickened"),
       },
     },
   }).render(true);
