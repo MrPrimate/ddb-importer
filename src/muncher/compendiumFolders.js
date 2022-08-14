@@ -3,18 +3,18 @@ import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { getCompendium, getCompendiumLabel } from "./utils.js";
 
-var compendiumFolderTypeMonster;
-var compendiumFolderTypeSpell;
-var compendiumFolderTypeItem;
+let compendiumFolderTypeMonster;
+let compendiumFolderTypeSpell;
+let compendiumFolderTypeItem;
 
-var rootItemFolders = {};
-var equipmentFolders = {};
-var weaponFolders = {};
-var trinketFolders = {};
-var consumableFolders = {};
-var lootFolders = {};
-var toolFolders = {};
-var backpackFolders = {};
+let rootItemFolders = {};
+let equipmentFolders = {};
+let weaponFolders = {};
+let trinketFolders = {};
+let consumableFolders = {};
+let lootFolders = {};
+let toolFolders = {};
+let backpackFolders = {};
 
 const spellLevelFolderNames = [
   "0th Level (Cantrip)",
@@ -78,7 +78,7 @@ const toolFolderNames = {
   music: "Musical Instrument",
   game: "Gaming Set",
 };
-const backpackFolderNames = ["Equipment Pack", "Adventuring Gear"];
+const backpackFolderNames = ["Equipment Pack", "Adventuring Gear", "Vehicle", "Mount"];
 
 async function createCompendiumFolder(packName, folderName, color = "#6f0006") {
   const existingFolder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == folderName);
