@@ -424,17 +424,17 @@ export class DDBSetup extends FormApplication {
 
 function getCompendiumLookups(type, selected) {
   const excludedCompendiumPackages = [
-    "dnd5e", "dae", "midiqol", "magicitems", "midi-srd", "dae-srd",
+    "dnd5e", "dae", "midiqol", "magicitems", "midi-srd", "dae-srd", "midi-qol",
   ];
 
   const selections = game.packs
     .filter((pack) =>
-      pack.documentClass.documentName === type &&
-    !excludedCompendiumPackages.includes(pack.metadata.package)
+      pack.documentName === type &&
+    !excludedCompendiumPackages.includes(pack.metadata.packageName)
     )
     .reduce((choices, pack) => {
       choices[pack.collection] = {
-        label: `[${pack.metadata.package}] ${pack.metadata.label}`,
+        label: `[${pack.metadata.packageName}] ${pack.metadata.label}`,
         selected: pack.collection === selected,
       };
       return choices;
