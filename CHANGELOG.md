@@ -10,6 +10,10 @@
 
 * Support for Spelljammer Adventures in Space: fixes vehicle and item import.
 
+# 2.10.16
+
+* Lair action now has activation cost of 1.
+
 # 2.9.63
 
 * Spell Effect: Eyebite did not work.
