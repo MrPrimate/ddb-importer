@@ -99,6 +99,10 @@ export function getLairActions(monster) {
       action.system.description.value += outerHTML;
     }
 
+    if (action.name === "Lair Actions") {
+      action.system.activation.cost = 1;
+    }
+
     const initiativeMatch = node.textContent.match(/initiative count (\d+)/);
     if (initiativeMatch) {
       resource = {
