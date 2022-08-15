@@ -1,6 +1,7 @@
 # 2.9.63
 
 * Spell Effect: Eyebite did not work.
+* Unarmed Strikes no longer showed up. The "Show Unarmed Strike" option was removed from the DDB character sheet resulting in a break here.
 
 # 2.9.62
 
