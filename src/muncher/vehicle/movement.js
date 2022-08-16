@@ -16,7 +16,7 @@ export function getMovement(ddb, configurations, movement) {
   if (configurations.ETP) {
     movement["units"] = "mi";
     const travelPaceMilesPerHour = ddb.travelPace / 5280;
-    if (FLIGHT_IDS.includes(ddb.id)) {
+    if (FLIGHT_IDS.includes(ddb.id) || configurations.DT === "spelljammer") {
       movement["fly"] = travelPaceMilesPerHour;
     } else {
       movement["swim"] = travelPaceMilesPerHour;

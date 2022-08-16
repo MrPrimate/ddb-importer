@@ -1,6 +1,6 @@
 # 2.9.64
 
-* Support for Spelljammer Adventures in Space.
+* Support for Spelljammer Adventures in Space: fixes vehicle and item import.
 
 # 2.9.63
 

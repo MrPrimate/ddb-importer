@@ -1,6 +1,7 @@
 import { newComponent } from "./templates/component.js";
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
+import { parseTags } from "../../parser/templateStrings.js";
 
 const TYPE_MAPPING = {
   hull: "equipment",
@@ -158,7 +159,7 @@ function buildComponents(ddb, configurations, component) {
     setProperty(item, "data.armor.type", "vehicle");
   }
 
-  if (component.description) item.data.description.value = component.description;
+  if (component.description) item.data.description.value = parseTags(component.description);
 
   item.data.quantity = component.count;
 
@@ -276,18 +277,24 @@ export function processComponents(ddb, configurations) {
   });
 
 
-  const componentItems = uniqueComponents.map((component) => {
-    component.count = componentCount[component.definitionKey];
-    const builtItems = buildComponents(ddb, configurations, component);
-    return builtItems;
-  }).flat();
+  const componentItems = uniqueComponents
+    .filter((f) => f.definition.name)
+    .map((component) => {
+      component.count = componentCount[component.definitionKey];
+      const builtItems = buildComponents(ddb, configurations, component);
+      return builtItems;
+    })
+    .flat();
 
-  const featureItems = ddb.features.map((feature) => {
-    setProperty(feature, "definition.types", [{ type: "feature" }]);
-    setProperty(feature, "definition.name", feature.name);
-    const builtItems = buildComponents(ddb, configurations, feature);
-    return builtItems;
-  }).flat();
+  const featureItems = ddb.features
+    .filter((f) => f.name)
+    .map((feature) => {
+      setProperty(feature, "definition.types", [{ type: "feature" }]);
+      setProperty(feature, "definition.name", feature.name);
+      const builtItems = buildComponents(ddb, configurations, feature);
+      return builtItems;
+    })
+    .flat();
 
   return featureItems.concat(componentItems);
 }

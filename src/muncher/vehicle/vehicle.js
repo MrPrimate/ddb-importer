@@ -10,6 +10,7 @@ import { getCapacity } from './capacity.js';
 import { FLIGHT_IDS, getMovement } from './movement.js';
 import { processComponents } from './components.js';
 import { ACTION_THRESHOLDS } from './threshold.js';
+import { parseTags } from '../../parser/templateStrings.js';
 
 // eslint-disable-next-line complexity
 async function parseVehicle(ddb, extra = {}) {
@@ -70,7 +71,7 @@ async function parseVehicle(ddb, extra = {}) {
   const primaryComponent = ddb.components.find((c) => c.isPrimaryComponent);
   // // ac
   // if we are using actor level HP apply
-  if (!configurations.ECHP && primaryComponent) {
+  if (configurations.ECCR && primaryComponent) {
     vehicle.data.attributes.hp.value = primaryComponent.definition.hitPoints;
     vehicle.data.attributes.hp.max = primaryComponent.definition.hitPoints;
     if (!configurations.ECMT && Number.isInteger(primaryComponent.definition.mishapThreshold)) {
@@ -82,13 +83,18 @@ async function parseVehicle(ddb, extra = {}) {
   }
 
   // if we are using actor level AC apply
-  if (configurations.ECACM && primaryComponent) {
+  if (configurations.PCMT === "vehicle" && primaryComponent) {
     const mods = getAbilityMods(ddb);
-    vehicle.data.attributes.ac.motionless = primaryComponent.definition.armorClass;
-    vehicle.data.attributes.ac.flat = primaryComponent.definition.armorClass + mods["dex"];
+    if (configurations.DT === "spelljammer") {
+      vehicle.data.attributes.ac.motionless = primaryComponent.definition.armorClassDescription;
+      vehicle.data.attributes.ac.flat = primaryComponent.definition.armorClass;
+    } else {
+      vehicle.data.attributes.ac.motionless = primaryComponent.definition.armorClass;
+      vehicle.data.attributes.ac.flat = primaryComponent.definition.armorClass + mods["dex"];
+    }
   }
 
-  vehicle.data.vehicleType = FLIGHT_IDS.includes(ddb.id)
+  vehicle.data.vehicleType = FLIGHT_IDS.includes(ddb.id) || configurations.DT === "spelljammer"
     ? "air"
     : configurations.DT === "ship"
       ? "water"
@@ -101,7 +107,7 @@ async function parseVehicle(ddb, extra = {}) {
 
   // details
   vehicle.data.details.source = utils.parseSource(ddb);
-  vehicle.data.details.biography.value = ddb.description;
+  vehicle.data.details.biography.value = parseTags(ddb.description);
 
   if (configurations.EAS) {
     vehicle.data.attributes.actions.stations = true;
