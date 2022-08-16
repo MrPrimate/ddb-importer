@@ -236,6 +236,7 @@ function otherGear(ddb, data) {
       break;
     case 12:
     case 17:
+    case 19:
       item = parseLoot(data, "Vehicle");
       break;
     case 16:
@@ -246,7 +247,7 @@ function otherGear(ddb, data) {
       item = parseLoot(data, "Gemstone");
       break;
     default:
-      logger.warn("Other Gear type missing from " + data.definition.name);
+      logger.warn("Other Gear type missing from " + data.definition.name, data);
   }
   return item;
 }
@@ -314,7 +315,7 @@ function parseItem(ddb, data, character, flags) {
           item = otherGear(ddb, data);
           break;
         default:
-          logger.warn("Item filterType not implemented for " + data.definition.name);
+          logger.warn("Item filterType not implemented for " + data.definition.name, data);
           break;
       }
     } else {
@@ -322,8 +323,8 @@ function parseItem(ddb, data, character, flags) {
       item = parseCustomItem(data);
     }
     const baseItem = getBaseItem(data);
-    item.data.baseItem = baseItem.baseItem;
-    item.data.toolType = baseItem.toolType;
+    setProperty(item, "data.baseItem", baseItem.baseItem);
+    setProperty(item, "data.toolType", baseItem.toolType);
     item.data.attunement = getAttunement(data);
     if (data.definition.cost) item.data.price = data.definition.cost;
 
@@ -333,7 +334,7 @@ function parseItem(ddb, data, character, flags) {
   } catch (err) {
     logger.warn(
       `Unable to parse item: ${data.definition.name}, ${data.definition.type}/${data.definition.filterType}. ${err.message}`,
-      "character"
+      data
     );
     logger.error(err.stack);
     return { // return empty strut

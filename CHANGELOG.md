@@ -1,3 +1,7 @@
+# 2.9.64
+
+* Support for Spelljammer Adventures in Space.
+
 # 2.9.63
 
 * Spell Effect: Eyebite did not work.
