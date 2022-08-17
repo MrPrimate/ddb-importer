@@ -94,7 +94,7 @@ async function parseVehicle(ddb, extra = {}) {
     }
   }
 
-  vehicle.data.vehicleType = FLIGHT_IDS.includes(ddb.id) || configurations.DT === "spelljammer"
+  vehicle.system.vehicleType = FLIGHT_IDS.includes(ddb.id) || configurations.DT === "spelljammer"
     ? "air"
     : configurations.DT === "ship"
       ? "water"
