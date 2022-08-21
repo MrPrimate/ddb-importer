@@ -12,18 +12,18 @@ export async function planarWarriorEffect(document) {
 
   document.effects.push(effect);
 
-  document.data.target = {
+  document.system.target = {
     value: 1,
     width: null,
     units: "",
     type: "creature",
   };
-  document.data.range = {
+  document.system.range = {
     value: 30,
     long: null,
     units: "ft",
   };
-  document.data.damage = {
+  document.system.damage = {
     parts: [],
     versatile: "",
     value: "",
