@@ -1,6 +1,5 @@
 import { baseFeatEffect } from "../specialFeats.js";
-import { generateStatusEffectChange } from "../effects.js";
-import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 
 export async function planarWarriorEffect(document) {
   const itemMacroText = await loadMacroFile("feat", "planarWarrior.js");
