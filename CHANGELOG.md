@@ -1,3 +1,7 @@
+# 2.9.65
+
+* Planar Warrior effect provided by @Elwin#1410
+
 # 2.9.64
 
 * Support for Spelljammer Adventures in Space: fixes vehicle and item import.
