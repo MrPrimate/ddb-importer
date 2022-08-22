@@ -1,6 +1,6 @@
 # 2.9.65
 
-* Planar Warrior effect provided by @Elwin#1410
+* Planar Warrior and Ancestral Protectors effects provided by @Elwin#1410
 
 # 2.9.64
 

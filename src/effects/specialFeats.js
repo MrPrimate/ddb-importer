@@ -29,6 +29,7 @@ import { steadyAimEffect } from "./feats/steadyAim.js";
 import { shiftEffect } from "./feats/shift.js";
 import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
+import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -118,6 +119,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     document = await runeCarverEffect(document);
   }
   switch (name) {
+    case "Ancestral Protectors": {
+      document = await ancestralProtectorsEffect(document);
+      break;
+    }
     // if using active auras add the aura effect
     case "Aura of Courage":
     case "Aura of Protection": {
