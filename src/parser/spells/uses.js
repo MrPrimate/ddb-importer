@@ -43,12 +43,12 @@ export function getUses(data, character) {
     if (limitedUse.useProficiencyBonus) {
       switch (limitedUse.proficiencyBonusOperator) {
         case 2: {
-          maxUses *= character.data.attributes.prof;
+          maxUses *= character.system.attributes.prof;
           break;
         }
         case 1:
         default:
-          maxUses += character.data.attributes.prof;
+          maxUses += character.system.attributes.prof;
       }
     }
 
