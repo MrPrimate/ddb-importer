@@ -1,11 +1,19 @@
 import { getSensesMap } from "./senses.js";
 import logger from "../../logger.js";
 
+// CONFIG.Canvas.visionModes
 const SENSE_MAP = {
-  blindsight: "detectInvisibility",
+  blindsight: "basic",
   darkvision: "darkvision",
-  tremorsense: "tremorsense",
-  truesight: "detectInvisibility",
+  // tremorsense: "tremorsense",
+  truesight: "basic",
+};
+
+// CONFIG.Canvas.detectionModes
+const DETECTION_MAP = {
+  blindsight: "senseAll",
+  truesight: "seeAll",
+  tremorsense: "feelTremor",
 };
 
 function getTokenSenses(ddb) {
@@ -25,6 +33,7 @@ function getTokenSenses(ddb) {
       contrast: 0,
       visionMode: "basic",
     },
+    detectionModes: [],
   };
   const senses = getSensesMap(ddb);
   // darkvision: 0,
@@ -39,8 +48,18 @@ function getTokenSenses(ddb) {
       setProperty(tokenData, "sight.range", value);
       tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes[visionMode].vision.defaults);
     }
+    if (value > 0 && hasProperty(DETECTION_MAP, key)) {
+      const detectionMode = {
+        id: DETECTION_MAP[key],
+        range: value,
+        enabled: true,
+      };
+
+      tokenData.detectionModes.push(detectionMode);
+    }
   }
 
+  // devilsight? we set the vision mode back to basic
   const devilSight = senses.special.includes("You can see normally in darkness");
   if (devilSight) {
     setProperty(tokenData, "sight.visionMode", "basic");
