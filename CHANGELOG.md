@@ -6,6 +6,10 @@
 
 * Feature effects: Planar Warrior, Ancestral Protectors, Sharpshooter, Crosbow Expert, and Savage Attacker provided by @Elwin#1410
 
+# 2.10.17
+
+* Adjust vision modes for v10 test 5.
+
 # 2.9.64
 
 * Support for Spelljammer Adventures in Space: fixes vehicle and item import.

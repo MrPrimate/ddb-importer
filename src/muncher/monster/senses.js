@@ -2,12 +2,20 @@ export function getTextSenses(monster) {
   return monster.sensesHtml;
 }
 
+// CONFIG.Canvas.visionModes
 const SENSE_MAP = {
-  Blindsight: "detectInvisibility",
-  Darkvision: "darkvision",
-  Tremorsense: "tremorsense",
-  Truesight: "detectInvisibility",
-  Unknown: "basic",
+  blindsight: "basic",
+  darkvision: "darkvision",
+  // tremorsense: "tremorsense",
+  truesight: "basic",
+  unknown: "basic",
+};
+
+// CONFIG.Canvas.detectionModes
+const DETECTION_MAP = {
+  blindsight: "senseAll",
+  truesight: "seeAll",
+  tremorsense: "feelTremor",
 };
 
 //   "senses": [{
@@ -38,7 +46,7 @@ export function getTokenSenses(token, monster) {
   monster.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
     if (senseMatch && sense.notes) {
-      const senseType = SENSE_MAP[senseMatch.name];
+      const senseType = SENSE_MAP[senseMatch.name.toLowerCase()];
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
         const value = parseInt(rangeMatch[1]);
@@ -46,6 +54,15 @@ export function getTokenSenses(token, monster) {
           setProperty(token.sight, "visionMode", senseType);
           setProperty(token.sight, "range", value);
           token.sight = mergeObject(token.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
+        }
+        if (value > 0 && hasProperty(DETECTION_MAP, senseMatch.name.toLowerCase())) {
+          const detectionMode = {
+            id: DETECTION_MAP[senseMatch.name.toLowerCase()],
+            range: value,
+            enabled: true,
+          };
+
+          token.detectionModes.push(detectionMode);
         }
       }
     }

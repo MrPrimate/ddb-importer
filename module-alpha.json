@@ -3,14 +3,14 @@
   "author": "MrPrimate",
   "title": "[ALPHA] D&D Beyond Importer",
   "description": "ALPHA DDB Importer for Active Updates",
-  "version": "2.10.16",
+  "version": "2.10.17",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",
   "url": "https://github.com/mrprimate/ddb-importer",
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "compatibility": {
-    "minimum": "10.277",
+    "minimum": "10.279",
     "verified": "10"
   },
   "authors": [
