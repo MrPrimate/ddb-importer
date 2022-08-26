@@ -81,8 +81,8 @@ export class DDBSources extends FormApplication {
   }
 
   /** @override */
-  // eslint-disable-next-line no-unused-vars
-  async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
+  // eslint-disable-next-line class-methods-use-this
+  async _updateObject(event, formData) {
     event.preventDefault();
     let sources = [];
     for (const [key, value] of Object.entries(formData)) {
