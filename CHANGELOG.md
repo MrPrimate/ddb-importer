@@ -2,6 +2,10 @@
 
 * Some optional class features would not parse in as features.
 
+# 2.10.21
+
+* Support Abron's Summoner module by retaining flags.
+
 # 2.9.65
 
 * Feature effects: Planar Warrior, Ancestral Protectors, Sharpshooter, Crosbow Expert, and Savage Attacker provided by @Elwin#1410
