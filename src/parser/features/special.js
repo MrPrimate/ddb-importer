@@ -289,9 +289,9 @@ export function fixFeatures(features) {
         break;
       }
       case "Celestial Revelation": {
-        feature.data.activation.type = "";
-        feature.data.actionType = "";
-        feature.data.uses = {
+        feature.system.activation.type = "";
+        feature.system.actionType = "";
+        feature.system.uses = {
           value: null,
           max: null,
           per: "",
@@ -366,9 +366,9 @@ export function fixFeatures(features) {
         break;
       }
       case "Giant's Might": {
-        feature.data["target"]["type"] = "self";
-        feature.data.range = { value: null, units: "self", long: null };
-        feature.data.duration = {
+        feature.system["target"]["type"] = "self";
+        feature.system.range = { value: null, units: "self", long: null };
+        feature.system.duration = {
           value: 1,
           units: "minute",
         };
@@ -417,7 +417,7 @@ export function fixFeatures(features) {
       case "Celestial Revelation (Radiant Soul)":
       case "Radiant Soul": {
         if (feature.flags.obsidian.source.type == "race") {
-          feature.data.uses = {
+          feature.system.uses = {
             value: 1,
             max: 1,
             per: "lr",
@@ -459,16 +459,16 @@ export function fixFeatures(features) {
         break;
       }
       case "Shift": {
-        feature.data.actionType = "heal";
-        feature.data.target.type = "self";
-        feature.data.range = { value: null, long: null, units: "self" };
-        feature.data.duration = {
+        feature.system.actionType = "heal";
+        feature.system.target.type = "self";
+        feature.system.range = { value: null, long: null, units: "self" };
+        feature.system.duration = {
           value: 1,
           units: "minute",
         };
-        feature.data.ability = "con";
-        feature.data.actionType = "heal";
-        feature.data.damage = { parts: [["2 * @prof", "temphp"]], versatile: "", value: "" };
+        feature.system.ability = "con";
+        feature.system.actionType = "heal";
+        feature.system.damage = { parts: [["2 * @prof", "temphp"]], versatile: "", value: "" };
         break;
       }
       case "Sneak Attack": {
