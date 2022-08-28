@@ -1,6 +1,6 @@
 # 2.9.65
 
-* Planar Warrior and Ancestral Protectors effects provided by @Elwin#1410
+* Feature effects: Planar Warrior, Ancestral Protectors, Sharpshooter, Crosbow Expert, and Savage Attacker provided by @Elwin#1410
 
 # 2.9.64
 

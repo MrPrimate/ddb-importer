@@ -30,6 +30,8 @@ import { shiftEffect } from "./feats/shift.js";
 import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
+import { sharpShooterEffect } from "./feats/sharpShooter.js";
+import { crossbowExpertEffect } from "./feats/crossbowExpert.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -149,6 +151,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       document = cloudRuneEffect(document);
       break;
     }
+    case "Crossbow Expert": {
+      document = crossbowExpertEffect(document);
+      break;
+    }
     case "Defensive Duelist": {
       document = defensiveDuelistEffect(document);
       break;
@@ -204,6 +210,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Sculpt Spells": {
       document = sculptSpellsEffect(document);
+      break;
+    }
+    case "Sharpshooter": {
+      document = sharpShooterEffect(document);
       break;
     }
     case "Shift": {
