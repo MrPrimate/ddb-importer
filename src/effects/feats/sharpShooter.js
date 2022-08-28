@@ -25,15 +25,15 @@ export function sharpShooterEffect(document) {
   // setProperty(effect, "flags.core.statusId", true);
 
   document.effects.push(effect);
-  document.data.activation = {
+  document.system.activation = {
     "type": "none",
     "cost": 1,
     "condition": ""
   };
 
-  document.data["target"]["type"] = "self";
-  document.data.range = { value: null, units: "self", long: null };
-  document.data.actionType = "other";
+  document.system["target"]["type"] = "self";
+  document.system.range = { value: null, units: "self", long: null };
+  document.system.actionType = "other";
 
   const midiFlags = {
     "effectActivation": false,
