@@ -1,57 +1,5 @@
 [
   {
-    "name": "Artificer",
-    "path": "systems/dnd5e/icons/skills/mech_7.jpg"
-  },
-  {
-    "name": "Barbarian",
-    "path": "systems/dnd5e/icons/skills/weapon_01.jpg"
-  },
-  {
-    "name": "Bard",
-    "path": "systems/dnd5e/icons/skills/affliction_24.jpg"
-  },
-  {
-    "name": "Cleric",
-    "path": "systems/dnd5e/icons/skills/light_04.jpg"
-  },
-  {
-    "name": "Druid",
-    "path": "systems/dnd5e/icons/skills/green_13.jpg"
-  },
-  {
-    "name": "Fighter",
-    "path": "systems/dnd5e/icons/skills/gray_08.jpg"
-  },
-  {
-    "name": "Monk",
-    "path": "systems/dnd5e/icons/skills/blue_35.jpg"
-  },
-  {
-    "name": "Paladin",
-    "path": "systems/dnd5e/icons/skills/light_05.jpg"
-  },
-  {
-    "name": "Ranger",
-    "path": "systems/dnd5e/icons/skills/green_01.jpg"
-  },
-  {
-    "name": "Rogue",
-    "path": "systems/dnd5e/icons/skills/gray_04.jpg"
-  },
-  {
-    "name": "Sorcerer",
-    "path": "systems/dnd5e/icons/skills/fire_08.jpg"
-  },
-  {
-    "name": "Warlock",
-    "path": "systems/dnd5e/icons/skills/violet_21.jpg"
-  },
-  {
-    "name": "Wizard",
-    "path": "systems/dnd5e/icons/skills/blue_13.jpg"
-  },
-  {
     "name": "Aberrant Mind",
     "path": "icons/creatures/magical/humanoid-silhouette-aliens-green.webp"
   },
@@ -76,6 +24,10 @@
     "path": "icons/equipment/chest/breastplate-layered-gilded-orange.webp"
   },
   {
+    "name": "Artificer",
+    "path": "icons/commodities/tech/cog-bronze.webp"
+  },
+  {
     "name": "Artillerist",
     "path": "icons/weapons/artillery/cannon-engraved-gold.webp"
   },
@@ -86,6 +38,14 @@
   {
     "name": "Banneret Purple Dragon Knight",
     "path": "icons/sundries/flags/banner-symbol-sun-gold-red.webp"
+  },
+  {
+    "name": "Barbarian",
+    "path": "icons/skills/melee/hand-grip-sword-orange.webp"
+  },
+  {
+    "name": "Bard",
+    "path": "icons/skills/toxins/cup-goblet-poisoned-spilled.webp"
   },
   {
     "name": "Battle Master",
@@ -140,6 +100,10 @@
     "path": "icons/magic/fire/flame-burning-tree-stump.webp"
   },
   {
+    "name": "Cleric",
+    "path": "icons/magic/life/ankh-gold-blue.webp"
+  },
+  {
     "name": "Clockwork Soul",
     "path": "icons/commodities/tech/watch.webp"
   },
@@ -192,6 +156,10 @@
     "path": "icons/creatures/abilities/dragon-breath-purple.webp"
   },
   {
+    "name": "Druid",
+    "path": "icons/creatures/mammals/elk-moose-marked-green.webp"
+  },
+  {
     "name": "Echo Knight",
     "path": "icons/magic/control/energy-stream-link-white.webp"
   },
@@ -202,6 +170,10 @@
   {
     "name": "Fey Wanderer",
     "path": "icons/environment/wilderness/portal.webp"
+  },
+  {
+    "name": "Fighter",
+    "path": "icons/skills/melee/hand-grip-sword-red.webp"
   },
   {
     "name": "Forge Domain",
@@ -242,6 +214,10 @@
   {
     "name": "Mastermind",
     "path": "icons/skills/trades/music-singing-voice-blue.webp"
+  },
+  {
+    "name": "Monk",
+    "path": "icons/magic/control/silhouette-hold-change-blue.webp"
   },
   {
     "name": "Monster Slayer",
@@ -296,6 +272,10 @@
     "path": "icons/skills/targeting/crosshair-scope-sniper-green.webp"
   },
   {
+    "name": "Paladin",
+    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
+  },
+  {
     "name": "Path of the Ancestral Guardian",
     "path": "icons/creatures/eyes/human-single-brown.webp"
   },
@@ -338,6 +318,14 @@
   {
     "name": "Psi Warrior",
     "path": "icons/magic/control/energy-stream-link-white.webp"
+  },
+  {
+    "name": "Ranger",
+    "path": "icons/weapons/bows/shortbow-recurve-yellow.webp"
+  },
+  {
+    "name": "Rogue",
+    "path": "icons/skills/melee/strike-sword-stabbed-brown.webp"
   },
   {
     "name": "Rune Knight",
@@ -390,6 +378,10 @@
   {
     "name": "Shadow Magic",
     "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Sorcerer",
+    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
   },
   {
     "name": "Soulknife",
@@ -464,6 +456,10 @@
     "path": "icons/magic/control/fear-fright-white.webp"
   },
   {
+    "name": "Warlock",
+    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
+  },
+  {
     "name": "Way of Mercy",
     "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
   },
@@ -506,5 +502,9 @@
   {
     "name": "Wild Magic",
     "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
+    "name": "Wizard",
+    "path": "icons/magic/air/wind-tornado-wall-blue.webp"
   }
 ]

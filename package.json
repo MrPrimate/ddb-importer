@@ -11,6 +11,7 @@
     "build": "webpack"
   },
   "devDependencies": {
+    "node-fetch": "^3.2.10",
     "eslint": "^8.11.0",
     "eslint-config-prettier": "^8.3.0",
     "prettier": "2.3.2",
