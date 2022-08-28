@@ -53,6 +53,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "spellbook-assistant-manager",
   "spell-class-filter-for-5e",
   "forien-unidentified-items",
+  "arbron-summoner",
 ];
 
 const EFFECTS_IGNORE_FLAG_GROUPS = [
