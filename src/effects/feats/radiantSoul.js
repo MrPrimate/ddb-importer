@@ -1,7 +1,6 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function radiantSoulEffect(document) {
-  console.warn(document);
   if (document.flags.obsidian.source.type == "race") {
     let effect = baseFeatEffect(document, document.name);
 
