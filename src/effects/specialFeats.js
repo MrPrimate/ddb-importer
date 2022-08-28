@@ -32,6 +32,7 @@ import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
 import { sharpShooterEffect } from "./feats/sharpShooter.js";
 import { crossbowExpertEffect } from "./feats/crossbowExpert.js";
+import { savageAttackerEffect } from "./feats/savageAttacker.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -214,6 +215,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Sharpshooter": {
       document = sharpShooterEffect(document);
+      break;
+    }
+    case "Savage Attacker": {
+      document = savageAttackerEffect(document);
       break;
     }
     case "Shift": {
