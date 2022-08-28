@@ -289,6 +289,16 @@ export function fixFeatures(features) {
         feature.data.uses = { value: null, max: "0", per: "", type: "" };
         break;
       }
+      case "Celestial Revelation": {
+        feature.data.activation.type = "";
+        feature.data.actionType = "";
+        feature.data.uses = {
+          value: null,
+          max: null,
+          per: "",
+        };
+        break;
+      }
       case "Channel Divinity: Radiance of the Dawn":
         feature.data.damage = {
           parts: [["2d10[radiant] + @classes.cleric.levels", "radiant"]],
@@ -402,6 +412,17 @@ export function fixFeatures(features) {
         if (useScale) {
           feature.data.damage.parts[0][0] += " + @prof[healing]";
           feature.data.damage.parts[0][1] = "healing";
+        }
+        break;
+      }
+      case "Celestial Revelation (Radiant Soul)":
+      case "Radiant Soul": {
+        if (feature.flags.obsidian.source.type == "race") {
+          feature.data.uses = {
+            value: 1,
+            max: 1,
+            per: "lr",
+          };
         }
         break;
       }

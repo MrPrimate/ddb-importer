@@ -1735,5 +1735,19 @@
     "race": "Half-Elf",
     "subrace": "Mark of Storm Half-Elf",
     "path": "icons/tools/navigation/compass-brass-blue-red.webp"
+  },
+  {
+    "name": "Celestial Revelation (Radiant Soul)",
+    "racial_trait": "Celestial Revelation (Radiant Soul)",
+    "race": "Aasimar",
+    "subrace": "",
+    "path": "systems/dnd5e/icons/spells/haste-royal-3.jpg"
+  },
+  {
+    "name": "Celestial Revelation",
+    "racial_trait": "Celestial Revelation",
+    "race": "Aasimar",
+    "subrace": "",
+    "path": "systems/dnd5e/icons/spells/haste-royal-3.jpg"
   }
 ]
