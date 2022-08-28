@@ -9,47 +9,47 @@
   },
   {
     "name": "Absorbing Tattoo",
-    "path": "systems/dnd5e/icons/spells/air-burst-sky-1.jpg"
+    "path": "icons/magic/air/wind-tornado-spiral-blue-gray.webp"
   },
   {
     "name": "Absorbing Tattoo, Acid",
-    "path": "systems/dnd5e/icons/spells/enchant-acid-1.jpg"
+    "path": "icons/magic/fire/dagger-rune-enchant-green.webp"
   },
   {
     "name": "Absorbing Tattoo, Cold",
-    "path": "systems/dnd5e/icons/spells/ice-sky-2.jpg"
+    "path": "icons/magic/water/projectiles-ice-faceted-salvo-gray.webp"
   },
   {
     "name": "Absorbing Tattoo, Fire",
-    "path": "systems/dnd5e/icons/spells/fireball-red-3.jpg"
+    "path": "icons/magic/fire/projectile-fireball-smoke-strong-orange.webp"
   },
   {
     "name": "Absorbing Tattoo, Force",
-    "path": "systems/dnd5e/icons/spells/air-burst-air-3.jpg"
+    "path": "icons/magic/air/air-burst-spiral-large-yellow.webp"
   },
   {
     "name": "Absorbing Tattoo, Lightning",
-    "path": "systems/dnd5e/icons/spells/lightning-blue-2.jpg"
+    "path": "icons/magic/lightning/bolt-forked-large-blue.webp"
   },
   {
     "name": "Absorbing Tattoo, Necrotic",
-    "path": "systems/dnd5e/icons/spells/horror-red-3.jpg"
+    "path": "icons/magic/control/fear-fright-monster-grin-red-orange.webp"
   },
   {
     "name": "Absorbing Tattoo, Poison",
-    "path": "systems/dnd5e/icons/spells/wild-jade-3.jpg"
+    "path": "icons/magic/nature/wolf-paw-glow-large-teal-blue.webp"
   },
   {
     "name": "Absorbing Tattoo, Psychic",
-    "path": "systems/dnd5e/icons/spells/enchant-blue-3.jpg"
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-blue.webp"
   },
   {
     "name": "Absorbing Tattoo, Radiant",
-    "path": "systems/dnd5e/icons/spells/light-air-fire-1.jpg"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Absorbing Tattoo, Thunder",
-    "path": "systems/dnd5e/icons/spells/lightning-blue-1.jpg"
+    "path": "icons/magic/lightning/bolt-forked-blue.webp"
   },
   {
     "name": "Acheron Blade",
@@ -65,7 +65,7 @@
   },
   {
     "name": "Acheron Blade, Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Acheron Blade, Scimitar",
@@ -77,7 +77,7 @@
   },
   {
     "name": "Acid (vial)",
-    "path": "systems/dnd5e/icons/items/potions/major-green.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-green.webp"
   },
   {
     "name": "Adamantine Armor",
@@ -101,7 +101,7 @@
   },
   {
     "name": "Adamantine Plate",
-    "path": "systems/dnd5e/icons/items/armor/plate.png"
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
   {
     "name": "Adamantine Ring Mail",
@@ -129,7 +129,7 @@
   },
   {
     "name": "Alchemist's Fire (flask)",
-    "path": "systems/dnd5e/icons/items/potions/magic-yellow.jpg"
+    "path": "icons/consumables/potions/potion-flask-corked-orange.webp"
   },
   {
     "name": "Alchemist's Supplies",
@@ -137,7 +137,7 @@
   },
   {
     "name": "Alchemy Jug",
-    "path": "systems/dnd5e/icons/items/inventory/jug.jpg"
+    "path": "icons/containers/kitchenware/jug-terracotta-orange.webp"
   },
   {
     "name": "Alexandrite",
@@ -145,19 +145,19 @@
   },
   {
     "name": "All-Purpose Tool",
-    "path": "systems/dnd5e/icons/items/inventory/tool-hook.jpg"
+    "path": "icons/weapons/sickles/sickle-hooked-wood.webp"
   },
   {
     "name": "All-Purpose Tool, +1",
-    "path": "systems/dnd5e/icons/items/inventory/tool-hook.jpg"
+    "path": "icons/weapons/sickles/sickle-hooked-wood.webp"
   },
   {
     "name": "All-Purpose Tool, +2",
-    "path": "systems/dnd5e/icons/items/inventory/tool-hook.jpg"
+    "path": "icons/weapons/sickles/sickle-hooked-wood.webp"
   },
   {
     "name": "All-Purpose Tool, +3",
-    "path": "systems/dnd5e/icons/items/inventory/tool-hook.jpg"
+    "path": "icons/weapons/sickles/sickle-hooked-wood.webp"
   },
   {
     "name": "Alms Box",
@@ -165,7 +165,7 @@
   },
   {
     "name": "Amber",
-    "path": "systems/dnd5e/icons/items/inventory/amber.jpg"
+    "path": "icons/commodities/gems/gem-amber-insect-orange.webp"
   },
   {
     "name": "Amethyst",
@@ -173,23 +173,23 @@
   },
   {
     "name": "Ammunition, +1",
-    "path": "systems/dnd5e/icons/skills/arrow_01.jpg"
+    "path": "icons/skills/ranged/arrow-flying-broadhead-metal.webp"
   },
   {
     "name": "Ammunition, +2",
-    "path": "systems/dnd5e/icons/skills/arrow_02.jpg"
+    "path": "icons/weapons/ammunition/arrow-head-war-flight.webp"
   },
   {
     "name": "Ammunition, +3",
-    "path": "systems/dnd5e/icons/skills/arrow_03.jpg"
+    "path": "icons/magic/fire/projectile-arrow-fire-red-yellow.webp"
   },
   {
     "name": "Amulet",
-    "path": "systems/dnd5e/icons/items/jewelry/amulet-blue.jpg"
+    "path": "icons/equipment/neck/pendant-bronze-gem-blue.webp"
   },
   {
     "name": "Amulet of Health",
-    "path": "systems/dnd5e/icons/items/jewelry/pendant-red.jpg"
+    "path": "icons/equipment/neck/pendant-faceted-red.webp"
   },
   {
     "name": "Amulet of Proof against Detection and Location",
@@ -225,11 +225,11 @@
   },
   {
     "name": "Amulet of the Planes",
-    "path": "systems/dnd5e/icons/items/jewelry/pendant-green.jpg"
+    "path": "icons/equipment/neck/pendant-faceted-green.webp"
   },
   {
     "name": "Animated Shield",
-    "path": "systems/dnd5e/icons/skills/weapon_16.jpg"
+    "path": "icons/equipment/shield/buckler-wooden-boss-glowing-blue.webp"
   },
   {
     "name": "Anstruth Harp",
@@ -245,7 +245,7 @@
   },
   {
     "name": "Antitoxin",
-    "path": "systems/dnd5e/icons/items/potions/minor-blue.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-blue.webp"
   },
   {
     "name": "Apparatus of Kwalish",
@@ -337,19 +337,19 @@
   },
   {
     "name": "Armblade (Morningstar)",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Armblade (Quarterstaff)",
-    "path": "systems/dnd5e/icons/items/weapons/quarterstaff.jpg"
+    "path": "icons/weapons/staves/staff-simple-gold.webp"
   },
   {
     "name": "Armblade (Rapier)",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Armblade (Scimitar)",
-    "path": "systems/dnd5e/icons/skills/weapon_08.jpg"
+    "path": "icons/skills/melee/spear-tips-triple-orange.webp"
   },
   {
     "name": "Armblade (Shortsword)",
@@ -361,7 +361,7 @@
   },
   {
     "name": "Armblade (Spear)",
-    "path": "systems/dnd5e/icons/skills/weapon_40.jpg"
+    "path": "icons/skills/ranged/shuriken-thrown-yellow.webp"
   },
   {
     "name": "Armblade (Trident)",
@@ -477,7 +477,7 @@
   },
   {
     "name": "Armor of Fire Resistance, Breastplate",
-    "path": "systems/dnd5e/icons/items/armor/plate.png"
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
   {
     "name": "Armor of Fire Resistance, Chain Mail",
@@ -489,7 +489,7 @@
   },
   {
     "name": "Armor of Fire Resistance, Half Plate",
-    "path": "systems/dnd5e/icons/items/armor/plate.png"
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
   {
     "name": "Armor of Fire Resistance, Hide",
@@ -505,7 +505,7 @@
   },
   {
     "name": "Armor of Fire Resistance, Plate",
-    "path": "systems/dnd5e/icons/items/armor/plate.png"
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
   {
     "name": "Armor of Fire Resistance, Ring Mail",
@@ -941,7 +941,7 @@
   },
   {
     "name": "Arrow of Slaying",
-    "path": "systems/dnd5e/icons/skills/arrow_11.jpg"
+    "path": "icons/magic/fire/projectile-arrow-fire-purple.webp"
   },
   {
     "name": "Arrow-Catching Shield",
@@ -953,23 +953,23 @@
   },
   {
     "name": "Arrows, +1",
-    "path": "systems/dnd5e/icons/skills/arrow_02.jpg"
+    "path": "icons/weapons/ammunition/arrow-head-war-flight.webp"
   },
   {
     "name": "Arrows, +2",
-    "path": "systems/dnd5e/icons/skills/arrow_03.jpg"
+    "path": "icons/magic/fire/projectile-arrow-fire-red-yellow.webp"
   },
   {
     "name": "Arrows, +3",
-    "path": "systems/dnd5e/icons/skills/arrow_05.jpg"
+    "path": "icons/skills/ranged/arrows-flying-salvo-blue.webp"
   },
   {
     "name": "Arrows, Walloping",
-    "path": "systems/dnd5e/icons/skills/arrow_01.jpg"
+    "path": "icons/skills/ranged/arrow-flying-broadhead-metal.webp"
   },
   {
     "name": "Assassin's Blood (Ingested)",
-    "path": "systems/dnd5e/icons/items/potions/minor-red.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-red.webp"
   },
   {
     "name": "Astral Shard",
@@ -985,7 +985,7 @@
   },
   {
     "name": "Axe Beak",
-    "path": "systems/dnd5e/icons/items/inventory/monster-beak-curved.jpg"
+    "path": "icons/commodities/bones/beak-hooked-red.webp"
   },
   {
     "name": "Axe of the Dwarvish Lords",
@@ -993,7 +993,7 @@
   },
   {
     "name": "Azorius Guild Signet",
-    "path": "systems/dnd5e/icons/items/jewelry/ring-orange.jpg"
+    "path": "icons/equipment/finger/ring-cabochon-gold-orange.webp"
   },
   {
     "name": "Azorius Keyrune",
@@ -1033,15 +1033,15 @@
   },
   {
     "name": "Bad News Bullets",
-    "path": "systems/dnd5e/icons/items/weapons/bullet.jpg"
+    "path": "icons/skills/ranged/bullets-triple-ball-yellow.webp"
   },
   {
     "name": "Badge of the Watch",
-    "path": "systems/dnd5e/icons/items/inventory/badge-sword.jpg"
+    "path": "icons/equipment/shield/heater-steel-sword-yellow-black.webp"
   },
   {
     "name": "Bag of Beans",
-    "path": "systems/dnd5e/icons/items/inventory/pouch-neck.jpg"
+    "path": "icons/containers/bags/coinpouch-simple-leather-tan.webp"
   },
   {
     "name": "Bag of Bounty",
@@ -1049,11 +1049,11 @@
   },
   {
     "name": "Bag of Devouring",
-    "path": "systems/dnd5e/icons/items/inventory/pouch-belt.jpg"
+    "path": "icons/containers/bags/pouch-leather-pink.webp"
   },
   {
     "name": "Bag of Holding",
-    "path": "systems/dnd5e/icons/items/inventory/pouch-belt.jpg"
+    "path": "icons/containers/bags/pouch-leather-pink.webp"
   },
   {
     "name": "Bag of Tricks",
@@ -1085,7 +1085,7 @@
   },
   {
     "name": "Banner of the Krig Rune",
-    "path": "systems/dnd5e/icons/items/inventory/banner-red.jpg"
+    "path": "icons/sundries/flags/banner-standard-brown.webp"
   },
   {
     "name": "Barding",
@@ -1093,7 +1093,7 @@
   },
   {
     "name": "Barrel",
-    "path": "systems/dnd5e/icons/items/inventory/barrel.jpg"
+    "path": "icons/containers/barrels/barrel-walnut-steel-brown.webp"
   },
   {
     "name": "Barrier Tattoo",
@@ -1145,11 +1145,11 @@
   },
   {
     "name": "Battlebutter - Tavern of Trinkets",
-    "path": "systems/dnd5e/icons/items/inventory/bar-gold.jpg"
+    "path": "icons/commodities/metal/ingot-gold.webp"
   },
   {
     "name": "Bead of Force",
-    "path": "systems/dnd5e/icons/skills/blue_33.jpg"
+    "path": "icons/magic/water/orb-ice-opaque.webp"
   },
   {
     "name": "Bead of Nourishment",
@@ -1169,7 +1169,7 @@
   },
   {
     "name": "Bell",
-    "path": "systems/dnd5e/icons/items/inventory/bell_brass.jpg"
+    "path": "icons/tools/instruments/bell-brass-brown.webp"
   },
   {
     "name": "Bell Branch",
@@ -1177,19 +1177,19 @@
   },
   {
     "name": "Belt of Cloud Giant Strength",
-    "path": "systems/dnd5e/icons/items/equipment/belt-gems.jpg"
+    "path": "icons/equipment/waist/belt-thick-gemmed-steel-grey.webp"
   },
   {
     "name": "Belt of Dwarvenkind",
-    "path": "systems/dnd5e/icons/items/equipment/belt-rock.jpg"
+    "path": "icons/equipment/waist/belt-armored-steel.webp"
   },
   {
     "name": "Belt of Fire Giant Strength",
-    "path": "systems/dnd5e/icons/items/equipment/belt-buckle.jpg"
+    "path": "icons/equipment/waist/belt-coiled-leather-steel.webp"
   },
   {
     "name": "Belt of Frost Giant Strength",
-    "path": "systems/dnd5e/icons/items/equipment/belt-cloth.jpg"
+    "path": "icons/equipment/waist/cloth-sash-purple.webp"
   },
   {
     "name": "Belt of Giant Strength",
@@ -1197,15 +1197,15 @@
   },
   {
     "name": "Belt of Hill Giant Strength",
-    "path": "systems/dnd5e/icons/items/equipment/belt-plain.jpg"
+    "path": "icons/equipment/waist/belt-buckle-square-leather-brown.webp"
   },
   {
     "name": "Belt of Stone Giant Strength",
-    "path": "systems/dnd5e/icons/items/equipment/belt-rock.jpg"
+    "path": "icons/equipment/waist/belt-armored-steel.webp"
   },
   {
     "name": "Belt of Storm Giant Strength",
-    "path": "systems/dnd5e/icons/items/equipment/belt-girdle.jpg"
+    "path": "icons/equipment/waist/sash-cloth-gold-purple.webp"
   },
   {
     "name": "Berserker Axe",
@@ -1221,11 +1221,11 @@
   },
   {
     "name": "Berserker Handaxe",
-    "path": "systems/dnd5e/icons/items/weapons/handaxe.jpg"
+    "path": "icons/weapons/axes/axe-broad-black.webp"
   },
   {
     "name": "Birdpipes",
-    "path": "systems/dnd5e/icons/items/inventory/flute.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Bit and Bridle",
@@ -1257,7 +1257,7 @@
   },
   {
     "name": "Blackrazor",
-    "path": "systems/dnd5e/icons/skills/shadow_03.jpg"
+    "path": "icons/magic/control/debuff-chains-shackles-movement-purple.webp"
   },
   {
     "name": "Blackstaff",
@@ -1265,7 +1265,7 @@
   },
   {
     "name": "Blade of Avernus",
-    "path": "systems/dnd5e/icons/items/weapons/sword-death.jpg"
+    "path": "icons/weapons/swords/sword-guard-serrated.webp"
   },
   {
     "name": "Blade of Broken Mirrors",
@@ -1297,7 +1297,7 @@
   },
   {
     "name": "Blade of the Medusa, Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Blade of the Medusa, Scimitar",
@@ -1337,15 +1337,15 @@
   },
   {
     "name": "Blood Fury Tattoo",
-    "path": "systems/dnd5e/icons/skills/blood_13.jpg"
+    "path": "icons/magic/life/heart-shadow-red.webp"
   },
   {
     "name": "Blood of the Lycanthrope (Injury)",
-    "path": "systems/dnd5e/icons/items/potions/major-red.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-glowing-red.webp"
   },
   {
     "name": "Blood of the Lycanthrope Antidote",
-    "path": "systems/dnd5e/icons/items/potions/major-red.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-glowing-red.webp"
   },
   {
     "name": "Blood Spear",
@@ -1437,7 +1437,7 @@
   },
   {
     "name": "Blunderbuss Bullets",
-    "path": "systems/dnd5e/icons/items/weapons/bullet.jpg"
+    "path": "icons/skills/ranged/bullets-triple-ball-yellow.webp"
   },
   {
     "name": "Bobbing Lily Pad",
@@ -1445,7 +1445,7 @@
   },
   {
     "name": "Bomb",
-    "path": "systems/dnd5e/icons/items/inventory/bomb.jpg"
+    "path": "icons/weapons/thrown/bomb-fuse-black-pink.webp"
   },
   {
     "name": "Bonecounter",
@@ -1453,7 +1453,7 @@
   },
   {
     "name": "Book",
-    "path": "systems/dnd5e/icons/items/inventory/book-diary.jpg"
+    "path": "icons/sundries/books/book-worn-brown.webp"
   },
   {
     "name": "Book of Exalted Deeds",
@@ -1489,7 +1489,7 @@
   },
   {
     "name": "Boots of Elvenkind",
-    "path": "systems/dnd5e/icons/items/equipment/bootsfancy.png"
+    "path": "icons/equipment/feet/shoes-collared-leather-blue.webp"
   },
   {
     "name": "Boots of False Tracks",
@@ -1497,7 +1497,7 @@
   },
   {
     "name": "Boots of Levitation",
-    "path": "systems/dnd5e/icons/items/equipment/boots-leather.jpg"
+    "path": "icons/equipment/feet/boots-collared-rounded-brown.webp"
   },
   {
     "name": "Boots of Speed",
@@ -1505,7 +1505,7 @@
   },
   {
     "name": "Boots of Striding and Springing",
-    "path": "systems/dnd5e/icons/items/equipment/bootsfancy.png"
+    "path": "icons/equipment/feet/shoes-collared-leather-blue.webp"
   },
   {
     "name": "Boots of the Vigilant",
@@ -1513,7 +1513,7 @@
   },
   {
     "name": "Boots of the Winterlands",
-    "path": "systems/dnd5e/icons/items/equipment/boots.png"
+    "path": "icons/equipment/feet/boots-leather-banded-furred.webp"
   },
   {
     "name": "Boros Guild Signet",
@@ -1521,19 +1521,19 @@
   },
   {
     "name": "Boros Keyrune",
-    "path": "systems/dnd5e/icons/items/inventory/rune-red.jpg"
+    "path": "icons/commodities/treasure/token-engraved-eye-red.webp"
   },
   {
     "name": "Bottle, Glass",
-    "path": "systems/dnd5e/icons/items/inventory/bottle-empty.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
   },
   {
     "name": "Bottled Breath",
-    "path": "systems/dnd5e/icons/items/potions/unique-10.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-bat-gold-red.webp"
   },
   {
     "name": "Bowl of Commanding Water Elementals",
-    "path": "systems/dnd5e/icons/skills/blue_36.jpg"
+    "path": "icons/magic/water/pseudopod-swirl-blue.webp"
   },
   {
     "name": "Bracelet of Rock Magic",
@@ -1545,15 +1545,15 @@
   },
   {
     "name": "Bracers of Archery",
-    "path": "systems/dnd5e/icons/items/equipment/bracers-leather.jpg"
+    "path": "icons/equipment/wrist/bracer-studded-leather-steel.webp"
   },
   {
     "name": "Bracers of Defense",
-    "path": "systems/dnd5e/icons/items/equipment/bracers-defense.jpg"
+    "path": "icons/equipment/wrist/bracer-segmented-leather.webp"
   },
   {
     "name": "Brazier of Commanding Fire Elementals",
-    "path": "systems/dnd5e/icons/skills/fire_02.jpg"
+    "path": "icons/magic/fire/projectile-wave-arrow.webp"
   },
   {
     "name": "Breastplate",
@@ -1593,7 +1593,7 @@
   },
   {
     "name": "Brooch of Shielding",
-    "path": "systems/dnd5e/icons/items/jewelry/amulet-blue.jpg"
+    "path": "icons/equipment/neck/pendant-bronze-gem-blue.webp"
   },
   {
     "name": "Broom of Flying",
@@ -1609,7 +1609,7 @@
   },
   {
     "name": "Bullets, Renaissance",
-    "path": "systems/dnd5e/icons/items/weapons/bullet.jpg"
+    "path": "icons/skills/ranged/bullets-triple-ball-yellow.webp"
   },
   {
     "name": "Burglar's Pack",
@@ -1617,11 +1617,11 @@
   },
   {
     "name": "Burnt Othur Fumes (Inhaled)",
-    "path": "systems/dnd5e/icons/items/potions/major-empty.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
   },
   {
     "name": "Butcher's Bib",
-    "path": "systems/dnd5e/icons/items/equipment/tunic.jpg"
+    "path": "icons/equipment/chest/shirt-collared-brown.webp"
   },
   {
     "name": "Calligrapher's Supplies",
@@ -1629,7 +1629,7 @@
   },
   {
     "name": "Caltrops (bag of 20)",
-    "path": "systems/dnd5e/icons/items/inventory/caltrop.jpg"
+    "path": "icons/weapons/thrown/bomb-spiked-purple.webp"
   },
   {
     "name": "Camel",
@@ -1637,19 +1637,19 @@
   },
   {
     "name": "Canaith Mandolin",
-    "path": "systems/dnd5e/icons/items/inventory/lute.jpg"
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
   },
   {
     "name": "Candle",
-    "path": "systems/dnd5e/icons/items/inventory/candle.jpg"
+    "path": "icons/sundries/lights/candle-unlit-white.webp"
   },
   {
     "name": "Candle of Invocation",
-    "path": "systems/dnd5e/icons/items/inventory/candle-stub.jpg"
+    "path": "icons/sundries/lights/candle-unlit-grey.webp"
   },
   {
     "name": "Candle of the Deep",
-    "path": "systems/dnd5e/icons/items/inventory/candle-stub.jpg"
+    "path": "icons/sundries/lights/candle-unlit-grey.webp"
   },
   {
     "name": "Canoe",
@@ -1673,7 +1673,7 @@
   },
   {
     "name": "Carpet of Flying",
-    "path": "systems/dnd5e/icons/items/equipment/cloak-pink.jpg"
+    "path": "icons/equipment/back/cloak-hooded-pink.webp"
   },
   {
     "name": "Carpet of Flying (3 ft. x 5 ft.)",
@@ -1785,11 +1785,11 @@
   },
   {
     "name": "Censer of Controlling Air Elementals",
-    "path": "systems/dnd5e/icons/items/inventory/element-air.jpg"
+    "path": "icons/commodities/gems/pearl-storm.webp"
   },
   {
     "name": "Chain (10 feet)",
-    "path": "systems/dnd5e/icons/items/inventory/chain.jpg"
+    "path": "icons/tools/fasteners/chain-steel-grey.webp"
   },
   {
     "name": "Chain Mail",
@@ -1837,7 +1837,7 @@
   },
   {
     "name": "Charlatan's Die",
-    "path": "systems/dnd5e/icons/items/inventory/dice.jpg"
+    "path": "icons/sundries/gaming/dice-runed-brown.webp"
   },
   {
     "name": "Charm of Plant Command",
@@ -1845,7 +1845,7 @@
   },
   {
     "name": "Chest",
-    "path": "systems/dnd5e/icons/items/inventory/chest-light.jpg"
+    "path": "icons/containers/chest/chest-elm-steel-brown.webp"
   },
   {
     "name": "Chest of Preserving",
@@ -1853,7 +1853,7 @@
   },
   {
     "name": "Chime of Opening",
-    "path": "systems/dnd5e/icons/skills/weapon_35.jpg"
+    "path": "icons/weapons/guns/gun-worn-steel.webp"
   },
   {
     "name": "Chronolometer",
@@ -1869,7 +1869,7 @@
   },
   {
     "name": "Circlet of Blasting",
-    "path": "systems/dnd5e/icons/items/jewelry/ring-gold.jpg"
+    "path": "icons/equipment/finger/ring-cabochon-notched-gold-green.webp"
   },
   {
     "name": "Circlet of Human Perfection",
@@ -1905,7 +1905,7 @@
   },
   {
     "name": "Cloak of Arachnida",
-    "path": "systems/dnd5e/icons/items/equipment/cloak-fur.jpg"
+    "path": "icons/equipment/back/cloak-heavy-fur-blue.webp"
   },
   {
     "name": "Cloak of Billowing",
@@ -1957,7 +1957,7 @@
   },
   {
     "name": "Clothes, Common",
-    "path": "systems/dnd5e/icons/items/equipment/pants.jpg"
+    "path": "icons/equipment/leg/pants-brown-leather-pants.webp"
   },
   {
     "name": "Clothes, Costume",
@@ -2017,11 +2017,11 @@
   },
   {
     "name": "Concertina",
-    "path": "systems/dnd5e/icons/spells/fog-sky-1.jpg"
+    "path": "icons/magic/air/fog-gas-smoke-blue-gray.webp"
   },
   {
     "name": "Conch of Teleportation",
-    "path": "systems/dnd5e/icons/items/inventory/shell.jpg"
+    "path": "icons/commodities/biological/shell-ribbed-grey.webp"
   },
   {
     "name": "Concluder",
@@ -2033,7 +2033,7 @@
   },
   {
     "name": "Coral",
-    "path": "systems/dnd5e/icons/items/inventory/coral-white.jpg"
+    "path": "icons/commodities/stone/rock-chunk-pumice-white.webp"
   },
   {
     "name": "Corpse Slayer",
@@ -2133,7 +2133,7 @@
   },
   {
     "name": "Corpse Slayer, Morningstar",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Corpse Slayer, Net",
@@ -2149,7 +2149,7 @@
   },
   {
     "name": "Corpse Slayer, Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Corpse Slayer, Scimitar",
@@ -2169,7 +2169,7 @@
   },
   {
     "name": "Corpse Slayer, Sling",
-    "path": "systems/dnd5e/icons/items/weapons/sling.jpg"
+    "path": "icons/weapons/slings/slingshot-wood.webp"
   },
   {
     "name": "Corpse Slayer, Spear",
@@ -2217,19 +2217,19 @@
   },
   {
     "name": "Crossbow Bolts, +1",
-    "path": "systems/dnd5e/icons/skills/arrow_05.jpg"
+    "path": "icons/skills/ranged/arrows-flying-salvo-blue.webp"
   },
   {
     "name": "Crossbow Bolts, +2",
-    "path": "systems/dnd5e/icons/skills/arrow_05.jpg"
+    "path": "icons/skills/ranged/arrows-flying-salvo-blue.webp"
   },
   {
     "name": "Crossbow Bolts, +3",
-    "path": "systems/dnd5e/icons/skills/arrow_05.jpg"
+    "path": "icons/skills/ranged/arrows-flying-salvo-blue.webp"
   },
   {
     "name": "Crossbow Bolts, Walloping",
-    "path": "systems/dnd5e/icons/skills/red_11.jpg"
+    "path": "icons/magic/lightning/strike-arrow-spear-red.webp"
   },
   {
     "name": "Crossbow, Hand",
@@ -2253,7 +2253,7 @@
   },
   {
     "name": "Crossbow, Heavy",
-    "path": "systems/dnd5e/icons/items/weapons/crossbow-heavy.jpg"
+    "path": "icons/weapons/crossbows/crossbow-blue.webp"
   },
   {
     "name": "Crossbow, Heavy of Warning",
@@ -2273,7 +2273,7 @@
   },
   {
     "name": "Crossbow, Light",
-    "path": "systems/dnd5e/icons/items/weapons/crossbow-light.jpg"
+    "path": "icons/weapons/crossbows/crossbow-simple-brown.webp"
   },
   {
     "name": "Crossbow, Light of Warning",
@@ -2301,35 +2301,35 @@
   },
   {
     "name": "Crystal",
-    "path": "systems/dnd5e/icons/items/inventory/crystal-purple.jpg"
+    "path": "icons/commodities/gems/gem-rough-cushion-purple-pink.webp"
   },
   {
     "name": "Crystal Ball",
-    "path": "systems/dnd5e/icons/items/inventory/pearl.jpg"
+    "path": "icons/commodities/gems/pearl-natural.webp"
   },
   {
     "name": "Crystal Ball of Mind Reading",
-    "path": "systems/dnd5e/icons/items/inventory/element-air.jpg"
+    "path": "icons/commodities/gems/pearl-storm.webp"
   },
   {
     "name": "Crystal Ball of Telepathy",
-    "path": "systems/dnd5e/icons/items/inventory/element-water.jpg"
+    "path": "icons/commodities/gems/pearl-swirl-blue.webp"
   },
   {
     "name": "Crystal Ball of True Seeing",
-    "path": "systems/dnd5e/icons/items/inventory/element-fire.jpg"
+    "path": "icons/commodities/gems/pearl-fire.webp"
   },
   {
     "name": "Crystalline Chronicle",
-    "path": "systems/dnd5e/icons/items/inventory/element-fire.jpg"
+    "path": "icons/commodities/gems/pearl-fire.webp"
   },
   {
     "name": "Cube of Force",
-    "path": "systems/dnd5e/icons/items/inventory/dice.jpg"
+    "path": "icons/sundries/gaming/dice-runed-brown.webp"
   },
   {
     "name": "Cubic Gate",
-    "path": "systems/dnd5e/icons/items/inventory/runestone-dwarven.jpg"
+    "path": "icons/commodities/treasure/token-engraved-blue.webp"
   },
   {
     "name": "Cursed Luckstone",
@@ -2349,11 +2349,11 @@
   },
   {
     "name": "Dagger of Venom",
-    "path": "systems/dnd5e/icons/skills/weapon_43.jpg"
+    "path": "icons/skills/melee/strike-dagger-poison-dripping-green.webp"
   },
   {
     "name": "Dagger of Warning",
-    "path": "systems/dnd5e/icons/items/weapons/dagger.jpg"
+    "path": "icons/weapons/daggers/dagger-jeweled-purple.webp"
   },
   {
     "name": "Dagger, +1",
@@ -2365,7 +2365,7 @@
   },
   {
     "name": "Dagger, +3",
-    "path": "systems/dnd5e/icons/items/weapons/dagger-leaf.jpg"
+    "path": "icons/weapons/swords/shortsword-broad-engraved.webp"
   },
   {
     "name": "Dancing Greatsword",
@@ -2373,11 +2373,11 @@
   },
   {
     "name": "Dancing Longsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-ice.jpg"
+    "path": "icons/weapons/swords/greatsword-flamberge.webp"
   },
   {
     "name": "Dancing Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Dancing Scimitar",
@@ -2441,15 +2441,15 @@
   },
   {
     "name": "Decanter of Endless Water",
-    "path": "systems/dnd5e/icons/items/potions/magic-blue.jpg"
+    "path": "icons/consumables/potions/potion-flask-corked-blue.webp"
   },
   {
     "name": "Deck of Illusions",
-    "path": "systems/dnd5e/icons/items/inventory/bills.jpg"
+    "path": "icons/sundries/misc/admission-ticket-grey.webp"
   },
   {
     "name": "Deck of Many Things",
-    "path": "systems/dnd5e/icons/items/inventory/bills.jpg"
+    "path": "icons/sundries/misc/admission-ticket-grey.webp"
   },
   {
     "name": "Deck of Several Things",
@@ -2457,7 +2457,7 @@
   },
   {
     "name": "Defender",
-    "path": "systems/dnd5e/icons/skills/violet_04.jpg"
+    "path": "icons/weapons/swords/sword-runed-glowing.webp"
   },
   {
     "name": "Defender Greatsword",
@@ -2465,11 +2465,11 @@
   },
   {
     "name": "Defender Longsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-bastard.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-embossed-gold.webp"
   },
   {
     "name": "Defender Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Defender Scimitar",
@@ -2509,11 +2509,11 @@
   },
   {
     "name": "Dice Set",
-    "path": "systems/dnd5e/icons/items/inventory/dice.jpg"
+    "path": "icons/sundries/gaming/dice-runed-brown.webp"
   },
   {
     "name": "Dimensional Loop",
-    "path": "systems/dnd5e/icons/items/inventory/trinket-loop.jpg"
+    "path": "icons/commodities/treasure/broach-jewel-gold-blue.webp"
   },
   {
     "name": "Dimensional Shackles",
@@ -2525,7 +2525,7 @@
   },
   {
     "name": "Dimir Keyrune",
-    "path": "systems/dnd5e/icons/items/inventory/runestone-blue.jpg"
+    "path": "icons/commodities/treasure/token-runed-circles-blue.webp"
   },
   {
     "name": "Diplomacy",
@@ -2549,7 +2549,7 @@
   },
   {
     "name": "Documancy Satchel",
-    "path": "systems/dnd5e/icons/items/inventory/satchel-leather.jpg"
+    "path": "icons/containers/bags/pack-simple-leather-tan.webp"
   },
   {
     "name": "Dodecahedron of Doom",
@@ -2625,7 +2625,7 @@
   },
   {
     "name": "Dragon Slayer",
-    "path": "systems/dnd5e/icons/items/weapons/sword-bastard.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-embossed-gold.webp"
   },
   {
     "name": "Dragon Slayer Greatsword",
@@ -2633,11 +2633,11 @@
   },
   {
     "name": "Dragon Slayer Longsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-bastard.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-embossed-gold.webp"
   },
   {
     "name": "Dragon Slayer Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Dragon Slayer Scimitar",
@@ -2681,7 +2681,7 @@
   },
   {
     "name": "Dragon's Blood",
-    "path": "systems/dnd5e/icons/items/potions/grand-red.jpg"
+    "path": "icons/consumables/potions/bottle-round-corked-red.webp"
   },
   {
     "name": "Dragon's Wrath Weapon",
@@ -2693,7 +2693,7 @@
   },
   {
     "name": "Dragonguard",
-    "path": "systems/dnd5e/icons/items/armor/plate.png"
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
   {
     "name": "Dragonhide Belt",
@@ -2725,7 +2725,7 @@
   },
   {
     "name": "Drow Poison (Injury)",
-    "path": "systems/dnd5e/icons/items/potions/minor-green.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-bubbling-green.webp"
   },
   {
     "name": "Drown",
@@ -2737,11 +2737,11 @@
   },
   {
     "name": "Drum",
-    "path": "systems/dnd5e/icons/items/inventory/drum.jpg"
+    "path": "icons/tools/instruments/drum-brown-red.webp"
   },
   {
     "name": "Dulcimer",
-    "path": "systems/dnd5e/icons/items/inventory/lute.jpg"
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
   },
   {
     "name": "Dungeoneer's Pack",
@@ -2749,7 +2749,7 @@
   },
   {
     "name": "Duplicitous Manuscript",
-    "path": "systems/dnd5e/icons/items/inventory/book-orange.jpg"
+    "path": "icons/sundries/books/book-plain-orange.webp"
   },
   {
     "name": "Duskcrusher",
@@ -2765,15 +2765,15 @@
   },
   {
     "name": "Dust of Disappearance",
-    "path": "systems/dnd5e/icons/skills/water_01.jpg"
+    "path": "icons/magic/water/bubbles-air-water-light.webp"
   },
   {
     "name": "Dust of Dryness",
-    "path": "systems/dnd5e/icons/skills/yellow_28.jpg"
+    "path": "icons/magic/air/air-wave-gust-smoke-yellow.webp"
   },
   {
     "name": "Dust of Sneezing and Choking",
-    "path": "systems/dnd5e/icons/skills/water_01.jpg"
+    "path": "icons/magic/water/bubbles-air-water-light.webp"
   },
   {
     "name": "Dust of the Mummy (Inhaled)",
@@ -2797,11 +2797,11 @@
   },
   {
     "name": "Eagle Whistle",
-    "path": "systems/dnd5e/icons/items/inventory/flute.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Ear Horn of Hearing",
-    "path": "systems/dnd5e/icons/items/inventory/horn-drinking.jpg"
+    "path": "icons/commodities/bones/horn-carved-cornucopia-tan.webp"
   },
   {
     "name": "Earworm",
@@ -2813,7 +2813,7 @@
   },
   {
     "name": "Efficient Quiver",
-    "path": "systems/dnd5e/icons/items/weapons/arrows.jpg"
+    "path": "icons/containers/ammunition/arrows-quiver-black.webp"
   },
   {
     "name": "Efreeti Bottle",
@@ -2825,7 +2825,7 @@
   },
   {
     "name": "Elder Cartographer's Glossography",
-    "path": "systems/dnd5e/icons/items/inventory/book.jpg"
+    "path": "icons/sundries/books/book-worn-red.webp"
   },
   {
     "name": "Eldritch Claw Tattoo",
@@ -2837,19 +2837,19 @@
   },
   {
     "name": "Elemental Essence Shard",
-    "path": "systems/dnd5e/icons/items/inventory/element-air.jpg"
+    "path": "icons/commodities/gems/pearl-storm.webp"
   },
   {
     "name": "Elemental Essence Shard, Air",
-    "path": "systems/dnd5e/icons/items/inventory/element-air.jpg"
+    "path": "icons/commodities/gems/pearl-storm.webp"
   },
   {
     "name": "Elemental Essence Shard, Earth",
-    "path": "systems/dnd5e/icons/items/inventory/element-earth.jpg"
+    "path": "icons/commodities/gems/pearl-rock.webp"
   },
   {
     "name": "Elemental Essence Shard, Fire",
-    "path": "systems/dnd5e/icons/items/inventory/element-fire.jpg"
+    "path": "icons/commodities/gems/pearl-fire.webp"
   },
   {
     "name": "Elemental Essence Shard, Water",
@@ -2881,7 +2881,7 @@
   },
   {
     "name": "Elixir of Health",
-    "path": "systems/dnd5e/icons/items/potions/magic-red.jpg"
+    "path": "icons/consumables/potions/potion-flask-stopped-red.webp"
   },
   {
     "name": "Elven Chain",
@@ -2913,7 +2913,7 @@
   },
   {
     "name": "Ephixis, Bow of Nylea",
-    "path": "systems/dnd5e/icons/items/weapons/bow-composite.jpg"
+    "path": "icons/weapons/bows/longbow-gold-pink.webp"
   },
   {
     "name": "Ersatz Eye",
@@ -2929,7 +2929,7 @@
   },
   {
     "name": "Eversmoking Bottle",
-    "path": "systems/dnd5e/icons/skills/violet_25.jpg"
+    "path": "icons/commodities/tech/smoke-bomb-purple.webp"
   },
   {
     "name": "Explorer's Pack",
@@ -2937,7 +2937,7 @@
   },
   {
     "name": "Explosive Seed",
-    "path": "systems/dnd5e/icons/items/inventory/seeds.jpg"
+    "path": "icons/consumables/food/berries-ration-round-red.webp"
   },
   {
     "name": "Eye agate",
@@ -2953,15 +2953,15 @@
   },
   {
     "name": "Eyes of Charming",
-    "path": "systems/dnd5e/icons/skills/light_02.jpg"
+    "path": "icons/creatures/eyes/human-single-blue.webp"
   },
   {
     "name": "Eyes of Minute Seeing",
-    "path": "systems/dnd5e/icons/skills/shadow_12.jpg"
+    "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
   },
   {
     "name": "Eyes of the Eagle",
-    "path": "systems/dnd5e/icons/skills/shadow_11.jpg"
+    "path": "icons/magic/perception/hand-eye-pink.webp"
   },
   {
     "name": "Faerie Orb",
@@ -2985,7 +2985,7 @@
   },
   {
     "name": "Feather of Diatryma Summoning",
-    "path": "systems/dnd5e/icons/items/inventory/feather-purple-stripe.jpg"
+    "path": "icons/commodities/materials/feather-colored-blue.webp"
   },
   {
     "name": "Feather Token",
@@ -3029,7 +3029,7 @@
   },
   {
     "name": "Feywild Shard",
-    "path": "systems/dnd5e/icons/items/inventory/crystal-purple.jpg"
+    "path": "icons/commodities/gems/gem-rough-cushion-purple-pink.webp"
   },
   {
     "name": "Figurine of Wondrous Power",
@@ -3069,7 +3069,7 @@
   },
   {
     "name": "Figurine of Wondrous Power (Silver Raven)",
-    "path": "systems/dnd5e/icons/items/inventory/skull-bird.jpg"
+    "path": "icons/commodities/bones/skull-bird-tan.webp"
   },
   {
     "name": "Finder's Goggles",
@@ -3105,19 +3105,19 @@
   },
   {
     "name": "Flame Tongue",
-    "path": "systems/dnd5e/icons/items/weapons/sword-fire.jpg"
+    "path": "icons/weapons/swords/sword-guard-red.webp"
   },
   {
     "name": "Flame Tongue Greatsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-fire.jpg"
+    "path": "icons/weapons/swords/sword-guard-red.webp"
   },
   {
     "name": "Flame Tongue Longsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-fire.jpg"
+    "path": "icons/weapons/swords/sword-guard-red.webp"
   },
   {
     "name": "Flame Tongue Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Flame Tongue Scimitar",
@@ -3129,11 +3129,11 @@
   },
   {
     "name": "Flask or Tankard",
-    "path": "systems/dnd5e/icons/items/inventory/tankard-empty.jpg"
+    "path": "icons/containers/kitchenware/mug-steel-wood-brown.webp"
   },
   {
     "name": "Flute",
-    "path": "systems/dnd5e/icons/items/inventory/flute.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Flying Chariot",
@@ -3141,11 +3141,11 @@
   },
   {
     "name": "Fochlucan Bandore",
-    "path": "systems/dnd5e/icons/items/inventory/lute.jpg"
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
   },
   {
     "name": "Folding Boat",
-    "path": "systems/dnd5e/icons/items/inventory/cage.jpg"
+    "path": "icons/environment/traps/cage-simple-wood.webp"
   },
   {
     "name": "Foot of the Crow",
@@ -3173,11 +3173,11 @@
   },
   {
     "name": "Frost Brand Longsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-ice.jpg"
+    "path": "icons/weapons/swords/greatsword-flamberge.webp"
   },
   {
     "name": "Frost Brand Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Frost Brand Scimitar",
@@ -3200,6 +3200,10 @@
     "path": "icons/environment/settlement/ship.webp"
   },
   {
+    "name": "Gambler's Blade",
+    "path": "icons/weapons/swords/sword-guard-embossed-green.webp"
+  },
+  {
     "name": "Gambler's Blade, Greatsword",
     "path": "icons/weapons/swords/greatsword-guard-jewel-green.webp"
   },
@@ -3209,7 +3213,7 @@
   },
   {
     "name": "Gambler's Blade, Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Gambler's Blade, Scimitar",
@@ -3218,10 +3222,6 @@
   {
     "name": "Gambler's Blade, Shortsword",
     "path": "icons/weapons/swords/shortsword-broad-engraved.webp"
-  },
-  {
-    "name": "Gambler's Blade",
-    "path": "icons/weapons/swords/sword-guard-embossed-green.webp"
   },
   {
     "name": "Garnet",
@@ -3237,7 +3237,7 @@
   },
   {
     "name": "Gauntlets of Ogre Power",
-    "path": "systems/dnd5e/icons/skills/violet_28.jpg"
+    "path": "icons/magic/unholy/strike-hand-glow-pink.webp"
   },
   {
     "name": "Gavel of the Venn Rune",
@@ -3245,11 +3245,11 @@
   },
   {
     "name": "Gem of Brightness",
-    "path": "systems/dnd5e/icons/items/inventory/gem-yellow.jpg"
+    "path": "icons/commodities/gems/gem-faceted-octagon-yellow.webp"
   },
   {
     "name": "Gem of Seeing",
-    "path": "systems/dnd5e/icons/items/inventory/gem-blue.jpg"
+    "path": "icons/commodities/gems/gem-rough-rose-teal.webp"
   },
   {
     "name": "Ghost Lantern",
@@ -3257,7 +3257,7 @@
   },
   {
     "name": "Ghost Step Tattoo",
-    "path": "systems/dnd5e/icons/skills/shadow_09.jpg"
+    "path": "icons/equipment/shield/heater-steel-segmented-purple.webp"
   },
   {
     "name": "Giant Slayer",
@@ -3285,7 +3285,7 @@
   },
   {
     "name": "Giant Slayer Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Giant Slayer Scimitar",
@@ -3333,7 +3333,7 @@
   },
   {
     "name": "Gloves of Missile Snaring",
-    "path": "systems/dnd5e/icons/skills/violet_14.jpg"
+    "path": "icons/creatures/webs/web-spider-glowing-purple.webp"
   },
   {
     "name": "Gloves of Soul Catching",
@@ -3381,7 +3381,7 @@
   },
   {
     "name": "Greataxe",
-    "path": "systems/dnd5e/icons/items/weapons/greataxe.jpg"
+    "path": "icons/weapons/axes/axe-double.webp"
   },
   {
     "name": "Greataxe of Warning",
@@ -3521,7 +3521,7 @@
   },
   {
     "name": "Guild Keyrune",
-    "path": "systems/dnd5e/icons/items/inventory/runestone-pocked.jpg"
+    "path": "icons/commodities/treasure/token-runed-spiral-grey.webp"
   },
   {
     "name": "Guild Signet",
@@ -3581,7 +3581,7 @@
   },
   {
     "name": "Hammer",
-    "path": "systems/dnd5e/icons/items/inventory/hammer.jpg"
+    "path": "icons/tools/smithing/hammer-sledge-steel-grey.webp"
   },
   {
     "name": "Hammer of Thunderbolts",
@@ -3613,7 +3613,7 @@
   },
   {
     "name": "Handaxe",
-    "path": "systems/dnd5e/icons/items/weapons/handaxe.jpg"
+    "path": "icons/weapons/axes/axe-broad-black.webp"
   },
   {
     "name": "Handaxe of Warning",
@@ -3633,7 +3633,7 @@
   },
   {
     "name": "Handy Haversack",
-    "path": "systems/dnd5e/icons/items/inventory/backpack.jpg"
+    "path": "icons/containers/bags/pack-simple-leather.webp"
   },
   {
     "name": "Harkon's Bite",
@@ -3641,7 +3641,7 @@
   },
   {
     "name": "Hat of Disguise",
-    "path": "systems/dnd5e/icons/skills/blue_35.jpg"
+    "path": "icons/magic/control/silhouette-hold-change-blue.webp"
   },
   {
     "name": "Hat of Holding",
@@ -3661,7 +3661,7 @@
   },
   {
     "name": "Headband of Intellect",
-    "path": "systems/dnd5e/icons/items/jewelry/ring-silver.jpg"
+    "path": "icons/equipment/finger/ring-cabochon-silver-gold-red.webp"
   },
   {
     "name": "Healer's Kit",
@@ -3709,7 +3709,7 @@
   },
   {
     "name": "Hellfire Dagger",
-    "path": "systems/dnd5e/icons/items/weapons/dagger-fire.jpg"
+    "path": "icons/weapons/daggers/dagger-notched-blackened.webp"
   },
   {
     "name": "Hellfire Dart",
@@ -3757,11 +3757,11 @@
   },
   {
     "name": "Hellfire Laser Pistol",
-    "path": "systems/dnd5e/icons/skills/weapon_37.jpg"
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
   },
   {
     "name": "Hellfire Laser Rifle",
-    "path": "systems/dnd5e/icons/skills/weapon_37.jpg"
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
   },
   {
     "name": "Hellfire Light Hammer",
@@ -3781,11 +3781,11 @@
   },
   {
     "name": "Hellfire Maul",
-    "path": "systems/dnd5e/icons/items/weapons/hammer-maul.jpg"
+    "path": "icons/weapons/hammers/hammer-double-engraved-gold.webp"
   },
   {
     "name": "Hellfire Morningstar",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Hellfire Musket",
@@ -3809,11 +3809,11 @@
   },
   {
     "name": "Hellfire Quarterstaff",
-    "path": "systems/dnd5e/icons/items/weapons/staff.png"
+    "path": "icons/weapons/staves/staff-simple-brown.webp"
   },
   {
     "name": "Hellfire Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Hellfire Revolver",
@@ -3849,11 +3849,11 @@
   },
   {
     "name": "Hellfire Sling",
-    "path": "systems/dnd5e/icons/items/weapons/sling.jpg"
+    "path": "icons/weapons/slings/slingshot-wood.webp"
   },
   {
     "name": "Hellfire Spear",
-    "path": "systems/dnd5e/icons/items/weapons/spear.jpg"
+    "path": "icons/weapons/polearms/spear-flared-worn-grey.webp"
   },
   {
     "name": "Hellfire Trident",
@@ -3881,15 +3881,15 @@
   },
   {
     "name": "Helm",
-    "path": "systems/dnd5e/icons/items/equipment/helmet-steel.jpg"
+    "path": "icons/equipment/head/greathelm-shemagh.webp"
   },
   {
     "name": "Helm of Brilliance",
-    "path": "systems/dnd5e/icons/skills/yellow_07.jpg"
+    "path": "icons/magic/lightning/bolt-strike-smoke-yellow.webp"
   },
   {
     "name": "Helm of Comprehending Languages",
-    "path": "systems/dnd5e/icons/skills/violet_03.jpg"
+    "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
   },
   {
     "name": "Helm of Devil Command",
@@ -3897,11 +3897,11 @@
   },
   {
     "name": "Helm of Telepathy",
-    "path": "systems/dnd5e/icons/skills/violet_15.jpg"
+    "path": "icons/magic/control/control-influence-rally-purple.webp"
   },
   {
     "name": "Helm of Teleportation",
-    "path": "systems/dnd5e/icons/skills/violet_13.jpg"
+    "path": "icons/equipment/head/helm-barbute-horned-copper.webp"
   },
   {
     "name": "Helm of the Gods",
@@ -3921,11 +3921,11 @@
   },
   {
     "name": "Herbalism Kit",
-    "path": "systems/dnd5e/icons/items/inventory/herbalism-kit.jpg"
+    "path": "icons/containers/bags/pouch-leather-green.webp"
   },
   {
     "name": "Hew",
-    "path": "systems/dnd5e/icons/items/weapons/axe-wood.jpg"
+    "path": "icons/weapons/axes/axe-double-chopping-black.webp"
   },
   {
     "name": "Heward's Handy Haversack",
@@ -3985,7 +3985,7 @@
   },
   {
     "name": "Holy Avenger Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Holy Avenger Scimitar",
@@ -4005,7 +4005,7 @@
   },
   {
     "name": "Holy Water (flask)",
-    "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
   },
   {
     "name": "Hook of Fisher's Delight",
@@ -4013,11 +4013,11 @@
   },
   {
     "name": "Horn",
-    "path": "systems/dnd5e/icons/items/inventory/horn.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Horn of Blasting",
-    "path": "systems/dnd5e/icons/items/inventory/horn.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Horn of Silent Alarm",
@@ -4057,7 +4057,7 @@
   },
   {
     "name": "Horseshoes of Speed",
-    "path": "systems/dnd5e/icons/items/inventory/horseshoe.jpg"
+    "path": "icons/tools/smithing/horseshoe-steel-blue.webp"
   },
   {
     "name": "Hourglass",
@@ -4077,7 +4077,7 @@
   },
   {
     "name": "Illuminator's Tattoo",
-    "path": "systems/dnd5e/icons/skills/red_03.jpg"
+    "path": "icons/magic/light/beam-red-orange.webp"
   },
   {
     "name": "Illusionist's Bracers",
@@ -4121,7 +4121,7 @@
   },
   {
     "name": "Ink (1 ounce bottle)",
-    "path": "systems/dnd5e/icons/items/inventory/bottle-empty.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
   },
   {
     "name": "Ink Pen",
@@ -4145,11 +4145,11 @@
   },
   {
     "name": "Instant Fortress",
-    "path": "systems/dnd5e/icons/skills/yellow_31.jpg"
+    "path": "icons/environment/settlement/watchtower-silhouette-yellow.webp"
   },
   {
     "name": "Instrument of Illusions",
-    "path": "systems/dnd5e/icons/skills/blue_35.jpg"
+    "path": "icons/magic/control/silhouette-hold-change-blue.webp"
   },
   {
     "name": "Instrument of Scribing",
@@ -4157,7 +4157,7 @@
   },
   {
     "name": "Instrument of the Bards",
-    "path": "systems/dnd5e/icons/skills/yellow_35.jpg"
+    "path": "icons/skills/targeting/target-glowing-yellow.webp"
   },
   {
     "name": "Invisible Wand",
@@ -4165,27 +4165,27 @@
   },
   {
     "name": "Ioun Stone",
-    "path": "systems/dnd5e/icons/items/inventory/coral-white.jpg"
+    "path": "icons/commodities/stone/rock-chunk-pumice-white.webp"
   },
   {
     "name": "Ioun Stone of Absorption",
-    "path": "systems/dnd5e/icons/items/inventory/gem-purple.jpg"
+    "path": "icons/commodities/gems/gem-rough-ball-purple.webp"
   },
   {
     "name": "Ioun Stone of Agility",
-    "path": "systems/dnd5e/icons/items/inventory/gem-red.jpg"
+    "path": "icons/commodities/gems/gem-rough-cushion-red.webp"
   },
   {
     "name": "Ioun Stone of Awareness",
-    "path": "systems/dnd5e/icons/items/inventory/gemstone-blue.jpg"
+    "path": "icons/commodities/gems/gem-rough-cushion-blue.webp"
   },
   {
     "name": "Ioun Stone of Fortitude",
-    "path": "systems/dnd5e/icons/items/inventory/crystal-purple.jpg"
+    "path": "icons/commodities/gems/gem-rough-cushion-purple-pink.webp"
   },
   {
     "name": "Ioun Stone of Greater Absorption",
-    "path": "systems/dnd5e/icons/items/inventory/ore-green.jpg"
+    "path": "icons/commodities/stone/ore-pile-green.webp"
   },
   {
     "name": "Ioun Stone of Historical Knowledge",
@@ -4193,11 +4193,11 @@
   },
   {
     "name": "Ioun Stone of Insight",
-    "path": "systems/dnd5e/icons/items/inventory/ore-blue.jpg"
+    "path": "icons/commodities/stone/ore-pile-teal.webp"
   },
   {
     "name": "Ioun Stone of Intellect",
-    "path": "systems/dnd5e/icons/items/inventory/ore-red.jpg"
+    "path": "icons/commodities/stone/ore-pile-red.webp"
   },
   {
     "name": "Ioun Stone of Language Knowledge",
@@ -4205,11 +4205,11 @@
   },
   {
     "name": "Ioun Stone of Leadership",
-    "path": "systems/dnd5e/icons/items/inventory/ore-purple.jpg"
+    "path": "icons/commodities/stone/ore-pile-purple.webp"
   },
   {
     "name": "Ioun Stone of Mastery",
-    "path": "systems/dnd5e/icons/items/inventory/gem-green.jpg"
+    "path": "icons/commodities/gems/gem-rough-cushion-green.webp"
   },
   {
     "name": "Ioun Stone of Natural Knowledge",
@@ -4217,11 +4217,11 @@
   },
   {
     "name": "Ioun Stone of Protection",
-    "path": "systems/dnd5e/icons/items/inventory/gem-purple.jpg"
+    "path": "icons/commodities/gems/gem-rough-ball-purple.webp"
   },
   {
     "name": "Ioun Stone of Regeneration",
-    "path": "systems/dnd5e/icons/items/inventory/coral-white.jpg"
+    "path": "icons/commodities/stone/rock-chunk-pumice-white.webp"
   },
   {
     "name": "Ioun Stone of Religious Knowledge",
@@ -4229,7 +4229,7 @@
   },
   {
     "name": "Ioun Stone of Reserve",
-    "path": "systems/dnd5e/icons/items/inventory/crystal-purple.jpg"
+    "path": "icons/commodities/gems/gem-rough-cushion-purple-pink.webp"
   },
   {
     "name": "Ioun Stone of Self-Preservation",
@@ -4237,7 +4237,7 @@
   },
   {
     "name": "Ioun Stone of Strength",
-    "path": "systems/dnd5e/icons/items/inventory/gemstone-blue.jpg"
+    "path": "icons/commodities/gems/gem-rough-cushion-blue.webp"
   },
   {
     "name": "Ioun Stone of Supreme Intellect",
@@ -4245,7 +4245,7 @@
   },
   {
     "name": "Ioun Stone of Sustenance",
-    "path": "systems/dnd5e/icons/items/inventory/coral-tan.jpg"
+    "path": "icons/commodities/stone/geode-raw-brown.webp"
   },
   {
     "name": "Ioun Stone of Vitality",
@@ -4257,19 +4257,19 @@
   },
   {
     "name": "Iron Bands of Bilarro",
-    "path": "systems/dnd5e/icons/items/inventory/carving-knot.jpg"
+    "path": "icons/commodities/metal/clasp-steel-braid.webp"
   },
   {
     "name": "Iron Bands of Binding",
-    "path": "systems/dnd5e/icons/items/inventory/carving-knot.jpg"
+    "path": "icons/commodities/metal/clasp-steel-braid.webp"
   },
   {
     "name": "Iron Flask",
-    "path": "systems/dnd5e/icons/items/potions/minor-empty.jpg"
+    "path": "icons/consumables/potions/bottle-round-empty-glass.webp"
   },
   {
     "name": "Iron Ring of Revelation",
-    "path": "systems/dnd5e/icons/items/jewelry/ring-iron.jpg"
+    "path": "icons/equipment/finger/ring-band-engraved-scrolls-silver.webp"
   },
   {
     "name": "Ironfang",
@@ -4277,7 +4277,7 @@
   },
   {
     "name": "Ironleaf Plate",
-    "path": "systems/dnd5e/icons/items/armor/leather-forest.jpg"
+    "path": "icons/equipment/back/mantle-collared-green.webp"
   },
   {
     "name": "Ivana's Whisper",
@@ -4341,7 +4341,7 @@
   },
   {
     "name": "Jug or Pitcher",
-    "path": "systems/dnd5e/icons/items/inventory/jug.jpg"
+    "path": "icons/containers/kitchenware/jug-terracotta-orange.webp"
   },
   {
     "name": "Keelboat",
@@ -4349,7 +4349,7 @@
   },
   {
     "name": "Keoghtom's Ointment",
-    "path": "systems/dnd5e/icons/items/potions/minor-blue.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-blue.webp"
   },
   {
     "name": "Keycharm",
@@ -4361,7 +4361,7 @@
   },
   {
     "name": "Khyber Dragonshard",
-    "path": "systems/dnd5e/icons/items/inventory/ore-purple.jpg"
+    "path": "icons/commodities/stone/ore-pile-purple.webp"
   },
   {
     "name": "Knave's Eye Patch",
@@ -4389,7 +4389,7 @@
   },
   {
     "name": "Lamp",
-    "path": "systems/dnd5e/icons/items/inventory/lamp.jpg"
+    "path": "icons/commodities/treasure/lantern-stone-grey.webp"
   },
   {
     "name": "Lance",
@@ -4413,7 +4413,7 @@
   },
   {
     "name": "Lantern of Revealing",
-    "path": "systems/dnd5e/icons/items/inventory/lantern.jpg"
+    "path": "icons/sundries/lights/lantern-iron-yellow.webp"
   },
   {
     "name": "Lantern of Tracking",
@@ -4473,11 +4473,11 @@
   },
   {
     "name": "Laser Pistol",
-    "path": "systems/dnd5e/icons/skills/weapon_37.jpg"
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
   },
   {
     "name": "Laser Rifle",
-    "path": "systems/dnd5e/icons/skills/weapon_37.jpg"
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
   },
   {
     "name": "Lash of Shadows",
@@ -4561,7 +4561,7 @@
   },
   {
     "name": "Leather Golem Armor",
-    "path": "systems/dnd5e/icons/items/inventory/monster-skin.jpg"
+    "path": "icons/commodities/biological/pustules-red.webp"
   },
   {
     "name": "Leather, +1",
@@ -4585,7 +4585,7 @@
   },
   {
     "name": "Lifewell Tattoo",
-    "path": "systems/dnd5e/icons/spells/air-burst-jade-2.jpg"
+    "path": "icons/magic/air/air-burst-spiral-teal-green.webp"
   },
   {
     "name": "Light Hammer",
@@ -4797,15 +4797,15 @@
   },
   {
     "name": "Lock",
-    "path": "systems/dnd5e/icons/items/inventory/lock.jpg"
+    "path": "icons/sundries/misc/lock-steel-blue.webp"
   },
   {
     "name": "Lock of Trickery",
-    "path": "systems/dnd5e/icons/items/inventory/lock.jpg"
+    "path": "icons/sundries/misc/lock-steel-blue.webp"
   },
   {
     "name": "Longbow",
-    "path": "systems/dnd5e/icons/items/weapons/bow-long.jpg"
+    "path": "icons/weapons/bows/longbow-leather-green.webp"
   },
   {
     "name": "Longbow of Warning",
@@ -4825,7 +4825,7 @@
   },
   {
     "name": "Longhorn",
-    "path": "systems/dnd5e/icons/items/inventory/horn.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Longship",
@@ -4833,11 +4833,11 @@
   },
   {
     "name": "Longsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Longsword of Life Stealing",
-    "path": "systems/dnd5e/icons/items/weapons/sword-ice.jpg"
+    "path": "icons/weapons/swords/greatsword-flamberge.webp"
   },
   {
     "name": "Longsword of Sharpness",
@@ -4845,7 +4845,7 @@
   },
   {
     "name": "Longsword of Vengeance",
-    "path": "systems/dnd5e/icons/items/weapons/sword-bastard.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-embossed-gold.webp"
   },
   {
     "name": "Longsword of Warning",
@@ -4853,7 +4853,7 @@
   },
   {
     "name": "Longsword of Wounding",
-    "path": "systems/dnd5e/icons/items/weapons/sword-fire.jpg"
+    "path": "icons/weapons/swords/sword-guard-red.webp"
   },
   {
     "name": "Longsword, +1",
@@ -4893,7 +4893,7 @@
   },
   {
     "name": "Luck Blade Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Luck Blade Scimitar",
@@ -4905,7 +4905,7 @@
   },
   {
     "name": "Lute",
-    "path": "systems/dnd5e/icons/items/inventory/lute.jpg"
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
   },
   {
     "name": "Luxon Beacon",
@@ -4925,7 +4925,7 @@
   },
   {
     "name": "Mac-Fuirmidh Cittern",
-    "path": "systems/dnd5e/icons/items/inventory/lute.jpg"
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
   },
   {
     "name": "Mace",
@@ -4993,11 +4993,11 @@
   },
   {
     "name": "Mantle of Spell Resistance",
-    "path": "systems/dnd5e/icons/skills/violet_07.jpg"
+    "path": "icons/magic/unholy/silhouette-robe-evil-power.webp"
   },
   {
     "name": "Manual of Bodily Health",
-    "path": "systems/dnd5e/icons/items/inventory/book-folder.jpg"
+    "path": "icons/sundries/books/book-embossed-clasp-gold-brown.webp"
   },
   {
     "name": "Manual of Clay Golems",
@@ -5009,7 +5009,7 @@
   },
   {
     "name": "Manual of Gainful Exercise",
-    "path": "systems/dnd5e/icons/items/inventory/book-orange.jpg"
+    "path": "icons/sundries/books/book-plain-orange.webp"
   },
   {
     "name": "Manual of Golems",
@@ -5052,6 +5052,10 @@
     "path": "icons/equipment/chest/breastplate-collared-leather-brown.webp"
   },
   {
+    "name": "Mariner's Leather",
+    "path": "icons/equipment/chest/breastplate-layered-leather-green.webp"
+  },
+  {
     "name": "Mariner's Padded",
     "path": "icons/equipment/chest/breastplate-quilted-brown.webp"
   },
@@ -5076,10 +5080,6 @@
     "path": "icons/equipment/chest/breastplate-layered-leather-studded-black.webp"
   },
   {
-    "name": "Mariner's Leather",
-    "path": "icons/equipment/chest/breastplate-layered-leather-green.webp"
-  },
-  {
     "name": "Marvelous Pigments",
     "path": "icons/tools/hand/brush-paint-pink.webp"
   },
@@ -5097,7 +5097,7 @@
   },
   {
     "name": "Masquerade Tattoo",
-    "path": "systems/dnd5e/icons/skills/shadow_05.jpg"
+    "path": "icons/magic/light/projectiles-pink-purple.webp"
   },
   {
     "name": "Master's Amulet",
@@ -5121,7 +5121,7 @@
   },
   {
     "name": "Maul of Warning",
-    "path": "systems/dnd5e/icons/items/weapons/hammer-maul.jpg"
+    "path": "icons/weapons/hammers/hammer-double-engraved-gold.webp"
   },
   {
     "name": "Maul, +1",
@@ -5137,7 +5137,7 @@
   },
   {
     "name": "Medallion of Thoughts",
-    "path": "systems/dnd5e/icons/items/jewelry/amulet-blue.jpg"
+    "path": "icons/equipment/neck/pendant-bronze-gem-blue.webp"
   },
   {
     "name": "Menacing Tiara",
@@ -5149,11 +5149,11 @@
   },
   {
     "name": "Midnight Tears (Ingested)",
-    "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
   },
   {
     "name": "Mighty Servant of Leuk-o",
-    "path": "systems/dnd5e/icons/skills/mech_5.jpg"
+    "path": "icons/magic/fire/flame-burning-chain.webp"
   },
   {
     "name": "Mind Blade",
@@ -5169,7 +5169,7 @@
   },
   {
     "name": "Mind Blade Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Mind Blade Scimitar",
@@ -5205,7 +5205,7 @@
   },
   {
     "name": "Mirror of Life Trapping",
-    "path": "systems/dnd5e/icons/skills/violet_17.jpg"
+    "path": "icons/magic/air/wind-vortex-swirl-purple.webp"
   },
   {
     "name": "Mirror of the Past",
@@ -5261,7 +5261,7 @@
   },
   {
     "name": "Mizzium Apparatus",
-    "path": "systems/dnd5e/icons/skills/blue_21.jpg"
+    "path": "icons/magic/lightning/bolt-strike-blue.webp"
   },
   {
     "name": "Mizzium Armor",
@@ -5305,7 +5305,7 @@
   },
   {
     "name": "Mizzium Mortar",
-    "path": "systems/dnd5e/icons/skills/fire_09.jpg"
+    "path": "icons/magic/earth/projectiles-fire-stone-salvo.webp"
   },
   {
     "name": "Molten Bronze Skin",
@@ -5333,19 +5333,19 @@
   },
   {
     "name": "Moon Sickle",
-    "path": "systems/dnd5e/icons/items/weapons/sickle.jpg"
+    "path": "icons/weapons/sickles/sickle-curved.webp"
   },
   {
     "name": "Moon Sickle, +1",
-    "path": "systems/dnd5e/icons/items/weapons/sickle.jpg"
+    "path": "icons/weapons/sickles/sickle-curved.webp"
   },
   {
     "name": "Moon Sickle, +2",
-    "path": "systems/dnd5e/icons/items/weapons/sickle.jpg"
+    "path": "icons/weapons/sickles/sickle-curved.webp"
   },
   {
     "name": "Moon Sickle, +3",
-    "path": "systems/dnd5e/icons/items/weapons/sickle.jpg"
+    "path": "icons/weapons/sickles/sickle-curved.webp"
   },
   {
     "name": "Moon-Touched Sword",
@@ -5369,7 +5369,7 @@
   },
   {
     "name": "Moon-Touched, Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Moonblade",
@@ -5381,27 +5381,27 @@
   },
   {
     "name": "Moorbounder",
-    "path": "systems/dnd5e/icons/skills/blue_26.jpg"
+    "path": "icons/creatures/magical/humanoid-giant-forest-blue.webp"
   },
   {
     "name": "Morningstar",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Morningstar of Warning",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Morningstar, +1",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Morningstar, +2",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Morningstar, +3",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Moss agate",
@@ -5409,7 +5409,7 @@
   },
   {
     "name": "Mummy Rot Antidote",
-    "path": "systems/dnd5e/icons/items/potions/unique-8.jpg"
+    "path": "icons/consumables/potions/potion-vial-corked-labeled-purple.webp"
   },
   {
     "name": "Muroosa Balm",
@@ -5425,7 +5425,7 @@
   },
   {
     "name": "Musket (Exandria) Bullets",
-    "path": "systems/dnd5e/icons/items/weapons/bullet.jpg"
+    "path": "icons/skills/ranged/bullets-triple-ball-yellow.webp"
   },
   {
     "name": "Mystery Key",
@@ -5449,11 +5449,11 @@
   },
   {
     "name": "Necklace of Fireballs",
-    "path": "systems/dnd5e/icons/items/jewelry/pendant-red.jpg"
+    "path": "icons/equipment/neck/pendant-faceted-red.webp"
   },
   {
     "name": "Necklace of Prayer Beads",
-    "path": "systems/dnd5e/icons/items/inventory/beads-rune.jpg"
+    "path": "icons/equipment/neck/necklace-runed-white-red.webp"
   },
   {
     "name": "Necromancer's Dagger",
@@ -5505,7 +5505,7 @@
   },
   {
     "name": "Nine Lives Stealer Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Nine Lives Stealer Scimitar",
@@ -5545,27 +5545,27 @@
   },
   {
     "name": "Oil (flask)",
-    "path": "systems/dnd5e/icons/items/inventory/flask.jpg"
+    "path": "icons/sundries/survival/waterskin-leather-brown.webp"
   },
   {
     "name": "Oil of Etherealness",
-    "path": "systems/dnd5e/icons/items/inventory/bottle-empty.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
   },
   {
     "name": "Oil of Sharpness",
-    "path": "systems/dnd5e/icons/items/potions/unique-6.jpg"
+    "path": "icons/consumables/potions/potion-bottle-corked-fancy-orange.webp"
   },
   {
     "name": "Oil of Slipperiness",
-    "path": "systems/dnd5e/icons/items/potions/grand-yellow.jpg"
+    "path": "icons/consumables/potions/bottle-round-corked-yellow.webp"
   },
   {
     "name": "Oil of Taggit (Contact)",
-    "path": "systems/dnd5e/icons/items/inventory/flask-dark.jpg"
+    "path": "icons/consumables/drinks/tea-jug-gourd-brown.webp"
   },
   {
     "name": "Olisuba Leaf",
-    "path": "systems/dnd5e/icons/spells/leaf-acid-2.jpg"
+    "path": "icons/magic/nature/leaf-glow-triple-green.webp"
   },
   {
     "name": "Ollamh Harp",
@@ -5593,7 +5593,7 @@
   },
   {
     "name": "Orb of Dragonkind",
-    "path": "systems/dnd5e/icons/items/inventory/element-air.jpg"
+    "path": "icons/commodities/gems/pearl-storm.webp"
   },
   {
     "name": "Orb of Gonging",
@@ -5673,19 +5673,19 @@
   },
   {
     "name": "Outer Essence Shard",
-    "path": "systems/dnd5e/icons/items/inventory/shard-green.jpg"
+    "path": "icons/commodities/gems/gem-fragments-green.webp"
   },
   {
     "name": "Outer Essence Shard, Chaotic",
-    "path": "systems/dnd5e/icons/items/inventory/shard-green.jpg"
+    "path": "icons/commodities/gems/gem-fragments-green.webp"
   },
   {
     "name": "Outer Essence Shard, Evil",
-    "path": "systems/dnd5e/icons/items/inventory/shard-red.jpg"
+    "path": "icons/commodities/gems/gem-fragmented-pink.webp"
   },
   {
     "name": "Outer Essence Shard, Good",
-    "path": "systems/dnd5e/icons/items/inventory/shard-blue.jpg"
+    "path": "icons/commodities/gems/gem-fragments-turquoise.webp"
   },
   {
     "name": "Outer Essence Shard, Lawful",
@@ -5713,7 +5713,7 @@
   },
   {
     "name": "Pale Tincture (Ingested)",
-    "path": "systems/dnd5e/icons/items/potions/major-empty.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
   },
   {
     "name": "Palm Pistol",
@@ -5721,15 +5721,15 @@
   },
   {
     "name": "Palm Pistol Bullets",
-    "path": "systems/dnd5e/icons/items/weapons/bullet.jpg"
+    "path": "icons/skills/ranged/bullets-triple-ball-yellow.webp"
   },
   {
     "name": "Pan Flute",
-    "path": "systems/dnd5e/icons/items/inventory/flute.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Paper (one sheet)",
-    "path": "systems/dnd5e/icons/items/inventory/paper.jpg"
+    "path": "icons/sundries/documents/document-bound-white.webp"
   },
   {
     "name": "Paper Bird",
@@ -5737,19 +5737,19 @@
   },
   {
     "name": "Parchment (one sheet)",
-    "path": "systems/dnd5e/icons/items/inventory/parchment.jpg"
+    "path": "icons/sundries/documents/document-symbol-circle-gold-red.webp"
   },
   {
     "name": "Pariah's Shield",
-    "path": "systems/dnd5e/icons/skills/weapon_44.jpg"
+    "path": "icons/skills/targeting/target-strike-gray.webp"
   },
   {
     "name": "Pearl",
-    "path": "systems/dnd5e/icons/items/inventory/pearl.jpg"
+    "path": "icons/commodities/gems/pearl-natural.webp"
   },
   {
     "name": "Pearl of Power",
-    "path": "systems/dnd5e/icons/items/inventory/pearl.jpg"
+    "path": "icons/commodities/gems/pearl-natural.webp"
   },
   {
     "name": "Pennant of the Vind Rune",
@@ -5761,7 +5761,7 @@
   },
   {
     "name": "Pepperbox Bullets",
-    "path": "systems/dnd5e/icons/items/weapons/bullet.jpg"
+    "path": "icons/skills/ranged/bullets-triple-ball-yellow.webp"
   },
   {
     "name": "Peregrine Mask",
@@ -5773,15 +5773,15 @@
   },
   {
     "name": "Perfume (vial)",
-    "path": "systems/dnd5e/icons/items/potions/unique-8.jpg"
+    "path": "icons/consumables/potions/potion-vial-corked-labeled-purple.webp"
   },
   {
     "name": "Perfume of Bewitching",
-    "path": "systems/dnd5e/icons/items/potions/unique-5.jpg"
+    "path": "icons/consumables/potions/potion-flask-corked-labeled-pink.webp"
   },
   {
     "name": "Periapt of Health",
-    "path": "systems/dnd5e/icons/items/jewelry/pendant-red.jpg"
+    "path": "icons/equipment/neck/pendant-faceted-red.webp"
   },
   {
     "name": "Periapt of Proof against Poison",
@@ -5789,7 +5789,7 @@
   },
   {
     "name": "Periapt of Wound Closure",
-    "path": "systems/dnd5e/icons/items/jewelry/pendant-blue.jpg"
+    "path": "icons/equipment/neck/pendant-faceted-blue.webp"
   },
   {
     "name": "Peridot",
@@ -5797,11 +5797,11 @@
   },
   {
     "name": "Philter of Love",
-    "path": "systems/dnd5e/icons/items/potions/unique-5.jpg"
+    "path": "icons/consumables/potions/potion-flask-corked-labeled-pink.webp"
   },
   {
     "name": "Pick, Miner's",
-    "path": "systems/dnd5e/icons/items/inventory/pickaxe.jpg"
+    "path": "icons/tools/hand/pickaxe-steel-white.webp"
   },
   {
     "name": "Piercer",
@@ -5833,11 +5833,11 @@
   },
   {
     "name": "Pipe of Smoke Monsters",
-    "path": "systems/dnd5e/icons/items/inventory/pipe.jpg"
+    "path": "icons/sundries/misc/pipe-elegant.webp"
   },
   {
     "name": "Pipes of Haunting",
-    "path": "systems/dnd5e/icons/items/inventory/flute.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Pipes of the Sewers",
@@ -5853,7 +5853,7 @@
   },
   {
     "name": "Pistol (Exandria) Bullets",
-    "path": "systems/dnd5e/icons/items/weapons/bullet.jpg"
+    "path": "icons/skills/ranged/bullets-triple-ball-yellow.webp"
   },
   {
     "name": "Pistol, Automatic",
@@ -5885,19 +5885,19 @@
   },
   {
     "name": "Plate Armor of Etherealness",
-    "path": "systems/dnd5e/icons/items/armor/plate.png"
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
   {
     "name": "Plate, +1",
-    "path": "systems/dnd5e/icons/items/armor/plate.png"
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
   {
     "name": "Plate, +2",
-    "path": "systems/dnd5e/icons/items/armor/plate.png"
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
   {
     "name": "Plate, +3",
-    "path": "systems/dnd5e/icons/items/armor/plate.png"
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
   {
     "name": "Platinum Scarf",
@@ -5909,7 +5909,7 @@
   },
   {
     "name": "Poison, Basic (vial)",
-    "path": "systems/dnd5e/icons/items/potions/minor-green.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-bubbling-green.webp"
   },
   {
     "name": "Poisoner's Kit",
@@ -5945,7 +5945,7 @@
   },
   {
     "name": "Polymorph Blade, Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Polymorph Blade, Scimitar",
@@ -5961,7 +5961,7 @@
   },
   {
     "name": "Portable Hole",
-    "path": "systems/dnd5e/icons/skills/violet_12.jpg"
+    "path": "icons/magic/unholy/barrier-shield-glowing-pink.webp"
   },
   {
     "name": "Portfolio Keeper",
@@ -5973,11 +5973,11 @@
   },
   {
     "name": "Pot, Iron",
-    "path": "systems/dnd5e/icons/items/inventory/pot.jpg"
+    "path": "icons/containers/kitchenware/vase-clay-etched-brown.webp"
   },
   {
     "name": "Potion of Acid Resistance",
-    "path": "systems/dnd5e/icons/items/potions/major-green.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-green.webp"
   },
   {
     "name": "Potion of Advantage",
@@ -5985,35 +5985,35 @@
   },
   {
     "name": "Potion of Animal Friendship",
-    "path": "systems/dnd5e/icons/items/potions/unique-4.jpg"
+    "path": "icons/consumables/potions/potion-bottle-corked-labeled-green.webp"
   },
   {
     "name": "Potion of Aqueous Form",
-    "path": "systems/dnd5e/icons/items/potions/major-blue.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-labeled-blue.webp"
   },
   {
     "name": "Potion of Clairvoyance",
-    "path": "systems/dnd5e/icons/items/potions/major-blue.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-labeled-blue.webp"
   },
   {
     "name": "Potion of Climbing",
-    "path": "systems/dnd5e/icons/items/potions/major-blue.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-labeled-blue.webp"
   },
   {
     "name": "Potion of Cloud Giant Strength",
-    "path": "systems/dnd5e/icons/items/potions/unique-3.jpg"
+    "path": "icons/consumables/potions/bottle-circular-corked-labeled-green.webp"
   },
   {
     "name": "Potion of Cold Resistance",
-    "path": "systems/dnd5e/icons/items/potions/grand-yellow.jpg"
+    "path": "icons/consumables/potions/bottle-round-corked-yellow.webp"
   },
   {
     "name": "Potion of Comprehension",
-    "path": "systems/dnd5e/icons/items/potions/unique-9.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-glowing-red.webp"
   },
   {
     "name": "Potion of Diminution",
-    "path": "systems/dnd5e/icons/items/potions/minor-green.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-bubbling-green.webp"
   },
   {
     "name": "Potion of Dragon's Majesty",
@@ -6021,163 +6021,163 @@
   },
   {
     "name": "Potion of Fire Breath",
-    "path": "systems/dnd5e/icons/items/potions/grand-yellow.jpg"
+    "path": "icons/consumables/potions/bottle-round-corked-yellow.webp"
   },
   {
     "name": "Potion of Fire Giant Strength",
-    "path": "systems/dnd5e/icons/items/potions/unique-3.jpg"
+    "path": "icons/consumables/potions/bottle-circular-corked-labeled-green.webp"
   },
   {
     "name": "Potion of Fire Resistance",
-    "path": "systems/dnd5e/icons/items/potions/unique-1.jpg"
+    "path": "icons/consumables/potions/bottle-conical-corked-labeled-shell-cyan.webp"
   },
   {
     "name": "Potion of Flying",
-    "path": "systems/dnd5e/icons/items/potions/unique-10.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-bat-gold-red.webp"
   },
   {
     "name": "Potion of Force Resistance",
-    "path": "systems/dnd5e/icons/items/potions/major-empty.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
   },
   {
     "name": "Potion of Frost Giant Strength",
-    "path": "systems/dnd5e/icons/items/potions/unique-3.jpg"
+    "path": "icons/consumables/potions/bottle-circular-corked-labeled-green.webp"
   },
   {
     "name": "Potion of Gaseous Form",
-    "path": "systems/dnd5e/icons/items/potions/unique-10.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-bat-gold-red.webp"
   },
   {
     "name": "Potion of Giant Size",
-    "path": "systems/dnd5e/icons/items/potions/major-blue.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-labeled-blue.webp"
   },
   {
     "name": "Potion of Giant Strength",
-    "path": "systems/dnd5e/icons/items/potions/unique-3.jpg"
+    "path": "icons/consumables/potions/bottle-circular-corked-labeled-green.webp"
   },
   {
     "name": "Potion of Growth",
-    "path": "systems/dnd5e/icons/items/potions/unique-4.jpg"
+    "path": "icons/consumables/potions/potion-bottle-corked-labeled-green.webp"
   },
   {
     "name": "Potion of Healing",
-    "path": "systems/dnd5e/icons/items/potions/minor-red.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-red.webp"
   },
   {
     "name": "Potion of Healing (Greater)",
-    "path": "systems/dnd5e/icons/items/potions/major-red.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-glowing-red.webp"
   },
   {
     "name": "Potion of Healing (Superior)",
-    "path": "systems/dnd5e/icons/items/potions/grand-red.jpg"
+    "path": "icons/consumables/potions/bottle-round-corked-red.webp"
   },
   {
     "name": "Potion of Healing (Supreme)",
-    "path": "systems/dnd5e/icons/items/potions/magic-red.jpg"
+    "path": "icons/consumables/potions/potion-flask-stopped-red.webp"
   },
   {
     "name": "Potion of Heroism",
-    "path": "systems/dnd5e/icons/items/potions/grand-violet.jpg"
+    "path": "icons/consumables/potions/bottle-round-corked-pink.webp"
   },
   {
     "name": "Potion of Hill Giant Strength",
-    "path": "systems/dnd5e/icons/items/potions/unique-3.jpg"
+    "path": "icons/consumables/potions/bottle-circular-corked-labeled-green.webp"
   },
   {
     "name": "Potion of Invisibility",
-    "path": "systems/dnd5e/icons/items/inventory/bottle-empty.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
   },
   {
     "name": "Potion of Invulnerability",
-    "path": "systems/dnd5e/icons/items/potions/magic-purple.jpg"
+    "path": "icons/consumables/potions/potion-flask-corled-pink-red.webp"
   },
   {
     "name": "Potion of Lightning Resistance",
-    "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
   },
   {
     "name": "Potion of Longevity",
-    "path": "systems/dnd5e/icons/items/potions/unique-5.jpg"
+    "path": "icons/consumables/potions/potion-flask-corked-labeled-pink.webp"
   },
   {
     "name": "Potion of Maximum Power",
-    "path": "systems/dnd5e/icons/items/potions/grand-yellow.jpg"
+    "path": "icons/consumables/potions/bottle-round-corked-yellow.webp"
   },
   {
     "name": "Potion of Mind Control",
-    "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
   },
   {
     "name": "Potion of Mind Control (Beast)",
-    "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
   },
   {
     "name": "Potion of Mind Control (Humanoid)",
-    "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
   },
   {
     "name": "Potion of Mind Control (Monster)",
-    "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
   },
   {
     "name": "Potion of Mind Reading",
-    "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
   },
   {
     "name": "Potion of Necrotic Resistance",
-    "path": "systems/dnd5e/icons/items/potions/unique-9.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-glowing-red.webp"
   },
   {
     "name": "Potion of Poison",
-    "path": "systems/dnd5e/icons/items/potions/major-green.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-green.webp"
   },
   {
     "name": "Potion of Poison Resistance",
-    "path": "systems/dnd5e/icons/items/potions/unique-9.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-glowing-red.webp"
   },
   {
     "name": "Potion of Possibility",
-    "path": "systems/dnd5e/icons/items/potions/unique-9.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-glowing-red.webp"
   },
   {
     "name": "Potion of Psychic Resistance",
-    "path": "systems/dnd5e/icons/items/potions/unique-7.jpg"
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
   },
   {
     "name": "Potion of Radiant Resistance",
-    "path": "systems/dnd5e/icons/items/potions/unique-8.jpg"
+    "path": "icons/consumables/potions/potion-vial-corked-labeled-purple.webp"
   },
   {
     "name": "Potion of Resistance",
-    "path": "systems/dnd5e/icons/items/potions/grand-blue.jpg"
+    "path": "icons/consumables/potions/bottle-round-corked-blue.webp"
   },
   {
     "name": "Potion of Speed",
-    "path": "systems/dnd5e/icons/items/potions/unique-6.jpg"
+    "path": "icons/consumables/potions/potion-bottle-corked-fancy-orange.webp"
   },
   {
     "name": "Potion of Stone Giant Strength",
-    "path": "systems/dnd5e/icons/items/potions/unique-3.jpg"
+    "path": "icons/consumables/potions/bottle-circular-corked-labeled-green.webp"
   },
   {
     "name": "Potion of Storm Giant Strength",
-    "path": "systems/dnd5e/icons/items/potions/unique-3.jpg"
+    "path": "icons/consumables/potions/bottle-circular-corked-labeled-green.webp"
   },
   {
     "name": "Potion of Thunder Resistance",
-    "path": "systems/dnd5e/icons/items/potions/unique-1.jpg"
+    "path": "icons/consumables/potions/bottle-conical-corked-labeled-shell-cyan.webp"
   },
   {
     "name": "Potion of Vitality",
-    "path": "systems/dnd5e/icons/items/potions/magic-purple.jpg"
+    "path": "icons/consumables/potions/potion-flask-corled-pink-red.webp"
   },
   {
     "name": "Potion of Watchful Rest",
-    "path": "systems/dnd5e/icons/items/potions/major-blue.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-labeled-blue.webp"
   },
   {
     "name": "Potion of Water Breathing",
-    "path": "systems/dnd5e/icons/items/potions/unique-1.jpg"
+    "path": "icons/consumables/potions/bottle-conical-corked-labeled-shell-cyan.webp"
   },
   {
     "name": "Potter's Tools",
@@ -6229,27 +6229,27 @@
   },
   {
     "name": "Protective Verses",
-    "path": "systems/dnd5e/icons/items/inventory/book-yellow.jpg"
+    "path": "icons/sundries/books/book-backed-blue-gold.webp"
   },
   {
     "name": "Psi Crystal",
-    "path": "systems/dnd5e/icons/items/inventory/ore-blue.jpg"
+    "path": "icons/commodities/stone/ore-pile-teal.webp"
   },
   {
     "name": "Psi Crystal (Int 12-15)",
-    "path": "systems/dnd5e/icons/items/inventory/ore-blue.jpg"
+    "path": "icons/commodities/stone/ore-pile-teal.webp"
   },
   {
     "name": "Psi Crystal (Int 16+)",
-    "path": "systems/dnd5e/icons/items/inventory/ore-blue.jpg"
+    "path": "icons/commodities/stone/ore-pile-teal.webp"
   },
   {
     "name": "Psi Crystal (Int 3-7)",
-    "path": "systems/dnd5e/icons/items/inventory/ore-blue.jpg"
+    "path": "icons/commodities/stone/ore-pile-teal.webp"
   },
   {
     "name": "Psi Crystal (Int 8-11)",
-    "path": "systems/dnd5e/icons/items/inventory/ore-blue.jpg"
+    "path": "icons/commodities/stone/ore-pile-teal.webp"
   },
   {
     "name": "Psionic Power: Psionic Strike",
@@ -6257,11 +6257,11 @@
   },
   {
     "name": "Purple Worm Poison (Injury)",
-    "path": "systems/dnd5e/icons/items/potions/major-blue.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-labeled-blue.webp"
   },
   {
     "name": "Pyroconverger",
-    "path": "systems/dnd5e/icons/spells/beam-red-3.jpg"
+    "path": "icons/magic/light/beam-rays-red-large.webp"
   },
   {
     "name": "Pyxis of Pandemonium",
@@ -6297,11 +6297,11 @@
   },
   {
     "name": "Quarterstaff",
-    "path": "systems/dnd5e/icons/items/weapons/quarterstaff.jpg"
+    "path": "icons/weapons/staves/staff-simple-gold.webp"
   },
   {
     "name": "Quarterstaff of Warning",
-    "path": "systems/dnd5e/icons/items/weapons/staff.png"
+    "path": "icons/weapons/staves/staff-simple-brown.webp"
   },
   {
     "name": "Quarterstaff, +1",
@@ -6353,39 +6353,39 @@
   },
   {
     "name": "Rapier",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Rapier of Life Stealing",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Rapier of Vengeance",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Rapier of Warning",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Rapier of Wounding",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Rapier, +1",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Rapier, +2",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Rapier, +3",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Rations (1 day)",
-    "path": "systems/dnd5e/icons/items/inventory/bread.jpg"
+    "path": "icons/consumables/grains/bread-loaf-boule-rustic-brown.webp"
   },
   {
     "name": "Rebutter",
@@ -6409,7 +6409,7 @@
   },
   {
     "name": "Restorative Ointment",
-    "path": "systems/dnd5e/icons/items/potions/unique-2.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-corked-purple.webp"
   },
   {
     "name": "Retorter",
@@ -6417,7 +6417,7 @@
   },
   {
     "name": "Reveler's Concertina",
-    "path": "systems/dnd5e/icons/spells/enchant-magenta-1.jpg"
+    "path": "icons/magic/fire/dagger-rune-enchant-purple.webp"
   },
   {
     "name": "Revenant Double-Bladed Scimitar",
@@ -6657,11 +6657,11 @@
   },
   {
     "name": "Robe of Eyes",
-    "path": "systems/dnd5e/icons/skills/violet_09.jpg"
+    "path": "icons/magic/perception/eye-tendrils-web-purple.webp"
   },
   {
     "name": "Robe of Scintillating Colors",
-    "path": "systems/dnd5e/icons/skills/violet_26.jpg"
+    "path": "icons/magic/lightning/orb-ball-purple.webp"
   },
   {
     "name": "Robe of Serpents",
@@ -6669,7 +6669,7 @@
   },
   {
     "name": "Robe of Stars",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
+    "path": "icons/magic/water/orb-ice-web.webp"
   },
   {
     "name": "Robe of Summer",
@@ -6677,11 +6677,11 @@
   },
   {
     "name": "Robe of the Archmagi",
-    "path": "systems/dnd5e/icons/skills/violet_20.jpg"
+    "path": "icons/magic/symbols/rune-sigil-black-pink.webp"
   },
   {
     "name": "Robe of Useful Items",
-    "path": "systems/dnd5e/icons/items/armor/robe.jpg"
+    "path": "icons/equipment/back/mantle-collared-black.webp"
   },
   {
     "name": "Robes",
@@ -6689,7 +6689,7 @@
   },
   {
     "name": "Rod",
-    "path": "systems/dnd5e/icons/items/weapons/rod.jpg"
+    "path": "icons/weapons/polearms/spear-hooked-blue.webp"
   },
   {
     "name": "Rod of Absorption",
@@ -6741,15 +6741,15 @@
   },
   {
     "name": "Rope of Climbing",
-    "path": "systems/dnd5e/icons/items/inventory/rope.jpg"
+    "path": "icons/sundries/survival/rope-wrapped-brown.webp"
   },
   {
     "name": "Rope of Entanglement",
-    "path": "systems/dnd5e/icons/skills/green_17.jpg"
+    "path": "icons/magic/nature/root-vine-thorned-coil-green.webp"
   },
   {
     "name": "Rope of Mending",
-    "path": "systems/dnd5e/icons/items/inventory/rope.jpg"
+    "path": "icons/sundries/survival/rope-wrapped-brown.webp"
   },
   {
     "name": "Rope, Hempen (50 feet)",
@@ -6877,7 +6877,7 @@
   },
   {
     "name": "Scarab of Protection",
-    "path": "systems/dnd5e/icons/items/inventory/chrysalis.jpg"
+    "path": "icons/environment/creatures/bug-larva-orange.webp"
   },
   {
     "name": "Scather",
@@ -6969,7 +6969,7 @@
   },
   {
     "name": "Selesnya Keyrune",
-    "path": "systems/dnd5e/icons/items/inventory/runestone-green.jpg"
+    "path": "icons/commodities/treasure/token-runed-circle-green.webp"
   },
   {
     "name": "Sending Stone",
@@ -6989,7 +6989,7 @@
   },
   {
     "name": "Serpent Venom (Injury)",
-    "path": "systems/dnd5e/icons/items/potions/minor-blue.jpg"
+    "path": "icons/consumables/potions/potion-tube-corked-blue.webp"
   },
   {
     "name": "Serpent's Fang",
@@ -6997,11 +6997,11 @@
   },
   {
     "name": "Shadowfell Brand Tattoo",
-    "path": "systems/dnd5e/icons/skills/shadow_03.jpg"
+    "path": "icons/magic/control/debuff-chains-shackles-movement-purple.webp"
   },
   {
     "name": "Shadowfell Shard",
-    "path": "systems/dnd5e/icons/skills/shadow_15.jpg"
+    "path": "icons/creatures/mammals/bats-movement-flying-purple.webp"
   },
   {
     "name": "Shadowglass Dagger",
@@ -7009,7 +7009,7 @@
   },
   {
     "name": "Shard of the Ise Rune",
-    "path": "systems/dnd5e/icons/spells/ice-blue-1.jpg"
+    "path": "icons/magic/water/projectile-ice-faceted-blue.webp"
   },
   {
     "name": "Shatterspike",
@@ -7021,11 +7021,11 @@
   },
   {
     "name": "Shawm",
-    "path": "systems/dnd5e/icons/items/inventory/horn.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Shield",
-    "path": "systems/dnd5e/icons/items/armor/shield.png"
+    "path": "icons/equipment/shield/oval-wooden-boss-steel.webp"
   },
   {
     "name": "Shield Guardian Amulet",
@@ -7089,7 +7089,7 @@
   },
   {
     "name": "Shortsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-short.jpg"
+    "path": "icons/weapons/swords/sword-guard-brown.webp"
   },
   {
     "name": "Shortsword of Life Stealing",
@@ -7129,7 +7129,7 @@
   },
   {
     "name": "Siberys Dragonshard",
-    "path": "systems/dnd5e/icons/items/inventory/ore-gold.jpg"
+    "path": "icons/commodities/stone/ore-pile-gold.webp"
   },
   {
     "name": "Sickle",
@@ -7153,7 +7153,7 @@
   },
   {
     "name": "Signal Whistle",
-    "path": "systems/dnd5e/icons/items/inventory/flute.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Signet Ring",
@@ -7185,7 +7185,7 @@
   },
   {
     "name": "Simic Keyrune",
-    "path": "systems/dnd5e/icons/items/inventory/runestone-pocked.jpg"
+    "path": "icons/commodities/treasure/token-runed-spiral-grey.webp"
   },
   {
     "name": "Siren Song Lyre",
@@ -7213,11 +7213,11 @@
   },
   {
     "name": "Sling",
-    "path": "systems/dnd5e/icons/items/weapons/sling.jpg"
+    "path": "icons/weapons/slings/slingshot-wood.webp"
   },
   {
     "name": "Sling Bullets",
-    "path": "systems/dnd5e/icons/items/weapons/bullet.jpg"
+    "path": "icons/skills/ranged/bullets-triple-ball-yellow.webp"
   },
   {
     "name": "Sling Bullets of Althemone",
@@ -7241,23 +7241,23 @@
   },
   {
     "name": "Sling of Warning",
-    "path": "systems/dnd5e/icons/items/weapons/sling.jpg"
+    "path": "icons/weapons/slings/slingshot-wood.webp"
   },
   {
     "name": "Sling, +1",
-    "path": "systems/dnd5e/icons/items/weapons/sling.jpg"
+    "path": "icons/weapons/slings/slingshot-wood.webp"
   },
   {
     "name": "Sling, +2",
-    "path": "systems/dnd5e/icons/items/weapons/sling.jpg"
+    "path": "icons/weapons/slings/slingshot-wood.webp"
   },
   {
     "name": "Sling, +3",
-    "path": "systems/dnd5e/icons/items/weapons/sling.jpg"
+    "path": "icons/weapons/slings/slingshot-wood.webp"
   },
   {
     "name": "Slippers of Spider Climbing",
-    "path": "systems/dnd5e/icons/items/inventory/webs.jpg"
+    "path": "icons/commodities/materials/material-webbing.webp"
   },
   {
     "name": "Slippers of the Cloud",
@@ -7333,7 +7333,7 @@
   },
   {
     "name": "Sneak Attack",
-    "path": "systems/dnd5e/icons/skills/violet_27.jpg"
+    "path": "icons/skills/melee/strike-dagger-arcane-pink.webp"
   },
   {
     "name": "Snowshoes",
@@ -7341,11 +7341,11 @@
   },
   {
     "name": "Soap",
-    "path": "systems/dnd5e/icons/items/inventory/soap.jpg"
+    "path": "icons/sundries/survival/soap.webp"
   },
   {
     "name": "Songhorn",
-    "path": "systems/dnd5e/icons/items/inventory/horn.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "Soothsalts",
@@ -7357,7 +7357,7 @@
   },
   {
     "name": "Sovereign Glue",
-    "path": "systems/dnd5e/icons/items/inventory/flask-dark.jpg"
+    "path": "icons/consumables/drinks/tea-jug-gourd-brown.webp"
   },
   {
     "name": "Speaking Stone",
@@ -7365,7 +7365,7 @@
   },
   {
     "name": "Spear",
-    "path": "systems/dnd5e/icons/items/weapons/spear.jpg"
+    "path": "icons/weapons/polearms/spear-flared-worn-grey.webp"
   },
   {
     "name": "Spear of Backbiting",
@@ -7489,39 +7489,39 @@
   },
   {
     "name": "Spellshard",
-    "path": "systems/dnd5e/icons/items/inventory/shard-red.jpg"
+    "path": "icons/commodities/gems/gem-fragmented-pink.webp"
   },
   {
     "name": "Spellwrought Tattoo",
-    "path": "systems/dnd5e/icons/spells/light-air-fire-1.jpg"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 1st level",
-    "path": "systems/dnd5e/icons/spells/light-air-fire-1.jpg"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 2nd level",
-    "path": "systems/dnd5e/icons/spells/light-air-fire-1.jpg"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 3rd level",
-    "path": "systems/dnd5e/icons/spells/light-air-fire-1.jpg"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 4th level",
-    "path": "systems/dnd5e/icons/spells/light-air-fire-1.jpg"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 5th level",
-    "path": "systems/dnd5e/icons/spells/light-air-fire-1.jpg"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, Cantrip",
-    "path": "systems/dnd5e/icons/spells/light-air-fire-1.jpg"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Sphere of Annihilation",
-    "path": "systems/dnd5e/icons/skills/violet_12.jpg"
+    "path": "icons/magic/unholy/barrier-shield-glowing-pink.webp"
   },
   {
     "name": "Spider Staff",
@@ -7613,7 +7613,7 @@
   },
   {
     "name": "Staff of Healing",
-    "path": "systems/dnd5e/icons/items/weapons/staff-red.jpg"
+    "path": "icons/weapons/staves/staff-engraved-red.webp"
   },
   {
     "name": "Staff of Power",
@@ -7621,7 +7621,7 @@
   },
   {
     "name": "Staff of Striking",
-    "path": "systems/dnd5e/icons/items/weapons/staff.png"
+    "path": "icons/weapons/staves/staff-simple-brown.webp"
   },
   {
     "name": "Staff of Swarming Insects",
@@ -7665,7 +7665,7 @@
   },
   {
     "name": "Staff of Withering",
-    "path": "systems/dnd5e/icons/items/weapons/staff-skull.jpg"
+    "path": "icons/weapons/staves/staff-skull-brown.webp"
   },
   {
     "name": "Staff the Novice Necromancer",
@@ -7673,11 +7673,11 @@
   },
   {
     "name": "Stake (Wooden)",
-    "path": "systems/dnd5e/icons/items/inventory/stake.jpg"
+    "path": "icons/sundries/survival/stake-rough-simple-brown.webp"
   },
   {
     "name": "Star Rose Quartz",
-    "path": "systems/dnd5e/icons/items/inventory/pearl.jpg"
+    "path": "icons/commodities/gems/pearl-natural.webp"
   },
   {
     "name": "Star Ruby",
@@ -7689,15 +7689,15 @@
   },
   {
     "name": "Stone of Controlling Earth Elementals",
-    "path": "systems/dnd5e/icons/items/inventory/runestone-carved.jpg"
+    "path": "icons/commodities/treasure/token-runed-os-grey.webp"
   },
   {
     "name": "Stone of Golorr",
-    "path": "systems/dnd5e/icons/items/inventory/ore-green.jpg"
+    "path": "icons/commodities/stone/ore-pile-green.webp"
   },
   {
     "name": "Stone of Good Luck (Luckstone)",
-    "path": "systems/dnd5e/icons/items/inventory/gem-yellow.jpg"
+    "path": "icons/commodities/gems/gem-faceted-octagon-yellow.webp"
   },
   {
     "name": "Stone of Ill Luck",
@@ -7717,19 +7717,19 @@
   },
   {
     "name": "Stormgirdle",
-    "path": "systems/dnd5e/icons/items/equipment/belt-gems.jpg"
+    "path": "icons/equipment/waist/belt-thick-gemmed-steel-grey.webp"
   },
   {
     "name": "Stormgirdle (Awakened)",
-    "path": "systems/dnd5e/icons/items/equipment/belt-gems.jpg"
+    "path": "icons/equipment/waist/belt-thick-gemmed-steel-grey.webp"
   },
   {
     "name": "Stormgirdle (Dormant)",
-    "path": "systems/dnd5e/icons/items/equipment/belt-gems.jpg"
+    "path": "icons/equipment/waist/belt-thick-gemmed-steel-grey.webp"
   },
   {
     "name": "Stormgirdle (Exalted)",
-    "path": "systems/dnd5e/icons/items/equipment/belt-gems.jpg"
+    "path": "icons/equipment/waist/belt-thick-gemmed-steel-grey.webp"
   },
   {
     "name": "String",
@@ -7797,15 +7797,15 @@
   },
   {
     "name": "Talisman of Pure Good",
-    "path": "systems/dnd5e/icons/skills/light_04.jpg"
+    "path": "icons/magic/life/ankh-gold-blue.webp"
   },
   {
     "name": "Talisman of the Sphere",
-    "path": "systems/dnd5e/icons/skills/violet_05.jpg"
+    "path": "icons/magic/unholy/orb-beam-pink.webp"
   },
   {
     "name": "Talisman of Ultimate Evil",
-    "path": "systems/dnd5e/icons/skills/blood_10.jpg"
+    "path": "icons/magic/death/skull-horned-goat-pentagram-red.webp"
   },
   {
     "name": "Talking Doll",
@@ -7817,11 +7817,11 @@
   },
   {
     "name": "Tankard of Plenty",
-    "path": "systems/dnd5e/icons/items/inventory/tankard-full.jpg"
+    "path": "icons/consumables/drinks/alcohol-beer-stein-wooden-brown.webp"
   },
   {
     "name": "Tankard of Sobriety",
-    "path": "systems/dnd5e/icons/items/inventory/tankard-empty.jpg"
+    "path": "icons/containers/kitchenware/mug-steel-wood-brown.webp"
   },
   {
     "name": "Tanktop of Flying",
@@ -7829,11 +7829,11 @@
   },
   {
     "name": "Tantan",
-    "path": "systems/dnd5e/icons/items/inventory/drum.jpg"
+    "path": "icons/tools/instruments/drum-brown-red.webp"
   },
   {
     "name": "Teeth of Dahlver-Nar",
-    "path": "systems/dnd5e/icons/items/inventory/tooth.jpg"
+    "path": "icons/commodities/bones/tooth-molar-white.webp"
   },
   {
     "name": "Tej",
@@ -7845,23 +7845,23 @@
   },
   {
     "name": "Tentacle Rod",
-    "path": "systems/dnd5e/icons/items/inventory/monster-tentacle.jpg"
+    "path": "icons/commodities/biological/antenna-blue.webp"
   },
   {
     "name": "The Bloody End",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "The Bloody End (Awakened)",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "The Bloody End (Dormant)",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "The Bloody End (Exalted)",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "The Codicil of White",
@@ -7877,11 +7877,11 @@
   },
   {
     "name": "The Test Item",
-    "path": "systems/dnd5e/icons/items/inventory/wand-star.jpg"
+    "path": "icons/weapons/wands/wand-star-gold.webp"
   },
   {
     "name": "Theki Root",
-    "path": "systems/dnd5e/icons/items/inventory/plant-root.jpg"
+    "path": "icons/commodities/biological/tentacle-thorned-green.webp"
   },
   {
     "name": "Thelarr",
@@ -7897,7 +7897,7 @@
   },
   {
     "name": "Thessaltoxin Antidote",
-    "path": "systems/dnd5e/icons/items/potions/unique-1.jpg"
+    "path": "icons/consumables/potions/bottle-conical-corked-labeled-shell-cyan.webp"
   },
   {
     "name": "Thieves' Tools",
@@ -7921,7 +7921,7 @@
   },
   {
     "name": "Tinderstrike",
-    "path": "systems/dnd5e/icons/items/weapons/dagger-fire.jpg"
+    "path": "icons/weapons/daggers/dagger-notched-blackened.webp"
   },
   {
     "name": "Tinker's Tools",
@@ -7945,7 +7945,7 @@
   },
   {
     "name": "Tome of Understanding",
-    "path": "systems/dnd5e/icons/items/inventory/book-diary.jpg"
+    "path": "icons/sundries/books/book-worn-brown.webp"
   },
   {
     "name": "Topaz",
@@ -8001,7 +8001,7 @@
   },
   {
     "name": "Truth Serum (Ingested)",
-    "path": "systems/dnd5e/icons/items/potions/magic-blue.jpg"
+    "path": "icons/consumables/potions/potion-flask-corked-blue.webp"
   },
   {
     "name": "Turquoise",
@@ -8013,7 +8013,7 @@
   },
   {
     "name": "Unarmed Strike",
-    "path": "systems/dnd5e/icons/skills/yellow_08.jpg"
+    "path": "icons/skills/melee/unarmed-punch-fist.webp"
   },
   {
     "name": "Unbreakable Arrow",
@@ -8025,11 +8025,11 @@
   },
   {
     "name": "Universal Solvent",
-    "path": "systems/dnd5e/icons/items/potions/minor-empty.jpg"
+    "path": "icons/consumables/potions/bottle-round-empty-glass.webp"
   },
   {
     "name": "Ventilating Lungs",
-    "path": "systems/dnd5e/icons/items/inventory/monster-lung.jpg"
+    "path": "icons/commodities/biological/organ-stomach.webp"
   },
   {
     "name": "Verminshroud",
@@ -8069,15 +8069,15 @@
   },
   {
     "name": "Vicious Blowgun",
-    "path": "systems/dnd5e/icons/items/weapons/staff.png"
+    "path": "icons/weapons/staves/staff-simple-brown.webp"
   },
   {
     "name": "Vicious Club",
-    "path": "systems/dnd5e/icons/items/weapons/club-spikes.jpg"
+    "path": "icons/weapons/clubs/club-simple-barbed.webp"
   },
   {
     "name": "Vicious Crossbow, Hand",
-    "path": "systems/dnd5e/icons/items/weapons/crossbow-repeating.jpg"
+    "path": "icons/weapons/crossbows/handcrossbow-green.webp"
   },
   {
     "name": "Vicious Crossbow, Heavy",
@@ -8105,7 +8105,7 @@
   },
   {
     "name": "Vicious Greataxe",
-    "path": "systems/dnd5e/icons/items/weapons/greataxe.jpg"
+    "path": "icons/weapons/axes/axe-double.webp"
   },
   {
     "name": "Vicious Greatclub",
@@ -8113,7 +8113,7 @@
   },
   {
     "name": "Vicious Greatsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-great.jpg"
+    "path": "icons/weapons/swords/greatsword-guard-gem-blue.webp"
   },
   {
     "name": "Vicious Halberd",
@@ -8133,11 +8133,11 @@
   },
   {
     "name": "Vicious Laser Pistol",
-    "path": "systems/dnd5e/icons/skills/weapon_37.jpg"
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
   },
   {
     "name": "Vicious Laser Rifle",
-    "path": "systems/dnd5e/icons/skills/weapon_37.jpg"
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
   },
   {
     "name": "Vicious Light Hammer",
@@ -8145,11 +8145,11 @@
   },
   {
     "name": "Vicious Longbow",
-    "path": "systems/dnd5e/icons/items/weapons/bow-long.jpg"
+    "path": "icons/weapons/bows/longbow-leather-green.webp"
   },
   {
     "name": "Vicious Longsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-long.jpg"
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
   {
     "name": "Vicious Mace",
@@ -8161,7 +8161,7 @@
   },
   {
     "name": "Vicious Morningstar",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Vicious Musket",
@@ -8185,7 +8185,7 @@
   },
   {
     "name": "Vicious Quarterstaff",
-    "path": "systems/dnd5e/icons/items/weapons/quarterstaff.jpg"
+    "path": "icons/weapons/staves/staff-simple-gold.webp"
   },
   {
     "name": "Vicious Rapier",
@@ -8229,7 +8229,7 @@
   },
   {
     "name": "Vicious Sling",
-    "path": "systems/dnd5e/icons/items/weapons/sling.jpg"
+    "path": "icons/weapons/slings/slingshot-wood.webp"
   },
   {
     "name": "Vicious Spear",
@@ -8241,7 +8241,7 @@
   },
   {
     "name": "Vicious War Pick",
-    "path": "systems/dnd5e/icons/items/weapons/pick.jpg"
+    "path": "icons/weapons/axes/pickaxe-double-brown.webp"
   },
   {
     "name": "Vicious Warhammer",
@@ -8261,7 +8261,7 @@
   },
   {
     "name": "Viol",
-    "path": "systems/dnd5e/icons/items/inventory/lute.jpg"
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
   },
   {
     "name": "Voltedge",
@@ -8269,19 +8269,19 @@
   },
   {
     "name": "Vorpal Greatsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-death.jpg"
+    "path": "icons/weapons/swords/sword-guard-serrated.webp"
   },
   {
     "name": "Vorpal Longsword",
-    "path": "systems/dnd5e/icons/items/weapons/sword-death.jpg"
+    "path": "icons/weapons/swords/sword-guard-serrated.webp"
   },
   {
     "name": "Vorpal Scimitar",
-    "path": "systems/dnd5e/icons/skills/yellow_16.jpg"
+    "path": "icons/skills/melee/strike-sword-steel-yellow.webp"
   },
   {
     "name": "Vorpal Sword",
-    "path": "systems/dnd5e/icons/skills/yellow_16.jpg"
+    "path": "icons/skills/melee/strike-sword-steel-yellow.webp"
   },
   {
     "name": "Voting Kit",
@@ -8301,7 +8301,7 @@
   },
   {
     "name": "Walloping Ammunition",
-    "path": "systems/dnd5e/icons/skills/arrow_01.jpg"
+    "path": "icons/skills/ranged/arrow-flying-broadhead-metal.webp"
   },
   {
     "name": "Wand",
@@ -8345,7 +8345,7 @@
   },
   {
     "name": "Wand of Orcus",
-    "path": "systems/dnd5e/icons/items/weapons/pick.jpg"
+    "path": "icons/weapons/axes/pickaxe-double-brown.webp"
   },
   {
     "name": "Wand of Paralysis",
@@ -8369,7 +8369,7 @@
   },
   {
     "name": "Wand of Smiles",
-    "path": "systems/dnd5e/icons/items/inventory/wand-star.jpg"
+    "path": "icons/weapons/wands/wand-star-gold.webp"
   },
   {
     "name": "Wand of the War Mage",
@@ -8409,23 +8409,23 @@
   },
   {
     "name": "War Pick",
-    "path": "systems/dnd5e/icons/items/weapons/pick.jpg"
+    "path": "icons/weapons/axes/pickaxe-double-brown.webp"
   },
   {
     "name": "War Pick of Warning",
-    "path": "systems/dnd5e/icons/items/weapons/pick.jpg"
+    "path": "icons/weapons/axes/pickaxe-double-brown.webp"
   },
   {
     "name": "War Pick, +1",
-    "path": "systems/dnd5e/icons/items/weapons/pick.jpg"
+    "path": "icons/weapons/axes/pickaxe-double-brown.webp"
   },
   {
     "name": "War Pick, +2",
-    "path": "systems/dnd5e/icons/items/weapons/pick.jpg"
+    "path": "icons/weapons/axes/pickaxe-double-brown.webp"
   },
   {
     "name": "War Pick, +3",
-    "path": "systems/dnd5e/icons/items/weapons/pick.jpg"
+    "path": "icons/weapons/axes/pickaxe-double-brown.webp"
   },
   {
     "name": "Wargong",
@@ -8465,7 +8465,7 @@
   },
   {
     "name": "Waterskin",
-    "path": "systems/dnd5e/icons/items/inventory/waterskin.jpg"
+    "path": "icons/sundries/survival/wetskin-leather-purple.webp"
   },
   {
     "name": "Wave",
@@ -8485,11 +8485,11 @@
   },
   {
     "name": "Weapon of Certain Death, Blowgun",
-    "path": "systems/dnd5e/icons/items/inventory/bamboo.jpg"
+    "path": "icons/commodities/wood/bamboo-brown.webp"
   },
   {
     "name": "Weapon of Certain Death, Boomerang",
-    "path": "systems/dnd5e/icons/items/inventory/monster-angel-wing.jpg"
+    "path": "icons/commodities/treasure/trinket-wing-white.webp"
   },
   {
     "name": "Weapon of Certain Death, Club",
@@ -8501,11 +8501,11 @@
   },
   {
     "name": "Weapon of Certain Death, Crossbow, Heavy",
-    "path": "systems/dnd5e/icons/items/weapons/crossbow-heavy.jpg"
+    "path": "icons/weapons/crossbows/crossbow-blue.webp"
   },
   {
     "name": "Weapon of Certain Death, Crossbow, Light",
-    "path": "systems/dnd5e/icons/items/weapons/crossbow-light.jpg"
+    "path": "icons/weapons/crossbows/crossbow-simple-brown.webp"
   },
   {
     "name": "Weapon of Certain Death, Dagger",
@@ -8525,7 +8525,7 @@
   },
   {
     "name": "Weapon of Certain Death, Greataxe",
-    "path": "systems/dnd5e/icons/items/weapons/greataxe.jpg"
+    "path": "icons/weapons/axes/axe-double.webp"
   },
   {
     "name": "Weapon of Certain Death, Greatclub",
@@ -8541,7 +8541,7 @@
   },
   {
     "name": "Weapon of Certain Death, Handaxe",
-    "path": "systems/dnd5e/icons/items/weapons/handaxe.jpg"
+    "path": "icons/weapons/axes/axe-broad-black.webp"
   },
   {
     "name": "Weapon of Certain Death, Javelin",
@@ -8569,15 +8569,15 @@
   },
   {
     "name": "Weapon of Certain Death, Maul",
-    "path": "systems/dnd5e/icons/items/weapons/hammer-maul.jpg"
+    "path": "icons/weapons/hammers/hammer-double-engraved-gold.webp"
   },
   {
     "name": "Weapon of Certain Death, Morningstar",
-    "path": "systems/dnd5e/icons/items/weapons/morningstar.jpg"
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
   },
   {
     "name": "Weapon of Certain Death, Net",
-    "path": "systems/dnd5e/icons/items/weapons/net.jpg"
+    "path": "icons/tools/fishing/net-simple-tan.webp"
   },
   {
     "name": "Weapon of Certain Death, Pike",
@@ -8585,7 +8585,7 @@
   },
   {
     "name": "Weapon of Certain Death, Quarterstaff",
-    "path": "systems/dnd5e/icons/items/weapons/staff.png"
+    "path": "icons/weapons/staves/staff-simple-brown.webp"
   },
   {
     "name": "Weapon of Certain Death, Rapier",
@@ -8621,11 +8621,11 @@
   },
   {
     "name": "Weapon of Certain Death, War Pick",
-    "path": "systems/dnd5e/icons/items/weapons/pick.jpg"
+    "path": "icons/weapons/axes/pickaxe-double-brown.webp"
   },
   {
     "name": "Weapon of Certain Death, Warhammer",
-    "path": "systems/dnd5e/icons/items/weapons/hammer-war.jpg"
+    "path": "icons/weapons/hammers/hammer-war-rounding.webp"
   },
   {
     "name": "Weapon of Certain Death, Whip",
@@ -8677,7 +8677,7 @@
   },
   {
     "name": "Whetstone",
-    "path": "systems/dnd5e/icons/items/inventory/whetstone.jpg"
+    "path": "icons/commodities/stone/geode-raw-tan.webp"
   },
   {
     "name": "Whip",
@@ -8701,11 +8701,11 @@
   },
   {
     "name": "Whisper Jar",
-    "path": "systems/dnd5e/icons/items/inventory/bottle-empty.jpg"
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
   },
   {
     "name": "Whistle-Stick",
-    "path": "systems/dnd5e/icons/items/inventory/flute.jpg"
+    "path": "icons/tools/instruments/flute-simple-wood.webp"
   },
   {
     "name": "White Dragon Mask",
@@ -8729,7 +8729,7 @@
   },
   {
     "name": "Willowshade Oil",
-    "path": "systems/dnd5e/icons/items/potions/unique-4.jpg"
+    "path": "icons/consumables/potions/potion-bottle-corked-labeled-green.webp"
   },
   {
     "name": "Wind Fan",
@@ -8793,7 +8793,7 @@
   },
   {
     "name": "Wyvern Poison (Injury)",
-    "path": "systems/dnd5e/icons/items/potions/unique-8.jpg"
+    "path": "icons/consumables/potions/potion-vial-corked-labeled-purple.webp"
   },
   {
     "name": "Xorian Wenge Focus",
@@ -8801,7 +8801,7 @@
   },
   {
     "name": "Yarting",
-    "path": "systems/dnd5e/icons/items/inventory/lute.jpg"
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
   },
   {
     "name": "Yellow sapphire",
@@ -8809,7 +8809,7 @@
   },
   {
     "name": "Yew Wand",
-    "path": "systems/dnd5e/icons/items/inventory/plant-branch.jpg"
+    "path": "icons/commodities/claws/claw-insect-tan.webp"
   },
   {
     "name": "Yklwa",
@@ -8829,7 +8829,7 @@
   },
   {
     "name": "Ythryn Mythallar",
-    "path": "systems/dnd5e/icons/spells/light-air-fire-3.jpg"
+    "path": "icons/magic/light/explosion-star-large-orange.webp"
   },
   {
     "name": "Zircon",

@@ -2,7 +2,7 @@
   {
     "name": "A Quintessent's Lair",
     "monster": "Storm Giant Quintessent",
-    "path": "systems/dnd5e/icons/skills/blue_31.jpg"
+    "path": "icons/environment/wilderness/cave-entrance-mountain-blue.webp"
   },
   {
     "name": "A Quintessent's Lair",
@@ -12,7 +12,7 @@
   {
     "name": "Aggressive",
     "monster": "Underworld Cerberus",
-    "path": "systems/dnd5e/icons/skills/violet_11.jpg"
+    "path": "icons/creatures/fish/fish-fangtooth-skeletal-pink.webp"
   },
   {
     "name": "Aggressive",
@@ -22,7 +22,7 @@
   {
     "name": "Amorphous",
     "monster": "Alkilith",
-    "path": "systems/dnd5e/icons/spells/fog-water-air-1.jpg"
+    "path": "icons/magic/air/fog-gas-smoke-gray.webp"
   },
   {
     "name": "Amorphous",
@@ -32,12 +32,12 @@
   {
     "name": "Amphibious",
     "monster": "Tromokratis",
-    "path": "systems/dnd5e/icons/skills/affliction_15.jpg"
+    "path": "icons/magic/acid/dissolve-arm-flesh.webp"
   },
   {
     "name": "Amphibious",
     "monster": "Category 3 Krasis",
-    "path": "systems/dnd5e/icons/skills/emerald_05.jpg"
+    "path": "icons/environment/creatures/frog-spotted-green.webp"
   },
   {
     "name": "Amphibious",
@@ -47,17 +47,17 @@
   {
     "name": "Arcane Blast",
     "monster": "Sul Khatesh",
-    "path": "systems/dnd5e/icons/spells/needles-blue-2.jpg"
+    "path": "icons/magic/water/projectile-bolts-salvo-blue.webp"
   },
   {
     "name": "Arcane Blast",
     "monster": "Kalaraq Quori",
-    "path": "systems/dnd5e/icons/spells/needles-royal-3.jpg"
+    "path": "icons/magic/light/projectile-beams-salvo-yellow.webp"
   },
   {
     "name": "Attack",
     "monster": "Tarrasque",
-    "path": "systems/dnd5e/icons/skills/red_21.jpg"
+    "path": "icons/skills/melee/strike-slashes-orange.webp"
   },
   {
     "name": "Attack",
@@ -82,12 +82,12 @@
   {
     "name": "Attack",
     "monster": "Borborygmos",
-    "path": "systems/dnd5e/icons/skills/yellow_21.jpg"
+    "path": "icons/weapons/hammers/hammer-double-glowing-yellow.webp"
   },
   {
     "name": "Attack",
     "monster": "The Lord of Blades",
-    "path": "systems/dnd5e/icons/skills/weapon_41.jpg"
+    "path": "icons/skills/ranged/daggers-thrown-salvo-green.webp"
   },
   {
     "name": "Attack",
@@ -102,22 +102,22 @@
   {
     "name": "Attack",
     "monster": "Auril (Second Form)",
-    "path": "systems/dnd5e/icons/skills/ice_07.jpg"
+    "path": "icons/magic/water/projectile-ice-shard.webp"
   },
   {
     "name": "Bite",
     "monster": "Tarrasque",
-    "path": "systems/dnd5e/icons/skills/red_29.jpg"
+    "path": "icons/creatures/abilities/mouth-teeth-long-red.webp"
   },
   {
     "name": "Bite",
     "monster": "Kostchtchie",
-    "path": "systems/dnd5e/icons/skills/blood_07.jpg"
+    "path": "icons/creatures/abilities/mouth-teeth-long-red.webp"
   },
   {
     "name": "Bite",
     "monster": "Ancient Red Dragon",
-    "path": "systems/dnd5e/icons/skills/red_07.jpg"
+    "path": "icons/creatures/abilities/mouth-teeth-fire-orange.webp"
   },
   {
     "name": "Bite",
@@ -147,7 +147,7 @@
   {
     "name": "Bite",
     "monster": "Tyrannosaurus Rex",
-    "path": "systems/dnd5e/icons/skills/yellow_43.jpg"
+    "path": "icons/magic/death/skeleton-dinosaur-skull-tan.webp"
   },
   {
     "name": "Bite",
@@ -157,7 +157,7 @@
   {
     "name": "Bite",
     "monster": "Skeletal Polar Bear",
-    "path": "systems/dnd5e/icons/skills/yellow_32.jpg"
+    "path": "icons/magic/death/skull-sand-white-yellow.webp"
   },
   {
     "name": "Cast a Spell",
@@ -207,12 +207,12 @@
   {
     "name": "Claw",
     "monster": "Isperia",
-    "path": "systems/dnd5e/icons/items/inventory/monster-paw.jpg"
+    "path": "icons/commodities/claws/claw-bear-brown-grey.webp"
   },
   {
     "name": "Claw",
     "monster": "Isperia",
-    "path": "systems/dnd5e/icons/items/inventory/monster-paw.jpg"
+    "path": "icons/commodities/claws/claw-bear-brown-grey.webp"
   },
   {
     "name": "Claw",
@@ -287,7 +287,7 @@
   {
     "name": "Claws",
     "monster": "Bag of Nails",
-    "path": "systems/dnd5e/icons/items/inventory/monster-paw.jpg"
+    "path": "icons/commodities/claws/claw-bear-brown-grey.webp"
   },
   {
     "name": "Claws",
@@ -337,57 +337,57 @@
   {
     "name": "Cold Breath",
     "monster": "Ancient Silver Dragon",
-    "path": "systems/dnd5e/icons/skills/ice_11.jpg"
+    "path": "icons/creatures/abilities/dragon-ice-breath-blue.webp"
   },
   {
     "name": "Cold Breath",
     "monster": "Abominable Yeti",
-    "path": "systems/dnd5e/icons/spells/fog-blue-2.jpg"
+    "path": "icons/magic/air/fog-gas-smoke-dense-purple-blue.webp"
   },
   {
     "name": "Death Burst",
     "monster": "Frost Worm",
-    "path": "systems/dnd5e/icons/skills/emerald_01.jpg"
+    "path": "icons/magic/sonic/explosion-shock-wave-teal.webp"
   },
   {
     "name": "Death Burst",
     "monster": "Stonemelder",
-    "path": "systems/dnd5e/icons/spells/air-burst-jade-2.jpg"
+    "path": "icons/magic/air/air-burst-spiral-teal-green.webp"
   },
   {
     "name": "Death Throes",
     "monster": "Balor",
-    "path": "systems/dnd5e/icons/spells/explosion-red-3.jpg"
+    "path": "icons/magic/fire/explosion-fireball-large-red-orange.webp"
   },
   {
     "name": "Death Throes",
     "monster": "Gauth",
-    "path": "systems/dnd5e/icons/spells/explosion-magenta-3.jpg"
+    "path": "icons/magic/fire/explosion-fireball-large-purple-pink.webp"
   },
   {
     "name": "Feed",
     "monster": "Star Spawn Larva Mage",
-    "path": "systems/dnd5e/icons/skills/affliction_11.jpg"
+    "path": "icons/magic/earth/orb-stone-smoke-teal.webp"
   },
   {
     "name": "Feed",
     "monster": "Maw of Sekolah",
-    "path": "systems/dnd5e/icons/spells/horror-eerie-3.jpg"
+    "path": "icons/magic/control/fear-fright-monster-grin-purple-blue.webp"
   },
   {
     "name": "Fire Form",
     "monster": "Maegera the Dawn Titan",
-    "path": "systems/dnd5e/icons/skills/fire_10.jpg"
+    "path": "icons/magic/fire/projectile-embers-orange.webp"
   },
   {
     "name": "Fire Form",
     "monster": "Phoenix",
-    "path": "systems/dnd5e/icons/skills/yellow_38.jpg"
+    "path": "icons/magic/fire/projectile-wave-arrow.webp"
   },
   {
     "name": "Fist",
     "monster": "Fraz-Urb'luu",
-    "path": "systems/dnd5e/icons/skills/blood_11.jpg"
+    "path": "icons/skills/melee/unarmed-punch-fist-yellow-red.webp"
   },
   {
     "name": "Fist",
@@ -397,12 +397,12 @@
   {
     "name": "Fist",
     "monster": "Vladimir Horngaard",
-    "path": "systems/dnd5e/icons/skills/ice_10.jpg"
+    "path": "icons/skills/melee/unarmed-punch-fist-blue.webp"
   },
   {
     "name": "Gore",
     "monster": "Baphomet",
-    "path": "systems/dnd5e/icons/skills/red_23.jpg"
+    "path": "icons/creatures/mammals/ox-bull-horned-glowing-orange.webp"
   },
   {
     "name": "Gore",
@@ -422,7 +422,7 @@
   {
     "name": "Iron Scent",
     "monster": "Khargra",
-    "path": "systems/dnd5e/icons/items/inventory/plate-bronze.jpg"
+    "path": "icons/commodities/stone/paver-tile-orange.webp"
   },
   {
     "name": "Multiple Heads",
@@ -432,12 +432,12 @@
   {
     "name": "Multiple Heads",
     "monster": "Polukranos",
-    "path": "systems/dnd5e/icons/skills/violet_03.jpg"
+    "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
   },
   {
     "name": "Ram",
     "monster": "Gold-Forged Sentinel",
-    "path": "systems/dnd5e/icons/items/weapons/club-horns.jpg"
+    "path": "icons/weapons/maces/mace-skull-ram.webp"
   },
   {
     "name": "Ram",
@@ -512,16 +512,16 @@
   {
     "name": "Web",
     "monster": "Ice Spider Queen",
-    "path": "systems/dnd5e/icons/skills/blue_16.jpg"
+    "path": "icons/magic/water/orb-ice-web.webp"
   },
   {
     "name": "Whirlwind",
     "monster": "Air Elemental",
-    "path": "systems/dnd5e/icons/spells/wind-sky-3.jpg"
+    "path": "icons/magic/air/wind-tornado-cyclone-white.webp"
   },
   {
     "name": "Whirlwind",
     "monster": "Dust Devil",
-    "path": "systems/dnd5e/icons/spells/wind-red-3.jpg"
+    "path": "icons/magic/air/wind-tornado-cyclone-red-orange.webp"
   }
 ]

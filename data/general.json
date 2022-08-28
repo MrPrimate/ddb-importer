@@ -21,15 +21,15 @@
   },
   {
     "name": "Bonus Proficiency",
-    "path": "systems/dnd5e/icons/items/weapons/crystal.png"
+    "path": "icons/commodities/gems/gem-rough-navette-yellow-green.webp"
   },
   {
     "name": "Extra Attack",
-    "path": "systems/dnd5e/icons/spells/enchant-orange-2.jpg"
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-orange.webp"
   },
   {
     "name": "Feat",
-    "path": "systems/dnd5e/icons/skills/yellow_01.jpg"
+    "path": "icons/magic/light/explosion-star-glow-yellow.webp"
   },
   {
     "name": "Languages",
@@ -37,7 +37,7 @@
   },
   {
     "name": "Proficiencies",
-    "path": "systems/dnd5e/icons/items/weapons/crystal.png"
+    "path": "icons/commodities/gems/gem-rough-navette-yellow-green.webp"
   },
   {
     "name": "Size",
@@ -45,14 +45,14 @@
   },
   {
     "name": "Speed",
-    "path": "systems/dnd5e/icons/spells/needles-acid-1.jpg"
+    "path": "icons/magic/acid/projectile-needles-salvo-green.webp"
   },
   {
     "name": "Tool Proficiency",
-    "path": "systems/dnd5e/icons/items/inventory/badge-hammer.jpg"
+    "path": "icons/equipment/neck/amulet-carved-stone-hammer.webp"
   },
   {
     "name": "Unarmed Strike",
-    "path": "systems/dnd5e/icons/skills/yellow_08.jpg"
+    "path": "icons/skills/melee/unarmed-punch-fist.webp"
   }
 ]
