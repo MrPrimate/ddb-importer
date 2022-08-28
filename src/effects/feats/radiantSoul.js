@@ -41,9 +41,9 @@ export function radiantSoulEffect(document) {
 
     document.effects.push(effect);
 
-    document.data["target"]["type"] = "self";
-    document.data.range = { value: null, units: "self", long: null };
-    document.data.actionType = "other";
+    document.system["target"]["type"] = "self";
+    document.system.range = { value: null, units: "self", long: null };
+    document.system.actionType = "other";
 
   }
 
