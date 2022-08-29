@@ -4,17 +4,17 @@
   "author": "MrPrimate",
   "title": "D&D Beyond Importer",
   "license": "MIT License",
-  "description": "Import your dndbeyond.com characters, spells, items, monsters, encounters, and adventures at super speed!",
+  "description": "Import your dndbeyond.com characters, spells, items, monsters, encounters, and adventures!",
   "version": "VERSION",
   "download": "https://github.com/mrprimate/ddb-importer/releases/download/VERSION/ddb-importer.zip",
   "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module.json",
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "url": "https://github.com/mrprimate/ddb-importer",
-  "minimumCoreVersion": "10.273",
+  "minimumCoreVersion": "10.279",
   "compatibleCoreVersion": "10",
   "compatibility": {
-    "minimum": "10.273",
+    "minimum": "10.279",
     "verified": 10
   },
   "authors": [
@@ -39,7 +39,7 @@
       "id": "dnd5e",
       "type": "system",
       "compatibility": {
-        "verified": "1.6.3"
+        "verified": "2.0.0"
       }
     }]
   },
