@@ -673,6 +673,12 @@ const utils = {
       if (option) {
         klass = data.character.classes.find((cls) => cls.classFeatures.find((feature) => feature.definition.id == option.componentId));
       }
+      if (option && !klass && data.classOptions) {
+        const classOption = data.classOptions.find((cOption) => cOption.id == option.componentId);
+        if (classOption) {
+          klass = data.character.classes.find((cls) => cls.definition.id === classOption.classId);
+        }
+      }
     }
     // class option lookups
     if (!klass && data.classOptions) {
