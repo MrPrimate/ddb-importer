@@ -1,3 +1,7 @@
+# 3.0.1
+
+* Some template strings would fail parsing resulting in "TypeError: Cannot read properties of undefined (reading 'Attributes'). "
+
 # 2.9.66
 
 * Some optional class features would not parse in as features.

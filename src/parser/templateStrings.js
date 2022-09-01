@@ -153,7 +153,7 @@ function parseMatch(ddb, character, match, feature) {
     ability.forEach((ab) => {
       const rollString = useScaleAll
         ? ` + @abilities.${ab}.mod + @prof + @bonus.rsak.attack`
-        : `${characterAbilities[ab].mod} + ${character.data.attributes.prof}`;
+        : `${characterAbilities[ab].mod} + ${character.system.attributes.prof}`;
       const abRegexp = RegExp(`spellattack:${ab}`, "g");
       result = result.replace(abRegexp, rollString);
       linktext = result.replace(abRegexp, ` (${utils.capitalize(ab)} Spell Attack) `);
