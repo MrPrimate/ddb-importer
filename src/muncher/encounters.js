@@ -471,7 +471,7 @@ export class DDBEncounterMunch extends Application {
               .some((t) => t.actor.flags?.ddbimporter?.id == character.id && t.actor.type == "character");
 
             if (!onScene) {
-              const linkedToken = duplicate(await characterInGame.getTokenData());
+              const linkedToken = duplicate(await characterInGame.getTokenDocument());
               if (useDDBSave) {
                 setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
               }
@@ -492,7 +492,7 @@ export class DDBEncounterMunch extends Application {
       this.encounter.worldMonsters.forEach(async (worldMonster) => {
         logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.encounter.name}`);
         const monster = game.actors.get(worldMonster.id);
-        const linkedToken = duplicate(await monster.getTokenData());
+        const linkedToken = duplicate(await monster.getTokenDocument());
         if (monsterDepth + linkedToken.height > ySquares) {
           monsterDepth = 0;
           monsterRows += rowMonsterWidth;

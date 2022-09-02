@@ -291,7 +291,7 @@ export default class ThirdPartyMunch extends FormApplication {
           // world specific things like img paths and scales etc
           const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
           delete sceneToken.scale;
-          const tokenData = await worldActor.getTokenData();
+          const tokenData = await worldActor.getTokenDocument();
           delete tokenData.y;
           delete tokenData.x;
           const jsonTokenData = duplicate(tokenData);

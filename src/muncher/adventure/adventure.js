@@ -170,7 +170,7 @@ export default class AdventureMunch extends FormApplication {
                     delete sceneToken.scale;
                     const worldActor = game.actors.get(token.actorId);
                     if (worldActor) {
-                      const tokenData = await worldActor.getTokenData();
+                      const tokenData = await worldActor.getTokenDocument();
                       delete tokenData.y;
                       delete tokenData.x;
                       const jsonTokenData = duplicate(tokenData);
