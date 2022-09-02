@@ -716,6 +716,9 @@ export const fallbackDDBConfig = {
     { id: 83, name: "Tletlahtolli" },
     { id: 84, name: "Xingyu" },
     { id: 85, name: "Zabaani" },
+    { id: 86, name: "Dohwar" },
+    { id: 87, name: "Hadozee" },
+    { id: 88, name: "Aartuk" },
   ],
   restoreTypes: [
     { id: 1, name: "Full", description: "Restore life with full HP" },
