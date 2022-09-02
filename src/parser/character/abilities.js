@@ -62,6 +62,8 @@ function parseAbilities(data, includeExcludedEffects = false) {
       bonuses: {
         check: "",
         save: "",
+        checkMinimum: null,
+        saveMinimum: null,
       },
     };
     // console.warn(ability.value);
