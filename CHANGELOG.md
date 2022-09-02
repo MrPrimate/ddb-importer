@@ -1,3 +1,9 @@
+# 3.0.2
+
+* Update code to remove use of some deprecated functions.
+* Update fallback language config.
+
+
 # 3.0.1
 
 * Some template strings would fail parsing resulting in "TypeError: Cannot read properties of undefined (reading 'Attributes'). "
