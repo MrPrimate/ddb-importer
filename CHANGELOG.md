@@ -2,6 +2,7 @@
 
 * Remove unnecessary check for scale values when generating certain martial arts actions.
 * Savage Attacker feature effect caused parsing failure for characters.
+* The 'Create and Show Handout/To Chat' tooltip that appears in the Journals would obscure the 'Display Page Title' checkbox when editing a page.
 
 # 3.0.2
 

@@ -88,8 +88,10 @@ export function renderItemSheet(sheet, html) {
 }
 
 export function renderJournalSheet(sheet, html, data) {
-  linkTables("journal", html);
-  linkImages(html, data);
+  if (data.cssClass !== "editable") {
+    linkTables("journal", html);
+    linkImages(html, data);
+    showReadAlouds(html, data);
+  }
   adventureFlags(sheet, html, data);
-  showReadAlouds(html, data);
 }
