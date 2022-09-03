@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function savageAttackerEffect(document) {
-  if (document.data.actionType === null) return document;
+  if (document.system.actionType === null) return document;
   let effect = baseFeatEffect(document, document.name);
 
   effect.changes.push(

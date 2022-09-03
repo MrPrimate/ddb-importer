@@ -1,6 +1,7 @@
 # 3.0.3
 
 * Remove unnecessary check for scale values when generating certain martial arts actions.
+* Savage Attacker feature effect caused parsing failure for characters.
 
 # 3.0.2
 
