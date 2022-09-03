@@ -87,8 +87,8 @@ const ATTACK_ACTION_MAP = {
     page: "Making an Attack"
   },
   "Interact with an Object": {
-    hint: "Opportunity Attacks",
-    page: "Use an Object",
+    hint: "Use an Object",
+    page: "Actions in Combat",
   },
 };
 
@@ -127,6 +127,8 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
 
   const rulesCompendium = "dnd5e.rules";
   const srdCompendium = await getCompendium(rulesCompendium);
+  if (!srdCompendium) return result;
+
   const srdIndex = await srdCompendium.getIndex();
   const srdDocuments = await srdCompendium.getDocuments();
   result.index = srdIndex;
@@ -134,8 +136,8 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
   const skillEntryDocument = srdDocuments.find((d) => d.name === "Chapter 7: Using Ability Scores");
   if (skillEntryDocument) {
     result.lookups.skills = CONFIG.DDB.abilitySkills.map((skill) => {
-      const skillEntryPage = skillEntryDocument.find((p) => p.name === "Using Each Ability");
-      const stat = CONFIG.DDB.stats.find((s) => s.id === skill.id);
+      const skillEntryPage = skillEntryDocument.pages.find((p) => p.name === "Using Each Ability");
+      const stat = CONFIG.DDB.stats.find((s) => s.id === skill.stat);
       const headerLink = `${stat.name} Checks`;
       return {
         id: skill.id,
@@ -165,9 +167,10 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
     });
 
   const conditionEntryDocument = srdDocuments.find((d) => d.name === "Appendix A: Conditions");
-  result.lookups.conditions = CONFIG.DDB.conditions.filter((condition) => conditionEntryDocument.pages.some((p) => p.name.trim() === condition.definition.name.trim()))
+  result.lookups.conditions = CONFIG.DDB.conditions
+    .filter((condition) => conditionEntryDocument.pages.some((p) => p.name.trim() === condition.definition.name.trim()))
     .map((condition) => {
-      const conditionEntryPage = senseEntryDocument.pages.find((p) => p.name.trim() === condition.definition.name.trim());
+      const conditionEntryPage = conditionEntryDocument.pages.find((p) => p.name.trim() === condition.definition.name.trim());
       return {
         id: condition.definition.id,
         _id: conditionEntryDocument.id,
@@ -182,20 +185,20 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
 
   const actionEntryDocument = srdDocuments.find((d) => d.name === "Chapter 9: Combat");
   if (actionEntryDocument) {
+    const actionEntryPage = actionEntryDocument.pages.find((p) => p.name === "Actions in Combat");
     CONFIG.DDB.basicActions.forEach((action) => {
       if (ATTACK_ACTION_MAP[action.name]) {
-        const actionEntryPage = actionEntryDocument.find((p) => p.name === ATTACK_ACTION_MAP[action.name].page);
+        const attackEntryPage = actionEntryDocument.pages.find((p) => p.name === ATTACK_ACTION_MAP[action.name].page);
         result.lookups.actions.push({
           id: action.id,
           _id: actionEntryDocument._id,
           name: action.name,
           compendium: rulesCompendium,
           documentName: actionEntryDocument.name,
-          pageId: actionEntryPage._id,
+          pageId: attackEntryPage._id,
           headerLink: ATTACK_ACTION_MAP[action.name].hint,
         });
       } else if (action.id < 100) {
-        const actionEntryPage = actionEntryDocument.find((p) => p.name === "Actions in Combat");
         result.lookups.actions.push({
           id: action.id,
           _id: actionEntryDocument.id,
@@ -211,7 +214,7 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
 
   const equipmentDocument = srdDocuments.find((d) => d.name === "Chapter 5: Equipment");
   if (equipmentDocument) {
-    const weaponPropertiesPage = equipmentDocument.find((p) => p.name === "Weapons");
+    const weaponPropertiesPage = equipmentDocument.pages.find((p) => p.name === "Weapons");
     result.lookups.weaponproperties = CONFIG.DDB.weaponProperties.map((prop) => {
       return {
         id: prop.id,
