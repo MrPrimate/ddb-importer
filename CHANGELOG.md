@@ -1,3 +1,7 @@
+# 3.0.3
+
+* Remove unnecessary check for scale values when generating certain martial arts actions.
+
 # 3.0.2
 
 * Update code to remove use of some deprecated functions.

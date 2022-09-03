@@ -69,11 +69,35 @@ async function getItemMap() {
   return Promise.all(results);
 }
 
+const ATTACK_ACTION_MAP = {
+  "Opportunity Attack": {
+    hint: "Opportunity Attacks",
+    page: "Making an Attack"
+  },
+  Grapple: {
+    hint: "Grappling",
+    page: "Making an Attack"
+  },
+  Shove: {
+    hint: "Shoving a Creature",
+    page: "Making an Attack"
+  },
+  "Two-Weapon Fighting": {
+    hint: "Two-Weapon Fighting",
+    page: "Making an Attack"
+  },
+  "Interact with an Object": {
+    hint: "Opportunity Attacks",
+    page: "Use an Object",
+  },
+};
+
 export async function generateAdventureConfig(full = true, cobalt = true) {
   const customProxy = game.settings.get("ddb-importer", "custom-proxy");
 
   const result = {
     generateTokens: true,
+    v10linking: true,
     version: game.modules.get("ddb-importer").version,
     lookups: {
       monsters: [],
@@ -104,68 +128,99 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
   const rulesCompendium = "dnd5e.rules";
   const srdCompendium = await getCompendium(rulesCompendium);
   const srdIndex = await srdCompendium.getIndex();
+  const srdDocuments = await srdCompendium.getDocuments();
   result.index = srdIndex;
 
-  const skillEntry = srdIndex.find((i) => i.name === "Using Each Ability");
-  if (skillEntry) {
+  const skillEntryDocument = srdDocuments.find((d) => d.name === "Chapter 7: Using Ability Scores");
+  if (skillEntryDocument) {
     result.lookups.skills = CONFIG.DDB.abilitySkills.map((skill) => {
+      const skillEntryPage = skillEntryDocument.find((p) => p.name === "Using Each Ability");
+      const stat = CONFIG.DDB.stats.find((s) => s.id === skill.id);
+      const headerLink = `${stat.name} Checks`;
       return {
         id: skill.id,
-        _id: skillEntry.id,
+        _id: skillEntryDocument._id,
         name: skill.name,
         compendium: rulesCompendium,
-        documentName: skillEntry.name,
+        documentName: skillEntryDocument.name,
+        pageId: skillEntryPage._id,
+        headerLink,
       };
     });
   }
 
-  result.lookups.senses = CONFIG.DDB.senses.filter((sense) => srdIndex.some((i) => i.name === sense.name))
+  const senseEntryDocument = srdDocuments.find((d) => d.name === "Appendix D: Senses and Speeds");
+  result.lookups.senses = CONFIG.DDB.senses.filter((sense) => senseEntryDocument.pages.some((p) => p.name === sense.name))
     .map((sense) => {
-      const entry = srdIndex.find((i) => i.name === sense.name);
+      const senseEntryPage = senseEntryDocument.pages.find((p) => p.name === sense.name);
       return {
         id: sense.id,
-        _id: entry.id,
+        _id: senseEntryDocument._id,
         name: sense.name,
         compendium: rulesCompendium,
-        documentName: entry.name,
+        documentName: senseEntryDocument.name,
+        pageId: senseEntryPage._id,
+        headerLink: null,
       };
     });
 
-  result.lookups.conditions = CONFIG.DDB.conditions.filter((condition) => srdIndex.some((i) => i.name.trim() === condition.definition.name.trim()))
+  const conditionEntryDocument = srdDocuments.find((d) => d.name === "Appendix A: Conditions");
+  result.lookups.conditions = CONFIG.DDB.conditions.filter((condition) => conditionEntryDocument.pages.some((p) => p.name.trim() === condition.definition.name.trim()))
     .map((condition) => {
-      const entry = srdIndex.find((i) => i.name.trim() === condition.definition.name.trim());
+      const conditionEntryPage = senseEntryDocument.pages.find((p) => p.name.trim() === condition.definition.name.trim());
       return {
         id: condition.definition.id,
-        _id: entry.id,
+        _id: conditionEntryDocument.id,
         name: condition.definition.name,
         compendium: rulesCompendium,
         slug: condition.definition.slug,
-        documentName: entry.name,
+        documentName: conditionEntryDocument.name,
+        pageId: conditionEntryPage._id,
+        headerLink: null,
       };
     });
 
-  const actionEntry = srdIndex.find((i) => i.name === "Actions in Combat");
-  if (actionEntry) {
-    result.lookups.actions = CONFIG.DDB.basicActions.map((action) => {
-      return {
-        id: action.id,
-        _id: actionEntry.id,
-        name: action.name,
-        compendium: rulesCompendium,
-        documentName: actionEntry.name,
-      };
+  const actionEntryDocument = srdDocuments.find((d) => d.name === "Chapter 9: Combat");
+  if (actionEntryDocument) {
+    CONFIG.DDB.basicActions.forEach((action) => {
+      if (ATTACK_ACTION_MAP[action.name]) {
+        const actionEntryPage = actionEntryDocument.find((p) => p.name === ATTACK_ACTION_MAP[action.name].page);
+        result.lookups.actions.push({
+          id: action.id,
+          _id: actionEntryDocument._id,
+          name: action.name,
+          compendium: rulesCompendium,
+          documentName: actionEntryDocument.name,
+          pageId: actionEntryPage._id,
+          headerLink: ATTACK_ACTION_MAP[action.name].hint,
+        });
+      } else if (action.id < 100) {
+        const actionEntryPage = actionEntryDocument.find((p) => p.name === "Actions in Combat");
+        result.lookups.actions.push({
+          id: action.id,
+          _id: actionEntryDocument.id,
+          name: action.name,
+          compendium: rulesCompendium,
+          documentName: actionEntryDocument.name,
+          pageId: actionEntryPage._id,
+          headerLink: action.name,
+        });
+      }
     });
   }
 
-  const weaponPropertiesEntry = srdIndex.find((i) => i.name === "Weapons");
-  if (weaponPropertiesEntry) {
+  const equipmentDocument = srdDocuments.find((d) => d.name === "Chapter 5: Equipment");
+  if (equipmentDocument) {
+    const weaponPropertiesPage = equipmentDocument.find((p) => p.name === "Weapons");
     result.lookups.weaponproperties = CONFIG.DDB.weaponProperties.map((prop) => {
       return {
         id: prop.id,
-        _id: weaponPropertiesEntry.id,
+        _id: equipmentDocument._id,
         name: prop.name,
         compendium: rulesCompendium,
-        documentName: weaponPropertiesEntry.name,
+        documentName: equipmentDocument.name,
+        pageId: weaponPropertiesPage._id,
+        headerLink: "Weapon Properties",
       };
     });
   }
