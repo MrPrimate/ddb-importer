@@ -259,7 +259,6 @@ function martialArtsDamage(ddb, action) {
   // are we dealing with martial arts?
   if (isMartialArtists(ddb.character.classes)) {
     const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-    const scaleSupport = utils.versionCompare(game.data.system.data.version, "1.6.0") >= 0;
 
     const dies = ddb.character.classes
       .filter((cls) => isMartialArtists([cls]))
@@ -270,7 +269,7 @@ function martialArtsDamage(ddb, action) {
         if (levelScaleDie?.diceString) {
 
           const scaleValueLink = utils.getScaleValueLink(ddb, feature);
-          const scaleString = scaleSupport && useScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
+          const scaleString = useScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
             ? scaleValueLink
             : levelScaleDie.diceString;
 
@@ -288,7 +287,7 @@ function martialArtsDamage(ddb, action) {
       });
     const die = dies.length > 0 ? dies[0] : "";
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-    const damageString = scaleSupport && useScale && die.includes("@")
+    const damageString = useScale && die.includes("@")
       ? `${die}${damageTag}${damageBonus} + @mod`
       : utils.parseDiceString(die, `${damageBonus} + @mod`, damageTag).diceString;
 
