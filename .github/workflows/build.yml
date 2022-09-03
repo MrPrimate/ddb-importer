@@ -75,7 +75,7 @@ jobs:
         args: 'DDB Importer ${{ steps.get-version.outputs.version }} has been published by our development Kobolds!'
 
     # - name: FoundryVTT AutoPublish
-    #   uses: Varriount/fvtt-autopublish@v1.0.2a
+    #   uses: Varriount/fvtt-autopublish@v1.0.9
     #   with:
     #     username: ${{ secrets.FOUNDRY_ADMIN_USER }}
     #     password: ${{ secrets.FOUNDRY_ADMIN_PW }}
