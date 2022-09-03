@@ -92,7 +92,7 @@ const ATTACK_ACTION_MAP = {
   },
 };
 
-export async function generateAdventureConfig(full = true, cobalt = true) {
+export async function generateAdventureConfig(full = false, cobalt = true, fullPageMap = false) {
   const customProxy = game.settings.get("ddb-importer", "custom-proxy");
 
   const result = {
@@ -109,7 +109,9 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
       actions: [],
       weaponproperties: [],
       vehicles: [],
-    }
+      rule: [],
+    },
+    fullPageMap: [],
   };
 
   if (cobalt) {
@@ -238,6 +240,22 @@ export async function generateAdventureConfig(full = true, cobalt = true) {
         url: v.url,
         name: v.name,
       };
+    });
+  }
+
+  if (fullPageMap) {
+    srdDocuments.forEach((document) => {
+      document.pages.forEach((page) => {
+        result.fullPageMap.push({
+          id: null,
+          _id: document.id,
+          name: page.name,
+          compendium: rulesCompendium,
+          documentName: document.name,
+          pageId: page._id,
+          headerLink: null,
+        });
+      });
     });
   }
 

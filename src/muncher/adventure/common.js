@@ -521,7 +521,9 @@ export default class Helpers {
         if (lookupValue) {
           const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
           if (lookupEntry) {
-            doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@Compendium[${lookupEntry.compendium}.${lookupEntry._id}]{${node.textContent}}`);
+            const pageLink = lookupEntry.pageId ? `.JournalEntryPage.${lookupEntry.pageId}` : "";
+            const linkStub = lookupEntry.headerLink ? `#${lookupEntry.headerLink}` : "";
+            doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@Compendium[${lookupEntry.compendium}.${lookupEntry._id}${pageLink}${linkStub}]{${node.textContent}}`);
           } else {
             logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}`);
           }
@@ -529,7 +531,7 @@ export default class Helpers {
       });
     }
 
-    // vehicles - not yet handled, links to DDB
+    // vehicles - if not imported, link to DDB
     const compendiumLinks = doc.querySelectorAll("a[href*=\"ddb://vehicles/\"]");
     const lookupRegExp = /ddb:\/\/vehicles\/([0-9]*)/g;
     compendiumLinks.forEach((node) => {

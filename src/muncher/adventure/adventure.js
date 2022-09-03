@@ -271,7 +271,7 @@ export default class AdventureMunch extends FormApplication {
         await AdventureMunch._checkForMissingData(adventure, folders);
 
         // now we have imported all missing data, generate the lookup data
-        CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig();
+        CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig(true);
         logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
         await this._importFiles(adventure, zip);

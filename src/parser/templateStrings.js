@@ -25,7 +25,15 @@ export async function loadSRDRules() {
   if (hasProperty(CONFIG, "DDBI.SRD_LOOKUP.index")) return;
   try {
     // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.SRD_LOOKUP = await generateAdventureConfig(false, false);
+    CONFIG.DDBI.SRD_LOOKUP = await generateAdventureConfig(false, false, true);
+    // eslint-disable-next-line require-atomic-updates
+    CONFIG.DDBI.SRD_LOOKUP.linkMap = {};
+    for (const [key, value] of Object.entries(CONFIG.DDBI.SRD_LOOKUP.lookups)) {
+      value.forEach((thing) => {
+        thing.type = key;
+        CONFIG.DDBI.SRD_LOOKUP.linkMap[thing.name] = thing;
+      });
+    }
   } catch (err) {
     logger.error("5e SRD Rules compendium failed to load", err);
     // eslint-disable-next-line require-atomic-updates
@@ -344,16 +352,25 @@ function replaceTag(match, p1, p2, p3, offset, string) {
   if (INDEX_COMPENDIUMS.includes(p1)) {
     return findMatchingTagInIndex(p1, p2);
   } else if (["total cover", "half cover", "three-quaters cover"].includes(p2.toLowerCase())) {
-    const coverMatch = CONFIG.DDBI.SRD_LOOKUP.index.find((entry) => entry.name.toLowerCase() === "cover");
-    if (coverMatch) return `@Compendium[dnd5e.rules.${coverMatch._id}]{${p2}}`;
+    const coverMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((entry) => entry.name === "Cover");
+    if (coverMatch) {
+      return `@Compendium[dnd5e.rules.${coverMatch._id}.JournalEntryPage.${coverMatch.pageId}]{${p2}}`;
+    }
+  } else if (hasProperty(CONFIG.DDBI.SRD_LOOKUP, p2.split(";")[0])) {
+    const lookup = getProperty(CONFIG.DDBI.SRD_LOOKUP, p2);
+    const pageLink = lookup.pageId ? `.JournalEntryPage.${lookup.pageId}` : "";
+    const linkStub = lookup.headerLink ? `#${lookup.headerLink}` : "";
+    return `@Compendium[dnd5e.rules.${lookup._id}${pageLink}${linkStub}]{${p2}}`;
   } else {
-    const srdMatch = CONFIG.DDBI.SRD_LOOKUP.index.find((rule) => rule.name.toLowerCase() === p2.toLowerCase() ||
-      rule.name.replace("’", "'").toLowerCase() === p2.replace("’", "'").toLowerCase().split("ing")[0]
+    const srdMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((page) => page.name.toLowerCase() === p2.toLowerCase().split(";")[0] ||
+      page.name.replace("’", "'").toLowerCase() === p2.replace("’", "'").toLowerCase().split("ing")[0].split(";")[0]
     );
     if (srdMatch) {
-      return `@Compendium[dnd5e.rules.${srdMatch._id}]{${p2}}`;
+      const pageLink = srdMatch.pageId ? `.JournalEntryPage.${srdMatch.pageId}` : "";
+      const linkStub = srdMatch.headerLink ? `#${srdMatch.headerLink}` : "";
+      return `@Compendium[dnd5e.rules.${srdMatch._id}${pageLink}${linkStub}]{${p2}}`;
     } else {
-      logger.info(`Unable to find tag parse compendium match for ${match}`);
+      logger.info(`Unable to tag parse compendium match for ${match}`);
     }
   }
 
