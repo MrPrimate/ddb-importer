@@ -71,14 +71,18 @@ export function getCharacterSpells(ddb, character) {
       // as they may come from with different spell casting mods
       const parsedSpell = parseSpell(spell, character);
       const duplicateSpell = items.findIndex(
-        (existingSpell) =>
-          (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name &&
+        (existingSpell) => {
+          const existingName = (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name);
+          const parsedName = (parsedSpell.flags.ddbimporter.originalName ? parsedSpell.flags.ddbimporter.originalName : parsedSpell.name);
           // some spells come from different classes but end up having the same ddb id
-          (classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class || spell.id === existingSpell.flags.ddbimporter.dndbeyond.id)
-      );
-      if (!items[duplicateSpell]) {
+          const classIdMatch = (classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class || spell.id === existingSpell.flags.ddbimporter.dndbeyond.id)
+          return existingName === parsedName && classIdMatch;
+        });
+      const duplicateItem = items[duplicateSpell];
+      if (!duplicateItem) {
         items.push(parsedSpell);
-      } else if (spell.alwaysPrepared || parsedSpell.system.preparation.mode === "always") {
+      } else if (spell.alwaysPrepared || parsedSpell.system.preparation.mode === "always" ||
+        (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.preparation.mode === duplicateItem.system.preparation.mode && parsedSpell.prepared && !duplicateItem.prepared)) {
         // if our new spell is always known we overwrite!
         // it's probably domain
         items[duplicateSpell] = parsedSpell;
