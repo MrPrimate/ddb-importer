@@ -167,7 +167,7 @@ export const MACROS = {
     type: "gm",
     file: "darkness.js",
     isGM: true,
-    img: "systems/dnd5e/icons/skills/shadow_10.jpg",
+    img: "icons/magic/unholy/orb-glowing-yellow-purple.webp",
     world: true,
   }
 };

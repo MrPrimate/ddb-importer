@@ -1,3 +1,9 @@
+# 3.0.4
+
+* Spells with a ’ in them could end up with duplicate items in the spell list. e.g. Crusaders Mantle.
+* Fix some 5e system icon links that remained, notably on Divine Smite.
+* Add an extra condition to Adventure Muncher which could fail in some rare journal configurations.
+
 # 3.0.3
 
 * Remove unnecessary check for scale values when generating certain martial arts actions.

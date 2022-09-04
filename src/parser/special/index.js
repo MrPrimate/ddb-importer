@@ -33,7 +33,7 @@ function getDivineSmite() {
     flags,
     name: "Divine Smite",
     type: "spell",
-    img: "systems/dnd5e/icons/skills/light_05.jpg",
+    img: "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp",
     system: {
       description: {
         value: "<p>Starting at 2nd level, when you hit a creature with a melee weapon attack, you can expend one spell slot to deal radiant damage to the target, in addition to the weapon&rsquo;s damage.</p>\n<p>The extra damage is 2d8 for a 1st-level spell slot, plus 1d8 for each spell level higher than 1st, to a maximum of 5d8. The damage increases by 1d8 if the target is an undead or a fiend.</p>",
