@@ -75,7 +75,7 @@ export function getCharacterSpells(ddb, character) {
           const existingName = (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name);
           const parsedName = (parsedSpell.flags.ddbimporter.originalName ? parsedSpell.flags.ddbimporter.originalName : parsedSpell.name);
           // some spells come from different classes but end up having the same ddb id
-          const classIdMatch = (classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class || spell.id === existingSpell.flags.ddbimporter.dndbeyond.id)
+          const classIdMatch = (classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class || spell.id === existingSpell.flags.ddbimporter.dndbeyond.id);
           return existingName === parsedName && classIdMatch;
         });
       const duplicateItem = items[duplicateSpell];
