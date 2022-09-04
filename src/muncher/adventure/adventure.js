@@ -686,7 +686,7 @@ export default class AdventureMunch extends FormApplication {
           // eslint-disable-next-line require-atomic-updates
           data.text = Helpers.foundryCompendiumReplace(data.text);
         });
-      } else if (importType === "JournalEntry") {
+      } else if (importType === "JournalEntry" && data.pages) {
         await Helpers.asyncForEach(data.pages, async (page) => {
           if (page.text.content) {
             const journalImages = Helpers.reMatchAll(/(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/, page.text.content);
