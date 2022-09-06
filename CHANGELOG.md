@@ -1,6 +1,7 @@
 # 3.0.5
 
 * Fix Third Party imports (@PinkRose#7896)
+* A couple more icon tweaks from 5e system icons.
 
 # 3.0.4
 
