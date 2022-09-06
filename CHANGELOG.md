@@ -1,3 +1,7 @@
+# 3.0.5
+
+* Fix Third Party imports (@PinkRose#7896)
+
 # 3.0.4
 
 * Spells with a ’ in them could end up with duplicate items in the spell list. e.g. Crusaders Mantle.

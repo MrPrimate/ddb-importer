@@ -135,19 +135,17 @@ export default class ThirdPartyMunch extends FormApplication {
 
   static async _createFolders(adventure, folders) {
     if (folders) {
-      let itemFolder = null;
       CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
       CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = null;
 
       // the folder list could be out of order, we need to create all folders with parent null first
       const firstLevelFolders = folders.filter((folder) => folder.parent === null);
-      await Helpers.importFolder(itemFolder, firstLevelFolders, adventure, folders);
+      await Helpers.importFolder(firstLevelFolders, adventure, folders);
     }
   }
 
   static async _checkForMissingData(adventure, folders) {
     await ThirdPartyMunch._createFolders(adventure, folders);
-    // console.warn("_checkForMissingData", adventure);
 
     if (adventure.required?.spells && adventure.required.spells.length > 0) {
       logger.debug(`${adventure.name} - spells required`, adventure.required.spells);
@@ -274,7 +272,7 @@ export default class ThirdPartyMunch extends FormApplication {
     if (CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key]) {
       return CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key];
     } else {
-      const existingActor = game.actors.find((actor) => actor.folder == folderId && actor.flags.ddbimporter.id == ddbId);
+      const existingActor = game.actors.find((actor) => actor.folder?.id == folderId && actor.flags.ddbimporter.id == ddbId);
       const actorId = existingActor ? existingActor.id : randomID();
       CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key] = actorId;
       return actorId;
@@ -337,7 +335,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
         });
         if (noteJournal) {
-          logger.info(`Found note "${note.label}"" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
+          logger.info(`Found note "${note.label}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
           note.flags.ddb.journalId = noteJournal.id;
           // eslint-disable-next-line require-atomic-updates
           note.icon = await generateIcon(adventure, note.label);
@@ -375,6 +373,73 @@ export default class ThirdPartyMunch extends FormApplication {
     });
 
     return positionedNotes;
+  }
+
+  static async _getAdjustedScenes(scenes) {
+    const adjustedScenes = scenes.filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens);
+
+    await Helpers.asyncForEach(adjustedScenes, async(scene) => {
+      logger.debug(`Adjusting scene ${scene.name}`);
+      const mockAdventure = ThirdPartyMunch._generateMockAdventure(scene);
+      if (scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens) {
+        await ThirdPartyMunch._checkForMissingData(mockAdventure, []);
+        const bookName = ThirdPartyMunch._getDDBBookName(scene.flags.ddb.bookCode);
+        const actorFolder = await ThirdPartyMunch._findFolder(bookName, "Actor");
+        scene.tokens = scene.flags.ddb.tokens.map((token) => {
+          token.flags.actorFolderId = actorFolder.id;
+          token.actorId = ThirdPartyMunch._generateActorId(token);
+          return token;
+        });
+
+      }
+      // eslint-disable-next-line require-atomic-updates
+      scene.notes = await ThirdPartyMunch._linkSceneNotes(scene, mockAdventure);
+      logger.debug(`Finished scene adjustment for ${scene.name}`);
+    });
+
+    return adjustedScenes;
+  }
+
+  static async _updateScenes(scenes) {
+    logger.debug("Processing scenes!", scenes);
+    const filteredScenes = scenes
+      .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
+      // does the scene match a compendium scene
+      .filter(async (scene) => {
+        const compendium = game.packs.get(scene.flags.ddbimporter.export.compendium);
+        const compendiumScene = compendium.index.find((s) => s.name === scene.name);
+        if (compendiumScene) return true;
+        else return false;
+      });
+
+    const processedScenes = [];
+
+    await Helpers.asyncForEach(filteredScenes, async(scene) => {
+      logger.debug(`Processing scene ${scene.name} with DDB Updates`);
+      const compendiumId = scene.flags.ddbimporter.export.compendium;
+      const compendium = game.packs.get(compendiumId);
+      const folder = await ThirdPartyMunch._findFolder(compendium.metadata.label, "Scene");
+      const compendiumScene = compendium.index.find((s) => s.name === scene.name);
+      // eslint-disable-next-line require-atomic-updates
+      scene.folder = folder.id;
+
+      const existingScene = game.scenes.find((s) => s.name === scene.name && s.folder?.id === folder.id);
+
+      // if scene already exists, update
+      if (existingScene) {
+        logger.info(`Updating ${scene.name}`);
+        logger.debug(`${scene.name}update data`, { scene, existingScene });
+        await existingScene.update(scene);
+        processedScenes.push(existingScene);
+      } else {
+        const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene, { keepId: true });
+        logger.info(`Scene: ${scene.name} folder:`, folder);
+        logger.debug("worldScene:", worldScene);
+        processedScenes.push(worldScene);
+      }
+      logger.debug(`Finished scene DDB update ${scene.name}`);
+    });
+    return processedScenes;
   }
 
   async _dialogButton(event) {
@@ -438,24 +503,7 @@ export default class ThirdPartyMunch extends FormApplication {
       // import any missing monsters into the compendium
       // add tokens to scene
       // add notes to scene
-      const adjustedScenes = await Promise.all(this._scenePackage.scenes
-        .filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens)
-        .map(async (scene) => {
-          const mockScene = duplicate(scene);
-          if (mockScene.flags?.ddbimporter?.export?.actors && mockScene.flags?.ddb?.tokens) {
-            const mockAdventure = ThirdPartyMunch._generateMockAdventure(mockScene);
-            await ThirdPartyMunch._checkForMissingData(mockAdventure, []);
-            const bookName = ThirdPartyMunch._getDDBBookName(mockScene.flags.ddb.bookCode);
-            const actorFolder = await ThirdPartyMunch._findFolder(bookName, "Actor");
-            mockScene.tokens = mockScene.flags.ddb.tokens.map((token) => {
-              token.flags.actorFolderId = actorFolder.id;
-              token.actorId = ThirdPartyMunch._generateActorId(token);
-              return token;
-            });
-            mockScene.notes = await ThirdPartyMunch._linkSceneNotes(mockScene, mockAdventure);
-          }
-          return mockScene;
-        }));
+      const adjustedScenes = await ThirdPartyMunch._getAdjustedScenes(this._scenePackage.scenes);
 
       logger.debug("adjustedScenes", duplicate(adjustedScenes));
 
@@ -482,38 +530,7 @@ export default class ThirdPartyMunch extends FormApplication {
       CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig(true);
       logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
-      const scenes = await Promise.all(tokenAdjustedScenes
-        .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
-        // does the scene match a compendium scene
-        .filter(async (scene) => {
-          const compendium = game.packs.get(scene.flags.ddbimporter.export.compendium);
-          const compendiumScene = compendium.index.find((s) => s.name === scene.name);
-          if (compendiumScene) return true;
-          else return false;
-        })
-        .map(async (scene) => {
-          const compendiumId = scene.flags.ddbimporter.export.compendium;
-          const compendium = game.packs.get(compendiumId);
-          const folder = await ThirdPartyMunch._findFolder(compendium.metadata.label, "Scene");
-          const compendiumScene = compendium.index.find((s) => s.name === scene.name);
-          // eslint-disable-next-line require-atomic-updates
-          scene.folder = folder.id;
-
-          const existingScene = game.scenes.find((s) => s.name === scene.name && s.folder === folder.id);
-
-          // if scene already exists, update
-          if (existingScene) {
-            logger.info(`Updating ${scene.name}`, scene);
-            await existingScene.update(scene);
-            return existingScene;
-          } else {
-            const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene, { keepId: true });
-            logger.info(`Scene: ${scene.name} folder:`, folder);
-            logger.debug("worldScene:", worldScene);
-            return worldScene;
-          }
-        }));
-
+      const scenes = await ThirdPartyMunch._updateScenes(tokenAdjustedScenes);
       // logger.debug("finalScenes", scenes);
 
       const toTimer = setTimeout(() => {

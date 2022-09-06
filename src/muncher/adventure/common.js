@@ -477,8 +477,9 @@ export default class Helpers {
             return false;
         }
       });
+      logger.debug(`${type} missing ids`, missingIds);
       const missingDocuments = Helpers.loadMissingDocuments(type, missingIds);
-      // console.warn(`${type} missing`, missingDocuments);
+      logger.debug(`${type} missing`, missingDocuments);
       resolve(missingDocuments);
     });
   }
