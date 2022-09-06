@@ -12,7 +12,7 @@ function getShieldName(type) {
 function createShieldItem(type) {
   const damageType = type == "warm" ? "fire" : "cold";
   const img =
-    type === "warm" ? "systems/dnd5e/icons/spells/protect-red-3.jpg" : "systems/dnd5e/icons/spells/protect-blue-3.jpg";
+    type === "warm" ? "icons/magic/defensive/shield-barrier-flaming-pentagon-red.webp" : "icons/magic/defensive/shield-barrier-flaming-pentagon-blue.webp";
   const item = {
     name: getShieldName(type),
     type: "weapon",

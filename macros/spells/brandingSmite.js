@@ -12,7 +12,7 @@ try {
     // create the dim light effect on the target
     let bsEffect = new ActiveEffect({
       label: "Branding Smite",
-      icon: "systems/dnd5e/icons/spells/enchant-royal-3.jpg",
+      icon: "icons/magic/fire/dagger-rune-enchant-flame-strong-purple.webp",
       changes: [
         {
           value: 5,

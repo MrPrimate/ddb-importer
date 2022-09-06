@@ -104,7 +104,7 @@ async function applyContagion() {
                 value: "1",
               },
             ],
-            icon: "systems/dnd5e/icons/skills/blood_09.jpg",
+            icon: "icons/skills/wounds/injury-hand-blood-red.webp",
             label: "Flesh Rot",
             _id: lastArg.effectId,
           };
@@ -191,7 +191,7 @@ async function applyContagion() {
                 value: "1",
               },
             ],
-            icon: "systems/dnd5e/icons/skills/blood_05.jpg",
+            icon: "icons/magic/unholy/projectile-helix-blood-red.webp",
             label: "Slimy Doom",
             _id: lastArg.effecId,
           };

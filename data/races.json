@@ -1740,13 +1740,13 @@
     "racial_trait": "Celestial Revelation (Radiant Soul)",
     "race": "Aasimar",
     "subrace": "",
-    "path": "systems/dnd5e/icons/spells/haste-royal-3.jpg"
+    "path": "icons/magic/control/buff-flight-wings-runes-purple-orange.webp"
   },
   {
     "name": "Celestial Revelation",
     "racial_trait": "Celestial Revelation",
     "race": "Aasimar",
     "subrace": "",
-    "path": "systems/dnd5e/icons/spells/haste-royal-3.jpg"
+    "path": "icons/magic/control/buff-flight-wings-runes-purple-orange.webp"
   }
 ]
