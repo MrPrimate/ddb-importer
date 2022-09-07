@@ -239,17 +239,17 @@ async function copyExistingActorProperties(type, foundryActor) {
     }
     if (!updateImages && getProperty(existingNPC, "prototypeToken.texture.src") !== CONST.DEFAULT_TOKEN) {
       foundryActor.prototypeToken.texture.src = existingNPC.prototypeToken.texture.src;
-      foundryActor.token.scale = existingNPC.system.token.scale;
-      foundryActor.token.randomImg = existingNPC.system.token.randomImg;
-      foundryActor.token.mirrorX = existingNPC.system.token.mirrorX;
-      foundryActor.token.mirrorY = existingNPC.system.token.mirrorY;
-      foundryActor.token.lockRotation = existingNPC.system.token.lockRotation;
-      foundryActor.token.rotation = existingNPC.system.token.rotation;
-      foundryActor.token.alpha = existingNPC.system.token.alpha;
-      foundryActor.token.lightAlpha = existingNPC.system.token.lightAlpha;
-      foundryActor.token.lightAnimation = existingNPC.system.token.lightAnimation;
-      foundryActor.token.tint = existingNPC.system.token.tint;
-      foundryActor.token.lightColor = existingNPC.system.token.lightColor;
+      foundryActor.prototypeToken.scale = existingNPC.system.prototypeToken.scale;
+      foundryActor.prototypeToken.randomImg = existingNPC.system.prototypeToken.randomImg;
+      foundryActor.prototypeToken.mirrorX = existingNPC.system.prototypeToken.mirrorX;
+      foundryActor.prototypeToken.mirrorY = existingNPC.system.prototypeToken.mirrorY;
+      foundryActor.prototypeToken.lockRotation = existingNPC.system.prototypeToken.lockRotation;
+      foundryActor.prototypeToken.rotation = existingNPC.system.prototypeToken.rotation;
+      foundryActor.prototypeToken.alpha = existingNPC.system.prototypeToken.alpha;
+      foundryActor.prototypeToken.lightAlpha = existingNPC.system.prototypeToken.lightAlpha;
+      foundryActor.prototypeToken.lightAnimation = existingNPC.system.prototypeToken.lightAnimation;
+      foundryActor.prototypeToken.tint = existingNPC.system.prototypeToken.tint;
+      foundryActor.prototypeToken.lightColor = existingNPC.system.prototypeToken.lightColor;
     }
 
     const retainBiography = game.settings.get("ddb-importer", "munching-policy-monster-retain-biography");
