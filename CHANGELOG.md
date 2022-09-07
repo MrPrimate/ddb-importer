@@ -1,3 +1,7 @@
+# 3.0.6
+
+* Bug when updating existing actors if updating actor images enabled.
+
 # 3.0.5
 
 * Fix Third Party imports (@PinkRose#7896)
