@@ -1,3 +1,7 @@
+# 3.0.8
+
+* Some icon migration paths were incorrect in the 5e system, the data now (hopefully) links to the right paths.
+
 # 3.0.7
 
 * Actually fix bug when updating existing actors if updating actor images enabled.
