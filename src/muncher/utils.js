@@ -239,17 +239,17 @@ async function copyExistingActorProperties(type, foundryActor) {
     }
     if (!updateImages && getProperty(existingNPC, "prototypeToken.texture.src") !== CONST.DEFAULT_TOKEN) {
       foundryActor.prototypeToken.texture.src = existingNPC.prototypeToken.texture.src;
-      foundryActor.prototypeToken.scale = existingNPC.system.prototypeToken.scale;
-      foundryActor.prototypeToken.randomImg = existingNPC.system.prototypeToken.randomImg;
-      foundryActor.prototypeToken.mirrorX = existingNPC.system.prototypeToken.mirrorX;
-      foundryActor.prototypeToken.mirrorY = existingNPC.system.prototypeToken.mirrorY;
-      foundryActor.prototypeToken.lockRotation = existingNPC.system.prototypeToken.lockRotation;
-      foundryActor.prototypeToken.rotation = existingNPC.system.prototypeToken.rotation;
-      foundryActor.prototypeToken.alpha = existingNPC.system.prototypeToken.alpha;
-      foundryActor.prototypeToken.lightAlpha = existingNPC.system.prototypeToken.lightAlpha;
-      foundryActor.prototypeToken.lightAnimation = existingNPC.system.prototypeToken.lightAnimation;
-      foundryActor.prototypeToken.tint = existingNPC.system.prototypeToken.tint;
-      foundryActor.prototypeToken.lightColor = existingNPC.system.prototypeToken.lightColor;
+      foundryActor.prototypeToken.scale = existingNPC.prototypeToken.scale;
+      foundryActor.prototypeToken.randomImg = existingNPC.prototypeToken.randomImg;
+      foundryActor.prototypeToken.mirrorX = existingNPC.prototypeToken.mirrorX;
+      foundryActor.prototypeToken.mirrorY = existingNPC.prototypeToken.mirrorY;
+      foundryActor.prototypeToken.lockRotation = existingNPC.prototypeToken.lockRotation;
+      foundryActor.prototypeToken.rotation = existingNPC.prototypeToken.rotation;
+      foundryActor.prototypeToken.alpha = existingNPC.prototypeToken.alpha;
+      foundryActor.prototypeToken.lightAlpha = existingNPC.prototypeToken.lightAlpha;
+      foundryActor.prototypeToken.lightAnimation = existingNPC.prototypeToken.lightAnimation;
+      foundryActor.prototypeToken.tint = existingNPC.prototypeToken.tint;
+      foundryActor.prototypeToken.lightColor = existingNPC.prototypeToken.lightColor;
     }
 
     const retainBiography = game.settings.get("ddb-importer", "munching-policy-monster-retain-biography");
