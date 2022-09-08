@@ -1,3 +1,7 @@
+# 3.0.7
+
+* Actually fix bug when updating existing actors if updating actor images enabled.
+
 # 3.0.6
 
 * Bug when updating existing actors if updating actor images enabled.
