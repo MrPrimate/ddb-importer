@@ -4,7 +4,7 @@
     "class_feature": "Abjuration Savant",
     "class": "Wizard",
     "subclass": "School of Abjuration",
-    "path": "icons/magic/defensive/shield-barrier-flaming-pentagon-orange-purple.webp"
+    "path": "icons/magic/defensive/shield-barrier-flaming-pentagon-purple-orange.webp"
   },
   {
     "name": "Accursed Specter",
@@ -410,14 +410,14 @@
     "class_feature": "Aura Improvements",
     "class": "Paladin",
     "subclass": "Oath of Devotion",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Aura Improvements",
     "class_feature": "Aura Improvements",
     "class": "Paladin",
     "subclass": "",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Aura of Alacrity",
@@ -1271,7 +1271,7 @@
     "class_feature": "Channel Divinity: Arcane Abjuration",
     "class": "Cleric",
     "subclass": "Arcana Domain",
-    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-orange-purple.webp"
+    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-purple-orange.webp"
   },
   {
     "name": "Channel Divinity: Artisan's Blessing",
@@ -1285,7 +1285,7 @@
     "class_feature": "Channel Divinity: Balm of Peace",
     "class": "Cleric",
     "subclass": "Peace Domain",
-    "path": "icons/magic/light/explosion-star-large-pink.webp"
+    "path": "icons/magic/light/explosion-star-pink-large.webp"
   },
   {
     "name": "Channel Divinity: Champion Challenge",
@@ -1383,7 +1383,7 @@
     "class_feature": "Channel Divinity: Knowledge of the Ages",
     "class": "Cleric",
     "subclass": "Knowledge Domain",
-    "path": "icons/magic/light/explosion-star-large-teal.webp"
+    "path": "icons/magic/light/explosion-star-teal-large.webp"
   },
   {
     "name": "Channel Divinity: Marine Layer",
@@ -1432,7 +1432,7 @@
     "class_feature": "Channel Divinity: Radiance of the Dawn",
     "class": "Cleric",
     "subclass": "Light Domain",
-    "path": "icons/magic/light/explosion-star-large-orange.webp"
+    "path": "icons/magic/light/explosion-star-orange-large.webp"
   },
   {
     "name": "Channel Divinity: Read Thoughts",
@@ -3868,14 +3868,14 @@
     "class_feature": "Flash of Genius",
     "class": "Artificer",
     "subclass": "Alchemist",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Flash of Genius",
     "class_feature": "Flash of Genius",
     "class": "Artificer",
     "subclass": "",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Flurry of Blows",
@@ -4442,7 +4442,7 @@
     "class_feature": "Holy Nimbus",
     "class": "Paladin",
     "subclass": "Oath of Devotion",
-    "path": "icons/magic/light/explosion-star-large-blue-yellow.webp"
+    "path": "icons/magic/light/explosion-star-blue-yellow-large.webp"
   },
   {
     "name": "Horizon Walker Magic",
@@ -5037,7 +5037,7 @@
     "class_feature": "Magical Inspiration",
     "class": "Bard",
     "subclass": "",
-    "path": "icons/magic/light/explosion-star-large-orange.webp"
+    "path": "icons/magic/light/explosion-star-orange-large.webp"
   },
   {
     "name": "Magical Secrets",
@@ -5240,7 +5240,7 @@
     "class_feature": "Mastery of Death",
     "class": "Monk",
     "subclass": "Way of the Long Death",
-    "path": "icons/magic/air/air-burst-spiral-teal-large-green.webp"
+    "path": "icons/magic/air/air-burst-spiral-large-teal-green.webp"
   },
   {
     "name": "Metamagic",
@@ -5492,7 +5492,7 @@
     "class_feature": "Mystical Connection",
     "class": "Bard",
     "subclass": "College of Spirits (UA)",
-    "path": "icons/magic/air/air-burst-spiral-teal-large-green.webp"
+    "path": "icons/magic/air/air-burst-spiral-large-teal-green.webp"
   },
   {
     "name": "Mystical Erudition",
@@ -6031,7 +6031,7 @@
     "class_feature": "Potent Spellcasting",
     "class": "Cleric",
     "subclass": "Arcana Domain",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Potent Spellcasting",
@@ -6045,28 +6045,28 @@
     "class_feature": "Potent Spellcasting",
     "class": "Cleric",
     "subclass": "Knowledge Domain",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Potent Spellcasting",
     "class_feature": "Potent Spellcasting",
     "class": "Cleric",
     "subclass": "Light Domain",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Potent Spellcasting",
     "class_feature": "Potent Spellcasting",
     "class": "Cleric",
     "subclass": "Peace Domain",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Potent Spellcasting",
     "class_feature": "Potent Spellcasting",
     "class": "Cleric",
     "subclass": "Time Domain",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Power Surge",
@@ -6332,7 +6332,7 @@
     "class_feature": "Psionic Sorcery",
     "class": "Sorcerer",
     "subclass": "Aberrant Mind",
-    "path": "icons/magic/air/air-burst-spiral-teal-large-green.webp"
+    "path": "icons/magic/air/air-burst-spiral-large-teal-green.webp"
   },
   {
     "name": "Psionic Spells",
@@ -6374,14 +6374,14 @@
     "class_feature": "Purity of Body",
     "class": "Monk",
     "subclass": "Way of the Open Hand",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Purity of Body",
     "class_feature": "Purity of Body",
     "class": "Monk",
     "subclass": "",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Purity of Spirit",
@@ -6983,14 +6983,14 @@
     "class_feature": "Slippery Mind",
     "class": "Rogue",
     "subclass": "Thief",
-    "path": "icons/magic/air/fog-gas-smoke-dense-purple.webp"
+    "path": "icons/magic/air/fog-gas-smoke-dense-pink.webp"
   },
   {
     "name": "Slippery Mind",
     "class_feature": "Slippery Mind",
     "class": "Rogue",
     "subclass": "",
-    "path": "icons/magic/air/fog-gas-smoke-dense-purple.webp"
+    "path": "icons/magic/air/fog-gas-smoke-dense-pink.webp"
   },
   {
     "name": "Slow Fall",
@@ -7536,77 +7536,77 @@
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oath of Conquest",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oath of Devotion",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oath of Glory",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oath of Redemption",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oath of the Ancients",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oath of the Crown",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oath of the Open Sea",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oath of the Watchers",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oath of Vengeance",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "Oathbreaker",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Paladin",
     "subclass": "",
-    "path": "icons/magic/light/beam-rays-orange-purple-large.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
     "name": "Spellcasting",
@@ -7865,7 +7865,7 @@
     "class_feature": "Spirit Session",
     "class": "Bard",
     "subclass": "College of Spirits (UA)",
-    "path": "icons/magic/light/explosion-star-small-teal.webp"
+    "path": "icons/magic/light/explosion-star-teal-small.webp"
   },
   {
     "name": "Spirit Shield",

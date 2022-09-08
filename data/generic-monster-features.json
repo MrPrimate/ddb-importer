@@ -345,7 +345,7 @@
   },
   {
     "name": "Antimagic Cone",
-    "path": "icons/magic/air/air-burst-spiral-teal-large-green.webp"
+    "path": "icons/magic/air/air-burst-spiral-large-teal-green.webp"
   },
   {
     "name": "Antimagic Shell",
@@ -533,7 +533,7 @@
   },
   {
     "name": "Aura of Radiance",
-    "path": "icons/magic/light/explosion-star-large-blue-yellow.webp"
+    "path": "icons/magic/light/explosion-star-blue-yellow-large.webp"
   },
   {
     "name": "Aura of Silence",
@@ -785,7 +785,7 @@
   },
   {
     "name": "Blessings of the Gods",
-    "path": "icons/magic/light/explosion-star-large-teal-purple.webp"
+    "path": "icons/magic/light/explosion-star-teal-purple-large.webp"
   },
   {
     "name": "Blight",
@@ -809,15 +809,15 @@
   },
   {
     "name": "Blinding Gaze",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Blinding Gleam",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Blinding Light",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Blinding Spittle",
@@ -981,11 +981,11 @@
   },
   {
     "name": "Breath of Despair",
-    "path": "icons/magic/air/fog-gas-smoke-dense-purple.webp"
+    "path": "icons/magic/air/fog-gas-smoke-dense-pink.webp"
   },
   {
     "name": "Breath of Hopelessness",
-    "path": "icons/magic/air/fog-gas-smoke-dense-purple.webp"
+    "path": "icons/magic/air/fog-gas-smoke-dense-pink.webp"
   },
   {
     "name": "Breath Weapon",
@@ -2077,7 +2077,7 @@
   },
   {
     "name": "Echolocation",
-    "path": "icons/magic/air/air-burst-spiral-teal-large-green.webp"
+    "path": "icons/magic/air/air-burst-spiral-large-teal-green.webp"
   },
   {
     "name": "Eerie Resemblance",
@@ -2521,7 +2521,7 @@
   },
   {
     "name": "Fire Aura",
-    "path": "icons/magic/light/explosion-star-large-orange.webp"
+    "path": "icons/magic/light/explosion-star-orange-large.webp"
   },
   {
     "name": "Fire Banishment",
@@ -2645,7 +2645,7 @@
   },
   {
     "name": "Flaming Orb",
-    "path": "icons/magic/light/explosion-star-large-orange.webp"
+    "path": "icons/magic/light/explosion-star-orange-large.webp"
   },
   {
     "name": "Flaming Weapon",
@@ -2929,7 +2929,7 @@
   },
   {
     "name": "Fuse Damage",
-    "path": "icons/magic/unholy/strike-beam-blood-red-teal-blue.webp"
+    "path": "icons/magic/unholy/strike-beam-blood-red-teal.webp"
   },
   {
     "name": "Fused Form",
@@ -3001,7 +3001,7 @@
   },
   {
     "name": "Glowing",
-    "path": "icons/magic/light/explosion-star-small-blue-yellow.webp"
+    "path": "icons/magic/light/explosion-star-blue-yellow-small.webp"
   },
   {
     "name": "Gnome Cunning",
@@ -3985,7 +3985,7 @@
   },
   {
     "name": "Lightning Backlash",
-    "path": "icons/magic/lightning/bolt-forked-teal-large-purple.webp"
+    "path": "icons/magic/lightning/bolt-forked-large-teal-purple.webp"
   },
   {
     "name": "Lightning Blood",
@@ -4265,11 +4265,11 @@
   },
   {
     "name": "Magical Strike",
-    "path": "icons/magic/light/beam-rays-orange-purple.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple.webp"
   },
   {
     "name": "Magical Strike Melee Spell Attack:",
-    "path": "icons/magic/light/beam-rays-orange-purple.webp"
+    "path": "icons/magic/light/beams-rays-orange-purple.webp"
   },
   {
     "name": "Malevolent Presence",
@@ -4649,7 +4649,7 @@
   },
   {
     "name": "Numbing Aura",
-    "path": "icons/magic/light/explosion-star-large-blue.webp"
+    "path": "icons/magic/light/explosion-star-blue-large.webp"
   },
   {
     "name": "Nurtured One of Yurtrus",
@@ -4925,7 +4925,7 @@
   },
   {
     "name": "Poison Sense",
-    "path": "icons/magic/light/explosion-star-small-teal.webp"
+    "path": "icons/magic/light/explosion-star-teal-small.webp"
   },
   {
     "name": "Poison Splash",
@@ -5085,7 +5085,7 @@
   },
   {
     "name": "Psionics",
-    "path": "icons/magic/light/explosion-star-large-pink.webp"
+    "path": "icons/magic/light/explosion-star-pink-large.webp"
   },
   {
     "name": "Psychedelic Orb",
@@ -7305,7 +7305,7 @@
   },
   {
     "name": "Variable Illumination",
-    "path": "icons/magic/light/explosion-star-small-blue-yellow.webp"
+    "path": "icons/magic/light/explosion-star-blue-yellow-small.webp"
   },
   {
     "name": "Veil of Shargaas",
@@ -7481,7 +7481,7 @@
   },
   {
     "name": "Water Dependency",
-    "path": "icons/magic/air/fog-gas-smoke-dense-purple-blue.webp"
+    "path": "icons/magic/air/fog-gas-smoke-dense-blue.webp"
   },
   {
     "name": "Water Form",
@@ -7637,7 +7637,7 @@
   },
   {
     "name": "White Dragon Head: Cold Breath",
-    "path": "icons/magic/air/fog-gas-smoke-dense-purple-blue.webp"
+    "path": "icons/magic/air/fog-gas-smoke-dense-blue.webp"
   },
   {
     "name": "Wholeness of Body",
@@ -7757,7 +7757,7 @@
   },
   {
     "name": "Zone of Calamity",
-    "path": "icons/magic/air/air-burst-spiral-teal-large-green.webp"
+    "path": "icons/magic/air/air-burst-spiral-large-teal-green.webp"
   },
   {
     "name": "Zuggtmoy's Lair",

@@ -137,7 +137,7 @@
   },
   {
     "name": "Beacon of Hope",
-    "path": "icons/magic/light/explosion-star-large-blue-yellow.webp"
+    "path": "icons/magic/light/explosion-star-blue-yellow-large.webp"
   },
   {
     "name": "Beast Bond",
@@ -269,7 +269,7 @@
   },
   {
     "name": "Circle of Power",
-    "path": "icons/magic/light/explosion-star-large-teal-purple.webp"
+    "path": "icons/magic/light/explosion-star-teal-purple-large.webp"
   },
   {
     "name": "Clairvoyance",
@@ -465,7 +465,7 @@
   },
   {
     "name": "Daylight",
-    "path": "icons/magic/light/explosion-star-large-orange-purple.webp"
+    "path": "icons/magic/light/explosion-star-orange-purple-large.webp"
   },
   {
     "name": "Death Ward",
@@ -537,7 +537,7 @@
   },
   {
     "name": "Divine Word",
-    "path": "icons/magic/light/explosion-star-large-orange-purple.webp"
+    "path": "icons/magic/light/explosion-star-orange-purple-large.webp"
   },
   {
     "name": "Dominate Beast",
@@ -789,7 +789,7 @@
   },
   {
     "name": "Foresight",
-    "path": "icons/magic/air/air-burst-spiral-teal-large-green.webp"
+    "path": "icons/magic/air/air-burst-spiral-large-teal-green.webp"
   },
   {
     "name": "Fortune's Favor",
@@ -1057,7 +1057,7 @@
   },
   {
     "name": "Inflict Wounds",
-    "path": "icons/magic/unholy/strike-beam-blood-red-teal-blue.webp"
+    "path": "icons/magic/unholy/strike-beam-blood-red-teal.webp"
   },
   {
     "name": "Insect Plague",
@@ -1141,7 +1141,7 @@
   },
   {
     "name": "Light",
-    "path": "icons/magic/light/explosion-star-small-blue-yellow.webp"
+    "path": "icons/magic/light/explosion-star-blue-yellow-small.webp"
   },
   {
     "name": "Lightning Arrow",
@@ -1837,7 +1837,7 @@
   },
   {
     "name": "Sunburst",
-    "path": "icons/magic/light/explosion-star-large-orange.webp"
+    "path": "icons/magic/light/explosion-star-orange-large.webp"
   },
   {
     "name": "Swift Quiver",
