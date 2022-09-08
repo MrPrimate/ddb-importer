@@ -97,7 +97,7 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
 
   const result = {
     generateTokens: true,
-    schemaVersion: "4.0",
+    schemaVersion: 4.0,
     version: game.modules.get("ddb-importer").version,
     lookups: {
       monsters: [],
