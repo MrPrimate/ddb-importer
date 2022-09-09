@@ -257,8 +257,13 @@ export default class AdventureMunch extends FormApplication {
         }
 
         if (adventure.system !== game.data.system.id) {
-          ui.notifications.error(`Invalid system for Adventure ${adventure.name}.  Expects ${adventure.system}`);
+          ui.notifications.error(`Invalid system for Adventure ${adventure.name}.  Expects ${adventure.system}`, { permanent: true });
           throw new Error(`Invalid system for Adventure ${adventure.name}.  Expects ${adventure.system}`);
+        }
+
+        if (adventure.version < 4.0) {
+          ui.notifications.error(`This Adventure (${adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`, { permanent: true });
+          throw new Error(`This Adventure (${adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`);
         }
 
         CONFIG.DDBI.ADVENTURE.TEMPORARY = {
