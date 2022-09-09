@@ -1,6 +1,7 @@
-# 3.0.8
+# 3.1.0
 
 * Some icon migration paths were incorrect in the 5e system, the data now (hopefully) links to the right paths.
+* Support for Adventure Muncher v1.0.0
 
 # 3.0.7
 
