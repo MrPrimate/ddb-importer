@@ -621,6 +621,7 @@ export default class AdventureMunch extends FormApplication {
 
     totalCount = dataFiles.length;
 
+    // eslint-disable-next-line complexity
     await Helpers.asyncForEach(dataFiles, async (file) => {
       const rawdata = await zip.file(file.name).async("text");
       let data = JSON.parse(rawdata);
@@ -670,6 +671,9 @@ export default class AdventureMunch extends FormApplication {
       if (importType === "Scene") {
         if (data.tokens) {
           await Helpers.generateTokenActors(data);
+        }
+        if (data.flags["perfect-vision"] && Array.isArray(data.flags["perfect-vision"])) {
+          data.flags["perfect-vision"] = {};
         }
       } else if (importType === "Playlist") {
         await Helpers.asyncForEach(data.sounds, async (sound) => {

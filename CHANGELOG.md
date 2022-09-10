@@ -1,3 +1,7 @@
+# 3.1.1
+
+* Some scenes had incorrect Perfect Vision meta-data attached, these will now import correctly so Perfect Vision will not cause a scene rendering failure.
+
 # 3.1.0
 
 * Some icon migration paths were incorrect in the 5e system, the data now (hopefully) links to the right paths.
