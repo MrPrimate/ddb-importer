@@ -56,6 +56,8 @@ export async function addContainerItemsToContainers(ddb, actor) {
 }
 
 export async function addContainerItemsToActor(ddb, actor) {
+  if (!game.modules.get("itemcollection")?.active || !game.settings.get("ddb-importer", "character-update-policy-use-item-containers")) return;
+
   const topLevelItems = actor.items
     .filter((item) =>
       hasProperty(item, "flags.ddbimporter.id") &&

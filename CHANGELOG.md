@@ -1,3 +1,7 @@
+# 3.1.2
+
+* If container items module had been disabled with items still in containers, character updates would fail.
+
 # 3.1.1
 
 * Some scenes had incorrect Perfect Vision meta-data attached, these will now import correctly so Perfect Vision will not cause a scene rendering failure.
