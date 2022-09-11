@@ -1,4 +1,7 @@
+import logger from "../../logger.js";
+
 function copyToClipboard(text) {
+  logger.debug("Copy block", text);
   var dummy = document.createElement("textarea");
   document.body.appendChild(dummy);
   dummy.value = text;
@@ -41,15 +44,13 @@ function buildNotes(html, data) {
           const showStartButton = $(this).append(getNoteButton("start", tagName));
           const showEndButton = $(this).append(getNoteButton("end", tagName));
           $(showStartButton).click((e) => {
-            // const src = $(element).attr("src");
-            // In 0.8.x for some reason I need to now wrap these in the target id check?
             if (e.target.id === "ddb-note-start") {
               clippy = {
-                ddbId: data.flags.ddb.ddbId,
-                cobaltId: data.flags.ddb.cobaltId,
-                parentId: data.flags.ddb.parentId,
+                ddbId: data.document.flags.ddb.ddbId,
+                cobaltId: data.document.flags.ddb.cobaltId,
+                parentId: data.document.flags.ddb.parentId,
                 splitTag: tagName.toLowerCase(),
-                slug: data.flags.ddb.slug,
+                slug: data.document.flags.ddb.slug,
                 tagIdFirst: $(element).prop("id"),
                 contentChunkIdStart: $(element).attr("data-content-chunk-id"),
                 tagIdLast: "",

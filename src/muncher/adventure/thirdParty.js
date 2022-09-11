@@ -329,7 +329,8 @@ export default class ThirdPartyMunch extends FormApplication {
               journal.flags.ddb.linkName == note.flags.ddb.linkName
             : false;
           const journalNameMatch = !contentChunkIdMatch && !originMatch
-            ? journal.name.trim() == note.label.trim()
+            ? journal.name.trim() == note.label.trim() // ||
+            //  journal.pages.some((page) => page.name.trim() === note.label.trim())
             : false;
           return contentChunkIdMatch || originMatch || journalNameMatch;
 
