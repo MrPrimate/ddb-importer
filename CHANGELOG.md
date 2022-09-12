@@ -1,3 +1,7 @@
+# 3.1.3
+
+* Monster imports would fail if appending legacy to name.
+
 # 3.1.2
 
 * If container items module had been disabled with items still in containers, character updates would fail.
