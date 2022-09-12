@@ -1,6 +1,7 @@
 # 3.1.2
 
 * If container items module had been disabled with items still in containers, character updates would fail.
+* Ensure that Monsters always use prototype token.
 
 # 3.1.1
 
