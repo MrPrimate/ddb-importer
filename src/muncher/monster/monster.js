@@ -393,7 +393,7 @@ async function parseMonster(monster, extra, useItemAC) {
   if (legacyName) {
     if (monster.isLegacy) {
       foundryActor.name += " (Legacy)";
-      foundryActor.token.name += " (Legacy)";
+      foundryActor.prototypeToken.name += " (Legacy)";
     }
   }
 
