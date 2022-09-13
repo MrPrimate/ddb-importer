@@ -387,7 +387,7 @@ export default class CharacterImport extends FormApplication {
       userHasPermission &&
       decorations?.avatarUrl &&
       decorations.avatarUrl !== "" &&
-      (imagePath.includes("mystery-man") || game.settings.get("ddb-importer", "character-update-policy-image"))
+      (!imagePath || imagePath.includes("mystery-man") || game.settings.get("ddb-importer", "character-update-policy-image"))
     ) {
       CharacterImport.showCurrentTask(html, "Uploading avatar image");
       const filename = data.character.name
