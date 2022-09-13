@@ -1,3 +1,7 @@
+# 3.1.4
+
+* Thri-kreen player characters now import with the correct AC.
+
 # 3.1.3
 
 * Monster imports would fail if appending legacy to name.
