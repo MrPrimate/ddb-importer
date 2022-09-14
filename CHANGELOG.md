@@ -1,6 +1,6 @@
 # 3.1.4
 
-* Thri-kreen player characters now import with the correct AC.
+* Thri-kreen and Autognome player characters now import with the correct AC.
 
 # 3.1.3
 

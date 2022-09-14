@@ -437,6 +437,7 @@ export function getArmorClass(ddb, character) {
       baseAC = Math.max(getUnarmoredAC(ddb.character.modifiers.race, character));
       equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", ddb.character.race.fullName));
       break;
+    case "Autognome":
     case "Thri-kreen":
     case "Loxodon":
     case "Tortle":
