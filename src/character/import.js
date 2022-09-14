@@ -222,6 +222,7 @@ export default class CharacterImport extends FormApplication {
     this.actor = game.actors.get(actor._id);
     this.migrateMetadata();
     this.actorOriginal = duplicate(this.actor);
+    logger.debug("Current Actor (Original):", this.actorOriginal);
     this.result = {};
     this.nonMatchedItemIds = [];
   }
@@ -408,7 +409,7 @@ export default class CharacterImport extends FormApplication {
 
     if (this.actorOriginal.prototypeToken.texture.src.includes("mystery-man")) {
       setProperty(this.result.character, "prototypeToken.texture.src", this.result.character.img);
-    } else {
+    } else if (hasProperty(this.actorOriginal, "prototypeToken.texture.src")) {
       setProperty(this.result.character, "prototypeToken.texture.src", this.actorOriginal.prototypeToken.texture.src);
     }
   }
@@ -1123,8 +1124,6 @@ export default class CharacterImport extends FormApplication {
       this.importId = randomID();
       setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
       await this.addImportIdToItems();
-
-      logger.debug("Current Actor:", this.actorOriginal);
 
       // handle active effects
       const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
