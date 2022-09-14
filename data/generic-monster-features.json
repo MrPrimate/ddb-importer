@@ -533,7 +533,7 @@
   },
   {
     "name": "Aura of Radiance",
-    "path": "icons/magic/light/explosion-star-blue-yellow-large.webp"
+    "path": "icons/magic/light/explosion-star-large-blue-yellow.webp"
   },
   {
     "name": "Aura of Silence",
@@ -785,7 +785,7 @@
   },
   {
     "name": "Blessings of the Gods",
-    "path": "icons/magic/light/explosion-star-teal-purple-large.webp"
+    "path": "icons/magic/light/explosion-star-large-teal-purple.webp"
   },
   {
     "name": "Blight",
@@ -809,15 +809,15 @@
   },
   {
     "name": "Blinding Gaze",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Blinding Gleam",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Blinding Light",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Blinding Spittle",
@@ -2201,11 +2201,11 @@
   },
   {
     "name": "Entangling Plants",
-    "path": "icons/magic/nature/vines-thorned-entwined-glow-green.webp"
+    "path": "icons/magic/nature/vines-throned-entwined-glow-green.webp"
   },
   {
     "name": "Entangling Vines",
-    "path": "icons/magic/nature/vines-thorned-entwined-glow-green.webp"
+    "path": "icons/magic/nature/vines-throned-entwined-glow-green.webp"
   },
   {
     "name": "Enthralling Performance",
@@ -2521,7 +2521,7 @@
   },
   {
     "name": "Fire Aura",
-    "path": "icons/magic/light/explosion-star-orange-large.webp"
+    "path": "icons/magic/light/explosion-star-large-orange.webp"
   },
   {
     "name": "Fire Banishment",
@@ -2645,7 +2645,7 @@
   },
   {
     "name": "Flaming Orb",
-    "path": "icons/magic/light/explosion-star-orange-large.webp"
+    "path": "icons/magic/light/explosion-star-large-orange.webp"
   },
   {
     "name": "Flaming Weapon",
@@ -3001,7 +3001,7 @@
   },
   {
     "name": "Glowing",
-    "path": "icons/magic/light/explosion-star-blue-yellow-small.webp"
+    "path": "icons/magic/light/explosion-star-small-blue-yellow.webp"
   },
   {
     "name": "Gnome Cunning",
@@ -3601,7 +3601,7 @@
   },
   {
     "name": "In the Air Node",
-    "path": "icons/magic/air/fog-gas-smoke-blue-dense-white.webp"
+    "path": "icons/magic/air/fog-gas-smoke-dense-white.webp"
   },
   {
     "name": "In the Earth Node",
@@ -4649,7 +4649,7 @@
   },
   {
     "name": "Numbing Aura",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Nurtured One of Yurtrus",
@@ -4925,7 +4925,7 @@
   },
   {
     "name": "Poison Sense",
-    "path": "icons/magic/light/explosion-star-teal-small.webp"
+    "path": "icons/magic/light/explosion-star-small-teal.webp"
   },
   {
     "name": "Poison Splash",
@@ -5085,7 +5085,7 @@
   },
   {
     "name": "Psionics",
-    "path": "icons/magic/light/explosion-star-pink-large.webp"
+    "path": "icons/magic/light/explosion-star-large-pink.webp"
   },
   {
     "name": "Psychedelic Orb",
@@ -7305,7 +7305,7 @@
   },
   {
     "name": "Variable Illumination",
-    "path": "icons/magic/light/explosion-star-blue-yellow-small.webp"
+    "path": "icons/magic/light/explosion-star-small-blue-yellow.webp"
   },
   {
     "name": "Veil of Shargaas",

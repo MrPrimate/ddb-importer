@@ -466,7 +466,7 @@
     "racial_trait": "Fey",
     "race": "",
     "subrace": "",
-    "path": "icons/magic/nature/vines-thorned-entwined-glow-teal.webp"
+    "path": "icons/magic/nature/vines-thorned-entwined-glow-teal-purple.webp"
   },
   {
     "name": "Fey Ancestry",
@@ -984,7 +984,7 @@
     "racial_trait": "Light Bearer",
     "race": "Aasimar",
     "subrace": "",
-    "path": "icons/magic/light/explosion-star-blue-yellow-small.webp"
+    "path": "icons/magic/light/explosion-star-small-blue-yellow.webp"
   },
   {
     "name": "Limited Amphibiousness",

@@ -137,7 +137,7 @@
   },
   {
     "name": "Beacon of Hope",
-    "path": "icons/magic/light/explosion-star-blue-yellow-large.webp"
+    "path": "icons/magic/light/explosion-star-large-blue-yellow.webp"
   },
   {
     "name": "Beast Bond",
@@ -269,7 +269,7 @@
   },
   {
     "name": "Circle of Power",
-    "path": "icons/magic/light/explosion-star-teal-purple-large.webp"
+    "path": "icons/magic/light/explosion-star-large-teal-purple.webp"
   },
   {
     "name": "Clairvoyance",
@@ -465,7 +465,7 @@
   },
   {
     "name": "Daylight",
-    "path": "icons/magic/light/explosion-star-orange-purple-large.webp"
+    "path": "icons/magic/light/explosion-star-large-orange-purple.webp"
   },
   {
     "name": "Death Ward",
@@ -537,7 +537,7 @@
   },
   {
     "name": "Divine Word",
-    "path": "icons/magic/light/explosion-star-orange-purple-large.webp"
+    "path": "icons/magic/light/explosion-star-large-orange-purple.webp"
   },
   {
     "name": "Dominate Beast",
@@ -1141,7 +1141,7 @@
   },
   {
     "name": "Light",
-    "path": "icons/magic/light/explosion-star-blue-yellow-small.webp"
+    "path": "icons/magic/light/explosion-star-small-blue-yellow.webp"
   },
   {
     "name": "Lightning Arrow",
@@ -1293,7 +1293,7 @@
   },
   {
     "name": "Mind Spike",
-    "path": "icons/weapons/guns/arrowhead-glowing-blue.webp"
+    "path": "icons/weapons/ammunition/arrowhead-glowing-blue.webp"
   },
   {
     "name": "Minor Illusion",
@@ -1837,7 +1837,7 @@
   },
   {
     "name": "Sunburst",
-    "path": "icons/magic/light/explosion-star-orange-large.webp"
+    "path": "icons/magic/light/explosion-star-large-orange.webp"
   },
   {
     "name": "Swift Quiver",
@@ -1969,7 +1969,7 @@
   },
   {
     "name": "Transport via Plants",
-    "path": "icons/magic/nature/vines-thorned-entwined-glow-green.webp"
+    "path": "icons/magic/nature/vines-throned-entwined-glow-green.webp"
   },
   {
     "name": "Tree Stride",

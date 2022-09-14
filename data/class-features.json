@@ -410,14 +410,14 @@
     "class_feature": "Aura Improvements",
     "class": "Paladin",
     "subclass": "Oath of Devotion",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Aura Improvements",
     "class_feature": "Aura Improvements",
     "class": "Paladin",
     "subclass": "",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Aura of Alacrity",
@@ -1285,7 +1285,7 @@
     "class_feature": "Channel Divinity: Balm of Peace",
     "class": "Cleric",
     "subclass": "Peace Domain",
-    "path": "icons/magic/light/explosion-star-pink-large.webp"
+    "path": "icons/magic/light/explosion-star-large-pink.webp"
   },
   {
     "name": "Channel Divinity: Champion Challenge",
@@ -1383,7 +1383,7 @@
     "class_feature": "Channel Divinity: Knowledge of the Ages",
     "class": "Cleric",
     "subclass": "Knowledge Domain",
-    "path": "icons/magic/light/explosion-star-teal-large.webp"
+    "path": "icons/magic/light/explosion-star-large-teal.webp"
   },
   {
     "name": "Channel Divinity: Marine Layer",
@@ -1432,7 +1432,7 @@
     "class_feature": "Channel Divinity: Radiance of the Dawn",
     "class": "Cleric",
     "subclass": "Light Domain",
-    "path": "icons/magic/light/explosion-star-orange-large.webp"
+    "path": "icons/magic/light/explosion-star-large-orange.webp"
   },
   {
     "name": "Channel Divinity: Read Thoughts",
@@ -3868,14 +3868,14 @@
     "class_feature": "Flash of Genius",
     "class": "Artificer",
     "subclass": "Alchemist",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Flash of Genius",
     "class_feature": "Flash of Genius",
     "class": "Artificer",
     "subclass": "",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Flurry of Blows",
@@ -4442,7 +4442,7 @@
     "class_feature": "Holy Nimbus",
     "class": "Paladin",
     "subclass": "Oath of Devotion",
-    "path": "icons/magic/light/explosion-star-blue-yellow-large.webp"
+    "path": "icons/magic/light/explosion-star-large-blue-yellow.webp"
   },
   {
     "name": "Horizon Walker Magic",
@@ -5037,7 +5037,7 @@
     "class_feature": "Magical Inspiration",
     "class": "Bard",
     "subclass": "",
-    "path": "icons/magic/light/explosion-star-orange-large.webp"
+    "path": "icons/magic/light/explosion-star-large-orange.webp"
   },
   {
     "name": "Magical Secrets",
@@ -5548,7 +5548,7 @@
     "class_feature": "Natural Recovery",
     "class": "Druid",
     "subclass": "Circle of the Land (Arctic)",
-    "path": "icons/magic/nature/vines-thorned-entwined-glow-teal.webp"
+    "path": "icons/magic/nature/vines-thorned-entwined-glow-teal-purple.webp"
   },
   {
     "name": "Nature's Sanctuary",
@@ -6374,14 +6374,14 @@
     "class_feature": "Purity of Body",
     "class": "Monk",
     "subclass": "Way of the Open Hand",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Purity of Body",
     "class_feature": "Purity of Body",
     "class": "Monk",
     "subclass": "",
-    "path": "icons/magic/light/explosion-star-blue-large.webp"
+    "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
     "name": "Purity of Spirit",
@@ -7865,7 +7865,7 @@
     "class_feature": "Spirit Session",
     "class": "Bard",
     "subclass": "College of Spirits (UA)",
-    "path": "icons/magic/light/explosion-star-teal-small.webp"
+    "path": "icons/magic/light/explosion-star-small-teal.webp"
   },
   {
     "name": "Spirit Shield",
@@ -8131,7 +8131,7 @@
     "class_feature": "Superior Hunter's Defense",
     "class": "Ranger",
     "subclass": "Hunter",
-    "path": "icons/magic/nature/vines-thorned-entwined-glow-green.webp"
+    "path": "icons/magic/nature/vines-throned-entwined-glow-green.webp"
   },
   {
     "name": "Superior Inspiration",
@@ -9293,7 +9293,7 @@
     "class_feature": "Wind Speaker",
     "class": "Sorcerer",
     "subclass": "Storm Sorcery",
-    "path": "icons/magic/air/fog-gas-smoke-blue-dense-white.webp"
+    "path": "icons/magic/air/fog-gas-smoke-dense-white.webp"
   },
   {
     "name": "Winging Shot",

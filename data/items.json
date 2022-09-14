@@ -45,7 +45,7 @@
   },
   {
     "name": "Absorbing Tattoo, Radiant",
-    "path": "icons/magic/light/explosion-star-orange-small.webp"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Absorbing Tattoo, Thunder",
@@ -7493,31 +7493,31 @@
   },
   {
     "name": "Spellwrought Tattoo",
-    "path": "icons/magic/light/explosion-star-orange-small.webp"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 1st level",
-    "path": "icons/magic/light/explosion-star-orange-small.webp"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 2nd level",
-    "path": "icons/magic/light/explosion-star-orange-small.webp"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 3rd level",
-    "path": "icons/magic/light/explosion-star-orange-small.webp"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 4th level",
-    "path": "icons/magic/light/explosion-star-orange-small.webp"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, 5th level",
-    "path": "icons/magic/light/explosion-star-orange-small.webp"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Spellwrought Tattoo, Cantrip",
-    "path": "icons/magic/light/explosion-star-orange-small.webp"
+    "path": "icons/magic/light/explosion-star-small-orange.webp"
   },
   {
     "name": "Sphere of Annihilation",
@@ -8829,7 +8829,7 @@
   },
   {
     "name": "Ythryn Mythallar",
-    "path": "icons/magic/light/explosion-star-orange-large.webp"
+    "path": "icons/magic/light/explosion-star-large-orange.webp"
   },
   {
     "name": "Zircon",
