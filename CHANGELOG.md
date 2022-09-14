@@ -1,6 +1,7 @@
 # 3.1.4
 
 * Thri-kreen and Autognome player characters now import with the correct AC.
+* More icon corrections for v10.
 
 # 3.1.3
 
