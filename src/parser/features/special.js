@@ -21,7 +21,7 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
 
   // console.warn(modifiers);
   // console.log(ddb.character.options[type]);
-  // console.warn("Adding modifiers");
+  // console.warn(`${ddbItem.name} Adding modifiers`, { ddbItem, choice, type, modifiers });
   // console.log(type);
   // if (type === "race") console.log(modifiers);
 
@@ -47,7 +47,9 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
       // && choice.parentChoiceId
       const choiceIdSplit = choice.choiceId.split("-").pop();
       if (mod.id == choiceIdSplit) return true;
-    } else if (mod.componentId === ddbItem.id || mod.componentId === ddbItem.definition?.id) {
+    }
+
+    if (mod.componentId === ddbItem.id || mod.componentId === ddbItem.definition?.id) {
       if (type === "class") {
         // logger.log("Class check - feature effect parsing");
         const classFeatureMatch = ddb.character.classes.some((klass) =>
@@ -73,7 +75,7 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
     }
     return false;
   });
-  // console.warn(modifierItem);
+  // console.warn("Modifier Item", modifierItem);
   return modifierItem;
 }
 

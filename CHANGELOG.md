@@ -1,3 +1,8 @@
+# 3.1.5
+
+* For some abilities (e.g. Otherworldly Glamour) the ability check bonus would prevent rolling in v10.
+* For some abilities (e.g. Otherworldly Glamour) if using active effects, and effect would not be generated.
+
 # 3.1.4
 
 * Thri-kreen and Autognome player characters now import with the correct AC.
@@ -2087,3 +2092,4 @@ Other:
 
 * Improved parsing for Tasha's changes
 * Structure in place for handling monster parsing
+
