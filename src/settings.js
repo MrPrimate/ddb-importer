@@ -92,8 +92,8 @@ const SETTINGS = {
           default: "[data] ddb-images/characters",
         },
         "other-image-upload-directory": {
-          name: "ddb-importer.settings.image-upload-directory.name",
-          hint: "ddb-importer.settings.image-upload-directory.hint",
+          name: "ddb-importer.settings.other-image-upload-directory.name",
+          hint: "ddb-importer.settings.other-image-upload-directory.hint",
           type: DirectoryPicker.Directory,
           default: "[data] ddb-images/other",
         },
