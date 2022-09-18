@@ -33,7 +33,6 @@ export default class AdventureMunch extends FormApplication {
     let files = [];
 
     try {
-      // const parsedDirectory = DirectoryPicker.parse(this._importPathData);
       const verifiedDirectory = await DirectoryPicker.verifyPath(this._importPathData);
       if (verifiedDirectory) {
         const options = { bucket: this._importPathData.bucket, extensions: [".fvttadv", ".FVTTADV", ".zip"], wildcard: false };

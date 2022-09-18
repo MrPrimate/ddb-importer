@@ -2,6 +2,7 @@
 
 * For some abilities (e.g. Otherworldly Glamour) the ability check bonus would prevent rolling in v10.
 * For some abilities (e.g. Otherworldly Glamour) if using active effects, and effect would not be generated.
+* Some changes to file upload check to try and speed up certain file check activities.
 
 # 3.1.4
 

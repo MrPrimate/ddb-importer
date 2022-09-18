@@ -3,8 +3,6 @@ import DICTIONARY from "./dictionary.js";
 import logger from "./logger.js";
 import { getEffectExcludedModifiers } from "./effects/effects.js";
 
-const existingFiles = new Set();
-
 const utils = {
   debug: () => {
     return true;
@@ -806,63 +804,46 @@ const utils = {
     return parser.parseFromString(text, "text/html");
   },
 
-  // DEVELOPMENT FUNCTION
-  // loads a character.json from a file in the file system
-  // loadFromFile: (filename) => {
-  //   return require(`./input/${filename}.json`);
-  // },
-
-  // checks for a given file
-  serverFileExists: (path) => {
-    return new Promise((resolve, reject) => {
-      let http = new XMLHttpRequest();
-      http.open("HEAD", path);
-      http.onreadystatechange = function () {
-        if (this.readyState == this.DONE) {
-          if (this.status >= 200 && this.status <= 399) {
-            // Assume any 2xx or 3xx responses mean the image is there.
-            resolve(path);
-          } else {
-            reject(path);
-          }
-        }
-      };
-
-      http.send();
-    });
-  },
-
   fileExistsUpdate: (fileList) => {
-    const targetFiles = fileList.filter((f) => !existingFiles.has(f));
+    const targetFiles = fileList.filter((f) => !CONFIG.DDBI.KNOWN.FILES.has(f));
     for (const file of targetFiles) {
-      existingFiles.add(file);
+      CONFIG.DDBI.KNOWN.FILES.add(file);
     }
   },
 
   generateCurrentFiles: async (directoryPath) => {
-    logger.debug(`Checking for files in ${directoryPath}...`);
-    const dir = DirectoryPicker.parse(directoryPath);
-    const fileList = await DirectoryPicker.browse(dir.activeSource, dir.current, { bucket: dir.bucket });
-    utils.fileExistsUpdate(fileList.files);
+    if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
+      logger.debug(`Checking for files in ${directoryPath}...`);
+      const dir = DirectoryPicker.parse(directoryPath);
+      const fileList = await DirectoryPicker.browse(dir.activeSource, dir.current, { bucket: dir.bucket });
+      utils.fileExistsUpdate(fileList.files);
+      CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(directoryPath);
+    } else {
+      logger.debug(`Skipping full dir scan for ${directoryPath}...`);
+    }
   },
 
   fileExists: async (directoryPath, filename) => {
     const fileUrl = await utils.getFileUrl(directoryPath, filename);
-    let existingFile = existingFiles.has(fileUrl);
+    let existingFile = CONFIG.DDBI.KNOWN.FILES.has(fileUrl);
     if (existingFile) return true;
 
     logger.debug(`Checking for ${filename} at ${fileUrl}...`);
-    const dir = DirectoryPicker.parse(directoryPath);
-    const fileList = await DirectoryPicker.browse(dir.activeSource, dir.current, { bucket: dir.bucket });
+    await utils.generateCurrentFiles(directoryPath);
 
-    if (fileList.files.includes(fileUrl)) {
-      logger.debug(`Found ${fileUrl}`);
-      existingFiles.add(fileUrl);
-      return true;
+    const filePresent = CONFIG.DDBI.KNOWN.FILES.has(fileUrl);
+
+    if (filePresent) {
+      logger.debug(`Found ${fileUrl} after directory scan.`);
     } else {
-      logger.debug(`Could not find ${fileUrl}`);
-      return false;
+      logger.debug(`Could not find ${fileUrl}`, {
+        directoryPath,
+        filename,
+        fileUrl,
+      });
     }
+
+    return filePresent;
   },
 
   isObject: (item) => {
@@ -1021,6 +1002,7 @@ const utils = {
       // hack as proxy returns ddb access denied as application/xml
       if (data.type === "application/xml") return null;
       const result = await utils.uploadImage(data, targetDirectory, filename + "." + ext);
+      CONFIG.DDBI.KNOWN.FILES.add(result);
       return result;
     } catch (error) {
       logger.error("Image upload error", error);

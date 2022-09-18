@@ -89,18 +89,24 @@ export default class Helpers {
         return path;
       } else {
         const paths = Helpers.getImportFilePaths(path, adventure, misc);
+        const returnPath = await utils.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
 
-        if (!CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path]) {
+        if (paths.uploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.uploadPath)) {
+          logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
+          utils.generateCurrentFiles(paths.uploadPath);
+          CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.uploadPath);
+        }
+
+        if (!CONFIG.DDBI.KNOWN.FILES.has(returnPath)) {
+          logger.debug(`Importing raw file from ${path}`, paths);
           const fileData = new File([content], paths.filename, { type: mimeType });
           await Helpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, { bucket: paths.parsedBaseUploadPath.bucket });
-          // eslint-disable-next-line require-atomic-updates
-          CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path] = true;
+          CONFIG.DDBI.KNOWN.FILES.add(returnPath);
         } else {
           logger.debug(`File already imported ${path}`);
         }
 
-        const returnPath = await utils.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
         return `${returnPath}`;
       }
     } catch (err) {
@@ -128,19 +134,24 @@ export default class Helpers {
         return path;
       } else {
         const paths = Helpers.getImportFilePaths(path, adventure, misc);
+        const returnPath = await utils.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
 
-        if (!CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path]) {
-          logger.debug(`Importing image from ${path}`, paths);
+        if (paths.uploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.uploadPath)) {
+          logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
+          utils.generateCurrentFiles(paths.uploadPath);
+          CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.uploadPath);
+        }
+
+        if (!CONFIG.DDBI.KNOWN.FILES.has(returnPath)) {
+          logger.debug(`Importing image from ${path}`, paths);
           const img = await zip.file(path).async("blob");
           await utils.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
-          // eslint-disable-next-line require-atomic-updates
-          CONFIG.DDBI.ADVENTURE.TEMPORARY.import[path] = true;
+          CONFIG.DDBI.KNOWN.FILES.add(returnPath);
         } else {
           logger.debug(`File already imported ${path}`);
         }
 
-        const returnPath = await utils.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
         return `${returnPath}`;
       }
     } catch (err) {

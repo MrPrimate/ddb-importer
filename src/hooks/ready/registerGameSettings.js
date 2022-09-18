@@ -13,6 +13,10 @@ setProperty(CONFIG, "DDBI", {
     item: {},
     feat: {},
   },
+  KNOWN: {
+    CHECKED_DIRS: new Set(),
+    FILES: new Set(),
+  }
 });
 
 async function resetSettings() {
