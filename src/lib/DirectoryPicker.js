@@ -165,6 +165,6 @@ export class DirectoryPicker extends FilePicker {
 
 // this s hooked in, we don't use all the data, so lets stop eslint complaining
 // eslint-disable-next-line no-unused-vars
-Hooks.on("renderSettingsConfig", (app, html, user) => {
-  DirectoryPicker.processHtml(html);
-});
+// Hooks.on("renderSettingsConfig", (app, html, user) => {
+//   DirectoryPicker.processHtml(html);
+// });
