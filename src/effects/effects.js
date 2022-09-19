@@ -551,7 +551,7 @@ function addAddEffect(modifiers, name, type, key) {
   const bonus = getValueFromModifiers(modifiers, name, type, "bonus");
   if (bonus) {
     logger.debug(`Generating ${type} bonus for ${name}`, bonus);
-    changes.push(generateAddChange(`+ {bonus}`, 18, key));
+    changes.push(generateAddChange(`+ ${bonus}`, 18, key));
   }
   return changes;
 }

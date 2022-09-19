@@ -1,3 +1,8 @@
+# 3.1.6
+
+* Directory Picker settings would interfere with Tokenizer.
+* Some bonuses in effects would not be applied, and instead would be `+ {bonus}`
+
 # 3.1.5
 
 * For some abilities (e.g. Otherworldly Glamour) the ability check bonus would prevent rolling in v10.
