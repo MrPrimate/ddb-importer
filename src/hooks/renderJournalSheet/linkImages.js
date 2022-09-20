@@ -36,7 +36,7 @@ export function linkImages(html, data) {
               yes: async () => {
                 const name = await utils.namePrompt("What would you like to call the Handout?");
                 if (name && name !== "") {
-                  const bookCode = data.data?.flags?.ddb?.bookCode;
+                  const bookCode = data.flags?.ddb?.bookCode;
                   createAndShowPlayerHandout(name, src, "image", bookCode);
                 }
               },

@@ -941,7 +941,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     !item.system.quantity == 0 &&
     !item.flags.ddbimporter?.custom &&
     ((item.type !== "weapon" && item.type !== "armor") || item.flags.ddbimporter?.dndbeyond?.stackable) &&
-    !item.data?.armor?.type &&
+    !item.system?.armor?.type &&
     ddbItems.some((dItem) =>
       item.flags.ddbimporter.id === dItem.id &&
       dItem.id === item.flags.ddbimporter?.id &&

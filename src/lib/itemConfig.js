@@ -64,7 +64,7 @@ export class DDBItemConfig extends FormApplication {
     event.preventDefault();
 
     let item = {
-      _id: this.object.data._id,
+      _id: this.object._id,
       flags: this.object.flags,
     };
 

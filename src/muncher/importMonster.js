@@ -240,8 +240,7 @@ export async function getNPCImage(data, options) {
   // okays, but do we now want to tokenize that?
   const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize") &&
     !mergedOptions.disableAutoTokenizeOverride &&
-    game.modules.get("vtta-tokenizer")?.active &&
-    utils.versionCompare(game.modules.get("vtta-tokenizer").data.version, "3.7.1") >= 0;
+    game.modules.get("vtta-tokenizer")?.active;
   if (tokenizerReady) {
     const compendiumLabel = getCompendiumLabel(options.type);
     // eslint-disable-next-line require-atomic-updates

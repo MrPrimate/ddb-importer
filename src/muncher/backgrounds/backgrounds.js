@@ -9,7 +9,7 @@ import { generateTable } from "../table.js";
 const BACKGROUND_TEMPLATE = {
   "name": "",
   "type": "background",
-  "data": {
+  "system": {
     "description": {
       "value": "",
       "chat": "",
@@ -33,18 +33,16 @@ function buildBase(data) {
   let result = duplicate(BACKGROUND_TEMPLATE);
   const bgData = generateBackground(data);
   result.name = data.name;
-  result.data.description.value += `${bgData.description}\n\n`;
+  result.system.description.value += `${bgData.description}\n\n`;
 
   result.flags.ddbimporter = {
     featId: data.id,
     version: CONFIG.DDBI.version,
   };
 
-  result.data.source = utils.parseSource(data);
-  result.data.description.value = parseTags(result.data.description.value);
-  result.data.description.value = generateTable(result.name, result.data.description.value, true, "background");
-
-  // console.warn(data.name, { data, bgData, result });
+  result.system.source = utils.parseSource(data);
+  result.system.description.value = parseTags(result.system.description.value);
+  result.system.description.value = generateTable(result.name, result.system.description.value, true, "background");
 
   return result;
 }
