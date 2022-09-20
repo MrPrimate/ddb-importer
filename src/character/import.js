@@ -846,7 +846,7 @@ export default class CharacterImport extends FormApplication {
             item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
           const isChoice =
             hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId") &&
-            hasProperty(owned, "data.flags.ddbimporter.dndbeyond.choice.choiceId");
+            hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
           const choiceMatch = isChoice
             ? item.flags.ddbimporter.dndbeyond.choice.choiceId ===
               owned.flags.ddbimporter.dndbeyond.choice.choiceId
@@ -968,7 +968,7 @@ export default class CharacterImport extends FormApplication {
       const compendiumInventoryItems = await getCompendiumItems(items, "inventory");
       const compendiumSpellItems = await getCompendiumItems(items, "spells");
       const compendiumClassItems = await getCompendiumItems(items, "classes");
-      const compendiumsubClassItems = await getCompendiumItems(items, "subclasses");
+      const compendiumSubClassItems = await getCompendiumItems(items, "subclasses");
       const compendiumRaceItems = await getCompendiumItems(items, "races");
       const compendiumTraitsItems = await getCompendiumItems(items, "traits");
       const compendiumBackgroundsItems = await getCompendiumItems(items, "backgrounds");
@@ -978,7 +978,7 @@ export default class CharacterImport extends FormApplication {
         compendiumSpellItems,
         compendiumFeatureItems,
         compendiumClassItems,
-        compendiumsubClassItems,
+        compendiumSubClassItems,
         compendiumRaceItems,
         compendiumTraitsItems,
         compendiumBackgroundsItems,
