@@ -2,6 +2,7 @@
 
 * Directory Picker settings would interfere with Tokenizer.
 * Some bonuses in effects would not be applied, and instead would be `+ {bonus}`
+* Fix a reference to deprecated data.flags in some character import configurations.
 
 # 3.1.5
 
