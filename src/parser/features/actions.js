@@ -4,6 +4,28 @@ import utils from "../../utils.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
 import { getInfusionActionData } from "../inventory/infusions.js";
 
+function getProperties(ddb, feature) {
+
+  let result = {
+    mgc: false,
+  };
+
+  const kiEmpowered = ddb.character.classes
+    // is a martial artist
+    .some((cls) =>
+      cls.classFeatures.some((feature) =>
+        feature.definition.name === "Ki-Empowered Strikes" &&
+        cls.level >= feature.definition.requiredLevel
+      ));
+
+  if (kiEmpowered && feature.flags.ddbimporter.originalName == "Unarmed Strike") {
+    result.mgc = true;
+  }
+
+  return result;
+
+}
+
 function getResourceFlags(character, action, flags) {
   const linkItems = game.modules.get("link-item-resource-5e")?.active;
   const resourceType = getProperty(character, "flags.ddbimporter.resources.type");
@@ -519,6 +541,7 @@ function getAttackAction(ddb, character, action) {
         action: true,
         componentId: action.componentId,
         componentTypeId: action.componentTypeId,
+        originalName: utils.getName(ddb, action, character, false),
       },
       infusions: { infused: false },
       obsidian: {
@@ -551,6 +574,7 @@ function getAttackAction(ddb, character, action) {
     feature.system.weaponType = getWeaponType(action);
     feature.system.uses = getLimitedUse(action, character);
     feature.system.consume = getResource(character, action);
+    feature.system.properties = getProperties(ddb, feature);
 
     feature = addFlagHints(ddb, character, action, feature);
     feature = addFeatEffects(ddb, character, action, feature);

@@ -1350,12 +1350,12 @@ const utils = {
     return foundryItem;
   },
 
-  getName(ddb, item, character = null) {
+  getName(ddb, item, character = null, allowCustom = true) {
     // spell name
     const customName = character
       ? utils.getCustomValueFromCharacter(item, character, 8)
       : utils.getCustomValue(item, ddb, 8);
-    if (customName) {
+    if (customName && allowCustom) {
       return customName.replace("’", "'");
     } else if (item.definition?.name) {
       return item.definition.name.replace("’", "'");
