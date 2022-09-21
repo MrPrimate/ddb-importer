@@ -2,11 +2,11 @@ import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils.js";
 
-let getEldritchInvocations = (data) => {
+let getEldritchInvocations = (ddb) => {
   let damage = "";
   let range = 0;
 
-  const eldritchBlastMods = utils.filterBaseModifiers(data, "eldritch-blast").filter((modifier) => modifier.isGranted);
+  const eldritchBlastMods = utils.filterBaseModifiers(ddb, "eldritch-blast").filter((modifier) => modifier.isGranted);
 
   eldritchBlastMods.forEach((mod) => {
     switch (mod.subType) {
@@ -36,6 +36,28 @@ let getEldritchInvocations = (data) => {
   };
 };
 
+function getRangeAdjustmentMultiplier(ddb) {
+  const rangeAdjustmentMods = utils.filterBaseModifiers(ddb, "bonus", "spell-attack-range-multiplier").filter((modifier) => modifier.isGranted);
+
+  const multiplier = rangeAdjustmentMods.reduce((current, mod) => {
+    if (Number.isInteger(mod.fixedValue) && mod.fixedValue > current) {
+      current = mod.fixedValue;
+    } else if (Number.isInteger(mod.value) && mod.value > current) {
+      current = mod.value;
+    }
+    return current;
+  }, 1);
+
+  return multiplier;
+}
+
+function adjustRange(multiplier, spell) {
+  if (spell.system.actionType === "rsak" && Number.isInteger(spell.system.range?.value)) {
+    setProperty(spell, "system.range.value", spell.system.range.value * multiplier);
+  }
+  return spell;
+}
+
 /**
  * Some spells we need to fix up or massage because they are modified
  * in interesting ways
@@ -48,6 +70,8 @@ export function fixSpells(ddb, items) {
   const usingEffects = ddb === null
     ? game.settings.get("ddb-importer", "munching-policy-add-spell-effects")
     : game.settings.get("ddb-importer", "character-update-policy-add-spell-effects");
+
+  const rangeMultiplier = ddb ? getRangeAdjustmentMultiplier(ddb) : 1;
 
   items.forEach((spell) => {
     const name = spell.flags.ddbimporter.originalName || spell.name;
@@ -265,6 +289,9 @@ export function fixSpells(ddb, items) {
       // no default
     }
 
+    if (rangeMultiplier != 1) {
+      spell = adjustRange(rangeMultiplier, spell);
+    }
     if (ddb) utils.addCustomValues(ddb, spell);
   });
 }
