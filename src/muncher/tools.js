@@ -117,12 +117,14 @@ export async function resetCompendiumActorImages(compendiumName = null, type = "
   const otherDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
   await utils.generateCurrentFiles(otherDirectory);
 
-  const updates = await Promise.all(index.map(async (i) => {
-    const options = { forceUpdate: true, disableAutoTokenizeOverride: true, type };
-    const update = await getNPCImage(duplicate(i), options);
-    logger.info(`Resetting ${i.name}`, update);
-    return update;
-  }));
+  const updates = await Promise.all(index
+    .filter((i) => i.name !== "#[CF_tempEntity]")
+    .map(async (i) => {
+      const options = { forceUpdate: true, disableAutoTokenizeOverride: true, type };
+      const update = await getNPCImage(duplicate(i), options);
+      logger.info(`Resetting ${i.name}`, update);
+      return update;
+    }));
 
   const results = await Actor.updateDocuments(updates, { pack: monsterCompendiumLabel });
   logger.debug("Reset results", results);
