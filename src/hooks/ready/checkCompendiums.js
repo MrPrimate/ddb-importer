@@ -18,7 +18,7 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
   } else {
     logger.info(`Compendium for ${compendiumLabel}, was not found, creating it now.`);
     const sanitizedLabel = sanitize(compendiumLabel);
-    const name = `ddb-${game.world.data.name}-${sanitizedLabel}`;
+    const name = `ddb-${game.world.id}-${sanitizedLabel}`;
     const defaultCompendium = await game.packs.get(`world.${name}`);
     if (defaultCompendium) {
       logger.warn(`Could not load Compendium '${compendiumName}', and could not create default Compendium '${name}' as it already exists. Please check your DDB Importer Compendium setup.`);
