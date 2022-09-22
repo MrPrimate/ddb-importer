@@ -1,6 +1,6 @@
 // import logger from "../logger.js";
 import logger from "../logger.js";
-import { getPatreonTiers } from "./utils.js";
+import { BAD_DIRS, getPatreonTiers } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getSourcesLookups } from "./ddb.js";
 import { spellEffectModules } from "../effects/specialSpells.js";
@@ -559,8 +559,7 @@ export function getCharacterImportSettings() {
   ];
 
   const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
-  const badDirs = ["[data]", "[data] ", "", null];
-  const dataDirSet = !badDirs.includes(uploadDir);
+  const dataDirSet = !BAD_DIRS.includes(uploadDir);
   const tier = game.settings.get("ddb-importer", "patreon-tier");
   const tiers = getPatreonTiers(tier);
 
