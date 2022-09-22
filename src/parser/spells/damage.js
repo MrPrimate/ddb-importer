@@ -46,7 +46,7 @@ export function getDamage(data, spell) {
 
     // This is probably just for Toll the dead.
     const alternativeFormula = getAlternativeFormula(data);
-    result.versatile = cantripBoost ? `${alternativeFormula} + @mod` : alternativeFormula;
+    result.versatile = cantripBoost && alternativeFormula && alternativeFormula != "" ? `${alternativeFormula} + @mod` : alternativeFormula;
   }
 
   // healing

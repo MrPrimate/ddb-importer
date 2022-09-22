@@ -6,6 +6,7 @@
 * On the Forge default folder paths will now be set to your asset library.
 * On the Forge changes to how data is loaded meant that icon dictionaries would not load.
 * Resetting Token images did not always work.
+* Character imports: when importing a character which allows @mod to be added to spells damage, it would add this to the versatile damage field, even if that had no versatile formula.
 
 # 3.1.6
 
