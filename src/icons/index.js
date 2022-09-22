@@ -50,13 +50,12 @@ async function loadDataFile(fileName) {
   logger.debug(`Getting icon mapping for ${fileName}`);
   const fileExists = await utils.fileExists("[data] modules/ddb-importer/data", fileName);
 
-  let data = [];
-  if (fileExists) {
-    const url = await utils.getFileUrl("[data] modules/ddb-importer/data", fileName);
-    const response = await fetch(url, { method: "GET" });
-    // eslint-disable-next-line require-atomic-updates
-    data = await response.json();
+  const url = await utils.getFileUrl("[data] modules/ddb-importer/data", fileName);
+  if (!fileExists) {
+    logger.warn(`Possible missing file, icon load may fail. Fetching ${url}`);
   }
+
+  const data = await fetchJsonWithTimeout(url);
   return data;
 }
 

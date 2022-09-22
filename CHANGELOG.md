@@ -3,6 +3,8 @@
 * Character imports: Spell Sniper feat will now double ranges for spells that import as ranged spell attack.
 * Unarmed Strikes will be marked as magical for monks at the appropriate level.
 * You can now explicitly point items to use other items in the Override compendium. Click the D&D Beyond button on an item in the characters inventory and select the item from the drop down. @alexdm#3414
+* On the Forge default folder paths will now be set to your asset library.
+* On the Forge changes to how data is loaded meant that icon dictionaries would not load.
 
 # 3.1.6
 

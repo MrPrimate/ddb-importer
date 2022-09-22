@@ -59,7 +59,9 @@
     "ChatPopout": true,
     "JournalSheet": true,
     "Journal": true,
-    "JournalEntryPage": true
+    "JournalEntryPage": true,
+    "fetchJsonWithTimeout": true,
+    "fetchWithTimeout": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

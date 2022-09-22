@@ -54,7 +54,7 @@ export function configureDependencies() {
 export async function loadMacroFile(type, fileName, forceLoad = false, forceDDB = false) {
   const embedMacros = game.settings.get("ddb-importer", "embed-macros");
   logger.debug(`Getting macro for ${type} ${fileName}`);
-  const fileExists = forceLoad
+  const fileExists = forceLoad || (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge)
     ? true
     : await utils.fileExists(`[data] modules/ddb-importer/macros/${type}s`, fileName);
 
