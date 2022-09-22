@@ -34,7 +34,9 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
           }
         }
 
-        if (item.effects.length == 0 && existingItem.effects.length > 0) {
+        if (!item.effects ||
+          (item.effects && item.effects.length == 0 && existingItem.effects && existingItem.effects.length > 0)
+        ) {
           item.effects = duplicate(existingItem.getEmbeddedCollection("ActiveEffect"));
         }
 
