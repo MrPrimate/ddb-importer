@@ -250,6 +250,7 @@ export async function getNPCImage(npcData, options) {
     const compendiumLabel = getCompendiumLabel(options.type);
     // eslint-disable-next-line require-atomic-updates
     npcData.prototypeToken.texture.src = await window.Tokenizer.autoToken(npcData, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
+    logger.debug(`Generated tokenizer image at ${npcData.prototypeToken.texture.src}`);
   }
 
   return npcData;
