@@ -1,3 +1,8 @@
+# 3.1.7
+
+* Character imports: Spell Sniper feat will now double ranges for spells that import as ranged spell attack.
+* Unarmed Strikes will be marked as magical for monks at the appropriate level.
+
 # 3.1.6
 
 * Directory Picker settings would interfere with Tokenizer.
