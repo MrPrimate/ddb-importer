@@ -172,15 +172,21 @@ export async function addNPCDDBId(npc, type = "monster") {
 
 // eslint-disable-next-line complexity
 export async function getNPCImage(npcData, options) {
-  const defaultOptions = { forceUpdate: false, forceUseFullToken: false, forceUseTokenAvatar: false, disableAutoTokenizeOverride: false, type: "monster" };
+  const defaultOptions = {
+    forceUpdate: false,
+    forceUseFullToken: false,
+    forceUseTokenAvatar: false,
+    disableAutoTokenizeOverride: false,
+    type: "monster"
+  };
   const mergedOptions = mergeObject(defaultOptions, options);
   // check to see if we have munched flags to work on
-  if (!npcData.flags || !npcData.flags.monsterMunch || !npcData.flags.monsterMunch.img) {
+  if (!hasProperty(npcData, "flags.monsterMunch.img")) {
     return npcData;
   }
 
-  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images") || mergedOptions.forceUpdate;
-  if (!updateImages && npcData.img !== CONST.DEFAULT_TOKEN) {
+  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+  if (!mergedOptions.forceUpdate && !updateImages && npcData.img !== CONST.DEFAULT_TOKEN) {
     return npcData;
   }
 
@@ -213,7 +219,7 @@ export async function getNPCImage(npcData, options) {
     }
   }
 
-  // Currently token images always have to be downloaded. Not sure why.
+  // Token images always have to be downloaded.
   if (dndBeyondTokenImageUrl) {
     const tokenExt = dndBeyondTokenImageUrl.split(".").pop().split(/#|\?|&/)[0];
 

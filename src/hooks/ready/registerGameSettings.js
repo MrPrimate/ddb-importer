@@ -30,15 +30,15 @@ setProperty(CONFIG, "DDBI", {
   },
   EFFECT_CONFIG: {
     MONSTERS: {
-      installedModules: {},
+      installedModules: null,
       configured: false,
     },
     FEATS: {
-      installedModules: {},
+      installedModules: null,
       configured: false,
     },
     SPELLS: {
-      installedModules: {},
+      installedModules: null,
       configured: false,
     },
   },

@@ -1,4 +1,5 @@
 import logger from "../logger.js";
+import utils from "../utils.js";
 import { munchNote, getCompendium, getCompendiumLabel } from "./utils.js";
 import { copySupportedItemFlags } from "./import.js";
 import { getNPCImage } from "./importMonster.js";
@@ -113,9 +114,12 @@ export async function resetCompendiumActorImages(compendiumName = null, type = "
   const fields = ["name", "flags.monsterMunch", "system.details.type.value", "img", "prototypeToken.texture.src"];
   const index = await monsterCompendium.getIndex({ fields });
 
+  const otherDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
+  await utils.generateCurrentFiles(otherDirectory);
+
   const updates = await Promise.all(index.map(async (i) => {
     const options = { forceUpdate: true, disableAutoTokenizeOverride: true, type };
-    const update = await getNPCImage(i, options);
+    const update = await getNPCImage(duplicate(i), options);
     logger.info(`Resetting ${i.name}`, update);
     return update;
   }));
