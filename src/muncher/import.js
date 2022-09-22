@@ -895,7 +895,7 @@ export function updateCharacterItemFlags(itemData, replaceData) {
   return replaceData;
 }
 
-async function updateMatchingItems(oldItems, newItems, inOptions) {
+export async function updateMatchingItems(oldItems, newItems, inOptions) {
   let results = [];
 
   const defaultOptions = {
@@ -903,12 +903,16 @@ async function updateMatchingItems(oldItems, newItems, inOptions) {
     monster: false,
     keepId: false,
     keepDDBId: false,
+    overrideId: false,
   };
   const options = mergeObject(defaultOptions, inOptions);
 
   for (let newItem of newItems) {
     let item = duplicate(newItem);
-    const matched = await looseItemNameMatch(item, oldItems, options.looseMatch, options.monster); // eslint-disable-line no-await-in-loop
+
+    const matched = options.overrideId
+      ? oldItems.find((oldItem) => getProperty(oldItem, "flags.ddbimporter.overrideId") == item._id)
+      : await looseItemNameMatch(item, oldItems, options.looseMatch, options.monster); // eslint-disable-line no-await-in-loop
 
     if (matched) {
       const match = duplicate(matched);
@@ -937,7 +941,41 @@ async function updateMatchingItems(oldItems, newItems, inOptions) {
   return results;
 }
 
+export async function getIndividualOverrideItems(overrideItems) {
+  const label = getCompendiumLabel("custom");
+  const compendium = await getCompendium(label);
+
+  const compendiumItems = await Promise.all(overrideItems.map(async (item) => {
+    const compendiumItem = duplicate(await compendium.getDocument(item.flags.ddbimporter.overrideId));
+    setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
+    if (hasProperty(item, "flags.ddbimporter.overrideItem")) {
+      setProperty(compendiumItem, "flags.ddbimporter.overrideItem", item.flags.ddbimporter.overrideItem);
+    } else {
+      setProperty(compendiumItem, "flags.ddbimporter.overrideItem", {
+        name: item.name,
+        type: item.type,
+        ddbId: item.flags.ddbimporter?.id
+      });
+    }
+
+    return compendiumItem;
+  }));
+
+  const matchingOptions = {
+    looseMatch: false,
+    monster: false,
+    keepId: true,
+    keepDDBId: true,
+    overrideId: true,
+  };
+
+  const remappedItems = await updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
+
+  return remappedItems;
+}
+
 const compendiumRemoveFlags = [
+  "flags.ddbimporter.overrideId",
   "flags.ddbimporter.ignoreItemImport",
   "flags.ddbimporter.retainResourceConsumption",
   "flags.ddbimporter.ignoreIcon",

@@ -6,7 +6,17 @@
 
   <p>Protect this item during character import.</p>
 
+  <hr>
   <div class="form-description">
+    <div class="form-group">
+      <label for="override">Item from Override Compendium?</label>
+      <select name="override" id="override" style="flex: 55%">
+        {{#each overrides}}
+          <option value="{{@key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <hr>
     {{#each settings}}
     <div>
       <input {{#if this.isChecked}}checked{{/if}} type="checkbox" name="{{this.name}}">{{this.description}}

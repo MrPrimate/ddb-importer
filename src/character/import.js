@@ -12,6 +12,7 @@ import {
   getDDBGenericItemIcons,
   addItemEffectIcons,
   retainExistingIcons,
+  getIndividualOverrideItems,
 } from "../muncher/import.js";
 import { download, getCampaignId, getCompendiumType } from "../muncher/utils.js";
 import { addItemsDAESRD } from "../muncher/dae.js";
@@ -851,11 +852,23 @@ export default class CharacterImport extends FormApplication {
             ? item.flags.ddbimporter.dndbeyond.choice.choiceId ===
               owned.flags.ddbimporter.dndbeyond.choice.choiceId
             : true;
+          const overrideDetails = getProperty(owned, "flags.ddbimporter.overrideItem");
+          const overrideMatch =
+            overrideDetails &&
+            item.name === overrideDetails.name &&
+            item.type === overrideDetails.type &&
+            item.flags?.ddbimporter?.id === overrideDetails.ddbId;
 
-          return simpleMatch && choiceMatch;
+          return (simpleMatch && choiceMatch) || overrideMatch;
         });
 
         if (ddbMatchedItem) {
+          if (hasProperty(ddbMatchedItem, "flags.ddbimporter.overrideId")) {
+            setProperty(item, "flags.ddbimporter.overrideId", ddbMatchedItem.flags.ddbimporter.overrideId);
+            if ((hasProperty(ddbMatchedItem, "flags.ddbimporter.overrideItem"))) {
+              setProperty(item, "flags.ddbimporter.overrideItem", ddbMatchedItem.flags.ddbimporter.overrideItem);
+            }
+          }
           if (!ddbMatchedItem.flags.ddbimporter?.ignoreItemImport) {
             item["_id"] = ddbMatchedItem["id"];
             if (ddbMatchedItem.flags.ddbimporter?.ignoreIcon) {
@@ -930,9 +943,24 @@ export default class CharacterImport extends FormApplication {
     let compendiumItems = [];
     let srdCompendiumItems = [];
     let overrideCompendiumItems = [];
+    let individualCompendiumItems = [];
     const useExistingCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-existing");
     const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
     const useOverrideCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-override");
+
+    // First we do items that are individually marked as override
+    const individualOverrideItems = items.filter((item) => {
+      const overrideId = getProperty(item, "flags.ddbimporter.overrideId");
+      return overrideId !== undefined && overrideId !== "NONE";
+    });
+
+    if (individualOverrideItems.length > 0) {
+      const individualOverrideCompendiumItems = await getIndividualOverrideItems(individualOverrideItems);
+      individualCompendiumItems = individualOverrideCompendiumItems;
+      // remove existing items from those to be imported
+      logger.info("Removing matching Override compendium items");
+      items = await CharacterImport.removeItems(items, individualCompendiumItems);
+    }
 
     /**
      * First choice is override compendium
@@ -944,6 +972,7 @@ export default class CharacterImport extends FormApplication {
       // remove existing items from those to be imported
       items = await CharacterImport.removeItems(items, overrideCompendiumItems);
     }
+
     /**
      * If SRD is selected, we prefer this
      */
@@ -1012,6 +1041,12 @@ export default class CharacterImport extends FormApplication {
       CharacterImport.showCurrentTask(html, "Adding Override compendium items");
       logger.info("Adding Override compendium items:", overrideCompendiumItems);
       await this.createCharacterItems(overrideCompendiumItems, false);
+    }
+
+    if (individualCompendiumItems.length > 0) {
+      CharacterImport.showCurrentTask(html, "Adding Individual Override compendium items");
+      logger.info("Adding Individual Override compendium items:", individualCompendiumItems);
+      await this.createCharacterItems(individualCompendiumItems, false);
     }
 
     logger.debug("Finished importing items");
