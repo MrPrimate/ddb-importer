@@ -53,7 +53,7 @@ async function linkToPatreon() {
     logger.debug("DDB Muncher socketID", socket.id);
     const serverDetails = {
       id: socket.id,
-      world: game.world.data.title,
+      world: game.world.title,
       userId: game.userId,
     };
     socket.emit("register", serverDetails);
