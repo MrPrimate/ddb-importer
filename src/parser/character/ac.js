@@ -183,14 +183,14 @@ function calculateACOptions(data, character, calculatedArmor) {
   // we also want to handle unarmored for monks etc.
   // we might have multiple shields "equipped" by accident, so work out
   // the best one
-  for (var armor = 0; armor < calculatedArmor.armors.length; armor++) {
+  for (let armor = 0; armor < calculatedArmor.armors.length; armor++) {
     // getEquippedAC fetches any magical AC boost on the items passed
     let armorAC = getEquippedAC([calculatedArmor.armors[armor]]);
     let shieldMod = 0;
 
     if (calculatedArmor.shields.length !== 0) {
       let maxAC = armorAC;
-      for (var shield = 0; shield < calculatedArmor.shields.length; shield++) {
+      for (let shield = 0; shield < calculatedArmor.shields.length; shield++) {
         const combinedAC = getEquippedAC([calculatedArmor.armors[armor], calculatedArmor.shields[shield]]);
         if (combinedAC > maxAC) {
           shieldMod = combinedAC - armorAC;

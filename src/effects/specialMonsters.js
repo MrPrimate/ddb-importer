@@ -29,10 +29,10 @@ export function baseMonsterFeatureEffect(document, label) {
   };
 }
 
-var installedModules;
-
 export function monsterFeatEffectModules() {
-  if (installedModules) return installedModules;
+  if (CONFIG.DDBI.EFFECT_CONFIG.MONSTERS.installedModules) {
+    return CONFIG.DDBI.EFFECT_CONFIG.MONSTERS.installedModules;
+  }
   const midiQolInstalled = game.modules.get("midi-qol")?.active;
   const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active;
   const itemMacroInstalled = game.modules.get("itemacro")?.active;
@@ -45,7 +45,7 @@ export function monsterFeatEffectModules() {
   const tokenAurasInstalled = game.modules.get("token-auras")?.active;
   const tokenMagicInstalled = game.modules.get("tokenmagic")?.active;
   const autoAnimationsInstalled = game.modules.get("autoanimations")?.active;
-  installedModules = {
+  CONFIG.DDBI.EFFECT_CONFIG.MONSTERS.installedModules = {
     hasCore:
       itemMacroInstalled &&
       midiQolInstalled &&
@@ -65,10 +65,8 @@ export function monsterFeatEffectModules() {
     activeAurasInstalled,
     autoAnimationsInstalled,
   };
-  return installedModules;
+  return CONFIG.DDBI.EFFECT_CONFIG.MONSTERS.installedModules;
 }
-
-var configured;
 
 function transferEffectsToActor(document) {
   if (!document.effects) document.effects = [];
@@ -103,8 +101,8 @@ export async function monsterFeatureEffectAdjustment(document, monster) {
   if (!deps.hasCore) {
     return document;
   }
-  if (!configured) {
-    configured = configureDependencies();
+  if (!CONFIG.DDBI.EFFECT_CONFIG.MONSTERS.configured) {
+    CONFIG.DDBI.EFFECT_CONFIG.MONSTERS.configured = configureDependencies();
   }
 
   // const name = document.flags.ddbimporter.originalName || document.name;

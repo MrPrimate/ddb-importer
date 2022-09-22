@@ -4,8 +4,8 @@ import { copySupportedItemFlags } from "./import.js";
 export const BAD_DIRS = ["[data]", "[data] ", "", null];
 
 export function download(content, fileName, contentType) {
-  var a = document.createElement("a");
-  var file = new Blob([content], { type: contentType });
+  let a = document.createElement("a");
+  let file = new Blob([content], { type: contentType });
   a.href = URL.createObjectURL(file);
   a.download = fileName;
   a.click();

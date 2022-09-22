@@ -63,20 +63,17 @@ const EFFECTS_IGNORE_FLAG_GROUPS = [
   "itemmacro",
 ];
 
-var srdIconMapLoaded = false;
-var srdIconMap = {};
-var srdPacksLoaded = {};
-var srdPacks = {};
 
-async function loadSRDPacks(compendiumName) {
-  if (srdPacksLoaded[compendiumName]) return;
+async function loadpacks(compendiumName) {
+  if (CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) return;
   const srdPack = await getCompendium(compendiumName);
   if (!srdPack) {
     logger.error(`Failed to load SRDPack ${compendiumName}`);
   } else {
-    srdPacks[compendiumName] = await srdPack.getDocuments();
     // eslint-disable-next-line require-atomic-updates
-    srdPacksLoaded[compendiumName] = true;
+    CONFIG.DDBI.SRD_LOAD.packs[compendiumName] = await srdPack.getDocuments();
+    // eslint-disable-next-line require-atomic-updates
+    CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName] = true;
   }
 }
 
@@ -523,9 +520,9 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
 
 async function getSRDIconMatch(type) {
   const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
-  if (!srdPacksLoaded[compendiumName]) await loadSRDPacks(compendiumName);
+  if (!CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) await loadpacks(compendiumName);
 
-  const items = srdPacks[compendiumName].map((item) => {
+  const items = CONFIG.DDBI.SRD_LOAD.packs[compendiumName].map((item) => {
     let smallItem = {
       name: item.name,
       img: item.img,
@@ -540,18 +537,19 @@ async function getSRDIconMatch(type) {
 }
 
 export async function getSRDIconLibrary() {
-  if (srdIconMapLoaded) return srdIconMap;
+  if (CONFIG.DDBI.SRD_LOAD.mapLoaded) return CONFIG.DDBI.SRD_LOAD.iconMap;
   const compendiumFeatureItems = await getSRDIconMatch("features");
   const compendiumInventoryItems = await getSRDIconMatch("inventory");
   const compendiumSpellItems = await getSRDIconMatch("spells");
   const compendiumMonsterFeatures = await getSRDIconMatch("monsterfeatures");
 
-  srdIconMap = compendiumInventoryItems.concat(
+  // eslint-disable-next-line require-atomic-updates
+  CONFIG.DDBI.SRD_LOAD.iconMap = compendiumInventoryItems.concat(
     compendiumSpellItems,
     compendiumFeatureItems,
     compendiumMonsterFeatures,
   );
-  return srdIconMap;
+  return CONFIG.DDBI.SRD_LOAD.iconMap;
 }
 
 export async function copySRDIcons(items, srdIconLibrary = null, nameMatchList = []) {
@@ -1088,8 +1086,8 @@ export async function getCompendiumItems(items, type, inOptions) {
 
 export async function getSRDCompendiumItems(items, type, looseMatch = false, keepId = false, monster = false) {
   const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
-  if (!srdPacksLoaded[compendiumName]) await loadSRDPacks(compendiumName);
-  const compendiumItems = srdPacks[compendiumName];
+  if (!CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) await loadpacks(compendiumName);
+  const compendiumItems = CONFIG.DDBI.SRD_LOAD.packs[compendiumName];
 
   const loadedItems = await compendiumItems.filter((i) =>
     compendiumItems.some((orig) => {

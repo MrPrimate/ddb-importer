@@ -1,11 +1,10 @@
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup, DDBLocationSetup } from "../../lib/Settings.js";
-import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 
 setProperty(CONFIG, "DDBI", {
   module: "DDB Muncher",
-  schemaVersion: "1.1",
+  schemaVersion: 4.0,
   ADVENTURE: {},
   MACROS: {
     spell: {},
@@ -16,7 +15,33 @@ setProperty(CONFIG, "DDBI", {
   KNOWN: {
     CHECKED_DIRS: new Set(),
     FILES: new Set(),
-  }
+  },
+  ICONS: {},
+  TABLES: {},
+  SRD_LOAD: {
+    mapLoaded: false,
+    iconMap: {},
+    packsLoaded: {},
+    packs: {},
+  },
+  DEV: {
+    clippy: {},
+    tableInUse: false,
+  },
+  EFFECT_CONFIG: {
+    MONSTERS: {
+      installedModules: {},
+      configured: false,
+    },
+    FEATS: {
+      installedModules: {},
+      configured: false,
+    },
+    SPELLS: {
+      installedModules: {},
+      configured: false,
+    },
+  },
 });
 
 async function resetSettings() {

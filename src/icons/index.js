@@ -1,8 +1,6 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 
-var iconMap = {};
-
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 
 const TYPE_MAP = {
@@ -62,7 +60,7 @@ async function loadDataFile(fileName) {
 async function loadIconMap(type) {
   // check to see if dictionary is loaded
   logger.debug(`Loading Inbuilt Icon Map for ${type}`);
-  if (iconMap[type]) return;
+  if (CONFIG.DDBI.ICONS[type]) return;
 
   let data = [];
   for (const fileName of FILE_MAP[type]) {
@@ -71,34 +69,34 @@ async function loadIconMap(type) {
     data = data.concat(dataLoad);
   }
 
-  iconMap[type] = data;
+  CONFIG.DDBI.ICONS[type] = data;
   // console.warn(iconMap);
 }
 
 function looseMatch(item, typeValue) {
   const originalName = item.flags?.ddbimporter?.originalName;
   if (originalName) {
-    const originalMatch = iconMap[typeValue].find((entry) => sanitiseName(entry.name) === sanitiseName(originalName));
+    const originalMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name) === sanitiseName(originalName));
     if (originalMatch) return originalMatch.path;
   }
 
   const sanitisedName = sanitiseName(item.name);
   if (item.name.includes(":")) {
     const nameArray = sanitisedName.split(":");
-    const postMatch = iconMap[typeValue].find((entry) => sanitiseName(entry.name) === nameArray[1].trim());
+    const postMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name) === nameArray[1].trim());
     if (postMatch) return postMatch.path;
-    const subMatch = iconMap[typeValue].find((entry) => sanitiseName(entry.name) === nameArray[0].trim());
+    const subMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name) === nameArray[0].trim());
     if (subMatch) return subMatch.path;
   }
 
-  const startsMatchEntry = iconMap[typeValue].find((entry) => sanitisedName.split(":")[0].trim().startsWith(sanitiseName(entry.name).split(":")[0].trim()));
+  const startsMatchEntry = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitisedName.split(":")[0].trim().startsWith(sanitiseName(entry.name).split(":")[0].trim()));
   if (startsMatchEntry) return startsMatchEntry.path;
-  const startsMatchItem = iconMap[typeValue].find((entry) => sanitiseName(entry.name).split(":")[0].trim().startsWith(sanitisedName.split(":")[0].trim()));
+  const startsMatchItem = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name).split(":")[0].trim().startsWith(sanitisedName.split(":")[0].trim()));
   if (startsMatchItem) return startsMatchItem.path;
 
   if (item.type === "subclass" && item.system.classIdentifier) {
     const sanitisedClassName = sanitiseName(item.system.classIdentifier);
-    const subClassMatch = iconMap[typeValue].find((entry) => sanitiseName(entry.name).startsWith(sanitisedClassName));
+    const subClassMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name).startsWith(sanitisedClassName));
     if (subClassMatch) return subClassMatch.path;
   }
 
@@ -108,9 +106,9 @@ function looseMatch(item, typeValue) {
 function getIconPath(item, type, monsterName) {
   // check to see if we are able to load a dic for that type
   const typeValue = TYPE_MAP[type];
-  if (!typeValue || !iconMap[typeValue]) return null;
+  if (!typeValue || !CONFIG.DDBI.ICONS[typeValue]) return null;
 
-  const iconMatch = iconMap[typeValue].find((entry) => {
+  const iconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
     const sanitisedName = sanitiseName(entry.name);
     const sanitisedItemName = sanitiseName(item.name);
     if (type === "monster") {
@@ -120,7 +118,7 @@ function getIconPath(item, type, monsterName) {
   });
 
   if (!iconMatch && type === "monster") {
-    const genericMonsterIconMatch = iconMap[typeValue].find((entry) => {
+    const genericMonsterIconMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => {
       const sanitisedName = sanitiseName(entry.name);
       const sanitisedItemName = sanitiseName(item.name);
       return sanitisedName === sanitisedItemName;

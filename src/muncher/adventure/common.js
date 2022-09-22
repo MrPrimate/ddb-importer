@@ -229,7 +229,7 @@ export default class Helpers {
    * @returns {object}
    */
   static diff(obj1, obj2) {
-    var result = {};
+    let result = {};
     for (const key in obj1) {
       if (obj2[key] != obj1[key]) result[key] = obj2[key];
       // eslint-disable-next-line valid-typeof

@@ -116,12 +116,11 @@ import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
 import { witchBoltEffect } from "./spells/witchBolt.js";
 
-// spell effects load stop
-
-var installedModules;
 
 export function spellEffectModules() {
-  if (installedModules) return installedModules;
+  if (CONFIG.DDBI.EFFECT_CONFIG.SPELLS.installedModules) {
+    return CONFIG.DDBI.EFFECT_CONFIG.SPELLS.installedModules;
+  }
   const midiQolInstalled = game.modules.get("midi-qol")?.active;
   const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active;
   const itemMacroInstalled = game.modules.get("itemacro")?.active;
@@ -134,7 +133,7 @@ export function spellEffectModules() {
   const tokenAurasInstalled = game.modules.get("token-auras")?.active;
   const tokenMagicInstalled = game.modules.get("tokenmagic")?.active;
   const autoAnimationsInstalled = game.modules.get("autoanimations")?.active;
-  installedModules = {
+  CONFIG.DDBI.EFFECT_CONFIG.SPELLS.installedModules = {
     hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
     midiQolInstalled,
     itemMacroInstalled,
@@ -148,7 +147,7 @@ export function spellEffectModules() {
     activeAurasInstalled,
     autoAnimationsInstalled,
   };
-  return installedModules;
+  return CONFIG.DDBI.EFFECT_CONFIG.SPELLS.installedModules;
 }
 
 export function baseSpellEffect(document, label) {
@@ -187,8 +186,6 @@ export function generateATLChange(atlKey, mode, value, priority = 20) {
   return baseGenerateATLChange(atlKey, mode, value, priority);
 }
 
-var configured = false;
-
 /**
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
@@ -203,8 +200,8 @@ export async function spellEffectAdjustment(document) {
     logger.warn("Sorry, you're missing some required modules for spell effects. Please install them and try again.", deps);
     return document;
   }
-  if (!configured) {
-    configured = configureDependencies();
+  if (!CONFIG.DDBI.EFFECT_CONFIG.SPELLS.configured) {
+    CONFIG.DDBI.EFFECT_CONFIG.SPELLS.configured = configureDependencies();
   }
 
   const name = document.flags.ddbimporter.originalName || document.name;

@@ -2,16 +2,13 @@ import logger from "../../logger.js";
 
 function copyToClipboard(text) {
   logger.debug("Copy block", text);
-  var dummy = document.createElement("textarea");
+  let dummy = document.createElement("textarea");
   document.body.appendChild(dummy);
   dummy.value = text;
   dummy.select();
   document.execCommand("copy");
   document.body.removeChild(dummy);
 }
-
-var clippy = {};
-var tableInUse = false;
 
 function getNoteButton(name, type) {
   return $(
@@ -39,13 +36,13 @@ function buildNotes(html, data) {
       $(element)
         .parent()
         .mouseenter(function Hovering() {
-          if (tableInUse) return;
+          if (CONFIG.DDBI.DEV.tableInUse) return;
           const tagName = $(element).prop("tagName");
           const showStartButton = $(this).append(getNoteButton("start", tagName));
           const showEndButton = $(this).append(getNoteButton("end", tagName));
           $(showStartButton).click((e) => {
             if (e.target.id === "ddb-note-start") {
-              clippy = {
+              CONFIG.DDBI.DEV.clippy = {
                 ddbId: data.document.flags.ddb.ddbId,
                 cobaltId: data.document.flags.ddb.cobaltId,
                 parentId: data.document.flags.ddb.parentId,
@@ -57,14 +54,14 @@ function buildNotes(html, data) {
                 contentChunkIdStop: "EOF",
                 sceneName: data.name,
               };
-              copyToClipboard(JSON.stringify(clippy, null, 2));
+              copyToClipboard(JSON.stringify(CONFIG.DDBI.DEV.clippy, null, 2));
             }
           });
           $(showEndButton).click((e) => {
             if (e.target.id === "ddb-note-end") {
-              clippy.tagIdLast = $(element).prop("id");
-              clippy.contentChunkIdStop = $(element).attr("data-content-chunk-id");
-              copyToClipboard(JSON.stringify(clippy, null, 2));
+              CONFIG.DDBI.DEV.clippy.tagIdLast = $(element).prop("id");
+              CONFIG.DDBI.DEV.clippy.contentChunkIdStop = $(element).attr("data-content-chunk-id");
+              copyToClipboard(JSON.stringify(CONFIG.DDBI.DEV.clippy, null, 2));
             }
           });
         });
@@ -85,11 +82,11 @@ function buildNotes(html, data) {
       $(element)
         .parent()
         .mouseenter(function Hovering() {
-          tableInUse = true;
+          CONFIG.DDBI.DEV.tableInUse = true;
           const showButton = $(this).append(getTableButton());
           $(showButton).click((e) => {
             if (e.target.id === "ddb-table-name") {
-              clippy = {
+              CONFIG.DDBI.DEV.clippy = {
                 ddbId: data.flags.ddb.ddbId,
                 cobaltId: data.flags.ddb.cobaltId,
                 parentId: data.flags.ddb.parentId,
@@ -99,7 +96,7 @@ function buildNotes(html, data) {
                 sceneName: data.name,
                 tableName: "",
               };
-              copyToClipboard(JSON.stringify(clippy, null, 2));
+              copyToClipboard(JSON.stringify(CONFIG.DDBI.DEV.clippy, null, 2));
             }
           });
         });
@@ -107,7 +104,7 @@ function buildNotes(html, data) {
         .parent()
         .mouseleave(function Unhovering() {
           $(this).find("#ddb-table-name").remove();
-          tableInUse = false;
+          CONFIG.DDBI.DEV.tableInUse = false;
         });
     });
 }

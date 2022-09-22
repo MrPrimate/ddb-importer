@@ -198,8 +198,6 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
   return generatedTables;
 }
 
-var tables = {};
-
 export function generateTable(parentName, html, updateExisting, type = "") {
   const document = utils.htmlToDoc(html);
   const tableNodes = document.querySelectorAll("table");
@@ -226,7 +224,7 @@ export function generateTable(parentName, html, updateExisting, type = "") {
       nameGuess = keys[1];
     }
     const finalName = `${parentName}: ${nameGuess}`;
-    const tableGenerated = (finalName in tables);
+    const tableGenerated = (finalName in CONFIG.DDBI.TABLES);
 
     logger.debug(`Table detection triggered for ${parentName}!`);
     logger.debug(`Table: "${finalName}"`);
@@ -234,13 +232,13 @@ export function generateTable(parentName, html, updateExisting, type = "") {
     logger.debug(`Keys: ${keys.join(", ")}`);
 
     const builtTables = tableGenerated
-      ? tables[finalName]
+      ? CONFIG.DDBI.TABLES[finalName]
       : buildTable(parsedTable, keys, diceKeys, finalName, parentName);
 
     if (builtTables.length > 0) {
       // these updates are done async, and we continue. this is fine as we actually use the table name for linking
       if (!tableGenerated) {
-        tables[finalName] = builtTables;
+        CONFIG.DDBI.TABLES[finalName] = builtTables;
         logger.debug(`Generated table`, builtTables);
         updateCompendium("tables", { tables: builtTables }, updateExisting);
       }
@@ -257,7 +255,7 @@ export function generateTable(parentName, html, updateExisting, type = "") {
         multiDiceKeys: diceKeys.length > 1,
         diceKeysNumber: diceKeys.length,
         totalKeys: keys.length,
-        builtTables: tables[finalName],
+        builtTables: CONFIG.DDBI.TABLES[finalName],
       };
       tablesMatched.push(tableData);
       updatedDocument = tableReplacer(updatedDocument, tableNum, tableData.builtTables);
