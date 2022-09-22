@@ -1065,6 +1065,13 @@ const SETTINGS = {
   },
   GET_DEFAULT_SETTINGS(early = false) {
     const clone = foundry.utils.deepClone(SETTINGS.DEFAULT_SETTINGS);
+    const defaultLocationSource = !early && typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge
+      ? "[forgevtt]"
+      : "[data]";
+
+    for (const [name, data] of Object.entries(clone.READY.DIRECTORIES)) {
+      clone.READY.DIRECTORIES[name].default = data.default.replace("[data]", defaultLocationSource);
+    }
     let defaultSettings = early
       ? clone.EARLY
       : {

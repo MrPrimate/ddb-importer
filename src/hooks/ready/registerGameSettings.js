@@ -58,6 +58,28 @@ class ResetSettingsDialog extends FormApplication {
   }
 }
 
+function createFolderPaths() {
+  if (game.user.isGM) {
+    const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
+    const otherUploads = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
+    if (characterUploads !== "[data] ddb-images/characters" && otherUploads === "[data] ddb-images/other") {
+      game.settings.set(SETTINGS.MODULE_ID, "other-image-upload-directory", characterUploads);
+    } else {
+      DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
+    }
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
+
+    const frameUploads = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(frameUploads));
+
+    const adventureUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(adventureUploads));
+
+    const iconUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path");
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(iconUploads));
+  }
+}
+
 export default function () {
 
   game.settings.registerMenu(SETTINGS.MODULE_ID, 'setupMenu', {
@@ -101,51 +123,7 @@ export default function () {
   }
 
   // SETTING TWEAKS AND MIGRATIONS
-  if (game.user.isGM) {
-    const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
-    const otherUploads = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
-    if (characterUploads !== "[data] ddb-images/characters" && otherUploads === "[data] ddb-images/other") {
-      game.settings.set(SETTINGS.MODULE_ID, "other-image-upload-directory", characterUploads);
-    } else {
-      DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
-    }
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
-  }
-
-  if (game.user.isGM) {
-    const frameUploads = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(frameUploads));
-  }
-
-  const adventureUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
-
-  if (game.user.isGM) {
-    const oldDirPath = `[data] worlds/${game.world.id}/adventures`;
-    const oldDir = DirectoryPicker.parse(oldDirPath);
-
-    if (adventureUploads === "[data] ddb-images/adventures") {
-      DirectoryPicker.browse(oldDir.activeSource, oldDir.current, { bucket: oldDir.bucket }).then((uploadFileList) => {
-        if (uploadFileList.dirs.length !== 0 || uploadFileList.files.length !== 0) {
-          logger.warn("Updating adventure uploads to historic default");
-          game.settings.set(SETTINGS.MODULE_ID, "adventure-upload-path", oldDirPath);
-        }
-      }).catch((e) => {
-        if (
-          e.startsWith("The requested file storage undefined does not exist!") ||
-          e.includes("does not exist or is not accessible in this storage location")
-        ) {
-          logger.debug("Adventure directory check successful");
-        }
-      });
-    }
-
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(adventureUploads));
-  }
-
-  if (game.user.isGM) {
-    const iconUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path");
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(iconUploads));
-  }
+  createFolderPaths();
 
   const ddbProxy = game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
   if (ddbProxy === "https://ddb.mrprimate.co.uk") {
