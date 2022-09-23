@@ -2,6 +2,8 @@ import { DirectoryPicker } from "../lib/DirectoryPicker.js";
 import logger from "../logger.js";
 
 const FileHelper = {
+  BAD_DIRS: ["[data]", "[data] ", "", null],
+
   fileExistsUpdate: (fileList) => {
     const targetFiles = fileList.filter((f) => !CONFIG.DDBI.KNOWN.FILES.has(f));
     for (const file of targetFiles) {

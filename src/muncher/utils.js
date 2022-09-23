@@ -1,8 +1,6 @@
 import logger from "../logger.js";
 import { copySupportedItemFlags } from "./import.js";
 
-export const BAD_DIRS = ["[data]", "[data] ", "", null];
-
 export function download(content, fileName, contentType) {
   let a = document.createElement("a");
   let file = new Blob([content], { type: contentType });

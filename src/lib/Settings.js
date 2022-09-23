@@ -1,9 +1,10 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
-import { setPatreonTier, getPatreonTiers, BAD_DIRS, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
+import { setPatreonTier, getPatreonTiers, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
+import FileHelper from "../utils/files.js";
 
 const POPUPS = {
   json: null,
@@ -29,7 +30,7 @@ function renderPopup(type, url) {
 
 export function isSetupComplete(needsCobalt = true) {
   const uploadDir = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
-  const dataDirSet = !BAD_DIRS.includes(uploadDir);
+  const dataDirSet = !FileHelper.BAD_DIRS.includes(uploadDir);
   const cobalt = getCobalt() != "";
   const setupComplete = dataDirSet && (cobalt || !needsCobalt);
   return setupComplete;
@@ -644,7 +645,7 @@ export class DDBLocationSetup extends FormApplication {
       directoryStatus.push({
         key,
         value,
-        isBad: BAD_DIRS.includes(value),
+        isBad: FileHelper.BAD_DIRS.includes(value),
         // eslint-disable-next-line no-await-in-loop
         isValid: await DirectoryPicker.verifyPath(DirectoryPicker.parse(value)),
       });
