@@ -92,6 +92,7 @@ function getSpecialDuration (effect, match) {
 function generateConditionEffect(effect, text) {
   let results = {
     success: false,
+    effect,
   };
   text = text.replace("’", "'");
   const conditionSearch = /DC (\d+) (\w+) saving throw(?:,)? or (be |be cursed|become|die|contract|have|it can't|suffer|gain|lose the)\s?(?:knocked )?(\w+)?\s?(?:for (\d+) (minute))?(.*)?(?:.|$)/;
@@ -112,13 +113,13 @@ function generateConditionEffect(effect, text) {
       : undefined;
     if (group4Condition) {
       results.condition = group4Condition.value;
-      effect.changes.push(generateStatusEffectChange(group4Condition.name));
-      effect = getSpecialDuration(effect, match);
+      results.effect.changes.push(generateStatusEffectChange(group4Condition.name));
+      effect = getSpecialDuration(results.effect, match);
     } else if (match[3] && match[3] === "die") {
-      effect.changes.push(generateStatusEffectChange("Dead"));
+      results.effect.changes.push(generateStatusEffectChange("Dead"));
     }
   }
-  return effect;
+  return results;
 }
 
 function getOvertimeDamage(text) {
@@ -146,7 +147,9 @@ export function generateOverTimeEffect(document, actor, monster) {
   if (!document.effects) document.effects = [];
   let effect = baseMonsterFeatureEffect(document, `${document.name}`);
   // add any condition effects
-  effect = generateConditionEffect(effect, document.system.description.value);
+  const conditionResults = generateConditionEffect(effect, document.system.description.value);
+  effect = conditionResults.effect;
+  if (conditionResults.success) setProperty(document, "flags.midiProperties.fulldam", true);
 
   const durationSeconds = hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     ? getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
@@ -166,6 +169,9 @@ export function generateOverTimeEffect(document, actor, monster) {
   const dmg = getOvertimeDamage(document.system.description.value);
 
   if (!dmg) return effectCleanup(document, actor, monster, effect);
+
+  // overtime damage, revert any full damage flag, reset to default on save
+  setProperty(document, "flags.midiProperties.fulldam", false);
 
   const damage = hasProperty(document.flags, "monsterMunch.overTime.damage")
     ? getProperty(document.flags, "monsterMunch.overTime.damage")
