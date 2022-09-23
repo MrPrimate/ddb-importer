@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
 import { getBackgroundData } from "../character/bio.js";
 

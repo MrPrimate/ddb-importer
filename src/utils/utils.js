@@ -1,6 +1,6 @@
-import DICTIONARY from "./dictionary.js";
-import logger from "./logger.js";
-import { getEffectExcludedModifiers } from "./effects/effects.js";
+import DICTIONARY from "../dictionary.js";
+import logger from "../logger.js";
+import { getEffectExcludedModifiers } from "../effects/effects.js";
 
 const utils = {
   debug: () => {

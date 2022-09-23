@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 function getBookName(bookId) {
   const book = CONFIG.DDB.sources.find((source) => source.name.toLowerCase() == bookId.toLowerCase());

@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 export function getBackground(data) {
   if (data.character.background.hasCustomBackground === false) {

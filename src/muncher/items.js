@@ -2,7 +2,7 @@
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import getInventory from "../parser/inventory/index.js";
-import utils from "../utils.js";
+import utils from "../utils/utils.js";
 import FileHelper from "../utils/files.js";
 import { getCobalt } from "../lib/Secrets.js";
 import logger from "../logger.js";

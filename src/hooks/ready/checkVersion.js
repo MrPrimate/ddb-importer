@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import logger from "../../logger.js";
 
 const MODULE_TITLE = "DDB Importer";

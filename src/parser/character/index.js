@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import { getArmorClass } from "./ac.js";
 import { getSpecialTraits } from "./specialTraits.js";
 import { getSkills } from "./skills.js";

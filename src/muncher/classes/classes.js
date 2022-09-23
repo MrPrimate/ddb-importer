@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
 import { munchNote, getCompendiumType } from "../utils.js";
-import { parseTags } from "../../parser/templateStrings.js";
+import { parseTags } from "../../utils/templateStrings.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 import { getHPAdvancement } from "../../parser/classes/index.js";
 

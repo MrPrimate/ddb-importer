@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 function getOverrides(data) {
   let result = {};

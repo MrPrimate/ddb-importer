@@ -1,9 +1,9 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { getImagePath } from "../import.js";
 import { generateTable } from "../table.js";
-import { parseTags } from "../../parser/templateStrings.js";
+import { parseTags } from "../../utils/templateStrings.js";
 import { getCompendiumLabel } from "../utils.js";
 
 const CLASS_TEMPLATE = {

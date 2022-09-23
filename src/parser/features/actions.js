@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
 import { getInfusionActionData } from "../inventory/infusions.js";
 

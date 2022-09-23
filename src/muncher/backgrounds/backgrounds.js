@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import { generateBackground } from "../../parser/character/bio.js";
-import { parseTags } from "../../parser/templateStrings.js";
-import utils from "../../utils.js";
+import { parseTags } from "../../utils/templateStrings.js";
+import utils from "../../utils/utils.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
 import { munchNote } from "../utils.js";
 import { generateTable } from "../table.js";

@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import { createAndShowPlayerHandout, imageToChat } from "./shared.js";
 
 export function linkImages(html, data) {

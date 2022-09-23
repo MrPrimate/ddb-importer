@@ -1,4 +1,4 @@
-import utils from "../utils.js";
+import utils from "./utils.js";
 import logger from "../logger.js";
 import { generateAdventureConfig } from "../muncher/adventure.js";
 import { loadCompendiumIndex } from "../muncher/utils.js";

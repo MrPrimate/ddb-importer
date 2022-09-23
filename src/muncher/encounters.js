@@ -1,6 +1,6 @@
 import { munchNote, download, getPatreonTiers, getCompendiumLabel, getCompendiumType } from "./utils.js";
 import logger from "../logger.js";
-import utils from "../utils.js";
+import utils from "../utils/utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getAvailableCampaigns } from "../lib/Settings.js";
 import { parseCritters } from "./monsters.js";

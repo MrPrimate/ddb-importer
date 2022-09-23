@@ -1,4 +1,4 @@
-import utils from "../utils.js";
+import utils from "../utils/utils.js";
 import FileHelper from "../utils/files.js";
 import logger from "../logger.js";
 import { parseJson } from "../parser/character.js";
@@ -23,7 +23,7 @@ import { generateCharacterExtras } from "../muncher/extras/extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import { DDBCookie } from "../lib/Settings.js";
-import { importCacheLoad } from "../parser/templateStrings.js";
+import { importCacheLoad } from "../utils/templateStrings.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import {
   getCharacterImportSettings,

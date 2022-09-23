@@ -20,7 +20,7 @@ import parseTool from "./tool.js";
 // other loot
 import parseLoot from "./loot.js";
 import parseCustomItem from "./custom.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 // magicitems support
 import { parseMagicItem } from "./magicify.js";

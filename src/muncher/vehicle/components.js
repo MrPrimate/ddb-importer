@@ -1,7 +1,7 @@
 import { newComponent } from "./templates/component.js";
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
-import { parseTags } from "../../parser/templateStrings.js";
+import { parseTags } from "../../utils/templateStrings.js";
 
 const TYPE_MAPPING = {
   hull: "equipment",

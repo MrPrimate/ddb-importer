@@ -28,7 +28,7 @@ import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js
 import { existingActorCheck } from "../utils.js";
 
 import logger from '../../logger.js';
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import DICTIONARY from "../../dictionary.js";
 
 /**

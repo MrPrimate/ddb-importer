@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import { parseMonsters } from "../monster/monster.js";
 import { copySupportedItemFlags, srdFiddling } from "../import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../importMonster.js";

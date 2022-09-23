@@ -1,4 +1,4 @@
-import parseTemplateString from "../../parser/templateStrings.js";
+import parseTemplateString from "../../utils/templateStrings.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function shiftEffect(ddb, character, document) {

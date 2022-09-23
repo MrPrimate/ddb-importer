@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import FileHelper from "../../utils/files.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { parseCritters } from "../monsters.js";

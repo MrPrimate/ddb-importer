@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 export function getHitpoints(data, character) {
   const constitutionHP = character.flags.ddbimporter.dndbeyond.effectAbilities.con.mod * character.flags.ddbimporter.dndbeyond.totalLevels;

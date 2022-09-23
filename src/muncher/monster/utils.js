@@ -1,7 +1,7 @@
 import DICTIONARY from './dict.js';
 import { getAbilityMods } from "./abilities.js";
 import logger from '../../logger.js';
-import utils from '../../utils.js';
+import utils from '../../utils/utils.js';
 
 // replaces matchAll, requires a non global regexp
 function reMatchAll(regexp, string) {

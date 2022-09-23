@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import { parseTags } from "../../parser/templateStrings.js";
+import { parseTags } from "../../utils/templateStrings.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
 import { munchNote, getCompendiumType } from "../utils.js";

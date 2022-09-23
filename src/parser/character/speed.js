@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import { isArmored } from "./ac.js";
 
 export function getSpeed(data) {

@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";

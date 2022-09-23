@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 let getAlternativeFormula = (data) => {
   // this might be specificially for Toll the Dead only, but it's better than nothing

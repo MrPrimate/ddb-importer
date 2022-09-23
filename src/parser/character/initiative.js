@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 export function getInitiative(data, character) {
   const initiativeBonus = utils.getModifierSum(utils.filterBaseModifiers(data, "bonus", "initiative"), character);

@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import { getItemRarity, getEquipped, getWeaponProficient, getMagicalBonus, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 /**

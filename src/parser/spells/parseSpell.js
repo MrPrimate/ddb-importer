@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 import DICTIONARY from "../../dictionary.js";
 
 // Import parsing functions
@@ -16,7 +16,7 @@ import { getSpellScaling } from "./scaling.js";
 import { generateTable } from "../../muncher/table.js";
 import { spellEffectAdjustment } from "../../effects/specialSpells.js";
 import { getName } from "./name.js";
-import { parseTags } from "../templateStrings.js";
+import { parseTags } from "../../utils/templateStrings.js";
 
 export function parseSpell(data, character) {
   let spell = {

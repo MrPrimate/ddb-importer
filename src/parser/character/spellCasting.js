@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 // is there a spell casting ability?
 let hasSpellCastingAbility = (spellCastingAbilityId) => {

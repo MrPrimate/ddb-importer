@@ -16,7 +16,7 @@ import ThirdPartyMunch from "./adventure/thirdParty.js";
 import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
-import { importCacheLoad } from "../parser/templateStrings.js";
+import { importCacheLoad } from "../utils/templateStrings.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
 import { parseBackgrounds } from "./backgrounds.js";
 import { parseTransports } from "./vehicles.js";

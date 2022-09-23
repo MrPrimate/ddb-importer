@@ -1,5 +1,5 @@
 import logger from '../../logger.js';
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 import { existingActorCheck } from "../utils.js";
 import { newVehicle } from './templates/vehicle.js';
@@ -10,7 +10,7 @@ import { getCapacity } from './capacity.js';
 import { FLIGHT_IDS, getMovement } from './movement.js';
 import { processComponents } from './components.js';
 import { ACTION_THRESHOLDS } from './threshold.js';
-import { parseTags } from '../../parser/templateStrings.js';
+import { parseTags } from '../../utils/templateStrings.js';
 
 // eslint-disable-next-line complexity
 async function parseVehicle(ddb, extra = {}) {

@@ -17,7 +17,7 @@ import { getFeats } from "../../muncher/feats/feats.js";
 import { getCompendiumNames } from "../ready/checkCompendiums.js";
 import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "../../effects/macros.js";
 import { iconPath } from "../../icons/index.js";
-import { loadSRDRules, importCacheLoad } from "../../parser/templateStrings.js";
+import { loadSRDRules, importCacheLoad } from "../../utils/templateStrings.js";
 import { getNPCImage } from "../../muncher/importMonster.js";
 
 function resetSecrets() {

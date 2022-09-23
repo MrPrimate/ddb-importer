@@ -1,5 +1,5 @@
 // import DICTIONARY from '../dictionary.js';
-import utils from "../../utils.js";
+import utils from "../../utils/utils.js";
 
 function getDivineSmite() {
   const restriction = "Against undead or fiends";

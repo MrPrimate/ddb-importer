@@ -1,4 +1,4 @@
-import utils from "../utils.js";
+import utils from "../utils/utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { baseItemEffect, generateUpgradeChange, generateAddChange } from "./effects.js";

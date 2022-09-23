@@ -1,4 +1,4 @@
-// import utils from "../../utils.js";
+// import utils from "../../utils/utils.js";
 import { download } from "../../muncher/utils.js";
 import { collectSceneData, SceneEnhancerExport } from "../../muncher/sceneEnhancer.js";
 
