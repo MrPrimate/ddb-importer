@@ -1,3 +1,7 @@
+# 3.1.8
+
+* More changes to support recent updates on the Forge.
+
 # 3.1.7
 
 * Character imports: Spell Sniper feat will now double ranges for spells that import as ranged spell attack.
