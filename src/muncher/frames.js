@@ -1,8 +1,9 @@
 // Main module class
 import { getImagePath } from "./import.js";
-import { munchNote, download } from "./utils.js";
+import { munchNote } from "./utils.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
+import FileHelper from "../utils/files.js";
 
 async function getFrameData() {
   const cobaltCookie = getCobalt();
@@ -31,7 +32,7 @@ async function getFrameData() {
           reject(data.message);
         }
         if (debugJson) {
-          download(JSON.stringify(data), `frames-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `frames-raw.json`, "application/json");
         }
         return data;
       })

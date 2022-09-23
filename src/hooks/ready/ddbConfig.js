@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
 import { fallbackDDBConfig } from "./fallbackConfig.js";
-import { download } from "../../muncher/utils.js";
+import FileHelper from "../../utils/files.js";
 
 function directConfig() {
   $.getJSON("https://www.dndbeyond.com/api/config/json")
@@ -47,7 +47,7 @@ function proxyConfig() {
           reject(data.message);
         }
         if (debugJson) {
-          download(JSON.stringify(data), `config-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `config-raw.json`, "application/json");
         }
         return data;
       })

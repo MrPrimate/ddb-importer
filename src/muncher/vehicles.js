@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import FileHelper from "../utils/files.js";
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
-import { munchNote, getCampaignId, download } from "./utils.js";
+import { munchNote, getCampaignId } from "./utils.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium } from "./importMonster.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { parseVehicles } from "./vehicle/vehicle.js";
@@ -54,7 +54,7 @@ export function getVehicleData(ids) {
       .then((response) => response.json())
       .then((data) => {
         if (debugJson) {
-          download(JSON.stringify(data), `vehicles-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `vehicles-raw.json`, "application/json");
         }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);

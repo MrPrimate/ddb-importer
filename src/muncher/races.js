@@ -1,7 +1,8 @@
 // Main module class
-import { munchNote, getCampaignId, download } from "./utils.js";
+import { munchNote, getCampaignId } from "./utils.js";
 import { getRaces } from "./races/races.js";
 import { getCobalt } from "../lib/Secrets.js";
+import FileHelper from "../utils/files.js";
 
 function getRaceData() {
   const cobaltCookie = getCobalt();
@@ -22,7 +23,7 @@ function getRaceData() {
       .then((response) => response.json())
       .then((data) => {
         if (debugJson) {
-          download(JSON.stringify(data), `races-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `races-raw.json`, "application/json");
         }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);
@@ -39,7 +40,7 @@ function getRaceData() {
 export async function parseRaces() {
   const results = await getRaceData();
 
-  // download(JSON.stringify(results), `races-icon.json`, "application/json");
+  // FileHelper.download(JSON.stringify(results), `races-icon.json`, "application/json");
 
   return results;
 }

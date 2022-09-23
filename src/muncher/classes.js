@@ -1,9 +1,10 @@
 // Main module class
 import { getClasses } from "./classes/classes.js";
-import { munchNote, getCampaignId, download } from "./utils.js";
+import { munchNote, getCampaignId } from "./utils.js";
 import { getSubClasses } from "./classes/subclasses.js";
 import { getClassOptions } from "./classes/options.js";
 import { getCobalt } from "../lib/Secrets.js";
+import FileHelper from "../utils/files.js";
 
 function getSubClassesData(className) {
   const cobaltCookie = getCobalt();
@@ -24,7 +25,7 @@ function getSubClassesData(className) {
       .then((response) => response.json())
       .then((data) => {
         if (debugJson) {
-          download(JSON.stringify(data), `subclass-${className}-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `subclass-${className}-raw.json`, "application/json");
         }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);
@@ -57,7 +58,7 @@ function getClassOptionsData(className) {
       .then((response) => response.json())
       .then((data) => {
         if (debugJson) {
-          download(JSON.stringify(data), `subclass-${className}-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `subclass-${className}-raw.json`, "application/json");
         }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);
@@ -90,7 +91,7 @@ function getClassesData() {
       .then((response) => response.json())
       .then((data) => {
         if (debugJson) {
-          download(JSON.stringify(data), `classes-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `classes-raw.json`, "application/json");
         }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);
@@ -143,7 +144,7 @@ export async function parseClasses() {
 
   const results = classesResults.concat(subClassResults.flat(), classOptionsResults.flat());
 
-  // download(JSON.stringify(results), `classes-icon.json`, "application/json");
+  // FileHelper.download(JSON.stringify(results), `classes-icon.json`, "application/json");
   return results;
 }
 

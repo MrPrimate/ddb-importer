@@ -1,6 +1,6 @@
 // Main module class
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
-import { munchNote, getCampaignId, download } from "./utils.js";
+import { munchNote, getCampaignId } from "./utils.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 import FileHelper from "../utils/files.js";
 import logger from "../logger.js";
@@ -30,7 +30,7 @@ function getSpellData(className, sourceFilter) {
       .then((response) => response.json())
       .then((data) => {
         if (debugJson) {
-          download(JSON.stringify(data), `spells-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `spells-raw.json`, "application/json");
         }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);

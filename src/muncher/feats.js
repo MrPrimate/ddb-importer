@@ -1,7 +1,8 @@
 // Main module class
-import { munchNote, getCampaignId, download } from "./utils.js";
+import { munchNote, getCampaignId } from "./utils.js";
 import { getFeats } from "./feats/feats.js";
 import { getCobalt } from "../lib/Secrets.js";
+import FileHelper from "../utils/files.js";
 
 function getFeatData() {
   const cobaltCookie = getCobalt();
@@ -22,7 +23,7 @@ function getFeatData() {
       .then((response) => response.json())
       .then((data) => {
         if (debugJson) {
-          download(JSON.stringify(data), `feats-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `feats-raw.json`, "application/json");
         }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);

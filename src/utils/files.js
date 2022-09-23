@@ -4,6 +4,14 @@ import logger from "../logger.js";
 const FileHelper = {
   BAD_DIRS: ["[data]", "[data] ", "", null],
 
+  download: (content, fileName, contentType) => {
+    let a = document.createElement("a");
+    let file = new Blob([content], { type: contentType });
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+  },
+
   fileExistsUpdate: (fileList) => {
     const targetFiles = fileList.filter((f) => !CONFIG.DDBI.KNOWN.FILES.has(f));
     for (const file of targetFiles) {

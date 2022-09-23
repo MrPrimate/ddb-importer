@@ -1,5 +1,5 @@
 // import utils from "../../utils/utils.js";
-import { download } from "../../muncher/utils.js";
+import FileHelper from "../../utils/files.js";
 import { collectSceneData, SceneEnhancerExport } from "../../muncher/sceneEnhancer.js";
 
 function getSceneId(li) {
@@ -22,7 +22,7 @@ export default function (html, contextOptions) {
       const contentChunkId = scene.flags.ddb?.contentChunkId ? `-${scene.flags.ddb.contentChunkId}` : "";
       const name = scene.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
       const sceneRef = `${bookCode}${cobaltId}${parentId}${contentChunkId}-${name}`;
-      return download(JSON.stringify(data, null, 4), `${sceneRef}-scene.json`, "application/json");
+      return FileHelper.download(JSON.stringify(data, null, 4), `${sceneRef}-scene.json`, "application/json");
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));

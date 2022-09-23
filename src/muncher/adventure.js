@@ -1,6 +1,7 @@
-import { getCampaignId, download, getCompendium, getCompendiumLabel } from "./utils.js";
+import { getCampaignId, getCompendium, getCompendiumLabel } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getVehicleData } from "./vehicles.js";
+import FileHelper from "../utils/files.js";
 
 async function getMonsterMap () {
   // ddb://monsters
@@ -266,6 +267,6 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
 export async function downloadAdventureConfig() {
   const fullConfig = game.settings.get("ddb-importer", "adventure-muncher-full-config");
   const result = await generateAdventureConfig(fullConfig);
-  download(JSON.stringify(result, null, 4), `adventure-config.json`, "application/json");
+  FileHelper.download(JSON.stringify(result, null, 4), `adventure-config.json`, "application/json");
   return result;
 }

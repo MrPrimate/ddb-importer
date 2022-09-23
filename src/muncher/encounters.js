@@ -1,4 +1,4 @@
-import { munchNote, download, getPatreonTiers, getCompendiumLabel, getCompendiumType } from "./utils.js";
+import { munchNote, getPatreonTiers, getCompendiumLabel, getCompendiumType } from "./utils.js";
 import logger from "../logger.js";
 import utils from "../utils/utils.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -13,6 +13,7 @@ import {
 } from "./settings.js";
 import Helpers from "./adventure/common.js";
 import { importCharacterById } from "../character/import.js";
+import FileHelper from "../utils/files.js";
 
 const DIFFICULTY_LEVELS = [
   { id: null, name: "No challenge", color: "grey" },
@@ -59,7 +60,7 @@ async function getEncounterData() {
           reject(data.message);
         }
         if (debugJson) {
-          download(JSON.stringify(data), `encounters-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `encounters-raw.json`, "application/json");
         }
         return data;
       })

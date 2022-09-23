@@ -1,6 +1,6 @@
 // Main module class
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
-import { munchNote, getCampaignId, download } from "./utils.js";
+import { munchNote, getCampaignId } from "./utils.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils/utils.js";
 import FileHelper from "../utils/files.js";
@@ -100,7 +100,7 @@ function getItemData(sourceFilter) {
       .then((response) => response.json())
       .then((data) => {
         if (debugJson) {
-          download(JSON.stringify(data), `items-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `items-raw.json`, "application/json");
         }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);

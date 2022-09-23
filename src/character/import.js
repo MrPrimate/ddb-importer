@@ -15,7 +15,7 @@ import {
   retainExistingIcons,
   getIndividualOverrideItems,
 } from "../muncher/import.js";
-import { download, getCampaignId, getCompendiumType } from "../muncher/utils.js";
+import { getCampaignId, getCompendiumType } from "../muncher/utils.js";
 import { addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
@@ -206,7 +206,7 @@ export async function getCharacterData(optionsIn) {
     } catch (error) {
       const debugJson = game.settings.get("ddb-importer", "debug-json");
       if (debugJson) {
-        download(JSON.stringify(data), `${options.characterId}-raw.json`, "application/json");
+        FileHelper.download(JSON.stringify(data), `${options.characterId}-raw.json`, "application/json");
       }
       throw error;
     }
@@ -532,7 +532,7 @@ export default class CharacterImport extends FormApplication {
           logger.debug("import.js getCharacterData result", characterData);
           const debugJson = game.settings.get("ddb-importer", "debug-json");
           if (debugJson) {
-            download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+            FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
           }
           if (characterData.success) {
             // begin parsing the character data
@@ -630,7 +630,7 @@ export default class CharacterImport extends FormApplication {
           logger.debug("import.js getCharacterData result", characterData);
           const debugJson = game.settings.get("ddb-importer", "debug-json");
           if (debugJson) {
-            download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+            FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
           }
           if (characterData.success) {
             await generateCharacterExtras(html, characterData, this.actor);
@@ -1305,7 +1305,7 @@ export async function importCharacterById(characterId, html) {
     const characterData = await getCharacterData(characterDataOptions);
     const debugJson = game.settings.get("ddb-importer", "debug-json");
     if (debugJson) {
-      download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+      FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
     }
     if (characterData.success) {
       const importer = new CharacterImport(CharacterImport.defaultOptions, actor);
@@ -1348,7 +1348,7 @@ export async function importCharacter(actor, html) {
     logger.debug("import.js importCharacter getCharacterData result", characterData);
     const debugJson = game.settings.get("ddb-importer", "debug-json");
     if (debugJson) {
-      download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+      FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
     }
     if (characterData.success) {
       // begin parsing the character data

@@ -1,7 +1,8 @@
 // Main module class
-import { munchNote, getCampaignId, download } from "./utils.js";
+import { munchNote, getCampaignId } from "./utils.js";
 import { getBackgrounds } from "./backgrounds/backgrounds.js";
 import { getCobalt } from "../lib/Secrets.js";
+import FileHelper from "../utils/files.js";
 
 function getBackgroundData() {
   const cobaltCookie = getCobalt();
@@ -22,7 +23,7 @@ function getBackgroundData() {
       .then((response) => response.json())
       .then((data) => {
         if (debugJson) {
-          download(JSON.stringify(data), `backgrounds-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `backgrounds-raw.json`, "application/json");
         }
         if (!data.success) {
           munchNote(`Failure: ${data.message}`);

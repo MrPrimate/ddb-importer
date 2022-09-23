@@ -1,6 +1,6 @@
 // Main module class
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
-import { munchNote, download } from "./utils.js";
+import { munchNote } from "./utils.js";
 import logger from "../logger.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
@@ -59,7 +59,7 @@ async function getMonsterData(ids) {
           reject(data.message);
         }
         if (debugJson) {
-          download(JSON.stringify(data), `monsters-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(data), `monsters-raw.json`, "application/json");
         }
         return data;
       })

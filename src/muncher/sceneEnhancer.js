@@ -1,6 +1,6 @@
-import { download } from "./utils.js";
 import { getSourcesLookups } from "./ddb.js";
 import logger from "../logger.js";
+import FileHelper from "../utils/files.js";
 
 /**
    * Extracts all notes that have been placed by ddb-importer
@@ -459,7 +459,7 @@ export class SceneEnhancerExport extends Application {
     logger.debug(sceneData);
     const name = sceneData.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
     const sceneRef = `ddb-enhanced-scene-${name}`;
-    download(JSON.stringify(sceneData, null, 4), `${sceneRef}.json`, "application/json");
+    FileHelper.download(JSON.stringify(sceneData, null, 4), `${sceneRef}.json`, "application/json");
 
     this.close();
   }

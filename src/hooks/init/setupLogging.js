@@ -1,7 +1,7 @@
-import { download } from "../../muncher/utils.js";
+import FileHelper from "../../utils/files.js";
 
 function downloadLog() {
-  download(JSON.stringify(CONFIG.debug.ddbimporter.log), `ddbimporter-log-data.json`, "application/json");
+  FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log), `ddbimporter-log-data.json`, "application/json");
   setProperty(CONFIG.debug, "ddbimporter.log", []);
 }
 
