@@ -1,4 +1,5 @@
 import utils from "./utils.js";
+import DDBHelper from "./ddb.js";
 import logger from "../logger.js";
 import { generateAdventureConfig } from "../muncher/adventure.js";
 import { loadCompendiumIndex } from "../muncher/utils.js";
@@ -66,7 +67,7 @@ function parseMatch(ddb, character, match, feature) {
 
   // scalevalue
   if (result.includes("scalevalue")) {
-    let scaleValue = utils.getScaleValueString(ddb, feature);
+    let scaleValue = DDBHelper.getScaleValueString(ddb, feature);
     // if (scaleValue.value.startsWith("@")) scaleValue.value = `[[${scaleValue.value}]]{${scaleValue.name}}`;
     result = result.replace("scalevalue", scaleValue.value);
     linktext = result.replace("scalevalue", " (Scaled Value) ");
@@ -85,7 +86,7 @@ function parseMatch(ddb, character, match, feature) {
         .map((save) => {
           const abilityModifier = utils.calculateModifier(characterAbilities[save].value);
           // not sure if we should add this, probably not.
-          // const bonus = utils.getModifierSum(utils.filterBaseModifiers(ddb, "bonus", "spell-save-dc"), character);
+          // const bonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(ddb, "bonus", "spell-save-dc"), character);
           const dc = 8 + character.system.attributes.prof + abilityModifier;
           return dc;
         });
@@ -115,14 +116,14 @@ function parseMatch(ddb, character, match, feature) {
   if (result.includes("classlevel")) {
     const cls = feature.classId
       ? ddb.character.classes.find((cls) => cls.definition.id == feature.classId)
-      : utils.findClassByFeatureId(ddb, feature.componentId);
+      : DDBHelper.findClassByFeatureId(ddb, feature.componentId);
     if (cls) {
       const clsLevel = useScaleAll ? ` + @classes.${cls.definition.name.toLowerCase()}.level` : cls.level;
       result = result.replace("classlevel", clsLevel);
       linktext = result.replace("classlevel", ` (${cls.definition.name} Level) `);
     } else if (classOption) {
       // still not found a cls? could be an option
-      const optionCls = utils.findClassByFeatureId(ddb, classOption.componentId);
+      const optionCls = DDBHelper.findClassByFeatureId(ddb, classOption.componentId);
       if (optionCls) {
         const clsLevel = useScaleAll ? ` + @classes.${optionCls.definition.name.toLowerCase()}.level` : optionCls.level;
         result = result.replace("classlevel", clsLevel);

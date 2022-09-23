@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import { generateBackground } from "../../parser/character/bio.js";
 import { parseTags } from "../../utils/templateStrings.js";
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
 import { munchNote } from "../utils.js";
 import { generateTable } from "../table.js";
@@ -40,7 +40,7 @@ function buildBase(data) {
     version: CONFIG.DDBI.version,
   };
 
-  result.system.source = utils.parseSource(data);
+  result.system.source = DDBHelper.parseSource(data);
   result.system.description.value = parseTags(result.system.description.value);
   result.system.description.value = generateTable(result.name, result.system.description.value, true, "background");
 

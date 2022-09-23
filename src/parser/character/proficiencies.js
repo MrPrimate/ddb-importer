@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils/utils.js";
-
+import DDBHelper from "../../utils/ddb.js";
 
 function getCustomProficiencies(data, type) {
   const profGroup = CONFIG.DDB.proficiencyGroups.find((group) => group.label == type);
@@ -18,7 +18,7 @@ function getCustomProficiencies(data, type) {
 }
 
 export function getProficiencies(data, includeItemEffects = false) {
-  const coreProficiencies = utils
+  const coreProficiencies = DDBHelper
     .filterBaseModifiers(data, "proficiency", null, null, includeItemEffects)
     .map((proficiency) => {
       return { name: proficiency.friendlySubtypeName };
@@ -204,7 +204,7 @@ export function getLanguagesFromModifiers(data, modifiers) {
 }
 
 export function getLanguages(data) {
-  const modifiers = utils.filterBaseModifiers(data, "language");
+  const modifiers = DDBHelper.filterBaseModifiers(data, "language");
 
   return getLanguagesFromModifiers(data, modifiers);
 }

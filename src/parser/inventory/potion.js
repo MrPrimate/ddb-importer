@@ -1,4 +1,5 @@
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 
@@ -108,7 +109,7 @@ export default function parsePotion(data, itemType) {
   potion.system.consumableType = "potion";
   potion.system.uses = getConsumableUses(data);
   potion.system.description = getDescription(data);
-  potion.system.source = utils.parseSource(data.definition);
+  potion.system.source = DDBHelper.parseSource(data.definition);
   potion.system.quantity = getQuantity(data);
   potion.system.weight = getSingleItemWeight(data);
   potion.system.equipped = getEquipped(data);

@@ -1,4 +1,5 @@
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { getItemRarity, getEquipped, getMagicalBonus, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 /**
@@ -74,7 +75,7 @@ export default function parseAmmunition(data, itemType) {
   };
 
   ammunition.system.description = getDescription(data);
-  ammunition.system.source = utils.parseSource(data.definition);
+  ammunition.system.source = DDBHelper.parseSource(data.definition);
   ammunition.system.properties = {};
   ammunition.system.quantity = getQuantity(data);
   ammunition.system.weight = getSingleItemWeight(data);

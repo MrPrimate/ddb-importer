@@ -1,6 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 function getOverrides(data) {
   let result = {};
@@ -69,7 +70,7 @@ function parseAbilities(data, includeExcludedEffects = false) {
     // console.warn(ability.value);
 
     const stat = data.character.stats.find((stat) => stat.id === ability.id).value || 0;
-    const abilityScoreMaxBonus = utils
+    const abilityScoreMaxBonus = DDBHelper
       .filterBaseModifiers(data, "bonus", "ability-score-maximum", [null, ""], includeExcludedEffects)
       .filter((mod) => mod.statId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
@@ -82,16 +83,16 @@ function parseAbilities(data, includeExcludedEffects = false) {
       "+4 to maximum score",
       "Can't be an Ability Score you already increased with this trait.",
     ];
-    const bonus = utils
+    const bonus = DDBHelper
       .filterBaseModifiers(data, "bonus", `${ability.long}-score`, bonusStatRestrictions, includeExcludedEffects)
       .filter((mod) => mod.entityId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
-    const setAbilities = utils
+    const setAbilities = DDBHelper
       .filterBaseModifiers(data, "set", `${ability.long}-score`, [null, "", "if not already higher"], includeExcludedEffects)
       .map((mod) => mod.value);
     const modRestrictions = ["Your maximum is now ", "Maximum of "];
     const cappedBonusExp = new RegExp(`(?:${modRestrictions.join("|")})(\\d*)`);
-    const cappedBonus = utils
+    const cappedBonus = DDBHelper
       .filterBaseModifiers(data, "bonus", `${ability.long}-score`, false, includeExcludedEffects)
       .filter(
         (mod) =>
@@ -145,7 +146,7 @@ function parseAbilities(data, includeExcludedEffects = false) {
 
     const proficient = customProficiency
       ? customProficiency
-      : utils.filterBaseModifiers(data, "proficiency", `${ability.long}-saving-throws`, [null, ""], includeExcludedEffects).length > 0
+      : DDBHelper.filterBaseModifiers(data, "proficiency", `${ability.long}-saving-throws`, [null, ""], includeExcludedEffects).length > 0
         ? 1
         : 0;
 
@@ -164,16 +165,16 @@ function parseAbilities(data, includeExcludedEffects = false) {
 
   DICTIONARY.character.abilities.forEach((ability) => {
 
-    const checkBonusModifiers = utils
+    const checkBonusModifiers = DDBHelper
       .filterBaseModifiers(data, "bonus", `${ability.long}-ability-checks`, [null, ""], includeExcludedEffects);
-    const checkBonus = utils.getModifierSum(checkBonusModifiers, character);
+    const checkBonus = DDBHelper.getModifierSum(checkBonusModifiers, character);
     if (checkBonus && checkBonus !== "") {
       result[ability.value].bonuses.check = `+ ${checkBonus}`;
     }
 
-    const saveBonusModifiers = utils
+    const saveBonusModifiers = DDBHelper
       .filterBaseModifiers(data, "bonus", `${ability.long}-saving-throws`, [null, ""], includeExcludedEffects);
-    const modifiersSaveBonus = utils.getModifierSum(saveBonusModifiers, character);
+    const modifiersSaveBonus = DDBHelper.getModifierSum(saveBonusModifiers, character);
     const customSaveBonus = getCustomSaveBonus(data, ability);
 
     // console.warn("modifiersSaveBonus", modifiersSaveBonus);

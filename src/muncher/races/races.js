@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
 import { parseTags } from "../../utils/templateStrings.js";
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
 import { munchNote, getCompendiumType, getCompendiumLabel } from "../utils.js";
 
@@ -76,7 +76,7 @@ function buildBase(data) {
     result.flags.ddbimporter['moreDetailsUrl'] = data.moreDetailsUrl;
   }
 
-  result.system.source = utils.parseSource(data);
+  result.system.source = DDBHelper.parseSource(data);
 
   if (data.isSubRace && data.baseRaceName) result.system.requirements = data.baseRaceName;
   const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");

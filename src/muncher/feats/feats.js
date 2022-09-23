@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
 import { parseTags } from "../../utils/templateStrings.js";
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
 import { munchNote } from "../utils.js";
 
@@ -46,7 +46,7 @@ function buildBase(data) {
     result.system.description.value += `<h3>Requirements</h3>\n\n${requirements.join("\n\n")}\n\n`;
   }
 
-  result.system.source = utils.parseSource(data);
+  result.system.source = DDBHelper.parseSource(data);
 
   result.system.description.value = parseTags(result.system.description.value);
 

@@ -1,4 +1,5 @@
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import {
   getItemRarity,
   getEquipped,
@@ -45,7 +46,7 @@ export default function parseWonderous(data) {
   item.system.stealth = false;
   item.system.proficient = true;
   item.system.description = getDescription(data);
-  item.system.source = utils.parseSource(data.definition);
+  item.system.source = DDBHelper.parseSource(data.definition);
   item.system.quantity = getQuantity(data);
   item.system.weight = getSingleItemWeight(data);
   item.system.equipped = getEquipped(data);

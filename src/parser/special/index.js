@@ -1,5 +1,6 @@
 // import DICTIONARY from '../dictionary.js';
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 function getDivineSmite() {
   const restriction = "Against undead or fiends";
@@ -24,9 +25,9 @@ function getDivineSmite() {
     }
     : {};
 
-  const damageTagInfo = utils.getDamageTag({ subType: "radiant", restriction: "" });
+  const damageTagInfo = DDBHelper.getDamageTag({ subType: "radiant", restriction: "" });
   const regularDamage = utils.parseDiceString("2d8", "", damageTagInfo.damageTag).diceString;
-  const extraDamageTagInfo = utils.getDamageTag({ subType: "radiant", restriction });
+  const extraDamageTagInfo = DDBHelper.getDamageTag({ subType: "radiant", restriction });
   const extraDamage = utils.parseDiceString("1d8", "", extraDamageTagInfo.damageTag).diceString;
 
   let result = {

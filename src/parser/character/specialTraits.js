@@ -1,4 +1,4 @@
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 export function getSpecialTraits(data) {
   let results = {
@@ -38,10 +38,10 @@ export function getSpecialTraits(data) {
   results.initiativeAlert = data.character.feats.some((feat) => feat.definition.name === "Alert");
 
   // advantage on initiative
-  results.initiativeAdv = utils.filterBaseModifiers(data, "advantage", "initiative").length > 0;
+  results.initiativeAdv = DDBHelper.filterBaseModifiers(data, "advantage", "initiative").length > 0;
 
   // initiative half prof
-  results.initiativeHalfProf = utils.filterBaseModifiers(data, "half-proficiency", "initiative").length > 0;
+  results.initiativeHalfProf = DDBHelper.filterBaseModifiers(data, "half-proficiency", "initiative").length > 0;
 
   // observant
   results.observantFeat = data.character.feats.some((feat) => feat.definition.name === "Observant");

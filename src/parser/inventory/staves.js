@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { getItemRarity, getEquipped, getWeaponProficient, getMagicalBonus, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 /**
@@ -144,7 +145,7 @@ export default function parseStaff(data, character) {
   staff.system.properties = getProperties(data);
   staff.system.proficient = getWeaponProficient(data, staff.system.weaponType, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
   staff.system.description = getDescription(data);
-  staff.system.source = utils.parseSource(data.definition);
+  staff.system.source = DDBHelper.parseSource(data.definition);
   staff.system.quantity = getQuantity(data);
   staff.system.weight = getSingleItemWeight(data);
   staff.system.equipped = getEquipped(data);

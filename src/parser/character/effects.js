@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 export function getDeathSaves (data) {
   return {
@@ -19,7 +19,7 @@ let getGenericConditionAffect = (data, condition, typeId) => {
     .filter((type) => type.kind === condition && type.type === typeId)
     .map((type) => type.value);
 
-  let result = utils
+  let result = DDBHelper
     .filterBaseModifiers(data, condition)
     .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType) &&
       (modifier.restriction === "" || !modifier.restriction))

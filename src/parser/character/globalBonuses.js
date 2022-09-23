@@ -1,4 +1,4 @@
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 /**
  * Gets global bonuses to attacks and damage
@@ -31,7 +31,7 @@ export function getGlobalBonusAttackModifiers(lookupTable, data, character) {
   };
 
   lookupTable.forEach((b) => {
-    const lookupResult = utils.getModifierSum(utils.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
+    const lookupResult = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
     const lookupMatch = diceFormula.test(lookupResult);
 
     // if a match then a dice string
@@ -127,7 +127,7 @@ export function getBonusAbilities(data, character) {
   ];
 
   bonusLookup.forEach((b) => {
-    const bonus = utils.getModifierSum(utils.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
+    const bonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
     result[b.fvttType] = bonus === 0 ? "" : `${bonus}`;
   });
   return result;
@@ -141,7 +141,7 @@ export function getBonusSpellDC(data, character) {
   ];
 
   bonusLookup.forEach((b) => {
-    result[b.fvttType] = utils.getModifierSum(utils.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
+    result[b.fvttType] = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
   });
 
   return result;

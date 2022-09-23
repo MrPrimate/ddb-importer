@@ -1,6 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
 import { getInfusionActionData } from "../inventory/infusions.js";
 
@@ -46,25 +47,25 @@ function getResourceFlags(character, action, flags) {
 
 function addFlagHints(ddb, character, action, feature) {
   const klassAction = ddb.character.actions.class
-    .filter((ddbAction) => utils.findClassByFeatureId(ddb, ddbAction.componentId))
+    .filter((ddbAction) => DDBHelper.findClassByFeatureId(ddb, ddbAction.componentId))
     .find((ddbAction) => {
-      const name = utils.getName(ddb, ddbAction, character);
+      const name = DDBHelper.getName(ddb, ddbAction, character);
       return name === feature.name;
     });
   const raceAction = ddb.character.actions.race
     .some((ddbAction) => {
-      const name = utils.getName(ddb, ddbAction, character);
+      const name = DDBHelper.getName(ddb, ddbAction, character);
       return name === feature.name;
     });
   const featAction = ddb.character.actions.feat
     .some((ddbAction) => {
-      const name = utils.getName(ddb, ddbAction, character);
+      const name = DDBHelper.getName(ddb, ddbAction, character);
       return name === feature.name;
     });
 
   // obsidian and klass names (used in effect enrichment)
   if (klassAction) {
-    const klass = utils.findClassByFeatureId(ddb, klassAction.componentId);
+    const klass = DDBHelper.findClassByFeatureId(ddb, klassAction.componentId);
     setProperty(feature.flags, "obsidian.source.type", "class");
     setProperty(feature.flags, "obsidian.source.text", klass.definition.name);
     setProperty(feature.flags, "ddbimporter.class", klass.definition.name);
@@ -77,8 +78,8 @@ function addFlagHints(ddb, character, action, feature) {
   }
 
   // scaling details
-  let klassActionComponent = utils.findComponentByComponentId(ddb, action.id);
-  if (!klassActionComponent) klassActionComponent = utils.findComponentByComponentId(ddb, action.componentId);
+  let klassActionComponent = DDBHelper.findComponentByComponentId(ddb, action.id);
+  if (!klassActionComponent) klassActionComponent = DDBHelper.findComponentByComponentId(ddb, action.componentId);
   if (klassActionComponent) {
     setProperty(feature.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
     setProperty(feature.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
@@ -168,7 +169,7 @@ function getDamage(ddb, action, feat) {
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
   const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-  const scaleValueLink = utils.getScaleValueString(ddb, action).value;
+  const scaleValueLink = DDBHelper.getScaleValueString(ddb, action).value;
   const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
 
   const useScaleValueLink = useScale && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
@@ -237,7 +238,7 @@ function getLevelScaleDice(ddb, character, action, feat) {
         templateString.entityTypeId == action.entityTypeId
       );
       const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
-      const scaleValueLink = utils.getScaleValueString(ddb, action).value;
+      const scaleValueLink = DDBHelper.getScaleValueString(ddb, action).value;
       let part = useScale && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
         ? scaleValueLink
         : die.diceString;
@@ -270,7 +271,7 @@ function martialArtsDamage(ddb, action) {
   const damageType = DICTIONARY.actions.damageType.find((type) => type.id === action.damageTypeId).name;
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
-  let damageBonus = utils.filterBaseModifiers(ddb, "damage", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
+  let damageBonus = DDBHelper.filterBaseModifiers(ddb, "damage", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
   if (damageBonus === 0) {
     damageBonus = "";
   } else {
@@ -290,7 +291,7 @@ function martialArtsDamage(ddb, action) {
 
         if (levelScaleDie?.diceString) {
 
-          const scaleValueLink = utils.getScaleValueLink(ddb, feature);
+          const scaleValueLink = DDBHelper.getScaleValueLink(ddb, feature);
           const scaleString = useScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
             ? scaleValueLink
             : levelScaleDie.diceString;
@@ -493,7 +494,7 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
   }
   if (action.isMartialArts) {
     weapon.system.damage = martialArtsDamage(ddb, action);
-    weapon.system.attackBonus = utils.filterBaseModifiers(ddb, "bonus", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
+    weapon.system.attackBonus = DDBHelper.filterBaseModifiers(ddb, "bonus", "unarmed-attacks").reduce((prev, cur) => prev + cur.value, 0);
   } else {
     weapon.system.damage = getDamage(ddb, action, weapon);
   }
@@ -531,7 +532,7 @@ function getAttackAction(ddb, character, action) {
     ? "feat"
     : "weapon";
   let feature = {
-    name: utils.getName(ddb, action, character),
+    name: DDBHelper.getName(ddb, action, character),
     type: actionType,
     system: JSON.parse(utils.getTemplate(actionType)),
     flags: {
@@ -541,7 +542,7 @@ function getAttackAction(ddb, character, action) {
         action: true,
         componentId: action.componentId,
         componentTypeId: action.componentTypeId,
-        originalName: utils.getName(ddb, action, character, false),
+        originalName: DDBHelper.getName(ddb, action, character, false),
       },
       infusions: { infused: false },
       obsidian: {
@@ -580,7 +581,7 @@ function getAttackAction(ddb, character, action) {
     feature = addFeatEffects(ddb, character, action, feature);
     feature = getLevelScaleDice(ddb, character, action, feature);
 
-    feature = utils.addCustomValues(ddb, feature);
+    feature = DDBHelper.addCustomValues(ddb, feature);
 
   } catch (err) {
     logger.warn(
@@ -638,14 +639,14 @@ function getUnarmedStrike(ddb, character) {
 function getAttackActions(ddb, character) {
   const attackActions = [
     // do class options here have a class id, needed for optional class features
-    ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId)),
+    ddb.character.actions.class.filter((action) => DDBHelper.findClassByFeatureId(ddb, action.componentId)),
     ddb.character.actions.race,
     ddb.character.actions.feat,
     getCustomActions(ddb, true),
     getInfusionActionData(ddb),
   ]
     .flat()
-    .filter((action) => utils.displayAsAttack(ddb, action, character))
+    .filter((action) => DDBHelper.displayAsAttack(ddb, action, character))
     .map((action) => {
       return getAttackAction(ddb, character, action);
     });
@@ -669,7 +670,7 @@ function actionFilter(action, parsedActions) {
 function getOtherActions(ddb, character, parsedActions) {
   const otherActions = [
     // do class options here have a class id, needed for optional class features
-    ddb.character.actions.class.filter((action) => utils.findClassByFeatureId(ddb, action.componentId)),
+    ddb.character.actions.class.filter((action) => DDBHelper.findClassByFeatureId(ddb, action.componentId)),
     ddb.character.actions.race,
     ddb.character.actions.feat,
     getCustomActions(ddb, false),
@@ -680,13 +681,13 @@ function getOtherActions(ddb, character, parsedActions) {
     .filter(
       (action) =>
         // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
-        (!utils.displayAsAttack(ddb, action, character) && !actionFilter(action, parsedActions)) ||
-        (utils.displayAsAttack(ddb, action, character) && !parsedActions.some((attack) => attack.name === utils.getName(ddb, action, character)))
+        (!DDBHelper.displayAsAttack(ddb, action, character) && !actionFilter(action, parsedActions)) ||
+        (DDBHelper.displayAsAttack(ddb, action, character) && !parsedActions.some((attack) => attack.name === DDBHelper.getName(ddb, action, character)))
     )
     .map((action) => {
       logger.debug(`Getting Other Action ${action.name}`);
       let feature = {
-        name: utils.getName(ddb, action, character),
+        name: DDBHelper.getName(ddb, action, character),
         type: "feat",
         system: JSON.parse(utils.getTemplate("feat")),
         flags: {
@@ -723,7 +724,7 @@ function getOtherActions(ddb, character, parsedActions) {
       feature = addFlagHints(ddb, character, action, feature);
       feature = addFeatEffects(ddb, character, action, feature);
 
-      feature = utils.addCustomValues(ddb, feature);
+      feature = DDBHelper.addCustomValues(ddb, feature);
 
       return feature;
     });

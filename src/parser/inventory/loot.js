@@ -1,4 +1,5 @@
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription, getCapacity } from "./common.js";
 
 function getItemType(data) {
@@ -78,7 +79,7 @@ export default function parseLoot(data, itemType) {
     loot.system.uses = getConsumableUses(data);
   }
   loot.system.description = getDescription(data);
-  loot.system.source = utils.parseSource(data.definition);
+  loot.system.source = DDBHelper.parseSource(data.definition);
   loot.system.quantity = getQuantity(data);
   loot.system.weight = getSingleItemWeight(data);
   loot.system.equipped = getEquipped(data);

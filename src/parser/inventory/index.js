@@ -1,4 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
+import DDBHelper from "../../utils/ddb.js";
+
 // type: weapon
 import parseWeapon from "./weapon.js";
 import parseAmmunition from "./ammunition.js";
@@ -20,7 +22,6 @@ import parseTool from "./tool.js";
 // other loot
 import parseLoot from "./loot.js";
 import parseCustomItem from "./custom.js";
-import utils from "../../utils/utils.js";
 
 // magicitems support
 import { parseMagicItem } from "./magicify.js";
@@ -46,7 +47,7 @@ import { fixForItemCollections } from "./itemCollections.js";
  * @param {*} restrictions (array)
  */
 function getExtraDamage(ddb, restrictions) {
-  return utils.filterBaseModifiers(ddb, "damage", null, restrictions).map((mod) => {
+  return DDBHelper.filterBaseModifiers(ddb, "damage", null, restrictions).map((mod) => {
     const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
     if (die) {
       return [die.diceString, mod.subType];
@@ -95,12 +96,12 @@ function getWarlockFeatures(ddb, weapon) {
 }
 
 function getMonkFeatures(ddb, weapon) {
-  const kenseiWeapon = utils.getChosenClassModifiers(ddb).some((mod) =>
+  const kenseiWeapon = DDBHelper.getChosenClassModifiers(ddb).some((mod) =>
     mod.friendlySubtypeName === weapon.definition.type &&
     mod.type === "kensei"
   );
 
-  const monkWeapon = utils.getChosenClassModifiers(ddb).some((mod) =>
+  const monkWeapon = DDBHelper.getChosenClassModifiers(ddb).some((mod) =>
     mod.friendlySubtypeName === weapon.definition.type &&
     mod.type == "monk-weapon"
   ) || (weapon.definition.isMonkWeapon && isMartialArtists(ddb.character.classes));
@@ -156,8 +157,8 @@ function getItemFlags(ddb, data, character) {
     // Some features, notably hexblade abilities we scrape out here
     classFeatures: getClassFeatures(ddb, data),
     martialArtsDie: getMartialArtsDie(ddb),
-    maxMediumArmorDex: Math.max(...utils.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier").map((mod) => mod.value), 2),
-    magicItemAttackInt: utils.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0,
+    maxMediumArmorDex: Math.max(...DDBHelper.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier").map((mod) => mod.value), 2),
+    magicItemAttackInt: DDBHelper.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0,
   };
 
   if (flags.classFeatures.includes("Lifedrinker")) {
@@ -175,18 +176,18 @@ function getItemFlags(ddb, data, character) {
       flags.damage.parts = flags.damage.parts.concat(extraDamage);
     }
     // do we have great weapon fighting?
-    if (utils.hasChosenCharacterOption(ddb, "Great Weapon Fighting")) {
+    if (DDBHelper.hasChosenCharacterOption(ddb, "Great Weapon Fighting")) {
       flags.classFeatures.push("greatWeaponFighting");
     }
     // do we have dueling fighting style?
-    if (utils.hasChosenCharacterOption(ddb, "Dueling") && !addCharacterEffects) {
+    if (DDBHelper.hasChosenCharacterOption(ddb, "Dueling") && !addCharacterEffects) {
       flags.classFeatures.push("Dueling");
     }
     // do we have two weapon fighting style?
-    if (utils.hasChosenCharacterOption(ddb, "Two-Weapon Fighting")) {
+    if (DDBHelper.hasChosenCharacterOption(ddb, "Two-Weapon Fighting")) {
       flags.classFeatures.push("Two-Weapon Fighting");
     }
-    if (utils.getCustomValueFromCharacter(data, character, 18)) {
+    if (DDBHelper.getCustomValueFromCharacter(data, character, 18)) {
       flags.classFeatures.push("OffHand");
     }
   }
@@ -404,7 +405,7 @@ export default async function getInventory(ddb, character, itemSpells) {
 
   for (let ddbItem of ddb.character.inventory) {
     const originalName = ddbItem.definition.name;
-    ddbItem.definition.name = utils.getName(ddb, ddbItem, character);
+    ddbItem.definition.name = DDBHelper.getName(ddb, ddbItem, character);
     const flags = getItemFlags(ddb, ddbItem, character);
 
     const updateExisting = compendiumItem
@@ -413,7 +414,7 @@ export default async function getInventory(ddb, character, itemSpells) {
     ddbItem.definition.description = generateTable(ddbItem.definition.name, ddbItem.definition.description, updateExisting);
 
     let item = Object.assign({}, parseItem(ddb, ddbItem, character, flags));
-    item = utils.addCustomValues(ddb, item);
+    item = DDBHelper.addCustomValues(ddb, item);
     enrichFlags(ddbItem, item);
 
     if (item) {

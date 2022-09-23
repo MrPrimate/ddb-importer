@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { getItemRarity, getEquipped, getUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 /**
@@ -42,7 +43,7 @@ function getArmorType(data, character, flags) {
       break;
   }
 
-  const itemDexMaxAdjustment = utils.getModifierSum(utils.filterModifiers(data.definition.grantedModifiers, "set", "ac-max-dex-modifier"), character);
+  const itemDexMaxAdjustment = DDBHelper.getModifierSum(DDBHelper.filterModifiers(data.definition.grantedModifiers, "set", "ac-max-dex-modifier"), character);
   if (maxDexModifier !== null && Number.isInteger(itemDexMaxAdjustment) && itemDexMaxAdjustment > maxDexModifier) {
     maxDexModifier = itemDexMaxAdjustment;
   }
@@ -101,7 +102,7 @@ export default function parseArmor(data, character, flags) {
   armor.system.stealth = getStealthPenalty(data);
   armor.system.proficient = getProficient(data, character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects);
   armor.system.description = getDescription(data);
-  armor.system.source = utils.parseSource(data.definition);
+  armor.system.source = DDBHelper.parseSource(data.definition);
   armor.system.quantity = getQuantity(data);
   armor.system.weight = getSingleItemWeight(data);
   armor.system.equipped = getEquipped(data);

@@ -1,5 +1,5 @@
 import logger from '../../logger.js';
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 import { existingActorCheck } from "../utils.js";
 import { newVehicle } from './templates/vehicle.js';
@@ -106,7 +106,7 @@ async function parseVehicle(ddb, extra = {}) {
   // fuel data
 
   // details
-  vehicle.system.details.source = utils.parseSource(ddb);
+  vehicle.system.details.source = DDBHelper.parseSource(ddb);
   vehicle.system.details.biography.value = parseTags(ddb.description);
 
   if (configurations.EAS) {

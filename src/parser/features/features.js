@@ -1,5 +1,6 @@
 import logger from "../../logger.js";
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
 import { getBackgroundData } from "../character/bio.js";
 
@@ -32,7 +33,7 @@ function parseFeature(feat, ddb, character, source, type) {
 
   logger.debug(`Getting Feature ${item.name}`);
 
-  const klassAction = utils.findComponentByComponentId(ddb, feat.id);
+  const klassAction = DDBHelper.findComponentByComponentId(ddb, feat.id);
   if (klassAction) {
     setProperty(item.flags, "ddbimporter.dndbeyond.levelScale", klassAction.levelScale);
     setProperty(item.flags, "ddbimporter.dndbeyond.levelScales", klassAction.definition?.levelScales);
@@ -44,7 +45,7 @@ function parseFeature(feat, ddb, character, source, type) {
       .flat()
       .find((option) => option.definition.id === feat.componentId);
     if (classOption) {
-      const classOptionLink = utils.findComponentByComponentId(ddb, classOption.componentId);
+      const classOptionLink = DDBHelper.findComponentByComponentId(ddb, classOption.componentId);
       if (classOptionLink) {
         setProperty(item.flags, "ddbimporter.dndbeyond.levelScale", classOptionLink.levelScale);
         setProperty(item.flags, "ddbimporter.dndbeyond.levelScales", classOptionLink.definition?.levelScales);
@@ -61,7 +62,7 @@ function parseFeature(feat, ddb, character, source, type) {
   logger.debug(`Searching for ${name} choices`);
 
   // Add choices to the textual description of that feat
-  let choices = utils.getChoices(ddb, type, feat);
+  let choices = DDBHelper.getChoices(ddb, type, feat);
 
   if (type === "background") {
     logger.debug(`Found background ${feat.name}`);
@@ -292,7 +293,7 @@ export default async function parseFeatures(ddb, character, classes) {
     .filter(
       (trait) => includedFeatureNameCheck(trait.definition.name) && !trait.definition.hideInSheet && !excludedOriginFeatures.includes(trait.definition.id))
     .forEach((feat) => {
-      const source = utils.parseSource(feat.definition);
+      const source = DDBHelper.parseSource(feat.definition);
       const features = parseFeature(feat, ddb, character, source, "race");
       features.forEach((item) => {
         const existingFeature = getNameMatchedFeature(items, item);
@@ -315,7 +316,7 @@ export default async function parseFeatures(ddb, character, classes) {
     ddb.classOptions
       .forEach((feat) => {
         logger.debug(`Parsing Optional Feature ${feat.name}`);
-        const source = utils.parseSource(feat);
+        const source = DDBHelper.parseSource(feat);
         const feats = parseFeature(feat, ddb, character, source, "class");
         feats.forEach((item) => {
           items.push(item);
@@ -341,7 +342,7 @@ export default async function parseFeatures(ddb, character, classes) {
   logger.debug("Parsing feats");
   ddb.character.feats
     .forEach((feat) => {
-      const source = utils.parseSource(feat.definition);
+      const source = DDBHelper.parseSource(feat.definition);
       const feats = parseFeature(feat, ddb, character, source, "feat");
       feats.forEach((item) => {
         items.push(item);
@@ -350,7 +351,7 @@ export default async function parseFeatures(ddb, character, classes) {
 
   logger.debug("Parsing backgrounds");
   const backgroundFeature = getBackgroundData(ddb);
-  const backgroundSource = utils.parseSource(backgroundFeature.definition);
+  const backgroundSource = DDBHelper.parseSource(backgroundFeature.definition);
   const backgroundFeat = parseFeature(backgroundFeature, ddb, character, backgroundSource, "background");
   backgroundFeat.forEach((item) => {
     items.push(item);

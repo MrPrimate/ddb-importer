@@ -1,6 +1,7 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { generateEffects } from "../../effects/effects.js";
 import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { generateTable } from "../../muncher/table.js";
@@ -13,10 +14,10 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
   if (ddbItem.grantedModifiers) return ddbItem;
   let modifierItem = duplicate(ddbItem);
   const modifiers = [
-    utils.getChosenClassModifiers(ddb, true, true),
-    utils.getModifiers(ddb, "race", true, true),
-    utils.getModifiers(ddb, "background", true, true),
-    utils.getModifiers(ddb, "feat", true, true),
+    DDBHelper.getChosenClassModifiers(ddb, true, true),
+    DDBHelper.getModifiers(ddb, "race", true, true),
+    DDBHelper.getModifiers(ddb, "background", true, true),
+    DDBHelper.getModifiers(ddb, "feat", true, true),
   ].flat();
 
   // console.warn(modifiers);

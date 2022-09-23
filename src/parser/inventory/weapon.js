@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { getItemRarity, getEquipped, getUses, getWeaponProficient, getMagicalBonus, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 /**
@@ -124,7 +125,7 @@ function getDamage(data, flags, betterRolls5e) {
   const dueling = flags.classFeatures.includes("Dueling") && !twoHanded && melee ? " + 2" : "";
   const mod = (offHand && !twoWeapon) ? "" : " + @mod";
 
-  const baseDamageTagData = utils.getDamageTagForItem(data);
+  const baseDamageTagData = DDBHelper.getDamageTagForItem(data);
   const damageTag = baseDamageTagData.damageTag;
   const damageType = baseDamageTagData.damageType;
 
@@ -174,7 +175,7 @@ function getDamage(data, flags, betterRolls5e) {
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
       const damagePart = die ? die.diceString : mod.value;
       if (damagePart) {
-        const subDamageTagData = utils.getDamageTagForMod(mod);
+        const subDamageTagData = DDBHelper.getDamageTagForMod(mod);
         const damageParsed = utils.parseDiceString(damagePart, "", subDamageTagData.damageTag).diceString;
         parts.push([`${damageParsed}`, subDamageTagData.damageType]);
       }
@@ -193,7 +194,7 @@ function getDamage(data, flags, betterRolls5e) {
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
       const damagePart = die ? die.diceString : `${mod.value}`;
       if (damagePart) {
-        const subDamageTagData = utils.getDamageTagForMod(mod);
+        const subDamageTagData = DDBHelper.getDamageTagForMod(mod);
         const damageParsed = utils.parseDiceString(damagePart, "", subDamageTagData.damageTag).diceString;
 
         restrictions.push(mod.restriction);
@@ -297,7 +298,7 @@ export default function parseWeapon(data, character, flags) {
   }
 
   weapon.system.description = getDescription(data);
-  weapon.system.source = utils.parseSource(data.definition);
+  weapon.system.source = DDBHelper.parseSource(data.definition);
   weapon.system.quantity = getQuantity(data);
   weapon.system.weight = getSingleItemWeight(data);
   weapon.system.equipped = getEquipped(data);

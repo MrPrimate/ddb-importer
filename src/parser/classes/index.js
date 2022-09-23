@@ -2,6 +2,7 @@ import logger from '../../logger.js';
 import DICTIONARY from '../../dictionary.js';
 import { getCompendiumType, getCompendiumLabel } from '../../muncher/utils.js';
 import utils from '../../utils/utils.js';
+import DDBHelper from "../../utils/ddb.js";
 import { getSpellCastingAbility } from "../spells/ability.js";
 import parseTemplateString from "../../utils/templateStrings.js";
 import { SPECIAL_ADVANCEMENTS } from './special.js';
@@ -11,13 +12,13 @@ import { SPECIAL_ADVANCEMENTS } from './special.js';
  * @param {obj} data item
  */
 function getSources(data) {
-  const classSource = utils.getSourceData(data.definition);
+  const classSource = DDBHelper.getSourceData(data.definition);
 
   let sources = classSource.name;
   if (classSource.page) sources += ` (pg. ${classSource.page})`;
 
   if (data.subclassDefinition) {
-    const subclassSource = utils.getSourceData(data.subclassDefinition);
+    const subclassSource = DDBHelper.getSourceData(data.subclassDefinition);
     if (subclassSource.name && classSource.name !== subclassSource.name) {
       sources += `, ${subclassSource.name}`;
     }
@@ -359,7 +360,7 @@ export async function getClasses(ddb, character) {
         : []);
 
     // const classSkillSubType = `choose-a-${characterClass.definition.name.toLowerCase()}-skill`;
-    // const skillIds = utils.getChosenClassModifiers(ddb)
+    // const skillIds = DDBHelper.getChosenClassModifiers(ddb)
     //   .filter((mod) => mod.subType === classSkillSubType && mod.type === "proficiency")
     //   .map((mod) => mod.componentId);
 
@@ -404,8 +405,8 @@ export async function getClasses(ddb, character) {
 
     klass.system.saves = [];
     DICTIONARY.character.abilities.forEach((ability) => {
-      const mods = utils.getChosenClassModifiers(ddb, true);
-      const save = utils.filterModifiers(mods, "proficiency", `${ability.long}-saving-throws`, [null, ""], true).length > 0;
+      const mods = DDBHelper.getChosenClassModifiers(ddb, true);
+      const save = DDBHelper.filterModifiers(mods, "proficiency", `${ability.long}-saving-throws`, [null, ""], true).length > 0;
       if (save) klass.system.saves.push(ability.value);
     });
 

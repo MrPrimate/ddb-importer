@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { generateFixedACEffect } from "../../effects/acEffects.js";
 import { getAllClassFeatures } from "./filterModifiers.js";
 
@@ -157,7 +157,7 @@ function getDualWieldAC(data, modifiers) {
   let dualWieldBonus = 0;
 
   if (dualWielding) {
-    utils.filterModifiers(modifiers, "bonus", "dual-wield-armor-class", ["", null], true).forEach((bonus) => {
+    DDBHelper.filterModifiers(modifiers, "bonus", "dual-wield-armor-class", ["", null], true).forEach((bonus) => {
       dualWieldBonus += bonus.value;
     });
   }
@@ -219,7 +219,7 @@ function calculateACOptions(data, character, calculatedArmor) {
       case "Natural Armor": {
         let acCalc = 0;
         // Tortles don't get to add an unarmored ac bonus for their shell
-        const ignoreUnarmouredACBonus = utils.filterBaseModifiers(data, "ignore", "unarmored-dex-ac-bonus");
+        const ignoreUnarmouredACBonus = DDBHelper.filterBaseModifiers(data, "ignore", "unarmored-dex-ac-bonus");
         if (ignoreUnarmouredACBonus) {
           acCalc = armorAC + calculatedArmor.miscACBonus;
           // console.log(armorAC);
@@ -279,7 +279,7 @@ function calculateACOptions(data, character, calculatedArmor) {
         break;
       }
       case "Medium Armor": {
-        const maxDexMedium = Math.max(...utils.filterBaseModifiers(data, "set", "ac-max-dex-armored-modifier", ["", null], true)
+        const maxDexMedium = Math.max(...DDBHelper.filterBaseModifiers(data, "set", "ac-max-dex-armored-modifier", ["", null], true)
           .map((mod) => mod.value), 2);
         const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
         acValue = {
@@ -377,7 +377,7 @@ export function getArmorClass(ddb, character) {
   const equippedGear = ddb.character.inventory.filter(
     (item) => item.equipped && item.definition.filterType !== "Armor"
   );
-  const unarmoredACBonus = utils
+  const unarmoredACBonus = DDBHelper
     .filterBaseModifiers(ddb, "bonus", "unarmored-armor-class")
     .reduce((prev, cur) => prev + cur.value, 0);
 
@@ -388,10 +388,10 @@ export function getArmorClass(ddb, character) {
   if (!isArmored(ddb)) {
     // unarmored abilities from Class/Race?
     const unarmoredSources = [
-      utils.getChosenClassModifiers(ddb),
+      DDBHelper.getChosenClassModifiers(ddb),
       ddb.character.modifiers.race,
       ddb.character.modifiers.feat,
-      utils.getActiveItemModifiers(ddb, true),
+      DDBHelper.getActiveItemModifiers(ddb, true),
     ];
     unarmoredSources.forEach((modifiers) => {
       const unarmoredAC = Math.max(getUnarmoredAC(modifiers, character));
@@ -403,7 +403,7 @@ export function getArmorClass(ddb, character) {
     });
   } else {
     // check for things like fighters fighting style defense
-    const armorBonusSources = [utils.getChosenClassModifiers(ddb), ddb.character.modifiers.race];
+    const armorBonusSources = [DDBHelper.getChosenClassModifiers(ddb), ddb.character.modifiers.race];
     armorBonusSources.forEach((modifiers) => {
       const armoredACBonuses = getArmoredACBonuses(modifiers, character);
       miscACBonus += armoredACBonuses.reduce((a, b) => a + b, 0);
@@ -413,13 +413,13 @@ export function getArmorClass(ddb, character) {
   // Generic AC bonuses like Warforfed Integrated Protection
   // item modifiers are loaded by ac calcs
   const miscModifiers = [
-    utils.getChosenClassModifiers(ddb),
+    DDBHelper.getChosenClassModifiers(ddb),
     ddb.character.modifiers.race,
     ddb.character.modifiers.background,
     ddb.character.modifiers.feat,
   ];
 
-  utils.filterModifiers(miscModifiers, "bonus", "armor-class", ["", null], true).forEach((bonus) => {
+  DDBHelper.filterModifiers(miscModifiers, "bonus", "armor-class", ["", null], true).forEach((bonus) => {
     miscACBonus += bonus.value;
   });
 

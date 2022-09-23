@@ -1,4 +1,5 @@
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 
@@ -19,7 +20,7 @@ export default function parseScroll(data) {
   scroll.system.consumableType = "scroll";
   scroll.system.uses = getConsumableUses(data);
   scroll.system.description = getDescription(data);
-  scroll.system.source = utils.parseSource(data.definition);
+  scroll.system.source = DDBHelper.parseSource(data.definition);
   scroll.system.quantity = getQuantity(data);
   scroll.system.weight = getSingleItemWeight(data);
   scroll.system.equipped = getEquipped(data);

@@ -1,5 +1,6 @@
 import utils from "../../utils/utils.js";
 import DICTIONARY from "../../dictionary.js";
+import DDBHelper from "../../utils/ddb.js";
 
 // Import parsing functions
 import { getMaterials, getComponents } from "./components.js";
@@ -70,7 +71,7 @@ export function parseSpell(data, character) {
     unidentified: data.definition.type,
   };
 
-  spell.system.source = utils.parseSource(data.definition);
+  spell.system.source = DDBHelper.parseSource(data.definition);
   spell.system.activation = getActivation(data);
   spell.system.duration = getDuration(data);
   spell.system.target = getTarget(data);

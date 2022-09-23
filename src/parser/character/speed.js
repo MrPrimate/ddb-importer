@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { isArmored } from "./ac.js";
 
 export function getSpeed(data) {
@@ -43,13 +44,13 @@ export function getSpeed(data) {
     movementTypes[type] = base;
   }
 
-  const bonusSpeed = utils
+  const bonusSpeed = DDBHelper
     .filterBaseModifiers(data, "bonus", "speed", restriction)
     .reduce((speed, feat) => speed + feat.value, 0);
 
   // speed bonuses
   for (let type in movementTypes) {
-    let innateBonus = utils
+    let innateBonus = DDBHelper
       .filterBaseModifiers(data, "bonus", `speed-${type}ing`, restriction)
       .reduce((speed, feat) => speed + feat.value, 0);
 
@@ -59,7 +60,7 @@ export function getSpeed(data) {
 
   // unarmored movement for barbarians and monks
   if (!isArmored(data)) {
-    utils.getChosenClassModifiers(data)
+    DDBHelper.getChosenClassModifiers(data)
       .filter((modifier) => modifier.type === "bonus" && modifier.subType === "unarmored-movement")
       .forEach((bonusSpeed) => {
         for (let type in movementTypes) {
@@ -72,7 +73,7 @@ export function getSpeed(data) {
   for (let type in movementTypes) {
     const innateType = DICTIONARY.character.speeds.find((s) => s.type === type).innate;
     // is there a 'inntate-speed-[type]ing' race/class modifier?
-    let innateSpeeds = utils
+    let innateSpeeds = DDBHelper
       .filterBaseModifiers(data, "set", `innate-speed-${innateType}`, restriction);
     let base = movementTypes[type];
 

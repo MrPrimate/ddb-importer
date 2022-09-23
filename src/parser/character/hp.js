@@ -1,4 +1,4 @@
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 export function getHitpoints(data, character) {
   const constitutionHP = character.flags.ddbimporter.dndbeyond.effectAbilities.con.mod * character.flags.ddbimporter.dndbeyond.totalLevels;
@@ -9,12 +9,12 @@ export function getHitpoints(data, character) {
   const temporaryHitPoints = data.character.temporaryHitPoints || 0;
 
   // get all hit points features
-  const bonusHitPointFeatures = utils.filterBaseModifiers(data, "bonus", "hit-points-per-level");
-  const bonusHitPointFeaturesWithEffects = utils.filterBaseModifiers(data, "bonus", "hit-points-per-level", ["", null], true);
+  const bonusHitPointFeatures = DDBHelper.filterBaseModifiers(data, "bonus", "hit-points-per-level");
+  const bonusHitPointFeaturesWithEffects = DDBHelper.filterBaseModifiers(data, "bonus", "hit-points-per-level", ["", null], true);
 
   // get their values
   const bonusHitPointValues = bonusHitPointFeatures.map((bonus) => {
-    const cls = utils.findClassByFeatureId(data, bonus.componentId);
+    const cls = DDBHelper.findClassByFeatureId(data, bonus.componentId);
     if (cls) {
       return cls.level * bonus.value;
     } else {
@@ -23,7 +23,7 @@ export function getHitpoints(data, character) {
   });
 
   const bonusHitPointValuesWithEffects = bonusHitPointFeaturesWithEffects.map((bonus) => {
-    const cls = utils.findClassByFeatureId(data, bonus.componentId);
+    const cls = DDBHelper.findClassByFeatureId(data, bonus.componentId);
     if (cls) {
       return cls.level * bonus.value;
     } else {

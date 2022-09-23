@@ -1,4 +1,5 @@
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
@@ -15,7 +16,7 @@ export function getCharacterSpells(ddb, character) {
   logger.debug("Character spell lookups", lookups);
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
-  const healingBoost = utils.filterBaseModifiers(ddb, "bonus", "spell-group-healing").reduce((a, b) => a + b.value, 0);
+  const healingBoost = DDBHelper.filterBaseModifiers(ddb, "bonus", "spell-group-healing").reduce((a, b) => a + b.value, 0);
 
   // each class has an entry here, each entry has spells
   // we loop through each class and process
@@ -27,7 +28,7 @@ export function getCharacterSpells(ddb, character) {
     logger.debug("Spell parsing, class info", classInfo);
 
     const cantripBoost =
-      utils.getChosenClassModifiers(ddb).filter(
+      DDBHelper.getChosenClassModifiers(ddb).filter(
         (mod) =>
           mod.type === "bonus" &&
           mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage` &&
@@ -98,7 +99,7 @@ export function getCharacterSpells(ddb, character) {
     if (!spell.definition) return;
     // If the spell has an ability attached, use that
     let spellCastingAbility = undefined;
-    const featureId = utils.determineActualFeatureId(ddb, spell.componentId);
+    const featureId = DDBHelper.determineActualFeatureId(ddb, spell.componentId);
     const classInfo = lookups.classFeature.find((clsFeature) => clsFeature.id == featureId);
 
     logger.debug("Class spell parsing, class info", classInfo);
@@ -110,9 +111,9 @@ export function getCharacterSpells(ddb, character) {
       logger.warn(`Unable to add ${spell.definition.name}`);
     }
     if (!classInfo) return;
-    let klass = utils.getClassFromOptionID(ddb, spell.componentId);
+    let klass = DDBHelper.getClassFromOptionID(ddb, spell.componentId);
 
-    if (!klass) klass = utils.findClassByFeatureId(ddb, spell.componentId);
+    if (!klass) klass = DDBHelper.findClassByFeatureId(ddb, spell.componentId);
 
     logger.debug("Class spell, class found?", klass);
 

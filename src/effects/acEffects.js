@@ -1,4 +1,4 @@
-import utils from "../utils/utils.js";
+import DDBHelper from "../utils/ddb.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import { baseItemEffect, generateUpgradeChange, generateAddChange } from "./effects.js";
@@ -163,7 +163,7 @@ function addACBonusEffect(modifiers, name, type) {
     "",
     null,
   ];
-  const bonus = utils.filterModifiers(modifiers, "bonus", type, restrictions).reduce((a, b) => a + b.value, 0);
+  const bonus = DDBHelper.filterModifiers(modifiers, "bonus", type, restrictions).reduce((a, b) => a + b.value, 0);
   if (bonus !== 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
     const daeInstalled = game.modules.get("dae")?.active;

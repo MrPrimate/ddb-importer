@@ -1,4 +1,4 @@
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { getImagePath } from "../import.js";
@@ -87,7 +87,7 @@ function buildBase(data) {
     result.flags.ddbimporter['moreDetailsUrl'] = data.moreDetailsUrl;
   }
 
-  result.system.source = utils.parseSource(data);
+  result.system.source = DDBHelper.parseSource(data);
 
   return result;
 }

@@ -1,7 +1,7 @@
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 export function getInitiative(data, character) {
-  const initiativeBonus = utils.getModifierSum(utils.filterBaseModifiers(data, "bonus", "initiative"), character);
+  const initiativeBonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", "initiative"), character);
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   // If we have the alert Feat set, lets sub 5 so it's correct

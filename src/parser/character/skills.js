@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import { generateBaseSkillEffect } from "../../effects/effects.js";
 
 let isHalfProficiencyRoundedUp = (data, skill, modifiers = null) => {
@@ -8,19 +9,19 @@ let isHalfProficiencyRoundedUp = (data, skill, modifiers = null) => {
     .map((ability) => ability.long)[0];
 
   const roundUp = (modifiers)
-    ? utils.filterModifiers(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
-    : utils.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`, ["", null], true);
+    ? DDBHelper.filterModifiers(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
+    : DDBHelper.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`, ["", null], true);
   return Array.isArray(roundUp) && roundUp.length;
 };
 
 export function getSkillProficiency (data, skill, modifiers = null) {
   if (!modifiers) {
     modifiers = [
-      utils.getChosenClassModifiers(data, true),
-      utils.getModifiers(data, "race", true),
-      utils.getModifiers(data, "background", true),
-      utils.getModifiers(data, "feat", true),
-      utils.getActiveItemModifiers(data, true),
+      DDBHelper.getChosenClassModifiers(data, true),
+      DDBHelper.getModifiers(data, "race", true),
+      DDBHelper.getModifiers(data, "background", true),
+      DDBHelper.getModifiers(data, "feat", true),
+      DDBHelper.getActiveItemModifiers(data, true),
     ].flat();
   }
 
@@ -124,7 +125,7 @@ export function getSkills(data, character) {
 
     // Skill bonuses e.g. items
     // These no longer seems to be picked up in recent versions of the DND5e module
-    const skillModifierBonus = utils
+    const skillModifierBonus = DDBHelper
       .filterBaseModifiers(data, "bonus", skill.subType)
       .map((skl) => skl.value)
       .reduce((a, b) => a + b, 0) || 0;

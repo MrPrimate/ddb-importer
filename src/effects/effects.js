@@ -1,4 +1,5 @@
 import utils from "../utils/utils.js";
+import DDBHelper from "../utils/ddb.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import {
@@ -460,7 +461,7 @@ function extractModifierValue(modifier) {
 
 function getValueFromModifiers(modifiers, name, modifierSubType, modifierType = "bonus") {
   let bonuses;
-  const bonusEffects = utils.filterModifiers(modifiers, modifierType, modifierSubType);
+  const bonusEffects = DDBHelper.filterModifiers(modifiers, modifierType, modifierSubType);
 
   if (bonusEffects.length > 0) {
     logger.debug(`Generating ${modifierSubType} ${modifierType} for ${name}`);
@@ -511,7 +512,7 @@ function addGlobalSavingBonusEffect(modifiers, name) {
     changes = changes.concat(customEffects);
   }
 
-  const regularModifiers = utils.filterModifiers(regularBonuses, "bonus", type);
+  const regularModifiers = DDBHelper.filterModifiers(regularBonuses, "bonus", type);
 
   if (regularModifiers.length > 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
@@ -534,7 +535,7 @@ function addGlobalSavingBonusEffect(modifiers, name) {
  */
 function addCustomEffect(modifiers, name, type, key, extra = "") {
   let changes = [];
-  const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  const bonus = DDBHelper.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
   if (bonus !== 0) {
     logger.debug(`Generating ${type} bonus for ${name}`);
     changes.push(generateCustomChange(`${bonus}${(extra) ? extra : ""}`, 18, key));
@@ -547,7 +548,7 @@ function addCustomEffect(modifiers, name, type, key, extra = "") {
  */
 function addAddEffect(modifiers, name, type, key) {
   let changes = [];
-  // const bonus = utils.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+  // const bonus = DDBHelper.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
   const bonus = getValueFromModifiers(modifiers, name, type, "bonus");
   if (bonus) {
     logger.debug(`Generating ${type} bonus for ${name}`, bonus);
@@ -583,7 +584,7 @@ function addLanguages(modifiers, name) {
 function addGlobalDamageBonus(modifiers, name) {
   const meleeRestrictions = ["Melee Weapon Attacks"];
   let changes = [];
-  const meleeBonus = utils.filterModifiers(modifiers, "damage", null, meleeRestrictions)
+  const meleeBonus = DDBHelper.filterModifiers(modifiers, "damage", null, meleeRestrictions)
     .filter((mod) => mod.dice || mod.die || mod.value)
     .map((mod) => {
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
@@ -598,7 +599,7 @@ function addGlobalDamageBonus(modifiers, name) {
     changes.push(generateCustomChange(`${meleeBonus.join(" + ")}`, 18, "system.bonuses.mwak.damage"));
   }
   const rangedRestrictions = ["Ranged Weapon Attacks"];
-  const rangedBonus = utils.filterModifiers(modifiers, "damage", null, rangedRestrictions)
+  const rangedBonus = DDBHelper.filterModifiers(modifiers, "damage", null, rangedRestrictions)
     .filter((mod) => mod.dice || mod.die || mod.value)
     .map((mod) => {
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
@@ -612,7 +613,7 @@ function addGlobalDamageBonus(modifiers, name) {
     logger.debug(`Generating ranged damage for ${name}`);
     changes.push(generateCustomChange(`${rangedBonus.join(" + ")}`, 18, "system.bonuses.rwak.damage"));
   }
-  const bonus = utils.filterModifiers(modifiers, "damage", null)
+  const bonus = DDBHelper.filterModifiers(modifiers, "damage", null)
     .filter((mod) => mod.dice || mod.die || mod.value)
     .map((mod) => {
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
@@ -650,7 +651,7 @@ function getGenericConditionAffect(modifiers, condition, typeId) {
     "while holding",
     "While Held",
   ];
-  let result = utils
+  let result = DDBHelper
     .filterModifiers(modifiers, condition, null, restrictions)
     .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType))
     .map((modifier) => {
@@ -691,7 +692,7 @@ function addDamageConditions(modifiers) {
   });
 
   // system.traits.di.all
-  const allDamageImmunity = utils.filterModifiers(modifiers, "immunity", "all");
+  const allDamageImmunity = DDBHelper.filterModifiers(modifiers, "immunity", "all");
   if (allDamageImmunity?.length > 0) {
     charges.push(generateCustomChange(1, 1, "system.traits.di.all"));
   }
@@ -764,7 +765,7 @@ function addStatSetEffect(modifiers, name, subType) {
 // requires midi
 // does not add advantages with restrictions - which is most of them
 function addAbilityAdvantageEffect(modifiers, name, subType, type) {
-  const bonuses = utils.filterModifiers(modifiers, "advantage", subType);
+  const bonuses = DDBHelper.filterModifiers(modifiers, "advantage", subType);
 
   let effects = [];
   if (bonuses.length > 0) {
@@ -824,7 +825,7 @@ function addSenseBonus(modifiers, name) {
 
 function addProficiencyBonus(modifiers, name) {
   let changes = [];
-  const bonus = utils.filterModifiers(modifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + b.value, 0);
+  const bonus = DDBHelper.filterModifiers(modifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + b.value, 0);
   if (bonus) {
     logger.debug(`Generating proficiency bonus for ${name}`);
     changes.push(generateAddChange(bonus, 0, "system.attributes.prof"));
@@ -974,8 +975,8 @@ function addHPEffect(ddb, modifiers, name, consumable) {
   let changes = [];
 
   // HP per level
-  utils.filterModifiers(modifiers, "bonus", "hit-points-per-level").forEach((bonus) => {
-    const cls = utils.findClassByFeatureId(ddb, bonus.componentId);
+  DDBHelper.filterModifiers(modifiers, "bonus", "hit-points-per-level").forEach((bonus) => {
+    const cls = DDBHelper.findClassByFeatureId(ddb, bonus.componentId);
     if (cls) {
       logger.debug(`Generating HP Per Level effects for ${name} for class ${cls.definition.name}`);
       changes.push(generateAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "system.attributes.hp.max"));
@@ -985,7 +986,7 @@ function addHPEffect(ddb, modifiers, name, consumable) {
     }
   });
 
-  const hpBonusModifiers = utils.filterModifiers(modifiers, "bonus", "hit-points");
+  const hpBonusModifiers = DDBHelper.filterModifiers(modifiers, "bonus", "hit-points");
   if (hpBonusModifiers.length > 0 && !consumable) {
     let hpBonus = "";
     hpBonusModifiers.forEach((modifier) => {
@@ -1026,7 +1027,7 @@ function addSkillMidiEffect(modifiers, name, skill, midiEffect = "advantage") {
     "that rely on smell",
     "While the hood is up, checks made to Hide ",
   ];
-  const advantage = utils.filterModifiers(modifiers, midiEffect, skill.subType, allowedRestrictions);
+  const advantage = DDBHelper.filterModifiers(modifiers, midiEffect, skill.subType, allowedRestrictions);
 
   let effects = [];
   if (advantage.length > 0) {
@@ -1059,7 +1060,7 @@ function addSkillBonuses(modifiers, name) {
 //
 function addInitiativeBonuses(modifiers, name) {
   let changes = [];
-  const advantage = utils.filterModifiers(modifiers, "advantage", "initiative");
+  const advantage = DDBHelper.filterModifiers(modifiers, "advantage", "initiative");
   if (advantage.length > 0) {
     logger.debug(`Generating Intiative advantage for ${name}`);
     changes.push(generateCustomChange(1, 20, "flags.dnd5e.initiativeAdv"));
@@ -1073,7 +1074,7 @@ function addInitiativeBonuses(modifiers, name) {
 //
 function addAttackRollDisadvantage(modifiers, name) {
   let changes = [];
-  const disadvantage = utils.filterModifiers(modifiers, "disadvantage", "attack-rolls-against-you", false);
+  const disadvantage = DDBHelper.filterModifiers(modifiers, "disadvantage", "attack-rolls-against-you", false);
   if (disadvantage.length > 0) {
     logger.debug(`Generating disadvantage for ${name}`);
     changes.push(generateCustomChange(1, 5, "flags.midi-qol.grants.disadvantage.attack.all"));
@@ -1092,7 +1093,7 @@ function addMagicalAdvantage(modifiers, name) {
     "Against spells",
     "Against spells and magical effects within 10 ft. (or 30 ft. at level 17+) while holding the Holy Avenger",
   ];
-  const advantage = utils.filterModifiers(modifiers, "advantage", "saving-throws", restrictions);
+  const advantage = DDBHelper.filterModifiers(modifiers, "advantage", "saving-throws", restrictions);
   if (advantage.length > 0) {
     logger.debug(`Generating magical advantage on saving throws for ${name}`);
     changes.push(generateCustomChange("magic-resistant", 5, "system.traits.dr.custom"));

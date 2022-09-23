@@ -1,4 +1,4 @@
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 import logger from "../../logger.js";
 
 import { generateEffects } from "../../effects/effects.js";
@@ -67,8 +67,8 @@ function getInfusionModifiers(infusionItemMap, infusionDetail) {
 }
 
 function addMagicBonus(character, item, modifiers) {
-  const filteredModifiers = utils.filterModifiers(modifiers, "bonus", "magic");
-  const magicBonus = utils.getModifierSum(filteredModifiers, character);
+  const filteredModifiers = DDBHelper.filterModifiers(modifiers, "bonus", "magic");
+  const magicBonus = DDBHelper.getModifierSum(filteredModifiers, character);
 
   if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
     item.system.damage.parts[0][0] += ` + ${magicBonus}`;
@@ -165,7 +165,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
 
     // check to see if we need to fiddle attack modifiers on infused weapons
     if (foundryItem.type === "weapon") {
-      const intSwap = utils.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0;
+      const intSwap = DDBHelper.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0;
       if (intSwap) {
         const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
         const mockAbility = foundryItem.system.ability === null

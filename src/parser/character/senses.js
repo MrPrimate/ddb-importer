@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 export function getSensesMap(data) {
   let senses = {
@@ -27,7 +27,7 @@ export function getSensesMap(data) {
 
   // Base senses
   for (const senseName in senses) {
-    utils.filterBaseModifiers(data, "set-base", senseName).forEach((sense) => {
+    DDBHelper.filterBaseModifiers(data, "set-base", senseName).forEach((sense) => {
       if (Number.isInteger(sense.value) && sense.value > senses[senseName]) {
         senses[senseName] = parseInt(sense.value);
       }
@@ -35,7 +35,7 @@ export function getSensesMap(data) {
   }
 
   // Devils Sight gives bright light to 120 foot instead of normal darkvision
-  utils
+  DDBHelper
     .filterBaseModifiers(data, "set-base", "darkvision", [
       "You can see normally in darkness, both magical and nonmagical",
     ])
@@ -47,7 +47,7 @@ export function getSensesMap(data) {
     });
 
   // Magical bonuses and additional, e.g. Gloom Stalker
-  utils
+  DDBHelper
     .filterBaseModifiers(data, "sense", "darkvision", ["", null, "plus 60 feet if wearer already has Darkvision"])
     .forEach((mod) => {
       const hasSense = mod.subType in senses;

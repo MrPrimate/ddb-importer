@@ -1,12 +1,12 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
-import utils from "../../utils/utils.js";
+import DDBHelper from "../../utils/ddb.js";
 
 let getEldritchInvocations = (ddb) => {
   let damage = "";
   let range = 0;
 
-  const eldritchBlastMods = utils.filterBaseModifiers(ddb, "eldritch-blast").filter((modifier) => modifier.isGranted);
+  const eldritchBlastMods = DDBHelper.filterBaseModifiers(ddb, "eldritch-blast").filter((modifier) => modifier.isGranted);
 
   eldritchBlastMods.forEach((mod) => {
     switch (mod.subType) {
@@ -37,7 +37,7 @@ let getEldritchInvocations = (ddb) => {
 };
 
 function getRangeAdjustmentMultiplier(ddb) {
-  const rangeAdjustmentMods = utils.filterBaseModifiers(ddb, "bonus", "spell-attack-range-multiplier").filter((modifier) => modifier.isGranted);
+  const rangeAdjustmentMods = DDBHelper.filterBaseModifiers(ddb, "bonus", "spell-attack-range-multiplier").filter((modifier) => modifier.isGranted);
 
   const multiplier = rangeAdjustmentMods.reduce((current, mod) => {
     if (Number.isInteger(mod.fixedValue) && mod.fixedValue > current) {
@@ -292,7 +292,7 @@ export function fixSpells(ddb, items) {
     if (rangeMultiplier != 1) {
       spell = adjustRange(rangeMultiplier, spell);
     }
-    if (ddb) utils.addCustomValues(ddb, spell);
+    if (ddb) DDBHelper.addCustomValues(ddb, spell);
   });
 }
 /* eslint-enable complexity */
