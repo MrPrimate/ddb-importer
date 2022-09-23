@@ -43,20 +43,22 @@
 //
 import DICTIONARY from "../../dictionary.js";
 
-const MAGICITEMS = {};
-MAGICITEMS.DAILY = "r1";
-MAGICITEMS.SHORT_REST = "r4";
-MAGICITEMS.LONG_REST = "r5";
-MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM = "c1";
-MAGICITEMS.CHARGE_TYPE_PER_SPELL = "c2";
-MAGICITEMS.NUMERIC_RECHARGE = "t1";
-MAGICITEMS.FORMULA_RECHARGE = "t2";
-MAGICITEMS.DestroyCheckAlways = "d1";
-MAGICITEMS.DestroyCheck1D20 = "d2";
+const MAGICITEMS = {
+  DAILY: "r1",
+  SHORT_REST: "r4",
+  LONG_REST: "r5",
+  CHARGE_TYPE_WHOLE_ITEM: "c1",
+  CHARGE_TYPE_PER_SPELL: "c2",
+  NUMERIC_RECHARGE: "t1",
+  FORMULA_RECHARGE: "t2",
+  DestroyCheckAlways: "d1",
+  DestroyCheck1D20: "d2",
+};
+
 
 function getRechargeFormula(description, maxCharges) {
   if (description === "") {
-    return maxCharges;
+    return `${maxCharges}`;
   }
 
   let chargeMatchFormula = /regains (\dd\d* \+ \d) expended charges/i;
@@ -79,7 +81,7 @@ function getRechargeFormula(description, maxCharges) {
     match = maxCharges;
   }
 
-  return match;
+  return `${match}`;
 }
 
 function getPerSpell(useDescription, itemDescription) {
@@ -182,7 +184,7 @@ function createDefaultItem() {
     charges: 0,
     chargeType: MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM, // c1 charge whole item, c2 charge per spells
     rechargeable: false,
-    recharge: 0, // recharge amount/formula
+    recharge: "0", // recharge amount/formula
     rechargeType: MAGICITEMS.FORMULA_RECHARGE, // t1 fixed amount, t2 formula
     rechargeUnit: "", // r1 daily, r2 dawn, r3 sunset, r4vshort rest, r5 long rest
     destroy: false, // destroy on depleted?
@@ -258,7 +260,7 @@ export function parseMagicItem(data, itemSpells, characterItem = true) {
       let perSpell = getPerSpell(data.limitedUse.resetTypeDescription, data.definition.description);
       if (perSpell) {
         magicItem.charges = perSpell;
-        magicItem.recharge = perSpell;
+        magicItem.recharge = `${perSpell}`;
         magicItem.rechargeUnit = MAGICITEMS.DAILY;
         magicItem.rechargeable = true;
         magicItem.rechargeType = MAGICITEMS.NUMERIC_RECHARGE;
