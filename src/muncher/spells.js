@@ -2,7 +2,7 @@
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
-import utils from "../utils.js";
+import FileHelper from "../utils/files.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
@@ -57,7 +57,7 @@ export async function parseSpells(ids = null) {
   const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
   // to speed up file checking we pregenerate existing files now.
-  await utils.generateCurrentFiles(uploadDirectory);
+  await FileHelper.generateCurrentFiles(uploadDirectory);
 
   const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
   const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;

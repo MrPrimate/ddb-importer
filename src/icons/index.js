@@ -1,5 +1,5 @@
-import utils from "../utils.js";
 import logger from "../logger.js";
+import FileHelper from "../utils/files.js";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 
@@ -46,9 +46,9 @@ function sanitiseName(name) {
 
 async function loadDataFile(fileName) {
   logger.debug(`Getting icon mapping for ${fileName}`);
-  const fileExists = await utils.fileExists("[data] modules/ddb-importer/data", fileName);
+  const fileExists = await FileHelper.fileExists("[data] modules/ddb-importer/data", fileName);
 
-  const url = await utils.getFileUrl("[data] modules/ddb-importer/data", fileName);
+  const url = await FileHelper.getFileUrl("[data] modules/ddb-importer/data", fileName);
   if (!fileExists) {
     logger.warn(`Possible missing file, icon load may fail. Fetching ${url}`);
   }

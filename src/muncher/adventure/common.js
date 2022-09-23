@@ -1,5 +1,6 @@
 import logger from "../../logger.js";
 import utils from "../../utils.js";
+import FileHelper from "../../utils/files.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
@@ -89,12 +90,12 @@ export default class Helpers {
         return path;
       } else {
         const paths = Helpers.getImportFilePaths(path, adventure, misc);
-        const returnPath = await utils.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
+        const returnPath = await FileHelper.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
 
         if (paths.uploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.uploadPath)) {
           logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-          utils.generateCurrentFiles(paths.uploadPath);
+          FileHelper.generateCurrentFiles(paths.uploadPath);
           CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.uploadPath);
         }
 
@@ -134,19 +135,19 @@ export default class Helpers {
         return path;
       } else {
         const paths = Helpers.getImportFilePaths(path, adventure, misc);
-        const returnPath = await utils.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
+        const returnPath = await FileHelper.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
 
         if (paths.uploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.uploadPath)) {
           logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-          utils.generateCurrentFiles(paths.uploadPath);
+          FileHelper.generateCurrentFiles(paths.uploadPath);
           CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.uploadPath);
         }
 
         if (!CONFIG.DDBI.KNOWN.FILES.has(returnPath)) {
           logger.debug(`Importing image from ${path}`, paths);
           const img = await zip.file(path).async("blob");
-          await utils.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
+          await FileHelper.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
           CONFIG.DDBI.KNOWN.FILES.add(returnPath);
         } else {
           logger.debug(`File already imported ${path}`);

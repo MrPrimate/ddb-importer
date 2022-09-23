@@ -3,6 +3,7 @@ import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils.js";
+import FileHelper from "../utils/files.js";
 import { getCobalt } from "../lib/Secrets.js";
 import logger from "../logger.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
@@ -145,7 +146,7 @@ export async function parseItems(ids = null) {
 
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
-  await utils.generateCurrentFiles(uploadDirectory);
+  await FileHelper.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete, getting ItemData.");
 
   const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");

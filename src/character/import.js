@@ -1,4 +1,5 @@
 import utils from "../utils.js";
+import FileHelper from "../utils/files.js";
 import logger from "../logger.js";
 import { parseJson } from "../parser/character.js";
 import {
@@ -398,10 +399,10 @@ export default class CharacterImport extends FormApplication {
         .trim();
 
       const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
-      imagePath = await utils.uploadRemoteImage(decorations.avatarUrl, uploadDirectory, filename);
+      imagePath = await FileHelper.uploadRemoteImage(decorations.avatarUrl, uploadDirectory, filename);
       this.result.character.img = imagePath;
       if (decorations?.frameAvatarUrl && decorations.frameAvatarUrl !== "") {
-        const framePath = await utils.uploadRemoteImage(decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
+        const framePath = await FileHelper.uploadRemoteImage(decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
         this.result.character.flags.ddbimporter["framePath"] = framePath;
       }
     } else {

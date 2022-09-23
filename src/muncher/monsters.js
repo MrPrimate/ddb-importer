@@ -4,7 +4,7 @@ import { munchNote, download } from "./utils.js";
 import logger from "../logger.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
 import { parseMonsters } from "./monster/monster.js";
-import utils from "../utils.js";
+import FileHelper from "../utils/files.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 
@@ -95,7 +95,8 @@ export async function parseCritters(ids = null) {
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
   munchNote(`Checking existing image files...`);
-  await utils.generateCurrentFiles(uploadDirectory);
+  await FileHelper.generateCurrentFiles(uploadDirectory);
+  await FileHelper.generateCurrentFiles("[data] modules/ddb-importer/data");
   logger.info("Check complete getting monster data...");
   munchNote(`Getting monster data from DDB...`);
   let monsters = await getMonsterData(ids);

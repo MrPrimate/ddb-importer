@@ -15,6 +15,10 @@ setProperty(CONFIG, "DDBI", {
   KNOWN: {
     CHECKED_DIRS: new Set(),
     FILES: new Set(),
+    FORGE: {
+      TARGET_URL_PREFIX: {},
+      TARGETS: {},
+    },
   },
   ICONS: {},
   TABLES: {},

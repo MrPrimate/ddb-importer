@@ -1,6 +1,7 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
+import FileHelper from "../utils/files.js";
 import { munchNote, getCompendiumLabel, getCompendiumType, getCompendium } from "./utils.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
@@ -491,15 +492,15 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
 
     // image upload
     const filename = type + "-" + name.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").trim();
-    const imageExists = await utils.fileExists(uploadDirectory, filename + "." + ext);
+    const imageExists = await FileHelper.fileExists(uploadDirectory, filename + "." + ext);
 
     if (imageExists) {
       // eslint-disable-next-line require-atomic-updates
-      const image = await utils.getFileUrl(uploadDirectory, filename + "." + ext);
+      const image = await FileHelper.getFileUrl(uploadDirectory, filename + "." + ext);
       return image.trim();
     } else {
       // eslint-disable-next-line require-atomic-updates
-      const image = await utils.uploadRemoteImage(imageUrl, uploadDirectory, filename);
+      const image = await FileHelper.uploadRemoteImage(imageUrl, uploadDirectory, filename);
       // did upload succeed? if not fall back to remote image path
       if (image) {
         return image.trim();

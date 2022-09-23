@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import utils from "../utils.js";
+import FileHelper from "../utils/files.js";
 import { munchNote, getCompendium, getCompendiumLabel } from "./utils.js";
 import { copySupportedItemFlags } from "./import.js";
 import { getNPCImage } from "./importMonster.js";
@@ -115,7 +115,7 @@ export async function resetCompendiumActorImages(compendiumName = null, type = "
   const index = await monsterCompendium.getIndex({ fields });
 
   const otherDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
-  await utils.generateCurrentFiles(otherDirectory);
+  await FileHelper.generateCurrentFiles(otherDirectory);
 
   const updates = await Promise.all(index
     .filter((i) => i.name !== "#[CF_tempEntity]")

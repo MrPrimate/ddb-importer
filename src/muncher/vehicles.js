@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import utils from "../utils.js";
+import FileHelper from "../utils/files.js";
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import { munchNote, getCampaignId, download } from "./utils.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium } from "./importMonster.js";
@@ -100,7 +100,7 @@ export async function parseTransports(ids = null) {
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
   munchNote(`Checking existing image files...`);
-  await utils.generateCurrentFiles(uploadDirectory);
+  await FileHelper.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete getting vehicle data...");
   munchNote(`Getting vehicle data from DDB...`);
   let vehicleJSON = await getVehicleData(ids);
