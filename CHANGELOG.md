@@ -1,6 +1,10 @@
 # 3.1.8
 
 * More changes to support recent updates on the Forge.
+* Some internal refactoring for tech debt (no functional change).
+* Things like the prone effect on a Wolfs bite attack would be set so damage would be halfed on save.
+* Fix a bug with things like Spell Gem where the recharge formula would generate an error when a long rest was attempted.
+* You can programmatically delete the default compendiums and disable auto-creation using the command `DDBImporter.deleteDefaultCompendiums()`;
 
 # 3.1.7
 

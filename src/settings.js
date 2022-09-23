@@ -79,6 +79,7 @@ const SETTINGS = {
       },
       COMPENDIUMS: Object.fromEntries(
         COMPENDIUMS.map((comp) => [comp.setting, {
+          name: comp.title,
           type: String,
           default: `DDB ${comp.title}`,
         }])
@@ -1063,6 +1064,12 @@ const SETTINGS = {
       },
     },
   },
+  APPLY_GLOBAL_DEFAULTS(settings) {
+    for (const [name, data] of Object.entries(settings)) {
+      settings[name] = mergeObject({ scope: "world", config: false }, data);
+    }
+    return settings;
+  },
   GET_DEFAULT_SETTINGS(early = false) {
     const clone = foundry.utils.deepClone(SETTINGS.DEFAULT_SETTINGS);
     const defaultLocationSource = !early && typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge
@@ -1093,10 +1100,7 @@ const SETTINGS = {
         ...clone.READY.MUNCHER.ENCOUNTER,
       };
 
-    for (const [name, data] of Object.entries(defaultSettings)) {
-      defaultSettings[name] = mergeObject({ scope: "world", config: false }, data);
-    }
-    return defaultSettings;
+    return SETTINGS.APPLY_GLOBAL_DEFAULTS(defaultSettings);
   },
 };
 

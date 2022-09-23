@@ -1,14 +1,20 @@
 import logger from '../../logger.js';
 import SETTINGS from '../../settings.js';
 
-let sanitize = (text) => {
+function sanitize(text) {
   if (text && typeof text === "string") {
     return text.replace(/\s|\./g, '-').toLowerCase();
   }
   return text;
-};
+}
 
-let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => {
+function getDefaultCompendiumName(compendiumLabel) {
+  const sanitizedLabel = sanitize(compendiumLabel);
+  const name = `ddb-${game.world.id}-${sanitizedLabel}`;
+  return name;
+}
+
+async function createIfNotExists(settingName, compendiumType, compendiumLabel) {
   logger.debug(`Checking if ${settingName} exists for ${SETTINGS.MODULE_ID}`);
   const compendiumName = game.settings.get(SETTINGS.MODULE_ID, settingName);
   const compendium = await game.packs.get(compendiumName);
@@ -17,8 +23,7 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
     return false;
   } else {
     logger.info(`Compendium for ${compendiumLabel}, was not found, creating it now.`);
-    const sanitizedLabel = sanitize(compendiumLabel);
-    const name = `ddb-${game.world.id}-${sanitizedLabel}`;
+    const name = getDefaultCompendiumName(compendiumLabel);
     const defaultCompendium = await game.packs.get(`world.${name}`);
     if (defaultCompendium) {
       logger.warn(`Could not load Compendium '${compendiumName}', and could not create default Compendium '${name}' as it already exists. Please check your DDB Importer Compendium setup.`);
@@ -34,7 +39,7 @@ let createIfNotExists = async (settingName, compendiumType, compendiumLabel) => 
     }
     return true;
   }
-};
+}
 
 export function getCompendiumNames() {
   return SETTINGS.COMPENDIUMS.map((ddbCompendium) => {
@@ -49,5 +54,22 @@ export default async function () {
     SETTINGS.COMPENDIUMS.forEach((compendium) => {
       createIfNotExists(compendium.setting, compendium.type, compendium.title);
     });
+  }
+}
+
+export function deleteDefaultCompendiums(force = true) {
+  if (!force) {
+    logger.warn("Pass 'true' to this function to force deletion.");
+  }
+  game.settings.set(SETTINGS.MODULE_ID, "auto-create-compendium", false);
+
+  const clone = foundry.utils.deepClone(SETTINGS.DEFAULT_SETTINGS);
+  const compendiumSettings = SETTINGS.APPLY_GLOBAL_DEFAULTS(clone.READY.COMPENDIUMS);
+
+  for (const [name, data] of Object.entries(compendiumSettings)) {
+    const compendiumName = getDefaultCompendiumName(data.default);
+
+    logger.warn(`Setting: ${name} : Deleting compendium ${data.name} with key world.${compendiumName}}`);
+    game.packs.delete(`world.${compendiumName}`);
   }
 }

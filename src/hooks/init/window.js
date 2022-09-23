@@ -14,7 +14,7 @@ import { getPatreonTier, getPatreonTiers, setPatreonTier, checkPatreon, getCompe
 import { checkCobalt } from "../../lib/Secrets.js";
 import { base64Check } from "../../lib/Base64Check.js";
 import { getFeats } from "../../muncher/feats/feats.js";
-import { getCompendiumNames } from "../ready/checkCompendiums.js";
+import { getCompendiumNames, deleteDefaultCompendiums } from "../ready/checkCompendiums.js";
 import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "../../effects/macros.js";
 import { iconPath } from "../../icons/index.js";
 import { loadSRDRules, importCacheLoad } from "../../utils/templateStrings.js";
@@ -84,5 +84,7 @@ export function registerWindow() {
     resetCompendiumActorImages,
     getCompendiumLabel,
     getCompendiumType,
+    getCompendiumNames,
+    deleteDefaultCompendiums,
   };
 }
