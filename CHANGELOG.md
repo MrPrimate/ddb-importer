@@ -1,3 +1,7 @@
+# 2.9.67
+
+* Fix import breakage on the Forge due to service change.
+
 # 2.9.66
 
 * Some optional class features would not parse in as features.

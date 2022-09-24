@@ -5,6 +5,7 @@ import { munchNote, getCompendiumLabel, getCompendiumType, getCompendium } from 
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";
+import FileHelper from "../lib/FileHelper.js";
 
 const srdCompendiumLookup = [
   { type: "inventory", name: "dnd5e.items" },
@@ -480,15 +481,15 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
 
     // image upload
     const filename = type + "-" + name.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").trim();
-    const imageExists = await utils.fileExists(uploadDirectory, filename + "." + ext);
+    const imageExists = await FileHelper.fileExists(uploadDirectory, filename + "." + ext);
 
     if (imageExists) {
       // eslint-disable-next-line require-atomic-updates
-      const image = await utils.getFileUrl(uploadDirectory, filename + "." + ext);
+      const image = await FileHelper.getFileUrl(uploadDirectory, filename + "." + ext);
       return image.trim();
     } else {
       // eslint-disable-next-line require-atomic-updates
-      const image = await utils.uploadRemoteImage(imageUrl, uploadDirectory, filename);
+      const image = await FileHelper.uploadRemoteImage(imageUrl, uploadDirectory, filename);
       // did upload succeed? if not fall back to remote image path
       if (image) {
         return image.trim();
@@ -499,8 +500,6 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
     }
   } else if (imageUrl && remoteImage) {
     try {
-      // logger.debug('Trying: ' + imageUrl.trim());
-      // await utils.serverFileExists(imageUrl.trim());
       return imageUrl.trim();
     } catch (ignored) {
       return null;

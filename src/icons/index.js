@@ -1,5 +1,6 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
+import FileHelper from "../lib/FileHelper.js";
 
 var iconMap = {};
 
@@ -48,11 +49,11 @@ function sanitiseName(name) {
 
 async function loadDataFile(fileName) {
   logger.debug(`Getting icon mapping for ${fileName}`);
-  const fileExists = await utils.fileExists("[data] modules/ddb-importer/data", fileName);
+  const fileExists = await FileHelper.fileExists("[data] modules/ddb-importer/data", fileName);
 
   let data = [];
   if (fileExists) {
-    const url = await utils.getFileUrl("[data] modules/ddb-importer/data", fileName);
+    const url = await FileHelper.getFileUrl("[data] modules/ddb-importer/data", fileName);
     const response = await fetch(url, { method: "GET" });
     // eslint-disable-next-line require-atomic-updates
     data = await response.json();

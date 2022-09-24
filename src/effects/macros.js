@@ -1,5 +1,6 @@
 import utils from "../utils.js";
 import logger from "../logger.js";
+import FileHelper from "../lib/FileHelper.js";
 
 export async function checkMacroFolder() {
   const version = (game.version ?? game.data.version);
@@ -61,11 +62,11 @@ export async function loadMacroFile(type, fileName, forceLoad = false, forceDDB 
   logger.debug(`Getting macro for ${type} ${fileName}`);
   const fileExists = forceLoad
     ? true
-    : await utils.fileExists(`[data] modules/ddb-importer/macros/${type}s`, fileName);
+    : await FileHelper.fileExists(`[data] modules/ddb-importer/macros/${type}s`, fileName);
 
   let data;
   if (fileExists && (forceLoad || embedMacros) && !forceDDB) {
-    const url = await utils.getFileUrl(`[data] modules/ddb-importer/macros/${type}s`, fileName);
+    const url = await FileHelper.getFileUrl(`[data] modules/ddb-importer/macros/${type}s`, fileName);
     const response = await fetch(url, { method: "GET" });
     data = await response.text();
   } else if (fileExists && (!embedMacros || forceDDB)) {

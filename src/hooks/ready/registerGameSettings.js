@@ -13,6 +13,40 @@ setProperty(CONFIG, "DDBI", {
     item: {},
     feat: {},
   },
+  KNOWN: {
+    CHECKED_DIRS: new Set(),
+    FILES: new Set(),
+    FORGE: {
+      TARGET_URL_PREFIX: {},
+      TARGETS: {},
+    },
+  },
+  ICONS: {},
+  TABLES: {},
+  SRD_LOAD: {
+    mapLoaded: false,
+    iconMap: {},
+    packsLoaded: {},
+    packs: {},
+  },
+  DEV: {
+    clippy: {},
+    tableInUse: false,
+  },
+  EFFECT_CONFIG: {
+    MONSTERS: {
+      installedModules: null,
+      configured: false,
+    },
+    FEATS: {
+      installedModules: null,
+      configured: false,
+    },
+    SPELLS: {
+      installedModules: null,
+      configured: false,
+    },
+  },
 });
 
 async function resetSettings() {

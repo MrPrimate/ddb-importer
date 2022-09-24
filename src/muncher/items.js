@@ -6,6 +6,7 @@ import utils from "../utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import logger from "../logger.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
+import FileHelper from "../lib/FileHelper.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -145,7 +146,7 @@ export async function parseItems(ids = null) {
 
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
-  await utils.generateCurrentFiles(uploadDirectory);
+  await FileHelper.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete, getting ItemData.");
 
   const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");

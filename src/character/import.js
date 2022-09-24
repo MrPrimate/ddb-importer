@@ -32,6 +32,7 @@ import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdat
 import { setConditions } from "./conditions.js";
 import { autoLinkResources } from "../parser/character/resources.js";
 import { addContainerItemsToContainers, addContainerItemsToActor } from "./itemCollections.js";
+import FileHelper from "../lib/FileHelper.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -395,10 +396,10 @@ export default class CharacterImport extends FormApplication {
         .trim();
 
       const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
-      imagePath = await utils.uploadRemoteImage(decorations.avatarUrl, uploadDirectory, filename);
+      imagePath = await FileHelper.uploadRemoteImage(decorations.avatarUrl, uploadDirectory, filename);
       this.result.character.img = imagePath;
       if (decorations?.frameAvatarUrl && decorations.frameAvatarUrl !== "") {
-        const framePath = await utils.uploadRemoteImage(decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
+        const framePath = await FileHelper.uploadRemoteImage(decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
         this.result.character.flags.ddbimporter["framePath"] = framePath;
       }
     } else {
