@@ -1,4 +1,4 @@
-import { DDBAdventureFlags } from "../../lib/adventureFlags.js";
+import { DDBAdventureFlags } from "../../lib/AdventureFlags.js";
 import buildNotes from "./buildNotes.js";
 
 const POPUPS = {

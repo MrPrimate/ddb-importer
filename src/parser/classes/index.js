@@ -1,8 +1,8 @@
 import logger from '../../logger.js';
 import DICTIONARY from '../../dictionary.js';
-import { getCompendiumType, getCompendiumLabel } from '../../muncher/utils.js';
 import utils from '../../utils/utils.js';
 import DDBHelper from "../../utils/ddb.js";
+import CompendiumHelper from '../../utils/compendiums.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import parseTemplateString from "../../utils/templateStrings.js";
 import { SPECIAL_ADVANCEMENTS } from './special.js';
