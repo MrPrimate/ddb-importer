@@ -1,9 +1,10 @@
 import logger from "../logger.js";
+import CompendiumHelper from "../utils/compendiums.js";
+import DICTIONARY from "../dictionary.js";
 import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
-import { getCampaignId, getCompendiumType } from "../muncher/utils.js";
+import { getCampaignId } from "../muncher/utils.js";
 import { looseItemNameMatch } from "../muncher/import.js";
-import DICTIONARY from "../dictionary.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates, setActiveSyncSpellsFlag } from "./utils.js";
 import { getActorConditionStates, getCondition } from "./conditions.js";
@@ -29,7 +30,7 @@ function getFoundryItems(actor) {
 
 async function getUpdateItemIndex() {
   if (hasProperty(CONFIG, "DDBI.update.itemIndex")) return getProperty(CONFIG, "DDBI.update.itemIndex");
-  const compendium = await getCompendiumType("item", false);
+  const compendium = await CompendiumHelper.getCompendiumType("item", false);
 
   const indexFields = [
     "name",

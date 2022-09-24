@@ -1,7 +1,8 @@
 import logger from "../../logger.js";
+import CompendiumHelper from "../../utils/compendiums.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
-import { munchNote, getCompendiumType } from "../utils.js";
+import { munchNote } from "../utils.js";
 import { parseTags } from "../../utils/templateStrings.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 import { getHPAdvancement } from "../../parser/classes/index.js";
@@ -46,7 +47,7 @@ export async function getClasses(data) {
   logger.debug(`Importing ${fiddledClassFeatures.length} features!`, classFeatures);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
-  const compendium = getCompendiumType("features");
+  const compendium = CompendiumHelper.getCompendiumType("features");
   const index = await compendium.getIndex();
   const firstPassFeatures = await index.filter((i) => fiddledClassFeatures.some((orig) => i.name === orig.name));
   let compendiumClassFeatures = [];

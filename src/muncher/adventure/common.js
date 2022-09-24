@@ -1,11 +1,12 @@
 import logger from "../../logger.js";
 import utils from "../../utils/utils.js";
 import FileHelper from "../../utils/files.js";
+import CompendiumHelper from "../../utils/compendiums.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
-import { getPatreonTiers, getCompendiumType } from "../utils.js";
+import { getPatreonTiers } from "../utils.js";
 import AdventureMunch from "./adventure.js";
 
 const COMPENDIUM_MAP = {
@@ -463,7 +464,7 @@ export default class Helpers {
 
   static async getCompendiumIndex(type) {
     return new Promise((resolve) => {
-      const compendium = getCompendiumType(type);
+      const compendium = CompendiumHelper.getCompendiumType(type);
       const fields = (type === "monster")
         ? ["flags.ddbimporter.id"]
         : ["flags.ddbimporter.definitionId"];
@@ -594,7 +595,7 @@ export default class Helpers {
   }
 
   static async generateTokenActors(scene) {
-    const monsterCompendium = getCompendiumType("monster", false);
+    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
     const tokens = await Helpers.linkDDBActors(scene.tokens);
 
     const neededActors = tokens

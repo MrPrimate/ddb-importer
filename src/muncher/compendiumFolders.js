@@ -1,7 +1,7 @@
 import utils from "../utils/utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { getCompendium, getCompendiumLabel } from "./utils.js";
+import CompendiumHelper from "../utils/compendiums.js";
 
 let compendiumFolderTypeMonster;
 let compendiumFolderTypeSpell;
@@ -269,7 +269,7 @@ export async function createCompendiumFolderStructure(type) {
     compendiumFolderTypeSpell = game.settings.get("ddb-importer", "munching-selection-compendium-folders-spell");
     compendiumFolderTypeItem = game.settings.get("ddb-importer", "munching-selection-compendium-folders-item");
     // generate compendium folders for type
-    const packName = await getCompendiumLabel(type);
+    const packName = await CompendiumHelper.getCompendiumLabel(type);
     await game.CF.FICFolderAPI.loadFolders(packName);
     logger.debug(`Creating Compendium folder structure for ${type}`);
 
@@ -528,7 +528,7 @@ export async function addToCompendiumFolder(type, document, folders) {
 
   if (compendiumFoldersInstalled && (folders || game.customFolders?.fic?.folders)) {
     if (!folders) folders = game.customFolders.fic.folders;
-    const packName = await getCompendiumLabel(type);
+    const packName = await CompendiumHelper.getCompendiumLabel(type);
     logger.debug(`Checking ${document.name} in ${packName}`);
 
     switch (type) {
@@ -568,7 +568,7 @@ export async function migrateExistingCompendium(type) {
     });
   }
   // loop through all existing monts/etc and generate a folder and move documents to it
-  const packName = await getCompendiumLabel(type);
+  const packName = await CompendiumHelper.getCompendiumLabel(type);
 
   if (game.CF.cleanupCompendium) {
     await game.CF.cleanupCompendium(packName);
@@ -578,7 +578,7 @@ export async function migrateExistingCompendium(type) {
 
   logger.debug("Compendium Folders", folders);
 
-  const compendium = await getCompendium(packName);
+  const compendium = CompendiumHelper.getCompendium(packName);
   if (!compendium) return undefined;
   let indexFields = ["name"];
   switch (type) {

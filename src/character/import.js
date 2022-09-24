@@ -1,5 +1,6 @@
 import utils from "../utils/utils.js";
 import FileHelper from "../utils/files.js";
+import CompendiumHelper from "../utils/compendiums.js";
 import logger from "../logger.js";
 import { parseJson } from "../parser/character.js";
 import {
@@ -15,7 +16,7 @@ import {
   retainExistingIcons,
   getIndividualOverrideItems,
 } from "../muncher/import.js";
-import { getCampaignId, getCompendiumType } from "../muncher/utils.js";
+import { getCampaignId } from "../muncher/utils.js";
 import { addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
@@ -432,7 +433,7 @@ export default class CharacterImport extends FormApplication {
     const localCobalt = isLocalCobalt(this.actor.id);
     const cobaltCookie = getCobalt(this.actor.id);
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
-    const itemCompendium = await getCompendiumType("item", false);
+    const itemCompendium = await CompendiumHelper.getCompendiumType("item", false);
 
     const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
     const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");

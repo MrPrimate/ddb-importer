@@ -1,10 +1,10 @@
 import DDBHelper from "../../utils/ddb.js";
+import CompendiumHelper from "../../utils/compendiums.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { getImagePath } from "../import.js";
 import { generateTable } from "../table.js";
 import { parseTags } from "../../utils/templateStrings.js";
-import { getCompendiumLabel } from "../utils.js";
 
 const CLASS_TEMPLATE = {
   "name": "",
@@ -94,7 +94,7 @@ function buildBase(data) {
 
 export async function generateFeatureAdvancements(klass, compendiumClassFeatures, ignoreIds = []) {
   logger.debug(`Parsing ${klass.name} features for advancement`);
-  const compendiumLabel = getCompendiumLabel("features");
+  const compendiumLabel = CompendiumHelper.getCompendiumLabel("features");
 
   let advancements = [];
   klass.classFeatures
@@ -144,7 +144,7 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
   let description = "<h1>Class Features</h1>\n\n";
   let classFeatures = [];
 
-  const compendiumLabel = getCompendiumLabel("features");
+  const compendiumLabel = CompendiumHelper.getCompendiumLabel("features");
 
   klass.classFeatures.forEach((feature) => {
     const classFeaturesAdded = classFeatures.some((f) => f === feature.name);

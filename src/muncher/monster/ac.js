@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
+import CompendiumHelper from "../../utils/compendiums.js";
 import { loadPassedItemsFromCompendium } from "../import.js";
-import { getCompendiumLabel, getCompendium } from "../utils.js";
 
 const BAD_AC_MONSTERS = [
   "arkhan the cruel"
@@ -8,9 +8,9 @@ const BAD_AC_MONSTERS = [
 
 async function getEquipmentCompendium() {
   if (!hasProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY.compendium.equipment")) {
-    const label = getCompendiumLabel("inventory");
+    const label = CompendiumHelper.getCompendiumLabel("inventory");
     // eslint-disable-next-line require-atomic-updates
-    const compendium = await getCompendium(label);
+    const compendium = CompendiumHelper.getCompendium(label);
     setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY.compendium.equipment", compendium);
     if (!CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment.indexed) {
       await CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment.getIndex();

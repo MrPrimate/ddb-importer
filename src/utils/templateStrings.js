@@ -1,8 +1,8 @@
 import utils from "./utils.js";
 import DDBHelper from "./ddb.js";
 import logger from "../logger.js";
+import CompendiumHelper from "./compendiums.js";
 import { generateAdventureConfig } from "../muncher/adventure.js";
-import { loadCompendiumIndex } from "../muncher/utils.js";
 
 const INDEX_COMPENDIUMS = [
   "spell",
@@ -18,7 +18,7 @@ function evaluateMath(obj) {
 export async function loadDDBCompendiumIndexes() {
   for (const i of INDEX_COMPENDIUMS) {
     // eslint-disable-next-line no-await-in-loop
-    await loadCompendiumIndex(i);
+    await CompendiumHelper.loadCompendiumIndex(i);
   }
 }
 

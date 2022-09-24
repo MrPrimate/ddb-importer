@@ -1,4 +1,4 @@
-import { getCompendiumLabel, getCompendium } from "../muncher/utils.js";
+import CompendiumHelper from "../utils/compendiums.js";
 
 export class DDBItemConfig extends FormApplication {
   static get defaultOptions() {
@@ -52,8 +52,8 @@ export class DDBItemConfig extends FormApplication {
       }
     };
 
-    const label = getCompendiumLabel("custom");
-    const compendium = await getCompendium(label);
+    const label = CompendiumHelper.getCompendiumLabel("custom");
+    const compendium = CompendiumHelper.getCompendium(label);
     const index = await compendium.getIndex();
 
     index.forEach((item) => {

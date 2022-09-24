@@ -1,8 +1,9 @@
 import logger from "../../logger.js";
 import { parseTags } from "../../utils/templateStrings.js";
 import DDBHelper from "../../utils/ddb.js";
+import CompendiumHelper from "../../utils/compendiums.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
-import { munchNote, getCompendiumType, getCompendiumLabel } from "../utils.js";
+import { munchNote } from "../utils.js";
 
 const FEATURE_DUP = [
   "Breath Weapon",
@@ -132,7 +133,7 @@ async function buildRace(race, compendiumRacialTraits) {
   const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
   result.system.description.value += image;
 
-  const compendiumLabel = getCompendiumLabel("traits");
+  const compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
 
   race.racialTraits.forEach((f) => {
     const feature = f.definition;
@@ -151,7 +152,7 @@ async function buildRace(race, compendiumRacialTraits) {
 }
 
 async function getRacialTraitsLookup(racialTraits, fail = true) {
-  const compendium = getCompendiumType("traits", fail);
+  const compendium = CompendiumHelper.getCompendiumType("traits", fail);
   if (compendium) {
     const flags = ["name", "flags.ddbimporter.entityRaceId", "flags.ddbimporter.baseName"];
     const index = await compendium.getIndex({ fields: flags });

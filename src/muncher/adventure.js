@@ -1,12 +1,13 @@
-import { getCampaignId, getCompendium, getCompendiumLabel } from "./utils.js";
+import { getCampaignId } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getVehicleData } from "./vehicles.js";
 import FileHelper from "../utils/files.js";
+import CompendiumHelper from "../utils/compendiums.js";
 
 async function getMonsterMap () {
   // ddb://monsters
-  const monsterCompendiumLabel = getCompendiumLabel("monster");
-  const monsterCompendium = await getCompendium(monsterCompendiumLabel);
+  const monsterCompendiumLabel = CompendiumHelper.getCompendiumLabel("monster");
+  const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
   const monsterIndices = ["name", "flags.ddbimporter.id"];
   const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices });
 
@@ -129,7 +130,7 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
   }
 
   const rulesCompendium = "dnd5e.rules";
-  const srdCompendium = await getCompendium(rulesCompendium);
+  const srdCompendium = CompendiumHelper.getCompendium(rulesCompendium);
   if (!srdCompendium) return result;
 
   const srdIndex = await srdCompendium.getIndex();

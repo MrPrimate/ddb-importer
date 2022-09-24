@@ -1,4 +1,4 @@
-import { getCompendiumLabel } from "../muncher/utils.js";
+import CompendiumHelper from "../utils/compendiums.js";
 import { configureDependencies } from "./macros.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
@@ -70,7 +70,7 @@ export function monsterFeatEffectModules() {
 
 function transferEffectsToActor(document) {
   if (!document.effects) document.effects = [];
-  const compendiumLabel = getCompendiumLabel("monsters");
+  const compendiumLabel = CompendiumHelper.getCompendiumLabel("monsters");
 
   // loop over items and item effect and transfer any effects to the actor
   document.items.forEach((item) => {

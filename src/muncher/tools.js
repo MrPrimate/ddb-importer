@@ -1,6 +1,7 @@
 import logger from "../logger.js";
 import FileHelper from "../utils/files.js";
-import { munchNote, getCompendium, getCompendiumLabel } from "./utils.js";
+import CompendiumHelper from "../utils/compendiums.js";
+import { munchNote } from "./utils.js";
 import { copySupportedItemFlags } from "./import.js";
 import { getNPCImage } from "./importMonster.js";
 
@@ -70,8 +71,8 @@ async function updateActorsWithActor(targetActors, sourceActor) {
 export async function updateWorldMonsters() {
   let results = [];
   // get ddb monsters compendium
-  const monsterCompendiumLabel = getCompendiumLabel("monster");
-  const monsterCompendium = await getCompendium(monsterCompendiumLabel);
+  const monsterCompendiumLabel = CompendiumHelper.getCompendiumLabel("monster");
+  const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
 
   if (monsterCompendium) {
     const monsterIndices = ["name", "flags.ddbimporter.id"];
@@ -109,8 +110,8 @@ export async function updateWorldMonsters() {
 }
 
 export async function resetCompendiumActorImages(compendiumName = null, type = "monster") {
-  const monsterCompendiumLabel = compendiumName ? compendiumName : getCompendiumLabel(type);
-  const monsterCompendium = await getCompendium(monsterCompendiumLabel);
+  const monsterCompendiumLabel = compendiumName ? compendiumName : CompendiumHelper.getCompendiumLabel(type);
+  const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
   const fields = ["name", "flags.monsterMunch", "system.details.type.value", "img", "prototypeToken.texture.src"];
   const index = await monsterCompendium.getIndex({ fields });
 

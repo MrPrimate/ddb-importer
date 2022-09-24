@@ -2,7 +2,8 @@ import utils from "../utils/utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import FileHelper from "../utils/files.js";
-import { munchNote, getCompendiumLabel, getCompendiumType, getCompendium } from "./utils.js";
+import CompendiumHelper from "../utils/compendiums.js";
+import { munchNote } from "./utils.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";
@@ -67,7 +68,7 @@ const EFFECTS_IGNORE_FLAG_GROUPS = [
 
 async function loadpacks(compendiumName) {
   if (CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) return;
-  const srdPack = await getCompendium(compendiumName);
+  const srdPack = CompendiumHelper.getCompendium(compendiumName);
   if (!srdPack) {
     logger.error(`Failed to load SRDPack ${compendiumName}`);
   } else {
@@ -436,7 +437,7 @@ export async function compendiumFolders(document, type) {
 
 export async function updateCompendium(type, input, updateExisting = false, matchFlags = []) {
   logger.debug(`Getting compendium for update of ${type} documents (checking ${input[type].length} docs)`);
-  const compendium = await getCompendiumType(type);
+  const compendium = await CompendiumHelper.getCompendiumType(type);
   compendium.configure({ locked: false });
 
   if (game.user.isGM) {
@@ -941,8 +942,8 @@ export async function updateMatchingItems(oldItems, newItems, inOptions) {
 }
 
 export async function getIndividualOverrideItems(overrideItems) {
-  const label = getCompendiumLabel("custom");
-  const compendium = await getCompendium(label);
+  const label = CompendiumHelper.getCompendiumLabel("custom");
+  const compendium = CompendiumHelper.getCompendium(label);
 
   const compendiumItems = await Promise.all(overrideItems.map(async (item) => {
     const compendiumItem = duplicate(await compendium.getDocument(item.flags.ddbimporter.overrideId));
@@ -1068,9 +1069,9 @@ export async function getCompendiumItems(items, type, inOptions) {
   const options = mergeObject(defaultOptions, inOptions);
 
   if (!options.compendiumLabel) {
-    options.compendiumLabel = getCompendiumLabel(type);
+    options.compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
   }
-  const compendium = await getCompendium(options.compendiumLabel, false);
+  const compendium = CompendiumHelper.getCompendium(options.compendiumLabel, false);
   if (!compendium) return [];
 
   const loadOptions = {

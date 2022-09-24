@@ -1,6 +1,7 @@
 import logger from "../logger.js";
+import CompendiumHelper from "../utils/compendiums.js";
 import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compendiumFolders } from "./import.js";
-import { getCompendiumType, munchNote, getCompendiumLabel } from "./utils.js";
+import { munchNote } from "./utils.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
 // check items to see if retaining item, img or resources
@@ -53,7 +54,7 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 
 
 async function addNPCToCompendium(npc, type = "monster") {
-  const compendium = getCompendiumType(type, false);
+  const compendium = CompendiumHelper.getCompendiumType(type, false);
   if (compendium) {
     const npcBasic = duplicate(npc);
 
@@ -105,7 +106,7 @@ async function addNPCToCompendium(npc, type = "monster") {
 }
 
 export async function addNPCsToCompendium(npcs, type = "monster") {
-  const compendium = getCompendiumType(type, false);
+  const compendium = CompendiumHelper.getCompendiumType(type, false);
   let results = [];
   if (compendium) {
     // unlock the compendium for update/create
@@ -143,7 +144,7 @@ export async function addNPCsToCompendium(npcs, type = "monster") {
 
 export async function addNPCDDBId(npc, type = "monster") {
   let npcBasic = duplicate(npc);
-  const compendium = getCompendiumType(type, false);
+  const compendium = CompendiumHelper.getCompendiumType(type, false);
   if (compendium) {
     // unlock the compendium for update/create
     compendium.configure({ locked: false });
@@ -249,7 +250,7 @@ export async function getNPCImage(npcData, options) {
     !mergedOptions.disableAutoTokenizeOverride &&
     game.modules.get("vtta-tokenizer")?.active;
   if (tokenizerReady) {
-    const compendiumLabel = getCompendiumLabel(options.type);
+    const compendiumLabel = CompendiumHelper.getCompendiumLabel(options.type);
     // eslint-disable-next-line require-atomic-updates
     npcData.prototypeToken.texture.src = await window.Tokenizer.autoToken(npcData, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
     logger.debug(`Generated tokenizer image at ${npcData.prototypeToken.texture.src}`);

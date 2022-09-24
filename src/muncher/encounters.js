@@ -1,6 +1,8 @@
-import { munchNote, getPatreonTiers, getCompendiumLabel, getCompendiumType } from "./utils.js";
+import { munchNote, getPatreonTiers } from "./utils.js";
 import logger from "../logger.js";
 import utils from "../utils/utils.js";
+import FileHelper from "../utils/files.js";
+import CompendiumHelper from "../utils/compendiums.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getAvailableCampaigns } from "../lib/Settings.js";
 import { parseCritters } from "./monsters.js";
@@ -13,7 +15,6 @@ import {
 } from "./settings.js";
 import Helpers from "./adventure/common.js";
 import { importCharacterById } from "../character/import.js";
-import FileHelper from "../utils/files.js";
 
 const DIFFICULTY_LEVELS = [
   { id: null, name: "No challenge", color: "grey" },
@@ -125,7 +126,7 @@ export class DDBEncounterMunch extends Application {
   async parseEncounter(id) {
     logger.debug(`Looking for Encounter "${id}"`);
     if (!CONFIG.DDBI.ENCOUNTERS) return this.encounter;
-    const monsterPack = getCompendiumType("monster", false);
+    const monsterPack = CompendiumHelper.getCompendiumType("monster", false);
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
     // console.warn(CONFIG.DDBI.ENCOUNTERS);
@@ -230,9 +231,9 @@ export class DDBEncounterMunch extends Application {
       logger.debug("Finised Importing missing monsters from DDB");
     }
 
-    const monsterPack = getCompendiumType("monster", false);
+    const monsterPack = CompendiumHelper.getCompendiumType("monster", false);
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
-    const compendiumName = getCompendiumLabel("monster");
+    const compendiumName = CompendiumHelper.getCompendiumLabel("monster");
 
     let monstersToAddToWorld = [];
     this.encounter.monsterData = [];

@@ -1,7 +1,7 @@
 import logger from '../../logger.js';
 import DDBHelper from "../../utils/ddb.js";
+import CompendiumHelper from "../../utils/compendiums.js";
 
-import { existingActorCheck } from "../utils.js";
 import { newVehicle } from './templates/vehicle.js';
 import { getDamageImmunities, getConditionImmunities } from "./conditions.js";
 import { getAbilities, getAbilityMods } from "./abilities.js";
@@ -135,7 +135,7 @@ async function parseVehicle(ddb, extra = {}) {
     vehicle.system.details.biography.value += `<h2>Features</h2>\n<p>${featuresText}</p>`;
   }
 
-  vehicle = await existingActorCheck("vehicle", vehicle);
+  vehicle = await CompendiumHelper.existingActorCheck("vehicle", vehicle);
 
   return vehicle;
 }

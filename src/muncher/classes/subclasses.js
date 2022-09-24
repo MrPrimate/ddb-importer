@@ -1,8 +1,9 @@
 import logger from "../../logger.js";
+import CompendiumHelper from "../../utils/compendiums.js";
 import { parseTags } from "../../utils/templateStrings.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
-import { munchNote, getCompendiumType } from "../utils.js";
+import { munchNote } from "../utils.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 
 async function buildSubClassBase(klass, subClass) {
@@ -90,8 +91,8 @@ export async function getSubClasses(data) {
   logger.debug("get subclasses started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
-  const classCompendium = getCompendiumType("class");
-  const featureCompendium = getCompendiumType("features");
+  const classCompendium = CompendiumHelper.getCompendiumType("class");
+  const featureCompendium = CompendiumHelper.getCompendiumType("features");
   const content = await classCompendium.getDocuments();
   const fields = ["name", "flags.ddbimporter.classId", "flags.ddbimporter.class", "flags.ddbimporter.featureName", "flags.ddbimporter.subClass", "flags.ddbimporter.parentClassId"];
   const classFeatureIndex = await featureCompendium.getIndex({ fields });

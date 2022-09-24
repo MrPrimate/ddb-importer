@@ -25,11 +25,11 @@ import { generateAC } from "./ac.js";
 import { newNPC } from "./templates/monster.js";
 import { specialCases } from "./special.js";
 import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js";
-import { existingActorCheck } from "../utils.js";
 
 import logger from '../../logger.js';
 import utils from "../../utils/utils.js";
 import DICTIONARY from "../../dictionary.js";
+import CompendiumHelper from "../../utils/compendiums.js";
 
 /**
  *
@@ -397,7 +397,7 @@ async function parseMonster(monster, extra, useItemAC) {
     }
   }
 
-  foundryActor = await existingActorCheck("monster", foundryActor);
+  foundryActor = await CompendiumHelper.existingActorCheck("monster", foundryActor);
 
   logger.debug("Importing Spells");
   foundryActor = await addSpells(foundryActor);

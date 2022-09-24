@@ -140,7 +140,7 @@ function getFeatureCompendiumMatch(compendium, feature, klassDefinition) {
 
 async function generateFeatureAdvancements(ddb, klass, klassDefinition, compendiumClassFeatures, ignoreIds = []) {
   logger.debug(`Parsing ${klass.name} features for advancement`);
-  const compendiumLabel = getCompendiumLabel("features");
+  const compendiumLabel = CompendiumHelper.getCompendiumLabel("features");
 
   let advancements = [];
   getClassFeatures(ddb, klass, klassDefinition, ignoreIds)
@@ -202,7 +202,7 @@ async function buildClassFeatures(ddb, klass, klassDefinition, compendiumClassFe
   let description = "<h1>Class Features</h1>\n\n";
   let classFeatures = [];
 
-  const compendiumLabel = getCompendiumLabel("features");
+  const compendiumLabel = CompendiumHelper.getCompendiumLabel("features");
 
   getClassFeatures(ddb, klass, klassDefinition, ignoreIds).forEach((feature) => {
     const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
@@ -282,7 +282,7 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
 }
 
 export async function getClasses(ddb, character) {
-  const featuresCompendium = getCompendiumType("features");
+  const featuresCompendium = CompendiumHelper.getCompendiumType("features");
   const featuresIndex = featuresCompendium
     ? await featuresCompendium.getIndex({ fields: ["name", "flags.ddbimporter.classId", "flags.ddbimporter.class", "flags.ddbimporter.subClass", "flags.ddbimporter.parentClassId"] })
     : [];
