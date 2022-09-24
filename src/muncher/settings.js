@@ -1,7 +1,7 @@
 // import logger from "../logger.js";
 import logger from "../logger.js";
 import FileHelper from "../utils/files.js";
-import { getPatreonTiers } from "./utils.js";
+import PatreonHelper from "../utils/patreon.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getSourcesLookups } from "./ddb.js";
 import { spellEffectModules } from "../effects/specialSpells.js";
@@ -562,7 +562,7 @@ export function getCharacterImportSettings() {
   const uploadDir = game.settings.get("ddb-importer", "image-upload-directory");
   const dataDirSet = !FileHelper.BAD_DIRS.includes(uploadDir);
   const tier = game.settings.get("ddb-importer", "patreon-tier");
-  const tiers = getPatreonTiers(tier);
+  const tiers = PatreonHelper.getPatreonTiers(tier);
 
   const result = {
     importPolicies1,
@@ -618,7 +618,7 @@ export function getMuncherSettings(includeHomebrew = true) {
   const cobalt = getCobalt() != "";
   const betaKey = game.settings.get("ddb-importer", "beta-key") != "";
   const tier = game.settings.get("ddb-importer", "patreon-tier");
-  const tiers = getPatreonTiers(tier);
+  const tiers = PatreonHelper.getPatreonTiers(tier);
   const spellEffectModulesAvailable = spellEffectModules();
   const daeInstalled = spellEffectModulesAvailable.daeInstalled;
   const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;

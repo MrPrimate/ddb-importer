@@ -3,7 +3,7 @@ import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import FileHelper from "../utils/files.js";
 import CompendiumHelper from "../utils/compendiums.js";
-import { munchNote } from "./utils.js";
+import { munchNote } from "./ddb.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";

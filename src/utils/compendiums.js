@@ -1,5 +1,6 @@
 import logger from "../logger.js";
 import { copySupportedItemFlags } from "../muncher/import.js";
+import SETTINGS from '../settings.js';
 
 const CompendiumHelper = {
 
@@ -155,6 +156,70 @@ const CompendiumHelper = {
       foundryActor = await CompendiumHelper.copyExistingActorProperties(type, foundryActor);
     }
     return foundryActor;
+  },
+
+
+  sanitize: (text) => {
+    if (text && typeof text === "string") {
+      return text.replace(/\s|\./g, '-').toLowerCase();
+    }
+    return text;
+  },
+
+  getDefaultCompendiumName: (compendiumLabel) => {
+    const sanitizedLabel = CompendiumHelper.sanitize(compendiumLabel);
+    const name = `ddb-${game.world.id}-${sanitizedLabel}`;
+    return name;
+  },
+
+  createIfNotExists: async (settingName, compendiumType, compendiumLabel) => {
+    logger.debug(`Checking if ${settingName} exists for ${SETTINGS.MODULE_ID}`);
+    const compendiumName = game.settings.get(SETTINGS.MODULE_ID, settingName);
+    const compendium = await game.packs.get(compendiumName);
+    if (compendium) {
+      logger.info(`Compendium '${compendiumName}' found, will not create compendium.`);
+      return false;
+    } else {
+      logger.info(`Compendium for ${compendiumLabel}, was not found, creating it now.`);
+      const name = CompendiumHelper.getDefaultCompendiumName(compendiumLabel);
+      const defaultCompendium = await game.packs.get(`world.${name}`);
+      if (defaultCompendium) {
+        logger.warn(`Could not load Compendium '${compendiumName}', and could not create default Compendium '${name}' as it already exists. Please check your DDB Importer Compendium setup.`);
+      } else {
+        // create a compendium for the user
+        await CompendiumCollection.createCompendium({
+          type: compendiumType,
+          label: `DDB ${compendiumLabel}`,
+          name: name,
+          package: "world",
+        });
+        await game.settings.set(SETTINGS.MODULE_ID, settingName, `world.${name}`);
+      }
+      return true;
+    }
+  },
+
+  getCompendiumNames: () => {
+    return SETTINGS.COMPENDIUMS.map((ddbCompendium) => {
+      return game.settings.get(SETTINGS.MODULE_ID, ddbCompendium.setting);
+    });
+  },
+
+  deleteDefaultCompendiums: (force = true) => {
+    if (!force) {
+      logger.warn("Pass 'true' to this function to force deletion.");
+    }
+    game.settings.set(SETTINGS.MODULE_ID, "auto-create-compendium", false);
+
+    const clone = foundry.utils.deepClone(SETTINGS.DEFAULT_SETTINGS);
+    const compendiumSettings = SETTINGS.APPLY_GLOBAL_DEFAULTS(clone.READY.COMPENDIUMS);
+
+    for (const [name, data] of Object.entries(compendiumSettings)) {
+      const compendiumName = CompendiumHelper.getDefaultCompendiumName(data.default);
+
+      logger.warn(`Setting: ${name} : Deleting compendium ${data.name} with key world.${compendiumName}}`);
+      game.packs.delete(`world.${compendiumName}`);
+    }
   },
 
 };

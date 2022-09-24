@@ -1,5 +1,6 @@
 // Main module class
 import logger from "../logger.js";
+import PatreonHelper from "../utils/patreon.js";
 import { parseItems } from "./items.js";
 import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
@@ -7,9 +8,8 @@ import { parseRaces } from "./races.js";
 import { parseFeats } from "./feats.js";
 import { parseClasses } from "./classes.js";
 import { parseFrames } from "./frames.js";
-import { getPatreonTiers } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { base64Check } from "../lib/Base64Check.js";
+import { base64Check } from "../utils/base64Check.js";
 import { downloadAdventureConfig } from "./adventure.js";
 import AdventureMunch from "./adventure/adventure.js";
 import ThirdPartyMunch from "./adventure/thirdParty.js";
@@ -275,7 +275,7 @@ export class DDBMuncher extends Application {
   static enableButtons() {
     const cobalt = getCobalt() != "";
     const tier = game.settings.get("ddb-importer", "patreon-tier");
-    const tiers = getPatreonTiers(tier);
+    const tiers = PatreonHelper.getPatreonTiers(tier);
 
     if (cobalt) {
       $('button[id^="munch-spells-start"]').prop('disabled', false);

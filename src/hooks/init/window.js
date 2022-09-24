@@ -10,15 +10,15 @@ import { parseEncounters, DDBEncounterMunch } from "../../muncher/encounters.js"
 import { generateAdventureConfig } from "../../muncher/adventure.js";
 import { updateDDBCharacter } from "../../character/update.js";
 import { importCharacter, importCharacterById } from "../../character/import.js";
-import { getPatreonTier, getPatreonTiers, setPatreonTier, checkPatreon, getCompendiumLabel, getCompendiumType } from "../../muncher/utils.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 import { base64Check } from "../../lib/Base64Check.js";
 import { getFeats } from "../../muncher/feats/feats.js";
-import { getCompendiumNames, deleteDefaultCompendiums } from "../ready/checkCompendiums.js";
 import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "../../effects/macros.js";
 import { iconPath } from "../../icons/index.js";
 import { loadSRDRules, importCacheLoad } from "../../utils/templateStrings.js";
 import { getNPCImage } from "../../muncher/importMonster.js";
+import PatreonHelper from "../../utils/patreon.js";
+import CompendiumHelper from "../../utils/compendiums.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -37,7 +37,7 @@ function migrateAllCompendiums(value, key, map) {
 }
 
 function migrateCompendiums() {
-  const compendiumNames = getCompendiumNames();
+  const compendiumNames = CompendiumHelper.getCompendiumNames();
   game.packs
     .filter((pack) => compendiumNames.includes(pack.collection))
     .forEach(migrateAllCompendiums);
@@ -47,7 +47,7 @@ export function registerWindow() {
   window.DDBImporter = {
     base64Check: base64Check,
     checkCobalt,
-    checkPatreon,
+    checkPatreon: PatreonHelper.checkPatreon,
     createCompendiumFolderStructure,
     createMacro,
     DDBEncounterMunch,
@@ -55,8 +55,8 @@ export function registerWindow() {
     executeDDBMacro,
     generateAdventureConfig,
     generateItemMacroFlag,
-    getPatreonTier,
-    getPatreonTiers,
+    getPatreonTier: PatreonHelper.getPatreonTier,
+    getPatreonTiers: PatreonHelper.getPatreonTiers,
     importCharacter,
     importCharacterById,
     loadMacroFile,
@@ -71,7 +71,7 @@ export function registerWindow() {
     parseSpells,
     resetProxy,
     resetSecrets,
-    setPatreonTier,
+    setPatreonTier: PatreonHelper.setPatreonTier,
     updateDDBCharacter,
     updateWorldMonsters,
     getIconPath: iconPath,
@@ -82,9 +82,9 @@ export function registerWindow() {
     macros: MACROS,
     getNPCImage,
     resetCompendiumActorImages,
-    getCompendiumLabel,
-    getCompendiumType,
-    getCompendiumNames,
-    deleteDefaultCompendiums,
+    getCompendiumLabel: CompendiumHelper.getCompendiumLabel,
+    getCompendiumType: CompendiumHelper.getCompendiumType,
+    getCompendiumNames: CompendiumHelper.getCompendiumNames,
+    deleteDefaultCompendiums: CompendiumHelper.deleteDefaultCompendiums,
   };
 }

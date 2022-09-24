@@ -1,5 +1,5 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
-import { setPatreonTier, getPatreonTiers, getPatreonValidity } from "../muncher/utils.js";
+import PatreonHelper from "../utils/patreon.js";
 import { DDBMuncher, munchNote } from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
@@ -207,7 +207,7 @@ export class DDBKeyChange extends FormApplication {
       "beta-key": key,
     };
     const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
-    const check = await getPatreonValidity(key);
+    const check = await PatreonHelper.getPatreonValidity(key);
 
     return {
       success: (check && check.success) ? check.success : false,
@@ -225,7 +225,7 @@ export class DDBKeyChange extends FormApplication {
     const currentKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
     if (currentKey !== formData['beta-key']) {
       await game.settings.set(SETTINGS.MODULE_ID, "beta-key", formData['beta-key']);
-      await setPatreonTier();
+      await PatreonHelper.setPatreonTier();
     }
 
     const callMuncher = game.settings.get(SETTINGS.MODULE_ID, "settings-call-muncher");
@@ -245,7 +245,7 @@ export async function isValidKey() {
   if (key === "") {
     validKey = true;
   } else {
-    const check = await getPatreonValidity(key);
+    const check = await PatreonHelper.getPatreonValidity(key);
     if (check.success && check.data) {
       validKey = true;
     } else {
@@ -346,7 +346,7 @@ export class DDBSetup extends FormApplication {
     const campaignId = getCampaignId();
     const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
     const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
-    const validKeyObject = hasKey ? await getPatreonValidity(key) : false;
+    const validKeyObject = hasKey ? await PatreonHelper.getPatreonValidity(key) : false;
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
     const availableCampaigns = isCobalt && cobaltStatus.success ? await getAvailableCampaigns() : [];
 
@@ -420,7 +420,7 @@ export class DDBSetup extends FormApplication {
 
     if (currentKey !== formData['beta-key']) {
       await game.settings.set(SETTINGS.MODULE_ID, "beta-key", formData['beta-key']);
-      await setPatreonTier();
+      await PatreonHelper.setPatreonTier();
     }
 
     await game.settings.set(SETTINGS.MODULE_ID, "campaign-id", campaignId);
@@ -547,7 +547,7 @@ export class DDBDynamicUpdateSetup extends FormApplication {
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
     const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
-    const tiers = getPatreonTiers(tier);
+    const tiers = PatreonHelper.getPatreonTiers(tier);
     const enabled = tiers.experimentalMid;
 
     const policySettings = Object.keys(SETTINGS.DEFAULT_SETTINGS.READY.CHARACTER.DYNAMIC_SYNC)

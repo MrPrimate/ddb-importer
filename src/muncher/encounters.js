@@ -1,9 +1,9 @@
-import { getPatreonTiers } from "./utils.js";
 import { munchNote } from "./ddb.js";
 import logger from "../logger.js";
 import utils from "../utils/utils.js";
 import FileHelper from "../utils/files.js";
 import CompendiumHelper from "../utils/compendiums.js";
+import PatreonHelper from "../utils/patreon.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getAvailableCampaigns } from "../lib/Settings.js";
 import { parseCritters } from "./monsters.js";
@@ -817,7 +817,7 @@ export class DDBEncounterMunch extends Application {
   // eslint-disable-next-line class-methods-use-this
   async getData() {
     const tier = game.settings.get("ddb-importer", "patreon-tier");
-    const tiers = getPatreonTiers(tier);
+    const tiers = PatreonHelper.getPatreonTiers(tier);
     const availableCampaigns = await getAvailableCampaigns();
     const availableEncounters = await filterEncounters();
 

@@ -2,11 +2,11 @@ import logger from "../../logger.js";
 import utils from "../../utils/utils.js";
 import FileHelper from "../../utils/files.js";
 import CompendiumHelper from "../../utils/compendiums.js";
+import PatreonHelper from "../../utils/patreon.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
-import { getPatreonTiers } from "../utils.js";
 import AdventureMunch from "./adventure.js";
 
 const COMPENDIUM_MAP = {
@@ -429,7 +429,7 @@ export default class Helpers {
           case "monster": {
             try {
               const tier = game.settings.get("ddb-importer", "patreon-tier");
-              const tiers = getPatreonTiers(tier);
+              const tiers = PatreonHelper.getPatreonTiers(tier);
               if (tiers.all) {
                 logger.debug(`Importing missing ${type}s from DDB`, docIds);
                 AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
