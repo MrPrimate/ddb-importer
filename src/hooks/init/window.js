@@ -11,7 +11,7 @@ import { generateAdventureConfig } from "../../muncher/adventure.js";
 import { updateDDBCharacter } from "../../character/update.js";
 import { importCharacter, importCharacterById } from "../../character/import.js";
 import { checkCobalt } from "../../lib/Secrets.js";
-import { base64Check } from "../../lib/Base64Check.js";
+import { base64Check } from "../../utils/base64Check.js";
 import { getFeats } from "../../muncher/feats/feats.js";
 import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "../../effects/macros.js";
 import { iconPath } from "../../icons/index.js";
@@ -19,6 +19,7 @@ import { loadSRDRules, importCacheLoad } from "../../utils/templateStrings.js";
 import { getNPCImage } from "../../muncher/importMonster.js";
 import PatreonHelper from "../../utils/patreon.js";
 import CompendiumHelper from "../../utils/compendiums.js";
+import MuncherSettings from "../../muncher/MuncherSettings.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -86,5 +87,7 @@ export function registerWindow() {
     getCompendiumType: CompendiumHelper.getCompendiumType,
     getCompendiumNames: CompendiumHelper.getCompendiumNames,
     deleteDefaultCompendiums: CompendiumHelper.deleteDefaultCompendiums,
+    muncherSettings: MuncherSettings.getMuncherSettings,
+    characterSettings: MuncherSettings.getCharacterImportSettings,
   };
 }

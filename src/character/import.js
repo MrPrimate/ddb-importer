@@ -1,6 +1,7 @@
 import utils from "../utils/utils.js";
 import FileHelper from "../utils/files.js";
 import CompendiumHelper from "../utils/compendiums.js";
+import MuncherSettings from "../muncher/MuncherSettings.js";
 import logger from "../logger.js";
 import { parseJson } from "../parser/character.js";
 import {
@@ -25,11 +26,6 @@ import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import { DDBCookie, getCampaignId } from "../lib/Settings.js";
 import { importCacheLoad } from "../utils/templateStrings.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
-import {
-  getCharacterImportSettings,
-  updateActorSettings,
-  setRecommendedCharacterActiveEffectSettings,
-} from "../muncher/settings.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
 import { setConditions } from "./conditions.js";
 import { autoLinkResources } from "../parser/character/resources.js";
@@ -420,7 +416,7 @@ export default class CharacterImport extends FormApplication {
 
   async getData() {
     // loads settings for actor
-    const importSettings = getCharacterImportSettings();
+    const importSettings = MuncherSettings.getCharacterImportSettings();
 
     const characterId = this.actor.flags?.ddbimporter?.dndbeyond?.characterId;
     const syncEnabled = characterId && importSettings.tiers.all;
@@ -477,14 +473,14 @@ export default class CharacterImport extends FormApplication {
         ].join(",")
       )
       .on("change", (event) => {
-        updateActorSettings(html, event);
+        MuncherSettings.updateActorSettings(html, event);
       });
 
     $(html)
       .find("#default-effects")
       .on("click", async (event) => {
         event.preventDefault();
-        setRecommendedCharacterActiveEffectSettings(html);
+        MuncherSettings.setRecommendedCharacterActiveEffectSettings(html);
       });
 
     $(html)

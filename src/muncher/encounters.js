@@ -4,16 +4,10 @@ import utils from "../utils/utils.js";
 import FileHelper from "../utils/files.js";
 import CompendiumHelper from "../utils/compendiums.js";
 import PatreonHelper from "../utils/patreon.js";
+import MuncherSettings from "./MuncherSettings.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getAvailableCampaigns } from "../lib/Settings.js";
 import { parseCritters } from "./monsters.js";
-import {
-  getCharacterImportSettings,
-  getMuncherSettings,
-  updateActorSettings,
-  updateMuncherSettings,
-  setRecommendedCharacterActiveEffectSettings,
-} from "./settings.js";
 import Helpers from "./adventure/common.js";
 import { importCharacterById } from "../character/import.js";
 
@@ -632,7 +626,7 @@ export class DDBEncounterMunch extends Application {
         ['.munching-generic-config input[type="checkbox"]', '.munching-monster-config input[type="checkbox"]'].join(",")
       )
       .on("change", (event) => {
-        updateMuncherSettings(html, event);
+        MuncherSettings.updateMuncherSettings(html, event);
       });
 
     $(html)
@@ -647,14 +641,14 @@ export class DDBEncounterMunch extends Application {
         ].join(",")
       )
       .on("change", (event) => {
-        updateActorSettings(html, event);
+        MuncherSettings.updateActorSettings(html, event);
       });
 
     $(html)
       .find("#default-effects")
       .on("click", async (event) => {
         event.preventDefault();
-        setRecommendedCharacterActiveEffectSettings(html);
+        MuncherSettings.setRecommendedCharacterActiveEffectSettings(html);
       });
 
     $(html)
@@ -821,8 +815,8 @@ export class DDBEncounterMunch extends Application {
     const availableCampaigns = await getAvailableCampaigns();
     const availableEncounters = await filterEncounters();
 
-    const characterSettings = getCharacterImportSettings();
-    const muncherSettings = getMuncherSettings(false);
+    const characterSettings = MuncherSettings.getCharacterImportSettings();
+    const muncherSettings = MuncherSettings.getMuncherSettings(false);
 
     const importSettings = mergeObject(characterSettings, muncherSettings);
 

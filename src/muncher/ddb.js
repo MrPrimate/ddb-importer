@@ -13,7 +13,7 @@ import { base64Check } from "../utils/base64Check.js";
 import { downloadAdventureConfig } from "./adventure.js";
 import AdventureMunch from "./adventure/adventure.js";
 import ThirdPartyMunch from "./adventure/thirdParty.js";
-import { updateMuncherSettings, getMuncherSettings } from "./settings.js";
+import MuncherSettings from "./MuncherSettings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
 import { importCacheLoad } from "../utils/templateStrings.js";
@@ -242,7 +242,7 @@ export class DDBMuncher extends Application {
         ].join(",")
       )
       .on("change", (event) => {
-        updateMuncherSettings(html, event, this);
+        MuncherSettings.updateMuncherSettings(html, event, this);
       });
 
 
@@ -478,7 +478,7 @@ export class DDBMuncher extends Application {
   }
 
   async getData() { // eslint-disable-line class-methods-use-this
-    const resultData = getMuncherSettings();
+    const resultData = MuncherSettings.getMuncherSettings();
     await importCacheLoad();
     return resultData;
   }
