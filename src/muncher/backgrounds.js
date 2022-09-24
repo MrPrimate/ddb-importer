@@ -1,7 +1,8 @@
 // Main module class
-import { munchNote, getCampaignId } from "./utils.js";
+import { munchNote } from "./utils.js";
 import { getBackgrounds } from "./backgrounds/backgrounds.js";
 import { getCobalt } from "../lib/Secrets.js";
+import { getCampaignId } from "../lib/Settings.js";
 import FileHelper from "../utils/files.js";
 
 function getBackgroundData() {

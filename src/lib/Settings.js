@@ -1,5 +1,5 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
-import { setPatreonTier, getPatreonTiers, getPatreonValidity, getCampaignId } from "../muncher/utils.js";
+import { setPatreonTier, getPatreonTiers, getPatreonValidity, munchNote } from "../muncher/utils.js";
 import DDBMuncher from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
@@ -10,6 +10,22 @@ const POPUPS = {
   json: null,
   web: null,
 };
+
+export function getCampaignId() {
+  const campaignId = game.settings.get("ddb-importer", "campaign-id").split("/").pop();
+
+  if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
+    munchNote(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
+    logger.error(`Campaign Id is invalid! Set to "${campaignId}", using empty string`);
+    return "";
+  } else if (campaignId.includes("join")) {
+    munchNote(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`, true);
+    logger.error(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`);
+    return "";
+  }
+  return campaignId;
+}
+
 
 function renderPopup(type, url) {
   if (POPUPS[type] && !POPUPS[type].close) {

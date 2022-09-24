@@ -18,21 +18,6 @@ export function munchNote(note, nameField = false, monsterNote = false) {
   }
 }
 
-export function getCampaignId() {
-  const campaignId = game.settings.get("ddb-importer", "campaign-id").split("/").pop();
-
-  if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
-    munchNote(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
-    logger.error(`Campaign Id is invalid! Set to "${campaignId}", using empty string`);
-    return "";
-  } else if (campaignId.includes("join")) {
-    munchNote(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`, true);
-    logger.error(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`);
-    return "";
-  }
-  return campaignId;
-}
-
 export async function getPatreonTier() {
   const customProxy = game.settings.get("ddb-importer", "custom-proxy");
   if (customProxy) return { success: true, message: "custom proxy", data: "CUSTOM" };

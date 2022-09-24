@@ -16,14 +16,13 @@ import {
   retainExistingIcons,
   getIndividualOverrideItems,
 } from "../muncher/import.js";
-import { getCampaignId } from "../muncher/utils.js";
 import { addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "./update.js";
 import { generateCharacterExtras } from "../muncher/extras/extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
-import { DDBCookie } from "../lib/Settings.js";
+import { DDBCookie, getCampaignId } from "../lib/Settings.js";
 import { importCacheLoad } from "../utils/templateStrings.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import {

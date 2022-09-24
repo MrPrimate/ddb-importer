@@ -3,7 +3,7 @@ import CompendiumHelper from "../utils/compendiums.js";
 import DICTIONARY from "../dictionary.js";
 import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
-import { getCampaignId } from "../muncher/utils.js";
+import { getCampaignId } from "../lib/Settings.js";
 import { looseItemNameMatch } from "../muncher/import.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates, setActiveSyncSpellsFlag } from "./utils.js";
