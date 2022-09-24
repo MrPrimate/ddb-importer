@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import FileHelper from "../utils/files.js";
 import CompendiumHelper from "../utils/compendiums.js";
-import { munchNote } from "./utils.js";
+import { munchNote } from "./ddb.js";
 import { copySupportedItemFlags } from "./import.js";
 import { getNPCImage } from "./importMonster.js";
 

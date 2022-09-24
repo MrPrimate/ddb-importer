@@ -1,6 +1,6 @@
 // Main module class
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
-import { munchNote } from "./utils.js";
+import { munchNote } from "./ddb.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../utils/utils.js";
 import FileHelper from "../utils/files.js";

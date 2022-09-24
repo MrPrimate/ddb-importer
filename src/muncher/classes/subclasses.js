@@ -3,7 +3,7 @@ import CompendiumHelper from "../../utils/compendiums.js";
 import { parseTags } from "../../utils/templateStrings.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
-import { munchNote } from "../utils.js";
+import { munchNote } from "../ddb.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 
 async function buildSubClassBase(klass, subClass) {

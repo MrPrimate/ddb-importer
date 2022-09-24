@@ -7,7 +7,7 @@ import { parseRaces } from "./races.js";
 import { parseFeats } from "./feats.js";
 import { parseClasses } from "./classes.js";
 import { parseFrames } from "./frames.js";
-import { getPatreonTiers, munchNote } from "./utils.js";
+import { getPatreonTiers } from "./utils.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { base64Check } from "../lib/Base64Check.js";
 import { downloadAdventureConfig } from "./adventure.js";
@@ -20,6 +20,25 @@ import { importCacheLoad } from "../utils/templateStrings.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
 import { parseBackgrounds } from "./backgrounds.js";
 import { parseTransports } from "./vehicles.js";
+
+/**
+ * Display information when Munching
+ * @param {*} note
+ * @param {*} nameField
+ * @param {*} monsterNote
+ */
+export function munchNote(note, nameField = false, monsterNote = false) {
+  if (nameField) {
+    $("#munching-task-name").text(note);
+    $("#ddb-importer-monsters").css("height", "auto");
+  } else if (monsterNote) {
+    $("#munching-task-monster").text(note);
+    $("#ddb-importer-monsters").css("height", "auto");
+  } else {
+    $("#munching-task-notes").text(note);
+    $("#ddb-importer-monsters").css("height", "auto");
+  }
+}
 
 export function getSourcesLookups(selected) {
   const selections = CONFIG.DDB.sources
@@ -94,7 +113,7 @@ export class DDBSources extends FormApplication {
   }
 }
 
-export default class DDBMuncher extends Application {
+export class DDBMuncher extends Application {
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-monsters";

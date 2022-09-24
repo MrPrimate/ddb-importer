@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 
 import { getClassFeature, NO_TRAITS } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
-import { munchNote } from "../utils.js";
+import { munchNote } from "../ddb.js";
 
 export async function getClassOptions(data, className) {
   logger.debug("get options started");

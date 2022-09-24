@@ -1,6 +1,6 @@
 // Main module class
 import { getClasses } from "./classes/classes.js";
-import { munchNote } from "./utils.js";
+import { munchNote } from "./ddb.js";
 import { getSubClasses } from "./classes/subclasses.js";
 import { getClassOptions } from "./classes/options.js";
 import { getCobalt } from "../lib/Secrets.js";

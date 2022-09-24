@@ -1,9 +1,8 @@
-import DDBMuncher from "../../muncher/ddb.js";
+import { DDBMuncher } from "../../muncher/ddb.js";
 import { DDBSetup, DDBCookie, isSetupComplete, isValidKey } from "../../lib/Settings.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 
-
-export function addMuncher (app, html) {
+export function addMuncher(app, html) {
   if (app.options.id == "compendium" && game.user.isGM) {
     let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher'><i class='fas fa-pastafarianism'></i> DDB Muncher</button></div>");
 
@@ -33,6 +32,5 @@ export function addMuncher (app, html) {
     } else {
       $(html).find(".directory-footer").append(button);
     }
-
   }
 }

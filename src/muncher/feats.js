@@ -1,5 +1,5 @@
 // Main module class
-import { munchNote } from "./utils.js";
+import { munchNote } from "./ddb.js";
 import { getFeats } from "./feats/feats.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";

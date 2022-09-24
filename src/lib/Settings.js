@@ -1,6 +1,6 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
-import { setPatreonTier, getPatreonTiers, getPatreonValidity, munchNote } from "../muncher/utils.js";
-import DDBMuncher from "../muncher/ddb.js";
+import { setPatreonTier, getPatreonTiers, getPatreonValidity } from "../muncher/utils.js";
+import { DDBMuncher, munchNote } from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";

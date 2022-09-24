@@ -1,4 +1,5 @@
-import { munchNote, getPatreonTiers } from "./utils.js";
+import { getPatreonTiers } from "./utils.js";
+import { munchNote } from "./ddb.js";
 import logger from "../logger.js";
 import utils from "../utils/utils.js";
 import FileHelper from "../utils/files.js";

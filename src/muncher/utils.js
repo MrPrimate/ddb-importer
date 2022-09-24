@@ -1,22 +1,4 @@
-import logger from "../logger.js";
 
-/**
- * Display information when Munching
- * @param {*} note
- * @param {*} nameField
- */
-export function munchNote(note, nameField = false, monsterNote = false) {
-  if (nameField) {
-    $("#munching-task-name").text(note);
-    $("#ddb-importer-monsters").css("height", "auto");
-  } else if (monsterNote) {
-    $("#munching-task-monster").text(note);
-    $("#ddb-importer-monsters").css("height", "auto");
-  } else {
-    $("#munching-task-notes").text(note);
-    $("#ddb-importer-monsters").css("height", "auto");
-  }
-}
 
 export async function getPatreonTier() {
   const customProxy = game.settings.get("ddb-importer", "custom-proxy");

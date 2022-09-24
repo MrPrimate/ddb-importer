@@ -1,6 +1,6 @@
 // Main module class
 import { getImagePath } from "./import.js";
-import { munchNote } from "./utils.js";
+import { munchNote } from "./ddb.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 import FileHelper from "../utils/files.js";
