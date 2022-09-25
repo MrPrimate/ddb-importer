@@ -1,6 +1,7 @@
 # 3.1.9
 
 * Some more internal refactoring for tech debt (no functional change).
+* Encounter muncher would fail to import encounter to an existing scene. @Ellira#5171
 
 # 3.1.8
 

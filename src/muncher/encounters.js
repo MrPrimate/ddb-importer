@@ -401,7 +401,12 @@ export class DDBEncounterMunch extends Application {
       },
       width: 1000,
       height: 1000,
-      grid: 100,
+      grid: {
+        type: 1,
+        size: 100,
+        distance: 5,
+        units: "ft",
+      },
       padding: 0.25,
       initial: {
         x: 500,
@@ -431,8 +436,8 @@ export class DDBEncounterMunch extends Application {
     } else if (useExistingScene) {
       worldScene = game.scenes.find((s) => s.id == this.sceneId);
       if (worldScene) {
-        logger.debug(`Using existing scene "${worldScene.name}" for encounter "${this.encounter.name}""`);
         sceneData = worldScene.toObject();
+        logger.debug(`Using existing scene "${worldScene.name}" for encounter "${this.encounter.name}""`, { worldScene, sceneData });
       } else {
         logger.warn(`Unable to find scene ${this.sceneId}, creating a new scene `);
         throw new Error(`Unable to find scene ${this.sceneId}, creating a new scene `);
@@ -444,12 +449,12 @@ export class DDBEncounterMunch extends Application {
       let tokenData = [];
       const useDDBSave =
         this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
-      const xSquares = sceneData.width / sceneData.grid;
-      const ySquares = sceneData.height / sceneData.grid;
-      const midSquareOffset = sceneData.grid / 2;
+      const xSquares = sceneData.width / sceneData.grid.size;
+      const ySquares = sceneData.height / sceneData.grid.size;
+      const midSquareOffset = sceneData.grid.size / 2;
       const widthPaddingOffset = sceneData.width * sceneData.padding;
       const heightPaddingOffset = sceneData.height * sceneData.padding;
-      const xPCOffset = sceneData.grid * (xSquares - 1);
+      const xPCOffset = sceneData.grid.size * (xSquares - 1);
       const xStartPixelMonster = widthPaddingOffset + midSquareOffset;
       const xStartPixelPC = xStartPixelMonster + xPCOffset;
       const yStartPixel = heightPaddingOffset + midSquareOffset;
@@ -475,7 +480,7 @@ export class DDBEncounterMunch extends Application {
               setProperty(linkedToken, "actorData.flags.ddbimporter.encounters", true);
               setProperty(linkedToken, "actorData.flags.ddbimporter.encounterId", this.encounter.id);
               linkedToken.x = xStartPixelPC;
-              const yOffsetChange = characterCount * sceneData.grid;
+              const yOffsetChange = characterCount * sceneData.grid.size;
               linkedToken.y = yStartPixel + yOffsetChange;
               tokenData.push(linkedToken);
               characterCount++;
@@ -486,9 +491,10 @@ export class DDBEncounterMunch extends Application {
       let monsterDepth = 0;
       let monsterRows = 0;
       let rowMonsterWidth = 1;
-      this.encounter.worldMonsters.forEach(async (worldMonster) => {
+      for (const worldMonster of this.encounter.worldMonsters) {
         logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.encounter.name}`);
         const monster = game.actors.get(worldMonster.id);
+        // eslint-disable-next-line no-await-in-loop
         const linkedToken = duplicate(await monster.getTokenDocument());
         if (monsterDepth + linkedToken.height > ySquares) {
           monsterDepth = 0;
@@ -503,8 +509,8 @@ export class DDBEncounterMunch extends Application {
         setProperty(linkedToken, "actorData.flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
         setProperty(linkedToken, "actorData.flags.ddbimporter.encounters", true);
         setProperty(linkedToken, "actorData.flags.ddbimporter.encounterId", this.encounter.id);
-        const xOffsetChange = sceneData.grid * monsterRows;
-        const yOffsetChange = monsterDepth * sceneData.grid;
+        const xOffsetChange = sceneData.grid.size * monsterRows;
+        const yOffsetChange = monsterDepth * sceneData.grid.size;
         linkedToken.x = xStartPixelMonster + xOffsetChange;
         linkedToken.y = yStartPixel + yOffsetChange;
         if (useDDBSave) {
@@ -523,7 +529,7 @@ export class DDBEncounterMunch extends Application {
         tokenData.push(linkedToken);
         monsterDepth += linkedToken.height;
         if (linkedToken.width > rowMonsterWidth) rowMonsterWidth = linkedToken.width;
-      });
+      }
 
       if (this.journal?.id) sceneData.journal = this.journal.id;
 
@@ -564,6 +570,7 @@ export class DDBEncounterMunch extends Application {
       const thumbScene = worldScene.toObject();
       thumbScene["thumb"] = thumbData.thumb;
 
+      logger.debug("Creating tokenens on scene", tokenData);
       // eslint-disable-next-line require-atomic-updates
       worldScene = await worldScene.update(thumbScene, { keepId: true });
 
