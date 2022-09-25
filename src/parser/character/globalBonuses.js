@@ -1,4 +1,4 @@
-import DDBHelper from "../../utils/ddb.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 /**
  * Gets global bonuses to attacks and damage

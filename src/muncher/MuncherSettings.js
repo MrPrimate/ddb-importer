@@ -1,7 +1,7 @@
 // import logger from "../logger.js";
 import logger from "../logger.js";
-import FileHelper from "../utils/files.js";
-import PatreonHelper from "../utils/patreon.js";
+import FileHelper from "../lib/FileHelper.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getSourcesLookups } from "./ddb.js";
 import { spellEffectModules } from "../effects/specialSpells.js";

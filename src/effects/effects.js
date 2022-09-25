@@ -1,5 +1,5 @@
-import utils from "../utils/utils.js";
-import DDBHelper from "../utils/ddb.js";
+import utils from "../lib/utils.js";
+import DDBHelper from "../lib/DDBHelper.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import {

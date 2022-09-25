@@ -3,7 +3,7 @@ import { getImagePath } from "./import.js";
 import { munchNote } from "./ddb.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
-import FileHelper from "../utils/files.js";
+import FileHelper from "../lib/FileHelper.js";
 
 async function getFrameData() {
   const cobaltCookie = getCobalt();

@@ -1,10 +1,10 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
-import PatreonHelper from "../utils/patreon.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 import { DDBMuncher, munchNote } from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
-import FileHelper from "../utils/files.js";
+import FileHelper from "../lib/FileHelper.js";
 
 const POPUPS = {
   json: null,

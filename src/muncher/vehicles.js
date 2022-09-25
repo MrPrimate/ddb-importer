@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import FileHelper from "../utils/files.js";
+import FileHelper from "../lib/FileHelper.js";
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import { munchNote } from "./ddb.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium } from "./importMonster.js";

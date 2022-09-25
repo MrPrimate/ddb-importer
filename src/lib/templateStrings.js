@@ -1,7 +1,7 @@
 import utils from "./utils.js";
 import DDBHelper from "./ddb.js";
 import logger from "../logger.js";
-import CompendiumHelper from "./compendiums.js";
+import CompendiumHelper from "./CompendiumHelper.js";
 import { generateAdventureConfig } from "../muncher/adventure.js";
 
 const INDEX_COMPENDIUMS = [

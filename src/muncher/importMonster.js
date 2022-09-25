@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import CompendiumHelper from "../utils/compendiums.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compendiumFolders } from "./import.js";
 import { munchNote } from "./ddb.js";
 import { migrateItemsDAESRD } from "./dae.js";

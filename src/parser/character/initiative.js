@@ -1,4 +1,4 @@
-import DDBHelper from "../../utils/ddb.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 export function getInitiative(data, character) {
   const initiativeBonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", "initiative"), character);

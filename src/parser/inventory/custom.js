@@ -1,4 +1,4 @@
-import utils from "../../utils/utils.js";
+import utils from "../../lib/utils.js";
 import { getItemRarity, getEquipped, getSingleItemWeight, getQuantity } from "./common.js";
 
 export default function parseCustomItem(data) {

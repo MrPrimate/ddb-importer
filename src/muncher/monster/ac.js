@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import CompendiumHelper from "../../utils/compendiums.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { loadPassedItemsFromCompendium } from "../import.js";
 
 const BAD_AC_MONSTERS = [

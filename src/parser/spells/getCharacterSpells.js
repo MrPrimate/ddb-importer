@@ -1,5 +1,5 @@
-import utils from "../../utils/utils.js";
-import DDBHelper from "../../utils/ddb.js";
+import utils from "../../lib/utils.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";

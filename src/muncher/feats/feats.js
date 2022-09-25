@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
-import { parseTags } from "../../utils/templateStrings.js";
-import DDBHelper from "../../utils/ddb.js";
+import { parseTags } from "../../lib/templateStrings.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
 import { munchNote } from "../ddb.js";
 

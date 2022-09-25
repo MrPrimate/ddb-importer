@@ -1,5 +1,5 @@
 // import logger from '../../../logger.js';
-import utils from '../../../utils/utils.js';
+import utils from '../../../lib/utils.js';
 
 export function newComponent(name, type) {
   // logger.debug("Generating new component:", { name, type });

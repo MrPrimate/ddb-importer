@@ -1,6 +1,6 @@
 // Main module class
 import logger from "../logger.js";
-import PatreonHelper from "../utils/patreon.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 import { parseItems } from "./items.js";
 import { parseSpells } from "./spells.js";
 import { parseCritters } from "./monsters.js";
@@ -9,14 +9,14 @@ import { parseFeats } from "./feats.js";
 import { parseClasses } from "./classes.js";
 import { parseFrames } from "./frames.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { base64Check } from "../utils/base64Check.js";
+import { base64Check } from "../lib/base64Check.js";
 import { downloadAdventureConfig } from "./adventure.js";
 import AdventureMunch from "./adventure/adventure.js";
 import ThirdPartyMunch from "./adventure/thirdParty.js";
 import MuncherSettings from "./MuncherSettings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
-import { importCacheLoad } from "../utils/templateStrings.js";
+import { importCacheLoad } from "../lib/templateStrings.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
 import { parseBackgrounds } from "./backgrounds.js";
 import { parseTransports } from "./vehicles.js";

@@ -1,7 +1,7 @@
 import CharacterImport from "../../character/import.js";
 import logger from "../../logger.js";
 import { DDBSetup, isSetupComplete } from "../../lib/Settings.js";
-import { DDBAdventureFlags } from "../../lib/AdventureFlags.js";
+import { DDBAdventureFlags } from "../../lib/DDBAdventureFlags.js";
 
 const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v5/character/";
 // reference to the D&D Beyond popup

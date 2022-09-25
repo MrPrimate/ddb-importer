@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import CompendiumHelper from "../utils/compendiums.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DICTIONARY from "../dictionary.js";
 import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";

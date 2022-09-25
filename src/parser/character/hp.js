@@ -1,4 +1,4 @@
-import DDBHelper from "../../utils/ddb.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 export function getHitpoints(data, character) {
   const constitutionHP = character.flags.ddbimporter.dndbeyond.effectAbilities.con.mod * character.flags.ddbimporter.dndbeyond.totalLevels;

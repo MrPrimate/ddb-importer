@@ -1,7 +1,7 @@
 import { DDBEncounterMunch } from "../../muncher/encounters.js";
 import { DDBSetup, DDBCookie, isSetupComplete, isValidKey } from "../../lib/Settings.js";
 import { checkCobalt } from "../../lib/Secrets.js";
-import PatreonHelper from "../../utils/patreon.js";
+import PatreonHelper from "../../lib/PatreonHelper.js";
 import logger from "../../logger.js";
 
 

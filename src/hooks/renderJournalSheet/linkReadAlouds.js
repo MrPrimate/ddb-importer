@@ -1,4 +1,4 @@
-import utils from "../../utils/utils.js";
+import utils from "../../lib/utils.js";
 import { createAndShowPlayerHandout } from "./shared.js";
 
 export function showReadAlouds(html, data) {

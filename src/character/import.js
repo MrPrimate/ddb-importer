@@ -1,6 +1,6 @@
-import utils from "../utils/utils.js";
-import FileHelper from "../utils/files.js";
-import CompendiumHelper from "../utils/compendiums.js";
+import utils from "../lib/utils.js";
+import FileHelper from "../lib/FileHelper.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
 import MuncherSettings from "../muncher/MuncherSettings.js";
 import logger from "../logger.js";
 import { parseJson } from "../parser/character.js";
@@ -24,7 +24,7 @@ import { generateCharacterExtras } from "../muncher/extras/extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import { DDBCookie, getCampaignId } from "../lib/Settings.js";
-import { importCacheLoad } from "../utils/templateStrings.js";
+import { importCacheLoad } from "../lib/templateStrings.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
 import { setConditions } from "./conditions.js";

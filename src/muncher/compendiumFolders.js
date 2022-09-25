@@ -1,7 +1,7 @@
-import utils from "../utils/utils.js";
+import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import CompendiumHelper from "../utils/compendiums.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
 
 let compendiumFolderTypeMonster;
 let compendiumFolderTypeSpell;

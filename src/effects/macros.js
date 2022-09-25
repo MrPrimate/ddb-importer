@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import FileHelper from "../utils/files.js";
+import FileHelper from "../lib/FileHelper.js";
 
 export async function checkMacroFolder() {
   const macroFolder = game.folders.find((folder) => folder.name === "DDB Macros" && folder.type === "Macro");

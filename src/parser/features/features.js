@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
-import utils from "../../utils/utils.js";
-import DDBHelper from "../../utils/ddb.js";
+import utils from "../../lib/utils.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
 import { getBackgroundData } from "../character/bio.js";
 

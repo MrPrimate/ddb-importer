@@ -1,5 +1,5 @@
-// import utils from "../../utils/utils.js";
-import FileHelper from "../../utils/files.js";
+// import utils from "../../lib/utils.js";
+import FileHelper from "../../lib/FileHelper.js";
 import { collectSceneData, SceneEnhancerExport } from "../../muncher/sceneEnhancer.js";
 
 function getSceneId(li) {

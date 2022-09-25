@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
-import utils from "../../utils/utils.js";
-import DDBHelper from "../../utils/ddb.js";
+import utils from "../../lib/utils.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 function getOverrides(data) {
   let result = {};

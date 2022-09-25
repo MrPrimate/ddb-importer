@@ -1,5 +1,5 @@
 import { parseTable, getHeadings } from "../../vendor/parseTable.js";
-import utils from "../utils/utils.js";
+import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import { updateCompendium } from "./import.js";
 

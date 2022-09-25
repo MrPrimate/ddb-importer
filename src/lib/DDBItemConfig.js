@@ -1,4 +1,4 @@
-import CompendiumHelper from "../utils/compendiums.js";
+import CompendiumHelper from "./CompendiumHelper.js";
 
 export class DDBItemConfig extends FormApplication {
   static get defaultOptions() {

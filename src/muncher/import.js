@@ -1,8 +1,8 @@
-import utils from "../utils/utils.js";
+import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import FileHelper from "../utils/files.js";
-import CompendiumHelper from "../utils/compendiums.js";
+import FileHelper from "../lib/FileHelper.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { munchNote } from "./ddb.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";

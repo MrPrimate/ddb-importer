@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import FileHelper from "../utils/files.js";
+import FileHelper from "../lib/FileHelper.js";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 

@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../utils/utils.js";
-import DDBHelper from "../../utils/ddb.js";
+import utils from "../../lib/utils.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 import { getItemRarity, getEquipped, getUses, getWeaponProficient, getMagicalBonus, getSingleItemWeight, getQuantity, getDescription } from "./common.js";
 
 /**

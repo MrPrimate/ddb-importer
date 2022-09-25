@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
-import DDBHelper from "../../utils/ddb.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 let getEldritchInvocations = (ddb) => {
   let damage = "";

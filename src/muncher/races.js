@@ -3,7 +3,7 @@ import { munchNote } from "./ddb.js";
 import { getRaces } from "./races/races.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
-import FileHelper from "../utils/files.js";
+import FileHelper from "../lib/FileHelper.js";
 
 function getRaceData() {
   const cobaltCookie = getCobalt();

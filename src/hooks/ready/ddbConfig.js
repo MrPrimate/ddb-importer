@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
 import { fallbackDDBConfig } from "./fallbackConfig.js";
-import FileHelper from "../../utils/files.js";
+import FileHelper from "../../lib/FileHelper.js";
 
 function directConfig() {
   $.getJSON("https://www.dndbeyond.com/api/config/json")

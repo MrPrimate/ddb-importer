@@ -1,4 +1,4 @@
-import CompendiumHelper from "../utils/compendiums.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { configureDependencies } from "./macros.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";

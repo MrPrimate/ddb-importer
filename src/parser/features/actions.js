@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
-import utils from "../../utils/utils.js";
-import DDBHelper from "../../utils/ddb.js";
+import utils from "../../lib/utils.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
 import { getInfusionActionData } from "../inventory/infusions.js";
 

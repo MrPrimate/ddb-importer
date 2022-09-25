@@ -1,4 +1,4 @@
-import FileHelper from "../../utils/files.js";
+import FileHelper from "../../lib/FileHelper.js";
 
 function downloadLog() {
   FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log), `ddbimporter-log-data.json`, "application/json");

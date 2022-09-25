@@ -1,6 +1,6 @@
 import logger from '../../logger.js';
-import DDBHelper from "../../utils/ddb.js";
-import CompendiumHelper from "../../utils/compendiums.js";
+import DDBHelper from "../../lib/DDBHelper.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
 
 import { newVehicle } from './templates/vehicle.js';
 import { getDamageImmunities, getConditionImmunities } from "./conditions.js";
@@ -10,7 +10,7 @@ import { getCapacity } from './capacity.js';
 import { FLIGHT_IDS, getMovement } from './movement.js';
 import { processComponents } from './components.js';
 import { ACTION_THRESHOLDS } from './threshold.js';
-import { parseTags } from '../../utils/templateStrings.js';
+import { parseTags } from '../../lib/templateStrings.js';
 
 // eslint-disable-next-line complexity
 async function parseVehicle(ddb, extra = {}) {

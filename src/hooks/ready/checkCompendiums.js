@@ -1,5 +1,5 @@
 import SETTINGS from '../../settings.js';
-import CompendiumHelper from '../../utils/compendiums.js';
+import CompendiumHelper from '../../lib/CompendiumHelper.js';
 
 export default async function () {
   const autoCreate = game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium");

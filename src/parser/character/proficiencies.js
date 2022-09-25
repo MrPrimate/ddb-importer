@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../utils/utils.js";
-import DDBHelper from "../../utils/ddb.js";
+import utils from "../../lib/utils.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 function getCustomProficiencies(data, type) {
   const profGroup = CONFIG.DDB.proficiencyGroups.find((group) => group.label == type);

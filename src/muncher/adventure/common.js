@@ -1,8 +1,8 @@
 import logger from "../../logger.js";
-import utils from "../../utils/utils.js";
-import FileHelper from "../../utils/files.js";
-import CompendiumHelper from "../../utils/compendiums.js";
-import PatreonHelper from "../../utils/patreon.js";
+import utils from "../../lib/utils.js";
+import FileHelper from "../../lib/FileHelper.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import PatreonHelper from "../../lib/PatreonHelper.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";

@@ -1,12 +1,12 @@
 // import DICTIONARY from "../../dictionary.js";
 // import logger from "../../logger.js";
-import utils from "../../utils/utils.js";
-import DDBHelper from "../../utils/ddb.js";
+import utils from "../../lib/utils.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 import { generateEffects } from "../../effects/effects.js";
 import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { generateTable } from "../../muncher/table.js";
 import { featureEffectAdjustment } from "../../effects/specialFeats.js";
-import parseTemplateString from "../../utils/templateStrings.js";
+import parseTemplateString from "../../lib/templateStrings.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
   // console.warn(ddbItem);

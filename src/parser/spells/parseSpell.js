@@ -1,6 +1,6 @@
-import utils from "../../utils/utils.js";
+import utils from "../../lib/utils.js";
 import DICTIONARY from "../../dictionary.js";
-import DDBHelper from "../../utils/ddb.js";
+import DDBHelper from "../../lib/DDBHelper.js";
 
 // Import parsing functions
 import { getMaterials, getComponents } from "./components.js";
@@ -17,7 +17,7 @@ import { getSpellScaling } from "./scaling.js";
 import { generateTable } from "../../muncher/table.js";
 import { spellEffectAdjustment } from "../../effects/specialSpells.js";
 import { getName } from "./name.js";
-import { parseTags } from "../../utils/templateStrings.js";
+import { parseTags } from "../../lib/templateStrings.js";
 
 export function parseSpell(data, character) {
   let spell = {

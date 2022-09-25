@@ -5,7 +5,7 @@ import { getSubClasses } from "./classes/subclasses.js";
 import { getClassOptions } from "./classes/options.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
-import FileHelper from "../utils/files.js";
+import FileHelper from "../lib/FileHelper.js";
 
 function getSubClassesData(className) {
   const cobaltCookie = getCobalt();
