@@ -1,3 +1,7 @@
+# 3.1.10
+
+* Spell Effect: Shillelagh did not work in v10
+
 # 3.1.9
 
 * Some more internal refactoring for tech debt (no functional change).

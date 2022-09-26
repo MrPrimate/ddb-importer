@@ -4,7 +4,7 @@ const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 // we see if the equipped weapons have base weapon set and filter on that, otherwise we just get all weapons
 const filteredWeapons = target.items
-  .filter((i) => i.data.type === "weapon" && (i.system.baseItem === "club" || i.system.baseItem === "quarterstaff"));
+  .filter((i) => i.type === "weapon" && (i.system.baseItem === "club" || i.system.baseItem === "quarterstaff"));
 const weapons = (filteredWeapons.length > 0)
   ? filteredWeapons
   : target.items.filter((i) => i.system.type === "weapon");
@@ -38,12 +38,12 @@ if (args[0] === "on") {
             ability: weaponItem.system.ability,
             magical: getProperty(weaponItem, "system.properties.mgc") || false,
           });
-          const damage = weaponCopy.data.damage.parts[0][0];
-          const targetAbilities = target.data.data.abilities;
-          weaponCopy.data.damage.parts[0][0] = damage.replace(/1d(4|6)/g, "1d8");
-          if (targetAbilities.wis.value > targetAbilities.str.value) weaponCopy.data.ability = "wis";
+          const damage = weaponCopy.system.damage.parts[0][0];
+          const targetAbilities = target.system.abilities;
+          weaponCopy.system.damage.parts[0][0] = damage.replace(/1d(4|6)/g, "1d8");
+          if (targetAbilities.wis.value > targetAbilities.str.value) weaponCopy.system.ability = "wis";
           weaponCopy.name = weaponItem.name + " [Shillelagh]";
-          setProperty(weaponCopy, "data.properties.mgc", true);
+          setProperty(weaponCopy, "system.properties.mgc", true);
           await target.updateEmbeddedDocuments("Item", [weaponCopy]);
           await ChatMessage.create({
             content: weaponCopy.name + " is empowered by Shillelagh",
