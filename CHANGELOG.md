@@ -1,6 +1,7 @@
 # 3.1.10
 
 * Spell Effect: Shillelagh did not work in v10
+* Effect Macros: massive sweep for macros, still some outstanding issues.
 
 # 3.1.9
 
