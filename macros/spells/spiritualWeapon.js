@@ -58,7 +58,7 @@ if (args[0] === "on") {
   template.actorSheet = targetActor.sheet;
   template.drawPreview();
 
-  const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "weapon");
+  const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === "weapon");
   if (!castItem) {
     const weaponData = {
       name: castItemName,
@@ -69,8 +69,8 @@ if (args[0] === "on") {
         target: { value: 1, type: "creature", },
         // we choose 60ft here in case the midi-check range is on
         range: { value: 60, long: null, units: "ft", },
-        ability: DAEItem.data.ability,
-        attackBonus: DAEItem.data.attackBonus,
+        ability: DAEItem.system.ability,
+        attackBonus: DAEItem.system.attackBonus,
         actionType: "msak",
         chatFlavor: "",
         critical: null,
@@ -90,7 +90,7 @@ if (args[0] === "on") {
 
 // Delete Spiritual Weapon
 if (args[0] === "off") {
-  let swords = targetActor.data.items.filter((i) => i.data.flags?.SpiritualWeapon === targetActor.id);
+  let swords = targetActor.items.filter((i) => i.flags?.SpiritualWeapon === targetActor.id);
   if (swords.length > 0) await targetActor.deleteEmbeddedDocuments("Item", swords.map((s) => s.id));
   const templates = canvas.templates.placeables.filter((i) => i.data.flags?.SpiritualWeapon?.ActorId === targetActor.id);
   if (templates.length > 0) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", templates.map((t) => t.id));

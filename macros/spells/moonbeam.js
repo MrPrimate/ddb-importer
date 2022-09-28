@@ -5,9 +5,9 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const tokenFromUuid  = await fromUuid(lastArg.tokenUuid);
 const targetToken = tokenFromUuid.data || token;
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.data.save;
+const saveData = DAEItem.system.save;
 const castItemName = "Moonbeam Attack";
-const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "spell");
+const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === "spell");
 
 async function deleteTemplateIds(templateIds) {
   console.log("Deleting template ids", templateIds);
@@ -77,16 +77,16 @@ if (args[0] === "on") {
       name: castItemName,
       type: "spell",
       data: {
-        description: DAEItem.data.description,
+        description: DAEItem.system.description,
         activation: { type: "action", },
-        ability: DAEItem.data.ability,
-        attackBonus: DAEItem.data.attackBonus,
+        ability: DAEItem.system.ability,
+        attackBonus: DAEItem.system.attackBonus,
         actionType: "save",
         damage: { parts: [[`${spellLevel}d10`, "radiant"]], versatile: "", },
         formula: "",
         save: { ability: "con", dc: saveData.dc, scaling: "spell" },
         level: 0,
-        school: DAEItem.data.school,
+        school: DAEItem.system.school,
         preparation: { mode: "prepared", prepared: false, },
         scaling: { mode: "none", formula: "", },
       },

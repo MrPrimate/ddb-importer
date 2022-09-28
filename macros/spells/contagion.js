@@ -3,14 +3,14 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.data.save;
+const saveData = DAEItem.system.save;
 
 function effectAppliedAndActive(conditionName) {
-  return targetActor.data.effects.some(
+  return targetActor.effects.some(
     (activeEffect) =>
-      activeEffect?.data?.flags?.isConvenient &&
-      activeEffect?.data?.label == conditionName &&
-      !activeEffect?.data?.disabled
+      activeEffect?.flags?.isConvenient &&
+      activeEffect?.label == conditionName &&
+      !activeEffect?.disabled
   );
 }
 
@@ -98,7 +98,7 @@ async function applyContagion() {
                 value: "1",
               },
               {
-                key: "data.traits.dv.all",
+                key: "system.traits.dv.all",
                 mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
                 priority: 20,
                 value: "1",

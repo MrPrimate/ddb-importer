@@ -8,11 +8,11 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 function effectAppliedAndActive(conditionName) {
-  return targetActor.data.effects.some(
+  return targetActor.effects.some(
     (activeEffect) =>
-      activeEffect?.data?.flags?.isConvenient &&
-      activeEffect?.data?.label == conditionName &&
-      !activeEffect?.data?.disabled
+      activeEffect?flags?.isConvenient &&
+      activeEffect?.label == conditionName &&
+      !activeEffect?.disabled
   );
 }
 
@@ -39,8 +39,8 @@ if (args[0] === "on") {
               value: "0",
             },
           ];
-          const effect = targetActor.effects.find((e) => e.data.label === lastArg.efData.label);
-          effect.update({ changes: changes.concat(effect.data.changes) });
+          const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
+          effect.update({ changes: changes.concat(effect.changes) });
         },
       },
       deaf: {

@@ -7,14 +7,14 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.data.save;
+const saveData = DAEItem.system.save;
 
 function effectAppliedAndActive(conditionName) {
-  return targetActor.data.effects.some(
+  return targetActor.effects.some(
     (activeEffect) =>
-      activeEffect?.data?.flags?.isConvenient &&
-      activeEffect?.data?.label == conditionName &&
-      !activeEffect?.data?.disabled
+      activeEffect?.flags?.isConvenient &&
+      activeEffect?.label == conditionName &&
+      !activeEffect?.disabled
   );
 }
 

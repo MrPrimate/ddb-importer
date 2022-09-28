@@ -8,7 +8,7 @@ const castItemName = "Summoned Flame Blade";
  * Create Flame Blade item in inventory
  */
 if (args[0] === "on") {
-  const castItem = target.data.items.find((i) => i.name === castItemName && i.type === "weapon");
+  const castItem = target.items.find((i) => i.name === castItemName && i.type === "weapon");
   if (!castItem) {
     const DAEItem = lastArg.efData.flags.dae.itemData;
     const weaponDamage = 2 + Math.floor(args[1] / 2);
@@ -20,16 +20,16 @@ if (args[0] === "on") {
         activation: { type: "action", cost: 1, condition: "", },
         target: { value: 1, type: "creature", },
         range: { value: 5, long: null, units: "", },
-        ability: DAEItem.data.ability,
+        ability: DAEItem.system.ability,
         actionType: "msak",
-        attackBonus: DAEItem.data.attackBonus,
+        attackBonus: DAEItem.system.attackBonus,
         chatFlavor: "",
         critical: null,
         damage: { parts: [[`${weaponDamage}d6`, "fire"]], versatile: "" },
         weaponType: "simpleM",
         proficient: true,
         equipped: true,
-        description: DAEItem.data.description,
+        description: DAEItem.system.description,
       },
       flags: { FlameBlade: target.id },
       img: DAEItem.img,
@@ -42,7 +42,7 @@ if (args[0] === "on") {
 
 // Delete Flame Blade
 if (args[0] === "off") {
-  const blades = target.data.items.filter((i) => i.data.flags?.FlameBlade === target.id);
+  const blades = target.items.filter((i) => i.flags?.FlameBlade === target.id);
   if (blades.length > 0) {
     await target.deleteEmbeddedDocuments("Item", blades.map((s) => s.id));
     ui.notifications.notify("Flame Blade removed from your inventory");

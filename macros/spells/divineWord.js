@@ -6,17 +6,17 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const targetToken = await fromUuid(lastArg.tokenUuid);
 
 function effectAppliedAndActive(conditionName) {
-  return targetToken.data.effects.some(
+  return targetToken.effects.some(
     (activeEffect) =>
-      activeEffect?.data?.flags?.isConvenient &&
-      activeEffect?.data?.label == conditionName &&
-      !activeEffect?.data?.disabled
+      activeEffect?.flags?.isConvenient &&
+      activeEffect?.label == conditionName &&
+      !activeEffect?.disabled
   );
 }
 
 async function DivineWordApply(target, targetHp) {
   if (targetHp <= 20) {
-    await target.actor.update({ "data.attributes.hp.value": 0 });
+    await target.actor.update({ "system.attributes.hp.value": 0 });
   } else {
     if (targetHp <= 30) {
       const hasStunned = effectAppliedAndActive("Stunned");
@@ -42,5 +42,5 @@ async function DivineWordApply(target, targetHp) {
   }
 }
 if (args[0] === "on") {
-  DivineWordApply(targetToken, targetToken.actor.data.data.attributes.hp.value);
+  DivineWordApply(targetToken, targetToken.actor.system.attributes.hp.value);
 }

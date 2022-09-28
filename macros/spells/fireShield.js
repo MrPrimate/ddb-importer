@@ -39,16 +39,16 @@ function createShieldItem(type) {
 async function createFireShield(type) {
   const resistanceType = type == "warm" ? "cold" : "fire";
   const item = createShieldItem(type);
-  const effect = targetActor.effects.find((e) => e.data.label === lastArg.efData.label);
+  const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
   const changes = [
     {
-      key: "data.traits.dr.value",
+      key: "system.traits.dr.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 30,
       value: resistanceType,
     },
   ];
-  await effect.update({ changes: changes.concat(effect.data.changes) });
+  await effect.update({ changes: changes.concat(effect.changes) });
   await targetActor.createEmbeddedDocuments("Item", [item]);
   await DAE.setFlag(targetActor, "fireShieldSpell", type);
   ChatMessage.create({ content: `${targetToken.name} gains resistance to ${resistanceType}` });

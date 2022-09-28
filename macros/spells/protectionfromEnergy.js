@@ -88,7 +88,7 @@ if (args[0] === "on") {
         label: 'Protect!',
         callback: async (html) => {
           const element = $("input[type='radio'][name='type']:checked").val();
-          const effect = targetActor.effects.find((e) => e.data.label === lastArg.efData.label);
+          const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
           const changes = [
             {
               key: "data.traits.dr.value",
@@ -97,7 +97,7 @@ if (args[0] === "on") {
               value: element,
             },
           ];
-          await effect.update({ changes: changes.concat(effect.data.changes) });
+          await effect.update({ changes: changes.concat(effect.changes) });
           await DAE.setFlag(targetActor, "protectionFromEnergySpell", element);
           ChatMessage.create({ content: `${targetActor.name} gains resistance to ${element}` });
         }

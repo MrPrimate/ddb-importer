@@ -1,7 +1,7 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const weapons = targetActor.data.items.filter((i) => i.data.type === "weapon");
+const weapons = targetActor.items.filter((i) => i.type === "weapon");
 
 /**
  * For every str weapon, update the damage formulas to half the damage, set flag of original
@@ -9,12 +9,12 @@ const weapons = targetActor.data.items.filter((i) => i.data.type === "weapon");
 if (args[0] === "on") {
   weapons.forEach((weapon) => {
     if (weapon.abilityMod === "str") {
-      const originalParts = duplicate(weapon.data.data.damage.parts);
+      const originalParts = duplicate(weapon.system.damage.parts);
       weapon.setFlag("world", "RayOfEnfeeblementSpell", originalParts);
-      weapon.data.data.damage.parts.forEach((part) => {
+      weapon.system.damage.parts.forEach((part) => {
         part[0] = `floor((${part[0]})/2)`;
       });
-      weapon.update({ "data.damage.parts": weapon.data.data.damage.parts });
+      weapon.update({ "system.damage.parts": weapon.system.damage.parts });
     }
   });
 }
@@ -23,6 +23,6 @@ if (args[0] === "on") {
 if (args[0] === "off") {
   weapons.forEach((weapon) => {
     const parts = weapon.getFlag("world", "RayOfEnfeeblementSpell");
-    weapon.update({ "data.damage.parts": parts });
+    weapon.update({ "system.damage.parts": parts });
   });
 }

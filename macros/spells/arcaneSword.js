@@ -5,7 +5,7 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function deleteTemplates(actorId) {
   let removeTemplates = canvas.templates.placeables.filter(
-    (i) => i.data.flags?.ArcaneSwordRange?.ActorId === actorId
+    (i) => i.flags?.ArcaneSwordRange?.ActorId === actorId
   );
   await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", removeTemplates.map((t) => t.id));
 }
@@ -56,7 +56,7 @@ if (args[0] === "on") {
   template.actorSheet = targetActor.sheet;
   template.drawPreview();
 
-  const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "weapon");
+  const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === "weapon");
   if (!castItem) {
     const weaponData = {
       name: castItemName,
@@ -66,8 +66,8 @@ if (args[0] === "on") {
         activation: { type: "action", cost: 1, condition: "", },
         target: { value: 1, type: "creature", },
         range: { value: 5, long: null, units: "", },
-        ability: DAEItem.data.ability,
-        attackBonus: DAEItem.data.attackBonus,
+        ability: DAEItem.system.ability,
+        attackBonus: DAEItem.system.attackBonus,
         actionType: "msak",
         chatFlavor: "",
         critical: null,
@@ -87,8 +87,8 @@ if (args[0] === "on") {
 
 // Delete Arcane Sword
 if (args[0] === "off") {
-  let swords = targetActor.data.items.filter((i) => i.data.flags?.ArcaneSword === targetActor.id);
+  let swords = targetActor.items.filter((i) => i.flags?.ArcaneSword === targetActor.id);
   if (swords.length > 0) await targetActor.deleteEmbeddedDocuments("Item", swords.map((s) => s.id));
-  let templates = canvas.templates.placeables.filter((i) => i.data.flags?.ArcaneSword?.ActorId === targetActor.id);
+  let templates = canvas.templates.placeables.filter((i) => i.flags?.ArcaneSword?.ActorId === targetActor.id);
   if (templates.length > 0) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", templates.map((t) => t.id));
 }

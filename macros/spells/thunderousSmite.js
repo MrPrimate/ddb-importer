@@ -1,11 +1,11 @@
 try {
-  if (!["mwak"].includes(args[0].item.data.actionType)) return {};
+  if (!["mwak"].includes(args[0].item.system.actionType)) return {};
   if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
   for (let tokenUuid of args[0].hitTargetUuids) {
     const target = await fromUuid(tokenUuid);
     const targetActor = target.actor;
     if (!targetActor) continue;
-    const spellDC = actor.data.flags["midi-qol"].thunderousSmite.dc;
+    const spellDC = actor.flags["midi-qol"].thunderousSmite.dc;
     ChatMessage.create({ content: `${targetActor.name} needs to make a ${CONFIG.DND5E.abilities["str"]} DC${spellDC} vs Thunderous Smite Stagger.` });
 
     const saveRollData =  {

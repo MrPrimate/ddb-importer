@@ -3,7 +3,7 @@ const lastArg = args[args.length - 1];
 const castItemName = "Storm Sphere Attack";
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const castItem = targetActor.data.items.find((i) => i.name === castItemName && i.type === "spell");
+const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === "spell");
 
 if (args[0].tag === "OnUse") {
   await AAhelpers.applyTemplate(args);
@@ -16,14 +16,14 @@ if (args[0].tag === "OnUse") {
       name: castItemName,
       type: "spell",
       data: {
-        description: DAEItem.data.description,
+        description: DAEItem.system.description,
         activation: { type: "bonus", },
-        ability: DAEItem.data.ability,
-        attackBonus: DAEItem.data.attackBonus,
+        ability: DAEItem.system.ability,
+        attackBonus: DAEItem.system.attackBonus,
         actionType: "rsak",
         damage: { parts: [[`${spellLevel}d6[lightning]`, "lightning"]], versatile: "", },
         level: 0,
-        school: DAEItem.data.school,
+        school: DAEItem.system.school,
         preparation: { mode: "prepared", prepared: false, },
         scaling: { mode: "none", formula: "", },
       },

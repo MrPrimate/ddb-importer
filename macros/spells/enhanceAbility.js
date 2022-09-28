@@ -4,7 +4,7 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function updateActor(kind) {
   DAE.setFlag(targetActor, 'enhanceAbility', { name: kind });
-  const effect = targetActor.effects.find((e) => e.data.label === lastArg.efData.label);
+  const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
   let changes = [];
   switch (kind) {
     case "bear": {
@@ -17,12 +17,12 @@ async function updateActor(kind) {
       ChatMessage.create({ content: `${targetActor.name} has advantage on Constitution checks` });
       const amount = await new Roll("2d6").evaluate({ async: true });
       if (
-        !Number.isInteger(targetActor.data.data.attributes.hp.temp) ||
-        amount.total > targetActor.data.data.attributes.hp.temp
+        !Number.isInteger(targetActor.system.attributes.hp.temp) ||
+        amount.total > targetActor.system.attributes.hp.temp
       ) {
         console.log(`${targetActor.name} gains ${amount.total} temp Hp`, amount);
         ChatMessage.create({ content: `${targetActor.name} gains ${amount.total} temp Hp` });
-        await targetActor.update({ "data.attributes.hp.temp": amount.total });
+        await targetActor.update({ "system.attributes.hp.temp": amount.total });
       }
       break;
     }
@@ -89,7 +89,7 @@ async function updateActor(kind) {
   }
   if (changes.length > 0) {
     console.log(`Applying ${kind} changes to ${targetActor.name}`, changes);
-    await effect.update({ changes: changes.concat(effect.data.changes) });
+    await effect.update({ changes: changes.concat(effect.changes) });
   }
 
 }
@@ -133,7 +133,7 @@ if (args[0] === "on") {
 if (args[0] === "off") {
   const flag = await DAE.getFlag(targetActor, 'enhanceAbility');
   if (flag.name === "bear") {
-    await targetActor.update({ "data.attributes.hp.temp": "" });
+    await targetActor.update({ "system.attributes.hp.temp": "" });
     await DAE.unsetFlag(targetActor, "eyebiteSpell");
   }
   ChatMessage.create({ content: "Enhance Ability has expired" });

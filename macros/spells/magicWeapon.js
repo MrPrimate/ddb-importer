@@ -90,7 +90,7 @@ if (args[0] === "on") {
           copyItem.system.attackBonus = `${parseInt(copyItem.system.attackBonus) + bonus}`;
           copyItem.system.damage.parts[0][0] = wpDamage + " + " + bonus;
           copyItem.system.properties.mgc = true;
-          if (verDamage !== "" && verDamage !== null) copyItem.data.damage.versatile = verDamage + " + " + bonus;
+          if (verDamage !== "" && verDamage !== null) copyItem.system.damage.versatile = verDamage + " + " + bonus;
           targetActor.updateEmbeddedDocuments("Item", [copyItem]);
         },
       },

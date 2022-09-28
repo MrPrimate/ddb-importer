@@ -32,7 +32,7 @@ if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.
     },
     { overwrite: true, inlace: true, insertKeys: true, insertValues: true }
   );
-  itemData.data.target.type = "self";
+  itemData.system.target.type = "self";
   setProperty(itemData.flags, "autoanimations.killAnim", true);
   const item = new CONFIG.Item.documentClass(itemData, { parent: theActor });
   const options = { showFullCard: false, createWorkflow: true, versatile: false, configureDialog: false };

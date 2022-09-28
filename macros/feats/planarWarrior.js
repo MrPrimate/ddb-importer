@@ -86,7 +86,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "preDamageRoll") {
   // Validates if target is valid for the attack and replaces damage type if thats the case
   let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
-  if (!getProperty(workflow.actor.data.flags, "midi-qol.planarWarrior.targetUuid")) {
+  if (!getProperty(workflow.actor.flags, "midi-qol.planarWarrior.targetUuid")) {
     // There was a problem, the hook was set but the never called while the item was active
     return;
   }
@@ -155,13 +155,13 @@ function isValidTarget(workflow) {
   }
 
   // only weapon attacks
-  if (!["mwak", "rwak"].includes(workflow.item?.data.data.actionType)) {
+  if (!["mwak", "rwak"].includes(workflow.item?.system.actionType)) {
     return false;
   }
 
   const targetUuid = workflow.hitTargets.first().document.uuid;
   // only on the marked target
-  if (targetUuid !== getProperty(workflow.actor.data.flags, "midi-qol.planarWarrior.targetUuid")) {
+  if (targetUuid !== getProperty(workflow.actor.flags, "midi-qol.planarWarrior.targetUuid")) {
     return false;
   }
   return true;
@@ -170,9 +170,9 @@ function isValidTarget(workflow) {
 /**
  * Replaces the current workflow item damage type with newDamageType.
  * Damage types that are replaced:
- * - item.data.data.damage.parts: The damage types in part formula are replaced as well as the damage type of a part.
- * - item.data.data.damage.versatile: The damage types in versatile formula.
- * - item.data.data.formula: The damage types in other formula.
+ * - item.system.damage.parts: The damage types in part formula are replaced as well as the damage type of a part.
+ * - item.system.damage.versatile: The damage types in versatile formula.
+ * - item.system.formula: The damage types in other formula.
  *
  * @param {*} workflow the midi-qol workflow.
  */
@@ -180,11 +180,11 @@ function replaceItemDamage(workflow) {
   // Change temporarely the damage type of the item, but make a temporary copy before applying changes
   // and keep the original values in a flag
   const item = workflow.item;
-  if (item.data.data.damage?.parts?.length > 0 && !getProperty(workflow, "planarWarrior.origDmg")) {
-    const origDmg = item.data.data.damage;
+  if (item.system.damage?.parts?.length > 0 && !getProperty(workflow, "planarWarrior.origDmg")) {
+    const origDmg = item.system.damage;
 
     let newDmg = duplicate(origDmg);
-    let newOtherFormula = duplicate(item.data.data.formula ?? "");
+    let newOtherFormula = duplicate(item.system.formula ?? "");
 
     for (let i = 0; i < newDmg.parts.length; i++) {
       newDmg.parts[i] = duplicate(origDmg.parts[i]);
@@ -199,12 +199,12 @@ function replaceItemDamage(workflow) {
 
     // Set in memory and recompute item derived data
     setProperty(workflow, "planarWarrior.origDmg", origDmg);
-    setProperty(workflow, "planarWarrior.origOtherFormula", item.data.data.formula);
-    item.data.data.damage = newDmg;
-    item.data.data.formula = newOtherFormula;
+    setProperty(workflow, "planarWarrior.origOtherFormula", item.system.formula);
+    item.system.damage = newDmg;
+    item.system.formula = newOtherFormula;
     item.prepareDerivedData();
 
-    console.log(`${sourceItemName}: ${item.name} damage changed to`, item.data.data.damage, item.data.data.formula);
+    console.log(`${sourceItemName}: ${item.name} damage changed to`, item.system.damage, item.system.formula);
   }
 }
 
@@ -222,8 +222,8 @@ function revertItemDamage(workflow) {
   const origOtherFormula = getProperty(workflow, "planarWarrior.origOtherFormula");
 
   // Set in memory and recompute item derived data
-  workflow.item.data.data.damage = origDmg;
-  workflow.item.data.data.formula = origOtherFormula;
+  workflow.item.system.damage = origDmg;
+  workflow.item.system.formula = origOtherFormula;
   workflow.item.prepareDerivedData();
   setProperty(workflow, "planarWarrior.origDmg", null);
   setProperty(workflow, "planarWarrior.origOtherFormula", null);

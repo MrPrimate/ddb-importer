@@ -13,11 +13,11 @@ if (lastArg.targets.length > 0) {
   delete(areaSpellData.flags["midi-qol"].onUseMacroParts);
   delete(areaSpellData.flags.itemacro);
   areaSpellData.name = "Ice Knife: Explosion";
-  areaSpellData.data.damage.parts = [[`${damageDice}d6[cold]`, "cold"]];
-  areaSpellData.data.actionType = "save";
-  areaSpellData.data.save.ability = "dex";
-  areaSpellData.data.scaling = { mode: "level", formula: "1d6" };
-  areaSpellData.data.preparation.mode ="atwill";
+  areaSpellData.system.damage.parts = [[`${damageDice}d6[cold]`, "cold"]];
+  areaSpellData.system.actionType = "save";
+  areaSpellData.system.save.ability = "dex";
+  areaSpellData.system.scaling = { mode: "level", formula: "1d6" };
+  areaSpellData.system.preparation.mode ="atwill";
   const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor })
   const target = canvas.tokens.get(lastArg.targets[0].id);
   const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>

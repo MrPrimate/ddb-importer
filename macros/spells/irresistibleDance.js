@@ -5,7 +5,7 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.data.save;
+const saveData = DAEItem.system.save;
 
 if (args[0] === "each") {
   new Dialog({

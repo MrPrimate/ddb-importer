@@ -6,25 +6,25 @@ async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms
 const sleepHp = await args[0].damageTotal;
 const condition = "Unconscious";
 console.log(`Sleep Spell => Available HP Pool [${sleepHp}] points`);
-const targets = await args[0].targets.filter((i) => i.actor.data.data.attributes.hp.value != 0 && !i.actor.effects.find(x => x.data.label === condition)).sort((a, b) => canvas.tokens.get(a.id).actor.data.data.attributes.hp.value < canvas.tokens.get(b.id).actor.data.data.attributes.hp.value ? -1 : 1);
+const targets = await args[0].targets.filter((i) => i.actor.system.attributes.hp.value != 0 && !i.actor.effects.find(x => x.data.label === condition)).sort((a, b) => canvas.tokens.get(a.id).actor.system.attributes.hp.value < canvas.tokens.get(b.id).actor.system.attributes.hp.value ? -1 : 1);
 let remainingSleepHp = sleepHp;
 let sleepTarget = [];
 
 for (let target of targets) {
     const findTarget = await canvas.tokens.get(target.id);
-    const immuneType = findTarget.actor.data.type === "character" ? ["undead", "construct"].some(race => (findTarget.actor.data.data.details.race || "").toLowerCase().includes(race)) : ["undead", "construct"].some(value => (findTarget.actor.data.data.details.type.value || "").toLowerCase().includes(value));
-    const immuneCI = findTarget.actor.data.data.traits.ci.custom.includes("Sleep");
-    const sleeping = findTarget.actor.effects.find((i) => i.data.label === condition);
-    const targetHpValue = findTarget.actor.data.data.attributes.hp.value;
+    const immuneType = findTarget.actor.type === "character" ? ["undead", "construct"].some(race => (findTarget.actor.system.details.race || "").toLowerCase().includes(race)) : ["undead", "construct"].some(value => (findTarget.actor.system.details.type.value || "").toLowerCase().includes(value));
+    const immuneCI = findTarget.actor.system.traits.ci.custom.includes("Sleep");
+    const sleeping = findTarget.actor.effects.find((i) => i.label === condition);
+    const targetHpValue = findTarget.actor.system.attributes.hp.value;
     if ((immuneType) || (immuneCI) || (sleeping)) {
         console.log(`Sleep Results => Target: ${findTarget.name} | HP: ${targetHpValue} | Status: Resists`);
-        sleepTarget.push(`<div class="midi-qol-flex-container"><div>Resists</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.data.img}" width="30" height="30" style="border:0px"></div></div>`);
+        sleepTarget.push(`<div class="midi-qol-flex-container"><div>Resists</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.img}" width="30" height="30" style="border:0px"></div></div>`);
         continue;
     }
     if (remainingSleepHp >= targetHpValue) {
         remainingSleepHp -= targetHpValue;
         console.log(`Sleep Results => Target: ${findTarget.name} |  HP: ${targetHpValue} | HP Pool: ${remainingSleepHp} | Status: Slept`);
-        sleepTarget.push(`<div class="midi-qol-flex-container"><div>Slept</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.data.img}" width="30" height="30" style="border:0px"></div></div>`);
+        sleepTarget.push(`<div class="midi-qol-flex-container"><div>Slept</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.img}" width="30" height="30" style="border:0px"></div></div>`);
         const gameRound = game.combat ? game.combat.round : 0;
         const effectData = {
             label: "Sleep Spell",
@@ -43,7 +43,7 @@ for (let target of targets) {
         continue;
     } else {
         console.log(`Sleep Results => Target: ${target.name} | HP: ${targetHpValue} | HP Pool: ${remainingSleepHp - targetHpValue} | Status: Missed`);
-        sleepTarget.push(`<div class="midi-qol-flex-container"><div>misses</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.data.img}" width="30" height="30" style="border:0px"></div></div>`);
+        sleepTarget.push(`<div class="midi-qol-flex-container"><div>misses</div><div class="midi-qol-target-npc midi-qol-target-name" id="${findTarget.id}"> ${findTarget.name}</div><div><img src="${findTarget.img}" width="30" height="30" style="border:0px"></div></div>`);
     }
 }
 await wait(500);

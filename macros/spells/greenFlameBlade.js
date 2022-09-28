@@ -73,75 +73,11 @@ async function findTargets(originToken, range, includeOrigin = false, excludeAct
   const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>
     (includeOrigin || placeable.id !== originToken.id) &&
     !excludeActorIds.includes(placeable.actor?.id) &&
-    placeable.actor?.data.data.attributes.hp.value !== 0 &&
+    placeable.actor?.system.attributes.hp.value !== 0 &&
     canvas.grid.measureDistance(originToken, placeable) <= (range + 4.5) &&
-    !canvas.walls.checkCollision(new Ray(originToken.center, placeable.center)
-  ));
-  return aoeTargets;
-}
-
-function weaponAttack(caster, sourceItemData, origin, target) {
-  const chosenWeapon = DAE.getFlag(caster, "greenFlameBladeChoice");
-  const filteredWeapons = caster.items.filter((i) =>
-    i.data.type === "weapon" && i.data.data.equipped &&
-    i.data.data.activation.type ==="action" && i.data.data.actionType == "mwak"
+    !canvas.walls.checkCollision(new Ray(originToken.center, placeable.center), {mode: "any"})
   );
-  const weaponContent = filteredWeapons
-    .map((w) => {
-      const selected = chosenWeapon && chosenWeapon == w.id ? " selected" : "";
-      return `<option value="${w.id}"${selected}>${w.name}</option>`;
-    })
-    .join("");
-
-  const content = `<div class="form-group"><label>Weapons : </label><select name="weapons"}>${weaponContent}</select></div>`;
-  new Dialog({
-    title: "Green Flame Blade: Choose a weapon to attack with",
-    content,
-    buttons: {
-      Ok: {
-        label: "Ok",
-        callback: async (html) => {
-          const characterLevel = caster.data.type === "character" ? caster.data.data.details.level : caster.data.data.details.cr;
-          const cantripDice = 1 + Math.floor((characterLevel + 1) / 6);
-          const itemId = html.find("[name=weapons]")[0].value;
-          const weaponItem = caster.getEmbeddedDocument("Item", itemId);
-          DAE.setFlag(caster, "greenFlameBladeChoice", itemId);
-          const weaponCopy = duplicate(weaponItem);
-          delete weaponCopy._id;
-          if (cantripDice > 0) {
-            weaponCopy.data.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
-          }
-          weaponCopy.name = weaponItem.name + " [Green Flame Blade]";
-          weaponCopy.effects.push({
-            changes: [{ key: "macro.itemMacro", mode: 0, value: "", priority: "20", }],
-            disabled: false,
-            duration: { turns: 1 },
-            icon: sourceItemData.img,
-            label: sourceItemData.name,
-            origin,
-            transfer: false,
-            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { transfer: false }},
-          });
-          setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
-          setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
-          if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonPrimary)) {
-            const autoAnimationsAdjustments = duplicate(baseAutoAnimation);
-            autoAnimationsAdjustments.animation = weaponCopy.data.baseItem ? weaponCopy.data.baseItem  : "shortsword";
-            const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
-              ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
-              : autoAnimationsAdjustments;
-            setProperty(weaponCopy, "flags.autoanimations", autoanimations);
-          }
-          const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
-          const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
-          await MidiQOL.completeItemRoll(attackItem, options);
-        },
-      },
-      Cancel: {
-        label: "Cancel",
-      },
-    },
-  }).render(true);
+  return aoeTargets;
 }
 
 async function attackNearby(originToken, ignoreIds) {
@@ -153,6 +89,11 @@ async function attackNearby(originToken, ignoreIds) {
   const targetContent = potentialTargets.map((t) => `<option value="${t.id}">${t.name}</option>`).join("");
   const content = `<div class="form-group"><label>Targets : </label><select name="secondaryTargetId"}>${targetContent}</select></div>`;
 
+  console.warn({
+    casterToken,
+    caster,
+    potentialTargets,
+  })
   new Dialog({
     title: "Green Flame Blade: Choose a secondary target to attack",
     content,
@@ -163,16 +104,16 @@ async function attackNearby(originToken, ignoreIds) {
           const selectedId = html.find("[name=secondaryTargetId]")[0].value;
           const targetToken = canvas.tokens.get(selectedId);
           const sourceItem = await fromUuid(lastArg.efData.flags.origin);
-          const mod = caster.data.data.abilities[sourceItem.abilityMod].mod;
+          const mod = caster.system.abilities[sourceItem.abilityMod].mod;
           const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
           if (game.dice3d) game.dice3d.showForRoll(damageRoll);
-          const workflowItemData = duplicate(sourceItem.data);
-          workflowItemData.data.target = { value: 1, units: "", type: "creature" };
+          const workflowItemData = duplicate(sourceItem);
+          workflowItemData.target = { value: 1, units: "", type: "creature" };
           workflowItemData.name = "Green Flame Blade: Secondary Damage";
 
           await new MidiQOL.DamageOnlyWorkflow(
             caster,
-            casterToken.data,
+            casterToken.document,
             damageRoll.total,
             damageType,
             [targetToken],
@@ -194,6 +135,70 @@ async function attackNearby(originToken, ignoreIds) {
   }).render(true);
 }
 
+function weaponAttack(caster, sourceItemData, origin, target) {
+  const chosenWeapon = DAE.getFlag(caster, "greenFlameBladeChoice");
+  const filteredWeapons = caster.items.filter((i) =>
+    i.type === "weapon" && i.system.equipped &&
+    i.system.activation.type ==="action" && i.system.actionType == "mwak"
+  );
+  const weaponContent = filteredWeapons
+    .map((w) => {
+      const selected = chosenWeapon && chosenWeapon == w.id ? " selected" : "";
+      return `<option value="${w.id}"${selected}>${w.name}</option>`;
+    })
+    .join("");
+
+  const content = `<div class="form-group"><label>Weapons : </label><select name="weapons"}>${weaponContent}</select></div>`;
+  new Dialog({
+    title: "Green Flame Blade: Choose a weapon to attack with",
+    content,
+    buttons: {
+      Ok: {
+        label: "Ok",
+        callback: async (html) => {
+          const characterLevel = caster.type === "character" ? caster.system.details.level : caster.system.details.cr;
+          const cantripDice = 1 + Math.floor((characterLevel + 1) / 6);
+          const itemId = html.find("[name=weapons]")[0].value;
+          const weaponItem = caster.getEmbeddedDocument("Item", itemId);
+          DAE.setFlag(caster, "greenFlameBladeChoice", itemId);
+          const weaponCopy = duplicate(weaponItem);
+          delete weaponCopy._id;
+          if (cantripDice > 0) {
+            weaponCopy.system.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
+          }
+          weaponCopy.name = weaponItem.name + " [Green Flame Blade]";
+          weaponCopy.effects.push({
+            changes: [{ key: "macro.itemMacro", mode: 0, value: "", priority: "20", }],
+            disabled: false,
+            duration: { turns: 0 },
+            icon: sourceItemData.img,
+            label: sourceItemData.name,
+            origin,
+            transfer: false,
+            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { transfer: false }},
+          });
+          setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
+          setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
+          if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonPrimary)) {
+            const autoAnimationsAdjustments = duplicate(baseAutoAnimation);
+            autoAnimationsAdjustments.animation = weaponCopy.system.baseItem ? weaponCopy.system.baseItem  : "shortsword";
+            const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
+              ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
+              : autoAnimationsAdjustments;
+            setProperty(weaponCopy, "flags.autoanimations", autoanimations);
+          }
+          const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
+          const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
+          await MidiQOL.completeItemRoll(attackItem, options);
+        },
+      },
+      Cancel: {
+        label: "Cancel",
+      },
+    },
+  }).render(true);
+}
+
 if (args[0].tag === "OnUse"){
   if (lastArg.targets.length > 0) {
     const casterData = await fromUuid(lastArg.actorUuid);
@@ -205,6 +210,6 @@ if (args[0].tag === "OnUse"){
 } else if (args[0] === "on") {
   const targetToken = canvas.tokens.get(lastArg.tokenId);
   const casterId = lastArg.efData.flags.casterId;
-  console.log(`Checking ${targetToken.name} for nearby tokens for Grren-Flame Blade from ${casterId}`);
+  console.log(`Checking ${targetToken.name} for nearby tokens for Green-Flame Blade from ${casterId}`);
   await attackNearby(targetToken, [casterId]);
 }

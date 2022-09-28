@@ -62,7 +62,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
     origin: macroData.sourceItemUuid, //flag the effect as associated to the source item used
     disabled: false,
     duration: { rounds: 1 },
-    icon: sourceItem.data.img,
+    icon: sourceItem.img,
     label: `${sourceItemName} - Target`,
   };
   await actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
@@ -96,7 +96,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
     origin: effectData.origin, // flag the effect as associated to the source item used
     disabled: false,
     duration: { rounds: 1 },
-    icon: sourceItem.data.img,
+    icon: sourceItem.img,
     label: `Marked by ${sourceItemName}`,
   };
   await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [targetEffectData] });
@@ -118,7 +118,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
  * @returns true if the effect is found, false otherwise.
  */
 function hasEffectApplied(effectName, actor) {
-  return actor.effects.find((ae) => ae.data.label === effectName) !== undefined;
+  return actor.effects.find((ae) => ae.label === effectName) !== undefined;
 }
 
 /**
@@ -169,7 +169,7 @@ async function handlePreDamageByMarkedTarget(macroData) {
       changes: [
         // flag for damage resistance
         {
-          key: "data.traits.dr.all",
+          key: "system.traits.dr.all",
           mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
           value: "1",
           priority: 20,
@@ -179,7 +179,7 @@ async function handlePreDamageByMarkedTarget(macroData) {
       origin: macroData.sourceItemUuid, //flag the effect as associated to the source item used
       disabled: false,
       duration: { turns: 1 },
-      icon: sourceItem.data.img,
+      icon: sourceItem.img,
       label: `${sourceItemName} - Damage resistance`,
     };
     setProperty(targetEffectData, "flags.dae.specialDuration", ["isDamaged"]);

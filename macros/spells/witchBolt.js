@@ -3,7 +3,7 @@ const sourceItem = await fromUuid(lastArg.origin);
 const caster = sourceItem.parent;
 const damageType = "lightning";
 const parentEffectName = "WitchBolt (Concentration)";
-const hasParentEffect = caster.effects.some((e) => e.data.label === parentEffectName);
+const hasParentEffect = caster.effects.some((e) => e.label === parentEffectName);
 
 async function checkTargetInRange({ sourceUuid, targetUuid, distance }) {
   const sourceToken = await fromUuid(sourceUuid);
@@ -25,7 +25,7 @@ async function sustainedDamage(options) {
   const targets = await Promise.all(options.targets.map(async (uuid) => await fromUuid(uuid)));
   const casterToken = await fromUuid(options.sourceUuid);
   const itemData = sourceItem.toObject();
-  setProperty(itemData, "data.components.concentration", false);
+  setProperty(itemData, "system.components.concentration", false);
   new MidiQOL.DamageOnlyWorkflow(
     caster,
     casterToken,
@@ -44,7 +44,7 @@ async function sustainedDamage(options) {
 }
 
 async function cancel() {
-  const concentration = caster.effects.find((i) => i.data.label === "Concentrating");
+  const concentration = caster.effects.find((i) => i.label === "Concentrating");
   if (concentration) {
     await MidiQOL.socket().removeEffects({ actorUuid: caster.uuid, effects: [concentration.id] });
   }
@@ -77,7 +77,7 @@ if (args[0] === "on" && !hasParentEffect && caster.uuid !== lastArg.actorUuid) {
   const options = {
     targets,
     sourceUuid: casterToken?.document?.uuid,
-    distance: sourceItem.data.data.range.value,
+    distance: sourceItem.system.range.value,
     userId: game.userId,
   };
   DAE.setFlag(caster, "witchBoltSpell", options);

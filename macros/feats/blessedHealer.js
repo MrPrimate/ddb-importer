@@ -8,10 +8,10 @@ try {
 
     const targetActor = await fromUuid(args[0].actorUuid);
     const spellLevel = args[0].spellLevel;
-    const currentHP = targetActor.data.data.attributes.hp.value;
-    const newHP = Math.min(targetActor.data.data.attributes.hp.max, currentHP + 2 + spellLevel);
+    const currentHP = targetActor.system.attributes.hp.value;
+    const newHP = Math.min(targetActor.system.attributes.hp.max, currentHP + 2 + spellLevel);
     ChatMessage.create({content: `${targetActor.name} cures ${newHP - currentHP} HP of bonus healing`})
-    return targetActor.update({"data.attributes.hp.value": newHP});
+    return targetActor.update({"system.attributes.hp.value": newHP});
 } catch (err) {
     console.error(`${args[0].itemData.name} - Blessed Healer`, err);
 }

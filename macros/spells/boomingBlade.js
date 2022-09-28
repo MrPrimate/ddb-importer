@@ -14,7 +14,7 @@ function sequencerEffect(target, file, scale) {
 
 function weaponAttack(caster, sourceItemData, origin, target) {
   const chosenWeapon = DAE.getFlag(caster, "boomingBladeChoice");
-  const filteredWeapons = caster.items.filter((i) => i.data.type === "weapon" && i.data.data.equipped);
+  const filteredWeapons = caster.items.filter((i) => i.type === "weapon" && i.system.equipped);
   const weaponContent = filteredWeapons
     .map((w) => {
       const selected = chosenWeapon && chosenWeapon == w.id ? " selected" : "";
@@ -37,7 +37,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
       Ok: {
         label: "Ok",
         callback: async (html) => {
-          const characterLevel = caster.data.type === "character" ? caster.data.data.details.level : caster.data.data.details.cr;
+          const characterLevel = caster.type === "character" ? caster.system.details.level : caster.system.details.cr;
           const cantripDice = 1 + Math.floor((characterLevel + 1) / 6);
           const itemId = html.find("[name=weapons]")[0].value;
           const weaponItem = caster.getEmbeddedDocument("Item", itemId);
@@ -45,7 +45,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const weaponCopy = duplicate(weaponItem);
           delete weaponCopy._id;
           if (cantripDice > 0) {
-            weaponCopy.data.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
+            weaponCopy.system.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
           }
           weaponCopy.name = weaponItem.name + " [Booming Blade]";
           weaponCopy.effects.push({
@@ -94,7 +94,7 @@ if(args[0].tag === "OnUse"){
     const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice}d8[${damageType}]`).evaluate({ async: true });
     if (game.dice3d) game.dice3d.showForRoll(damageRoll);
     const workflowItemData = duplicate(sourceItem.data);
-    workflowItemData.data.target = { value: 1, units: "", type: "creature" };
+    workflowItemsystem.target = { value: 1, units: "", type: "creature" };
     workflowItemData.name = "Booming Blade: Movement Damage";
 
     await new MidiQOL.DamageOnlyWorkflow(

@@ -10,16 +10,16 @@ async function setWardingBondHook() {
   const hookId = Hooks.on("preUpdateActor", async (actor, update) => {
     const flag = await DAE.getFlag(targetActor, "WardingBondIds");
     if (flag.targetID !== actor.id) return;
-    if (!"actorData.data.attributes.hp" in update) return;
-    const oldHP = actor.data.data.attributes.hp.value;
-    const newHP = getProperty(update, "data.attributes.hp.value");
+    if (!"actorData.system.attributes.hp" in update) return;
+    const oldHP = actor.system.attributes.hp.value;
+    const newHP = getProperty(update, "system.attributes.hp.value");
     const hpChange = oldHP - newHP;
     if (Number.isInteger(hpChange) && hpChange > 0) {
       const caster = game.actors.get(flag.casterID).getActiveTokens()[0];
       caster.actor.applyDamage(hpChange);
     }
     if (newHP === 0) {
-      const effectIds = targetActor.data.effects.filter((e) => e.data.label === "Warding Bond").map((t) => t.id);
+      const effectIds = targetActor.effects.filter((e) => e.label === "Warding Bond").map((t) => t.id);
       await targetActor.deleteEmbeddedDocuments("ActiveEffect", effectIds);
     }
   });

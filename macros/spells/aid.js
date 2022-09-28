@@ -4,11 +4,11 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 let buf = (parseInt(args[1])-1) * 5;
-let curHP = target.data.data.attributes.hp.value;
-let curMax = target.data.data.attributes.hp.max;
+let curHP = target.system.attributes.hp.value;
+let curMax = target.system.attributes.hp.max;
 
 if (args[0] === "on") {
-  target.update({"data.attributes.hp.value": curHP+buf});
+  target.update({"system.attributes.hp.value": curHP+buf});
 } else if (curHP > curMax) {
-  target.update({"data.attributes.hp.value": curMax});
+  target.update({"system.attributes.hp.value": curMax});
 }

@@ -4,15 +4,15 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const targetToken = await fromUuid(lastArg.tokenUuid);
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.data.save;
+const saveData = DAEItem.system.save;
 const flavor = `${CONFIG.DND5E.abilities["wis"]} DC${saveData.dc} ${DAEItem?.name || ""}`;
 
 function effectAppliedAndActive(conditionName) {
-  return targetActor.data.effects.some(
+  return targetActor.effects.some(
     (activeEffect) =>
-      activeEffect?.data?.flags?.isConvenient &&
-      activeEffect?.data?.label == conditionName &&
-      !activeEffect?.data?.disabled
+      activeEffect?.flags?.isConvenient &&
+      activeEffect?.label == conditionName &&
+      !activeEffect?.disabled
   );
 }
 
@@ -34,9 +34,9 @@ async function cleanUp() {
 
 async function onDamageHook(hookActor, update, options, userId) {
   const flag = await DAE.getFlag(hookActor, "hideousLaughterHook");
-  if (!"actorData.data.attributes.hp" in update || !flag) return;
-  const oldHP = hookActor.data.data.attributes.hp.value;
-  const newHP = getProperty(update, "data.attributes.hp.value");
+  if (!"actorData.system.attributes.hp" in update || !flag) return;
+  const oldHP = hookActor.system.attributes.hp.value;
+  const newHP = getProperty(update, "system.attributes.hp.value");
   const hpChange = oldHP - newHP;
   if (hpChange > 0 && typeof hpChange === "number") {
     console.warn("hookActor", hookActor);
@@ -53,7 +53,7 @@ async function onDamageHook(hookActor, update, options, userId) {
 }
 
 if (args[0] === "on") {
-  if (targetActor.data.data.abilities.int.value < 4) {
+  if (targetActor.system.abilities.int.value < 4) {
     await cleanUp();
   } else {
     const hookId = Hooks.on("preUpdateActor", onDamageHook);

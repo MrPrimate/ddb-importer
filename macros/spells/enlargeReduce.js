@@ -18,7 +18,7 @@ async function reSize(flavour) {
   };
   const changes = [
     {
-      key: "data.bonuses.mwak.damage",
+      key: "system.bonuses.mwak.damage",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 20,
       value: `${types[flavour].bonus}`,
@@ -36,8 +36,8 @@ async function reSize(flavour) {
       value: `${types[flavour].size}`,
     },
   ];
-  const effect = targetActor.effects.find((e) => e.data.label === lastArg.efData.label);
-  await effect.update({ changes: changes.concat(effect.data.changes) });
+  const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
+  await effect.update({ changes: changes.concat(effect.changes) });
   ChatMessage.create({ content: `${targetToken.name} is ${flavour}d` });
 }
 

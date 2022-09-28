@@ -61,14 +61,14 @@ if (args[0].tag === "OnUse") {
 } else if (args[0].tag === "DamageBonus") {
   console.warn("damage macro args", args);
   // only attacks
-  if (!["mwak", "rwak", "rsak", "msak"].includes(args[0].item.data.actionType)) return {};
+  if (!["mwak", "rwak", "rsak", "msak"].includes(args[0].item.system.actionType)) return {};
   const target = args[0].hitTargets[0];
   // only on the marked target
   if (!hasProperty(target.actor.data, "flags.midi-qol.spiritShroud")) return {};
   const tokenOrActor = await fromUuid(args[0].actorUuid);
   const caster = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   const data = DAE.getFlag(caster, "spiritShroud");
-  const damageType = args[0].item.data.damage.parts[0][1];
+  const damageType = args[0].item.system.damage.parts[0][1];
   const diceNumber = data.dice;
   const diceMult = args[0].isCritical ? 2 * diceNumber : diceNumber;
   const damage = { damageRoll: `${diceMult}d8[${damageType}]`, flavor: "Spirit Shroud Damage" };

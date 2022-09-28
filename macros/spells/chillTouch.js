@@ -2,7 +2,7 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-const targetType = targetActor.data.type === "npc" ? targetActor.data.data.details?.type?.value : targetActor.data.data.details?.race;
+const targetType = targetActor.data.type === "npc" ? targetActor.system.details?.type?.value : targetActor.system.details?.race;
 const isUndead = targetType.toLowerCase().includes("undead");
 
 if (isUndead) {
@@ -16,8 +16,8 @@ if (isUndead) {
   //   },
 
   // ];
-  // const effect = targetActor.effects.find((e) => e.data.label === lastArg.efData.label);
-  // await effect.update({ changes: changes.concat(effect.data.changes) });
+  // const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
+  // await effect.update({ changes: changes.concat(effect.changes) });
   ChatMessage.create({ content: `${targetActor.name} is undead and has disadvantage on attack rolls against you until the start of your next turn` });
 
 }

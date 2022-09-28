@@ -1,12 +1,12 @@
 try {
-  if (!["mwak", "rwak"].includes(args[0].item.data.actionType)) return {};
+  if (!["mwak", "rwak"].includes(args[0].item.system.actionType)) return {};
   if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
   for (let tokenUuid of args[0].hitTargetUuids) {
     const target = await fromUuid(tokenUuid);
     const targetActor = target.actor;
     if (!targetActor) continue;
     // remove the invisible condition
-    const effect = targetActor?.effects.find((ef) => ef.data.label === game.i18n.localize("midi-qol.invisible"));
+    const effect = targetActor?.effects.find((ef) => ef.label === game.i18n.localize("midi-qol.invisible"));
     if (effect)
       await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: targetActor.uuid, effects: [effect.id] });
     // create the dim light effect on the target
@@ -36,7 +36,7 @@ try {
     if (effect) effect.delete();
     return true;
   });
-  const spellLevel = actor.data.flags["midi-qol"].brandingSmite.level;
+  const spellLevel = actor.flags["midi-qol"].brandingSmite.level;
   return { damageRoll: `${spellLevel}d6[radiant]`, flavor: "Branding Smite" };
 } catch (err) {
   console.error(`${args[0].itemData.name} - Branding Smite`, err);

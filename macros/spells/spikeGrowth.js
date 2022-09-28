@@ -33,9 +33,9 @@ async function applySpikeGrowthDamage() {
   const damageRoll = await new Roll(`2d4[piercing]`).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll);
   const workflowItemData = duplicate(item.data);
-  workflowItemData.data.components.concentration = false;
-  workflowItemData.data.duration = { value: null, units: "inst" };
-  workflowItemData.data.target = { value: null, width: null, units: "", type: "creature" };
+  workflowItemData.system.components.concentration = false;
+  workflowItemData.system.duration = { value: null, units: "inst" };
+  workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
 
   setProperty(workflowItemData, "flags.itemacro", {});
   setProperty(workflowItemData, "flags.midi-qol", {});
@@ -63,7 +63,7 @@ async function applySpikeGrowthDamage() {
 }
 
 function getDamageTestString(token, flags) {
-  return `${flags.origin}-${flags.round}-${flags.turn}-${flags.randomId}-${token.data.x}-${token.data.y}-${token.data.elevation}`;
+  return `${flags.origin}-${flags.round}-${flags.turn}-${flags.randomId}-${token.x}-${token.y}-${token.elevation}`;
 }
 
 if (args[0] === "on") {

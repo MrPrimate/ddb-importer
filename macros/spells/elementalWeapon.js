@@ -86,7 +86,7 @@ async function selectDamage() {
  * Select for weapon and apply bonus based on spell level
  */
 if (args[0] === "on") {
-  const weapons = targetActor.items.filter((i) => i.data.type === "weapon" && !i.system.properties.mgc);
+  const weapons = targetActor.items.filter((i) => i.type === "weapon" && !i.system.properties.mgc);
   let weapon_content = "";
 
   //Filter for weapons

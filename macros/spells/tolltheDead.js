@@ -8,8 +8,8 @@ if (lastArg.failedSaveUuids.length > 0) {
   const targets = lastArg.failedSaves.map((fs) => canvas.tokens.get(fs.id));
 
   // assuming single target for spell
-  const damageDiceType = targets[0].actor.data.data.attributes.hp.max != targets[0].actor.data.data.attributes.hp.value ? 12 : 8;
-  const casterLevel = casterActor.data.type === "character" ? casterActor.data.data.details.level : casterActor.data.data.details.spellLevel;
+  const damageDiceType = targets[0].actor.system.attributes.hp.max != targets[0].actor.system.attributes.hp.value ? 12 : 8;
+  const casterLevel = casterActor.type === "character" ? casterActor.system.details.level : casterActor.system.details.spellLevel;
   const damageDiceNum = Math.floor((casterLevel + 1) / 6) + 1;
   const damageRoll = await new Roll(`${damageDiceNum}d${damageDiceType}[${damageType}]`).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll);

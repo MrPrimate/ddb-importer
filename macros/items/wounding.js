@@ -14,10 +14,10 @@ if (args[0] === "on") {
   const sourceActor = item.parent;
 
   const combatTime = game.combat.round + game.combat.turn / 100;
-  const lastTime = getProperty(sourceActor.data.flags, "midi-qol.woundedTime");
+  const lastTime = getProperty(sourceActor.flags, "midi-qol.woundedTime");
   lastArg.canWound = !game.combat || (combatTime !== lastTime);
   if (game.combat && lastArg.canWound && combatTime !== lastTime) {
-    setProperty(sourceActor.data.flags, "midi-qol.woundedTime", combatTime)
+    setProperty(sourceActor.flags, "midi-qol.woundedTime", combatTime)
   }
   if (!lastArg.canWound) {
     const stacks = getProperty(lastArg.efData, "flags.dae.stacks") || 1;
