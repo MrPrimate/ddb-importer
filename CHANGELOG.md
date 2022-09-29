@@ -1,3 +1,7 @@
+# 3.1.11
+
+* Green flame blade extra damage targeted caster.
+
 # 3.1.10
 
 * Spell Effect: Shillelagh did not work in v10
