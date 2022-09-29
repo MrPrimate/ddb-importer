@@ -89,11 +89,6 @@ async function attackNearby(originToken, ignoreIds) {
   const targetContent = potentialTargets.map((t) => `<option value="${t.id}">${t.name}</option>`).join("");
   const content = `<div class="form-group"><label>Targets : </label><select name="secondaryTargetId"}>${targetContent}</select></div>`;
 
-  console.warn({
-    casterToken,
-    caster,
-    potentialTargets,
-  })
   new Dialog({
     title: "Green Flame Blade: Choose a secondary target to attack",
     content,
@@ -108,12 +103,16 @@ async function attackNearby(originToken, ignoreIds) {
           const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
           if (game.dice3d) game.dice3d.showForRoll(damageRoll);
           const workflowItemData = duplicate(sourceItem);
-          workflowItemData.target = { value: 1, units: "", type: "creature" };
+          workflowItemData.effects = [];
+          setProperty(workflowItemData, "flags.midi-qol", {})
+          workflowItemData.system.target = { value: 1, units: "", type: "creature" };
+          workflowItemData.system.range = { value: 5, long: null, units: "ft", },
+          delete workflowItemData._id;
           workflowItemData.name = "Green Flame Blade: Secondary Damage";
 
           await new MidiQOL.DamageOnlyWorkflow(
             caster,
-            casterToken.document,
+            casterToken,
             damageRoll.total,
             damageType,
             [targetToken],
@@ -170,7 +169,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           weaponCopy.effects.push({
             changes: [{ key: "macro.itemMacro", mode: 0, value: "", priority: "20", }],
             disabled: false,
-            duration: { turns: 0 },
+            // duration: { turns: 0 },
+            duration: { },
             icon: sourceItemData.img,
             label: sourceItemData.name,
             origin,
