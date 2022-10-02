@@ -62,10 +62,10 @@ export function getLegendaryActions(monster, monsterActions) {
     let action = newFeat(name);
 
     const actionMatch = monsterActions.find((mstAction) =>
-      name == mstAction.name ||
-      name == `${mstAction.name} Attack` ||
-      name == `${mstAction.name}`.split('(', 1)[0].trim() ||
-      name == `${mstAction.name} Attack`.split('(', 1)[0].trim()
+      name == mstAction.name
+      || name == `${mstAction.name} Attack`
+      || name == `${mstAction.name}`.split('(', 1)[0].trim()
+      || name == `${mstAction.name} Attack`.split('(', 1)[0].trim()
     );
 
     action.flags.monsterMunch = {};

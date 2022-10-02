@@ -15,8 +15,8 @@ function getProperties(ddb, feature) {
     // is a martial artist
     .some((cls) =>
       cls.classFeatures.some((feature) =>
-        feature.definition.name === "Ki-Empowered Strikes" &&
-        cls.level >= feature.definition.requiredLevel
+        feature.definition.name === "Ki-Empowered Strikes"
+        && cls.level >= feature.definition.requiredLevel
       ));
 
   if (kiEmpowered && feature.flags.ddbimporter.originalName == "Unarmed Strike") {
@@ -224,18 +224,18 @@ function getLevelScaleDice(ddb, character, action, feat) {
   if (useScale) return feat;
   const parts = ddb.character.classes
     .filter((cls) => cls.classFeatures.some((feature) =>
-      feature.definition.id == action.componentId &&
-      feature.definition.entityTypeId == action.componentTypeId &&
-      feature.levelScale?.dice?.diceString
+      feature.definition.id == action.componentId
+      && feature.definition.entityTypeId == action.componentTypeId
+      && feature.levelScale?.dice?.diceString
     ))
     .map((cls) => {
       const feature = cls.classFeatures.find((feature) =>
-        feature.definition.id == action.componentId &&
-        feature.definition.entityTypeId == action.componentTypeId
+        feature.definition.id == action.componentId
+        && feature.definition.entityTypeId == action.componentTypeId
       );
       const parsedString = character.flags.ddbimporter.dndbeyond.templateStrings.find((templateString) =>
-        templateString.id == action.id &&
-        templateString.entityTypeId == action.entityTypeId
+        templateString.id == action.id
+        && templateString.entityTypeId == action.entityTypeId
       );
       const die = feature.levelScale.dice ? feature.levelScale.dice : feature.levelScale.die ? feature.levelScale.die : undefined;
       const scaleValueLink = DDBHelper.getScaleValueString(ddb, action).value;
@@ -339,8 +339,8 @@ function martialArtsDamage(ddb, action) {
 
 function getLimitedUse(action, character) {
   if (
-    action.limitedUse &&
-    (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus)
+    action.limitedUse
+    && (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus)
   ) {
     const resetType = DICTIONARY.resets.find((type) => type.id === action.limitedUse.resetType);
     let maxUses = (action.limitedUse.maxUses && action.limitedUse.maxUses !== -1) ? action.limitedUse.maxUses : 0;
@@ -483,8 +483,8 @@ function calculateActionAttackAbilities(ddb, character, action, weapon) {
     ).value;
     weapon.system.ability = defaultAbility;
   } else if (action.isMartialArts) {
-    weapon.system.ability =
-      action.isMartialArts && isMartialArtists(ddb.character.classes)
+    weapon.system.ability
+      = action.isMartialArts && isMartialArtists(ddb.character.classes)
         ? character.flags.ddbimporter.dndbeyond.effectAbilities.dex.value >= character.flags.ddbimporter.dndbeyond.effectAbilities.str.value
           ? "dex"
           : "str"
@@ -681,8 +681,8 @@ function getOtherActions(ddb, character, parsedActions) {
     .filter(
       (action) =>
         // lets grab other actions and add, make sure we don't get attack based ones that haven't parsed
-        (!DDBHelper.displayAsAttack(ddb, action, character) && !actionFilter(action, parsedActions)) ||
-        (DDBHelper.displayAsAttack(ddb, action, character) && !parsedActions.some((attack) => attack.name === DDBHelper.getName(ddb, action, character)))
+        (!DDBHelper.displayAsAttack(ddb, action, character) && !actionFilter(action, parsedActions))
+        || (DDBHelper.displayAsAttack(ddb, action, character) && !parsedActions.some((attack) => attack.name === DDBHelper.getName(ddb, action, character)))
     )
     .map((action) => {
       logger.debug(`Getting Other Action ${action.name}`);

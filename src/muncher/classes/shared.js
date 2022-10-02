@@ -104,11 +104,11 @@ export async function generateFeatureAdvancements(klass, compendiumClassFeatures
         const matchName = hasProperty(match, "flags.ddbimporter.featureName")
           ? getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
           : match.name.trim().toLowerCase();
-        return feature.name.trim().toLowerCase() == matchName &&
-          hasProperty(match, "flags.ddbimporter") &&
-          (match.flags.ddbimporter.class == klass.name ||
-            match.flags.ddbimporter.parentClassId == klass.id ||
-            match.flags.ddbimporter.classId == klass.id);
+        return feature.name.trim().toLowerCase() == matchName
+          && hasProperty(match, "flags.ddbimporter")
+          && (match.flags.ddbimporter.class == klass.name
+            || match.flags.ddbimporter.parentClassId == klass.id
+            || match.flags.ddbimporter.classId == klass.id);
       });
 
       if (featureMatch) {
@@ -155,11 +155,11 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
         const matchName = hasProperty(match, "flags.ddbimporter.featureName")
           ? getProperty(match, "flags.ddbimporter.featureName").trim().toLowerCase()
           : match.name.trim().toLowerCase();
-        return feature.name.trim().toLowerCase() == matchName &&
-          hasProperty(match, "flags.ddbimporter") &&
-          (match.flags.ddbimporter.class == klass.name ||
-            match.flags.ddbimporter.parentClassId == klass.id ||
-            match.flags.ddbimporter.classId == klass.id);
+        return feature.name.trim().toLowerCase() == matchName
+          && hasProperty(match, "flags.ddbimporter")
+          && (match.flags.ddbimporter.class == klass.name
+            || match.flags.ddbimporter.parentClassId == klass.id
+            || match.flags.ddbimporter.classId == klass.id);
       });
       const title = (featureMatch)
         ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>`
@@ -278,8 +278,8 @@ export async function buildBaseClass(klass) {
   // const skillCount = .filter((mod) => mod.subType === classSkillSubType && mod.type === "proficiency"));
 
   const proficiencyOption = klass.classFeatures.find((feature) =>
-    feature.name === "Proficiencies" &&
-    feature.requiredLevel === 1
+    feature.name === "Proficiencies"
+    && feature.requiredLevel === 1
   );
 
   let dom = new DocumentFragment();

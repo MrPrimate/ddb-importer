@@ -267,8 +267,8 @@ export default class Helpers {
       let folderData = f;
 
       let newFolder = game.folders.find((folder) =>
-        (folder._id === folderData._id || folder.flags.importid === folderData._id) &&
-        folder.type === folderData.type
+        (folder._id === folderData._id || folder.flags.importid === folderData._id)
+        && folder.type === folderData.type
       );
 
       if (!newFolder) {
@@ -502,8 +502,8 @@ export default class Helpers {
 
     const newTokens = tokens.map((token) => {
       const monsterHit = monsterIndex.find((monster) =>
-        monster.flags?.ddbimporter?.id && token.flags.ddbActorFlags?.id &&
-        monster.flags.ddbimporter.id === token.flags.ddbActorFlags.id);
+        monster.flags?.ddbimporter?.id && token.flags.ddbActorFlags?.id
+        && monster.flags.ddbimporter.id === token.flags.ddbActorFlags.id);
       if (monsterHit) {
         token.flags.compendiumActorId = monsterHit._id;
       }

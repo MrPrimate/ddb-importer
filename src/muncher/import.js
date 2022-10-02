@@ -113,9 +113,9 @@ export async function removeItems(items, itemsToRemove, matchDDBId = false) {
       items.filter(
         (item) =>
           !itemsToRemove.some((originalItem) =>
-            (item.name === originalItem.name || item.flags?.ddbimporter?.originalName === originalItem.name) &&
-            item.type === originalItem.type &&
-            (!matchDDBId || (matchDDBId && item.flags?.ddbimporter?.id === originalItem.flags?.ddbimporter?.id))
+            (item.name === originalItem.name || item.flags?.ddbimporter?.originalName === originalItem.name)
+            && item.type === originalItem.type
+            && (!matchDDBId || (matchDDBId && item.flags?.ddbimporter?.id === originalItem.flags?.ddbimporter?.id))
           )
       )
     );
@@ -250,9 +250,9 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
     matchingItem = items.find(
       (matchItem) => {
         const monsterNames = getMonsterNames(matchItem.name);
-        const monsterMatch = (monsterNames.includes(item.name.toLowerCase())) &&
-          DICTIONARY.types.monster.includes(matchItem.type) &&
-          DICTIONARY.types.inventory.includes(item.type);
+        const monsterMatch = (monsterNames.includes(item.name.toLowerCase()))
+          && DICTIONARY.types.monster.includes(matchItem.type)
+          && DICTIONARY.types.inventory.includes(item.type);
         return monsterMatch;
       });
   }
@@ -277,9 +277,9 @@ export async function looseItemNameMatch(item, items, loose = false, monster = f
     // lets go loosey goosey on matching equipment, we often get types wrong
     matchingItem = items.find(
       (matchItem) =>
-        (looseNames.includes(matchItem.name.toLowerCase()) || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", ""))) &&
-        DICTIONARY.types.inventory.includes(item.type) &&
-        DICTIONARY.types.inventory.includes(matchItem.type)
+        (looseNames.includes(matchItem.name.toLowerCase()) || looseNames.includes(matchItem.name.toLowerCase().replace(" armor", "")))
+        && DICTIONARY.types.inventory.includes(item.type)
+        && DICTIONARY.types.inventory.includes(matchItem.type)
     );
 
     // super loose name match!
@@ -297,8 +297,8 @@ function flagMatch(item1, item2, matchFlags) {
   // console.warn("flagMatch", {item1, item2, matchFlags});
   if (matchFlags.length === 0) return true;
   const matched = matchFlags.some((flag) =>
-    item1.flags.ddbimporter[flag] && item2.flags.ddbimporter[flag] &&
-    item1.flags.ddbimporter[flag] === item2.flags.ddbimporter[flag]
+    item1.flags.ddbimporter[flag] && item2.flags.ddbimporter[flag]
+    && item1.flags.ddbimporter[flag] === item2.flags.ddbimporter[flag]
   );
   return matched;
 }
@@ -670,10 +670,10 @@ export async function getDDBGenericItemIcons(items, download) {
     // logger.debug(item.name);
     // logger.debug(item.flags.ddbimporter.dndbeyond.filterType);
     const excludedItems = ["spell", "feat", "class"];
-    if (!excludedItems.includes(item.type) &&
-        item.flags &&
-        item.flags.ddbimporter &&
-        item.flags.ddbimporter.dndbeyond) {
+    if (!excludedItems.includes(item.type)
+        && item.flags
+        && item.flags.ddbimporter
+        && item.flags.ddbimporter.dndbeyond) {
       let generic = null;
       if (item.flags.ddbimporter.dndbeyond.filterType) {
         generic = genericItems.find((i) => i.filterType === item.flags.ddbimporter.dndbeyond.filterType);
@@ -804,8 +804,8 @@ async function updateFolderItems(type, input, update = true) {
   const defaultItemsFolder = await utils.getFolder(folderLookup.folder);
   const existingItems = await game.items.entities.filter((item) => {
     const itemFolder = subFolders.find((folder) =>
-      item.flags?.ddbimporter?.dndbeyond?.lookupName &&
-      folder.name === item.flags.ddbimporter.dndbeyond.lookupName
+      item.flags?.ddbimporter?.dndbeyond?.lookupName
+      && folder.name === item.flags.ddbimporter.dndbeyond.lookupName
     );
     return itemFolder && item.type === folderLookup.itemType && item.folder === itemFolder._id;
   });
@@ -836,8 +836,8 @@ async function updateFolderItems(type, input, update = true) {
           } else {
             logger.info(`Creating ${type} ${item.name}`);
             const itemsFolder = subFolders.find((folder) =>
-              item.flags?.ddbimporter?.dndbeyond?.lookupName &&
-              folder.name === item.flags.ddbimporter.dndbeyond.lookupName
+              item.flags?.ddbimporter?.dndbeyond?.lookupName
+              && folder.name === item.flags.ddbimporter.dndbeyond.lookupName
             );
             item.folder = (itemsFolder) ? itemsFolder._id : defaultItemsFolder._id;
             await Item.create(item);
@@ -1242,8 +1242,8 @@ export async function srdFiddling(items, type) {
 
 export async function daeFiddling(items) {
   const fiddle = game.settings.get("ddb-importer", "munching-policy-use-dae-effects");
-  const installed = game.modules.get("dae")?.active &&
-    (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
+  const installed = game.modules.get("dae")?.active
+    && (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
 
   if (fiddle && installed) {
     return addItemsDAESRD(items);
@@ -1304,8 +1304,8 @@ export async function addMagicItemSpells(input) {
     logger.debug("item.flags.magicitems.spells", item.flags.magicitems.spells);
     if (item.flags.magicitems.spells) {
       for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
-        const itemSpell = itemSpells.find((iSpell) => iSpell.name === spell.name &&
-          (iSpell.compendium || iSpell.magicItem.subFolder === item.name)
+        const itemSpell = itemSpells.find((iSpell) => iSpell.name === spell.name
+          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name)
         );
         if (itemSpell) {
           for (const [key, value] of Object.entries(itemSpell.magicItem)) {

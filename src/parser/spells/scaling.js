@@ -13,10 +13,10 @@ let getScaleType = (name, data, mod) => {
   // CHARACTERLEVEL - typical cantrip based levelling, some expections (eldritch blast)
   let scaleType = null;
   const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : data.definition.scaleType;
-  const isHigherLevelDefinitions =
-    mod.atHigherLevels.higherLevelDefinitions &&
-    Array.isArray(mod.atHigherLevels.higherLevelDefinitions) &&
-    mod.atHigherLevels.higherLevelDefinitions.length >= 1;
+  const isHigherLevelDefinitions
+    = mod.atHigherLevels.higherLevelDefinitions
+    && Array.isArray(mod.atHigherLevels.higherLevelDefinitions)
+    && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
 
   if (isHigherLevelDefinitions && modScaleType === "spellscale") {
     const definition = mod.atHigherLevels.higherLevelDefinitions[0];
@@ -99,10 +99,10 @@ export function getSpellScaling(data) {
           // mod.atHigherLevels.higherLevelDefinitions contains info about the
           // spells damage die at higher levels, but we can't use this for cantrips as
           // FVTT use a formula to work out the scaling (ddb has a fixed value structure)
-          const isHigherLevelDefinitions =
-            mod.atHigherLevels.higherLevelDefinitions &&
-            Array.isArray(mod.atHigherLevels.higherLevelDefinitions) &&
-            mod.atHigherLevels.higherLevelDefinitions.length >= 1;
+          const isHigherLevelDefinitions
+            = mod.atHigherLevels.higherLevelDefinitions
+            && Array.isArray(mod.atHigherLevels.higherLevelDefinitions)
+            && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
 
           // lets handle normal spell leveling first
           const modScaleType = mod.atHigherLevels.scaleType ? mod.atHigherLevels.scaleType : data.definition.scaleType;
@@ -110,8 +110,8 @@ export function getSpellScaling(data) {
             const definition = mod.atHigherLevels.higherLevelDefinitions[0];
             if (definition) {
               const die = definition.dice ? definition.dice : definition.die ? definition.die : undefined;
-              const modScaleDamage =
-                die?.diceString // if dice string
+              const modScaleDamage
+                = die?.diceString // if dice string
                   ? die.diceString // use dice string
                   : die?.fixedValue // else if fixed value
                     ? die.fixedValue // use fixed value

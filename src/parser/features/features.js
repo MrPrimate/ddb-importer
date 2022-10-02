@@ -155,10 +155,10 @@ const SKIPPED_FEATURES = [
   "Speed",
 ];
 function includedFeatureNameCheck(featName) {
-  const nameAllowed = !featName.startsWith("Proficiencies") &&
-    !featName.startsWith("Ability Score") &&
-    !featName.startsWith("Size") &&
-    !SKIPPED_FEATURES.includes(featName);
+  const nameAllowed = !featName.startsWith("Proficiencies")
+    && !featName.startsWith("Ability Score")
+    && !featName.startsWith("Size")
+    && !SKIPPED_FEATURES.includes(featName);
 
   return nameAllowed;
 }
@@ -178,8 +178,8 @@ function parseClassFeatures(ddb, character) {
   ddb.character.classes.forEach((klass) => {
     const classFeatures = klass.definition.classFeatures.filter(
       (feat) =>
-        includedFeatureNameCheck(feat.name) &&
-        feat.requiredLevel <= klass.level
+        includedFeatureNameCheck(feat.name)
+        && feat.requiredLevel <= klass.level
     );
     const klassName = klass.definition.name;
     const klassFeatureList = classFeatures
@@ -223,9 +223,9 @@ function parseClassFeatures(ddb, character) {
       let subClassItems = [];
       const subFeatures = klass.subclassDefinition.classFeatures.filter(
         (feat) =>
-          includedFeatureNameCheck(feat.name) &&
-          feat.requiredLevel <= klass.level &&
-          !excludedFeatures.includes(feat.id)
+          includedFeatureNameCheck(feat.name)
+          && feat.requiredLevel <= klass.level
+          && !excludedFeatures.includes(feat.id)
       );
       const subKlassName = `${klassName} : ${klass.subclassDefinition.name}`;
       const subKlassFeatureList = subFeatures

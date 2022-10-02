@@ -228,9 +228,9 @@ export default class ThirdPartyMunch extends FormApplication {
 
   static async _findFolder(label, type) {
     const folder = game.folders.find((f) =>
-      f.type === type &&
-      f.parentFolder === undefined &&
-      f.name === label
+      f.type === type
+      && f.parentFolder === undefined
+      && f.name === label
     );
 
     return folder ? folder : ThirdPartyMunch._createFolder(label, type);
@@ -313,20 +313,20 @@ export default class ThirdPartyMunch extends FormApplication {
       .map(async (note) => {
         const noteJournal = journalNotes.find((journal) => {
           const contentChunkIdMatch = note.flags.ddb.contentChunkId
-            ? journal.flags.ddb && note.flags.ddb &&
-              journal.flags.ddb.contentChunkId == note.flags.ddb.contentChunkId
+            ? journal.flags.ddb && note.flags.ddb
+              && journal.flags.ddb.contentChunkId == note.flags.ddb.contentChunkId
             : false;
 
-          const noContentChunk = !note.flags.ddb.contentChunkId &&
-            note.flags.ddb.originalLink && note.flags.ddb.ddbId && note.flags.ddb.parentId &&
-            note.flags.ddb.slug && note.flags.ddb.linkName;
+          const noContentChunk = !note.flags.ddb.contentChunkId
+            && note.flags.ddb.originalLink && note.flags.ddb.ddbId && note.flags.ddb.parentId
+            && note.flags.ddb.slug && note.flags.ddb.linkName;
           const originMatch = noContentChunk
-            ? journal.flags.ddb.slug == note.flags.ddb.slug &&
-              journal.flags.ddb.ddbId == note.flags.ddbId &&
-              journal.flags.ddb.parentId == note.flags.ddb.parentId &&
-              journal.flags.ddb.cobaltId == note.flags.ddb.cobaltId &&
-              journal.flags.ddb.originalLink == note.flags.ddb.originalLink &&
-              journal.flags.ddb.linkName == note.flags.ddb.linkName
+            ? journal.flags.ddb.slug == note.flags.ddb.slug
+              && journal.flags.ddb.ddbId == note.flags.ddbId
+              && journal.flags.ddb.parentId == note.flags.ddb.parentId
+              && journal.flags.ddb.cobaltId == note.flags.ddb.cobaltId
+              && journal.flags.ddb.originalLink == note.flags.ddb.originalLink
+              && journal.flags.ddb.linkName == note.flags.ddb.linkName
             : false;
           const journalNameMatch = !contentChunkIdMatch && !originMatch
             ? journal.name.trim() == note.label.trim() // ||

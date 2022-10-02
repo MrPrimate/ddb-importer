@@ -21,8 +21,8 @@ let getGenericConditionAffect = (data, condition, typeId) => {
 
   let result = DDBHelper
     .filterBaseModifiers(data, condition)
-    .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType) &&
-      (modifier.restriction === "" || !modifier.restriction))
+    .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType)
+      && (modifier.restriction === "" || !modifier.restriction))
     .map((modifier) => {
       const entry = DICTIONARY.character.damageAdjustments.find(
         (type) => type.type === typeId && type.kind === modifier.type && type.value === modifier.subType
@@ -36,9 +36,9 @@ let getGenericConditionAffect = (data, condition, typeId) => {
       .map((adjustment) => {
         const entry = DICTIONARY.character.damageAdjustments.find(
           (type) =>
-            (type.id === adjustment.id || type.id === adjustment.adjustmentId) &&
-            type.type === adjustment.type &&
-            type.kind === condition
+            (type.id === adjustment.id || type.id === adjustment.adjustmentId)
+            && type.type === adjustment.type
+            && type.kind === condition
         );
         return entry ? entry.foundryValue || entry.value : undefined;
       })

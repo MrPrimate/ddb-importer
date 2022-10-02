@@ -16,9 +16,9 @@ export function getSpellCastingAbility(classInfo, checkSubclass = true, onlySubc
   if (!onlySubclass && hasSpellCastingAbility(classInfo.definition.spellCastingAbilityId)) {
     spellCastingAbility = convertSpellCastingAbilityId(classInfo.definition.spellCastingAbilityId);
   } else if (
-    checkSubclass &&
-    classInfo.subclassDefinition &&
-    hasSpellCastingAbility(classInfo.subclassDefinition.spellCastingAbilityId)
+    checkSubclass
+    && classInfo.subclassDefinition
+    && hasSpellCastingAbility(classInfo.subclassDefinition.spellCastingAbilityId)
   ) {
     // e.g. Arcane Trickster has spellcasting ID granted here
     spellCastingAbility = convertSpellCastingAbilityId(classInfo.subclassDefinition.spellCastingAbilityId);

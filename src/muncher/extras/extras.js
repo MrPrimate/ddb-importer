@@ -38,15 +38,15 @@ async function updateExtras(extras, existingExtras) {
       .filter((extra) =>
         existingExtras.some(
           (exist) =>
-            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
-            extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id
+            && extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
         )
       )
       .map(async (extra) => {
         const existingExtra = await existingExtras.find(
           (exist) =>
-            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
-            extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id
+            && extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
         );
         extra._id = existingExtra._id;
         logger.info(`Updating extra ${extra.name}`);
@@ -65,8 +65,8 @@ async function createExtras(extras, existingExtras, folderId) {
         (extra) =>
           !existingExtras.some(
             (exist) =>
-              exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id &&
-              extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
+              exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id
+              && extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
           )
       )
       .map(async (extra) => {
@@ -587,8 +587,8 @@ function enhanceParsedExtra(actor, extra) {
   const artificerBonusGroup = [10, 12];
 
   if (
-    extra.flags?.ddbimporter?.creatureFlags?.includes("ARPB") && // Attack Rolls Add Proficiency Bonus
-    extra.flags?.ddbimporter?.creatureFlags?.includes("PSPB") // Proficient Skills Add Proficiency Bonus
+    extra.flags?.ddbimporter?.creatureFlags?.includes("ARPB") // Attack Rolls Add Proficiency Bonus
+    && extra.flags?.ddbimporter?.creatureFlags?.includes("PSPB") // Proficient Skills Add Proficiency Bonus
   ) {
     if (extra.flags?.ddbimporter?.creatureGroupId === 3) {
       extra = generateBeastCompanionEffects(extra, characterProficiencyBonus);
@@ -604,9 +604,9 @@ function enhanceParsedExtra(actor, extra) {
 
   if (
     // Damage Rolls Add Proficiency Bonus
-    (extra.flags?.ddbimporter?.creatureFlags?.includes("DRPB") && extra.flags?.ddbimporter?.creatureGroupId !== 3) ||
+    (extra.flags?.ddbimporter?.creatureFlags?.includes("DRPB") && extra.flags?.ddbimporter?.creatureGroupId !== 3)
     // is this a artificer infusion? the infusion call actually adds this creature group, but we don't fetch that yet.
-    extra.flags?.ddbimporter?.creatureGroupId === 12
+    || extra.flags?.ddbimporter?.creatureGroupId === 12
   ) {
     extra.items = extra.items.map((item) => {
       if (item.type === "weapon") {

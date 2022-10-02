@@ -15,9 +15,9 @@ export function fixForItemCollections(ddb, items) {
       setProperty(item, "flags.itemcollection.bagPrice", item.system.cost);
       setProperty(item, "flags.core.sheetClass", "dnd5e.ItemSheet5eWithBags");
     }
-    if (hasProperty(item, "flags.ddbimporter.id") &&
-      hasProperty(item, "flags.ddbimporter.containerEntityId") &&
-      item.flags.ddbimporter.containerEntityId === ddb.character.id
+    if (hasProperty(item, "flags.ddbimporter.id")
+      && hasProperty(item, "flags.ddbimporter.containerEntityId")
+      && item.flags.ddbimporter.containerEntityId === ddb.character.id
     ) {
       setProperty(item, "flags.itemcollection.contentsData", []);
     }

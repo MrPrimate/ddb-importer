@@ -446,8 +446,8 @@ function getCompendiumLookups(type, selected) {
 
   const selections = game.packs
     .filter((pack) =>
-      pack.documentName === type &&
-    !excludedCompendiumPackages.includes(pack.metadata.packageName)
+      pack.documentName === type
+    && !excludedCompendiumPackages.includes(pack.metadata.packageName)
     )
     .reduce((choices, pack) => {
       choices[pack.collection] = {

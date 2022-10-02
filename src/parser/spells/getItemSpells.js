@@ -19,10 +19,10 @@ export function getItemSpells(ddb, character) {
     const itemInfo = lookups.item.find((it) => it.id === spell.componentId);
     if (!itemInfo) return;
 
-    const active =
-      (!itemInfo.canEquip && !itemInfo.canAttune) || // if item just gives a thing
-      itemInfo.isAttuned || // if it is attuned (assume equipped)
-      (!itemInfo.canAttune && itemInfo.equipped); // can't attune but is equipped
+    const active
+      = (!itemInfo.canEquip && !itemInfo.canAttune) // if item just gives a thing
+      || itemInfo.isAttuned // if it is attuned (assume equipped)
+      || (!itemInfo.canAttune && itemInfo.equipped); // can't attune but is equipped
     // for item spells the spell dc is often on the item spell
     let spellDC = 8;
     if (spell.overrideSaveDc) {

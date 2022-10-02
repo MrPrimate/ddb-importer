@@ -29,9 +29,9 @@ import { generateEffects } from "../../effects/effects.js";
 function getInfusionItemMap(ddb, item) {
   if (!ddb.infusions?.item) return undefined;
   return ddb.infusions.item.find((mapping) =>
-    mapping.itemId === item.flags.ddbimporter.definitionId &&
-    mapping.inventoryMappingId === item.flags.ddbimporter.id &&
-    mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
+    mapping.itemId === item.flags.ddbimporter.definitionId
+    && mapping.inventoryMappingId === item.flags.ddbimporter.id
+    && mapping.itemTypeId === item.flags.ddbimporter.definitionEntityTypeId
   );
 }
 

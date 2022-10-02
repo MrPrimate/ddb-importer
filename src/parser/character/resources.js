@@ -5,8 +5,8 @@ function resourceList(data) {
   const resources = [data.character.actions.race, data.character.actions.class, data.character.actions.feat]
     .flat()
     .filter((action) =>
-      action.limitedUse &&
-        (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus));
+      action.limitedUse
+        && (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus));
 
   return resources;
 }

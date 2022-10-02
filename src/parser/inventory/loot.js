@@ -15,8 +15,8 @@ function getItemType(data) {
 
   const foundryTypes = ["weapon", "equipment", "consumable", "tool", "loot", "class", "spell", "feat", "backpack"];
 
-  const itemTypes =
-    data.definition.tags && Array.isArray(data.definition.tags)
+  const itemTypes
+    = data.definition.tags && Array.isArray(data.definition.tags)
       ? [data.definition.type.toLowerCase(), ...data.definition.tags.map((t) => t.toLowerCase())]
       : [data.definition.type.toLowerCase()];
 
@@ -32,13 +32,13 @@ function getItemType(data) {
     );
 
   if (!itemType) {
-    const isConsumable =
-      data.definition.type === "Gear" &&
-      data.definition.subType === "Adventuring Gear" &&
-      data.definition.tags.includes('Utility') &&
-      ((data.definition.tags.includes('Damage') &&
-      data.definition.tags.includes('Combat')) ||
-      data.definition.tags.includes('Healing'));
+    const isConsumable
+      = data.definition.type === "Gear"
+      && data.definition.subType === "Adventuring Gear"
+      && data.definition.tags.includes('Utility')
+      && ((data.definition.tags.includes('Damage')
+      && data.definition.tags.includes('Combat'))
+      || data.definition.tags.includes('Healing'));
     if (isConsumable) itemType = "consumable";
   }
 

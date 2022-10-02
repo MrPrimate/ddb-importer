@@ -130,9 +130,9 @@ export function generateBackground(bg) {
       result.definition = bg.featuresBackground;
     }
     if (
-      bg.characteristicsBackground &&
-      bg.featuresBackground &&
-      bg.featuresBackground.entityTypeId != bg.characteristicsBackground.entityTypeId
+      bg.characteristicsBackground
+      && bg.featuresBackground
+      && bg.featuresBackground.entityTypeId != bg.characteristicsBackground.entityTypeId
     ) {
       result.description += `<h2>${bg.characteristicsBackground.name}</h2>`;
       result.description += bg.characteristicsBackground.shortDescription.replace("\r\n", "");
@@ -168,9 +168,9 @@ export function generateBackgroundFeature(bg) {
       result.definition = bg.featuresBackground;
     }
     if (
-      bg.characteristicsBackground &&
-      bg.featuresBackground &&
-      bg.featuresBackground.entityTypeId != bg.characteristicsBackground.entityTypeId
+      bg.characteristicsBackground
+      && bg.featuresBackground
+      && bg.featuresBackground.entityTypeId != bg.characteristicsBackground.entityTypeId
     ) {
       result.name = bg.characteristicsBackground.featureName;
       result.description += bg.characteristicsBackground.featureDescription.replace("\r\n", "");

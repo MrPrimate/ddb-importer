@@ -89,13 +89,13 @@ export function getConsumableUses(data) {
 export function getWeaponProficient(data, weaponType, proficiencies) {
   // if it's a simple weapon and the character is proficient in simple weapons:
   if (
-    proficiencies.find((proficiency) => proficiency.name === "Simple Weapons") &&
-    weaponType.indexOf("simple") !== -1
+    proficiencies.find((proficiency) => proficiency.name === "Simple Weapons")
+    && weaponType.indexOf("simple") !== -1
   ) {
     return true;
   } else if (
-    proficiencies.find((proficiency) => proficiency.name === "Martial Weapons") &&
-    weaponType.indexOf("martial") !== -1
+    proficiencies.find((proficiency) => proficiency.name === "Martial Weapons")
+    && weaponType.indexOf("martial") !== -1
   ) {
     return true;
   } else {
@@ -134,9 +134,9 @@ export function getBaseItem(data) {
     baseItem = data.definition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
   } else if (data.definition.filterType === "Armor" && data.definition.baseArmorName) {
     baseItem = data.definition.baseArmorName.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
-  } else if (data.definition.filterType === "Other Gear" &&
-    ((data.definition.gearTypeId === 1 && data.definition.subType === "Tool") ||
-      (data.definition.gearTypeId === 11))) {
+  } else if (data.definition.filterType === "Other Gear"
+    && ((data.definition.gearTypeId === 1 && data.definition.subType === "Tool")
+      || (data.definition.gearTypeId === 11))) {
     const toolProficiencies = DICTIONARY.character.proficiencies
       .filter((prof) => prof.type === "Tool")
       .map((prof) => {

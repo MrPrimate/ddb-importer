@@ -40,9 +40,9 @@ function getClassInfo(data) {
  */
 export function getClassFeatures(cls, classLevel = 20) {
   if (
-    cls.subclassDefinition &&
-    cls.subclassDefinition.classFeatures &&
-    Array.isArray(cls.subclassDefinition.classFeatures)
+    cls.subclassDefinition
+    && cls.subclassDefinition.classFeatures
+    && Array.isArray(cls.subclassDefinition.classFeatures)
   ) {
     const subclassFeatures = cls.subclassDefinition.classFeatures.map((subclassFeature) => {
       subclassFeature.className = cls.definition.name;

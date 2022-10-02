@@ -210,9 +210,9 @@ const utils = {
   filterDeprecated: (data) => {
     for (let prop in data) {
       if (
-        data[prop] &&
-        Object.prototype.hasOwnProperty.call(data[prop], "_deprecated") &&
-        data[prop]["_deprecated"] === true
+        data[prop]
+        && Object.prototype.hasOwnProperty.call(data[prop], "_deprecated")
+        && data[prop]["_deprecated"] === true
       ) {
         delete data[prop];
       }
@@ -227,9 +227,9 @@ const utils = {
     const templates = game.data.template;
     for (let entityType in templates) {
       if (
-        templates[entityType].types &&
-        Array.isArray(templates[entityType].types) &&
-        templates[entityType].types.includes(type)
+        templates[entityType].types
+        && Array.isArray(templates[entityType].types)
+        && templates[entityType].types.includes(type)
       ) {
         let obj = utils.mergeDeep({}, utils.filterDeprecated(templates[entityType][type]));
         if (obj.templates) {
@@ -247,8 +247,8 @@ const utils = {
 
   getOrCreateFolder: async (root, entityType, folderName, folderColor = "") => {
     let folder = game.folders.contents.find((f) =>
-      f.type === entityType && f.name === folderName &&
-      f.parent === (root ? root.id : null)
+      f.type === entityType && f.name === folderName
+      && f.parent === (root ? root.id : null)
     );
     // console.warn(`Looking for ${root} ${entityType} ${folderName}`);
     // console.warn(folder);

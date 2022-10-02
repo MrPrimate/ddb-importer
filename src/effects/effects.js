@@ -360,8 +360,8 @@ export function generateChange(bonus, priority, key, mode) {
 }
 
 export function generateAddChange(bonus, priority, key) {
-  const bonusValue = (Number.isInteger(bonus) && bonus >= 0) || // if bonus is a positive integer
-    (!Number.isInteger(bonus) && !bonus.trim().startsWith("+") && !bonus.trim().startsWith("-")) // not an int and does not start with + or -
+  const bonusValue = (Number.isInteger(bonus) && bonus >= 0) // if bonus is a positive integer
+    || (!Number.isInteger(bonus) && !bonus.trim().startsWith("+") && !bonus.trim().startsWith("-")) // not an int and does not start with + or -
     ? `+${bonus}`
     : bonus;
   return generateChange(bonusValue, priority, key, CONST.ACTIVE_EFFECT_MODES.ADD);
@@ -372,8 +372,8 @@ export function generateCustomChange(bonus, priority, key) {
 }
 
 export function generateCustomBonusChange(bonus, priority, key) {
-  const bonusValue = (Number.isInteger(bonus) && bonus >= 0) || // if bonus is a positive integer
-    (!Number.isInteger(bonus) && !bonus.trim().startsWith("+") && !bonus.trim().startsWith("-")) // not an int and does not start with + or -
+  const bonusValue = (Number.isInteger(bonus) && bonus >= 0) // if bonus is a positive integer
+    || (!Number.isInteger(bonus) && !bonus.trim().startsWith("+") && !bonus.trim().startsWith("-")) // not an int and does not start with + or -
     ? `+${bonus}`
     : bonus;
   return generateChange(bonusValue, priority, key, CONST.ACTIVE_EFFECT_MODES.CUSTOM);
@@ -1170,21 +1170,21 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
   // check attunement status etc
 
   if (
-    !ddbItem.definition?.canEquip &&
-    !ddbItem.definition?.canAttune &&
-    !ddbItem.definition?.isConsumable &&
-    DICTIONARY.types.inventory.includes(foundryItem.type)
+    !ddbItem.definition?.canEquip
+    && !ddbItem.definition?.canAttune
+    && !ddbItem.definition?.isConsumable
+    && DICTIONARY.types.inventory.includes(foundryItem.type)
   ) {
     // if item just gives a thing and not potion/scroll
     effect.disabled = false;
     setProperty(effect, "flags.ddbimporter.disabled", false);
     setProperty(foundryItem, "flags.dae.alwaysActive", true);
   } else if (
-    isCompendiumItem ||
-    foundryItem.type === "feat" ||
-    (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
-    (ddbItem.isAttuned && !ddbItem.definition?.canEquip) || // if it is attuned but can't equip
-    (!ddbItem.definition?.canAttune && ddbItem.equipped) // can't attune but is equipped
+    isCompendiumItem
+    || foundryItem.type === "feat"
+    || (ddbItem.isAttuned && ddbItem.equipped) // if it is attuned and equipped
+    || (ddbItem.isAttuned && !ddbItem.definition?.canEquip) // if it is attuned but can't equip
+    || (!ddbItem.definition?.canAttune && ddbItem.equipped) // can't attune but is equipped
   ) {
     setProperty(foundryItem, "flags.dae.alwaysActive", false);
     setProperty(effect, "flags.ddbimporter.disabled", false);

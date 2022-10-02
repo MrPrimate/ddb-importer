@@ -5,10 +5,10 @@ export function linkImages(html, data) {
   if (!game.user.isGM) return;
   const displayImages = game.settings.get("ddb-importer", "show-image-to-players");
   // does this functionality exist from anther module?
-  const funcExists = !displayImages ||
-    game.modules.get("vtta-dndbeyond")?.active ||
-    game.modules.get("vtta-ddb")?.active ||
-    game.modules.get("token-hud-art-button")?.active;
+  const funcExists = !displayImages
+    || game.modules.get("vtta-dndbeyond")?.active
+    || game.modules.get("vtta-ddb")?.active
+    || game.modules.get("token-hud-art-button")?.active;
 
   if (funcExists) return;
 

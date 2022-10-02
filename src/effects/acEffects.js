@@ -183,11 +183,11 @@ function addACBonusEffect(modifiers, name, type) {
 
 function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
   if (
-    isCompendiumItem ||
-    foundryItem.type === "feat" ||
-    (ddbItem.isAttuned && ddbItem.equipped) || // if it is attuned and equipped
-    (ddbItem.isAttuned && !ddbItem.definition.canEquip) || // if it is attuned but can't equip
-    (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
+    isCompendiumItem
+    || foundryItem.type === "feat"
+    || (ddbItem.isAttuned && ddbItem.equipped) // if it is attuned and equipped
+    || (ddbItem.isAttuned && !ddbItem.definition.canEquip) // if it is attuned but can't equip
+    || (!ddbItem.definition.canAttune && ddbItem.equipped) // can't attune but is equipped
   ) {
     setProperty(foundryItem, "flags.dae.alwaysActive", false);
     setProperty(effect, "flags.ddbimporter.disabled", false);

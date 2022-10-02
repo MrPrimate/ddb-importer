@@ -11,8 +11,8 @@ import FileHelper from "../lib/FileHelper.js";
 function getNotes(scene, bookCode) {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
-    journal.flags.ddb?.bookCode &&
-    journal.flags.ddb.bookCode === bookCode
+    journal.flags.ddb?.bookCode
+    && journal.flags.ddb.bookCode === bookCode
   );
 
   // get all notes placed on the map

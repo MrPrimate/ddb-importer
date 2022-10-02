@@ -138,9 +138,9 @@ async function buildRace(race, compendiumRacialTraits) {
   race.racialTraits.forEach((f) => {
     const feature = f.definition;
     const featureMatch = compendiumRacialTraits.find((match) =>
-      hasProperty(match, "flags.ddbimporter.baseName") && hasProperty(match, "flags.ddbimporter.entityRaceId") &&
-      feature.name.replace("’", "'") === match.flags.ddbimporter.baseName &&
-      match.flags.ddbimporter.entityRaceId === feature.entityRaceId
+      hasProperty(match, "flags.ddbimporter.baseName") && hasProperty(match, "flags.ddbimporter.entityRaceId")
+      && feature.name.replace("’", "'") === match.flags.ddbimporter.baseName
+      && match.flags.ddbimporter.entityRaceId === feature.entityRaceId
     );
     const title = (featureMatch) ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>` : `<p><b>${feature.name}</b></p>`;
     result.system.description.value += `${title}\n${feature.description}\n\n`;

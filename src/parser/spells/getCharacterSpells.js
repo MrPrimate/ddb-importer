@@ -27,12 +27,12 @@ export function getCharacterSpells(ddb, character) {
 
     logger.debug("Spell parsing, class info", classInfo);
 
-    const cantripBoost =
-      DDBHelper.getChosenClassModifiers(ddb).filter(
+    const cantripBoost
+      = DDBHelper.getChosenClassModifiers(ddb).filter(
         (mod) =>
-          mod.type === "bonus" &&
-          mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage` &&
-          (mod.restriction === null || mod.restriction === "")
+          mod.type === "bonus"
+          && mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage`
+          && (mod.restriction === null || mod.restriction === "")
       ).length > 0;
 
     // parse spells chosen as spellcasting (playerClass.spells)
@@ -82,8 +82,8 @@ export function getCharacterSpells(ddb, character) {
       const duplicateItem = items[duplicateSpell];
       if (!duplicateItem) {
         items.push(parsedSpell);
-      } else if (spell.alwaysPrepared || parsedSpell.system.preparation.mode === "always" ||
-        (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.preparation.mode === duplicateItem.system.preparation.mode && parsedSpell.prepared && !duplicateItem.prepared)) {
+      } else if (spell.alwaysPrepared || parsedSpell.system.preparation.mode === "always"
+        || (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.preparation.mode === duplicateItem.system.preparation.mode && parsedSpell.prepared && !duplicateItem.prepared)) {
         // if our new spell is always known we overwrite!
         // it's probably domain
         items[duplicateSpell] = parsedSpell;
@@ -156,10 +156,10 @@ export function getCharacterSpells(ddb, character) {
     // as they may come from with different spell casting mods
     const duplicateSpell = items.findIndex(
       (existingSpell) =>
-        (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name &&
-        klass &&
-        klass.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class &&
-        spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
+        (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
+        && klass
+        && klass.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class
+        && spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
     );
     if (!items[duplicateSpell]) {
       items.push(parseSpell(spell, character));

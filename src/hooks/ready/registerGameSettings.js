@@ -164,8 +164,8 @@ export default function () {
     game.settings.set(SETTINGS.MODULE_ID, "cors-endpoint", "https://images.ddb.mrprimate.co.uk/");
   }
 
-  if (game.user.isGM && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local") &&
-    game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie") != "") {
+  if (game.user.isGM && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local")
+    && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie") != "") {
     game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", false);
   }
 

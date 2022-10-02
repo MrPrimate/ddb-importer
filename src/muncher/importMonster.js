@@ -10,10 +10,10 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 
   await newItems.forEach((item) => {
     const existingItem = currentItems.find((owned) => {
-      const simpleMatch =
-        item.name === owned.name &&
-        item.type === owned.type &&
-        ((checkId && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id) || !checkId);
+      const simpleMatch
+        = item.name === owned.name
+        && item.type === owned.type
+        && ((checkId && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id) || !checkId);
 
       return simpleMatch;
     });
@@ -35,8 +35,8 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
           }
         }
 
-        if (!item.effects ||
-          (item.effects && item.effects.length == 0 && existingItem.effects && existingItem.effects.length > 0)
+        if (!item.effects
+          || (item.effects && item.effects.length == 0 && existingItem.effects && existingItem.effects.length > 0)
         ) {
           item.effects = duplicate(existingItem.getEmbeddedCollection("ActiveEffect"));
         }
@@ -152,8 +152,8 @@ export async function addNPCDDBId(npc, type = "monster") {
 
     const index = await compendium.getIndex({ fields: monsterIndexFields });
     const npcMatch = index.contents.find((entity) =>
-      !hasProperty(entity, "flags.ddbimporter.id") &&
-      entity.name.toLowerCase() === npcBasic.name.toLowerCase()
+      !hasProperty(entity, "flags.ddbimporter.id")
+      && entity.name.toLowerCase() === npcBasic.name.toLowerCase()
     );
 
     if (npcMatch) {
@@ -246,9 +246,9 @@ export async function getNPCImage(npcData, options) {
   if (npcData.prototypeToken.texture.src === null) npcData.prototypeToken.texture.src = CONST.DEFAULT_TOKEN;
 
   // okays, but do we now want to tokenize that?
-  const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize") &&
-    !mergedOptions.disableAutoTokenizeOverride &&
-    game.modules.get("vtta-tokenizer")?.active;
+  const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize")
+    && !mergedOptions.disableAutoTokenizeOverride
+    && game.modules.get("vtta-tokenizer")?.active;
   if (tokenizerReady) {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(options.type);
     // eslint-disable-next-line require-atomic-updates
@@ -314,8 +314,8 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
   await swapItems(data);
 
   // DAE
-  const daeInstalled = game.modules.get("dae")?.active &&
-    (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
+  const daeInstalled = game.modules.get("dae")?.active
+    && (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
   const daeCopy = game.settings.get("ddb-importer", "munching-policy-dae-copy");
   if (daeInstalled && daeCopy) {
     munchNote(`Importing DAE Item for ${data.name}`);

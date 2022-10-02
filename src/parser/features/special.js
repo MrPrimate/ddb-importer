@@ -35,12 +35,12 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
       const choiceMatch = ddb.character.options[type].some(
         (option) =>
           // id match
-          choice.componentId == option.componentId && // the choice id matches the option componentID
-          option.definition.id == mod.componentId && // option id and mod id match
-          (choice.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
-            choice.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
-          option.definition.entityTypeId == mod.componentTypeId && // mod componentId matches option entity type id
-          choice.id == mod.componentId // choice id and mod id match
+          choice.componentId == option.componentId // the choice id matches the option componentID
+          && option.definition.id == mod.componentId // option id and mod id match
+          && (choice.componentTypeId == option.componentTypeId // either the choice componenttype and optiontype match or
+            || choice.componentTypeId == option.definition.entityTypeId) // the choice componentID matches the option definition entitytypeid
+          && option.definition.entityTypeId == mod.componentTypeId // mod componentId matches option entity type id
+          && choice.id == mod.componentId // choice id and mod id match
       );
       // console.log(`choiceMatch ${choiceMatch}`);
       if (choiceMatch) return true;
@@ -67,9 +67,9 @@ function generateFeatModifiers(ddb, ddbItem, choice, type) {
       } else if (type === "race") {
         const traitMatch = ddb.character.race.racialTraits.some(
           (t) =>
-            t.definition.entityTypeId == mod.componentTypeId &&
-            t.definition.id == mod.componentId &&
-            t.definition.id == ddbItem.definition.id
+            t.definition.entityTypeId == mod.componentTypeId
+            && t.definition.id == mod.componentId
+            && t.definition.id == ddbItem.definition.id
         );
         if (traitMatch) return true;
       }
@@ -106,9 +106,9 @@ export function removeActionFeatures(actions, features) {
 
   actions = actions.map((action) => {
     const featureMatch = features.find((feature) => feature.name === action.name);
-    if (featureMatch &&
-      action.effects && action.effects.length === 0 &&
-      featureMatch.effects && featureMatch.effects.length > 0
+    if (featureMatch
+      && action.effects && action.effects.length === 0
+      && featureMatch.effects && featureMatch.effects.length > 0
     ) {
       action.effects = featureMatch.effects;
     }
@@ -117,9 +117,9 @@ export function removeActionFeatures(actions, features) {
 
   features = features
     .filter((feature) =>
-      actionAndFeature ||
-      allowDupes.includes(feature.name) ||
-      !actions.some((action) => action.name.trim().toLowerCase() === feature.name.trim().toLowerCase())
+      actionAndFeature
+      || allowDupes.includes(feature.name)
+      || !actions.some((action) => action.name.trim().toLowerCase() === feature.name.trim().toLowerCase())
     )
     .map((feature) => {
       const actionMatch = actionAndFeature && actions.some((action) => feature.name === action.name);
@@ -173,15 +173,15 @@ function getClassFeatureDescription(ddb, character, feat) {
 
   const findFeatureKlass = ddb.character.classes
     .find((cls) => cls.classFeatures.find((feature) =>
-      feature.definition.id == componentId &&
-      feature.definition.entityTypeId == componentTypeId
+      feature.definition.id == componentId
+      && feature.definition.entityTypeId == componentTypeId
     ));
 
   if (findFeatureKlass) {
     const feature = findFeatureKlass.classFeatures
       .find((feature) =>
-        feature.definition.id == componentId &&
-        feature.definition.entityTypeId == componentTypeId
+        feature.definition.id == componentId
+        && feature.definition.entityTypeId == componentTypeId
       );
     if (feature) {
       return parseTemplateString(ddb, character, feature.definition.description, feat).text;
@@ -228,8 +228,8 @@ export function setLevelScales(classes, features) {
       const featureName = feature.name.toLowerCase().replace(/\s|'|’/g, '-');
       const scaleKlass = classes.find((klass) =>
         klass.system.advancement
-          .some((advancement) => advancement.type === "ScaleValue" &&
-            advancement.configuration.identifier === featureName
+          .some((advancement) => advancement.type === "ScaleValue"
+            && advancement.configuration.identifier === featureName
           ));
 
       if (scaleKlass) {

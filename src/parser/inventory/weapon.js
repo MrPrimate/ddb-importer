@@ -34,9 +34,9 @@ function getProperties(data) {
       result[property.value] = data.definition.properties.some((prop) => prop.name === property.name);
     }
     if (
-      !result[property.value] &&
-      data.definition.grantedModifiers &&
-      Array.isArray(data.definition.grantedModifiers)
+      !result[property.value]
+      && data.definition.grantedModifiers
+      && Array.isArray(data.definition.grantedModifiers)
     ) {
       result[property.value] = data.definition.grantedModifiers.some(
         (prop) => prop.type === "weapon-property" && prop.friendlySubtypeName === property.name

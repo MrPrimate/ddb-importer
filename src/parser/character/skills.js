@@ -32,9 +32,9 @@ export function getSkillProficiency (data, skill, modifiers = null) {
   const halfProficiency = modifiers.find(
     (modifier) =>
     // Jack of All trades/half-rounded down
-      (modifier.type === "half-proficiency" && modifier.subType === "ability-checks") ||
+      (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
         // e.g. champion for specific ability checks
-        isHalfProficiencyRoundedUp(data, skill, modifiers)
+        || isHalfProficiencyRoundedUp(data, skill, modifiers)
   ) !== undefined
     ? 0.5
     : 0;

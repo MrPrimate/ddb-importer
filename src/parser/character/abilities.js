@@ -96,9 +96,9 @@ function parseAbilities(data, includeExcludedEffects = false) {
       .filterBaseModifiers(data, "bonus", `${ability.long}-score`, false, includeExcludedEffects)
       .filter(
         (mod) =>
-          mod.entityId === ability.id &&
-          mod.restriction &&
-          modRestrictions.some((m) => mod.restriction.startsWith(m))
+          mod.entityId === ability.id
+          && mod.restriction
+          && modRestrictions.some((m) => mod.restriction.startsWith(m))
       )
       .reduce(
         (prev, cur) => {

@@ -8,9 +8,9 @@ const logger = {
       const setting = game.settings.get("ddb-importer", "log-level");
       const logLevels = ["DEBUG", "INFO", "WARN", "ERR", "OFF"];
       const logLevelIndex = logLevels.indexOf(logLevel.toUpperCase());
-      if (setting == "OFF" ||
-              logLevelIndex === -1 ||
-              logLevelIndex < logLevels.indexOf(setting)) {
+      if (setting == "OFF"
+              || logLevelIndex === -1
+              || logLevelIndex < logLevels.indexOf(setting)) {
         return false;
       }
       return true;

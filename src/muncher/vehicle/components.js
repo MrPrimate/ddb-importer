@@ -33,8 +33,8 @@ function getActivation(action, crew = false) {
 
 function getLimitedUse(action) {
   if (
-    action.limitedUse &&
-    (action.limitedUse.maxUses)
+    action.limitedUse
+    && (action.limitedUse.maxUses)
   ) {
     const resetType = DICTIONARY.resets.find((type) => type.id === action.limitedUse.resetType);
     let maxUses = (action.limitedUse.maxUses && action.limitedUse.maxUses !== -1) ? action.limitedUse.maxUses : 0;

@@ -144,8 +144,8 @@ async function spellSlotsPact(actor, ddbData) {
   return new Promise((resolve) => {
     if (!game.settings.get("ddb-importer", "sync-policy-spells-slots")) resolve();
     if (
-      actor.system.spells.pact.max > 0 &&
-      ddbData.character.character.system.spells.pact.value !== actor.system.spells.pact.value
+      actor.system.spells.pact.max > 0
+      && ddbData.character.character.system.spells.pact.value !== actor.system.spells.pact.value
     ) {
       resolve(updateDDBSpellSlotsPact(actor));
     } else {
@@ -267,9 +267,9 @@ async function hitPoints(actor, ddbData) {
   return new Promise((resolve) => {
     if (!game.settings.get("ddb-importer", "sync-policy-hitpoints")) resolve();
     const temporaryHitPoints = actor.system.attributes.hp.temp ? actor.system.attributes.hp.temp : 0;
-    const same =
-      ddbData.character.character.system.attributes.hp.value === actor.system.attributes.hp.value &&
-      ddbData.character.character.system.attributes.hp.temp === temporaryHitPoints;
+    const same
+      = ddbData.character.character.system.attributes.hp.value === actor.system.attributes.hp.value
+      && ddbData.character.character.system.attributes.hp.temp === temporaryHitPoints;
 
     if (!same) {
       resolve(updateDDBHitPoints(actor));
@@ -440,10 +440,10 @@ async function updateDDBSpellsPrepared(actor, spells) {
   let promises = [];
 
   const preparedSpells = spells.filter((spell) =>
-    spell.type === "spell" &&
-    spell.system.preparation?.mode === "prepared" &&
-    spell.flags.ddbimporter?.dndbeyond?.characterClassId &&
-    !spell.flags.ddbimporter.dndbeyond.granted
+    spell.type === "spell"
+    && spell.system.preparation?.mode === "prepared"
+    && spell.flags.ddbimporter?.dndbeyond?.characterClassId
+    && !spell.flags.ddbimporter.dndbeyond.granted
   ).map((spell) => {
     let spellPreparedData = {
       spellInfo: {
@@ -471,15 +471,15 @@ async function spellsPrepared(actor, ddbData) {
 
   const preparedSpells = actor.items.filter((item) => {
     const spellMatch = ddbSpells.find((s) =>
-      s.name === item.name &&
-      item.system.preparation?.mode === "prepared" &&
-      item.flags.ddbimporter?.dndbeyond?.characterClassId &&
-      item.flags.ddbimporter?.dndbeyond?.characterClassId === s.flags.ddbimporter?.dndbeyond?.characterClassId
+      s.name === item.name
+      && item.system.preparation?.mode === "prepared"
+      && item.flags.ddbimporter?.dndbeyond?.characterClassId
+      && item.flags.ddbimporter?.dndbeyond?.characterClassId === s.flags.ddbimporter?.dndbeyond?.characterClassId
     );
     if (!spellMatch) return false;
-    const select = item.type === "spell" &&
-      item.system.preparation?.mode === "prepared" &&
-      item.system.preparation.prepared !== spellMatch.system.preparation?.prepared;
+    const select = item.type === "spell"
+      && item.system.preparation?.mode === "prepared"
+      && item.system.preparation.prepared !== spellMatch.system.preparation?.prepared;
     return spellMatch && select;
   });
 
@@ -493,9 +493,9 @@ async function updateItemsWithDDBInfo(itemsToAdd) {
     if (!item.flags.ddbimporter?.definitionId && !item.flags.ddbimporter?.definitionEntityTypeId) {
       const ddbCompendiumMatch = await getCompendiumItemInfo(item);
       logger.debug(`Found item`, ddbCompendiumMatch);
-      if (ddbCompendiumMatch &&
-        ddbCompendiumMatch.flags?.ddbimporter?.definitionId &&
-        ddbCompendiumMatch.flags?.ddbimporter?.definitionEntityTypeId
+      if (ddbCompendiumMatch
+        && ddbCompendiumMatch.flags?.ddbimporter?.definitionId
+        && ddbCompendiumMatch.flags?.ddbimporter?.definitionEntityTypeId
       ) {
         logger.debug(`Adding ${item.name} from DDB compendium match:`, ddbCompendiumMatch);
         setProperty(item, "flags.ddbimporter.definitionId", ddbCompendiumMatch.flags.ddbimporter.definitionId);
@@ -553,8 +553,8 @@ async function deleteDDBCustomItems(actor, itemsToDelete) {
           partyId: null,
         }
       };
-      if (getProperty(customData, "customValues.id") !== undefined &&
-        getProperty(customData, "customValues.mappingId") !== undefined
+      if (getProperty(customData, "customValues.id") !== undefined
+        && getProperty(customData, "customValues.mappingId") !== undefined
       ) {
         const result = updateCharacterCall(actor, "custom/item", customData, { name: item.name }).then((data) => {
           setProperty(item, "flags.ddbimporter.delete", data);
@@ -638,15 +638,15 @@ async function addDDBEquipment(actor, itemsToAdd) {
     try {
       const itemUpdates = itemResults.system.addItems
         .filter((addedItem) => ddbEnrichedItems.some((i) =>
-          i.flags.ddbimporter &&
-          i.flags.ddbimporter.definitionId === addedItem.definition.id &&
-          i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
+          i.flags.ddbimporter
+          && i.flags.ddbimporter.definitionId === addedItem.definition.id
+          && i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
         ))
         .map((addedItem) => {
           let updatedItem = ddbEnrichedItems.find((i) =>
-            i.flags.ddbimporter &&
-            i.flags.ddbimporter.definitionId === addedItem.definition.id &&
-            i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
+            i.flags.ddbimporter
+            && i.flags.ddbimporter.definitionId === addedItem.definition.id
+            && i.flags.ddbimporter.definitionEntityTypeId === addedItem.definition.entityTypeId
           );
           setProperty(updatedItem, "flags.ddbimporter.id", addedItem.id);
           setProperty(updatedItem, "flags.ddbimporter.containerEntityId", addedItem.containerEntityId);
@@ -709,12 +709,12 @@ async function addEquipment(actor, ddbData) {
 
   const items = getFoundryItems(actor);
   const itemsToAdd = items.filter((item) =>
-    !item.flags.ddbimporter?.action &&
-    item.system.quantity !== 0 &&
-    DICTIONARY.types.inventory.includes(item.type) &&
-    !item.flags.ddbimporter?.custom &&
-    (!item.flags.ddbimporter?.id ||
-    !ddbItems.some((s) => s.flags.ddbimporter?.id === item.flags.ddbimporter?.id && s.type === item.type))
+    !item.flags.ddbimporter?.action
+    && item.system.quantity !== 0
+    && DICTIONARY.types.inventory.includes(item.type)
+    && !item.flags.ddbimporter?.custom
+    && (!item.flags.ddbimporter?.id
+    || !ddbItems.some((s) => s.flags.ddbimporter?.id === item.flags.ddbimporter?.id && s.type === item.type))
   );
 
   return addDDBEquipment(actor, itemsToAdd);
@@ -755,12 +755,12 @@ async function updateCustomNames(actor, ddbData) {
   const foundryItems = getFoundryItems(actor);
 
   const itemsToName = foundryItems.filter((item) =>
-    item.system.quantity !== 0 &&
-    (DICTIONARY.types.inventory.includes(item.type) || item.flags.ddbimporter?.action) &&
-    item.flags.ddbimporter?.id &&
-    ddbItems.some((ddbItem) =>
-      ddbItem.flags.ddbimporter?.id === item.flags.ddbimporter.id &&
-      ddbItem.type === item.type && ddbItem.name !== item.name
+    item.system.quantity !== 0
+    && (DICTIONARY.types.inventory.includes(item.type) || item.flags.ddbimporter?.action)
+    && item.flags.ddbimporter?.id
+    && ddbItems.some((ddbItem) =>
+      ddbItem.flags.ddbimporter?.id === item.flags.ddbimporter.id
+      && ddbItem.type === item.type && ddbItem.name !== item.name
     )
   );
 
@@ -791,10 +791,10 @@ async function removeEquipment(actor, ddbData) {
 
   const items = getFoundryItems(actor);
   const itemsToRemove = ddbItems.filter((item) =>
-    (!items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action) ||
-    items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action && s.system.quantity == 0)) &&
-    DICTIONARY.types.inventory.includes(item.type) &&
-    item.flags.ddbimporter?.id
+    (!items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action)
+    || items.some((s) => (item.flags.ddbimporter?.id === s.flags.ddbimporter?.id && s.type === item.type) && !s.flags.ddbimporter?.action && s.system.quantity == 0))
+    && DICTIONARY.types.inventory.includes(item.type)
+    && item.flags.ddbimporter?.id
   );
 
   return removeDDBEquipment(actor, itemsToRemove);
@@ -864,8 +864,8 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
 
   customItems
     .filter((item) => {
-      const isValid = getProperty(item, "flags.ddbimporter.id") !== undefined &&
-       getProperty(item, "flags.ddbimporter.definitionId") !== undefined;
+      const isValid = getProperty(item, "flags.ddbimporter.id") !== undefined
+       && getProperty(item, "flags.ddbimporter.definitionId") !== undefined;
       if (!isValid) {
         logger.error(`Custom item ${item.name} is missing metadata, please manually update and re-import`);
         ui.notifications.error(`Custom item ${item.name} is missing metadata, please manually update and re-import`);
@@ -910,71 +910,71 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   const foundryItems = getFoundryItems(actor);
 
   const itemsToEquip = foundryItems.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
-    !item.flags.ddbimporter?.custom &&
-    ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id &&
-      dItem.id === item.flags.ddbimporter?.id &&
-      item.system.equipped !== dItem.equipped
+    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
+    && !item.flags.ddbimporter?.custom
+    && ddbItems.some((dItem) =>
+      item.flags.ddbimporter.id === dItem.id
+      && dItem.id === item.flags.ddbimporter?.id
+      && item.system.equipped !== dItem.equipped
     )
   );
   const itemsToAttune = foundryItems.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
-    !item.flags.ddbimporter?.custom &&
-    ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id &&
-      dItem.id === item.flags.ddbimporter?.id &&
-      ((item.system.attunement === 2) !== dItem.isAttuned)
+    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
+    && !item.flags.ddbimporter?.custom
+    && ddbItems.some((dItem) =>
+      item.flags.ddbimporter.id === dItem.id
+      && dItem.id === item.flags.ddbimporter?.id
+      && ((item.system.attunement === 2) !== dItem.isAttuned)
     )
   );
   const itemsToCharge = foundryItems.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
-    !item.flags.ddbimporter?.custom &&
-    ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id &&
-      dItem.id === item.flags.ddbimporter?.id &&
-      item.system.uses?.max && dItem.limitedUse?.numberUsed &&
-      ((parseInt(item.system.uses.max) - parseInt(item.system.uses.value)) !== dItem.limitedUse.numberUsed)
+    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
+    && !item.flags.ddbimporter?.custom
+    && ddbItems.some((dItem) =>
+      item.flags.ddbimporter.id === dItem.id
+      && dItem.id === item.flags.ddbimporter?.id
+      && item.system.uses?.max && dItem.limitedUse?.numberUsed
+      && ((parseInt(item.system.uses.max) - parseInt(item.system.uses.value)) !== dItem.limitedUse.numberUsed)
     )
   );
   const itemsToQuantity = foundryItems.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
-    !item.system.quantity == 0 &&
-    !item.flags.ddbimporter?.custom &&
-    ((item.type !== "weapon" && item.type !== "armor") || item.flags.ddbimporter?.dndbeyond?.stackable) &&
-    !item.system?.armor?.type &&
-    ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id &&
-      dItem.id === item.flags.ddbimporter?.id &&
-      item.system.quantity !== dItem.quantity
+    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
+    && !item.system.quantity == 0
+    && !item.flags.ddbimporter?.custom
+    && ((item.type !== "weapon" && item.type !== "armor") || item.flags.ddbimporter?.dndbeyond?.stackable)
+    && !item.system?.armor?.type
+    && ddbItems.some((dItem) =>
+      item.flags.ddbimporter.id === dItem.id
+      && dItem.id === item.flags.ddbimporter?.id
+      && item.system.quantity !== dItem.quantity
     )
   );
   // this is for items that have been added and might have a different name
   const itemsToName = foundryItems.filter((item) =>
-    item.flags.ddbimporter?.id &&
-    item.system.quantity !== 0 &&
-    !item.flags.ddbimporter?.custom &&
-    ddbItems.some((dItem) =>
+    item.flags.ddbimporter?.id
+    && item.system.quantity !== 0
+    && !item.flags.ddbimporter?.custom
+    && ddbItems.some((dItem) =>
       // item.flags.ddbimporter.id === dItem.id &&
-      item.flags.ddbimporter.originalName === dItem.definition.name &&
-      item.flags.ddbimporter.originalName !== item.name &&
-      !item.system.quantity == 0 &&
-      dItem.id === item.flags.ddbimporter?.id &&
-      item.name !== dItem.definition.name
+      item.flags.ddbimporter.originalName === dItem.definition.name
+      && item.flags.ddbimporter.originalName !== item.name
+      && !item.system.quantity == 0
+      && dItem.id === item.flags.ddbimporter?.id
+      && item.name !== dItem.definition.name
     )
   );
 
   // update.name || update.data?.description || update.data?.weight || update.data?.price || update.data?.quantity
   const customItems = foundryItems.filter((item) =>
-    item.flags.ddbimporter?.id &&
-    item.system.quantity !== 0 &&
-    (getProperty(item, "flags.ddbimporter.custom") === true || getProperty(item, "flags.ddbimporter.isCustom") === true) &&
-    customDDBItems.some((dItem) => dItem.id === item.flags.ddbimporter.id &&
-      (
-        item.name !== dItem.name ||
-        item.system.description.value != dItem.description ||
-        item.system.quantity != dItem.quantity ||
-        item.system.weight != dItem.weight
+    item.flags.ddbimporter?.id
+    && item.system.quantity !== 0
+    && (getProperty(item, "flags.ddbimporter.custom") === true || getProperty(item, "flags.ddbimporter.isCustom") === true)
+    && customDDBItems.some((dItem) => dItem.id === item.flags.ddbimporter.id
+      && (
+        item.name !== dItem.name
+        || item.system.description.value != dItem.description
+        || item.system.quantity != dItem.quantity
+        || item.system.weight != dItem.weight
         //  ||
         // item.data.price != dItem.cost
       )
@@ -983,12 +983,12 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
 
   const itemsToMove = game.modules.get("itemcollection")?.active
     ? foundryItems.filter((item) =>
-      !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id &&
-      hasProperty(item, "flags.ddbimporter.containerEntityId") &&
-      ddbItems.some((dItem) =>
-        item.flags.ddbimporter.id === dItem.id &&
-        dItem.id === item.flags.ddbimporter?.id &&
-        parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId)
+      !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
+      && hasProperty(item, "flags.ddbimporter.containerEntityId")
+      && ddbItems.some((dItem) =>
+        item.flags.ddbimporter.id === dItem.id
+        && dItem.id === item.flags.ddbimporter?.id
+        && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId)
       ))
     : [];
 
@@ -1034,14 +1034,14 @@ async function actionUseStatus(actor, ddbData) {
   const foundryItems = getFoundryItems(actor);
 
   const actionsToCharge = foundryItems.filter((item) =>
-    (item.flags.ddbimporter?.action || item.type === "feat") &&
-    item.flags.ddbimporter?.id && item.flags.ddbimporter?.entityTypeId &&
-    ddbActions.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.flags.ddbimporter.id &&
-      item.flags.ddbimporter.entityTypeId === dItem.flags.ddbimporter.entityTypeId &&
-      item.name === dItem.name && item.type === dItem.type &&
-      item.system.uses?.value &&
-      item.system.uses.value !== dItem.system.uses.value
+    (item.flags.ddbimporter?.action || item.type === "feat")
+    && item.flags.ddbimporter?.id && item.flags.ddbimporter?.entityTypeId
+    && ddbActions.some((dItem) =>
+      item.flags.ddbimporter.id === dItem.flags.ddbimporter.id
+      && item.flags.ddbimporter.entityTypeId === dItem.flags.ddbimporter.entityTypeId
+      && item.name === dItem.name && item.type === dItem.type
+      && item.system.uses?.value
+      && item.system.uses.value !== dItem.system.uses.value
     )
   );
 
@@ -1175,8 +1175,8 @@ async function activeUpdateActor(actor, update) {
           promises.push(updateDynamicDDBSpellSlots(actor, update));
         }
       }
-      if (syncInspiration &&
-        (update.system?.attributes?.inspiration === true || update.system?.attributes?.inspiration === false)
+      if (syncInspiration
+        && (update.system?.attributes?.inspiration === true || update.system?.attributes?.inspiration === false)
       ) {
         logger.debug("Updating DDB Inspiration...");
         promises.push(updateDDBInspiration(actor));
@@ -1343,8 +1343,8 @@ async function activeUpdateUpdateItem(document, update) {
       } else if (document.type === "class" && syncHD && update.system?.hitDiceUsed) {
         logger.debug("Updating hitdice on DDB");
         resolve(updateDDBHitDice(parentActor, document, update));
-      } else if (document.type === "spell" && syncSpellsPrepared &&
-        update.system?.preparation && document.system.preparation.mode === "prepared"
+      } else if (document.type === "spell" && syncSpellsPrepared
+        && update.system?.preparation && document.system.preparation.mode === "prepared"
       ) {
         logger.debug("Updating DDB SpellsPrepared...");
         updateSpellPrep(parentActor, document).then((results) => {
@@ -1406,8 +1406,8 @@ async function activeUpdateAddOrDeleteItem(document, state) {
             const collectionItemDDBIds = collectionItems
               .filter((item) => hasProperty(item, "flags.ddbimporter.id"))
               .map((item) => item.flags.ddbimporter.id);
-            if (hasProperty(document, "flags.ddbimporter.id") &&
-              collectionItemDDBIds.includes(document.flags.ddbimporter.id)
+            if (hasProperty(document, "flags.ddbimporter.id")
+              && collectionItemDDBIds.includes(document.flags.ddbimporter.id)
             ) {
               // we don't have to handle deletes as the item collection move is handled above
               logger.debug(`Moving item to container`, document);

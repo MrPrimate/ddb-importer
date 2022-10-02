@@ -7,8 +7,8 @@ const DDBHelper = {
   getDamageType: (data) => {
     if (data.definition.damageType) {
       const damageTypeReplace = data.definition.grantedModifiers.find((mod) =>
-        mod.type === "replace-damage-type" &&
-        (!mod.restriction || mod.restriction === "")
+        mod.type === "replace-damage-type"
+        && (!mod.restriction || mod.restriction === "")
       );
 
       const damageType = damageTypeReplace
@@ -149,9 +149,9 @@ const DDBHelper = {
     const featDefinition = feature.definition ? feature.definition : feature;
 
     const klass = ddb.character.classes.find((cls) =>
-      (cls.definition.id === featDefinition.classId ||
-      cls.subclassDefinition?.id === featDefinition.classId) &&
-      featDefinition.levelScales?.length > 0
+      (cls.definition.id === featDefinition.classId
+      || cls.subclassDefinition?.id === featDefinition.classId)
+      && featDefinition.levelScales?.length > 0
     );
 
     if (klass) {
@@ -264,16 +264,16 @@ const DDBHelper = {
     const modifiers = ddb.character.inventory
       .filter(
         (item) =>
-          ((!item.definition.canEquip && !item.definition.canAttune && !item.definition.isConsumable) || // if item just gives a thing and not potion/scroll
-          (item.isAttuned && item.equipped) || // if it is attuned and equipped
-          (item.isAttuned && !item.definition.canEquip) || // if it is attuned but can't equip
-            (!item.definition.canAttune && item.equipped)) && // can't attune but is equipped
-          item.definition.grantedModifiers.length > 0
+          ((!item.definition.canEquip && !item.definition.canAttune && !item.definition.isConsumable) // if item just gives a thing and not potion/scroll
+          || (item.isAttuned && item.equipped) // if it is attuned and equipped
+          || (item.isAttuned && !item.definition.canEquip) // if it is attuned but can't equip
+            || (!item.definition.canAttune && item.equipped)) // can't attune but is equipped
+          && item.definition.grantedModifiers.length > 0
       )
       .flatMap((item) => item.definition.grantedModifiers)
       .filter((mod) => !excludedModifiers.some((exMod) =>
-        mod.type === exMod.type &&
-        (mod.subType === exMod.subType || !exMod.subType))
+        mod.type === exMod.type
+        && (mod.subType === exMod.subType || !exMod.subType))
       );
 
     return modifiers;
@@ -281,8 +281,8 @@ const DDBHelper = {
 
   getActiveItemEffectModifiers: (ddb) => {
     return DDBHelper.getActiveItemModifiers(ddb, true).filter((mod) =>
-      getEffectExcludedModifiers("item", true, true).some((exMod) => mod.type === exMod.type &&
-      (mod.subType === exMod.subType || !exMod.subType))
+      getEffectExcludedModifiers("item", true, true).some((exMod) => mod.type === exMod.type
+      && (mod.subType === exMod.subType || !exMod.subType))
     );
   },
 
@@ -291,8 +291,8 @@ const DDBHelper = {
     const featureEffects = game.settings.get("ddb-importer", "character-update-policy-add-character-effects");
     const acEffects = game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects");
     const daeInstalled = game.modules.get("dae")?.active;
-    const excludedModifiers = ((featureEffects || acEffects) && daeInstalled &&
-      (!includeExcludedEffects || (includeExcludedEffects && effectOnly)))
+    const excludedModifiers = ((featureEffects || acEffects) && daeInstalled
+      && (!includeExcludedEffects || (includeExcludedEffects && effectOnly)))
       ? getEffectExcludedModifiers(type, featureEffects, acEffects)
       : getEffectExcludedModifiers(type, false, false);
     // get items we are going to interact on
@@ -300,14 +300,14 @@ const DDBHelper = {
     if (effectOnly) {
       modifiers = ddb.character.modifiers[type]
         .filter((mod) => excludedModifiers.some((exMod) =>
-          mod.type === exMod.type &&
-        (mod.subType === exMod.subType || !exMod.subType))
+          mod.type === exMod.type
+        && (mod.subType === exMod.subType || !exMod.subType))
         );
     } else {
       modifiers = ddb.character.modifiers[type]
         .filter((mod) => !excludedModifiers.some((exMod) =>
-          mod.type === exMod.type &&
-        (mod.subType === exMod.subType || !exMod.subType))
+          mod.type === exMod.type
+        && (mod.subType === exMod.subType || !exMod.subType))
         );
     }
 
@@ -319,9 +319,9 @@ const DDBHelper = {
       .flat()
       .filter(
         (modifier) =>
-          modifier.type === type &&
-          (subType !== null ? modifier.subType === subType : true) &&
-          (!restriction ? true : restriction.includes(modifier.restriction))
+          modifier.type === type
+          && (subType !== null ? modifier.subType === subType : true)
+          && (!restriction ? true : restriction.includes(modifier.restriction))
       );
   },
 
@@ -329,46 +329,46 @@ const DDBHelper = {
     // get items we are going to interact on
     const modifiers = DDBHelper.getModifiers(ddb, 'class', includeExcludedEffects, effectOnly).filter((mod) => {
       const isClassFeature = ddb.character.classes.some((klass) => klass.classFeatures.some((feat) =>
-        feat.definition.id == mod.componentId && feat.definition.entityTypeId == mod.componentTypeId &&
+        feat.definition.id == mod.componentId && feat.definition.entityTypeId == mod.componentTypeId
         // make sure this class feature is not replaced
-        !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id)
+        && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == feat.definition.id)
       ));
       // generate a list to check in option check
       const classFeatureIds = ddb.character.classes.map((klass) => klass.classFeatures.map((feat) => feat.definition.id)).flat();
       const isClassOption = ddb.character.options.class.some((option) =>
         // does this class option match a modifier?
-        ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId) ||
-        (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId)) &&
+        ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId)
+        || (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId))
         // has this feature set been replacd by an optional class feature?
-        !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.componentId) &&
+        && !ddb.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.componentId)
         // has it been chosen?
-        ddb.character.choices.class.some((choice) =>
+        && ddb.character.choices.class.some((choice) =>
           choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
-        ) &&
+        )
         // is this option actually part of the class list?
-        classFeatureIds.includes(option.componentId)
+        && classFeatureIds.includes(option.componentId)
       );
       // if it's been replaced by a class feature lets check that
       const isOptionalClassOption = ddb.character.options.class.some((option) =>
-        ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId) ||
-        (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId)) &&
+        ((option.componentTypeId == mod.componentTypeId && option.componentId == mod.componentId)
+        || (option.definition.entityTypeId == mod.componentTypeId && option.definition.id == mod.componentId))
         // !data.character.optionalClassFeatures.some((f) => f.affectedClassFeatureId == option.definition.id) &&
-        (
+        && (
           ddb.character.choices.class.some((choice) =>
             choice.componentId == option.componentId && choice.componentTypeId == option.componentTypeId && choice.optionValue
-          ) ||
-          ddb.classOptions?.some((classOption) =>
+          )
+          || ddb.classOptions?.some((classOption) =>
             classOption.id == option.componentId && classOption.entityTypeId == option.componentTypeId
           )
-        ) &&
-        ddb.character.optionalClassFeatures?.some((f) => f.classFeatureId == option.componentId)
+        )
+        && ddb.character.optionalClassFeatures?.some((f) => f.classFeatureId == option.componentId)
       );
 
       // new class feature choice
       const isOptionalClassChoice = ddb.character.choices.class.some((choice) =>
-        choice.componentTypeId == mod.componentTypeId &&
-        choice.componentId == mod.componentId &&
-        ddb.character.optionalClassFeatures?.some((f) => f.classFeatureId == choice.componentId)
+        choice.componentTypeId == mod.componentTypeId
+        && choice.componentId == mod.componentId
+        && ddb.character.optionalClassFeatures?.some((f) => f.classFeatureId == choice.componentId)
       );
 
       return isClassFeature || isClassOption || isOptionalClassOption || isOptionalClassChoice;
@@ -499,9 +499,9 @@ const DDBHelper = {
             .filter(
               (option) =>
                 // id match
-                !featDefinition.componentTypeId &&
-                !featDefinition.entityTypeId &&
-                id == option.componentId // && // the choice id matches the option componentID
+                !featDefinition.componentTypeId
+                && !featDefinition.entityTypeId
+                && id == option.componentId // && // the choice id matches the option componentID
                 // (featDefinition.componentTypeId == option.componentTypeId || // either the choice componenttype and optiontype match or
                 //   featDefinition.componentTypeId == option.definition.entityTypeId) && // the choice componentID matches the option definition entitytypeid
                 // option.componentTypeId == featDefinition.entityTypeId
@@ -618,8 +618,8 @@ const DDBHelper = {
     if (!character) return null;
     const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
     const customValue = characterValues.filter((value) =>
-      value.valueId == ddbItem.id &&
-      value.valueTypeId == ddbItem.entityTypeId
+      value.valueId == ddbItem.id
+      && value.valueTypeId == ddbItem.entityTypeId
     );
 
     if (customValue) {
@@ -634,10 +634,10 @@ const DDBHelper = {
     if (!characterValues) return null;
     const customValue = characterValues.filter(
       (value) =>
-        (value.valueId == foundryItem.flags.ddbimporter.dndbeyond?.id &&
-          value.valueTypeId == foundryItem.flags.ddbimporter.dndbeyond?.entityTypeId) ||
-        (value.valueId == foundryItem.flags.ddbimporter.id &&
-          value.valueTypeId == foundryItem.flags.ddbimporter.entityTypeId)
+        (value.valueId == foundryItem.flags.ddbimporter.dndbeyond?.id
+          && value.valueTypeId == foundryItem.flags.ddbimporter.dndbeyond?.entityTypeId)
+        || (value.valueId == foundryItem.flags.ddbimporter.id
+          && value.valueTypeId == foundryItem.flags.ddbimporter.entityTypeId)
     );
 
     if (customValue) {

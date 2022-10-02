@@ -23,13 +23,13 @@ function getProficiency(data, toolName, ability) {
     .filter((modifier) => modifier.friendlySubtypeName === toolName)
     .map((mod) => mod.type);
 
-  const halfProficiency =
-    DDBHelper.getChosenClassModifiers(data).find(
+  const halfProficiency
+    = DDBHelper.getChosenClassModifiers(data).find(
       (modifier) =>
         // Jack of All trades/half-rounded down
-        (modifier.type === "half-proficiency" && modifier.subType === "ability-checks") ||
+        (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
         // e.g. champion for specific ability checks
-        isHalfProficiencyRoundedUp(data, ability)
+        || isHalfProficiencyRoundedUp(data, ability)
     ) !== undefined
       ? 0.5
       : 0;

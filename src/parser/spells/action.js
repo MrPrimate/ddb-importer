@@ -4,9 +4,9 @@ export function getActionType(data) {
   }
 
   if (
-    data.definition.tags.includes("Damage") &&
-    data.definition.range.rangeValue &&
-    data.definition.range.rangeValue > 0
+    data.definition.tags.includes("Damage")
+    && data.definition.range.rangeValue
+    && data.definition.range.rangeValue > 0
   ) {
     return "rsak";
   }

@@ -3,10 +3,10 @@ export function getItemCollectionItems(actor) {
   if (!game.modules.get("itemcollection")?.active && !Number.isInteger(characterId)) return [];
   const topLevelItems = actor.items
     .filter((item) =>
-      hasProperty(item, "flags.ddbimporter.id") &&
-      hasProperty(item, "flags.ddbimporter.containerEntityId") &&
-      item.flags.ddbimporter.containerEntityId === parseInt(characterId) &&
-      !item.flags.ddbimporter?.ignoreItemImport
+      hasProperty(item, "flags.ddbimporter.id")
+      && hasProperty(item, "flags.ddbimporter.containerEntityId")
+      && item.flags.ddbimporter.containerEntityId === parseInt(characterId)
+      && !item.flags.ddbimporter?.ignoreItemImport
     );
 
   const itemCollectionItems = topLevelItems
@@ -30,17 +30,17 @@ export async function addContainerItemsToContainers(ddb, actor) {
 
   const topLevelItems = actor.items
     .filter((item) =>
-      hasProperty(item, "flags.ddbimporter.id") &&
-      hasProperty(item, "flags.ddbimporter.containerEntityId") &&
-      item.flags.ddbimporter.containerEntityId === ddb.character.id &&
-      !item.flags.ddbimporter?.ignoreItemImport
+      hasProperty(item, "flags.ddbimporter.id")
+      && hasProperty(item, "flags.ddbimporter.containerEntityId")
+      && item.flags.ddbimporter.containerEntityId === ddb.character.id
+      && !item.flags.ddbimporter?.ignoreItemImport
     );
 
   for (const topLevelItem of topLevelItems) {
     const itemsToImport = actor.items
       .filter((item) =>
-        hasProperty(item, "flags.ddbimporter.containerEntityId") &&
-        item.flags.ddbimporter.containerEntityId === topLevelItem.flags.ddbimporter.id
+        hasProperty(item, "flags.ddbimporter.containerEntityId")
+        && item.flags.ddbimporter.containerEntityId === topLevelItem.flags.ddbimporter.id
       )
       .map((item) => {
         return duplicate(item);
@@ -60,12 +60,12 @@ export async function addContainerItemsToActor(ddb, actor) {
 
   const topLevelItems = actor.items
     .filter((item) =>
-      hasProperty(item, "flags.ddbimporter.id") &&
-      hasProperty(item, "flags.ddbimporter.containerEntityId") &&
-      item.flags.ddbimporter.containerEntityId === ddb.character.id &&
-      hasProperty(item, "flags.itemcollection.contentsData") &&
-      item.flags.itemcollection.contentsData.length > 0 &&
-      !item.flags.ddbimporter?.ignoreItemImport
+      hasProperty(item, "flags.ddbimporter.id")
+      && hasProperty(item, "flags.ddbimporter.containerEntityId")
+      && item.flags.ddbimporter.containerEntityId === ddb.character.id
+      && hasProperty(item, "flags.itemcollection.contentsData")
+      && item.flags.itemcollection.contentsData.length > 0
+      && !item.flags.ddbimporter?.ignoreItemImport
     );
 
   for (const topLevelItem of topLevelItems) {

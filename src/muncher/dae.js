@@ -67,8 +67,8 @@ export async function loadPacks() {
 function findDAEItem(itemData, packs) {
   for (let pack of packs) {
     let matchItem = pack.find((pd) =>
-      pd.name === itemData.name &&
-      pd.type === itemData.type
+      pd.name === itemData.name
+      && pd.type === itemData.type
     );
     // console.warn(itemData.name);
     // console.warn(matchItem);

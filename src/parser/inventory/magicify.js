@@ -134,9 +134,9 @@ function buildMagicItemSpell(chargeType, itemSpell) {
     const limitedUse = itemSpell.flags.ddbimporter.dndbeyond.spellLimitedUse;
 
     if (
-      chargeType == MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM &&
-      !!limitedUse.minNumberConsumed &&
-      itemSpell.system.level !== 0
+      chargeType == MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM
+      && !!limitedUse.minNumberConsumed
+      && itemSpell.system.level !== 0
     ) {
       consumption = limitedUse.minNumberConsumed;
       if (limitedUse.maxNumberConsumed) {

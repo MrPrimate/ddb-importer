@@ -17,8 +17,8 @@ function getSpellCastingAbility(klass) {
     // check to see if class has a spell casting ability
     spellCastingAbility = convertSpellCastingAbilityId(klass.definition.spellCastingAbilityId);
   } else if (
-    klass.subclassDefinition &&
-    hasSpellCastingAbility(klass.subclassDefinition.spellCastingAbilityId)
+    klass.subclassDefinition
+    && hasSpellCastingAbility(klass.subclassDefinition.spellCastingAbilityId)
   ) {
     // some subclasses attach a spellcasting ability, e.g. Arcane Trickster
     spellCastingAbility = convertSpellCastingAbilityId(klass.subclassDefinition.spellCastingAbilityId);
@@ -85,10 +85,10 @@ export function getSpellSlots(data) {
           casterLevel = cls.level;
         }
 
-        const cantrips =
-          cls.definition.spellRules &&
-          cls.definition.spellRules.levelCantripsKnownMaxes &&
-          Array.isArray(cls.definition.spellRules.levelCantripsKnownMaxes)
+        const cantrips
+          = cls.definition.spellRules
+          && cls.definition.spellRules.levelCantripsKnownMaxes
+          && Array.isArray(cls.definition.spellRules.levelCantripsKnownMaxes)
             ? cls.definition.spellRules.levelCantripsKnownMaxes[casterLevel + 1]
             : 0;
 

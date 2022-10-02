@@ -68,9 +68,9 @@ function getWarlockFeatures(ddb, weapon) {
   const warlockFeatures = ddb.character.characterValues
     .filter(
       (characterValue) =>
-        characterValue.value &&
-        characterValue.valueId == weapon.id &&
-        DICTIONARY.character.characterValuesLookup.some(
+        characterValue.value
+        && characterValue.valueId == weapon.id
+        && DICTIONARY.character.characterValuesLookup.some(
           (entry) => entry.typeId == characterValue.typeId
         )
     )
@@ -85,9 +85,9 @@ function getWarlockFeatures(ddb, weapon) {
   const pactFeatures = ddb.character.options.class
     .filter(
       (option) =>
-        warlockFeatures.includes("pactWeapon") &&
-        option.definition.name &&
-        DICTIONARY.character.pactFeatures.includes(option.definition.name)
+        warlockFeatures.includes("pactWeapon")
+        && option.definition.name
+        && DICTIONARY.character.pactFeatures.includes(option.definition.name)
     )
     .map((option) => option.definition.name);
 
@@ -97,13 +97,13 @@ function getWarlockFeatures(ddb, weapon) {
 
 function getMonkFeatures(ddb, weapon) {
   const kenseiWeapon = DDBHelper.getChosenClassModifiers(ddb).some((mod) =>
-    mod.friendlySubtypeName === weapon.definition.type &&
-    mod.type === "kensei"
+    mod.friendlySubtypeName === weapon.definition.type
+    && mod.type === "kensei"
   );
 
   const monkWeapon = DDBHelper.getChosenClassModifiers(ddb).some((mod) =>
-    mod.friendlySubtypeName === weapon.definition.type &&
-    mod.type == "monk-weapon"
+    mod.friendlySubtypeName === weapon.definition.type
+    && mod.type == "monk-weapon"
   ) || (weapon.definition.isMonkWeapon && isMartialArtists(ddb.character.classes));
 
   let features = [];

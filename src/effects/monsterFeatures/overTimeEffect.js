@@ -78,9 +78,9 @@ function getDuration(text) {
 
 function getSpecialDuration (effect, match) {
   // minutes
-  if (match[7] &&
-    (match[7].includes("until the end of its next turn") ||
-    match[7].includes("until the end of the target's next turn"))
+  if (match[7]
+    && (match[7].includes("until the end of its next turn")
+    || match[7].includes("until the end of the target's next turn"))
   ) {
     setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
   } else if (match[7] && match[7].includes("until the start of the")) {

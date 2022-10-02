@@ -363,8 +363,8 @@ function replaceTag(match, p1, p2, p3, offset, string) {
     const linkStub = lookup.headerLink ? `#${lookup.headerLink}` : "";
     return `@Compendium[dnd5e.rules.${lookup._id}${pageLink}${linkStub}]{${p2}}`;
   } else {
-    const srdMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((page) => page.name.toLowerCase() === p2.toLowerCase().split(";")[0] ||
-      page.name.replace("’", "'").toLowerCase() === p2.replace("’", "'").toLowerCase().split("ing")[0].split(";")[0]
+    const srdMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((page) => page.name.toLowerCase() === p2.toLowerCase().split(";")[0]
+      || page.name.replace("’", "'").toLowerCase() === p2.replace("’", "'").toLowerCase().split("ing")[0].split(";")[0]
     );
     if (srdMatch) {
       const pageLink = srdMatch.pageId ? `.JournalEntryPage.${srdMatch.pageId}` : "";

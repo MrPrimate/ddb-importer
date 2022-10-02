@@ -53,8 +53,8 @@ function getEquippedAC(equippedGear) {
     // magical armor
     const usingItemEffects = game.settings.get("ddb-importer", "character-update-policy-add-item-effects");
 
-    const daeItemEffects = (usingItemEffects &&
-      item.equipped && item.definition.filterType !== "Armor"
+    const daeItemEffects = (usingItemEffects
+      && item.equipped && item.definition.filterType !== "Armor"
     );
 
     if (!daeItemEffects && item.definition.grantedModifiers) {
@@ -484,21 +484,21 @@ export function getArmorClass(ddb, character) {
   let calc = "default";
   let flat = null;
   if (classFeatures.some((kf) =>
-    kf.className === "Sorcerer" &&
-    kf.subclassName === "Draconic Bloodline" &&
-    kf.name === "Draconic Resilience"
+    kf.className === "Sorcerer"
+    && kf.subclassName === "Draconic Bloodline"
+    && kf.name === "Draconic Resilience"
   )) calc = "draconic";
 
   if (classFeatures.some((kf) =>
-    kf.className === "Monk" &&
-    kf.subclassName === null &&
-    kf.name === "Unarmored Defense"
+    kf.className === "Monk"
+    && kf.subclassName === null
+    && kf.name === "Unarmored Defense"
   )) calc = "unarmoredMonk";
 
   if (classFeatures.some((kf) =>
-    kf.className === "Barbarian" &&
-    kf.subclassName === null &&
-    kf.name === "Unarmored Defense"
+    kf.className === "Barbarian"
+    && kf.subclassName === null
+    && kf.name === "Unarmored Defense"
   )) calc = "unarmoredBarb";
 
   if (results.maxType === "Natural") {

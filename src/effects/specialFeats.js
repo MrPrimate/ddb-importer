@@ -77,12 +77,12 @@ export function featEffectModules() {
   const autoAnimationsInstalled = game.modules.get("autoanimations")?.active;
   CONFIG.DDBI.EFFECT_CONFIG.FEATS.installedModules = {
     hasCore:
-      itemMacroInstalled &&
-      midiQolInstalled &&
-      advancedMacrosInstalled &&
-      timesUp &&
-      daeInstalled &&
-      convenientEffectsInstalled,
+      itemMacroInstalled
+      && midiQolInstalled
+      && advancedMacrosInstalled
+      && timesUp
+      && daeInstalled
+      && convenientEffectsInstalled,
     midiQolInstalled,
     itemMacroInstalled,
     advancedMacrosInstalled,

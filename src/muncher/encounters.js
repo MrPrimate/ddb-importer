@@ -150,8 +150,8 @@ export class DDBEncounterMunch extends Application {
       .forEach((character) => {
         const characterInGame = game.actors.find(
           (actor) =>
-            actor.flags?.ddbimporter?.dndbeyond?.characterId &&
-            actor.flags.ddbimporter.dndbeyond.characterId == character.id
+            actor.flags?.ddbimporter?.dndbeyond?.characterId
+            && actor.flags.ddbimporter.dndbeyond.characterId == character.id
         );
         if (characterInGame) {
           goodCharacterData.push({ id: characterInGame.id, name: characterInGame.name, ddbId: character.id });
@@ -447,8 +447,8 @@ export class DDBEncounterMunch extends Application {
 
     if (sceneData) {
       let tokenData = [];
-      const useDDBSave =
-        this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
+      const useDDBSave
+        = this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
       const xSquares = sceneData.width / sceneData.grid.size;
       const ySquares = sceneData.height / sceneData.grid.size;
       const midSquareOffset = sceneData.grid.size / 2;
@@ -465,8 +465,8 @@ export class DDBEncounterMunch extends Application {
           logger.info(`Generating token ${character.name} for ${this.encounter.name}`);
           const characterInGame = game.actors.find(
             (actor) =>
-              actor.flags?.ddbimporter?.dndbeyond?.characterId &&
-              actor.flags.ddbimporter.dndbeyond.characterId == character.id
+              actor.flags?.ddbimporter?.dndbeyond?.characterId
+              && actor.flags.ddbimporter.dndbeyond.characterId == character.id
           );
           if (characterInGame) {
             const onScene = useExistingScene && worldScene.tokens
@@ -535,8 +535,8 @@ export class DDBEncounterMunch extends Application {
 
       if (importDDBIScene) {
         worldScene = game.scenes.find(
-          (a) => a.folder == this.folders["scene"].id &&
-          a.flags?.ddbimporter?.encounterId == this.encounter.id
+          (a) => a.folder == this.folders["scene"].id
+          && a.flags?.ddbimporter?.encounterId == this.encounter.id
         );
       }
 
@@ -586,14 +586,14 @@ export class DDBEncounterMunch extends Application {
   }
 
   async createCombatEncounter() {
-    const importCombat = game.settings.get("ddb-importer", "encounter-import-policy-create-scene") ||
-      game.settings.get("ddb-importer", "encounter-import-policy-existing-scene");
+    const importCombat = game.settings.get("ddb-importer", "encounter-import-policy-create-scene")
+      || game.settings.get("ddb-importer", "encounter-import-policy-existing-scene");
 
     if (!importCombat) return undefined;
     logger.debug(`Creating combat for encounter ${this.encounter.name}`);
 
-    const useDDBSave =
-      this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
+    const useDDBSave
+      = this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
 
     await this.scene.view();
     this.combat = await Combat.create({ scene: this.scene.id });
@@ -809,8 +809,8 @@ export class DDBEncounterMunch extends Application {
       // - attempt to find magic items and add them to the world?
 
       $("#encounter-button").prop("innerText", "Encounter Munched");
-      const campaignFluff =
-        this.encounter.campaign?.name && this.encounter.campaign.name.trim() !== "" ? ` of ${this.encounter.name}` : "";
+      const campaignFluff
+        = this.encounter.campaign?.name && this.encounter.campaign.name.trim() !== "" ? ` of ${this.encounter.name}` : "";
       ui.notifications.warn(`Prepare to battle heroes${campaignFluff}, your doom awaits in ${this.encounter.name}!`);
     });
   }

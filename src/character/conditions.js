@@ -38,9 +38,9 @@ export async function getActiveConditions(actor) {
 async function effectAppliedAndActive(condition, actor) {
   return actor.effects.some(
     (activeEffect) =>
-      activeEffect?.flags?.isConvenient &&
-      activeEffect?.label == condition.label &&
-      !activeEffect?.disabled
+      activeEffect?.flags?.isConvenient
+      && activeEffect?.label == condition.label
+      && !activeEffect?.disabled
   );
 }
 
@@ -48,8 +48,8 @@ export async function getActorConditionStates(actor, ddb) {
   const conditions = await Promise.all(CONDITION_MATRIX.map(async (condition) => {
     const conditionApplied = await effectAppliedAndActive(condition, actor);
     const ddbCondition = ddb.character.conditions.some((conditionState) =>
-      conditionState.id === condition.ddbId &&
-      conditionState.level === condition.levelId
+      conditionState.id === condition.ddbId
+      && conditionState.level === condition.levelId
     );
     // eslint-disable-next-line require-atomic-updates
     condition.ddbCondition = ddbCondition;

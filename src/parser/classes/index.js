@@ -37,9 +37,9 @@ function generateScaleValueAdvancement(feature) {
 
   if (die?.diceString && (!die.fixedValue || die.fixedValue === "")) {
     type = "dice";
-  } else if (feature.levelScales[0].fixedValue &&
-    feature.levelScales[0].fixedValue !== "" &&
-    Number.isInteger(feature.levelScales[0].fixedValue)
+  } else if (feature.levelScales[0].fixedValue
+    && feature.levelScales[0].fixedValue !== ""
+    && Number.isInteger(feature.levelScales[0].fixedValue)
   ) {
     type = "numeric";
   }
@@ -113,9 +113,9 @@ function getClassFeatures(ddb, klass, klassDefinition, excludedIds = []) {
 
   const classFeatures = klass.classFeatures
     .filter((feature) =>
-      !excludedFeatures.includes(feature.definition.id) &&
-      !excludedIds.includes(feature.definition.id) &&
-      feature.definition.classId === klassDefinition.id
+      !excludedFeatures.includes(feature.definition.id)
+      && !excludedIds.includes(feature.definition.id)
+      && feature.definition.classId === klassDefinition.id
     )
     .map((feature) => feature.definition);
 
@@ -126,15 +126,15 @@ function getClassFeatures(ddb, klass, klassDefinition, excludedIds = []) {
 
 function getFeatureCompendiumMatch(compendium, feature, klassDefinition) {
   return compendium.find((match) =>
-    ((hasProperty(match, "flags.ddbimporter.featureName") && feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase()) ||
-      (!hasProperty(match, "flags.ddbimporter.featureName") &&
-        (feature.name.trim().toLowerCase() == match.name.trim().toLowerCase() ||
-        `${feature.name} (${klassDefinition.name})`.trim().toLowerCase() == match.name.trim().toLowerCase()))
-    ) &&
-    hasProperty(match, "flags.ddbimporter") &&
-    (match.flags.ddbimporter.class == klassDefinition.name ||
-      match.flags.ddbimporter.parentClassId == klassDefinition.id ||
-      match.flags.ddbimporter.classId == klassDefinition.id)
+    ((hasProperty(match, "flags.ddbimporter.featureName") && feature.name.trim().toLowerCase() == match.flags.ddbimporter.featureName.trim().toLowerCase())
+      || (!hasProperty(match, "flags.ddbimporter.featureName")
+        && (feature.name.trim().toLowerCase() == match.name.trim().toLowerCase()
+        || `${feature.name} (${klassDefinition.name})`.trim().toLowerCase() == match.name.trim().toLowerCase()))
+    )
+    && hasProperty(match, "flags.ddbimporter")
+    && (match.flags.ddbimporter.class == klassDefinition.name
+      || match.flags.ddbimporter.parentClassId == klassDefinition.id
+      || match.flags.ddbimporter.classId == klassDefinition.id)
   );
 }
 
@@ -372,9 +372,9 @@ export async function getClasses(ddb, character) {
     let skillChoices = [];
     const choiceDefinitions = ddb.character.choices.choiceDefinitions;
     ddb.character.choices.class.filter((choice) =>
-      classProficiencyFeatureIds.includes(choice.componentId) &&
-      choice.subType === 1 &&
-      choice.type === 2
+      classProficiencyFeatureIds.includes(choice.componentId)
+      && choice.subType === 1
+      && choice.type === 2
     ).forEach((choice) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
@@ -385,8 +385,8 @@ export async function getClasses(ddb, character) {
         skillsChosen.push(smallChosen.name);
       }
       const optionNames = optionChoice.options.filter((option) =>
-        DICTIONARY.character.skills.some((skill) => skill.label === option.label) &&
-        choice.optionIds.includes(option.id)
+        DICTIONARY.character.skills.some((skill) => skill.label === option.label)
+        && choice.optionIds.includes(option.id)
       ).map((option) =>
         DICTIONARY.character.skills.find((skill) => skill.label === option.label).name
       );

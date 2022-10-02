@@ -30,8 +30,8 @@ export async function getClasses(data) {
       .sort((a, b) => a.requiredLevel - b.requiredLevel)
       .forEach((feature) => {
         const existingFeature = classFeatures.some((f) =>
-          f.flags.ddbimporter.featureName === feature.name &&
-          f.flags.ddbimporter.classId === klass.id
+          f.flags.ddbimporter.featureName === feature.name
+          && f.flags.ddbimporter.classId === klass.id
         );
         logger.debug(`${feature.name} feature starting...`);
         if (!NO_TRAITS.includes(feature.name) && !existingFeature) {

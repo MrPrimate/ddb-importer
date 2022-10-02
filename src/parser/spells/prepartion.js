@@ -44,8 +44,8 @@ export function getSpellPreparationMode(data) {
   };
 
   // handle classSpells
-  const featureClass = data.flags.ddbimporter.dndbeyond.lookup === "classFeature" &&
-    data.flags.ddbimporter.dndbeyond.class;
+  const featureClass = data.flags.ddbimporter.dndbeyond.lookup === "classFeature"
+    && data.flags.ddbimporter.dndbeyond.class;
 
   if (data.flags.ddbimporter.dndbeyond.lookup === "classSpell" || featureClass) {
     result = classSpell(data, result);

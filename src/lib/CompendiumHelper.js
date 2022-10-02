@@ -138,11 +138,11 @@ const CompendiumHelper = {
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     const index = await CompendiumHelper.loadCompendiumIndex(type, { fields: monsterIndexFields });
     const npcMatch = index.contents.find((entity) =>
-      hasProperty(entity, "flags.ddbimporter.id") &&
-      entity.flags.ddbimporter.id == npc.flags.ddbimporter.id &&
-      ((!legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()) ||
-        (legacyName && npc.flags.ddbimporter.isLegacy && npc.name.toLowerCase().startsWith(entity.name.toLowerCase())) ||
-        (legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()))
+      hasProperty(entity, "flags.ddbimporter.id")
+      && entity.flags.ddbimporter.id == npc.flags.ddbimporter.id
+      && ((!legacyName && entity.name.toLowerCase() === npc.name.toLowerCase())
+        || (legacyName && npc.flags.ddbimporter.isLegacy && npc.name.toLowerCase().startsWith(entity.name.toLowerCase()))
+        || (legacyName && entity.name.toLowerCase() === npc.name.toLowerCase()))
     );
     return npcMatch;
   },

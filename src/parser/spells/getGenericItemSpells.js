@@ -12,10 +12,10 @@ export function getGenericItemSpells(itemList, itemSpells) {
     const itemInfo = itemList.find((it) => it.definition.id === spell.componentId);
     if (!itemInfo) return;
 
-    const active =
-      (!itemInfo.definition.canEquip && !itemInfo.definition.canAttune) || // if item just gives a thing
-      itemInfo.isAttuned || // if it is attuned (assume equipped)
-      (!itemInfo.definition.canAttune && itemInfo.equipped); // can't attune but is equipped
+    const active
+      = (!itemInfo.definition.canEquip && !itemInfo.definition.canAttune) // if item just gives a thing
+      || itemInfo.isAttuned // if it is attuned (assume equipped)
+      || (!itemInfo.definition.canAttune && itemInfo.equipped); // can't attune but is equipped
     // for item spells the spell dc is often on the item spell
     let spellDC = null;
     if (spell.overrideSaveDc) {

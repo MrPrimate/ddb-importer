@@ -85,9 +85,9 @@ export async function updateWorldMonsters() {
     for (const [key, value] of index.entries()) {
 
       const worldMatches = game.actors.filter((actor) =>
-        actor.flags?.ddbimporter?.id &&
-        actor.name === value.name &&
-        actor.flags.ddbimporter.id == value.flags?.ddbimporter?.id
+        actor.flags?.ddbimporter?.id
+        && actor.name === value.name
+        && actor.flags.ddbimporter.id == value.flags?.ddbimporter?.id
       );
 
       if (worldMatches.length > 0) {

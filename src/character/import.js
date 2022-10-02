@@ -362,9 +362,9 @@ export default class CharacterImport extends FormApplication {
     const toRemove = ownedItems
       .filter(
         (item) =>
-          includedItems.includes(item.type) &&
-          !excludedList.some((excluded) => excluded._id === item.id) &&
-          !this.nonMatchedItemIds.includes(item.id)
+          includedItems.includes(item.type)
+          && !excludedList.some((excluded) => excluded._id === item.id)
+          && !this.nonMatchedItemIds.includes(item.id)
       )
       .filter((item) => !item.flags.ddbimporter?.ignoreItemImport)
       .map((item) => item.id);
@@ -383,10 +383,10 @@ export default class CharacterImport extends FormApplication {
     const decorations = data.character.decorations;
     const userHasPermission = !(game.settings.get("ddb-importer", "restrict-to-trusted") && !game.user.isTrusted);
     if (
-      userHasPermission &&
-      decorations?.avatarUrl &&
-      decorations.avatarUrl !== "" &&
-      (!imagePath || imagePath.includes("mystery-man") || game.settings.get("ddb-importer", "character-update-policy-image"))
+      userHasPermission
+      && decorations?.avatarUrl
+      && decorations.avatarUrl !== ""
+      && (!imagePath || imagePath.includes("mystery-man") || game.settings.get("ddb-importer", "character-update-policy-image"))
     ) {
       CharacterImport.showCurrentTask(html, "Uploading avatar image");
       const filename = data.character.name
@@ -435,9 +435,9 @@ export default class CharacterImport extends FormApplication {
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.experimentalMid;
     const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
-    const resourceSelection =
-      !hasProperty(this.actor, "flags.ddbimporter.resources.ask") ||
-      getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
+    const resourceSelection
+      = !hasProperty(this.actor, "flags.ddbimporter.resources.ask")
+      || getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
 
     const itemsMunched = syncEnabled && itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
 
@@ -814,9 +814,9 @@ export default class CharacterImport extends FormApplication {
       const items = this.actor.getEmbeddedCollection("Item");
       await items.forEach((item) => {
         const ddbMatchedItem = ddbItems.some((ddbItem) =>
-          item.name === ddbItem.name &&
-          item.type === ddbItem.type &&
-          item.flags?.ddbimporter?.id === ddbItem.flags?.ddbimporter?.id
+          item.name === ddbItem.name
+          && item.type === ddbItem.type
+          && item.flags?.ddbimporter?.id === ddbItem.flags?.ddbimporter?.id
         );
         if (!ddbMatchedItem) {
           // if item not replaced by compendium swap or
@@ -838,23 +838,23 @@ export default class CharacterImport extends FormApplication {
 
       await items.forEach((item) => {
         let ddbMatchedItem = ownedItems.find((owned) => {
-          const simpleMatch =
-            item.name === owned.name &&
-            item.type === owned.type &&
-            item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
-          const isChoice =
-            hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId") &&
-            hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
+          const simpleMatch
+            = item.name === owned.name
+            && item.type === owned.type
+            && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
+          const isChoice
+            = hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
+            && hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
           const choiceMatch = isChoice
-            ? item.flags.ddbimporter.dndbeyond.choice.choiceId ===
-              owned.flags.ddbimporter.dndbeyond.choice.choiceId
+            ? item.flags.ddbimporter.dndbeyond.choice.choiceId
+              === owned.flags.ddbimporter.dndbeyond.choice.choiceId
             : true;
           const overrideDetails = getProperty(owned, "flags.ddbimporter.overrideItem");
-          const overrideMatch =
-            overrideDetails &&
-            item.name === overrideDetails.name &&
-            item.type === overrideDetails.type &&
-            item.flags?.ddbimporter?.id === overrideDetails.ddbId;
+          const overrideMatch
+            = overrideDetails
+            && item.name === overrideDetails.name
+            && item.type === overrideDetails.type
+            && item.flags?.ddbimporter?.id === overrideDetails.ddbId;
 
           return (simpleMatch && choiceMatch) || overrideMatch;
         });
@@ -1056,11 +1056,11 @@ export default class CharacterImport extends FormApplication {
     const ignoredItemIds = this.actorOriginal.items
       .filter(
         (item) =>
-          item.effects &&
-          item.effects.length > 0 &&
-          (item.flags.ddbimporter?.ignoreItemImport ||
-            excludedItems.some((ei) => ei._id === item._id) ||
-            this.nonMatchedItemIds.includes(item._id))
+          item.effects
+          && item.effects.length > 0
+          && (item.flags.ddbimporter?.ignoreItemImport
+            || excludedItems.some((ei) => ei._id === item._id)
+            || this.nonMatchedItemIds.includes(item._id))
       )
       .map((item) => item._id);
 
@@ -1070,9 +1070,9 @@ export default class CharacterImport extends FormApplication {
     const ignoredEffects = this.actor.effects.filter(
       (ae) =>
         // is this an ignored item
-        ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0]) ||
+        ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
         // is this a core status effect (CUB)
-        ae.flags?.core?.statusId
+        || ae.flags?.core?.statusId
     );
     const charEffects = this.actor.effects.filter(
       (ae) => !ae.origin?.includes(".Item.") && !ae.flags.ddbimporter?.characterEffect
@@ -1080,6 +1080,8 @@ export default class CharacterImport extends FormApplication {
     const ddbGeneratedCharEffects = this.actor.effects.filter(
       (ae) => !ae.origin?.includes(".Item.") && ae.flags.ddbimporter?.characterEffect
     );
+
+    logger.debug("Effect Removal Results", { ignoredItemIds, itemEffects, ignoredEffects, charEffects, });
 
     // remove existing active item effects
     await this.actor.deleteEmbeddedDocuments(
@@ -1201,9 +1203,9 @@ export default class CharacterImport extends FormApplication {
       }
       // if resource mode is in disable and not asking, then we use the previous resources
       if (
-        hasProperty(this.result.character, "flags.ddbimporter.resources.ask") &&
-        !this.result.character.flags.ddbimporter.resources.ask &&
-        this.result.character.flags.ddbimporter.resources.type === "disable"
+        hasProperty(this.result.character, "flags.ddbimporter.resources.ask")
+        && !this.result.character.flags.ddbimporter.resources.ask
+        && this.result.character.flags.ddbimporter.resources.type === "disable"
       ) {
         this.result.character.system.resources = this.actorOriginal.system.resources;
       }
