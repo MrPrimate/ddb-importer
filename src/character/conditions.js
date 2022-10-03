@@ -44,7 +44,7 @@ async function effectAppliedAndActive(condition, actor) {
   );
 }
 
-export async function getActorConditionStates(actor, ddb) {
+export async function getActorConditionStates(actor, ddb, keepLocal = false) {
   const conditions = await Promise.all(CONDITION_MATRIX.map(async (condition) => {
     const conditionApplied = await effectAppliedAndActive(condition, actor);
     const ddbCondition = ddb.character.conditions.some((conditionState) =>
@@ -56,7 +56,7 @@ export async function getActorConditionStates(actor, ddb) {
     // eslint-disable-next-line require-atomic-updates
     condition.applied = conditionApplied;
     // eslint-disable-next-line require-atomic-updates
-    condition.needsUpdate = (ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied);
+    condition.needsUpdate = (ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied && !keepLocal);
     return condition;
   }));
   return conditions;
@@ -67,11 +67,12 @@ export async function getActorConditionStates(actor, ddb) {
  * @param {*} ddb
  * @param {*} actor
  */
-export async function setConditions(actor, ddb) {
+export async function setConditions(actor, ddb, keepLocal = false) {
   const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
   if (dfConditionsOn) {
-    const conditionStates = await getActorConditionStates(actor, ddb);
+    const conditionStates = await getActorConditionStates(actor, ddb, keepLocal);
     // console.warn(conditionStates);
+    logger.debug(`Condition states for ${actor.name}`, conditionStates);
     await Promise.all(conditionStates.map(async (condition) => {
       // console.warn(condition);
       if (condition.needsUpdate) {

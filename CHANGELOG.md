@@ -1,6 +1,7 @@
 # 3.1.11
 
 * Green flame blade extra damage targeted caster.
+* If Retain Active Effects was ticked then many effects from non-ddb items could be duplicated.
 
 # 3.1.10
 

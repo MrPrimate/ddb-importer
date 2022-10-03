@@ -304,8 +304,10 @@ export default class CharacterImport extends FormApplication {
     return new Promise((resolve) => {
       resolve(
         items.map((item) => {
-          const originalItem = this.actorOriginal.items.find(
-            (originalItem) => item.name === originalItem.name && item.type === originalItem.type
+          const originalItem = this.actorOriginal.items.find((originalItem) =>
+            item.name === originalItem.name
+            && item.type === originalItem.type
+            && item.flags?.ddbimporter?.id === originalItem.flags?.ddbimporter?.id
           );
           if (originalItem) {
             if (!item.effects) item.effects = [];
@@ -1054,59 +1056,64 @@ export default class CharacterImport extends FormApplication {
     // remove current active effects
     const excludedItems = filterActorItemsByUserSelection(this.actorOriginal, true);
     const ignoredItemIds = this.actorOriginal.items
-      .filter(
-        (item) =>
-          item.effects
-          && item.effects.length > 0
-          && (item.flags.ddbimporter?.ignoreItemImport
-            || excludedItems.some((ei) => ei._id === item._id)
-            || this.nonMatchedItemIds.includes(item._id))
+      .filter((item) =>
+        item.effects
+        && item.effects.length > 0
+        && (item.flags.ddbimporter?.ignoreItemImport
+          || excludedItems.some((ei) => ei._id === item._id)
+          || this.nonMatchedItemIds.includes(item._id)
+        )
       )
       .map((item) => item._id);
 
-    const itemEffects = this.actor.effects.filter(
-      (ae) => ae.origin?.includes(".Item.") && !ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
+    const itemEffects = this.actor.effects.filter((ae) =>
+      ae.origin?.includes(".Item.")
+      // && !ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
     );
-    const ignoredEffects = this.actor.effects.filter(
-      (ae) =>
-        // is this an ignored item
-        ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
-        // is this a core status effect (CUB)
-        || ae.flags?.core?.statusId
+    const ignoredEffects = this.actor.effects.filter((ae) =>
+      // is this an ignored item
+      ignoredItemIds.includes(ae.origin?.split(".").slice(-1)[0])
+      // is this a core status effect
+      // || ae.flags?.core?.statusId
     );
-    const charEffects = this.actor.effects.filter(
-      (ae) => !ae.origin?.includes(".Item.") && !ae.flags.ddbimporter?.characterEffect
+    const coreStatusEffects = this.actor.effects.filter((ae) =>
+      hasProperty(ae, "flags.core.statusId")
     );
-    const ddbGeneratedCharEffects = this.actor.effects.filter(
-      (ae) => !ae.origin?.includes(".Item.") && ae.flags.ddbimporter?.characterEffect
+    // effects on the character that are not from items, or corestatuses
+    // nor added by ddb importer
+    const charEffects = this.actor.effects.filter((ae) =>
+      !ae.origin?.includes(".Item.")
+      && !ae.flags.ddbimporter?.characterEffect
+      && !ae.flags?.core?.statusId
+    );
+    // effects that are added by the ddb importer that are not item effects
+    const ddbGeneratedCharEffects = this.actor.effects.filter((ae) =>
+      !ae.origin?.includes(".Item.") && ae.flags.ddbimporter?.characterEffect
     );
 
-    logger.debug("Effect Removal Results", { ignoredItemIds, itemEffects, ignoredEffects, charEffects, });
+    logger.debug("Effect Removal Results", {
+      ignoredItemIds, itemEffects, ignoredEffects, charEffects, coreStatusEffects,
+      ddbGeneratedCharEffects,
+    });
 
     // remove existing active item effects
-    await this.actor.deleteEmbeddedDocuments(
-      "ActiveEffect",
-      itemEffects.map((ae) => ae.id)
-    );
+    await this.actor.deleteEmbeddedDocuments("ActiveEffect", itemEffects.map((ae) => ae.id));
     // clear down ddb generated character effects such as skill bonuses
-    await this.actor.deleteEmbeddedDocuments(
-      "ActiveEffect",
-      ddbGeneratedCharEffects.map((ae) => ae.id)
-    );
+    await this.actor.deleteEmbeddedDocuments("ActiveEffect", ddbGeneratedCharEffects.map((ae) => ae.id));
+    // clear down char effects
+    await this.actor.deleteEmbeddedDocuments("ActiveEffect", charEffects.map((ae) => ae.id));
+    // clear down status effects
+    await this.actor.deleteEmbeddedDocuments("ActiveEffect", coreStatusEffects.map((ae) => ae.id));
 
     // are we trying to retain existing effects?
     if (activeEffectCopy) {
       // add retained character effects to result
-      this.result.character.effects = this.result.character.effects.concat(charEffects, ignoredEffects);
+      const effects = ignoredEffects.concat(charEffects, coreStatusEffects);
+      this.result.character.effects = this.result.character.effects.concat(effects);
     } else {
-      // if not retaining effects remove character effects
-      await this.actor.deleteEmbeddedDocuments(
-        "ActiveEffect",
-        charEffects.map((ae) => ae.id)
-      );
+
       this.result.character.effects = this.result.character.effects.concat(ignoredEffects);
     }
-
   }
 
   fixUpCharacterEffects(character) {
@@ -1248,7 +1255,7 @@ export default class CharacterImport extends FormApplication {
       if (activeEffectCopy) {
         // find effects with a matching name that existed on previous actor
         // and that have a different active state and activate them
-        const targetEffects = this.actor.data.effects.filter((ae) => {
+        const targetEffects = this.actor.effects.filter((ae) => {
           const previousEffectDiff = this.actorOriginal.effects.find(
             (oae) => oae.label === ae.label && oae.disabled !== ae.disabled
           );
@@ -1261,7 +1268,7 @@ export default class CharacterImport extends FormApplication {
       }
 
       await autoLinkResources(this.actor);
-      await setConditions(this.actor, data.ddb);
+      await setConditions(this.actor, data.ddb, activeEffectCopy);
       await addContainerItemsToContainers(data.ddb, this.actor);
 
     } catch (error) {
