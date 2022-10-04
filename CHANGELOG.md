@@ -1,3 +1,7 @@
+# 3.1.12
+
+* Add DoSI to fallback config.
+
 # 3.1.11
 
 * Green flame blade extra damage targeted caster.
