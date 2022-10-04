@@ -52,7 +52,7 @@ function buildNotes(html, data) {
                 contentChunkIdStart: $(element).attr("data-content-chunk-id"),
                 tagIdLast: "",
                 contentChunkIdStop: "EOF",
-                sceneName: data.name,
+                sceneName: data.document.name,
               };
               copyToClipboard(JSON.stringify(CONFIG.DDBI.DEV.clippy, null, 2));
             }
