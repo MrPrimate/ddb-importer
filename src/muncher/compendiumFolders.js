@@ -112,10 +112,9 @@ async function createCreatureTypeCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
     CONFIG.DDB.monsterTypes.forEach(async (monsterType) => {
-      const folder = await createCompendiumFolder(packName, monsterType.name, "#6f0006");
-      promises.push(folder);
+      promises.push(createCompendiumFolder(packName, monsterType.name, "#6f0006"));
     });
-    resolve(promises);
+    resolve(Promise.all(promises));
   });
 }
 
@@ -123,12 +122,11 @@ async function createCreatureTypeCompendiumFolders(packName) {
 async function createChallengeRatingCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
-    CONFIG.DDB.challengeRatings.forEach(async (cr) => {
+    CONFIG.DDB.challengeRatings.forEach((cr) => {
       const paddedCR = String(cr.value).padStart(2, "0");
-      const folder = await createCompendiumFolder(packName, `CR ${paddedCR}`, "#6f0006");
-      promises.push(folder);
+      promises.push(createCompendiumFolder(packName, `CR ${paddedCR}`, "#6f0006"));
     });
-    resolve(promises);
+    resolve(Promise.all(promises));
   });
 }
 
@@ -138,7 +136,6 @@ async function createAlphabeticalCompendiumFolders(packName) {
     let promises = [];
     for (let i = 9; ++i < 36;) {
       const folderName = i.toString(36).toUpperCase();
-      // eslint-disable-next-line no-await-in-loop
       createCompendiumFolder(packName, folderName, "#6f0006").then((folder) => {
         promises.push(folder);
       });
@@ -151,12 +148,11 @@ async function createAlphabeticalCompendiumFolders(packName) {
 async function createSpellLevelCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
-    spellLevelFolderNames.forEach(async (levelName) => {
+    spellLevelFolderNames.forEach((levelName) => {
       logger.info(`Creating folder '${levelName}'`);
-      const newFolder = await createCompendiumFolder(packName, levelName);
-      promises.push(newFolder);
+      promises.push(createCompendiumFolder(packName, levelName));
     });
-    resolve(promises);
+    resolve(Promise.all(promises));
   });
 }
 
@@ -164,13 +160,12 @@ async function createSpellLevelCompendiumFolders(packName) {
 async function createSpellSchoolCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
-    DICTIONARY.spell.schools.forEach(async (school) => {
+    DICTIONARY.spell.schools.forEach((school) => {
       const schoolName = utils.capitalize(school.name);
       logger.info(`Creating folder '${schoolName}'`);
-      const newFolder = await createCompendiumFolder(packName, schoolName);
-      promises.push(newFolder);
+      promises.push(createCompendiumFolder(packName, schoolName));
     });
-    resolve(promises);
+    resolve(Promise.all(promises));
   });
 }
 
@@ -178,10 +173,9 @@ async function createSpellSchoolCompendiumFolders(packName) {
 async function createItemRarityCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
-    itemRarityNames.forEach(async (rarityName) => {
+    itemRarityNames.forEach((rarityName) => {
       logger.info(`Creating folder '${rarityName}'`);
-      const newFolder = await createCompendiumFolder(packName, rarityName);
-      promises.push(newFolder);
+      promises.push(createCompendiumFolder(packName, rarityName));
     });
     resolve(promises);
   });
