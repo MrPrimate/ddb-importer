@@ -147,16 +147,16 @@ Answer: run the above migration command.
 
 * For adventure muncher you need the compendium content.
 
-## Can I update all my characters without opening each one?
+## Can I import all my characters without opening each one?
 
 Yes, use the following macro:
 
 ```javascript
 const actors = game.actors;
 for (let [key, value] of actors.entries()) {
-  const ddbImported = 'ddbimporter' in value.data.flags;
+  const ddbImported = 'ddbimporter' in value.flags;
   if (ddbImported && value.type === "character") {
-    console.log('Importing: ' + value.data.name);
+    console.log('Importing: ' + value.name);
     await DDBImporter.importCharacter(value);
   }
 }

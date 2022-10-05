@@ -1,6 +1,7 @@
 # 3.1.12
 
 * Add DoSI to fallback config.
+* Tweaks to compendium folder generation to prevent failure when Forge module is enabled in v10.
 
 # 3.1.11
 
