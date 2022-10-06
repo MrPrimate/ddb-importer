@@ -122,7 +122,8 @@ const MuncherSettings = {
     const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
     const midiSRDInstalled = game.modules.get("midi-srd")?.active;
     const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
-    const spellEffectText = `Generate active effects for spells. These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}`;
+    const featureEffectText = `Generate effects for a character. Some effects are always generated, some are optional (see below). These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}. For best results Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} are strongly recommended.`;
+    const spellEffectText = `Generate effects for spells. These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}`;
 
     // const importExtras = game.settings.get("ddb-importer", "character-update-policy-import-extras");
 
@@ -239,9 +240,8 @@ const MuncherSettings = {
       {
         name: "add-item-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-item-effects") && daeInstalled,
-        title: "Generate Active Effects for Equipment",
-        description:
-          "Dynamically generate active effects for a characters equipment, doesn't include AC effects on armor, but will for things like the Ring of Protection.",
+        title: "Generate Effects for Equipment",
+        description: "Generate effects for a characters equipment, doesn't include AC effects on armor, but will for things like the Ring of Protection.",
         enabled: daeInstalled,
       },
       {
@@ -254,18 +254,16 @@ const MuncherSettings = {
       {
         name: "add-character-effects",
         isChecked: game.settings.get("ddb-importer", "character-update-policy-add-character-effects") && daeInstalled,
-        title: "Generate Active Effects for Character Features/Racial Traits/Feats/Backgrounds",
-        description:
-          "Dynamically generate active effects for a character. Some effects are always generated, some are optional (see below).",
+        title: "Generate Effects for Character Features/Racial Traits/Feats/Backgrounds",
+        description: featureEffectText,
         enabled: daeInstalled,
       },
       {
         name: "generate-ac-feature-effects",
         isChecked:
           game.settings.get("ddb-importer", "character-update-policy-generate-ac-feature-effects") && daeInstalled,
-        title: "Generate DAE Active Effects ACs for Character Features & Racial Traits",
-        description:
-          "Use extras in DAE to Dynamically add AC values as dynamic effects to items, this might not work as expected for some AC calculations. If unticked some ac bonuses will still be generated.",
+        title: "Generate Effects ACs for Character Features & Racial Traits",
+        description: "Add AC values as effects to features, this might not work as expected for some AC calculations. If unticked some ac bonuses will still be generated.",
         enabled: daeInstalled,
       },
       {
@@ -281,7 +279,7 @@ const MuncherSettings = {
         isChecked: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
         title: "Retain Active Effects",
         description:
-          "Retain existing Active Effects, this will try and transfer any existing effects on the actor such as custom effects, effects from conditions or existing spells. Untick this option if you experience <i>odd</i> behaviour, especially around AC.",
+          "Retain existing Effects, this will try and transfer any existing effects on the actor such as custom effects, effects from conditions or existing spells. Untick this option if you experience <i>odd</i> behaviour.",
         enabled: true,
       },
     ];

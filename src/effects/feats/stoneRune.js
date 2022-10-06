@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { generateStatusEffectChange } from "../effects.js";
 
-export async function stoneRuneEffect(document) {
+export function stoneRuneEffect(document) {
   setProperty(document, "system.target.value", 1);
   setProperty(document, "system.target.type", "creature");
   setProperty(document, "system.range.units", "ft");

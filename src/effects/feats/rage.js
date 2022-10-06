@@ -60,6 +60,12 @@ export function rageEffect(document) {
     versatile: "",
     value: "",
   };
+  document.system.target = {
+    value: null,
+    width: null,
+    units: "",
+    type: "self",
+  };
   document.effects.push(effect);
   return document;
 }

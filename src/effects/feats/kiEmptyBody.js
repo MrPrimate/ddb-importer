@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 import { generateStatusEffectChange } from "../effects.js";
 
-export async function kiEmptyBodyEffect(document) {
+export function kiEmptyBodyEffect(document) {
   let effect = baseFeatEffect(document, document.name);
   effect.changes.push(
     { key: "system.traits.dr.all", value: "", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 0 },

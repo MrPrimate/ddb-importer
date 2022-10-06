@@ -1,7 +1,7 @@
 import { baseFeatEffect, featEffectModules } from "../specialFeats.js";
 import { generateATLChange } from "../effects.js";
 
-export function giantsMarkEffect(document) {
+export function giantsMightEffect(document) {
   let effect = baseFeatEffect(document, document.name);
 
   if (featEffectModules().atlInstalled) {

@@ -15,7 +15,7 @@ import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { indomitableEffect } from "./feats/indomitable.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
-import { giantsMarkEffect } from "./feats/giantsMight.js";
+import { giantsMightEffect } from "./feats/giantsMight.js";
 import { recklessAttackEffect } from "./feats/recklessAttack.js";
 import { cloudRuneEffect } from "./feats/cloudRune.js";
 import { fireRuneEffect } from "./feats/fireRune.js";
@@ -105,8 +105,148 @@ export function featEffectModules() {
 export async function featureEffectAdjustment(ddb, character, document) {
   if (!document.effects) document.effects = [];
 
+  const name = document.flags.ddbimporter.originalName || document.name;
+
   // check that we can gen effects
   const deps = featEffectModules();
+
+  if (deps.daeInstalled) {
+    switch (name) {
+      // if using active auras add the aura effect
+      case "Aura of Courage":
+      case "Aura of Protection": {
+        document = paladinDefaultAuraEffect(document);
+        break;
+      }
+      case "Defensive Duelist": {
+        document = defensiveDuelistEffect(document);
+        break;
+      }
+      case "Frost Rune": {
+        document = frostRuneEffect(document);
+        break;
+      }
+      case "Hill Rune": {
+        document = hillRuneEffect(document);
+        break;
+      }
+      case "Rage": {
+        document = rageEffect(document);
+        break;
+      }
+      case "Unarmored Movement": {
+        document = unarmoredMovementEffect(document);
+        break;
+      }
+      case "Uncanny Dodge": {
+        document = uncannyDodgeEffect(document);
+        break;
+      }
+      case "Vigilant Blessing": {
+        document = vigilantBlessingEffect(document);
+        break;
+      }
+      // no default
+    }
+  }
+
+  if (deps.daeInstalled && deps.midiQolInstalled) {
+    switch (name) {
+      case "Bladesong": {
+        document = bladesongEffect(document);
+        break;
+      }
+      case "Bardic Inspiration": {
+        document = bardicInspirationEffect(document);
+        break;
+      }
+      case "Blessed Strikes": {
+        document = blessedStrikesEffect(document);
+        break;
+      }
+      case "Cloud Rune": {
+        document = cloudRuneEffect(document);
+        break;
+      }
+      case "Crossbow Expert": {
+        document = crossbowExpertEffect(document);
+        break;
+      }
+      case "Deflect Missiles": {
+        document = deflectMissilesEffect(document);
+        break;
+      }
+      case "Empty Body":
+      case "Ki: Empty Body": {
+        document = kiEmptyBodyEffect(document);
+        break;
+      }
+      case "Fighting Style: Interception": {
+        document = fightingStyleInterceptionEffect(document);
+        break;
+      }
+      case "Fire Rune": {
+        document = fireRuneEffect(document);
+        break;
+      }
+      case "Giant's Might": {
+        document = giantsMightEffect(document);
+        break;
+      }
+      case "Indomitable": {
+        document = indomitableEffect(document);
+        break;
+      }
+      case "Potent Cantrip": {
+        document = potentCantripEffect(document);
+        break;
+      }
+      case "Celestial Revelation (Radiant Soul)":
+      case "Radiant Soul": {
+        document = radiantSoulEffect(document);
+        break;
+      }
+      case "Reckless Attack": {
+        document = recklessAttackEffect(document);
+        break;
+      }
+      case "Sculpt Spells": {
+        document = sculptSpellsEffect(document);
+        break;
+      }
+      case "Sharpshooter": {
+        document = sharpShooterEffect(document);
+        break;
+      }
+      case "Savage Attacker": {
+        document = savageAttackerEffect(document);
+        break;
+      }
+      case "Shift": {
+        document = shiftEffect(ddb, character, document);
+        break;
+      }
+      case "Steady Aim": {
+        document = steadyAimEffect(document);
+        break;
+      }
+      case "Stone Rune": {
+        document = stoneRuneEffect(document);
+        break;
+      }
+      case "Storm Rune": {
+        document = stormRuneEffect(document);
+        break;
+      }
+      case "War Caster":
+      case "Warcaster": {
+        document = warCasterEffect(document);
+        break;
+      }
+      // no default
+    }
+  }
+
   if (!deps.hasCore) {
     return document;
   }
@@ -114,7 +254,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
     CONFIG.DDBI.EFFECT_CONFIG.FEATS.configured = configureDependencies();
   }
 
-  const name = document.flags.ddbimporter.originalName || document.name;
+
   if (name.startsWith("Maneuvers: ")) {
     document = await maneuversEffect(ddb, character, document);
   }
@@ -126,137 +266,12 @@ export async function featureEffectAdjustment(ddb, character, document) {
       document = await ancestralProtectorsEffect(document);
       break;
     }
-    // if using active auras add the aura effect
-    case "Aura of Courage":
-    case "Aura of Protection": {
-      document = paladinDefaultAuraEffect(document);
-      break;
-    }
-    case "Bladesong": {
-      document = bladesongEffect(document);
-      break;
-    }
-    case "Bardic Inspiration": {
-      document = bardicInspirationEffect(document);
-      break;
-    }
     case "Blessed Healer": {
       document = await blessedHealerEffect(document);
       break;
     }
-    case "Blessed Strikes": {
-      document = blessedStrikesEffect(document);
-      break;
-    }
-    case "Cloud Rune": {
-      document = cloudRuneEffect(document);
-      break;
-    }
-    case "Crossbow Expert": {
-      document = crossbowExpertEffect(document);
-      break;
-    }
-    case "Defensive Duelist": {
-      document = defensiveDuelistEffect(document);
-      break;
-    }
-    case "Deflect Missiles": {
-      document = deflectMissilesEffect(document);
-      break;
-    }
-    case "Empty Body":
-    case "Ki: Empty Body": {
-      document = await kiEmptyBodyEffect(document);
-      break;
-    }
-    case "Fighting Style: Interception": {
-      document = fightingStyleInterceptionEffect(document);
-      break;
-    }
-    case "Fire Rune": {
-      document = fireRuneEffect(document);
-      break;
-    }
-    case "Frost Rune": {
-      document = frostRuneEffect(document);
-      break;
-    }
-    case "Giant's Might": {
-      document = giantsMarkEffect(document);
-      break;
-    }
-    case "Hill Rune": {
-      document = hillRuneEffect(document);
-      break;
-    }
-    case "Indomitable": {
-      document = indomitableEffect(document);
-      break;
-    }
     case "Planar Warrior": {
       document = await planarWarriorEffect(document);
-      break;
-    }
-    case "Potent Cantrip": {
-      document = potentCantripEffect(document);
-      break;
-    }
-    case "Celestial Revelation (Radiant Soul)":
-    case "Radiant Soul": {
-      document = radiantSoulEffect(document);
-      break;
-    }
-    case "Rage": {
-      document = rageEffect(document);
-      break;
-    }
-    case "Reckless Attack": {
-      document = recklessAttackEffect(document);
-      break;
-    }
-    case "Sculpt Spells": {
-      document = sculptSpellsEffect(document);
-      break;
-    }
-    case "Sharpshooter": {
-      document = sharpShooterEffect(document);
-      break;
-    }
-    case "Savage Attacker": {
-      document = savageAttackerEffect(document);
-      break;
-    }
-    case "Shift": {
-      document = shiftEffect(ddb, character, document);
-      break;
-    }
-    case "Steady Aim": {
-      document = steadyAimEffect(document);
-      break;
-    }
-    case "Stone Rune": {
-      document = await stoneRuneEffect(document);
-      break;
-    }
-    case "Storm Rune": {
-      document = stormRuneEffect(document);
-      break;
-    }
-    case "Unarmored Movement": {
-      document = unarmoredMovementEffect(document);
-      break;
-    }
-    case "Uncanny Dodge": {
-      document = uncannyDodgeEffect(document);
-      break;
-    }
-    case "Vigilant Blessing": {
-      document = vigilantBlessingEffect(document);
-      break;
-    }
-    case "War Caster":
-    case "Warcaster": {
-      document = warCasterEffect(document);
       break;
     }
     // no default
