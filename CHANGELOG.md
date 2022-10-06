@@ -1,3 +1,8 @@
+# 3.1.13
+
+* Relax module requirements for many feature effects such as Rage.
+* Fix a bug re-importing actors wth certain effects.
+
 # 3.1.12
 
 * Add DoSI to fallback config.
