@@ -429,12 +429,6 @@ export function fixFeatures(features) {
         break;
       }
       case "Rage": {
-        feature.system.target = {
-          value: null,
-          width: null,
-          units: "",
-          type: "self",
-        };
         feature.system.duration = {
           value: 1,
           units: "minute",
