@@ -61,7 +61,8 @@
     "Journal": true,
     "JournalEntryPage": true,
     "fetchJsonWithTimeout": true,
-    "fetchWithTimeout": true
+    "fetchWithTimeout": true,
+    "dnd5eCustomSkills": true
   },
   "parserOptions": {
     "ecmaVersion": 2020,

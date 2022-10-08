@@ -226,7 +226,7 @@ const FileHelper = {
           uri = `https://assets.forge-vtt.com/${userId}/${dir.current}/${filename}`;
         } else if (dir.activeSource == "s3") {
           // S3 Bucket
-          uri = `${game.data.files.s3.endpoint.href}/${dir.current}/${filename}`;
+          uri = `https://${dir.bucket}.${game.data.files.s3.endpoint.hostname}/${dir.current}/${filename}`;
         } else {
           logger.error("DDB Importer cannot handle files stored in that location", dir);
         }

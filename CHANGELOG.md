@@ -1,3 +1,8 @@
+# 3.1.14
+
+* More effect retention bugs.
+* Bug when importing files to S3 would generate bad links.
+
 # 3.1.13
 
 * Relax module requirements for many feature effects such as Rage.
