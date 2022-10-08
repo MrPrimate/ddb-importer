@@ -1078,7 +1078,8 @@ export default class CharacterImport extends FormApplication {
     );
     const coreStatusEffects = this.actor.effects.filter((ae) => {
       const status = getProperty(ae, "flags.core.statusId");
-      return status && status.trim() !== "";
+      const itemEffect = ae.origin?.includes(".Item.");
+      return status && status.trim() !== "" && !itemEffect;
     });
     // effects on the character that are not from items, or corestatuses
     // nor added by ddb importer
