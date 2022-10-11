@@ -1,3 +1,7 @@
+# 3.1.15
+
+* If using 5e - Custom Abilities & Skills (https://foundryvtt.com/packages/dnd5e-custom-skills) version version 1.1.3, DDB Importer will import and add any custom skills on your character sheet.
+
 # 3.1.14
 
 * More effect retention bugs.

@@ -191,7 +191,7 @@ export default async function getCharacter(ddb) {
   character.system.traits.ci = getConditionImmunities(ddb);
 
   character.system.currency = getCurrency(ddb);
-  character.system.skills = getSkills(ddb, character);
+  character.system.skills = await getSkills(ddb, character);
   character.system.spells = getSpellSlots(ddb);
 
   // Extra global bonuses
