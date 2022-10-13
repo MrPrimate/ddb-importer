@@ -1,4 +1,5 @@
 import logger from "../logger.js";
+import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DICTIONARY from "../dictionary.js";
 import { getCharacterData } from "./import.js";
@@ -590,7 +591,7 @@ async function addDDBCustomItems(actor, itemsToAdd) {
         containerEntityId,
         containerEntityTypeId,
         name: item.name,
-        description: item.system.description.value,
+        description: utils.stripHtml(item.system.description.value),
         quantity: parseInt(item.system.quantity),
         cost: null,
         weight: Number.isInteger(item.system.weight) ? parseInt(item.system.weight) : 0,
@@ -880,7 +881,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
           id: item.flags.ddbimporter.definitionId,
           mappingId: item.flags.ddbimporter.id,
           name: item.name,
-          description: item.system.description.value,
+          description: utils.stripHtml(item.system.description.value),
           // revist these need to be ints
           // weight: `${item.data.weight}`,
           // cost: ${item.data.price},
@@ -972,7 +973,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     && customDDBItems.some((dItem) => dItem.id === item.flags.ddbimporter.id
       && (
         item.name !== dItem.name
-        || item.system.description.value != dItem.description
+        || utils.stripHtml(item.system.description.value) != dItem.description
         || item.system.quantity != dItem.quantity
         || item.system.weight != dItem.weight
         //  ||
