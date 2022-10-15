@@ -196,6 +196,23 @@ function parseFeaturesForScaleValues(ddb, klass, klassDefinition, ignoreIds = []
   return advancements.concat(specialFeatures);
 }
 
+async function addSRDAdvancements(advancements, klass) {
+  const rulesCompendium = "dnd5e.classes";
+  const srdCompendium = CompendiumHelper.getCompendium(rulesCompendium);
+  await srdCompendium.getIndex();
+  const klassMatch = srdCompendium.index.find((k) => k.name === klass.name);
+  if (klassMatch) {
+    const srdKlass = await srdCompendium.getDocument(klassMatch._id);
+    const scaleAdvancements = srdKlass.system.advancement.filter((srdA) =>
+      srdA.type === "ScaleValue"
+      && !advancements.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier)
+    );
+    advancements.push(...scaleAdvancements);
+  }
+
+  return advancements;
+}
+
 
 async function buildClassFeatures(ddb, klass, klassDefinition, compendiumClassFeatures, ignoreIds = []) {
   logger.debug(`Parsing ${klassDefinition.name} features`);
@@ -329,7 +346,8 @@ export async function getClasses(ddb, character) {
     klass.system.source = getSources(characterClass);
     klass.system.hitDice = `d${characterClass.definition.hitDice}`;
     klass.system.hitDiceUsed = characterClass.hitDiceUsed;
-    klass.system.advancement = [
+    // eslint-disable-next-line no-await-in-loop
+    klass.system.advancement = await addSRDAdvancements([
       getHPAdvancement(),
       // hp should be set like this - we don't actually know in DDB
       // "value": {
@@ -339,7 +357,7 @@ export async function getClasses(ddb, character) {
       ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.definition, subClassFeatureIds),
       // eslint-disable-next-line no-await-in-loop
       ...await generateFeatureAdvancements(ddb, characterClass, characterClass.definition, featuresIndex, subClassFeatureIds),
-    ];
+    ], klass);
 
 
     // There class object supports skills granted by the class.
