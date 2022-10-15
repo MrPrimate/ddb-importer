@@ -448,7 +448,7 @@ export default class Helpers {
   }
 
   /**
-   * Import actors int
+   * Import actors from compendium into world
    * @param {Array<Objects>} neededActors array of needed actors
    * @returns {Promise<Array>} array of world actors
    */
@@ -474,28 +474,48 @@ export default class Helpers {
     return results;
   }
 
-  static async importRemainingActors(ddbIds, folderId) {
-    await Helpers.asyncForEach(ddbIds, async (id) => {
-      let worldActor = game.actors.find((actor) =>
-        actor.flags?.ddbimporter?.id === id
-        && actor.folder?.id === folderId
-      );
+  /**
+   * Description
+   * @param {object} scene the scene to generate actors for
+   * @returns {Promise<Array>} array of world actors
+   */
+  static async importRemainingActors(data) {
+    const results = [];
+    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
+    const monsterIndex = await Helpers.getCompendiumIndex("monster");
 
-      if (!worldActor) {
-        logger.info(`Adding actor ${worldActor.name} with DDB ID ${id} to remaining actors`);
-        const actorData = {
-          name: token.name,
-          ddbId: token.flags.ddbActorFlags.id,
-          actorId: token.actorId,
-          compendiumId: token.flags.compendiumActorId,
-          folderId: token.flags.actorFolderId
-        };
+    logger.debug("Checking for the following actors in world", data);
+    await Helpers.asyncForEach(data, async (actorData) => {
+      logger.debug(`Checking for ${actorData.ddbId}`, actorData);
+      let worldActor = game.actors.get(actorData.actorId);
+
+      if (worldActor) {
+        logger.debug(`Actor found for ${actorData.actorId}, with name ${worldActor.name}`);
+      } else {
+        const monsterHit = monsterIndex.find((monster) =>
+          monster.flags?.ddbimporter?.id && monster.flags.ddbimporter.id == actorData.ddbId
+        );
+        if (monsterHit) {
+          logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id}`);
+          try {
+            const actorOverride = { _id: actorData.actorId, folder: actorData.folderId };
+            worldActor = await game.actors.importFromCompendium(monsterCompendium, monsterHit._id, actorOverride, { keepId: true });
+          } catch (err) {
+            logger.error(err);
+            logger.warn(`Unable to import actor ${monsterHit.name} with id ${monsterHit._id} from DDB Compendium`);
+            logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${monsterHit._id}", { _id: "${actorData.actorId}", folder: "${actorData.folderId}" }, { keepId: true });`);
+          }
+        } else {
+          logger.error("Actor not found in compendium", actorData);
+        }
       }
+      if (worldActor) results.push(worldActor);
     });
+    return results;
   }
 
   /**
-   * Description
+   * Generates actors for tokens on a scene
    * @param {object} scene the scene to generate actors for
    * @returns {Promise<Array>} array of world actors
    */

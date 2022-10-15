@@ -3,6 +3,7 @@ import logger from "../../logger.js";
 import FileHelper from "../../lib/FileHelper.js";
 import { generateAdventureConfig } from "../adventure.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
+import SETTINGS from "../../settings.js";
 
 export default class AdventureMunch extends FormApplication {
   /** @override */
@@ -14,6 +15,7 @@ export default class AdventureMunch extends FormApplication {
     this.adventure = null;
     this.folders = null;
     this.zip = null;
+    this.allMonsters = false;
   }
 
   /** @override */
@@ -192,6 +194,7 @@ export default class AdventureMunch extends FormApplication {
 
     return {
       data,
+      allMonsters: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world"),
       files,
       cssClass: "ddb-importer-window",
     };
@@ -237,6 +240,15 @@ export default class AdventureMunch extends FormApplication {
       logger.debug(`${this.adventure.name} - monsters required`, this.adventure.required.monsters);
       AdventureMunch._progressNote(`Checking for missing monsters from DDB`);
       await Helpers.checkForMissingDocuments("monster", this.adventure.required.monsters);
+    }
+    if (parseFloat(this.adventure.version) < 4.1 && this.allMonsters) {
+      ui.notifications.warn(`Unable to add all monsters from this adventure, please re-munch adventure with Adventure Muncher v1.0.9 or higher`);
+    } else if (parseFloat(this.adventure.version) >= 4.1 && this.allMonsters && this.adventure.required?.monsterData
+      && this.adventure.required?.monsterData?.length > 0
+    ) {
+      logger.debug(`${this.adventure.name} - Importing Remaining Actors`);
+      AdventureMunch._progressNote(`Checking for missing world actors (${this.adventure.required.monsterData}) from compendium...`);
+      await Helpers.importRemainingActors(this.adventure.required.monsterData);
     }
     logger.debug("Missing data check complete");
   }
@@ -375,6 +387,7 @@ export default class AdventureMunch extends FormApplication {
   async _dialogButton(event) {
     event.preventDefault();
     event.stopPropagation();
+    event.stopImmediatePropagation();
     const a = event.currentTarget;
     const action = a.dataset.button;
 
@@ -384,13 +397,15 @@ export default class AdventureMunch extends FormApplication {
         $(".import-progress").toggleClass("import-hidden");
         $(".ddb-overlay").toggleClass("import-invalid");
 
-        const form = $("form.ddb-importer-window")[0];
+        const form = document.querySelector(`form[class="ddb-importer-window"]`);
+        this.allMonsters = document.querySelector(`[name="all-monsters"]`).checked;
+        game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world", this.allMonsters);
 
         if (form.data.files.length) {
           importFilename = form.data.files[0].name;
           this.zip = await FileHelper.readBlobFromFile(form.data.files[0]).then(JSZip.loadAsync);
         } else {
-          const selectedFile = $("#import-file").val();
+          const selectedFile = document.querySelector(`[name="import-file"]`).value;
           importFilename = selectedFile;
           this.zip = await fetch(`/${selectedFile}`)
             .then((response) => {
@@ -420,7 +435,7 @@ export default class AdventureMunch extends FormApplication {
           throw new Error(`Invalid system for Adventure ${this.adventure.name}.  Expects ${this.adventure.system}`);
         }
 
-        if (this.adventure.version < 4.0) {
+        if (parseFloat(this.adventure.version) < 4.0) {
           ui.notifications.error(
             `This Adventure (${this.adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`,
             { permanent: true }

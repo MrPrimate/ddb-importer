@@ -1,6 +1,7 @@
 # 3.1.16
 
 * HTML in custom item descriptions when updating to DDB would break the update.
+* Support for importing all actors in an adventure into a world, when using Adventure Muncher v1.0.9.
 
 # 3.1.15
 

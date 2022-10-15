@@ -3,8 +3,8 @@ import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup, DDBLocationSetup }
 import SETTINGS from "../../settings.js";
 
 setProperty(CONFIG, "DDBI", {
-  module: "DDB Muncher",
-  schemaVersion: 4.0,
+  module: "DDB Importer",
+  schemaVersion: 4.1,
   ADVENTURE: {},
   MACROS: {
     spell: {},

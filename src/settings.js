@@ -747,6 +747,13 @@ const SETTINGS = {
             default: "TYPE",
           },
         },
+        ADVENTURE: {
+          "adventure-policy-all-actors-into-world": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+        },
         MUNCH: {
           "munching-policy-update-existing": {
             scope: "player",
@@ -1096,6 +1103,7 @@ const SETTINGS = {
         ...clone.READY.DYNAMIC_SYNC,
         ...clone.READY.CHARACTER.DYNAMIC_SYNC,
         ...clone.READY.MUNCHER.COMPENDIUM_FOLDERS,
+        ...clone.READY.MUNCHER.ADVENTURE,
         ...clone.READY.MUNCHER.MUNCH,
         ...clone.READY.MUNCHER.ENCOUNTER,
       };
