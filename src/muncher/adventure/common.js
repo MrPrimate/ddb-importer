@@ -1,9 +1,7 @@
 import logger from "../../logger.js";
 import utils from "../../lib/utils.js";
-import FileHelper from "../../lib/FileHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import PatreonHelper from "../../lib/PatreonHelper.js";
-import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
@@ -31,136 +29,12 @@ const DDB_MAP = {
 
 export default class Helpers {
 
-  static removeFileExtension(name) {
-    let nameArray = name.split(".");
-    nameArray.pop();
-    return nameArray.join(".");
-  }
-
-  static getImportFilePaths(path, adventure, misc) {
-    const useWebP = game.settings.get("ddb-importer", "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
-    const adventurePath = (adventure.name).replace(/[^a-z0-9]/gi, '_');
-    const targetPath = path.replace(/[\\/][^\\/]+$/, '');
-    const baseFilename = path.replace(/^.*[\\/]/, '').replace(/\?(.*)/, '');
-    const filename = useWebP && !baseFilename.endsWith(".webp")
-      ? `${Helpers.removeFileExtension(baseFilename)}.webp`
-      : baseFilename;
-    const baseUploadPath = misc
-      ? game.settings.get("ddb-importer", "adventure-misc-path")
-      : game.settings.get("ddb-importer", "adventure-upload-path");
-    const parsedBaseUploadPath = DirectoryPicker.parse(baseUploadPath);
-    const uploadPath = misc
-      ? `${parsedBaseUploadPath.current}/${targetPath}`
-      : `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
-    const fullUploadPath = misc
-      ? `${baseUploadPath}/${targetPath}`
-      : `${baseUploadPath}/${adventurePath}/${targetPath}`;
-    const returnFilePath = misc
-      ? `${targetPath}/${filename}`
-      : `${adventurePath}/${targetPath}/${filename}`;
-    return {
-      adventurePath,
-      targetPath,
-      filename,
-      baseUploadPath,
-      parsedBaseUploadPath,
-      uploadPath,
-      returnFilePath,
-      baseFilename,
-      fullUploadPath,
-      forcingWebp: useWebP && baseFilename !== filename,
-    };
-  }
-
   static unPad(match, p1) {
     if (isNaN(parseInt(p1))) {
       return p1;
     } else {
       return parseInt(p1);
     }
-  }
-
-  static async importRawFile(path, content, mimeType, adventure, misc) {
-    try {
-      if (path[0] === "*") {
-        // this file was flagged as core data, just replace name.
-        return path.replace(/\*/g, "");
-      } else if (path.startsWith("icons/") || path.startsWith("systems/dnd5e/icons/") || path.startsWith("ddb://")) {
-        // these are core icons, ignore
-        // or are ddb:// paths that will be replaced by muncher
-        return path;
-      } else {
-        const paths = Helpers.getImportFilePaths(path, adventure, misc);
-        const returnPath = await FileHelper.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
-
-        if (paths.uploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.uploadPath)) {
-          logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
-          await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-          FileHelper.generateCurrentFiles(paths.uploadPath);
-          CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.uploadPath);
-        }
-
-        if (!CONFIG.DDBI.KNOWN.FILES.has(returnPath)) {
-          logger.debug(`Importing raw file from ${path}`, paths);
-          const fileData = new File([content], paths.filename, { type: mimeType });
-          await Helpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, { bucket: paths.parsedBaseUploadPath.bucket });
-          CONFIG.DDBI.KNOWN.FILES.add(returnPath);
-        } else {
-          logger.debug(`File already imported ${path}`);
-        }
-
-        return `${returnPath}`;
-      }
-    } catch (err) {
-      logger.error(`Error importing image file ${path} : ${err.message}`);
-    }
-
-    return path;
-  }
-
-  /**
-   * Imports binary file, by extracting from zip file and uploading to path.
-   *
-   * @param  {string} path - Path to image within zip file
-   * @param  {object} zip - Zip file
-   * @returns {string} - Path to file within VTT
-   */
-  static async importImage(path, zip, adventure, misc = false) {
-    try {
-      if (path[0] === "*") {
-        // this file was flagged as core data, just replace name.
-        return path.replace(/\*/g, "");
-      } else if (path.startsWith("icons/") || path.startsWith("systems/dnd5e/icons/") || path.startsWith("ddb://")) {
-        // these are core icons, ignore
-        // or are ddb:// paths that will be replaced by muncher
-        return path;
-      } else {
-        const paths = Helpers.getImportFilePaths(path, adventure, misc);
-        const returnPath = await FileHelper.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
-
-        if (paths.uploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.uploadPath)) {
-          logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
-          await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-          FileHelper.generateCurrentFiles(paths.uploadPath);
-          CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.uploadPath);
-        }
-
-        if (!CONFIG.DDBI.KNOWN.FILES.has(returnPath)) {
-          logger.debug(`Importing image from ${path}`, paths);
-          const img = await zip.file(path).async("blob");
-          await FileHelper.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
-          CONFIG.DDBI.KNOWN.FILES.add(returnPath);
-        } else {
-          logger.debug(`File already imported ${path}`);
-        }
-
-        return `${returnPath}`;
-      }
-    } catch (err) {
-      logger.error(`Error importing image file ${path} : ${err.message}`);
-    }
-
-    return path;
   }
 
   /**
@@ -243,26 +117,7 @@ export default class Helpers {
     return result;
   }
 
-  /**
-   * Read data from a user provided File object
-   * @param {File} file           A File object
-   * @return {Promise.<String>}   A Promise which resolves to the loaded text data
-   */
-  static readBlobFromFile(file) {
-    const reader = new FileReader();
-    return new Promise((resolve, reject) => {
-      reader.onload = () => {
-        resolve(reader.result);
-      };
-      reader.onerror = () => {
-        reader.abort();
-        reject();
-      };
-      reader.readAsBinaryString(file);
-    });
-  }
-
-  static async importFolder(folders, adventure, folderList) {
+  static async importFolder(folders, folderList) {
     await this.asyncForEach(folders, async (f) => {
       let folderData = f;
 
@@ -272,12 +127,10 @@ export default class Helpers {
       );
 
       if (!newFolder) {
-        if (folderData.parent !== null) {
-          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.parent];
-        } else if (adventure?.options?.folders) {
-          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"];
-        } else {
+        if (folderData.parent === null) {
           folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.type];
+        } else {
+          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.parent];
         }
 
         newFolder = await Folder.create(folderData, { keepId: true });
@@ -294,7 +147,7 @@ export default class Helpers {
       });
 
       if (childFolders.length > 0) {
-        await this.importFolder(childFolders, adventure, folderList);
+        await this.importFolder(childFolders, folderList);
       }
     });
   }
@@ -497,22 +350,6 @@ export default class Helpers {
     });
   }
 
-  static async linkExistingActorTokens(tokens) {
-    const monsterIndex = await Helpers.getCompendiumIndex("monster");
-
-    const newTokens = tokens.map((token) => {
-      const monsterHit = monsterIndex.find((monster) =>
-        monster.flags?.ddbimporter?.id && token.flags.ddbActorFlags?.id
-        && monster.flags.ddbimporter.id === token.flags.ddbActorFlags.id);
-      if (monsterHit) {
-        token.flags.compendiumActorId = monsterHit._id;
-      }
-      return token;
-    });
-
-    return newTokens;
-  }
-
   static foundryCompendiumReplace(text) {
     // replace the ddb:// entries with known compendium look ups if we have them
     // ddb://spells
@@ -586,6 +423,22 @@ export default class Helpers {
     return doc.body.innerHTML;
   }
 
+  static async linkExistingActorTokens(tokens) {
+    const monsterIndex = await Helpers.getCompendiumIndex("monster");
+
+    const newTokens = tokens.map((token) => {
+      const monsterHit = monsterIndex.find((monster) =>
+        monster.flags?.ddbimporter?.id && token.flags.ddbActorFlags?.id
+        && monster.flags.ddbimporter.id === token.flags.ddbActorFlags.id);
+      if (monsterHit) {
+        token.flags.compendiumActorId = monsterHit._id;
+      }
+      return token;
+    });
+
+    return newTokens;
+  }
+
   static async linkDDBActors(tokens) {
     const linkedExistingTokens = await Helpers.linkExistingActorTokens(tokens);
     const newTokens = linkedExistingTokens
@@ -594,10 +447,61 @@ export default class Helpers {
     return Promise.all(newTokens);
   }
 
-  static async generateTokenActors(scene) {
+  /**
+   * Import actors int
+   * @param {Array<Objects>} neededActors array of needed actors
+   * @returns {Promise<Array>} array of world actors
+   */
+  static async ensureWorldActors(neededActors) {
+    logger.debug("Trying to import actors from compendium", neededActors);
     const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
-    const tokens = await Helpers.linkDDBActors(scene.tokens);
+    const results = [];
+    await Helpers.asyncForEach(neededActors, async (actor) => {
+      let worldActor = game.actors.get(actor.actorId);
+      if (!worldActor) {
+        logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
+        try {
+          worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, { keepId: true });
+        } catch (err) {
+          logger.error(err);
+          logger.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
+          logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.compendiumId}", { _id: "${actor.actorId}", folder: "${actor.folderId}" }, { keepId: true });`);
+        }
+      }
+      if (worldActor) results.push(worldActor);
+    });
+    logger.debug("Actors transferred from compendium to world.", results);
+    return results;
+  }
 
+  static async importRemainingActors(ddbIds, folderId) {
+    await Helpers.asyncForEach(ddbIds, async (id) => {
+      let worldActor = game.actors.find((actor) =>
+        actor.flags?.ddbimporter?.id === id
+        && actor.folder?.id === folderId
+      );
+
+      if (!worldActor) {
+        logger.info(`Adding actor ${worldActor.name} with DDB ID ${id} to remaining actors`);
+        const actorData = {
+          name: token.name,
+          ddbId: token.flags.ddbActorFlags.id,
+          actorId: token.actorId,
+          compendiumId: token.flags.compendiumActorId,
+          folderId: token.flags.actorFolderId
+        };
+      }
+    });
+  }
+
+  /**
+   * Description
+   * @param {object} scene the scene to generate actors for
+   * @returns {Promise<Array>} array of world actors
+   */
+  static async generateTokenActors(scene) {
+    logger.debug(`Token Actor generation for ${scene.name} starting`);
+    const tokens = await Helpers.linkDDBActors(scene.tokens);
     const neededActors = tokens
       .map((token) => {
         return {
@@ -613,23 +517,9 @@ export default class Helpers {
         return arr.map((mapObj) => mapObj["actorId"]).indexOf(obj["actorId"]) === pos;
       });
 
-    logger.debug("Trying to import actors from compendium", neededActors);
-    await Helpers.asyncForEach(neededActors, async (actor) => {
-      let worldActor = game.actors.get(actor.actorId);
-      if (!worldActor) {
-        logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with id ${actor.compendiumId}`);
-        try {
-          worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, { keepId: true });
-        } catch (err) {
-          logger.error(err);
-          logger.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
-          logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.compendiumId}", { _id: "${actor.actorId}", folder: "${actor.folderId}" }, { keepId: true });`);
-        }
-      }
-    });
-
-    logger.debug("Actors transferred from compendium to world.");
-
+    const results = await Helpers.ensureWorldActors(neededActors);
+    logger.debug(`Token Actor generation for ${scene.name} complete`, results);
+    return results;
   }
 
   // check the document for version data and for update info to see if we can replace it
@@ -704,6 +594,12 @@ export default class Helpers {
     return importType;
   }
 
+  /**
+   * Does the folder exist in the zip archive?
+   * @param {String} folder folder name
+   * @param {Zip} zip
+   * @returns {Boolean}
+   */
   static folderExists(folder, zip) {
     const files = Object.values(zip.files).filter((file) => {
       return file.dir && file.name.toLowerCase().includes(folder);
@@ -712,6 +608,12 @@ export default class Helpers {
     return files.length > 0;
   }
 
+  /**
+   * Get the files in the zip archive at the specified path
+   * @param {String} folder a folder path to start from
+   * @param {Zip} zip
+   * @returns {Array} list of files in zip
+   */
   static getFiles(folder, zip) {
     const files = Object.values(zip.files).filter((file) => {
       return !file.dir && file.name.split('.').pop() === 'json' && file.name.includes(`${folder}/`);

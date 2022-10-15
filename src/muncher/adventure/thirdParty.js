@@ -2,6 +2,7 @@ import Helpers from "./common.js";
 import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
 import { generateIcon } from "./icons.js";
+import AdventureMunch from "./adventure.js";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
 const RAW_BASE_URL = `https://raw.githubusercontent.com/${MR_PRIMATES_THIRD_PARTY_REPO}`;
@@ -305,6 +306,8 @@ export default class ThirdPartyMunch extends FormApplication {
 
   static async _linkSceneNotes(scene, adventure) {
     const journalNotes = game.journal.filter((journal) => journal?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
+    const adventureMunch = new AdventureMunch();
+    adventureMunch.adventure = deepClone(adventure);
 
     const notes = await Promise.all([scene]
       .filter((scene) => scene.flags?.ddb?.notes)
@@ -339,7 +342,7 @@ export default class ThirdPartyMunch extends FormApplication {
           logger.info(`Found note "${note.label}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
           note.flags.ddb.journalId = noteJournal.id;
           // eslint-disable-next-line require-atomic-updates
-          note.icon = await generateIcon(adventure, note.label);
+          note.icon = await generateIcon(adventureMunch, note.label);
         }
         return note;
       }));

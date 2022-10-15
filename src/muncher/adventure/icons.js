@@ -46,7 +46,7 @@ export async function generateIcon(adventure, title) {
     logger.info(stub);
     let content = STUBS[stub.length];
     content = content.replace("REPLACEME", stub);
-    const uploadPath = await Helpers.importRawFile(iconPath, content, "text/plain", adventure, true);
+    const uploadPath = await adventure.importRawFile(iconPath, content, "text/plain", true);
     return uploadPath;
   }
   return iconPath;
