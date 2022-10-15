@@ -16,6 +16,7 @@ export default class AdventureMunch extends FormApplication {
     this.folders = null;
     this.zip = null;
     this.allMonsters = false;
+    this.journalWorldActors = false;
   }
 
   /** @override */
@@ -195,6 +196,7 @@ export default class AdventureMunch extends FormApplication {
     return {
       data,
       allMonsters: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world"),
+      journalWorldActors: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors"),
       files,
       cssClass: "ddb-importer-window",
     };
@@ -400,6 +402,8 @@ export default class AdventureMunch extends FormApplication {
         const form = document.querySelector(`form[class="ddb-importer-window"]`);
         this.allMonsters = document.querySelector(`[name="all-monsters"]`).checked;
         game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world", this.allMonsters);
+        this.journalWorldActors = document.querySelector(`[name="journal-world-actors"]`).checked;
+        game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors", this.journalWorldActors);
 
         if (form.data.files.length) {
           importFilename = form.data.files[0].name;
@@ -888,7 +892,10 @@ export default class AdventureMunch extends FormApplication {
           }
           logger.debug(`Updating DDB links for ${data.name}`);
           // eslint-disable-next-line require-atomic-updates
-          data.text = Helpers.foundryCompendiumReplace(data.text);
+          data.text = Helpers.foundryCompendiumReplace(data.text, {
+            journalWorldActors: this.journalWorldActors,
+            actorData: this.adventure.required?.monsterData ?? [],
+          });
         });
       } else if (importType === "JournalEntry" && data.pages) {
         await Helpers.asyncForEach(data.pages, async (page) => {
@@ -905,7 +912,10 @@ export default class AdventureMunch extends FormApplication {
               });
             }
             logger.debug(`Updating DDB links for ${page.name}`);
-            page.text.content = Helpers.foundryCompendiumReplace(page.text.content);
+            page.text.content = Helpers.foundryCompendiumReplace(page.text.content, {
+              journalWorldActors: this.journalWorldActors,
+              actorData: this.adventure.required?.monsterData ?? [],
+            });
           }
         });
       }

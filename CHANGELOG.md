@@ -1,7 +1,9 @@
 # 3.1.16
 
 * HTML in custom item descriptions when updating to DDB would break the update.
-* Support for importing all actors in an adventure into a world, when using Adventure Muncher v1.0.9.
+* Adventure Muncher: option for importing all actors in an adventure into a world, when using Adventure Muncher v1.0.9.
+* Adventure Muncher: option for linking actors in adventure imported journals to world actors rather than compendium actors.
+* Characters: Advancement will now copy any SRD Scale Advancements to fix issues where things like when CE relies on these named advancements.
 
 # 3.1.15
 
