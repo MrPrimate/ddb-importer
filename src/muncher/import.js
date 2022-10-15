@@ -1,70 +1,13 @@
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
+import SETTINGS from "../settings.js";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { munchNote } from "./ddb.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";
-
-const srdCompendiumLookup = [
-  { type: "inventory", name: "dnd5e.items" },
-  { type: "spells", name: "dnd5e.spells" },
-  { type: "features", name: "dnd5e.classfeatures" },
-  { type: "races", name: "dnd5e.races" },
-  { type: "traits", name: "dnd5e.races" },
-  { type: "features", name: "dnd5e.classfeatures" },
-  { type: "feat", name: "dnd5e.classfeatures" },
-  { type: "feats", name: "dnd5e.classfeatures" },
-  { type: "classes", name: "dnd5e.classes" },
-  { type: "subclasses", name: "dnd5e.subclasses" },
-  { type: "weapon", name: "dnd5e.items" },
-  { type: "consumable", name: "dnd5e.items" },
-  { type: "tool", name: "dnd5e.items" },
-  { type: "loot", name: "dnd5e.items" },
-  { type: "backpack", name: "dnd5e.items" },
-  { type: "spell", name: "dnd5e.spells" },
-  { type: "equipment", name: "dnd5e.items" },
-  { type: "monsters", name: "dnd5e.monsters" },
-  { type: "monsterfeatures", name: "dnd5e.monsterfeatures" },
-];
-
-const SUPPORTED_FLAG_GROUPS = [
-  "dae",
-  "maestro",
-  "mess",
-  "favtab",
-  "midi-qol",
-  "itemacro",
-  "itemmacro",
-  "autoanimations",
-  "enhancedcombathud",
-  "cf",
-  "automated-evocations",
-  "automated-polymorpher",
-  "inventory-plus",
-  "obsidian",
-  "siftoolkit",
-  "advancedspelleffects",
-  "gm-notes",
-  "greenFlameBladeChoice",
-  "boomingBladeChoice",
-  "GritNGlory",
-  "gng",
-  "spellbook-assistant-manager",
-  "spell-class-filter-for-5e",
-  "forien-unidentified-items",
-  "arbron-summoner",
-];
-
-const EFFECTS_IGNORE_FLAG_GROUPS = [
-  "dae",
-  "midi-qol",
-  "itemacro",
-  "itemmacro",
-];
-
 
 async function loadpacks(compendiumName) {
   if (CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) return;
@@ -78,29 +21,6 @@ async function loadpacks(compendiumName) {
     CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName] = true;
   }
 }
-
-const gameFolderLookup = [
-  {
-    type: "itemSpells",
-    folder: "magic-item-spells",
-    itemType: "spell",
-  },
-  {
-    type: "magicItems",
-    folder: "magic-items",
-    itemType: "item",
-  },
-  {
-    type: "spells",
-    folder: "spell",
-    itemType: "spell",
-  },
-  {
-    type: "monsters",
-    folder: "npc",
-    itemType: "actor",
-  },
-];
 
 /**
  * Removes items
@@ -122,7 +42,7 @@ export async function removeItems(items, itemsToRemove, matchDDBId = false) {
   });
 }
 
-const getCharacterUpdatePolicyTypes = () => {
+function getCharacterUpdatePolicyTypes() {
   let itemTypes = [];
   itemTypes.push("class");
   if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
@@ -131,14 +51,14 @@ const getCharacterUpdatePolicyTypes = () => {
     itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
   if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
   return itemTypes;
-};
+}
 
 /**
  * Returns a combined array of all items to process, filtered by the user's selection on what to skip and what to include
  * @param {object} result object containing all character items sectioned as individual properties
  * @param {array[string]} sections an array of object properties which should be filtered
  */
-export const filterItemsByUserSelection = (result, sections) => {
+export function filterItemsByUserSelection(result, sections) {
   let items = [];
   const validItemTypes = getCharacterUpdatePolicyTypes();
 
@@ -151,7 +71,8 @@ export const filterItemsByUserSelection = (result, sections) => {
 async function copyFlagGroup(flagGroup, originalItem, targetItem) {
   if (targetItem.flags === undefined) targetItem.flags = {};
   // if we have generated effects we dont want to copy some flag groups. mostly for AE on spells
-  const effectsProperty = getProperty(targetItem, "flags.ddbimporter.effectsApplied") && EFFECTS_IGNORE_FLAG_GROUPS.includes(flagGroup);
+  const effectsProperty = getProperty(targetItem, "flags.ddbimporter.effectsApplied")
+    && SETTINGS.EFFECTS_IGNORE_FLAG_GROUPS.includes(flagGroup);
   if (originalItem.flags && !!originalItem.flags[flagGroup] && !effectsProperty) {
     logger.debug(`Copying ${flagGroup} for ${originalItem.name}`);
     targetItem.flags[flagGroup] = originalItem.flags[flagGroup];
@@ -163,7 +84,7 @@ async function copyFlagGroup(flagGroup, originalItem, targetItem) {
  * @param {*} items
  */
 export async function copySupportedItemFlags(originalItem, targetItem) {
-  SUPPORTED_FLAG_GROUPS.forEach((flagGroup) => {
+  SETTINGS.SUPPORTED_FLAG_GROUPS.forEach((flagGroup) => {
     copyFlagGroup(flagGroup, originalItem, targetItem);
   });
 }
@@ -521,7 +442,7 @@ export async function getImagePath(imageUrl, type = "ddb", name = "", download =
 }
 
 async function getSRDIconMatch(type) {
-  const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
+  const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == type).name;
   if (!CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) await loadpacks(compendiumName);
 
   const items = CONFIG.DDBI.SRD_LOAD.packs[compendiumName].map((item) => {
@@ -786,7 +707,7 @@ async function updateFolderItems(type, input, update = true) {
     input[type] = await updateMagicItemImages(input[type]);
   }
 
-  const folderLookup = gameFolderLookup.find((c) => c.type == type);
+  const folderLookup = SETTINGS.GAME_FOLDER_LOOKUPS.find((c) => c.type == type);
   const itemFolderNames = [...new Set(input[type]
     .filter((item) => item.flags?.ddbimporter?.dndbeyond?.lookupName)
     .map((item) => item.flags.ddbimporter.dndbeyond.lookupName))];
@@ -974,13 +895,6 @@ export async function getIndividualOverrideItems(overrideItems) {
   return remappedItems;
 }
 
-const compendiumRemoveFlags = [
-  "flags.ddbimporter.overrideId",
-  "flags.ddbimporter.ignoreItemImport",
-  "flags.ddbimporter.retainResourceConsumption",
-  "flags.ddbimporter.ignoreIcon",
-];
-
 /**
  *
  */
@@ -1028,7 +942,7 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
     let item = await compendium.getDocument(i._id).then((doc) => {
       const docData = doc.toObject();
       if (options.deleteCompendiumId) delete docData._id;
-      compendiumRemoveFlags.forEach((flag) => {
+      SETTINGS.COMPENDIUM_REMOVE_FLAGS.forEach((flag) => {
         if (hasProperty(docData, flag)) setProperty(docData, flag, undefined);
       });
 
@@ -1087,7 +1001,7 @@ export async function getCompendiumItems(items, type, inOptions) {
 }
 
 export async function getSRDCompendiumItems(items, type, looseMatch = false, keepId = false, monster = false) {
-  const compendiumName = srdCompendiumLookup.find((c) => c.type == type).name;
+  const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == type).name;
   if (!CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) await loadpacks(compendiumName);
   const compendiumItems = CONFIG.DDBI.SRD_LOAD.packs[compendiumName];
 

@@ -16,11 +16,103 @@ const COMPENDIUMS = [
   { title: "Override", setting: "entity-override-compendium", type: "Item" },
 ];
 
+const SRD_COMPENDIUM_LOOKUPS = [
+  { type: "inventory", name: "dnd5e.items" },
+  { type: "spells", name: "dnd5e.spells" },
+  { type: "features", name: "dnd5e.classfeatures" },
+  { type: "races", name: "dnd5e.races" },
+  { type: "traits", name: "dnd5e.races" },
+  { type: "features", name: "dnd5e.classfeatures" },
+  { type: "feat", name: "dnd5e.classfeatures" },
+  { type: "feats", name: "dnd5e.classfeatures" },
+  { type: "classes", name: "dnd5e.classes" },
+  { type: "subclasses", name: "dnd5e.subclasses" },
+  { type: "weapon", name: "dnd5e.items" },
+  { type: "consumable", name: "dnd5e.items" },
+  { type: "tool", name: "dnd5e.items" },
+  { type: "loot", name: "dnd5e.items" },
+  { type: "backpack", name: "dnd5e.items" },
+  { type: "spell", name: "dnd5e.spells" },
+  { type: "equipment", name: "dnd5e.items" },
+  { type: "monsters", name: "dnd5e.monsters" },
+  { type: "monsterfeatures", name: "dnd5e.monsterfeatures" },
+];
+
+const SUPPORTED_FLAG_GROUPS = [
+  "dae",
+  "maestro",
+  "mess",
+  "favtab",
+  "midi-qol",
+  "itemacro",
+  "itemmacro",
+  "autoanimations",
+  "enhancedcombathud",
+  "cf",
+  "automated-evocations",
+  "automated-polymorpher",
+  "inventory-plus",
+  "obsidian",
+  "siftoolkit",
+  "advancedspelleffects",
+  "gm-notes",
+  "greenFlameBladeChoice",
+  "boomingBladeChoice",
+  "GritNGlory",
+  "gng",
+  "spellbook-assistant-manager",
+  "spell-class-filter-for-5e",
+  "forien-unidentified-items",
+  "arbron-summoner",
+];
+
+const EFFECTS_IGNORE_FLAG_GROUPS = [
+  "dae",
+  "midi-qol",
+  "itemacro",
+  "itemmacro",
+];
+
+const GAME_FOLDER_LOOKUPS = [
+  {
+    type: "itemSpells",
+    folder: "magic-item-spells",
+    itemType: "spell",
+  },
+  {
+    type: "magicItems",
+    folder: "magic-items",
+    itemType: "item",
+  },
+  {
+    type: "spells",
+    folder: "spell",
+    itemType: "spell",
+  },
+  {
+    type: "monsters",
+    folder: "npc",
+    itemType: "actor",
+  },
+];
+
+const COMPENDIUM_REMOVE_FLAGS = [
+  "flags.ddbimporter.overrideId",
+  "flags.ddbimporter.ignoreItemImport",
+  "flags.ddbimporter.retainResourceConsumption",
+  "flags.ddbimporter.ignoreIcon",
+];
+
 const SETTINGS = {
   MODULE_ID: "ddb-importer",
   FLAG_NAME: "ddbimporter",
   MODULE_NAME: "D&D Beyond Importer",
   COMPENDIUMS: COMPENDIUMS,
+  SRD_COMPENDIUMS: SRD_COMPENDIUM_LOOKUPS,
+  EFFECTS_IGNORE_FLAG_GROUPS,
+  SUPPORTED_FLAG_GROUPS,
+  GAME_FOLDER_LOOKUPS,
+  COMPENDIUM_REMOVE_FLAGS,
   DEFAULT_SETTINGS: {
     // these settigs are loaded during renderSidebarTab
     EARLY: {
@@ -749,6 +841,11 @@ const SETTINGS = {
         },
         ADVENTURE: {
           "adventure-policy-all-actors-into-world": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "adventure-policy-journal-world-actors": {
             scope: "player",
             type: Boolean,
             default: false,
