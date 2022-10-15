@@ -19,6 +19,8 @@ import { loadSRDRules, importCacheLoad } from "../../lib/templateStrings.js";
 import { getNPCImage } from "../../muncher/importMonster.js";
 import PatreonHelper from "../../lib/PatreonHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import FileHelper from "../../lib/FileHelper.js";
+import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import MuncherSettings from "../../muncher/MuncherSettings.js";
 
 function resetSecrets() {
@@ -83,6 +85,9 @@ export function registerWindow() {
     macros: MACROS,
     getNPCImage,
     resetCompendiumActorImages,
+    CompendiumHelper,
+    FileHelper,
+    DirectoryPicker,
     getCompendiumLabel: CompendiumHelper.getCompendiumLabel,
     getCompendiumType: CompendiumHelper.getCompendiumType,
     getCompendiumNames: CompendiumHelper.getCompendiumNames,

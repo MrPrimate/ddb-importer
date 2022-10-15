@@ -4,6 +4,32 @@ import logger from "../logger.js";
 const FileHelper = {
   BAD_DIRS: ["[data]", "[data] ", "", null],
 
+  removeFileExtension: (name) => {
+    let nameArray = name.split(".");
+    nameArray.pop();
+    return nameArray.join(".");
+  },
+
+
+  /**
+   * Read data from a user provided File object
+   * @param {File} file           A File object
+   * @return {Promise.<String>}   A Promise which resolves to the loaded text data
+   */
+  readBlobFromFile: (file) => {
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+      reader.onerror = () => {
+        reader.abort();
+        reject();
+      };
+      reader.readAsBinaryString(file);
+    });
+  },
+
   download: (content, fileName, contentType) => {
     let a = document.createElement("a");
     let file = new Blob([content], { type: contentType });
