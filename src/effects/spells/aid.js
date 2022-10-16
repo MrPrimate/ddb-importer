@@ -13,6 +13,7 @@ export async function aidEffect(document) {
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("@spellLevel", 0));
   document.effects.push(effect);
+  document.system.damage = { parts: [], versatile: "", value: "" };
 
   return document;
 }

@@ -1,3 +1,7 @@
+# 3.1.7
+
+* Spell Effect: Aid - could add more HP than it should in some combinations.
+
 # 3.1.16
 
 * HTML in custom item descriptions when updating to DDB would break the update.

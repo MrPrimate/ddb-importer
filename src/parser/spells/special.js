@@ -102,7 +102,7 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Aid": {
-        spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
+        spell.system.scaling = { mode: "level", formula: "(@item.level - 2) * 5" };
         break;
       }
       case "Darkvision": {

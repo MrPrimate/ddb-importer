@@ -9,6 +9,6 @@ let curMax = target.system.attributes.hp.max;
 
 if (args[0] === "on") {
   target.update({"system.attributes.hp.value": curHP+buf});
-} else if (curHP > curMax) {
+} else if (args[0] === "off" && curHP > curMax) {
   target.update({"system.attributes.hp.value": curMax});
 }
