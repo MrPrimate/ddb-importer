@@ -587,7 +587,6 @@ export default class Helpers {
       const oldAdventureMuncherVersion = existingDoc?.flags?.ddb?.versions?.adventureMuncher
         ? existingDoc.flags.ddb.versions.adventureMuncher
         : "0.3.0";
-      const foundryVersion = game.version ? game.version : game.data.version;
       const oldVersions = { ddbImporter: oldDDBImporterVersion, ddbMetaData: oldDDBMetaDataVersions, adventureMuncher: oldAdventureMuncherVersion };
 
       const documentVersions = newDoc.flags.ddb.versions;
@@ -595,7 +594,7 @@ export default class Helpers {
       const importerVersionChanged = isNewerVersion(ddbIVersion, oldVersions["ddbImporter"]);
       const metaVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["lastUpdate"], oldVersions["ddbMetaData"]["lastUpdate"]);
       const muncherVersionChanged = isNewerVersion(documentVersions["adventureMuncher"], oldVersions["adventureMuncher"]);
-      const foundryVersionNewer = isNewerVersion(documentFoundryVersion, foundryVersion);
+      const foundryVersionNewer = isNewerVersion(documentFoundryVersion, game.version);
 
       let versionUpdates = {};
 

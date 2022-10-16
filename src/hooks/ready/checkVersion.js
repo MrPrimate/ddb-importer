@@ -32,7 +32,6 @@ export default async () => {
   const moduleInfo = game.modules.get(MODULE_NAME);
   const installedVersion = moduleInfo.version;
   setProperty(CONFIG, "DDBI.version", installedVersion);
-  const foundryVersion = game.version ? game.version : game.data.version;
   try {
     if (!game.user.isGM) return;
     const { minimumCoreVersion, compatibleCoreVersion } = await getLatestModuleMinimumCoreVersion();
@@ -49,8 +48,8 @@ export default async () => {
     const { latestVersion, prerelease: preRelease } = await getLatestModuleVersion();
 
     const newModuleVersion = utils.versionCompare(latestVersion, installedVersion) === 1;
-    const compatibleCore = utils.versionCompare(foundryVersion, compatibleCoreVersion) >= 0;
-    const compatibleMinimumCore = utils.versionCompare(foundryVersion, minimumCoreVersion) >= 0;
+    const compatibleCore = utils.versionCompare(game.version, compatibleCoreVersion) >= 0;
+    const compatibleMinimumCore = utils.versionCompare(game.version, minimumCoreVersion) >= 0;
 
     const needToUpdate = newModuleVersion && compatibleCore && compatibleMinimumCore;
 
