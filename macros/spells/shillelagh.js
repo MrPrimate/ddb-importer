@@ -7,7 +7,7 @@ const filteredWeapons = target.items
   .filter((i) => i.type === "weapon" && (i.system.baseItem === "club" || i.system.baseItem === "quarterstaff"));
 const weapons = (filteredWeapons.length > 0)
   ? filteredWeapons
-  : target.items.filter((i) => i.system.type === "weapon");
+  : target.items.filter((i) => i.type === "weapon");
 
 const weaponContent = weapons.map((w) => `<option value=${w.id}>${w.name}</option>`).join("");
 

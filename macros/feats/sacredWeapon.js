@@ -25,14 +25,14 @@ if (args[0] === "on") {
 
   let content = `
     <style>
-    .magicWeapon .form-group {
+    .sacredWeapon .form-group {
         display: flex;
         flex-wrap: wrap;
         width: 100%;
         align-items: flex-start;
       }
 
-      .magicWeapon .radio-label {
+      .sacredWeapon .radio-label {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -42,11 +42,11 @@ if (args[0] === "on") {
         line-height: normal;
       }
 
-      .magicWeapon .radio-label input {
+      .sacredWeapon .radio-label input {
         display: none;
       }
 
-      .magicWeapon img {
+      .sacredWeapon img {
         border: 0px;
         width: 50px;
         height: 50px;
@@ -55,11 +55,11 @@ if (args[0] === "on") {
       }
 
       /* CHECKED STYLES */
-      .magicWeapon [type=radio]:checked + img {
+      .sacredWeapon [type=radio]:checked + img {
         outline: 2px solid #f00;
       }
     </style>
-    <form class="magicWeapon">
+    <form class="sacredWeapon">
       <div class="form-group" id="weapons">
           ${weapon_content}
       </div>
@@ -75,22 +75,17 @@ if (args[0] === "on") {
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
           const weaponItem = targetActor.items.get(itemId);
           let copyItem = duplicate(weaponItem);
-          const spellLevel = Math.floor(args[1] / 2);
-          const bonus = valueLimit(spellLevel, 1, 3);
-          const wpDamage = copyItem.system.damage.parts[0][0];
-          const verDamage = copyItem.system.damage.versatile;
-          DAE.setFlag(targetActor, "magicWeapon", {
-            damage: weaponItem.system.attackBonus,
+          const bonus = args[1];
+          DAE.setFlag(targetActor, "sacredWeapon", {
+            bonus: weaponItem.system.attackBonus,
+            name: weaponItem.name,
             weapon: itemId,
-            weaponDmg: wpDamage,
-            verDmg: verDamage,
-            mgc: copyItem.system.properties.mgc,
+            mgc: weaponItem.system.properties.mgc,
           });
           if (copyItem.system.attackBonus === "") copyItem.system.attackBonus = "0";
           copyItem.system.attackBonus = `${parseInt(copyItem.system.attackBonus) + bonus}`;
-          copyItem.system.damage.parts[0][0] = wpDamage + " + " + bonus;
           copyItem.system.properties.mgc = true;
-          if (verDamage !== "" && verDamage !== null) copyItem.system.damage.versatile = verDamage + " + " + bonus;
+          copyItem.name = `Sacred ${weaponItem.name}`;
           targetActor.updateEmbeddedDocuments("Item", [copyItem]);
         },
       },
@@ -103,13 +98,12 @@ if (args[0] === "on") {
 
 //Revert weapon and unset flag.
 if (args[0] === "off") {
-  const { damage, weapon, weaponDmg, verDmg, mgc } = DAE.getFlag(targetActor, "magicWeapon");
+  const { bonus, name, weapon, mgc } = DAE.getFlag(targetActor, "sacredWeapon");
   const weaponItem = targetActor.items.get(weapon);
   let copyItem = duplicate(weaponItem);
-  copyItem.system.attackBonus = damage;
-  copyItem.system.damage.parts[0][0] = weaponDmg;
+  copyItem.system.attackBonus = bonus;
   copyItem.system.properties.mgc = mgc;
-  if (verDmg !== "" && verDmg !== null) copyItem.system.damage.versatile = verDmg;
+  copyItem.name = name;
   targetActor.updateEmbeddedDocuments("Item", [copyItem]);
-  DAE.unsetFlag(targetActor, "magicWeapon");
+  DAE.unsetFlag(targetActor, "sacredWeapon");
 }

@@ -354,8 +354,11 @@ export async function autoLinkResources(actor) {
             const update = {
               _id: child._id
             };
-            setProperty(update, "system.consume.type", "charges");
-            setProperty(update, "system.consume.target", parent._id);
+            setProperty(update, "system.consume", {
+              type: "charges",
+              target: parent._id,
+              amount: 1,
+            });
             toUpdate.push(update);
           });
         }
@@ -384,9 +387,11 @@ export async function autoLinkResources(actor) {
           const update = {
             _id: child._id
           };
-          setProperty(update, "system.consume.amount", value.cost);
-          setProperty(update, "system.consume.type", "charges");
-          setProperty(update, "system.consume.target", parent._id);
+          setProperty(update, "system.consume", {
+            type: "charges",
+            target: parent._id,
+            amount: value.cost,
+          });
           toUpdate.push(update);
         }
       });
@@ -395,5 +400,6 @@ export async function autoLinkResources(actor) {
 
   logger.debug("toUpdate", toUpdate);
 
-  await actor.updateEmbeddedDocuments("Item", toUpdate);
+  const results = await actor.updateEmbeddedDocuments("Item", toUpdate);
+  logger.debug("resource Update results", results);
 }

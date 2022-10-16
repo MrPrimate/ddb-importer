@@ -1,39 +1,40 @@
 import { configureDependencies } from "./macros.js";
-import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
-import { warCasterEffect } from "./feats/warCaster.js";
-import { rageEffect } from "./feats/rage.js";
-import { potentCantripEffect } from "./feats/potentCantrip.js";
+import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
 import { bardicInspirationEffect } from "./feats/bardicInspiration.js";
-import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
-import { paladinDefaultAuraEffect } from "./feats/paladinDefaultAura.js";
-import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
-import { maneuversEffect } from "./feats/maneuvers.js";
-import { sculptSpellsEffect } from "./feats/sculptSpells.js";
-import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { bladesongEffect } from "./feats/bladesong.js";
-import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
-import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
-import { indomitableEffect } from "./feats/indomitable.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
-import { giantsMightEffect } from "./feats/giantsMight.js";
-import { recklessAttackEffect } from "./feats/recklessAttack.js";
+import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
 import { cloudRuneEffect } from "./feats/cloudRune.js";
+import { crossbowExpertEffect } from "./feats/crossbowExpert.js";
+import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
+import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
+import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { fireRuneEffect } from "./feats/fireRune.js";
 import { frostRuneEffect } from "./feats/frostRune.js";
-import { stoneRuneEffect } from "./feats/stoneRune.js";
+import { giantsMightEffect } from "./feats/giantsMight.js";
 import { hillRuneEffect } from "./feats/hillRune.js";
-import { stormRuneEffect } from "./feats/stormRune.js";
-import { runeCarverEffect } from "./feats/runeCarver.js";
-import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
-import { steadyAimEffect } from "./feats/steadyAim.js";
-import { shiftEffect } from "./feats/shift.js";
-import { blessedStrikesEffect } from "./feats/blessedStrikes.js";
+import { indomitableEffect } from "./feats/indomitable.js";
+import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
+import { maneuversEffect } from "./feats/maneuvers.js";
+import { paladinDefaultAuraEffect } from "./feats/paladinDefaultAura.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
-import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
-import { sharpShooterEffect } from "./feats/sharpShooter.js";
-import { crossbowExpertEffect } from "./feats/crossbowExpert.js";
-import { savageAttackerEffect } from "./feats/savageAttacker.js";
+import { potentCantripEffect } from "./feats/potentCantrip.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
+import { rageEffect } from "./feats/rage.js";
+import { recklessAttackEffect } from "./feats/recklessAttack.js";
+import { runeCarverEffect } from "./feats/runeCarver.js";
+import { sacredWeaponEffect } from "./feats/sacredWeapon.js";
+import { savageAttackerEffect } from "./feats/savageAttacker.js";
+import { sculptSpellsEffect } from "./feats/sculptSpells.js";
+import { sharpShooterEffect } from "./feats/sharpShooter.js";
+import { shiftEffect } from "./feats/shift.js";
+import { steadyAimEffect } from "./feats/steadyAim.js";
+import { stoneRuneEffect } from "./feats/stoneRune.js";
+import { stormRuneEffect } from "./feats/stormRune.js";
+import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
+import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
+import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
+import { warCasterEffect } from "./feats/warCaster.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -208,6 +209,11 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Reckless Attack": {
         document = recklessAttackEffect(document);
+        break;
+      }
+      case "Channel Divinity: Sacred Weapon":
+      case "Sacred Weapon": {
+        document = await sacredWeaponEffect(document);
         break;
       }
       case "Sculpt Spells": {
