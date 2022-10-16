@@ -1,4 +1,4 @@
-# 3.1.7
+# 3.1.17
 
 * Spell Effect: Aid - could add more HP than it should in some combinations.
 * Spell Effect fixes: Shillelagh, Magic Weapon.
