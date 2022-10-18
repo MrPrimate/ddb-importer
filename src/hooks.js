@@ -12,6 +12,7 @@ import registerGameSettings from "./hooks/ready/registerGameSettings.js";
 import { itemSheets } from "./hooks/ready/items.js";
 import checkVersion from "./hooks/ready/checkVersion.js";
 import { loadDDBConfig } from "./hooks/ready/ddbConfig.js";
+import { anchorInjection } from "./hooks/ready/noteInjection.js";
 
 // monster muncher
 import { earlySettings } from "./hooks/renderMuncher/earlySettings.js";
@@ -61,6 +62,8 @@ export function onceReady() {
     activateUpdateHooks();
 
   }, 500);
+
+  anchorInjection();
 }
 
 export function onReady() {
