@@ -1,3 +1,8 @@
+# 3.1.8
+
+* Allow linking to journal headers from map pins in Adventure Muncher v1.1.0.
+* Spell Effect Booming Blade: Typo
+
 # 3.1.17
 
 * Spell Effect: Aid - could add more HP than it should in some combinations.
