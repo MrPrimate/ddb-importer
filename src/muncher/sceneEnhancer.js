@@ -11,8 +11,7 @@ import FileHelper from "../lib/FileHelper.js";
 function getNotes(scene, bookCode) {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
-    journal.flags.ddb?.bookCode
-    && journal.flags.ddb.bookCode === bookCode
+    journal.flags.ddb?.bookCode && journal.flags.ddb.bookCode === bookCode
   );
 
   // get all notes placed on the map
@@ -25,13 +24,14 @@ function getNotes(scene, bookCode) {
       const page = note.pageId
         ? journal.pages.find((page) => page._id === note.pageId)
         : journal;
-      const idx = parseInt(journal.flags.ddb.ddbId);
+      const index = parseInt(journal.flags.ddb.ddbId);
       // removed un-needed userdata
       const flags = page.flags.ddb;
       if (flags?.userData) delete flags.userData;
+      const label = flags.ddb.labelName ? flags.ddb.labelName : page.name;
       return {
-        index: idx,
-        label: page.name,
+        index,
+        label,
         flags: {
           ddb: flags,
         },
