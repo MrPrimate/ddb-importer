@@ -2,6 +2,7 @@
 
 * Allow linking to journal headers from map pins in Adventure Muncher v1.1.0.
 * Spell Effect Booming Blade: Typo
+* Spell Effect: Invisibility did not set the correct effect status in some Convenient Effect modes.
 
 # 3.1.17
 
