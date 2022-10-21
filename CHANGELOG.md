@@ -1,8 +1,10 @@
 # 3.1.18
 
 * Allow linking to journal headers from map pins in Adventure Muncher v1.1.0.
+* Inject a field into note config to allow linking to journal references. Dragging an anchor link from the journal sidebar will also add the relevant information to a new note/pin.
 * Spell Effect Booming Blade: Typo
 * Spell Effect: Invisibility did not set the correct effect status in some Convenient Effect modes.
+* Update to DDB: if using Item Containers update could fail when moving items into containers.
 
 # 3.1.17
 
