@@ -12,9 +12,11 @@ export function getItemCollectionItems(actor) {
   const itemCollectionItems = topLevelItems
     .map((topLevelItem) => {
       const containerId = getProperty(topLevelItem, "flags.ddbimporter.id");
+      const containerEntityTypeId = getProperty(topLevelItem, "flags.ddbimporter.entityTypeId");
       const items = (getProperty(topLevelItem.flags, "itemcollection.contentsData") ?? [])
         .map((item) => {
           setProperty(item, "flags.ddbimporter.containerEntityId", containerId);
+          setProperty(item, "flags.ddbimporter.containerEntityTypeId", containerEntityTypeId);
           setProperty(item, "flags.ddbimporter.updateDocumentId", topLevelItem.id);
           return item;
         });
