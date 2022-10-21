@@ -1,4 +1,4 @@
-# 3.1.8
+# 3.1.18
 
 * Allow linking to journal headers from map pins in Adventure Muncher v1.1.0.
 * Spell Effect Booming Blade: Typo
