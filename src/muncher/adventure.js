@@ -100,6 +100,11 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
   const result = {
     generateTokens: true,
     schemaVersion: CONFIG.DDBI.schemaVersion,
+    createPinJournals: false,
+    createPlayerHandouts: false,
+    createHandouts: false,
+    debug: false,
+    observeAll: false,
     version: game.modules.get("ddb-importer").version,
     lookups: {
       monsters: [],

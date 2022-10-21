@@ -4,7 +4,7 @@ import SETTINGS from "../../settings.js";
 
 setProperty(CONFIG, "DDBI", {
   module: "DDB Importer",
-  schemaVersion: 4.1,
+  schemaVersion: 4.2,
   ADVENTURE: {},
   MACROS: {
     spell: {},
