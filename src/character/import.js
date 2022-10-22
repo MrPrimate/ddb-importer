@@ -44,7 +44,7 @@ const POPUPS = {
   json: null,
   web: null,
 };
-const renderPopup = (type, url) => {
+function renderPopup(type, url) {
   if (POPUPS[type] && !POPUPS[type].close) {
     POPUPS[type].focus();
     POPUPS[type].location.href = url;
@@ -59,7 +59,7 @@ const renderPopup = (type, url) => {
     );
   }
   return true;
-};
+}
 
 /**
  * Retrieves the character ID from a given URL, which can be one of the following:
@@ -69,22 +69,22 @@ const renderPopup = (type, url) => {
  * @param {string} url A given URL pointing to a character. Contains the character ID
  * @returns {string} characterId or null
  */
-const getCharacterId = (url) => {
+function getCharacterId(url) {
   const ddbNamePattern = /(?:https?:\/\/)?(?:www\.dndbeyond\.com|ddb\.ac)(?:\/profile\/.+)?\/characters\/(\d+)\/?/;
   const matches = url.match(ddbNamePattern);
   return matches ? matches[1] : null;
-};
+}
 
 /**
  * Creates the Character Endpoint URL from a given character ID
  * @param {string} characterId The character ID
  * @returns {string|null} The API endpoint
  */
-const getCharacterAPIEndpoint = (characterId) => {
+function getCharacterAPIEndpoint(characterId) {
   return characterId !== null ? `https://character-service.dndbeyond.com/character/v5/character/${characterId}` : null;
-};
+}
 
-const getCharacterUpdatePolicyTypes = (invert = false) => {
+function getCharacterUpdatePolicyTypes(invert = false) {
   let itemTypes = ["background"];
 
   if (invert) {
@@ -109,7 +109,7 @@ const getCharacterUpdatePolicyTypes = (invert = false) => {
     if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
   }
   return itemTypes;
-};
+}
 
 /**
  * Returns a combined array of all items to process, filtered by the user's selection on what to skip and what to include
@@ -134,29 +134,27 @@ const filterActorItemsByUserSelection = (actor, invert = false) => {
   return items;
 };
 
-const DEFAULT_CHARACTER_DATA_OPTIONS = {
-  currentActorId: undefined,
-  characterId: undefined,
-  syncId: undefined,
-  localCobaltPostFix: "",
-  resourceSelection: true,
-};
-
 /**
  * Loads and parses character in the proxy
- * @param {*} options.characterId
+ * @param {String} currentActorId
+ * @param {String} characterId
+ * @param {String} syncId
+ * @param {String} localCobaltPostFix
+ * @param {Boolean} resourceSelection
+ * @returns {Object} Parsed Character Data and DDB data
  */
 
-export async function getCharacterData(optionsIn) {
-  const options = mergeObject(DEFAULT_CHARACTER_DATA_OPTIONS, optionsIn);
-  const cobaltCookie = getCobalt(options.localCobaltPostFix);
+export async function getCharacterData({ currentActorId = undefined, characterId = undefined, syncId = undefined,
+  localCobaltPostFix = "", resourceSelection = true } = {}
+) {
+  const cobaltCookie = getCobalt(localCobaltPostFix);
   const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
-  let body = { cobalt: cobaltCookie, betaKey: betaKey, characterId: options.characterId, campaignId: proxyCampaignId };
-  if (options.syncId) {
-    body["updateId"] = options.syncId;
+  let body = { cobalt: cobaltCookie, betaKey, characterId, campaignId: proxyCampaignId };
+  if (syncId) {
+    body["updateId"] = syncId;
   }
 
   try {
@@ -189,9 +187,9 @@ export async function getCharacterData(optionsIn) {
     }
 
     logger.debug("DDB Data to parse:", duplicate(ddb));
-    logger.debug("currentActorId", options.currentActorId);
+    logger.debug("currentActorId", currentActorId);
     try {
-      const character = await parseJson(options.currentActorId, ddb, options.resourceSelection);
+      const character = await parseJson(currentActorId, ddb, resourceSelection);
       const shouldChangeName = game.settings.get("ddb-importer", "character-update-policy-name");
       if (!shouldChangeName) {
         character.character.name = undefined;
@@ -202,7 +200,7 @@ export async function getCharacterData(optionsIn) {
     } catch (error) {
       const debugJson = game.settings.get("ddb-importer", "debug-json");
       if (debugJson) {
-        FileHelper.download(JSON.stringify(data), `${options.characterId}-raw.json`, "application/json");
+        FileHelper.download(JSON.stringify(data), `${characterId}-raw.json`, "application/json");
       }
       throw error;
     }
@@ -391,8 +389,8 @@ export default class CharacterImport extends FormApplication {
       && (!imagePath || imagePath.includes("mystery-man") || game.settings.get("ddb-importer", "character-update-policy-image"))
     ) {
       CharacterImport.showCurrentTask(html, "Uploading avatar image");
-      const filename = data.character.name
-        .replace(/[^a-zA-Z]/g, "-")
+      const filename = `${data.character.id}-${data.character.name}`
+        .replace(/[^a-zA-Z0-9]/g, "-")
         .replace(/-+/g, "-")
         .trim();
 
