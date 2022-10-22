@@ -1152,6 +1152,10 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
+        "third-party-scenes-notes-merged": {
+          type: Boolean,
+          default: true,
+        },
         "allow-note-generation": {
           type: Boolean,
           default: false,

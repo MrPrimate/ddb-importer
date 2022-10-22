@@ -3,6 +3,8 @@ import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
 import { generateIcon } from "./icons.js";
 import AdventureMunch from "./adventure.js";
+import { PageFinder } from "./PageFinder.js";
+import SETTINGS from "../../settings.js";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
 const RAW_BASE_URL = `https://raw.githubusercontent.com/${MR_PRIMATES_THIRD_PARTY_REPO}`;
@@ -17,6 +19,7 @@ export default class ThirdPartyMunch extends FormApplication {
     this._scenePackage = {};
     this._packageName = "";
     this._description = "";
+    this._pageFinders = {};
   }
 
   /** @override */
@@ -223,7 +226,7 @@ export default class ThirdPartyMunch extends FormApplication {
       "sorting": "m",
     };
     const newFolder = await Folder.create(folderData);
-    logger.debug(`Created new folder ${newFolder.data._id} with data:`, folderData, newFolder);
+    logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
     return newFolder;
   }
 
@@ -304,45 +307,83 @@ export default class ThirdPartyMunch extends FormApplication {
     return tokens;
   }
 
-  static async _linkSceneNotes(scene, adventure) {
+  async _linkSceneNotes(scene, adventure) {
     const journalNotes = game.journal.filter((journal) => journal?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
     const adventureMunch = new AdventureMunch();
     adventureMunch.adventure = deepClone(adventure);
+
+    const noJournalPinNotes = game.settings.get(SETTINGS.MODULE_ID, "third-party-scenes-notes-merged");
 
     const notes = await Promise.all([scene]
       .filter((scene) => scene.flags?.ddb?.notes)
       .map((scene) => scene.flags.ddb.notes)
       .flat()
       .map(async (note) => {
-        const noteJournal = journalNotes.find((journal) => {
-          const contentChunkIdMatch = note.flags.ddb.contentChunkId
-            ? journal.flags.ddb && note.flags.ddb
-              && journal.flags.ddb.contentChunkId == note.flags.ddb.contentChunkId
-            : false;
+        const noteJournal = noJournalPinNotes
+          ? journalNotes.find((journal) => journal.flags.ddb.cobaltId == note.flags.ddb.parentId)
+          : journalNotes.find((journal) => {
+            const contentChunkIdMatch = note.flags.ddb.contentChunkId
+              ? journal.flags.ddb && note.flags.ddb
+                && journal.flags.ddb.contentChunkId == note.flags.ddb.contentChunkId
+              : false;
 
-          const noContentChunk = !note.flags.ddb.contentChunkId
-            && note.flags.ddb.originalLink && note.flags.ddb.ddbId && note.flags.ddb.parentId
-            && note.flags.ddb.slug && note.flags.ddb.linkName;
-          const originMatch = noContentChunk
-            ? journal.flags.ddb.slug == note.flags.ddb.slug
-              && journal.flags.ddb.ddbId == note.flags.ddbId
-              && journal.flags.ddb.parentId == note.flags.ddb.parentId
-              && journal.flags.ddb.cobaltId == note.flags.ddb.cobaltId
-              && journal.flags.ddb.originalLink == note.flags.ddb.originalLink
-              && journal.flags.ddb.linkName == note.flags.ddb.linkName
-            : false;
-          const journalNameMatch = !contentChunkIdMatch && !originMatch
-            ? journal.name.trim() == note.label.trim() // ||
-            //  journal.pages.some((page) => page.name.trim() === note.label.trim())
-            : false;
-          return contentChunkIdMatch || originMatch || journalNameMatch;
+            const noContentChunk = !note.flags.ddb.contentChunkId
+              && note.flags.ddb.originalLink && note.flags.ddb.ddbId && note.flags.ddb.parentId
+              && note.flags.ddb.slug && note.flags.ddb.linkName;
+            const originMatch = noContentChunk
+              ? journal.flags.ddb.slug == note.flags.ddb.slug
+                && journal.flags.ddb.ddbId == note.flags.ddbId
+                && journal.flags.ddb.parentId == note.flags.ddb.parentId
+                && journal.flags.ddb.cobaltId == note.flags.ddb.cobaltId
+                && journal.flags.ddb.originalLink == note.flags.ddb.originalLink
+                && journal.flags.ddb.linkName == note.flags.ddb.linkName
+              : false;
+            const journalNameMatch = !contentChunkIdMatch && !originMatch
+              ? journal.name.trim() == note.label.trim() // ||
+              //  journal.pages.some((page) => page.name.trim() === note.label.trim())
+              : false;
+            return contentChunkIdMatch || originMatch || journalNameMatch;
 
-        });
+          });
+
         if (noteJournal) {
           logger.info(`Found note "${note.label}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
           note.flags.ddb.journalId = noteJournal.id;
           // eslint-disable-next-line require-atomic-updates
           note.icon = await generateIcon(adventureMunch, note.label);
+          if (noJournalPinNotes) {
+            note.flags.ddb.labelName = `${note.label}`;
+            note.flags.ddb.slugLink = note.label.replace(/[^\w\d]+/g, "").replace(/^([a-zA-Z]?)0+/, "$1");
+            note.flags.anchor = {
+              slug: note.flags.ddb.slugLink
+            };
+            note.text = note.label;
+
+            if (!this._pageFinders[noteJournal._id]) {
+              this._pageFinders[noteJournal._id] = new PageFinder(noteJournal);
+            }
+            const contentChunkIdPageId = hasProperty(note, "flags.ddb.contentChunkId")
+              ? this._pageFinders[noteJournal._id].getPageIdForContentChunkId(note.flags.ddb.contentChunkId)
+              : undefined;
+            const slugLinkPageId = hasProperty(note, "flags.ddb.slugLink")
+              ? this._pageFinders[noteJournal._id].getPageIdForElementId(note.flags.ddb.slugLink)
+              : undefined;
+
+            // console.warn("MATCHES", { slugLinkPageId, contentChunkIdPageId, noteFlags: note.flags.ddb });
+            // console.warn("PageIds", noteJournal.pages.map((p) => {return {id: p._id, flags: p.flags.ddb}}));
+            const journalPage = noteJournal.pages.find((page) =>
+              page.flags.ddb.parentId == note.flags.ddb.parentId
+              && (page.flags.ddb.slug == note.flags.ddb.slug
+              || page.flags.ddb.slug.replace(/^([a-zA-Z]?)0+/, "$1") == note.flags.ddb.slug
+              || page.flags.ddb.slug.startsWith(note.flags.ddb.slug)
+              || note.flags.ddb.slug.startsWith(page.flags.ddb.slug))
+              && (page._id === contentChunkIdPageId || page._id === slugLinkPageId)
+            );
+
+            if (journalPage) {
+              note.pageId = journalPage._id;
+            }
+          }
         }
         return note;
       }));
@@ -358,6 +399,7 @@ export default class ThirdPartyMunch extends FormApplication {
             "flags": {
               "ddb": note.flags.ddb,
               "importid": noteId,
+              "anchor": note.flags.anchor ?? {},
             },
             "entryId": note.flags.ddb.journalId,
             "x": position.x,
@@ -365,11 +407,12 @@ export default class ThirdPartyMunch extends FormApplication {
             "icon": note.icon, // "assets/icons/1.svg",
             "iconSize": note.iconSize ? note.iconSize : 40,
             "iconTint": "",
-            "text": "",
+            "text": note.text ? note.text : "",
             "fontFamily": note.fontFamily ? note.fontFamily : "Signika",
             "fontSize": note.fontSize ? note.fontSize : 48,
             "textAnchor": 1,
             "textColor": note.textColor ? note.textColor : "",
+            "pageId": note.pageId ? note.pageId : undefined,
           };
           positionedNotes.push(n);
         });
@@ -379,8 +422,9 @@ export default class ThirdPartyMunch extends FormApplication {
     return positionedNotes;
   }
 
-  static async _getAdjustedScenes(scenes) {
-    const adjustedScenes = scenes.filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens);
+  async _getAdjustedScenes() {
+    const adjustedScenes = this._scenePackage.scenes
+      .filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens);
 
     await Helpers.asyncForEach(adjustedScenes, async(scene) => {
       logger.debug(`Adjusting scene ${scene.name}`);
@@ -397,7 +441,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
       }
       // eslint-disable-next-line require-atomic-updates
-      scene.notes = await ThirdPartyMunch._linkSceneNotes(scene, mockAdventure);
+      scene.notes = await this._linkSceneNotes(scene, mockAdventure);
       logger.debug(`Finished scene adjustment for ${scene.name}`);
     });
 
@@ -507,7 +551,7 @@ export default class ThirdPartyMunch extends FormApplication {
       // import any missing monsters into the compendium
       // add tokens to scene
       // add notes to scene
-      const adjustedScenes = await ThirdPartyMunch._getAdjustedScenes(this._scenePackage.scenes);
+      const adjustedScenes = await this._getAdjustedScenes(this._scenePackage.scenes);
 
       logger.debug("adjustedScenes", duplicate(adjustedScenes));
 

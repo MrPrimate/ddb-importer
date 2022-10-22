@@ -1,6 +1,7 @@
 # 3.1.19
 
 * Update to DDB: Would not always update actions with 0 charges back to DDB.
+* Third Party Map integrations now work with journal header links from map notes/pins.
 
 # 3.1.18
 
