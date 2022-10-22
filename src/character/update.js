@@ -22,6 +22,7 @@ function getFoundryItems(actor) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
   const itemCollections = getItemCollectionItems(actor);
   const actorItems = duplicate(actor.items).map((item) => {
+    // set the container entity id to the id of the character, if the character is the "container"
     setProperty(item, "flags.ddbimporter.containerEntityId", parseInt(characterId));
     delete item.flags.ddbimporter.updateDocumentId;
     return item;
@@ -934,7 +935,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     && ddbItems.some((dItem) =>
       item.flags.ddbimporter.id === dItem.id
       && dItem.id === item.flags.ddbimporter?.id
-      && item.system.uses?.max && dItem.limitedUse?.numberUsed
+      && Number.isInteger(parseInt(item.system.uses?.max)) && Number.isInteger(parseInt(dItem.limitedUse?.numberUsed))
       && ((parseInt(item.system.uses.max) - parseInt(item.system.uses.value)) !== dItem.limitedUse.numberUsed)
     )
   );
@@ -1034,19 +1035,18 @@ async function actionUseStatus(actor, ddbData) {
 
   const foundryItems = getFoundryItems(actor);
 
-  const actionsToCharge = foundryItems.filter((item) =>
+  const actionsToChange = foundryItems.filter((item) =>
     (item.flags.ddbimporter?.action || item.type === "feat")
     && item.flags.ddbimporter?.id && item.flags.ddbimporter?.entityTypeId
     && ddbActions.some((dItem) =>
       item.flags.ddbimporter.id === dItem.flags.ddbimporter.id
       && item.flags.ddbimporter.entityTypeId === dItem.flags.ddbimporter.entityTypeId
       && item.name === dItem.name && item.type === dItem.type
-      && item.system.uses?.value
-      && item.system.uses.value !== dItem.system.uses.value
+      && Number.isInteger(parseInt(item.system.uses?.value))
+      && Number.parseInt(item.system.uses.value) !== Number.parseInt(dItem.system.uses.value)
     )
   );
-
-  const actionChanges = updateDDBActionUseStatus(actor, actionsToCharge);
+  const actionChanges = updateDDBActionUseStatus(actor, actionsToChange);
 
   return actionChanges;
 }

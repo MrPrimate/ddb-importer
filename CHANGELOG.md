@@ -1,3 +1,7 @@
+# 3.1.19
+
+* Update to DDB: Would not always update actions with 0 charges back to DDB.
+
 # 3.1.18
 
 * Allow linking to journal headers from map pins in Adventure Muncher v1.1.0.
