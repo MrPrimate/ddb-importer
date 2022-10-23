@@ -1215,9 +1215,10 @@ export async function addMagicItemSpells(input) {
   // scan the inventory for each item with spells and copy the imported data over
   input.inventory.forEach((item) => {
     logger.debug("replacing spells for item", item);
-    logger.debug("item.flags.magicitems.spells", item.flags.magicitems.spells);
-    if (item.flags.magicitems.spells) {
-      for (let [i, spell] of Object.entries(item.flags.magicitems.spells)) {
+    const magicItemsSpells = getProperty(item, "flags.magicitems.spells");
+    if (magicItemsSpells) {
+      logger.debug("item.flags.magicitems.spells", magicItemsSpells);
+      for (let [i, spell] of Object.entries(magicItemsSpells)) {
         const itemSpell = itemSpells.find((iSpell) => iSpell.name === spell.name
           && (iSpell.compendium || iSpell.magicItem.subFolder === item.name)
         );
@@ -1231,6 +1232,41 @@ export async function addMagicItemSpells(input) {
           ui.notifications.warn(`Magic Item ${item.name}: cannot add spell ${spell.name}`);
         }
       }
+    }
+    // {
+    //   magicItem: {
+    //     _id: result._id,
+    //     id: result._id,
+    //     pack: result.flags.ddbimporter.pack,
+    //     img: result.img,
+    //     name: result.name,
+    //     flatDc: result.flags.ddbimporter.dndbeyond?.overrideDC,
+    //     dc: result.flags.ddbimporter.dndbeyond?.dc,
+    //   },
+    //   _id: result._id,
+    //   name: result.name,
+    //   compendium: true,
+    // };
+    const itemsWithSpells = getProperty(item, "flags.items-with-spells-5e.item-spells");
+    if (itemsWithSpells) {
+      logger.debug("item.flags.items-with-spells-5e.item-spells", item.flags["items-with-spells-5e"]["item-spells"]);
+      itemsWithSpells.forEach((spellData, i) => {
+        const itemSpell = itemSpells.find((iSpell) => iSpell.name === spellData.flags.ddbimporter.spellName
+          && (iSpell.compendium || iSpell.magicItem.subFolder === item.name)
+        );
+        if (itemSpell) {
+          item.flags["items-with-spells-5e"]["item-spells"][i].uuid = `Compendium.${itemSpell.magicItem.pack}.${itemSpell._id}`;
+          if (item._id) {
+            setProperty(item.flags["items-with-spells-5e"]["item-spells"][i], "flags.items-with-spells-5e.item-spells.parent-item", item._id);
+          }
+        } else if (!game.user.can("ITEM_CREATE")) {
+          ui.notifications.warn(`Magic Item ${item.name} cannot be enriched because of lacking player permissions`);
+        } else {
+          ui.notifications.warn(`Magic Item ${item.name}: cannot add spell ${spellData.name}`);
+        }
+
+
+      });
     }
   });
 }

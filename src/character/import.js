@@ -896,11 +896,14 @@ export default class CharacterImport extends FormApplication {
 
   async fetchCharacterItems(html) {
     const magicItemsInstalled = game.modules.get("magicitems")?.active;
+    const itemsWithSpellsInstalled = game.modules.get("items-with-spells-5e")?.active;
     // items for actor
     let items = [];
 
     // process spells for magic items
-    if (magicItemsInstalled && this.result.itemSpells && Array.isArray(this.result.itemSpells)) {
+    if ((magicItemsInstalled || itemsWithSpellsInstalled) && this.result.itemSpells
+      && Array.isArray(this.result.itemSpells)
+    ) {
       CharacterImport.showCurrentTask(html, "Preparing magicitem spells");
       await addMagicItemSpells(this.result);
     }
@@ -921,8 +924,8 @@ export default class CharacterImport extends FormApplication {
 
     // If there is no magicitems module fall back to importing the magic
     // item spells as normal spells fo the character
-    if (!magicItemsInstalled) {
-      logger.debug("No magic items module found, adding spells to sheet.");
+    if (!magicItemsInstalled && !itemsWithSpellsInstalled) {
+      logger.debug("No magic items module(s) found, adding spells to sheet.");
       items.push(
         this.result.itemSpells.filter((item) => {
           const active = item.flags.ddbimporter.dndbeyond && item.flags.ddbimporter.dndbeyond.active === true;

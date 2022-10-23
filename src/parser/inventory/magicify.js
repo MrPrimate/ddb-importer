@@ -42,6 +42,7 @@
 //
 //
 import DICTIONARY from "../../dictionary.js";
+import logger from "../../logger.js";
 
 const MAGICITEMS = {
   DAILY: "r1",
@@ -159,13 +160,13 @@ function buildMagicItemSpell(chargeType, itemSpell) {
     pack: "",
     baseLevel: itemSpell.system.level,
     level: castLevel,
-    consumption: consumption,
-    upcast: upcast,
+    consumption,
+    upcast,
     upcastCost: 1,
   };
 }
 
-function getItemSpells(itemId, chargeType, itemSpells) {
+function getMagicItemSpells(itemId, chargeType, itemSpells) {
   let spells = {};
 
   for (let spellIndex = 0, i = 0; i < itemSpells.length; i++) {
@@ -178,7 +179,7 @@ function getItemSpells(itemId, chargeType, itemSpells) {
   return spells;
 }
 
-function createDefaultItem() {
+function createDefaultMagicItemFlags() {
   return {
     enabled: true,
     charges: 0,
@@ -205,7 +206,7 @@ function capitalize(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
-function getResetType(description) {
+function getMagicItemResetType(description) {
   let resetType = null;
 
   const chargeMatchFormula = /expended charges (?:\w) at (\w)/i;
@@ -233,13 +234,14 @@ function getResetType(description) {
   return resetType;
 }
 
-export function parseMagicItem(data, itemSpells, characterItem = true) {
+
+function parseMagicItemsModule(data, itemSpells, characterItem) {
   // this builds metadata for the magicitems module to use
   // https://gitlab.com/riccisi/foundryvtt-magic-items/
 
   if (data.definition.magic) {
     // default magicitem data
-    let magicItem = createDefaultItem();
+    let magicItem = createDefaultMagicItemFlags();
     magicItem.equipped = data.definition.canEquip;
 
     if (!characterItem) {
@@ -248,7 +250,7 @@ export function parseMagicItem(data, itemSpells, characterItem = true) {
       const limitedUse = {
         maxUses: (maxUsesMatches && maxUsesMatches[1]) ? maxUsesMatches[1] : null,
         numberUsed: 0,
-        resetType: getResetType(data.definition.description),
+        resetType: getMagicItemResetType(data.definition.description),
         resetTypeDescription: data.definition.description,
       };
 
@@ -257,7 +259,7 @@ export function parseMagicItem(data, itemSpells, characterItem = true) {
 
     if (data.limitedUse) {
       // if the item is x per spell
-      let perSpell = getPerSpell(data.limitedUse.resetTypeDescription, data.definition.description);
+      const perSpell = getPerSpell(data.limitedUse.resetTypeDescription, data.definition.description);
       if (perSpell) {
         magicItem.charges = perSpell;
         magicItem.recharge = `${perSpell}`;
@@ -281,7 +283,7 @@ export function parseMagicItem(data, itemSpells, characterItem = true) {
       magicItem.destroyCheck = checkD20Destroy(data.limitedUse.resetTypeDescription);
     }
 
-    magicItem.spells = getItemSpells(data.definition.id, magicItem.chargeType, itemSpells);
+    magicItem.spells = getMagicItemSpells(data.definition.id, magicItem.chargeType, itemSpells);
 
     return magicItem;
   } else {
@@ -289,5 +291,86 @@ export function parseMagicItem(data, itemSpells, characterItem = true) {
       enabled: false,
     };
   }
+}
+
+function parseItemsWithSpellsModule(item, data, itemSpells, characterItem) {
+
+  if (!characterItem) {
+    logger.debug("Non character item magic item additions are not supported");
+  }
+
+  const thisItemSpells = itemSpells.filter((spell) =>
+    spell.flags.ddbimporter.dndbeyond.lookup === "item"
+    && spell.flags.ddbimporter.dndbeyond.lookupId === item.flags.ddbimporter.definitionId
+  );
+
+  logger.debug("magic item data", { item, data, itemSpells, characterItem, thisItemSpells });
+
+  if (thisItemSpells.length === 0) return item;
+
+  const perSpell = getPerSpell(data.limitedUse.resetTypeDescription, data.definition.description);
+
+  const iSpells = thisItemSpells.map((itemSpell) => {
+    const isPerSpell = Number.isInteger(perSpell);
+    const chargeType = isPerSpell
+      ? MAGICITEMS.CHARGE_TYPE_PER_SPELL
+      : MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM;
+
+    // c1 charge whole item, c2 charge per spells
+    const spellData = buildMagicItemSpell(chargeType, itemSpell);
+
+    const resetType = data.limitedUse.resetType
+      ? DICTIONARY.magicitems.rechargeUnits.find((reset) => reset.id == data.limitedUse.resetType).value
+      : undefined;
+
+    const uses = isPerSpell
+      ? { max: spellData.charges, per: resetType ?? "" }
+      : { max: "", per: "" };
+    const consume = isPerSpell
+      ? { amount: null }
+      : { amount: spellData.consumption };
+
+    const save = getProperty(itemSpell, "flags.ddbimporter.dndbeyond.overrideDC")
+      ? { scaling: "flat", dc: itemSpell.flags.ddbimporter.dndbeyond?.dc }
+      : { scaling: "spell" };
+    const preparation = isPerSpell
+      ? { mode: "atwill" }
+      : undefined;
+
+    return {
+      uuid: "",
+      changes: {
+        system: {
+          level: Number.parseInt(spellData.level),
+          uses,
+          consume,
+          save,
+          preparation,
+        },
+      },
+      flags: {
+        ddbimporter: {
+          spellName: spellData.name,
+        },
+        // "items-with-spells-5e": {
+        //   "parent-item": "",
+        // },
+      },
+    };
+  });
+
+  item.flags["items-with-spells-5e"] = {
+    "item-spells": iSpells,
+  };
+  return item;
+}
+
+export function parseMagicItem(item, data, itemSpells, characterItem = true) {
+  if (game.modules.get("magicitems")?.active) {
+    item.flags.magicitems = parseMagicItemsModule(data, itemSpells, characterItem);
+  } else if (game.modules.get("items-with-spells-5e")?.active) {
+    item = parseItemsWithSpellsModule(item, data, itemSpells, characterItem);
+  }
+  return item;
 }
 

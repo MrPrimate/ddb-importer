@@ -418,7 +418,7 @@ export default async function getInventory(ddb, character, itemSpells) {
     enrichFlags(ddbItem, item);
 
     if (item) {
-      item.flags.magicitems = parseMagicItem(ddbItem, itemSpells);
+      item = parseMagicItem(item, ddbItem, itemSpells);
       item.flags.ddbimporter.originalName = originalName;
       item.flags.ddbimporter.version = CONFIG.DDBI.version;
       if (!item.effects) item.effects = [];

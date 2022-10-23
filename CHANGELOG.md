@@ -1,7 +1,12 @@
+# 3.1.20
+
+* If using the "Items with Spells DnD5e" module, spell data for items will be generated. If "Magic Items" is also installed, the importer will use that first.
+
 # 3.1.19
 
 * Update to DDB: Would not always update actions with 0 charges back to DDB.
 * Third Party Map integrations now work with journal header links from map notes/pins.
+* Characters that consisted of entirely non-ansi names would overwrite each others images.
 
 # 3.1.18
 
