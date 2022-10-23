@@ -305,10 +305,11 @@ function parseItemsWithSpellsModule(item, data, itemSpells, characterItem) {
   );
 
   logger.debug("magic item data", { item, data, itemSpells, characterItem, thisItemSpells });
+  console.warn("magic item data", { item, data, itemSpells, characterItem, thisItemSpells });
 
   if (thisItemSpells.length === 0) return item;
 
-  const perSpell = getPerSpell(data.limitedUse.resetTypeDescription, data.definition.description);
+  const perSpell = getPerSpell(data.limitedUse?.resetTypeDescription ?? "", data.definition.description);
 
   const iSpells = thisItemSpells.map((itemSpell) => {
     const isPerSpell = Number.isInteger(perSpell);
@@ -319,7 +320,7 @@ function parseItemsWithSpellsModule(item, data, itemSpells, characterItem) {
     // c1 charge whole item, c2 charge per spells
     const spellData = buildMagicItemSpell(chargeType, itemSpell);
 
-    const resetType = data.limitedUse.resetType
+    const resetType = data.limitedUse?.resetType
       ? DICTIONARY.magicitems.rechargeUnits.find((reset) => reset.id == data.limitedUse.resetType).value
       : undefined;
 
