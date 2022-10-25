@@ -17,6 +17,21 @@ export async function favoredFoeEffect(document) {
   effect.duration.seconds = 60;
   document.effects.push(effect);
 
+  let concentrationEffect = baseFeatEffect(document, "Favored Foe - Concentration");
+  concentrationEffect.changes.push(
+    {
+      key: "macro.itemMacro",
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      value: "",
+      priority: 20,
+    },
+  );
+  concentrationEffect.transfer = false;
+  concentrationEffect.duration.seconds = 60;
+  setProperty(concentrationEffect, "flags.dae.selfTarget", true);
+  setProperty(concentrationEffect, "flags.dae.selfTargetAlways", true);
+  document.effects.push(concentrationEffect);
+
   let damageBonusEffect = baseFeatEffect(document, "Favored Foe");
   damageBonusEffect.changes.push({
     key: "flags.dnd5e.DamageBonusMacro",
