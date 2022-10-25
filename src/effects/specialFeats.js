@@ -8,6 +8,7 @@ import { cloudRuneEffect } from "./feats/cloudRune.js";
 import { crossbowExpertEffect } from "./feats/crossbowExpert.js";
 import { defensiveDuelistEffect } from "./feats/defensiveDuelist.js";
 import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
+import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { fireRuneEffect } from "./feats/fireRune.js";
 import { frostRuneEffect } from "./feats/frostRune.js";
@@ -280,6 +281,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     case "Convert Sorcery Points":
     case "Font of Magic": {
       document = await fontOfMagicEffect(document);
+      break;
+    }
+    case "Favored Foe": {
+      document = await favoredFoeEffect(document);
       break;
     }
     case "Planar Warrior": {
