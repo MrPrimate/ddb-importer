@@ -1,6 +1,9 @@
 # 3.1.20
 
 * If using the "Items with Spells DnD5e" module, spell data for items will be generated. If "Magic Items" is also installed, the importer will use that first.
+* Action Surge would place the number of surges in the damage field.
+* Effect: Font of Magic (based off a macro by Zhell/MidiQoL)
+* Effect: Hunter's Mark rewritten to use newer syntax.
 
 # 3.1.19
 

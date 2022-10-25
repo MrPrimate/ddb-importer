@@ -27,7 +27,7 @@ export async function thunderousSmiteEffect(document) {
   document.system.save.ability = "";
   document.system.damage.parts = [];
   document.effects.push(effect);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "");
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
 
   return document;
 }

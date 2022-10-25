@@ -26,7 +26,7 @@ export async function brandingSmiteEffect(document) {
   document.system.target.type = "self";
   document.system.damage.parts = [];
   document.effects.push(effect);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "");
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
 
   return document;
 }

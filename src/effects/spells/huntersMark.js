@@ -5,14 +5,32 @@ import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 // the Marked effect gets applied to the target
 export async function huntersMarkEffect(document) {
   let effect = baseSpellEffect(document, "Marked");
+  effect.changes.push(
+    {
+      key: "flags.dae.onUpdateSource",
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      value: "Hunter's Mark",
+      priority: 20,
+    },
+  );
+  effect.duration.seconds = 3600;
+  document.effects.push(effect);
+
+  let damageBonusEffect = baseSpellEffect(document, "Hunter's Mark");
+  damageBonusEffect.changes.push({
+    key: "flags.dnd5e.DamageBonusMacro",
+    value: "ItemMacro",
+    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    priority: 20,
+  });
+  damageBonusEffect.transfer = true;
+
+  setProperty(damageBonusEffect, "flags.dae.transfer", true);
+  document.effects.push(damageBonusEffect);
 
   const itemMacroText = await loadMacroFile("spell", "huntersMark.js");
-
   setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
   setProperty(document, "system.actionType", "util");
-
-  document.effects.push(effect);
 
   return document;
 }
