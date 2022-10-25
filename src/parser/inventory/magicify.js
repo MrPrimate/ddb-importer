@@ -304,9 +304,6 @@ function parseItemsWithSpellsModule(item, data, itemSpells, characterItem) {
     && spell.flags.ddbimporter.dndbeyond.lookupId === item.flags.ddbimporter.definitionId
   );
 
-  logger.debug("magic item data", { item, data, itemSpells, characterItem, thisItemSpells });
-  console.warn("magic item data", { item, data, itemSpells, characterItem, thisItemSpells });
-
   if (thisItemSpells.length === 0) return item;
 
   const perSpell = getPerSpell(data.limitedUse?.resetTypeDescription ?? "", data.definition.description);
