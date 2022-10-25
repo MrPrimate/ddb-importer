@@ -12,7 +12,7 @@ export async function blessedHealerEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: "20",
   });
-  setProperty(document, "flags.midi-qol.onUseMacroName", "");
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
 
   document.effects.push(effect);
   return document;

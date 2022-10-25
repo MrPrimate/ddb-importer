@@ -35,6 +35,7 @@ import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { warCasterEffect } from "./feats/warCaster.js";
+import { fontOfMagicEffect } from "./feats/fontOfMagic.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -274,6 +275,11 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Blessed Healer": {
       document = await blessedHealerEffect(document);
+      break;
+    }
+    case "Convert Sorcery Points":
+    case "Font of Magic": {
+      document = await fontOfMagicEffect(document);
       break;
     }
     case "Planar Warrior": {

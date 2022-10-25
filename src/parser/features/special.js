@@ -255,6 +255,10 @@ export function fixFeatures(features) {
   features.forEach((feature) => {
     const name = feature.flags.ddbimporter.originalName || feature.name;
     switch (name) {
+      case "Action Surge": {
+        feature.system.damage = { parts: [], versatile: "", value: "" };
+        break;
+      }
       case "Arcane Propulsion Armor Gauntlet": {
         feature.system.damage.parts[0][0] += " + @mod";
         break;
