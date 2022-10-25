@@ -1,5 +1,9 @@
 [
   {
+    "name": "Fiery Skull",
+    "path": "icons/magic/fire/flame-burning-skull-orange.webp"
+  },
+  {
     "name": "+1 Dagger",
     "path": "icons/weapons/daggers/dagger-crooked-red.webp"
   },
