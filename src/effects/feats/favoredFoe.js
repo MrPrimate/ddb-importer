@@ -17,20 +17,20 @@ export async function favoredFoeEffect(document) {
   effect.duration.seconds = 60;
   document.effects.push(effect);
 
-  let concentrationEffect = baseFeatEffect(document, "Favored Foe - Concentration");
-  concentrationEffect.changes.push(
-    {
-      key: "macro.itemMacro",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: "",
-      priority: 20,
-    },
-  );
-  concentrationEffect.transfer = false;
-  concentrationEffect.duration.seconds = 60;
-  setProperty(concentrationEffect, "flags.dae.selfTarget", true);
-  setProperty(concentrationEffect, "flags.dae.selfTargetAlways", true);
-  document.effects.push(concentrationEffect);
+  // let concentrationEffect = baseFeatEffect(document, "Favored Foe - Concentration");
+  // concentrationEffect.changes.push(
+  //   {
+  //     key: "macro.itemMacro",
+  //     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+  //     value: "",
+  //     priority: 20,
+  //   },
+  // );
+  // concentrationEffect.transfer = false;
+  // concentrationEffect.duration.seconds = 60;
+  // setProperty(concentrationEffect, "flags.dae.selfTarget", true);
+  // setProperty(concentrationEffect, "flags.dae.selfTargetAlways", true);
+  // document.effects.push(concentrationEffect);
 
   let damageBonusEffect = baseFeatEffect(document, "Favored Foe");
   damageBonusEffect.changes.push({
@@ -46,6 +46,8 @@ export async function favoredFoeEffect(document) {
 
   const itemMacroText = await loadMacroFile("feat", "favoredFoe.js");
   setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+
   setProperty(document, "system.actionType", "util");
   document.system.damage.parts = [];
   document.system.target = {

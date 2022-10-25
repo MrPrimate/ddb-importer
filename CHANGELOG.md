@@ -4,6 +4,7 @@
 * Action Surge would place the number of surges in the damage field.
 * Effect: Font of Magic (based off a macro by Zhell/MidiQoL)
 * Effect: Hunter's Mark rewritten to use newer syntax.
+* Effect: Favored Foe, will also add concentration as required. (Thanks to @illcom94#2733 for most of this).
 
 # 3.1.19
 
