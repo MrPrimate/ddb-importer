@@ -134,14 +134,17 @@ export function getBonusAbilities(data, character) {
 }
 
 export function getBonusSpellDC(data, character) {
-  let result = {};
+  let result = {
+    "dc": "",
+  };
   const bonusLookup = [
     { fvttType: "dc", ddbSubType: "spell-save-dc" },
     { fvttType: "dc", ddbSubType: "warlock-spell-save-dc" },
   ];
 
   bonusLookup.forEach((b) => {
-    result[b.fvttType] = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
+    const bonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
+    result[b.fvttType] += bonus;
   });
 
   return result;
