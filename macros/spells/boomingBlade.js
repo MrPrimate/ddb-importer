@@ -94,7 +94,7 @@ if(args[0].tag === "OnUse"){
     const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice}d8[${damageType}]`).evaluate({ async: true });
     if (game.dice3d) game.dice3d.showForRoll(damageRoll);
     const workflowItemData = duplicate(sourceItem.data);
-    workflowItemData.target = { value: 1, units: "", type: "creature" };
+    workflowItemData.system.target = { value: 1, units: "", type: "creature" };
     workflowItemData.name = "Booming Blade: Movement Damage";
 
     await new MidiQOL.DamageOnlyWorkflow(

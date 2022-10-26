@@ -4,6 +4,7 @@
 * Effect: Cloak of Displacement improvements if using midiqol.
 * Effect: Moon Sickle bonus healing if using midi.
 * Effect: Heavy Armor Master (requires midiqol).
+* Effect: Booming Blade would target caster not target with damage when moving.
 
 # 3.1.20
 
