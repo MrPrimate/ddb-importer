@@ -2,9 +2,30 @@ import {
   baseItemEffect,
   generateUpgradeChange,
   generateAddChange,
-  generateMultiplyChange,
   generateCustomChange,
 } from "./effects.js";
+import { featEffectModules } from "./specialFeats.js";
+import { bootsOfSpeedEffect } from "./items/bootsOfSpeed.js";
+import { cloakOfDisplacementEffect } from "./items/cloakOfDisplacement.js";
+import { moonSickleEffect } from "./items/moonSickle.js";
+
+
+export async function midiItemEffects(document) {
+  if (!featEffectModules().hasCore) return document;
+  const name = document.flags.ddbimporter.originalName || document.name;
+  switch (name) {
+    case "Cloak of Displacement": {
+      document = await cloakOfDisplacementEffect(document);
+      break;
+    }
+    // no default
+  }
+
+  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
+    setProperty(document, "flags.ddbimporter.effectsApplied", true);
+  }
+  return document;
+}
 
 /**
  * This function is mainly for effects that can't be dynamically generated
@@ -89,38 +110,14 @@ export function equipmentEffectAdjustment(document) {
       break;
     }
     case "Boots of Speed": {
-      let effect = baseItemEffect(document, `${document.name} - Invulnerability`);
-      effect.changes.push(generateMultiplyChange(2, 20, "system.attributes.movement.walk"));
-      effect.duration = {
-        startTime: null,
-        seconds: 600,
-        rounds: null,
-        turns: null,
-        startRound: null,
-        startTurn: null,
-      };
-      effect.transfer = true;
-      effect.disabled = true;
-      effect.flags.dae.transfer = true;
-      effect.flags.dae.stackable = true;
-      document.system.target = {
-        value: null,
-        width: null,
-        units: "",
-        type: "self",
-      };
-      document.system.range = {
-        value: null,
-        long: null,
-        units: "self",
-      };
-      document.system.activation.type = "bonus";
-      document.effects.push(effect);
+      document = bootsOfSpeedEffect(document);
       break;
     }
-    case "Cloak of Displacement": {
-      let effect = baseItemEffect(document, `${document.name} - Constant Effects`);
-      effect.flags.dae.specialDuration = ["isDamaged"];
+    case "Moon Sickle, +1":
+    case "Moon Sickle, +2":
+    case "Moon Sickle, +3":
+    case "Moon Sickle": {
+      document = moonSickleEffect(document);
       break;
     }
     case "Spellguard Shield": {

@@ -35,6 +35,7 @@ import { generateEffects } from "../../effects/effects.js";
 import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { parseInfusion } from "./infusions.js";
 import { addRestrictionFlags } from "../../effects/restrictions.js";
+import { midiItemEffects } from "../../effects/specialEquipment.js";
 
 // tables
 import { generateTable } from "../../muncher/table.js";
@@ -439,6 +440,8 @@ export default async function getInventory(ddb, character, itemSpells) {
       if (addEffects) item = await addRestrictionFlags(item);
 
       if (!compendiumItem) item = parseInfusion(ddb, character, item, ddbItem, compendiumItem);
+      // eslint-disable-next-line no-await-in-loop
+      item = await midiItemEffects(item);
 
       items.push(item);
     }
