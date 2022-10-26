@@ -13,6 +13,7 @@ import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { fireRuneEffect } from "./feats/fireRune.js";
 import { frostRuneEffect } from "./feats/frostRune.js";
 import { giantsMightEffect } from "./feats/giantsMight.js";
+import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
 import { hillRuneEffect } from "./feats/hillRune.js";
 import { indomitableEffect } from "./feats/indomitable.js";
 import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
@@ -194,6 +195,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Giant's Might": {
         document = giantsMightEffect(document);
+        break;
+      }
+      case "Heavy Armor Master": {
+        document = heavyArmorMasterEffect(document);
         break;
       }
       case "Indomitable": {

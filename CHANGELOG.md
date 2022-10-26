@@ -3,6 +3,7 @@
 * If not using effects, items which added bonuses to spell DC did not always apply. e.g. Moon Sickle.
 * Effect: Cloak of Displacement improvements if using midiqol.
 * Effect: Moon Sickle bonus healing if using midi.
+* Effect: Heavy Armor Master (requires midiqol).
 
 # 3.1.20
 
