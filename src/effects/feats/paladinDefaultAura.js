@@ -10,7 +10,8 @@ export function paladinDefaultAuraEffect(document) {
         hidden: false,
         displayTemp: true,
       };
-      setProperty(effect, "flags.core.statusId", 1);
+      setProperty(effect, "flags.core.statusId", "1");
+      setProperty(effect, "flags.dae.stackable", "noneName");
     }
   });
   return document;
