@@ -1,3 +1,8 @@
+# 3.1.22
+
+* Small tweaks to Aura of Protection scaling.
+* Monster: Nosferatu parsing tweaks to break bite damage out into versatile.
+
 # 3.1.21
 
 * If not using effects, items which added bonuses to spell DC did not always apply. e.g. Moon Sickle.
