@@ -257,10 +257,10 @@ export default class CharacterImport extends FormApplication {
     return options;
   }
 
-  static showCurrentTask(html, title, message = null, isError = false) {
-    let element = $(html).find(".task-name");
+  showCurrentTask(title, message = null, isError = false) {
+    let element = $(this.html).find(".task-name");
     element.html(`<h2 ${isError ? " style='color:red'" : ""}>${title}</h2>${message ? `<p>${message}</p>` : ""}`);
-    $(html).parent().parent().css("height", "auto");
+    $(this.html).parent().parent().css("height", "auto");
   }
 
   /**
@@ -376,7 +376,7 @@ export default class CharacterImport extends FormApplication {
     return toRemove;
   }
 
-  async updateImage(html, data) {
+  async updateImage(data) {
     logger.debug("Checking if image needs updating");
     // updating the image?
     let imagePath = this.actor.img;
@@ -388,7 +388,7 @@ export default class CharacterImport extends FormApplication {
       && decorations.avatarUrl !== ""
       && (!imagePath || imagePath.includes("mystery-man") || game.settings.get("ddb-importer", "character-update-policy-image"))
     ) {
-      CharacterImport.showCurrentTask(html, "Uploading avatar image");
+      this.showCurrentTask("Uploading avatar image");
       const filename = `${data.character.id}-${data.character.name}`
         .replace(/[^a-zA-Z0-9]/g, "-")
         .replace(/-+/g, "-")
@@ -473,6 +473,7 @@ export default class CharacterImport extends FormApplication {
         ].join(",")
       )
       .on("change", (event) => {
+        this.html = html;
         MuncherSettings.updateActorSettings(html, event);
       });
 
@@ -512,10 +513,11 @@ export default class CharacterImport extends FormApplication {
       .on("click", async (event) => {
         // retrieve the character data from the proxy
         event.preventDefault();
+        this.html = html;
 
         try {
           $(html).find("#dndbeyond-character-import-start").prop("disabled", true);
-          CharacterImport.showCurrentTask(html, "Getting Character data");
+          this.showCurrentTask("Getting Character data");
           const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
           const characterDataOptions = {
             currentActorId: this.actor.id,
@@ -532,11 +534,11 @@ export default class CharacterImport extends FormApplication {
           }
           if (characterData.success) {
             // begin parsing the character data
-            await this.processCharacterData(html, characterData);
-            CharacterImport.showCurrentTask(html, "Loading Character data", "Done.", false);
+            await this.processCharacterData(characterData);
+            this.showCurrentTask("Loading Character data", "Done.", false);
             this.close();
           } else {
-            CharacterImport.showCurrentTask(html, characterData.message, null, true);
+            this.showCurrentTask(characterData.message, null, true);
             return false;
           }
         } catch (error) {
@@ -545,12 +547,12 @@ export default class CharacterImport extends FormApplication {
               logger.error("Failure");
               break;
             case "Forbidden":
-              CharacterImport.showCurrentTask(html, "Error retrieving Character: " + error, error, true);
+              this.showCurrentTask("Error retrieving Character: " + error, error, true);
               break;
             default:
               logger.error(error);
               logger.error(error.stack);
-              CharacterImport.showCurrentTask(html, "Error processing Character: " + error, error, true);
+              this.showCurrentTask("Error processing Character: " + error, error, true);
               break;
           }
           return false;
@@ -563,6 +565,7 @@ export default class CharacterImport extends FormApplication {
     $(html)
       .find("#dndbeyond-character-update")
       .on("click", async () => {
+        this.html = html;
         try {
           $(html).find("#dndbeyond-character-update").prop("disabled", true);
           await updateDDBCharacter(this.actor).then((result) => {
@@ -572,48 +575,51 @@ export default class CharacterImport extends FormApplication {
               .map((r) => r.message)
               .join(" ");
             logger.debug(updateNotes);
-            CharacterImport.showCurrentTask(html, "Update complete", updateNotes);
+            this.showCurrentTask("Update complete", updateNotes);
             $(html).find("#dndbeyond-character-update").prop("disabled", false);
           });
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
-          CharacterImport.showCurrentTask(html, "Error updating character", error, true);
+          this.showCurrentTask("Error updating character", error, true);
         }
       });
 
     $(html)
       .find("#delete-local-cobalt")
       .on("click", async () => {
+        this.html = html;
         try {
           deleteLocalCobalt(this.actor.id);
           $(html).find("#delete-local-cobalt").prop("disabled", true);
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
-          CharacterImport.showCurrentTask(html, "Error deleting local cookie", error, true);
+          this.showCurrentTask("Error deleting local cookie", error, true);
         }
       });
 
     $(html)
       .find("#set-local-cobalt")
       .on("click", async () => {
+        this.html = html;
         try {
           new DDBCookie({}, this.actor, true).render(true);
           $(html).find("#delete-local-cobalt").prop("disabled", false);
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
-          CharacterImport.showCurrentTask(html, "Error updating character", error, true);
+          this.showCurrentTask("Error updating character", error, true);
         }
       });
 
     $(html)
       .find("#dndbeyond-character-extras-start")
       .on("click", async () => {
+        this.html = html;
         try {
           $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
-          CharacterImport.showCurrentTask(html, "Fetching character data");
+          this.showCurrentTask("Fetching character data");
           const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
           const characterDataOptions = {
             currentActorId: this.actor.id,
@@ -630,11 +636,11 @@ export default class CharacterImport extends FormApplication {
           }
           if (characterData.success) {
             await generateCharacterExtras(html, characterData, this.actor);
-            CharacterImport.showCurrentTask(html, "Loading Extras", "Done.", false);
+            this.showCurrentTask("Loading Extras", "Done.", false);
             $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
             this.close();
           } else {
-            CharacterImport.showCurrentTask(html, characterData.message, null, true);
+            this.showCurrentTask(characterData.message, null, true);
             return false;
           }
         } catch (error) {
@@ -643,12 +649,12 @@ export default class CharacterImport extends FormApplication {
               logger.error("Failure");
               break;
             case "Forbidden":
-              CharacterImport.showCurrentTask(html, "Error retrieving Character: " + error, error, true);
+              this.showCurrentTask("Error retrieving Character: " + error, error, true);
               break;
             default:
               logger.error(error);
               logger.error(error.stack);
-              CharacterImport.showCurrentTask(html, "Error processing Character: " + error, error, true);
+              this.showCurrentTask("Error processing Character: " + error, error, true);
               break;
           }
           return false;
@@ -659,6 +665,7 @@ export default class CharacterImport extends FormApplication {
     $(html)
       .find("input[name=dndbeyond-url]")
       .on("input", async (event) => {
+        this.html = html;
         let URL = event.target.value;
         const characterId = getCharacterId(URL);
 
@@ -671,7 +678,7 @@ export default class CharacterImport extends FormApplication {
           $(html).find("#dndbeyond-character-import-start").prop("disabled", false);
           $(html).find("#open-dndbeyond-url").prop("disabled", false);
 
-          CharacterImport.showCurrentTask(html, "Saving reference");
+          this.showCurrentTask("Saving reference");
           await this.actor.update({
             "flags.ddbimporter.dndbeyond": {
               url: URL,
@@ -679,14 +686,9 @@ export default class CharacterImport extends FormApplication {
               characterId,
             },
           });
-          CharacterImport.showCurrentTask(html, "Status");
+          this.showCurrentTask("Status");
         } else {
-          CharacterImport.showCurrentTask(
-            html,
-            "URL format incorrect",
-            "That seems not to be the URL we expected...",
-            true
-          );
+          CharacterImport.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
           $(html)
             .find(".dndbeyond-url-status i")
             .replaceWith('<i class="fas fa-exclamation-triangle" style="color:red"></i>');
@@ -696,17 +698,18 @@ export default class CharacterImport extends FormApplication {
     $(html)
       .find("#open-dndbeyond-url")
       .on("click", () => {
+        this.html = html;
         try {
           const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
           const apiEndpointUrl = getCharacterAPIEndpoint(characterId);
           renderPopup("json", apiEndpointUrl);
         } catch (error) {
-          CharacterImport.showCurrentTask(html, "Error opening JSON URL", error, true);
+          this.showCurrentTask("Error opening JSON URL", error, true);
         }
       });
   }
 
-  async enrichCharacterItems(html, items) {
+  async enrichCharacterItems(items) {
     const useInbuiltIcons = game.settings.get("ddb-importer", "character-update-policy-use-inbuilt-icons");
     const useSRDCompendiumItems = game.settings.get("ddb-importer", "character-update-policy-use-srd");
     const useSRDCompendiumIcons = game.settings.get("ddb-importer", "character-update-policy-use-srd-icons");
@@ -723,41 +726,41 @@ export default class CharacterImport extends FormApplication {
 
     // if we still have items to add, add them
     if (items.length > 0) {
-      CharacterImport.showCurrentTask(html, "Copying existing data flags");
+      this.showCurrentTask("Copying existing data flags");
       await this.copySupportedCharacterItemFlags(items);
 
       if (ddbItemIcons) {
-        CharacterImport.showCurrentTask(html, "Fetching DDB Inventory Images");
+        this.showCurrentTask("Fetching DDB Inventory Images");
         items = await getDDBEquipmentIcons(items, true);
       }
 
       if (useInbuiltIcons) {
-        CharacterImport.showCurrentTask(html, "Adding SRD Icons");
+        this.showCurrentTask("Adding SRD Icons");
         items = await copyInbuiltIcons(items);
       }
 
       if (useSRDCompendiumIcons && !useSRDCompendiumItems) {
-        CharacterImport.showCurrentTask(html, "Adding SRD Icons");
+        this.showCurrentTask("Adding SRD Icons");
         items = await copySRDIcons(items);
       }
 
       if (ddbSpellIcons) {
-        CharacterImport.showCurrentTask(html, "Fetching DDB Spell School Images");
+        this.showCurrentTask("Fetching DDB Spell School Images");
         items = await getDDBSpellSchoolIcons(items, true);
       }
 
       if (ddbGenericItemIcons) {
-        CharacterImport.showCurrentTask(html, "Fetching DDB Generic Item Images");
+        this.showCurrentTask("Fetching DDB Generic Item Images");
         items = await getDDBGenericItemIcons(items, true);
       }
 
       if (activeEffectCopy) {
-        CharacterImport.showCurrentTask(html, "Copying Item Active Effects");
+        this.showCurrentTask("Copying Item Active Effects");
         items = await this.copyCharacterItemEffects(items);
       }
 
       if (daeEffectCopy && daeInstalled && (daeSRDInstalled || daeMidiInstalled)) {
-        CharacterImport.showCurrentTask(html, "Importing DAE Effects");
+        this.showCurrentTask("Importing DAE Effects");
         items = await addItemsDAESRD(items);
       }
 
@@ -795,9 +798,9 @@ export default class CharacterImport extends FormApplication {
     }
   }
 
-  async importCharacterItems(html, items, keepIds = false) {
+  async importCharacterItems(items, keepIds = false) {
     if (items.length > 0) {
-      CharacterImport.showCurrentTask(html, "Adding items to character");
+      this.showCurrentTask("Adding items to character");
 
       const newItems = items.filter((i) => !i._id || i._id === null || i._id === undefined);
       const updateItems = items.filter((i) => i._id && i._id !== null && i._id !== undefined);
@@ -829,7 +832,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   // checks for existing items, and depending on options will keep or replace with imported item
-  async mergeExistingItems(html, items) {
+  async mergeExistingItems(items) {
     if (this.actorOriginal.flags.ddbimporter) {
       const ownedItems = this.actor.getEmbeddedCollection("Item");
 
@@ -894,7 +897,7 @@ export default class CharacterImport extends FormApplication {
     }
   }
 
-  async fetchCharacterItems(html) {
+  async fetchCharacterItems() {
     const magicItemsInstalled = game.modules.get("magicitems")?.active;
     const itemsWithSpellsInstalled = game.modules.get("items-with-spells-5e")?.active;
     // items for actor
@@ -904,22 +907,22 @@ export default class CharacterImport extends FormApplication {
     if ((magicItemsInstalled || itemsWithSpellsInstalled) && this.result.itemSpells
       && Array.isArray(this.result.itemSpells)
     ) {
-      CharacterImport.showCurrentTask(html, "Preparing magicitem spells");
+      this.showCurrentTask("Preparing magicitem spells");
       await addMagicItemSpells(this.result);
     }
 
     logger.debug("Calculating items to create and update...");
-    CharacterImport.showCurrentTask(html, "Calculating items to create and update...");
+    this.showCurrentTask("Calculating items to create and update...");
     items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
 
     logger.debug("Checking existing items for details...");
-    CharacterImport.showCurrentTask(html, "Checking existing items for details...");
+    this.showCurrentTask("Checking existing items for details...");
 
-    items = await this.mergeExistingItems(html, items);
+    items = await this.mergeExistingItems(items);
     await this.keepNonDDBItems(items);
 
     logger.debug("Removing found items...");
-    CharacterImport.showCurrentTask(html, "Clearing items for recreation...");
+    this.showCurrentTask("Clearing items for recreation...");
     await this.clearItemsByUserSelection();
 
     // If there is no magicitems module fall back to importing the magic
@@ -939,7 +942,7 @@ export default class CharacterImport extends FormApplication {
     return items;
   }
 
-  async processCharacterItems(html, items) {
+  async processCharacterItems(items) {
     let compendiumItems = [];
     let srdCompendiumItems = [];
     let overrideCompendiumItems = [];
@@ -1018,33 +1021,33 @@ export default class CharacterImport extends FormApplication {
 
     // import remaining items to character
     if (items.length > 0) {
-      CharacterImport.showCurrentTask(html, "Adding DDB generated items");
+      this.showCurrentTask("Adding DDB generated items");
       logger.debug(`Adding DDB generated items...`, items);
-      items = await this.enrichCharacterItems(html, items);
-      await this.importCharacterItems(html, items, true);
+      items = await this.enrichCharacterItems(items);
+      await this.importCharacterItems(items, true);
     }
 
     // now import any compendium items that we matched
     if (useExistingCompendiumItems) {
-      CharacterImport.showCurrentTask(html, "Adding DDB compendium items");
+      this.showCurrentTask("Adding DDB compendium items");
       logger.info("Adding DDB compendium items:", compendiumItems);
       await this.createCharacterItems(compendiumItems, false);
     }
 
     if (useSRDCompendiumItems) {
-      CharacterImport.showCurrentTask(html, "Adding SRD compendium items");
+      this.showCurrentTask("Adding SRD compendium items");
       logger.info("Adding SRD compendium items:", srdCompendiumItems);
       await this.createCharacterItems(srdCompendiumItems, false);
     }
 
     if (useOverrideCompendiumItems) {
-      CharacterImport.showCurrentTask(html, "Adding Override compendium items");
+      this.showCurrentTask("Adding Override compendium items");
       logger.info("Adding Override compendium items:", overrideCompendiumItems);
       await this.createCharacterItems(overrideCompendiumItems, false);
     }
 
     if (individualCompendiumItems.length > 0) {
-      CharacterImport.showCurrentTask(html, "Adding Individual Override compendium items");
+      this.showCurrentTask("Adding Individual Override compendium items");
       logger.info("Adding Individual Override compendium items:", individualCompendiumItems);
       await this.createCharacterItems(individualCompendiumItems, false);
     }
@@ -1080,7 +1083,7 @@ export default class CharacterImport extends FormApplication {
     const coreStatusEffects = this.actor.effects.filter((ae) => {
       const status = getProperty(ae, "flags.core.statusId");
       const itemEffect = ae.origin?.includes(".Item.");
-      return status && status.trim() !== "" && !itemEffect;
+      return status && String(status).trim() !== "" && !itemEffect;
     });
     // effects on the character that are not from items, or corestatuses
     // nor added by ddb importer
@@ -1155,7 +1158,7 @@ export default class CharacterImport extends FormApplication {
     await this.actor.update(this.actorOriginal, { recursive: true, keepId: true });
   }
 
-  async processCharacterData(html, data) {
+  async processCharacterData(data) {
     this.result = data.character;
 
     // disable active sync
@@ -1171,13 +1174,13 @@ export default class CharacterImport extends FormApplication {
 
       // handle active effects
       const activeEffectCopy = game.settings.get("ddb-importer", "character-update-policy-active-effect-copy");
-      CharacterImport.showCurrentTask(html, "Calculating Active Effect Changes");
+      this.showCurrentTask("Calculating Active Effect Changes");
       this.fixUpCharacterEffects(this.result.character);
-      let items = await this.fetchCharacterItems(html);
+      let items = await this.fetchCharacterItems();
       await this.removeActiveEffects(activeEffectCopy);
 
       // update image
-      await this.updateImage(html, data.ddb);
+      await this.updateImage(data.ddb);
 
       // manage updates of basic character data more intelligently
       // revert some data if update not wanted
@@ -1245,7 +1248,7 @@ export default class CharacterImport extends FormApplication {
       }
 
       // basic import
-      CharacterImport.showCurrentTask(html, "Updating core character information");
+      this.showCurrentTask("Updating core character information");
       logger.debug("Character data importing: ", this.result.character);
       await this.actor.update(this.result.character);
 
@@ -1253,7 +1256,7 @@ export default class CharacterImport extends FormApplication {
       this.copyExistingJournalNotes();
 
       // items import
-      await this.processCharacterItems(html, items);
+      await this.processCharacterItems(items);
 
       if (activeEffectCopy) {
         // find effects with a matching name that existed on previous actor
@@ -1277,7 +1280,7 @@ export default class CharacterImport extends FormApplication {
     } catch (error) {
       logger.error("Error importing character: ", error);
       logger.error(error.stack);
-      CharacterImport.showCurrentTask(html, "Error importing character, attempting rolling back, see console (F12) for details.", error, true);
+      this.showCurrentTask("Error importing character, attempting rolling back, see console (F12) for details.", error, true);
       await this.resetActor();
       throw new Error("ImportFailure");
     } finally {
@@ -1289,7 +1292,6 @@ export default class CharacterImport extends FormApplication {
 
 export async function importCharacterById(characterId, html) {
   try {
-    if (!html) html = utils.htmlToDoc("");
     let actor = await Actor.create({
       name: "New Actor",
       type: "character",
@@ -1317,7 +1319,8 @@ export async function importCharacterById(characterId, html) {
     }
     if (characterData.success) {
       const importer = new CharacterImport(CharacterImport.defaultOptions, actor);
-      await importer.processCharacterData(html, characterData);
+      importer.html = html ? html : utils.htmlToDoc("");
+      await importer.processCharacterData(characterData);
       return actor;
     } else {
       logger.error("ERROR:", characterData.message);
@@ -1342,7 +1345,6 @@ export async function importCharacterById(characterId, html) {
 
 export async function importCharacter(actor, html) {
   try {
-    if (!html) html = utils.htmlToDoc("");
     const actorData = actor.toObject();
     const characterId = actorData.flags.ddbimporter.dndbeyond.characterId;
     const characterDataOptions = {
@@ -1361,8 +1363,9 @@ export async function importCharacter(actor, html) {
     if (characterData.success) {
       // begin parsing the character data
       const importer = new CharacterImport(CharacterImport.defaultOptions, actorData);
-      await importer.processCharacterData(html, characterData);
-      CharacterImport.showCurrentTask(html, "Loading Character data", "Done.", false);
+      importer.html = html ? html : utils.htmlToDoc("");
+      await importer.processCharacterData(characterData);
+      importer.showCurrentTask("Loading Character data", "Done.", false);
       logger.info("Loading Character data");
       return true;
     } else {
