@@ -11,7 +11,7 @@ async function checkTargetInRange({ sourceUuid, targetUuid, distance }) {
   const targetsInRange = MidiQOL.findNearby(null, sourceToken, distance, null);
   const isInRange = targetsInRange.reduce((result, possible) => {
     const collisionRay = new Ray(sourceToken, possible);
-    const collision = canvas.walls.checkCollision(collisionRay);
+    const collision = canvas.walls.checkCollision(collisionRay, {mode: "any"});
     if (possible.uuid === targetUuid && !collision) result = true;
     return result;
   }, false);

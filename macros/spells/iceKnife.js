@@ -22,8 +22,8 @@ if (lastArg.targets.length > 0) {
   const target = canvas.tokens.get(lastArg.targets[0].id);
   const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>
     canvas.grid.measureDistance(target, placeable) <= 9.5 &&
-    !canvas.walls.checkCollision(new Ray(target.center, placeable.center)
-  )).map((placeable) => placeable.document.uuid);
+    !canvas.walls.checkCollision(new Ray(target.center, placeable.center), {mode: "any"})
+  ).map((placeable) => placeable.document.uuid);
 
   const options = {
     showFullCard: false,
