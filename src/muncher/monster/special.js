@@ -30,6 +30,15 @@ export function specialCases(monster) {
       monster.system.attributes.spellcasting = "int";
       break;
     }
+    case "Nosferatu": {
+      monster.items.forEach(function(item, index) {
+        if (item.name === "Bite") {
+          this[index].system.damage.versatile = `${item.system.damage.parts[0][0]} + ${item.system.damage.parts[2][0]}`;
+          this[index].system.damage.parts.splice(2, 1);
+        }
+      }, monster.items);
+      break;
+    }
     case "Sephek Kaltro": {
       monster.flags.monsterMunch.spellList.innate = [{ name: "Misty Step", type: "day", value: 3 }];
       monster.flags.monsterMunch.spellList.material = false;
