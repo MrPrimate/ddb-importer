@@ -3,6 +3,7 @@
 * Small tweaks to Aura of Protection scaling.
 * Monster: Nosferatu parsing tweaks to break bite damage out into versatile.
 * Rage could target another creature.
+* Some fixes to character import where if effects from things like active auras were present could prevent character re-imports working.
 
 # 3.1.21
 
