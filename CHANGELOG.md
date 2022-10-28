@@ -2,6 +2,7 @@
 
 * Small tweaks to Aura of Protection scaling.
 * Monster: Nosferatu parsing tweaks to break bite damage out into versatile.
+* Rage could target another creature.
 
 # 3.1.21
 

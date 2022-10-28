@@ -66,6 +66,7 @@ export function rageEffect(document) {
     units: "",
     type: "self",
   };
+  document.system.range = { value: null, units: "self", long: null };
   document.effects.push(effect);
   return document;
 }
