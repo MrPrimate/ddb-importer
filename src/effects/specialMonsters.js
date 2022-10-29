@@ -4,6 +4,7 @@ import { configureDependencies } from "./macros.js";
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
 import { generateLegendaryEffect } from "./monsterFeatures/legendary.js";
 import { generateOverTimeEffect } from "./monsterFeatures/overTimeEffect.js";
+import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
 
 export function baseMonsterFeatureEffect(document, label) {
   return {
@@ -114,6 +115,7 @@ export async function monsterFeatureEffectAdjustment(document, monster) {
   document.items.forEach(function(item, index) {
     // Legendary Resistance Effects
     if (item.name.startsWith("Legendary Resistance")) item = generateLegendaryEffect(item);
+    if (item.name.startsWith("Pack Tactics")) item = generatePackTacticsEffect(item);
     // auto overtime effect
     const overTimeResults = generateOverTimeEffect(item, document, monster);
     this[index] = overTimeResults.document;
