@@ -3,7 +3,7 @@
 * Small tweaks to Aura of Protection scaling.
 * Monster: Nosferatu parsing tweaks to break bite damage out into versatile.
 * Monster: Dullahan had parsing problems around legendary/mythic actions and battle axe damage.
-* Monster Effect: Pact Tactics effect if using midi-qol.
+* Monster Effect: Pack Tactics effect if using midi-qol.
 * Rage could target another creature.
 * Some fixes to character import where if effects from things like active auras were present could prevent character re-imports working.
 
