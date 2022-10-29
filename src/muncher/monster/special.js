@@ -1,4 +1,5 @@
 // these are non-compliant monsters that currently don't meet parsing requirements
+// these are temporary work arounds till parsing is fixed.
 export function specialCases(monster) {
   switch (monster.name) {
     case "Reduced-threat Aboleth":
@@ -7,6 +8,31 @@ export function specialCases(monster) {
         if (item.name === "Tentacle") {
           this[index].system.formula = item.system.damage.parts[1][0];
           this[index].system.damage.parts.splice(1, 1);
+        }
+      }, monster.items);
+      break;
+    }
+    case "Dullahan": {
+      monster.items.forEach(function(item, index) {
+        if (item.name === "Battleaxe") {
+          this[index].system.damage.versatile += " + 2d10[necrotic]";
+          this[index].system.damage.parts.push(["2d10[necrotic]", "necrotic"]);
+        } else if (item.name === "Coordinated Assault") {
+          this[index].system.activation.type = "legendary";
+          this[index].system.consume = {
+            type: "attribute",
+            target: "resources.legact.value",
+            amount: 1
+          };
+          this[index].system.activation.cost = "1";
+        } else if (item.name.startsWith("Headless Wail")) {
+          this[index].system.activation.cost = "2";
+          this[index].system.activation.type = "legendary";
+          this[index].system.consume = {
+            type: "attribute",
+            target: "resources.legact.value",
+            amount: 2
+          };
         }
       }, monster.items);
       break;
