@@ -6,6 +6,7 @@
 * Monster Effect: Pack Tactics effect if using midi-qol.
 * Rage could target another creature.
 * Some fixes to character import where if effects from things like active auras were present could prevent character re-imports working.
+* Some mild cleanup of effect transfer and character import code - mild chance some odd edge cases might have b0rked.
 
 # 3.1.21
 
