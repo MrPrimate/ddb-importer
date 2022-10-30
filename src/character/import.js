@@ -372,7 +372,9 @@ export default class CharacterImport extends FormApplication {
 
     logger.debug("Removing the following character items", toRemove);
     if (toRemove.length > 0) {
-      await this.actor.deleteEmbeddedDocuments("Item", toRemove);
+      await this.actor.deleteEmbeddedDocuments("Item", toRemove, {
+        itemsWithSpells5e: { alsoDeleteChildSpells: false }
+      });
     }
     return toRemove;
   }
@@ -1172,7 +1174,10 @@ export default class CharacterImport extends FormApplication {
   }
 
   async resetActor() {
-    await this.actor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
+    await this.actor.deleteEmbeddedDocuments("Item", [], {
+      deleteAll: true,
+      itemsWithSpells5e: { alsoDeleteChildSpells: false },
+    });
     await this.actor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     await this.actor.update(this.actorOriginal, { recursive: true, keepId: true });
   }

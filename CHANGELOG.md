@@ -1,3 +1,7 @@
+# 3.1.23
+
+* Suppress notifications from Items With Spells when updating a character.
+
 # 3.1.22
 
 * Small tweaks to Aura of Protection scaling.
