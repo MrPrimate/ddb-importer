@@ -172,30 +172,47 @@ const CompendiumHelper = {
     return name;
   },
 
-  createIfNotExists: async (settingName, compendiumType, compendiumLabel) => {
-    logger.debug(`Checking if ${settingName} exists for ${SETTINGS.MODULE_ID}`);
-    const compendiumName = game.settings.get(SETTINGS.MODULE_ID, settingName);
-    const compendium = await game.packs.get(compendiumName);
+  /**
+   * Attempts to find a compendium pack by name, if not found, create a new one based on item type
+   * @param  {string} label - Label of compendium to find
+   * @param  {string} type - Name of compendium
+   * @param  {string} id - Id of compendium, optional, used in place of label to find compendium
+   * @param  {string} packageType - package type of compendium, defaults to world
+   * @returns {object} - Object consisting of compendium and creation result
+   */
+  createIfNotExists: async ({ label, type, id = undefined, packageType = "world" } = {}) => {
+    if (id) logger.debug(`Checking if Compendium with id ${id} exists for ${SETTINGS.MODULE_ID}`);
+    else if (label) logger.debug(`Checking if Compendium with label ${label} exists for ${SETTINGS.MODULE_ID}`);
+    const compendium = await game.packs.get(id) ?? game.packs.find((p) => p.metadata.label === label);
     if (compendium) {
-      logger.info(`Compendium '${compendiumName}' found, will not create compendium.`);
-      return false;
+      logger.debug(`Compendium '${id}' (${compendium.metadata.label}) found, will not create compendium.`);
+      return {
+        compendium,
+        created: false
+      };
     } else {
-      logger.info(`Compendium for ${compendiumLabel}, was not found, creating it now.`);
-      const name = CompendiumHelper.getDefaultCompendiumName(compendiumLabel);
-      const defaultCompendium = await game.packs.get(`world.${name}`);
+      logger.info(`Compendium for ${label}, was not found, creating it now.`);
+      const name = CompendiumHelper.getDefaultCompendiumName(label);
+      const defaultCompendium = await game.packs.get(`${packageType}.${name}`);
       if (defaultCompendium) {
-        logger.warn(`Could not load Compendium '${compendiumName}', and could not create default Compendium '${name}' as it already exists. Please check your DDB Importer Compendium setup.`);
+        logger.error(`Could not load Compendium '${id}', and could not create default Compendium '${name}' as it already exists. Please check your DDB Importer Compendium setup.`);
+        return {
+          compendium: null,
+          created: false,
+        };
       } else {
         // create a compendium for the user
         await CompendiumCollection.createCompendium({
-          type: compendiumType,
-          label: `DDB ${compendiumLabel}`,
-          name: name,
-          package: "world",
+          type,
+          label,
+          name,
+          package: packageType,
         });
-        await game.settings.set(SETTINGS.MODULE_ID, settingName, `world.${name}`);
+        return {
+          compendium,
+          created: true
+        };
       }
-      return true;
     }
   },
 
