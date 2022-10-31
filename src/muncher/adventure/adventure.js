@@ -4,6 +4,7 @@ import FileHelper from "../../lib/FileHelper.js";
 import { generateAdventureConfig } from "../adventure.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import SETTINGS from "../../settings.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
 
 export default class AdventureMunch extends FormApplication {
   /** @override */
@@ -14,6 +15,7 @@ export default class AdventureMunch extends FormApplication {
     this._importPathData = DirectoryPicker.parse(importPathData);
     this.adventure = null;
     this.folders = null;
+    this.folderData = [];
     this.zip = null;
     this.allMonsters = false;
     this.journalWorldActors = false;
@@ -202,16 +204,56 @@ export default class AdventureMunch extends FormApplication {
     };
   }
 
+  async importFolder(folders, folderList, temporary = false) {
+    await Helpers.asyncForEach(folders, async (f) => {
+      let folderData = f;
+
+      let newFolder = game.folders.find((folder) =>
+        (folder._id === folderData._id || folder.flags.importid === folderData._id)
+        && folder.type === folderData.type
+      );
+
+      if (newFolder) {
+        if (!this.folderData.some((f) => f._id === newFolder._id)) {
+          this.folderData.push(newFolder);
+        }
+        logger.debug(`Found existing folder ${newFolder._id} with data:`, folderData, newFolder);
+      } else {
+        if (folderData.parent === null) {
+          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.type];
+        } else {
+          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.parent];
+        }
+
+        // eslint-disable-next-line require-atomic-updates
+        newFolder = await Folder.create(folderData, { temporary, keepId: true });
+        this.folderData.push(newFolder);
+        logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
+      }
+
+      // eslint-disable-next-line require-atomic-updates
+      CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.flags.importid] = newFolder._id;
+
+      let childFolders = folderList.filter((folder) => {
+        return folder.parent === folderData._id;
+      });
+
+      if (childFolders.length > 0) {
+        await this.importFolder(childFolders, folderList, temporary);
+      }
+    });
+  }
+
   /**
    * Create missing folder structures in the world
    */
-  async _createFolders() {
+  async _createFolders(temporary = false) {
     CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
     CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = null;
 
     // the folder list could be out of order, we need to create all folders with parent null first
     const firstLevelFolders = this.folders.filter((folder) => folder.parent === null);
-    await Helpers.importFolder(firstLevelFolders, this.folders);
+    await this.importFolder(firstLevelFolders, this.folders, temporary);
   }
 
   /** @override */
@@ -284,13 +326,13 @@ export default class AdventureMunch extends FormApplication {
       logger.debug(`${this.adventure.name} - Loading playlist`);
       await this._importFile("playlist");
     }
-    if (Helpers.folderExists("compendium", this.zip)) {
-      logger.debug(`${this.adventure.name} - Loading compendium`);
-      await this._importCompendium("compendium");
-    }
     if (Helpers.folderExists("macro", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading macro`);
       await this._importFile("macro");
+    }
+    if (Helpers.folderExists("compendium", this.zip)) {
+      logger.debug(`${this.adventure.name} - Loading compendium`);
+      await this._importCompendium();
     }
   }
 
@@ -481,19 +523,147 @@ export default class AdventureMunch extends FormApplication {
     }
   }
 
-  async _importCompendium(type) {
+  async _loadDocumentAssets(data, importType) {
+
+    data.flags.importid = data._id;
+
+    if (data.img) {
+      // eslint-disable-next-line require-atomic-updates
+      data.img = await this.importImage(data.img);
+    }
+    if (data.thumb) {
+      // eslint-disable-next-line require-atomic-updates
+      data.thumb = await this.importImage(data.thumb);
+    }
+    if (data?.token?.img) {
+      // eslint-disable-next-line require-atomic-updates
+      data = await this._importTokenImage("token", data, { img: true, texture: false });
+    }
+    if (data.toke?.texture?.src) {
+      // eslint-disable-next-line require-atomic-updates
+      data = await this._importTokenImage("token", data);
+    }
+    if (data?.prototypeToken?.img) {
+      // eslint-disable-next-line require-atomic-updates
+      data = await this._importTokenImage("prototypeToken", data, { img: true, texture: false });
+    }
+    if (data.prototypeToken?.texture?.src) {
+      // eslint-disable-next-line require-atomic-updates
+      data = await this._importTokenImage("prototypeToken", data);
+    }
+
+    if (data?.items?.length) {
+      await Helpers.asyncForEach(data.items, async (item) => {
+        if (item.img) {
+          // eslint-disable-next-line require-atomic-updates
+          item.img = await this.importImage(item.img);
+        }
+      });
+    }
+
+    if (data?.pages?.length) {
+      await Helpers.asyncForEach(data.pages, async (page) => {
+        if (page.src) {
+          // eslint-disable-next-line require-atomic-updates
+          page.src = await this.importImage(page.src);
+        }
+      });
+    }
+
+    if (importType === "Scene") {
+      if (data.tokens) {
+        await Helpers.generateTokenActors(data);
+      }
+      if (data.flags["perfect-vision"] && Array.isArray(data.flags["perfect-vision"])) {
+        data.flags["perfect-vision"] = {};
+      }
+    } else if (importType === "Playlist") {
+      await Helpers.asyncForEach(data.sounds, async (sound) => {
+        if (sound.path) {
+          // eslint-disable-next-line require-atomic-updates
+          sound.path = await this.importImage(sound.path);
+        }
+      });
+    } else if (importType === "RollTable") {
+      await Helpers.asyncForEach(data.results, async (result) => {
+        if (result.img) {
+          // eslint-disable-next-line require-atomic-updates
+          result.img = await this.importImage(result.img);
+        }
+        if (result.resultId) {
+          data.flags.ddb.needRevisit = true;
+        }
+        logger.debug(`Updating DDB links for ${data.name}`);
+        // eslint-disable-next-line require-atomic-updates
+        data.text = Helpers.foundryCompendiumReplace(data.text, {
+          journalWorldActors: this.journalWorldActors,
+          actorData: this.adventure.required?.monsterData ?? [],
+        });
+      });
+    } else if (importType === "JournalEntry" && data.pages) {
+      await Helpers.asyncForEach(data.pages, async (page) => {
+        if (page.text.content) {
+          const journalImages = Helpers.reMatchAll(
+            /(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/,
+            page.text.content
+          );
+          if (journalImages) {
+            logger.debug(`Updating Image links for ${page.name}`);
+            await Helpers.asyncForEach(journalImages, async (result) => {
+              const path = await this.importImage(result[2]);
+              page.text.content = page.text.content.replace(result[0], `${result[1]}="${path}"`);
+            });
+          }
+          logger.debug(`Updating DDB links for ${page.name}`);
+          page.text.content = Helpers.foundryCompendiumReplace(page.text.content, {
+            journalWorldActors: this.journalWorldActors,
+            actorData: this.adventure.required?.monsterData ?? [],
+          });
+        }
+      });
+    }
+
+    return data;
+
+  }
+
+  /* eslint-disable require-atomic-updates */
+  async _enrichAdventure(data) {
+
+    data.img = await this.importImage("assets/images/cover.jpg");
+    data.name = this.adventure.name;
+    data.description = this.adventure.description;
+    setProperty(data, "flags.ddbimporter.adventure", this.adventure.required);
+
+    await this._createFolders(true);
+
+    data.folders = this.folderData;
+    data.combats = [];
+    data.items = [];
+    data.actors = [];
+    data.journal = [];
+    data.scenes = [];
+    data.tables = [];
+    data.macros = [];
+    data.cards = [];
+    data.playlists = [];
+
+    return data;
+  }
+  /* eslint-enable require-atomic-updates */
+
+  async _importCompendium(folderName) {
     let totalCount = 0;
     let currentCount = 0;
-    const typeName = type[0].toUpperCase() + type.slice(1);
-    const dataFiles = Helpers.getFiles(type, this.zip);
-    logger.info(`Importing ${this.adventure.name} - ${typeName} (${dataFiles.length} items)`);
+    const dataFiles = Helpers.getFiles(folderName, this.zip);
+    logger.info(`Importing ${this.adventure.name} - Compendium (${dataFiles.length} items)`);
     totalCount = dataFiles.length;
 
     await Helpers.asyncForEach(dataFiles, async (file) => {
       const rawData = await this.zip.file(file.name).async("text");
       const data = JSON.parse(rawData);
 
-      let pack = await Helpers.getCompendiumPack(data.info.entity, data.info.label);
+      const pack = CompendiumHelper.createIfNotExists({ type: data.info.entity, label: data.info.label }).compendium;
       await pack.getIndex();
 
       totalCount += data.items.length;
@@ -501,89 +671,51 @@ export default class AdventureMunch extends FormApplication {
         let obj;
         let entry = pack.index.find((e) => e.name === item.name);
 
-        item.flags.importid = item._id;
-
-        if (item.img) {
-          // eslint-disable-next-line require-atomic-updates
-          item.img = await this.importImage(item.img);
-        }
-        if (item.thumb) {
-          // eslint-disable-next-line require-atomic-updates
-          item.thumb = await this.importImage(item.thumb);
-        }
-        if (item?.token?.img) {
-          // eslint-disable-next-line require-atomic-updates
-          item.token.img = await this.importImage(item.token.img);
-        }
-
-        if (item.prototypeToken?.texture?.src) {
-          // eslint-disable-next-line require-atomic-updates
-          item.prototypeToken.texture.src = await this.importImage(item.prototypeToken.texture.src);
-        }
-
-        if (item?.items?.length) {
-          await Helpers.asyncForEach(data.items, async (i) => {
-            if (i.img) {
-              // eslint-disable-next-line require-atomic-updates
-              i.img = await this.importImage(i.img);
-            }
-          });
-        }
-
-        if (item.pages?.length) {
-          await Helpers.asyncForEach(item.pages, async (page) => {
-            if (page.src) {
-              // eslint-disable-next-line require-atomic-updates
-              page.src = await this.importImage(page.src);
-            }
-          });
-        }
+        // eslint-disable-next-line require-atomic-updates
+        item = await this._loadDocumentAssets(item);
 
         switch (data.info.entity) {
+          case "Adventure":
+            // eslint-disable-next-line require-atomic-updates
+            item = await this._enrichAdventure(item);
+            obj = new Item(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
+            break;
           case "Item":
-            obj = new Item(item, { temporary: true });
+            obj = new Item(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
             break;
           case "Actor":
-            obj = new Actor(item, { temporary: true });
+            obj = new Actor(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
             break;
           case "Scene":
-            obj = new Scene(item, { temporary: true });
+            obj = new Scene(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
             break;
           case "JournalEntry":
-            obj = new JournalEntry(item, { temporary: true });
+            obj = new JournalEntry(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
             break;
           case "Macro":
-            obj = new Macro(item, { temporary: true });
+            obj = new Macro(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
             break;
           case "RollTable":
-            await Helpers.asyncForEach(item.results, async (result) => {
-              // eslint-disable-next-line require-atomic-updates
-              result.img = await this.importImage(result.img);
-            });
-            obj = new RollTable(item, { temporary: true });
+            obj = new RollTable(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
             break;
           case "Playlist":
-            await Helpers.asyncForEach(item.sounds, async (sound) => {
-              // eslint-disable-next-line require-atomic-updates
-              sound.path = await this.importImage(sound.path);
-            });
-            obj = new Playlist(item, { temporary: true });
+            obj = new Playlist(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
             break;
           // no default
         }
 
-        if (!entry) {
-          let compendiumItem = await pack.importDocument(obj);
+        if (!entry && obj) {
+          const compendiumItem = await pack.importDocument(obj, { keepId: true, keepEmbeddedIds: true });
 
           if (JSON.stringify(item).match(this.pattern) || JSON.stringify(item).match(this.altpattern)) {
             this._itemsToRevisit.push(`Compendium.${pack.metadata.package}.${pack.metadata.name}.${compendiumItem.id}`);
           }
         }
         currentCount += 1;
-        AdventureMunch._updateProgress(totalCount, currentCount, typeName);
+        AdventureMunch._updateProgress(totalCount, currentCount, "Compendium");
       });
       currentCount += 1;
-      AdventureMunch._updateProgress(totalCount, currentCount, typeName);
+      AdventureMunch._updateProgress(totalCount, currentCount, "Compendium");
     });
   }
 
@@ -765,7 +897,7 @@ export default class AdventureMunch extends FormApplication {
     });
   }
 
-  async _importTokenImage(tokenType, data, totalCount, currentCount, importType) {
+  async _importTokenImage(tokenType, data, { img = false, texture = true } = {}) {
     if (data[tokenType]?.randomImg) {
       const imgFilepaths = data[tokenType].img.split("/");
       const imgFilename = imgFilepaths.reverse()[0];
@@ -777,23 +909,37 @@ export default class AdventureMunch extends FormApplication {
 
       let adventurePath = this.adventure.name.replace(/[^a-z0-9]/gi, "_");
 
-      data[tokenType].img = `${this._importPathData.current}/${adventurePath}/${data[tokenType].img}`;
+      if (img) {
+        const imgPath = `${this._importPathData.current}/${adventurePath}/${data[tokenType].img}`;
+        data[tokenType].img = imgPath;
+      }
+      if (texture) {
+        const imgPath = `${this._importPathData.current}/${adventurePath}/${data[tokenType].texture.src}`;
+        data[tokenType].texture.src = imgPath;
+      }
 
       if (filesToUpload.length > 0) {
-        totalCount += filesToUpload.length;
+        let currentCount = 1;
 
         await Helpers.asyncForEach(filesToUpload, async (file) => {
           await this.importImage(file.name);
           currentCount += 1;
-          AdventureMunch._updateProgress(totalCount, currentCount, importType);
+          AdventureMunch._updateProgress(filesToUpload.length, currentCount, "Token Image");
         });
       }
     } else {
-      // eslint-disable-next-line require-atomic-updates
-      data[tokenType].img = await this.importImage(data[tokenType].img);
+
+      if (img) {
+        // eslint-disable-next-line require-atomic-updates
+        data[tokenType].img = await this.importImage(data[tokenType].img);
+      }
+      if (texture) {
+        // eslint-disable-next-line require-atomic-updates
+        data[tokenType].texture.src = await this.importImage(data[tokenType].texture.src);
+      }
     }
 
-    return [data, totalCount, currentCount];
+    return data;
   }
 
   async _importFile(type, overwriteIds = []) {
@@ -811,116 +957,18 @@ export default class AdventureMunch extends FormApplication {
 
     // eslint-disable-next-line complexity
     await Helpers.asyncForEach(dataFiles, async (file) => {
-      const rawdata = await this.zip.file(file.name).async("text");
-      let data = JSON.parse(rawdata);
+      const rawData = await this.zip.file(file.name).async("text");
+      let data = JSON.parse(rawData);
       let needRevisit = false;
 
       // let pattern = /(\@[a-z]*)(\[)([a-z0-9]*|[a-z0-9\.]*)(\])/gmi
-      if (rawdata.match(this.pattern) || rawdata.match(this.altpattern)) {
-        needRevisit = true;
-      }
+      if (rawData.match(this.pattern) || rawData.match(this.altpattern)) needRevisit = true;
 
-      if (data.img) {
-        // eslint-disable-next-line require-atomic-updates
-        data.img = await this.importImage(data.img);
-      }
-      if (data.thumb) {
-        // eslint-disable-next-line require-atomic-updates
-        data.thumb = await this.importImage(data.thumb);
-      }
-      if (data?.token?.img) {
-        // eslint-disable-next-line require-atomic-updates
-        [data, totalCount, currentCount] = await this._importTokenImage(
-          "token",
-          data,
-          totalCount,
-          currentCount,
-          importType
-        );
-      }
-      if (data?.prototypeToken?.img) {
-        // eslint-disable-next-line require-atomic-updates
-        [data, totalCount, currentCount] = await this._importTokenImage(
-          "prototypeToken",
-          data,
-          totalCount,
-          currentCount,
-          importType
-        );
-      }
+      // eslint-disable-next-line require-atomic-updates
+      data = await this._loadDocumentAssets(data, importType);
 
-      if (data?.items?.length) {
-        await Helpers.asyncForEach(data.items, async (item) => {
-          if (item.img) {
-            // eslint-disable-next-line require-atomic-updates
-            item.img = await this.importImage(item.img);
-          }
-        });
-      }
+      if (data.flags.ddb.needRevisit) needRevisit = true;
 
-      if (data?.pages?.length) {
-        await Helpers.asyncForEach(data.pages, async (page) => {
-          if (page.src) {
-            // eslint-disable-next-line require-atomic-updates
-            page.src = await this.importImage(page.src);
-          }
-        });
-      }
-
-      if (importType === "Scene") {
-        if (data.tokens) {
-          await Helpers.generateTokenActors(data);
-        }
-        if (data.flags["perfect-vision"] && Array.isArray(data.flags["perfect-vision"])) {
-          data.flags["perfect-vision"] = {};
-        }
-      } else if (importType === "Playlist") {
-        await Helpers.asyncForEach(data.sounds, async (sound) => {
-          if (sound.path) {
-            // eslint-disable-next-line require-atomic-updates
-            sound.path = await this.importImage(sound.path);
-          }
-        });
-      } else if (importType === "RollTable") {
-        await Helpers.asyncForEach(data.results, async (result) => {
-          if (result.img) {
-            // eslint-disable-next-line require-atomic-updates
-            result.img = await this.importImage(result.img);
-          }
-          if (result.resultId) {
-            needRevisit = true;
-          }
-          logger.debug(`Updating DDB links for ${data.name}`);
-          // eslint-disable-next-line require-atomic-updates
-          data.text = Helpers.foundryCompendiumReplace(data.text, {
-            journalWorldActors: this.journalWorldActors,
-            actorData: this.adventure.required?.monsterData ?? [],
-          });
-        });
-      } else if (importType === "JournalEntry" && data.pages) {
-        await Helpers.asyncForEach(data.pages, async (page) => {
-          if (page.text.content) {
-            const journalImages = Helpers.reMatchAll(
-              /(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/,
-              page.text.content
-            );
-            if (journalImages) {
-              logger.debug(`Updating Image links for ${page.name}`);
-              await Helpers.asyncForEach(journalImages, async (result) => {
-                const path = await this.importImage(result[2]);
-                page.text.content = page.text.content.replace(result[0], `${result[1]}="${path}"`);
-              });
-            }
-            logger.debug(`Updating DDB links for ${page.name}`);
-            page.text.content = Helpers.foundryCompendiumReplace(page.text.content, {
-              journalWorldActors: this.journalWorldActors,
-              actorData: this.adventure.required?.monsterData ?? [],
-            });
-          }
-        });
-      }
-
-      data.flags.importid = data._id;
       setProperty(data.flags, "ddbimporter.version", CONFIG.DDBI.version);
 
       if (importType !== "Playlist" && importType !== "Compendium") {

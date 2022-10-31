@@ -51,24 +51,6 @@ export default class Helpers {
   }
 
   /**
-   * Attempts to find a compendium pack by name, if not found, create a new one based on item type
-   * @param  {string} type - Type of compendium
-   * @param  {string} name - Name of compendium
-   * @returns {object} - Compendium pack
-   */
-  static async getCompendiumPack(type, name) {
-    let pack = game.packs.find((p) => {
-      return p.metadata.label === name;
-    });
-
-    if (!pack) {
-      pack = await Compendium.create({ entity: type, label: name }, { keepId: true });
-    }
-
-    return pack;
-  }
-
-  /**
    * Find an entity by the import key.
    * @param  {string} type - Entity type to search for
    * @param  {string} id - Entity Id
@@ -115,41 +97,6 @@ export default class Helpers {
         result[key] = this.diff(obj1[key], obj2[key]);
     }
     return result;
-  }
-
-  static async importFolder(folders, folderList) {
-    await this.asyncForEach(folders, async (f) => {
-      let folderData = f;
-
-      let newFolder = game.folders.find((folder) =>
-        (folder._id === folderData._id || folder.flags.importid === folderData._id)
-        && folder.type === folderData.type
-      );
-
-      if (!newFolder) {
-        if (folderData.parent === null) {
-          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.type];
-        } else {
-          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.parent];
-        }
-
-        newFolder = await Folder.create(folderData, { keepId: true });
-        logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
-      } else {
-        logger.debug(`Found existing folder ${newFolder._id} with data:`, folderData, newFolder);
-      }
-
-      // eslint-disable-next-line require-atomic-updates
-      CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.flags.importid] = newFolder._id;
-
-      let childFolders = folderList.filter((folder) => {
-        return folder.parent === folderData._id;
-      });
-
-      if (childFolders.length > 0) {
-        await this.importFolder(childFolders, folderList);
-      }
-    });
   }
 
   /**
