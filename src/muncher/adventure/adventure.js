@@ -19,6 +19,7 @@ export default class AdventureMunch extends FormApplication {
     this.zip = null;
     this.allMonsters = false;
     this.journalWorldActors = false;
+    this.importFilename = null;
   }
 
   /** @override */
@@ -215,7 +216,7 @@ export default class AdventureMunch extends FormApplication {
 
       if (newFolder) {
         if (!this.folderData.some((f) => f._id === newFolder._id)) {
-          this.folderData.push(newFolder);
+          this.folderData.push(newFolder.toObject());
         }
         logger.debug(`Found existing folder ${newFolder._id} with data:`, folderData, newFolder);
       } else {
@@ -227,7 +228,7 @@ export default class AdventureMunch extends FormApplication {
 
         // eslint-disable-next-line require-atomic-updates
         newFolder = await Folder.create(folderData, { temporary, keepId: true });
-        this.folderData.push(newFolder);
+        this.folderData.push(newFolder.toObject());
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
 
@@ -260,7 +261,8 @@ export default class AdventureMunch extends FormApplication {
   activateListeners(html) {
     super.activateListeners(html);
 
-    html.find(".dialog-button").on("click", this._dialogButton.bind(this));
+    html.find(".world-button").on("click", this._importAdventure.bind(this));
+    html.find(".compendium-button").on("click", this._importAdventure.bind(this));
   }
 
   /**
@@ -268,8 +270,6 @@ export default class AdventureMunch extends FormApplication {
    * adventure and imports them using DDB Importer.
    */
   async _checkForMissingData() {
-    await this._createFolders();
-
     if (this.adventure.required?.spells && this.adventure.required.spells.length > 0) {
       logger.debug(`${this.adventure.name} - spells required`, this.adventure.required.spells);
       AdventureMunch._progressNote(`Checking for missing spells from DDB`);
@@ -428,41 +428,56 @@ export default class AdventureMunch extends FormApplication {
     }
   }
 
-  async _dialogButton(event) {
+  async _loadZip() {
+    const form = document.querySelector(`form[class="ddb-importer-window"]`);
+    if (form.data.files.length) {
+      this.importFilename = form.data.files[0].name;
+      this.zip = await FileHelper.readBlobFromFile(form.data.files[0]).then(JSZip.loadAsync);
+    } else {
+      const selectedFile = document.querySelector(`[name="import-file"]`).value;
+      this.importFilename = selectedFile;
+      this.zip = await fetch(`/${selectedFile}`)
+        .then((response) => {
+          if (response.status === 200 || response.status === 0) {
+            return Promise.resolve(response.blob());
+          } else {
+            return Promise.reject(new Error(response.statusText));
+          }
+        })
+        .then(JSZip.loadAsync);
+    }
+  }
+
+  async _importAdventureToWorld() {
+    await this._importFiles();
+    await this._revisitItems();
+  }
+
+  async _importAdventureToCompendium() {
+    const data = {
+
+    };
+    await this._importAdventureCompendium(data);
+  }
+
+  async _importAdventure(event) {
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
     const a = event.currentTarget;
     const action = a.dataset.button;
 
-    if (action === "import") {
-      let importFilename;
+    if (action === "world" || action === "compendium") {
       try {
         $(".import-progress").toggleClass("import-hidden");
         $(".ddb-overlay").toggleClass("import-invalid");
 
-        const form = document.querySelector(`form[class="ddb-importer-window"]`);
         this.allMonsters = document.querySelector(`[name="all-monsters"]`).checked;
         game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world", this.allMonsters);
         this.journalWorldActors = document.querySelector(`[name="journal-world-actors"]`).checked;
         game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors", this.journalWorldActors);
 
-        if (form.data.files.length) {
-          importFilename = form.data.files[0].name;
-          this.zip = await FileHelper.readBlobFromFile(form.data.files[0]).then(JSZip.loadAsync);
-        } else {
-          const selectedFile = document.querySelector(`[name="import-file"]`).value;
-          importFilename = selectedFile;
-          this.zip = await fetch(`/${selectedFile}`)
-            .then((response) => {
-              if (response.status === 200 || response.status === 0) {
-                return Promise.resolve(response.blob());
-              } else {
-                return Promise.reject(new Error(response.statusText));
-              }
-            })
-            .then(JSZip.loadAsync);
-        }
+        await this._loadZip();
 
         this.adventure = JSON.parse(await this.zip.file("adventure.json").async("text"));
         logger.debug("Loaded adventure data", { adventure: this.adventure });
@@ -498,14 +513,15 @@ export default class AdventureMunch extends FormApplication {
           sceneTokens: {},
         };
 
+        await this._createFolders(action === "compendium");
         await this._checkForMissingData();
 
         // now we have imported all missing data, generate the lookup data
         CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig(true);
         logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
-        await this._importFiles();
-        await this._revisitItems();
+        if (action === "world") await this._importAdventureToWorld();
+        else if (action === "compendium") await this._importAdventureToCompendium();
 
         $(".ddb-overlay").toggleClass("import-invalid");
 
@@ -516,8 +532,8 @@ export default class AdventureMunch extends FormApplication {
         this.close();
       } catch (err) {
         $(".ddb-overlay").toggleClass("import-invalid");
-        ui.notifications.error(`There was an error importing ${importFilename}`);
-        logger.error(`Error importing file ${importFilename}`, err);
+        ui.notifications.error(`There was an error importing ${this.importFilename}`);
+        logger.error(`Error importing file ${this.importFilename}`, err);
         this.close();
       }
     }
@@ -637,10 +653,12 @@ export default class AdventureMunch extends FormApplication {
 
     await this._createFolders(true);
 
+    const actorData = await Helpers.importRemainingActors(this.adventure.required.monsterData, true);
+
     data.folders = this.folderData;
     data.combats = [];
     data.items = [];
-    data.actors = [];
+    data.actors = actorData.map((actor) => actor.toObject());
     data.journal = [];
     data.scenes = [];
     data.tables = [];
@@ -651,6 +669,24 @@ export default class AdventureMunch extends FormApplication {
     return data;
   }
   /* eslint-enable require-atomic-updates */
+
+
+  async _importAdventureCompendium(adventureData) {
+    const pack = CompendiumHelper.getCompendiumType("adventure");
+
+    const item = await this._enrichAdventure(adventureData);
+    const adventure = new Adventure(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
+
+    console.warn("Adventure!", {
+      pack,
+      item,
+      adventure
+    });
+
+    // handle proper adventure import here
+    // const compendiumItem = await pack.importDocument(adventure, { keepId: true, keepEmbeddedIds: true });
+    return adventure;
+  }
 
   async _importCompendium(folderName) {
     let totalCount = 0;
@@ -676,9 +712,7 @@ export default class AdventureMunch extends FormApplication {
 
         switch (data.info.entity) {
           case "Adventure":
-            // eslint-disable-next-line require-atomic-updates
-            item = await this._enrichAdventure(item);
-            obj = new Item(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
+            obj = this._importAdventureCompendium(item);
             break;
           case "Item":
             obj = new Item(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
@@ -704,7 +738,7 @@ export default class AdventureMunch extends FormApplication {
           // no default
         }
 
-        if (!entry && obj) {
+        if (!entry && obj && data.info.entity !== "Adventure") {
           const compendiumItem = await pack.importDocument(obj, { keepId: true, keepEmbeddedIds: true });
 
           if (JSON.stringify(item).match(this.pattern) || JSON.stringify(item).match(this.altpattern)) {

@@ -447,7 +447,7 @@ export default class Helpers {
    * @param {object} scene the scene to generate actors for
    * @returns {Promise<Array>} array of world actors
    */
-  static async importRemainingActors(data) {
+  static async importRemainingActors(data, temporary = false) {
     const results = [];
     const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
     const monsterIndex = await Helpers.getCompendiumIndex("monster");
@@ -467,7 +467,7 @@ export default class Helpers {
           logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id}`);
           try {
             const actorOverride = { _id: actorData.actorId, folder: actorData.folderId };
-            worldActor = await game.actors.importFromCompendium(monsterCompendium, monsterHit._id, actorOverride, { keepId: true });
+            worldActor = await game.actors.importFromCompendium(monsterCompendium, monsterHit._id, actorOverride, { keepId: true, keepEmbeddedIds: true, temporary });
           } catch (err) {
             logger.error(err);
             logger.warn(`Unable to import actor ${monsterHit.name} with id ${monsterHit._id} from DDB Compendium`);

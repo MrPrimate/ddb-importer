@@ -134,7 +134,8 @@
       "Macros": "Macros"
     },
     "adventure-import": {
-      "button": "Import Adventure",
+      "button": "Import Adventure to World",
+      "compendium-button": "Import Adventure to Adventure Compendium",
       "confirm": "Update selected"
     },
     "scenes": {

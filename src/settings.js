@@ -14,6 +14,7 @@ const COMPENDIUMS = [
   { title: "Spells", setting: "entity-spell-compendium", type: "Item" },
   { title: "Tables", setting: "entity-table-compendium", type: "RollTable" },
   { title: "Override", setting: "entity-override-compendium", type: "Item" },
+  { title: "Adventures", setting: "entity-adventure-compendium", type: "Adventure" },
 ];
 
 const SRD_COMPENDIUM_LOOKUPS = [
