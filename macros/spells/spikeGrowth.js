@@ -47,7 +47,7 @@ async function applySpikeGrowthDamage() {
 
   await new MidiQOL.DamageOnlyWorkflow(
     caster,
-    casterToken.data,
+    casterToken,
     damageRoll.total,
     "piercing",
     [target],

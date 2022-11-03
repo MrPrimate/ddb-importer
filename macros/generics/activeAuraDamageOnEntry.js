@@ -3,6 +3,8 @@ if(!game.modules.get("ActiveAuras")?.active) {
   return;
 }
 
+console.warn(args)
+
 const lastArg = args[args.length - 1];
 
 function getCantripDice(actor) {
@@ -63,7 +65,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
 
     await new MidiQOL.DamageOnlyWorkflow(
       caster,
-      casterToken.data,
+      casterToken,
       damageRoll.total,
       damageType,
       [targetToken],
@@ -113,12 +115,11 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   };
 
   const item = await fromUuid(lastArg.itemUuid);
-  // await item.update(dataTracker);
   await DAE.unsetFlag(item, `${safeName}Tracker`);
   await DAE.setFlag(item, `${safeName}Tracker`, dataTracker);
 
   const ddbEffectFlags = lastArg.item.flags.ddbimporter?.effect;
-  const newArgs = duplicate(args);
+
   if (ddbEffectFlags) {
     const sequencerFile = ddbEffectFlags.sequencerFile;
     if (sequencerFile) {
@@ -126,23 +127,23 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     }
     if (ddbEffectFlags.isCantrip) {
       const cantripDice = getCantripDice(lastArg.actor);
-      newArgs[0].spellLevel = cantripDice;
+      args[0].spellLevel = cantripDice;
       ddbEffectFlags.cantripDice = cantripDice;
-      let newEffects = newArgs[0].item.effects.map((effect) => {
+      let newEffects = args[0].item.effects.map((effect) => {
         effect.changes = effect.changes.map((change) => {
           change.value = change.value.replace("@cantripDice", cantripDice)
           return change;
         });
         return effect;
       });
-      newArgs[0].item.effects = duplicate(newEffects);
-      newArgs[0].itemData.effects = duplicate(newEffects);
+      args[0].item.effects = duplicate(newEffects);
+      args[0].itemData.effects = duplicate(newEffects);
     }
     const template = await fromUuid(lastArg.templateUuid);
     await template.update({"flags.effect": ddbEffectFlags});
   }
 
-  return await AAhelpers.applyTemplate(newArgs);
+  return await AAhelpers.applyTemplate(args);
 
 } else if (args[0] == "on") {
   const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");

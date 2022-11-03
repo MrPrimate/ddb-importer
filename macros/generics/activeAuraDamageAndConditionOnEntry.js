@@ -151,7 +151,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
 
   await new MidiQOL.DamageOnlyWorkflow(
     caster,
-    casterToken.data,
+    casterToken,
     damageRoll.total,
     damageType,
     [targetToken],
@@ -181,7 +181,6 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   await DAE.setFlag(item, `${safeName}Tracker`, dataTracker);
 
   const ddbEffectFlags = lastArg.item.flags.ddbimporter?.effect;
-  const newArgs = duplicate(args);
   if (ddbEffectFlags) {
     const sequencerFile = ddbEffectFlags.sequencerFile;
     if (sequencerFile) {
@@ -189,17 +188,17 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     }
     if (ddbEffectFlags.isCantrip) {
       const cantripDice = getCantripDice(lastArg.actor);
-      newArgs[0].spellLevel = cantripDice;
+      args[0].spellLevel = cantripDice;
       ddbEffectFlags.cantripDice = cantripDice;
-      let newEffects = newArgs[0].item.effects.map((effect) => {
+      let newEffects = args[0].item.effects.map((effect) => {
         effect.changes = effect.changes.map((change) => {
           change.value = change.value.replace("@cantripDice", cantripDice)
           return change;
         });
         return effect;
       });
-      newArgs[0].item.effects = duplicate(newEffects);
-      newArgs[0].itemData.effects = duplicate(newEffects);
+      args[0].item.effects = duplicate(newEffects);
+      args[0].itemData.effects = duplicate(newEffects);
     }
     const template = await fromUuid(lastArg.templateUuid);
     await template.update({"flags.effect": ddbEffectFlags});
@@ -219,7 +218,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   console.debug("ItemMacro: Pre-apply finised, applying effect to template")
 
-  return await AAhelpers.applyTemplate(newArgs);
+  return await AAhelpers.applyTemplate(args);
 
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   if (lastArg.item.flags.ddbimporter?.effect?.applyImmediate) {

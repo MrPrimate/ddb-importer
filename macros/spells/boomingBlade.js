@@ -99,7 +99,7 @@ if(args[0].tag === "OnUse"){
 
     await new MidiQOL.DamageOnlyWorkflow(
       caster,
-      casterToken.data,
+      casterToken,
       damageRoll.total,
       damageType,
       [targetToken],
