@@ -204,14 +204,14 @@ const CompendiumHelper = {
         };
       } else {
         // create a compendium for the user
-        await CompendiumCollection.createCompendium({
+        const newCompendium = await CompendiumCollection.createCompendium({
           type,
           label,
           name,
           package: packageType,
         });
         return {
-          compendium,
+          compendium: newCompendium,
           created: true
         };
       }
