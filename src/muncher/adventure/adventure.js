@@ -526,7 +526,9 @@ export default class AdventureMunch extends FormApplication {
         await this._checkForMissingData();
 
         // now we have imported all missing data, generate the lookup data
-        CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig(true);
+        const adventureConfig = await generateAdventureConfig(true);
+        console.warn("lookups", adventureConfig.lookups);
+        CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = adventureConfig;
         logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
         if (action === "world") await this._importAdventureToWorld();
@@ -536,14 +538,15 @@ export default class AdventureMunch extends FormApplication {
 
         this._renderCompleteDialog();
 
-        // eslint-disable-next-line require-atomic-updates
-        CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
         this.close();
       } catch (err) {
         $(".ddb-overlay").toggleClass("import-invalid");
         ui.notifications.error(`There was an error importing ${this.importFilename}`);
         logger.error(`Error importing file ${this.importFilename}`, err);
         this.close();
+      } finally {
+        // eslint-disable-next-line require-atomic-updates
+        CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
       }
     }
   }
@@ -666,9 +669,9 @@ export default class AdventureMunch extends FormApplication {
     const itemData = await Helpers.getDocuments("items", this.adventure.required.items, {}, true);
     const spellData = await Helpers.getDocuments("spells", this.adventure.required.spells, {}, true);
 
-    await this._importFile("JournalEntry", [], true);
-    await this._importFile("Scene", [], true);
-    await this._importFile("RollTable", [], true);
+    await this._importFile("journal", [], true);
+    await this._importFile("scene", [], true);
+    await this._importFile("table", [], true);
     // await this._importFile("Macro", [], true);
     // await this._importFile("Card", [], true);
     // await this._importFile("Playlist", [], true);
