@@ -15,7 +15,16 @@ export default class AdventureMunch extends FormApplication {
     this._importPathData = DirectoryPicker.parse(importPathData);
     this.adventure = null;
     this.folders = null;
-    this.folderData = [];
+    this.temporary = {
+      folders: [],
+      scenes: [],
+      journals: [],
+      actors: [],
+      items: [],
+      tables: [],
+      playlists: [],
+      macros: [],
+    };
     this.zip = null;
     this.allMonsters = false;
     this.journalWorldActors = false;
@@ -215,8 +224,8 @@ export default class AdventureMunch extends FormApplication {
       );
 
       if (newFolder) {
-        if (!this.folderData.some((f) => f._id === newFolder._id)) {
-          this.folderData.push(newFolder.toObject());
+        if (!this.temporary.folders.some((f) => f._id === newFolder._id)) {
+          this.temporary.folders.push(newFolder.toObject());
         }
         logger.debug(`Found existing folder ${newFolder._id} with data:`, folderData, newFolder);
       } else {
@@ -228,7 +237,7 @@ export default class AdventureMunch extends FormApplication {
 
         // eslint-disable-next-line require-atomic-updates
         newFolder = await Folder.create(folderData, { temporary, keepId: true });
-        this.folderData.push(newFolder.toObject());
+        this.temporary.folders.push(newFolder.toObject());
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
 
@@ -649,24 +658,39 @@ export default class AdventureMunch extends FormApplication {
     data.img = await this.importImage("assets/images/cover.jpg");
     data.name = this.adventure.name;
     data.description = this.adventure.description;
-    setProperty(data, "flags.ddbimporter.adventure", this.adventure.required);
+    setProperty(data, "flags.ddbimporter.adventure.required", this.adventure.required);
 
     await this._createFolders(true);
 
     const actorData = await Helpers.importRemainingActors(this.adventure.required.monsterData, true);
+    const itemData = await Helpers.getDocuments("items", this.adventure.required.items, {}, true);
+    const spellData = await Helpers.getDocuments("spells", this.adventure.required.spells, {}, true);
 
-    data.folders = this.folderData;
+    await this._importFile("JournalEntry", [], true);
+    await this._importFile("Scene", [], true);
+    await this._importFile("RollTable", [], true);
+    // await this._importFile("Macro", [], true);
+    // await this._importFile("Card", [], true);
+    // await this._importFile("Playlist", [], true);
+    // await this._importFile("Combat", [], true);
+    // await this._importFile("Actor", [], true);
+    // await this._importFile("Item", [], true);
+
+    data.folders = this.temporary.folders;
     data.combats = [];
-    data.items = [];
-    data.actors = actorData.map((actor) => actor.toObject());
-    data.journal = [];
-    data.scenes = [];
-    data.tables = [];
+    data.items = itemData.concat(spellData).map((doc) => doc.toObject());
+    data.actors = actorData.map((doc) => doc.toObject());
+    data.journal = this.temporary.journals.map((doc) => doc.toObject());
+    data.scenes = this.temporary.actors.map((doc) => doc.toObject());
+    data.tables = this.temporary.tables.map((doc) => doc.toObject());
     data.macros = [];
     data.cards = [];
     data.playlists = [];
 
+    setProperty(data, "flags.ddbimporter.adventure.revisitUuids", this._itemsToRevisit);
+
     return data;
+    // on import must set this._itemsToRevisit and then _revisitItems()
   }
   /* eslint-enable require-atomic-updates */
 
@@ -680,7 +704,8 @@ export default class AdventureMunch extends FormApplication {
     console.warn("Adventure!", {
       pack,
       item,
-      adventure
+      adventure,
+      temp: this.temporary,
     });
 
     // handle proper adventure import here
@@ -754,8 +779,8 @@ export default class AdventureMunch extends FormApplication {
   }
 
   // import a scene file
-  async _importRenderedSceneFile(typeName, data, needRevisit, overwriteIds, overwriteEntity) {
-    if (!Helpers.findEntityByImportId("scenes", data._id) || overwriteEntity) {
+  async _importRenderedSceneFile(data, overwriteEntity, temporary) {
+    if (!Helpers.findEntityByImportId("scenes", data._id) || overwriteEntity || temporary) {
       await Helpers.asyncForEach(data.tokens, async (token) => {
         // eslint-disable-next-line require-atomic-updates
         if (token.img) token.img = await this.importImage(token.img);
@@ -781,63 +806,61 @@ export default class AdventureMunch extends FormApplication {
       });
 
       if (overwriteEntity) await Scene.deleteDocuments([data._id]);
-      const scene = await Scene.create(data, { keepId: true });
+      const scene = await Scene.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
       this._itemsToRevisit.push(`Scene.${scene.id}`);
+      if (temporary) this.temporary.scenes.push(scene);
     }
   }
 
-  async _importRenderedFile(typeName, data, needRevisit, overwriteIds) {
+  // eslint-disable-next-line complexity
+  async _importRenderedFile(typeName, data, needRevisit, overwriteIds, temporary) {
     const overwriteEntity = overwriteIds.includes(data._id);
     switch (typeName) {
       case "Scene": {
-        await this._importRenderedSceneFile(typeName, data, needRevisit, overwriteIds, overwriteEntity);
+        await this._importRenderedSceneFile(data, overwriteEntity, temporary);
         break;
       }
       case "Actor":
         if (!Helpers.findEntityByImportId("actors", data._id)) {
-          let actor = await Actor.create(data, { keepId: true });
-          await actor.update({ [`data.token.actorId`]: actor.id });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`Actor.${actor.id}`);
-          }
+          let actor = await Actor.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          await actor.update({ [`prototypeToken.actorId`]: actor.id });
+          if (needRevisit) this._itemsToRevisit.push(`Actor.${actor.id}`);
+          if (temporary) this.temporary.actors.push(actor);
         }
         break;
       case "Item":
         if (!Helpers.findEntityByImportId("items", data._id)) {
-          let item = await Item.create(data, { keepId: true });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`Item.${item.id}`);
-          }
+          let item = await Item.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          if (needRevisit) this._itemsToRevisit.push(`Item.${item.id}`);
+          if (temporary) this.temporary.items.push(item);
         }
         break;
       case "JournalEntry":
         if (!Helpers.findEntityByImportId("journal", data._id)) {
-          let journal = await JournalEntry.create(data, { keepId: true });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
-          }
+          let journal = await JournalEntry.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
+          if (temporary) this.temporary.journals.push(journal);
         }
         break;
       case "RollTable":
         if (!Helpers.findEntityByImportId("tables", data._id)) {
-          let rolltable = await RollTable.create(data, { keepId: true });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
-          }
+          let rolltable = await RollTable.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
+          if (temporary) this.temporary.tables.push(rolltable);
         }
         break;
       case "Playlist":
         if (!Helpers.findEntityByImportId("playlists", data._id)) {
           data.name = `${this.adventure.name}.${data.name}`;
-          await Playlist.create(data, { keepId: true });
+          let playlist = await Playlist.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          if (temporary) this.temporary.playlists.push(playlist);
         }
         break;
       case "Macro":
         if (!Helpers.findEntityByImportId("macros", data._id)) {
-          let macro = await Macro.create(data, { keepId: true });
-          if (needRevisit) {
-            this._itemsToRevisit.push(`Macro.${macro.id}`);
-          }
+          let macro = await Macro.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          if (needRevisit) this._itemsToRevisit.push(`Macro.${macro.id}`);
+          if (temporary) this.temporary.macros.push(macro);
         }
         break;
       // no default
@@ -976,7 +999,7 @@ export default class AdventureMunch extends FormApplication {
     return data;
   }
 
-  async _importFile(type, overwriteIds = []) {
+  async _importFile(type, overwriteIds = [], temporary = false) {
     let totalCount = 0;
     let currentCount = 0;
 
@@ -1025,7 +1048,7 @@ export default class AdventureMunch extends FormApplication {
         }
       }
 
-      await this._importRenderedFile(importType, data, needRevisit, overwriteIds);
+      await this._importRenderedFile(importType, data, needRevisit, overwriteIds, temporary);
 
       currentCount += 1;
       AdventureMunch._updateProgress(totalCount, currentCount, importType);

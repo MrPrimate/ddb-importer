@@ -298,6 +298,51 @@ export default class Helpers {
   }
 
   /**
+   * Get documents for ids from compendium
+   * @param {string} type compendium type
+   * @param {Array} ids array of ddb ids
+   * @param {boolean} temporary create the items in the world?
+   * @returns {Promise<Array>} array of world actors
+   */
+  static async getDocuments(type, ids, overrides = {}, temporary = false) {
+    const compendium = CompendiumHelper.getCompendiumType(type);
+    const index = await Helpers.getCompendiumIndex(type);
+    const ddbIds = ids.map((num) => {
+      return String(num);
+    });
+
+    return new Promise((resolve) => {
+      const documents = index
+        .filter((idx) => {
+          switch (type) {
+            case "monster":
+              return ddbIds.includes(String(getProperty(idx, "flags.ddbimporter.id")));
+            case "spell":
+            case "item":
+              return ddbIds.includes(String(getProperty(idx, "flags.ddbimporter.definitionId")));
+            default:
+              return false;
+          }
+        })
+        .map((i) => {
+          switch (type) {
+            case "monster":
+              return game.actors.importFromCompendium(compendium, i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true });
+            case "spell":
+            case "item":
+              return game.items.importFromCompendium(compendium, i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true });
+            default:
+              // this should never happen
+              return undefined;
+          }
+
+        });
+      logger.debug(`${type} documents loaded`, documents);
+      resolve(documents);
+    });
+  }
+
+  /**
    * Replaced ddb links with compendium or world links
    * @param {Document} doc HTML document to act on
    * @param {Object} options provide journalWorldActors and actorData if linking to world actors
@@ -443,8 +488,9 @@ export default class Helpers {
   }
 
   /**
-   * Description
-   * @param {object} scene the scene to generate actors for
+   * Import actors, matching up import ids and actor ids for scene token linking
+   * @param {object} data array of actor data objects
+   * @param {boolean} temporary create the items in the world?
    * @returns {Promise<Array>} array of world actors
    */
   static async importRemainingActors(data, temporary = false) {
