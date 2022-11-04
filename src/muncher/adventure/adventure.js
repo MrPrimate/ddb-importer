@@ -301,7 +301,7 @@ export default class AdventureMunch extends FormApplication {
     ) {
       logger.debug(`${this.adventure.name} - Importing Remaining Actors`);
       AdventureMunch._progressNote(`Checking for missing world actors (${this.adventure.required.monsterData}) from compendium...`);
-      await Helpers.importRemainingActors(this.adventure.required.monsterData);
+      await this.importRemainingActors(this.adventure.required.monsterData);
     }
     logger.debug("Missing data check complete");
   }
@@ -463,10 +463,8 @@ export default class AdventureMunch extends FormApplication {
   }
 
   async _importAdventureToCompendium() {
-    const data = {
-
-    };
-    await this._importAdventureCompendium(data);
+    const adventureData = await this._createAdventure();
+    await this._importAdventureCompendium(adventureData);
   }
 
   async _importAdventure(event) {
@@ -527,7 +525,6 @@ export default class AdventureMunch extends FormApplication {
 
         // now we have imported all missing data, generate the lookup data
         const adventureConfig = await generateAdventureConfig(true);
-        console.warn("lookups", adventureConfig.lookups);
         CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = adventureConfig;
         logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
@@ -551,7 +548,120 @@ export default class AdventureMunch extends FormApplication {
     }
   }
 
-  async _loadDocumentAssets(data, importType) {
+  /**
+   * Import actors from compendium into world
+   * @param {Array<Objects>} neededActors array of needed actors
+   * @returns {Promise<Array>} array of world actors
+   */
+  async ensureWorldActors(neededActors, temporary) {
+    logger.debug("Trying to import actors from compendium", neededActors);
+    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
+    const results = [];
+    await Helpers.asyncForEach(neededActors, async (actor) => {
+      let worldActor = temporary
+        ? this.temporary.actors.find((a) => a._id === actor.actorId)
+        : game.actors.get(actor.actorId);
+      if (!worldActor) {
+        logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
+        try {
+          worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, { keepId: true, keepEmbeddedIds: true, temporary });
+        } catch (err) {
+          logger.error(err);
+          logger.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
+          logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${actor.compendiumId}", { _id: "${actor.actorId}", folder: "${actor.folderId}" }, { keepId: true });`);
+        }
+      }
+      if (worldActor) results.push(worldActor);
+      if (temporary && !this.temporary.actors.some((a) => a._id === actor.actorId)) {
+        this.temporary.actors.push(worldActor);
+      }
+    });
+    logger.debug("Actors transferred from compendium to world.", results);
+    return results;
+  }
+
+  static async linkDDBActors(tokens) {
+    const linkedExistingTokens = await Helpers.linkExistingActorTokens(tokens);
+    const newTokens = linkedExistingTokens
+      .filter((token) => token.flags.ddbActorFlags?.id && token.flags.compendiumActorId);
+
+    return Promise.all(newTokens);
+  }
+
+  /**
+   * Import actors, matching up import ids and actor ids for scene token linking
+   * @param {object} data array of actor data objects
+   * @param {boolean} temporary create the items in the world?
+   * @returns {Promise<Array>} array of world actors
+   */
+  async importRemainingActors(data, temporary = false) {
+    const results = [];
+    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
+    const monsterIndex = await Helpers.getCompendiumIndex("monster");
+
+    logger.debug("Checking for the following actors in world", data);
+    await Helpers.asyncForEach(data, async (actorData) => {
+      logger.debug(`Checking for ${actorData.ddbId}`, actorData);
+      let worldActor = game.actors.get(actorData.actorId);
+
+      if (worldActor) {
+        logger.debug(`Actor found for ${actorData.actorId}, with name ${worldActor.name}`);
+      } else {
+        const monsterHit = monsterIndex.find((monster) =>
+          monster.flags?.ddbimporter?.id && monster.flags.ddbimporter.id == actorData.ddbId
+        );
+        if (monsterHit) {
+          logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id} (temporary? ${temporary})`);
+          try {
+            const actorOverride = { _id: actorData.actorId, folder: actorData.folderId };
+            // eslint-disable-next-line require-atomic-updates
+            worldActor = await game.actors.importFromCompendium(monsterCompendium, monsterHit._id, actorOverride, { keepId: true, keepEmbeddedIds: true, temporary });
+          } catch (err) {
+            logger.error(err);
+            logger.warn(`Unable to import actor ${monsterHit.name} with id ${monsterHit._id} from DDB Compendium`);
+            logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${monsterHit._id}", { _id: "${actorData.actorId}", folder: "${actorData.folderId}" }, { keepId: true });`);
+          }
+        } else {
+          logger.error("Actor not found in compendium", actorData);
+        }
+      }
+      if (worldActor) results.push(worldActor);
+      if (worldActor && temporary && !this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
+        this.temporary.actors.push(worldActor);
+      }
+    });
+    return results;
+  }
+
+  /**
+   * Generates actors for tokens on a scene
+   * @param {object} scene the scene to generate actors for
+   * @returns {Promise<Array>} array of world actors
+   */
+  async generateTokenActors(scene, temporary) {
+    logger.debug(`Token Actor generation for ${scene.name} starting`);
+    const tokens = await AdventureMunch.linkDDBActors(scene.tokens);
+    const neededActors = tokens
+      .map((token) => {
+        return {
+          name: token.name,
+          ddbId: token.flags.ddbActorFlags.id,
+          actorId: token.actorId,
+          compendiumId: token.flags.compendiumActorId,
+          folderId: token.flags.actorFolderId
+        };
+      })
+      .filter((obj, pos, arr) => {
+        // we only need to create 1 actor per actorId
+        return arr.map((mapObj) => mapObj["actorId"]).indexOf(obj["actorId"]) === pos;
+      });
+
+    const results = await this.ensureWorldActors(neededActors, temporary);
+    logger.debug(`Token Actor generation for ${scene.name} complete`, results);
+    return results;
+  }
+
+  async _loadDocumentAssets(data, importType, temporary = false) {
 
     data.flags.importid = data._id;
 
@@ -600,7 +710,7 @@ export default class AdventureMunch extends FormApplication {
 
     if (importType === "Scene") {
       if (data.tokens) {
-        await Helpers.generateTokenActors(data);
+        await this.generateTokenActors(data, temporary);
       }
       if (data.flags["perfect-vision"] && Array.isArray(data.flags["perfect-vision"])) {
         data.flags["perfect-vision"] = {};
@@ -655,17 +765,10 @@ export default class AdventureMunch extends FormApplication {
 
   }
 
-  /* eslint-disable require-atomic-updates */
-  async _enrichAdventure(data) {
 
-    data.img = await this.importImage("assets/images/cover.jpg");
-    data.name = this.adventure.name;
-    data.description = this.adventure.description;
-    setProperty(data, "flags.ddbimporter.adventure.required", this.adventure.required);
-
-    await this._createFolders(true);
-
-    const actorData = await Helpers.importRemainingActors(this.adventure.required.monsterData, true);
+  async _createAdventure() {
+    logger.debug("Packing up adventure");
+    if (this.allMonsters) await this.importRemainingActors(this.adventure.required.monsterData, true);
     const itemData = await Helpers.getDocuments("items", this.adventure.required.items, {}, true);
     const spellData = await Helpers.getDocuments("spells", this.adventure.required.spells, {}, true);
 
@@ -679,41 +782,69 @@ export default class AdventureMunch extends FormApplication {
     // await this._importFile("Actor", [], true);
     // await this._importFile("Item", [], true);
 
-    data.folders = this.temporary.folders;
-    data.combats = [];
-    data.items = itemData.concat(spellData).map((doc) => doc.toObject());
-    data.actors = actorData.map((doc) => doc.toObject());
-    data.journal = this.temporary.journals.map((doc) => doc.toObject());
-    data.scenes = this.temporary.actors.map((doc) => doc.toObject());
-    data.tables = this.temporary.tables.map((doc) => doc.toObject());
-    data.macros = [];
-    data.cards = [];
-    data.playlists = [];
+    const image = await this.importImage("assets/images/cover.jpg");
 
-    setProperty(data, "flags.ddbimporter.adventure.revisitUuids", this._itemsToRevisit);
+    const data = {
+      img: image,
+      name: this.adventure.name,
+      description: this.adventure.description,
+      folders: this.temporary.folders,
+      combats: [],
+      items: itemData.concat(spellData).map((doc) => doc.toObject()),
+      // actors: actorData.map((doc) => doc.toObject()),
+      actors: this.temporary.actors.map((doc) => doc.toObject()),
+      journal: this.temporary.journals.map((doc) => doc.toObject()),
+      scenes: this.temporary.scenes.map((doc) => doc.toObject()),
+      tables: this.temporary.tables.map((doc) => doc.toObject()),
+      macros: [],
+      cards: [],
+      playlists: [],
+
+      flags: {
+        ddbimporter: {
+          adventure: {
+            required: this.adventure.required,
+            revisitUuids: this._itemsToRevisit,
+          },
+        },
+      },
+    };
 
     return data;
     // on import must set this._itemsToRevisit and then _revisitItems()
   }
-  /* eslint-enable require-atomic-updates */
 
 
   async _importAdventureCompendium(adventureData) {
     const pack = CompendiumHelper.getCompendiumType("adventure");
+    const existingAdventure = pack.index.find((i) => i.name === adventureData.name);
+    if (existingAdventure) adventureData._id = existingAdventure._id;
+    const nadventure = new Adventure(adventureData, { temporary: true, keepId: true, keepEmbeddedIds: true });
 
-    const item = await this._enrichAdventure(adventureData);
-    const adventure = new Adventure(item, { temporary: true, keepId: true, keepEmbeddedIds: true });
+    let adventure;
+    if (existingAdventure) {
+      adventure = await existingAdventure.update(adventureData, { diff: false, recursive: false });
+      ui.notifications.info(game.i18n.format("ADVENTURE.UpdateSuccess", { name: adventureData.name }));
+    } else {
+      adventure = await Adventure.createDocuments([adventureData], {
+        pack: pack.metadata.id,
+        keepId: true,
+        keepEmbeddedIds: true
+      });
+      ui.notifications.info(game.i18n.format("ADVENTURE.CreateSuccess", { name: adventureData.name }));
+    }
 
     console.warn("Adventure!", {
       pack,
-      item,
+      item: adventureData,
       adventure,
+      nadventure,
       temp: this.temporary,
     });
 
-    // handle proper adventure import here
+
     // const compendiumItem = await pack.importDocument(adventure, { keepId: true, keepEmbeddedIds: true });
-    return adventure;
+
   }
 
   async _importCompendium(folderName) {
@@ -736,7 +867,7 @@ export default class AdventureMunch extends FormApplication {
         let entry = pack.index.find((e) => e.name === item.name);
 
         // eslint-disable-next-line require-atomic-updates
-        item = await this._loadDocumentAssets(item);
+        item = await this._loadDocumentAssets(item, data.info.entity, true);
 
         switch (data.info.entity) {
           case "Adventure":
@@ -1025,7 +1156,7 @@ export default class AdventureMunch extends FormApplication {
       if (rawData.match(this.pattern) || rawData.match(this.altpattern)) needRevisit = true;
 
       // eslint-disable-next-line require-atomic-updates
-      data = await this._loadDocumentAssets(data, importType);
+      data = await this._loadDocumentAssets(data, importType, temporary);
 
       if (data.flags.ddb.needRevisit) needRevisit = true;
 
