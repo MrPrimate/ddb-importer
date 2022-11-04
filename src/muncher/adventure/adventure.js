@@ -25,6 +25,9 @@ export default class AdventureMunch extends FormApplication {
       playlists: [],
       macros: [],
     };
+    this.remove = {
+      folderIds: [],
+    };
     this.zip = null;
     this.allMonsters = false;
     this.journalWorldActors = false;
@@ -236,8 +239,9 @@ export default class AdventureMunch extends FormApplication {
         }
 
         // eslint-disable-next-line require-atomic-updates
-        newFolder = await Folder.create(folderData, { temporary, keepId: true });
+        newFolder = await Folder.create(folderData, { keepId: true });
         this.temporary.folders.push(newFolder.toObject());
+        if (this.temporary) this.remove.folderIds.push(newFolder._id);
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
 
@@ -363,7 +367,7 @@ export default class AdventureMunch extends FormApplication {
    * Some items need linking up or tweaking post import.
    * @returns {Promise<>}
    */
-  async _revisitItems() {
+  async _revisitItems(temporary = false) {
     try {
       if (this._itemsToRevisit.length > 0) {
         let totalCount = this._itemsToRevisit.length;
@@ -782,7 +786,12 @@ export default class AdventureMunch extends FormApplication {
     // await this._importFile("Actor", [], true);
     // await this._importFile("Item", [], true);
 
-    const image = await this.importImage("assets/images/cover.jpg");
+    const ddbSource = CONFIG.DDB.sources.find((source) => source.description === this.adventure.name);
+    const image = ddbSource?.avatarURL
+      ? ddbSource.avatarURL
+      : await this.importImage("assets/images/cover.jpg");
+
+    this._revisitItems();
 
     const data = {
       img: image,
@@ -816,33 +825,39 @@ export default class AdventureMunch extends FormApplication {
 
 
   async _importAdventureCompendium(adventureData) {
-    const pack = CompendiumHelper.getCompendiumType("adventure");
-    const existingAdventure = pack.index.find((i) => i.name === adventureData.name);
-    if (existingAdventure) adventureData._id = existingAdventure._id;
-    const nadventure = new Adventure(adventureData, { temporary: true, keepId: true, keepEmbeddedIds: true });
+    try {
+      const pack = CompendiumHelper.getCompendiumType("adventure");
+      const existingAdventure = pack.index.find((i) => i.name === adventureData.name);
+      // if (existingAdventure) adventureData._id = existingAdventure._id;
 
-    let adventure;
-    if (existingAdventure) {
-      adventure = await existingAdventure.update(adventureData, { diff: false, recursive: false });
-      ui.notifications.info(game.i18n.format("ADVENTURE.UpdateSuccess", { name: adventureData.name }));
-    } else {
+      let adventure;
+      if (existingAdventure) {
+        logger.debug("Deleting existing adventure", existingAdventure._id);
+        pack.delete(existingAdventure._id);
+      }
       adventure = await Adventure.createDocuments([adventureData], {
         pack: pack.metadata.id,
         keepId: true,
         keepEmbeddedIds: true
       });
       ui.notifications.info(game.i18n.format("ADVENTURE.CreateSuccess", { name: adventureData.name }));
+
+      console.warn("Adventure!", {
+        pack,
+        item: adventureData,
+        adventure,
+        temp: this.temporary,
+        thisAdventure: this.adventure,
+      });
+    } catch (err) {
+      logger.error("error building adventure", { err, this: this });
+      throw err;
+    } finally {
+      if (this.remove.folderIds.length > 0) {
+        logger.debug("Removing folders", this.remove.folderIds);
+        Folder.deleteDocuments(this.remove.folderIds.reverse());
+      }
     }
-
-    console.warn("Adventure!", {
-      pack,
-      item: adventureData,
-      adventure,
-      nadventure,
-      temp: this.temporary,
-    });
-
-
     // const compendiumItem = await pack.importDocument(adventure, { keepId: true, keepEmbeddedIds: true });
 
   }
