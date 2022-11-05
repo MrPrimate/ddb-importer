@@ -1,5 +1,13 @@
 [
   {
+    "name": "Create Spelljamming Helm",
+    "path": "icons/equipment/head/helm-spangen.webp"
+  },
+  {
+    "name": "Air Bubble",
+    "path": "icons/magic/water/bubbles-air-water-blue.webp"
+  },
+  {
     "name": "Abi-Dalzim's Horrid Wilting",
     "path": "icons/magic/air/fog-gas-smoke-dense-brown.webp"
   },

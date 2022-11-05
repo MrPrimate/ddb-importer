@@ -2,6 +2,7 @@
 
 * Suppress notifications from Items With Spells when updating a character.
 * Some active aura spells would not work, e.g. Cloudkill due to recursion bug with new midi arguments.
+* Some Spelljammer spell icon suggestions from @MaxPat#7936
 * You can now choose to import adventures into an Adventure Compendium rather than the world.
 
 # 3.1.22
