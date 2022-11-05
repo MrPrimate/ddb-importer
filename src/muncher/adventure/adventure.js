@@ -457,7 +457,11 @@ export default class AdventureMunch extends FormApplication {
                       const jsonTokenData = duplicate(tokenData);
                       const updateData = mergeObject(jsonTokenData, sceneToken);
                       logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
-                      await document.updateEmbeddedDocuments("Token", [updateData], { keepId: true, keepEmbeddedIds: true });
+                      if (this.importToAdventureCompendium) {
+                        await document.tokens.updateSource({ tokens: updateData.toObject() }, { keepId: true, keepEmbeddedIds: true });
+                      } else {
+                        await document.updateEmbeddedDocuments("Token", [updateData], { keepId: true, keepEmbeddedIds: true });
+                      }
                     } else {
                       deadTokenIds.push(token._id);
                     }
@@ -468,7 +472,14 @@ export default class AdventureMunch extends FormApplication {
                 // remove a token from the scene if we have not been able to link it
                 if (deadTokenIds.length > 0) {
                   logger.warn(`Removing ${scene.name} tokens with no world actors`, deadTokenIds);
-                  await document.deleteEmbeddedDocuments("Token", deadTokenIds);
+                  if (this.importToAdventureCompendium) {
+                    const updates = deadTokenIds.map((id) => {
+                      return { _id: id };
+                    });
+                    await document.tokens.updateSource({ tokens: updates }, { deleted: true });
+                  } else {
+                    await document.deleteEmbeddedDocuments("Token", deadTokenIds);
+                  }
                 }
 
                 if (!this.importToAdventureCompendium) {
