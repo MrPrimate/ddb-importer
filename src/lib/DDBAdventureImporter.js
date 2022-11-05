@@ -6,7 +6,6 @@ export class DDBAdventureImporter extends AdventureImporter {
   constructor(adventure, options) {
     super(adventure, options);
     this.options.classes.push(SETTINGS.ADVENTURE_CSS);
-    console.warn("DDB Adventure Importer Wrapper");
     this.importOptions = {};
   }
 

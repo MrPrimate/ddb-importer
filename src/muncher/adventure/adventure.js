@@ -919,13 +919,13 @@ export default class AdventureMunch extends FormApplication {
 
       }
 
-      console.warn("Adventure!", {
-        pack,
-        item: adventureData,
-        adventure,
-        temp: this.temporary,
-        thisAdventure: this.adventure,
-      });
+      // console.warn("Adventure!", {
+      //   pack,
+      //   item: adventureData,
+      //   adventure,
+      //   temp: this.temporary,
+      //   thisAdventure: this.adventure,
+      // });
       return adventure;
     } catch (err) {
       logger.error("error building adventure", { err, this: this });
