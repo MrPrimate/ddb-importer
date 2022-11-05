@@ -114,6 +114,8 @@ const SETTINGS = {
   SUPPORTED_FLAG_GROUPS,
   GAME_FOLDER_LOOKUPS,
   COMPENDIUM_REMOVE_FLAGS,
+  ADVENTURE_FLAG: "isDDBAdventure",
+  ADVENTURE_CSS: "ddbAdventure",
   DEFAULT_SETTINGS: {
     // these settigs are loaded during renderSidebarTab
     EARLY: {

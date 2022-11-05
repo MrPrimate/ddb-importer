@@ -839,11 +839,13 @@ export default class AdventureMunch extends FormApplication {
 
       flags: {
         ddbimporter: {
+          isDDBAdventure: true,
           adventure: {
             required: this.adventure.required,
             revisitUuids: this._itemsToRevisit,
           },
         },
+        core: { sheetClass: "ddb-importer.DDBAdventureImporter" },
       },
     };
 
@@ -856,19 +858,23 @@ export default class AdventureMunch extends FormApplication {
     try {
       const pack = CompendiumHelper.getCompendiumType("adventure");
       const existingAdventure = pack.index.find((i) => i.name === adventureData.name);
-      // if (existingAdventure) adventureData._id = existingAdventure._id;
 
       let adventure;
       if (existingAdventure) {
         logger.debug("Deleting existing adventure", existingAdventure._id);
-        pack.delete(existingAdventure._id);
+        adventureData._id = existingAdventure._id;
+        const loadedAdventure = await pack.getDocument(existingAdventure._id);
+        adventure = await loadedAdventure.update(adventureData, { diff: false, recursive: false });
+        ui.notifications.info(game.i18n.format("ADVENTURE.UpdateSuccess", { name: adventureData.name }));
+      } else {
+        adventure = await Adventure.createDocuments([adventureData], {
+          pack: pack.metadata.id,
+          keepId: true,
+          keepEmbeddedIds: true
+        });
+        ui.notifications.info(game.i18n.format("ADVENTURE.CreateSuccess", { name: adventureData.name }));
+
       }
-      adventure = await Adventure.createDocuments([adventureData], {
-        pack: pack.metadata.id,
-        keepId: true,
-        keepEmbeddedIds: true
-      });
-      ui.notifications.info(game.i18n.format("ADVENTURE.CreateSuccess", { name: adventureData.name }));
 
       console.warn("Adventure!", {
         pack,
@@ -1236,7 +1242,7 @@ export default class AdventureMunch extends FormApplication {
    */
   replaceLookupLinks(doc) {
     const lookups = this.lookups.adventureConfig.lookups;
-    const actorData = this.adventure.required?.monsterData ?? []
+    const actorData = this.adventure.required?.monsterData ?? [];
 
     for (const lookupKey in AdventureMunch.COMPENDIUM_MAP) {
       const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);

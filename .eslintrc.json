@@ -63,7 +63,9 @@
     "fetchJsonWithTimeout": true,
     "fetchWithTimeout": true,
     "dnd5eCustomSkills": true,
-    "Adventure": true
+    "Adventure": true,
+    "AdventureImporter": true,
+    "DocumentSheetConfig": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,
