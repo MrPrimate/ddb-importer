@@ -5,8 +5,31 @@ import { generateAdventureConfig } from "../adventure.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import SETTINGS from "../../settings.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import utils from "../../lib/utils.js";
 
 export default class AdventureMunch extends FormApplication {
+
+  static COMPENDIUM_MAP = {
+    "spells": "spells",
+    "magicitems": "items",
+    "weapons": "items",
+    "armor": "items",
+    "adventuring-gear": "items",
+    "monsters": "monsters",
+    "vehicles": "vehicles",
+  };
+
+  static DDB_MAP = {
+    "spells": "spells",
+    "magicitems": "magic-items",
+    "weapons": "equipment",
+    "armor": "equipment",
+    "adventuring-gear": "equipment",
+    "monsters": "monsters",
+    "vehicles": "vehicles",
+  };
+
+
   /** @override */
   constructor(object = {}, options = {}) {
     super(object, options);
@@ -32,6 +55,7 @@ export default class AdventureMunch extends FormApplication {
     this.allMonsters = false;
     this.journalWorldActors = false;
     this.importFilename = null;
+    this.importToAdventureCompendium = false;
   }
 
   /** @override */
@@ -217,7 +241,7 @@ export default class AdventureMunch extends FormApplication {
     };
   }
 
-  async importFolder(folders, folderList, temporary = false) {
+  async importFolder(folders, folderList) {
     await Helpers.asyncForEach(folders, async (f) => {
       let folderData = f;
 
@@ -233,27 +257,27 @@ export default class AdventureMunch extends FormApplication {
         logger.debug(`Found existing folder ${newFolder._id} with data:`, folderData, newFolder);
       } else {
         if (folderData.parent === null) {
-          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.type];
+          folderData.parent = this.lookups.folders[folderData.type];
         } else {
-          folderData.parent = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.parent];
+          folderData.parent = this.lookups.folders[folderData.parent];
         }
 
         // eslint-disable-next-line require-atomic-updates
         newFolder = await Folder.create(folderData, { keepId: true });
         this.temporary.folders.push(newFolder.toObject());
-        if (this.temporary) this.remove.folderIds.push(newFolder._id);
+        if (this.importToAdventureCompendium) this.remove.folderIds.push(newFolder._id);
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
 
       // eslint-disable-next-line require-atomic-updates
-      CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[folderData.flags.importid] = newFolder._id;
+      this.lookups.folders[folderData.flags.importid] = newFolder._id;
 
       let childFolders = folderList.filter((folder) => {
         return folder.parent === folderData._id;
       });
 
       if (childFolders.length > 0) {
-        await this.importFolder(childFolders, folderList, temporary);
+        await this.importFolder(childFolders, folderList);
       }
     });
   }
@@ -261,13 +285,12 @@ export default class AdventureMunch extends FormApplication {
   /**
    * Create missing folder structures in the world
    */
-  async _createFolders(temporary = false) {
-    CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
-    CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = null;
+  async _createFolders() {
+    this.lookups.folders["null"] = null;
 
     // the folder list could be out of order, we need to create all folders with parent null first
     const firstLevelFolders = this.folders.filter((folder) => folder.parent === null);
-    await this.importFolder(firstLevelFolders, this.folders, temporary);
+    await this.importFolder(firstLevelFolders, this.folders);
   }
 
   /** @override */
@@ -367,7 +390,7 @@ export default class AdventureMunch extends FormApplication {
    * Some items need linking up or tweaking post import.
    * @returns {Promise<>}
    */
-  async _revisitItems(temporary = false) {
+  async _revisitItems() {
     try {
       if (this._itemsToRevisit.length > 0) {
         let totalCount = this._itemsToRevisit.length;
@@ -467,8 +490,17 @@ export default class AdventureMunch extends FormApplication {
   }
 
   async _importAdventureToCompendium() {
-    const adventureData = await this._createAdventure();
-    await this._importAdventureCompendium(adventureData);
+    try {
+      const adventureData = await this._createAdventure();
+      await this._importAdventureCompendium(adventureData);
+    } finally {
+      if (this.remove.folderIds.length > 0) {
+        logger.debug("Removing folders", this.remove.folderIds);
+        const results = await Folder.deleteDocuments(this.remove.folderIds.reverse());
+        console.warn("Delete results", results);
+      }
+    }
+
   }
 
   async _importAdventure(event) {
@@ -517,20 +549,18 @@ export default class AdventureMunch extends FormApplication {
           );
         }
 
-        CONFIG.DDBI.ADVENTURE.TEMPORARY = {
+        this.lookups = {
           folders: {},
           import: {},
           actors: {},
           sceneTokens: {},
+          adventureConfig: await generateAdventureConfig(true),
         };
 
-        await this._createFolders(action === "compendium");
-        await this._checkForMissingData();
+        if (action === "compendium") this.importToAdventureCompendium = true;
 
-        // now we have imported all missing data, generate the lookup data
-        const adventureConfig = await generateAdventureConfig(true);
-        CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = adventureConfig;
-        logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
+        await this._createFolders();
+        await this._checkForMissingData();
 
         if (action === "world") await this._importAdventureToWorld();
         else if (action === "compendium") await this._importAdventureToCompendium();
@@ -547,7 +577,7 @@ export default class AdventureMunch extends FormApplication {
         this.close();
       } finally {
         // eslint-disable-next-line require-atomic-updates
-        CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
+        this.lookups = {};
       }
     }
   }
@@ -557,18 +587,19 @@ export default class AdventureMunch extends FormApplication {
    * @param {Array<Objects>} neededActors array of needed actors
    * @returns {Promise<Array>} array of world actors
    */
-  async ensureWorldActors(neededActors, temporary) {
+  async ensureWorldActors(neededActors) {
     logger.debug("Trying to import actors from compendium", neededActors);
     const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
     const results = [];
     await Helpers.asyncForEach(neededActors, async (actor) => {
-      let worldActor = temporary
+      let worldActor = this.importToAdventureCompendium
         ? this.temporary.actors.find((a) => a._id === actor.actorId)
         : game.actors.get(actor.actorId);
       if (!worldActor) {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
         try {
-          worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, { keepId: true, keepEmbeddedIds: true, temporary });
+          const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
+          worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, options);
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
@@ -576,7 +607,7 @@ export default class AdventureMunch extends FormApplication {
         }
       }
       if (worldActor) results.push(worldActor);
-      if (temporary && !this.temporary.actors.some((a) => a._id === actor.actorId)) {
+      if (this.importToAdventureCompendium && !this.temporary.actors.some((a) => a._id === actor.actorId)) {
         this.temporary.actors.push(worldActor);
       }
     });
@@ -598,7 +629,7 @@ export default class AdventureMunch extends FormApplication {
    * @param {boolean} temporary create the items in the world?
    * @returns {Promise<Array>} array of world actors
    */
-  async importRemainingActors(data, temporary = false) {
+  async importRemainingActors(data) {
     const results = [];
     const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
     const monsterIndex = await Helpers.getCompendiumIndex("monster");
@@ -606,7 +637,9 @@ export default class AdventureMunch extends FormApplication {
     logger.debug("Checking for the following actors in world", data);
     await Helpers.asyncForEach(data, async (actorData) => {
       logger.debug(`Checking for ${actorData.ddbId}`, actorData);
-      let worldActor = game.actors.get(actorData.actorId);
+      let worldActor = this.importToAdventureCompendium
+        ? this.temporary.actors.find((a) => a._id === actorData.actorId)
+        : game.actors.get(actorData.actorId);
 
       if (worldActor) {
         logger.debug(`Actor found for ${actorData.actorId}, with name ${worldActor.name}`);
@@ -615,11 +648,12 @@ export default class AdventureMunch extends FormApplication {
           monster.flags?.ddbimporter?.id && monster.flags.ddbimporter.id == actorData.ddbId
         );
         if (monsterHit) {
-          logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id} (temporary? ${temporary})`);
+          logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id} (temporary? ${this.importToAdventureCompendium})`);
           try {
             const actorOverride = { _id: actorData.actorId, folder: actorData.folderId };
+            const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
             // eslint-disable-next-line require-atomic-updates
-            worldActor = await game.actors.importFromCompendium(monsterCompendium, monsterHit._id, actorOverride, { keepId: true, keepEmbeddedIds: true, temporary });
+            worldActor = await game.actors.importFromCompendium(monsterCompendium, monsterHit._id, actorOverride, options);
           } catch (err) {
             logger.error(err);
             logger.warn(`Unable to import actor ${monsterHit.name} with id ${monsterHit._id} from DDB Compendium`);
@@ -630,7 +664,7 @@ export default class AdventureMunch extends FormApplication {
         }
       }
       if (worldActor) results.push(worldActor);
-      if (worldActor && temporary && !this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
+      if (worldActor && this.importToAdventureCompendium && !this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
         this.temporary.actors.push(worldActor);
       }
     });
@@ -642,7 +676,7 @@ export default class AdventureMunch extends FormApplication {
    * @param {object} scene the scene to generate actors for
    * @returns {Promise<Array>} array of world actors
    */
-  async generateTokenActors(scene, temporary) {
+  async generateTokenActors(scene) {
     logger.debug(`Token Actor generation for ${scene.name} starting`);
     const tokens = await AdventureMunch.linkDDBActors(scene.tokens);
     const neededActors = tokens
@@ -660,12 +694,12 @@ export default class AdventureMunch extends FormApplication {
         return arr.map((mapObj) => mapObj["actorId"]).indexOf(obj["actorId"]) === pos;
       });
 
-    const results = await this.ensureWorldActors(neededActors, temporary);
+    const results = await this.ensureWorldActors(neededActors);
     logger.debug(`Token Actor generation for ${scene.name} complete`, results);
     return results;
   }
 
-  async _loadDocumentAssets(data, importType, temporary = false) {
+  async _loadDocumentAssets(data, importType) {
 
     data.flags.importid = data._id;
 
@@ -714,7 +748,7 @@ export default class AdventureMunch extends FormApplication {
 
     if (importType === "Scene") {
       if (data.tokens) {
-        await this.generateTokenActors(data, temporary);
+        await this.generateTokenActors(data);
       }
       if (data.flags["perfect-vision"] && Array.isArray(data.flags["perfect-vision"])) {
         data.flags["perfect-vision"] = {};
@@ -737,10 +771,7 @@ export default class AdventureMunch extends FormApplication {
         }
         logger.debug(`Updating DDB links for ${data.name}`);
         // eslint-disable-next-line require-atomic-updates
-        data.text = Helpers.foundryCompendiumReplace(data.text, {
-          journalWorldActors: this.journalWorldActors,
-          actorData: this.adventure.required?.monsterData ?? [],
-        });
+        data.text = this.foundryCompendiumReplace(data.text);
       });
     } else if (importType === "JournalEntry" && data.pages) {
       await Helpers.asyncForEach(data.pages, async (page) => {
@@ -757,10 +788,7 @@ export default class AdventureMunch extends FormApplication {
             });
           }
           logger.debug(`Updating DDB links for ${page.name}`);
-          page.text.content = Helpers.foundryCompendiumReplace(page.text.content, {
-            journalWorldActors: this.journalWorldActors,
-            actorData: this.adventure.required?.monsterData ?? [],
-          });
+          page.text.content = this.foundryCompendiumReplace(page.text.content);
         }
       });
     }
@@ -791,7 +819,7 @@ export default class AdventureMunch extends FormApplication {
       ? ddbSource.avatarURL
       : await this.importImage("assets/images/cover.jpg");
 
-    this._revisitItems();
+    // this._revisitItems();
 
     const data = {
       img: image,
@@ -849,17 +877,11 @@ export default class AdventureMunch extends FormApplication {
         temp: this.temporary,
         thisAdventure: this.adventure,
       });
+      return adventure;
     } catch (err) {
       logger.error("error building adventure", { err, this: this });
       throw err;
-    } finally {
-      if (this.remove.folderIds.length > 0) {
-        logger.debug("Removing folders", this.remove.folderIds);
-        Folder.deleteDocuments(this.remove.folderIds.reverse());
-      }
     }
-    // const compendiumItem = await pack.importDocument(adventure, { keepId: true, keepEmbeddedIds: true });
-
   }
 
   async _importCompendium(folderName) {
@@ -928,8 +950,8 @@ export default class AdventureMunch extends FormApplication {
   }
 
   // import a scene file
-  async _importRenderedSceneFile(data, overwriteEntity, temporary) {
-    if (!Helpers.findEntityByImportId("scenes", data._id) || overwriteEntity || temporary) {
+  async _importRenderedSceneFile(data, overwriteEntity) {
+    if (!Helpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.importToAdventureCompendium) {
       await Helpers.asyncForEach(data.tokens, async (token) => {
         // eslint-disable-next-line require-atomic-updates
         if (token.img) token.img = await this.importImage(token.img);
@@ -955,61 +977,63 @@ export default class AdventureMunch extends FormApplication {
       });
 
       if (overwriteEntity) await Scene.deleteDocuments([data._id]);
-      const scene = await Scene.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+      const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
+      const scene = await Scene.create(data, options);
       this._itemsToRevisit.push(`Scene.${scene.id}`);
-      if (temporary) this.temporary.scenes.push(scene);
+      if (this.importToAdventureCompendium) this.temporary.scenes.push(scene);
     }
   }
 
   // eslint-disable-next-line complexity
-  async _importRenderedFile(typeName, data, needRevisit, overwriteIds, temporary) {
+  async _importRenderedFile(typeName, data, needRevisit, overwriteIds) {
     const overwriteEntity = overwriteIds.includes(data._id);
+    const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
     switch (typeName) {
       case "Scene": {
-        await this._importRenderedSceneFile(data, overwriteEntity, temporary);
+        await this._importRenderedSceneFile(data, overwriteEntity);
         break;
       }
       case "Actor":
         if (!Helpers.findEntityByImportId("actors", data._id)) {
-          let actor = await Actor.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          let actor = await Actor.create(data, options);
           await actor.update({ [`prototypeToken.actorId`]: actor.id });
           if (needRevisit) this._itemsToRevisit.push(`Actor.${actor.id}`);
-          if (temporary) this.temporary.actors.push(actor);
+          if (this.importToAdventureCompendium) this.temporary.actors.push(actor);
         }
         break;
       case "Item":
         if (!Helpers.findEntityByImportId("items", data._id)) {
-          let item = await Item.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          let item = await Item.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Item.${item.id}`);
-          if (temporary) this.temporary.items.push(item);
+          if (this.importToAdventureCompendium) this.temporary.items.push(item);
         }
         break;
       case "JournalEntry":
         if (!Helpers.findEntityByImportId("journal", data._id)) {
-          let journal = await JournalEntry.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          let journal = await JournalEntry.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
-          if (temporary) this.temporary.journals.push(journal);
+          if (this.importToAdventureCompendium) this.temporary.journals.push(journal);
         }
         break;
       case "RollTable":
         if (!Helpers.findEntityByImportId("tables", data._id)) {
-          let rolltable = await RollTable.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          let rolltable = await RollTable.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
-          if (temporary) this.temporary.tables.push(rolltable);
+          if (this.importToAdventureCompendium) this.temporary.tables.push(rolltable);
         }
         break;
       case "Playlist":
         if (!Helpers.findEntityByImportId("playlists", data._id)) {
           data.name = `${this.adventure.name}.${data.name}`;
-          let playlist = await Playlist.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
-          if (temporary) this.temporary.playlists.push(playlist);
+          let playlist = await Playlist.create(data, options);
+          if (this.importToAdventureCompendium) this.temporary.playlists.push(playlist);
         }
         break;
       case "Macro":
         if (!Helpers.findEntityByImportId("macros", data._id)) {
-          let macro = await Macro.create(data, { keepId: true, keepEmbeddedIds: true, temporary });
+          let macro = await Macro.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Macro.${macro.id}`);
-          if (temporary) this.temporary.macros.push(macro);
+          if (this.importToAdventureCompendium) this.temporary.macros.push(macro);
         }
         break;
       // no default
@@ -1148,7 +1172,7 @@ export default class AdventureMunch extends FormApplication {
     return data;
   }
 
-  async _importFile(type, overwriteIds = [], temporary = false) {
+  async _importFile(type, overwriteIds = []) {
     let totalCount = 0;
     let currentCount = 0;
 
@@ -1171,37 +1195,132 @@ export default class AdventureMunch extends FormApplication {
       if (rawData.match(this.pattern) || rawData.match(this.altpattern)) needRevisit = true;
 
       // eslint-disable-next-line require-atomic-updates
-      data = await this._loadDocumentAssets(data, importType, temporary);
+      data = await this._loadDocumentAssets(data, importType);
 
       if (data.flags.ddb.needRevisit) needRevisit = true;
 
       setProperty(data.flags, "ddbimporter.version", CONFIG.DDBI.version);
 
       if (importType !== "Playlist" && importType !== "Compendium") {
-        if (CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder]) {
+        if (this.lookups.folders[data.folder]) {
           logger.debug(
             `Adding data to subfolder importkey = ${data.folder}, folder = ${
-              CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder]
+              this.lookups.folders[data.folder]
             }`
           );
-          data.folder = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[data.folder];
+          data.folder = this.lookups.folders[data.folder];
         } else {
           logger.debug(
-            `Adding data to subfolder importkey = ${data.folder}, folder = ${CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"]}`
+            `Adding data to subfolder importkey = ${data.folder}, folder = ${this.lookups.folders["null"]}`
           );
           if (this.adventure?.options?.folders) {
-            data.folder = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"];
+            data.folder = this.lookups.folders["null"];
           } else {
-            data.folder = CONFIG.DDBI.ADVENTURE.TEMPORARY.folders[importType];
+            data.folder = this.lookups.folders[importType];
           }
         }
       }
 
-      await this._importRenderedFile(importType, data, needRevisit, overwriteIds, temporary);
+      await this._importRenderedFile(importType, data, needRevisit, overwriteIds);
 
       currentCount += 1;
       AdventureMunch._updateProgress(totalCount, currentCount, importType);
     });
+  }
+
+  /**
+   * Replaced ddb links with compendium or world links
+   * @param {Document} doc HTML document to act on
+   * @param {Object} options provide journalWorldActors and actorData if linking to world actors
+   * @returns {Document} HTML document with modified links
+   */
+  replaceLookupLinks(doc) {
+    const lookups = this.lookups.adventureConfig.lookups;
+    const actorData = this.adventure.required?.monsterData ?? []
+
+    for (const lookupKey in AdventureMunch.COMPENDIUM_MAP) {
+      const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
+      const lookupRegExp = new RegExp(`ddb://${lookupKey}/([0-9]*)`);
+      compendiumLinks.forEach((node) => {
+        const lookupMatch = node.outerHTML.match(lookupRegExp);
+        const lookupValue = lookups[AdventureMunch.COMPENDIUM_MAP[lookupKey]];
+        if (lookupValue) {
+          const worldActorLink = this.journalWorldActors && ["monsters"].includes(lookupKey);
+          const lookupEntry = worldActorLink
+            ? actorData.find((a) => a.ddbId === parseInt(lookupMatch[1]))
+            : lookupValue.find((e) => e.id == lookupMatch[1]);
+
+          if (lookupEntry) {
+            const pageLink = lookupEntry.pageId ? `.JournalEntryPage.${lookupEntry.pageId}` : "";
+            const linkStub = lookupEntry.headerLink ? `#${lookupEntry.headerLink}` : "";
+            const linkType = worldActorLink ? "UUID" : "Compendium";
+            const linkBody = worldActorLink
+              ? `Actor.${lookupEntry.actorId}`
+              : `${lookupEntry.compendium}.${lookupEntry._id}${pageLink}${linkStub}`;
+            doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@${linkType}[${linkBody}]{${node.textContent}}`);
+          } else {
+            logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}`);
+          }
+        }
+      });
+    }
+
+    return doc;
+  }
+
+  /**
+   * Replaced ddb links with compendium or world links, or links back to DDB
+   * @param {Document} doc HTML document to act on
+   * @param {Object} options provide journalWorldActors and actorData if linking to world actors
+   * @returns {Document} HTML document with modified links
+   */
+  foundryCompendiumReplace(text) {
+    // replace the ddb:// entries with known compendium look ups if we have them
+    // ddb://spells
+    // ddb://magicitems || weapons || adventuring-gear || armor
+    // ddb://monsters
+
+    let doc = this.replaceLookupLinks(utils.htmlToDoc(text));
+
+    // vehicles - if not imported, link to DDB
+    const compendiumLinks = doc.querySelectorAll("a[href*=\"ddb://vehicles/\"]");
+    const lookupRegExp = /ddb:\/\/vehicles\/([0-9]*)/g;
+    compendiumLinks.forEach((node) => {
+      const target = node.outerHTML;
+      const lookupMatch = node.outerHTML.match(lookupRegExp);
+      const lookupValue = this.lookups.adventureConfig.lookups["vehicles"];
+      if (lookupMatch) {
+        const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
+        if (lookupEntry) {
+          node.setAttribute("href", `https://www.dndbeyond.com${lookupEntry.url}`);
+          doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
+        } else {
+          logger.warn(`NO Vehicle Lookup Entry for ${node.outerHTML}`);
+        }
+      } else {
+        logger.warn(`NO Vehicle Lookup Match for ${node.outerHTML}`);
+      }
+    });
+
+    // final replace in case of failure
+    // there is a chance that the adventure references items or monsters we don't have access to
+    // in this case attempt to link to DDB instead of compendium doc
+    for (const lookupKey in AdventureMunch.COMPENDIUM_MAP) {
+      const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
+      // logger.debug(`final replace for missing ${lookupKey} references`, compendiumLinks);
+
+      compendiumLinks.forEach((node) => {
+        const target = node.outerHTML;
+        const ddbStub = AdventureMunch.DDB_MAP[lookupKey];
+        const ddbNameGuess = node.textContent.toLowerCase().replace(" ", "-").replace(/[^0-9a-z-]/gi, '');
+        logger.warn(`No Compendium Entry for ${node.outerHTML} attempting to guess a link to DDB`);
+
+        node.setAttribute("href", `https://www.dndbeyond.com/${ddbStub}/${ddbNameGuess}`);
+        doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
+      });
+    }
+
+    return doc.body.innerHTML;
   }
 
   static _updateProgress(total, count, type) {

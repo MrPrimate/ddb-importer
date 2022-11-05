@@ -1,31 +1,10 @@
 import logger from "../../logger.js";
-import utils from "../../lib/utils.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import PatreonHelper from "../../lib/PatreonHelper.js";
 import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
 import AdventureMunch from "./adventure.js";
-
-const COMPENDIUM_MAP = {
-  "spells": "spells",
-  "magicitems": "items",
-  "weapons": "items",
-  "armor": "items",
-  "adventuring-gear": "items",
-  "monsters": "monsters",
-  "vehicles": "vehicles",
-};
-
-const DDB_MAP = {
-  "spells": "spells",
-  "magicitems": "magic-items",
-  "weapons": "equipment",
-  "armor": "equipment",
-  "adventuring-gear": "equipment",
-  "monsters": "monsters",
-  "vehicles": "vehicles",
-};
 
 export default class Helpers {
 
@@ -342,99 +321,6 @@ export default class Helpers {
     });
   }
 
-  /**
-   * Replaced ddb links with compendium or world links
-   * @param {Document} doc HTML document to act on
-   * @param {Object} options provide journalWorldActors and actorData if linking to world actors
-   * @returns {Document} HTML document with modified links
-   */
-  static replaceLookupLinks(doc, { journalWorldActors = false, actorData = [] } = {}) {
-    const lookups = CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups;
-
-    for (const lookupKey in COMPENDIUM_MAP) {
-      const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
-      const lookupRegExp = new RegExp(`ddb://${lookupKey}/([0-9]*)`);
-      compendiumLinks.forEach((node) => {
-        const lookupMatch = node.outerHTML.match(lookupRegExp);
-        const lookupValue = lookups[COMPENDIUM_MAP[lookupKey]];
-        if (lookupValue) {
-          const worldActorLink = journalWorldActors && ["monsters"].includes(lookupKey);
-          const lookupEntry = worldActorLink
-            ? actorData.find((a) => a.ddbId === parseInt(lookupMatch[1]))
-            : lookupValue.find((e) => e.id == lookupMatch[1]);
-
-          if (lookupEntry) {
-            const pageLink = lookupEntry.pageId ? `.JournalEntryPage.${lookupEntry.pageId}` : "";
-            const linkStub = lookupEntry.headerLink ? `#${lookupEntry.headerLink}` : "";
-            const linkType = worldActorLink ? "UUID" : "Compendium";
-            const linkBody = worldActorLink
-              ? `Actor.${lookupEntry.actorId}`
-              : `${lookupEntry.compendium}.${lookupEntry._id}${pageLink}${linkStub}`;
-            doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@${linkType}[${linkBody}]{${node.textContent}}`);
-          } else {
-            logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}`);
-          }
-        }
-      });
-    }
-
-    return doc;
-  }
-
-  /**
-   * Replaced ddb links with compendium or world links, or links back to DDB
-   * @param {Document} doc HTML document to act on
-   * @param {Object} options provide journalWorldActors and actorData if linking to world actors
-   * @returns {Document} HTML document with modified links
-   */
-  static foundryCompendiumReplace(text, { journalWorldActors = false, actorData = [] } = {}) {
-    // replace the ddb:// entries with known compendium look ups if we have them
-    // ddb://spells
-    // ddb://magicitems || weapons || adventuring-gear || armor
-    // ddb://monsters
-
-    let doc = Helpers.replaceLookupLinks(utils.htmlToDoc(text), { journalWorldActors, actorData });
-
-    // vehicles - if not imported, link to DDB
-    const compendiumLinks = doc.querySelectorAll("a[href*=\"ddb://vehicles/\"]");
-    const lookupRegExp = /ddb:\/\/vehicles\/([0-9]*)/g;
-    compendiumLinks.forEach((node) => {
-      const target = node.outerHTML;
-      const lookupMatch = node.outerHTML.match(lookupRegExp);
-      const lookupValue = CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups["vehicles"];
-      if (lookupMatch) {
-        const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
-        if (lookupEntry) {
-          node.setAttribute("href", `https://www.dndbeyond.com${lookupEntry.url}`);
-          doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
-        } else {
-          logger.warn(`NO Vehicle Lookup Entry for ${node.outerHTML}`);
-        }
-      } else {
-        logger.warn(`NO Vehicle Lookup Match for ${node.outerHTML}`);
-      }
-    });
-
-    // final replace in case of failure
-    // there is a chance that the adventure references items or monsters we don't have access to
-    // in this case attempt to link to DDB instead of compendium doc
-    for (const lookupKey in COMPENDIUM_MAP) {
-      const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
-      // logger.debug(`final replace for missing ${lookupKey} references`, compendiumLinks);
-
-      compendiumLinks.forEach((node) => {
-        const target = node.outerHTML;
-        const ddbStub = DDB_MAP[lookupKey];
-        const ddbNameGuess = node.textContent.toLowerCase().replace(" ", "-").replace(/[^0-9a-z-]/gi, '');
-        logger.warn(`No Compendium Entry for ${node.outerHTML} attempting to guess a link to DDB`);
-
-        node.setAttribute("href", `https://www.dndbeyond.com/${ddbStub}/${ddbNameGuess}`);
-        doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
-      });
-    }
-
-    return doc.body.innerHTML;
-  }
 
   static async linkExistingActorTokens(tokens) {
     const monsterIndex = await Helpers.getCompendiumIndex("monster");
