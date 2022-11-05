@@ -395,10 +395,10 @@ export default class AdventureMunch extends FormApplication {
   fetchTemporaryItem(uuid) {
     const id = uuid.split(".").pop();
     for (const [key, itemArray] of Object.entries(this.temporary)) {
-      console.warn(`Checking temporary ${key} for ${uuid}`, itemArray);
+      logger.debug(`Checking temporary ${key} for ${uuid}`, itemArray);
       const match = itemArray.find((i) => i._id === id);
       if (match) {
-        console.warn(`Found ${key} match for ${uuid}`, match);
+        logger.debug(`Found ${key} match for ${uuid}`, match);
         return match;
       }
     }
@@ -439,6 +439,7 @@ export default class AdventureMunch extends FormApplication {
               : await fromUuid(itemUuid);
             // let rawData;
             let updatedData = {};
+            let tokenUpdates = [];
             switch (document.documentName) {
               case "Scene": {
                 const scene = duplicate(document);
@@ -458,7 +459,8 @@ export default class AdventureMunch extends FormApplication {
                       const updateData = mergeObject(jsonTokenData, sceneToken);
                       logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
                       if (this.importToAdventureCompendium) {
-                        await document.tokens.updateSource({ tokens: updateData.toObject() }, { keepId: true, keepEmbeddedIds: true });
+                        await document.updateSource({ tokens: updateData });
+                        tokenUpdates.push(updateData);
                       } else {
                         await document.updateEmbeddedDocuments("Token", [updateData], { keepId: true, keepEmbeddedIds: true });
                       }
@@ -469,17 +471,15 @@ export default class AdventureMunch extends FormApplication {
                     deadTokenIds.push(token._id);
                   }
                 });
+
+                if (this.importToAdventureCompendium) {
+                  await document.updateSource({ tokens: tokenUpdates }, { recursive: false });
+                }
+
                 // remove a token from the scene if we have not been able to link it
-                if (deadTokenIds.length > 0) {
+                if (!this.importToAdventureCompendium && deadTokenIds.length > 0) {
                   logger.warn(`Removing ${scene.name} tokens with no world actors`, deadTokenIds);
-                  if (this.importToAdventureCompendium) {
-                    const updates = deadTokenIds.map((id) => {
-                      return { _id: id };
-                    });
-                    await document.tokens.updateSource({ tokens: updates }, { deleted: true });
-                  } else {
-                    await document.deleteEmbeddedDocuments("Token", deadTokenIds);
-                  }
+                  await document.deleteEmbeddedDocuments("Token", deadTokenIds);
                 }
 
                 if (!this.importToAdventureCompendium) {
@@ -508,6 +508,7 @@ export default class AdventureMunch extends FormApplication {
       // eslint-disable-next-line no-undef
       logger.warn(`Error during reference update for object ${item}`, err);
     }
+    logger.info("Revisit data complete");
   }
 
   async _loadZip() {
@@ -540,9 +541,10 @@ export default class AdventureMunch extends FormApplication {
       const adventureData = await this._createAdventure();
       await this._importAdventureCompendium(adventureData);
     } finally {
-      if (this.remove.folderIds.length > 0) {
-        logger.debug("Removing folders", this.remove.folderIds);
-        const results = await Folder.deleteDocuments([...this.remove.folderIds]);
+      const folderIds = [...this.remove.folderIds];
+      if (folderIds.length > 0) {
+        logger.debug("Removing folders", folderIds);
+        const results = await Folder.deleteDocuments(folderIds);
         logger.debug("Delete results", results);
       }
     }
@@ -861,7 +863,7 @@ export default class AdventureMunch extends FormApplication {
       ? ddbSource.avatarURL
       : await this.importImage("assets/images/cover.jpg");
 
-    this._revisitItems();
+    await this._revisitItems();
 
     const data = {
       img: image,
