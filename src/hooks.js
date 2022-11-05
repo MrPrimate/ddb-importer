@@ -4,6 +4,7 @@ import logger from "./logger.js";
 import setupLogging from "./hooks/init/setupLogging.js";
 import { registerWindow } from "./hooks/init/window.js";
 import { chatHooks } from "./hooks/init/chatHooks.js";
+import adventureImporter from "./hooks/init/adventureImporter.js";
 
 // ready hooks
 import registerSheets from "./hooks/ready/registerSheets.js";
@@ -38,7 +39,8 @@ export function init() {
   setupLogging();
   registerWindow();
   chatHooks();
-  logger.info("Init");
+  adventureImporter();
+  logger.info("Init complete");
 }
 
 // foundry is ready
@@ -64,6 +66,7 @@ export function onceReady() {
   }, 500);
 
   anchorInjection();
+  logger.info("OnceReady complete");
 }
 
 export function onReady() {
