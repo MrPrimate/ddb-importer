@@ -62,7 +62,10 @@ export function getTokenSenses(token, monster) {
             enabled: true,
           };
 
-          token.detectionModes.push(detectionMode);
+          // only add duplicate modes if they don't exist
+          if (!token.detectionModes.some((mode) => mode.id === detectionMode.id)) {
+            token.detectionModes.push(detectionMode);
+          }
         }
       }
     }

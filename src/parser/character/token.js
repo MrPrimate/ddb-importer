@@ -55,7 +55,10 @@ function getTokenSenses(ddb) {
         enabled: true,
       };
 
-      tokenData.detectionModes.push(detectionMode);
+      // only add duplicate modes if they don't exist
+      if (!tokenData.detectionModes.some((mode) => mode.id === detectionMode.id)) {
+        tokenData.detectionModes.push(detectionMode);
+      }
     }
   }
 

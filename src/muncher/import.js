@@ -1086,7 +1086,7 @@ export async function updateIcons(items, srdIconUpdate = true, monster = false, 
 
   const inBuiltIcons = game.settings.get("ddb-importer", "munching-policy-use-inbuilt-icons");
   if (inBuiltIcons) {
-    logger.debug("Inbuilt icon matching");
+    logger.debug(`Inbuilt icon matching (Monster? ${monster ? monsterName : monster})`);
     items = await copyInbuiltIcons(items, monster, monsterName);
   }
 

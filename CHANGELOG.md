@@ -1,3 +1,7 @@
+# 3.1.24
+
+* Account for having Detection Modes set in their default token settings on monster importing.
+
 # 3.1.23
 
 * Suppress notifications from Items With Spells when updating a character.

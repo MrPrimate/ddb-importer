@@ -59,9 +59,9 @@ async function loadDataFile(fileName) {
 
 async function loadIconMap(type) {
   // check to see if dictionary is loaded
-  logger.debug(`Loading Inbuilt Icon Map for ${type}`);
   if (CONFIG.DDBI.ICONS[type]) return;
 
+  logger.debug(`Loading Inbuilt Icon Map for ${type}`);
   let data = [];
   for (const fileName of FILE_MAP[type]) {
     // eslint-disable-next-line no-await-in-loop
@@ -142,7 +142,7 @@ async function loadIconMaps(types) {
     .map((type) => TYPE_MAP[type]).filter((type, i, ar) => ar.indexOf(type) === i);
 
   mapTypes.forEach((type) => {
-    logger.debug(`Loading ${type}`);
+    // logger.debug(`Loading ${type}`);
     promises.push(loadIconMap(type));
   });
 
