@@ -4,9 +4,9 @@ import PatreonHelper from "../../lib/PatreonHelper.js";
 import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
-import AdventureMunch from "./adventure.js";
+import AdventureMunch from "./AdventureMunch.js";
 
-export default class Helpers {
+export default class AdventureMunchHelpers {
 
   static unPad(match, p1) {
     if (isNaN(parseInt(p1))) {
@@ -107,7 +107,7 @@ export default class Helpers {
    */
   static async UploadFile(source, path, file, options) {
     if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
-      return Helpers.ForgeUploadFile(path, file);
+      return AdventureMunchHelpers.ForgeUploadFile(path, file);
     }
 
     const fd = new FormData();
@@ -157,7 +157,7 @@ export default class Helpers {
       if (target.startsWith(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX)) source = "forgevtt";
 
       if (source === "forgevtt") {
-        return Helpers.BrowseForgeFiles(source, target, options);
+        return AdventureMunchHelpers.BrowseForgeFiles(source, target, options);
       }
     }
 
@@ -254,7 +254,7 @@ export default class Helpers {
   }
 
   static async checkForMissingDocuments(type, ids) {
-    const index = await Helpers.getCompendiumIndex(type);
+    const index = await AdventureMunchHelpers.getCompendiumIndex(type);
     // console.warn(`${type} index`, index);
 
     return new Promise((resolve) => {
@@ -270,7 +270,7 @@ export default class Helpers {
         }
       });
       logger.debug(`${type} missing ids`, missingIds);
-      const missingDocuments = Helpers.loadMissingDocuments(type, missingIds);
+      const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds);
       logger.debug(`${type} missing`, missingDocuments);
       resolve(missingDocuments);
     });
@@ -285,7 +285,7 @@ export default class Helpers {
    */
   static async getDocuments(type, ids, overrides = {}, temporary = false) {
     const compendium = CompendiumHelper.getCompendiumType(type);
-    const index = await Helpers.getCompendiumIndex(type);
+    const index = await AdventureMunchHelpers.getCompendiumIndex(type);
     const ddbIds = ids.map((num) => {
       return String(num);
     });
@@ -323,7 +323,7 @@ export default class Helpers {
 
 
   static async linkExistingActorTokens(tokens) {
-    const monsterIndex = await Helpers.getCompendiumIndex("monster");
+    const monsterIndex = await AdventureMunchHelpers.getCompendiumIndex("monster");
 
     const newTokens = tokens.map((token) => {
       const monsterHit = monsterIndex.find((monster) =>

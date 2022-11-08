@@ -8,7 +8,7 @@ import MuncherSettings from "./MuncherSettings.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getAvailableCampaigns } from "../lib/Settings.js";
 import { parseCritters } from "./monsters.js";
-import Helpers from "./adventure/common.js";
+import AdventureMunchHelpers from "./adventure/AdventureMunchHelpers.js";
 import { importCharacterById } from "../character/import.js";
 
 const DIFFICULTY_LEVELS = [
@@ -276,7 +276,7 @@ export class DDBEncounterMunch extends Application {
     );
 
     logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
-    await Helpers.asyncForEach(monstersToAddToWorld, async (actor) => {
+    await AdventureMunchHelpers.asyncForEach(monstersToAddToWorld, async (actor) => {
       let worldActor = game.actors.find(
         (a) => a.folder == encounterMonsterFolder.id && a.flags?.ddbimporter?.id == actor.ddbId
       );
@@ -307,7 +307,7 @@ export class DDBEncounterMunch extends Application {
   async importCharacters(html) {
     const importCharacters = game.settings.get("ddb-importer", "encounter-import-policy-missing-characters");
     if (importCharacters && this.encounter.missingCharacters) {
-      await Helpers.asyncForEach(this.encounter.missingCharacterData, async (character) => {
+      await AdventureMunchHelpers.asyncForEach(this.encounter.missingCharacterData, async (character) => {
         await importCharacterById(character.ddbId, html);
       });
     }

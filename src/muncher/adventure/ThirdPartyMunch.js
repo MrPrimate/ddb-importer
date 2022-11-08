@@ -1,8 +1,8 @@
-import Helpers from "./common.js";
+import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
 import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
-import { generateIcon } from "./icons.js";
-import AdventureMunch from "./adventure.js";
+import { generateIcon } from "../../lib/icons.js";
+import AdventureMunch from "./AdventureMunch.js";
 import { PageFinder } from "./PageFinder.js";
 import SETTINGS from "../../settings.js";
 
@@ -20,6 +20,7 @@ export default class ThirdPartyMunch extends FormApplication {
     this._packageName = "";
     this._description = "";
     this._pageFinders = {};
+    this.adventureMunch = new AdventureMunch();
   }
 
   /** @override */
@@ -137,34 +138,34 @@ export default class ThirdPartyMunch extends FormApplication {
     $('#ddb-adventure-import').css("height", "auto");
   }
 
-  static async _createFolders(adventure, folders) {
+  async _createFolders(adventure, folders) {
     if (folders) {
       CONFIG.DDBI.ADVENTURE.TEMPORARY.folders["null"] = null;
       CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = null;
 
       // the folder list could be out of order, we need to create all folders with parent null first
       const firstLevelFolders = folders.filter((folder) => folder.parent === null);
-      await Helpers.importFolder(firstLevelFolders, adventure, folders);
+      await this.adventureMunch.importFolder(firstLevelFolders, adventure, folders);
     }
   }
 
-  static async _checkForMissingData(adventure, folders) {
-    await ThirdPartyMunch._createFolders(adventure, folders);
+  async _checkForMissingData(adventure, folders) {
+    await this._createFolders(adventure, folders);
 
     if (adventure.required?.spells && adventure.required.spells.length > 0) {
       logger.debug(`${adventure.name} - spells required`, adventure.required.spells);
       ThirdPartyMunch._progressNote(`Checking for missing spells from DDB`);
-      await Helpers.checkForMissingDocuments("spell", adventure.required.spells);
+      await AdventureMunchHelpers.checkForMissingDocuments("spell", adventure.required.spells);
     }
     if (adventure.required?.items && adventure.required.items.length > 0) {
       logger.debug(`${adventure.name} - items required`, adventure.required.items);
       ThirdPartyMunch._progressNote(`Checking for missing items from DDB`);
-      await Helpers.checkForMissingDocuments("item", adventure.required.items);
+      await AdventureMunchHelpers.checkForMissingDocuments("item", adventure.required.items);
     }
     if (adventure.required?.monsters && adventure.required.monsters.length > 0) {
       logger.debug(`${adventure.name} - monsters required`, adventure.required.monsters);
       ThirdPartyMunch._progressNote(`Checking for missing monsters from DDB`);
-      await Helpers.checkForMissingDocuments("monster", adventure.required.monsters);
+      await AdventureMunchHelpers.checkForMissingDocuments("monster", adventure.required.monsters);
     }
   }
 
@@ -188,7 +189,7 @@ export default class ThirdPartyMunch extends FormApplication {
         let totalCount = scenes.length;
         let currentCount = 0;
 
-        await Helpers.asyncForEach(scenes, async (obj) => {
+        await AdventureMunchHelpers.asyncForEach(scenes, async (obj) => {
           try {
             let updatedData = {};
             switch (obj.documentName) {
@@ -309,8 +310,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
   async _linkSceneNotes(scene, adventure) {
     const journalNotes = game.journal.filter((journal) => journal?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
-    const adventureMunch = new AdventureMunch();
-    adventureMunch.adventure = deepClone(adventure);
+    this.adventureMunch.adventure = deepClone(adventure);
 
     const noJournalPinNotes = game.settings.get(SETTINGS.MODULE_ID, "third-party-scenes-notes-merged");
 
@@ -350,7 +350,7 @@ export default class ThirdPartyMunch extends FormApplication {
           logger.info(`Found note "${note.label}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
           note.flags.ddb.journalId = noteJournal.id;
           // eslint-disable-next-line require-atomic-updates
-          note.icon = await generateIcon(adventureMunch, note.label);
+          note.icon = await generateIcon(this.adventureMunch, note.label);
           if (noJournalPinNotes) {
             note.flags.ddb.labelName = `${note.label}`;
             note.flags.ddb.slugLink = note.label.replace(/[^\w\d]+/g, "").replace(/^([a-zA-Z]?)0+/, "$1");
@@ -426,11 +426,11 @@ export default class ThirdPartyMunch extends FormApplication {
     const adjustedScenes = this._scenePackage.scenes
       .filter((scene) => scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens);
 
-    await Helpers.asyncForEach(adjustedScenes, async(scene) => {
+    await AdventureMunchHelpers.asyncForEach(adjustedScenes, async(scene) => {
       logger.debug(`Adjusting scene ${scene.name}`);
       const mockAdventure = ThirdPartyMunch._generateMockAdventure(scene);
       if (scene.flags?.ddbimporter?.export?.actors && scene.flags?.ddb?.tokens) {
-        await ThirdPartyMunch._checkForMissingData(mockAdventure, []);
+        await this._checkForMissingData(mockAdventure, []);
         const bookName = ThirdPartyMunch._getDDBBookName(scene.flags.ddb.bookCode);
         const actorFolder = await ThirdPartyMunch._findFolder(bookName, "Actor");
         scene.tokens = scene.flags.ddb.tokens.map((token) => {
@@ -462,7 +462,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
     const processedScenes = [];
 
-    await Helpers.asyncForEach(filteredScenes, async(scene) => {
+    await AdventureMunchHelpers.asyncForEach(filteredScenes, async(scene) => {
       logger.debug(`Processing scene ${scene.name} with DDB Updates`);
       const compendiumId = scene.flags.ddbimporter.export.compendium;
       const compendium = game.packs.get(compendiumId);
@@ -557,9 +557,9 @@ export default class ThirdPartyMunch extends FormApplication {
 
       logger.debug("About to generate Token Actors");
       // load token actors into world
-      await Helpers.asyncForEach(adjustedScenes, async(scene) => {
+      await AdventureMunchHelpers.asyncForEach(adjustedScenes, async(scene) => {
         logger.debug(`Generating scene actors for ${scene.name}`);
-        await Helpers.generateTokenActors(scene);
+        await this.adventureMunch.generateTokenActors(scene);
         logger.debug(`Finished scene actors for ${scene.name}`);
       });
 

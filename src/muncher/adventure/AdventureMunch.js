@@ -1,4 +1,4 @@
-import Helpers from "./common.js";
+import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
 import logger from "../../logger.js";
 import FileHelper from "../../lib/FileHelper.js";
 import { generateAdventureConfig } from "../adventure.js";
@@ -56,6 +56,13 @@ export default class AdventureMunch extends FormApplication {
     this.journalWorldActors = false;
     this.importFilename = null;
     this.importToAdventureCompendium = false;
+    this.lookups = {
+      folders: {},
+      import: {},
+      actors: {},
+      sceneTokens: {},
+      adventureConfig: {},
+    };
   }
 
   /** @override */
@@ -143,7 +150,7 @@ export default class AdventureMunch extends FormApplication {
         if (!CONFIG.DDBI.KNOWN.FILES.has(returnPath)) {
           logger.debug(`Importing raw file from ${path}`, paths);
           const fileData = new File([content], paths.filename, { type: mimeType });
-          await Helpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, {
+          await AdventureMunchHelpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, {
             bucket: paths.parsedBaseUploadPath.bucket,
           });
           CONFIG.DDBI.KNOWN.FILES.add(returnPath);
@@ -218,7 +225,7 @@ export default class AdventureMunch extends FormApplication {
           extensions: [".fvttadv", ".FVTTADV", ".zip"],
           wildcard: false,
         };
-        data = await Helpers.BrowseFiles(this._importPathData.activeSource, this._importPathData.current, options);
+        data = await AdventureMunchHelpers.BrowseFiles(this._importPathData.activeSource, this._importPathData.current, options);
         files = data.files.map((file) => {
           const filename = decodeURIComponent(file).replace(/^.*[\\/]/, "");
 
@@ -242,7 +249,7 @@ export default class AdventureMunch extends FormApplication {
   }
 
   async importFolder(folders, folderList) {
-    await Helpers.asyncForEach(folders, async (f) => {
+    await AdventureMunchHelpers.asyncForEach(folders, async (f) => {
       let folderData = f;
 
       let newFolder = game.folders.find((folder) =>
@@ -309,17 +316,17 @@ export default class AdventureMunch extends FormApplication {
     if (this.adventure.required?.spells && this.adventure.required.spells.length > 0) {
       logger.debug(`${this.adventure.name} - spells required`, this.adventure.required.spells);
       AdventureMunch._progressNote(`Checking for missing spells from DDB`);
-      await Helpers.checkForMissingDocuments("spell", this.adventure.required.spells);
+      await AdventureMunchHelpers.checkForMissingDocuments("spell", this.adventure.required.spells);
     }
     if (this.adventure.required?.items && this.adventure.required.items.length > 0) {
       logger.debug(`${this.adventure.name} - items required`, this.adventure.required.items);
       AdventureMunch._progressNote(`Checking for missing items from DDB`);
-      await Helpers.checkForMissingDocuments("item", this.adventure.required.items);
+      await AdventureMunchHelpers.checkForMissingDocuments("item", this.adventure.required.items);
     }
     if (this.adventure.required?.monsters && this.adventure.required.monsters.length > 0) {
       logger.debug(`${this.adventure.name} - monsters required`, this.adventure.required.monsters);
       AdventureMunch._progressNote(`Checking for missing monsters from DDB`);
-      await Helpers.checkForMissingDocuments("monster", this.adventure.required.monsters);
+      await AdventureMunchHelpers.checkForMissingDocuments("monster", this.adventure.required.monsters);
     }
     if (parseFloat(this.adventure.version) < 4.1 && this.allMonsters) {
       ui.notifications.warn(`Unable to add all monsters from this adventure, please re-munch adventure with Adventure Muncher v1.0.9 or higher`);
@@ -338,35 +345,35 @@ export default class AdventureMunch extends FormApplication {
    * @returns {Promise<>}
    */
   async _importFiles() {
-    if (Helpers.folderExists("scene", this.zip)) {
+    if (AdventureMunchHelpers.folderExists("scene", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading scenes`);
       await this._checkForDataUpdates("scene");
     }
-    if (Helpers.folderExists("actor", this.zip)) {
+    if (AdventureMunchHelpers.folderExists("actor", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading actors`);
       await this._importFile("actor");
     }
-    if (Helpers.folderExists("item", this.zip)) {
+    if (AdventureMunchHelpers.folderExists("item", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading item`);
       await this._importFile("item");
     }
-    if (Helpers.folderExists("journal", this.zip)) {
+    if (AdventureMunchHelpers.folderExists("journal", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading journal`);
       await this._importFile("journal");
     }
-    if (Helpers.folderExists("table", this.zip)) {
+    if (AdventureMunchHelpers.folderExists("table", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading table`);
       await this._importFile("table");
     }
-    if (Helpers.folderExists("playlist", this.zip)) {
+    if (AdventureMunchHelpers.folderExists("playlist", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading playlist`);
       await this._importFile("playlist");
     }
-    if (Helpers.folderExists("macro", this.zip)) {
+    if (AdventureMunchHelpers.folderExists("macro", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading macro`);
       await this._importFile("macro");
     }
-    if (Helpers.folderExists("compendium", this.zip)) {
+    if (AdventureMunchHelpers.folderExists("compendium", this.zip)) {
       logger.debug(`${this.adventure.name} - Loading compendium`);
       await this._importCompendium();
     }
@@ -427,7 +434,7 @@ export default class AdventureMunch extends FormApplication {
         let totalCount = this._itemsToRevisit.length;
         let currentCount = 0;
 
-        await Helpers.asyncForEach(this._itemsToRevisit, async (itemUuid) => {
+        await AdventureMunchHelpers.asyncForEach(this._itemsToRevisit, async (itemUuid) => {
           const toTimer = setTimeout(() => {
             logger.warn(`Reference update timed out.`);
             this._renderCompleteDialog();
@@ -446,7 +453,7 @@ export default class AdventureMunch extends FormApplication {
                 // this is a scene we need to update links to all items
                 logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
                 let deadTokenIds = [];
-                await Helpers.asyncForEach(scene.tokens, async (token) => {
+                await AdventureMunchHelpers.asyncForEach(scene.tokens, async (token) => {
                   if (token.actorId) {
                     const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
                     delete sceneToken.scale;
@@ -597,13 +604,7 @@ export default class AdventureMunch extends FormApplication {
           );
         }
 
-        this.lookups = {
-          folders: {},
-          import: {},
-          actors: {},
-          sceneTokens: {},
-          adventureConfig: await generateAdventureConfig(true),
-        };
+        this.lookups.adventureConfig = await generateAdventureConfig(true);
 
         if (action === "compendium") this.importToAdventureCompendium = true;
 
@@ -639,7 +640,7 @@ export default class AdventureMunch extends FormApplication {
     logger.debug("Trying to import actors from compendium", neededActors);
     const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
     const results = [];
-    await Helpers.asyncForEach(neededActors, async (actor) => {
+    await AdventureMunchHelpers.asyncForEach(neededActors, async (actor) => {
       let worldActor = this._getWorldActor(actor.actorId);
       if (!worldActor) {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
@@ -662,7 +663,7 @@ export default class AdventureMunch extends FormApplication {
   }
 
   static async linkDDBActors(tokens) {
-    const linkedExistingTokens = await Helpers.linkExistingActorTokens(tokens);
+    const linkedExistingTokens = await AdventureMunchHelpers.linkExistingActorTokens(tokens);
     const newTokens = linkedExistingTokens
       .filter((token) => token.flags.ddbActorFlags?.id && token.flags.compendiumActorId);
 
@@ -678,10 +679,10 @@ export default class AdventureMunch extends FormApplication {
   async importRemainingActors(data) {
     const results = [];
     const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
-    const monsterIndex = await Helpers.getCompendiumIndex("monster");
+    const monsterIndex = await AdventureMunchHelpers.getCompendiumIndex("monster");
 
     logger.debug("Checking for the following actors in world", data);
-    await Helpers.asyncForEach(data, async (actorData) => {
+    await AdventureMunchHelpers.asyncForEach(data, async (actorData) => {
       logger.debug(`Checking for ${actorData.ddbId}`, actorData);
       let worldActor = this._getWorldActor(actorData.actorId);
 
@@ -773,7 +774,7 @@ export default class AdventureMunch extends FormApplication {
     }
 
     if (data?.items?.length) {
-      await Helpers.asyncForEach(data.items, async (item) => {
+      await AdventureMunchHelpers.asyncForEach(data.items, async (item) => {
         if (item.img) {
           // eslint-disable-next-line require-atomic-updates
           item.img = await this.importImage(item.img);
@@ -782,7 +783,7 @@ export default class AdventureMunch extends FormApplication {
     }
 
     if (data?.pages?.length) {
-      await Helpers.asyncForEach(data.pages, async (page) => {
+      await AdventureMunchHelpers.asyncForEach(data.pages, async (page) => {
         if (page.src) {
           // eslint-disable-next-line require-atomic-updates
           page.src = await this.importImage(page.src);
@@ -798,14 +799,14 @@ export default class AdventureMunch extends FormApplication {
         data.flags["perfect-vision"] = {};
       }
     } else if (importType === "Playlist") {
-      await Helpers.asyncForEach(data.sounds, async (sound) => {
+      await AdventureMunchHelpers.asyncForEach(data.sounds, async (sound) => {
         if (sound.path) {
           // eslint-disable-next-line require-atomic-updates
           sound.path = await this.importImage(sound.path);
         }
       });
     } else if (importType === "RollTable") {
-      await Helpers.asyncForEach(data.results, async (result) => {
+      await AdventureMunchHelpers.asyncForEach(data.results, async (result) => {
         if (result.img) {
           // eslint-disable-next-line require-atomic-updates
           result.img = await this.importImage(result.img);
@@ -818,15 +819,15 @@ export default class AdventureMunch extends FormApplication {
         data.text = this.foundryCompendiumReplace(data.text);
       });
     } else if (importType === "JournalEntry" && data.pages) {
-      await Helpers.asyncForEach(data.pages, async (page) => {
+      await AdventureMunchHelpers.asyncForEach(data.pages, async (page) => {
         if (page.text.content) {
-          const journalImages = Helpers.reMatchAll(
+          const journalImages = AdventureMunchHelpers.reMatchAll(
             /(src|href)="(?!http(?:s*):\/\/)([\w0-9\-._~%!$&'()*+,;=:@/]*)"/,
             page.text.content
           );
           if (journalImages) {
             logger.debug(`Updating Image links for ${page.name}`);
-            await Helpers.asyncForEach(journalImages, async (result) => {
+            await AdventureMunchHelpers.asyncForEach(journalImages, async (result) => {
               const path = await this.importImage(result[2]);
               page.text.content = page.text.content.replace(result[0], `${result[1]}="${path}"`);
             });
@@ -845,8 +846,8 @@ export default class AdventureMunch extends FormApplication {
   async _createAdventure() {
     logger.debug("Packing up adventure");
     if (this.allMonsters) await this.importRemainingActors(this.adventure.required.monsterData, true);
-    const itemData = await Helpers.getDocuments("items", this.adventure.required.items, {}, true);
-    const spellData = await Helpers.getDocuments("spells", this.adventure.required.spells, {}, true);
+    const itemData = await AdventureMunchHelpers.getDocuments("items", this.adventure.required.items ?? [], {}, true);
+    const spellData = await AdventureMunchHelpers.getDocuments("spells", this.adventure.required.spells ?? [], {}, true);
 
     await this._importFile("journal", [], true);
     await this._importFile("scene", [], true);
@@ -936,11 +937,11 @@ export default class AdventureMunch extends FormApplication {
   async _importCompendium(folderName) {
     let totalCount = 0;
     let currentCount = 0;
-    const dataFiles = Helpers.getFiles(folderName, this.zip);
+    const dataFiles = AdventureMunchHelpers.getFiles(folderName, this.zip);
     logger.info(`Importing ${this.adventure.name} - Compendium (${dataFiles.length} items)`);
     totalCount = dataFiles.length;
 
-    await Helpers.asyncForEach(dataFiles, async (file) => {
+    await AdventureMunchHelpers.asyncForEach(dataFiles, async (file) => {
       const rawData = await this.zip.file(file.name).async("text");
       const data = JSON.parse(rawData);
 
@@ -948,7 +949,7 @@ export default class AdventureMunch extends FormApplication {
       await pack.getIndex();
 
       totalCount += data.items.length;
-      await Helpers.asyncForEach(data.items, async (item) => {
+      await AdventureMunchHelpers.asyncForEach(data.items, async (item) => {
         let obj;
         let entry = pack.index.find((e) => e.name === item.name);
 
@@ -1000,8 +1001,8 @@ export default class AdventureMunch extends FormApplication {
 
   // import a scene file
   async _importRenderedSceneFile(data, overwriteEntity) {
-    if (!Helpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.importToAdventureCompendium) {
-      await Helpers.asyncForEach(data.tokens, async (token) => {
+    if (!AdventureMunchHelpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.importToAdventureCompendium) {
+      await AdventureMunchHelpers.asyncForEach(data.tokens, async (token) => {
         // eslint-disable-next-line require-atomic-updates
         if (token.img) token.img = await this.importImage(token.img);
         if (token.prototypeToken?.texture?.src) {
@@ -1010,17 +1011,17 @@ export default class AdventureMunch extends FormApplication {
         }
       });
 
-      await Helpers.asyncForEach(data.sounds, async (sound) => {
+      await AdventureMunchHelpers.asyncForEach(data.sounds, async (sound) => {
         // eslint-disable-next-line require-atomic-updates
         sound.path = await this.importImage(sound.path);
       });
 
-      await Helpers.asyncForEach(data.notes, async (note) => {
+      await AdventureMunchHelpers.asyncForEach(data.notes, async (note) => {
         // eslint-disable-next-line require-atomic-updates
         note.icon = await this.importImage(note.icon, true);
       });
 
-      await Helpers.asyncForEach(data.tiles, async (tile) => {
+      await AdventureMunchHelpers.asyncForEach(data.tiles, async (tile) => {
         // eslint-disable-next-line require-atomic-updates
         tile.img = await this.importImage(tile.img);
       });
@@ -1043,7 +1044,7 @@ export default class AdventureMunch extends FormApplication {
         break;
       }
       case "Actor":
-        if (!Helpers.findEntityByImportId("actors", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId("actors", data._id)) {
           let actor = await Actor.create(data, options);
           await actor.update({ [`prototypeToken.actorId`]: actor.id });
           if (needRevisit) this._itemsToRevisit.push(`Actor.${actor.id}`);
@@ -1051,35 +1052,35 @@ export default class AdventureMunch extends FormApplication {
         }
         break;
       case "Item":
-        if (!Helpers.findEntityByImportId("items", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId("items", data._id)) {
           let item = await Item.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Item.${item.id}`);
           if (this.importToAdventureCompendium) this.temporary.items.push(item);
         }
         break;
       case "JournalEntry":
-        if (!Helpers.findEntityByImportId("journal", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId("journal", data._id)) {
           let journal = await JournalEntry.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
           if (this.importToAdventureCompendium) this.temporary.journals.push(journal);
         }
         break;
       case "RollTable":
-        if (!Helpers.findEntityByImportId("tables", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId("tables", data._id)) {
           let rolltable = await RollTable.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
           if (this.importToAdventureCompendium) this.temporary.tables.push(rolltable);
         }
         break;
       case "Playlist":
-        if (!Helpers.findEntityByImportId("playlists", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId("playlists", data._id)) {
           data.name = `${this.adventure.name}.${data.name}`;
           let playlist = await Playlist.create(data, options);
           if (this.importToAdventureCompendium) this.temporary.playlists.push(playlist);
         }
         break;
       case "Macro":
-        if (!Helpers.findEntityByImportId("macros", data._id)) {
+        if (!AdventureMunchHelpers.findEntityByImportId("macros", data._id)) {
           let macro = await Macro.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Macro.${macro.id}`);
           if (this.importToAdventureCompendium) this.temporary.macros.push(macro);
@@ -1090,8 +1091,8 @@ export default class AdventureMunch extends FormApplication {
   }
 
   async _checkForDataUpdates(type) {
-    const importType = Helpers.getImportType(type);
-    const dataFiles = Helpers.getFiles(type, this.zip);
+    const importType = AdventureMunchHelpers.getImportType(type);
+    const dataFiles = AdventureMunchHelpers.getFiles(type, this.zip);
 
     logger.info(`Checking ${this.adventure.name} - ${importType} (${dataFiles.length} for updates)`);
 
@@ -1100,7 +1101,7 @@ export default class AdventureMunch extends FormApplication {
     const moduleInfo = game.modules.get("ddb-importer");
     const installedVersion = moduleInfo.version;
 
-    await Helpers.asyncForEach(dataFiles, async (file) => {
+    await AdventureMunchHelpers.asyncForEach(dataFiles, async (file) => {
       const raw = await this.zip.file(file.name).async("text");
       const json = JSON.parse(raw);
       if (!hasVersions && json?.flags?.ddb?.versions) {
@@ -1109,7 +1110,7 @@ export default class AdventureMunch extends FormApplication {
       switch (importType) {
         case "Scene": {
           const existingScene = await game.scenes.find((item) => item.id === json._id);
-          const scene = Helpers.extractDocumentVersionData(json, existingScene, installedVersion);
+          const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene, installedVersion);
           const sceneVersions = scene.flags?.ddb?.versions?.importer;
           if (existingScene) {
             if (
@@ -1200,7 +1201,7 @@ export default class AdventureMunch extends FormApplication {
       if (filesToUpload.length > 0) {
         let currentCount = 1;
 
-        await Helpers.asyncForEach(filesToUpload, async (file) => {
+        await AdventureMunchHelpers.asyncForEach(filesToUpload, async (file) => {
           await this.importImage(file.name);
           currentCount += 1;
           AdventureMunch._updateProgress(filesToUpload.length, currentCount, "Token Image");
@@ -1227,15 +1228,15 @@ export default class AdventureMunch extends FormApplication {
 
     logger.info(`IDs to overwrite of type ${type}: ${JSON.stringify(overwriteIds)}`);
 
-    const importType = Helpers.getImportType(type);
-    const dataFiles = Helpers.getFiles(type, this.zip);
+    const importType = AdventureMunchHelpers.getImportType(type);
+    const dataFiles = AdventureMunchHelpers.getFiles(type, this.zip);
 
     logger.info(`Importing ${this.adventure.name} - ${importType} (${dataFiles.length} items)`);
 
     totalCount = dataFiles.length;
 
     // eslint-disable-next-line complexity
-    await Helpers.asyncForEach(dataFiles, async (file) => {
+    await AdventureMunchHelpers.asyncForEach(dataFiles, async (file) => {
       const rawData = await this.zip.file(file.name).async("text");
       let data = JSON.parse(rawData);
       let needRevisit = false;

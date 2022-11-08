@@ -22,6 +22,7 @@ import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import FileHelper from "../../lib/FileHelper.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import MuncherSettings from "../../muncher/MuncherSettings.js";
+import { generateIcon } from "../../lib/icons.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -79,6 +80,7 @@ export function registerWindow() {
     updateWorldMonsters,
     getIconPath: iconPath,
     iconPath,
+    generateIcon,
     loadSRDRules,
     importCacheLoad,
     fixCritters,

@@ -1,5 +1,5 @@
-import logger from "../../logger.js";
-import Helpers from "./common.js";
+import logger from "../logger.js";
+import AdventureMunchHelpers from "../muncher/adventure/AdventureMunchHelpers.js";
 
 const STUBS = {
   1: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
@@ -40,7 +40,7 @@ export async function generateIcon(adventure, title) {
   // default path
   let iconPath = "icons/svg/book.svg";
   let stub = title.trim().split(".")[0].split(" ")[0];
-  stub = stub.replace(/(\d+)/, Helpers.unPad);
+  stub = stub.replace(/(\d+)/, AdventureMunchHelpers.unPad);
   if (stub.length <= 4) {
     iconPath = `assets/icons/${stub}.svg`;
     logger.info(stub);

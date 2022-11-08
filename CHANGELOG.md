@@ -1,6 +1,7 @@
 # 3.1.24
 
 * Account for having Detection Modes set in their default token settings on monster importing.
+* ThirdParty Adventures broken by Adventure Compendium additions.
 
 # 3.1.23
 
