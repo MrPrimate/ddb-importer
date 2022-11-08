@@ -1,3 +1,8 @@
+# 3.1.25
+
+* Characters: Fix for Custom AC bonuses no longer appearing.
+* Spell DC bonuses did not add up correctly in non-effect mode.
+
 # 3.1.24
 
 * Account for having Detection Modes set in their default token settings on monster importing.

@@ -1,7 +1,7 @@
 import DDBHelper from "../lib/DDBHelper.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { baseItemEffect, generateUpgradeChange, generateAddChange } from "./effects.js";
+import { baseItemEffect, generateUpgradeChange, addAddEffect } from "./effects.js";
 
 // // ac -
 // { type: "bonus", subType: "armor-class" },
@@ -154,32 +154,52 @@ function addACSets(modifiers, name) {
  *
  * @param {*} modifiers
  * @param {*} name
- * @param {*} type
+ * @param {*} subType
  */
-function addACBonusEffect(modifiers, name, type) {
-  let changes = [];
-  const restrictions = [
-    "while wearing heavy armor",
-    "",
-    null,
-  ];
-  const bonus = DDBHelper.filterModifiers(modifiers, "bonus", type, restrictions).reduce((a, b) => a + b.value, 0);
-  if (bonus !== 0) {
-    logger.debug(`Generating ${type} bonus for ${name}`);
-    const daeInstalled = game.modules.get("dae")?.active;
-    // using bonus here adds them to the bonus field, but then items that add a bonsu don't get applied
-    // (e.g. bracers of defense) if wearing something like robi of archmage.
-    // this is set to value, and show up as separate line in ac calculation.
-    // we set this to bonus if dae is not installed as itherwise it is not applied.
-    if (daeInstalled) {
-      changes.push(generateAddChange(bonus, 18, "system.attributes.ac.value"));
-    } else {
-      changes.push(generateAddChange(bonus, 18, "system.attributes.ac.bonus"));
-    }
-  }
+function addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "", null]) {
+  const bonusModifiers = DDBHelper.filterModifiers(modifiers, "bonus", subType, restrictions);
+
+  // using bonus here adds them to the bonus field, but then items that add a bonsu don't get applied
+  // (e.g. bracers of defense) if wearing something like robi of archmage.
+  // this is set to value, and show up as separate line in ac calculation.
+  // we set this to bonus if dae is not installed as itherwise it is not applied.
+  const key = game.modules.get("dae")?.active
+    ? "system.attributes.ac.value"
+    : "system.attributes.ac.bonus";
+
+  const changes = addAddEffect(bonusModifiers, name, subType, key);
+  if (changes.length > 0) logger.debug(`Generating ${subType} bonus for ${name}`);
+
   return changes;
 }
 
+
+/**
+ *
+ * Generate an effect given inputs for AC
+ * This is a high priority set effect that will typically override all other AE.
+ * @param {*} formula
+ * @param {*} label
+ * @param {*} alwaysActive
+ * @param {*} priority
+ * @param {*} mode
+ */
+export function generateBonusACEffect(modifiers, label, subType, restrictions = [], alwaysActive = true) {
+  let effect = buildBaseACEffect(label);
+
+  effect.flags = {
+    dae: { transfer: true, armorEffect: true },
+    ddbimporter: { disabled: !alwaysActive, itemId: null, entityTypeId: null, characterEffect: true },
+  };
+  // effect.disabled = !alwaysActive;
+  effect.disabled = false;
+  effect.origin = "AC";
+
+  const changes = addACBonusEffect(modifiers, label, subType, restrictions);
+  if (changes.length > 0) effect.changes = changes;
+
+  return effect;
+}
 
 function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
   if (
@@ -213,40 +233,36 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
 function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect) {
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
   const noACValue = !foundryItem.system?.armor?.value;
-  const daeInstalled = game.modules.get("dae")?.active;
-  const daeBonusField = daeInstalled ? "system.attributes.ac.value" : "system.attributes.ac.bonus";
 
   if (noModifiers && noACValue) return [];
   // console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.label}`);
 
   // base ac from modifiers
-  const acSets = daeInstalled ? addACSets(ddbItem.definition.grantedModifiers, foundryItem.name) : [];
+  const acSets = game.modules.get("dae")?.active
+    ? addACSets(ddbItem.definition.grantedModifiers, foundryItem.name)
+    : [];
 
   // ac bonus effects
   const acBonus = addACBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "armor-class",
-    daeBonusField
   );
   const unarmoredACBonus = addACBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "unarmored-armor-class",
-    daeBonusField
   );
   const armoredACBonus = addACBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "armored-armor-class",
-    daeBonusField
   );
   const dualWieldACBonus = addACBonusEffect(
     ddbItem.definition.grantedModifiers,
     foundryItem.name,
     "dual-wield-armor-class",
-    daeBonusField
   );
 
   const acChanges = [

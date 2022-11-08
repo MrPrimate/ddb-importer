@@ -546,7 +546,7 @@ function addCustomEffect(modifiers, name, type, key, extra = "") {
 /**
  * Generates a global add for an item
  */
-function addAddEffect(modifiers, name, type, key) {
+export function addAddEffect(modifiers, name, type, key) {
   let changes = [];
   // const bonus = DDBHelper.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
   const bonus = getValueFromModifiers(modifiers, name, type, "bonus");

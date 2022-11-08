@@ -1,7 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import DDBHelper from "../../lib/DDBHelper.js";
-import { generateFixedACEffect } from "../../effects/acEffects.js";
+import { generateFixedACEffect, generateBonusACEffect } from "../../effects/acEffects.js";
 import { getAllClassFeatures } from "./filterModifiers.js";
 
 /**
@@ -125,27 +125,6 @@ function getUnarmoredAC(modifiers, character) {
   });
   // console.warn(unarmoredACValues);
   return unarmoredACValues;
-}
-
-// returns an array of ac values from provided array of modifiers
-function getArmoredACBonuses(modifiers, character) {
-  let armoredACBonuses = [];
-  const armoredBonuses = modifiers.filter(
-    (modifier) => modifier.subType === "armored-armor-class" && modifier.isGranted
-  );
-  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
-
-  armoredBonuses.forEach((armoredBonus) => {
-    let armoredACBonus = 0;
-    if (armoredBonus.statId !== null) {
-      let ability = DICTIONARY.character.abilities.find((ability) => ability.id === armoredBonus.statId);
-      armoredACBonus += characterAbilities[ability.value].mod;
-    } else {
-      armoredACBonus += armoredBonus.value;
-    }
-    armoredACBonuses.push(armoredACBonus);
-  });
-  return armoredACBonuses;
 }
 
 function getDualWieldAC(data, modifiers) {
@@ -373,6 +352,7 @@ export function getArmorClass(ddb, character) {
   let baseAC = 10;
   // for things like fighters fighting style
   let miscACBonus = 0;
+  let bonusEffects = [];
   // lets get equipped gear
   const equippedGear = ddb.character.inventory.filter(
     (item) => item.equipped && item.definition.filterType !== "Armor"
@@ -403,29 +383,47 @@ export function getArmorClass(ddb, character) {
     });
   } else {
     // check for things like fighters fighting style defense
-    const armorBonusSources = [DDBHelper.getChosenClassModifiers(ddb), ddb.character.modifiers.race];
-    armorBonusSources.forEach((modifiers) => {
-      const armoredACBonuses = getArmoredACBonuses(modifiers, character);
-      miscACBonus += armoredACBonuses.reduce((a, b) => a + b, 0);
-    });
+    const armorBonusSources = [DDBHelper.getChosenClassModifiers(ddb), ddb.character.modifiers.race].flat();
+    const armoredBonuses = armorBonusSources.filter(
+      (modifier) => modifier.subType === "armored-armor-class" && modifier.isGranted
+    );
+    const effect = generateBonusACEffect(armoredBonuses, "AC: Armored Misc Bonuses", "armored-armor-class", null);
+    if (effect.changes.length > 0) bonusEffects.push(effect);
   }
 
   // Generic AC bonuses like Warforfed Integrated Protection
   // item modifiers are loaded by ac calcs
   const miscModifiers = [
     DDBHelper.getChosenClassModifiers(ddb),
-    ddb.character.modifiers.race,
-    ddb.character.modifiers.background,
-    ddb.character.modifiers.feat,
+    DDBHelper.getModifiers(ddb, "race"),
+    DDBHelper.getModifiers(ddb, "background"),
+    DDBHelper.getModifiers(ddb, "feat")
   ];
 
   DDBHelper.filterModifiers(miscModifiers, "bonus", "armor-class", ["", null], true).forEach((bonus) => {
-    miscACBonus += bonus.value;
+    const component = DDBHelper.findComponentByComponentId(ddb, bonus.componentId);
+    const name = component ? component.definition?.name ?? component.name : `AC: Misc (${bonus.friendlySubtypeName})`;
+    const effect = generateBonusACEffect([bonus], name, "armor-class", null);
+    if (effect.changes.length > 0) bonusEffects.push(effect);
   });
 
-  miscACBonus += ddb.character.characterValues.filter((value) =>
-    value.typeId === 3 || value.typeId === 2
-  ).map((val) => val.value).reduce((a, b) => a + b, 0);
+  ddb.character.characterValues.filter((value) =>
+    (value.typeId === 3 || value.typeId === 2)
+    && value.value !== 0
+  ).forEach((custom) => {
+    const name = custom.notes && custom.notes.trim() !== "" ? custom.notes : "AC: Custom Bonus";
+    const effect = generateBonusACEffect([], name, "custom", null);
+    const key = game.modules.get("dae")?.active
+      ? "system.attributes.ac.value"
+      : "system.attributes.ac.bonus";
+    effect.changes.push({
+      key,
+      value: custom.value,
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      priority: 30,
+    });
+    bonusEffects.push(effect);
+  });
 
   miscACBonus += getDualWieldAC(ddb, miscModifiers);
 
@@ -468,7 +466,7 @@ export function getArmorClass(ddb, character) {
   };
   const results = calculateACOptions(ddb, character, calculatedArmor);
 
-  logger.debug("Final AC Results:", results);
+  logger.debug("Calculated AC Results:", results);
   // get the max AC we can use from our various computed values
   // const max = Math.max(...results.armorClassValues.map((type) => type.value));
 
@@ -514,6 +512,7 @@ export function getArmorClass(ddb, character) {
     },
     base: results.actorBase,
     effects: results.effects,
+    bonusEffects: bonusEffects,
     override: {
       flat: results.maxValue,
       calc: "flat",

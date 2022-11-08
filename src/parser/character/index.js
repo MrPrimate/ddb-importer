@@ -130,6 +130,7 @@ export default async function getCharacter(ddb) {
   const ac = getArmorClass(ddb, character);
   character.system.attributes.ac = ac.auto;
   character.flags.ddbimporter.acEffects = ac.effects;
+  character.effects = character.effects.concat(ac.bonusEffects);
   character.flags.ddbimporter.baseAC = ac.base;
   character.flags.ddbimporter.autoAC = ac.auto;
   character.flags.ddbimporter.overrideAC = ac.override;
