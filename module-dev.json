@@ -31,13 +31,22 @@
     }
   ],
   "relationships": {
-    "systems": [{
-      "id": "dnd5e",
-      "type": "system",
-      "compatibility": {
-        "verified": "2.0.0"
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "verified": "2.0.0"
+        }
+      },
+      {
+        "id": "a5e",
+        "type": "system",
+        "compatibility": {
+          "verified": "0.0.0"
+        }
       }
-    }]
+    ]
   },
   "scripts": [
     "./vendor/jszip/jszip.min.js"
