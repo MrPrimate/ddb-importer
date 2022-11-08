@@ -119,7 +119,11 @@ export function getBonusWeaponAttacks(data, character, type) {
  * @param {*} character
  */
 export function getBonusAbilities(data, character) {
-  let result = {};
+  let result = {
+    "check": "",
+    "save": "",
+    "skill": "",
+  };
   const bonusLookup = [
     { fvttType: "check", ddbSubType: "ability-checks" },
     { fvttType: "save", ddbSubType: "saving-throws" },
@@ -128,7 +132,7 @@ export function getBonusAbilities(data, character) {
 
   bonusLookup.forEach((b) => {
     const bonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
-    result[b.fvttType] = bonus === 0 ? "" : `${bonus}`;
+    if (bonus !== 0) result[b.fvttType] = `+ ${bonus}`;
   });
   return result;
 }
@@ -142,10 +146,17 @@ export function getBonusSpellDC(data, character) {
     { fvttType: "dc", ddbSubType: "warlock-spell-save-dc" },
   ];
 
-  bonusLookup.forEach((b) => {
-    const bonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
-    result[b.fvttType] += bonus;
-  });
+  const bonus = bonusLookup.map((b) => {
+    return DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
+  })
+    .filter((b) => b && b !== 0 && String(b).trim() !== "")
+    .reduce((previous, current) => {
+      return previous !== "" ? [previous, current].join(" + ") : current;
+    }, "");
+
+  if (bonus.trim() !== "") {
+    result["dc"] = bonus;
+  }
 
   return result;
 }
