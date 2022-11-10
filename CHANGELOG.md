@@ -1,3 +1,7 @@
+# 3.1.26
+
+* Sleep spell macro did not display the token images in chat.
+
 # 3.1.25
 
 * Characters: Fix for Custom AC bonuses no longer appearing.
