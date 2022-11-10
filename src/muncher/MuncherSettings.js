@@ -188,7 +188,7 @@ const MuncherSettings = {
       {
         name: "use-item-containers",
         isChecked: game.modules.get("itemcollection")?.active && game.settings.get("ddb-importer", "character-update-policy-use-item-containers"),
-        description: "If Item Containers module is installed, put items in containers to match DDB layout",
+        description: "If Item Collection/Containers module is installed, put items in containers to match DDB layout",
         enabled: game.modules.get("itemcollection")?.active,
       },
     ];
