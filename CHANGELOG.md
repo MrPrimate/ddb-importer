@@ -1,6 +1,7 @@
 # 3.1.26
 
 * Sleep spell macro did not display the token images in chat.
+* Try and reduce errors when SRD Compendium is not present.
 
 # 3.1.25
 

@@ -134,6 +134,19 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
     result.lookups.items = await getItemMap();
   }
 
+  // vehicles
+  if (!customProxy && cobalt) {
+    const vehicleData = await getVehicleData();
+
+    result.lookups.vehicles = vehicleData.map((v) => {
+      return {
+        id: v.id,
+        url: v.url,
+        name: v.name,
+      };
+    });
+  }
+
   const rulesCompendium = "dnd5e.rules";
   const srdCompendium = CompendiumHelper.getCompendium(rulesCompendium);
   if (!srdCompendium) return result;
@@ -161,36 +174,41 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
   }
 
   const senseEntryDocument = srdDocuments.find((d) => d.name === "Appendix D: Senses and Speeds");
-  result.lookups.senses = CONFIG.DDB.senses.filter((sense) => senseEntryDocument.pages.some((p) => p.name === sense.name))
-    .map((sense) => {
-      const senseEntryPage = senseEntryDocument.pages.find((p) => p.name === sense.name);
-      return {
-        id: sense.id,
-        _id: senseEntryDocument._id,
-        name: sense.name,
-        compendium: rulesCompendium,
-        documentName: senseEntryDocument.name,
-        pageId: senseEntryPage._id,
-        headerLink: null,
-      };
-    });
+  if (senseEntryDocument) {
+    result.lookups.senses = CONFIG.DDB.senses
+      .filter((sense) => senseEntryDocument.pages.some((p) => p.name === sense.name))
+      .map((sense) => {
+        const senseEntryPage = senseEntryDocument.pages.find((p) => p.name === sense.name);
+        return {
+          id: sense.id,
+          _id: senseEntryDocument._id,
+          name: sense.name,
+          compendium: rulesCompendium,
+          documentName: senseEntryDocument.name,
+          pageId: senseEntryPage._id,
+          headerLink: null,
+        };
+      });
+  }
 
   const conditionEntryDocument = srdDocuments.find((d) => d.name === "Appendix A: Conditions");
-  result.lookups.conditions = CONFIG.DDB.conditions
-    .filter((condition) => conditionEntryDocument.pages.some((p) => p.name.trim() === condition.definition.name.trim()))
-    .map((condition) => {
-      const conditionEntryPage = conditionEntryDocument.pages.find((p) => p.name.trim() === condition.definition.name.trim());
-      return {
-        id: condition.definition.id,
-        _id: conditionEntryDocument.id,
-        name: condition.definition.name,
-        compendium: rulesCompendium,
-        slug: condition.definition.slug,
-        documentName: conditionEntryDocument.name,
-        pageId: conditionEntryPage._id,
-        headerLink: null,
-      };
-    });
+  if (conditionEntryDocument) {
+    result.lookups.conditions = CONFIG.DDB.conditions
+      .filter((condition) => conditionEntryDocument.pages.some((p) => p.name.trim() === condition.definition.name.trim()))
+      .map((condition) => {
+        const conditionEntryPage = conditionEntryDocument.pages.find((p) => p.name.trim() === condition.definition.name.trim());
+        return {
+          id: condition.definition.id,
+          _id: conditionEntryDocument.id,
+          name: condition.definition.name,
+          compendium: rulesCompendium,
+          slug: condition.definition.slug,
+          documentName: conditionEntryDocument.name,
+          pageId: conditionEntryPage._id,
+          headerLink: null,
+        };
+      });
+  }
 
   const actionEntryDocument = srdDocuments.find((d) => d.name === "Chapter 9: Combat");
   if (actionEntryDocument) {
@@ -233,19 +251,6 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
         documentName: equipmentDocument.name,
         pageId: weaponPropertiesPage._id,
         headerLink: "Weapon Properties",
-      };
-    });
-  }
-
-  // vehicles
-  if (!customProxy && cobalt) {
-    const vehicleData = await getVehicleData();
-
-    result.lookups.vehicles = vehicleData.map((v) => {
-      return {
-        id: v.id,
-        url: v.url,
-        name: v.name,
       };
     });
   }
