@@ -11,6 +11,13 @@ function getItemType(data) {
     return {
       type: "backpack",
     };
+  } else if (data.definition.name.startsWith("Lantern,")
+    || ["Lamp"].includes(data.definition.name)
+  ) {
+    return {
+      type: "consumable",
+      consumableType: "trinket",
+    };
   }
 
   const foundryTypes = ["weapon", "equipment", "consumable", "tool", "loot", "class", "spell", "feat", "backpack"];

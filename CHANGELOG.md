@@ -2,6 +2,7 @@
 
 * Sleep spell macro did not display the token images in chat.
 * Try and reduce errors when SRD Compendium is not present.
+* Lanterns and Lamps now import as Trinkets.
 
 # 3.1.25
 
