@@ -154,7 +154,7 @@ export function getBonusSpellDC(data, character) {
       return previous !== "" ? [previous, current].join(" + ") : current;
     }, "");
 
-  if (bonus.trim() !== "") {
+  if (bonus && String(bonus).trim() !== "") {
     result["dc"] = bonus;
   }
 
