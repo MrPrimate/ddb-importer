@@ -7,6 +7,8 @@ import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
 import { parseVehicles } from "./vehicle/vehicle.js";
 // import { createCompendiumFolderStructure } from "./compendiumFolders.js";
+import SETTINGS from "../settings.js";
+import DDBProxy from "../lib/DDBProxy.js";
 
 /**
  *
@@ -14,8 +16,8 @@ import { parseVehicles } from "./vehicle/vehicle.js";
  */
 export function getVehicleData(ids) {
   const cobaltCookie = getCobalt();
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const parsingApi = DDBProxy.getProxy();
 
   const campaignId = getCampaignId();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
@@ -25,24 +27,24 @@ export function getVehicleData(ids) {
   } else {
     const searchFilter = $("#monster-munch-filter")[0];
     const searchTerm = searchFilter?.value || "";
-    const enableSources = game.settings.get("ddb-importer", "munching-policy-use-source-filter");
+    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
     const sources = enableSources
-      ? game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat()
+      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
       : [];
     body.sources = sources;
     body.search = searchTerm;
-    body.homebrew = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew");
-    body.homebrewOnly = body.sources.length > 0 ? false : game.settings.get("ddb-importer", "munching-policy-monster-homebrew-only");
+    body.homebrew = body.sources.length > 0 ? false : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew");
+    body.homebrewOnly = body.sources.length > 0 ? false : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only");
     body.searchTerm = encodeURIComponent(searchTerm);
-    body.exactMatch = game.settings.get("ddb-importer", "munching-policy-monster-exact-match");
-    body.excludeLegacy = game.settings.get("ddb-importer", "munching-policy-exclude-legacy");
+    body.exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match");
+    body.excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
   }
 
   const url = ids && ids.length > 0
     ? `${parsingApi}/proxy/vehicles/ids`
     : `${parsingApi}/proxy/vehicles`;
 
-  const debugJson = game.settings.get("ddb-importer", "debug-json");
+  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
   return new Promise((resolve, reject) => {
     fetch(url, {
@@ -93,10 +95,10 @@ async function processVehicleData(ddbData) {
 
 export async function parseTransports(ids = null) {
   setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
-  const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-  const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
-  const bulkImport = game.settings.get("ddb-importer", "munching-policy-monster-bulk-import");
+  const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+  const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
+  const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+  const bulkImport = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-bulk-import");
 
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
@@ -131,7 +133,7 @@ export async function parseTransports(ids = null) {
   await generateIconMap(finalVehicles);
 
   // Compendium folders not yet in use for Vehicles
-  // const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
+  // const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
   // const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   // if (addToCompendiumFolder && compendiumFoldersInstalled) {
   //   munchNote(`Checking compendium folders..`, true);

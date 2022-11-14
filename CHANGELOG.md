@@ -1,3 +1,7 @@
+# 3.1.26
+
+* Better checking for invalid generated effects.
+
 # 3.1.25
 
 * Sleep spell macro did not display the token images in chat.

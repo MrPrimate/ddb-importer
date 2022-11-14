@@ -4,12 +4,14 @@ import { munchNote } from "./ddb.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 import FileHelper from "../lib/FileHelper.js";
+import SETTINGS from "../settings.js";
+import DDBProxy from "../lib/DDBProxy.js";
 
 async function getFrameData() {
   const cobaltCookie = getCobalt();
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const debugJson = game.settings.get("ddb-importer", "debug-json");
+  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const parsingApi = DDBProxy.getProxy();
+  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
   const body = {
     cobalt: cobaltCookie,

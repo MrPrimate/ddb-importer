@@ -1,5 +1,7 @@
 import { DirectoryPicker } from "../lib/DirectoryPicker.js";
 import logger from "../logger.js";
+import SETTINGS from "../settings.js";
+import DDBProxy from "./DDBProxy.js";
 
 const FileHelper = {
   BAD_DIRS: ["[data]", "[data] ", "", null],
@@ -182,7 +184,7 @@ const FileHelper = {
   uploadRemoteImage: async function (url, targetDirectory, baseFilename, useProxy = true) {
     // prepare filenames
     const filename = baseFilename;
-    const useWebP = game.settings.get("ddb-importer", "use-webp");
+    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
     const ext = useWebP
       ? "webp"
       : url
@@ -191,8 +193,8 @@ const FileHelper = {
         .split(/#|\?|&/)[0];
 
     try {
-      const proxyEndpoint = game.settings.get("ddb-importer", "cors-endpoint");
-      const urlEncode = game.settings.get("ddb-importer", "cors-encode");
+      const proxyEndpoint = DDBProxy.getCORSProxy();
+      const urlEncode = game.settings.get(SETTINGS.MODULE_ID, "cors-encode");
       const target = urlEncode ? encodeURIComponent(url) : url;
       url = useProxy ? proxyEndpoint + target : url;
       const data = await FileHelper.downloadImage(url);

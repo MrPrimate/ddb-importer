@@ -23,16 +23,12 @@ import FileHelper from "../../lib/FileHelper.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import MuncherSettings from "../../muncher/MuncherSettings.js";
 import { generateIcon } from "../../lib/icons.js";
+import DDBProxy from "../../lib/DDBProxy.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
   game.settings.set("ddb-importer", "cobalt-cookie", "");
   game.settings.set("ddb-importer", "campaign-id", "");
-}
-
-function resetProxy() {
-  game.settings.set("ddb-importer", "api-endpoint", "https://proxy.ddb.mrprimate.co.uk");
-  game.settings.set("ddb-importer", "custom-proxy", false);
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -73,7 +69,7 @@ export function registerWindow() {
     parseItems,
     parseMonsters,
     parseSpells,
-    resetProxy,
+    resetProxy: DDBProxy.resetProxy,
     resetSecrets,
     setPatreonTier: PatreonHelper.setPatreonTier,
     updateDDBCharacter,

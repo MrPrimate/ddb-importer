@@ -104,6 +104,13 @@ const COMPENDIUM_REMOVE_FLAGS = [
   "flags.ddbimporter.ignoreIcon",
 ];
 
+const DEFAULTS = {
+  BASE_URL: "ddb.mrprimate.co.uk",
+  PROXY: "https://proxy.ddb.mrprimate.co.uk",
+  CORS: "https://images.ddb.mrprimate.co.uk/",
+  DYNAMIC: "https://dynamic.ddb.mrprimate.co.uk",
+};
+
 const SETTINGS = {
   MODULE_ID: "ddb-importer",
   FLAG_NAME: "ddbimporter",
@@ -116,6 +123,7 @@ const SETTINGS = {
   COMPENDIUM_REMOVE_FLAGS,
   ADVENTURE_FLAG: "isDDBAdventure",
   ADVENTURE_CSS: "ddbAdventure",
+  DEFAULTS,
   DEFAULT_SETTINGS: {
     // these settigs are loaded during renderSidebarTab
     EARLY: {
@@ -161,6 +169,12 @@ const SETTINGS = {
         config: false,
         type: Boolean,
         default: true,
+      },
+      "developer-mode": {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: false,
       },
     },
     // ready settings
@@ -1100,15 +1114,15 @@ const SETTINGS = {
       PROXY: {
         "api-endpoint": {
           type: String,
-          default: "https://proxy.ddb.mrprimate.co.uk",
+          default: DEFAULTS.PROXY,
         },
         "cors-endpoint": {
           type: String,
-          default: "https://images.ddb.mrprimate.co.uk/",
+          default: DEFAULTS.CORS,
         },
         "dynamic-api-endpoint": {
           type: String,
-          default: "https://dynamic.ddb.mrprimate.co.uk",
+          default: DEFAULTS.DYNAMIC,
         },
         "cors-encode": {
           type: Boolean,

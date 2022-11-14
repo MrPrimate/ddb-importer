@@ -5,6 +5,7 @@ import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCob
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
 import FileHelper from "../lib/FileHelper.js";
+import DDBProxy from "./DDBProxy.js";
 
 const POPUPS = {
   json: null,
@@ -54,7 +55,7 @@ export function isSetupComplete(needsCobalt = true) {
 
 async function linkToPatreon() {
 
-  const proxy = game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
+  const proxy = DDBProxy.getProxy();
   const patreonId = "oXQUxnRAbV6mq2DXlsXY2uDYQpU-Ea2ds0G_5hIdi0Bou33ZRJgvV8Ub3zsEQcHp";
   const patreonAuthUrl = `${proxy}/patreon/auth`;
   const patreonScopes = encodeURI("identity identity[email]");
@@ -108,7 +109,7 @@ async function linkToPatreon() {
 
 function getDDBCampaigns(cobalt = null) {
   const cobaltCookie = cobalt ? cobalt : getCobalt();
-  const parsingApi = game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
+  const parsingApi = DDBProxy.getProxy();
   const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
   const body = { cobalt: cobaltCookie, betaKey: betaKey };
 

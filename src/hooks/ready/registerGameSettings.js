@@ -29,6 +29,7 @@ setProperty(CONFIG, "DDBI", {
     packs: {},
   },
   DEV: {
+    enabled: false,
     clippy: {},
     tableInUse: false,
   },
@@ -154,16 +155,6 @@ export default function () {
   // SETTING TWEAKS AND MIGRATIONS
   createFolderPaths();
 
-  const ddbProxy = game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
-  if (ddbProxy === "https://ddb.mrprimate.co.uk") {
-    game.settings.set(SETTINGS.MODULE_ID, "api-endpoint", "https://proxy.ddb.mrprimate.co.uk");
-  }
-
-  const corsEndpoint = game.settings.get(SETTINGS.MODULE_ID, "cors-endpoint");
-  if (corsEndpoint === "https://london.drop.mrprimate.co.uk/") {
-    game.settings.set(SETTINGS.MODULE_ID, "cors-endpoint", "https://images.ddb.mrprimate.co.uk/");
-  }
-
   if (game.user.isGM && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local")
     && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie") != "") {
     game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", false);
@@ -182,4 +173,9 @@ export default function () {
     type: ResetSettingsDialog,
     restricted: true,
   });
+
+
+  if (game.settings.get(SETTINGS.MODULE_ID, "developer-mode")) {
+    CONFIG.DDBI.DEV.enabled = true;
+  }
 }

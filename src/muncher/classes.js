@@ -6,14 +6,16 @@ import { getClassOptions } from "./classes/options.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
 import FileHelper from "../lib/FileHelper.js";
+import SETTINGS from "../settings.js";
+import DDBProxy from "../lib/DDBProxy.js";
 
 function getSubClassesData(className) {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const parsingApi = DDBProxy.getProxy();
+  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
-  const debugJson = game.settings.get("ddb-importer", "debug-json");
+  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/subclass`, {
@@ -43,10 +45,10 @@ function getSubClassesData(className) {
 function getClassOptionsData(className) {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const parsingApi = DDBProxy.getProxy();
+  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
-  const debugJson = game.settings.get("ddb-importer", "debug-json");
+  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/v5/classes/options`, {
@@ -76,10 +78,10 @@ function getClassOptionsData(className) {
 function getClassesData() {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const parsingApi = DDBProxy.getProxy();
+  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
-  const debugJson = game.settings.get("ddb-importer", "debug-json");
+  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/classes`, {

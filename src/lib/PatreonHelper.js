@@ -1,12 +1,14 @@
 import { munchNote } from "../muncher/ddb.js";
+import SETTINGS from "../settings.js";
+import DDBProxy from "./DDBProxy.js";
 
 const PatreonHelper = {
 
   getPatreonTier: async () => {
     const customProxy = game.settings.get("ddb-importer", "custom-proxy");
     if (customProxy) return { success: true, message: "custom proxy", data: "CUSTOM" };
-    const key = game.settings.get("ddb-importer", "beta-key");
-    const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+    const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: key };
 
     return new Promise((resolve, reject) => {
@@ -24,7 +26,7 @@ const PatreonHelper = {
             munchNote(`API Failure: ${data.message}`);
             reject(data.message);
           }
-          let currentEmail = game.settings.get("ddb-importer", "patreon-user");
+          let currentEmail = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
           if (data.email !== currentEmail) {
             game.settings.set("ddb-importer", "patreon-user", data.email).then(() => {
               resolve(data.data);
@@ -38,9 +40,9 @@ const PatreonHelper = {
   },
 
   getPatreonValidity: async (betaKey) => {
-    const customProxy = game.settings.get("ddb-importer", "custom-proxy");
+    const customProxy = game.settings.get(SETTINGS.MODULE_ID, "custom-proxy");
     if (customProxy) return { success: true, message: "custom proxy", data: true };
-    const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+    const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: betaKey };
 
     return new Promise((resolve, reject) => {
@@ -64,7 +66,7 @@ const PatreonHelper = {
     const godTier = tier === "GOD";
     const undyingTier = tier === "UNDYING";
     const coffeeTier = tier === "COFFEE";
-    const customProxy = game.settings.get("ddb-importer", "custom-proxy");
+    const customProxy = game.settings.get(SETTINGS.MODULE_ID, "custom-proxy");
     const custom = tier === "CUSTOM" || customProxy;
 
     const tiers = {
@@ -91,7 +93,7 @@ const PatreonHelper = {
 
   setPatreonTier: async () => {
     const tier = await PatreonHelper.getPatreonTier();
-    game.settings.set("ddb-importer", "patreon-tier", tier);
+    game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
   },
 
 };

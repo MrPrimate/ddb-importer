@@ -10,6 +10,7 @@ import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates, setActiveSyncSpellsFlag } from "./utils.js";
 import { getActorConditionStates, getCondition } from "./conditions.js";
 import { getItemCollectionItems } from "./itemCollections.js";
+import DDBProxy from "../lib/DDBProxy.js";
 
 function activeUpdate() {
   const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
@@ -59,8 +60,8 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const cobaltCookie = getCobalt(actor.id);
   const dynamicSync = activeUpdate();
   const parsingApi = dynamicSync
-    ? game.settings.get("ddb-importer", "dynamic-api-endpoint")
-    : game.settings.get("ddb-importer", "api-endpoint");
+    ? DDBProxy.getDynamicProxy()
+    : DDBProxy.getProxy();
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;

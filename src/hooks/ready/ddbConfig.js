@@ -1,6 +1,8 @@
 import logger from "../../logger.js";
 import { fallbackDDBConfig } from "./fallbackConfig.js";
 import FileHelper from "../../lib/FileHelper.js";
+import SETTINGS from "../../settings.js";
+import DDBProxy from "../../lib/DDBProxy.js";
 
 function directConfig() {
   $.getJSON("https://www.dndbeyond.com/api/config/json")
@@ -27,8 +29,8 @@ function directConfig() {
 }
 
 function proxyConfig() {
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const debugJson = game.settings.get("ddb-importer", "debug-json");
+  const parsingApi = DDBProxy.getProxy();
+  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
   const url = `${parsingApi}/proxy/api/config/json`;
   return new Promise((resolve, reject) => {

@@ -10,6 +10,8 @@ import { getAvailableCampaigns } from "../lib/Settings.js";
 import { parseCritters } from "./monsters.js";
 import AdventureMunchHelpers from "./adventure/AdventureMunchHelpers.js";
 import { importCharacterById } from "../character/import.js";
+import SETTINGS from "../settings.js";
+import DDBProxy from "../lib/DDBProxy.js";
 
 const DIFFICULTY_LEVELS = [
   { id: null, name: "No challenge", color: "grey" },
@@ -31,9 +33,9 @@ const SCENE_IMG = [
 
 async function getEncounterData() {
   const cobaltCookie = getCobalt();
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const debugJson = game.settings.get("ddb-importer", "debug-json");
+  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const parsingApi = DDBProxy.getProxy();
+  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
   const body = {
     cobalt: cobaltCookie,
@@ -218,7 +220,7 @@ export class DDBEncounterMunch extends Application {
   }
 
   async importMonsters() {
-    const importMonsters = game.settings.get("ddb-importer", "encounter-import-policy-missing-monsters");
+    const importMonsters = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-monsters");
 
     if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
       logger.debug("Importing missing monsters from DDB");
@@ -305,7 +307,7 @@ export class DDBEncounterMunch extends Application {
   }
 
   async importCharacters(html) {
-    const importCharacters = game.settings.get("ddb-importer", "encounter-import-policy-missing-characters");
+    const importCharacters = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters");
     if (importCharacters && this.encounter.missingCharacters) {
       await AdventureMunchHelpers.asyncForEach(this.encounter.missingCharacterData, async (character) => {
         await importCharacterById(character.ddbId, html);
@@ -324,7 +326,7 @@ export class DDBEncounterMunch extends Application {
       },
     };
 
-    const importJournal = game.settings.get("ddb-importer", "encounter-import-policy-create-journal");
+    const importJournal = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-journal");
     if (importJournal) {
       const journalFolder = await utils.getFolder(
         "journal",
@@ -424,8 +426,8 @@ export class DDBEncounterMunch extends Application {
   }
 
   async createScene() {
-    const importDDBIScene = game.settings.get("ddb-importer", "encounter-import-policy-create-scene");
-    const useExistingScene = game.settings.get("ddb-importer", "encounter-import-policy-existing-scene");
+    const importDDBIScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene");
+    const useExistingScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene");
 
     let sceneData;
     let worldScene;
@@ -448,7 +450,7 @@ export class DDBEncounterMunch extends Application {
     if (sceneData) {
       let tokenData = [];
       const useDDBSave
-        = this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
+        = this.encounter.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
       const xSquares = sceneData.width / sceneData.grid.size;
       const ySquares = sceneData.height / sceneData.grid.size;
       const midSquareOffset = sceneData.grid.size / 2;
@@ -586,14 +588,14 @@ export class DDBEncounterMunch extends Application {
   }
 
   async createCombatEncounter() {
-    const importCombat = game.settings.get("ddb-importer", "encounter-import-policy-create-scene")
-      || game.settings.get("ddb-importer", "encounter-import-policy-existing-scene");
+    const importCombat = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene")
+      || game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene");
 
     if (!importCombat) return undefined;
     logger.debug(`Creating combat for encounter ${this.encounter.name}`);
 
     const useDDBSave
-      = this.encounter.inProgress && game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save");
+      = this.encounter.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
 
     await this.scene.view();
     this.combat = await Combat.create({ scene: this.scene.id });
@@ -673,14 +675,14 @@ export class DDBEncounterMunch extends Application {
       .on("change", (event) => {
         switch (event.currentTarget.dataset.section) {
           case "create-scene": {
-            game.settings.set("ddb-importer", "encounter-import-policy-existing-scene", false);
+            game.settings.set(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene", false);
             if (event.currentTarget.checked) $("#encounter-scene-select").prop("disabled", true);
             $("#encounter-scene-img-select").prop("disabled", !event.currentTarget.checked);
             $("#encounter-import-policy-existing-scene").prop('checked', false);
             break;
           }
           case "existing-scene": {
-            game.settings.set("ddb-importer", "encounter-import-policy-create-scene", false);
+            game.settings.set(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene", false);
             if (event.currentTarget.checked) $("#encounter-scene-img-select").prop("disabled", true);
             $("#encounter-scene-select").prop("disabled", !event.currentTarget.checked);
             $("#encounter-import-policy-create-scene").prop('checked', false);
@@ -817,7 +819,7 @@ export class DDBEncounterMunch extends Application {
 
   // eslint-disable-next-line class-methods-use-this
   async getData() {
-    const tier = game.settings.get("ddb-importer", "patreon-tier");
+    const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
     const tiers = PatreonHelper.getPatreonTiers(tier);
     const availableCampaigns = await getAvailableCampaigns();
     const availableEncounters = await filterEncounters();
@@ -830,37 +832,37 @@ export class DDBEncounterMunch extends Application {
     const encounterConfig = [
       {
         name: "missing-characters",
-        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-missing-characters"),
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters"),
         enabled: true,
         description: "Import missing characters?",
       },
       {
         name: "missing-monsters",
-        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-missing-monsters"),
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-monsters"),
         enabled: true,
         description: "Import missing monsters?",
       },
       {
         name: "create-journal",
-        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-create-journal"),
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-journal"),
         enabled: true,
         description: "Create encounter journal entry?",
       },
       {
         name: "use-ddb-save",
-        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-use-ddb-save"),
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save"),
         enabled: false,
         description: "Use save information from Encounter (HP for monsters and initiative for all)?",
       },
       {
         name: "create-scene",
-        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-create-scene"),
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
         enabled: true,
         description: "Create/update a scene to use, and add available characters and NPC's?",
       },
       {
         name: "existing-scene",
-        isChecked: game.settings.get("ddb-importer", "encounter-import-policy-existing-scene"),
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
         enabled: true,
         description: "Use an existing scene?",
       },
@@ -884,8 +886,8 @@ export class DDBEncounterMunch extends Application {
       encounterConfig,
       sceneImg: SCENE_IMG,
       scenes,
-      createSceneSelect: game.settings.get("ddb-importer", "encounter-import-policy-create-scene"),
-      existingSceneSelect: game.settings.get("ddb-importer", "encounter-import-policy-existing-scene"),
+      createSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
+      existingSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
     };
 
     const data = mergeObject(importSettings, encounterSettings);

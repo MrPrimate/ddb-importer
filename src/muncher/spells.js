@@ -7,17 +7,19 @@ import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
+import SETTINGS from "../settings.js";
+import DDBProxy from "../lib/DDBProxy.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
+  const parsingApi = DDBProxy.getProxy();
+  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
-  const debugJson = game.settings.get("ddb-importer", "debug-json");
-  const enableSources = game.settings.get("ddb-importer", "munching-policy-use-source-filter");
+  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
+  const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
   const sources = enableSources
-    ? game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat()
+    ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
     : [];
 
   return new Promise((resolve, reject) => {
@@ -54,13 +56,13 @@ function getSpellData(className, sourceFilter) {
 }
 
 export async function parseSpells(ids = null) {
-  const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  const uploadDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
+  const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+  const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
   // to speed up file checking we pregenerate existing files now.
   await FileHelper.generateCurrentFiles(uploadDirectory);
 
-  const addToCompendiumFolder = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
+  const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
   const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   if (addToCompendiumFolder && compendiumFoldersInstalled) {
     munchNote(`Checking compendium folders..`, true);

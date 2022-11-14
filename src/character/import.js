@@ -30,6 +30,7 @@ import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdat
 import { setConditions } from "./conditions.js";
 import { autoLinkResources } from "../parser/character/resources.js";
 import { addContainerItemsToContainers, addContainerItemsToActor } from "./itemCollections.js";
+import DDBProxy from "../lib/DDBProxy.js";
 
 const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
 
@@ -148,7 +149,7 @@ export async function getCharacterData({ currentActorId = undefined, characterId
   localCobaltPostFix = "", resourceSelection = true } = {}
 ) {
   const cobaltCookie = getCobalt(localCobaltPostFix);
-  const parsingApi = game.settings.get("ddb-importer", "api-endpoint");
+  const parsingApi = DDBProxy.getProxy();
   const betaKey = game.settings.get("ddb-importer", "beta-key");
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
@@ -1148,7 +1149,7 @@ export default class CharacterImport extends FormApplication {
     if (abilityOverrides.changes.length > 0) {
       this.result.character.effects = this.result.character.effects.concat(abilityOverrides);
     }
-
+    this.result.character.effects = this.result.character.effects.filter((e) => e !== undefined);
     this.result.character.effects.forEach((effect) => {
       const origins = ["Ability.Override", "AC", `Actor.${this.actor.flags.ddbimporter.dndbeyond.characterId}`];
       if (origins.includes(effect.origin)) {
