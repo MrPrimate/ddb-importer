@@ -2,6 +2,7 @@
 
 * Better checking for invalid generated effects.
 * You can now enable and change the custom proxy address in the DDB Importer Settings menu.
+* If updating to DDB with Artificer infusions, the `[Infusion]` name tag would by appended to the DDB Item with every sync.
 
 # 3.1.25
 

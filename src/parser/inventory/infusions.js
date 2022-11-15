@@ -150,7 +150,7 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     foundryItem.system.description.chat += `<div class="infusion-description"><p><b>Infusion: ${infusionDetail.name}</b></p><p>${infusionDetail.snippet ? infusionDetail.snippet : ""}</p></div>`;
 
     // adjust name for infused item
-    foundryItem.name += " [Infusion]";
+    if (!foundryItem.name.includes("[Infusion]")) foundryItem.name += " [Infusion]";
     // if item is loot, lets move it to equipment/trinket so effects will apply
     if (foundryItem.type === "loot") {
       foundryItem.type = "equipment";

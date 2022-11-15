@@ -736,7 +736,7 @@ async function updateDDBCustomNames(actor, items) {
         contextTypeId: null,
         notes: null,
         typeId: 8,
-        value: item.name,
+        value: item.name.replaceAll("[Infusion]", "").trim(),
         valueId: `${item.flags.ddbimporter.id}`,
         valueTypeId: `${item.flags.ddbimporter.entityTypeId}`,
       }
@@ -763,7 +763,8 @@ async function updateCustomNames(actor, ddbData) {
     && item.flags.ddbimporter?.id
     && ddbItems.some((ddbItem) =>
       ddbItem.flags.ddbimporter?.id === item.flags.ddbimporter.id
-      && ddbItem.type === item.type && ddbItem.name !== item.name
+      && ddbItem.type === item.type
+      && ddbItem.name.replaceAll("[Infusion]", "").trim() !== item.name.replaceAll("[Infusion]", "").trim()
     )
   );
 
@@ -856,7 +857,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
         contextTypeId: null,
         notes: null,
         typeId: 8,
-        value: item.name,
+        value: item.name.replaceAll("[Infusion]", "").trim(),
         valueId: `${item.flags.ddbimporter.id}`,
         valueTypeId: `${entityTypeId}`,
       }
@@ -960,10 +961,10 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     && ddbItems.some((dItem) =>
       // item.flags.ddbimporter.id === dItem.id &&
       item.flags.ddbimporter.originalName === dItem.definition.name
-      && item.flags.ddbimporter.originalName !== item.name
+      && item.flags.ddbimporter.originalName !== item.name.replaceAll("[Infusion]", "").trim()
       && !item.system.quantity == 0
       && dItem.id === item.flags.ddbimporter?.id
-      && item.name !== dItem.definition.name
+      && item.name.replaceAll("[Infusion]", "").trim() !== dItem.definition.name
     )
   );
 
