@@ -1,0 +1,12 @@
+<div class="form-description">
+  <form id="ddb-importer-custom-proxy" autocomplete="off" onsubmit="event.preventDefault();">
+    <p>{{localize "ddb-importer.Dialogs.DDBProxy.AddressExample"}}</p>
+    <input id="api-endpoint" class="setup-config" type="text" name="api-endpoint" style="flex: 0 1 auto" ; value="{{this.proxyAddress}}" />
+    <hr>
+    <input {{#if this.useCustomProxy}}checked{{/if}} class="setup-config" type="checkbox" name="custom-proxy"
+    style="flex: 0 1 auto"> {{localize "ddb-importer.Dialogs.DDBProxy.Use"}}
+    <hr>
+    <button id="proxy-save" class="munch-button" type="submit">Save</button>
+
+  </form>
+</div>

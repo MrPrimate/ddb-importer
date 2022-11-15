@@ -1,5 +1,6 @@
 const DICTIONARY = {
   types: {
+    full: ["weapon", "equipment", "consumable", "tool", "loot", "class", "subclass", "background", "spell", "feat", "backpack"],
     equipment: ["equipment", "consumable", "tool", "loot", "backpack"],
     inventory: ["equipment", "consumable", "tool", "loot", "backpack", "weapon"],
     monster: ["equipment", "consumable", "tool", "loot", "backpack", "weapon", "feat"],

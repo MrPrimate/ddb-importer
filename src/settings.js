@@ -104,8 +104,8 @@ const COMPENDIUM_REMOVE_FLAGS = [
   "flags.ddbimporter.ignoreIcon",
 ];
 
-const DEFAULTS = {
-  BASE_URL: "ddb.mrprimate.co.uk",
+const URLS = {
+  BASE: "ddb.mrprimate.co.uk",
   PROXY: "https://proxy.ddb.mrprimate.co.uk",
   CORS: "https://images.ddb.mrprimate.co.uk/",
   DYNAMIC: "https://dynamic.ddb.mrprimate.co.uk",
@@ -123,7 +123,7 @@ const SETTINGS = {
   COMPENDIUM_REMOVE_FLAGS,
   ADVENTURE_FLAG: "isDDBAdventure",
   ADVENTURE_CSS: "ddbAdventure",
-  DEFAULTS,
+  URLS,
   DEFAULT_SETTINGS: {
     // these settigs are loaded during renderSidebarTab
     EARLY: {
@@ -1114,15 +1114,15 @@ const SETTINGS = {
       PROXY: {
         "api-endpoint": {
           type: String,
-          default: DEFAULTS.PROXY,
+          default: "http://localhost:3000",
         },
         "cors-endpoint": {
           type: String,
-          default: DEFAULTS.CORS,
+          default: URLS.CORS,
         },
         "dynamic-api-endpoint": {
           type: String,
-          default: DEFAULTS.DYNAMIC,
+          default: URLS.DYNAMIC,
         },
         "cors-encode": {
           type: Boolean,

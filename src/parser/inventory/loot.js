@@ -1,6 +1,7 @@
 import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription, getCapacity } from "./common.js";
+import DICTIONARY from "../../dictionary.js";
 
 function getItemType(data) {
   let result = {
@@ -20,18 +21,15 @@ function getItemType(data) {
     };
   }
 
-  const foundryTypes = ["weapon", "equipment", "consumable", "tool", "loot", "class", "spell", "feat", "backpack"];
-
-  const itemTypes
-    = data.definition.tags && Array.isArray(data.definition.tags)
-      ? [data.definition.type.toLowerCase(), ...data.definition.tags.map((t) => t.toLowerCase())]
-      : [data.definition.type.toLowerCase()];
+  const itemTypes = data.definition.tags && Array.isArray(data.definition.tags)
+    ? [data.definition.type.toLowerCase(), ...data.definition.tags.map((t) => t.toLowerCase())]
+    : [data.definition.type.toLowerCase()];
 
   let itemType = itemTypes
     .map((itemType) => {
       if (itemType === "container") return "backpack";
       if (itemType === "consumable") return "consumable";
-      return foundryTypes.find((t) => t.indexOf(itemType) !== -1 || itemType.indexOf(t) !== -1);
+      return DICTIONARY.types.full.find((t) => t.indexOf(itemType) !== -1 || itemType.indexOf(t) !== -1);
     })
     .reduce(
       (itemType, currentType) => (currentType !== undefined && itemType === undefined ? currentType : itemType),

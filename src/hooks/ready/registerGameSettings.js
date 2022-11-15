@@ -1,3 +1,4 @@
+import { DDBProxySetup } from "../../lib/DDBProxySetup.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup, DDBLocationSetup } from "../../lib/Settings.js";
 import SETTINGS from "../../settings.js";
@@ -171,6 +172,16 @@ export default function () {
     hint: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Hint`,
     icon: "fas fa-refresh",
     type: ResetSettingsDialog,
+    restricted: true,
+  });
+
+  // reset settings
+  game.settings.registerMenu(SETTINGS.MODULE_ID, "ddbProxy", {
+    name: `${SETTINGS.MODULE_ID}.Dialogs.DDBProxy.Title`,
+    label: `${SETTINGS.MODULE_ID}.Dialogs.DDBProxy.Label`,
+    hint: `${SETTINGS.MODULE_ID}.Dialogs.DDBProxy.Hint`,
+    icon: "fas fa-ethernet",
+    type: DDBProxySetup,
     restricted: true,
   });
 

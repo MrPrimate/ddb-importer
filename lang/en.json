@@ -146,10 +146,18 @@
       "ResetSettings": {
         "Label": "Reset DDB Importer Settings",
         "Hint": "WARNING this will reset all DDB Importer settings to their default values.",
-        "Title": "DDB Importer | Reset Settings",
+        "Title": "Reset Settings",
         "Content": "Are you sure you want to reset all of the DDB Importer module settings' to their defaults?",
         "Confirm": "Reset Module Settings",
         "Cancel": "Cancel"
+      },
+      "DDBProxy": {
+        "AppTitle": "DDB Importer Proxy Settings",
+        "Label": "DDB Proxy Settings",
+        "Hint": "Configure a custom DDB Proxy endpoint here.",
+        "Title": "DDB Proxy Settings",
+        "Use": "Use a custom proxy?",
+        "AddressExample": "Custom proxy address, e.g. http://localhost:3000"
       }
     }
   }

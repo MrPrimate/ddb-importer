@@ -5,8 +5,7 @@ import DDBProxy from "./DDBProxy.js";
 const PatreonHelper = {
 
   getPatreonTier: async () => {
-    const customProxy = game.settings.get("ddb-importer", "custom-proxy");
-    if (customProxy) return { success: true, message: "custom proxy", data: "CUSTOM" };
+    if (DDBProxy.isCustom()) return { success: true, message: "custom proxy", data: "CUSTOM" };
     const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
     const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: key };
@@ -40,8 +39,7 @@ const PatreonHelper = {
   },
 
   getPatreonValidity: async (betaKey) => {
-    const customProxy = game.settings.get(SETTINGS.MODULE_ID, "custom-proxy");
-    if (customProxy) return { success: true, message: "custom proxy", data: true };
+    if (DDBProxy.isCustom()) return { success: true, message: "custom proxy", data: true };
     const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: betaKey };
 
@@ -66,8 +64,7 @@ const PatreonHelper = {
     const godTier = tier === "GOD";
     const undyingTier = tier === "UNDYING";
     const coffeeTier = tier === "COFFEE";
-    const customProxy = game.settings.get(SETTINGS.MODULE_ID, "custom-proxy");
-    const custom = tier === "CUSTOM" || customProxy;
+    const custom = tier === "CUSTOM" || DDBProxy.isCustom();
 
     const tiers = {
       god: godTier,

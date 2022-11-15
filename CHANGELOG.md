@@ -1,6 +1,7 @@
 # 3.1.26
 
 * Better checking for invalid generated effects.
+* You can now enable and change the custom proxy address in the DDB Importer Settings menu.
 
 # 3.1.25
 

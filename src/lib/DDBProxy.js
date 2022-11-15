@@ -2,26 +2,28 @@ import SETTINGS from "../settings.js";
 
 const DDBProxy = {
 
+  isCustom: () => {
+    return game.settings.get(SETTINGS.MODULE_ID, "custom-proxy");
+  },
+
   resetProxy: () => {
-    game.settings.set(SETTINGS.MODULE_ID, "api-endpoint", SETTINGS.DEFAULTS.PROXY);
+    game.settings.set(SETTINGS.MODULE_ID, "api-endpoint", SETTINGS.DEFAULT_SETTINGS.READY.PROXY["api-endpoint"].default);
     game.settings.set(SETTINGS.MODULE_ID, "custom-proxy", false);
   },
 
   getProxy: () => {
-    const custom = game.settings.get(SETTINGS.MODULE_ID, "custom-proxy");
-    if (custom || CONFIG.DDBI.DEV.enabled) return game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
-    else return SETTINGS.DEFAULTS.PROXY;
+    if (DDBProxy.isCustom() || CONFIG.DDBI.DEV.enabled) return game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
+    else return SETTINGS.URLS.PROXY;
   },
 
   getDynamicProxy: () => {
     if (CONFIG.DDBI.DEV.enabled) return game.settings.get(SETTINGS.MODULE_ID, "dynamic-api-endpoint");
-    else return SETTINGS.DEFAULTS.DYNAMIC;
+    else return SETTINGS.URLS.DYNAMIC;
   },
 
   getCORSProxy: () => {
-    const custom = game.settings.get(SETTINGS.MODULE_ID, "custom-proxy");
-    if (custom || CONFIG.DDBI.DEV.enabled) return game.settings.get(SETTINGS.MODULE_ID, "cors-endpoint");
-    return SETTINGS.DEFAULTS.CORS;
+    if (DDBProxy.isCustom() || CONFIG.DDBI.DEV.enabled) return game.settings.get(SETTINGS.MODULE_ID, "cors-endpoint");
+    return SETTINGS.URLS.CORS;
   },
 
 

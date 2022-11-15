@@ -3,6 +3,7 @@ import { getCobalt } from "../lib/Secrets.js";
 import { getVehicleData } from "./vehicles.js";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
+import DDBProxy from "../lib/DDBProxy.js";
 
 async function getMonsterMap () {
   // ddb://monsters
@@ -95,8 +96,6 @@ const ATTACK_ACTION_MAP = {
 };
 
 export async function generateAdventureConfig(full = false, cobalt = true, fullPageMap = false) {
-  const customProxy = game.settings.get("ddb-importer", "custom-proxy");
-
   const result = {
     generateTokens: true,
     schemaVersion: CONFIG.DDBI.schemaVersion,
@@ -135,7 +134,7 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
   }
 
   // vehicles
-  if (!customProxy && cobalt) {
+  if (!DDBProxy.isCustom() && cobalt) {
     const vehicleData = await getVehicleData();
 
     result.lookups.vehicles = vehicleData.map((v) => {
