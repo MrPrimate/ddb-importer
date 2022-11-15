@@ -3,6 +3,7 @@
 * Better checking for invalid generated effects.
 * You can now enable and change the custom proxy address in the DDB Importer Settings menu.
 * If updating to DDB with Artificer infusions, the `[Infusion]` name tag would by appended to the DDB Item with every sync.
+* Harness Divine Power was adding bad scaling damage.
 
 # 3.1.25
 

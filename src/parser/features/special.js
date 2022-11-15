@@ -381,6 +381,10 @@ export function fixFeatures(features) {
         };
         break;
       }
+      case "Harness Divine Power": {
+        feature.system.damage = { parts: [], versatile: "", value: "" };
+        break;
+      }
       case "Healing Hands": {
         feature.system.damage = {
           parts: [["@details.level[healing]", "healing"]],
