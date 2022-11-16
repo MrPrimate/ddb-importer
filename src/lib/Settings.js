@@ -388,9 +388,13 @@ export class DDBSetup extends FormApplication {
       const cookie = html.find("#cobalt-cookie-input");
       const campaigns = await refreshCampaigns(cookie[0].value);
       let campaignList = `<option value="">Select campaign:</option>`;
-      campaigns.forEach((campaign) => {
-        campaignList += `<option value="${campaign.id}">${campaign.name} (${campaign.dmUsername}) - ${campaign.id}</option>\n`;
-      });
+      if (Array.isArray(campaigns)) {
+        campaigns.forEach((campaign) => {
+          campaignList += `<option value="${campaign.id}">${campaign.name} (${campaign.dmUsername}) - ${campaign.id}</option>\n`;
+        });
+      } else {
+        logger.warn("Unable to fetch campaigns", campaigns);
+      }
       const list = html.find("#campaign-select");
       list[0].innerHTML = campaignList;
     });
