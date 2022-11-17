@@ -43,6 +43,8 @@
       "restrict-to-trusted.hint": "Restrict character import to Trusted Users",
       "allow-all-sync.name": "Allow all users to sync to DDB",
       "allow-all-sync.hint": "If character import is restricted, this option will still allow players to sync back to DDB.",
+      "apply-conditions-with-ce.name": "Convenient Effect Conditions?",
+      "apply-conditions-with-ce.hint": "If Convenient Effects is installed, use it to manage conditions",
       "setup.name": "Core setup",
       "setup.hint": "Core setup options",
       "compendium-setup.name": "Compendiums",

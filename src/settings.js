@@ -327,6 +327,13 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
+        "apply-conditions-with-ce": {
+          name: "ddb-importer.settings.apply-conditions-with-ce.name",
+          hint: "ddb-importer.settings.apply-conditions-with-ce.hint",
+          config: true,
+          type: Boolean,
+          default: true,
+        },
       },
       // ????
       MISC: {

@@ -1,3 +1,8 @@
+# 3.1.27
+
+* Class munch will now copy over SRD advancements. @Arteroc#1899
+* You can disable condition management with CE in the module settings. @G.O.D.#0001
+
 # 3.1.26
 
 * Better checking for invalid generated effects.

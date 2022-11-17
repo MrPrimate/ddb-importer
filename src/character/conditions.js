@@ -1,4 +1,5 @@
 import logger from "../logger.js";
+import SETTINGS from "../settings.js";
 
 const CONDITION_MATRIX = [
   { label: "Blinded", statusId: "Convenient Effect: Blinded", ddbId: 1, levelId: null, ddbType: 1 },
@@ -69,7 +70,8 @@ export async function getActorConditionStates(actor, ddb, keepLocal = false) {
  */
 export async function setConditions(actor, ddb, keepLocal = false) {
   const dfConditionsOn = game.modules.get("dfreds-convenient-effects")?.active;
-  if (dfConditionsOn) {
+  const useCEConditions = game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce");
+  if (dfConditionsOn && useCEConditions) {
     const conditionStates = await getActorConditionStates(actor, ddb, keepLocal);
     // console.warn(conditionStates);
     logger.debug(`Condition states for ${actor.name}`, conditionStates);

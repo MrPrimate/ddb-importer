@@ -1,5 +1,6 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
+import SETTINGS from "../settings.js";
 
 export async function checkMacroFolder() {
   const macroFolder = game.folders.find((folder) => folder.name === "DDB Macros" && folder.type === "Macro");
@@ -27,13 +28,14 @@ export function configureDependencies() {
     ui.notifications.warn("Midi-QOL needs to be installed for effects");
   }
 
+  const useCEConditions = game.settings.get(SETTINGS.MODULE_ID, "apply-conditions-with-ce");
   // if dfreds status effects not added, add them
-  if (game.modules.get("dfreds-convenient-effects")?.active) {
+  if (game.modules.get("dfreds-convenient-effects")?.active && useCEConditions) {
     const convenientEffectStatusSettings = game.settings.get("dfreds-convenient-effects", "modifyStatusEffects");
     if (!convenientEffectStatusSettings || convenientEffectStatusSettings === "none") {
       game.settings.set("dfreds-convenient-effects", "modifyStatusEffects", "add");
     }
-  } else {
+  } else if (useCEConditions) {
     logger.error("Convenient Effects needs to be installed for effects");
     ui.notifications.warn("Convenient Effects needs to be installed for effects");
   }
