@@ -28,7 +28,7 @@ function getNotes(scene, bookCode) {
       // removed un-needed userdata
       const flags = page.flags.ddb;
       if (flags?.userData) delete flags.userData;
-      const label = flags.ddb.labelName ? flags.ddb.labelName : page.name;
+      const label = flags.labelName ? flags.labelName : page.name;
       return {
         index,
         label,
@@ -175,7 +175,7 @@ export function collectSceneData(scene, bookCode) {
   return data;
 }
 
-function getCompendiumScenes(compendiumCollection, selectedId) {
+function getCompendiumScenes(compendiumCollection, selectedId = null, selectedName = null) {
   let scenes = [];
   const compendium = game.packs.find((pack) => pack.collection === compendiumCollection);
   if (compendium) {
@@ -183,7 +183,7 @@ function getCompendiumScenes(compendiumCollection, selectedId) {
       const option = {
         _id: scene._id,
         name: scene.name,
-        selected: selectedId && selectedId == scene._id,
+        selected: (selectedId && selectedId == scene._id) || (selectedName && selectedName.trim().includes(scene.name)),
       };
       scenes.push(option);
     });
@@ -214,18 +214,20 @@ export class SceneEnhancerExport extends Application {
 
     this.scene = scene;
     const sceneExportFlags = this.scene.flags.ddbimporter?.export;
+    const lastCompendium = localStorage.getItem("ddb-last-compendium");
+    const lastBook = localStorage.getItem("ddb-last-book");
 
     this.description = sceneExportFlags?.description || "";
     this.url = sceneExportFlags?.url || "";
-    this.compendium = sceneExportFlags?.compendium;
-    this.compendiumScene = sceneExportFlags?.scene;
-    this.bookCode = this.scene.flags?.ddb?.bookCode.toLowerCase();
-    this.compendiumScenes = this.compendium ? getCompendiumScenes(this.compendium, this.compendiumScene) : [];
+    this.compendium = sceneExportFlags?.compendium ?? lastCompendium;
+    this.compendiumSceneId = sceneExportFlags?.scene;
+    this.bookCode = this.scene.flags?.ddb?.bookCode.toLowerCase() ?? lastBook;
+    this.compendiumScenes = this.compendium ? getCompendiumScenes(this.compendium, this.compendiumSceneId, this.scene.name) : [];
 
-    if (this.compendiumScene && this.compendiumScenes) this.sceneSet = true;
+    if (this.compendiumSceneId && this.compendiumScenes) this.sceneSet = true;
 
     this.compendiums = game.packs
-      .filter((pack) => pack.metadata?.entity === "Scene")
+      .filter((pack) => pack.metadata?.type === "Scene")
       .map((pack) => {
         if (this.compendium && this.compendium === pack.collection) pack.selected = true;
         else pack.selected = false;
@@ -405,6 +407,7 @@ export class SceneEnhancerExport extends Application {
     if (!sceneFlags.ddbimporter.export) sceneFlags.ddbimporter.export = {};
 
     sceneFlags.ddb["bookCode"] = formData["select-book"];
+    localStorage.setItem("ddb-last-book", formData["select-book"]);
     sceneFlags.ddbimporter.export['description'] = formData["description"];
     sceneFlags.ddbimporter.export['actors'] = formData["export-actors"] == "on";
     sceneFlags.ddbimporter.export['notes'] = formData["export-notes"] == "on";
@@ -417,6 +420,7 @@ export class SceneEnhancerExport extends Application {
       sceneFlags.ddbimporter.export['url'] = formData["download-url"];
     } else {
       sceneFlags.ddbimporter.export['compendium'] = formData["select-compendium"];
+      localStorage.setItem("ddb-last-compendium", formData["select-compendium"]);
       sceneFlags.ddbimporter.export['scene'] = formData["select-scene"];
     }
 
