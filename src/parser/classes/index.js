@@ -196,7 +196,7 @@ function parseFeaturesForScaleValues(ddb, klass, klassDefinition, ignoreIds = []
   return advancements.concat(specialFeatures);
 }
 
-async function addSRDAdvancements(advancements, klass) {
+export async function addSRDAdvancements(advancements, klass) {
   const rulesCompendium = "dnd5e.classes";
   const srdCompendium = CompendiumHelper.getCompendium(rulesCompendium);
   await srdCompendium.getIndex();
