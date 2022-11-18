@@ -170,7 +170,7 @@ export function collectSceneData(scene, bookCode) {
   data.flags.ddb.img = `assets/${scene.background.src.split("assets/").pop()}`;
 
   if (!data.flags.ddbimporter) data.flags.ddbimporter = {};
-  data.flags.ddbimporter['version'] = game.modules.get("ddb-importer").data.version;
+  data.flags.ddbimporter['version'] = game.modules.get("ddb-importer").version;
 
   return data;
 }
@@ -224,7 +224,7 @@ export class SceneEnhancerExport extends Application {
     this.bookCode = this.scene.flags?.ddb?.bookCode.toLowerCase() ?? lastBook;
     this.compendiumScenes = this.compendium ? getCompendiumScenes(this.compendium, this.compendiumSceneId, this.scene.name) : [];
 
-    if (this.compendiumSceneId && this.compendiumScenes) this.sceneSet = true;
+    if (this.compendiumScenes && this.compendiumScenes.some((s) => s.selected === true)) this.sceneSet = true;
 
     this.compendiums = game.packs
       .filter((pack) => pack.metadata?.type === "Scene")
