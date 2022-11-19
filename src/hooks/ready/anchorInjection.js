@@ -84,7 +84,7 @@ export function anchorInjection() {
     Hooks.once("renderNoteConfig", (noteConfig) => {
       const titleInput = noteConfig.element[0].querySelector("input[name='text']");
       titleInput.setAttribute('value', dropData.anchor.name);
-      updateSlugField(noteConfig.element[0], dropData.anchor.slug);
+      if (dropData.anchor.slug) updateSlugField(noteConfig.element[0], dropData.anchor.slug);
     });
   });
 }
