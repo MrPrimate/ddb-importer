@@ -1,3 +1,8 @@
+# 3.2.0
+
+* Corrections for Adventure Muncher Scene Exporting in v10.
+* Some changes to support future Third Party Adventures.
+
 # 3.1.27
 
 * Class munch will now copy over SRD advancements. @Arteroc#1899
