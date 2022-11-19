@@ -30,8 +30,8 @@ function getNotes(scene, bookCode) {
       const noteFlags = note.flags.ddb;
       const flags = mergeObject(pageFlags, noteFlags);
       if (flags?.userData) delete flags.userData;
-      const label = flags?.labelName
-        ? flags.labelName && flags.labelName.trim() !== ""
+      const label = flags?.labelName && flags.labelName.trim() !== ""
+        ? flags.labelName
         : noteFlags?.slugLink && noteFlags.slugLink.trim() !== ""
           ? note.text
           : page.name;
