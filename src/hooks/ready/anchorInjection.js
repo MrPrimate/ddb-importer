@@ -26,6 +26,7 @@ async function saveSlug(note, slug) {
       flags: {
         "anchor.slug": slug,
         "ddb.slugLink": slug,
+        "ddb.labelName": note.label,
       },
     },
   ]);

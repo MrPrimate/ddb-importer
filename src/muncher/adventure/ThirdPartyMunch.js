@@ -448,7 +448,7 @@ export default class ThirdPartyMunch extends FormApplication {
     return adjustedScenes;
   }
 
-  static async _updateScenes(scenes) {
+  async _updateScenes(scenes) {
     logger.debug("Processing scenes!", scenes);
     const filteredScenes = scenes
       .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
@@ -466,12 +466,22 @@ export default class ThirdPartyMunch extends FormApplication {
       logger.debug(`Processing scene ${scene.name} with DDB Updates`);
       const compendiumId = scene.flags.ddbimporter.export.compendium;
       const compendium = game.packs.get(compendiumId);
-      const folder = await ThirdPartyMunch._findFolder(compendium.metadata.label, "Scene");
+      const folderName = this._scenePackage.folder ? this._scenePackage.folder : compendium.metadata.label;
+      const folder = await ThirdPartyMunch._findFolder(folderName, "Scene");
       const compendiumScene = compendium.index.find((s) => s.name === scene.name);
-      // eslint-disable-next-line require-atomic-updates
-      scene.folder = folder.id;
 
-      const existingScene = game.scenes.find((s) => s.name === scene.name && s.folder?.id === folder.id);
+      const existingScene = game.scenes.find((s) =>
+        s.name === scene.name
+        && (s.folder?.id === folder.id || s.folder.ancestors.some((f) => f.id === folder.id))
+      );
+
+      logger.debug("Third Party Scene Processing", {
+        existingScene,
+        scene,
+        folder,
+        folderName,
+        compendiumScene
+      });
 
       // if scene already exists, update
       if (existingScene) {
@@ -480,6 +490,7 @@ export default class ThirdPartyMunch extends FormApplication {
         await existingScene.update(scene);
         processedScenes.push(existingScene);
       } else {
+        scene.folder = folder.id;
         const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene, { keepId: true });
         logger.info(`Scene: ${scene.name} folder:`, folder);
         logger.debug("worldScene:", worldScene);
@@ -524,16 +535,21 @@ export default class ThirdPartyMunch extends FormApplication {
         mockActors: {},
       };
 
+      this.folderNames = this._scenePackage.folder
+        ? [this._scenePackage.folder]
+        : [...new Set(this._scenePackage.scenes
+          .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
+          .map((scene) => {
+            const compendiumId = scene.flags.ddbimporter.export.compendium;
+            const compendium = game.packs.get(compendiumId);
+            return compendium.metadata.label;
+          }))];
+
       // We need to check for potential Scene Folders and Create if missing
-      const compendiumLabels = [...new Set(this._scenePackage.scenes
-        .filter((scene) => scene.flags?.ddbimporter?.export?.compendium)
-        .map((scene) => {
-          const compendiumId = scene.flags.ddbimporter.export.compendium;
-          const compendium = game.packs.get(compendiumId);
-          return compendium.metadata.label;
-        }))].map((label) => {
-        return ThirdPartyMunch._findFolder(label, "Scene");
-      });
+      const compendiumLabels = this.folderNames
+        .map((label) => {
+          return ThirdPartyMunch._findFolder(label, "Scene");
+        });
 
       await Promise.all(compendiumLabels);
 
@@ -541,9 +557,10 @@ export default class ThirdPartyMunch extends FormApplication {
         .filter((scene) => scene.flags?.ddb?.bookCode)
         .map((scene) => {
           return ThirdPartyMunch._getDDBBookName(scene.flags.ddb.bookCode);
-        }))].map((label) => {
-        return ThirdPartyMunch._findFolder(label, "Actor");
-      });
+        }))]
+        .map((label) => {
+          return ThirdPartyMunch._findFolder(label, "Actor");
+        });
       await Promise.all(adventureLabels);
 
       logger.debug("Competed folder creation");
@@ -578,7 +595,7 @@ export default class ThirdPartyMunch extends FormApplication {
       CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig(true);
       logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
-      const scenes = await ThirdPartyMunch._updateScenes(tokenAdjustedScenes);
+      const scenes = await this._updateScenes(tokenAdjustedScenes);
       // logger.debug("finalScenes", scenes);
 
       const toTimer = setTimeout(() => {

@@ -26,14 +26,20 @@ function getNotes(scene, bookCode) {
         : journal;
       const index = parseInt(journal.flags.ddb.ddbId);
       // removed un-needed userdata
-      const flags = page.flags.ddb;
-      if (flags?.userData) delete flags.userData;
-      const label = flags.labelName ? flags.labelName : page.name;
+      const pageFlags = page.flags.ddb;
+      const noteFlags = note.flags.ddb;
+      if (noteFlags?.userData) delete noteFlags.userData;
+      const label = noteFlags?.labelName
+        ? noteFlags.labelName
+        : noteFlags?.slugLink
+          ? note.title
+          : page.name;
       return {
         index,
+        pageId: page._id,
         label,
         flags: {
-          ddb: flags,
+          ddb: mergeObject(pageFlags, noteFlags),
         },
         iconSize: note.iconSize,
         iconTint: note.iconTint,
@@ -44,7 +50,7 @@ function getNotes(scene, bookCode) {
       };
     })
     .reduce((notes, note) => {
-      const idx = notes.find((n) => n.index === note.index);
+      const idx = notes.find((n) => n.index === note.index && n.pageId === note.pageId && note.label === n.label);
       if (idx) {
         idx.positions.push({ x: note.x, y: note.y });
       } else {
