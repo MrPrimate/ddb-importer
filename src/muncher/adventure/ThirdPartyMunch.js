@@ -349,7 +349,6 @@ export default class ThirdPartyMunch extends FormApplication {
         if (noteJournal) {
           logger.info(`Found note "${note.label}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
           note.flags.ddb.journalId = noteJournal.id;
-          console.warn(note);
           // eslint-disable-next-line require-atomic-updates
           note.icon = await generateIcon(this.adventureMunch, note.label);
           if (noJournalPinNotes) {
