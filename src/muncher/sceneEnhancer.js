@@ -94,6 +94,7 @@ export function collectSceneData(scene, bookCode) {
 
   const data = {
     flags: scene.flags,
+    background: deepClone(scene.background),
     name: scene.name,
     navName: scene.navName,
     // dimensions
@@ -101,11 +102,6 @@ export function collectSceneData(scene, bookCode) {
     height: scene.height,
     // grid
     grid: scene.grid,
-    gridDistance: scene.gridDistance,
-    gridType: scene.gridType,
-    gridUnits: scene.gridUnits,
-    shiftX: scene.shiftX,
-    shiftY: scene.shiftY,
     padding: scene.padding,
     // initial
     initial: scene.initial,
@@ -130,6 +126,8 @@ export function collectSceneData(scene, bookCode) {
       return l;
     }),
   };
+
+  delete data.background.src;
 
   if (!data.flags.ddb) data.flags.ddb = {};
   data.flags.ddb.foundryVersion = game.version;
