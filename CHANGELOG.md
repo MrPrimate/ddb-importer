@@ -1,3 +1,7 @@
+# 3.2.1
+
+* Scene background shift would not be captured in v10 scene exports for Adventure Muncher.
+
 # 3.2.0
 
 * Corrections for Adventure Muncher Scene Exporting in v10.
