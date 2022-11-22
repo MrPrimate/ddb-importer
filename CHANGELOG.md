@@ -1,3 +1,7 @@
+# 3.2.2
+
+* Dragonlance config.
+
 # 3.2.1
 
 * Scene background shift would not be captured in v10 scene exports for Adventure Muncher.
