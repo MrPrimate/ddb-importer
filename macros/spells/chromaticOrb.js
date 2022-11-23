@@ -57,7 +57,7 @@ async function selectDamage() {
   </div>
 </form>
 `;
-  const damageType = await new Promise((resolve) => {
+const damageType = await new Promise((resolve) => {
     new Dialog({
       title: "Choose a damage type",
       content,
@@ -74,30 +74,11 @@ async function selectDamage() {
   });
   return damageType;
 }
+const damageType = await selectDamage();
+if (!damageType) return;
 
-if (lastArg.hitTargetUuids.length > 0) {
-  const tokenOrActor = await fromUuid(lastArg.actorUuid);
-  const casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-  const casterToken = await fromUuid(lastArg.tokenUuid);
-  const damageType = await selectDamage();
-  const targets = await Promise.all(lastArg.hitTargetUuids.map(async (uuid) => await fromUuid(uuid)));
-  const baseDamage = 3 + (lastArg.spellLevel - 1);
-  const damageDice = lastArg.isCritical ? baseDamage * 2 : baseDamage;
-  const critFlavour = lastArg.isCritical ? "CRITICAL! " : "";
-  const damageRoll = await new Roll(`${damageDice}d8[${damageType}]`).evaluate({ async: true });
-  if (game.dice3d) game.dice3d.showForRoll(damageRoll);
-  await new MidiQOL.DamageOnlyWorkflow(
-    casterActor,
-    casterToken,
-    damageRoll.total,
-    damageType,
-    targets,
-    damageRoll,
-    {
-      flavor: `${critFlavour}(${CONFIG.DND5E.damageTypes[damageType]})`,
-      itemCardId: lastArg.itemCardId,
-      itemData: lastArg.item,
-      isCritical: lastArg.isCritical,
-    }
-  );
-}
+const workflow = lastArg.workflow;
+const newDamageRoll = workflow.damageRoll;
+newDamageRoll._formula += '[' + damageType + ']';
+workflow.defaultDamageType = damageType;
+await workflow.setDamageRoll(newDamageRoll);

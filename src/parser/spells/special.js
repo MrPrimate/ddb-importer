@@ -158,12 +158,8 @@ export function fixSpells(ddb, items) {
         break;
       // dnd beyond lists a damage for each type
       case "Chromatic Orb":
-        if (usingEffects) {
-          spell.system.damage = { parts: [], versatile: "", value: "" };
-        } else {
-          spell.system.damage = { parts: [["3d8", ""]], versatile: "", value: "" };
-          spell.system.chatFlavor = "Choose from Acid, Cold, Fire, Lightning, Poison, Thunder, or Acid";
-        }
+        spell.system.damage = { parts: [["3d8", ""]], versatile: "", value: "" };
+        spell.system.chatFlavor = "Choose from Acid, Cold, Fire, Lightning, Poison, Thunder, or Acid";
         break;
       case "Dragon's Breath":
         spell.system.damage = { parts: [["3d6", ""]], versatile: "", value: "" };

@@ -1,3 +1,7 @@
+# 3.2.3
+
+* Spell Effect: Improvements to Chromatic Orb (Thanks to @Elwin#1410)
+
 # 3.2.2
 
 * Dragonlance config.
