@@ -116,6 +116,7 @@ import { viciousMockeryEffect } from "./spells/viciousMockery.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
 import { witchBoltEffect } from "./spells/witchBolt.js";
+import { zephyrStrikeEffect } from "./spells/zephyrStrike.js";
 
 
 export function spellEffectModules() {
@@ -651,6 +652,11 @@ export async function spellEffectAdjustment(document) {
     }
     case "Witch Bolt": {
       document = await witchBoltEffect(document);
+      break;
+    }
+    case "Zephyr Strike": {
+      document = await zephyrStrikeEffect(document);
+      break;
     }
     // no default
   }
