@@ -29,6 +29,7 @@ import { charmPersonEffect } from "./spells/charmPerson.js";
 import { chromaticOrbEffect } from "./spells/chromaticOrb.js";
 import { chillTouchEffect } from "./spells/chillTouch.js";
 import { cloudkillEffect } from "./spells/cloudkill.js";
+import { colorSprayEffect } from "./spells/colorSpray.js";
 import { commandEffect } from "./spells/command.js";
 import { comprehendLanguagesEffect } from "./spells/comprehendLanguages.js";
 import { confusionEffect } from "./spells/confusion.js";
@@ -295,6 +296,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Cloudkill": {
       document = await cloudkillEffect(document);
+      break;
+    }
+    case "Color Spray": {
+      document = await colorSprayEffect(document);
       break;
     }
     case "Command": {
