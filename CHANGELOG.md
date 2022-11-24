@@ -2,6 +2,7 @@
 
 * Spell Effect: Improvements to Chromatic Orb (Thanks to @Elwin#1410)
 * Spell Effect: Color Spray
+* Spell Effect: Zephyr Strike (does not handle Advantage to roll, but will prompt for damage).
 
 # 3.2.2
 
