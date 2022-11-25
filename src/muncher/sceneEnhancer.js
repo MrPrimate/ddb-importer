@@ -28,13 +28,25 @@ function getNotes(scene, bookCode) {
       // removed un-needed userdata
       const pageFlags = page.flags.ddb;
       const noteFlags = note.flags.ddb;
-      const flags = mergeObject(pageFlags, noteFlags);
+      const flags = duplicate(pageFlags);
+      mergeObject(flags, noteFlags, { overwrite: true, insertKeys: true, insertValues: true });
       if (flags?.userData) delete flags.userData;
       const label = flags?.labelName && flags.labelName.trim() !== ""
         ? flags.labelName
         : noteFlags?.slugLink && noteFlags.slugLink.trim() !== ""
           ? note.text
           : page.name;
+
+      logger.warn("note details", {
+        note,
+        page,
+        journal,
+        flags,
+        pageFlags,
+        noteFlags,
+        label,
+      });
+
       return {
         index,
         pageId: page._id,

@@ -1,3 +1,7 @@
+# 3.2.4
+
+* Corrections for Adventure Muncher Scene Exporting in v10.
+
 # 3.2.3
 
 * Spell Effect: Improvements to Chromatic Orb (Thanks to @Elwin#1410)
