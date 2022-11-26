@@ -3,7 +3,7 @@ const lastArg = args[args.length - 1];
 // macro vars
 const damageType = "fire";
 const freeSequence = "jb2a.particles.outward.greenyellow.01.05";
-const patreonPrimary = "jb2a.dagger.melee.fire.green"
+const patreonPrimary = "jb2a.dagger.melee.fire.green";
 const patreonSecondary = "jb2a.chain_lightning.secondary.green";
 
 const baseAutoAnimation = {
@@ -49,39 +49,31 @@ const baseAutoAnimation = {
 // sequencer caller for effects on target
 function sequencerEffect(target, origin = null) {
   if (game.modules.get("sequencer")?.active) {
-    if (Sequencer.Database.entryExists(patreonSecondary)) {
+    const secondary = Sequencer.Database.entryExists(patreonSecondary);
+    if (secondary) {
       new Sequence()
         .effect()
         .atLocation(origin)
         .reachTowards(target)
-        .file(Sequencer.Database.entryExists(patreonSecondary))
+        .file(secondary)
         .repeats(1, 200, 300)
         .randomizeMirrorY()
         .play();
     } else {
-      const attackAnimation = Sequencer.Database.entryExists(patreonPrimary) ? patreonPrimary : freeSequence;
-      new Sequence()
-        .effect()
-        .file(Sequencer.Database.entryExists(attackAnimation))
-        .atLocation(target)
-        .play();
+      const attackAnimation = Sequencer.Database.entryExists(patreonPrimary) ?? Sequencer.Database.entryExists(freeSequence);
+      if (attackAnimation) {
+        new Sequence()
+          .effect()
+          .file(attackAnimation)
+          .atLocation(target)
+          .play();
+      }
     }
   }
 }
 
-async function findTargets(originToken, range, includeOrigin = false, excludeActorIds = []) {
-  const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>
-    (includeOrigin || placeable.id !== originToken.id) &&
-    !excludeActorIds.includes(placeable.actor?.id) &&
-    placeable.actor?.system.attributes.hp.value !== 0 &&
-    canvas.grid.measureDistance(originToken, placeable) <= (range + 4.5) &&
-    !canvas.walls.checkCollision(new Ray(originToken.center, placeable.center), {mode: "any"})
-  );
-  return aoeTargets;
-}
-
 async function attackNearby(originToken, ignoreIds) {
-  const potentialTargets = await findTargets(originToken, 5, false, ignoreIds);
+  const potentialTargets = await MidiQOL.findNearby(null, originToken, 5).filter((tok) => !ignoreIds.includes(tok.actor?.id));
   if (potentialTargets.length === 0) return;
   const sourceItem = await fromUuid(lastArg.efData.flags.origin);
   const caster = sourceItem.parent;
@@ -104,9 +96,9 @@ async function attackNearby(originToken, ignoreIds) {
           if (game.dice3d) game.dice3d.showForRoll(damageRoll);
           const workflowItemData = duplicate(sourceItem);
           workflowItemData.effects = [];
-          setProperty(workflowItemData, "flags.midi-qol", {})
+          setProperty(workflowItemData, "flags.midi-qol", {});
           workflowItemData.system.target = { value: 1, units: "", type: "creature" };
-          workflowItemData.system.range = { value: 5, long: null, units: "ft", },
+          workflowItemData.system.range = { value: 5, long: null, units: "ft", };
           delete workflowItemData._id;
           workflowItemData.name = "Green Flame Blade: Secondary Damage";
 

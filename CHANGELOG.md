@@ -1,3 +1,7 @@
+# 3.2.5
+
+* Spell Effect: Green Flame blade now works correctly with targets larger than medium size.
+
 # 3.2.4
 
 * Corrections for Adventure Muncher Scene Exporting in v10.

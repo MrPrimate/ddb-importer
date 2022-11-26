@@ -72,7 +72,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
   }).render(true);
 }
 
-if(args[0].tag === "OnUse"){
+if (args[0].tag === "OnUse") {
   if (lastArg.targets.length > 0) {
     const casterData = await fromUuid(lastArg.actorUuid);
     const caster = casterData.actor ? casterData.actor : casterData;
