@@ -65,7 +65,8 @@
     "dnd5eCustomSkills": true,
     "Adventure": true,
     "AdventureImporter": true,
-    "DocumentSheetConfig": true
+    "DocumentSheetConfig": true,
+    "Sequencer": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,

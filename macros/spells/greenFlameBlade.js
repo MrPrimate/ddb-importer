@@ -54,7 +54,7 @@ function sequencerEffect(target, origin = null) {
       new Sequence()
         .effect()
         .atLocation(origin)
-        .reachTowards(target)
+        .stretchTo(target)
         .file(secondary)
         .repeats(1, 200, 300)
         .randomizeMirrorY()
