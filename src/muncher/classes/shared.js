@@ -19,7 +19,9 @@ const CLASS_TEMPLATE = {
   },
   "sort": 2600000,
   "flags": {
-    "ddbimporter": {},
+    "ddbimporter": {
+      "type": "class",
+    },
     "obsidian": {
       "source": {
         "type": "class",

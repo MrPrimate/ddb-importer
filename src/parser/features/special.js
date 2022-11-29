@@ -111,6 +111,9 @@ export function removeActionFeatures(actions, features) {
       && featureMatch.effects && featureMatch.effects.length > 0
     ) {
       action.effects = featureMatch.effects;
+      const newFlags = duplicate(featureMatch.flags);
+      delete newFlags.ddbimporter;
+      mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
     }
     return action;
   });
@@ -427,12 +430,14 @@ export function fixFeatures(features) {
       }
       case "Celestial Revelation (Radiant Soul)":
       case "Radiant Soul": {
-        if (feature.flags.obsidian.source.type == "race") {
+        if (getProperty(feature, "flags.ddbimporter.type") == "race") {
           feature.system.uses = {
             value: 1,
             max: 1,
             per: "lr",
           };
+        } else if (getProperty(feature, "flags.ddbimporter.type") == "class") {
+          feature.system.activation.type = "special";
         }
         break;
       }

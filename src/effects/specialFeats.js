@@ -211,7 +211,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Celestial Revelation (Radiant Soul)":
       case "Radiant Soul": {
-        document = radiantSoulEffect(document);
+        document = await radiantSoulEffect(document);
         break;
       }
       case "Reckless Attack": {

@@ -701,11 +701,11 @@ const DDBHelper = {
       ? DDBHelper.getCustomValueFromCharacter(item, character, 8)
       : DDBHelper.getCustomValue(item, ddb, 8);
     if (customName && allowCustom) {
-      return customName.replace("’", "'");
+      return customName.replace("’", "'").trim();
     } else if (item.definition?.name) {
-      return item.definition.name.replace("’", "'");
+      return item.definition.name.replace("’", "'").trim();
     } else if (item.name) {
-      return item.name.replace("’", "'");
+      return item.name.replace("’", "'").trim();
     } else {
       logger.error("Unable to determine name for:", item);
       return "Unknown thing.";

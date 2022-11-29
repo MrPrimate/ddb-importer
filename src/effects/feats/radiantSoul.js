@@ -1,7 +1,9 @@
 import { baseFeatEffect } from "../specialFeats.js";
+import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 
-export function radiantSoulEffect(document) {
-  if (document.flags.obsidian.source.type == "race") {
+export async function radiantSoulEffect(document) {
+
+  if (document.flags.ddbimporter.type == "race") {
     let effect = baseFeatEffect(document, document.name);
 
     effect.changes.push(
@@ -45,6 +47,23 @@ export function radiantSoulEffect(document) {
     document.system.range = { value: null, units: "self", long: null };
     document.system.actionType = "other";
 
+  } else if (document.flags.ddbimporter.type == "class") {
+    let effect = baseFeatEffect(document, document.name);
+    effect.changes.push(
+      {
+        key: "flags.dnd5e.DamageBonusMacro",
+        value: `ItemMacro.${document.name}`,
+        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        priority: "20",
+      },
+    );
+    effect.transfer = true;
+
+    const itemMacroText = await loadMacroFile("feat", "radiantSoul.js");
+    document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+    setProperty(document, "system.activation.type", "special");
+
+    document.effects.push(effect);
   }
 
   return document;

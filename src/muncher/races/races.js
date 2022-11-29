@@ -50,7 +50,9 @@ const RACE_TEMPLATE = {
   },
   "sort": 2600000,
   "flags": {
-    "ddbimporter": {},
+    "ddbimporter": {
+      "type": "race",
+    },
     "obsidian": {
       "source": {
         "type": "race"

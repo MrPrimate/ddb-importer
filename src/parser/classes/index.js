@@ -249,7 +249,8 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
     flags: {
       ddbimporter: {
         subclassDefinitionId: characterClass.id,
-        id: characterClass.subclassDefinition.id
+        id: characterClass.subclassDefinition.id,
+        type: "class",
       },
       obsidian: {
         source: {
@@ -316,6 +317,7 @@ export async function getClasses(ddb, character) {
           id: characterClass.id,
           definitionId: characterClass.definition.id,
           entityTypeId: characterClass.entityTypeId,
+          type: "class",
         },
         obsidian: {
           source: {

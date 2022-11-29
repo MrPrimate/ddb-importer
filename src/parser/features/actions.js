@@ -67,14 +67,17 @@ function addFlagHints(ddb, character, action, feature) {
   if (klassAction) {
     const klass = DDBHelper.findClassByFeatureId(ddb, klassAction.componentId);
     setProperty(feature.flags, "obsidian.source.type", "class");
+    setProperty(feature.flags, "ddbimporter.type", "class");
     setProperty(feature.flags, "obsidian.source.text", klass.definition.name);
     setProperty(feature.flags, "ddbimporter.class", klass.definition.name);
     const subClassName = hasProperty(klass, "subclassDefinition.name") ? klass.subclassDefinition.name : undefined;
     setProperty(feature.flags, "ddbimporter.subclass", subClassName);
   } else if (raceAction) {
-    feature.flags.obsidian.source.type = "race";
+    setProperty(feature.flags, "obsidian.source.type", "race");
+    setProperty(feature.flags, "ddbimporter.type", "race");
   } else if (featAction) {
-    feature.flags.obsidian.source.type = "feat";
+    setProperty(feature.flags, "obsidian.source.type", "feat");
+    setProperty(feature.flags, "ddbimporter.type", "feat");
   }
 
   // scaling details
@@ -543,6 +546,7 @@ function getAttackAction(ddb, character, action) {
         componentId: action.componentId,
         componentTypeId: action.componentTypeId,
         originalName: DDBHelper.getName(ddb, action, character, false),
+        type: "other",
       },
       infusions: { infused: false },
       obsidian: {
@@ -696,6 +700,7 @@ function getOtherActions(ddb, character, parsedActions) {
             entityTypeId: action.entityTypeId,
             componentId: action.componentId,
             componentTypeId: action.componentTypeId,
+            type: "other",
           },
           infusions: { infused: false },
           obsidian: {

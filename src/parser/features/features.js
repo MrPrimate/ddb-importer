@@ -9,7 +9,7 @@ function parseFeature(feat, ddb, character, source, type) {
   // filter proficiencies and Ability Score Improvement
   const name = feat.definition ? feat.definition.name : feat.name;
   let item = {
-    name: name.replace("’", "'"),
+    name: name.replace("’", "'").trim(),
     type: "feat",
     system: JSON.parse(utils.getTemplate("feat")),
     flags: {
