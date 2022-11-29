@@ -3,6 +3,8 @@
 * Spell Effect: Green Flame blade now works correctly with targets larger than medium size.
 * Class Feature Effect: Warlock Radiant Soul (Thanks to @Balsa
 #6808)
+* Spell Effect: Armor of Agathys (Thanks to @Balsa
+#6808)
 
 # 3.2.4
 
