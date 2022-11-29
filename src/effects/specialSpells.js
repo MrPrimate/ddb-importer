@@ -13,6 +13,7 @@ import { aidEffect } from "./spells/aid.js";
 import { alterSelfEffect } from "./spells/alterSelf.js";
 import { animalFriendshipEffect } from "./spells/animalFriendship.js";
 import { arcaneSwordEffect } from "./spells/arcaneSword.js";
+import { armorOfAgathysEffect } from "./spells/armorOfAgathys.js";
 import { auraOfLifeEffect } from "./spells/auraOfLife.js";
 import { baneEffect } from "./spells/bane.js";
 import { banishmentEffect } from "./spells/banishment.js";
@@ -20,14 +21,14 @@ import { barkskinEffect } from "./spells/barkskin.js";
 import { beaconofHopeEffect } from "./spells/beaconofHope.js";
 import { blackTentaclesEffect } from "./spells/blackTentacles.js";
 import { blessEffect } from "./spells/bless.js";
-import { blurEffect } from "./spells/blur.js";
 import { blindnessDeafnessEffect } from "./spells/blindnessDeafness.js";
+import { blurEffect } from "./spells/blur.js";
 import { boomingBladeEffect } from "./spells/boomingBlade.js";
 import { brandingSmiteEffect } from "./spells/brandingSmite.js";
 import { callLightningEffect } from "./spells/callLightning.js";
 import { charmPersonEffect } from "./spells/charmPerson.js";
-import { chromaticOrbEffect } from "./spells/chromaticOrb.js";
 import { chillTouchEffect } from "./spells/chillTouch.js";
+import { chromaticOrbEffect } from "./spells/chromaticOrb.js";
 import { cloudkillEffect } from "./spells/cloudkill.js";
 import { colorSprayEffect } from "./spells/colorSpray.js";
 import { commandEffect } from "./spells/command.js";
@@ -35,8 +36,8 @@ import { comprehendLanguagesEffect } from "./spells/comprehendLanguages.js";
 import { confusionEffect } from "./spells/confusion.js";
 import { contagionEffect } from "./spells/contagion.js";
 import { createBonfireEffect } from "./spells/createBonfire.js";
-import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { crownofMadnessEffect } from "./spells/crownofMadness.js";
+import { crownofStarsEffect } from "./spells/crownofStars.js";
 import { darknessEffect } from "./spells/darkness.js";
 import { darkvisionEffect } from "./spells/darkvision.js";
 import { divineFavorEffect } from "./spells/divineFavor.js";
@@ -44,8 +45,8 @@ import { divineWordEffect } from "./spells/divineWord.js";
 import { dominateBeastEffect } from "./spells/dominateBeast.js";
 import { dominateMonsterEffect } from "./spells/dominateMonster.js";
 import { dominatePersonEffect } from "./spells/dominatePerson.js";
-import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
 import { elementalWeaponEffect } from "./spells/elementalWeapon.js";
+import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
 import { enlargeReduceEffect } from "./spells/enlargeReduce.js";
 import { entangleEffect } from "./spells/entangle.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
@@ -109,8 +110,8 @@ import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stoneskinEffect } from "./spells/stoneskin.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
 import { sunbeamEffect } from "./spells/sunbeam.js";
-import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { thunderousSmiteEffect } from "./spells/thunderousSmite.js";
+import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { trueStrikeEffect } from "./spells/trueStrike.js";
 import { viciousMockeryEffect } from "./spells/viciousMockery.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
@@ -232,6 +233,10 @@ export async function spellEffectAdjustment(document) {
     case "Mordenkainen's Sword":
     case "Arcane Sword": {
       document = await arcaneSwordEffect(document);
+      break;
+    }
+    case "Armor of Agathys": {
+      document = await armorOfAgathysEffect(document);
       break;
     }
     case "Aura of Life": {
