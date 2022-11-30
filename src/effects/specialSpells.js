@@ -3,6 +3,7 @@ import {
   generateStatusEffectChange as baseGenerateStatusEffectChange,
   generateTokenMagicFXChange as baseGenerateTokenMagicFXChange,
   generateATLChange as baseGenerateATLChange,
+  forceItemEffect,
 } from "./effects.js";
 import { configureDependencies } from "./macros.js";
 
@@ -666,9 +667,7 @@ export async function spellEffectAdjustment(document) {
     // no default
   }
   try {
-    if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
-      setProperty(document, "flags.ddbimporter.effectsApplied", true);
-    }
+    document = forceItemEffect(document);
   } catch (err) {
     await Promise.all(document);
     logger.error("Error applying effects: ", { err, document });

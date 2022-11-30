@@ -1,3 +1,7 @@
+# 3.2.6
+
+* If an item effect is generated item will force the use of the item effect rather than the CE effect.
+
 # 3.2.5
 
 * Spell Effect: Green Flame blade now works correctly with targets larger than medium size.

@@ -1,4 +1,5 @@
 import CompendiumHelper from "../lib/CompendiumHelper.js";
+import { forceItemEffect } from "./effects.js";
 import { configureDependencies } from "./macros.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
@@ -121,9 +122,7 @@ export async function monsterFeatureEffectAdjustment(document, monster) {
     this[index] = overTimeResults.document;
     document = overTimeResults.actor;
 
-    if (item.effects.length > 0 || hasProperty(item.flags, "itemacro")) {
-      setProperty(item, "flags.ddbimporter.effectsApplied", true);
-    }
+    document = forceItemEffect(document);
   }, document.items);
 
   document = transferEffectsToActor(document);

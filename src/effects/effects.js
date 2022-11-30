@@ -270,6 +270,14 @@ export function getMidiCEOnFlags(midiFlags = {}) {
   return midiFlags;
 }
 
+export function forceItemEffect(document) {
+  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
+    setProperty(document, "flags.ddbimporter.effectsApplied", true);
+    setProperty(document, "flags.midi-qol.forceCEOff", true);
+  }
+  return document;
+}
+
 // *
 // CONST.ACTIVE_EFFECT_MODES.
 // ADD: 2

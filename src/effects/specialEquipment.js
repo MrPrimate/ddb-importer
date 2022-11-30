@@ -3,6 +3,7 @@ import {
   generateUpgradeChange,
   generateAddChange,
   generateCustomChange,
+  forceItemEffect,
 } from "./effects.js";
 import { featEffectModules } from "./specialFeats.js";
 import { bootsOfSpeedEffect } from "./items/bootsOfSpeed.js";
@@ -21,10 +22,7 @@ export async function midiItemEffects(document) {
     // no default
   }
 
-  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
-    setProperty(document, "flags.ddbimporter.effectsApplied", true);
-  }
-  return document;
+  return forceItemEffect(document);
 }
 
 /**

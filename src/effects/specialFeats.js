@@ -38,6 +38,7 @@ import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { warCasterEffect } from "./feats/warCaster.js";
 import { fontOfMagicEffect } from "./feats/fontOfMagic.js";
+import { forceItemEffect } from "./effects.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -101,6 +102,7 @@ export function featEffectModules() {
   };
   return CONFIG.DDBI.EFFECT_CONFIG.FEATS.installedModules;
 }
+
 
 /**
  * These are effects that can't be generated dynamically and have extra requirements
@@ -261,7 +263,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
   }
 
   if (!deps.hasCore) {
-    return document;
+    return forceItemEffect(document);
   }
   if (!CONFIG.DDBI.EFFECT_CONFIG.FEATS.configured) {
     CONFIG.DDBI.EFFECT_CONFIG.FEATS.configured = configureDependencies();
@@ -298,8 +300,6 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     // no default
   }
-  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
-    setProperty(document, "flags.ddbimporter.effectsApplied", true);
-  }
-  return document;
+
+  return forceItemEffect(document);
 }
