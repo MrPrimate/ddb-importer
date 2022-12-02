@@ -641,7 +641,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
   if (addItemData.equipment.length > 0) {
     const itemResults = await updateCharacterCall(actor, "equipment/add", addItemData, "Adding equipment");
     try {
-      const itemUpdates = itemResults.system.addItems
+      const itemUpdates = itemResults.data.addItems
         .filter((addedItem) => ddbEnrichedItems.some((i) =>
           i.flags.ddbimporter
           && i.flags.ddbimporter.definitionId === addedItem.definition.id

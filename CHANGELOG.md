@@ -1,6 +1,7 @@
 # 3.2.6
 
 * If an item effect is generated item will force the use of the item effect rather than the CE effect.
+* Update back to DDB could fail for some items, it would add the item, but not always update the Foundry data about that item, causing a potential duplication.
 
 # 3.2.5
 
