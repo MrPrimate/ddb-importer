@@ -1,11 +1,11 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium } from "./importMonster.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
-import { parseVehicles } from "./vehicle/vehicle.js";
+import { parseVehicles } from "../parser/vehicle/vehicle.js";
 // import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
@@ -60,7 +60,7 @@ export function getVehicleData(ids) {
           FileHelper.download(JSON.stringify(data), `vehicles-raw.json`, "application/json");
         }
         if (!data.success) {
-          munchNote(`Failure: ${data.message}`);
+          DDBMuncher.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;
@@ -76,11 +76,11 @@ export function getVehicleData(ids) {
  * @returns array of vehicles processed to Foundry
  */
 async function processVehicleData(ddbData) {
-  munchNote(`Retrieved ${ddbData.length} vehicles, starting parse...`, true, false);
+  DDBMuncher.munchNote(`Retrieved ${ddbData.length} vehicles, starting parse...`, true, false);
   logger.info(`Retrieved ${ddbData.length} vehicles`);
   const parsedVehicles = await parseVehicles(ddbData);
 
-  munchNote(
+  DDBMuncher.munchNote(
     `Parsed ${parsedVehicles.actors.length} vehicles, failed ${parsedVehicles.failedVehicleNames.length} vehicles`,
     false,
     true
@@ -102,54 +102,54 @@ export async function parseTransports(ids = null) {
 
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
-  munchNote(`Checking existing image files...`);
+  DDBMuncher.munchNote(`Checking existing image files...`);
   await FileHelper.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete getting vehicle data...");
-  munchNote(`Getting vehicle data from DDB...`);
+  DDBMuncher.munchNote(`Getting vehicle data from DDB...`);
   let vehicleJSON = await getVehicleData(ids);
   let vehicles = await processVehicleData(vehicleJSON);
 
   if (!updateBool || !updateImages) {
-    munchNote(`Calculating which vehicles to update...`, true);
+    DDBMuncher.munchNote(`Calculating which vehicles to update...`, true);
     const existingVehicles = await getCompendiumItems(vehicles, "npc", { keepDDBId: true });
     const existingVehiclesTotal = existingVehicles.length + 1;
     if (!updateBool) {
       logger.debug("Removing existing vehicles from import list");
       logger.debug(`Matched ${existingVehiclesTotal}`);
-      munchNote(`Removing ${existingVehiclesTotal} from update...`);
+      DDBMuncher.munchNote(`Removing ${existingVehiclesTotal} from update...`);
       vehicles = await removeItems(vehicles, existingVehicles, true);
     }
     if (!updateImages) {
       logger.debug("Copying vehicle images across...");
-      munchNote(`Copying images for ${existingVehiclesTotal} vehicles...`);
+      DDBMuncher.munchNote(`Copying images for ${existingVehiclesTotal} vehicles...`);
       vehicles = copyExistingMonsterImages(vehicles, existingVehicles);
     }
   }
-  munchNote("");
-  munchNote(`Fiddling with the SRD data...`, true);
+  DDBMuncher.munchNote("");
+  DDBMuncher.munchNote(`Fiddling with the SRD data...`, true);
   const finalVehicles = await srdFiddling(vehicles, "vehicles");
 
-  munchNote(`Generating Icon Map..`, true);
+  DDBMuncher.munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalVehicles);
 
   // Compendium folders not yet in use for Vehicles
   // const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
   // const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   // if (addToCompendiumFolder && compendiumFoldersInstalled) {
-  //   munchNote(`Checking compendium folders..`, true);
+  //   DDBMuncher.munchNote(`Checking compendium folders..`, true);
   //   await createCompendiumFolderStructure("vehicles");
-  //   munchNote("", true);
+  //   DDBMuncher.munchNote("", true);
   // }
 
   let vehiclesParsed = [];
   let currentVehicle = 1;
   const vehicleCount = finalVehicles.length;
-  munchNote(`Preparing to wax ${vehicleCount} vehicles!`, true);
+  DDBMuncher.munchNote(`Preparing to wax ${vehicleCount} vehicles!`, true);
   for (const vehicle of finalVehicles) {
     if (bulkImport) {
-      munchNote(`[${currentVehicle}/${vehicleCount}] Checking servicing requirements for ${vehicle.name}`, false, true);
+      DDBMuncher.munchNote(`[${currentVehicle}/${vehicleCount}] Checking servicing requirements for ${vehicle.name}`, false, true);
     } else {
-      munchNote(`[${currentVehicle}/${vehicleCount}] Importing ${vehicle.name}`, false, true);
+      DDBMuncher.munchNote(`[${currentVehicle}/${vehicleCount}] Importing ${vehicle.name}`, false, true);
     }
     logger.debug(`Importing/second parse of ${vehicle.name} data`);
     // eslint-disable-next-line no-await-in-loop
@@ -159,11 +159,11 @@ export async function parseTransports(ids = null) {
   }
   logger.debug("Vehicles Parsed", vehiclesParsed);
   if (bulkImport) {
-    munchNote(`Importing ${vehiclesParsed.length} vehicles`, false, true);
+    DDBMuncher.munchNote(`Importing ${vehiclesParsed.length} vehicles`, false, true);
     logger.debug(`Importing ${vehiclesParsed.length} vehicles`);
     await addNPCsToCompendium(vehiclesParsed, "vehicle");
   }
-  munchNote("", false, true);
+  DDBMuncher.munchNote("", false, true);
   setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
   if (ids !== null) {

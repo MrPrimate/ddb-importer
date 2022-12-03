@@ -111,6 +111,20 @@ const URLS = {
   DYNAMIC: "https://dynamic.ddb.mrprimate.co.uk",
 };
 
+const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
+
+const DISABLE_FOUNDRY_UPGRADE = {
+  applyFeatures: false,
+  addFeatures: false,
+  promptAddFeatures: false,
+};
+
+// reference to the D&D Beyond popup
+const POPUPS = {
+  json: null,
+  web: null,
+};
+
 const SETTINGS = {
   MODULE_ID: "ddb-importer",
   FLAG_NAME: "ddbimporter",
@@ -124,6 +138,9 @@ const SETTINGS = {
   ADVENTURE_FLAG: "isDDBAdventure",
   ADVENTURE_CSS: "ddbAdventure",
   URLS,
+  POPUPS,
+  DISABLE_FOUNDRY_UPGRADE,
+  FILTER_SECTIONS,
   DEFAULT_SETTINGS: {
     // these settigs are loaded during renderSidebarTab
     EARLY: {

@@ -3,7 +3,7 @@ import { generateBackground } from "../../parser/character/bio.js";
 import { parseTags } from "../../lib/templateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
-import { munchNote } from "../ddb.js";
+import { DDBMuncher } from "../ddb.js";
 import { generateTable } from "../table.js";
 
 const BACKGROUND_TEMPLATE = {
@@ -74,7 +74,7 @@ export async function getBackgrounds(data) {
   const fiddledBackgrounds = await srdFiddling(backgrounds, "backgrounds");
   const finalBackgrounds = await daeFiddling(fiddledBackgrounds);
 
-  munchNote(`Importing ${finalBackgrounds.length} backgrounds!`, true);
+  DDBMuncher.munchNote(`Importing ${finalBackgrounds.length} backgrounds!`, true);
   await updateCompendium("backgrounds", { backgrounds: finalBackgrounds }, updateBool);
 
   return finalBackgrounds;

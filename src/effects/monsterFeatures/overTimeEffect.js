@@ -1,6 +1,6 @@
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 import utils from "../../lib/utils.js";
-import { getFeatSave, getDamage } from "../../muncher/monster/utils.js";
+import { getFeatSave, getDamage } from "../../parser/monster/utils.js";
 import DICTIONARY from "../../dictionary.js";
 import { generateStatusEffectChange } from "../effects.js";
 import logger from "../../logger.js";

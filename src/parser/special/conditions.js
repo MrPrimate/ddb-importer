@@ -1,5 +1,5 @@
-import logger from "../logger.js";
-import SETTINGS from "../settings.js";
+import logger from "../../logger.js";
+import SETTINGS from "../../settings.js";
 
 const CONDITION_MATRIX = [
   { label: "Blinded", statusId: "Convenient Effect: Blinded", ddbId: 1, levelId: null, ddbType: 1 },

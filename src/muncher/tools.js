@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import { copySupportedItemFlags } from "./import.js";
 import { getNPCImage } from "./importMonster.js";
 
@@ -13,7 +13,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
   count++;
 
   for (let targetActor of targetActors) {
-    munchNote(`Updating ${count}/${totalTargets} world monsters`);
+    DDBMuncher.munchNote(`Updating ${count}/${totalTargets} world monsters`);
     logger.debug(`Updating ${count}/${totalTargets} world monsters`, targetActor);
     const monsterItems = sourceActor.items.toObject().map((item) => {
       delete item._id;
@@ -79,7 +79,7 @@ export async function updateWorldMonsters() {
     const index = await monsterCompendium.getIndex({ fields: monsterIndices });
     totalTargets = game.actors.filter((a) => a.type === "npc" && hasProperty(a, "flags.ddbimporter.id")).length;
     count = 0;
-    munchNote(`Updating ${count}/${totalTargets} world monsters`);
+    DDBMuncher.munchNote(`Updating ${count}/${totalTargets} world monsters`);
     logger.debug(`Checking ${totalTargets} world monsters`);
 
     for (const [key, value] of index.entries()) {
@@ -91,7 +91,7 @@ export async function updateWorldMonsters() {
       );
 
       if (worldMatches.length > 0) {
-        munchNote(`Found ${value.name} world monster`, true);
+        DDBMuncher.munchNote(`Found ${value.name} world monster`, true);
         logger.debug(`Matched ${value.name} (${key})`);
         // eslint-disable-next-line no-await-in-loop
         const monster = await monsterCompendium.getDocument(value._id);
@@ -100,8 +100,8 @@ export async function updateWorldMonsters() {
         results.push(updatedActors);
       }
     }
-    munchNote(`Finished updating ${totalTargets} world monsters`);
-    munchNote("", true);
+    DDBMuncher.munchNote(`Finished updating ${totalTargets} world monsters`);
+    DDBMuncher.munchNote("", true);
 
   } else {
     logger.error("Error opening compendium, check your settings");

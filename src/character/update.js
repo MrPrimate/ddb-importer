@@ -2,16 +2,15 @@ import logger from "../logger.js";
 import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DICTIONARY from "../dictionary.js";
-import { getCharacterData } from "./import.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
 import { getCampaignId } from "../lib/Settings.js";
 import { looseItemNameMatch } from "../muncher/import.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
-import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates, setActiveSyncSpellsFlag } from "./utils.js";
-import { getActorConditionStates, getCondition } from "./conditions.js";
-import { getItemCollectionItems } from "./itemCollections.js";
+import { getActorConditionStates, getCondition } from "../parser/special/conditions.js";
+import { getItemCollectionItems } from "../parser/special/itemCollections.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
+import DDBCharacter from "../parser/DDBCharacter.js";
 
 function activeUpdate() {
   const dynamicSync = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync");
@@ -1056,9 +1055,6 @@ async function actionUseStatus(actor, ddbData) {
 }
 
 export async function updateDDBCharacter(actor) {
-  const activeUpdateState = getCurrentDynamicUpdateState(actor);
-  await disableDynamicUpdates(actor);
-
   const cobaltCheck = await checkCobalt(actor.id);
 
   if (cobaltCheck.success) {
@@ -1072,14 +1068,19 @@ export async function updateDDBCharacter(actor) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
   const syncId = actor.flags["ddb-importer"]?.syncId ? actor.flags["ddb-importer"].syncId + 1 : 0;
 
-  const characterDataOptions = {
-    currentActorId: actor.id,
-    characterId: characterId,
-    syncId: syncId,
-    localCobaltPostFix: actor.id,
-    resourceSelection: false,
+  const ddbCharacterOptions = {
+    currentActor: actor,
+    characterId,
+    resourceSelection: false
   };
-  let ddbData = await getCharacterData(characterDataOptions);
+  const getOptions = {
+    syncId,
+    localCobaltPostFix: actor.id,
+  };
+  const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+  const activeUpdateState = ddbCharacter.getCurrentDynamicUpdateState();
+  await ddbCharacter.disableDynamicUpdates();
+  let ddbData = await ddbCharacter.getCharacterData(getOptions);
 
   logger.debug("Current actor:", duplicate(actor));
   logger.debug("DDB Parsed data:", ddbData);
@@ -1119,7 +1120,7 @@ export async function updateDDBCharacter(actor) {
   // promises.push(spellSlots);
 
   actor.setFlag("ddb-importer", "syncId", syncId);
-  await setActiveSyncSpellsFlag(actor, true);
+  await ddbCharacter.setActiveSyncSpellsFlag(true);
 
   // we can now process item attunements and uses (not yet done)
 
@@ -1134,7 +1135,7 @@ export async function updateDDBCharacter(actor) {
   ).filter((result) => result !== undefined);
 
   logger.debug("Update results", results);
-  await updateDynamicUpdates(actor, activeUpdateState);
+  await ddbCharacter.updateDynamicUpdates(activeUpdateState);
 
   return results;
 }
@@ -1355,7 +1356,14 @@ async function activeUpdateUpdateItem(document, update) {
         updateSpellPrep(parentActor, document).then((results) => {
           logger.debug("Spell prep results", results);
           const failures = results.find((result) => result.success !== true);
-          if (failures) setActiveSyncSpellsFlag(parentActor, false);
+          const ddbCharacterOptions = {
+            currentActor: parentActor,
+            characterId: undefined,
+            resourceSelection: false
+          };
+          // when update is refactored to a class, change this
+          const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+          if (failures) ddbCharacter.setActiveSyncSpellsFlag(false);
           resolve(results);
         });
       } else if (syncEquipment && !action) {

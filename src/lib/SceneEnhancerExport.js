@@ -1,6 +1,6 @@
-import { getSourcesLookups } from "./ddb.js";
+import { getSourcesLookups } from "../muncher/ddb.js";
 import logger from "../logger.js";
-import FileHelper from "../lib/FileHelper.js";
+import FileHelper from "./FileHelper.js";
 
 /**
    * Extracts all notes that have been placed by ddb-importer

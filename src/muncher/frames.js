@@ -1,6 +1,6 @@
 // Main module class
 import { getImagePath } from "./import.js";
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -30,7 +30,7 @@ async function getFrameData() {
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
-          munchNote(`API Failure: ${data.message}`);
+          DDBMuncher.munchNote(`API Failure: ${data.message}`);
           reject(data.message);
         }
         if (debugJson) {
@@ -39,7 +39,7 @@ async function getFrameData() {
         return data;
       })
       .then((data) => {
-        munchNote(`Retrieved ${data.data.length} frames, starting parse...`, true, false);
+        DDBMuncher.munchNote(`Retrieved ${data.data.length} frames, starting parse...`, true, false);
         logger.info(`Retrieved ${data.data.length} frames`);
         resolve(data.data);
       })
@@ -51,12 +51,12 @@ export async function parseFrames() {
   const frames = await getFrameData();
   logger.debug("Importing frames", frames);
 
-  munchNote(`Fetching DDB Frames`);
+  DDBMuncher.munchNote(`Fetching DDB Frames`);
   frames.forEach(async (frame) => {
     await getImagePath(frame.frameAvatarUrl, 'frame', `DDB ${frame.name}`, true);
   });
 
-  munchNote("");
+  DDBMuncher.munchNote("");
 
   return frames.length;
 }

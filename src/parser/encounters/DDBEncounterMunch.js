@@ -1,100 +1,17 @@
-import { munchNote } from "./ddb.js";
-import logger from "../logger.js";
-import utils from "../lib/utils.js";
-import FileHelper from "../lib/FileHelper.js";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
-import MuncherSettings from "./MuncherSettings.js";
-import { getCobalt } from "../lib/Secrets.js";
-import { getAvailableCampaigns } from "../lib/Settings.js";
-import { parseCritters } from "./monsters.js";
-import AdventureMunchHelpers from "./adventure/AdventureMunchHelpers.js";
-import { importCharacterById } from "../character/import.js";
-import SETTINGS from "../settings.js";
-import DDBProxy from "../lib/DDBProxy.js";
+import logger from "../../logger.js";
+import utils from "../../lib/utils.js";
+import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import PatreonHelper from "../../lib/PatreonHelper.js";
+import MuncherSettings from "../../muncher/MuncherSettings.js";
+import { getAvailableCampaigns } from "../../lib/Settings.js";
+import { parseCritters } from "../../muncher/monsters.js";
+import AdventureMunchHelpers from "../../muncher/adventure/AdventureMunchHelpers.js";
+import { importCharacterById } from "../../lib/DDBCharacterImport.js";
+import SETTINGS from "../../settings.js";
+import DDBEncounters from "./DDBEncounters.js";
 
-const DIFFICULTY_LEVELS = [
-  { id: null, name: "No challenge", color: "grey" },
-  { id: 1, name: "Easy", color: "green" },
-  { id: 2, name: "Medium", color: "brown" },
-  { id: 3, name: "Hard", color: "orange" },
-  { id: 4, name: "Deadly", color: "red" },
-];
+export default class DDBEncounterMunch extends Application {
 
-const SCENE_IMG = [
-  { name: "Bar", img: "modules/ddb-importer/img/encounters/bar.webp" },
-  { name: "Cobbles", img: "modules/ddb-importer/img/encounters/cobbles.webp" },
-  { name: "Dungeon", img: "modules/ddb-importer/img/encounters/dungeon.png" },
-  { name: "Grass", img: "modules/ddb-importer/img/encounters/grass.webp" },
-  { name: "Snow", img: "modules/ddb-importer/img/encounters/snow.webp" },
-  { name: "Stone", img: "modules/ddb-importer/img/encounters/stone.webp" },
-  { name: "Void", img: "modules/ddb-importer/img/encounters/void.webp" },
-];
-
-async function getEncounterData() {
-  const cobaltCookie = getCobalt();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
-  const parsingApi = DDBProxy.getProxy();
-  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
-
-  const body = {
-    cobalt: cobaltCookie,
-    betaKey: betaKey,
-  };
-
-  return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/encounters`, {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body), // body data type must match "Content-Type" header
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) {
-          munchNote(`API Failure: ${data.message}`);
-          reject(data.message);
-        }
-        if (debugJson) {
-          FileHelper.download(JSON.stringify(data), `encounters-raw.json`, "application/json");
-        }
-        return data;
-      })
-      .then((data) => {
-        munchNote(`Retrieved ${data.data.length} encounters, starting parse...`, true, false);
-        logger.info(`Retrieved ${data.data.length} encounters`);
-        resolve(data.data);
-      })
-      .catch((error) => reject(error));
-  });
-}
-
-export async function parseEncounters() {
-  const encounters = await getEncounterData();
-  logger.debug("Fetched encounters", encounters);
-  munchNote(`Fetched Available DDB Encounters`);
-  CONFIG.DDBI.ENCOUNTERS = encounters;
-  munchNote("");
-  return CONFIG.DDBI.ENCOUNTERS;
-}
-
-async function filterEncounters(campaignId) {
-  const campaigns = await getAvailableCampaigns();
-  const campaignIds = campaigns.map((c) => c.id);
-  const allEncounters = CONFIG.DDBI.ENCOUNTERS ? CONFIG.DDBI.ENCOUNTERS : await parseEncounters();
-
-  logger.debug(`${allEncounters.length} encounters`, allEncounters);
-  logger.debug("CampaignIds", campaignIds);
-  if (!campaignId || campaignId === "" || !campaignIds.includes(parseInt(campaignId))) return allEncounters;
-  logger.debug(`CampaignId to find ${campaignId}`);
-  const filteredEncounters = allEncounters.filter((encounter) => encounter.campaign.id == campaignId);
-  logger.debug(`${filteredEncounters.length} filtered encounters`, filteredEncounters);
-  return filteredEncounters;
-}
-
-export class DDBEncounterMunch extends Application {
   constructor(options = {}) {
     super(options);
     this.encounter = {};
@@ -104,6 +21,36 @@ export class DDBEncounterMunch extends Application {
     this.combat = undefined;
     this.tokens = [];
     this.folders = {};
+    this.ddbEncounters = new DDBEncounters();
+  }
+
+  static SCENE_IMG = [
+    { name: "Bar", img: "modules/ddb-importer/img/encounters/bar.webp" },
+    { name: "Cobbles", img: "modules/ddb-importer/img/encounters/cobbles.webp" },
+    { name: "Dungeon", img: "modules/ddb-importer/img/encounters/dungeon.png" },
+    { name: "Grass", img: "modules/ddb-importer/img/encounters/grass.webp" },
+    { name: "Snow", img: "modules/ddb-importer/img/encounters/snow.webp" },
+    { name: "Stone", img: "modules/ddb-importer/img/encounters/stone.webp" },
+    { name: "Void", img: "modules/ddb-importer/img/encounters/void.webp" },
+  ];
+
+  /**
+   * Display information when Munching
+   * @param {*} note
+   * @param {*} nameField
+   * @param {*} monsterNote
+   */
+  static munchNote(note, nameField = false, monsterNote = false) {
+    if (nameField) {
+      $("#munching-task-name").text(note);
+      $("#ddb-importer-monsters").css("height", "auto");
+    } else if (monsterNote) {
+      $("#munching-task-monster").text(note);
+      $("#ddb-importer-monsters").css("height", "auto");
+    } else {
+      $("#munching-task-notes").text(note);
+      $("#ddb-importer-monsters").css("height", "auto");
+    }
   }
 
   static get defaultOptions() {
@@ -122,15 +69,11 @@ export class DDBEncounterMunch extends Application {
 
   async parseEncounter(id) {
     logger.debug(`Looking for Encounter "${id}"`);
-    if (!CONFIG.DDBI.ENCOUNTERS) return this.encounter;
+    if (this.ddbEncounters.encounters.length === 0) return this.encounter;
     const monsterPack = CompendiumHelper.getCompendiumType("monster", false);
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
-    // console.warn(CONFIG.DDBI.ENCOUNTERS);
-    const encounter = CONFIG.DDBI.ENCOUNTERS.find((e) => e.id == id.trim());
-    // console.warn(encounter);
-
-    // if (!encounter) return this.encounter;
+    const encounter = this.ddbEncounters.encounters.find((e) => e.id == id.trim());
 
     let goodMonsterIds = [];
     let missingMonsterIds = [];
@@ -162,7 +105,7 @@ export class DDBEncounterMunch extends Application {
         }
       });
 
-    const difficulty = DIFFICULTY_LEVELS.find((level) => level.id == encounter.difficulty);
+    const difficulty = DDBEncounters.DIFFICULTY_LEVELS.find((level) => level.id == encounter.difficulty);
 
     this.encounter = {
       id,
@@ -715,7 +658,7 @@ export class DDBEncounterMunch extends Application {
       const campaignId = campaignSelection[0].selectedOptions[0]
         ? campaignSelection[0].selectedOptions[0].value
         : undefined;
-      const encounters = await filterEncounters(campaignId);
+      const encounters = await this.ddbEncounters.filterEncounters(campaignId);
       const campaignSelected = campaignId && campaignId !== "";
       let encounterList = `<option value="">Select encounter:</option>`;
       encounters.forEach((encounter) => {
@@ -822,7 +765,7 @@ export class DDBEncounterMunch extends Application {
     const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
     const tiers = PatreonHelper.getPatreonTiers(tier);
     const availableCampaigns = await getAvailableCampaigns();
-    const availableEncounters = await filterEncounters();
+    const availableEncounters = await this.ddbEncounters.encounters.filterEncounters();
 
     const characterSettings = MuncherSettings.getCharacterImportSettings();
     const muncherSettings = MuncherSettings.getMuncherSettings(false);
@@ -884,7 +827,7 @@ export class DDBEncounterMunch extends Application {
       availableCampaigns,
       availableEncounters,
       encounterConfig,
-      sceneImg: SCENE_IMG,
+      sceneImg: DDBEncounterMunch.SCENE_IMG,
       scenes,
       createSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
       existingSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),

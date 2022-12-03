@@ -1,4 +1,4 @@
-import { munchNote } from "../muncher/ddb.js";
+import { DDBMuncher } from "../muncher/ddb.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "./DDBProxy.js";
 
@@ -22,7 +22,7 @@ const PatreonHelper = {
         .then((response) => response.json())
         .then((data) => {
           if (!data.success) {
-            munchNote(`API Failure: ${data.message}`);
+            DDBMuncher.munchNote(`API Failure: ${data.message}`);
             reject(data.message);
           }
           let currentEmail = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");

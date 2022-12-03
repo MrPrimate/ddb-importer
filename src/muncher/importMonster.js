@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compendiumFolders } from "./import.js";
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
 // check items to see if retaining item, img or resources
@@ -318,7 +318,7 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
     && (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
   const daeCopy = game.settings.get("ddb-importer", "munching-policy-dae-copy");
   if (daeInstalled && daeCopy) {
-    munchNote(`Importing DAE Item for ${data.name}`);
+    DDBMuncher.munchNote(`Importing DAE Item for ${data.name}`);
     // eslint-disable-next-line require-atomic-updates
     data.items = await migrateItemsDAESRD(data.items);
   }
@@ -383,11 +383,11 @@ export async function generateIconMap(monsters) {
   // eslint-disable-next-line require-atomic-updates
   if (srdIcons) {
     const srdIconLibrary = await getSRDIconLibrary();
-    munchNote(`Updating SRD Icons`, true);
+    DDBMuncher.munchNote(`Updating SRD Icons`, true);
     let itemMap = [];
 
     monsters.forEach((monster) => {
-      munchNote(`Processing ${monster.name}`);
+      DDBMuncher.munchNote(`Processing ${monster.name}`);
       promises.push(
         copySRDIcons(monster.items, srdIconLibrary, itemMap).then((items) => {
           monster.items = items;

@@ -1,7 +1,7 @@
 import { getSource } from "../source.js";
 import { getRecharge, getActivation, getFeatSave, getDamage, getRange, getTarget, replaceRollable } from "../utils.js";
 import { newFeat } from "../templates/feat.js";
-import { generateTable } from "../../table.js";
+import { generateTable } from "../../../muncher/table.js";
 
 function addPlayerDescription(monster, action) {
   let playerDescription = `</section>\nThe ${monster.name} performs ${action.name}!`;

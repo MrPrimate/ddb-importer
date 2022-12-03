@@ -3,7 +3,7 @@ import { parseTags } from "../../lib/templateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
-import { munchNote } from "../ddb.js";
+import { DDBMuncher } from "../ddb.js";
 
 const FEATURE_DUP = [
   "Breath Weapon",
@@ -236,7 +236,7 @@ export async function getRaces(data) {
     });
 
   const fiddledRacialFeatures = await srdFiddling(racialFeatures, "traits");
-  munchNote(`Importing ${fiddledRacialFeatures.length} traits!`, true);
+  DDBMuncher.munchNote(`Importing ${fiddledRacialFeatures.length} traits!`, true);
   logger.debug("Generated Racial Traits", fiddledRacialFeatures);
   await updateCompendium("traits", { traits: fiddledRacialFeatures }, updateBool, ["entityRaceId"]);
 
@@ -254,7 +254,7 @@ export async function getRaces(data) {
   logger.debug("Pre-fiddled races", duplicate(races));
 
   const fiddledRaces = await srdFiddling(races, "races");
-  munchNote(`Importing ${fiddledRaces.length} races!`, true);
+  DDBMuncher.munchNote(`Importing ${fiddledRaces.length} races!`, true);
 
   logger.debug("Fiddled races", fiddledRaces);
 

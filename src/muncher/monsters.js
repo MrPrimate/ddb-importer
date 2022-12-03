@@ -1,9 +1,9 @@
 // Main module class
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import logger from "../logger.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
-import { parseMonsters } from "./monster/monster.js";
+import { parseMonsters } from "../parser/monster/monster.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
@@ -56,7 +56,7 @@ async function getMonsterData(ids) {
       .then((response) => response.json())
       .then((data) => {
         if (!data.success) {
-          munchNote(`API Failure: ${data.message}`);
+          DDBMuncher.munchNote(`API Failure: ${data.message}`);
           logger.error(`API Failure:`, data.message);
           reject(data.message);
         }
@@ -66,13 +66,13 @@ async function getMonsterData(ids) {
         return data;
       })
       .then((data) => {
-        munchNote(`Retrieved ${data.data.length} monsters, starting parse...`, true, false);
+        DDBMuncher.munchNote(`Retrieved ${data.data.length} monsters, starting parse...`, true, false);
         logger.info(`Retrieved ${data.data.length} monsters`);
         const parsedMonsters = parseMonsters(data.data);
         return parsedMonsters;
       })
       .then((data) => {
-        munchNote(
+        DDBMuncher.munchNote(
           `Parsed ${data.actors.length} monsters, failed ${data.failedMonsterNames.length} monsters`,
           false,
           true
@@ -96,53 +96,53 @@ export async function parseCritters(ids = null) {
 
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
-  munchNote(`Checking existing image files...`);
+  DDBMuncher.munchNote(`Checking existing image files...`);
   await FileHelper.generateCurrentFiles(uploadDirectory);
   await FileHelper.generateCurrentFiles("[data] modules/ddb-importer/data");
   logger.info("Check complete getting monster data...");
-  munchNote(`Getting monster data from DDB...`);
+  DDBMuncher.munchNote(`Getting monster data from DDB...`);
   let monsters = await getMonsterData(ids);
 
   if (!updateBool || !updateImages) {
-    munchNote(`Calculating which monsters to update...`, true);
+    DDBMuncher.munchNote(`Calculating which monsters to update...`, true);
     const existingMonsters = await getCompendiumItems(monsters, "npc", { keepDDBId: true });
     const existingMonstersTotal = existingMonsters.length + 1;
     if (!updateBool) {
       logger.debug("Removing existing monsters from import list");
       logger.debug(`Matched ${existingMonstersTotal}`);
-      munchNote(`Removing ${existingMonstersTotal} from update...`);
+      DDBMuncher.munchNote(`Removing ${existingMonstersTotal} from update...`);
       monsters = await removeItems(monsters, existingMonsters, true);
     }
     if (!updateImages) {
       logger.debug("Copying monster images across...");
-      munchNote(`Copying images for ${existingMonstersTotal} monsters...`);
+      DDBMuncher.munchNote(`Copying images for ${existingMonstersTotal} monsters...`);
       monsters = copyExistingMonsterImages(monsters, existingMonsters);
     }
   }
-  munchNote("");
-  munchNote(`Fiddling with the SRD data...`, true);
+  DDBMuncher.munchNote("");
+  DDBMuncher.munchNote(`Fiddling with the SRD data...`, true);
   const finalMonsters = await srdFiddling(monsters, "monsters");
 
-  munchNote(`Generating Icon Map..`, true);
+  DDBMuncher.munchNote(`Generating Icon Map..`, true);
   await generateIconMap(finalMonsters);
 
   const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
   const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   if (addToCompendiumFolder && compendiumFoldersInstalled) {
-    munchNote(`Checking compendium folders..`, true);
+    DDBMuncher.munchNote(`Checking compendium folders..`, true);
     await createCompendiumFolderStructure("monsters");
-    munchNote("", true);
+    DDBMuncher.munchNote("", true);
   }
 
   let monstersParsed = [];
   let currentMonster = 1;
   const monsterCount = finalMonsters.length;
-  munchNote(`Preparing dinner for ${monsterCount} monsters!`, true);
+  DDBMuncher.munchNote(`Preparing dinner for ${monsterCount} monsters!`, true);
   for (const monster of finalMonsters) {
     if (bulkImport) {
-      munchNote(`[${currentMonster}/${monsterCount}] Checking dietary requirements for ${monster.name}`, false, true);
+      DDBMuncher.munchNote(`[${currentMonster}/${monsterCount}] Checking dietary requirements for ${monster.name}`, false, true);
     } else {
-      munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name}`, false, true);
+      DDBMuncher.munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name}`, false, true);
     }
     logger.debug(`Importing/second parse of ${monster.name} data`);
     // eslint-disable-next-line no-await-in-loop
@@ -152,11 +152,11 @@ export async function parseCritters(ids = null) {
   }
   logger.debug("Monsters Parsed", monstersParsed);
   if (bulkImport) {
-    munchNote(`Importing ${monstersParsed.length} monsters`, false, true);
+    DDBMuncher.munchNote(`Importing ${monstersParsed.length} monsters`, false, true);
     logger.debug(`Importing ${monstersParsed.length} monsters`);
     await addNPCsToCompendium(monstersParsed, "monster");
   }
-  munchNote("", false, true);
+  DDBMuncher.munchNote("", false, true);
   setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
   if (ids !== null) {

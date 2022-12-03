@@ -1,5 +1,5 @@
 // Main module class
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import { getRaces } from "./races/races.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
@@ -29,7 +29,7 @@ function getRaceData() {
           FileHelper.download(JSON.stringify(data), `races-raw.json`, "application/json");
         }
         if (!data.success) {
-          munchNote(`Failure: ${data.message}`);
+          DDBMuncher.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;

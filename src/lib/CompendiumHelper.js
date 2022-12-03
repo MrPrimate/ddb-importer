@@ -1,6 +1,7 @@
 import logger from "../logger.js";
 import { copySupportedItemFlags } from "../muncher/import.js";
 import SETTINGS from '../settings.js';
+import utils from "./utils.js";
 
 const CompendiumHelper = {
 
@@ -239,6 +240,116 @@ const CompendiumHelper = {
       logger.warn(`Setting: ${name} : Deleting compendium ${data.name} with key world.${compendiumName}}`);
       game.packs.delete(`world.${compendiumName}`);
     }
+  },
+
+  /**
+   * Queries a compendium for a single document
+   * Returns either the entry from the index, or the complete document from the compendium
+   */
+  queryCompendiumEntry: async (compendiumName, documentName, getDocument = false) => {
+    // normalize the entity name for comparison
+    documentName = utils.normalizeString(documentName);
+
+    // get the compendium
+    const compendium = game.packs.get(compendiumName);
+    if (!compendium) return null;
+
+    // retrieve the compendium index
+    const index = await compendium.getIndex();
+
+    let id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
+    if (id && getDocument) {
+      let entity = await compendium.getDocument(id._id);
+      return entity;
+    }
+    return id ? id : null;
+  },
+
+  /**
+   * Queries a compendium for a single document
+   * Returns either the entry from the index, or the complete document from the compendium
+   */
+  queryCompendiumEntries: async (compendiumName, documentNames, getDocuments = false) => {
+    // get the compendium
+    let compendium = game.packs.get(compendiumName);
+    if (!compendium) return null;
+
+    // retrieve the compendium index
+    let index = await compendium.getIndex();
+    index = index.map((entry) => {
+      entry.normalizedName = utils.normalizeString(entry.name);
+      return entry;
+    });
+
+    // get the indices of all the entitynames, filter un
+    let indices = documentNames
+      .map((entityName) => {
+        // sometimes spells do have restricted use in paranthesis after the name. Let's try to find those restrictions and add them later
+        if (entityName.search(/(.+)\(([^()]+)\)*/) !== -1) {
+          const match = entityName.match(/(.+)\(([^()]+)\)*/);
+          return {
+            name: utils.normalizeString(match[1].trim()),
+            restriction: match[2].trim(),
+          };
+        } else {
+          return {
+            name: utils.normalizeString(entityName),
+            restriction: null,
+          };
+        }
+      })
+      .map((data) => {
+        let entry = index.find((entity) => entity.normalizedName === data.name);
+        if (entry) {
+          return {
+            _id: entry._id,
+            name: data.restriction ? `${entry.name} (${data.restriction})` : entry.name,
+          };
+        } else {
+          return null;
+        }
+      });
+
+    if (getDocuments) {
+      // replace non-null values with the complete entity from the compendium
+      let entities = await Promise.all(
+        indices.map((entry) => {
+          return new Promise((resolve) => {
+            if (entry) {
+              compendium.getDocument(entry._id).then((entity) => {
+                entity.name = entry.name; // transfer restrictions over, if any
+                // remove redudant info
+                delete entity.id;
+                delete entity.ownership;
+                resolve(entity);
+              });
+            } else {
+              resolve(null);
+            }
+          });
+        })
+      );
+      return entities;
+    }
+    return indices;
+  },
+
+  /**
+   * Queries a compendium for a given document name
+   * @returns the index entries of all matches, otherwise an empty array
+   */
+  queryCompendium: async (compendiumName, documentName, getDocument = false) => {
+    documentName = utils.normalizeString(documentName);
+
+    let compendium = game.packs.get(compendiumName);
+    if (!compendium) return null;
+    let index = await compendium.getIndex();
+    let id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
+    if (id && getDocument) {
+      let entity = await compendium.getEntity(id._id);
+      return entity;
+    }
+    return id ? id : null;
   },
 
 };

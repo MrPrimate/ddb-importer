@@ -3,7 +3,7 @@ import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { parseTags } from "../../lib/templateStrings.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
-import { munchNote } from "../ddb.js";
+import { DDBMuncher } from "../ddb.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 
 async function buildSubClassBase(klass, subClass) {
@@ -123,7 +123,7 @@ export async function getSubClasses(data) {
   });
 
   const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
-  munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
+  DDBMuncher.munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
   logger.debug(`Importing ${fiddledClassFeatures.length} features!`, classFeatures);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
@@ -147,7 +147,7 @@ export async function getSubClasses(data) {
   logger.debug("Subclass build finished", subClasses);
 
   const fiddledClasses = await srdFiddling(subClasses, "subclasses");
-  munchNote(`Importing ${fiddledClasses.length} subclasses!`, true);
+  DDBMuncher.munchNote(`Importing ${fiddledClasses.length} subclasses!`, true);
 
   await updateCompendium("subclasses", { subclasses: fiddledClasses }, updateBool);
 

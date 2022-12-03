@@ -1,9 +1,9 @@
-import utils from "../lib/utils.js";
-import FileHelper from "../lib/FileHelper.js";
-import CompendiumHelper from "../lib/CompendiumHelper.js";
+import utils from "./utils.js";
+import FileHelper from "./FileHelper.js";
+import CompendiumHelper from "./CompendiumHelper.js";
 import MuncherSettings from "../muncher/MuncherSettings.js";
 import logger from "../logger.js";
-import { parseJson } from "../parser/character.js";
+import DDBCharacter from "../parser/DDBCharacter.js";
 import {
   copySupportedItemFlags,
   addMagicItemSpells,
@@ -19,201 +19,18 @@ import {
 } from "../muncher/import.js";
 import { addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
-import { updateDDBCharacter } from "./update.js";
-import { generateCharacterExtras } from "../muncher/extras/extras.js";
+import { updateDDBCharacter } from "../character/update.js";
+import { generateCharacterExtras } from "../parser/extras/extras.js";
 import DICTIONARY from "../dictionary.js";
-import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
-import { DDBCookie, getCampaignId } from "../lib/Settings.js";
-import { importCacheLoad } from "../lib/templateStrings.js";
+import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "./Secrets.js";
+import { DDBCookie } from "./Settings.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
-import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates } from "./utils.js";
-import { setConditions } from "./conditions.js";
+import { setConditions } from "../parser/special/conditions.js";
 import { autoLinkResources } from "../parser/character/resources.js";
-import { addContainerItemsToContainers, addContainerItemsToActor } from "./itemCollections.js";
-import DDBProxy from "../lib/DDBProxy.js";
+import { addContainerItemsToContainers, addContainerItemsToActor } from "../parser/special/itemCollections.js";
+import SETTINGS from "../settings.js";
 
-const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
-
-const DISABLE_FOUNDRY_UPGRADE = {
-  applyFeatures: false,
-  addFeatures: false,
-  promptAddFeatures: false,
-};
-
-// reference to the D&D Beyond popup
-const POPUPS = {
-  json: null,
-  web: null,
-};
-function renderPopup(type, url) {
-  if (POPUPS[type] && !POPUPS[type].close) {
-    POPUPS[type].focus();
-    POPUPS[type].location.href = url;
-  } else {
-    const ratio = window.innerWidth / window.innerHeight;
-    const width = Math.round(window.innerWidth * 0.5);
-    const height = Math.round(window.innerWidth * 0.5 * ratio);
-    POPUPS[type] = window.open(
-      url,
-      "ddb_sheet_popup",
-      `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`
-    );
-  }
-  return true;
-}
-
-/**
- * Retrieves the character ID from a given URL, which can be one of the following:
- * - regular character sheet
- * - public sharing link
- * - direct link to the endpoint already
- * @param {string} url A given URL pointing to a character. Contains the character ID
- * @returns {string} characterId or null
- */
-function getCharacterId(url) {
-  const ddbNamePattern = /(?:https?:\/\/)?(?:www\.dndbeyond\.com|ddb\.ac)(?:\/profile\/.+)?\/characters\/(\d+)\/?/;
-  const matches = url.match(ddbNamePattern);
-  return matches ? matches[1] : null;
-}
-
-/**
- * Creates the Character Endpoint URL from a given character ID
- * @param {string} characterId The character ID
- * @returns {string|null} The API endpoint
- */
-function getCharacterAPIEndpoint(characterId) {
-  return characterId !== null ? `https://character-service.dndbeyond.com/character/v5/character/${characterId}` : null;
-}
-
-function getCharacterUpdatePolicyTypes(invert = false) {
-  let itemTypes = ["background"];
-
-  if (invert) {
-    if (!game.settings.get("ddb-importer", "character-update-policy-class")) {
-      itemTypes.push("class");
-      itemTypes.push("subclass");
-    }
-    if (!game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
-    if (!game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
-    if (!game.settings.get("ddb-importer", "character-update-policy-equipment"))
-      itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
-    if (!game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
-  } else {
-    if (game.settings.get("ddb-importer", "character-update-policy-class")) {
-      itemTypes.push("class");
-      itemTypes.push("subclass");
-    }
-    if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
-    if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
-    if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
-      itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
-    if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
-  }
-  return itemTypes;
-}
-
-/**
- * Returns a combined array of all items to process, filtered by the user's selection on what to skip and what to include
- * @param {object} result object containing all character items sectioned as individual properties
- * @param {array[string]} sections an array of object properties which should be filtered
- */
-const filterItemsByUserSelection = (result, sections, invert = false) => {
-  let items = [];
-  const validItemTypes = getCharacterUpdatePolicyTypes(invert);
-
-  for (const section of sections) {
-    items = items.concat(result[section]).filter((item) => validItemTypes.includes(item.type));
-  }
-  return items;
-};
-
-const filterActorItemsByUserSelection = (actor, invert = false) => {
-  const validItemTypes = getCharacterUpdatePolicyTypes(invert);
-
-  const items = actor.items.filter((item) => validItemTypes.includes(item.type));
-
-  return items;
-};
-
-/**
- * Loads and parses character in the proxy
- * @param {String} currentActorId
- * @param {String} characterId
- * @param {String} syncId
- * @param {String} localCobaltPostFix
- * @param {Boolean} resourceSelection
- * @returns {Object} Parsed Character Data and DDB data
- */
-
-export async function getCharacterData({ currentActorId = undefined, characterId = undefined, syncId = undefined,
-  localCobaltPostFix = "", resourceSelection = true } = {}
-) {
-  const cobaltCookie = getCobalt(localCobaltPostFix);
-  const parsingApi = DDBProxy.getProxy();
-  const betaKey = game.settings.get("ddb-importer", "beta-key");
-  const campaignId = getCampaignId();
-  const proxyCampaignId = campaignId === "" ? null : campaignId;
-  let body = { cobalt: cobaltCookie, betaKey, characterId, campaignId: proxyCampaignId };
-  if (syncId) {
-    body["updateId"] = syncId;
-  }
-
-  try {
-    const response = await fetch(`${parsingApi}/proxy/v5/character`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      redirect: "follow", // manual, *follow, error
-      body: JSON.stringify(body), // body data type must match "Content-Type" header
-    });
-    const data = await response.json();
-    if (!data.success) return data;
-
-    // load some required content
-    await importCacheLoad();
-
-    // construct the expected { character: {...} } object
-    let ddb = {};
-    if (data.ddb.character === undefined) {
-      ddb = {
-        character: data.ddb,
-        classOptions: data.ddb.classOptions,
-        originOptions: data.ddb.originOptions,
-        infusions: data.ddb.infusions,
-      };
-    } else {
-      // fallback to old proxy style
-      ddb = data.ddb;
-    }
-
-    logger.debug("DDB Data to parse:", duplicate(ddb));
-    logger.debug("currentActorId", currentActorId);
-    try {
-      const character = await parseJson(currentActorId, ddb, resourceSelection);
-      const shouldChangeName = game.settings.get("ddb-importer", "character-update-policy-name");
-      if (!shouldChangeName) {
-        character.character.name = undefined;
-        character.character.prototypeToken.name = undefined;
-      }
-      data["character"] = character;
-      return data;
-    } catch (error) {
-      const debugJson = game.settings.get("ddb-importer", "debug-json");
-      if (debugJson) {
-        FileHelper.download(JSON.stringify(data), `${characterId}-raw.json`, "application/json");
-      }
-      throw error;
-    }
-  } catch (error) {
-    logger.error("JSON Fetch and Parse Error");
-    logger.error(error);
-    logger.error(error.stack);
-    throw error;
-  }
-}
-
-export default class CharacterImport extends FormApplication {
+export default class DDBCharacterImport extends FormApplication {
   constructor(options, actor) {
     super(options);
     this.actor = game.actors.get(actor._id);
@@ -223,6 +40,7 @@ export default class CharacterImport extends FormApplication {
     this.result = {};
     this.nonMatchedItemIds = [];
     this.settings = {};
+    this.ddbCharacter = null;
   }
 
   migrateMetadata() {
@@ -230,11 +48,9 @@ export default class CharacterImport extends FormApplication {
       const url = this.actor.flags.ddbimporter.dndbeyond.url;
 
       if (url && !this.actor.flags.ddbimporter.characterId) {
-        const characterId = getCharacterId(url);
+        const characterId = DDBCharacter.getCharacterId(url);
         if (characterId) {
-          const apiEndpointUrl = getCharacterAPIEndpoint(characterId);
           this.actor.flags.ddbimporter.dndbeyond.characterId = characterId;
-          this.actor.flags.ddbimporter.dndbeyond.apiEndpointUrl = apiEndpointUrl;
           this.actor.flags.ddbimporter.dndbeyond.url = url;
         } else {
           // clear the url, because it's malformed anyway
@@ -242,6 +58,23 @@ export default class CharacterImport extends FormApplication {
         }
       }
     }
+  }
+
+  static renderPopup(type, url) {
+    if (SETTINGS.POPUPS[type] && !SETTINGS.POPUPS[type].close) {
+      SETTINGS.POPUPS[type].focus();
+      SETTINGS.POPUPS[type].location.href = url;
+    } else {
+      const ratio = window.innerWidth / window.innerHeight;
+      const width = Math.round(window.innerWidth * 0.5);
+      const height = Math.round(window.innerWidth * 0.5 * ratio);
+      SETTINGS.POPUPS[type] = window.open(
+        url,
+        "ddb_sheet_popup",
+        `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`
+      );
+    }
+    return true;
   }
 
   /**
@@ -263,6 +96,56 @@ export default class CharacterImport extends FormApplication {
     let element = $(this.html).find(".task-name");
     element.html(`<h2 ${isError ? " style='color:red'" : ""}>${title}</h2>${message ? `<p>${message}</p>` : ""}`);
     $(this.html).parent().parent().css("height", "auto");
+  }
+
+  static getCharacterUpdatePolicyTypes(invert = false) {
+    let itemTypes = ["background"];
+
+    if (invert) {
+      if (!game.settings.get("ddb-importer", "character-update-policy-class")) {
+        itemTypes.push("class");
+        itemTypes.push("subclass");
+      }
+      if (!game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
+      if (!game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
+      if (!game.settings.get("ddb-importer", "character-update-policy-equipment"))
+        itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
+      if (!game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
+    } else {
+      if (game.settings.get("ddb-importer", "character-update-policy-class")) {
+        itemTypes.push("class");
+        itemTypes.push("subclass");
+      }
+      if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
+      if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
+      if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
+        itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
+      if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
+    }
+    return itemTypes;
+  }
+
+  /**
+   * Returns a combined array of all items to process, filtered by the user's selection on what to skip and what to include
+   * @param {object} result object containing all character items sectioned as individual properties
+   * @param {array[string]} sections an array of object properties which should be filtered
+   */
+  filterItemsByUserSelection(invert = false) {
+    let items = [];
+    const validItemTypes = DDBCharacterImport.getCharacterUpdatePolicyTypes(invert);
+
+    for (const section of SETTINGS.FILTER_SECTIONS) {
+      items = items.concat(this.result[section]).filter((item) => validItemTypes.includes(item.type));
+    }
+    return items;
+  }
+
+  filterActorItemsByUserSelection(invert = false) {
+    const validItemTypes = DDBCharacterImport.getCharacterUpdatePolicyTypes(invert);
+
+    const items = this.actorOriginal.items.filter((item) => validItemTypes.includes(item.type));
+
+    return items;
   }
 
   /**
@@ -358,7 +241,7 @@ export default class CharacterImport extends FormApplication {
    * - spell
    */
   async clearItemsByUserSelection(excludedList = []) {
-    const includedItems = getCharacterUpdatePolicyTypes();
+    const includedItems = DDBCharacterImport.getCharacterUpdatePolicyTypes();
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("Item");
     const toRemove = ownedItems
@@ -523,14 +406,17 @@ export default class CharacterImport extends FormApplication {
           $(html).find("#dndbeyond-character-import-start").prop("disabled", true);
           this.showCurrentTask("Getting Character data");
           const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
-          const characterDataOptions = {
-            currentActorId: this.actor.id,
-            characterId: characterId,
+          const ddbCharacterOptions = {
+            currentActor: this.actor,
+            characterId,
+            resourceSelection: true
+          };
+          const getOptions = {
             syncId: null,
             localCobaltPostFix: this.actor.id,
-            resourceSelection: true,
           };
-          const characterData = await getCharacterData(characterDataOptions);
+          this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+          const characterData = await this.ddbCharacter.getCharacterData(getOptions);
           logger.debug("import.js getCharacterData result", characterData);
           const debugJson = game.settings.get("ddb-importer", "debug-json");
           if (debugJson) {
@@ -625,14 +511,18 @@ export default class CharacterImport extends FormApplication {
           $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
           this.showCurrentTask("Fetching character data");
           const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
-          const characterDataOptions = {
-            currentActorId: this.actor.id,
-            characterId: characterId,
+          const ddbCharacterOptions = {
+            currentActor: this.actor,
+            ddb: null,
+            characterId,
+            resourceSelection: false
+          };
+          const getOptions = {
             syncId: null,
             localCobaltPostFix: this.actor.id,
-            resourceSelection: false,
           };
-          const characterData = await getCharacterData(characterDataOptions);
+          this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+          const characterData = await this.ddbCharacter.getCharacterData(getOptions);
           logger.debug("import.js getCharacterData result", characterData);
           const debugJson = game.settings.get("ddb-importer", "debug-json");
           if (debugJson) {
@@ -671,10 +561,9 @@ export default class CharacterImport extends FormApplication {
       .on("input", async (event) => {
         this.html = html;
         let URL = event.target.value;
-        const characterId = getCharacterId(URL);
+        const characterId = DDBCharacter.getCharacterId(URL);
 
         if (characterId) {
-          const apiEndpointUrl = getCharacterAPIEndpoint(characterId);
           $(html)
             .find(".dndbeyond-url-status i")
             .replaceWith('<i class="fas fa-check-circle" style="color: green"></i>');
@@ -686,13 +575,12 @@ export default class CharacterImport extends FormApplication {
           await this.actor.update({
             "flags.ddbimporter.dndbeyond": {
               url: URL,
-              apiEndpointUrl,
               characterId,
             },
           });
           this.showCurrentTask("Status");
         } else {
-          CharacterImport.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
+          DDBCharacterImport.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
           $(html)
             .find(".dndbeyond-url-status i")
             .replaceWith('<i class="fas fa-exclamation-triangle" style="color:red"></i>');
@@ -704,9 +592,8 @@ export default class CharacterImport extends FormApplication {
       .on("click", () => {
         this.html = html;
         try {
-          const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
-          const apiEndpointUrl = getCharacterAPIEndpoint(characterId);
-          renderPopup("json", apiEndpointUrl);
+          const characterUrl = this.actor.flags.ddbimporter.dndbeyond.url;
+          DDBCharacterImport.renderPopup("json", characterUrl);
         } catch (error) {
           this.showCurrentTask("Error opening JSON URL", error, true);
         }
@@ -780,7 +667,7 @@ export default class CharacterImport extends FormApplication {
   }
 
   async createCharacterItems(items, keepIds) {
-    const options = duplicate(DISABLE_FOUNDRY_UPGRADE);
+    const options = duplicate(SETTINGS.DISABLE_FOUNDRY_UPGRADE);
     if (keepIds) options["keepId"] = true;
 
     // we have to break these out into class and non-class because of
@@ -912,7 +799,7 @@ export default class CharacterImport extends FormApplication {
 
     logger.debug("Calculating items to create and update...");
     this.showCurrentTask("Calculating items to create and update...");
-    items = filterItemsByUserSelection(this.result, FILTER_SECTIONS);
+    items = this.filterItemsByUserSelection();
 
     logger.debug("Checking existing items for details...");
     this.showCurrentTask("Checking existing items for details...");
@@ -958,7 +845,7 @@ export default class CharacterImport extends FormApplication {
       individualCompendiumItems = individualOverrideCompendiumItems;
       // remove existing items from those to be imported
       logger.info("Removing matching Override compendium items");
-      items = await CharacterImport.removeItems(items, individualCompendiumItems);
+      items = await DDBCharacterImport.removeItems(items, individualCompendiumItems);
     }
 
     /**
@@ -969,7 +856,7 @@ export default class CharacterImport extends FormApplication {
       const compendiumOverrideItems = await getCompendiumItems(items, "custom");
       overrideCompendiumItems = compendiumOverrideItems;
       // remove existing items from those to be imported
-      items = await CharacterImport.removeItems(items, overrideCompendiumItems);
+      items = await DDBCharacterImport.removeItems(items, overrideCompendiumItems);
     }
 
     /**
@@ -987,7 +874,7 @@ export default class CharacterImport extends FormApplication {
         compendiumFeatureItems
       );
       // remove existing items from those to be imported
-      items = await CharacterImport.removeItems(items, srdCompendiumItems);
+      items = await DDBCharacterImport.removeItems(items, srdCompendiumItems);
     }
 
     if (this.settings.useExistingCompendiumItems) {
@@ -1012,7 +899,7 @@ export default class CharacterImport extends FormApplication {
         compendiumBackgroundsItems,
       );
       // remove existing items from those to be imported
-      items = await CharacterImport.removeItems(items, compendiumItems);
+      items = await DDBCharacterImport.removeItems(items, compendiumItems);
     }
 
     // import remaining items to character
@@ -1067,7 +954,7 @@ export default class CharacterImport extends FormApplication {
     logger.debug("Removing active effects");
 
     // remove current active effects
-    const excludedItems = filterActorItemsByUserSelection(this.actorOriginal, true);
+    const excludedItems = this.filterActorItemsByUserSelection(true);
     const ignoredItemIds = this.actorOriginal.items
       .filter((item) =>
         item.effects
@@ -1208,8 +1095,8 @@ export default class CharacterImport extends FormApplication {
     this.result = data.character;
 
     // disable active sync
-    const activeUpdateState = getCurrentDynamicUpdateState(this.actor);
-    await disableDynamicUpdates(this.actor);
+    const activeUpdateState = this.ddbCharacter.getCurrentDynamicUpdateState();
+    await this.ddbCharacter.disableDynamicUpdates();
 
     try {
       await addContainerItemsToActor(data.ddb, this.actor);
@@ -1331,7 +1218,7 @@ export default class CharacterImport extends FormApplication {
       await this.resetActor();
       throw new Error("ImportFailure");
     } finally {
-      await updateDynamicUpdates(this.actor, activeUpdateState);
+      await this.ddbCharacter.updateDynamicUpdates(activeUpdateState);
       this.actor.render();
     }
   }
@@ -1352,20 +1239,25 @@ export async function importCharacterById(characterId, html) {
       },
     });
 
-    const characterDataOptions = {
-      currentActorId: actor.id,
-      characterId: characterId,
+    const ddbCharacterOptions = {
+      currentActor: actor,
+      ddb: null,
+      characterId,
+      resourceSelection: false
+    };
+    const getOptions = {
       syncId: null,
       localCobaltPostFix: actor.id,
-      resourceSelection: false,
     };
-    const characterData = await getCharacterData(characterDataOptions);
+    const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+    const characterData = await ddbCharacter.getCharacterData(getOptions);
+
     const debugJson = game.settings.get("ddb-importer", "debug-json");
     if (debugJson) {
       FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
     }
     if (characterData.success) {
-      const importer = new CharacterImport(CharacterImport.defaultOptions, actor);
+      const importer = new DDBCharacterImport(DDBCharacterImport.defaultOptions, actor);
       importer.html = html ? html : utils.htmlToDoc("");
       await importer.processCharacterData(characterData);
       return actor;
@@ -1394,14 +1286,19 @@ export async function importCharacter(actor, html) {
   try {
     const actorData = actor.toObject();
     const characterId = actorData.flags.ddbimporter.dndbeyond.characterId;
-    const characterDataOptions = {
-      currentActorId: actorData._id,
-      characterId: characterId,
+
+    const ddbCharacterOptions = {
+      currentActor: actor,
+      characterId,
+      resourceSelection: true
+    };
+    const getOptions = {
       syncId: null,
       localCobaltPostFix: actorData._id,
-      resourceSelection: true,
     };
-    const characterData = await getCharacterData(characterDataOptions);
+    const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+    const characterData = await ddbCharacter.getCharacterData(getOptions);
+
     logger.debug("import.js importCharacter getCharacterData result", characterData);
     const debugJson = game.settings.get("ddb-importer", "debug-json");
     if (debugJson) {
@@ -1409,7 +1306,7 @@ export async function importCharacter(actor, html) {
     }
     if (characterData.success) {
       // begin parsing the character data
-      const importer = new CharacterImport(CharacterImport.defaultOptions, actorData);
+      const importer = new DDBCharacterImport(DDBCharacterImport.defaultOptions, actorData);
       importer.html = html ? html : utils.htmlToDoc("");
       await importer.processCharacterData(characterData);
       importer.showCurrentTask("Loading Character data", "Done.", false);

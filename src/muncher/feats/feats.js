@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 import { parseTags } from "../../lib/templateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
-import { munchNote } from "../ddb.js";
+import { DDBMuncher } from "../ddb.js";
 
 const FEAT_TEMPLATE = {
   "name": "",
@@ -78,7 +78,7 @@ export async function getFeats(data) {
   const fiddledFeats = await srdFiddling(feats, "feats");
   const finalFeats = await daeFiddling(fiddledFeats);
 
-  munchNote(`Importing ${finalFeats.length} feats!`, true);
+  DDBMuncher.munchNote(`Importing ${finalFeats.length} feats!`, true);
   await updateCompendium("feats", { feats: finalFeats }, updateBool);
 
   return finalFeats;

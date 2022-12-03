@@ -1,4 +1,4 @@
-import CharacterImport from "../../character/import.js";
+import DDBCharacterImport from "../../lib/DDBCharacterImport.js";
 import logger from "../../logger.js";
 import { DDBSetup, isSetupComplete } from "../../lib/Settings.js";
 import { DDBAdventureFlags } from "../../lib/DDBAdventureFlags.js";
@@ -86,7 +86,7 @@ export default function () {
           const setupComplete = isSetupComplete(false);
 
           if (setupComplete) {
-            let characterImport = new CharacterImport(CharacterImport.defaultOptions, data.actor);
+            const characterImport = new DDBCharacterImport(DDBCharacterImport.defaultOptions, data.actor);
             characterImport.render(true);
           } else {
             new DDBSetup().render(true);

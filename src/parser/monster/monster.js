@@ -44,7 +44,7 @@ async function retrieveCompendiumItems(items, compendiumName) {
     return "";
   });
 
-  const results = await utils.queryCompendiumEntries(compendiumName, itemNames, GET_ENTITY);
+  const results = await CompendiumHelper.queryCompendiumEntries(compendiumName, itemNames, GET_ENTITY);
   const cleanResults = results.filter((item) => item !== null);
 
   return cleanResults;

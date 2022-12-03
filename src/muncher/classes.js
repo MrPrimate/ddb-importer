@@ -1,6 +1,6 @@
 // Main module class
 import { getClasses } from "./classes/classes.js";
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import { getSubClasses } from "./classes/subclasses.js";
 import { getClassOptions } from "./classes/options.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -31,7 +31,7 @@ function getSubClassesData(className) {
           FileHelper.download(JSON.stringify(data), `subclass-${className}-raw.json`, "application/json");
         }
         if (!data.success) {
-          munchNote(`Failure: ${data.message}`);
+          DDBMuncher.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;
@@ -64,7 +64,7 @@ function getClassOptionsData(className) {
           FileHelper.download(JSON.stringify(data), `subclass-${className}-raw.json`, "application/json");
         }
         if (!data.success) {
-          munchNote(`Failure: ${data.message}`);
+          DDBMuncher.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;
@@ -97,7 +97,7 @@ function getClassesData() {
           FileHelper.download(JSON.stringify(data), `classes-raw.json`, "application/json");
         }
         if (!data.success) {
-          munchNote(`Failure: ${data.message}`);
+          DDBMuncher.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;

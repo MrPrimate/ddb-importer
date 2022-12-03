@@ -98,41 +98,6 @@ export function addFeatEffects(ddb, character, ddbItem, item, choice, type) {
   return item;
 }
 
-// const badDupes = ["Maneuvers: ", "Cosmic Omen"];
-const allowDupes = [];
-
-export function removeActionFeatures(actions, features) {
-  const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
-
-  actions = actions.map((action) => {
-    const featureMatch = features.find((feature) => feature.name === action.name);
-    if (featureMatch
-      && action.effects && action.effects.length === 0
-      && featureMatch.effects && featureMatch.effects.length > 0
-    ) {
-      action.effects = featureMatch.effects;
-      const newFlags = duplicate(featureMatch.flags);
-      delete newFlags.ddbimporter;
-      mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
-    }
-    return action;
-  });
-
-  features = features
-    .filter((feature) =>
-      actionAndFeature
-      || allowDupes.includes(feature.name)
-      || !actions.some((action) => action.name.trim().toLowerCase() === feature.name.trim().toLowerCase())
-    )
-    .map((feature) => {
-      const actionMatch = actionAndFeature && actions.some((action) => feature.name === action.name);
-      if (actionMatch) feature.effects = [];
-      return feature;
-    });
-
-  return [actions, features];
-}
-
 function setConsumeAmount(feature) {
   // ki point detection
   const kiPointRegex = /(?:spend|expend) (\d) ki point/;

@@ -1,6 +1,6 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
-import { DDBMuncher, munchNote } from "../muncher/ddb.js";
+import { DDBMuncher } from "../muncher/ddb.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
@@ -16,11 +16,11 @@ export function getCampaignId() {
   const campaignId = game.settings.get("ddb-importer", "campaign-id").split("/").pop();
 
   if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
-    munchNote(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
+    DDBMuncher.munchNote(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
     logger.error(`Campaign Id is invalid! Set to "${campaignId}", using empty string`);
     return "";
   } else if (campaignId.includes("join")) {
-    munchNote(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`, true);
+    DDBMuncher.munchNote(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`, true);
     logger.error(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`);
     return "";
   }

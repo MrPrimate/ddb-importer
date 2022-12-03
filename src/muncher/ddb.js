@@ -21,25 +21,6 @@ import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
 import { parseBackgrounds } from "./backgrounds.js";
 import { parseTransports } from "./vehicles.js";
 
-/**
- * Display information when Munching
- * @param {*} note
- * @param {*} nameField
- * @param {*} monsterNote
- */
-export function munchNote(note, nameField = false, monsterNote = false) {
-  if (nameField) {
-    $("#munching-task-name").text(note);
-    $("#ddb-importer-monsters").css("height", "auto");
-  } else if (monsterNote) {
-    $("#munching-task-monster").text(note);
-    $("#ddb-importer-monsters").css("height", "auto");
-  } else {
-    $("#munching-task-notes").text(note);
-    $("#ddb-importer-monsters").css("height", "auto");
-  }
-}
-
 export function getSourcesLookups(selected) {
   const selections = CONFIG.DDB.sources
     .filter((source) => source.isReleased && source.sourceCategoryId !== 9 && source.sourceCategoryId !== 3)
@@ -127,15 +108,34 @@ export class DDBMuncher extends Application {
     return options;
   }
 
+  /**
+   * Display information when Munching
+   * @param {*} note
+   * @param {*} nameField
+   * @param {*} monsterNote
+   */
+  static munchNote(note, nameField = false, monsterNote = false) {
+    if (nameField) {
+      $("#munching-task-name").text(note);
+      $("#ddb-importer-monsters").css("height", "auto");
+    } else if (monsterNote) {
+      $("#munching-task-monster").text(note);
+      $("#ddb-importer-monsters").css("height", "auto");
+    } else {
+      $("#munching-task-notes").text(note);
+      $("#ddb-importer-monsters").css("height", "auto");
+    }
+  }
+
   static munchMonsters() {
-    munchNote(`Downloading monsters...`, true);
+    DDBMuncher.munchNote(`Downloading monsters...`, true);
     $('button[id^="munch-"]').prop('disabled', true);
     $('button[id^="adventure-config-start"]').prop('disabled', true);
     DDBMuncher.parseCritters();
   }
 
   static munchVehicles() {
-    munchNote(`Downloading vehicles...`, true);
+    DDBMuncher.munchNote(`Downloading vehicles...`, true);
     $('button[id^="munch-"]').prop('disabled', true);
     $('button[id^="adventure-config-start"]').prop('disabled', true);
     DDBMuncher.parseTransports();
@@ -154,42 +154,42 @@ export class DDBMuncher extends Application {
     });
 
     html.find("#munch-spells-start").click(async () => {
-      munchNote(`Downloading spells...`, true);
+      DDBMuncher.munchNote(`Downloading spells...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseSpells();
     });
     html.find("#munch-items-start").click(async () => {
-      munchNote(`Downloading items...`, true);
+      DDBMuncher.munchNote(`Downloading items...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseItems();
     });
     html.find("#munch-races-start").click(async () => {
-      munchNote(`Downloading races...`, true);
+      DDBMuncher.munchNote(`Downloading races...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseRaces();
     });
     html.find("#munch-feats-start").click(async () => {
-      munchNote(`Downloading feats...`, true);
+      DDBMuncher.munchNote(`Downloading feats...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseFeats();
     });
     html.find("#munch-backgrounds-start").click(async () => {
-      munchNote(`Downloading backgrounds...`, true);
+      DDBMuncher.munchNote(`Downloading backgrounds...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseBackgrounds();
     });
     html.find("#munch-classes-start").click(async () => {
-      munchNote(`Downloading classes...`, true);
+      DDBMuncher.munchNote(`Downloading classes...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseClasses();
     });
     html.find("#munch-frames-start").click(async () => {
-      munchNote(`Downloading frames...`, true);
+      DDBMuncher.munchNote(`Downloading frames...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.parseFrames();
     });
     html.find("#munch-adventure-config-start").click(async () => {
-      munchNote(`Generating config file...`, true);
+      DDBMuncher.munchNote(`Generating config file...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.generateAdventureConfig();
     });
@@ -200,32 +200,32 @@ export class DDBMuncher extends Application {
       new ThirdPartyMunch().render(true);
     });
     html.find("#munch-migrate-compendium-monster").click(async () => {
-      munchNote(`Migrating monster compendium...`, true);
+      DDBMuncher.munchNote(`Migrating monster compendium...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.migrateCompendiumFolders("monsters");
     });
     html.find("#munch-migrate-compendium-spell").click(async () => {
-      munchNote(`Migrating spell compendium...`, true);
+      DDBMuncher.munchNote(`Migrating spell compendium...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.migrateCompendiumFolders("spells");
     });
     html.find("#munch-migrate-compendium-item").click(async () => {
-      munchNote(`Migrating item compendium...`, true);
+      DDBMuncher.munchNote(`Migrating item compendium...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.migrateCompendiumFolders("items");
     });
     html.find("#munch-fix-base64").click(async () => {
-      munchNote(`Checking Scenes for base64 data...`, true);
+      DDBMuncher.munchNote(`Checking Scenes for base64 data...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.base64Check();
     });
     html.find("#munch-world-monster-update").click(async () => {
-      munchNote(`Updating world actors...`, true);
+      DDBMuncher.munchNote(`Updating world actors...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.updateWorldMonsters();
     });
     html.find("#munch-reset-images").click(async () => {
-      munchNote(`Resetting images...`, true);
+      DDBMuncher.munchNote(`Resetting images...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.resetCompendiumActorImages();
     });
@@ -310,8 +310,8 @@ export class DDBMuncher extends Application {
     try {
       logger.info("Munching monsters!");
       const result = await parseCritters();
-      munchNote(`Finished importing ${result} monsters!`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Finished importing ${result} monsters!`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -323,8 +323,8 @@ export class DDBMuncher extends Application {
     try {
       logger.info("Munching vehicles!");
       const result = await parseTransports();
-      munchNote(`Finished importing ${result} vehicles!`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Finished importing ${result} vehicles!`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -337,8 +337,8 @@ export class DDBMuncher extends Application {
       logger.info("Munching spells!");
       if (game.settings.get("ddb-importer", "munching-policy-add-spell-effects")) await createGMMacros("spells");
       await parseSpells();
-      munchNote(`Finished importing spells!`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Finished importing spells!`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -350,8 +350,8 @@ export class DDBMuncher extends Application {
     try {
       logger.info("Munching items!");
       await parseItems();
-      munchNote(`Finished importing items!`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Finished importing items!`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -363,8 +363,8 @@ export class DDBMuncher extends Application {
     try {
       logger.info("Munching races!");
       const result = await parseRaces();
-      munchNote(`Finished importing ${result.length} races and features!`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Finished importing ${result.length} races and features!`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -376,8 +376,8 @@ export class DDBMuncher extends Application {
     try {
       logger.info("Munching feats!");
       const result = await parseFeats();
-      munchNote(`Finished importing ${result.length} feats!`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Finished importing ${result.length} feats!`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -389,8 +389,8 @@ export class DDBMuncher extends Application {
     try {
       logger.info("Munching backgrounds!");
       const result = await parseBackgrounds();
-      munchNote(`Finished importing ${result.length} backgrounds!`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Finished importing ${result.length} backgrounds!`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -402,8 +402,8 @@ export class DDBMuncher extends Application {
     try {
       logger.info("Munching classes!");
       const result = await parseClasses();
-      munchNote(`Finished importing ${result.length} classes and features!`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Finished importing ${result.length} classes and features!`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -415,8 +415,8 @@ export class DDBMuncher extends Application {
     try {
       logger.info("Munching frames!");
       const result = await parseFrames();
-      munchNote(`Finished importing ${result.length} frames!`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Finished importing ${result.length} frames!`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -428,8 +428,8 @@ export class DDBMuncher extends Application {
     try {
       logger.info("Generating adventure config!");
       await downloadAdventureConfig();
-      munchNote(`Downloading config file`, true);
-      munchNote("");
+      DDBMuncher.munchNote(`Downloading config file`, true);
+      DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
@@ -451,7 +451,7 @@ export class DDBMuncher extends Application {
   static async migrateCompendiumFolders(type) {
     logger.info(`Migrating ${type} compendium`);
     await migrateExistingCompendium(type);
-    munchNote(`Migrating complete.`, true);
+    DDBMuncher.munchNote(`Migrating complete.`, true);
     DDBMuncher.enableButtons();
   }
 
@@ -465,7 +465,7 @@ export class DDBMuncher extends Application {
       if (results.fixedScenes.length > 0) notifyString += ` Fixing ${results.fixedScenes.length} scenes (wait untill uploads complete).`;
       if (results.badScenes.length > 0) notifyString += ` Found ${results.badScenes.length} scenes that I couldn't fix.`;
     }
-    munchNote(notifyString, true);
+    DDBMuncher.munchNote(notifyString, true);
     DDBMuncher.enableButtons();
   }
 
@@ -473,7 +473,7 @@ export class DDBMuncher extends Application {
     logger.info("Resetting compendium actor images");
     const results = await resetCompendiumActorImages();
     const notifyString = `Reset ${results.length} compendium actors.`;
-    munchNote(notifyString, true);
+    DDBMuncher.munchNote(notifyString, true);
     DDBMuncher.enableButtons();
   }
 

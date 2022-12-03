@@ -4,7 +4,7 @@ import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";
@@ -259,7 +259,7 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
       const existing = existingItems[0];
       // eslint-disable-next-line require-atomic-updates
       item._id = existing._id;
-      munchNote(`Updating ${item.name}`);
+      DDBMuncher.munchNote(`Updating ${item.name}`);
       // purge existing active effects on this item
       if (existing.results) await existing.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
       if (existing.effects) await existing.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
@@ -336,7 +336,7 @@ async function createCompendiumItems(type, compendium, inputItems, index, matchF
           });
         }
       }
-      munchNote(`Creating ${item.name}`);
+      DDBMuncher.munchNote(`Creating ${item.name}`);
       logger.debug(`Pushing ${item.name} to compendium`);
       promises.push(compendium.importDocument(newItem));
     }
@@ -350,7 +350,7 @@ export async function compendiumFolders(document, type) {
   const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   if (compendiumFolderAdd && compendiumFoldersInstalled) {
     // we create the compendium folder before import
-    munchNote(`Adding ${document.name} to compendium folder`);
+    DDBMuncher.munchNote(`Adding ${document.name} to compendium folder`);
     logger.debug(`Adding ${document.name} to compendium folder`);
     await addToCompendiumFolder(type, document);
   }
@@ -374,7 +374,7 @@ export async function updateCompendium(type, input, updateExisting = false, matc
 
     let updateResults = [];
     // update existing items
-    munchNote(`Creating and updating ${inputItems.length} new ${type} items in compendium...`, true);
+    DDBMuncher.munchNote(`Creating and updating ${inputItems.length} new ${type} items in compendium...`, true);
 
     if (updateExisting) {
       updateResults = await updateCompendiumItems(compendium, inputItems, initialIndex, matchFlags);
@@ -384,7 +384,7 @@ export async function updateCompendium(type, input, updateExisting = false, matc
     // create new items
     const createResults = await createCompendiumItems(type, compendium, inputItems, initialIndex, matchFlags);
     logger.debug(`Created ${createResults.length} new ${type} items in compendium`);
-    munchNote("", true);
+    DDBMuncher.munchNote("", true);
 
     // compendium folders
     createResults.forEach(async (document) => {
@@ -514,7 +514,7 @@ export async function retainExistingIcons(items) {
 }
 
 async function getDDBItemImages(items, download) {
-  munchNote(`Fetching DDB Item Images`);
+  DDBMuncher.munchNote(`Fetching DDB Item Images`);
   const downloadImages = (download) ? true : game.settings.get("ddb-importer", "munching-policy-download-images");
   const remoteImages = game.settings.get("ddb-importer", "munching-policy-remote-images");
 
@@ -530,7 +530,7 @@ async function getDDBItemImages(items, download) {
       if (item.flags.ddbimporter.dndbeyond.avatarUrl) {
         const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
         if (avatarUrl && avatarUrl != "") {
-          munchNote(`Downloading ${item.name} image`);
+          DDBMuncher.munchNote(`Downloading ${item.name} image`);
           const smallImage = await getImagePath(avatarUrl, 'item', item.name, downloadImages, remoteImages);
           logger.debug(`Final image ${smallImage}`);
           itemImage.img = smallImage;
@@ -546,7 +546,7 @@ async function getDDBItemImages(items, download) {
       }
     }
 
-    munchNote("");
+    DDBMuncher.munchNote("");
     return itemImage;
   });
 
@@ -554,7 +554,7 @@ async function getDDBItemImages(items, download) {
 }
 
 async function getDDBGenericItemImages(download) {
-  munchNote(`Fetching DDB Generic Item icons`);
+  DDBMuncher.munchNote(`Fetching DDB Generic Item icons`);
   const itemMap = DICTIONARY.items.map(async (item) => {
     const img = await getImagePath(item.img, 'item', item.filterType, download);
     let itemIcons = {
@@ -564,12 +564,12 @@ async function getDDBGenericItemImages(download) {
     return itemIcons;
   });
 
-  munchNote("");
+  DDBMuncher.munchNote("");
   return Promise.all(itemMap);
 }
 
 async function getDDBGenericLootImages(download) {
-  munchNote(`Fetching DDB Generic Loot icons`);
+  DDBMuncher.munchNote(`Fetching DDB Generic Loot icons`);
   const itemMap = DICTIONARY.genericItemIcons.map(async (item) => {
     const img = await getImagePath(item.img, 'equipment', item.name, download);
     let itemIcons = {
@@ -579,7 +579,7 @@ async function getDDBGenericLootImages(download) {
     return itemIcons;
   });
 
-  munchNote("");
+  DDBMuncher.munchNote("");
   return Promise.all(itemMap);
 }
 
@@ -611,7 +611,7 @@ export async function getDDBGenericItemIcons(items, download) {
 }
 
 async function getDDBSchoolSpellImages(download) {
-  munchNote(`Fetching spell school icons`);
+  DDBMuncher.munchNote(`Fetching spell school icons`);
   const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
     const img = await getImagePath(school.img, 'spell', school.name, download);
     let schoolIcons = {
@@ -622,7 +622,7 @@ async function getDDBSchoolSpellImages(download) {
     return schoolIcons;
   });
 
-  munchNote("");
+  DDBMuncher.munchNote("");
   return Promise.all(schoolMap);
 }
 

@@ -1,6 +1,6 @@
 // Main module class
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import getInventory from "../parser/inventory/index.js";
 import utils from "../lib/utils.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -106,7 +106,7 @@ function getItemData(sourceFilter) {
           FileHelper.download(JSON.stringify(data), `items-raw.json`, "application/json");
         }
         if (!data.success) {
-          munchNote(`Failure: ${data.message}`);
+          DDBMuncher.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;
@@ -155,18 +155,18 @@ export async function parseItems(ids = null) {
   const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
   const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   if (addToCompendiumFolder && compendiumFoldersInstalled) {
-    munchNote(`Checking compendium folders..`, true);
+    DDBMuncher.munchNote(`Checking compendium folders..`, true);
     await createCompendiumFolderStructure("items");
   }
 
-  munchNote("Downloading item data..");
+  DDBMuncher.munchNote("Downloading item data..");
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
   const results = await getItemData(sourceFilter);
   let items = results.items;
 
-  munchNote("Parsing item data..");
+  DDBMuncher.munchNote("Parsing item data..");
 
   // Items Spell addition is currently not done, parsing out spells needs to be addded
   // let itemSpells = results.value.itemSpells;
@@ -184,7 +184,7 @@ export async function parseItems(ids = null) {
   const finalItems = await daeFiddling(filteredItems);
 
   const finalCount = finalItems.length;
-  munchNote(`Importing ${finalCount} items!`, true);
+  DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);
 
   return new Promise((resolve) => {
     resolve(updateCompendium("inventory", { inventory: finalItems }, updateBool));

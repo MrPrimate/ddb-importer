@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
-import { munchNote } from "../ddb.js";
+import { DDBMuncher } from "../ddb.js";
 import { parseTags } from "../../lib/templateStrings.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 import { getHPAdvancement, addSRDAdvancements } from "../../parser/classes/index.js";
@@ -43,7 +43,7 @@ export async function getClasses(data) {
   });
 
   const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
-  munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
+  DDBMuncher.munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
   logger.debug(`Importing ${fiddledClassFeatures.length} features!`, classFeatures);
   await updateCompendium("features", { features: fiddledClassFeatures }, updateBool);
 
@@ -66,7 +66,7 @@ export async function getClasses(data) {
   logger.debug("Class build finished", klasses);
 
   const fiddledClasses = await srdFiddling(klasses, "classes");
-  munchNote(`Importing ${fiddledClasses.length} classes!`, true);
+  DDBMuncher.munchNote(`Importing ${fiddledClasses.length} classes!`, true);
 
   await updateCompendium("classes", { classes: fiddledClasses }, updateBool);
 

@@ -1,6 +1,6 @@
 // Main module class
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
-import { munchNote } from "./ddb.js";
+import { DDBMuncher } from "./ddb.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 import FileHelper from "../lib/FileHelper.js";
 import logger from "../logger.js";
@@ -36,7 +36,7 @@ function getSpellData(className, sourceFilter) {
           FileHelper.download(JSON.stringify(data), `spells-raw.json`, "application/json");
         }
         if (!data.success) {
-          munchNote(`Failure: ${data.message}`);
+          DDBMuncher.munchNote(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;
@@ -65,12 +65,12 @@ export async function parseSpells(ids = null) {
   const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
   const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
   if (addToCompendiumFolder && compendiumFoldersInstalled) {
-    munchNote(`Checking compendium folders..`, true);
+    DDBMuncher.munchNote(`Checking compendium folders..`, true);
     await createCompendiumFolderStructure("spells");
-    munchNote("", true);
+    DDBMuncher.munchNote("", true);
   }
 
-  munchNote("Downloading spell data..");
+  DDBMuncher.munchNote("Downloading spell data..");
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
@@ -88,7 +88,7 @@ export async function parseSpells(ids = null) {
     getSpellData("Artificer", sourceFilter),
   ]);
 
-  munchNote("Parsing spell data..");
+  DDBMuncher.munchNote("Parsing spell data..");
 
   const filteredResults = results
     .filter((r) => r.status === "fulfilled")
@@ -104,7 +104,7 @@ export async function parseSpells(ids = null) {
     });
 
   if (results.some((r) => r.status === "rejected")) {
-    munchNote("Failed to parse some spells, see the developer console (F12) for details.");
+    DDBMuncher.munchNote("Failed to parse some spells, see the developer console (F12) for details.");
     logger.error("Failed spell parsing", results);
   }
 
@@ -116,7 +116,7 @@ export async function parseSpells(ids = null) {
   const finalSpells = await daeFiddling(filteredSpells);
 
   const finalCount = finalSpells.length;
-  munchNote(`Importing ${finalCount} spells...`, true);
+  DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);
 
   return new Promise((resolve) => {
     resolve(updateCompendium("spells", { spells: finalSpells }, updateBool));

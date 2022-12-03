@@ -1,8 +1,8 @@
 import logger from "../../logger.js";
 import utils from "../../lib/utils.js";
 import { parseMonsters } from "../monster/monster.js";
-import { copySupportedItemFlags, srdFiddling } from "../import.js";
-import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../importMonster.js";
+import { copySupportedItemFlags, srdFiddling } from "../../muncher/import.js";
+import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../../muncher/importMonster.js";
 import { ABILITIES, getAbilityMods } from "../monster/abilities.js";
 import { SKILLS } from "../monster/skills.js";
 

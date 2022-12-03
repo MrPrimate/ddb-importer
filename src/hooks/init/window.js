@@ -1,15 +1,16 @@
 // for exports
-import { parseMonsters } from "../../muncher/monster/monster.js";
+import { parseMonsters } from "../../parser/monster/monster.js";
 import { parseSpells } from "../../muncher/spells.js";
 import { parseItems } from "../../muncher/items.js";
 import { parseCritters, fixCritters } from "../../muncher/monsters.js";
 import { parseTransports } from "../../muncher/vehicles.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../../muncher/tools.js";
 import { migrateExistingCompendium, createCompendiumFolderStructure } from "../../muncher/compendiumFolders.js";
-import { parseEncounters, DDBEncounterMunch } from "../../muncher/encounters.js";
+import DDBEncounterMunch from "../../parser/encounters/DDBEncounterMunch.js";
+import DDBEncounters from "../../parser/encounters/DDBEncounters.js";
 import { generateAdventureConfig } from "../../muncher/adventure.js";
 import { updateDDBCharacter } from "../../character/update.js";
-import { importCharacter, importCharacterById } from "../../character/import.js";
+import { importCharacter, importCharacterById } from "../../lib/DDBCharacterImport.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 import { base64Check } from "../../lib/base64Check.js";
 import { getFeats } from "../../muncher/feats/feats.js";
@@ -50,8 +51,6 @@ export function registerWindow() {
     checkPatreon: PatreonHelper.checkPatreon,
     createCompendiumFolderStructure,
     createMacro,
-    DDBEncounterMunch,
-    encounterMunch: DDBEncounterMunch,
     executeDDBMacro,
     generateAdventureConfig,
     generateItemMacroFlag,
@@ -64,11 +63,12 @@ export function registerWindow() {
     migrateExistingCompendiumToCompendiumFolders: migrateExistingCompendium,
     parseCritters,
     parseTransports,
-    parseEncounters,
     parseFeats: getFeats,
     parseItems,
     parseMonsters,
     parseSpells,
+    DDBEncounters,
+    DDBEncounterMunch,
     resetProxy: DDBProxy.resetProxy,
     resetSecrets,
     setPatreonTier: PatreonHelper.setPatreonTier,
