@@ -31,7 +31,7 @@ import { addContainerItemsToContainers, addContainerItemsToActor } from "../pars
 import SETTINGS from "../settings.js";
 
 export default class DDBCharacterImport extends FormApplication {
-  constructor(options, actor) {
+  constructor(options, actor, ddbCharacter = null) {
     super(options);
     this.actor = game.actors.get(actor._id);
     this.migrateMetadata();
@@ -40,7 +40,7 @@ export default class DDBCharacterImport extends FormApplication {
     this.result = {};
     this.nonMatchedItemIds = [];
     this.settings = {};
-    this.ddbCharacter = null;
+    this.ddbCharacter = ddbCharacter;
   }
 
   migrateMetadata() {
@@ -1257,7 +1257,7 @@ export async function importCharacterById(characterId, html) {
       FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
     }
     if (characterData.success) {
-      const importer = new DDBCharacterImport(DDBCharacterImport.defaultOptions, actor);
+      const importer = new DDBCharacterImport(DDBCharacterImport.defaultOptions, actor, ddbCharacter);
       importer.html = html ? html : utils.htmlToDoc("");
       await importer.processCharacterData(characterData);
       return actor;
@@ -1306,7 +1306,7 @@ export async function importCharacter(actor, html) {
     }
     if (characterData.success) {
       // begin parsing the character data
-      const importer = new DDBCharacterImport(DDBCharacterImport.defaultOptions, actorData);
+      const importer = new DDBCharacterImport(DDBCharacterImport.defaultOptions, actorData, ddbCharacter);
       importer.html = html ? html : utils.htmlToDoc("");
       await importer.processCharacterData(characterData);
       importer.showCurrentTask("Loading Character data", "Done.", false);
