@@ -27,7 +27,6 @@ import { specialCases } from "./special.js";
 import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js";
 
 import logger from '../../logger.js';
-import utils from "../../lib/utils.js";
 import DICTIONARY from "../../dictionary.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 

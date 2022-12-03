@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
-import { DDBMuncher } from "../ddb.js";
+import DDBMuncher from "../DDBMuncher.js";
 import { parseTags } from "../../lib/templateStrings.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 import { getHPAdvancement, addSRDAdvancements } from "../../parser/classes/index.js";

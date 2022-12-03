@@ -77,8 +77,8 @@ export default class DDBEncounters {
     logger.debug(`${allEncounters.length} encounters`, allEncounters);
     logger.debug("CampaignIds", campaignIds);
     if (!campaignId || campaignId === "" || !campaignIds.includes(parseInt(campaignId))) return allEncounters;
-    logger.debug(`CampaignId to find ${campaignId}`);
-    const filteredEncounters = allEncounters.filter((encounter) => encounter.campaign.id == campaignId);
+    logger.debug(`CampaignId to find ${campaignId}`, { allEncounters, campaignId });
+    const filteredEncounters = allEncounters.filter((encounter) => encounter.campaign?.id == campaignId);
     logger.debug(`${filteredEncounters.length} filtered encounters`, filteredEncounters);
     return filteredEncounters;
   }

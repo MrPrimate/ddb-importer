@@ -1,6 +1,6 @@
 // Main module class
 import { getImagePath } from "./import.js";
-import { DDBMuncher } from "./ddb.js";
+import DDBMuncher from "./DDBMuncher.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 import FileHelper from "../lib/FileHelper.js";

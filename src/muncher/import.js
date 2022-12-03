@@ -4,7 +4,7 @@ import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
-import { DDBMuncher } from "./ddb.js";
+import DDBMuncher from "./DDBMuncher.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";

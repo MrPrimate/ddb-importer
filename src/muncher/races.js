@@ -1,5 +1,5 @@
 // Main module class
-import { DDBMuncher } from "./ddb.js";
+import DDBMuncher from "./DDBMuncher.js";
 import { getRaces } from "./races/races.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";

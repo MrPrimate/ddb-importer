@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 
 import { getClassFeature, NO_TRAITS } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
-import { DDBMuncher } from "../ddb.js";
+import DDBMuncher from "../DDBMuncher.js";
 
 export async function getClassOptions(data, className) {
   logger.debug("get options started");

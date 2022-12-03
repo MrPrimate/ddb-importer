@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
-import { DDBMuncher } from "./ddb.js";
+import DDBMuncher from "./DDBMuncher.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium } from "./importMonster.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";

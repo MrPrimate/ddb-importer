@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 import { parseTags } from "../../lib/templateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
-import { DDBMuncher } from "../ddb.js";
+import DDBMuncher from "../DDBMuncher.js";
 
 const FEAT_TEMPLATE = {
   "name": "",

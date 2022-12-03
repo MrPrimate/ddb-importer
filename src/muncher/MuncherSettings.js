@@ -3,7 +3,7 @@ import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { getSourcesLookups } from "./ddb.js";
+import DDBSources from "./DDBSources.js";
 import { spellEffectModules } from "../effects/specialSpells.js";
 
 const MuncherSettings = {
@@ -683,7 +683,7 @@ const MuncherSettings = {
       ? game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat()
       : [];
     const sourcesSelected = enableSources && sourceArray.length > 0;
-    const sourceNames = getSourcesLookups(sourceArray).filter((source) => source.selected).map((source) => source.label);
+    const sourceNames = DDBSources.getSourcesLookups(sourceArray).filter((source) => source.selected).map((source) => source.label);
     const homebrewDescription = sourcesSelected
       ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
       : "Include homebrew?";

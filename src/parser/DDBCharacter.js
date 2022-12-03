@@ -86,12 +86,14 @@ export default class DDBCharacter {
       await importCacheLoad();
 
       // construct the expected { character: {...} } object
-      this.ddb = {
-        character: data.ddb,
-        classOptions: data.ddb.classOptions,
-        originOptions: data.ddb.originOptions,
-        infusions: data.ddb.infusions,
-      };
+      // this.ddb = {
+      //   character: data.ddb,
+      //   classOptions: data.ddb.classOptions,
+      //   originOptions: data.ddb.originOptions,
+      //   infusions: data.ddb.infusions,
+      // };
+
+      this.ddb = data.ddb;
 
       logger.debug("DDB Data to parse:", duplicate(this.ddb));
       logger.debug("currentActorId", this.currentActorId);
@@ -153,7 +155,7 @@ export default class DDBCharacter {
   async parseJson() {
     try {
       if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await createGMMacros();
-      logger.debug("Starting core character parse");
+      logger.debug("Starting core character parse", { thisDDB: this.ddb });
       this.raw.character = await getCharacter(this.ddb);
       if (this.resourceSelection) {
         logger.debug("Character resources");

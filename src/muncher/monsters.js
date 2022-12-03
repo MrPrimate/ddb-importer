@@ -1,6 +1,6 @@
 // Main module class
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
-import { DDBMuncher } from "./ddb.js";
+import DDBMuncher from "./DDBMuncher.js";
 import logger from "../logger.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
 import { parseMonsters } from "../parser/monster/monster.js";

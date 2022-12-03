@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compendiumFolders } from "./import.js";
-import { DDBMuncher } from "./ddb.js";
+import DDBMuncher from "./DDBMuncher.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
 // check items to see if retaining item, img or resources

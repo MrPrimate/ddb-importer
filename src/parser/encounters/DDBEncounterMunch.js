@@ -663,7 +663,7 @@ export default class DDBEncounterMunch extends Application {
       let encounterList = `<option value="">Select encounter:</option>`;
       encounters.forEach((encounter) => {
         encounterList += `<option value="${encounter.id}">${encounter.name}${
-          campaignSelected ? "" : ` (${encounter.campaign.name})`
+          campaignSelected || !encounter.campaign ? "" : ` (${encounter.campaign.name})`
         }</option>\n`;
       });
       const list = html.find("#encounter-select");
@@ -765,7 +765,7 @@ export default class DDBEncounterMunch extends Application {
     const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
     const tiers = PatreonHelper.getPatreonTiers(tier);
     const availableCampaigns = await getAvailableCampaigns();
-    const availableEncounters = await this.ddbEncounters.encounters.filterEncounters();
+    const availableEncounters = await this.ddbEncounters.filterEncounters();
 
     const characterSettings = MuncherSettings.getCharacterImportSettings();
     const muncherSettings = MuncherSettings.getMuncherSettings(false);

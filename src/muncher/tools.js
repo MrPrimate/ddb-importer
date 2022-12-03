@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
-import { DDBMuncher } from "./ddb.js";
+import DDBMuncher from "./DDBMuncher.js";
 import { copySupportedItemFlags } from "./import.js";
 import { getNPCImage } from "./importMonster.js";
 

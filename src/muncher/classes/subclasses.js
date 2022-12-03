@@ -3,7 +3,7 @@ import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { parseTags } from "../../lib/templateStrings.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
-import { DDBMuncher } from "../ddb.js";
+import DDBMuncher from "../DDBMuncher.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 
 async function buildSubClassBase(klass, subClass) {

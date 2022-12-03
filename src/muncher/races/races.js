@@ -3,7 +3,7 @@ import { parseTags } from "../../lib/templateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
-import { DDBMuncher } from "../ddb.js";
+import DDBMuncher from "../DDBMuncher.js";
 
 const FEATURE_DUP = [
   "Breath Weapon",
