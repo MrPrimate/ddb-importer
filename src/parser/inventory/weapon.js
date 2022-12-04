@@ -143,19 +143,23 @@ function getDamage(data, flags, betterRolls5e) {
 
   let parts = [];
 
-  // first damage part
-  // blowguns and other weapons rely on ammunition that provides the damage parts
-  if (data.definition.damage && data.definition.damage.diceString && damageType) {
-    // if we have greatweapon fighting style and this is two handed, add the roll tweak
-    // else if we have duelling we add the bonus here (assumption- if you have dueling
-    // you're going to use it! (DDB also makes this assumption))
-    const fightingStyleDiceMod = twoHanded ? greatWeaponFighting : "";
+  // if we have greatweapon fighting style and this is two handed, add the roll tweak
+  // else if we have duelling we add the bonus here (assumption- if you have dueling
+  // you're going to use it! (DDB also makes this assumption))
+  const fightingStyleDiceMod = twoHanded ? greatWeaponFighting : "";
 
-    // if we are a martial artist and the weapon is eligable we may need to use a bigger dice type.
-    // this martial arts die info is addedd to the weapon flags before parse weapon is called
-    const martialArtsDie = flags.martialArtsDie;
+  // if we are a martial artist and the weapon is eligable we may need to use a bigger dice type.
+  // this martial arts die info is addedd to the weapon flags before parse weapon is called
+  const martialArtsDie = flags.martialArtsDie;
+
+  if (Number.isInteger(data.definition.fixedDamage)) {
+    parts.push([
+      utils.parseDiceString(data.definition.fixedDamage + ` + ${magicalDamageBonus}`, `${mod}${dueling}`, damageTag, fightingStyleDiceMod)
+        .diceString,
+      damageType,
+    ]);
+  } else if (data.definition.damage && data.definition.damage.diceString && damageType) {
     let diceString = data.definition.damage.diceString;
-
     if (martialArtsDie.diceValue && data.definition.damage.diceValue && martialArtsDie.diceValue > data.definition.damage.diceValue) {
       diceString = martialArtsDie.diceString;
     }
@@ -221,8 +225,8 @@ function getDamage(data, flags, betterRolls5e) {
   }
 
   const result = {
-    parts: parts,
-    versatile: versatile,
+    parts,
+    versatile,
   };
 
   return [result, betterRolls5e, otherFormula, chatFlavor, restrictions];

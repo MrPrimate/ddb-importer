@@ -1,3 +1,8 @@
+# 3.2.7
+
+* Started on some refactor work for improved parsing/tech debt.
+* Blowguns would not import with damage leading to failure when they were used with a weapon infusion.
+
 # 3.2.6
 
 * If an item effect is generated item will force the use of the item effect rather than the CE effect.
