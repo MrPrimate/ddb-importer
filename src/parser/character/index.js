@@ -15,13 +15,6 @@ import {
   getDescription,
 } from "./bio.js";
 import { getBonusAbilities, getBonusSpellAttacks, getBonusSpellDC, getBonusWeaponAttacks } from "./globalBonuses.js";
-import {
-  getProficiencies,
-  getWeaponProficiencies,
-  getArmorProficiencies,
-  getToolProficiencies,
-  getLanguages,
-} from "./proficiencies.js";
 import { getAbilities } from "./abilities.js";
 import { getSenses, getSensesMap } from "./senses.js";
 import {
@@ -54,9 +47,9 @@ DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton() {
         acEffects: [],
         baseAC: 10,
         dndbeyond: {
-          totalLevels: this.totalLevels,
-          proficiencies: this.proficiencies,
-          proficienciesIncludingEffects: this.proficienciesIncludingEffects,
+          totalLevels: null,
+          proficiencies: null,
+          proficienciesIncludingEffects: null,
           roUrl: this.source.ddb.character.readonlyUrl,
           characterValues: this.source.ddb.character.characterValues,
           templateStrings: [],
@@ -80,10 +73,11 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   // ddb = fixCharacterLevels(ddb);
 
   // build skeleton this.raw.character
-  this.totalLevels = this.source.ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0);
-  this.proficiencies = getProficiencies(this.source.ddb);
-  this.proficienciesIncludingEffects = getProficiencies(this.source.ddb, true);
   await this._newPCSkeleton();
+
+  this.totalLevels = this.source.ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0);
+  this.raw.character.flags.ddbimporter.dndbeyond.totalLevels = this.totalLevels;
+  this._generateProficiencies();
 
   // proficiency
   // prettier-ignore
@@ -159,12 +153,8 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this.raw.character.system.details.race = this.source.ddb.character.race.fullName;
 
   // traits
-  this.raw.character.system.traits.weaponProf = getWeaponProficiencies(this.source.ddb, this.raw.character.flags.ddbimporter.dndbeyond.proficiencies);
-  this.raw.character.system.traits.armorProf = getArmorProficiencies(this.source.ddb, this.raw.character.flags.ddbimporter.dndbeyond.proficiencies);
-  this.raw.character.system.traits.toolProf = getToolProficiencies(this.source.ddb, this.raw.character.flags.ddbimporter.dndbeyond.proficiencies);
   this.raw.character.system.traits.size = getSize(this.source.ddb);
   this.raw.character.system.traits.senses = getSenses(this.source.ddb);
-  this.raw.character.system.traits.languages = getLanguages(this.source.ddb);
   this.raw.character.system.traits.di = getDamageImmunities(this.source.ddb);
   this.raw.character.system.traits.dr = getDamageResistances(this.source.ddb);
   this.raw.character.system.traits.dv = getDamageVulnerabilities(this.source.ddb);

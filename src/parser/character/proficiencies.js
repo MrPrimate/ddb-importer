@@ -1,10 +1,11 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import DDBCharacter from "../DDBCharacter.js";
 
-function getCustomProficiencies(data, type) {
+DDBCharacter.prototype._getCustomProficiencies = function _getCustomProficiencies(type) {
   const profGroup = CONFIG.DDB.proficiencyGroups.find((group) => group.label == type);
-  const profCharacterValues = data.character.characterValues.filter(
+  const profCharacterValues = this.source.ddb.character.characterValues.filter(
     (value) =>
       profGroup.customAdjustments.includes(parseInt(value.typeId))
       && profGroup.entityTypeIds.includes(parseInt(value.valueTypeId))
@@ -15,29 +16,18 @@ function getCustomProficiencies(data, type) {
     .map((prof) => prof.name);
 
   return customProfs;
-}
+};
 
-export function getProficiencies(data, includeItemEffects = false) {
-  const coreProficiencies = DDBHelper
-    .filterBaseModifiers(data, "proficiency", null, null, includeItemEffects)
+DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(includeItemEffects = false) {
+  return DDBHelper
+    .filterBaseModifiers(this.source.ddb, "proficiency", null, null, includeItemEffects)
     .map((proficiency) => {
       return { name: proficiency.friendlySubtypeName };
     });
+};
 
-  const customProficiencies = [
-    ...getCustomProficiencies(data, "Armor"),
-    ...getCustomProficiencies(data, "Tools"),
-    ...getCustomProficiencies(data, "Weapons"),
-    ...getCustomProficiencies(data, "Languages"),
-  ].map((proficiency) => {
-    return { name: proficiency };
-  });
-  const proficiencies = coreProficiencies.concat(customProficiencies);
 
-  return proficiencies;
-}
-
-export function getArmorProficiencies(data, proficiencyArray) {
+DDBCharacter.prototype.getArmorProficiencies = function getArmorProficiencies(proficiencyArray) {
   let values = [];
   let custom = [];
 
@@ -61,16 +51,16 @@ export function getArmorProficiencies(data, proficiencyArray) {
     }
   });
 
-  if (data) {
+  if (this.source?.ddb) {
     // load custom proficiencies in characterValues
-    const customProfs = getCustomProficiencies(data, "Armor");
+    const customProfs = this._getCustomProficiencies("Armor");
     custom = custom.concat(customProfs);
   }
   return {
     value: [...new Set(values)],
     custom: [...new Set(custom)].join(";"),
   };
-}
+};
 
 //
 // DND5E.toolProficiencies = {
@@ -86,7 +76,7 @@ export function getArmorProficiencies(data, proficiencyArray) {
 // "vehicle": "Vehicle (Land or Water)"
 // };
 //
-export function getToolProficiencies(data, proficiencyArray) {
+DDBCharacter.prototype.getToolProficiencies = function getToolProficiencies(proficiencyArray) {
   let values = [];
   let custom = [];
 
@@ -111,9 +101,9 @@ export function getToolProficiencies(data, proficiencyArray) {
     }
   });
 
-  if (data) {
+  if (this.source?.ddb) {
     // Custom proficiencies!
-    data.character.customProficiencies.forEach((proficiency) => {
+    this.source.ddb.character.customProficiencies.forEach((proficiency) => {
       if (proficiency.type === 2) {
         // type 2 is TOOL, 1 is SKILL, 3 is LANGUAGE
         custom.push(proficiency.name);
@@ -121,7 +111,7 @@ export function getToolProficiencies(data, proficiencyArray) {
     });
 
     // load custom proficiencies in characterValues
-    const customProfs = getCustomProficiencies(data, "Tools");
+    const customProfs = this._getCustomProficiencies("Tools");
     custom = custom.concat(customProfs);
   }
 
@@ -129,9 +119,9 @@ export function getToolProficiencies(data, proficiencyArray) {
     value: [...new Set(values)],
     custom: [...new Set(custom)].join(";"),
   };
-}
+};
 
-export function getWeaponProficiencies(data, proficiencyArray) {
+DDBCharacter.prototype.getWeaponProficiencies = function getWeaponProficiencies(proficiencyArray) {
   let values = [];
   let custom = [];
 
@@ -157,9 +147,9 @@ export function getWeaponProficiencies(data, proficiencyArray) {
     }
   });
 
-  if (data) {
+  if (this.source?.ddb) {
     // load custom proficiencies in characterValues
-    const customProfs = getCustomProficiencies(data, "Weapons");
+    const customProfs = this._getCustomProficiencies("Weapons");
     custom = custom.concat(customProfs);
   }
 
@@ -167,9 +157,9 @@ export function getWeaponProficiencies(data, proficiencyArray) {
     value: [...new Set(values)],
     custom: [...new Set(custom)].join("; "),
   };
-}
+};
 
-export function getLanguagesFromModifiers(data, modifiers) {
+DDBCharacter.prototype.getLanguagesFromModifiers = function getLanguagesFromModifiers(modifiers) {
   let languages = [];
   let custom = [];
 
@@ -184,8 +174,8 @@ export function getLanguagesFromModifiers(data, modifiers) {
       }
     });
 
-  if (data) {
-    data.character.customProficiencies.forEach((proficiency) => {
+  if (this.source?.ddb) {
+    this.source.ddb.character.customProficiencies.forEach((proficiency) => {
       if (proficiency.type === 3) {
         // type 3 is LANGUAGE, 1 is SKILL, 2 is TOOL
         custom.push(proficiency.name);
@@ -193,7 +183,7 @@ export function getLanguagesFromModifiers(data, modifiers) {
     });
 
     // load custom proficiencies in characterValues
-    const customProfs = getCustomProficiencies(data, "Languages");
+    const customProfs = this._getCustomProficiencies("Languages");
     custom = custom.concat(customProfs);
   }
 
@@ -201,10 +191,31 @@ export function getLanguagesFromModifiers(data, modifiers) {
     value: languages,
     custom: custom.map((entry) => utils.capitalize(entry)).join(";"),
   };
-}
+};
 
-export function getLanguages(data) {
-  const modifiers = DDBHelper.filterBaseModifiers(data, "language");
+DDBCharacter.prototype._generateLanguages = function _generateLanguages() {
+  const modifiers = DDBHelper.filterBaseModifiers(this.source.ddb, "language");
+  this.raw.character.system.traits.languages = this.getLanguagesFromModifiers(modifiers);
+};
 
-  return getLanguagesFromModifiers(data, modifiers);
-}
+DDBCharacter.prototype._generateProficiencies = function _generateProficiencies() {
+  const customProficiencies = [
+    ...this._getCustomProficiencies("Armor"),
+    ...this._getCustomProficiencies("Tools"),
+    ...this._getCustomProficiencies("Weapons"),
+    ...this._getCustomProficiencies("Languages"),
+  ].map((proficiency) => {
+    return { name: proficiency };
+  });
+
+  this.proficiencies = this._getCoreProficiencies(false).concat(customProficiencies);
+  this.proficienciesIncludingEffects = this._getCoreProficiencies(true).concat(customProficiencies);
+
+  this.raw.character.flags.ddbimporter.dndbeyond.proficiencies = this.proficiencies;
+  this.raw.character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects = this.proficienciesIncludingEffects;
+
+  this.raw.character.system.traits.weaponProf = this.getWeaponProficiencies(this.proficiencies);
+  this.raw.character.system.traits.armorProf = this.getArmorProficiencies(this.proficiencies);
+  this.raw.character.system.traits.toolProf = this.getToolProficiencies(this.proficiencies);
+  this._generateLanguages();
+};

@@ -17,10 +17,10 @@ import DDBProxy from "../lib/DDBProxy.js";
 
 
 export default class DDBCharacter {
-  constructor({ currentActor, characterId, resourceSelection = true }) {
+  constructor({ currentActor = null, characterId = null, resourceSelection = true } = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
-    this.currentActorId = currentActor.id;
+    this.currentActorId = currentActor?.id;
     // DDBCharacter ID
     this.characterId = characterId;
     // show resource selection prompt?

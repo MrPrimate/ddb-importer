@@ -6,3 +6,4 @@ import "./character/index.js";
 import "./character/token.js";
 import "./character/ac.js";
 import "./character/specialTraits.js";
+import "./character/proficiencies.js";
