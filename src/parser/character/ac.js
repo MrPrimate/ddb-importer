@@ -1,6 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import DDBCharacter from "../DDBCharacter.js";
 import { generateFixedACEffect, generateBonusACEffect } from "../../effects/acEffects.js";
 import { getAllClassFeatures } from "./filterModifiers.js";
 
@@ -318,35 +319,43 @@ function calculateACOptions(data, character, calculatedArmor) {
   };
 }
 
-export function getArmorClass(ddb, character) {
-  const overRideAC = ddb.character.characterValues.find((val) => val.typeId === 1);
+
+DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideArmorClass(overRideAC) {
+  const overRideEffect = generateFixedACEffect(overRideAC.value, `AC Override: ${overRideAC.value}`);
+
+  this.raw.character.system.attributes.ac = {
+    flat: overRideAC.value,
+    calc: "flat",
+    formula: "",
+  };
+  this.raw.character.effects = this.raw.character.effects.concat(overRideEffect);
+  this.raw.character.flags.ddbimporter.acEffects = [overRideEffect];
+  this.raw.character.flags.ddbimporter.baseAC = overRideAC.value;
+  this.raw.character.flags.ddbimporter.autoAC = deepClone(this.raw.character.system.attributes.ac);
+  this.raw.character.flags.ddbimporter.overrideAC = {
+    flat: overRideAC.value,
+    calc: "flat",
+    formula: "",
+  };
+  this.raw.character.flags.ddbimporter.fixedAC = {
+    type: "Number",
+    label: "Armor Class",
+    value: overRideAC.value,
+  };
+};
+
+
+DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
+  const overRideAC = this.source.ddb.character.characterValues.find((val) => val.typeId === 1);
 
   if (overRideAC) {
-    const overRideEffect = generateFixedACEffect(overRideAC.value, `AC Override: ${overRideAC.value}`);
-    return {
-      fixed: {
-        type: "Number",
-        label: "Armor Class",
-        value: overRideAC.value,
-      },
-      base: overRideAC.value,
-      effects: [overRideEffect],
-      override: {
-        flat: overRideAC.value,
-        calc: "flat",
-        formula: "",
-      },
-      auto: {
-        flat: overRideAC.value,
-        calc: "flat",
-        formula: "",
-      },
-    };
+    this._generateOverrideArmorClass(overRideAC);
+    return;
   }
 
   // get a list of equipped armor
   // we make a distinction so we can loop over armor
-  let equippedArmor = ddb.character.inventory.filter(
+  let equippedArmor = this.source.ddb.character.inventory.filter(
     (item) => item.equipped && item.definition.filterType === "Armor"
   );
   let baseAC = 10;
@@ -354,27 +363,27 @@ export function getArmorClass(ddb, character) {
   let miscACBonus = 0;
   let bonusEffects = [];
   // lets get equipped gear
-  const equippedGear = ddb.character.inventory.filter(
+  const equippedGear = this.source.ddb.character.inventory.filter(
     (item) => item.equipped && item.definition.filterType !== "Armor"
   );
   const unarmoredACBonus = DDBHelper
-    .filterBaseModifiers(ddb, "bonus", "unarmored-armor-class")
+    .filterBaseModifiers(this.source.ddb, "bonus", "unarmored-armor-class")
     .reduce((prev, cur) => prev + cur.value, 0);
 
   // lets get the AC for all our non-armored gear, we'll add this later
   const gearAC = getEquippedAC(equippedGear);
 
   // While not wearing armor, lets see if we have special abilities
-  if (!isArmored(ddb)) {
+  if (!isArmored(this.source.ddb)) {
     // unarmored abilities from Class/Race?
     const unarmoredSources = [
-      DDBHelper.getChosenClassModifiers(ddb),
-      ddb.character.modifiers.race,
-      ddb.character.modifiers.feat,
-      DDBHelper.getActiveItemModifiers(ddb, true),
+      DDBHelper.getChosenClassModifiers(this.source.ddb),
+      this.source.ddb.character.modifiers.race,
+      this.source.ddb.character.modifiers.feat,
+      DDBHelper.getActiveItemModifiers(this.source.ddb, true),
     ];
     unarmoredSources.forEach((modifiers) => {
-      const unarmoredAC = Math.max(getUnarmoredAC(modifiers, character));
+      const unarmoredAC = Math.max(getUnarmoredAC(modifiers, this.raw.character));
       if (unarmoredAC) {
         // we add this as an armored type so we can get magical item bonuses
         // e.g. ring of protection
@@ -383,7 +392,7 @@ export function getArmorClass(ddb, character) {
     });
   } else {
     // check for things like fighters fighting style defense
-    const armorBonusSources = [DDBHelper.getChosenClassModifiers(ddb), ddb.character.modifiers.race].flat();
+    const armorBonusSources = [DDBHelper.getChosenClassModifiers(this.source.ddb), this.source.ddb.character.modifiers.race].flat();
     const armoredBonuses = armorBonusSources.filter(
       (modifier) => modifier.subType === "armored-armor-class" && modifier.isGranted
     );
@@ -394,20 +403,20 @@ export function getArmorClass(ddb, character) {
   // Generic AC bonuses like Warforfed Integrated Protection
   // item modifiers are loaded by ac calcs
   const miscModifiers = [
-    DDBHelper.getChosenClassModifiers(ddb),
-    DDBHelper.getModifiers(ddb, "race"),
-    DDBHelper.getModifiers(ddb, "background"),
-    DDBHelper.getModifiers(ddb, "feat")
+    DDBHelper.getChosenClassModifiers(this.source.ddb),
+    DDBHelper.getModifiers(this.source.ddb, "race"),
+    DDBHelper.getModifiers(this.source.ddb, "background"),
+    DDBHelper.getModifiers(this.source.ddb, "feat")
   ];
 
   DDBHelper.filterModifiers(miscModifiers, "bonus", "armor-class", ["", null], true).forEach((bonus) => {
-    const component = DDBHelper.findComponentByComponentId(ddb, bonus.componentId);
+    const component = DDBHelper.findComponentByComponentId(this.source.ddb, bonus.componentId);
     const name = component ? component.definition?.name ?? component.name : `AC: Misc (${bonus.friendlySubtypeName})`;
     const effect = generateBonusACEffect([bonus], name, "armor-class", null);
     if (effect.changes.length > 0) bonusEffects.push(effect);
   });
 
-  ddb.character.characterValues.filter((value) =>
+  this.source.ddb.character.characterValues.filter((value) =>
     (value.typeId === 3 || value.typeId === 2)
     && value.value !== 0
   ).forEach((custom) => {
@@ -425,22 +434,22 @@ export function getArmorClass(ddb, character) {
     bonusEffects.push(effect);
   });
 
-  miscACBonus += getDualWieldAC(ddb, miscModifiers);
+  miscACBonus += getDualWieldAC(this.source.ddb, miscModifiers);
 
   // Each racial armor appears to be slightly different!
   // We care about Tortles and Lizardfolk here as they can use shields, but their
   // modifier is set differently
-  switch (ddb.character.race.fullName) {
+  switch (this.source.ddb.character.race.fullName) {
     case "Lizardfolk":
-      baseAC = Math.max(getUnarmoredAC(ddb.character.modifiers.race, character));
-      equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", ddb.character.race.fullName));
+      baseAC = Math.max(getUnarmoredAC(this.source.ddb.character.modifiers.race, this.raw.character));
+      equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", this.source.ddb.character.race.fullName));
       break;
     case "Autognome":
     case "Thri-kreen":
     case "Loxodon":
     case "Tortle":
-      baseAC = Math.max(getMinimumBaseAC(ddb.character.modifiers.race, character), getUnarmoredAC(ddb.character.modifiers.race, character));
-      equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", ddb.character.race.fullName));
+      baseAC = Math.max(getMinimumBaseAC(this.source.ddb.character.modifiers.race, this.raw.character), getUnarmoredAC(this.source.ddb.character.modifiers.race, this.raw.character));
+      equippedArmor.push(getBaseArmor(baseAC, "Natural Armor", this.source.ddb.character.race.fullName));
       break;
     default:
       equippedArmor.push(getBaseArmor(baseAC, "Unarmored"));
@@ -464,7 +473,7 @@ export function getArmorClass(ddb, character) {
     armors,
     shields,
   };
-  const results = calculateACOptions(ddb, character, calculatedArmor);
+  const results = calculateACOptions(this.source.ddb, this.raw.character, calculatedArmor);
 
   logger.debug("Calculated AC Results:", results);
   // get the max AC we can use from our various computed values
@@ -476,7 +485,7 @@ export function getArmorClass(ddb, character) {
 
 
   // const draconic = ddb.classes[0].classFeatures[1].definition
-  const classFeatures = getAllClassFeatures(ddb.character);
+  const classFeatures = getAllClassFeatures(this.source.ddb.character);
   logger.debug("Class features", classFeatures);
 
   let calc = "default";
@@ -504,7 +513,7 @@ export function getArmorClass(ddb, character) {
     flat = results.actorBase;
   }
 
-  const acResults = {
+  logger.debug("AC Results:", {
     fixed: {
       type: "Number",
       label: "Armor Class",
@@ -523,8 +532,22 @@ export function getArmorClass(ddb, character) {
       calc,
       formula: "",
     },
-  };
-  logger.debug("AC Results:", acResults);
+  });
 
-  return acResults;
-}
+  this.raw.character.system.attributes.ac = {
+    flat,
+    calc,
+    formula: "",
+  };
+  this.raw.character.effects = this.raw.character.effects.concat(bonusEffects);
+
+  this.raw.character.flags.ddbimporter.acEffects = results.effects;
+  this.raw.character.flags.ddbimporter.baseAC = results.actorBase;
+  this.raw.character.flags.ddbimporter.autoAC = deepClone(this.raw.character.system.attributes.ac);
+  this.raw.character.flags.ddbimporter.overrideAC = {
+    flat: results.maxValue,
+    calc: "flat",
+    formula: "",
+  };
+
+};

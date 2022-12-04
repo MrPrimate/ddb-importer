@@ -1,5 +1,4 @@
 import utils from "../../lib/utils.js";
-import { getArmorClass } from "./ac.js";
 import { getSpecialTraits } from "./specialTraits.js";
 import { getSkills } from "./skills.js";
 import { getSpellCasting, getSpellDC, getSpellSlots, maxPreparedSpells } from "./spellCasting.js";
@@ -114,13 +113,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this.raw.character.system.attributes.inspiration = this.source.ddb.character.inspiration;
 
   // armor class
-  const ac = getArmorClass(this.source.ddb, this.raw.character);
-  this.raw.character.system.attributes.ac = ac.auto;
-  this.raw.character.flags.ddbimporter.acEffects = ac.effects;
-  this.raw.character.effects = this.raw.character.effects.concat(ac.bonusEffects);
-  this.raw.character.flags.ddbimporter.baseAC = ac.base;
-  this.raw.character.flags.ddbimporter.autoAC = ac.auto;
-  this.raw.character.flags.ddbimporter.overrideAC = ac.override;
+  this._generateArmorClass();
 
   // hitpoints
   this.raw.character.system.attributes.hp = getHitpoints(this.source.ddb, this.raw.character);
