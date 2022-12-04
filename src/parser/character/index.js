@@ -1,5 +1,4 @@
 import utils from "../../lib/utils.js";
-import { getSpecialTraits } from "./specialTraits.js";
 import { getSkills } from "./skills.js";
 import { getSpellCasting, getSpellDC, getSpellSlots, maxPreparedSpells } from "./spellCasting.js";
 import { getHitpoints, getHitDice } from "./hp.js";
@@ -80,7 +79,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   //
   // ddb = fixCharacterLevels(ddb);
 
-  // build skeleteon this.raw.character
+  // build skeleton this.raw.character
   this.totalLevels = this.source.ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0);
   this.proficiencies = getProficiencies(this.source.ddb);
   this.proficienciesIncludingEffects = getProficiencies(this.source.ddb, true);
@@ -92,7 +91,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
 
   // Get supported 5e feats and abilities
   // We do this first so we can check for them later
-  this.raw.character.flags.dnd5e = getSpecialTraits(this.source.ddb);
+  this._setSpecialTraitFlags();
 
   // character abilities
   const abilityData = getAbilities(this.source.ddb);

@@ -145,6 +145,7 @@ function getDualWieldAC(data, modifiers) {
   return dualWieldBonus;
 }
 
+// To Do: Rework AC functions as class functions to help reduce complexity in calculation.
 // eslint-disable-next-line complexity
 function calculateACOptions(data, character, calculatedArmor) {
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
