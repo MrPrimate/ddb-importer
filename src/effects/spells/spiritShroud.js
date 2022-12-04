@@ -31,7 +31,8 @@ export async function spiritShroudEffect(document) {
     onlyOnce: false,
     displayTemp: true,
   };
-  // setProperty(effect, "flags.dae.selfTarget", true);
+  setProperty(effect, "flags.dae.selfTarget", true);
+  setProperty(effect, "flags.dae.selfTargetAlways", true);
 
   const itemMacroText = await loadMacroFile("spell", "spiritShroud.js");
   setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));

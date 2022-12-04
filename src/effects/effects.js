@@ -2,16 +2,11 @@ import utils from "../lib/utils.js";
 import DDBHelper from "../lib/DDBHelper.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import {
-  getWeaponProficiencies,
-  getArmorProficiencies,
-  getToolProficiencies,
-  getLanguagesFromModifiers,
-} from "../parser/character/proficiencies.js";
 import { getSkillProficiency } from "../parser/character/skills.js";
 import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem } from "./acEffects.js";
+import DDBCharacter from "../parser/DDBCharacter.js";
 // import { spellEffectAdjustment } from "./specialSpells.js";
 
 /**
@@ -571,7 +566,8 @@ export function addAddEffect(modifiers, name, type, key) {
 function addLanguages(modifiers, name) {
   let changes = [];
 
-  const languages = getLanguagesFromModifiers(null, modifiers);
+  const ddbCharacter = new DDBCharacter();
+  const languages = ddbCharacter.getLanguagesFromModifiers(modifiers);
 
   languages.value.forEach((prof) => {
     logger.debug(`Generating language ${prof} for ${name}`);
@@ -949,10 +945,12 @@ function addProficiencies(modifiers, name) {
       return { name: mod.friendlySubtypeName };
     });
 
+  const ddbCharacter = new DDBCharacter();
+
   changes = changes.concat(addSkillProficiencies(modifiers));
-  const toolProf = getToolProficiencies(null, proficiencies);
-  const weaponProf = getWeaponProficiencies(null, proficiencies);
-  const armorProf = getArmorProficiencies(null, proficiencies);
+  const toolProf = ddbCharacter.getToolProficiencies(proficiencies);
+  const weaponProf = ddbCharacter.getWeaponProficiencies(proficiencies);
+  const armorProf = ddbCharacter.getArmorProficiencies(proficiencies);
 
   toolProf.value.forEach((prof) => {
     logger.debug(`Generating tool proficiencies for ${name}`);

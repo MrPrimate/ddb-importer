@@ -38,6 +38,7 @@ export async function spiritGuardiansEffect(document) {
   };
   effect.changes.push(generateMacroChange("@token @spellLevel @attributes.spelldc"));
   setProperty(effect, "flags.dae.selfTarget", true);
+  setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);
 
   document.system.damage = { parts: [], versatile: "", value: "" };

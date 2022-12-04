@@ -10,6 +10,7 @@ export function deflectMissilesEffect(document) {
   });
   effect.flags.dae.specialDuration = ["1Reaction"];
   setProperty(effect, "flags.dae.selfTarget", true);
+  setProperty(effect, "flags.dae.selfTargetAlways", true);
   setProperty(document, "system.activation.type", "reactiondamage");
 
   document.system["target"]["type"] = "self";

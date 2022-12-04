@@ -1,0 +1,71 @@
+{
+  "name": "Flaming Sphere",
+  "type": "npc",
+  "img": "icons/magic/fire/orb-vortex.webp",
+  "data": {
+    "attributes": {
+      "ac": { "flat": 10, "calc": "natural", "formula": "" },
+      "hp": { "value": 10, "min": 0, "max": 10, "temp": 0, "tempmax": null, "formula": "" },
+      "movement": { "walk": 30, "units": "ft" }
+    },
+    "traits": {
+      "size": "med"
+    }
+  },
+  "token": {
+    "name": "Flaming Sphere",
+    "displayName": 0,
+    "actorLink": false,
+    "img": "icons/magic/fire/orb-vortex.webp",
+    "tint": null,
+    "width": 1,
+    "height": 1,
+    "scale": 1,
+    "mirrorX": false,
+    "mirrorY": false,
+    "x": null,
+    "y": null,
+    "elevation": null,
+    "lockRotation": false,
+    "rotation": 0,
+    "effects": [],
+    "alpha": 1,
+    "hidden": false,
+    "vision": false,
+    "dimSight": 0,
+    "brightSight": 30,
+    "dimLight": 40,
+    "brightLight": 20,
+    "sightAngle": 0,
+    "lightAngle": 0,
+    "lightColor": "#a2642a",
+    "lightAlpha": 0.4,
+    "lightAnimation": { "speed": 5, "intensity": 5, "type": "torch" },
+    "disposition": 1
+  },
+  "items": [
+    {
+      "name": "Flaming Sphere Damage",
+      "type": "weapon",
+      "img": "icons/magic/fire/orb-vortex.webp",
+      "data": {
+        "source": "",
+        "quantity": 1,
+        "equipped": true,
+        "identified": true,
+        "activation": { "type": "special", "cost": 0, "condition": "" },
+        "actionType": "save",
+        "damage": { "parts": [["2d6", "fire"]], "versatile": "" },
+        "save": { "ability": "dex", "dc": 15, "scaling": "flat" },
+        "weaponType": "natural",
+        "properties": {
+          "nodam": false,
+          "fulldam": false,
+          "halfdam": true
+        },
+        "proficient": true
+      },
+      "effects": []
+    }
+  ]
+}
