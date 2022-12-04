@@ -944,7 +944,8 @@ export default class DDBCharacterImport extends FormApplication {
       if (e.origin?.includes(".Item.")) {
         // eslint-disable-next-line no-await-in-loop
         const parent = await fromUuid(e.origin);
-        setProperty(e, "flags.ddbimporter.type", parent.type);
+        logger.debug("Effect Backup flags", { e, parent });
+        if (parent) setProperty(e, "flags.ddbimporter.type", parent.type);
       }
     }
     await this.actor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
