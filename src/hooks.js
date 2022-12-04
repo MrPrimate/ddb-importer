@@ -5,6 +5,7 @@ import setupLogging from "./hooks/init/setupLogging.js";
 import { registerWindow } from "./hooks/init/window.js";
 import { chatHooks } from "./hooks/init/chatHooks.js";
 import adventureImporter from "./hooks/init/adventureImporter.js";
+import "./hooks/init/extendClasses.js";
 
 // ready hooks
 import registerSheets from "./hooks/ready/registerSheets.js";

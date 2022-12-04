@@ -1,0 +1,1 @@
+import "../../parser/extendDDBCharacter.js";

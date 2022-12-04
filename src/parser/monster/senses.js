@@ -1,22 +1,8 @@
+import DICTIONARY from "../../dictionary.js";
+
 export function getTextSenses(monster) {
   return monster.sensesHtml;
 }
-
-// CONFIG.Canvas.visionModes
-const SENSE_MAP = {
-  blindsight: "basic",
-  darkvision: "darkvision",
-  // tremorsense: "tremorsense",
-  truesight: "basic",
-  unknown: "basic",
-};
-
-// CONFIG.Canvas.detectionModes
-const DETECTION_MAP = {
-  blindsight: "senseAll",
-  truesight: "seeAll",
-  tremorsense: "feelTremor",
-};
 
 //   "senses": [{
 //   "id": 1,
@@ -46,7 +32,7 @@ export function getTokenSenses(token, monster) {
   monster.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
     if (senseMatch && sense.notes) {
-      const senseType = SENSE_MAP[senseMatch.name.toLowerCase()];
+      const senseType = DICTIONARY.senseMap[senseMatch.name.toLowerCase()];
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
         const value = parseInt(rangeMatch[1]);
@@ -55,9 +41,9 @@ export function getTokenSenses(token, monster) {
           setProperty(token.sight, "range", value);
           token.sight = mergeObject(token.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
         }
-        if (value > 0 && hasProperty(DETECTION_MAP, senseMatch.name.toLowerCase())) {
+        if (value > 0 && hasProperty(DICTIONARY.detectionMap, senseMatch.name.toLowerCase())) {
           const detectionMode = {
-            id: DETECTION_MAP[senseMatch.name.toLowerCase()],
+            id: DICTIONARY.detectionMap[senseMatch.name.toLowerCase()],
             range: value,
             enabled: true,
           };

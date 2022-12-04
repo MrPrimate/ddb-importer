@@ -72,6 +72,20 @@ const DICTIONARY = {
     { id: 3, value: "day" },
     { id: 4, value: "charges" },
   ],
+  // CONFIG.Canvas.visionModes
+  senseMap: {
+    blindsight: "basic",
+    darkvision: "darkvision",
+    // tremorsense: "tremorsense",
+    truesight: "basic",
+    unknown: "basic",
+  },
+  // CONFIG.Canvas.detectionModes
+  detectionMap: {
+    blindsight: "senseAll",
+    truesight: "seeAll",
+    tremorsense: "feelTremor",
+  },
   character: {
     abilities: [
       { id: 1, value: "str", long: "strength" },
@@ -132,7 +146,6 @@ const DICTIONARY = {
       { id: 1, name: "Blindsight" },
       { id: 2, name: "Darkvision" },
       { id: 3, name: "Tremorsense" },
-      { id: 4, name: "Truesight" },
     ],
     speeds: [
       { id: 1, type: "walk", innate: "walking" },

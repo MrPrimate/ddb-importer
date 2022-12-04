@@ -1,6 +1,6 @@
 import DDBHelper from "../../lib/DDBHelper.js";
 
-export function getSpecialTraits(data) {
+export function getSpecialTraits(ddb) {
   let results = {
     powerfulBuild: false,
     savageAttacks: false,
@@ -19,37 +19,37 @@ export function getSpecialTraits(data) {
   };
 
   // powerful build/equine build
-  results.powerfulBuild = data.character.race.racialTraits.some(
+  results.powerfulBuild = ddb.character.race.racialTraits.some(
     (trait) => trait.definition.name === "Equine Build" || trait.definition.name === "Powerful Build"
   );
 
   // savage attacks
-  const savageAttacks = data.character.race.racialTraits.some((trait) => trait.definition.name === "Savage Attacks");
+  const savageAttacks = ddb.character.race.racialTraits.some((trait) => trait.definition.name === "Savage Attacks");
   results.savageAttacks = savageAttacks;
   if (savageAttacks) results.meleeCriticalDamageDice += 1;
 
   // halfling lucky
-  results.halflingLucky = data.character.race.racialTraits.some((trait) => trait.definition.name === "Lucky");
+  results.halflingLucky = ddb.character.race.racialTraits.some((trait) => trait.definition.name === "Lucky");
 
   // elven accuracy
-  results.elvenAccuracy = data.character.feats.some((feat) => feat.definition.name === "Elven Accuracy");
+  results.elvenAccuracy = ddb.character.feats.some((feat) => feat.definition.name === "Elven Accuracy");
 
   // alert feat
-  results.initiativeAlert = data.character.feats.some((feat) => feat.definition.name === "Alert");
+  results.initiativeAlert = ddb.character.feats.some((feat) => feat.definition.name === "Alert");
 
   // advantage on initiative
-  results.initiativeAdv = DDBHelper.filterBaseModifiers(data, "advantage", "initiative").length > 0;
+  results.initiativeAdv = DDBHelper.filterBaseModifiers(ddb, "advantage", "initiative").length > 0;
 
   // initiative half prof
-  results.initiativeHalfProf = DDBHelper.filterBaseModifiers(data, "half-proficiency", "initiative").length > 0;
+  results.initiativeHalfProf = DDBHelper.filterBaseModifiers(ddb, "half-proficiency", "initiative").length > 0;
 
   // observant
-  results.observantFeat = data.character.feats.some((feat) => feat.definition.name === "Observant");
+  results.observantFeat = ddb.character.feats.some((feat) => feat.definition.name === "Observant");
 
   // weapon critical threshold
   // fighter improved crit
   // remarkable athlete
-  data.character.classes.forEach((cls) => {
+  ddb.character.classes.forEach((cls) => {
     if (cls.subclassDefinition) {
       // Improved Critical
       const improvedCritical = cls.subclassDefinition.classFeatures.some(

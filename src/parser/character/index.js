@@ -26,7 +26,6 @@ import {
 } from "./proficiencies.js";
 import { getAbilities } from "./abilities.js";
 import { getSenses, getSensesMap } from "./senses.js";
-import { getToken } from "./token.js";
 import {
   getDeathSaves,
   getExhaustion,
@@ -39,12 +38,13 @@ import { getResources } from "./resources.js";
 import { getSize } from "./size.js";
 import { getInitiative } from "./initiative.js";
 import { getCurrency } from "./currency.js";
+import DDBCharacter from "../DDBCharacter.js";
 // import { fixCharacterLevels } from "./filterModifiers.js";
 
-async function newPC(ddb) {
-  const name = (ddb.character.name === "") ? "Hero With No Name" : ddb.character.name;
+DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton() {
+  const name = (this.source.ddb.character.name === "") ? "Hero With No Name" : this.source.ddb.character.name;
 
-  let character = {
+  this.raw.character = {
     system: JSON.parse(utils.getTemplate("character")),
     type: "character",
     effects: [],
@@ -56,158 +56,145 @@ async function newPC(ddb) {
         acEffects: [],
         baseAC: 10,
         dndbeyond: {
-          totalLevels: ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0),
-          proficiencies: getProficiencies(ddb),
-          proficienciesIncludingEffects: getProficiencies(ddb, true),
-          roUrl: ddb.character.readonlyUrl,
-          characterValues: ddb.character.characterValues,
+          totalLevels: this.totalLevels,
+          proficiencies: this.proficiencies,
+          proficienciesIncludingEffects: this.proficienciesIncludingEffects,
+          roUrl: this.source.ddb.character.readonlyUrl,
+          characterValues: this.source.ddb.character.characterValues,
           templateStrings: [],
+          campaign: this.source.ddb.character.campaign,
         },
       },
     },
   };
 
-  character.prototypeToken = getToken(ddb);
+  // generate a prototype token
+  this._generateToken();
 
-  return character;
+  return this.raw.character;
 };
 
-
-export default async function generateCharacter(ddb) {
+DDBCharacter.prototype._generateCharacter = async function _generateCharacter() {
   // *************************************
   // PARSING THE CHARACTER
   // **************************************
   //
   // ddb = fixCharacterLevels(ddb);
 
-  let character = await newPC(ddb);
-
-  const flags = {
-    ddbimporter: {
-      compendium: false,
-      acEffects: [],
-      baseAC: 10,
-      dndbeyond: {
-        totalLevels: ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0),
-        proficiencies: getProficiencies(ddb),
-        proficienciesIncludingEffects: getProficiencies(ddb, true),
-        roUrl: ddb.character.readonlyUrl,
-        characterValues: ddb.character.characterValues,
-        templateStrings: [],
-        campaign: ddb.character.campaign,
-      },
-    },
-  };
-  setProperty(character, "flags", flags);
+  // build skeleteon this.raw.character
+  this.totalLevels = this.source.ddb.character.classes.reduce((prev, cur) => prev + cur.level, 0);
+  this.proficiencies = getProficiencies(this.source.ddb);
+  this.proficienciesIncludingEffects = getProficiencies(this.source.ddb, true);
+  await this._newPCSkeleton();
 
   // proficiency
   // prettier-ignore
-  character.system.attributes.prof = Math.ceil(1 + (0.25 * character.flags.ddbimporter.dndbeyond.totalLevels));
+  this.raw.character.system.attributes.prof = Math.ceil(1 + (0.25 * this.totalLevels));
 
   // Get supported 5e feats and abilities
   // We do this first so we can check for them later
-  character.flags.dnd5e = getSpecialTraits(ddb);
+  this.raw.character.flags.dnd5e = getSpecialTraits(this.source.ddb);
 
   // character abilities
-  const abilityData = getAbilities(ddb);
-  character.system.abilities = abilityData.base;
-  character.flags.ddbimporter.dndbeyond.effectAbilities = abilityData.withEffects;
-  character.flags.ddbimporter.dndbeyond.abilityOverrides = abilityData.overrides;
+  const abilityData = getAbilities(this.source.ddb);
+  this.raw.character.system.abilities = abilityData.base;
+  this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities = abilityData.withEffects;
+  this.raw.character.flags.ddbimporter.dndbeyond.abilityOverrides = abilityData.overrides;
 
   // Hit Dice
-  character.system.attributes.hd = getHitDice(ddb);
+  this.raw.character.system.attributes.hd = getHitDice(this.source.ddb);
 
   // Death saves
-  character.system.attributes.death = getDeathSaves(ddb);
+  this.raw.character.system.attributes.death = getDeathSaves(this.source.ddb);
 
   // exhaustion
-  character.system.attributes.exhaustion = getExhaustion(ddb);
+  this.raw.character.system.attributes.exhaustion = getExhaustion(this.source.ddb);
 
   // inspiration
-  character.system.attributes.inspiration = ddb.character.inspiration;
+  this.raw.character.system.attributes.inspiration = this.source.ddb.character.inspiration;
 
   // armor class
-  const ac = getArmorClass(ddb, character);
-  character.system.attributes.ac = ac.auto;
-  character.flags.ddbimporter.acEffects = ac.effects;
-  character.effects = character.effects.concat(ac.bonusEffects);
-  character.flags.ddbimporter.baseAC = ac.base;
-  character.flags.ddbimporter.autoAC = ac.auto;
-  character.flags.ddbimporter.overrideAC = ac.override;
+  const ac = getArmorClass(this.source.ddb, this.raw.character);
+  this.raw.character.system.attributes.ac = ac.auto;
+  this.raw.character.flags.ddbimporter.acEffects = ac.effects;
+  this.raw.character.effects = this.raw.character.effects.concat(ac.bonusEffects);
+  this.raw.character.flags.ddbimporter.baseAC = ac.base;
+  this.raw.character.flags.ddbimporter.autoAC = ac.auto;
+  this.raw.character.flags.ddbimporter.overrideAC = ac.override;
 
   // hitpoints
-  character.system.attributes.hp = getHitpoints(ddb, character);
+  this.raw.character.system.attributes.hp = getHitpoints(this.source.ddb, this.raw.character);
 
   // initiative
-  character.system.attributes.init = getInitiative(ddb, character);
+  this.raw.character.system.attributes.init = getInitiative(this.source.ddb, this.raw.character);
 
   // speeds
-  const movement = getSpeed(ddb);
-  character.system.attributes.movement = movement['movement'];
-  character.system.attributes.senses = getSensesMap(ddb);
+  const movement = getSpeed(this.source.ddb);
+  this.raw.character.system.attributes.movement = movement['movement'];
+  this.raw.character.system.attributes.senses = getSensesMap(this.source.ddb);
 
   // spellcasting
-  character.system.attributes.spellcasting = getSpellCasting(ddb, character);
+  this.raw.character.system.attributes.spellcasting = getSpellCasting(this.source.ddb, this.raw.character);
 
   // spelldc
-  character.system.attributes.spelldc = getSpellDC(ddb, character);
+  this.raw.character.system.attributes.spelldc = getSpellDC(this.source.ddb, this.raw.character);
 
   // resources
-  character.system.resources = getResources(ddb, character);
+  this.raw.character.system.resources = getResources(this.source.ddb, this.raw.character);
 
   // details
-  character.system.details.background = getBackground(ddb);
+  this.raw.character.system.details.background = getBackground(this.source.ddb);
 
   // known spells
-  character.system.details.maxPreparedSpells = maxPreparedSpells(ddb, character);
+  this.raw.character.system.details.maxPreparedSpells = maxPreparedSpells(this.source.ddb, this.raw.character);
 
   // xp
-  character.system.details.xp.value = ddb.character.currentXp;
+  this.raw.character.system.details.xp.value = this.source.ddb.character.currentXp;
 
   // Character Traits/Ideal/Bond and Flaw
-  character.system.details.trait = getTrait(ddb);
-  character.system.details.ideal = getIdeal(ddb);
-  character.system.details.bond = getBond(ddb);
-  character.system.details.flaw = getFlaw(ddb);
-  character.system.details.appearance = getAppearance(ddb);
+  this.raw.character.system.details.trait = getTrait(this.source.ddb);
+  this.raw.character.system.details.ideal = getIdeal(this.source.ddb);
+  this.raw.character.system.details.bond = getBond(this.source.ddb);
+  this.raw.character.system.details.flaw = getFlaw(this.source.ddb);
+  this.raw.character.system.details.appearance = getAppearance(this.source.ddb);
 
-  Object.assign(character.system.details, getDescription(ddb));
+  Object.assign(this.raw.character.system.details, getDescription(this.source.ddb));
 
-  character.system.details.alignment = getAlignment(ddb);
+  this.raw.character.system.details.alignment = getAlignment(this.source.ddb);
 
   // bio
-  character.system.details.biography = getBiography(ddb);
-  character.system.details.race = ddb.character.race.fullName;
+  this.raw.character.system.details.biography = getBiography(this.source.ddb);
+  this.raw.character.system.details.race = this.source.ddb.character.race.fullName;
 
   // traits
-  character.system.traits.weaponProf = getWeaponProficiencies(ddb, character.flags.ddbimporter.dndbeyond.proficiencies);
-  character.system.traits.armorProf = getArmorProficiencies(ddb, character.flags.ddbimporter.dndbeyond.proficiencies);
-  character.system.traits.toolProf = getToolProficiencies(ddb, character.flags.ddbimporter.dndbeyond.proficiencies);
-  character.system.traits.size = getSize(ddb);
-  character.system.traits.senses = getSenses(ddb);
-  character.system.traits.languages = getLanguages(ddb);
-  character.system.traits.di = getDamageImmunities(ddb);
-  character.system.traits.dr = getDamageResistances(ddb);
-  character.system.traits.dv = getDamageVulnerabilities(ddb);
-  character.system.traits.ci = getConditionImmunities(ddb);
+  this.raw.character.system.traits.weaponProf = getWeaponProficiencies(this.source.ddb, this.raw.character.flags.ddbimporter.dndbeyond.proficiencies);
+  this.raw.character.system.traits.armorProf = getArmorProficiencies(this.source.ddb, this.raw.character.flags.ddbimporter.dndbeyond.proficiencies);
+  this.raw.character.system.traits.toolProf = getToolProficiencies(this.source.ddb, this.raw.character.flags.ddbimporter.dndbeyond.proficiencies);
+  this.raw.character.system.traits.size = getSize(this.source.ddb);
+  this.raw.character.system.traits.senses = getSenses(this.source.ddb);
+  this.raw.character.system.traits.languages = getLanguages(this.source.ddb);
+  this.raw.character.system.traits.di = getDamageImmunities(this.source.ddb);
+  this.raw.character.system.traits.dr = getDamageResistances(this.source.ddb);
+  this.raw.character.system.traits.dv = getDamageVulnerabilities(this.source.ddb);
+  this.raw.character.system.traits.ci = getConditionImmunities(this.source.ddb);
 
-  character.system.currency = getCurrency(ddb);
-  character.system.skills = await getSkills(ddb, character);
-  character.system.spells = getSpellSlots(ddb);
+  this.raw.character.system.currency = getCurrency(this.source.ddb);
+  this.raw.character.system.skills = await getSkills(this.source.ddb, this.raw.character);
+  this.raw.character.system.spells = getSpellSlots(this.source.ddb);
 
   // Extra global bonuses
   // Extra bonuses
-  character.system.bonuses.abilities = getBonusAbilities(ddb, character);
+  this.raw.character.system.bonuses.abilities = getBonusAbilities(this.source.ddb, this.raw.character);
   // spell attacks
-  character.system.bonuses.rsak = getBonusSpellAttacks(ddb, character, "ranged");
-  character.system.bonuses.msak = getBonusSpellAttacks(ddb, character, "melee");
+  this.raw.character.system.bonuses.rsak = getBonusSpellAttacks(this.source.ddb, this.raw.character, "ranged");
+  this.raw.character.system.bonuses.msak = getBonusSpellAttacks(this.source.ddb, this.raw.character, "melee");
   // spell dc
-  character.system.bonuses.spell = getBonusSpellDC(ddb, character);
+  this.raw.character.system.bonuses.spell = getBonusSpellDC(this.source.ddb, this.raw.character);
   // melee weapon attacks
-  character.system.bonuses.mwak = getBonusWeaponAttacks(ddb, character, "melee");
+  this.raw.character.system.bonuses.mwak = getBonusWeaponAttacks(this.source.ddb, this.raw.character, "melee");
   // ranged weapon attacks
   // e.g. ranged fighting style
-  character.system.bonuses.rwak = getBonusWeaponAttacks(ddb, character, "ranged");
+  this.raw.character.system.bonuses.rwak = getBonusWeaponAttacks(this.source.ddb, this.raw.character, "ranged");
 
-  return character;
-}
+  return this.raw.character;
+};

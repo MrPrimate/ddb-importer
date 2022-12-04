@@ -1,4 +1,3 @@
-import generateCharacter from "./character/index.js";
 import getActions from "./features/actions.js";
 import getFeatures from "./features/features.js";
 import { getClasses } from "./classes/index.js";
@@ -164,7 +163,7 @@ export default class DDBCharacter {
     try {
       if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await createGMMacros();
       logger.debug("Starting core character parse", { thisDDB: this.source.ddb });
-      this.raw.character = await generateCharacter(this.source.ddb);
+      await this._generateCharacter();
       if (this.resourceSelection) {
         logger.debug("Character resources");
         this.raw.character = await getResourcesDialog(this.currentActorId, this.source.ddb, this.raw.character);
