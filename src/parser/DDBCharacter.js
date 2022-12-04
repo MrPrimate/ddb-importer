@@ -1,4 +1,4 @@
-import getCharacter from "./character/index.js";
+import generateCharacter from "./character/index.js";
 import getActions from "./features/actions.js";
 import getFeatures from "./features/features.js";
 import { getClasses } from "./classes/index.js";
@@ -19,14 +19,19 @@ import DDBProxy from "../lib/DDBProxy.js";
 
 export default class DDBCharacter {
   constructor({ currentActor, characterId, resourceSelection = true }) {
+    // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
     this.currentActorId = currentActor.id;
+    // DDBCharacter ID
     this.characterId = characterId;
+    // show resource selection prompt?
     this.resourceSelection = resourceSelection;
+    // raw data received from DDB
+    this.source = null;
+    // this is the raw items processed before filtering
     this.raw = {};
+    // the data to act on following initial parse
     this.data = {};
-    this.ddb = null;
-    this.parsed = null;
   }
 
   /**
@@ -54,6 +59,8 @@ export default class DDBCharacter {
 
   /**
    * Loads and parses character in the proxy
+   * This will return an object containing the character, and items separated into arrays relating to their types
+   * Additional processing is required after this step.
    * @param {String} syncId
    * @param {String} localCobaltPostFix
    * @returns {Object} Parsed Character Data and DDB data
@@ -79,38 +86,29 @@ export default class DDBCharacter {
         redirect: "follow", // manual, *follow, error
         body: JSON.stringify(body), // body data type must match "Content-Type" header
       });
-      const data = await response.json();
-      if (!data.success) return data;
+      this.source = await response.json();
+      if (!this.source.success) return this.source;
 
       // load some required content
       await importCacheLoad();
 
-      // construct the expected { character: {...} } object
-      // this.ddb = {
-      //   character: data.ddb,
-      //   classOptions: data.ddb.classOptions,
-      //   originOptions: data.ddb.originOptions,
-      //   infusions: data.ddb.infusions,
-      // };
-
-      this.ddb = data.ddb;
-
-      logger.debug("DDB Data to parse:", duplicate(this.ddb));
+      logger.debug("DDB Data to parse:", duplicate(this.source.ddb));
       logger.debug("currentActorId", this.currentActorId);
       try {
-        await this.parseJson();
+        // this parses the json and sets the results as this.data
+        await this._parseCharacter();
         const shouldChangeName = game.settings.get("ddb-importer", "character-update-policy-name");
         if (!shouldChangeName) {
           this.data.character.name = undefined;
           this.data.character.prototypeToken.name = undefined;
         }
-        data["character"] = this.data;
-        logger.debug("finalParsedData", data);
-        return data;
+        this.source["character"] = this.data;
+        logger.debug("finalParsedData", this.source);
+        return this.source;
       } catch (error) {
         const debugJson = game.settings.get("ddb-importer", "debug-json");
         if (debugJson) {
-          FileHelper.download(JSON.stringify(data), `${this.characterId}-raw.json`, "application/json");
+          FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");
         }
         throw error;
       }
@@ -122,6 +120,9 @@ export default class DDBCharacter {
     }
   }
 
+  /**
+   * Removes duplicate features/actions based on import preferences
+   */
   _filterActionFeatures() {
     const actionAndFeature = game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
 
@@ -152,29 +153,36 @@ export default class DDBCharacter {
 
   }
 
-  async parseJson() {
+  /**
+   * Parses the collected Character JSON data into various foundry features.
+   * Additional steps are needed after this based on the settings in the character import, but this will give the "raw" items
+   *
+   * @returns Object containing various parsed Foundry features
+   *
+   */
+  async _parseCharacter() {
     try {
       if (game.settings.get("ddb-importer", "character-update-policy-add-spell-effects")) await createGMMacros();
-      logger.debug("Starting core character parse", { thisDDB: this.ddb });
-      this.raw.character = await getCharacter(this.ddb);
+      logger.debug("Starting core character parse", { thisDDB: this.source.ddb });
+      this.raw.character = await generateCharacter(this.source.ddb);
       if (this.resourceSelection) {
         logger.debug("Character resources");
-        this.raw.character = await getResourcesDialog(this.currentActorId, this.ddb, this.raw.character);
+        this.raw.character = await getResourcesDialog(this.currentActorId, this.source.ddb, this.raw.character);
       }
       logger.debug("Character parse complete");
-      this.raw.race = await getDDBRace(this.ddb);
+      this.raw.race = await getDDBRace(this.source.ddb);
       logger.debug("Race parse complete");
-      this.raw.classes = await getClasses(this.ddb, this.raw.character);
+      this.raw.classes = await getClasses(this.source.ddb, this.raw.character);
       logger.debug("Classes parse complete");
-      this.raw.features = [this.raw.race, ...await getFeatures(this.ddb, this.raw.character, this.raw.classes)];
+      this.raw.features = [this.raw.race, ...await getFeatures(this.source.ddb, this.raw.character, this.raw.classes)];
       logger.debug("Feature parse complete");
-      this.raw.spells = getCharacterSpells(this.ddb, this.raw.character);
+      this.raw.spells = getCharacterSpells(this.source.ddb, this.raw.character);
       logger.debug("Character Spells parse complete");
-      this.raw.actions = await getActions(this.ddb, this.raw.character, this.raw.classes);
+      this.raw.actions = await getActions(this.source.ddb, this.raw.character, this.raw.classes);
       logger.debug("Action parse complete");
-      this.raw.itemSpells = getItemSpells(this.ddb, this.raw.character);
+      this.raw.itemSpells = getItemSpells(this.source.ddb, this.raw.character);
       logger.debug("Item Spells parse complete");
-      this.raw.inventory = await getInventory(this.ddb, this.raw.character, this.raw.itemSpells);
+      this.raw.inventory = await getInventory(this.source.ddb, this.raw.character, this.raw.itemSpells);
       logger.debug("Inventory parse complete");
 
       this.data = {
@@ -191,7 +199,6 @@ export default class DDBCharacter {
 
       // this adds extras like the Divine Smite spell
       getSpecial(this.data);
-      return this.data;
 
     } catch (error) {
       logger.error(error);

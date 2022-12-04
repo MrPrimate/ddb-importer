@@ -73,7 +73,7 @@ async function newPC(ddb) {
 };
 
 
-export default async function getCharacter(ddb) {
+export default async function generateCharacter(ddb) {
   // *************************************
   // PARSING THE CHARACTER
   // **************************************
