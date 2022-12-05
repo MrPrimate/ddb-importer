@@ -1075,7 +1075,7 @@ const SETTINGS = {
           "munching-policy-monster-use-item-ac": {
             scope: "player",
             type: Boolean,
-            default: false,
+            default: true,
           },
           "munching-policy-monster-retain-biography": {
             type: Boolean,

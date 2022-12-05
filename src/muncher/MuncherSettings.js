@@ -700,19 +700,19 @@ const MuncherSettings = {
       {
         name: "monster-items",
         isChecked: game.settings.get("ddb-importer", "munching-policy-monster-items"),
-        description: "[Experimental] Load items from DDB compendium instead of parsing action/attack?",
+        description: "[Experimental] Load attack/weapon items from DDB compendium instead of parsing action/attack? (Poor success rate)",
         enabled: true,
       },
       {
         name: "monster-use-item-ac",
         isChecked: game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac"),
-        description: "[Experimental] Attempt to use items instead of setting a flat AC?",
+        description: "Use AC items instead of setting a flat AC? (Recommended if using spell effects like shield on NPC's).",
         enabled: true,
       },
       {
         name: "update-images",
         isChecked: game.settings.get("ddb-importer", "munching-policy-update-images"),
-        description: "Update Monster images on existing items?",
+        description: "Update Monster images on existing npcs?",
         enabled: true,
       },
       {

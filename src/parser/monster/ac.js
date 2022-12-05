@@ -19,7 +19,7 @@ async function getEquipmentCompendium() {
   return CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment;
 }
 
-export async function generateAC(monster, useItemAC) {
+export async function generateAC(monster, { useItemAC = true } = {}) {
 
   const ac = {
     "flat": monster.armorClass,
@@ -58,6 +58,7 @@ export async function generateAC(monster, useItemAC) {
     descriptionItems.forEach((item) => {
       if (item == "natural" || item == "natural armor") {
         ac.calc = "natural";
+        flatAC = false;
 
         if (lowerDescription.includes("shield")) ac.flat = parseInt(ac.flat) - 2;
         if (lowerDescription.includes("ring of protection")) ac.flat = parseInt(ac.flat) - 1;
@@ -100,6 +101,10 @@ export async function generateAC(monster, useItemAC) {
     ac.calc = "default";
     ac.formula = "";
     flatAC = false;
+  } else if (!useItemAC && ac.calc !== "natural") {
+    // default monsters with no ac equipment to natural
+    ac.calc = "natural";
+    flatAC = false;
   }
 
   const result = {
@@ -107,7 +112,8 @@ export async function generateAC(monster, useItemAC) {
     flatAC,
     acItems,
     dexBonus,
-    ddbItems: attunedItems,
+    ddbItems: useItemAC ? attunedItems : [], // only add items if we are told too
+    attunedItems,
     allItemsMatched,
     badACMonster,
   };

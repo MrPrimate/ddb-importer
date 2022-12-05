@@ -1,3 +1,7 @@
+# 3.2.8
+
+* Monster import now defaults to adding AC items (shields, armor etc) and rather than creating a flat AC. If the use AC items option is unticked it will now no longer add items and set AC to flat, but set the AC to Natural so that AC bonuses from spells/effects can take place.
+
 # 3.2.7
 
 * Started on some refactor work for improved parsing/tech debt.

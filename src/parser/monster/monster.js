@@ -242,7 +242,7 @@ async function addSpells(monster) {
 }
 
 // eslint-disable-next-line complexity
-async function parseMonster(monster, extra, useItemAC) {
+async function parseMonster(monster, extra, { useItemAC = true, legacyName = true, addMonsterEffects = false } = {}) {
   let foundryActor = duplicate(await newNPC(monster.name));
   let items = [];
   let img = (monster.basicAvatarUrl) ? monster.basicAvatarUrl : monster.largeAvatarUrl;
@@ -306,7 +306,7 @@ async function parseMonster(monster, extra, useItemAC) {
   foundryActor.system.attributes.prof = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
 
   // ac
-  const ac = await generateAC(monster, useItemAC);
+  const ac = await generateAC(monster, { useItemAC });
   foundryActor.system.attributes.ac = ac.ac;
   foundryActor.flags.ddbimporter.flatAC = ac.flatAC;
   items.push(...ac.ddbItems);
@@ -388,7 +388,7 @@ async function parseMonster(monster, extra, useItemAC) {
 
   foundryActor.items = items;
 
-  const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+
   if (legacyName) {
     if (monster.isLegacy) {
       foundryActor.name += " (Legacy)";
@@ -402,7 +402,7 @@ async function parseMonster(monster, extra, useItemAC) {
   foundryActor = await addSpells(foundryActor);
 
   foundryActor = specialCases(foundryActor);
-  if (game.settings.get("ddb-importer", "munching-policy-add-monster-effects")) {
+  if (addMonsterEffects) {
     foundryActor = await monsterFeatureEffectAdjustment(foundryActor, monster);
   }
 
@@ -422,11 +422,13 @@ export async function parseMonsters(monsterData, extra = false) {
   let failedMonsterNames = [];
 
   const useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
+  const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+  const addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
 
   monsterData.forEach((monster) => {
     try {
       logger.debug(`Attempting to parse ${monster.name}`);
-      const foundryActor = parseMonster(monster, extra, useItemAC);
+      const foundryActor = parseMonster(monster, extra, { useItemAC, legacyName, addMonsterEffects });
       foundryActors.push(foundryActor);
     } catch (err) {
       logger.error(`Failed parsing ${monster.name}`);
