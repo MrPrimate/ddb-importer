@@ -3,26 +3,27 @@ import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { generateBaseSkillEffect } from "../../effects/effects.js";
 import logger from "../../logger.js";
+import DDBCharacter from "../DDBCharacter.js";
 
-function isHalfProficiencyRoundedUp (data, skill, modifiers = null) {
+DDBCharacter.prototype._isHalfProficiencyRoundedUp = function _isHalfProficiencyRoundedUp (skill, modifiers = null) {
   const longAbility = DICTIONARY.character.abilities
     .filter((ability) => skill.ability === ability.value)
     .map((ability) => ability.long)[0];
 
   const roundUp = (modifiers)
     ? DDBHelper.filterModifiers(modifiers, "half-proficiency-round-up", `${longAbility}-ability-checks`)
-    : DDBHelper.filterBaseModifiers(data, "half-proficiency-round-up", `${longAbility}-ability-checks`, ["", null], true);
+    : DDBHelper.filterBaseModifiers(this.source?.ddb, "half-proficiency-round-up", `${longAbility}-ability-checks`, ["", null], true);
   return Array.isArray(roundUp) && roundUp.length;
-}
+};
 
-export function getSkillProficiency (data, skill, modifiers = null) {
+DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill, modifiers = null) {
   if (!modifiers) {
     modifiers = [
-      DDBHelper.getChosenClassModifiers(data, true),
-      DDBHelper.getModifiers(data, "race", true),
-      DDBHelper.getModifiers(data, "background", true),
-      DDBHelper.getModifiers(data, "feat", true),
-      DDBHelper.getActiveItemModifiers(data, true),
+      DDBHelper.getChosenClassModifiers(this.source.ddb, true),
+      DDBHelper.getModifiers(this.source.ddb, "race", true),
+      DDBHelper.getModifiers(this.source.ddb, "background", true),
+      DDBHelper.getModifiers(this.source.ddb, "feat", true),
+      DDBHelper.getActiveItemModifiers(this.source.ddb, true),
     ].flat();
   }
 
@@ -35,7 +36,7 @@ export function getSkillProficiency (data, skill, modifiers = null) {
     // Jack of All trades/half-rounded down
       (modifier.type === "half-proficiency" && modifier.subType === "ability-checks")
         // e.g. champion for specific ability checks
-        || isHalfProficiencyRoundedUp(data, skill, modifiers)
+        || this._isHalfProficiencyRoundedUp(skill, modifiers)
   ) !== undefined
     ? 0.5
     : 0;
@@ -43,12 +44,12 @@ export function getSkillProficiency (data, skill, modifiers = null) {
   const proficient = skillMatches.includes("expertise") ? 2 : skillMatches.includes("proficiency") ? 1 : halfProficiency;
 
   return proficient;
-}
+};
 
-function getCustomSkillProficiency(data, skill) {
+DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProficiency(skill) {
   // Overwrite the proficient value with any custom set over rides
-  if (data.character.characterValues) {
-    const customProficiency = data.character.characterValues.find(
+  if (this.source.ddb.character.characterValues) {
+    const customProficiency = this.source.ddb.character.characterValues.find(
       (value) => value.typeId === 26 && value.valueId == skill.valueId && value.value
     );
     if (customProficiency) {
@@ -57,13 +58,13 @@ function getCustomSkillProficiency(data, skill) {
     }
   }
   return undefined;
-}
+};
 
-function getCustomSkillAbility(data, skill) {
+DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(skill) {
   // Overwrite the proficient value with any custom set over rides
   let mod;
-  if (data.character.characterValues) {
-    const customAbility = data.character.characterValues.find(
+  if (this.source.ddb.character.characterValues) {
+    const customAbility = this.source.ddb.character.characterValues.find(
       (value) => value.typeId === 27 && value.valueId == skill.valueId
     );
     if (customAbility) {
@@ -73,12 +74,12 @@ function getCustomSkillAbility(data, skill) {
     }
   }
   return mod;
-}
+};
 
-function getCustomSkillBonus(data, skill) {
+DDBCharacter.prototype.getCustomSkillBonus = function getCustomSkillBonus(skill) {
   // Get any custom skill bonuses
-  if (data.character.characterValues) {
-    const customBonus = data.character.characterValues.filter(
+  if (this.source.ddb.character.characterValues) {
+    const customBonus = this.source.ddb.character.characterValues.filter(
       (value) => (value.typeId == 24 || value.typeId == 25) && value.valueId == skill.valueId
     ).reduce((total, bonus) => {
       return total + bonus.value;
@@ -89,33 +90,29 @@ function getCustomSkillBonus(data, skill) {
     }
   }
   return 0;
-}
+};
 
-function setSpecial(data, skills) {
-  data.character.classes.forEach((klass) => {
+DDBCharacter.prototype._setSpecialSkills = function _setSpecialSkills() {
+  this.source.ddb.character.classes.forEach((klass) => {
     if (klass.subclassDefinition) {
-      // Improved Critical
       const silverTongue = klass.subclassDefinition.classFeatures.some(
         (feature) => feature.name === "Silver Tongue" && klass.level >= feature.requiredLevel
       );
-
-      // supported in v1.6.0 (hopefully)
       if (silverTongue) {
-        skills["per"].bonuses.minimum = 10;
-        skills["dec"].bonuses.minimum = 10;
+        this.raw.character.system.skills["per"].bonuses.minimum = 10;
+        this.raw.character.system.skills["dec"].bonuses.minimum = 10;
       }
     }
   });
-  return skills;
-}
+};
 
-async function getCustomSkills(ddb, skills) {
-  if (!game.modules.get("dnd5e-custom-skills")?.active) return skills;
+DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSkills() {
+  if (!game.modules.get("dnd5e-custom-skills")?.active) return;
   const version = game.modules.get("dnd5e-custom-skills")?.version;
   const newEnough = foundry.utils.isNewerVersion(version, "1.1.2");
-  if (!newEnough) return skills;
+  if (!newEnough) return;
 
-  const customSkillData = ddb.character.customProficiencies
+  const customSkillData = this.source.ddb.character.customProficiencies
     .filter((prof) => prof.type === 1)
     .map((prof) => {
       const ability = DICTIONARY.character.abilities.find((ability) => ability.id == prof.statId);
@@ -152,7 +149,7 @@ async function getCustomSkills(ddb, skills) {
           ? ` + ${customSkillMatch.magicBonus}`
           : "";
         if (customSkillMatch) {
-          skills[key] = {
+          this.raw.character.system.skills[key] = {
             type: "Number",
             label: value.label,
             ability: value.ability,
@@ -169,36 +166,32 @@ async function getCustomSkills(ddb, skills) {
       }
     }
   }
+};
 
-  return skills;
-}
-
-export async function getSkills(ddb, character) {
-  let result = {};
-
+DDBCharacter.prototype._generateSkills = async function _generateSkills() {
   const addEffects = game.modules.get("dae")?.active;
 
-  if (!addEffects) character.flags['skill-customization-5e'] = {};
+  if (!addEffects) this.raw.character.flags['skill-customization-5e'] = {};
   DICTIONARY.character.skills.forEach((skill) => {
-    const customProficient = getCustomSkillProficiency(ddb, skill);
+    const customProficient = this.getCustomSkillProficiency(skill);
     // we use !== undefined because the return value could be 0, which is falsey
-    const proficient = customProficient !== undefined ? customProficient : getSkillProficiency(ddb, skill);
+    const proficient = customProficient !== undefined ? customProficient : this.getSkillProficiency(skill);
 
     // some abilities round half prof up, some down
-    const proficiencyBonus = isHalfProficiencyRoundedUp(ddb, skill)
-      ? Math.ceil(2 * character.system.attributes.prof * proficient)
-      : Math.floor(2 * character.system.attributes.prof * proficient);
+    const proficiencyBonus = this._isHalfProficiencyRoundedUp(skill)
+      ? Math.ceil(2 * this.raw.character.system.attributes.prof * proficient)
+      : Math.floor(2 * this.raw.character.system.attributes.prof * proficient);
 
     // Skill bonuses e.g. items
     // These no longer seems to be picked up in recent versions of the DND5e module
     const skillModifierBonus = DDBHelper
-      .filterBaseModifiers(ddb, "bonus", skill.subType)
+      .filterBaseModifiers(this.source.ddb, "bonus", skill.subType)
       .map((skl) => skl.value)
       .reduce((a, b) => a + b, 0) || 0;
-    const customSkillBonus = getCustomSkillBonus(ddb, skill);
+    const customSkillBonus = this.getCustomSkillBonus(skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
-    const value = character.system.abilities[skill.ability].value + proficiencyBonus + skillBonus;
-    const customAbility = getCustomSkillAbility(ddb, skill);
+    const value = this.raw.character.system.abilities[skill.ability].value + proficiencyBonus + skillBonus;
+    const customAbility = this.getCustomSkillAbility(skill);
     const ability = customAbility !== undefined ? customAbility : skill.ability;
 
     // custom skill ability over ride effects
@@ -211,17 +204,17 @@ export async function getSkills(ddb, character) {
         priority: "20"
       };
 
-      const changeIndex = character.effects.findIndex((effect) => effect.label === label);
+      const changeIndex = this.raw.character.effects.findIndex((effect) => effect.label === label);
       if (changeIndex >= 0) {
-        character.effects[changeIndex].changes.push(change);
+        this.raw.character.effects[changeIndex].changes.push(change);
       } else {
-        let skillEffect = generateBaseSkillEffect(ddb.character.id, label);
+        let skillEffect = generateBaseSkillEffect(this.source.ddb.character.id, label);
         skillEffect.changes.push(change);
-        character.effects.push(skillEffect);
+        this.raw.character.effects.push(skillEffect);
       }
     }
 
-    result[skill.name] = {
+    this.raw.character.system.skills[skill.name] = {
       type: "Number",
       label: skill.label,
       ability: ability,
@@ -236,8 +229,7 @@ export async function getSkills(ddb, character) {
     };
   });
 
-  // eslint-disable-next-line require-atomic-updates
-  result = await getCustomSkills(ddb, result);
-  result = setSpecial(ddb, result);
-  return result;
-}
+  await this._generateCustomSkills();
+  this._setSpecialSkills();
+
+};

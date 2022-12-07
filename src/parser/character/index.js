@@ -1,5 +1,4 @@
 import utils from "../../lib/utils.js";
-import { getSkills } from "./skills.js";
 import { getSpellCasting, getSpellDC, getSpellSlots, maxPreparedSpells } from "./spellCasting.js";
 import { getHitpoints, getHitDice } from "./hp.js";
 import { getSpeed } from "./speed.js";
@@ -161,7 +160,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this.raw.character.system.traits.ci = getConditionImmunities(this.source.ddb);
 
   this.raw.character.system.currency = getCurrency(this.source.ddb);
-  this.raw.character.system.skills = await getSkills(this.source.ddb, this.raw.character);
+  await this._generateSkills();
   this.raw.character.system.spells = getSpellSlots(this.source.ddb);
 
   // Extra global bonuses

@@ -2,7 +2,6 @@ import utils from "../lib/utils.js";
 import DDBHelper from "../lib/DDBHelper.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
-import { getSkillProficiency } from "../parser/character/skills.js";
 import { equipmentEffectAdjustment } from "./specialEquipment.js";
 import { infusionEffectAdjustment } from "./specialInfusions.js";
 import { generateACEffectChangesForItem } from "./acEffects.js";
@@ -927,8 +926,9 @@ function addBonusSpeeds(modifiers, name) {
 
 function addSkillProficiencies(modifiers) {
   let changes = [];
+  const ddbCharacter = new DDBCharacter();
   DICTIONARY.character.skills.forEach((skill) => {
-    const prof = getSkillProficiency(null, skill, modifiers);
+    const prof = ddbCharacter.getSkillProficiency(skill, modifiers);
     if (prof != 0) {
       changes.push(generateUpgradeChange(prof, 9, `system.skills.${skill.name}.value`));
     }
