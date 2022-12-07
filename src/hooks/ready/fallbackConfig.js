@@ -3448,6 +3448,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/27777/666/637951679601337771.jpeg",
       sourceURL: "sources/sotdq",
     },
+    {
+      id: 101,
+      name: "MCv2",
+      description: "Monstrous Compendium Volume Two: Dragonlance Creatures",
+      sourceCategoryId: 14,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/30591/814/638054153540284547.jpeg",
+      sourceURL: "sources/mcv2",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },

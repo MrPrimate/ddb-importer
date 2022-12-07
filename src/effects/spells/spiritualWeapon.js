@@ -11,8 +11,6 @@ export async function spiritualWeaponEffect(document) {
   document.effects.push(effect);
 
   document.system.damage = { parts: [], versatile: "", value: "" };
-  document.system['target']['type'] = "self";
-  // document.system.range = { value: null, units: "self", long: null };
   document.system.actionType = "other";
 
   return document;
