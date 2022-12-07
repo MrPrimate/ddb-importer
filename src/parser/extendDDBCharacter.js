@@ -10,3 +10,4 @@ import "./character/proficiencies.js";
 import "./character/skills.js";
 import "./character/abilities.js";
 import "./character/hp.js";
+import "./character/initiative.js";

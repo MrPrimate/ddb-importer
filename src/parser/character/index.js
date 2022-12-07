@@ -24,7 +24,6 @@ import {
 } from "./effects.js";
 import { getResources } from "./resources.js";
 import { getSize } from "./size.js";
-import { getInitiative } from "./initiative.js";
 import { getCurrency } from "./currency.js";
 import DDBCharacter from "../DDBCharacter.js";
 // import { fixCharacterLevels } from "./filterModifiers.js";
@@ -106,7 +105,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._generateHitPoints();
 
   // initiative
-  this.raw.character.system.attributes.init = getInitiative(this.source.ddb, this.raw.character);
+  this._generateInitiative();
 
   // speeds
   const movement = getSpeed(this.source.ddb);

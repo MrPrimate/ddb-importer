@@ -1,21 +1,21 @@
 import DDBHelper from "../../lib/DDBHelper.js";
+import DDBCharacter from "../DDBCharacter.js";
 
-export function getInitiative(data, character) {
-  const initiativeBonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", "initiative"), character);
-  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+DDBCharacter.prototype._generateInitiative = function _generateInitiative() {
+  const initMods = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", "initiative");
+  const initiativeBonus = DDBHelper.getModifierSum(initMods, this.raw.character);
 
   // If we have the alert Feat set, lets sub 5 so it's correct
-  const initiative = character.flags.dnd5e.initiativeAlert
+  this.raw.character.system.attributes.init = this.raw.character.flags.dnd5e.initiativeAlert
     ? {
       value: initiativeBonus - 5,
       bonus: 5, // used by FVTT internally
-      mod: characterAbilities.dex.mod,
+      mod: this.abilities.withEffects.dex.mod,
     }
     : {
       value: initiativeBonus,
       bonus: 0, // used by FVTT internally
-      mod: characterAbilities.dex.mod,
+      mod: this.abilities.withEffects.dex.mod,
     };
 
-  return initiative;
-}
+};

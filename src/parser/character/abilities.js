@@ -202,10 +202,10 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
 DDBCharacter.prototype._generateAbilities = function _generateAbilities() {
   // go through every ability
 
-  this.raw.character.system.abilities = this._getAbilities(false);
-  this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities = this._getAbilities(true);
-  this.abilities.core = this.raw.character.system.abilities;
-  this.abilities.withEffects = this.raw.character.flags.ddbimporter.dndbeyond.withEffects;
+  this.abilities.core = this._getAbilities(false);
+  this.abilities.withEffects = this._getAbilities(true);
+  this.raw.character.system.abilities = this.abilities.core;
+  this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities = this.abilities.withEffects;
 
   this._generateAbilitiesOverrides();
 
