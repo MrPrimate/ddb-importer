@@ -1,33 +1,34 @@
 import DDBHelper from "../../lib/DDBHelper.js";
+import DDBCharacter from "../DDBCharacter.js";
 
-export function getHitpoints(data, character) {
-  const constitutionHP = character.flags.ddbimporter.dndbeyond.effectAbilities.con.mod * character.flags.ddbimporter.dndbeyond.totalLevels;
-  const baseHitPoints = data.character.baseHitPoints || 0;
-  const bonusHitPoints = data.character.bonusHitPoints || 0;
-  const overrideHitPoints = data.character.overrideHitPoints || 0;
-  const removedHitPoints = data.character.removedHitPoints || 0;
-  const temporaryHitPoints = data.character.temporaryHitPoints || 0;
+DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
+  const constitutionHP = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities.con.mod * this.raw.character.flags.ddbimporter.dndbeyond.totalLevels;
+  const baseHitPoints = this.source.ddb.character.baseHitPoints || 0;
+  const bonusHitPoints = this.source.ddb.character.bonusHitPoints || 0;
+  const overrideHitPoints = this.source.ddb.character.overrideHitPoints || 0;
+  const removedHitPoints = this.source.ddb.character.removedHitPoints || 0;
+  const temporaryHitPoints = this.source.ddb.character.temporaryHitPoints || 0;
 
   // get all hit points features
-  const bonusHitPointFeatures = DDBHelper.filterBaseModifiers(data, "bonus", "hit-points-per-level");
-  const bonusHitPointFeaturesWithEffects = DDBHelper.filterBaseModifiers(data, "bonus", "hit-points-per-level", ["", null], true);
+  const bonusHitPointFeatures = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", "hit-points-per-level");
+  const bonusHitPointFeaturesWithEffects = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", "hit-points-per-level", ["", null], true);
 
   // get their values
   const bonusHitPointValues = bonusHitPointFeatures.map((bonus) => {
-    const cls = DDBHelper.findClassByFeatureId(data, bonus.componentId);
+    const cls = DDBHelper.findClassByFeatureId(this.source.ddb, bonus.componentId);
     if (cls) {
       return cls.level * bonus.value;
     } else {
-      return character.flags.ddbimporter.dndbeyond.totalLevels * bonus.value;
+      return this.raw.character.flags.ddbimporter.dndbeyond.totalLevels * bonus.value;
     }
   });
 
   const bonusHitPointValuesWithEffects = bonusHitPointFeaturesWithEffects.map((bonus) => {
-    const cls = DDBHelper.findClassByFeatureId(data, bonus.componentId);
+    const cls = DDBHelper.findClassByFeatureId(this.source.ddb, bonus.componentId);
     if (cls) {
       return cls.level * bonus.value;
     } else {
-      return character.flags.ddbimporter.dndbeyond.totalLevels * bonus.value;
+      return this.raw.character.flags.ddbimporter.dndbeyond.totalLevels * bonus.value;
     }
   });
 
@@ -43,17 +44,17 @@ export function getHitpoints(data, character) {
     ? constitutionHP + baseHitPoints + bonusHitPoints + totalBonusHitPoints
     : overrideHitPoints;
 
-  return {
+  this.raw.character.system.attributes.hp = {
     value: totalHitPoints - removedHitPoints + bonusHPEffectDiff,
     min: 0,
     max: totalHitPoints,
     temp: temporaryHitPoints,
     tempmax: bonusHitPoints,
   };
-}
+};
 
-export function getHitDice(data) {
-  let used = data.character.classes.reduce((prev, cls) => prev + cls.hitDiceUsed, 0);
-  let total = data.character.classes.reduce((prev, cls) => prev + cls.level, 0);
-  return total - used;
-}
+DDBCharacter.prototype._generateHitDice = function _generateHitDice() {
+  const used = this.source.ddb.character.classes.reduce((prev, cls) => prev + cls.hitDiceUsed, 0);
+  const total = this.source.ddb.character.classes.reduce((prev, cls) => prev + cls.level, 0);
+  this.raw.character.system.attributes.hd = total - used;
+};

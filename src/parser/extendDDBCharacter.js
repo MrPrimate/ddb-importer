@@ -9,3 +9,4 @@ import "./character/specialTraits.js";
 import "./character/proficiencies.js";
 import "./character/skills.js";
 import "./character/abilities.js";
+import "./character/hp.js";

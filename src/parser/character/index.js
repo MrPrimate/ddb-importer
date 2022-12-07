@@ -1,6 +1,5 @@
 import utils from "../../lib/utils.js";
 import { getSpellCasting, getSpellDC, getSpellSlots, maxPreparedSpells } from "./spellCasting.js";
-import { getHitpoints, getHitDice } from "./hp.js";
 import { getSpeed } from "./speed.js";
 import {
   getBackground,
@@ -89,7 +88,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._generateAbilities();
 
   // Hit Dice
-  this.raw.character.system.attributes.hd = getHitDice(this.source.ddb);
+  this._generateHitDice();
 
   // Death saves
   this.raw.character.system.attributes.death = getDeathSaves(this.source.ddb);
@@ -104,7 +103,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._generateArmorClass();
 
   // hitpoints
-  this.raw.character.system.attributes.hp = getHitpoints(this.source.ddb, this.raw.character);
+  this._generateHitPoints();
 
   // initiative
   this.raw.character.system.attributes.init = getInitiative(this.source.ddb, this.raw.character);
