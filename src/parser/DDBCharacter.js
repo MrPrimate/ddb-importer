@@ -31,6 +31,13 @@ export default class DDBCharacter {
     this.raw = {};
     // the data to act on following initial parse
     this.data = {};
+
+    // Character data
+    this.abilities = {
+      overrides: {},
+      core: {},
+      withEffects: {},
+    };
   }
 
   /**

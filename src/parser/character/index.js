@@ -14,7 +14,6 @@ import {
   getDescription,
 } from "./bio.js";
 import { getBonusAbilities, getBonusSpellAttacks, getBonusSpellDC, getBonusWeaponAttacks } from "./globalBonuses.js";
-import { getAbilities } from "./abilities.js";
 import { getSenses, getSensesMap } from "./senses.js";
 import {
   getDeathSaves,
@@ -87,10 +86,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._setSpecialTraitFlags();
 
   // character abilities
-  const abilityData = getAbilities(this.source.ddb);
-  this.raw.character.system.abilities = abilityData.base;
-  this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities = abilityData.withEffects;
-  this.raw.character.flags.ddbimporter.dndbeyond.abilityOverrides = abilityData.overrides;
+  this._generateAbilities();
 
   // Hit Dice
   this.raw.character.system.attributes.hd = getHitDice(this.source.ddb);
