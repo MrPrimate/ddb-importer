@@ -7,15 +7,21 @@ import { getAllClassFeatures } from "./filterModifiers.js";
 
 /**
  * This excludes shields
- * @param {} data
  */
-export function isArmored(data) {
+DDBCharacter.prototype.isArmored = function isArmored() {
   return (
-    data.character.inventory.filter(
+    this.source.ddb.character.inventory.filter(
       (item) => item.equipped && item.definition.armorClass && item.definition.armorTypeId !== 4
     ).length >= 1
   );
-}
+};
+
+/**
+ * This excludes shields
+ */
+DDBCharacter.prototype.isUnArmored = function isUnArmored() {
+  return !this.isArmored();
+};
 
 function getMinimumBaseAC(modifiers) {
   let hasBaseArmor = modifiers.filter(
@@ -375,7 +381,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   const gearAC = getEquippedAC(equippedGear);
 
   // While not wearing armor, lets see if we have special abilities
-  if (!isArmored(this.source.ddb)) {
+  if (this.isUnArmored()) {
     // unarmored abilities from Class/Race?
     const unarmoredSources = [
       DDBHelper.getChosenClassModifiers(this.source.ddb),

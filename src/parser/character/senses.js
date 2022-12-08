@@ -1,7 +1,8 @@
 import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import DDBCharacter from "../DDBCharacter.js";
 
-export function getSensesMap(data) {
+DDBCharacter.prototype.getSenses = function getSenses() {
   let senses = {
     darkvision: 0,
     blindsight: 0,
@@ -12,8 +13,8 @@ export function getSensesMap(data) {
   };
 
   // custom senses
-  if (data.character.customSenses) {
-    data.character.customSenses
+  if (this.source.ddb.character.customSenses) {
+    this.source.ddb.character.customSenses
       .filter((sense) => sense.distance)
       .forEach((sense) => {
         const s = DICTIONARY.character.senses.find((s) => s.id === sense.senseId);
@@ -27,7 +28,7 @@ export function getSensesMap(data) {
 
   // Base senses
   for (const senseName in senses) {
-    DDBHelper.filterBaseModifiers(data, "set-base", senseName).forEach((sense) => {
+    DDBHelper.filterBaseModifiers(this.source.ddb, "set-base", senseName).forEach((sense) => {
       if (Number.isInteger(sense.value) && sense.value > senses[senseName]) {
         senses[senseName] = parseInt(sense.value);
       }
@@ -36,7 +37,7 @@ export function getSensesMap(data) {
 
   // Devils Sight gives bright light to 120 foot instead of normal darkvision
   DDBHelper
-    .filterBaseModifiers(data, "set-base", "darkvision", [
+    .filterBaseModifiers(this.source.ddb, "set-base", "darkvision", [
       "You can see normally in darkness, both magical and nonmagical",
     ])
     .forEach((sense) => {
@@ -48,7 +49,7 @@ export function getSensesMap(data) {
 
   // Magical bonuses and additional, e.g. Gloom Stalker
   DDBHelper
-    .filterBaseModifiers(data, "sense", "darkvision", ["", null, "plus 60 feet if wearer already has Darkvision"])
+    .filterBaseModifiers(this.source.ddb, "sense", "darkvision", ["", null, "plus 60 feet if wearer already has Darkvision"])
     .forEach((mod) => {
       const hasSense = mod.subType in senses;
       if (hasSense && mod.value && Number.isInteger(mod.value)) {
@@ -60,8 +61,8 @@ export function getSensesMap(data) {
 
   return senses;
 
-}
+};
 
-export function getSenses(data) {
-  return getSensesMap(data);
-}
+DDBCharacter.prototype._generateSenses = function _generateSenses() {
+  this.raw.character.system.attributes.senses = this.getSenses();
+};

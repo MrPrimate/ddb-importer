@@ -2,7 +2,7 @@ import logger from "../../logger.js";
 import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
-import { getBackgroundData } from "../character/bio.js";
+import DDBCharacter from "../DDBCharacter.js";
 
 function parseFeature(feat, ddb, character, source, type) {
   let features = [];
@@ -280,7 +280,10 @@ function parseClassFeatures(ddb, character) {
   return classItems;
 }
 
-export default async function parseFeatures(ddb, character, classes) {
+DDBCharacter.prototype._generateFeatures = async function _generateFeatures() {
+  const ddb = this.source.ddb;
+  const character = this.raw.character;
+  const classes = this.raw.classes;
   let items = [];
 
   const excludedOriginFeatures = ddb.character.optionalOrigins
@@ -350,7 +353,7 @@ export default async function parseFeatures(ddb, character, classes) {
     });
 
   logger.debug("Parsing backgrounds");
-  const backgroundFeature = getBackgroundData(ddb);
+  const backgroundFeature = this.getBackgroundData();
   const backgroundSource = DDBHelper.parseSource(backgroundFeature.definition);
   const backgroundFeat = parseFeature(backgroundFeature, ddb, character, backgroundSource, "background");
   backgroundFeat.forEach((item) => {
@@ -360,8 +363,5 @@ export default async function parseFeatures(ddb, character, classes) {
   logger.debug("Feature fixes");
   setLevelScales(classes, items);
   fixFeatures(items);
-  const results = await addExtraEffects(ddb, items, character);
-  // console.log("FEATURES");
-  // console.error("FEATURES",duplicate(results));
-  return results;
-}
+  this.raw.features = await addExtraEffects(ddb, items, character);
+};

@@ -1,5 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
+import DDBCharacter from "../DDBCharacter.js";
 
 export function getBackground(data) {
   if (data.character.background.hasCustomBackground === false) {
@@ -186,15 +187,15 @@ export function generateBackgroundFeature(bg) {
 
 }
 
-export function getBackgroundData(data) {
+DDBCharacter.prototype.getBackgroundData = function getBackgroundData() {
   let bg = null;
-  if (data.character.background.hasCustomBackground === true) {
-    bg = data.character.background.customBackground;
+  if (this.source.ddb.character.background.hasCustomBackground === true) {
+    bg = this.source.ddb.character.background.customBackground;
     bg.isHomebrew = true;
-  } else if (data.character.background.definition !== null) {
-    bg = data.character.background.definition;
+  } else if (this.source.ddb.character.background.definition !== null) {
+    bg = this.source.ddb.character.background.definition;
   } else {
-    bg = data.character.background.customBackground;
+    bg = this.source.ddb.character.background.customBackground;
     let result = getBackgroundTemplate();
     if (bg.id) result.id = bg.id;
     if (bg.entityTypeId) result.entityTypeId = bg.entityTypeId;
@@ -202,29 +203,25 @@ export function getBackgroundData(data) {
   }
 
   return generateBackground(bg);
-}
+};
 
-export function getBiography(data) {
-  const backstory = data.character.notes.backstory
-    ? "<h1>Backstory</h1><p>" + data.character.notes.backstory + "</p>"
+DDBCharacter.prototype._generateBiography = function _generateBiography() {
+  const backstory = this.source.ddb.character.notes.backstory
+    ? "<h1>Backstory</h1><p>" + this.source.ddb.character.notes.backstory + "</p>"
     : "";
 
-  return {
+  this.raw.character.system.details.biography = {
     public: backstory,
     value: backstory,
   };
-}
+};
 
-export function getDescription(data) {
-  const result = {
-    "gender": data.character.gender || "",
-    "age": data.character.age || "",
-    "height": data.character.height || "",
-    "weight": data.character.weight || "",
-    "eyes": data.character.eyes || "",
-    "skin": data.character.skin || "",
-    "hair": data.character.hair || "",
-  };
-
-  return result;
-}
+DDBCharacter.prototype._generateDescription = function _generateDescription() {
+  this.raw.character.system.details["gender"] = this.source.ddb.character.gender || "";
+  this.raw.character.system.details["age"] = this.source.ddb.character.age || "";
+  this.raw.character.system.details["height"] = this.source.ddb.character.height || "";
+  this.raw.character.system.details["weight"] = this.source.ddb.character.weight || "";
+  this.raw.character.system.details["eyes"] = this.source.ddb.character.eyes || "";
+  this.raw.character.system.details["skin"] = this.source.ddb.character.skin || "";
+  this.raw.character.system.details["hair"] = this.source.ddb.character.hair || "";
+};

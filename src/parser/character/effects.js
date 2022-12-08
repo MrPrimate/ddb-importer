@@ -1,26 +1,28 @@
 import DICTIONARY from "../../dictionary.js";
 import DDBHelper from "../../lib/DDBHelper.js";
+import DDBCharacter from "../DDBCharacter.js";
 
-export function getDeathSaves (data) {
-  return {
-    success: data.character.deathSaves.successCount || 0,
-    failure: data.character.deathSaves.failCount || 0,
+DDBCharacter.prototype._generateDeathSaves = function _generateDeathSaves () {
+  this.raw.character.system.attributes.death = {
+    success: this.source.ddb.character.deathSaves.successCount || 0,
+    failure: this.source.ddb.character.deathSaves.failCount || 0,
   };
-}
+};
 
-export function getExhaustion(data) {
-  let condition = data.character.conditions.find((condition) => parseInt(condition.id) === 4);
-  let level = condition ? parseInt(condition.level) : 0;
-  return level;
-}
+DDBCharacter.prototype._generateExhaustion = function _generateExhaustion() {
+  const condition = this.source.ddb.character.conditions.find((condition) => parseInt(condition.id) === 4);
+  this.raw.character.system.attributes.exhaustion = condition
+    ? parseInt(condition.level)
+    : 0;
+};
 
-let getGenericConditionAffect = (data, condition, typeId) => {
+DDBCharacter.prototype.getGenericConditionAffect = function getGenericConditionAffect(condition, typeId) {
   const damageTypes = DICTIONARY.character.damageAdjustments
     .filter((type) => type.kind === condition && type.type === typeId)
     .map((type) => type.value);
 
   let result = DDBHelper
-    .filterBaseModifiers(data, condition)
+    .filterBaseModifiers(this.source.ddb, condition)
     .filter((modifier) => modifier.isGranted && damageTypes.includes(modifier.subType)
       && (modifier.restriction === "" || !modifier.restriction))
     .map((modifier) => {
@@ -31,7 +33,7 @@ let getGenericConditionAffect = (data, condition, typeId) => {
     });
 
   result = result.concat(
-    data.character.customDefenseAdjustments
+    this.source.ddb.character.customDefenseAdjustments
       .filter((adjustment) => adjustment.type === typeId)
       .map((adjustment) => {
         const entry = DICTIONARY.character.damageAdjustments.find(
@@ -48,31 +50,21 @@ let getGenericConditionAffect = (data, condition, typeId) => {
   return result;
 };
 
-export function getDamageImmunities(data) {
-  return {
+DDBCharacter.prototype._generateConditions = function _generateConditions() {
+  this.raw.character.system.traits.di = {
     custom: "",
-    value: getGenericConditionAffect(data, "immunity", 2),
+    value: this.getGenericConditionAffect("immunity", 2),
   };
-}
-
-export function getDamageResistances(data) {
-  return {
+  this.raw.character.system.traits.dr = {
     custom: "",
-    value: getGenericConditionAffect(data, "resistance", 2),
+    value: this.getGenericConditionAffect("resistance", 2),
   };
-}
-
-export function getDamageVulnerabilities(data) {
-  return {
+  this.raw.character.system.traits.dv = {
     custom: "",
-    value: getGenericConditionAffect(data, "vulnerability", 2),
+    value: this.getGenericConditionAffect("vulnerability", 2),
   };
-}
-
-export function getConditionImmunities(data) {
-  // get Condition Immunities
-  return {
+  this.raw.character.system.traits.ci = {
     custom: "",
-    value: getGenericConditionAffect(data, "immunity", 1),
+    value: this.getGenericConditionAffect("immunity", 1),
   };
-}
+};

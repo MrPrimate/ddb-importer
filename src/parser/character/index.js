@@ -1,6 +1,5 @@
 import utils from "../../lib/utils.js";
 import { getSpellCasting, getSpellDC, getSpellSlots, maxPreparedSpells } from "./spellCasting.js";
-import { getSpeed } from "./speed.js";
 import {
   getBackground,
   getTrait,
@@ -8,23 +7,10 @@ import {
   getBond,
   getFlaw,
   getAlignment,
-  getBiography,
   getAppearance,
-  getDescription,
 } from "./bio.js";
 import { getBonusAbilities, getBonusSpellAttacks, getBonusSpellDC, getBonusWeaponAttacks } from "./globalBonuses.js";
-import { getSenses, getSensesMap } from "./senses.js";
-import {
-  getDeathSaves,
-  getExhaustion,
-  getDamageImmunities,
-  getDamageResistances,
-  getDamageVulnerabilities,
-  getConditionImmunities,
-} from "./effects.js";
 import { getResources } from "./resources.js";
-import { getSize } from "./size.js";
-import { getCurrency } from "./currency.js";
 import DDBCharacter from "../DDBCharacter.js";
 // import { fixCharacterLevels } from "./filterModifiers.js";
 
@@ -83,34 +69,18 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   // We do this first so we can check for them later
   this._setSpecialTraitFlags();
 
-  // character abilities
   this._generateAbilities();
-
-  // Hit Dice
   this._generateHitDice();
-
-  // Death saves
-  this.raw.character.system.attributes.death = getDeathSaves(this.source.ddb);
-
-  // exhaustion
-  this.raw.character.system.attributes.exhaustion = getExhaustion(this.source.ddb);
-
-  // inspiration
+  this._generateDeathSaves();
+  this._generateExhaustion();
   this.raw.character.system.attributes.inspiration = this.source.ddb.character.inspiration;
-
-  // armor class
   this._generateArmorClass();
-
-  // hitpoints
   this._generateHitPoints();
-
-  // initiative
   this._generateInitiative();
 
   // speeds
-  const movement = getSpeed(this.source.ddb);
-  this.raw.character.system.attributes.movement = movement['movement'];
-  this.raw.character.system.attributes.senses = getSensesMap(this.source.ddb);
+  this._generateSpeed();
+  this._generateSenses();
 
   // spellcasting
   this.raw.character.system.attributes.spellcasting = getSpellCasting(this.source.ddb, this.raw.character);
@@ -137,23 +107,20 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this.raw.character.system.details.flaw = getFlaw(this.source.ddb);
   this.raw.character.system.details.appearance = getAppearance(this.source.ddb);
 
-  Object.assign(this.raw.character.system.details, getDescription(this.source.ddb));
+  this._generateDescription();
 
   this.raw.character.system.details.alignment = getAlignment(this.source.ddb);
 
   // bio
-  this.raw.character.system.details.biography = getBiography(this.source.ddb);
+  this._generateBiography();
   this.raw.character.system.details.race = this.source.ddb.character.race.fullName;
 
-  // traits
-  this.raw.character.system.traits.size = getSize(this.source.ddb);
-  this.raw.character.system.traits.senses = getSenses(this.source.ddb);
-  this.raw.character.system.traits.di = getDamageImmunities(this.source.ddb);
-  this.raw.character.system.traits.dr = getDamageResistances(this.source.ddb);
-  this.raw.character.system.traits.dv = getDamageVulnerabilities(this.source.ddb);
-  this.raw.character.system.traits.ci = getConditionImmunities(this.source.ddb);
+  this._generateSize();
 
-  this.raw.character.system.currency = getCurrency(this.source.ddb);
+  // immunities, resistances, vuls and condition immunities
+  this._generateConditions();
+
+  this._generateCurrency();
   await this._generateSkills();
   this.raw.character.system.spells = getSpellSlots(this.source.ddb);
 

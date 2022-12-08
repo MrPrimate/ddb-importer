@@ -11,3 +11,11 @@ import "./character/skills.js";
 import "./character/abilities.js";
 import "./character/hp.js";
 import "./character/initiative.js";
+import "./character/effects.js";
+import "./character/currency.js";
+import "./character/senses.js";
+import "./character/speed.js";
+import "./character/bio.js";
+import "./character/size.js";
+
+import "./features/features.js";

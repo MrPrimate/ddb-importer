@@ -1,8 +1,9 @@
 import DICTIONARY from "../../dictionary.js";
+import DDBCharacter from "../DDBCharacter.js";
 
-export function getSize(data) {
-  let size = DICTIONARY.character.actorSizes.find(
-    (size) => size.name === data.character.race.size || size.id === data.character.race.sizeId
+DDBCharacter.prototype._generateSize = function _generateSize() {
+  const size = DICTIONARY.character.actorSizes.find(
+    (size) => size.name === this.source.ddb.character.race.size || size.id === this.source.ddb.character.race.sizeId
   );
-  return size ? size.value : "med";
-}
+  this.raw.character.system.traits.size = size ? size.value : "med";
+};

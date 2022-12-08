@@ -1,4 +1,3 @@
-import { getSensesMap } from "./senses.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import DDBCharacter from "../DDBCharacter.js";
@@ -23,7 +22,7 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
       },
       detectionModes: [],
     };
-    const senses = getSensesMap(this.source.ddb);
+    const senses = this.getSenses();
     // darkvision: 0,
     // blindsight: 0,
     // tremorsense: 0,

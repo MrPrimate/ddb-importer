@@ -99,7 +99,7 @@ export default class DDBCharacterImport extends FormApplication {
   }
 
   static getCharacterUpdatePolicyTypes(invert = false) {
-    let itemTypes = ["background"];
+    let itemTypes = ["background", "race"];
 
     if (invert) {
       if (!game.settings.get("ddb-importer", "character-update-policy-class")) {

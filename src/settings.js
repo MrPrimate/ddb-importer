@@ -111,7 +111,7 @@ const URLS = {
   DYNAMIC: "https://dynamic.ddb.mrprimate.co.uk",
 };
 
-const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells"];
+const FILTER_SECTIONS = ["classes", "features", "actions", "inventory", "spells", "race"];
 
 const DISABLE_FOUNDRY_UPGRADE = {
   applyFeatures: false,

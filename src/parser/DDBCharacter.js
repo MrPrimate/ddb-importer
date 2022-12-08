@@ -1,5 +1,4 @@
 import getActions from "./features/actions.js";
-import getFeatures from "./features/features.js";
 import { getClasses } from "./classes/index.js";
 import { getCharacterSpells } from "./spells/getCharacterSpells.js";
 import { getItemSpells } from "./spells/getItemSpells.js";
@@ -180,7 +179,7 @@ export default class DDBCharacter {
       logger.debug("Race parse complete");
       this.raw.classes = await getClasses(this.source.ddb, this.raw.character);
       logger.debug("Classes parse complete");
-      this.raw.features = [this.raw.race, ...await getFeatures(this.source.ddb, this.raw.character, this.raw.classes)];
+      await this._generateFeatures();
       logger.debug("Feature parse complete");
       this.raw.spells = getCharacterSpells(this.source.ddb, this.raw.character);
       logger.debug("Character Spells parse complete");
@@ -194,6 +193,7 @@ export default class DDBCharacter {
       this.data = {
         character: this.raw.character,
         features: this.raw.features,
+        race: this.raw.race,
         classes: this.raw.classes,
         inventory: this.raw.inventory,
         spells: this.raw.spells,
