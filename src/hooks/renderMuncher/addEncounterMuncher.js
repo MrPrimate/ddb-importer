@@ -14,7 +14,7 @@ export function addEncounterMuncher (app, html) {
     let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher' id='ddb-encounter-munch-open'><i class='fas fa-dungeon'></i> DDB Encounter Muncher</button></div>");
 
     const actualButton = button.find('#ddb-encounter-munch-open');
-    button.click(async () => {
+    actualButton.click(async () => {
       actualButton.prop('disabled', true);
       ui.notifications.info("Fetching your DDB Encounter Information, this might take a few seconds!");
       try {
