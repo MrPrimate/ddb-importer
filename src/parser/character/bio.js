@@ -2,7 +2,7 @@ import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import DDBCharacter from "../DDBCharacter.js";
 
-export function getBackground(data) {
+export function getBackgroundName(data) {
   if (data.character.background.hasCustomBackground === false) {
     if (data.character.background.definition !== null) {
       return data.character.background.definition.name || "";
@@ -155,7 +155,8 @@ export function generateBackground(bg) {
   return result;
 }
 
-export function generateBackgroundFeature(bg) {
+// WIP, not used
+DDBCharacter.prototype.getBackgroundFeature = function getBackgroundFeature(bg) {
   let result = getBackgroundTemplate();
   result.name = "Background Feature";
 
@@ -185,7 +186,9 @@ export function generateBackgroundFeature(bg) {
     result.description += bg.featureDescription.replace("\r\n", "");
   }
 
-}
+  return result;
+
+};
 
 DDBCharacter.prototype.getBackgroundData = function getBackgroundData() {
   let bg = null;

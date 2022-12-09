@@ -1,7 +1,7 @@
 import utils from "../../lib/utils.js";
 import { getSpellCasting, getSpellDC, getSpellSlots, maxPreparedSpells } from "./spellCasting.js";
 import {
-  getBackground,
+  getBackgroundName,
   getTrait,
   getIdeal,
   getBond,
@@ -92,7 +92,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this.raw.character.system.resources = getResources(this.source.ddb, this.raw.character);
 
   // details
-  this.raw.character.system.details.background = getBackground(this.source.ddb);
+  this.raw.character.system.details.background = getBackgroundName(this.source.ddb);
 
   // known spells
   this.raw.character.system.details.maxPreparedSpells = maxPreparedSpells(this.source.ddb, this.raw.character);
