@@ -372,6 +372,8 @@ export default class DDBEncounterMunch extends Application {
     const importDDBIScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene");
     const useExistingScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene");
 
+    if (!importDDBIScene && !useExistingScene) return undefined;
+
     let sceneData;
     let worldScene;
 
@@ -744,8 +746,10 @@ export default class DDBEncounterMunch extends Application {
       await this.importCharacters(html);
       await this.createJournalEntry();
       const scene = await this.createScene();
-      logger.info(`Scene ${scene.id} created`);
-      await this.createCombatEncounter();
+      if (scene) {
+        logger.info(`Scene ${scene.id} created`);
+        await this.createCombatEncounter();
+      };
 
       // to do:
       // adjust monsters hp?
