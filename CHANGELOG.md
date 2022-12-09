@@ -3,6 +3,7 @@
 * Small tweaks to Encounter button for @Mouse0270#0270
 * More Character Parsing refactor for upcoming features.
 * If importing encounters without creating or updating scenes the importer would hang.
+* Tweaks to spell parsing to reduce duplicate spell imports for races such as Faerie.
 
 # 3.2.8
 

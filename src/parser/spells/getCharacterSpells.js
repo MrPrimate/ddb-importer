@@ -218,15 +218,24 @@ export function getCharacterSpells(ddb, character) {
     };
 
     if (spell.alwaysPrepared && spell.limitedUse) {
-      // also parse spell as non-limited use
-      let unlimitedSpell = duplicate(spell);
-      unlimitedSpell.limitedUse = null;
-      unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = false;
-      unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-      unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "classFeature";
-      delete unlimitedSpell.id;
-      delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-      items.push(parseSpell(unlimitedSpell, character));
+      const dups = ddb.character.spells.race.filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
+      const duplicateSpell = items.findIndex(
+        (existingSpell) =>
+          (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
+          && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
+      );
+      if (!dups && !items[duplicateSpell]) {
+        // also parse spell as non-limited use
+        let unlimitedSpell = duplicate(spell);
+        unlimitedSpell.limitedUse = null;
+        unlimitedSpell.usesSpellSlot = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "race";
+        delete unlimitedSpell.id;
+        delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+        items.push(parseSpell(unlimitedSpell, character));
+      }
     }
 
     items.push(parseSpell(spell, character));
@@ -276,15 +285,24 @@ export function getCharacterSpells(ddb, character) {
     };
 
     if (spell.alwaysPrepared && spell.limitedUse) {
-      // also parse spell as non-limited use
-      let unlimitedSpell = duplicate(spell);
-      unlimitedSpell.limitedUse = null;
-      unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = false;
-      unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "classFeature";
-      unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-      delete unlimitedSpell.id;
-      delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-      items.push(parseSpell(unlimitedSpell, character));
+      const dups = ddb.character.spells.feat.filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
+      const duplicateSpell = items.findIndex(
+        (existingSpell) =>
+          (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
+          && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
+      );
+      if (!dups && !items[duplicateSpell]) {
+        // also parse spell as non-limited use
+        let unlimitedSpell = duplicate(spell);
+        unlimitedSpell.limitedUse = null;
+        unlimitedSpell.usesSpellSlot = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "feat";
+        unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
+        delete unlimitedSpell.id;
+        delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+        items.push(parseSpell(unlimitedSpell, character));
+      }
     }
 
     items.push(parseSpell(spell, character));
@@ -323,15 +341,24 @@ export function getCharacterSpells(ddb, character) {
     };
 
     if (spell.alwaysPrepared && spell.limitedUse) {
-      // also parse spell as non-limited use
-      let unlimitedSpell = duplicate(spell);
-      unlimitedSpell.limitedUse = null;
-      unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = false;
-      unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "classFeature";
-      unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-      delete unlimitedSpell.id;
-      delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-      items.push(parseSpell(unlimitedSpell, character));
+      const dups = ddb.character.spells.background.filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
+      const duplicateSpell = items.findIndex(
+        (existingSpell) =>
+          (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
+          && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
+      );
+      if (!dups && !items[duplicateSpell]) {
+        // also parse spell as non-limited use
+        let unlimitedSpell = duplicate(spell);
+        unlimitedSpell.limitedUse = null;
+        unlimitedSpell.usesSpellSlot = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "background";
+        unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
+        delete unlimitedSpell.id;
+        delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+        items.push(parseSpell(unlimitedSpell, character));
+      }
     }
 
     items.push(parseSpell(spell, character));
