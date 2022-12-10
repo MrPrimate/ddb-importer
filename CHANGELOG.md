@@ -1,12 +1,9 @@
-# 3.2.9
+# 3.2.8
 
 * Small tweaks to Encounter button for @Mouse0270#0270
 * More Character Parsing refactor for upcoming features.
 * If importing encounters without creating or updating scenes the importer would hang.
 * Tweaks to spell parsing to reduce duplicate spell imports for races such as Faerie.
-
-# 3.2.8
-
 * Monster import now defaults to adding AC items (shields, armor etc) and rather than creating a flat AC. If the use AC items option is unticked it will now no longer add items and set AC to flat, but set the AC to Natural so that AC bonuses from spells/effects can take place.
 
 # 3.2.7
