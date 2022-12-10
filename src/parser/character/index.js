@@ -1,14 +1,5 @@
 import utils from "../../lib/utils.js";
 import { getSpellCasting, getSpellDC, getSpellSlots, maxPreparedSpells } from "./spellCasting.js";
-import {
-  getBackgroundName,
-  getTrait,
-  getIdeal,
-  getBond,
-  getFlaw,
-  getAlignment,
-  getAppearance,
-} from "./bio.js";
 import { getBonusAbilities, getBonusSpellAttacks, getBonusSpellDC, getBonusWeaponAttacks } from "./globalBonuses.js";
 import { getResources } from "./resources.js";
 import DDBCharacter from "../DDBCharacter.js";
@@ -92,7 +83,7 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this.raw.character.system.resources = getResources(this.source.ddb, this.raw.character);
 
   // details
-  this.raw.character.system.details.background = getBackgroundName(this.source.ddb);
+  // this.raw.character.system.details.background = getBackgroundName(this.source.ddb);
 
   // known spells
   this.raw.character.system.details.maxPreparedSpells = maxPreparedSpells(this.source.ddb, this.raw.character);
@@ -101,20 +92,15 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this.raw.character.system.details.xp.value = this.source.ddb.character.currentXp;
 
   // Character Traits/Ideal/Bond and Flaw
-  this.raw.character.system.details.trait = getTrait(this.source.ddb);
-  this.raw.character.system.details.ideal = getIdeal(this.source.ddb);
-  this.raw.character.system.details.bond = getBond(this.source.ddb);
-  this.raw.character.system.details.flaw = getFlaw(this.source.ddb);
-  this.raw.character.system.details.appearance = getAppearance(this.source.ddb);
-
+  this._generateTrait();
+  this._generateIdeal();
+  this._generateFlaw();
+  this._generateBond();
+  this._generateAppearance();
   this._generateDescription();
-
-  this.raw.character.system.details.alignment = getAlignment(this.source.ddb);
-
-  // bio
+  this._generateAlignment();
   this._generateBiography();
   this.raw.character.system.details.race = this.source.ddb.character.race.fullName;
-
   this._generateSize();
 
   // immunities, resistances, vuls and condition immunities
@@ -140,3 +126,4 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
 
   return this.raw.character;
 };
+

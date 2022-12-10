@@ -2,83 +2,64 @@ import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import DDBCharacter from "../DDBCharacter.js";
 
-export function getBackgroundName(data) {
-  if (data.character.background.hasCustomBackground === false) {
-    if (data.character.background.definition !== null) {
-      return data.character.background.definition.name || "";
+DDBCharacter.prototype.getBackgroundName = function getBackgroundName() {
+  if (this.source.ddb.character.background.hasCustomBackground === false) {
+    if (this.source.ddb.character.background.definition !== null) {
+      return this.source.ddb.character.background.definition.name || "";
     } else {
       return "";
     }
   } else {
-    return data.character.background.customBackground.name || "";
+    return this.source.ddb.character.background.customBackground.name || "";
   }
-}
+};
 
-export function getTrait(data) {
-  let result = data.character.traits.personalityTraits;
-  if (result === null) {
-    result = "";
-  }
-  return result;
-}
+DDBCharacter.prototype._generateTrait = function _generateTrait() {
+  this.raw.character.system.details.trait = this.source.ddb.character.traits.personalityTraits ?? "";
+};
 
-export function getIdeal(data) {
-  let result = data.character.traits.ideals;
-  if (result === null) {
-    result = "";
-  }
-  return result;
-}
+DDBCharacter.prototype._generateIdeal = function _generateIdeal() {
+  this.raw.character.system.details.ideal = this.source.ddb.character.traits.ideals ?? "";
+};
 
-function getCharacteristics(data) {
+DDBCharacter.prototype._generateBond = function _generateBond() {
+  this.raw.character.system.details.bond = this.source.ddb.character.traits.bonds ?? "";
+};
+
+DDBCharacter.prototype._generateFlaw = function _generateFlaw() {
+  this.raw.character.system.details.flaw = this.source.ddb.character.traits.flaws ?? "";
+};
+
+DDBCharacter.prototype.getCharacteristics = function getCharacteristics() {
   let characteristicBlurb = "";
-  if (data.character.gender) characteristicBlurb += `Gender: ${data.character.gender}\n`;
-  if (data.character.eyes) characteristicBlurb += `Eyes: ${data.character.eyes}\n`;
-  if (data.character.height) characteristicBlurb += `Height: ${data.character.height}\n`;
-  if (data.character.faith) characteristicBlurb += `Faith: ${data.character.faith}\n`;
-  if (data.character.hair) characteristicBlurb += `Hair: ${data.character.hair}\n`;
-  if (data.character.skin) characteristicBlurb += `Skin: ${data.character.skin}\n`;
-  if (data.character.age) characteristicBlurb += `Age: ${data.character.age}\n`;
-  if (data.character.weight) characteristicBlurb += `Weight: ${data.character.weight}\n`;
+  if (this.source.ddb.character.gender) characteristicBlurb += `Gender: ${this.source.ddb.character.gender}\n`;
+  if (this.source.ddb.character.eyes) characteristicBlurb += `Eyes: ${this.source.ddb.character.eyes}\n`;
+  if (this.source.ddb.character.height) characteristicBlurb += `Height: ${this.source.ddb.character.height}\n`;
+  if (this.source.ddb.character.faith) characteristicBlurb += `Faith: ${this.source.ddb.character.faith}\n`;
+  if (this.source.ddb.character.hair) characteristicBlurb += `Hair: ${this.source.ddb.character.hair}\n`;
+  if (this.source.ddb.character.skin) characteristicBlurb += `Skin: ${this.source.ddb.character.skin}\n`;
+  if (this.source.ddb.character.age) characteristicBlurb += `Age: ${this.source.ddb.character.age}\n`;
+  if (this.source.ddb.character.weight) characteristicBlurb += `Weight: ${this.source.ddb.character.weight}\n`;
   return characteristicBlurb;
-}
+};
 
-export function getAppearance(data) {
-  let result = getCharacteristics(data);
+DDBCharacter.prototype._generateAppearance = function _generateAppearance() {
+  let result = this.getCharacteristics();
   if (result && result !== "") result += "\n";
-  if (data.character.traits.appearance) result += data.character.traits.appearance;
-  if (result === null) {
-    result = "";
-  }
-  return result;
-}
-
-export function getBond(data) {
-  let result = data.character.traits.bonds;
-  if (result === null) {
-    result = "";
-  }
-  return result;
-}
-
-export function getFlaw(data) {
-  let result = data.character.traits.flaws;
-  if (result === null) {
-    result = "";
-  }
-  return result;
-}
+  if (this.source.ddb.character.traits.appearance) result += this.source.ddb.character.traits.appearance;
+  this.raw.character.system.details.appearance = result ?? "";
+};
 
 /**
  * Gets the character's alignment
  * Defaults to Neutral, if not set in DDB
  * @todo: returns .name right now, should switch to .value once the DND5E options are fully implemented
  */
-export function getAlignment(data) {
-  let alignmentID = data.character.alignmentId || 5;
-  let alignment = DICTIONARY.character.alignments.find((alignment) => alignment.id === alignmentID); // DDBUtils.alignmentIdtoAlignment(alignmentID);
-  return alignment.name;
-}
+DDBCharacter.prototype._generateAlignment = function _generateAlignment() {
+  const alignmentID = this.source.ddb.character.alignmentId || 5;
+  const alignment = DICTIONARY.character.alignments.find((alignment) => alignment.id === alignmentID);
+  if (alignment) this.raw.character.system.details.alignment = alignment.name;
+};
 
 function getBackgroundTemplate() {
   return {
