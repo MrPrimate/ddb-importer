@@ -4,26 +4,6 @@ import DDBHelper from "../../lib/DDBHelper.js";
 
 function getDivineSmite() {
   const restriction = "Against undead or fiends";
-  const flags = game.modules.get("betterrolls5e")?.active
-    ? {
-      betterRolls5e: {
-        quickDamage: {
-          context: {
-            0: "",
-            1: restriction,
-          },
-          value: {
-            0: true,
-            1: true,
-          },
-          altValue: {
-            0: true,
-            1: true,
-          },
-        },
-      },
-    }
-    : {};
 
   const damageTagInfo = DDBHelper.getDamageTag({ subType: "radiant", restriction: "" });
   const regularDamage = utils.parseDiceString("2d8", "", damageTagInfo.damageTag).diceString;
@@ -31,7 +11,7 @@ function getDivineSmite() {
   const extraDamage = utils.parseDiceString("1d8", "", extraDamageTagInfo.damageTag).diceString;
 
   let result = {
-    flags,
+    flags: {},
     name: "Divine Smite",
     type: "spell",
     img: "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp",
@@ -115,14 +95,10 @@ function getDivineSmite() {
     },
   };
 
-  if (game.modules.get("betterrolls5e")?.active) {
-    result.system.damage.parts.push([`${extraDamage}`, "radiant"]);
-  } else {
-    result.system.formula = `${regularDamage} + ${extraDamage}`;
-    result.system.chatFlavor = `Use Other damage ${restriction.toLowerCase()}`;
-    if (game.modules.get("midi-qol")?.active) {
-      result.system.activation.condition = `["undead", "fiend"].includes("@raceOrType")`;
-    }
+  result.system.formula = `${regularDamage} + ${extraDamage}`;
+  result.system.chatFlavor = `Use Other damage ${restriction.toLowerCase()}`;
+  if (game.modules.get("midi-qol")?.active) {
+    result.system.activation.condition = `["undead", "fiend"].includes("@raceOrType")`;
   }
 
   return result;

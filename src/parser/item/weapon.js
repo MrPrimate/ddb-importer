@@ -113,7 +113,7 @@ function getWeaponMagicalBonus(data, flags) {
  * @param {obj} flags
  * /* damage: { parts: [], versatile: '' }, * /
  */
-function getDamage(data, flags, betterRolls5e) {
+function getDamage(data, flags) {
   const magicalDamageBonus = getWeaponMagicalBonus(data, flags);
   // we can safely make these assumptions about GWF and Dueling because the
   // flags are only added for melee attacks
@@ -189,7 +189,6 @@ function getDamage(data, flags, betterRolls5e) {
   let chatFlavors = [];
   let otherFormulas = [];
   let restrictions = [];
-  const isBetterRolls = game.modules.get("betterrolls5e")?.active;
   // loop over restricted damage types
   // we do this so we can either break this out for midi users
   data.definition.grantedModifiers
@@ -200,22 +199,14 @@ function getDamage(data, flags, betterRolls5e) {
       if (damagePart) {
         const subDamageTagData = DDBHelper.getDamageTagForMod(mod);
         const damageParsed = utils.parseDiceString(damagePart, "", subDamageTagData.damageTag).diceString;
-
         restrictions.push(mod.restriction);
-
-        if (isBetterRolls) {
-          const attackNum = parts.length;
-          betterRolls5e.quickDamage.context[attackNum] = mod.restriction;
-          parts.push([`${damageParsed}`, subDamageTagData.damageType]);
-        } else {
-          otherFormulas.push(damageParsed);
-          chatFlavors.push(`[${damagePart}] ${mod.restriction}`);
-        }
+        otherFormulas.push(damageParsed);
+        chatFlavors.push(`[${damagePart}] ${mod.restriction}`);
       }
     });
 
   const otherFormula = otherFormulas.join(" + ");
-  const chatFlavor = isBetterRolls || chatFlavors.length === 0 ? "" : `Roll Other damage: ${chatFlavors.join(", ")}`;
+  const chatFlavor = chatFlavors.length === 0 ? "" : `Roll Other damage: ${chatFlavors.join(", ")}`;
 
   // add damage modifiers from other sources like improved divine smite
   if (flags.damage.parts) {
@@ -229,7 +220,7 @@ function getDamage(data, flags, betterRolls5e) {
     versatile,
   };
 
-  return [result, betterRolls5e, otherFormula, chatFlavor, restrictions];
+  return [result, otherFormula, chatFlavor, restrictions];
 }
 
 function getActionType(data) {
@@ -258,38 +249,6 @@ export default function parseWeapon(data, character, flags) {
 
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
   const characterProficiencies = character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects;
-
-  // if using better rolls lets add some useful QOL information.
-  // marks context as magical attack and makes alt click a versatile damage click
-  const brFlags = game.modules.get("betterrolls5e")?.active
-    ? {
-      quickDamage: {
-        context: {
-          "0": getWeaponMagicalBonus(data, flags) > 0 ? "Magical" : "",
-        },
-        value: {
-          "0": true,
-        },
-        altValue: {
-          "0": true,
-        },
-      },
-      quickVersatile: {
-        altValue: true,
-      },
-      quickCharges: {
-        value: {
-          use: false,
-          resource: true
-        },
-        altValue: {
-          use: false,
-          resource: true
-        }
-      },
-    }
-    : {};
-  setProperty(weapon, "flags.betterRolls5e", brFlags);
 
   weapon.system.weaponType = getWeaponType(data);
   weapon.system.properties = getProperties(data);
@@ -341,11 +300,10 @@ export default function parseWeapon(data, character, flags) {
 
   [
     weapon.system.damage,
-    weapon.flags.betterRolls5e,
     weapon.system.formula,
     weapon.system.chatFlavor,
     weapon.flags.ddbimporter.dndbeyond.restrictions,
-  ] = getDamage(data, flags, weapon.flags.betterRolls5e);
+  ] = getDamage(data, flags);
 
 
   return weapon;

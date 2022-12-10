@@ -94,26 +94,6 @@ export function parseSpell(data, character) {
     }
   }
 
-  // If using better rolls we set alt to be versatile for spells like
-  // Toll The Dead
-  if (game.modules.get("betterrolls5e")?.active) {
-    spell.flags.betterRolls5e = {
-      quickVersatile: {
-        altValue: true,
-      },
-      quickCharges: {
-        value: {
-          use: true,
-          resource: true
-        },
-        altValue: {
-          use: true,
-          resource: true
-        }
-      },
-    };
-  }
-
   if (addSpellEffects) {
     spellEffectAdjustment(spell);
     setProperty(spell, "flags.ddbimporter.effectsApplied", true);

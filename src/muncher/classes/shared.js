@@ -1,8 +1,8 @@
 import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import FileHelper from "../../lib/FileHelper.js";
 import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
-import { getImagePath } from "../import.js";
 import { generateTable } from "../table.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 
@@ -214,13 +214,13 @@ export async function buildBaseClass(klass) {
   let portraitAvatarUrl;
 
   if (klass.portraitAvatarUrl) {
-    portraitAvatarUrl = await getImagePath(klass.portraitAvatarUrl, "class-portrait", klass.fullName);
+    portraitAvatarUrl = await FileHelper.getImagePath(klass.portraitAvatarUrl, "class-portrait", klass.fullName);
     result.img = portraitAvatarUrl;
     result.flags.ddbimporter['portraitAvatarUrl'] = klass.portraitAvatarUrl;
   }
 
   if (klass.avatarUrl) {
-    avatarUrl = await getImagePath(klass.avatarUrl, "class-avatar", klass.fullName);
+    avatarUrl = await FileHelper.getImagePath(klass.avatarUrl, "class-avatar", klass.fullName);
     result.flags.ddbimporter['avatarUrl'] = klass.avatarUrl;
     if (!result.img) {
       result.img = avatarUrl;
@@ -228,7 +228,7 @@ export async function buildBaseClass(klass) {
   }
 
   if (klass.largeAvatarUrl) {
-    largeAvatarUrl = await getImagePath(klass.largeAvatarUrl, "class-large", klass.fullName);
+    largeAvatarUrl = await FileHelper.getImagePath(klass.largeAvatarUrl, "class-large", klass.fullName);
     // eslint-disable-next-line require-atomic-updates
     result.flags.ddbimporter['largeAvatarUrl'] = klass.largeAvatarUrl;
     if (!result.img) {

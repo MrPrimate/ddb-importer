@@ -17,5 +17,11 @@ import "./character/senses.js";
 import "./character/speed.js";
 import "./character/bio.js";
 import "./character/size.js";
+import "./character/spellCasting.js";
+import "./character/race.js";
+import "./character/resources.js";
+import "./character/inventory.js";
+
+import "./item/index.js";
 
 import "./features/features.js";

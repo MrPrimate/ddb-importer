@@ -1,7 +1,6 @@
 // Main module class
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
 import DDBMuncher from "./DDBMuncher.js";
-import getInventory from "../parser/inventory/index.js";
 import utils from "../lib/utils.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -10,6 +9,7 @@ import logger from "../logger.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import DDBCharacter from "../parser/DDBCharacter.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -72,7 +72,13 @@ async function generateImportItems(items) {
     }
   };
   let itemSpells = []; // here we need to parse each available spell and build a mock spell parser
-  const inventory = await getInventory(mockDDB, mockCharacter, itemSpells);
+  const ddbCharacter = new DDBCharacter(mockDDB);
+  ddbCharacter.raw.character = mockCharacter;
+  ddbCharacter.source = {
+    ddb: mockDDB
+  };
+  ddbCharacter.raw.itemSpells = [];
+  const inventory = await ddbCharacter.getInventory();
   const results = {
     items: inventory,
     itemSpellNames: itemSpells, // this needs to be a list of spells to find

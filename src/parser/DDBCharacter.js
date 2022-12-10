@@ -1,12 +1,8 @@
 import getActions from "./features/actions.js";
 import { getClasses } from "./classes/index.js";
 import { getCharacterSpells } from "./spells/getCharacterSpells.js";
-import { getItemSpells } from "./spells/getItemSpells.js";
-import { getDDBRace } from "../muncher/races/races.js";
-import getInventory from "./inventory/index.js";
 import getSpecial from "./special/index.js";
 import logger from "../logger.js";
-import { getResourcesDialog } from "./character/resources.js";
 import { createGMMacros } from "../effects/macros.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -37,6 +33,8 @@ export default class DDBCharacter {
       core: {},
       withEffects: {},
     };
+    this.spellSlots = {};
+    this.totalLevels = 0;
   }
 
   /**
@@ -172,10 +170,10 @@ export default class DDBCharacter {
       await this._generateCharacter();
       if (this.resourceSelection) {
         logger.debug("Character resources");
-        this.raw.character = await getResourcesDialog(this.currentActorId, this.source.ddb, this.raw.character);
+        await this.resourceSelectionDialog();
       }
       logger.debug("Character parse complete");
-      this.raw.race = await getDDBRace(this.source.ddb);
+      this._generateRace();
       logger.debug("Race parse complete");
       this.raw.classes = await getClasses(this.source.ddb, this.raw.character);
       logger.debug("Classes parse complete");
@@ -185,10 +183,8 @@ export default class DDBCharacter {
       logger.debug("Character Spells parse complete");
       this.raw.actions = await getActions(this.source.ddb, this.raw.character, this.raw.classes);
       logger.debug("Action parse complete");
-      this.raw.itemSpells = getItemSpells(this.source.ddb, this.raw.character);
-      logger.debug("Item Spells parse complete");
-      this.raw.inventory = await getInventory(this.source.ddb, this.raw.character, this.raw.itemSpells);
-      logger.debug("Inventory parse complete");
+      await this._generateInventory();
+      logger.debug("Inventory generation complete");
 
       this.data = {
         character: this.raw.character,

@@ -3,7 +3,7 @@ import logger from "../../logger.js";
 import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
-import { getInfusionActionData } from "../inventory/infusions.js";
+import { getInfusionActionData } from "../item/infusions.js";
 
 function getProperties(ddb, feature) {
 
@@ -87,24 +87,6 @@ function addFlagHints(ddb, character, action, feature) {
     setProperty(feature.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
     setProperty(feature.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
     setProperty(feature.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
-  }
-
-  // better rolls
-  if (game.modules.get("betterrolls5e")?.active) {
-    if (feature.system.uses?.max) {
-      feature.flags.betterRolls5e = {
-        "quickCharges": {
-          "value": {
-            "use": true,
-            "resource": true
-          },
-          "altValue": {
-            "use": true,
-            "resource": true
-          }
-        }
-      };
-    }
   }
 
   // resource flag hints

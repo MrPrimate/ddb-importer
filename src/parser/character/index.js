@@ -1,7 +1,5 @@
 import utils from "../../lib/utils.js";
-import { getSpellCasting, getSpellDC, getSpellSlots, maxPreparedSpells } from "./spellCasting.js";
 import { getBonusAbilities, getBonusSpellAttacks, getBonusSpellDC, getBonusWeaponAttacks } from "./globalBonuses.js";
-import { getResources } from "./resources.js";
 import DDBCharacter from "../DDBCharacter.js";
 // import { fixCharacterLevels } from "./filterModifiers.js";
 
@@ -68,30 +66,14 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._generateArmorClass();
   this._generateHitPoints();
   this._generateInitiative();
-
-  // speeds
   this._generateSpeed();
   this._generateSenses();
-
-  // spellcasting
-  this.raw.character.system.attributes.spellcasting = getSpellCasting(this.source.ddb, this.raw.character);
-
-  // spelldc
-  this.raw.character.system.attributes.spelldc = getSpellDC(this.source.ddb, this.raw.character);
-
+  this._generateSpellCasting();
+  this._generateSpellDC();
   // resources
-  this.raw.character.system.resources = getResources(this.source.ddb, this.raw.character);
-
-  // details
-  // this.raw.character.system.details.background = getBackgroundName(this.source.ddb);
-
-  // known spells
-  this.raw.character.system.details.maxPreparedSpells = maxPreparedSpells(this.source.ddb, this.raw.character);
-
-  // xp
+  this._generateResources();
+  this._generateMaxPreparedSpells();
   this.raw.character.system.details.xp.value = this.source.ddb.character.currentXp;
-
-  // Character Traits/Ideal/Bond and Flaw
   this._generateTrait();
   this._generateIdeal();
   this._generateFlaw();
@@ -102,13 +84,11 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._generateBiography();
   this.raw.character.system.details.race = this.source.ddb.character.race.fullName;
   this._generateSize();
-
   // immunities, resistances, vuls and condition immunities
   this._generateConditions();
-
   this._generateCurrency();
   await this._generateSkills();
-  this.raw.character.system.spells = getSpellSlots(this.source.ddb);
+  this._generateSpellSlots();
 
   // Extra global bonuses
   // Extra bonuses
@@ -124,6 +104,5 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   // e.g. ranged fighting style
   this.raw.character.system.bonuses.rwak = getBonusWeaponAttacks(this.source.ddb, this.raw.character, "ranged");
 
-  return this.raw.character;
 };
 

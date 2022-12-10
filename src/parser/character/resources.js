@@ -1,19 +1,20 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
+import DDBCharacter from "../DDBCharacter.js";
 
-function resourceList(data) {
-  const resources = [data.character.actions.race, data.character.actions.class, data.character.actions.feat]
+DDBCharacter.prototype.resourceList = function resourceList() {
+  const resources = [this.source.ddb.character.actions.race, this.source.ddb.character.actions.class, this.source.ddb.character.actions.feat]
     .flat()
     .filter((action) =>
       action.limitedUse
         && (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus));
 
   return resources;
-}
+};
 
-function getSortedByUsedResourceList(data, character) {
+DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedResourceList() {
   // get all resources
-  const allResources = resourceList(data);
+  const allResources = this.resourceList();
   const resources = allResources
     .map((action) => {
       let maxUses = (action.limitedUse.maxUses && action.limitedUse.maxUses !== -1) ? action.limitedUse.maxUses : 0;
@@ -25,24 +26,24 @@ function getSortedByUsedResourceList(data, character) {
 
         switch (action.limitedUse.operator) {
           case 2: {
-            maxUses *= character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
+            maxUses *= this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
             break;
           }
           case 1:
           default:
-            maxUses += character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
+            maxUses += this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
         }
       }
 
       if (action.limitedUse.useProficiencyBonus) {
         switch (action.limitedUse.proficiencyBonusOperator) {
           case 2: {
-            maxUses *= character.system.attributes.prof;
+            maxUses *= this.raw.character.system.attributes.prof;
             break;
           }
           case 1:
           default:
-            maxUses += character.system.attributes.prof;
+            maxUses += this.raw.character.system.attributes.prof;
         }
       }
 
@@ -61,7 +62,7 @@ function getSortedByUsedResourceList(data, character) {
       return 0;
     });
   return resources;
-}
+};
 
 const sheetResources = [
   "primary",
@@ -86,19 +87,19 @@ const sheetResources = [
   "twentieth",
 ];
 
-export function getResources(data, character, numberOfResources = 3) {
+DDBCharacter.prototype._generateResources = function _generateResources(numberOfResources = 3) {
   // get all resources
-  const allResources = getSortedByUsedResourceList(data, character);
+  const allResources = this.getSortedByUsedResourceList();
 
   let result = {};
 
-  const resourceSelectionType = hasProperty(character, "flags.ddbimporter.resources")
-    ? getProperty(character, "flags.ddbimporter.resources")
+  const resourceSelectionType = hasProperty(this.raw.character, "flags.ddbimporter.resources")
+    ? getProperty(this.raw.character, "flags.ddbimporter.resources")
     : { type: "default" };
 
   switch (resourceSelectionType.type) {
     case "custom": {
-      const customResourceSelection = getProperty(character, "flags.ddbimporter.resources");
+      const customResourceSelection = getProperty(this.raw.character, "flags.ddbimporter.resources");
       for (let i = 0; i < sheetResources.length && i < numberOfResources; i++) {
         const resourceLookupName = customResourceSelection[sheetResources[i]];
 
@@ -125,12 +126,12 @@ export function getResources(data, character, numberOfResources = 3) {
     }
   }
 
-  return result;
-}
+  this.raw.character.system.resources = result;
+};
 
-export function getResourceList(data, character) {
-  return getSortedByUsedResourceList(data, character);
-}
+DDBCharacter.prototype.getResourceList = function getResourceList() {
+  return this.getSortedByUsedResourceList();
+};
 
 function generateResourceSelectionFromForm(formData, type) {
   const primary = formData.find((r) => r.name === "primary-select" && r.value !== "");
@@ -148,11 +149,10 @@ function generateResourceSelectionFromForm(formData, type) {
   return resourceSelection;
 }
 
-function setResourceType(ddb, character, resourceSelection) {
-  setProperty(character, "flags.ddbimporter.resources", resourceSelection);
-  setProperty(character, "system.resources", getResources(ddb, character));
-  return character;
-}
+DDBCharacter.prototype.setResourceType = function setResourceType(resourceSelection) {
+  setProperty(this.raw.character, "flags.ddbimporter.resources", resourceSelection);
+  this._generateResources();
+};
 
 function setDefaultResources(sortedResources, resourceSelection) {
   if (sortedResources.length >= 1) {
@@ -167,8 +167,9 @@ function setDefaultResources(sortedResources, resourceSelection) {
   return resourceSelection;
 }
 
-export async function getResourcesDialog(currentActorId, ddb, character) {
-  const currentActor = game.actors.get(currentActorId);
+// this.source.ddb, this.raw.character
+DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectionDialog() {
+  const currentActor = game.actors.get(this.currentActorId);
   return new Promise((resolve) => {
     let currentResourceSelection = hasProperty(currentActor, "flags.ddbimporter.resources.type")
       ? getProperty(currentActor, "flags.ddbimporter.resources")
@@ -180,7 +181,7 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
         tertiary: "",
       };
 
-    const sortedResources = getSortedByUsedResourceList(ddb, character);
+    const sortedResources = this.getSortedByUsedResourceList();
 
     if (currentResourceSelection.type === "default") {
       currentResourceSelection = setDefaultResources(sortedResources, currentResourceSelection);
@@ -209,12 +210,12 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
       });
 
       const dialog = new Dialog({
-        title: `Choose Resources for ${character.name}`,
+        title: `Choose Resources for ${this.raw.character.name}`,
         content: {
           "resources": resources,
-          "character": character.name,
-          "img": ddb.character.decorations?.avatarUrl
-            ? ddb.character.decorations.avatarUrl
+          "character": this.raw.character.name,
+          "img": this.source.ddb.character.decorations?.avatarUrl
+            ? this.source.ddb.character.decorations.avatarUrl
             : CONST.DEFAULT_TOKEN,
           "cssClass": "character-resource-selection sheet"
         },
@@ -226,8 +227,8 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
               const formData = $('.character-resource-selection').serializeArray();
               let resourceSelection = generateResourceSelectionFromForm(formData, "default");
               resourceSelection = setDefaultResources(resources, resourceSelection);
-              character = setResourceType(ddb, character, resourceSelection);
-              resolve(character);
+              this.setResourceType(resourceSelection);
+              resolve(this.raw.character);
             }
           },
           custom: {
@@ -236,8 +237,8 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
             callback: async () => {
               const formData = $('.character-resource-selection').serializeArray();
               const resourceSelection = generateResourceSelectionFromForm(formData, "custom");
-              character = setResourceType(ddb, character, resourceSelection);
-              resolve(character);
+              this.setResourceType(resourceSelection);
+              resolve(this.raw.character);
             }
           },
           disable: {
@@ -246,13 +247,13 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
             callback: async () => {
               const formData = $('.character-resource-selection').serializeArray();
               const resourceSelection = generateResourceSelectionFromForm(formData, "disable");
-              character = setResourceType(ddb, character, resourceSelection);
-              resolve(character);
+              this.setResourceType(resourceSelection);
+              resolve(this.raw.character);
             }
           }
         },
         default: "default",
-        close: () => resolve(character),
+        close: () => resolve(this.raw.character),
       },
       {
         width: 400,
@@ -261,11 +262,11 @@ export async function getResourcesDialog(currentActorId, ddb, character) {
       });
       dialog.render(true);
     } else {
-      character = setResourceType(ddb, character, currentResourceSelection);
-      resolve(character);
+      this.setResourceType(currentResourceSelection);
+      resolve(this.raw.character);
     }
   });
-}
+};
 
 const resourceFeatureLinkMap = {
   "Channel Divinity": ["Channel Divinity:"],
@@ -326,9 +327,9 @@ const resourceSpellLinkMap = {
   ],
 };
 
-export async function autoLinkResources(actor) {
+DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
   // loop over resourceFeatureLinkMap
-  const possibleItems = actor.items.toObject();
+  const possibleItems = this.currentActor.items.toObject();
   let toUpdate = [];
 
   for (const [key, values] of Object.entries(resourceFeatureLinkMap)) {
@@ -400,6 +401,6 @@ export async function autoLinkResources(actor) {
 
   logger.debug("toUpdate", toUpdate);
 
-  const results = await actor.updateEmbeddedDocuments("Item", toUpdate);
+  const results = await this.currentActor.updateEmbeddedDocuments("Item", toUpdate);
   logger.debug("resource Update results", results);
-}
+};

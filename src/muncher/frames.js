@@ -1,5 +1,4 @@
 // Main module class
-import { getImagePath } from "./import.js";
 import DDBMuncher from "./DDBMuncher.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
@@ -53,7 +52,7 @@ export async function parseFrames() {
 
   DDBMuncher.munchNote(`Fetching DDB Frames`);
   frames.forEach(async (frame) => {
-    await getImagePath(frame.frameAvatarUrl, 'frame', `DDB ${frame.name}`, true);
+    await FileHelper.getImagePath(frame.frameAvatarUrl, 'frame', `DDB ${frame.name}`, true);
   });
 
   DDBMuncher.munchNote("");

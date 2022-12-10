@@ -397,50 +397,6 @@ export async function updateCompendium(type, input, updateExisting = false, matc
   return [];
 }
 
-
-export async function getImagePath(imageUrl, type = "ddb", name = "", download = false, remoteImages = false) {
-  const frameDirectory = game.settings.get("ddb-importer", "frame-image-upload-directory").replace(/^\/|\/$/g, "");
-  const otherDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
-  const uploadDirectory = type === "frame" ? frameDirectory : otherDirectory;
-  const downloadImage = (download) ? download : game.settings.get("ddb-importer", "munching-policy-download-images");
-  const remoteImage = (remoteImages) ? remoteImages : game.settings.get("ddb-importer", "munching-policy-remote-images");
-  const useWebP = game.settings.get("ddb-importer", "use-webp");
-
-  if (imageUrl && downloadImage) {
-    const ext = useWebP
-      ? "webp"
-      : imageUrl.split(".").pop().split(/#|\?|&/)[0];
-    if (!name) name = imageUrl.split("/").pop();
-
-    // image upload
-    const filename = type + "-" + name.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").trim();
-    const imageExists = await FileHelper.fileExists(uploadDirectory, filename + "." + ext);
-
-    if (imageExists) {
-      // eslint-disable-next-line require-atomic-updates
-      const image = await FileHelper.getFileUrl(uploadDirectory, filename + "." + ext);
-      return image.trim();
-    } else {
-      // eslint-disable-next-line require-atomic-updates
-      const image = await FileHelper.uploadRemoteImage(imageUrl, uploadDirectory, filename);
-      // did upload succeed? if not fall back to remote image path
-      if (image) {
-        return image.trim();
-      } else {
-        return null;
-      }
-
-    }
-  } else if (imageUrl && remoteImage) {
-    try {
-      return imageUrl.trim();
-    } catch (ignored) {
-      return null;
-    }
-  }
-  return null;
-}
-
 async function getSRDIconMatch(type) {
   const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == type).name;
   if (!CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) await loadpacks(compendiumName);
@@ -531,7 +487,7 @@ async function getDDBItemImages(items, download) {
         const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
         if (avatarUrl && avatarUrl != "") {
           DDBMuncher.munchNote(`Downloading ${item.name} image`);
-          const smallImage = await getImagePath(avatarUrl, 'item', item.name, downloadImages, remoteImages);
+          const smallImage = await FileHelper.getImagePath(avatarUrl, 'item', item.name, downloadImages, remoteImages);
           logger.debug(`Final image ${smallImage}`);
           itemImage.img = smallImage;
         }
@@ -539,7 +495,7 @@ async function getDDBItemImages(items, download) {
       if (item.flags.ddbimporter.dndbeyond.largeAvatarUrl) {
         const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
         if (largeAvatarUrl && largeAvatarUrl != "") {
-          const largeImage = await getImagePath(largeAvatarUrl, 'item-large', item.name, downloadImages, remoteImages);
+          const largeImage = await FileHelper.getImagePath(largeAvatarUrl, 'item-large', item.name, downloadImages, remoteImages);
           itemImage.large = largeImage;
           if (!itemImage.img) itemImage.img = largeImage;
         }
@@ -556,7 +512,7 @@ async function getDDBItemImages(items, download) {
 async function getDDBGenericItemImages(download) {
   DDBMuncher.munchNote(`Fetching DDB Generic Item icons`);
   const itemMap = DICTIONARY.items.map(async (item) => {
-    const img = await getImagePath(item.img, 'item', item.filterType, download);
+    const img = await FileHelper.getImagePath(item.img, 'item', item.filterType, download);
     let itemIcons = {
       filterType: item.filterType,
       img: img,
@@ -571,7 +527,7 @@ async function getDDBGenericItemImages(download) {
 async function getDDBGenericLootImages(download) {
   DDBMuncher.munchNote(`Fetching DDB Generic Loot icons`);
   const itemMap = DICTIONARY.genericItemIcons.map(async (item) => {
-    const img = await getImagePath(item.img, 'equipment', item.name, download);
+    const img = await FileHelper.getImagePath(item.img, 'equipment', item.name, download);
     let itemIcons = {
       name: item.name,
       img: img,
@@ -613,7 +569,7 @@ export async function getDDBGenericItemIcons(items, download) {
 async function getDDBSchoolSpellImages(download) {
   DDBMuncher.munchNote(`Fetching spell school icons`);
   const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
-    const img = await getImagePath(school.img, 'spell', school.name, download);
+    const img = await FileHelper.getImagePath(school.img, 'spell', school.name, download);
     let schoolIcons = {
       name: school.name,
       img: img,

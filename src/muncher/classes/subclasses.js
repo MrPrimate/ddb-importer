@@ -1,8 +1,9 @@
 import logger from "../../logger.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import FileHelper from "../../lib/FileHelper.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
-import { updateCompendium, srdFiddling, getImagePath } from "../import.js";
+import { updateCompendium, srdFiddling } from "../import.js";
 import DDBMuncher from "../DDBMuncher.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 
@@ -14,7 +15,7 @@ async function buildSubClassBase(klass, subClass) {
   let portraitAvatarUrl;
 
   if (subClass.portraitAvatarUrl) {
-    portraitAvatarUrl = await getImagePath(subClass.portraitAvatarUrl, "class-portrait", subClass.fullName);
+    portraitAvatarUrl = await FileHelper.getImagePath(subClass.portraitAvatarUrl, "class-portrait", subClass.fullName);
     // eslint-disable-next-line require-atomic-updates
     klass.img = portraitAvatarUrl;
     // eslint-disable-next-line require-atomic-updates
@@ -22,7 +23,7 @@ async function buildSubClassBase(klass, subClass) {
   }
 
   if (subClass.avatarUrl) {
-    avatarUrl = await getImagePath(subClass.avatarUrl, "class-avatar", subClass.fullName);
+    avatarUrl = await FileHelper.getImagePath(subClass.avatarUrl, "class-avatar", subClass.fullName);
     // eslint-disable-next-line require-atomic-updates
     klass.flags.ddbimporter['avatarUrl'] = subClass.avatarUrl;
     if (!klass.img) {
@@ -32,7 +33,7 @@ async function buildSubClassBase(klass, subClass) {
   }
 
   if (subClass.largeAvatarUrl) {
-    largeAvatarUrl = await getImagePath(subClass.largeAvatarUrl, "class-large", subClass.fullName);
+    largeAvatarUrl = await FileHelper.getImagePath(subClass.largeAvatarUrl, "class-large", subClass.fullName);
     // eslint-disable-next-line require-atomic-updates
     klass.flags.ddbimporter['largeAvatarUrl'] = subClass.largeAvatarUrl;
     if (!klass.img) {

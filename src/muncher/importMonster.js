@@ -1,6 +1,7 @@
 import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
-import { updateIcons, getImagePath, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compendiumFolders } from "./import.js";
+import FileHelper from "../lib/FileHelper.js";
+import { updateIcons, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compendiumFolders } from "./import.js";
 import DDBMuncher from "./DDBMuncher.js";
 import { migrateItemsDAESRD } from "./dae.js";
 
@@ -215,10 +216,10 @@ export async function getNPCImage(npcData, options) {
 
     if (dndBeyondImageUrl.endsWith(npcType + "." + ext)) {
       // eslint-disable-next-line require-atomic-updates
-      npcData.img = await getImagePath(dndBeyondImageUrl, "npc-generic", genericNPCName);
+      npcData.img = await FileHelper.getImagePath(dndBeyondImageUrl, "npc-generic", genericNPCName);
     } else {
       // eslint-disable-next-line require-atomic-updates
-      npcData.img = await getImagePath(dndBeyondImageUrl, "npc", npcName);
+      npcData.img = await FileHelper.getImagePath(dndBeyondImageUrl, "npc", npcName);
     }
   }
 
@@ -228,10 +229,10 @@ export async function getNPCImage(npcData, options) {
 
     if (dndBeyondTokenImageUrl.endsWith(npcType + "." + tokenExt)) {
       // eslint-disable-next-line require-atomic-updates
-      npcData.prototypeToken.texture.src = await getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName, true, false);
+      npcData.prototypeToken.texture.src = await FileHelper.getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName, true, false);
     } else {
       // eslint-disable-next-line require-atomic-updates
-      npcData.prototypeToken.texture.src = await getImagePath(dndBeyondTokenImageUrl, "npc-token", npcName, true, false);
+      npcData.prototypeToken.texture.src = await FileHelper.getImagePath(dndBeyondTokenImageUrl, "npc-token", npcName, true, false);
     }
   }
 

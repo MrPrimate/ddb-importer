@@ -26,7 +26,6 @@ import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "./Secrets.js";
 import { DDBCookie } from "./Settings.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
-import { autoLinkResources } from "../parser/character/resources.js";
 import { addContainerItemsToContainers, addContainerItemsToActor } from "../parser/special/itemCollections.js";
 import SETTINGS from "../settings.js";
 
@@ -1208,7 +1207,7 @@ export default class DDBCharacterImport extends FormApplication {
         });
       }
 
-      await autoLinkResources(this.actor);
+      await this.ddbCharacter.autoLinkResources();
       await setConditions(this.actor, data.ddb, this.settings.activeEffectCopy);
       await addContainerItemsToContainers(data.ddb, this.actor);
 

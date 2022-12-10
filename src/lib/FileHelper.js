@@ -267,6 +267,49 @@ const FileHelper = {
     return encodeURI(uri);
   },
 
+  getImagePath: async (imageUrl, type = "ddb", name = "", download = false, remoteImages = false) => {
+    const frameDirectory = game.settings.get("ddb-importer", "frame-image-upload-directory").replace(/^\/|\/$/g, "");
+    const otherDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
+    const uploadDirectory = type === "frame" ? frameDirectory : otherDirectory;
+    const downloadImage = (download) ? download : game.settings.get("ddb-importer", "munching-policy-download-images");
+    const remoteImage = (remoteImages) ? remoteImages : game.settings.get("ddb-importer", "munching-policy-remote-images");
+    const useWebP = game.settings.get("ddb-importer", "use-webp");
+
+    if (imageUrl && downloadImage) {
+      const ext = useWebP
+        ? "webp"
+        : imageUrl.split(".").pop().split(/#|\?|&/)[0];
+      if (!name) name = imageUrl.split("/").pop();
+
+      // image upload
+      const filename = type + "-" + name.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").trim();
+      const imageExists = await FileHelper.fileExists(uploadDirectory, filename + "." + ext);
+
+      if (imageExists) {
+        // eslint-disable-next-line require-atomic-updates
+        const image = await FileHelper.getFileUrl(uploadDirectory, filename + "." + ext);
+        return image.trim();
+      } else {
+        // eslint-disable-next-line require-atomic-updates
+        const image = await FileHelper.uploadRemoteImage(imageUrl, uploadDirectory, filename);
+        // did upload succeed? if not fall back to remote image path
+        if (image) {
+          return image.trim();
+        } else {
+          return null;
+        }
+
+      }
+    } else if (imageUrl && remoteImage) {
+      try {
+        return imageUrl.trim();
+      } catch (ignored) {
+        return null;
+      }
+    }
+    return null;
+  },
+
 };
 
 export default FileHelper;
