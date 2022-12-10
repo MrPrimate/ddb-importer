@@ -4,7 +4,7 @@ import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { getImagePath } from "../import.js";
 import { generateTable } from "../table.js";
-import { parseTags } from "../../lib/templateStrings.js";
+import { parseTags } from "../../lib/DDBTemplateStrings.js";
 
 const CLASS_TEMPLATE = {
   "name": "",

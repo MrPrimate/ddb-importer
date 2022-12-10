@@ -1,4 +1,4 @@
-import DDBSources from "../muncher/DDBSources.js";
+import DDBSources from "../lib/DDBSources.js";
 import logger from "../logger.js";
 import FileHelper from "./FileHelper.js";
 

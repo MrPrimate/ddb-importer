@@ -6,7 +6,7 @@ import { generateEffects } from "../../effects/effects.js";
 import { generateBaseACItemEffect } from "../../effects/acEffects.js";
 import { generateTable } from "../../muncher/table.js";
 import { featureEffectAdjustment } from "../../effects/specialFeats.js";
-import parseTemplateString from "../../lib/templateStrings.js";
+import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 
 function generateFeatModifiers(ddb, ddbItem, choice, type) {
   // console.warn(ddbItem);

@@ -11,7 +11,7 @@ import { createGMMacros } from "../effects/macros.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
-import { importCacheLoad } from "../lib/templateStrings.js";
+import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 
 

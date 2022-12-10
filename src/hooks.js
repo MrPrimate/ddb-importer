@@ -32,7 +32,7 @@ import { showReadAlouds } from "./hooks/renderJournalSheet/linkReadAlouds.js";
 
 import registerNotifications from "./lib/Notification.js";
 
-import { activateUpdateHooks } from "./character/update.js";
+import { activateUpdateHooks } from "./updater/character.js";
 
 
 // foundry is initializing

@@ -1,5 +1,5 @@
 import logger from "../../logger.js";
-import { parseTags } from "../../lib/templateStrings.js";
+import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { updateCompendium, srdFiddling, getImagePath } from "../import.js";

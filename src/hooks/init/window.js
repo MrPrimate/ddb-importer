@@ -9,14 +9,14 @@ import { migrateExistingCompendium, createCompendiumFolderStructure } from "../.
 import DDBEncounterMunch from "../../parser/encounters/DDBEncounterMunch.js";
 import DDBEncounters from "../../parser/encounters/DDBEncounters.js";
 import { generateAdventureConfig } from "../../muncher/adventure.js";
-import { updateDDBCharacter } from "../../character/update.js";
+import { updateDDBCharacter } from "../../updater/character.js";
 import { importCharacter, importCharacterById } from "../../lib/DDBCharacterImport.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 import { base64Check } from "../../lib/base64Check.js";
 import { getFeats } from "../../muncher/feats/feats.js";
 import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "../../effects/macros.js";
 import { iconPath } from "../../icons/index.js";
-import { loadSRDRules, importCacheLoad } from "../../lib/templateStrings.js";
+import { loadSRDRules, importCacheLoad } from "../../lib/DDBTemplateStrings.js";
 import { getNPCImage } from "../../muncher/importMonster.js";
 import PatreonHelper from "../../lib/PatreonHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";

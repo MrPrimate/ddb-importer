@@ -16,11 +16,11 @@ import ThirdPartyMunch from "./adventure/ThirdPartyMunch.js";
 import MuncherSettings from "./MuncherSettings.js";
 import { migrateExistingCompendium } from "./compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
-import { importCacheLoad } from "../lib/templateStrings.js";
+import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
 import { parseBackgrounds } from "./backgrounds.js";
 import { parseTransports } from "./vehicles.js";
-import DDBSources from "./DDBSources.js";
+import DDBSources from "../lib/DDBSources.js";
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {

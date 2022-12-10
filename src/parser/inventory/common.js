@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import { parseTags } from "../../lib/templateStrings.js";
+import { parseTags } from "../../lib/DDBTemplateStrings.js";
 
 export function getDescription(data) {
   const chatSnippet = data.definition.snippet ? data.definition.snippet : "";

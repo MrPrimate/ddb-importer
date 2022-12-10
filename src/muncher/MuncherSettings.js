@@ -3,7 +3,7 @@ import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
-import DDBSources from "./DDBSources.js";
+import DDBSources from "../lib/DDBSources.js";
 import { spellEffectModules } from "../effects/specialSpells.js";
 
 const MuncherSettings = {

@@ -19,7 +19,7 @@ import {
 } from "../muncher/import.js";
 import { addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
-import { updateDDBCharacter } from "../character/update.js";
+import { updateDDBCharacter } from "../updater/character.js";
 import { generateCharacterExtras } from "../parser/extras/extras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "./Secrets.js";

@@ -4,7 +4,7 @@ import utils from '../../lib/utils.js';
 import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from '../../lib/CompendiumHelper.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
-import parseTemplateString from "../../lib/templateStrings.js";
+import parseTemplateString from "../../lib/DDBTemplateStrings.js";
 import { SPECIAL_ADVANCEMENTS } from './special.js';
 
 /**

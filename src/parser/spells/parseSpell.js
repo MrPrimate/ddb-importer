@@ -17,7 +17,7 @@ import { getSpellScaling } from "./scaling.js";
 import { generateTable } from "../../muncher/table.js";
 import { spellEffectAdjustment } from "../../effects/specialSpells.js";
 import { getName } from "./name.js";
-import { parseTags } from "../../lib/templateStrings.js";
+import { parseTags } from "../../lib/DDBTemplateStrings.js";
 
 export function parseSpell(data, character) {
   let spell = {
