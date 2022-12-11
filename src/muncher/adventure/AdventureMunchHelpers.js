@@ -5,6 +5,7 @@ import { parseCritters } from "../monsters.js";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
 import AdventureMunch from "./AdventureMunch.js";
+import SETTINGS from "../../settings.js";
 
 export default class AdventureMunchHelpers {
 
@@ -207,7 +208,7 @@ export default class AdventureMunchHelpers {
             break;
           case "monster": {
             try {
-              const tier = game.settings.get("ddb-importer", "patreon-tier");
+              const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
               const tiers = PatreonHelper.getPatreonTiers(tier);
               if (tiers.all) {
                 logger.debug(`Importing missing ${type}s from DDB`, docIds);

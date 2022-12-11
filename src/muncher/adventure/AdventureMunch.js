@@ -34,7 +34,7 @@ export default class AdventureMunch extends FormApplication {
   constructor(object = {}, options = {}) {
     super(object, options);
     this._itemsToRevisit = [];
-    const importPathData = game.settings.get("ddb-importer", "adventure-import-path");
+    const importPathData = game.settings.get(SETTINGS.MODULE_ID, "adventure-import-path");
     this._importPathData = DirectoryPicker.parse(importPathData);
     this.adventure = null;
     this.folders = null;
@@ -86,7 +86,7 @@ export default class AdventureMunch extends FormApplication {
    * @returns {Object} An object detailing various file path
    */
   getImportFilePaths(path, misc) {
-    const useWebP = game.settings.get("ddb-importer", "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
+    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
     const adventurePath = this.adventure.name.replace(/[^a-z0-9]/gi, "_");
     const targetPath = path.replace(/[\\/][^\\/]+$/, "");
     const baseFilename = path.replace(/^.*[\\/]/, "").replace(/\?(.*)/, "");
@@ -95,8 +95,8 @@ export default class AdventureMunch extends FormApplication {
         ? `${FileHelper.removeFileExtension(baseFilename)}.webp`
         : baseFilename;
     const baseUploadPath = misc
-      ? game.settings.get("ddb-importer", "adventure-misc-path")
-      : game.settings.get("ddb-importer", "adventure-upload-path");
+      ? game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path")
+      : game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
     const parsedBaseUploadPath = DirectoryPicker.parse(baseUploadPath);
     const uploadPath = misc
       ? `${parsedBaseUploadPath.current}/${targetPath}`
