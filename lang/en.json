@@ -138,7 +138,9 @@
     "adventure-import": {
       "button": "Import Adventure to World",
       "compendium-button": "Import Adventure to Adventure Compendium",
-      "confirm": "Update selected"
+      "confirm": "Update selected",
+      "all": "All",
+      "selection": "Selected"
     },
     "scenes": {
       "download": "DDB Scene Config",

@@ -890,6 +890,11 @@ const SETTINGS = {
           },
         },
         ADVENTURE: {
+          "adventure-policy-all-scenes": {
+            scope: "player",
+            type: Boolean,
+            default: true,
+          },
           "adventure-policy-all-actors-into-world": {
             scope: "player",
             type: Boolean,

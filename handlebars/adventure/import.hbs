@@ -20,6 +20,9 @@
     </div>
     <hr>
     <div class="form-group">
+      <div data-tooltip="If unchecked will allow scene selections" data-tooltip-direction="UP"><input {{#if allScenes}}checked {{/if}}type="checkbox" name="all-scenes">Import all scenes?</div>
+    </div>
+    <div class="form-group">
       <div data-tooltip="If unchecked, will only import monsters placed on scenes. Requires Adventure Muncher v1.0.9" data-tooltip-direction="UP"><input {{#if allMonsters}}checked {{/if}}type="checkbox" name="all-monsters">Import all monsters in adventure to world?</div>
     </div>
     <div class="form-group">

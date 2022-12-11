@@ -340,7 +340,8 @@ export default class AdventureMunchHelpers {
   }
 
   // check the document for version data and for update info to see if we can replace it
-  static extractDocumentVersionData(newDoc, existingDoc, ddbIVersion) {
+  static extractDocumentVersionData(newDoc, existingDoc) {
+    const ddbIVersion = game.modules.get(SETTINGS.MODULE_ID).version;
     if (!existingDoc) existingDoc = {};
     // do we have versioned metadata?
     setProperty(newDoc, "flags.ddb.versions.importer", {});

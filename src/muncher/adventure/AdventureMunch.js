@@ -38,6 +38,16 @@ export default class AdventureMunch extends FormApplication {
     this._importPathData = DirectoryPicker.parse(importPathData);
     this.adventure = null;
     this.folders = null;
+    this.raw = {
+      scene: [],
+      journal: [],
+      actor: [],
+      item: [],
+      table: [],
+      playlist: [],
+      macro: [],
+      folder: [],
+    };
     this.temporary = {
       scenes: [],
       journals: [],
@@ -241,6 +251,7 @@ export default class AdventureMunch extends FormApplication {
 
     return {
       data,
+      allScenes: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes"),
       allMonsters: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world"),
       journalWorldActors: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors"),
       files,
@@ -558,6 +569,72 @@ export default class AdventureMunch extends FormApplication {
 
   }
 
+  _unpackZip() {
+    for (const key of Object.keys(this.raw)) {
+      this.raw[key] = AdventureMunchHelpers.getFiles(key, this.zip);
+    }
+  }
+
+  async _chooseScenes() {
+    const dataFiles = this.raw["scene"];
+
+    logger.info(`Selecting Scenes for ${this.adventure.name} - (${dataFiles.length} possible scenes for import)`);
+
+    let fileData = [];
+
+    await AdventureMunchHelpers.asyncForEach(dataFiles, async (file) => {
+      const raw = await this.zip.file(file.name).async("text");
+      const json = JSON.parse(raw);
+      const existingScene = await game.scenes.find((item) => item.id === json._id);
+      const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene);
+      fileData.push(scene);
+    });
+
+    return new Promise((resolve) => {
+      new Dialog(
+        {
+          title: "Choose Scenes to Import",
+          content: {
+            fileData: fileData,
+            cssClass: "import-data-selection",
+          },
+          buttons: {
+            selection: {
+              label: "Selected",
+              callback: async () => {
+                const formData = $(".import-data-selection").serializeArray();
+                const scenes = [];
+                for (let i = 0; i < formData.length; i++) {
+                  const key = formData[i].name;
+                  scenes.push(this.raw.scene.find((s) => s.name.includes(key)));
+                }
+                logger.debug("scenes to import", scenes);
+                this.raw.scene = scenes;
+                resolve(this);
+              },
+            },
+            all: {
+              label: "All",
+              callback: async () => {
+                resolve(this);
+              },
+            },
+          },
+          default: "all",
+          close: async () => {
+            resolve(this);
+          },
+        },
+        {
+          width: 700,
+          classes: ["dialog", "adventure-import-selection"],
+          template: "modules/ddb-importer/handlebars/adventure/choose-scenes.hbs",
+        }
+      ).render(true);
+    });
+
+  }
+
   async _importAdventure(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -570,12 +647,15 @@ export default class AdventureMunch extends FormApplication {
         $(".import-progress").toggleClass("import-hidden");
         $(".ddb-overlay").toggleClass("import-invalid");
 
+        this.allScenes = document.querySelector(`[name="all-scenes"]`).checked;
+        game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-all-scenes", this.allScenes);
         this.allMonsters = document.querySelector(`[name="all-monsters"]`).checked;
         game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world", this.allMonsters);
         this.journalWorldActors = document.querySelector(`[name="journal-world-actors"]`).checked;
         game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors", this.journalWorldActors);
 
         await this._loadZip();
+        this._unpackZip();
 
         this.adventure = JSON.parse(await this.zip.file("adventure.json").async("text"));
         logger.debug("Loaded adventure data", { adventure: this.adventure });
@@ -609,6 +689,7 @@ export default class AdventureMunch extends FormApplication {
         if (action === "compendium") this.importToAdventureCompendium = true;
 
         await this._createFolders();
+        if (!this.allScenes) await this._chooseScenes();
         await this._checkForMissingData();
 
         if (action === "world") await this._importAdventureToWorld();
@@ -1092,14 +1173,12 @@ export default class AdventureMunch extends FormApplication {
 
   async _checkForDataUpdates(type) {
     const importType = AdventureMunchHelpers.getImportType(type);
-    const dataFiles = AdventureMunchHelpers.getFiles(type, this.zip);
+    const dataFiles = this.raw[type];
 
     logger.info(`Checking ${this.adventure.name} - ${importType} (${dataFiles.length} for updates)`);
 
     let fileData = [];
     let hasVersions = false;
-    const moduleInfo = game.modules.get("ddb-importer");
-    const installedVersion = moduleInfo.version;
 
     await AdventureMunchHelpers.asyncForEach(dataFiles, async (file) => {
       const raw = await this.zip.file(file.name).async("text");
@@ -1110,7 +1189,7 @@ export default class AdventureMunch extends FormApplication {
       switch (importType) {
         case "Scene": {
           const existingScene = await game.scenes.find((item) => item.id === json._id);
-          const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene, installedVersion);
+          const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene);
           const sceneVersions = scene.flags?.ddb?.versions?.importer;
           if (existingScene) {
             if (
@@ -1229,7 +1308,7 @@ export default class AdventureMunch extends FormApplication {
     logger.info(`IDs to overwrite of type ${type}: ${JSON.stringify(overwriteIds)}`);
 
     const importType = AdventureMunchHelpers.getImportType(type);
-    const dataFiles = AdventureMunchHelpers.getFiles(type, this.zip);
+    const dataFiles = this.raw[type];
 
     logger.info(`Importing ${this.adventure.name} - ${importType} (${dataFiles.length} items)`);
 

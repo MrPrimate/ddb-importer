@@ -4,6 +4,7 @@
 * Healer's Kit now imports as a consumable item.
 * When updating DDB Importer will check to make sure you have permissions to update the character.
 * When using dynamic character updates the charges of an item could be erroneously updated.
+* Adventure Muncher: You can now import a selection of scenes instead of all of them.
 
 # 3.2.8
 

@@ -1,0 +1,30 @@
+<form class="{{content.cssClass}}" autocomplete="off" onsubmit="event.preventDefault();">
+  <div>
+    <p class="notes">The following scenes are available for import.</p>
+    <p class="notes">Select required scenes or All button.</p>
+  <div>
+      <div class="form-description">
+        {{#each content.fileData}}
+          {{#if this.flags.ddb.versions}}
+          <div>
+            <input id="scene_{{this._id}}" name="{{this._id}}" type="checkbox" value="">
+            <label for="scene_{{this._id}}">{{this.name}} : <i>v{{this.flags.ddb.versions.ddbMetaData.lastUpdate}}</i></label>
+          </div>
+          {{/if}}
+        {{/each}}
+      </div>
+    </div>
+    <div class="dialog-buttons">
+      <button class="dialog-button" data-button="selection">
+        <i class="fas fa-list-check"></i>
+        {{localize "ddb-importer.adventure-import.selection"}}
+      </button>
+      <button class="dialog-button" data-button="all">
+        <i class="fas fa-check-double"></i>
+        {{localize "ddb-importer.adventure-import.all"}}
+      </button>
+    </div>
+  </div>
+</form>
+
+
