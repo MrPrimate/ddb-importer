@@ -29,7 +29,7 @@ import { setConditions } from "../parser/special/conditions.js";
 import { addContainerItemsToContainers, addContainerItemsToActor } from "../parser/special/itemCollections.js";
 import SETTINGS from "../settings.js";
 
-export default class DDBCharacterImport extends FormApplication {
+export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
     super(options);
     this.actor = game.actors.get(actor._id);
@@ -131,7 +131,7 @@ export default class DDBCharacterImport extends FormApplication {
    */
   filterItemsByUserSelection(invert = false) {
     let items = [];
-    const validItemTypes = DDBCharacterImport.getCharacterUpdatePolicyTypes(invert);
+    const validItemTypes = DDBCharacterManager.getCharacterUpdatePolicyTypes(invert);
 
     for (const section of SETTINGS.FILTER_SECTIONS) {
       items = items.concat(this.result[section]).filter((item) => validItemTypes.includes(item.type));
@@ -140,7 +140,7 @@ export default class DDBCharacterImport extends FormApplication {
   }
 
   filterActorItemsByUserSelection(invert = false) {
-    const validItemTypes = DDBCharacterImport.getCharacterUpdatePolicyTypes(invert);
+    const validItemTypes = DDBCharacterManager.getCharacterUpdatePolicyTypes(invert);
 
     const items = this.actorOriginal.items.filter((item) => validItemTypes.includes(item.type));
 
@@ -240,7 +240,7 @@ export default class DDBCharacterImport extends FormApplication {
    * - spell
    */
   async clearItemsByUserSelection(excludedList = []) {
-    const includedItems = DDBCharacterImport.getCharacterUpdatePolicyTypes();
+    const includedItems = DDBCharacterManager.getCharacterUpdatePolicyTypes();
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("Item");
     const toRemove = ownedItems
@@ -579,7 +579,7 @@ export default class DDBCharacterImport extends FormApplication {
           });
           this.showCurrentTask("Status");
         } else {
-          DDBCharacterImport.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
+          DDBCharacterManager.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
           $(html)
             .find(".dndbeyond-url-status i")
             .replaceWith('<i class="fas fa-exclamation-triangle" style="color:red"></i>');
@@ -592,7 +592,7 @@ export default class DDBCharacterImport extends FormApplication {
         this.html = html;
         try {
           const characterUrl = this.actor.flags.ddbimporter.dndbeyond.url;
-          DDBCharacterImport.renderPopup("json", characterUrl);
+          DDBCharacterManager.renderPopup("json", characterUrl);
         } catch (error) {
           this.showCurrentTask("Error opening JSON URL", error, true);
         }
@@ -844,7 +844,7 @@ export default class DDBCharacterImport extends FormApplication {
       individualCompendiumItems = individualOverrideCompendiumItems;
       // remove existing items from those to be imported
       logger.info("Removing matching Override compendium items");
-      items = await DDBCharacterImport.removeItems(items, individualCompendiumItems);
+      items = await DDBCharacterManager.removeItems(items, individualCompendiumItems);
     }
 
     /**
@@ -855,7 +855,7 @@ export default class DDBCharacterImport extends FormApplication {
       const compendiumOverrideItems = await getCompendiumItems(items, "custom");
       overrideCompendiumItems = compendiumOverrideItems;
       // remove existing items from those to be imported
-      items = await DDBCharacterImport.removeItems(items, overrideCompendiumItems);
+      items = await DDBCharacterManager.removeItems(items, overrideCompendiumItems);
     }
 
     /**
@@ -873,7 +873,7 @@ export default class DDBCharacterImport extends FormApplication {
         compendiumFeatureItems
       );
       // remove existing items from those to be imported
-      items = await DDBCharacterImport.removeItems(items, srdCompendiumItems);
+      items = await DDBCharacterManager.removeItems(items, srdCompendiumItems);
     }
 
     if (this.settings.useExistingCompendiumItems) {
@@ -898,7 +898,7 @@ export default class DDBCharacterImport extends FormApplication {
         compendiumBackgroundsItems,
       );
       // remove existing items from those to be imported
-      items = await DDBCharacterImport.removeItems(items, compendiumItems);
+      items = await DDBCharacterManager.removeItems(items, compendiumItems);
     }
 
     // import remaining items to character
@@ -1224,64 +1224,6 @@ export default class DDBCharacterImport extends FormApplication {
   }
 }
 
-export async function importCharacterById(characterId, html) {
-  try {
-    let actor = await Actor.create({
-      name: "New Actor",
-      type: "character",
-      flags: {
-        ddbimporter: {
-          dndbeyond: {
-            characterId: characterId,
-            url: `https://www.dndbeyond.com/characters/${characterId}`,
-          },
-        },
-      },
-    });
-
-    const ddbCharacterOptions = {
-      currentActor: actor,
-      ddb: null,
-      characterId,
-      resourceSelection: false
-    };
-    const getOptions = {
-      syncId: null,
-      localCobaltPostFix: actor.id,
-    };
-    const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
-    const characterData = await ddbCharacter.getCharacterData(getOptions);
-
-    const debugJson = game.settings.get("ddb-importer", "debug-json");
-    if (debugJson) {
-      FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
-    }
-    if (characterData.success) {
-      const importer = new DDBCharacterImport(DDBCharacterImport.defaultOptions, actor, ddbCharacter);
-      importer.html = html ? html : utils.htmlToDoc("");
-      await importer.processCharacterData(characterData);
-      return actor;
-    } else {
-      logger.error("ERROR:", characterData.message);
-      return undefined;
-    }
-  } catch (error) {
-    switch (error.message) {
-      case "ImportFailure":
-        logger.error("Failure");
-        break;
-      case "Forbidden":
-        logger.error("Error retrieving Character: ", error);
-        break;
-      default:
-        logger.error("Error importing Character: ", error);
-        logger.error(error.stack);
-        break;
-    }
-    return undefined;
-  }
-}
-
 export async function importCharacter(actor, html) {
   try {
     const actorData = actor.toObject();
@@ -1306,7 +1248,7 @@ export async function importCharacter(actor, html) {
     }
     if (characterData.success) {
       // begin parsing the character data
-      const importer = new DDBCharacterImport(DDBCharacterImport.defaultOptions, actorData, ddbCharacter);
+      const importer = new DDBCharacterManager(DDBCharacterManager.defaultOptions, actorData, ddbCharacter);
       importer.html = html ? html : utils.htmlToDoc("");
       await importer.processCharacterData(characterData);
       importer.showCurrentTask("Loading Character data", "Done.", false);
@@ -1331,4 +1273,22 @@ export async function importCharacter(actor, html) {
     }
     return false;
   }
+}
+
+export async function importCharacterById(characterId, html) {
+  const actor = await Actor.create({
+    name: "New Actor",
+    type: "character",
+    flags: {
+      ddbimporter: {
+        dndbeyond: {
+          characterId: characterId,
+          url: `https://www.dndbeyond.com/characters/${characterId}`,
+        },
+      },
+    },
+  });
+
+  const result = await importCharacter(actor, html);
+  return result;
 }

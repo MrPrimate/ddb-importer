@@ -1082,6 +1082,11 @@ export async function updateDDBCharacter(actor) {
   await ddbCharacter.disableDynamicUpdates();
   let ddbData = await ddbCharacter.getCharacterData(getOptions);
 
+  if (!ddbCharacter.source.ddb.character.canEdit) {
+    logger.debug("Update DDB", { ddbCharacter, ddbData });
+    throw new Error("User is not allowed to edit character on D&D Beyond.");
+  }
+
   logger.debug("Current actor:", duplicate(actor));
   logger.debug("DDB Parsed data:", ddbData);
 

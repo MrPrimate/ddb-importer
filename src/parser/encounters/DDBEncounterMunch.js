@@ -6,7 +6,7 @@ import MuncherSettings from "../../muncher/MuncherSettings.js";
 import { getAvailableCampaigns } from "../../lib/Settings.js";
 import { parseCritters } from "../../muncher/monsters.js";
 import AdventureMunchHelpers from "../../muncher/adventure/AdventureMunchHelpers.js";
-import { importCharacterById } from "../../lib/DDBCharacterImport.js";
+import { importCharacterById } from "../../lib/DDBCharacterManager.js";
 import SETTINGS from "../../settings.js";
 import DDBEncounters from "./DDBEncounters.js";
 

@@ -10,7 +10,7 @@ import DDBEncounterMunch from "../../parser/encounters/DDBEncounterMunch.js";
 import DDBEncounters from "../../parser/encounters/DDBEncounters.js";
 import { generateAdventureConfig } from "../../muncher/adventure.js";
 import { updateDDBCharacter } from "../../updater/character.js";
-import { importCharacter, importCharacterById } from "../../lib/DDBCharacterImport.js";
+import DDBCharacterManager, { importCharacter, importCharacterById } from "../../lib/DDBCharacterManager.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 import { base64Check } from "../../lib/base64Check.js";
 import { getFeats } from "../../muncher/feats/feats.js";
@@ -67,8 +67,11 @@ export function registerWindow() {
     parseItems,
     parseMonsters,
     parseSpells,
+    DDBCharacterManager,
+    DDBProxy,
     DDBEncounters,
     DDBEncounterMunch,
+    MuncherSettings,
     resetProxy: DDBProxy.resetProxy,
     resetSecrets,
     setPatreonTier: PatreonHelper.setPatreonTier,

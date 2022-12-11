@@ -2,6 +2,7 @@
 
 * Monster Munch: If using update existing images, it would not update existing images if the image file existed on disk for the default image. @Baxstar#3335
 * Healer's Kit now imports as a consumable item.
+* When updating DDB Importer will check to make sure you have permissions to update the character.
 
 # 3.2.8
 
