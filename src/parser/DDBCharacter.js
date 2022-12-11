@@ -1,7 +1,6 @@
 import getActions from "./features/actions.js";
 import { getClasses } from "./classes/index.js";
 import { getCharacterSpells } from "./spells/getCharacterSpells.js";
-import getSpecial from "./special/index.js";
 import logger from "../logger.js";
 import { createGMMacros } from "../effects/macros.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -199,8 +198,8 @@ export default class DDBCharacter {
 
       this._filterActionFeatures();
 
-      // this adds extras like the Divine Smite spell
-      getSpecial(this.data);
+      // this adds extras like a Divine Smite spell to this.data
+      this._addSpecialAdditions();
 
     } catch (error) {
       logger.error(error);

@@ -22,6 +22,8 @@ import "./character/race.js";
 import "./character/resources.js";
 import "./character/inventory.js";
 
+import "./special/character.js";
+
 import "./item/index.js";
 
 import "./features/features.js";

@@ -1,8 +1,8 @@
 // import DICTIONARY from '../dictionary.js';
-import utils from "../../lib/utils.js";
-import DDBHelper from "../../lib/DDBHelper.js";
+import utils from "../../../lib/utils.js";
+import DDBHelper from "../../../lib/DDBHelper.js";
 
-function getDivineSmite() {
+export function getDivineSmiteSpell(feature) {
   const restriction = "Against undead or fiends";
 
   const damageTagInfo = DDBHelper.getDamageTag({ subType: "radiant", restriction: "" });
@@ -17,7 +17,7 @@ function getDivineSmite() {
     img: "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp",
     system: {
       description: {
-        value: "<p>Starting at 2nd level, when you hit a creature with a melee weapon attack, you can expend one spell slot to deal radiant damage to the target, in addition to the weapon&rsquo;s damage.</p>\n<p>The extra damage is 2d8 for a 1st-level spell slot, plus 1d8 for each spell level higher than 1st, to a maximum of 5d8. The damage increases by 1d8 if the target is an undead or a fiend.</p>",
+        value: feature.system.description.value,
         chat: "",
         unidentified: ""
       },
@@ -104,25 +104,3 @@ function getDivineSmite() {
   return result;
 }
 
-/**
- * {
- *  character: character,
- *  features: features,
- *  classes: classes,
- *  inventory: inventory,
- *  spells: spells,
- *  actions: actions,
- *  itemSpells: itemSpells,
- * };
- *
- * @param {*} ddb
- * @param {*} characterJSON
- */
-export default function special(characterJSON) {
-  const divineSmite = characterJSON.features
-    .concat(characterJSON.actions)
-    .some((f) => f.name === "Divine Smite" && f.type === "feat");
-  if (divineSmite) {
-    characterJSON.spells.push(getDivineSmite());
-  }
-}
