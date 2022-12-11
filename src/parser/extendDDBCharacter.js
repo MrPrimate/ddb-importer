@@ -21,6 +21,7 @@ import "./character/spellCasting.js";
 import "./character/race.js";
 import "./character/resources.js";
 import "./character/inventory.js";
+import "./character/globalBonuses.js";
 
 import "./special/character.js";
 

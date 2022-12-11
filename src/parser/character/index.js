@@ -1,5 +1,4 @@
 import utils from "../../lib/utils.js";
-import { getBonusAbilities, getBonusSpellAttacks, getBonusSpellDC, getBonusWeaponAttacks } from "./globalBonuses.js";
 import DDBCharacter from "../DDBCharacter.js";
 // import { fixCharacterLevels } from "./filterModifiers.js";
 
@@ -91,18 +90,9 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._generateSpellSlots();
 
   // Extra global bonuses
-  // Extra bonuses
-  this.raw.character.system.bonuses.abilities = getBonusAbilities(this.source.ddb, this.raw.character);
-  // spell attacks
-  this.raw.character.system.bonuses.rsak = getBonusSpellAttacks(this.source.ddb, this.raw.character, "ranged");
-  this.raw.character.system.bonuses.msak = getBonusSpellAttacks(this.source.ddb, this.raw.character, "melee");
-  // spell dc
-  this.raw.character.system.bonuses.spell = getBonusSpellDC(this.source.ddb, this.raw.character);
-  // melee weapon attacks
-  this.raw.character.system.bonuses.mwak = getBonusWeaponAttacks(this.source.ddb, this.raw.character, "melee");
-  // ranged weapon attacks
-  // e.g. ranged fighting style
-  this.raw.character.system.bonuses.rwak = getBonusWeaponAttacks(this.source.ddb, this.raw.character, "ranged");
-
+  this._generateBonusAbilities();
+  this._generateBonusSpellAttacks();
+  this._generateBonusSpellDC();
+  this._generateBonusWeaponAttacks();
 };
 

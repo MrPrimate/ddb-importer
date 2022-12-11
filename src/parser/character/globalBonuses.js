@@ -1,4 +1,5 @@
 import DDBHelper from "../../lib/DDBHelper.js";
+import DDBCharacter from "../DDBCharacter.js";
 
 /**
  * Gets global bonuses to attacks and damage
@@ -9,10 +10,8 @@ import DDBHelper from "../../lib/DDBHelper.js";
     "damage": "",
   },
  * @param {*} lookupTable
- * @param {*} data
- * @param {*} character
  */
-export function getGlobalBonusAttackModifiers(lookupTable, data, character) {
+DDBCharacter.prototype.getGlobalBonusAttackModifiers = function getGlobalBonusAttackModifiers(lookupTable) {
   let result = {
     attack: "",
     damage: "",
@@ -31,7 +30,7 @@ export function getGlobalBonusAttackModifiers(lookupTable, data, character) {
   };
 
   lookupTable.forEach((b) => {
-    const lookupResult = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
+    const lookupResult = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", b.ddbSubType), this.raw.character);
     const lookupMatch = diceFormula.test(lookupResult);
 
     // if a match then a dice string
@@ -57,7 +56,7 @@ export function getGlobalBonusAttackModifiers(lookupTable, data, character) {
   });
 
   return result;
-}
+};
 
 /**
  * Gets global bonuses to spell attacks and damage
@@ -67,11 +66,9 @@ export function getGlobalBonusAttackModifiers(lookupTable, data, character) {
     "attack": "",
     "damage": "",
   },
- * @param {*} data
- * @param {*} character
  * @param {*} type
  */
-export function getBonusSpellAttacks(data, character, type) {
+DDBCharacter.prototype.getBonusSpellAttacks = function getBonusSpellAttacks(type) {
   // I haven't found any matching global spell damage boosting mods in ddb
   const bonusLookups = [
     { fvttType: "attack", ddbSubType: "spell-attacks" },
@@ -79,8 +76,14 @@ export function getBonusSpellAttacks(data, character, type) {
     { fvttType: "attack", ddbSubType: "warlock-spell-attacks" },
   ];
 
-  return getGlobalBonusAttackModifiers(bonusLookups, data, character);
-}
+  return this.getGlobalBonusAttackModifiers(bonusLookups);
+};
+
+DDBCharacter.prototype._generateBonusSpellAttacks = function _generateBonusSpellAttacks() {
+  this.raw.character.system.bonuses.rsak = this.getBonusSpellAttacks("ranged");
+  this.raw.character.system.bonuses.msak = this.getBonusSpellAttacks("melee");
+};
+
 
 /**
  * Gets global bonuses to weapon attacks and damage
@@ -90,11 +93,9 @@ export function getBonusSpellAttacks(data, character, type) {
     "attack": "",
     "damage": "",
   },
- * @param {*} data
- * @param {*} character
  * @param {*} type
  */
-export function getBonusWeaponAttacks(data, character, type) {
+DDBCharacter.prototype.getBonusWeaponAttacks = function getBonusWeaponAttacks(type) {
   // global melee damage is not a ddb type, in that it's likely to be
   // type specific. The only class one I know of is the Paladin Improved Smite
   // which will be handled in the weapon import later.
@@ -104,8 +105,13 @@ export function getBonusWeaponAttacks(data, character, type) {
     { fvttType: "attack", ddbSubType: `${type}-weapon-attacks` },
   ];
 
-  return getGlobalBonusAttackModifiers(bonusLookups, data, character);
-}
+  return this.getGlobalBonusAttackModifiers(bonusLookups);
+};
+
+DDBCharacter.prototype._generateBonusWeaponAttacks = function _generateBonusWeaponAttacks() {
+  this.raw.character.system.bonuses.mwak = this.getBonusWeaponAttacks("melee");
+  this.raw.character.system.bonuses.rwak = this.getBonusWeaponAttacks("ranged");
+};
 
 /**
  * Gets global bonuses to ability checks, saves and skills
@@ -115,10 +121,9 @@ export function getBonusWeaponAttacks(data, character, type) {
     "save": "",
     "skill": ""
   },
- * @param {*} data
- * @param {*} character
+ * @param {*} this.raw.character
  */
-export function getBonusAbilities(data, character) {
+DDBCharacter.prototype._generateBonusAbilities = function _generateBonusAbilities() {
   let result = {
     "check": "",
     "save": "",
@@ -131,13 +136,14 @@ export function getBonusAbilities(data, character) {
   ];
 
   bonusLookup.forEach((b) => {
-    const bonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
+    const mods = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", b.ddbSubType);
+    const bonus = DDBHelper.getModifierSum(mods, this.raw.character);
     if (bonus !== 0) result[b.fvttType] = `+ ${bonus}`;
   });
-  return result;
-}
+  this.raw.character.system.bonuses.abilities = result;
+};
 
-export function getBonusSpellDC(data, character) {
+DDBCharacter.prototype._generateBonusSpellDC = function _generateBonusSpellDC() {
   let result = {
     "dc": "",
   };
@@ -147,7 +153,7 @@ export function getBonusSpellDC(data, character) {
   ];
 
   const bonus = bonusLookup.map((b) => {
-    return DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(data, "bonus", b.ddbSubType), character);
+    return DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", b.ddbSubType), this.raw.character);
   })
     .filter((b) => b && b !== 0 && String(b).trim() !== "")
     .reduce((previous, current) => {
@@ -158,5 +164,5 @@ export function getBonusSpellDC(data, character) {
     result["dc"] = bonus;
   }
 
-  return result;
-}
+  this.raw.character.system.bonuses.spell = result;
+};
