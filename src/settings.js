@@ -125,6 +125,15 @@ const POPUPS = {
   web: null,
 };
 
+const MODULE_ID = "ddb-importer";
+
+function activeUpdate() {
+  const dynamicSync = game.settings.get(MODULE_ID, "dynamic-sync");
+  const updateUser = game.settings.get(MODULE_ID, "dynamic-sync-user");
+  const gmSyncUser = game.user.isGM && game.user.id == updateUser;
+  return dynamicSync && gmSyncUser;
+}
+
 const SETTINGS = {
   MODULE_ID: "ddb-importer",
   FLAG_NAME: "ddbimporter",
@@ -1251,6 +1260,9 @@ const SETTINGS = {
       };
 
     return SETTINGS.APPLY_GLOBAL_DEFAULTS(defaultSettings);
+  },
+  STATUS: {
+    activeUpdate,
   },
 };
 

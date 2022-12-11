@@ -2,6 +2,7 @@ import logger from "../logger.js";
 import utils from "../lib/utils.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DICTIONARY from "../dictionary.js";
+import SETTINGS from "../settings.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
 import { getCampaignId } from "../lib/Settings.js";
 import { looseItemNameMatch } from "../muncher/import.js";
@@ -9,15 +10,7 @@ import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getActorConditionStates, getCondition } from "../parser/special/conditions.js";
 import { getItemCollectionItems } from "../parser/special/itemCollections.js";
 import DDBProxy from "../lib/DDBProxy.js";
-import SETTINGS from "../settings.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
-
-function activeUpdate() {
-  const dynamicSync = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync");
-  const updateUser = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-user");
-  const gmSyncUser = game.user.isGM && game.user.id == updateUser;
-  return dynamicSync && gmSyncUser;
-}
 
 function getFoundryItems(actor) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
@@ -58,7 +51,7 @@ async function getCompendiumItemInfo(item) {
 async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
   const cobaltCookie = getCobalt(actor.id);
-  const dynamicSync = activeUpdate();
+  const dynamicSync = SETTINGS.STATUS.activeUpdate();
   const parsingApi = dynamicSync
     ? DDBProxy.getDynamicProxy()
     : DDBProxy.getProxy();
@@ -837,7 +830,9 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
       itemId: item.flags.ddbimporter.id,
       charges: parseInt(item.system.uses.max) - parseInt(item.system.uses.value),
     };
-    promises.push(updateCharacterCall(actor, "equipment/charges", itemData, { name: item.name }));
+    if (Number.isInteger(itemData.charges)) {
+      promises.push(updateCharacterCall(actor, "equipment/charges", itemData, { name: item.name }));
+    }
   });
   itemsToQuantity.forEach((item) => {
     const itemData = {
@@ -1486,7 +1481,7 @@ async function activeUpdateEffectTrigger(document, state) {
 
 export function activateUpdateHooks() {
   // check to make sure we can sync back, currently only works for 1 gm user
-  if (activeUpdate()) {
+  if (SETTINGS.STATUS.activeUpdate()) {
     Hooks.on("updateActor", activeUpdateActor);
     Hooks.on("updateItem", activeUpdateUpdateItem);
     Hooks.on("createItem", (document) => activeUpdateAddOrDeleteItem(document, "CREATE"));
