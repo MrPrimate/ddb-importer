@@ -79,13 +79,15 @@ export default class DDBRace {
     this.data.flags.ddbimporter.featIds = this.race.featIds;
 
     if (this.race.portraitAvatarUrl) {
-      portraitAvatarUrl = await FileHelper.getImagePath(this.race.portraitAvatarUrl, "race-portrait", this.race.fullName);
+      const downloadOptions = { type: "race-portrait", name: this.race.fullName };
+      portraitAvatarUrl = await FileHelper.getImagePath(this.race.portraitAvatarUrl, downloadOptions);
       this.data.img = portraitAvatarUrl;
       this.data.flags.ddbimporter['portraitAvatarUrl'] = this.race.portraitAvatarUrl;
     }
 
     if (this.race.avatarUrl) {
-      avatarUrl = await FileHelper.getImagePath(this.race.avatarUrl, "race-avatar", this.race.fullName);
+      const downloadOptions = { type: "race-avatar", name: this.race.fullName };
+      avatarUrl = await FileHelper.getImagePath(this.race.avatarUrl, downloadOptions);
       this.data.flags.ddbimporter['avatarUrl'] = this.race.avatarUrl;
       if (!this.data.img) {
         this.data.img = avatarUrl;
@@ -93,7 +95,8 @@ export default class DDBRace {
     }
 
     if (this.race.largeAvatarUrl) {
-      largeAvatarUrl = await FileHelper.getImagePath(this.race.largeAvatarUrl, "race-large", this.race.fullName);
+      const downloadOptions = { type: "race-large", name: this.race.fullName };
+      largeAvatarUrl = await FileHelper.getImagePath(this.race.largeAvatarUrl, downloadOptions);
       // eslint-disable-next-line require-atomic-updates
       this.data.flags.ddbimporter['largeAvatarUrl'] = this.race.largeAvatarUrl;
       if (!this.data.img) {

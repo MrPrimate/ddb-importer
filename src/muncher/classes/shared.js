@@ -214,13 +214,15 @@ export async function buildBaseClass(klass) {
   let portraitAvatarUrl;
 
   if (klass.portraitAvatarUrl) {
-    portraitAvatarUrl = await FileHelper.getImagePath(klass.portraitAvatarUrl, "class-portrait", klass.fullName);
+    const downloadOptions = { type: "class-portrait", name: klass.fullName };
+    portraitAvatarUrl = await FileHelper.getImagePath(klass.portraitAvatarUrl, downloadOptions);
     result.img = portraitAvatarUrl;
     result.flags.ddbimporter['portraitAvatarUrl'] = klass.portraitAvatarUrl;
   }
 
   if (klass.avatarUrl) {
-    avatarUrl = await FileHelper.getImagePath(klass.avatarUrl, "class-avatar", klass.fullName);
+    const downloadOptions = { type: "class-avatar", name: klass.fullName };
+    avatarUrl = await FileHelper.getImagePath(klass.avatarUrl, downloadOptions);
     result.flags.ddbimporter['avatarUrl'] = klass.avatarUrl;
     if (!result.img) {
       result.img = avatarUrl;
@@ -228,7 +230,8 @@ export async function buildBaseClass(klass) {
   }
 
   if (klass.largeAvatarUrl) {
-    largeAvatarUrl = await FileHelper.getImagePath(klass.largeAvatarUrl, "class-large", klass.fullName);
+    const downloadOptions = { type: "class-large", name: klass.fullName };
+    largeAvatarUrl = await FileHelper.getImagePath(klass.largeAvatarUrl, downloadOptions);
     // eslint-disable-next-line require-atomic-updates
     result.flags.ddbimporter['largeAvatarUrl'] = klass.largeAvatarUrl;
     if (!result.img) {

@@ -120,7 +120,7 @@ const FileHelper = {
         return new Promise((resolve) => {
           let canvas = document.createElement("canvas");
           let ctx = canvas.getContext("2d");
-          const quality = game.settings.get("ddb-importer", "webp-quality");
+          const quality = game.settings.get(SETTINGS.MODULE_ID, "webp-quality");
 
           canvas.width = rawImage.width;
           canvas.height = rawImage.height;
@@ -138,7 +138,7 @@ const FileHelper = {
   },
 
   uploadFile: async function (data, path, filename, forceWebp = false) {
-    const useWebP = game.settings.get("ddb-importer", "use-webp");
+    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
     const file = new File([data], filename, { type: data.type });
     const imageType = data.type.startsWith("image") && data.type !== "image/webp";
     const uploadFile = useWebP && (imageType || forceWebp)
@@ -267,13 +267,14 @@ const FileHelper = {
     return encodeURI(uri);
   },
 
-  getImagePath: async (imageUrl, type = "ddb", name = "", download = false, remoteImages = false) => {
-    const frameDirectory = game.settings.get("ddb-importer", "frame-image-upload-directory").replace(/^\/|\/$/g, "");
-    const otherDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
+  // const options = { type: "frame", name: `DDB ${frame.name}`, download: true, remoteImages: false, force: false };
+  getImagePath: async (imageUrl, { type = "ddb", name = "", download = false, remoteImages = false, force = false } = {}) => {
+    const frameDirectory = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory").replace(/^\/|\/$/g, "");
+    const otherDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const uploadDirectory = type === "frame" ? frameDirectory : otherDirectory;
-    const downloadImage = (download) ? download : game.settings.get("ddb-importer", "munching-policy-download-images");
-    const remoteImage = (remoteImages) ? remoteImages : game.settings.get("ddb-importer", "munching-policy-remote-images");
-    const useWebP = game.settings.get("ddb-importer", "use-webp");
+    const downloadImage = (download) ? download : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
+    const remoteImage = (remoteImages) ? remoteImages : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
+    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
 
     if (imageUrl && downloadImage) {
       const ext = useWebP
@@ -285,7 +286,7 @@ const FileHelper = {
       const filename = type + "-" + name.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").trim();
       const imageExists = await FileHelper.fileExists(uploadDirectory, filename + "." + ext);
 
-      if (imageExists) {
+      if (imageExists && !force) {
         // eslint-disable-next-line require-atomic-updates
         const image = await FileHelper.getFileUrl(uploadDirectory, filename + "." + ext);
         return image.trim();

@@ -4,6 +4,7 @@ import FileHelper from "../lib/FileHelper.js";
 import { updateIcons, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compendiumFolders } from "./import.js";
 import DDBMuncher from "./DDBMuncher.js";
 import { migrateItemsDAESRD } from "./dae.js";
+import SETTINGS from "../settings.js";
 
 // check items to see if retaining item, img or resources
 async function existingItemRetentionCheck(currentItems, newItems, checkId = true) {
@@ -64,7 +65,7 @@ async function addNPCToCompendium(npc, type = "monster") {
 
     let compendiumNPC;
     if (hasProperty(npc, "_id") && compendium.index.has(npc._id)) {
-      if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
+      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
         const existingNPC = await compendium.getDocument(npc._id);
 
         const monsterTaggedItems = npcBasic.items.map((item) => {
@@ -120,7 +121,7 @@ export async function addNPCsToCompendium(npcs, type = "monster") {
       keepId: true,
     };
 
-    if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
+    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
       const updateNPCs = npcs.filter((npc) => hasProperty(npc, "_id") && compendium.index.has(npc._id));
       logger.debug("NPC Update Data", duplicate(updateNPCs));
       const updateResults = await Actor.updateDocuments(updateNPCs, options);
@@ -158,7 +159,7 @@ export async function addNPCDDBId(npc, type = "monster") {
     );
 
     if (npcMatch) {
-      if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
+      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
         const existingNPC = await compendium.getDocument(npcMatch._id);
         const updateDDBData = {
           _id: npcMatch._id,
@@ -189,51 +190,47 @@ export async function getNPCImage(npcData, options) {
     return npcData;
   }
 
-  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+  const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
   if (!mergedOptions.forceUpdate && !updateImages && npcData.img !== CONST.DEFAULT_TOKEN) {
     return npcData;
   }
 
-  let dndBeyondImageUrl = npcData.flags.monsterMunch.img;
-  let dndBeyondTokenImageUrl = npcData.flags.monsterMunch.tokenImg;
-  const useAvatarAsToken = game.settings.get("ddb-importer", "munching-policy-use-full-token-image") || mergedOptions.forceUseFullToken;
-  const useTokenAsAvatar = game.settings.get("ddb-importer", "munching-policy-use-token-avatar-image") || mergedOptions.forceUseTokenAvatar;
+  let ddbAvatarUrl = npcData.flags.monsterMunch.img;
+  let ddbTokenUrl = npcData.flags.monsterMunch.tokenImg;
+  const useAvatarAsToken = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image") || mergedOptions.forceUseFullToken;
+  const useTokenAsAvatar = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image") || mergedOptions.forceUseTokenAvatar;
   if (useAvatarAsToken) {
-    dndBeyondTokenImageUrl = dndBeyondImageUrl;
+    ddbTokenUrl = ddbAvatarUrl;
   } else if (useTokenAsAvatar) {
-    dndBeyondImageUrl = dndBeyondTokenImageUrl;
+    ddbAvatarUrl = ddbTokenUrl;
   }
 
   const npcType = options.type.startsWith("vehicle") ? "vehicle" : npcData.system.details.type.value;
   const genericNPCName = npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
   const npcName = npcData.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
 
-  if (!dndBeyondImageUrl && dndBeyondTokenImageUrl) dndBeyondImageUrl = dndBeyondTokenImageUrl;
-  if (!dndBeyondTokenImageUrl && dndBeyondImageUrl) dndBeyondTokenImageUrl = dndBeyondImageUrl;
+  if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
+  if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
 
-  if (dndBeyondImageUrl) {
-    const ext = dndBeyondImageUrl.split(".").pop().split(/#|\?|&/)[0];
-
-    if (dndBeyondImageUrl.endsWith(npcType + "." + ext)) {
-      // eslint-disable-next-line require-atomic-updates
-      npcData.img = await FileHelper.getImagePath(dndBeyondImageUrl, "npc-generic", genericNPCName);
-    } else {
-      // eslint-disable-next-line require-atomic-updates
-      npcData.img = await FileHelper.getImagePath(dndBeyondImageUrl, "npc", npcName);
-    }
+  if (ddbAvatarUrl) {
+    const ext = ddbAvatarUrl.split(".").pop().split(/#|\?|&/)[0];
+    const genericNpc = ddbAvatarUrl.endsWith(npcType + "." + ext);
+    const name = genericNpc ? genericNPCName : npcName;
+    const nameType = genericNpc ? "npc-generic" : "npc";
+    const downloadOptions = { type: nameType, name };
+    // eslint-disable-next-line require-atomic-updates
+    npcData.img = await FileHelper.getImagePath(ddbAvatarUrl, downloadOptions);
   }
 
   // Token images always have to be downloaded.
-  if (dndBeyondTokenImageUrl) {
-    const tokenExt = dndBeyondTokenImageUrl.split(".").pop().split(/#|\?|&/)[0];
-
-    if (dndBeyondTokenImageUrl.endsWith(npcType + "." + tokenExt)) {
-      // eslint-disable-next-line require-atomic-updates
-      npcData.prototypeToken.texture.src = await FileHelper.getImagePath(dndBeyondTokenImageUrl, "npc-generic-token", genericNPCName, true, false);
-    } else {
-      // eslint-disable-next-line require-atomic-updates
-      npcData.prototypeToken.texture.src = await FileHelper.getImagePath(dndBeyondTokenImageUrl, "npc-token", npcName, true, false);
-    }
+  if (ddbTokenUrl) {
+    const tokenExt = ddbTokenUrl.split(".").pop().split(/#|\?|&/)[0];
+    const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt);
+    const name = genericNpc ? genericNPCName : npcName;
+    const nameType = genericNpc ? "npc-generic-token" : "npc-token";
+    const downloadOptions = { type: nameType, name, download: true, remoteImages: false, force: true };
+    // eslint-disable-next-line require-atomic-updates
+    npcData.prototypeToken.texture.src = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
   }
 
   // check avatar, if not use token image
@@ -247,7 +244,7 @@ export async function getNPCImage(npcData, options) {
   if (npcData.prototypeToken.texture.src === null) npcData.prototypeToken.texture.src = CONST.DEFAULT_TOKEN;
 
   // okays, but do we now want to tokenize that?
-  const tokenizerReady = game.settings.get("ddb-importer", "munching-policy-monster-tokenize")
+  const tokenizerReady = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize")
     && !mergedOptions.disableAutoTokenizeOverride
     && game.modules.get("vtta-tokenizer")?.active;
   if (tokenizerReady) {
@@ -261,7 +258,7 @@ export async function getNPCImage(npcData, options) {
 }
 
 async function swapItems(data) {
-  const swap = game.settings.get("ddb-importer", "munching-policy-monster-items");
+  const swap = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-items");
 
   if (swap) {
     logger.debug("Replacing items...");
@@ -317,7 +314,7 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
   // DAE
   const daeInstalled = game.modules.get("dae")?.active
     && (game.modules.get("Dynamic-Effects-SRD")?.active || game.modules.get("midi-srd")?.active);
-  const daeCopy = game.settings.get("ddb-importer", "munching-policy-dae-copy");
+  const daeCopy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-dae-copy");
   if (daeInstalled && daeCopy) {
     DDBMuncher.munchNote(`Importing DAE Item for ${data.name}`);
     // eslint-disable-next-line require-atomic-updates
@@ -380,7 +377,7 @@ export function addNPC(data, bulkImport, type) {
 export async function generateIconMap(monsters) {
   let promises = [];
 
-  const srdIcons = game.settings.get("ddb-importer", "munching-policy-use-srd-icons");
+  const srdIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons");
   // eslint-disable-next-line require-atomic-updates
   if (srdIcons) {
     const srdIconLibrary = await getSRDIconLibrary();

@@ -52,7 +52,8 @@ export async function parseFrames() {
 
   DDBMuncher.munchNote(`Fetching DDB Frames`);
   frames.forEach(async (frame) => {
-    await FileHelper.getImagePath(frame.frameAvatarUrl, 'frame', `DDB ${frame.name}`, true);
+    const options = { type: "frame", name: `DDB ${frame.name}`, download: true };
+    await FileHelper.getImagePath(frame.frameAvatarUrl, options);
   });
 
   DDBMuncher.munchNote("");

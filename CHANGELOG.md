@@ -1,3 +1,7 @@
+# 3.2.9
+
+* Monster Munch: If using update existing images, it would not update existing images if the image file existed on disk for the default image.
+
 # 3.2.8
 
 * Small tweaks to Encounter button for @Mouse0270#0270

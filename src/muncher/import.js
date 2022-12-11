@@ -487,7 +487,8 @@ async function getDDBItemImages(items, download) {
         const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
         if (avatarUrl && avatarUrl != "") {
           DDBMuncher.munchNote(`Downloading ${item.name} image`);
-          const smallImage = await FileHelper.getImagePath(avatarUrl, 'item', item.name, downloadImages, remoteImages);
+          const downloadOptions = { type: "item", name: item.name, download: downloadImages, remoteImages };
+          const smallImage = await FileHelper.getImagePath(avatarUrl, downloadOptions);
           logger.debug(`Final image ${smallImage}`);
           itemImage.img = smallImage;
         }
@@ -495,7 +496,8 @@ async function getDDBItemImages(items, download) {
       if (item.flags.ddbimporter.dndbeyond.largeAvatarUrl) {
         const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
         if (largeAvatarUrl && largeAvatarUrl != "") {
-          const largeImage = await FileHelper.getImagePath(largeAvatarUrl, 'item-large', item.name, downloadImages, remoteImages);
+          const downloadOptions = { type: "item-large", name: item.name, download: downloadImages, remoteImages };
+          const largeImage = await FileHelper.getImagePath(largeAvatarUrl, downloadOptions);
           itemImage.large = largeImage;
           if (!itemImage.img) itemImage.img = largeImage;
         }
@@ -512,7 +514,8 @@ async function getDDBItemImages(items, download) {
 async function getDDBGenericItemImages(download) {
   DDBMuncher.munchNote(`Fetching DDB Generic Item icons`);
   const itemMap = DICTIONARY.items.map(async (item) => {
-    const img = await FileHelper.getImagePath(item.img, 'item', item.filterType, download);
+    const downloadOptions = { type: "item", name: item.filterType, download };
+    const img = await FileHelper.getImagePath(item.img, downloadOptions);
     let itemIcons = {
       filterType: item.filterType,
       img: img,
@@ -527,7 +530,8 @@ async function getDDBGenericItemImages(download) {
 async function getDDBGenericLootImages(download) {
   DDBMuncher.munchNote(`Fetching DDB Generic Loot icons`);
   const itemMap = DICTIONARY.genericItemIcons.map(async (item) => {
-    const img = await FileHelper.getImagePath(item.img, 'equipment', item.name, download);
+    const downloadOptions = { type: "equipment", name: item.name, download };
+    const img = await FileHelper.getImagePath(item.img, downloadOptions);
     let itemIcons = {
       name: item.name,
       img: img,
@@ -569,7 +573,8 @@ export async function getDDBGenericItemIcons(items, download) {
 async function getDDBSchoolSpellImages(download) {
   DDBMuncher.munchNote(`Fetching spell school icons`);
   const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
-    const img = await FileHelper.getImagePath(school.img, 'spell', school.name, download);
+    const downloadOptions = { type: "spell", name: school.name, download };
+    const img = await FileHelper.getImagePath(school.img, downloadOptions);
     let schoolIcons = {
       name: school.name,
       img: img,
