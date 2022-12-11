@@ -13,7 +13,7 @@ function getItemType(data) {
       type: "backpack",
     };
   } else if (data.definition.name.startsWith("Lantern,")
-    || ["Lamp"].includes(data.definition.name)
+    || ["Lamp", "Healer's Kit"].includes(data.definition.name)
   ) {
     return {
       type: "consumable",

@@ -1,6 +1,7 @@
 # 3.2.9
 
-* Monster Munch: If using update existing images, it would not update existing images if the image file existed on disk for the default image.
+* Monster Munch: If using update existing images, it would not update existing images if the image file existed on disk for the default image. @Baxstar#3335
+* Healer's Kit now imports as a consumable item.
 
 # 3.2.8
 
