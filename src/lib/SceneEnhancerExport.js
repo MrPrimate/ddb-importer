@@ -40,6 +40,7 @@ function getNotes(scene, bookCode) {
       logger.warn("note details", {
         note,
         page,
+        icon: note.texture.src,
         journal,
         flags,
         pageFlags,
@@ -50,6 +51,8 @@ function getNotes(scene, bookCode) {
       return {
         index,
         pageId: page._id,
+        texture: note.texture,
+        icon: note.texture.src,
         label,
         flags: {
           ddb: flags,
@@ -69,6 +72,7 @@ function getNotes(scene, bookCode) {
       } else {
         const n = {
           label: note.label,
+          texture: note.texture,
           flags: note.flags,
           index: note.index,
           iconSize: note.iconSize,
@@ -87,6 +91,7 @@ function getNotes(scene, bookCode) {
     .map((note) => ({
       label: note.label,
       flags: note.flags,
+      texture: note.texture,
       positions: note.positions,
       iconSize: note.iconSize,
       iconTint: note.iconTint,

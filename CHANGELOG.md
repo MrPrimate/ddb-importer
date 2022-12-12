@@ -1,3 +1,7 @@
+# 3.2.10
+
+* Improve note icon handling in scene exporting.
+
 # 3.2.9
 
 * Monster Munch: If using update existing images, it would not update existing images if the image file existed on disk for the default image. @Baxstar#3335
