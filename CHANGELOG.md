@@ -1,6 +1,7 @@
 # 3.2.10
 
 * Improve note icon handling in scene exporting.
+* Encounter Muncher will now create a new foundry combat per encounter
 
 # 3.2.9
 

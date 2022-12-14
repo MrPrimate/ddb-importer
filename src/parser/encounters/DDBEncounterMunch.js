@@ -223,7 +223,7 @@ export default class DDBEncounterMunch extends Application {
     logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
     await AdventureMunchHelpers.asyncForEach(monstersToAddToWorld, async (actor) => {
       let worldActor = game.actors.find(
-        (a) => a.folder == encounterMonsterFolder.id && a.flags?.ddbimporter?.id == actor.ddbId
+        (a) => a.folder?.id == encounterMonsterFolder.id && a.flags?.ddbimporter?.id == actor.ddbId
       );
       if (!worldActor) {
         logger.info(
@@ -489,7 +489,11 @@ export default class DDBEncounterMunch extends Application {
 
       if (worldScene) {
         logger.info(`Updating scene ${sceneData.name}`);
-        await Combat.deleteDocuments(game.combats.filter((c) => c.scene.id == worldScene.id).map((c) => c.id));
+        const existingCombats = game.combats.filter((c) =>
+          c.scene?.id == worldScene.id
+          && c.flags?.ddbimporter?.encounterId == this.encounter.id
+        );
+        await Combat.deleteDocuments(existingCombats.map((c) => c.id));
         if (importDDBIScene) {
           logger.info(`Updating DDBI scene ${sceneData.name}`);
           sceneData._id = worldScene.id;
@@ -543,7 +547,10 @@ export default class DDBEncounterMunch extends Application {
       = this.encounter.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
 
     await this.scene.view();
-    this.combat = await Combat.create({ scene: this.scene.id });
+    const flags = {
+      "ddbimporter.encounterId": this.encounter.id,
+    };
+    this.combat = await Combat.create({ scene: this.scene.id, flags: flags });
     await this.combat.activate();
 
     let toCreate = [];
