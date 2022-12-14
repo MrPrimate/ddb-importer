@@ -2,7 +2,22 @@
   <header class="sheet-header">
     <h1 class="item-title">{{name}}</h1>
   </header>
-
+  {{#if monster.isMonster}}
+    {{#each monster.flags}}
+    <label class="flag-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+            name="flag-policy-{{this.name}}" data-section="{{this.name}}">{{this.description}}
+    </label>
+    {{/each}}
+  <hr>
+  {{/if}}
+  {{#if item.isItem}}
+    {{#each item.flags}}
+    <label class="flag-policy"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+            name="flag-policy-{{this.name}}" data-section="{{this.name}}">{{this.description}}
+    </label>
+    {{/each}}
+  <hr>
+  {{/if}}
   <div class="ddb-importer-flags">
     {{#each flags}}
     <h2 class="ddb-importer-flags">data.flags.{{@key}}:</h2>

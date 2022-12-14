@@ -1,3 +1,4 @@
+import DICTIONARY from "../dictionary.js";
 import logger from "../logger.js";
 
 export class DDBAdventureFlags extends FormApplication {
@@ -14,7 +15,7 @@ export class DDBAdventureFlags extends FormApplication {
   async getData() { // eslint-disable-line class-methods-use-this
     // console.warn(this);
     // console.warn(this.object);
-    let item = this.object;
+    const item = this.object;
 
     let flags = {};
 
@@ -48,6 +49,26 @@ export class DDBAdventureFlags extends FormApplication {
     const result = {
       name: item.name,
       flags,
+      monster: {
+        isMonster: this.object.type == "npc",
+        flags: [
+          {
+            name: "keepItems",
+            description: "Keep this monsters item configuration for Adventure Muncher",
+            isChecked: item.flags.ddbimporter.keepItems ?? false,
+          }
+        ]
+      },
+      item: {
+        isItem: DICTIONARY.types.monster.includes(this.object.type),
+        flags: [
+          {
+            name: "customItem",
+            description: "Keep this custom item",
+            isChecked: item.flags.ddbimporter.customItem ?? false,
+          }
+        ]
+      },
     };
 
     if (item.link) result["link"] = item.link;
@@ -57,4 +78,28 @@ export class DDBAdventureFlags extends FormApplication {
     return result;
   }
 
+
+  activateListeners(html) {
+    super.activateListeners(html);
+    // watch the change of the import-policy-selector checkboxes
+    $(html)
+      .find(
+        [
+          '.flag-policy input[type="checkbox"]',
+        ].join(",")
+      )
+      .on("change", async (event) => {
+        const selection = event.currentTarget.dataset.section;
+        const checked = event.currentTarget.checked;
+        logger.debug(`Updating flag-policy for ${this.object.name}, ${selection} to ${checked}`);
+
+        await this.object.update({
+          flags: {
+            "ddbimporter": {
+              [selection]: checked
+            }
+          }
+        });
+      });
+  }
 }

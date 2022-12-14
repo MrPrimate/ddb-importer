@@ -1,6 +1,7 @@
 # 3.2.10
 
 * Improve note icon handling in scene exporting.
+* Some improvements for monster exporting for adventure muncher.
 * Encounter Muncher will now create a new foundry combat per encounter.
 * Background munching would fail if use SRD compendium items was ticked.
 
