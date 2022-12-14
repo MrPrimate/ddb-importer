@@ -1,7 +1,8 @@
 # 3.2.10
 
 * Improve note icon handling in scene exporting.
-* Encounter Muncher will now create a new foundry combat per encounter
+* Encounter Muncher will now create a new foundry combat per encounter.
+* Background munching would fail if use SRD compendium items was ticked.
 
 # 3.2.9
 

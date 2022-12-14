@@ -37,6 +37,7 @@ const SRD_COMPENDIUM_LOOKUPS = [
   { type: "equipment", name: "dnd5e.items" },
   { type: "monsters", name: "dnd5e.monsters" },
   { type: "monsterfeatures", name: "dnd5e.monsterfeatures" },
+  { type: "backgrounds", name: "dnd5e.backgrounds" },
 ];
 
 const SUPPORTED_FLAG_GROUPS = [
