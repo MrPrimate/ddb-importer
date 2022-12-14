@@ -55,17 +55,17 @@ export class DDBAdventureFlags extends FormApplication {
           {
             name: "keepItems",
             description: "Keep this monsters item configuration for Adventure Muncher",
-            isChecked: item.flags.ddbimporter.keepItems ?? false,
+            isChecked: item.flags?.ddbimporter?.keepItems ?? false,
           }
         ]
       },
       item: {
-        isItem: DICTIONARY.types.monster.includes(this.object.type),
+        isItem: DICTIONARY.types.monster.includes(this.object.type) || this.object.type === "spell",
         flags: [
           {
             name: "customItem",
             description: "Keep this custom item",
-            isChecked: item.flags.ddbimporter.customItem ?? false,
+            isChecked: item.flags?.ddbimporter?.customItem ?? false,
           }
         ]
       },
