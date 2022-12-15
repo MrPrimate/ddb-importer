@@ -435,6 +435,65 @@ export default class AdventureMunch extends FormApplication {
       : game.actors.get(actorId);
   }
 
+  static async _getTokenUpdateData(worldActor, sceneToken, token) {
+    const tokenData = await worldActor.getTokenDocument();
+    delete tokenData.y;
+    delete tokenData.x;
+    const jsonTokenData = duplicate(tokenData);
+    const updateData = mergeObject(jsonTokenData, sceneToken);
+    logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
+  }
+
+  async _revisitScene(document) {
+    let updatedData = {};
+    let tokenUpdates = [];
+    const scene = duplicate(document);
+    // this is a scene we need to update links to all items
+    logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
+    let deadTokenIds = [];
+    await AdventureMunchHelpers.asyncForEach(scene.tokens, async (token) => {
+      if (token.actorId) {
+        const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
+        delete sceneToken.scale;
+        const worldActor = this._getWorldActor(token.actorId);
+        if (worldActor) {
+          const updateData = AdventureMunch._getTokenUpdateData(worldActor, sceneToken, token);
+          if (this.importToAdventureCompendium) {
+            await document.updateSource({ tokens: updateData });
+            tokenUpdates.push(updateData);
+          } else {
+            await document.updateEmbeddedDocuments("Token", [updateData], { keepId: true, keepEmbeddedIds: true });
+          }
+        } else {
+          deadTokenIds.push(token._id);
+        }
+      } else {
+        deadTokenIds.push(token._id);
+      }
+    });
+
+    if (this.importToAdventureCompendium) {
+      await document.updateSource({ tokens: tokenUpdates }, { recursive: false });
+    }
+
+    // remove a token from the scene if we have not been able to link it
+    if (!this.importToAdventureCompendium && deadTokenIds.length > 0) {
+      logger.warn(`Removing ${scene.name} tokens with no world actors`, deadTokenIds);
+      await document.deleteEmbeddedDocuments("Token", deadTokenIds);
+    }
+
+    if (!this.importToAdventureCompendium) {
+      // In 0.8.x the thumbs don't seem to be generated.
+      // This code would embed the thumbnail.
+      // Consider writing this out.
+      if (!document.thumb) {
+        const thumbData = await document.createThumbnail();
+        updatedData["thumb"] = thumbData.thumb;
+      }
+      await document.update(updatedData);
+    }
+  }
+
   /**
    * Some items need linking up or tweaking post import.
    * @returns {Promise<>}
@@ -456,60 +515,9 @@ export default class AdventureMunch extends FormApplication {
               ? this.fetchTemporaryItem(itemUuid)
               : await fromUuid(itemUuid);
             // let rawData;
-            let updatedData = {};
-            let tokenUpdates = [];
             switch (document.documentName) {
               case "Scene": {
-                const scene = duplicate(document);
-                // this is a scene we need to update links to all items
-                logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
-                let deadTokenIds = [];
-                await AdventureMunchHelpers.asyncForEach(scene.tokens, async (token) => {
-                  if (token.actorId) {
-                    const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
-                    delete sceneToken.scale;
-                    const worldActor = this._getWorldActor(token.actorId);
-                    if (worldActor) {
-                      const tokenData = await worldActor.getTokenDocument();
-                      delete tokenData.y;
-                      delete tokenData.x;
-                      const jsonTokenData = duplicate(tokenData);
-                      const updateData = mergeObject(jsonTokenData, sceneToken);
-                      logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
-                      if (this.importToAdventureCompendium) {
-                        await document.updateSource({ tokens: updateData });
-                        tokenUpdates.push(updateData);
-                      } else {
-                        await document.updateEmbeddedDocuments("Token", [updateData], { keepId: true, keepEmbeddedIds: true });
-                      }
-                    } else {
-                      deadTokenIds.push(token._id);
-                    }
-                  } else {
-                    deadTokenIds.push(token._id);
-                  }
-                });
-
-                if (this.importToAdventureCompendium) {
-                  await document.updateSource({ tokens: tokenUpdates }, { recursive: false });
-                }
-
-                // remove a token from the scene if we have not been able to link it
-                if (!this.importToAdventureCompendium && deadTokenIds.length > 0) {
-                  logger.warn(`Removing ${scene.name} tokens with no world actors`, deadTokenIds);
-                  await document.deleteEmbeddedDocuments("Token", deadTokenIds);
-                }
-
-                if (!this.importToAdventureCompendium) {
-                  // In 0.8.x the thumbs don't seem to be generated.
-                  // This code would embed the thumbnail.
-                  // Consider writing this out.
-                  if (!document.thumb) {
-                    const thumbData = await document.createThumbnail();
-                    updatedData["thumb"] = thumbData.thumb;
-                  }
-                  await document.update(updatedData);
-                }
+                await this._revisitScene(document);
                 break;
               }
               // no default
