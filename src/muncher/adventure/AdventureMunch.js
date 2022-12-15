@@ -440,8 +440,34 @@ export default class AdventureMunch extends FormApplication {
     delete tokenData.y;
     delete tokenData.x;
     const jsonTokenData = duplicate(tokenData);
+    const items = [];
+    const ddbItems = sceneToken.flags.ddbItems ?? [];
+
+    // to do: add item data from custom items
+    // to do: add item data from spells/items
+    // to do: add item data from monster action names
+    for (const item of ddbItems) {
+      if (item.customItem) {
+        items.push(item.data);
+      } else {
+        const ddbId = getProperty(item, "flags.ddbimporter.id");
+        if (ddbId) {
+          // fetch ddbItem here
+        } else {
+          // fetch actor item here
+        }
+      }
+    }
+
+    if (items.length > 0) {
+      jsonTokenData.actorData = {
+        items,
+      };
+    }
+
     const updateData = mergeObject(jsonTokenData, sceneToken);
     logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
+    return updateData;
   }
 
   async _revisitScene(document) {
