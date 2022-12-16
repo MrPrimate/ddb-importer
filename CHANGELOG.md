@@ -5,6 +5,9 @@
 * Encounter Muncher will now create a new foundry combat per encounter.
 * Background munching would fail if use SRD compendium items was ticked.
 * Custom skill parsing would fail if custom skill had no ability checked.
+* Fix a bug where if monsters were not imported into a compendium before munching an adventure, they would not be linked properly in journals.
+* New functionality to support item-machine-monsters like the Boilerdrake from SotDQ.
+* Support to allow items to be added to actors for Adventure Muncher. (Please reach out to me for details).
 
 # 3.2.9
 
