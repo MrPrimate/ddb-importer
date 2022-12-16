@@ -56,7 +56,17 @@ export class DDBAdventureFlags extends FormApplication {
             name: "keepItems",
             description: "Keep this monsters item configuration for Adventure Muncher",
             isChecked: item.flags?.ddbimporter?.keepItems ?? false,
-          }
+          },
+          {
+            name: "keepToken",
+            description: "Keep token? (The image needs to be manually set in the export data)",
+            isChecked: item.flags?.ddbimporter?.keepToken ?? false,
+          },
+          {
+            name: "keepAvatar",
+            description: "Keep avatar?  (The image needs to be manually set in the export data)",
+            isChecked: item.flags?.ddbimporter?.keepAvatar ?? false,
+          },
         ]
       },
       item: {
