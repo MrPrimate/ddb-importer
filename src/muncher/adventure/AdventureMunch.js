@@ -442,19 +442,34 @@ export default class AdventureMunch extends FormApplication {
     const jsonTokenData = duplicate(tokenData);
     const items = [];
     const ddbItems = sceneToken.flags.ddbItems ?? [];
-
-    // to do: add item data from custom items
-    // to do: add item data from spells/items
-    // to do: add item data from monster action names
     for (const item of ddbItems) {
       if (item.customItem) {
         items.push(item.data);
       } else {
-        const ddbId = getProperty(item, "flags.ddbimporter.id");
-        if (ddbId) {
-          // fetch ddbItem here
+        const ddbId = getProperty(item, "ddbId");
+        if (Number.isInteger(ddbId)) {
+          // fetch ddbItem
+          const compendium = CompendiumHelper.getCompendiumType(item.type);
+          const itemRef = compendium.index.find((i) => i.name === item.name && i.type === item.type);
+          if (itemRef) {
+            // eslint-disable-next-line no-await-in-loop
+            const compendiumItem = await compendium.getDocument(itemRef._id);
+            const jsonItem = compendiumItem.toObject();
+            delete jsonItem._id;
+            items.push(jsonItem);
+          } else {
+            logger.error(`Unable to find compendium item ${item.name}`, { item, sceneToken });
+          }
         } else {
           // fetch actor item here
+          const actorItem = worldActor.items.find((i) => i.name === item.name && i.type === item.type);
+          if (actorItem) {
+            const jsonItem = actorItem.toObject();
+            delete jsonItem._id;
+            items.push(jsonItem);
+          } else {
+            logger.error(`Unable to find monster feature/item ${item.name}`, { item, sceneToken, worldActor });
+          }
         }
       }
     }
@@ -464,6 +479,11 @@ export default class AdventureMunch extends FormApplication {
         items,
       };
     }
+
+    if (sceneToken.flags.ddbImages?.keepToken)
+      setProperty(jsonTokenData, "texture.src", sceneToken.flags.ddbImages.tokenImage);
+    if (sceneToken.flags.ddbImages?.keepAvatar)
+      setProperty(jsonTokenData, "actorData.img", sceneToken.flags.ddbImages.avatarImage);
 
     const updateData = mergeObject(jsonTokenData, sceneToken);
     logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
@@ -483,7 +503,7 @@ export default class AdventureMunch extends FormApplication {
         delete sceneToken.scale;
         const worldActor = this._getWorldActor(token.actorId);
         if (worldActor) {
-          const updateData = AdventureMunch._getTokenUpdateData(worldActor, sceneToken, token);
+          const updateData = await AdventureMunch._getTokenUpdateData(worldActor, sceneToken, token);
           if (this.importToAdventureCompendium) {
             await document.updateSource({ tokens: updateData });
             tokenUpdates.push(updateData);
@@ -718,13 +738,12 @@ export default class AdventureMunch extends FormApplication {
           );
         }
 
-        this.lookups.adventureConfig = await generateAdventureConfig(true);
-
         if (action === "compendium") this.importToAdventureCompendium = true;
 
         await this._createFolders();
         if (!this.allScenes) await this._chooseScenes();
         await this._checkForMissingData();
+        this.lookups.adventureConfig = await generateAdventureConfig(true);
 
         if (action === "world") await this._importAdventureToWorld();
         else if (action === "compendium") await this._importAdventureToCompendium();
@@ -1133,7 +1152,9 @@ export default class AdventureMunch extends FormApplication {
 
       await AdventureMunchHelpers.asyncForEach(data.notes, async (note) => {
         // eslint-disable-next-line require-atomic-updates
-        note.icon = await this.importImage(note.icon, true);
+        if (note.icon) note.icon = await this.importImage(note.icon, true);
+        // eslint-disable-next-line require-atomic-updates
+        if (note.texture?.src) note.texture.src = await this.importImage(note.texture.src, true);
       });
 
       await AdventureMunchHelpers.asyncForEach(data.tiles, async (tile) => {
