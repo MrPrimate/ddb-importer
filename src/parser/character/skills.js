@@ -113,7 +113,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
   if (!newEnough) return;
 
   const customSkillData = this.source.ddb.character.customProficiencies
-    .filter((prof) => prof.type === 1)
+    .filter((prof) => prof.type === 1 && Number.isInteger(prof.statId))
     .map((prof) => {
       const ability = DICTIONARY.character.abilities.find((ability) => ability.id == prof.statId);
       return {
