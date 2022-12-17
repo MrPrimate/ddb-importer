@@ -1,3 +1,7 @@
+# 3.2.11
+
+* Export unlinked notes in scene config for adventure muncher.
+
 # 3.2.10
 
 * Improve note icon handling in scene exporting.

@@ -15,7 +15,7 @@ function getNotes(scene, bookCode) {
   );
 
   // get all notes placed on the map
-  const notes = scene.notes
+  const journalNotes = scene.notes
     // the user might have placed a note, unless it is based on an imported Journal Entry, we will not carry
     // that one over
     .filter((note) => relatedJournalEntries.some((journal) => journal.id === note.entryId))
@@ -52,7 +52,6 @@ function getNotes(scene, bookCode) {
         index,
         pageId: page._id,
         texture: note.texture,
-        icon: note.texture.src,
         label,
         flags: {
           ddb: flags,
@@ -87,7 +86,24 @@ function getNotes(scene, bookCode) {
     }, [])
     .sort((a, b) => {
       return a.index - b.index;
-    })
+    });
+
+  const unLinkedNotes = scene.notes
+    .filter((note) => !note.entryId)
+    .map((note) => ({
+      label: note.text,
+      texture: note.texture,
+      flags: { ddb: {
+        noLink: true,
+      } },
+      iconSize: note.iconSize,
+      iconTint: note.iconTint,
+      textColor: note.textColor,
+      textAnchor: note.textAnchor,
+      positions: [{ x: note.x, y: note.y }]
+    }));
+
+  const notes = journalNotes.concat(unLinkedNotes)
     .map((note) => ({
       label: note.label,
       flags: note.flags,
