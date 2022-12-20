@@ -424,6 +424,7 @@ export default class DDBCharacterManager extends FormApplication {
             // begin parsing the character data
             await this.processCharacterData();
             this.showCurrentTask("Loading Character data", "Done.", false);
+            logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });
             this.close();
           } else {
             this.showCurrentTask(this.ddbCharacter.source.message, null, true);
