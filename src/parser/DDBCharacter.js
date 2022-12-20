@@ -105,11 +105,10 @@ export default class DDBCharacter {
           this.data.character.prototypeToken.name = undefined;
         }
         this.source["character"] = this.data;
-        logger.debug("finalParsedData", this.source);
+        logger.debug("finalParsedData", duplicate(this.source));
         return this.source;
       } catch (error) {
-        const debugJson = game.settings.get("ddb-importer", "debug-json");
-        if (debugJson) {
+        if (game.settings.get("ddb-importer", "debug-json")) {
           FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");
         }
         throw error;

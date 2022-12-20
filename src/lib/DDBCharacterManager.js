@@ -415,25 +415,24 @@ export default class DDBCharacterManager extends FormApplication {
             localCobaltPostFix: this.actor.id,
           };
           this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
-          const characterData = await this.ddbCharacter.getCharacterData(getOptions);
-          logger.debug("import.js getCharacterData result", characterData);
-          const debugJson = game.settings.get("ddb-importer", "debug-json");
-          if (debugJson) {
-            FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+          await this.ddbCharacter.getCharacterData(getOptions);
+          logger.debug("import.js getCharacterData result", this.ddbCharacter.source);
+          if (game.settings.get("ddb-importer", "debug-json")) {
+            FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
           }
-          if (characterData.success) {
+          if (this.ddbCharacter.source?.success) {
             // begin parsing the character data
-            await this.processCharacterData(characterData);
+            await this.processCharacterData();
             this.showCurrentTask("Loading Character data", "Done.", false);
             this.close();
           } else {
-            this.showCurrentTask(characterData.message, null, true);
+            this.showCurrentTask(this.ddbCharacter.source.message, null, true);
             return false;
           }
         } catch (error) {
           switch (error.message) {
             case "ImportFailure":
-              logger.error("Failure");
+              logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
               break;
             case "Forbidden":
               this.showCurrentTask("Error retrieving Character: " + error, error, true);
@@ -442,6 +441,7 @@ export default class DDBCharacterManager extends FormApplication {
               logger.error(error);
               logger.error(error.stack);
               this.showCurrentTask("Error processing Character: " + error, error, true);
+              logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
               break;
           }
           return false;
@@ -1090,16 +1090,16 @@ export default class DDBCharacterManager extends FormApplication {
     };
   }
 
-  async processCharacterData(data) {
+  async processCharacterData() {
     this.getSettings();
-    this.result = data.character;
+    this.result = duplicate(this.ddbCharacter.data);
 
     // disable active sync
     const activeUpdateState = this.ddbCharacter.getCurrentDynamicUpdateState();
     await this.ddbCharacter.disableDynamicUpdates();
 
     try {
-      await addContainerItemsToActor(data.ddb, this.actor);
+      await addContainerItemsToActor(this.ddbCharacter.source.ddb, this.actor);
 
       this.importId = randomID();
       setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
@@ -1114,7 +1114,7 @@ export default class DDBCharacterManager extends FormApplication {
       await this.processActiveEffects();
 
       // update image
-      await this.updateImage(data.ddb);
+      await this.updateImage(this.ddbCharacter.source.ddb);
 
       // manage updates of basic character data more intelligently
       // revert some data if update not wanted
@@ -1208,11 +1208,11 @@ export default class DDBCharacterManager extends FormApplication {
       }
 
       await this.ddbCharacter.autoLinkResources();
-      await setConditions(this.actor, data.ddb, this.settings.activeEffectCopy);
-      await addContainerItemsToContainers(data.ddb, this.actor);
+      await setConditions(this.actor, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
+      await addContainerItemsToContainers(this.ddbCharacter.source.ddb, this.actor);
 
     } catch (error) {
-      logger.error("Error importing character: ", error);
+      logger.error("Error importing character: ", { error, ddbCharacter: this.ddbCharacter, result: this.result });
       logger.error(error.stack);
       this.showCurrentTask("Error importing character, attempting rolling back, see console (F12) for details.", error, true);
       await this.resetActor();
@@ -1239,23 +1239,22 @@ export async function importCharacter(actor, html) {
       localCobaltPostFix: actorData._id,
     };
     const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
-    const characterData = await ddbCharacter.getCharacterData(getOptions);
+    await ddbCharacter.getCharacterData(getOptions);
 
-    logger.debug("import.js importCharacter getCharacterData result", characterData);
-    const debugJson = game.settings.get("ddb-importer", "debug-json");
-    if (debugJson) {
-      FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
+    logger.debug("import.js importCharacter getCharacterData result", ddbCharacter.source);
+    if (game.settings.get("ddb-importer", "debug-json")) {
+      FileHelper.download(JSON.stringify(ddbCharacter.source), `${characterId}.json`, "application/json");
     }
-    if (characterData.success) {
+    if (ddbCharacter.source.success) {
       // begin parsing the character data
       const importer = new DDBCharacterManager(DDBCharacterManager.defaultOptions, actorData, ddbCharacter);
       importer.html = html ? html : utils.htmlToDoc("");
-      await importer.processCharacterData(characterData);
+      await importer.processCharacterData();
       importer.showCurrentTask("Loading Character data", "Done.", false);
       logger.info("Loading Character data");
       return true;
     } else {
-      logger.error("Error Loading Character data", characterData.message);
+      logger.error("Error Loading Character data", { message: ddbCharacter.source.message, ddbCharacter });
       return false;
     }
   } catch (error) {
