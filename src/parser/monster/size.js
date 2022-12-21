@@ -12,20 +12,13 @@
 
 //     "sizeId": 7,
 
+import DICTIONARY from '../../dictionary.js';
 import logger from '../../logger.js';
 
-const SIZES = [
-  { name: "Tiny", value: "tiny", size: 0.5 },
-  { name: "Small", value: "sm", size: 0.8 },
-  { name: "Medium", value: "med", size: 1 },
-  { name: "Large", value: "lg", size: 2 },
-  { name: "Huge", value: "huge", size: 3 },
-  { name: "Gargantuan", value: "grg", size: 4 },
-];
 
 export function getSizeFromId(sizeId) {
   const size = CONFIG.DDB.creatureSizes.find((s) => s.id == sizeId).name;
-  const sizeData = SIZES.find((s) => size == s.name);
+  const sizeData = DICTIONARY.sizes.find((s) => size == s.name);
 
   if (!sizeData) {
     logger.warn(`No size found for, using medium`, size);

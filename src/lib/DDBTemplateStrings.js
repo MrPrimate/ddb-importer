@@ -398,10 +398,6 @@ function parseSRDLinks(text) {
 
 export function parseTags(text) {
   // if (!CONFIG.DDBI.SRD_LOOKUP.index || !CONFIG.DDBI.SRD_LOOKUP.lookups) return text;
-  // older chrome/chromium and electron app do not support replaceAll
-  if (typeof text.replaceAll !== "function") {
-    return text;
-  }
   const tagRegEx = /\[([^\]]+)]([^[]+)\[\/([^\]]+)]/g;
   const matches = text.match(tagRegEx);
   if (matches) {
@@ -428,10 +424,6 @@ function replaceRoll(match, p1, p2) {
 }
 
 function fixRollables(text) {
-  // older chrome/chromium and electron app do not support replaceAll
-  if (typeof text.replaceAll !== "function") {
-    return text;
-  }
   const diceMatchRegex = /<strong>\+*\s*(\d*d\d\d*\s*\+*)\s*<\/strong>\+*\s*\[\[\/roll/g;
   const matches = text.match(diceMatchRegex);
   if (matches) {

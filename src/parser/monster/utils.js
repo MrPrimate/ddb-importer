@@ -1,7 +1,7 @@
-import DICTIONARY from './dict.js';
 import { getAbilityMods } from "./abilities.js";
 import logger from '../../logger.js';
 import utils from '../../lib/utils.js';
+import DICTIONARY from '../../dictionary.js';
 
 // replaces matchAll, requires a non global regexp
 function reMatchAll(regexp, string) {
@@ -182,7 +182,7 @@ export function getUses(text, name = false) {
     uses.value = usesMatch[1];
     uses.max = usesMatch[1];
     uses.per = "day";
-    const perMatch = DICTIONARY.resets.find((reset) => reset.id === usesMatch[2]);
+    const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
     if (perMatch) uses.per = perMatch.value;
   }
 
@@ -326,7 +326,7 @@ function getWeaponAttack(resultData, proficiencyBonus) {
   let weaponAbilities = ["str", "dex"];
   let spellAbilities = ["cha", "wis", "int"];
 
-  const lookup = DICTIONARY.weapons.find((weapon) => result.name.startsWith(weapon.name));
+  const lookup = DICTIONARY.monsters.weapons.find((weapon) => result.name.startsWith(weapon.name));
   // we have a weapon name match so we can infer a bit more
   if (lookup) {
     for (const [key, value] of Object.entries(lookup.properties)) {
