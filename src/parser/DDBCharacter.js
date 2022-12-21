@@ -201,6 +201,9 @@ export default class DDBCharacter {
       // this adds extras like a Divine Smite spell to this.data
       this._addSpecialAdditions();
 
+      // find supported companion blocks
+      this.generateCompanions();
+
     } catch (error) {
       logger.error(error);
       logger.error("Error during parse:", error.message);
