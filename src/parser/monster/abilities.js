@@ -1,11 +1,4 @@
-export const ABILITIES = [
-  { id: 1, value: "str", long: "strength" },
-  { id: 2, value: "dex", long: "dexterity" },
-  { id: 3, value: "con", long: "constitution" },
-  { id: 4, value: "int", long: "intelligence" },
-  { id: 5, value: "wis", long: "wisdom" },
-  { id: 6, value: "cha", long: "charisma" },
-];
+import DICTIONARY from "../../dictionary.js";
 
 //     "abilities": {
 // "str": {
@@ -37,7 +30,7 @@ export const ABILITIES = [
  */
 export function getAbilities(abilities, monster) {
   // go through every ability
-  ABILITIES.forEach((ability) => {
+  DICTIONARY.character.abilities.forEach((ability) => {
     const value = monster.stats.find((stat) => stat.statId === ability.id).value || 0;
     const proficient = monster.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
     const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
@@ -63,7 +56,7 @@ export function getAbilities(abilities, monster) {
 export function getAbilityMods(monster) {
   let abilities = {};
 
-  ABILITIES.forEach((ability) => {
+  DICTIONARY.character.abilities.forEach((ability) => {
     const value = monster.stats.find((stat) => stat.statId === ability.id).value || 0;
     const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
     abilities[ability.value] = mod;

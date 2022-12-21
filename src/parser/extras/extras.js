@@ -3,8 +3,8 @@ import utils from "../../lib/utils.js";
 import { parseMonsters } from "../monster/monster.js";
 import { copySupportedItemFlags, srdFiddling } from "../../muncher/import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../../muncher/importMonster.js";
-import { ABILITIES, getAbilityMods } from "../monster/abilities.js";
-import { SKILLS } from "../monster/skills.js";
+import { getAbilityMods } from "../monster/abilities.js";
+import DICTIONARY from "../../dictionary.js";
 
 const MUNCH_DEFAULTS = [
   { name: "munching-policy-update-existing", needed: true },
@@ -128,7 +128,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
     disabled: false,
     selectedKey: [],
   };
-  ABILITIES.filter((ability) => extra.system.abilities[ability.value].proficient >= 1).forEach((ability) => {
+  DICTIONARY.character.abilities.filter((ability) => extra.system.abilities[ability.value].proficient >= 1).forEach((ability) => {
     const boost = {
       key: `data.abilities.${ability.value}.save`,
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -138,7 +138,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
     effect.selectedKey.push(`data.abilities.${ability.value}.save`);
     effect.changes.push(boost);
   });
-  SKILLS.filter((skill) => extra.system.skills[skill.name].prof >= 1).forEach((skill) => {
+  DICTIONARY.character.skills.filter((skill) => extra.system.skills[skill.name].prof >= 1).forEach((skill) => {
     const boost = {
       key: `data.skills.${skill.name}.mod`,
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -320,11 +320,11 @@ function addOwnerSkillProficiencies(characterData, mock) {
     (cr) => cr.id == mock.challengeRatingId
   ).proficiencyBonus;
 
-  SKILLS.forEach((skill) => {
+  DICTIONARY.character.skills.forEach((skill) => {
     const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.skillId);
     const characterProficient = characterData.character.character.system.skills[skill.name].value;
 
-    const ability = ABILITIES.find((ab) => ab.value === skill.ability);
+    const ability = DICTIONARY.character.abilities.find((ab) => ab.value === skill.ability);
     const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
     const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
 
@@ -353,7 +353,7 @@ function addOwnerSkillProficiencies(characterData, mock) {
 function addOwnerSaveProficiencies(characterData, mock) {
 // add owner save profs
   let newSaves = [];
-  ABILITIES.forEach((ability) => {
+  DICTIONARY.character.abilities.forEach((ability) => {
     const existingProficient = mock.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
     const characterProficient = characterData.character.character.system.abilities[ability.value].proficient;
 
@@ -418,7 +418,7 @@ function addCreatureStats(mock, actor) {
   const characterStats = mock.stats
     .filter((stat) => mock.creatureGroup.ownerStats.includes(stat.statId))
     .map((stat) => {
-      const value = actor.system.abilities[ABILITIES.find((a) => a.id === stat.statId).value].value;
+      const value = actor.system.abilities[DICTIONARY.character.abilities.find((a) => a.id === stat.statId).value].value;
       return { name: null, statId: stat.statId, value: value };
     });
 
