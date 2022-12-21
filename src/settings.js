@@ -395,6 +395,11 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
+          "character-update-policy-create-companions": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
           "pact-spells-prepared": {
             type: Boolean,
             default: false,
