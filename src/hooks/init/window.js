@@ -25,6 +25,8 @@ import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import MuncherSettings from "../../muncher/MuncherSettings.js";
 import { generateIcon } from "../../lib/icons.js";
 import DDBProxy from "../../lib/DDBProxy.js";
+import DDBCompanion from "../../parser/companions/DDBCompanion.js";
+import DDBCompanionFactory from "../../parser/companions/DDBCompanionFactory.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -95,5 +97,7 @@ export function registerWindow() {
     deleteDefaultCompendiums: CompendiumHelper.deleteDefaultCompendiums,
     muncherSettings: MuncherSettings.getMuncherSettings,
     characterSettings: MuncherSettings.getCharacterImportSettings,
+    DDBCompanion,
+    DDBCompanionFactory,
   };
 }

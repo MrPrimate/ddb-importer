@@ -28,3 +28,5 @@ import "./special/character.js";
 import "./item/index.js";
 
 import "./features/features.js";
+
+import "./companions/companions.js";
