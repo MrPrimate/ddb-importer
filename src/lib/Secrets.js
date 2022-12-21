@@ -25,7 +25,7 @@ export function getCobalt(keyPostfix = "") {
   } else if (localCookie) {
     cobalt = localStorage.getItem("ddb-cobalt-cookie");
   } else {
-    cobalt = game.settings.get("ddb-importer", "cobalt-cookie");
+    cobalt = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie");
   }
 
   return cobalt;
