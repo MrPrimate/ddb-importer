@@ -8,6 +8,7 @@ export default class DDBCompanion {
     console.warn("DDBCompanion", { block });
     this.options = options;
     this.block = block;
+    this.blockDatas = this.block.querySelectorAll("p.Stat-Block-Styles_Stat-Block-Data");
     this.npc = null;
     this.data = {};
     this.parsed = false;
@@ -24,6 +25,132 @@ export default class DDBCompanion {
       this.npc.system.abilities[ability]['value'] = value;
       this.npc.system.abilities[ability]['mod'] = mod;
     });
+  }
+
+  getBlockData(type) {
+    const block = Array.from(this.blockDatas).find((el) => el.innerText.trim().startsWith(type));
+
+    if (!block) return undefined;
+
+    const clone = block.cloneNode(true);
+    clone.getElementsByTagName("strong")[0].innerHTML = "";
+    return clone.innerText.trim();
+  }
+
+  // savings throws
+  #generateSavingThrows() {
+    const saveString = this.getBlockData("Saving Throws");
+    if (!saveString) return;
+
+    const saves = saveString.split(",");
+
+    saves.forEach((save) => {
+      const ability = save.trim().split(" ")[0].toLowerCase();
+      if (save.includes("plus PB") || save.includes("+ PB")) {
+        this.npc.system.abilities[ability]['proficient'] = 1;
+      }
+    });
+  }
+
+  #generateArmorClass() {
+    const acString = this.getBlockData("Armor Class");
+    if (!acString) return;
+
+    const ac = Number.parseInt(acString.split(",")[0]);
+
+    if (Number.isInteger(ac)) {
+      this.npc.system.attributes.ac = {
+        flat: ac,
+        calc: "natural",
+        formula: "",
+      };
+
+      if (acString.includes("plus PB") || acString.includes("+ PB")) {
+        setProperty(this.npc, "flags.arbron-summoner.config.acFormula", `${ac} + @prof`);
+      } else if (acString.includes("+ the level of the spell")) {
+        setProperty(this.npc, "flags.arbron-summoner.config.acFormula", `${ac} + @details.level`);
+      }
+    }
+  }
+
+  #generateProficiencyBonus() {
+    const profString = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Data-Last")
+      ?? this.getBlockData("Challenge");
+
+    if (profString && profString.innerText.includes("equals your bonus")) {
+      setProperty(this.npc, "flags.arbron-summoner.config.matchProficiency", true);
+    }
+  }
+
+
+  #getBaseHitPoints(hpString) {
+    const baseString = this.options.subType && hpString.includes("or")
+      ? hpString.split("or").find((s) => s.toLowerCase().includes(this.options.subType.toLowerCase())).trim()
+      : hpString.trim();
+
+    const hpInt = Number.parseInt(baseString);
+    return Number.isInteger(hpInt) ? hpInt : 0;
+  }
+
+  #generateHitPoints() {
+    const hpString = this.getBlockData("Hit Points");
+    if (!hpString) return;
+
+    const hpInt = this.#getBaseHitPoints(hpString);
+    this.npc.system.attributes.hp = hpInt;
+
+    // conditions
+    // 5 + five times your druid level
+    // 5 + five times your ranger level (the beast has a number of Hit Dice [d8s] equal to your ranger level)
+    // 1 + your Intelligence modifier + your artificer level (the homunculus has a number of Hit Dice [d4s] equal to your artificer level)
+    // 40 + 15 for each spell level above 4th
+    // 20 (Air only) or 30 (Land and Water only) + 5 for each spell level above 2nd
+    // 50 (Demon only) or 40 (Devil only) or 60 (Yugoloth only) + 15 for each spell level above 6th
+    // 30 (Ghostly and Putrid only) or 20 (Skeletal only) + 10 for each spell level above 3rd
+
+    // additional summon points
+    const hpAdjustments = [];
+    const modMatch = hpString.match(/\+ your (\w+) modifier/);
+
+    if (modMatch) hpAdjustments.push(`@abilities.${modMatch[1].toLowerCase().substring(0, 3)}.mod`);
+
+    // class level
+    const klassMultiMatch = hpString.match(/\+ (\w+)?( times? )?your (\w+) level/);
+    if (klassMultiMatch) {
+      const klass = klassMultiMatch[3].trim().toLowerCase();
+      const multiplier = klassMultiMatch[1]
+        ? DICTIONARY.numbers.find((d) => d.natural === klassMultiMatch[1].trim().toLowerCase()).num
+        : null;
+      const multiplierString = multiplier ? ` * ${multiplier}` : "";
+      hpAdjustments.push(`(@classes.${klass}.levels${multiplierString})`);
+    }
+
+    // spell level
+    const spellLevelMatch = hpString.match(/\+ (\d+) for each spell level above (\d)/);
+    if (spellLevelMatch) {
+      hpAdjustments.push(`(${spellLevelMatch[1]} * (@item.level - ${spellLevelMatch[2]}))`);
+    }
+
+    if (hpAdjustments.length > 0) {
+      setProperty(this.npc, "flags.arbron-summoner.config.hpFormula", hpAdjustments.join(" + "));
+    }
+
+  }
+
+  #generateHitDie() {
+    // (the beast has a number of Hit Dice [d8s] equal to your ranger level)
+    // (the homunculus has a number of Hit Dice [d4s] equal to your artificer level)
+    const hpString = this.getBlockData("Hit Points");
+    if (!hpString || !hpString.includes("number of Hit Dice")) return;
+
+    const hitDice = hpString.match(/Hit Dice \[d(\d)s\] equal to your (\w+) level/);
+    if (hitDice) {
+      const hitDiceAdjustment = {
+        "key": "system.attributes.hp.formula",
+        "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`
+      };
+      this.npc.flags["arbron-summoner"].config.actorChanges.push(hitDiceAdjustment);
+    }
   }
 
   #generateSize() {
@@ -50,20 +177,58 @@ export default class DDBCompanion {
     }
   }
 
+  // this parser creates actor data for a base actor
+  // these are actors that are modified by the PB of the actor
+  // these require the use of "arbron-summoner" module to run.
+  // {
+  //   "config": {
+  //     "matchProficiency": true,
+  //     "matchToHit": true,
+  //     "matchSaveDCs": true,
+  //     "acFormula": "22 + @prof",
+  //     "hpFormula": "2 + @prof",
+  //     "actorChanges": [
+  //       {
+  //         "key": "system.attributes.movement.fly",
+  //         "value": "10"
+  //       }
+  //     ]
+  //   }
+
   async parse() {
     console.warn("PARSE COMPANION", { block: this.block, aThis: this });
-    const name = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Title").innerHTML;
+    const name = this.options.name ?? this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Title").innerHTML;
+    const namePostfix = this.options.subType
+      ? `(${this.options.subType})`
+      : "";
 
     if (!name) return;
     logger.debug(`Beginning companion parse for ${name}`, { name, block: this.block });
 
-    this.npc = await newNPC(name);
+    const actorName = `${name} ${namePostfix}`.trim();
+    this.npc = await newNPC(actorName);
     setProperty(this.npc, "flags.ddbimporter.companion.modifiers", {});
-    this.npc.prototypeToken.name = name;
+    this.npc.prototypeToken.name = actorName;
+
+    setProperty(this.npc, "flags.arbron-summoner", {
+      config: {
+        matchProficiency: false,
+        matchToHit: false,
+        matchSaveDCs: false,
+        acFormula: "",
+        hpFormula: "",
+        actorChanges: []
+      }
+    });
 
     this.#generateSize();
     this.#generateType();
     this.#generateAbilities();
+    this.#generateSavingThrows();
+    this.#generateArmorClass();
+    this.#generateProficiencyBonus();
+    this.#generateHitPoints();
+    this.#generateHitDie();
 
     this.data = duplicate(this.npc);
     this.parsed = true;

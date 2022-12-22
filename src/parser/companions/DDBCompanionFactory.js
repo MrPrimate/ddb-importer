@@ -12,6 +12,28 @@ export default class DDBCompanionFactory {
     this.companions = [];
   }
 
+  static MULTI = {
+    "Aberrant Spirit": ["Slaad", "Beholderkin", "Star Spawn"],
+    "Bestial Spirit": ["Air", "Land", "Water"],
+    "Celestial Spirit": ["Avenger", "Defender"],
+    "Construct Spirit": ["Clay", "Metal", "Stone"],
+    "Elemental Spirit": ["Air", "Earth", "Fire", "Water"],
+    "Fey Spirit": ["Fuming", "Mirthful", "Tricksy"],
+    "Fiendish Spirit": ["Demon", "Devil", "Yugoloth"],
+    "Shadow Spirit": ["Fury", "Despair", "Fear"],
+    "Undead Spirit": ["Ghostly", "Putrid", "Skeletal"],
+    "Drake Companion": ["Acid", "Cold", "Fire", "Lightning", "Poison"],
+  };
+
+  async #buildCompanion(block, options = {}) {
+    console.warn("factoryblock", block);
+    logger.debug("Beginning companion parse", { block });
+    const ddbCompanion = new DDBCompanion(block, options);
+    // eslint-disable-next-line no-await-in-loop
+    await ddbCompanion.parse();
+    if (ddbCompanion.parsed) this.companions.push(ddbCompanion.data);
+  }
+
   async parse() {
     console.warn(this.doc);
 
@@ -19,12 +41,18 @@ export default class DDBCompanionFactory {
 
     console.warn("statblkc divs", { statBlockDivs, athis: this });
     for (const block of statBlockDivs) {
-      console.warn("factoryblock", block);
-      logger.debug("Beginning companion parse", { block });
-      const ddbCompanion = new DDBCompanion(block, {});
-      // eslint-disable-next-line no-await-in-loop
-      await ddbCompanion.parse();
-      if (ddbCompanion.parsed) this.companions.push(ddbCompanion.data);
+      const name = block.querySelector("p.Stat-Block-Styles_Stat-Block-Title").innerHTML;
+
+      if (name && name in DDBCompanionFactory.MULTI) {
+        for (const subType of DDBCompanionFactory.MULTI[name]) {
+          // eslint-disable-next-line no-await-in-loop
+          await this.#buildCompanion(block, { name, subType });
+        }
+      } else {
+        // eslint-disable-next-line no-await-in-loop
+        await this.#buildCompanion(block);
+      }
+
     }
 
     return this.companions;
