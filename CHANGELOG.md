@@ -18,6 +18,9 @@
 * Characters skill bonuses did not always calculate successfully if not using effects.
 * Export unlinked notes in scene config for adventure muncher.
 * Ice Knife and Witch Bolt macro tweaks.
+* Improve Spell Sorting on character imports.
+* Refactoring for Companion Parsing.
+* Cloudkill checked save at wrong point in the turn.
 
 # 3.2.10
 
