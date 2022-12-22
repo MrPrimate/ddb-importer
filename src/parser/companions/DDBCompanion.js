@@ -153,6 +153,10 @@ export default class DDBCompanion {
     }
   }
 
+  #generateSkills() {
+
+  }
+
   #generateSize() {
     const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata").innerHTML;
 
