@@ -2,40 +2,73 @@ import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "./DDBCompanionFactory.js";
 
+DDBCharacter.prototype.addCompanionsToDocument = function addCompanionsToDocument(document, companions) {
+  return document;
+};
+
 DDBCharacter.prototype.getClassFeature = function getClassFeature(name) {
   const klass = this.source.ddb.character.classes
     .find((k) => k.classFeatures.some((f) => f.definition.name == name));
   return klass?.classFeatures?.find((f) => f.definition.name == name);
 };
 
+
+DDBCharacter.prototype._findDDBSpell = function _findDDBSpell(name) {
+  const spells = [];
+  this.source.ddb.character.classSpells.forEach((playerClass) => {
+    spells.push(...playerClass.spells);
+  });
+
+  const klassSpell = spells.find((s) => s.definition?.name === name);
+  if (klassSpell) return klassSpell;
+
+  // Parse any spells granted by class features, such as Barbarian Totem
+  const extraKlass = this.source.ddb.character.spells.class.find((s) => s.definition?.name === name);
+  if (extraKlass) return extraKlass;
+
+  // Race spells are handled slightly differently
+  const race = this.source.ddb.character.spells.race.find((s) => s.definition?.name === name);
+  if (race) return race;
+
+  // feat spells are handled slightly differently
+  const feat = this.source.ddb.character.spells.feat.find((s) => s.definition?.name === name);
+  if (feat) return feat;
+
+  // background spells are handled slightly differently
+  if (!this.source.ddbdb.character.spells.background) this.source.ddb.character.spells.background = [];
+  const background = this.source.ddb.character.spells.background.find((s) => s.definition?.name === name);
+  if (background) return background;
+
+  return undefined;
+};
+
 DDBCharacter.prototype._getCompanionSpell = async function _getCompanionSpell(name) {
   const spell = this.data.spells.find((s) => s.name === name || s.flags.ddbimporter?.originalName === name);
   if (!spell) return [];
-  const ddbCompanionFactory = new DDBCompanionFactory(this, spell.system.description.value, {});
+
+  const ddbSpell = this._findDDBSpell(spell.flags.ddbimporter?.originalName ?? spell.name);
+  if (!ddbSpell) return [];
+
+  const ddbCompanionFactory = new DDBCompanionFactory(this, ddbSpell.definition.description, {});
   await ddbCompanionFactory.parse();
   return ddbCompanionFactory.companions;
 };
-
-// DDBCharacter.prototype._getCompanionFeature = async function _getCompanionFeature(featureName) {
-//   const feature = this.getClassFeature(featureName);
-//   if (!feature) return [];
-//   const ddbCompanionFactory = new DDBCompanionFactory(this, feature.definition.description, {});
-//   await ddbCompanionFactory.parse();
-//   return ddbCompanionFactory.companions;
-// };
 
 DDBCharacter.prototype._getCompanionFeature = async function _getCompanionFeature(featureName) {
   const feature = this.data.features.concat(this.data.actions).find((s) =>
     s.name === featureName || s.flags.ddbimporter?.originalName === featureName
   );
   if (!feature) return [];
-  const ddbCompanionFactory = new DDBCompanionFactory(this, feature.system.description.value, {});
+  const ddbFeature = this.getClassFeature(featureName);
+  if (!ddbFeature) return [];
+  const ddbCompanionFactory = new DDBCompanionFactory(this, ddbFeature.definition.description, {});
   await ddbCompanionFactory.parse();
   return ddbCompanionFactory.companions;
 };
 
 DDBCharacter.prototype.generateCompanions = async function generateCompanions() {
   if (!game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) return;
+  if (!game.modules.get("arbron-summoner")?.active) return;
   const steelDefender = await this._getCompanionFeature("Steel Defender");
   const infusions = await this._getCompanionFeature("Artificer Infusions");
   const wildFireSpirit = await this._getCompanionFeature("Summon Wildfire Spirit");

@@ -154,7 +154,50 @@ export default class DDBCompanion {
   }
 
   #generateSkills() {
+    const skillString = this.getBlockData("Skills");
+    //  "History + 12, Perception +0 plus PB &times; 2"
+    const skillsMaps = skillString.split(",").filter((str) => str != '').map((str) => {
+      const skillMatch = str.trim().match(/(\w+ *\w* *\w*)(?: *)([+-])(?: *)(\d+) *(plus PB)? *(&times;|x|times)? *(\d*)?/);
+      let result = {};
+      if (skillMatch) {
+        result = {
+          name: skillMatch[1].trim(),
+          value: skillMatch[2] + skillMatch[3],
+          proficient: skillMatch[4] !== undefined,
+          expertise: Number.isInteger(skillMatch[5]?.trim()),
+          pbMultiplier: skillMatch[5],
+        };
+        logger.debug(`Found skill for companion ${this.npc.name}`, result);
+      } else {
+        logger.error(`Skill Parsing failed for ${this.npc.name}`);
+        logger.debug(skillString);
+        logger.debug(str);
+        logger.debug(skillMatch);
+      }
+      return result;
+    });
 
+    const keys = Object.keys(this.npc.system.skills);
+    const validSkills = DICTIONARY.character.skills.map((skill) => skill.name);
+    keys
+      .filter((key) => validSkills.includes(key))
+      .forEach((key) => {
+        let skill = this.npc.system.skills[key];
+        const lookupSkill = DICTIONARY.character.skills.find((s) => s.name == key);
+        const skillData = skillsMaps.find((skl) => skl.name == lookupSkill.label);
+
+        if (skillData) {
+          skill.value = skillData.expertise ? 2 : skillData.proficient ? 1 : 0;
+          const ability = this.npc.system.abilities[skill.ability];
+          if (parseInt(ability.mod) !== parseInt(skillData.value.trim())) {
+            skill.bonuses.check = parseInt(skillData.value.trim()) - parseInt(ability.mod);
+            skill.bonuses.passive = parseInt(skillData.value.trim()) - parseInt(ability.mod);
+          }
+
+          this.npc.system.skills[key] = skill;
+        }
+
+      });
   }
 
   #generateSize() {
@@ -233,6 +276,7 @@ export default class DDBCompanion {
     this.#generateProficiencyBonus();
     this.#generateHitPoints();
     this.#generateHitDie();
+    this.#generateSkills();
 
     this.data = duplicate(this.npc);
     this.parsed = true;
