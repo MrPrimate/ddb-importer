@@ -1,6 +1,7 @@
 # 3.2.11
 
 * Export unlinked notes in scene config for adventure muncher.
+* Ice Knife and Witch Bolt macro tweaks.
 
 # 3.2.10
 
