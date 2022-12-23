@@ -18,11 +18,11 @@ if (lastArg.targets.length > 0) {
   areaSpellData.system.save.ability = "dex";
   areaSpellData.system.scaling = { mode: "level", formula: "1d6" };
   areaSpellData.system.preparation.mode ="atwill";
-  const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor })
+  const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor });
   const target = canvas.tokens.get(lastArg.targets[0].id);
   const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>
     canvas.grid.measureDistance(target, placeable) <= 9.5 &&
-    !canvas.walls.checkCollision(new Ray(target.center, placeable.center), {mode: "any"})
+    !canvas.walls.checkCollision(new Ray(target.center, placeable.center), {mode: "any", type:"move"})
   ).map((placeable) => placeable.document.uuid);
 
   const options = {
