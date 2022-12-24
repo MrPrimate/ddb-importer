@@ -8,7 +8,7 @@ const hasParentEffect = caster.effects.some((e) => e.label === parentEffectName)
 async function checkTargetInRange({ sourceUuid, targetUuid, distance }) {
   const sourceToken = await fromUuid(sourceUuid);
   if (!sourceToken) return false;
-  const targetsInRange = MidiQOL.findNearby(null, sourceToken, distance, null);
+  const targetsInRange = MidiQOL.findNearby(null, sourceUuid, distance, null);
   const isInRange = targetsInRange.reduce((result, possible) => {
     const collisionRay = new Ray(sourceToken, possible);
     const collision = canvas.walls.checkCollision(collisionRay, {mode: "any", type: "sight"});
