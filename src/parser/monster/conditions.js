@@ -1,39 +1,4 @@
-const CONDITION_TYPES = [
-  { name: "Blinded", value: "blinded" },
-  { name: "Charmed", value: "charmed" },
-  { name: "Deafened", value: "deafened" },
-  { name: "Exhaustion", value: "exhaustion" },
-  { name: "Frightened", value: "frightened" },
-  { name: "Grappled", value: "grappled" },
-  { name: "Incapacitated", value: "incapacitated" },
-  { name: "Invisible", value: "invisible" },
-  { name: "Paralyzed", value: "paralyzed" },
-  { name: "Petrified", value: "petrified" },
-  { name: "Poisoned", value: "poisoned" },
-  { name: "Prone", value: "prone" },
-  { name: "Restrained", value: "restrained" },
-  { name: "Stunned", value: "stunned" },
-  { name: "Unconscious", value: "unconscious" },
-  { name: "Diseased", value: "diseased" },
-  { name: "Disease", value: "diseased" },
-];
-
-const DAMAGE_TYPES = [
-  "acid",
-  "bludgeoning",
-  "cold",
-  "fire",
-  "force",
-  "lightning",
-  "necrotic",
-  "piercing",
-  "poison",
-  "psychic",
-  "radiant",
-  "slashing",
-  "thunder",
-];
-
+import DICTIONARY from "../../dictionary.js";
 
 function getAdjustmentsConfig(type) {
   const damageAdjustments = CONFIG.DDB.damageAdjustments;
@@ -65,9 +30,11 @@ function getDamageAdjustments(monster, type) {
   let values = [];
   let custom = [];
 
+  const damageTypes = DICTIONARY.actions.damageType.filter((d) => d.name !== null).map((d) => d.name);
+
   monster.damageAdjustments.forEach((adj) => {
     const adjustment = config.find((cadj) => adj === cadj.id);
-    if (adjustment && DAMAGE_TYPES.includes(adjustment.name.toLowerCase())) {
+    if (adjustment && damageTypes.includes(adjustment.name.toLowerCase())) {
       values.push(adjustment.name.toLowerCase());
     } else if (adjustment && adjustment.slug === "bludgeoning-piercing-and-slashing-from-nonmagical-attacks") {
       values.push("physical");
@@ -115,9 +82,9 @@ export function getConditionImmunities(monster) {
 
   monster.conditionImmunities.forEach((adj) => {
     const adjustment = config.find((cadj) => adj === cadj.id);
-    const valueAdjustment = CONDITION_TYPES.find((condition) => condition.name.toLowerCase() == adjustment.name.toLowerCase());
+    const valueAdjustment = DICTIONARY.conditions.find((condition) => condition.label.toLowerCase() == adjustment.name.toLowerCase());
     if (adjustment && valueAdjustment) {
-      values.push(valueAdjustment.value);
+      values.push(valueAdjustment.foundry);
     } else if (adjustment) {
       custom.push(adjustment.name);
     }
