@@ -94,7 +94,7 @@ export async function parseSpells(ids = null) {
     .filter((r) => r.status === "fulfilled")
     .map((r) => r.value).flat().flat();
 
-  const rawSpells = getSpells(filteredResults);
+  const rawSpells = await getSpells(filteredResults);
 
   const spells = rawSpells
     .filter((spell) => spell?.name)

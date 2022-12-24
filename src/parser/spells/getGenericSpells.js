@@ -2,20 +2,18 @@
 import { fixSpells } from "./special.js";
 import { parseSpell } from "./parseSpell.js";
 
-export function getSpells(spells) {
-  let items = [];
-
-  spells.filter((spell) => {
-    // remove archived material
-    if (spell.definition.sources && spell.definition.sources.some((source) => source.sourceId === 39)) {
-      return false;
-    } else {
-      return true;
-    }
-  })
-    .forEach((spell) => {
-      if (!spell.definition) return;
-
+export async function getSpells(spells) {
+  let items = await Promise.all(spells
+    .filter((spell) => spell.definition)
+    .filter((spell) => {
+      // remove archived material
+      if (spell.definition.sources && spell.definition.sources.some((source) => source.sourceId === 39)) {
+        return false;
+      } else {
+        return true;
+      }
+    })
+    .map(async (spell) => {
       spell.flags = {
         ddbimporter: {
           generic: true,
@@ -28,8 +26,8 @@ export function getSpells(spells) {
         },
       };
 
-      items.push(parseSpell(spell, null));
-    });
+      return parseSpell(spell, null);
+    }));
 
   if (items) fixSpells(null, items);
 

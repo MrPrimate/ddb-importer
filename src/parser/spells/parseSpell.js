@@ -19,7 +19,7 @@ import { spellEffectAdjustment } from "../../effects/specialSpells.js";
 import { getName } from "./name.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 
-export function parseSpell(data, character) {
+export async function parseSpell(data, character) {
   let spell = {
     type: "spell",
     system: JSON.parse(utils.getTemplate("spell")),
@@ -95,7 +95,7 @@ export function parseSpell(data, character) {
   }
 
   if (addSpellEffects) {
-    spellEffectAdjustment(spell);
+    await spellEffectAdjustment(spell);
     setProperty(spell, "flags.ddbimporter.effectsApplied", true);
   }
 

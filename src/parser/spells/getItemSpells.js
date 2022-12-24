@@ -13,7 +13,7 @@ export function getItemSpells(ddb, character) {
   const lookups = getLookups(ddb.character);
 
   // feat spells are handled slightly differently
-  ddb.character.spells.item.forEach((spell) => {
+  ddb.character.spells.item.forEach(async (spell) => {
     if (!spell.definition) return;
 
     const itemInfo = lookups.item.find((it) => it.id === spell.componentId);
@@ -60,7 +60,7 @@ export function getItemSpells(ddb, character) {
       },
     };
 
-    items.push(parseSpell(spell, character));
+    items.push(await parseSpell(spell, character));
   });
 
   if (items) fixSpells(ddb, items);

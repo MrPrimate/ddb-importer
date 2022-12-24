@@ -75,6 +75,7 @@ export function fixSpells(ddb, items) {
 
   items.forEach((spell) => {
     const name = spell.flags.ddbimporter.originalName || spell.name;
+    logger.debug(`Checking spell ${name} for corrections...`);
     switch (name) {
       case "Melf's Acid Arrow":
       case "Acid Arrow": {
@@ -122,7 +123,9 @@ export function fixSpells(ddb, items) {
         spell.system.range = { value: null, units: "spec", long: null };
         break;
       case "Sleep": {
-        spell.system.damage = { parts: [["5d8", ""]], versatile: "", value: "" };
+        if (!usingEffects) {
+          spell.system.damage = { parts: [["5d8", ""]], versatile: "", value: "" };
+        }
         spell.system.scaling = { mode: "level", formula: "2d8" };
         break;
       }
@@ -130,7 +133,9 @@ export function fixSpells(ddb, items) {
         spell.system.actionType = "rsak";
         break;
       case "Color Spray": {
-        spell.system.damage = { parts: [["6d10", ""]], versatile: "", value: "" };
+        if (!usingEffects) {
+          spell.system.damage = { parts: [["6d10", ""]], versatile: "", value: "" };
+        }
         spell.system.scaling = { mode: "level", formula: "2d10" };
         break;
       }

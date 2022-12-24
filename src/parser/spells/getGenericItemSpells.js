@@ -2,15 +2,14 @@ import { fixSpells } from "./special.js";
 import { parseSpell } from "./parseSpell.js";
 
 
-export function getGenericItemSpells(itemList, itemSpells) {
+export async function getGenericItemSpells(itemList, itemSpells) {
   let items = [];
 
   // feat spells are handled slightly differently
-  itemSpells.forEach((spell) => {
-    if (!spell.definition) return;
-
+  for (const spell of itemSpells.filter((s) => s.definition)) {
     const itemInfo = itemList.find((it) => it.definition.id === spell.componentId);
-    if (!itemInfo) return;
+    // eslint-disable-next-line no-continue
+    if (!itemInfo) continue;
 
     const active
       = (!itemInfo.definition.canEquip && !itemInfo.definition.canAttune) // if item just gives a thing
@@ -41,8 +40,11 @@ export function getGenericItemSpells(itemList, itemSpells) {
       },
     };
 
-    items.push(parseSpell(spell, null));
-  });
+    // eslint-disable-next-line no-await-in-loop
+    const parsedSpell = await parseSpell(spell, null);
+
+    items.push(parsedSpell);
+  }
 
   if (items) fixSpells(null, items);
 

@@ -1,6 +1,6 @@
 import getActions from "./features/actions.js";
 import { getClasses } from "./classes/index.js";
-import { getCharacterSpells } from "./spells/getCharacterSpells.js";
+import CharacterSpellFactory from "./spells/CharacterSpellFactory.js";
 import logger from "../logger.js";
 import { createGMMacros } from "../effects/macros.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -177,7 +177,8 @@ export default class DDBCharacter {
       logger.debug("Classes parse complete");
       await this._generateFeatures();
       logger.debug("Feature parse complete");
-      this.raw.spells = getCharacterSpells(this.source.ddb, this.raw.character);
+      const spellParser = new CharacterSpellFactory(this.source.ddb, this.raw.character);
+      this.raw.spells = await spellParser.getCharacterSpells();
       logger.debug("Character Spells parse complete");
       this.raw.actions = await getActions(this.source.ddb, this.raw.character, this.raw.classes);
       logger.debug("Action parse complete");
