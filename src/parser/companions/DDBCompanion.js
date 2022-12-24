@@ -29,7 +29,6 @@ export default class DDBCompanion {
 
   getBlockData(type) {
     const block = Array.from(this.blockDatas).find((el) => el.innerText.trim().startsWith(type));
-
     if (!block) return undefined;
 
     const clone = block.cloneNode(true);
@@ -84,11 +83,13 @@ export default class DDBCompanion {
 
 
   #getBaseHitPoints(hpString) {
-    const baseString = this.options.subType && hpString.includes("or")
-      ? hpString.split("or").find((s) => s.toLowerCase().includes(this.options.subType.toLowerCase())).trim()
+    console.warn("hpString", hpString)
+    const baseString = this.options.subType && hpString.includes(" or ")
+      ? hpString.split("or").find((s) => s.toLowerCase().includes(this.options.subType.toLowerCase()))
       : hpString.trim();
 
-    const hpInt = Number.parseInt(baseString);
+    const hpFind = baseString.trim().match(/(\d*)/);
+    const hpInt = Number.parseInt(hpFind);
     return Number.isInteger(hpInt) ? hpInt : 0;
   }
 
@@ -155,6 +156,7 @@ export default class DDBCompanion {
 
   #generateSkills() {
     const skillString = this.getBlockData("Skills");
+    if (!skillString) return;
     //  "History + 12, Perception +0 plus PB &times; 2"
     const skillsMaps = skillString.split(",").filter((str) => str != '').map((str) => {
       const skillMatch = str.trim().match(/(\w+ *\w* *\w*)(?: *)([+-])(?: *)(\d+) *(plus PB)? *(&times;|x|times)? *(\d*)?/);
@@ -203,6 +205,7 @@ export default class DDBCompanion {
   #generateSize() {
     const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata").innerHTML;
 
+    if (!data) return;
     const size = data.split(" ")[0];
     const sizeData = DICTIONARY.sizes.find((s) => size.toLowerCase() == s.name.toLowerCase())
       ?? { name: "Medium", value: "med", size: 1 };
@@ -215,6 +218,7 @@ export default class DDBCompanion {
 
   #generateType() {
     const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata").innerHTML;
+    if (!data) return;
     const typeName = data.split(" ").pop().toLowerCase();
 
     if (CONFIG.DND5E.creatureTypes[typeName]) {
