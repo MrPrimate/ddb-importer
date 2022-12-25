@@ -18,7 +18,6 @@ export default class DDBCompanion {
     const abilityNodes = this.block.querySelector("div.stat-block-ability-scores");
 
     abilityNodes.querySelectorAll("div.stat-block-ability-scores-stat").forEach((aNode) => {
-      console.warn("aNode parse", { aNode, html: aNode.innerHTML})
       const ability = aNode.querySelector("div.stat-block-ability-scores-heading").innerText.toLowerCase();
 
       const getFallbackAbility = () => {
@@ -243,6 +242,14 @@ export default class DDBCompanion {
     }
   }
 
+  #generateAlignment() {
+    const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata").innerHTML;
+    if (!data) return;
+    const alignment = data.split(",").pop().toLowerCase().trim();
+
+    if (alignment && alignment !== "") this.npc.system.details.alignment = alignment;
+  }
+
   static getDamageAdjustments(data) {
     const values = [];
     const custom = [];
@@ -267,7 +274,7 @@ export default class DDBCompanion {
   }
 
   filterDamageConditions(data) {
-    const onlyFiltered = data.split(/;,/).filter((state) => {
+    const onlyFiltered = data.split(/[;,]/).filter((state) => {
       if (state.includes("only")) {
         if (state.toLowerCase().includes(this.options.subType.toLowerCase())) {
           return true;
@@ -342,6 +349,91 @@ export default class DDBCompanion {
     };
   }
 
+  #generateSenses() {
+    const data = this.getBlockData("Senses");
+    if (!data) return;
+
+    // darkvision 60 ft., passive Perception 10 + (PB &times; 2)
+    // darkvision 60 ft., passive Perception 10 + (PB × 2)
+
+    data.split(",").forEach((sense) => {
+      const match = sense.match(/(darkvision|blindsight|tremorsense|truesight)\s+(\d+)/i);
+
+      if (match) {
+        const value = parseInt(match[2]);
+        this.npc.system.attributes.senses[match[1].toLowerCase()] = value;
+
+        const senseType = DICTIONARY.senseMap[match[1].toLowerCase()];
+
+        if (value > 0 && value > this.npc.prototypeToken.sight.range && hasProperty(CONFIG.Canvas.visionModes, senseType)) {
+          setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
+          setProperty(this.npc.prototypeToken.sight, "range", value);
+          this.npc.prototypeToken.sight = mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
+        }
+        if (value > 0 && hasProperty(DICTIONARY.detectionMap, match[1].toLowerCase())) {
+          const detectionMode = {
+            id: DICTIONARY.detectionMap[match[1].toLowerCase()],
+            range: value,
+            enabled: true,
+          };
+
+          // only add duplicate modes if they don't exist
+          if (!this.npc.prototypeToken.detectionModes.some((mode) => mode.id === detectionMode.id)) {
+            this.npc.prototypeToken.detectionModes.push(detectionMode);
+          }
+        }
+      }
+    });
+  }
+
+  #generateLanguages() {
+    const data = this.getBlockData("Languages");
+    if (!data) return;
+
+    // loop back to add small chance they have non-custom language support
+    this.npc.system.traits.languages.custom = data;
+  }
+
+  #generateSpeed() {
+    const data = this.getBlockData("Speed");
+    if (!data) return;
+
+    // 30 ft.; fly 40 ft. (hover) (Ghostly only)
+    // 40 ft.; climb 40 ft. (Demon only); fly 60 ft. (Devil only)
+    // 30 ft., fly 40 ft.
+
+    const onlyFiltered = data.split(/[;,]/).filter((speed) => {
+      if (speed.includes("only")) {
+        if (speed.toLowerCase().includes(this.options.subType.toLowerCase())) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return true;
+      }
+    });
+
+    const speeds = [];
+    onlyFiltered.forEach((state) => {
+      const results = state
+        .split("and")
+        .map((s) => {
+          return s.trim().toLowerCase();
+        });
+      speeds.push(...results);
+    });
+
+    speeds.forEach((speed) => {
+      const match = speed.match(/(\w+ )*(\d+)/i);
+      if (match) {
+        const type = match[1]?.trim() ?? "walk";
+        this.npc.system.attributes.movement[type] = parseInt(match[2]);
+        if (speed.includes("hover")) this.npc.system.attributes.movement["hover"] = true;
+      }
+    });
+  }
+
   // this parser creates actor data for a base actor
   // these are actors that are modified by the PB of the actor
   // these require the use of "arbron-summoner" module to run.
@@ -399,7 +491,10 @@ export default class DDBCompanion {
     this.#generateResistances();
     this.#generateVulnerabilities();
     this.#generateConditions();
-    // TO DO generate alignment (sometimes at end of type)
+    this.#generateAlignment();
+    this.#generateSenses();
+    this.#generateLanguages();
+    this.#generateSpeed();
 
     this.data = duplicate(this.npc);
     this.parsed = true;
