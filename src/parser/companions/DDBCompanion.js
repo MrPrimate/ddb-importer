@@ -18,8 +18,19 @@ export default class DDBCompanion {
     const abilityNodes = this.block.querySelector("div.stat-block-ability-scores");
 
     abilityNodes.querySelectorAll("div.stat-block-ability-scores-stat").forEach((aNode) => {
+      console.warn("aNode parse", { aNode, html: aNode.innerHTML})
       const ability = aNode.querySelector("div.stat-block-ability-scores-heading").innerText.toLowerCase();
-      const value = Number.parseInt(aNode.querySelector("span.stat-block-ability-scores-score").innerText);
+
+      const getFallbackAbility = () => {
+        const clone = aNode.querySelector("div.stat-block-ability-scores-data").cloneNode(true);
+        clone.getElementsByTagName("span")[0].innerHTML = "";
+        return clone.innerText.trim();
+      };
+
+      const abilityScore = aNode.querySelector("span.stat-block-ability-scores-score")?.innerText
+        ?? getFallbackAbility();
+
+      const value = Number.parseInt(abilityScore);
       const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
       this.npc.system.abilities[ability]['value'] = value;
@@ -30,6 +41,11 @@ export default class DDBCompanion {
   getBlockData(type) {
     const block = Array.from(this.blockDatas).find((el) => el.innerText.trim().startsWith(type));
     if (!block) return undefined;
+
+    const header = block.getElementsByTagName("strong")[0].innerText.toLowerCase();
+    if (header.includes("only") && !header.includes(this.options.subType.toLowerCase())) {
+      return undefined;
+    }
 
     const clone = block.cloneNode(true);
     clone.getElementsByTagName("strong")[0].innerHTML = "";
@@ -83,7 +99,6 @@ export default class DDBCompanion {
 
 
   #getBaseHitPoints(hpString) {
-    console.warn("hpString", hpString)
     const baseString = this.options.subType && hpString.includes(" or ")
       ? hpString.split("or").find((s) => s.toLowerCase().includes(this.options.subType.toLowerCase()))
       : hpString.trim();
@@ -219,13 +234,112 @@ export default class DDBCompanion {
   #generateType() {
     const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Metadata").innerHTML;
     if (!data) return;
-    const typeName = data.split(" ").pop().toLowerCase();
+    const typeName = data.split(",")[0].split(" ").pop().toLowerCase();
 
     if (CONFIG.DND5E.creatureTypes[typeName]) {
       this.npc.system.details.type.value = typeName;
     } else {
       this.npc.system.details.type.value = "Unknown";
     }
+  }
+
+  static getDamageAdjustments(data) {
+    const values = [];
+    const custom = [];
+    const damageTypes = DICTIONARY.actions.damageType.filter((d) => d.name !== null).map((d) => d.name);
+
+    data.forEach((adj) => {
+      if (damageTypes.includes(adj.toLowerCase())) {
+        values.push(adj.toLowerCase());
+      } else if (adj.includes("physical")) {
+        values.push("physical");
+      } else {
+        custom.push(adj);
+      }
+    });
+
+    const adjustments = {
+      value: values,
+      custom: custom.join("; "),
+    };
+
+    return adjustments;
+  }
+
+  filterDamageConditions(data) {
+    const onlyFiltered = data.split(/;,/).filter((state) => {
+      if (state.includes("only")) {
+        if (state.toLowerCase().includes(this.options.subType.toLowerCase())) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return true;
+      }
+    });
+
+    const conditions = [];
+
+    onlyFiltered.forEach((state) => {
+      const results = state
+        .split("and")
+        .map((s) => {
+          return s.split("(")[0].trim().toLowerCase();
+        });
+      conditions.push(...results);
+    });
+
+    return conditions;
+  }
+
+  // Damage Resistances acid (Water only); lightning and thunder (Air only); piercing and slashing (Earth only)
+  // Damage Immunities poison; fire (Fire only)
+  // Damage Immunities necrotic, poison
+  // Condition Immunities exhaustion, frightened, paralyzed, poisoned
+  #generateImmunities() {
+    const data = this.getBlockData("Damage Immunities");
+    if (!data) return;
+
+    this.npc.system.traits.di = DDBCompanion.getDamageAdjustments(this.filterDamageConditions(data));
+  }
+
+  #generateResistances() {
+    const data = this.getBlockData("Damage Resistances");
+    if (!data) return;
+
+    this.npc.system.traits.dr = DDBCompanion.getDamageAdjustments(this.filterDamageConditions(data));
+  }
+
+  #generateVulnerabilities() {
+    const data = this.getBlockData("Damage Vulnerabilities");
+    if (!data) return;
+
+    this.npc.system.traits.dv = DDBCompanion.getDamageAdjustments(this.filterDamageConditions(data));
+  }
+
+  // Condition Immunities exhaustion, frightened, paralyzed, poisoned
+  #generateConditions() {
+    const data = this.getBlockData("Condition Immunities");
+    if (!data) return;
+
+    let values = [];
+    let custom = [];
+
+    data.split(",").forEach((adj) => {
+      const valueAdjustment = DICTIONARY.conditions.find((condition) => condition.label.toLowerCase() == adj.trim().toLowerCase());
+      if (valueAdjustment) {
+        values.push(valueAdjustment.foundry);
+      } else {
+        custom.push(adj);
+      }
+    });
+
+    // Condition Immunities charmed, exhaustion, frightened, incapacitated, paralyzed, petrified, poisoned
+    this.npc.system.traits.ci = {
+      value: values,
+      custom: custom.join("; "),
+    };
   }
 
   // this parser creates actor data for a base actor
@@ -281,6 +395,11 @@ export default class DDBCompanion {
     this.#generateHitPoints();
     this.#generateHitDie();
     this.#generateSkills();
+    this.#generateImmunities();
+    this.#generateResistances();
+    this.#generateVulnerabilities();
+    this.#generateConditions();
+    // TO DO generate alignment (sometimes at end of type)
 
     this.data = duplicate(this.npc);
     this.parsed = true;

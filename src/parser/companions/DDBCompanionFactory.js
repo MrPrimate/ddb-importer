@@ -1,3 +1,4 @@
+import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
 import DDBCompanion from "./DDBCompanion.js";
 
@@ -23,6 +24,7 @@ export default class DDBCompanionFactory {
     "Shadow Spirit": ["Fury", "Despair", "Fear"],
     "Undead Spirit": ["Ghostly", "Putrid", "Skeletal"],
     "Drake Companion": ["Acid", "Cold", "Fire", "Lightning", "Poison"],
+    "Draconic Spirit": ["Chromatic", "Gem", "Metallic"],
   };
 
   async #buildCompanion(block, options = {}) {
@@ -37,11 +39,18 @@ export default class DDBCompanionFactory {
   async parse() {
     console.warn(this.doc);
 
-    const statBlockDivs = this.doc.querySelectorAll("div.stat-block-background");
+    const statBlockDivs = this.doc.querySelectorAll("div.stat-block-background, div.stat-block-finder");
 
     console.warn("statblkc divs", { statBlockDivs, athis: this });
     for (const block of statBlockDivs) {
-      const name = block.querySelector("p.Stat-Block-Styles_Stat-Block-Title").innerHTML;
+      const name = block
+        .querySelector("p.Stat-Block-Styles_Stat-Block-Title")
+        .innerText
+        .trim()
+        .toLowerCase()
+        .split(" ")
+        .map((w) => utils.capitalize(w))
+        .join(" ");
 
       if (name && name in DDBCompanionFactory.MULTI) {
         for (const subType of DDBCompanionFactory.MULTI[name]) {
