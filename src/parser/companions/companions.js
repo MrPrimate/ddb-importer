@@ -43,12 +43,14 @@ DDBCharacter.prototype._findDDBSpell = function _findDDBSpell(name) {
 };
 
 DDBCharacter.prototype._getCompanionSpell = async function _getCompanionSpell(name) {
+  console.warn(`Check data for spell ${name}`);
   const spell = this.data.spells.find((s) => s.name === name || s.flags.ddbimporter?.originalName === name);
   if (!spell) return [];
 
   const ddbSpell = this._findDDBSpell(spell.flags.ddbimporter?.originalName ?? spell.name);
   if (!ddbSpell) return [];
 
+  console.warn(`Companion parse for ${name}`, {spell, ddbSpell});
   const ddbCompanionFactory = new DDBCompanionFactory(this, ddbSpell.definition.description, {});
   await ddbCompanionFactory.parse();
   return ddbCompanionFactory.companions;
@@ -82,7 +84,7 @@ DDBCharacter.prototype.generateCompanions = async function generateCompanions() 
   const fiend = await this._getCompanionSpell("Summon Fiend");
   const shadowspawn = await this._getCompanionSpell("Summon Shadowspawn");
   const undead = await this._getCompanionSpell("Summon Undead");
-
+  const draconic = await this._getCompanionSpell("Summon Draconic Spirit");
 
   const companions = [
     ...steelDefender,
@@ -98,8 +100,8 @@ DDBCharacter.prototype.generateCompanions = async function generateCompanions() 
     ...fiend,
     ...shadowspawn,
     ...undead,
+    ...draconic,
   ];
-
 
   this.companions = await Promise.all(companions);
 
@@ -113,7 +115,6 @@ DDBCharacter.prototype.generateCompanions = async function generateCompanions() 
   // new summon spells
   // classic summons (not handled here)
   // druid circle of fire companion
-
 
 };
 
