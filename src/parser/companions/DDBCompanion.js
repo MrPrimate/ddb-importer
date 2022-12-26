@@ -434,6 +434,52 @@ export default class DDBCompanion {
     });
   }
 
+
+  async getFeature(text, type) {
+    return {};
+
+  }
+
+  async #generateFeatures() {
+    const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Data-Last");
+    if (!data) {
+      logger.error(`Unable to parse ${this.npc.name} features and actions`, { this: this });
+      return;
+    }
+
+    let end = false;
+    let now = data.nextSibling;
+    let featType = "feature";
+    while (!end) {
+      switch (end.innerText.trim().toLowerCase()) {
+        case "action":
+        case "actions":
+          featType = "action";
+          // eslint-disable-next-line no-continue
+          continue;
+        case "reaction":
+        case "reactions":
+          featType = "reaction";
+          // eslint-disable-next-line no-continue
+          continue;
+        case "bonus actions":
+        case "bonus":
+        case "bonus action":
+          featType = "bonus";
+          // eslint-disable-next-line no-continue
+          continue;
+        // no default
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      const feature = await this.getFeature(now, featType);
+      this.npc.items.push(feature);
+
+      now = now.nextSibling;
+      if (!now) end = true;
+    }
+  }
+
   // this parser creates actor data for a base actor
   // these are actors that are modified by the PB of the actor
   // these require the use of "arbron-summoner" module to run.

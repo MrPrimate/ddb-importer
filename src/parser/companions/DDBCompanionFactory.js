@@ -59,7 +59,7 @@ export default class DDBCompanionFactory {
         }
       } else {
         // eslint-disable-next-line no-await-in-loop
-        await this.#buildCompanion(block);
+        await this.#buildCompanion(block, { name, subType: null });
       }
 
     }
