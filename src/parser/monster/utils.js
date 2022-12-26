@@ -1,4 +1,4 @@
-import { getAbilityMods } from "./abilities.js";
+import { getAbilityMods } from "./helpers.js";
 import logger from '../../logger.js';
 import utils from '../../lib/utils.js';
 import DICTIONARY from '../../dictionary.js';
