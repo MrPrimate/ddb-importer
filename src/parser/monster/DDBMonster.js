@@ -7,7 +7,6 @@ import {
   getDamageVulnerabilities,
   getConditionImmunities,
 } from "./conditions.js";
-import { getAbilities } from "./abilities.js";
 import { getSkills, getSkillsHTML } from "./skills.js";
 import { getLanguages } from "./languages.js";
 import { getHitPoints } from "./hp.js";
@@ -315,8 +314,7 @@ export default class DDBMonster {
     this.removedHitPoints = this.source.removedHitPoints ? this.source.removedHitPoints : 0;
     this.temporaryHitPoints = this.source.temporaryHitPoints ? this.source.removedHitPoints : 0;
 
-    // abilities
-    this.npc.system.abilities = getAbilities(this.npc.system.abilities, this.source);
+    this._generateAbilities();
 
     // skills
     this.npc.system.skills = (this.extra)

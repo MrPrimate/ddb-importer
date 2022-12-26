@@ -3,7 +3,7 @@ import utils from "../../lib/utils.js";
 import DDBMonsterFactory from "../monster/DDBMonsterFactory.js";
 import { copySupportedItemFlags, srdFiddling } from "../../muncher/import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../../muncher/importMonster.js";
-import { getAbilityMods } from "../monster/abilities.js";
+import { getAbilityMods } from "../monster/helpers.js";
 import DICTIONARY from "../../dictionary.js";
 
 const MUNCH_DEFAULTS = [
