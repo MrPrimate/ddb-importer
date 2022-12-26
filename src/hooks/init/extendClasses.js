@@ -1,1 +1,1 @@
-import "../../parser/extendDDBCharacter.js";
+import "../../parser/extendParsers.js";

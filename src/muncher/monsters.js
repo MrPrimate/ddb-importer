@@ -3,7 +3,7 @@ import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import DDBMuncher from "./DDBMuncher.js";
 import logger from "../logger.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
-import { parseMonsters } from "../parser/monster/monster.js";
+import DDBMonsterFactory from "../parser/monster/DDBMonsterFactory.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
@@ -68,7 +68,8 @@ async function getMonsterData(ids) {
       .then((data) => {
         DDBMuncher.munchNote(`Retrieved ${data.data.length} monsters, starting parse...`, true, false);
         logger.info(`Retrieved ${data.data.length} monsters`);
-        const parsedMonsters = parseMonsters(data.data);
+        const monsterFactory = new DDBMonsterFactory(data.data);
+        const parsedMonsters = monsterFactory.parse();
         return parsedMonsters;
       })
       .then((data) => {

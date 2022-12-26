@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
 import utils from "../../lib/utils.js";
-import { parseMonsters } from "../monster/monster.js";
+import DDBMonsterFactory from "../monster/DDBMonsterFactory.js";
 import { copySupportedItemFlags, srdFiddling } from "../../muncher/import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../../muncher/importMonster.js";
 import { getAbilityMods } from "../monster/abilities.js";
@@ -661,7 +661,8 @@ export async function generateCharacterExtras(html, characterData, actor) {
       });
 
     logger.debug("Extracted creatures", extractedCreatures);
-    const parsedExtras = await parseMonsters(extractedCreatures, true);
+    const monsterFactory = new DDBMonsterFactory(extractedCreatures, true);
+    const parsedExtras = await monsterFactory.parse();
     logger.debug("Parsed Extras:", duplicate(parsedExtras.actors));
 
     const enhancedExtras = parsedExtras.actors.map((extra) => enhanceParsedExtra(actor, extra));

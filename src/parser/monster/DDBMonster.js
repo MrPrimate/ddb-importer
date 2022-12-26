@@ -118,7 +118,7 @@ function getSpellEdgeCase(spell, type, spellList) {
 
 }
 
-export class DDBMonster {
+export default class DDBMonster {
 
   setProperty(name, value) {
     if (this.overrides["name"]) {
@@ -457,35 +457,4 @@ export class DDBMonster {
 
   }
 
-}
-
-export async function parseMonsters(monsterData, extra = false) {
-  let foundryActors = [];
-  let failedMonsterNames = [];
-
-  const useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
-  const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-  const addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
-
-  for (const monster of monsterData) {
-    try {
-      logger.debug(`Attempting to parse ${monster.name}`);
-      const ddbMonster = new DDBMonster(monster, { extra, useItemAC, legacyName, addMonsterEffects });
-      // eslint-disable-next-line no-await-in-loop
-      await ddbMonster.parse();
-      foundryActors.push(duplicate(ddbMonster.npc));
-    } catch (err) {
-      logger.error(`Failed parsing ${monster.name}`);
-      logger.error(err);
-      logger.error(err.stack);
-      failedMonsterNames.push(monster.name);
-    }
-  }
-
-  const result = {
-    actors: await Promise.all(foundryActors),
-    failedMonsterNames: failedMonsterNames,
-  };
-
-  return result;
 }

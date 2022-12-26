@@ -1,5 +1,6 @@
 // for exports
-import { parseMonsters } from "../../parser/monster/monster.js";
+import DDBMonster from "../../parser/monster/DDBMonster.js";
+import DDBMonsterFactory from "../../parser/monster/DDBMonsterFactory.js";
 import { parseSpells } from "../../muncher/spells.js";
 import { parseItems } from "../../muncher/items.js";
 import { parseCritters, fixCritters } from "../../muncher/monsters.js";
@@ -67,7 +68,8 @@ export function registerWindow() {
     parseTransports,
     parseFeats: getFeats,
     parseItems,
-    parseMonsters,
+    DDBMonster,
+    DDBMonsterFactory,
     parseSpells,
     DDBCharacterManager,
     DDBProxy,
