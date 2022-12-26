@@ -118,306 +118,348 @@ function getSpellEdgeCase(spell, type, spellList) {
 
 }
 
-async function addSpells(monster) {
-  // check to see if we have munched flags to work on
-  if (!monster.flags || !monster.flags.monsterMunch || !monster.flags.monsterMunch.spellList) {
-    return monster;
-  }
+export class DDBMonster {
 
-  const spellList = monster.flags.monsterMunch.spellList;
-  logger.debug(`Spell List for edgecases`, spellList);
-  const atWill = spellList.atwill;
-  const klass = spellList.class;
-  const innate = spellList.innate;
-  const pact = spellList.pact;
-
-  if (atWill.length !== 0) {
-    logger.debug("Retrieving at Will spells:", atWill);
-    let spells = await retrieveSpells(atWill);
-    spells = spells.filter((spell) => spell !== null).map((spell) => {
-      if (spell.system.level == 0) {
-        spell.system.preparation = {
-          mode: "prepared",
-          prepared: false,
-        };
-      } else {
-        spell.system.preparation = {
-          mode: "atwill",
-          prepared: false,
-        };
-        spell.system.uses = {
-          value: null,
-          max: null,
-          per: "",
-        };
-      }
-      getSpellEdgeCase(spell, "atwill", spellList);
-      return spell;
-    });
-    // eslint-disable-next-line require-atomic-updates
-    monster.items = monster.items.concat(spells);
-  }
-
-  // class spells
-  if (klass.length !== 0) {
-    logger.debug("Retrieving class spells:", klass);
-    let spells = await retrieveSpells(klass);
-    spells = spells.filter((spell) => spell !== null).map((spell) => {
-      spell.system.preparation = {
-        mode: "prepared",
-        prepared: true,
-      };
-      getSpellEdgeCase(spell, "class", spellList);
-      return spell;
-    });
-    // eslint-disable-next-line require-atomic-updates
-    monster.items = monster.items.concat(spells);
-  }
-
-  // pact spells
-  if (pact.length !== 0) {
-    logger.debug("Retrieving pact spells:", pact);
-    let spells = await retrieveSpells(pact);
-    spells = spells.filter((spell) => spell !== null).map((spell) => {
-      spell.system.preparation = {
-        mode: "pact",
-        prepared: true,
-      };
-      getSpellEdgeCase(spell, "pact", spellList);
-      return spell;
-    });
-    // eslint-disable-next-line require-atomic-updates
-    monster.items = monster.items.concat(spells);
-  }
-
-  // innate spells
-  if (innate.length !== 0) {
-    // innate:
-    // {name: "", type: "srt/lng/day", value: 0}
-    logger.debug("Retrieving innate spells:", innate);
-    const spells = await retrieveSpells(innate);
-    const innateSpells = spells.filter((spell) => spell !== null)
-      .map((spell) => {
-        const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
-        if (spellInfo) {
-          const isAtWill = hasProperty(spellInfo, "innate") && !spellInfo.innate;
-          if (spell.system.level == 0) {
-            spell.system.preparation = {
-              mode: "prepared",
-              prepared: false,
-            };
-          } else {
-            spell.system.preparation = {
-              mode: isAtWill ? "atwill" : "innate",
-              prepared: !isAtWill,
-            };
-          }
-          if (isAtWill && spellInfo.type === "atwill") {
-            spell.system.uses = {
-              value: null,
-              max: null,
-              per: "",
-            };
-          } else {
-            const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
-            const per = spellInfo.type === "atwill"
-              ? null
-              : (perLookup && perLookup.type)
-                ? perLookup.type
-                : "day";
-            spell.system.uses = {
-              value: spellInfo.value,
-              max: spellInfo.value,
-              per: per,
-            };
-          }
-          getSpellEdgeCase(spell, "innate", spellList);
-        }
-        return spell;
-      });
-    // eslint-disable-next-line require-atomic-updates
-    monster.items = monster.items.concat(innateSpells);
-  }
-  return monster;
-}
-
-// eslint-disable-next-line complexity
-async function parseMonster(monster, extra, { useItemAC = true, legacyName = true, addMonsterEffects = false } = {}) {
-  let foundryActor = duplicate(await newNPC(monster.name));
-  let items = [];
-  let img = (monster.basicAvatarUrl) ? monster.basicAvatarUrl : monster.largeAvatarUrl;
-  // foundry doesn't support gifs
-  if (img && img.match(/.gif$/)) {
-    img = null;
-  }
-
-  foundryActor.prototypeToken.name = monster.name;
-  foundryActor.flags.monsterMunch = {
-    url: monster.url,
-    img: (img) ? img : monster.avatarUrl,
-    tokenImg: monster.avatarUrl,
-  };
-  foundryActor.flags.ddbimporter = {
-    id: monster.id,
-    entityTypeId: monster.entityTypeId,
-    // creatureGroup: monster.creatureGroup ? monster.creatureGroup : null,
-    creatureGroupId: monster.creatureGroupId ? monster.creatureGroupId : null,
-    creatureFlags: monster.creatureFlags ? monster.creatureFlags : [],
-    automatedEvcoationAnimation: monster.automatedEvcoationAnimation ? monster.automatedEvcoationAnimation : undefined,
-    version: CONFIG.DDBI.version,
-    isLegacy: monster.isLegacy,
-  };
-
-  const removedHitPoints = monster.removedHitPoints ? monster.removedHitPoints : 0;
-  const temporaryHitPoints = monster.temporaryHitPoints ? monster.removedHitPoints : 0;
-
-  // abilities
-  foundryActor.system.abilities = getAbilities(foundryActor.system.abilities, monster);
-
-  // skills
-  foundryActor.system.skills = (extra)
-    ? getSkills(foundryActor.system.skills, monster)
-    : getSkillsHTML(foundryActor.system.skills, monster);
-
-  // Senses
-  foundryActor.system.attributes.senses = getSenses(monster);
-  foundryActor.prototypeToken = await getTokenSenses(foundryActor.prototypeToken, monster);
-
-  // Conditions
-  foundryActor.system.traits.di = getDamageImmunities(monster);
-  foundryActor.system.traits.dr = getDamageResistances(monster);
-  foundryActor.system.traits.dv = getDamageVulnerabilities(monster);
-  foundryActor.system.traits.ci = getConditionImmunities(monster);
-  const size = getSize(monster);
-  foundryActor.system.traits.size = size.value;
-  foundryActor.prototypeToken.width = size.token.value;
-  foundryActor.prototypeToken.height = size.token.value;
-  foundryActor.prototypeToken.scale = size.token.scale;
-
-
-  // languages
-  foundryActor.system.traits.languages = getLanguages(monster);
-
-  // attributes
-  foundryActor.system.attributes.hp = getHitPoints(monster, removedHitPoints, temporaryHitPoints);
-  const movement = getSpeed(monster);
-  foundryActor.system.attributes.movement = movement['movement'];
-
-  foundryActor.system.attributes.prof = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
-
-  // ac
-  const ac = await generateAC(monster, { useItemAC });
-  foundryActor.system.attributes.ac = ac.ac;
-  foundryActor.flags.ddbimporter.flatAC = ac.flatAC;
-  items.push(...ac.ddbItems);
-
-  // details
-  const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId);
-  foundryActor.system.details.type = getType(monster);
-  const alignment = CONFIG.DDB.alignments.find((c) => monster.alignmentId == c.id);
-  foundryActor.system.details.alignment = alignment ? alignment.name : "";
-  foundryActor.system.details.cr = cr.value;
-  foundryActor.system.details.source = getSource(monster);
-  foundryActor.system.details.xp = {
-    value: cr.xp
-  };
-  foundryActor.system.details.environment = getEnvironments(monster);
-  foundryActor.system.details.biography.value = monster.characteristicsDescription;
-
-  let actions, lairActions, legendaryActions, specialTraits, reactions, bonus, mythic;
-  let characterDescriptionAction, characterDescriptionReaction, unexpectedDescription;
-
-  [actions, characterDescriptionAction] = getActions(monster);
-  items.push(...actions);
-
-  if (monster.hasLair) {
-    lairActions = getLairActions(monster);
-    items.push(...lairActions.lairActions);
-    foundryActor.system.resources["lair"] = lairActions.resource;
-  }
-
-  if (monster.legendaryActionsDescription != "") {
-    legendaryActions = getLegendaryActions(monster, actions);
-    items.push(...legendaryActions.legendaryActions);
-    foundryActor.system.resources["legact"] = legendaryActions.actions;
-    foundryActor.prototypeToken.bar2 = {
-      attribute: "resources.legact"
-    };
-  }
-
-  if (monster.specialTraitsDescription != "") {
-    specialTraits = getSpecialTraits(monster, actions);
-    items.push(...specialTraits.specialActions);
-    foundryActor.system.resources["legres"] = specialTraits.resistance;
-  }
-
-  [reactions, characterDescriptionReaction] = getActions(monster, "reaction");
-  items.push(...reactions);
-  [bonus, unexpectedDescription] = getActions(monster, "bonus");
-  items.push(...bonus);
-  [mythic, unexpectedDescription] = getActions(monster, "mythic");
-  items.push(...mythic);
-
-  if (unexpectedDescription) {
-    logger.warn(`Unexpected description for ${monster.name}`);
-  }
-  if (characterDescriptionAction) {
-    foundryActor.system.details.biography.value += characterDescriptionAction;
-  }
-  if (characterDescriptionReaction) {
-    foundryActor.system.details.biography.value += characterDescriptionReaction;
-  }
-  if (specialTraits?.characterDescription) {
-    foundryActor.system.details.biography.value += specialTraits.characterDescription;
-  }
-
-  // Spellcasting
-  const spellcastingData = getSpells(monster);
-  foundryActor.system.attributes.spellcasting = spellcastingData.spellcasting;
-  foundryActor.system.attributes.spelldc = spellcastingData.spelldc;
-  foundryActor.system.attributes.spellLevel = spellcastingData.spellLevel;
-  foundryActor.system.details.spellLevel = spellcastingData.spellLevel;
-  foundryActor.system.spells = spellcastingData.spells;
-  foundryActor.flags.monsterMunch['spellList'] = spellcastingData.spellList;
-
-  const badItems = items.filter((i) => i.name === "" || !i.name);
-  if (badItems.length > 0) {
-    logger.error(`${monster.name} - ${badItems.length} items have no name.`, badItems);
-    items = items.filter((i) => i.name && i.name !== "");
-  }
-
-  foundryActor.items = items;
-
-
-  if (legacyName) {
-    if (monster.isLegacy) {
-      foundryActor.name += " (Legacy)";
-      foundryActor.prototypeToken.name += " (Legacy)";
+  setProperty(name, value) {
+    if (this.overrides["name"]) {
+      this[name] = this.overrides["name"];
+    } else {
+      this[name] = value;
     }
   }
 
-  foundryActor = await CompendiumHelper.existingActorCheck("monster", foundryActor);
-
-  logger.debug("Importing Spells");
-  foundryActor = await addSpells(foundryActor);
-
-  foundryActor = specialCases(foundryActor);
-  if (addMonsterEffects) {
-    foundryActor = await monsterFeatureEffectAdjustment(foundryActor, monster);
+  constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
+    legacyName = true, addMonsterEffects = false } = {}, overrides = {}
+  ) {
+    this.source = ddbObject;
+    this.extra = extra;
+    this.npc = existingNpc;
+    this.useItemAC = useItemAC;
+    this.legacyName = legacyName;
+    this.addMonsterEffects = addMonsterEffects;
+    this.items = [];
+    this.img = null;
+    this.name = overrides["name"] ? overrides["name"] : existingNpc ? existingNpc.name : null;
+    this.overrides = overrides;
+    this.removedHitPoints = this.setProperty("removedHitPoints", 0);
+    this.temporaryHitPoints = this.setProperty("temporaryHitPoints", 0);
+    this.actions = [];
+    this.lairActions = [];
+    this.legendaryActions = [];
+    this.specialTraits = [];
+    this.reactions = [];
+    this.bonus = [];
+    this.mythic = [];
+    this.characterDescriptionAction = null;
+    this.characterDescriptionReaction = null;
+    this.unexpectedDescription = null;
   }
 
-  // console.warn("Data:", monster);
-  // console.warn("Monster:", duplicate(foundryActor));
-  // logger.info(foundryActor.system.resources);
-  // logger.info(foundryActor.system.traits.languages);
+  async addSpells() {
+    // check to see if we have munched flags to work on
+    if (!this.npc?.flags?.monsterMunch?.spellList) {
+      return;
+    }
 
-  // logger.info(foundryActor.system.attributes);
-  return foundryActor;
+    const spellList = this.npc.flags.monsterMunch.spellList;
+    logger.debug(`Spell List for edgecases`, spellList);
+    const atWill = spellList.atwill;
+    const klass = spellList.class;
+    const innate = spellList.innate;
+    const pact = spellList.pact;
+
+    if (atWill.length !== 0) {
+      logger.debug("Retrieving at Will spells:", atWill);
+      let spells = await retrieveSpells(atWill);
+      spells = spells.filter((spell) => spell !== null).map((spell) => {
+        if (spell.system.level == 0) {
+          spell.system.preparation = {
+            mode: "prepared",
+            prepared: false,
+          };
+        } else {
+          spell.system.preparation = {
+            mode: "atwill",
+            prepared: false,
+          };
+          spell.system.uses = {
+            value: null,
+            max: null,
+            per: "",
+          };
+        }
+        getSpellEdgeCase(spell, "atwill", spellList);
+        return spell;
+      });
+      this.npc.items = this.npc.items.concat(spells);
+    }
+
+    // class spells
+    if (klass.length !== 0) {
+      logger.debug("Retrieving class spells:", klass);
+      let spells = await retrieveSpells(klass);
+      spells = spells.filter((spell) => spell !== null).map((spell) => {
+        spell.system.preparation = {
+          mode: "prepared",
+          prepared: true,
+        };
+        getSpellEdgeCase(spell, "class", spellList);
+        return spell;
+      });
+      this.npc.items = this.npc.items.concat(spells);
+    }
+
+    // pact spells
+    if (pact.length !== 0) {
+      logger.debug("Retrieving pact spells:", pact);
+      let spells = await retrieveSpells(pact);
+      spells = spells.filter((spell) => spell !== null).map((spell) => {
+        spell.system.preparation = {
+          mode: "pact",
+          prepared: true,
+        };
+        getSpellEdgeCase(spell, "pact", spellList);
+        return spell;
+      });
+      this.npc.items = this.npc.items.concat(spells);
+    }
+
+    // innate spells
+    if (innate.length !== 0) {
+      // innate:
+      // {name: "", type: "srt/lng/day", value: 0}
+      logger.debug("Retrieving innate spells:", innate);
+      const spells = await retrieveSpells(innate);
+      const innateSpells = spells.filter((spell) => spell !== null)
+        .map((spell) => {
+          const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
+          if (spellInfo) {
+            const isAtWill = hasProperty(spellInfo, "innate") && !spellInfo.innate;
+            if (spell.system.level == 0) {
+              spell.system.preparation = {
+                mode: "prepared",
+                prepared: false,
+              };
+            } else {
+              spell.system.preparation = {
+                mode: isAtWill ? "atwill" : "innate",
+                prepared: !isAtWill,
+              };
+            }
+            if (isAtWill && spellInfo.type === "atwill") {
+              spell.system.uses = {
+                value: null,
+                max: null,
+                per: "",
+              };
+            } else {
+              const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
+              const per = spellInfo.type === "atwill"
+                ? null
+                : (perLookup && perLookup.type)
+                  ? perLookup.type
+                  : "day";
+              spell.system.uses = {
+                value: spellInfo.value,
+                max: spellInfo.value,
+                per: per,
+              };
+            }
+            getSpellEdgeCase(spell, "innate", spellList);
+          }
+          return spell;
+        });
+      this.npc.items = this.npc.items.concat(innateSpells);
+    }
+  }
+
+  _calculateImage() {
+    if (this.source) {
+      this.img = (this.source.basicAvatarUrl) ? this.source.basicAvatarUrl : this.source.largeAvatarUrl;
+      // foundry doesn't support gifs
+      if (this.img && this.img.match(/.gif$/)) {
+        this.img = null;
+      }
+    } else {
+      this.img = null;
+    }
+  }
+
+  _generateFlags() {
+    this.npc.flags.monsterMunch = {
+      url: this.source.url,
+      img: (this.img) ? this.img : this.source.avatarUrl,
+      tokenImg: this.source.avatarUrl,
+    };
+    this.npc.flags.ddbimporter = {
+      id: this.source.id,
+      entityTypeId: this.source.entityTypeId,
+      // creatureGroup: monster.creatureGroup ? monster.creatureGroup : null,
+      creatureGroupId: this.source.creatureGroupId ? this.source.creatureGroupId : null,
+      creatureFlags: this.source.creatureFlags ? this.source.creatureFlags : [],
+      automatedEvcoationAnimation: this.source.automatedEvcoationAnimation ? this.source.automatedEvcoationAnimation : undefined,
+      version: CONFIG.DDBI.version,
+      isLegacy: this.source.isLegacy,
+    };
+  }
+
+
+  async parse() {
+    if (!this.name) this.name = this.source.name;
+    this.npc = duplicate(await newNPC(this.name));
+    this._calculateImage();
+
+    this.npc.prototypeToken.name = this.name;
+    this._generateFlags();
+
+    this.removedHitPoints = this.source.removedHitPoints ? this.source.removedHitPoints : 0;
+    this.temporaryHitPoints = this.source.temporaryHitPoints ? this.source.removedHitPoints : 0;
+
+    // abilities
+    this.npc.system.abilities = getAbilities(this.npc.system.abilities, this.source);
+
+    // skills
+    this.npc.system.skills = (this.extra)
+      ? getSkills(this.npc.system.skills, this.source)
+      : getSkillsHTML(this.npc.system.skills, this.source);
+
+    // Senses
+    this.npc.system.attributes.senses = getSenses(this.source);
+    this.npc.prototypeToken = await getTokenSenses(this.npc.prototypeToken, this.source);
+
+    // Conditions
+    this.npc.system.traits.di = getDamageImmunities(this.source);
+    this.npc.system.traits.dr = getDamageResistances(this.source);
+    this.npc.system.traits.dv = getDamageVulnerabilities(this.source);
+    this.npc.system.traits.ci = getConditionImmunities(this.source);
+    this.size = getSize(this.source);
+    this.npc.system.traits.size = this.size.value;
+    this.npc.prototypeToken.width = this.size.token.value;
+    this.npc.prototypeToken.height = this.size.token.value;
+    this.npc.prototypeToken.scale = this.size.token.scale;
+
+
+    // languages
+    this.npc.system.traits.languages = getLanguages(this.source);
+
+    // attributes
+    this.npc.system.attributes.hp = getHitPoints(this.source, this.removedHitPoints, this.temporaryHitPoints);
+    this.movement = getSpeed(this.source);
+    this.npc.system.attributes.movement = this.movement['movement'];
+
+    this.npc.system.attributes.prof = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
+
+    // ac
+    this.ac = await generateAC(this.source, { useItemAC: this.useItemAC });
+    this.npc.system.attributes.ac = this.ac.ac;
+    this.npc.flags.ddbimporter.flatAC = this.ac.flatAC;
+    this.items.push(...this.ac.ddbItems);
+
+    // details
+    this.cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
+    this.npc.system.details.type = getType(this.source);
+    const alignment = CONFIG.DDB.alignments.find((c) => this.source.alignmentId == c.id);
+    this.npc.system.details.alignment = alignment ? alignment.name : "";
+    this.npc.system.details.cr = this.cr.value;
+    this.npc.system.details.source = getSource(this.source);
+    this.npc.system.details.xp = {
+      value: this.cr.xp
+    };
+    this.npc.system.details.environment = getEnvironments(this.source);
+    this.npc.system.details.biography.value = this.source.characteristicsDescription;
+
+    [this.actions, this.characterDescriptionAction] = getActions(this.source);
+    this.items.push(...this.actions);
+
+    if (this.source.hasLair) {
+      this.lairActions = getLairActions(this.source);
+      this.items.push(...this.lairActions.lairActions);
+      this.npc.system.resources["lair"] = this.lairActions.resource;
+    }
+
+    if (this.source.legendaryActionsDescription != "") {
+      this.legendaryActions = getLegendaryActions(this.source, this.actions);
+      this.items.push(...this.legendaryActions.legendaryActions);
+      this.npc.system.resources["legact"] = this.legendaryActions.actions;
+      this.npc.prototypeToken.bar2 = {
+        attribute: "resources.legact"
+      };
+    }
+
+    if (this.source.specialTraitsDescription != "") {
+      this.specialTraits = getSpecialTraits(this.source, this.actions);
+      this.items.push(...this.specialTraits.specialActions);
+      this.npc.system.resources["legres"] = this.specialTraits.resistance;
+    }
+
+    [this.reactions, this.characterDescriptionReaction] = getActions(this.source, "reaction");
+    this.items.push(...this.reactions);
+    [this.bonus, this.unexpectedDescription] = getActions(this.source, "bonus");
+    this.items.push(...this.bonus);
+    [this.mythic, this.unexpectedDescription] = getActions(this.source, "mythic");
+    this.items.push(...this.mythic);
+
+    if (this.unexpectedDescription) {
+      logger.warn(`Unexpected description for ${this.source.name}`);
+    }
+    if (this.characterDescriptionAction) {
+      this.npc.system.details.biography.value += this.characterDescriptionAction;
+    }
+    if (this.characterDescriptionReaction) {
+      this.npc.system.details.biography.value += this.characterDescriptionReaction;
+    }
+    if (this.specialTraits?.characterDescription) {
+      this.npc.system.details.biography.value += this.specialTraits.characterDescription;
+    }
+
+    // Spellcasting
+    const spellcastingData = getSpells(this.source);
+    this.npc.system.attributes.spellcasting = spellcastingData.spellcasting;
+    this.npc.system.attributes.spelldc = spellcastingData.spelldc;
+    this.npc.system.attributes.spellLevel = spellcastingData.spellLevel;
+    this.npc.system.details.spellLevel = spellcastingData.spellLevel;
+    this.npc.system.spells = spellcastingData.spells;
+    this.npc.flags.monsterMunch['spellList'] = spellcastingData.spellList;
+
+    const badItems = this.items.filter((i) => i.name === "" || !i.name);
+    if (badItems.length > 0) {
+      logger.error(`${this.source.name} - ${badItems.length} items have no name.`, badItems);
+      this.items = this.items.filter((i) => i.name && i.name !== "");
+    }
+
+    this.npc.items = this.items;
+
+
+    if (this.legacyName) {
+      if (this.source.isLegacy) {
+        this.npc.name += " (Legacy)";
+        this.npc.prototypeToken.name += " (Legacy)";
+      }
+    }
+
+    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc);
+
+    logger.debug("Importing Spells");
+    await this.addSpells();
+
+    this.npc = specialCases(this.npc);
+    if (this.addMonsterEffects) {
+      this.npc = await monsterFeatureEffectAdjustment(this.npc, this.source);
+    }
+
+    // console.warn("Data:", monster);
+    // console.warn("Monster:", duplicate(foundryActor));
+    // logger.info(foundryActor.system.resources);
+    // logger.info(foundryActor.system.traits.languages);
+
+    // logger.info(foundryActor.system.attributes);
+    return this.npc;
+
+  }
 
 }
 
 export async function parseMonsters(monsterData, extra = false) {
-
   let foundryActors = [];
   let failedMonsterNames = [];
 
@@ -425,18 +467,20 @@ export async function parseMonsters(monsterData, extra = false) {
   const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
   const addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
 
-  monsterData.forEach((monster) => {
+  for (const monster of monsterData) {
     try {
       logger.debug(`Attempting to parse ${monster.name}`);
-      const foundryActor = parseMonster(monster, extra, { useItemAC, legacyName, addMonsterEffects });
-      foundryActors.push(foundryActor);
+      const ddbMonster = new DDBMonster(monster, { extra, useItemAC, legacyName, addMonsterEffects });
+      // eslint-disable-next-line no-await-in-loop
+      await ddbMonster.parse();
+      foundryActors.push(duplicate(ddbMonster.npc));
     } catch (err) {
       logger.error(`Failed parsing ${monster.name}`);
       logger.error(err);
       logger.error(err.stack);
       failedMonsterNames.push(monster.name);
     }
-  });
+  }
 
   const result = {
     actors: await Promise.all(foundryActors),
