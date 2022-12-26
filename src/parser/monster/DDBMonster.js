@@ -53,7 +53,7 @@ async function retrieveCompendiumItems(items, compendiumName) {
  *
  * @param {[items]} spells Array of Strings or items
  */
-async function retrieveSpells(spells) {
+async function retrieveCompendiumSpells(spells) {
   const compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
   const compendiumItems = await retrieveCompendiumItems(spells, compendiumName);
   const itemData = compendiumItems.map((i) => {
@@ -170,7 +170,7 @@ export default class DDBMonster {
 
     if (atWill.length !== 0) {
       logger.debug("Retrieving at Will spells:", atWill);
-      let spells = await retrieveSpells(atWill);
+      let spells = await retrieveCompendiumSpells(atWill);
       spells = spells.filter((spell) => spell !== null).map((spell) => {
         if (spell.system.level == 0) {
           spell.system.preparation = {
@@ -197,7 +197,7 @@ export default class DDBMonster {
     // class spells
     if (klass.length !== 0) {
       logger.debug("Retrieving class spells:", klass);
-      let spells = await retrieveSpells(klass);
+      let spells = await retrieveCompendiumSpells(klass);
       spells = spells.filter((spell) => spell !== null).map((spell) => {
         spell.system.preparation = {
           mode: "prepared",
@@ -212,7 +212,7 @@ export default class DDBMonster {
     // pact spells
     if (pact.length !== 0) {
       logger.debug("Retrieving pact spells:", pact);
-      let spells = await retrieveSpells(pact);
+      let spells = await retrieveCompendiumSpells(pact);
       spells = spells.filter((spell) => spell !== null).map((spell) => {
         spell.system.preparation = {
           mode: "pact",
@@ -229,7 +229,7 @@ export default class DDBMonster {
       // innate:
       // {name: "", type: "srt/lng/day", value: 0}
       logger.debug("Retrieving innate spells:", innate);
-      const spells = await retrieveSpells(innate);
+      const spells = await retrieveCompendiumSpells(innate);
       const innateSpells = spells.filter((spell) => spell !== null)
         .map((spell) => {
           const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
