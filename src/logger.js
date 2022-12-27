@@ -1,4 +1,8 @@
 const logger = {
+
+  LOG_PREFIX: "DDB Importer",
+  LOG_MSG_DEFAULT: "No logging message provided.  Please see the payload for more information.",
+
   _showMessage: (logLevel, data) => {
     if (!logLevel || !data || typeof (logLevel) !== 'string') {
       return false;
@@ -6,7 +10,7 @@ const logger = {
 
     try {
       const setting = game.settings.get("ddb-importer", "log-level");
-      const logLevels = ["DEBUG", "INFO", "WARN", "ERR", "OFF"];
+      const logLevels = ["DEBUG", "TIME", "TIMEEND", "TIMELOG", "INFO", "WARN", "ERR", "OFF"];
       const logLevelIndex = logLevels.indexOf(logLevel.toUpperCase());
       if (setting == "OFF"
               || logLevelIndex === -1
@@ -27,27 +31,28 @@ const logger = {
       });
     }
   },
+  // eslint-disable-next-line complexity
   log: (logLevel, ...data) => {
     logger._addToLogFile(logLevel, data);
     if (!logger._showMessage(logLevel, data)) {
       return;
     }
 
-    logLevel = logLevel.toUpperCase();
+    const logLevelType = logLevel.startsWith("TIME")
+      ? "DEBUG"
+      : logLevel.toUpperCase();
 
-    const LOG_PREFIX = "DDB Importer";
-    let msg = "No logging message provided.  Please see the payload for more information.";
-    let payload = data.slice();
-    if (data[0] && typeof (data[0] == 'string')) {
-      msg = data[0];
-      if (data.length > 1) {
-        payload = data.slice(1);
-      } else {
-        payload = null;
-      }
-    }
-    msg = `${LOG_PREFIX} | ${logLevel} > ${msg}`;
-    switch (logLevel) {
+    const msgContent = data[0] && typeof (data[0] == 'string')
+      ? data[0]
+      : logger.LOG_MSG_DEFAULT;
+    const payload = data[0] && typeof (data[0] == 'string')
+      ? data.length > 1
+        ? data.slice(1)
+        : null
+      : data.slice();
+    const msg = `${logger.LOG_PREFIX} | ${logLevelType} > ${msgContent}`;
+
+    switch (logLevel.toUpperCase()) {
       case "DEBUG":
         if (payload) {
           console.debug(msg, ...payload);// eslint-disable-line no-console
@@ -76,6 +81,27 @@ const logger = {
           console.error(msg);// eslint-disable-line no-console
         }
         break;
+      case "TIME":
+        if (payload) {
+          console.time(msg, ...payload);// eslint-disable-line no-console
+        } else {
+          console.time(msg);// eslint-disable-line no-console
+        }
+        break;
+      case "TIMEEND":
+        if (payload) {
+          console.timeEnd(msg, ...payload);// eslint-disable-line no-console
+        } else {
+          console.timeEnd(msg);// eslint-disable-line no-console
+        }
+        break;
+      case "TIMELOG":
+        if (payload) {
+          console.timeLog(msg, ...payload);// eslint-disable-line no-console
+        } else {
+          console.timeLog(msg);// eslint-disable-line no-console
+        }
+        break;
       default: break;
     }
   },
@@ -94,6 +120,18 @@ const logger = {
 
   error: (...data) => {
     logger.log("ERR", ...data);
+  },
+
+  time: (...data) => {
+    logger.log("TIME", ...data);
+  },
+
+  timeEnd: (...data) => {
+    logger.log("TIMEEND", ...data);
+  },
+
+  timeLog: (...data) => {
+    logger.log("TIMELOG", ...data);
   },
 
 };
