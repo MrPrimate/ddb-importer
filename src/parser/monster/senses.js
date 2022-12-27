@@ -1,8 +1,9 @@
 import DICTIONARY from "../../dictionary.js";
+import DDBMonster from "./DDBMonster.js";
 
-export function getTextSenses(monster) {
-  return monster.sensesHtml;
-}
+DDBMonster.prototype.getTextSenses = function getTextSenses() {
+  return this.source.sensesHtml;
+};
 
 //   "senses": [{
 //   "id": 1,
@@ -26,20 +27,20 @@ export function getTextSenses(monster) {
 //   "name": "Unknown"
 // }],
 
-export function getTokenSenses(token, monster) {
+DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
   const senseLookup = CONFIG.DDB.senses;
 
-  monster.senses.forEach((sense) => {
+  this.source.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
     if (senseMatch && sense.notes) {
       const senseType = DICTIONARY.senseMap[senseMatch.name.toLowerCase()];
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
         const value = parseInt(rangeMatch[1]);
-        if (value > 0 && value > token.sight.range && hasProperty(CONFIG.Canvas.visionModes, senseType)) {
-          setProperty(token.sight, "visionMode", senseType);
-          setProperty(token.sight, "range", value);
-          token.sight = mergeObject(token.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
+        if (value > 0 && value > this.npc.prototypeToken.sight.range && hasProperty(CONFIG.Canvas.visionModes, senseType)) {
+          setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
+          setProperty(this.npc.prototypeToken.sight, "range", value);
+          this.npc.prototypeToken.sight = mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
         }
         if (value > 0 && hasProperty(DICTIONARY.detectionMap, senseMatch.name.toLowerCase())) {
           const detectionMode = {
@@ -49,19 +50,17 @@ export function getTokenSenses(token, monster) {
           };
 
           // only add duplicate modes if they don't exist
-          if (!token.detectionModes.some((mode) => mode.id === detectionMode.id)) {
-            token.detectionModes.push(detectionMode);
+          if (!this.npc.prototypeToken.detectionModes.some((mode) => mode.id === detectionMode.id)) {
+            this.npc.prototypeToken.detectionModes.push(detectionMode);
           }
         }
       }
     }
   });
-
-  return token;
-}
+};
 
 
-export function getSenses(monster) {
+DDBMonster.prototype._generateSenses = function _generateSenses() {
   let senses = {
     darkvision: 0,
     blindsight: 0,
@@ -72,7 +71,7 @@ export function getSenses(monster) {
   };
   const senseLookup = CONFIG.DDB.senses;
 
-  monster.senses.forEach((sense) => {
+  this.source.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
     if (senseMatch && sense.notes && senseMatch.name.toLowerCase() in senses) {
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
@@ -86,9 +85,9 @@ export function getSenses(monster) {
     }
   });
 
-  return senses;
+  this.npc.system.attributes.senses = senses;
 
-}
+};
 
 // "senses": [
 //   {

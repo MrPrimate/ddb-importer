@@ -4,7 +4,11 @@ import "./monster/DDBMonster.js";
 // for use at run time
 import "./monster/abilities.js";
 import "./monster/ac.js";
-
+import "./monster/conditions.js";
+import "./monster/size.js";
+import "./monster/type.js";
+import "./monster/skills.js";
+import "./monster/senses.js";
 
 // character parser
 import "./DDBCharacter.js";

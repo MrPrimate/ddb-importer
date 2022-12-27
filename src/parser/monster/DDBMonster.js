@@ -1,7 +1,6 @@
 /* eslint-disable require-atomic-updates */
 
 import { getTokenSenses, getSenses } from "./senses.js";
-import { getSkills, getSkillsHTML } from "./skills.js";
 import { getLanguages } from "./languages.js";
 import { getHitPoints } from "./hp.js";
 import { getSpeed } from "./movement.js";
@@ -305,19 +304,19 @@ export default class DDBMonster {
 
     this.removedHitPoints = this.source.removedHitPoints ? this.source.removedHitPoints : 0;
     this.temporaryHitPoints = this.source.temporaryHitPoints ? this.source.removedHitPoints : 0;
-
     this._generateAbilities();
 
-    // skills
-    this.npc.system.skills = (this.extra)
-      ? getSkills(this.npc.system.skills, this.source)
-      : getSkillsHTML(this.npc.system.skills, this.source);
+    // skills are different with extras, because DDB
+    if (this.extra) {
+      this._generateSkills();
+    } else {
+      this._generateSkillsHTML();
+    }
 
-    // Senses
-    this.npc.system.attributes.senses = getSenses(this.source);
-    this.npc.prototypeToken = await getTokenSenses(this.npc.prototypeToken, this.source);
+    // Senses needed for actor and token
+    this._generateSenses();
+    this._generateTokenSenses();
 
-    // Conditions
     this._generateDamageImmunities();
     this._generateDamageResistances();
     this._generateDamageVulnerabilities();
