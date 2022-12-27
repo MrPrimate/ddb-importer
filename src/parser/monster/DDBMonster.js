@@ -20,7 +20,6 @@ import { getActions } from "./features/actions.js";
 import { getSpecialTraits } from "./features/specialtraits.js";
 import { getSpells } from "./spells.js";
 import { getType } from "./type.js";
-import { generateAC } from "./ac.js";
 import { newNPC } from "./templates/monster.js";
 import { specialCases } from "./special.js";
 import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js";
@@ -152,6 +151,7 @@ export default class DDBMonster {
     this.characterDescriptionAction = null;
     this.characterDescriptionReaction = null;
     this.unexpectedDescription = null;
+    this.abilities = null;
   }
 
   async addSpells() {
@@ -348,10 +348,7 @@ export default class DDBMonster {
     this.npc.system.attributes.prof = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
 
     // ac
-    this.ac = await generateAC(this.source, { useItemAC: this.useItemAC });
-    this.npc.system.attributes.ac = this.ac.ac;
-    this.npc.flags.ddbimporter.flatAC = this.ac.flatAC;
-    this.items.push(...this.ac.ddbItems);
+    await this._generateAC();
 
     // details
     this.cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
