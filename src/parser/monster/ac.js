@@ -3,19 +3,6 @@ import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { loadPassedItemsFromCompendium } from "../../muncher/import.js";
 import DDBMonster from "./DDBMonster.js";
 
-DDBMonster.prototype.getEquipmentCompendium = async function getEquipmentCompendium() {
-  if (!hasProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY.compendium.equipment")) {
-    const label = CompendiumHelper.getCompendiumLabel("inventory");
-    // eslint-disable-next-line require-atomic-updates
-    const compendium = CompendiumHelper.getCompendium(label);
-    setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY.compendium.equipment", compendium);
-    if (!CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment.indexed) {
-      await CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment.getIndex();
-    }
-  }
-  return CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment;
-};
-
 DDBMonster.prototype.BAD_AC_MONSTERS = [
   "arkhan the cruel"
 ];
@@ -86,7 +73,7 @@ DDBMonster.prototype._generateAC = async function _generateAC() {
   }
 
   logger.debug("Checking for items", itemsToCheck);
-  const compendium = await this.getEquipmentCompendium();
+  const compendium = await CompendiumHelper.getCompendiumType("inventory");
   const unAttunedItems = await loadPassedItemsFromCompendium(compendium, itemsToCheck, "inventory", { monsterMatch: true });
   const attunedItems = unAttunedItems.map((item) => {
     if (item.system.attunement === 1) item.system.attunement = 2;
