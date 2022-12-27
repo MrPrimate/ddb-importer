@@ -1,4 +1,4 @@
-import { getSizeFromId } from "./size.js";
+import DDBMonster from "./DDBMonster.js";
 
 //   "value": "",
 //   "subtype": "",
@@ -9,40 +9,26 @@ import { getSizeFromId } from "./size.js";
 //   "custom": ""
 
 
-export function getType(monster) {
+DDBMonster.prototype._generateType = function _generateType() {
 
-  const result = {
-    "value": "",
-    "subtype": "",
-    "swarm": "",
-    // "swarm": {
-    //   "isSwarm": false,
-    //   "size": ""
-    // },
-    "custom": ""
-  };
-
-  if (monster.swarm) {
+  if (this.source.swarm) {
     // result.swarm.isSwarm = true;
     // result.swarm.size = getSizeFromId(monster.swarm.sizeId).value;
-    result.swarm = getSizeFromId(monster.swarm.sizeId).value;
+    this.npc.system.details.type.swarm = this.getSizeFromId(this.source.swarm.sizeId).value;
   }
 
-  const type = CONFIG.DDB.monsterTypes.find((c) => monster.typeId == c.id);
+  const type = CONFIG.DDB.monsterTypes.find((c) => this.source.typeId == c.id);
   if (!type) {
-    result.custom = "Unknown";
-    return result;
+    this.npc.system.details.type.custom = "Unknown";
   }
 
   const typeName = type.name.toLowerCase();
 
-  if (CONFIG.DND5E.creatureTypes[typeName]) result.value = typeName;
+  if (CONFIG.DND5E.creatureTypes[typeName]) this.npc.system.details.type.value = typeName;
 
-  result.subtype = CONFIG.DDB.monsterSubTypes
-    .filter((c) => monster.subTypes.includes(c.id))
+  this.npc.system.details.type.subtype = CONFIG.DDB.monsterSubTypes
+    .filter((c) => this.source.subTypes.includes(c.id))
     .map((c) => c.name)
     .join(", ");
 
-  return result;
-
-}
+};
