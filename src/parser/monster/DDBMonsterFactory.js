@@ -18,6 +18,7 @@ export default class DDBMonsterFactory {
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     const addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
 
+    logger.time("Monster Parsing");
     for (const monster of this.monsterData) {
       try {
         logger.debug(`Attempting to parse ${monster.name}`);
@@ -25,6 +26,7 @@ export default class DDBMonsterFactory {
         // eslint-disable-next-line no-await-in-loop
         await ddbMonster.parse();
         foundryActors.push(duplicate(ddbMonster.npc));
+        // logger.timeLog("Monster Parsing", monster.name);
       } catch (err) {
         logger.error(`Failed parsing ${monster.name}`);
         logger.error(err);
@@ -37,6 +39,8 @@ export default class DDBMonsterFactory {
       actors: await Promise.all(foundryActors),
       failedMonsterNames: failedMonsterNames,
     };
+
+    logger.timeEnd("Monster Parsing");
 
     this.npcs = result;
     return result;

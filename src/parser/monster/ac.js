@@ -1,12 +1,9 @@
 import logger from "../../logger.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { loadPassedItemsFromCompendium } from "../../muncher/import.js";
+import DDBMonster from "./DDBMonster.js";
 
-const BAD_AC_MONSTERS = [
-  "arkhan the cruel"
-];
-
-async function getEquipmentCompendium() {
+DDBMonster.prototype.getEquipmentCompendium = async function getEquipmentCompendium() {
   if (!hasProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY.compendium.equipment")) {
     const label = CompendiumHelper.getCompendiumLabel("inventory");
     // eslint-disable-next-line require-atomic-updates
@@ -17,28 +14,32 @@ async function getEquipmentCompendium() {
     }
   }
   return CONFIG.DDBI.MUNCHER.TEMPORARY.compendium.equipment;
-}
+};
 
-export async function generateAC(monster, { useItemAC = true } = {}) {
+DDBMonster.prototype.BAD_AC_MONSTERS = [
+  "arkhan the cruel"
+];
+
+DDBMonster.prototype._generateAC = async function _generateAC() {
 
   const ac = {
-    "flat": monster.armorClass,
+    "flat": this.source.armorClass,
     "calc": "",
     "formula": "",
-    "label": monster.armorClassDescription ? monster.armorClassDescription.replace("(", "").replace(")", "") : "",
+    "label": this.source.armorClassDescription ? this.source.armorClassDescription.replace("(", "").replace(")", "") : "",
   };
 
   let flatAC = true;
 
-  const stat = monster.stats.find((stat) => stat.statId === 2).value || 10;
+  const stat = this.source.stats.find((stat) => stat.statId === 2).value || 10;
   const dexBonus = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
 
   let acItems = [];
 
-  const lowerDescription = monster.armorClassDescription
-    ? monster.armorClassDescription.toLowerCase()
+  const lowerDescription = this.source.armorClassDescription
+    ? this.source.armorClassDescription.toLowerCase()
     : "";
-  const descriptionItems = monster.armorClassDescription
+  const descriptionItems = this.source.armorClassDescription
     ? lowerDescription.replace("(", "").replace(")", "")
       .split(";")[0]
       .split(",").map((item) => item.trim())
@@ -85,7 +86,7 @@ export async function generateAC(monster, { useItemAC = true } = {}) {
   }
 
   logger.debug("Checking for items", itemsToCheck);
-  const compendium = await getEquipmentCompendium();
+  const compendium = await this.getEquipmentCompendium();
   const unAttunedItems = await loadPassedItemsFromCompendium(compendium, itemsToCheck, "inventory", { monsterMatch: true });
   const attunedItems = unAttunedItems.map((item) => {
     if (item.system.attunement === 1) item.system.attunement = 2;
@@ -94,30 +95,33 @@ export async function generateAC(monster, { useItemAC = true } = {}) {
 
   logger.debug("Found items", { unAttunedItems, attunedItems });
   const allItemsMatched = attunedItems.length > 0 && attunedItems.length == itemsToCheck.length;
-  const badACMonster = BAD_AC_MONSTERS.includes(monster.name.toLowerCase());
+  const badACMonster = this.BAD_AC_MONSTERS.includes(this.source.name.toLowerCase());
 
-  if (allItemsMatched && useItemAC && ac.calc !== "natural" && !badACMonster) {
+  if (allItemsMatched && this.useItemAC && ac.calc !== "natural" && !badACMonster) {
     ac.flat = null;
     ac.calc = "default";
     ac.formula = "";
     flatAC = false;
-  } else if (!useItemAC && ac.calc !== "natural") {
+  } else if (!this.useItemAC && ac.calc !== "natural") {
     // default monsters with no ac equipment to natural
     ac.calc = "natural";
     flatAC = false;
   }
 
-  const result = {
+  this.ac = {
     ac,
     flatAC,
     acItems,
     dexBonus,
-    ddbItems: useItemAC ? attunedItems : [], // only add items if we are told too
+    ddbItems: this.useItemAC ? attunedItems : [], // only add items if we are told too
     attunedItems,
     allItemsMatched,
     badACMonster,
   };
-  logger.debug(`${monster.name} ac calcs`, result);
-  return result;
 
-}
+  logger.debug(`${this.source.name} ac calcs`, this.ac);
+  this.npc.system.attributes.ac = ac;
+  this.npc.flags.ddbimporter.flatAC = flatAC;
+  if (this.useItemAC) this.items.push(...attunedItems);
+
+};

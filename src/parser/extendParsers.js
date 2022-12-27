@@ -3,6 +3,7 @@ import "./monster/DDBMonster.js";
 // load files with extensions here. this will add the functions to the class
 // for use at run time
 import "./monster/abilities.js";
+import "./monster/ac.js";
 
 
 // character parser
