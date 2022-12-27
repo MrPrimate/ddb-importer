@@ -9,7 +9,7 @@ const SIZES = [
   { name: "Gargantuan", value: "grg", size: 4 },
 ];
 
-export function getSizeFromId(sizeId) {
+function getSizeFromId(sizeId) {
   const size = CONFIG.DDB.creatureSizes.find((s) => s.id == sizeId).name;
   const sizeData = SIZES.find((s) => size == s.name);
 

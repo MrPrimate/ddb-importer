@@ -1,17 +1,10 @@
 /* eslint-disable require-atomic-updates */
 
 import { getTokenSenses, getSenses } from "./senses.js";
-import {
-  getDamageImmunities,
-  getDamageResistances,
-  getDamageVulnerabilities,
-  getConditionImmunities,
-} from "./conditions.js";
 import { getSkills, getSkillsHTML } from "./skills.js";
 import { getLanguages } from "./languages.js";
 import { getHitPoints } from "./hp.js";
 import { getSpeed } from "./movement.js";
-import { getSize } from "./size.js";
 import { getSource } from "./source.js";
 import { getEnvironments } from "./environments.js";
 import { getLairActions } from "./features/lair.js";
@@ -19,7 +12,6 @@ import { getLegendaryActions } from "./features/legendary.js";
 import { getActions } from "./features/actions.js";
 import { getSpecialTraits } from "./features/specialtraits.js";
 import { getSpells } from "./spells.js";
-import { getType } from "./type.js";
 import { newNPC } from "./templates/monster.js";
 import { specialCases } from "./special.js";
 import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js";
@@ -326,16 +318,11 @@ export default class DDBMonster {
     this.npc.prototypeToken = await getTokenSenses(this.npc.prototypeToken, this.source);
 
     // Conditions
-    this.npc.system.traits.di = getDamageImmunities(this.source);
-    this.npc.system.traits.dr = getDamageResistances(this.source);
-    this.npc.system.traits.dv = getDamageVulnerabilities(this.source);
-    this.npc.system.traits.ci = getConditionImmunities(this.source);
-    this.size = getSize(this.source);
-    this.npc.system.traits.size = this.size.value;
-    this.npc.prototypeToken.width = this.size.token.value;
-    this.npc.prototypeToken.height = this.size.token.value;
-    this.npc.prototypeToken.scale = this.size.token.scale;
-
+    this._generateDamageImmunities();
+    this._generateDamageResistances();
+    this._generateDamageVulnerabilities();
+    this._generateConditionImmunities();
+    this._generateSize();
 
     // languages
     this.npc.system.traits.languages = getLanguages(this.source);
@@ -352,7 +339,7 @@ export default class DDBMonster {
 
     // details
     this.cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
-    this.npc.system.details.type = getType(this.source);
+    this._generateType();
     const alignment = CONFIG.DDB.alignments.find((c) => this.source.alignmentId == c.id);
     this.npc.system.details.alignment = alignment ? alignment.name : "";
     this.npc.system.details.cr = this.cr.value;

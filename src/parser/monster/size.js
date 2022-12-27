@@ -14,9 +14,9 @@
 
 import DICTIONARY from '../../dictionary.js';
 import logger from '../../logger.js';
+import DDBMonster from "./DDBMonster.js";
 
-
-export function getSizeFromId(sizeId) {
+DDBMonster.prototype.getSizeFromId = function getSizeFromId(sizeId) {
   const size = CONFIG.DDB.creatureSizes.find((s) => s.id == sizeId).name;
   const sizeData = DICTIONARY.sizes.find((s) => size == s.name);
 
@@ -25,20 +25,18 @@ export function getSizeFromId(sizeId) {
     return { name: "Medium", value: "med", size: 1 };
   }
   return sizeData;
-}
+};
 
-export function getSize (monster) {
-  const sizeData = getSizeFromId(monster.sizeId);
+DDBMonster.prototype._generateSize = function _generateSize () {
+  const sizeData = this.getSizeFromId(this.source.sizeId);
   const token = {
     scale: sizeData.size >= 1 ? 1 : sizeData.size,
     value: sizeData.size >= 1 ? sizeData.size : 1,
   };
 
-  const data = {
-    value: sizeData.value,
-    token: token,
-  };
+  this.npc.system.traits.size = sizeData.value;
+  this.npc.prototypeToken.width = token.value;
+  this.npc.prototypeToken.height = token.value;
+  this.npc.prototypeToken.scale = token.scale;
 
-  return data;
-
-}
+};

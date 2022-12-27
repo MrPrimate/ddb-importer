@@ -1,6 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
+import DDBMonster from "./DDBMonster.js";
 
-function getAdjustmentsConfig(type) {
+DDBMonster.prototype.getAdjustmentsConfig = function getAdjustmentsConfig(type) {
   const damageAdjustments = CONFIG.DDB.damageAdjustments;
 
   switch (type) {
@@ -22,17 +23,17 @@ function getAdjustmentsConfig(type) {
     default:
       return null;
   }
-}
+};
 
-function getDamageAdjustments(monster, type) {
-  const config = getAdjustmentsConfig(type);
+DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(type) {
+  const config = this.getAdjustmentsConfig(type);
 
   let values = [];
   let custom = [];
 
   const damageTypes = DICTIONARY.actions.damageType.filter((d) => d.name !== null).map((d) => d.name);
 
-  monster.damageAdjustments.forEach((adj) => {
+  this.source.damageAdjustments.forEach((adj) => {
     const adjustment = config.find((cadj) => adj === cadj.id);
     if (adjustment && damageTypes.includes(adjustment.name.toLowerCase())) {
       values.push(adjustment.name.toLowerCase());
@@ -62,25 +63,27 @@ function getDamageAdjustments(monster, type) {
   };
 
   return adjustments;
-}
+};
 
-export function getDamageImmunities(monster) {
-  return getDamageAdjustments(monster, "immunities");
-}
+DDBMonster.prototype._generateDamageImmunities = function _generateDamageImmunities() {
+  this.npc.system.traits.di = this.getDamageAdjustments("immunities");
+};
 
-export function getDamageResistances(monster) {
-  return getDamageAdjustments(monster, "resistances");
-}
-export function getDamageVulnerabilities(monster) {
-  return getDamageAdjustments(monster, "vulnerabilities");
-}
-export function getConditionImmunities(monster) {
-  const config = getAdjustmentsConfig("conditions");
+DDBMonster.prototype._generateDamageResistances = function _generateDamageResistances() {
+  this.npc.system.traits.dr = this.getDamageAdjustments("resistances");
+};
+
+DDBMonster.prototype._generateDamageVulnerabilities = function _generateDamageVulnerabilities() {
+  this.npc.system.traits.dv = this.getDamageAdjustments("vulnerabilities");
+};
+
+DDBMonster.prototype._generateConditionImmunities = function _generateConditionImmunities() {
+  const config = this.getAdjustmentsConfig("conditions");
 
   let values = [];
   let custom = [];
 
-  monster.conditionImmunities.forEach((adj) => {
+  this.source.conditionImmunities.forEach((adj) => {
     const adjustment = config.find((cadj) => adj === cadj.id);
     const valueAdjustment = DICTIONARY.conditions.find((condition) => condition.label.toLowerCase() == adjustment.name.toLowerCase());
     if (adjustment && valueAdjustment) {
@@ -90,10 +93,9 @@ export function getConditionImmunities(monster) {
     }
   });
 
-  const adjustments = {
+  this.npc.system.traits.ci = {
     value: values,
     custom: custom.join("; "),
   };
 
-  return adjustments;
-}
+};
