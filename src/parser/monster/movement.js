@@ -1,3 +1,5 @@
+import DDBMonster from "./DDBMonster.js";
+
 // "movements": [
 //   {
 //     "movementId": 1,
@@ -20,49 +22,28 @@
 //   "value": "40 ft.",
 //   "special": "Fly 80 ft., Swim 40 ft."
 // },
-export function getSpeed (monster) {
-  const movementConfig = CONFIG.DDB.movements;
-  const monsterMovements = monster.movements;
-
-  let values = "";
+DDBMonster.prototype._generateMovement = function () {
   let special = [];
 
-  let movements = {
-    burrow: 0,
-    climb: 0,
-    fly: 0,
-    swim: 0,
-    walk: 0,
-    units: "ft",
-    hover: false,
-  };
+  this.npc.system.attributes.movement.units = "ft";
 
-  monsterMovements.forEach((monsterMovement) => {
-    const movement = movementConfig.find((mv) => mv.id == monsterMovement.movementId);
-    movements[movement.name.toLowerCase()] = monsterMovement.speed;
+  this.source.movements.forEach((monsterMovement) => {
+    const movement = CONFIG.DDB.movements.find((mv) => mv.id == monsterMovement.movementId);
+    this.npc.system.attributes.movement[movement.name.toLowerCase()] = monsterMovement.speed;
 
-    if (monsterMovement.notes && monsterMovement.notes.toLowerCase().includes('hover')) movements.hover = true;
+    if (monsterMovement.notes && monsterMovement.notes.toLowerCase().includes('hover')) {
+      this.npc.system.attributes.movement.hover = true;
+    }
 
-    if (movement.name == "Walk") {
-      values = `${monsterMovement.speed}ft.`;
-      if (monsterMovement.notes !== null) {
-        special.push(`${monsterMovement.speed}ft. ${movement.description} (${monsterMovement.notes})`);
-      }
-    } else {
-      const noteMovement = monsterMovement.notes ? ` ${monsterMovement.notes}` : "";
-      const specialMovement = `${monsterMovement.speed}ft ${movement.description}${noteMovement}`;
+    if (monsterMovement.notes?.trim() !== "") {
+      const specialMovement = `${monsterMovement.speed}ft ${movement.description} (${monsterMovement.notes})`;
       special.push(specialMovement);
     }
   });
 
-  const speed = {
-    value: values,
-    special: special.join(", "),
+  this.movement = {
+    movement: this.npc.system.attributes.movement,
+    special,
   };
 
-  return {
-    speed: speed,
-    movement: movements,
-  };
-
-}
+};
