@@ -9,6 +9,11 @@ import "./monster/size.js";
 import "./monster/type.js";
 import "./monster/skills.js";
 import "./monster/senses.js";
+import "./monster/environments.js";
+import "./monster/languages.js";
+import "./monster/hp.js";
+import "./monster/movement.js";
+import "./monster/source.js";
 
 // character parser
 import "./DDBCharacter.js";

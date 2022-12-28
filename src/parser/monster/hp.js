@@ -1,13 +1,4 @@
-
-
-// "hp": {
-//   "value": 0,
-//   "min": 0,
-//   "max": 0,
-//   "temp": 0,
-//   "tempmax": 0,
-//   "formula": ""
-// },
+import DDBMonster from "./DDBMonster.js";
 
 // "hp": {
 //   "value": 367,
@@ -18,7 +9,6 @@
 //   "formula": "21d20 + 147"
 // },
 
-// data.
 // "hitPointDice": {
 //   "diceCount": 21,
 //   "diceValue": 20,
@@ -27,19 +17,13 @@
 //   "diceString": "21d20 + 147"
 // },
 
-
-export function getHitPoints (monster, removedHitPoints, temporaryHitPoints) {
-  const hitPointDice = monster.hitPointDice;
-  // const maxHP = (hitPointDice.diceCount * hitPointDice.diceValue) + hitPointDice.fixedValue;
-
-  const hp = {
-    "value": monster.averageHitPoints - removedHitPoints,
-    "min": 0,
-    "max": monster.averageHitPoints,
-    "temp": temporaryHitPoints,
-    "tempmax": 0,
-    "formula": hitPointDice.diceString,
+DDBMonster.prototype._generateHitPoints = function _generateHitPoints () {
+  this.npc.system.attributes.hp = {
+    value: this.source.averageHitPoints - this.removedHitPoints,
+    min: 0,
+    max: this.source.averageHitPoints,
+    temp: this.temporaryHitPoints,
+    tempmax: 0,
+    formula: this.source.hitPointDice.diceString,
   };
-
-  return hp;
-}
+};

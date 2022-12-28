@@ -1,11 +1,5 @@
 /* eslint-disable require-atomic-updates */
 
-import { getTokenSenses, getSenses } from "./senses.js";
-import { getLanguages } from "./languages.js";
-import { getHitPoints } from "./hp.js";
-import { getSpeed } from "./movement.js";
-import { getSource } from "./source.js";
-import { getEnvironments } from "./environments.js";
 import { getLairActions } from "./features/lair.js";
 import { getLegendaryActions } from "./features/legendary.js";
 import { getActions } from "./features/actions.js";
@@ -128,7 +122,7 @@ export default class DDBMonster {
     this.addMonsterEffects = addMonsterEffects;
     this.items = [];
     this.img = null;
-    this.name = overrides["name"] ? overrides["name"] : existingNpc ? existingNpc.name : null;
+    this.name = overrides["name"] ?? (existingNpc ? existingNpc.name : null);
     this.overrides = overrides;
     this.removedHitPoints = this.setProperty("removedHitPoints", 0);
     this.temporaryHitPoints = this.setProperty("temporaryHitPoints", 0);
@@ -143,6 +137,8 @@ export default class DDBMonster {
     this.characterDescriptionReaction = null;
     this.unexpectedDescription = null;
     this.abilities = null;
+    this.removedHitPoints = this.source?.removedHitPoints ?? 0;
+    this.temporaryHitPoints = this.source?.temporaryHitPoints ?? 0;
   }
 
   async addSpells() {
@@ -302,8 +298,9 @@ export default class DDBMonster {
     this.npc.prototypeToken.name = this.name;
     this._generateFlags();
 
-    this.removedHitPoints = this.source.removedHitPoints ? this.source.removedHitPoints : 0;
-    this.temporaryHitPoints = this.source.temporaryHitPoints ? this.source.removedHitPoints : 0;
+
+    this.proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
+    this.npc.system.attributes.prof = this.proficiencyBonus;
     this._generateAbilities();
 
     // skills are different with extras, because DDB
@@ -322,31 +319,21 @@ export default class DDBMonster {
     this._generateDamageVulnerabilities();
     this._generateConditionImmunities();
     this._generateSize();
-
-    // languages
-    this.npc.system.traits.languages = getLanguages(this.source);
-
-    // attributes
-    this.npc.system.attributes.hp = getHitPoints(this.source, this.removedHitPoints, this.temporaryHitPoints);
-    this.movement = getSpeed(this.source);
-    this.npc.system.attributes.movement = this.movement['movement'];
-
-    this.npc.system.attributes.prof = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
-
-    // ac
+    this._generateLanguages();
+    this._generateHitPoints();
+    this._generateMovement();
     await this._generateAC();
 
-    // details
     this.cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
     this._generateType();
+
     const alignment = CONFIG.DDB.alignments.find((c) => this.source.alignmentId == c.id);
     this.npc.system.details.alignment = alignment ? alignment.name : "";
     this.npc.system.details.cr = this.cr.value;
-    this.npc.system.details.source = getSource(this.source);
-    this.npc.system.details.xp = {
-      value: this.cr.xp
-    };
-    this.npc.system.details.environment = getEnvironments(this.source);
+    this.npc.system.details.xp = { value: this.cr.xp };
+
+    this._generateSource();
+    this._generateEnvironments();
     this.npc.system.details.biography.value = this.source.characteristicsDescription;
 
     [this.actions, this.characterDescriptionAction] = getActions(this.source);
