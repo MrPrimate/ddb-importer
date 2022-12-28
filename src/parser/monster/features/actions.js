@@ -1,5 +1,4 @@
-import { getSource } from "../source.js";
-import { getActionInfo, getAction, getUses, replaceRollable } from "../utils.js";
+import { getActionInfo, getAction, getUses, replaceRollable, getMonsterSource } from "../utils.js";
 import utils from "../../../lib/utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../../muncher/table.js";
@@ -144,6 +143,8 @@ export function getActions(monster, type = "action") {
 
   let dynamicActions = [];
 
+  const source = getMonsterSource(monster);
+
   // build out skeleton actions
   dom.querySelectorAll("p").forEach((node) => {
 
@@ -158,7 +159,7 @@ export function getActions(monster, type = "action") {
       name = name.split(";").pop().trim();
     }
     let action = newFeat(name);
-    action.system.source = getSource(monster);
+    action.system.source = source;
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
       fullName: query.textContent,
@@ -183,7 +184,7 @@ export function getActions(monster, type = "action") {
         name = name.split(";").pop().trim();
       }
       let action = newFeat(name);
-      action.system.source = getSource(monster);
+      action.system.source = source;
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
         fullName: query.textContent,
@@ -205,7 +206,7 @@ export function getActions(monster, type = "action") {
       const title = pDom.textContent.split('.')[0];
       const name = title.trim();
       let action = newFeat(name);
-      action.system.source = getSource(monster);
+      action.system.source = source;
       if (pDom.outerHTML) {
         action.flags.monsterMunch = {
           titleHTML: pDom.outerHTML.split('.')[0],
@@ -227,7 +228,7 @@ export function getActions(monster, type = "action") {
       const title = pDom.textContent.split('.')[0];
       const name = title.trim();
       let action = newFeat(name);
-      action.system.source = getSource(monster);
+      action.system.source = source;
       if (pDom.outerHTML) {
         action.flags.monsterMunch = {
           titleHTML: pDom.outerHTML.split('.')[0],

@@ -2,6 +2,7 @@ import { getAbilityMods } from "./helpers.js";
 import logger from '../../logger.js';
 import utils from '../../lib/utils.js';
 import DICTIONARY from '../../dictionary.js';
+import DDBHelper from "../../lib/DDBHelper.js";
 
 // replaces matchAll, requires a non global regexp
 function reMatchAll(regexp, string) {
@@ -29,6 +30,14 @@ export function replaceRollable(text) {
     }
   }
   return text;
+}
+
+export function getMonsterSource(data) {
+  const sourceData = DDBHelper.getSourceData(data);
+
+  let sources = sourceData.name;
+  if (sourceData.page) sources += ` (pg. ${sourceData.page})`;
+  return sources;
 }
 
 function damageModReplace(text, attackInfo, damageType) {

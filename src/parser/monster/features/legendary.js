@@ -1,5 +1,4 @@
-import { getSource } from "../source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage, getRange, getTarget, replaceRollable } from "../utils.js";
+import { getRecharge, getActivation, getFeatSave, getDamage, getRange, getTarget, replaceRollable, getMonsterSource } from "../utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../../muncher/table.js";
 
@@ -43,10 +42,11 @@ export function getLegendaryActions(monster, monsterActions) {
   });
 
   let dynamicActions = [];
+  const source = getMonsterSource(monster);
 
   // Base feat
   let feat = newFeat("Legendary Actions");
-  feat.system.source = getSource(monster);
+  feat.system.source = source;
   feat.system.description.value = "";
   if (hideDescription) feat.system.description.value += "<section class=\"secret\">\n";
   feat.system.description.value += monster.legendaryActionsDescription;
@@ -76,7 +76,7 @@ export function getLegendaryActions(monster, monsterActions) {
       action.flags.monsterMunch['actionCopy'] = false;
     }
     action.system.activation.type = "legendary";
-    action.system.source = getSource(monster);
+    action.system.source = source;
     action.system.consume = {
       type: "attribute",
       target: "resources.legact.value",
