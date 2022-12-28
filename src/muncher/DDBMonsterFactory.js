@@ -1,5 +1,5 @@
-import logger from "../../logger.js";
-import DDBMonster from "./DDBMonster.js";
+import logger from "../logger.js";
+import DDBMonster from "../parser/DDBMonster.js";
 
 
 export default class DDBMonsterFactory {
@@ -22,10 +22,12 @@ export default class DDBMonsterFactory {
     for (const monster of this.monsterData) {
       try {
         logger.debug(`Attempting to parse ${monster.name}`);
+        logger.time(`Monster Parse ${monster.name}`);
         const ddbMonster = new DDBMonster(monster, { extra: this.extra, useItemAC, legacyName, addMonsterEffects });
         // eslint-disable-next-line no-await-in-loop
         await ddbMonster.parse();
         foundryActors.push(duplicate(ddbMonster.npc));
+        logger.timeEnd(`Monster Parse ${monster.name}`);
         // logger.timeLog("Monster Parsing", monster.name);
       } catch (err) {
         logger.error(`Failed parsing ${monster.name}`);

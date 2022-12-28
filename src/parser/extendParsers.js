@@ -1,5 +1,5 @@
 // monster parser
-import "./monster/DDBMonster.js";
+import "./DDBMonster.js";
 // load files with extensions here. this will add the functions to the class
 // for use at run time
 import "./monster/abilities.js";

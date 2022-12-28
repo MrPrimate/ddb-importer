@@ -1,4 +1,4 @@
-import DDBMonster from "./DDBMonster.js";
+import DDBMonster from "../DDBMonster.js";
 
 //   "value": "",
 //   "subtype": "",

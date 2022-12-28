@@ -3,7 +3,7 @@ import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import DDBMuncher from "./DDBMuncher.js";
 import logger from "../logger.js";
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCDDBId, addNPCsToCompendium } from "./importMonster.js";
-import DDBMonsterFactory from "../parser/monster/DDBMonsterFactory.js";
+import DDBMonsterFactory from "./DDBMonsterFactory.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";

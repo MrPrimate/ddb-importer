@@ -1,6 +1,6 @@
 // for exports
-import DDBMonster from "../../parser/monster/DDBMonster.js";
-import DDBMonsterFactory from "../../parser/monster/DDBMonsterFactory.js";
+import DDBMonster from "../../parser/DDBMonster.js";
+import DDBMonsterFactory from "../../muncher/DDBMonsterFactory.js";
 import { parseSpells } from "../../muncher/spells.js";
 import { parseItems } from "../../muncher/items.js";
 import { parseCritters, fixCritters } from "../../muncher/monsters.js";

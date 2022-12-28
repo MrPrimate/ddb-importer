@@ -1,4 +1,4 @@
-import DDBMonster from "./DDBMonster.js";
+import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype._generateSource = function _generateSource() {
   const fullSource = game.settings.get("ddb-importer", "use-full-source");

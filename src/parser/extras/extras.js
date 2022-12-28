@@ -1,6 +1,6 @@
 import logger from "../../logger.js";
 import utils from "../../lib/utils.js";
-import DDBMonsterFactory from "../monster/DDBMonsterFactory.js";
+import DDBMonsterFactory from "../../muncher/DDBMonsterFactory.js";
 import { copySupportedItemFlags, srdFiddling } from "../../muncher/import.js";
 import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../../muncher/importMonster.js";
 import { getAbilityMods } from "../monster/helpers.js";

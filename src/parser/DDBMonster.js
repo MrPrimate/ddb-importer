@@ -1,17 +1,17 @@
 /* eslint-disable require-atomic-updates */
 
-import { getLairActions } from "./features/lair.js";
-import { getLegendaryActions } from "./features/legendary.js";
-import { getActions } from "./features/actions.js";
-import { getSpecialTraits } from "./features/specialtraits.js";
-import { getSpells } from "./spells.js";
-import { newNPC } from "./templates/monster.js";
-import { specialCases } from "./special.js";
-import { monsterFeatureEffectAdjustment } from "../../effects/specialMonsters.js";
+import { getLairActions } from "./monster/features/lair.js";
+import { getLegendaryActions } from "./monster/features/legendary.js";
+import { getActions } from "./monster/features/actions.js";
+import { getSpecialTraits } from "./monster/features/specialtraits.js";
+import { getSpells } from "./monster/spells.js";
+import { newNPC } from "./monster/templates/monster.js";
+import { specialCases } from "./monster/special.js";
+import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters.js";
 
-import logger from '../../logger.js';
-import DICTIONARY from "../../dictionary.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
+import logger from '../logger.js';
+import DICTIONARY from "../dictionary.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
 
 /**
  *
