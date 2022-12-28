@@ -1,8 +1,7 @@
 // specialTraitsDescription
 // handle legendary resistance here
 
-import { getSource } from "../source.js";
-import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses, getTarget, replaceRollable } from "../utils.js";
+import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses, getTarget, replaceRollable, getMonsterSource } from "../utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../../muncher/table.js";
 
@@ -58,6 +57,7 @@ export function getSpecialTraits(monster) {
   // console.log(dom.childNodes);
 
   let dynamicActions = [];
+  const source = getMonsterSource(monster);
 
   // build out skeleton actions
   dom.querySelectorAll("p").forEach((node) => {
@@ -73,7 +73,7 @@ export function getSpecialTraits(monster) {
     }
     let action = newFeat(name);
     action.name = name;
-    action.system.source = getSource(monster);
+    action.system.source = source;
     action.flags.monsterMunch = {
       titleHTML: query.outerHTML,
       fullName: query.textContent,
@@ -94,7 +94,7 @@ export function getSpecialTraits(monster) {
         name = name.split(";").pop().trim();
       }
       let action = newFeat(name);
-      action.system.source = getSource(monster);
+      action.system.source = source;
       action.flags.monsterMunch = {
         titleHTML: query.outerHTML,
         fullName: query.textContent,
@@ -107,7 +107,7 @@ export function getSpecialTraits(monster) {
     dom.querySelectorAll("em").forEach((node) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
       let action = newFeat(name);
-      action.system.source = getSource(monster);
+      action.system.source = source;
       action.flags.monsterMunch = {
         titleHTML: node.outerHTML,
         fullName: node.textContent,
@@ -120,7 +120,7 @@ export function getSpecialTraits(monster) {
     dom.querySelectorAll("strong").forEach((node) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
       let action = newFeat(name);
-      action.system.source = getSource(monster);
+      action.system.source = source;
       action.flags.monsterMunch = {
         titleHTML: node.outerHTML,
         fullName: node.textContent,
@@ -131,7 +131,7 @@ export function getSpecialTraits(monster) {
 
   if (dynamicActions.length == 0) {
     let action = newFeat("Special Traits");
-    action.system.source = getSource(monster);
+    action.system.source = source;
     action.flags.monsterMunch = {};
     if (action.name) dynamicActions.push(action);
   }

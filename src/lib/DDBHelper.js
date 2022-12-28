@@ -224,15 +224,15 @@ const DDBHelper = {
       if (definition.sourceIds) {
         result.name = CONFIG.DDB.sources
           .filter((source) => definition.sourceIds.includes(source.id))
-          .map((source) => source.description)
+          .map((source) => source.description ?? "Homebrew")
           .join();
       } else if (definition.sourceId) {
         result.name = CONFIG.DDB.sources
           .filter((source) => source.id === definition.sourceId)
           .map(
             fullSource
-              ? ({ description }) => description
-              : ({ name }) => name
+              ? ({ description }) => description ?? "Homebrew"
+              : ({ name }) => name ?? "Homebrew"
           );
       }
 
