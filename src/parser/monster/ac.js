@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import { loadPassedItemsFromCompendium } from "../../muncher/import.js";
-import DDBMonster from "./DDBMonster.js";
+import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = [
   "arkhan the cruel"

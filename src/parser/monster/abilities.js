@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import DDBMonster from "./DDBMonster.js";
+import DDBMonster from "../DDBMonster.js";
 
 //     "abilities": {
 // "str": {

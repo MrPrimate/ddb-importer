@@ -1,6 +1,6 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
-import DDBMonster from "./DDBMonster.js";
+import DDBMonster from "../DDBMonster.js";
 
 // skills: [
 //   { skillId: 5, value: 9, additionalBonus: null },

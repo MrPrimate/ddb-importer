@@ -1,4 +1,4 @@
-import DDBMonster from "./DDBMonster.js";
+import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype._generateEnvironments = function _generateEnvironments() {
   this.npc.system.details.environment = this.source.environments.filter((env) =>
