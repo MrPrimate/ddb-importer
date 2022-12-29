@@ -1,7 +1,7 @@
 // specialTraitsDescription
 // handle legendary resistance here
 
-import { getRecharge, getActivation, getFeatSave, getDamage, getAction, getUses, getTarget, replaceRollable, getMonsterSource } from "../utils.js";
+import { getRecharge, getActivation, getFeatSave, getExtendedDamage, getAction, getUses, getTarget, replaceRollable, getMonsterSource } from "../utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../../muncher/table.js";
 
@@ -204,7 +204,7 @@ export function getSpecialTraits(monster) {
     if (action.system.save.dc) {
       action.system.actionType = "save";
     }
-    action.system.damage = getDamage(node.textContent);
+    action.system.damage = getExtendedDamage(node.textContent).damage;
     // assumption - if the action type is not set but there is damage, the action type is other
     if (!action.system.actionType && action.system.damage.parts.length != 0) {
       action.system.actionType = "other";

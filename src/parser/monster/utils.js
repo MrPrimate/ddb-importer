@@ -59,7 +59,7 @@ function damageModReplace(text, attackInfo, damageType) {
 }
 
 // eslint-disable-next-line complexity
-function getExtendedDamage(description, attackInfo) {
+export function getExtendedDamage(description, attackInfo) {
   let result = {
     damage: {
       parts: [],
@@ -149,11 +149,6 @@ function getExtendedDamage(description, attackInfo) {
   }
 
   return result;
-}
-
-export function getDamage(description) {
-  const extendedDamage = getExtendedDamage(description);
-  return extendedDamage.damage;
 }
 
 export function getAction(text, type = "action") {
