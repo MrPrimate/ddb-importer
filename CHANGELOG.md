@@ -19,7 +19,7 @@
 * Export unlinked notes in scene config for adventure muncher.
 * Ice Knife and Witch Bolt macro tweaks.
 * Improve Spell Sorting on character imports.
-* Refactoring for Companion Parsing.
+* Major code refactoring for Companion Parsing support. (Please report any oddities with Extra or Monster parsing).
 * Cloudkill checked save at wrong point in the turn.
 
 # 3.2.10

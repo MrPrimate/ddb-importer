@@ -520,7 +520,7 @@ export default class DDBFeature {
   }
 
   #getHiddenDescription() {
-    let description = `<section class="secret">\n${this.strippedHtml}`;
+    let description = `<section class="secret">\n${this.html}`;
     if (["rwak", "mwak"].includes(this.feature.system.actionType)) {
       description += `\n</section>\nThe ${this.ddbMonster.npc.name} attacks with its ${this.feature.name}.`;
     } else if (["rsak", "msak"].includes(this.feature.system.actionType)) {
@@ -534,7 +534,7 @@ export default class DDBFeature {
   }
 
   #generateDescription() {
-    let description = this.hideDescription ? this.#getHiddenDescription() : `${this.strippedHtml}`;
+    let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
     this.feature.system.description.value = generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
   }
 
