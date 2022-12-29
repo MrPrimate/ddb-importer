@@ -1,6 +1,6 @@
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 import utils from "../../lib/utils.js";
-import { getFeatSave, getDamage } from "../../parser/monster/utils.js";
+import { getFeatSave, getExtendedDamage } from "../../parser/monster/utils.js";
 import DICTIONARY from "../../dictionary.js";
 import { generateStatusEffectChange } from "../effects.js";
 import logger from "../../logger.js";
@@ -125,7 +125,7 @@ function generateConditionEffect(effect, text) {
 function getOvertimeDamage(text) {
   if (text.includes("taking") && (text.includes("on a failed save") || text.includes("damage on a failure"))) {
     const damageText = text.split("taking")[1];
-    return getDamage(damageText);
+    return getExtendedDamage(damageText).damage;
   }
   return undefined;
 }
