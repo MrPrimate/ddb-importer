@@ -143,7 +143,7 @@ export default class DDBFeature {
     const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
     const regainMatch = hit.match(regainExpression);
 
-    logger.debug("Damage matches: ", matches);
+    logger.debug("Damage matches: ", { hit, matches, regainMatch });
     let versatile = false;
     for (let dmg of matches) {
       let other = false;
@@ -337,12 +337,12 @@ export default class DDBFeature {
     for (const ability of abilitiesToCheck) {
       if (this.toHit == this.ddbMonster.proficiencyBonus + this.ddbMonster.abilities[ability].mod) {
         result.success = true;
-        result.ability = ability.mod;
+        result.ability = ability;
         result.proficient = true;
         break;
       } else if (result.toHit == this.ddbMonster.abilities[ability].mod) {
         result.success = true;
-        result.ability = ability.mod;
+        result.ability = ability;
         result.proficient = false;
         break;
       }
@@ -463,16 +463,14 @@ export default class DDBFeature {
           }
           return 0;
         });
-        logger.debug("Filtered abilities", filteredAbilities);
-        logger.debug(this.strippedHtml);
+        logger.debug("Filtered abilities", { filteredAbilities, html: this.strippedHtml });
         // fine lets use the first hit
         if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {
           this.actionInfo.baseAbility = filteredAbilities[0].ability;
           this.actionInfo.proficient = filteredAbilities[0].proficient;
           this.actionInfo.extraAttackBonus = filteredAbilities[0].bonus;
         } else {
-          logger.error("Unable to calculate attack!");
-          logger.info(this.strippedHtml);
+          logger.error("Unable to calculate attack!", { filteredAbilities, html: this.strippedHtml, ddbFeature: this });
         }
       }
     }
