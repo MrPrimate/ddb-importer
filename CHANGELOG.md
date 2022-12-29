@@ -1,5 +1,6 @@
 # 3.2.11
 
+* Characters skill bonuses did not always calculate successfully if not using effects.
 * Export unlinked notes in scene config for adventure muncher.
 * Ice Knife and Witch Bolt macro tweaks.
 

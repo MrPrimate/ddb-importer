@@ -50,9 +50,6 @@ DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(abilit
  * @param {obj} includeExcludedEffects Include effects from dae added items?
  */
 DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEffects = false) {
-  // go through every ability
-  // console.error(`Abilities effects: ${includeExcludedEffects}`);
-
   let result = {};
   DICTIONARY.character.abilities.forEach((ability) => {
     result[ability.value] = {
@@ -60,14 +57,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
       min: 3,
       max: 20,
       proficient: 0,
-      bonuses: {
-        check: "",
-        save: "",
-        checkMinimum: null,
-        saveMinimum: null,
-      },
     };
-    // console.warn(ability.value);
 
     const stat = this.source.ddb.character.stats.find((stat) => stat.id === ability.id).value || 0;
     const abilityScoreMaxBonus = DDBHelper
@@ -116,17 +106,6 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
     // over rides all other calculations if present
     const overrideStat = this.source.ddb.character.overrideStats.find((stat) => stat.id === ability.id).value || 0;
 
-    // console.warn(`${ability.value} - Include active effects: ${includeExcludedEffects}`);
-    // console.log(`stat ${stat}`);
-    // console.log(`bonus ${bonus}`);
-    // console.log(`bonusStat ${bonusStat}`);
-    // console.log(`overrideStat ${overrideStat}`);
-    // console.log(`abilityScoreMaxBonus ${abilityScoreMaxBonus}`);
-    // console.log(`setAbilities ${setAbilities}`);
-    // console.log(setAbilities);
-    // console.log(`cappedBonus ${cappedBonus}`);
-    // console.log(cappedBonus);
-
     const setAbility = Math.max(...[0, ...setAbilities]);
     const calculatedStat = stat + bonus + cappedBonus.value;
     // bonus gets added regardlesss of normal caps
@@ -135,13 +114,6 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
     const setAbilityState = maxAdjustedStat > setAbility ? maxAdjustedStat : setAbility;
     // Is there a hard over ride?
     const overRiddenStat = overrideStat === 0 ? setAbilityState : overrideStat;
-
-    // console.log(`setAbility ${setAbility}`);
-    // console.log(`calculatedStat ${calculatedStat}`);
-    // console.log(`maxAdjustedStat ${maxAdjustedStat}`);
-    // console.log(`setAbilityState ${setAbilityState}`);
-    // console.log(`overRiddenStat ${overRiddenStat}`);
-
     const customProficiency = this._getCustomSaveProficiency(ability);
 
     const proficient = customProficiency
@@ -157,7 +129,21 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
     result[ability.value].max = Math.max(cappedBonus.cap, overRiddenStat);
   });
 
+  return result;
+};
+
+DDBCharacter.prototype._getAbilitiesBonuses = function (includeExcludedEffects = false) {
+
+  let result = {};
   DICTIONARY.character.abilities.forEach((ability) => {
+    result[ability.value] = {
+      bonuses: {
+        check: "",
+        save: "",
+        checkMinimum: null,
+        saveMinimum: null,
+      },
+    };
 
     const checkBonusModifiers = DDBHelper
       .filterBaseModifiers(this.source.ddb, "bonus", `${ability.long}-ability-checks`, [null, ""], includeExcludedEffects);
@@ -170,9 +156,6 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
       .filterBaseModifiers(this.source.ddb, "bonus", `${ability.long}-saving-throws`, [null, ""], includeExcludedEffects);
     const modifiersSaveBonus = DDBHelper.getModifierSum(saveBonusModifiers, this.raw.character);
     const customSaveBonus = this._getCustomSaveBonus(ability);
-
-    // console.warn("modifiersSaveBonus", modifiersSaveBonus);
-    // console.warn("customSaveBonus", customSaveBonus);
 
     if (modifiersSaveBonus && modifiersSaveBonus !== "" && parseInt(modifiersSaveBonus)) {
       if (customSaveBonus) {
@@ -197,13 +180,25 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
 };
 
 /**
+ * Retrieves character abilities, including proficiency on saving throws
+ * @param {obj} includeExcludedEffects Include effects from dae added items?
+ */
+DDBCharacter.prototype._generateBaseAbilities = function (includeExcludedEffects = false) {
+  this.raw.character.system.abilities = this._getAbilities(includeExcludedEffects);
+};
+
+
+/**
  * Generates character abilities, including proficiency on saving throws
  */
 DDBCharacter.prototype._generateAbilities = function _generateAbilities() {
   // go through every ability
 
-  this.abilities.core = this._getAbilities(false);
-  this.abilities.withEffects = this._getAbilities(true);
+  // we need to populate some base abilities to work out bonuses
+  this._generateBaseAbilities(false);
+
+  this.abilities.core = mergeObject(this._getAbilities(false), this._getAbilitiesBonuses(false));
+  this.abilities.withEffects = mergeObject(this._getAbilities(true), this._getAbilitiesBonuses(true));
   this.raw.character.system.abilities = this.abilities.core;
   this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities = this.abilities.withEffects;
 

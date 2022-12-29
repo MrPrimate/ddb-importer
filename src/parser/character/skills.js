@@ -182,12 +182,11 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
       ? Math.ceil(2 * this.raw.character.system.attributes.prof * proficient)
       : Math.floor(2 * this.raw.character.system.attributes.prof * proficient);
 
-    // Skill bonuses e.g. items
-    // These no longer seems to be picked up in recent versions of the DND5e module
+    // Skill bonuses
     const skillModifierBonus = DDBHelper
       .filterBaseModifiers(this.source.ddb, "bonus", skill.subType)
       .map((skl) => skl.value)
-      .reduce((a, b) => a + b, 0) || 0;
+      .reduce((a, b) => a + b, 0) ?? 0;
     const customSkillBonus = this.getCustomSkillBonus(skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
     const value = this.raw.character.system.abilities[skill.ability].value + proficiencyBonus + skillBonus;
@@ -222,9 +221,9 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
       mod: utils.calculateModifier(value),
       bonus: 0,
       bonuses: {
-        "check": `${skillBonus}`,
-        "passive": "",
-        "minimum": null,
+        check: `${skillBonus}`,
+        passive: "",
+        minimum: null,
       },
     };
   });

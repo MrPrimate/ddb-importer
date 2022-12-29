@@ -410,18 +410,18 @@ const DDBHelper = {
    * @param {*} bonusSubType
    */
   getModifierSum: (modifiers, character) => {
-    let sum = 0;
+    let sum = "";
     let diceString = "";
     let modBonus = 0;
     modifiers.forEach((modifier) => {
-      const die = modifier.dice ? modifier.dice : modifier.die ? modifier.die : undefined;
-      const fixedBonus = die?.fixedValue ? die.fixedValue : 0;
-      const statBonus = (modifier.statId)
+      const die = modifier.dice ?? modifier.die ?? undefined;
+      const fixedBonus = die?.fixedValue ?? 0;
+      const statBonus = (Number.isInteger(modifier.statId))
         ? modifier.statId
-        : modifier.abilityModifierStatId
+        : Number.isInteger(modifier.abilityModifierStatId)
           ? modifier.abilityModifierStatId
           : null;
-      if (statBonus) {
+      if (Number.isInteger(statBonus)) {
         const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId);
         modBonus += character.system.abilities[ability.value].mod;
       }
@@ -449,7 +449,7 @@ const DDBHelper = {
       sum = diceString + " + " + sum;
     }
 
-    return sum;
+    return sum !== "" ? sum : 0;
   },
 
   /**
