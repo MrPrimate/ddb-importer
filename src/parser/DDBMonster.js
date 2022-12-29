@@ -2,7 +2,6 @@
 
 import { getLairActions } from "./monster/features/lair.js";
 import { getLegendaryActions } from "./monster/features/legendary.js";
-import { getActions } from "./monster/features/actions.js";
 import { getSpecialTraits } from "./monster/features/specialtraits.js";
 import { getSpells } from "./monster/spells.js";
 import { newNPC } from "./monster/templates/monster.js";
@@ -12,6 +11,7 @@ import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters.js";
 import logger from '../logger.js';
 import DICTIONARY from "../dictionary.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
+import { DDBFeatureFactory } from "./monster/features/DDBFeatureFactory.js";
 
 /**
  *
@@ -115,30 +115,39 @@ export default class DDBMonster {
     legacyName = true, addMonsterEffects = false } = {}, overrides = {}
   ) {
     this.source = ddbObject;
+
+    // processing options
     this.extra = extra;
     this.npc = existingNpc;
     this.useItemAC = useItemAC;
     this.legacyName = legacyName;
     this.addMonsterEffects = addMonsterEffects;
+
+    // some of this data can be overwritten, useful for mangling new actions
+    this.overrides = overrides;
+
+    // used by extra processing
+    this.removedHitPoints = this.setProperty("removedHitPoints", this.source?.removedHitPoints ?? 0);
+    this.temporaryHitPoints = this.setProperty("temporaryHitPoints", this.source?.temporaryHitPoints ?? 0);
+
+    this.characterDescription = "";
+    this.unexpectedDescription = null;
+
+
+    // processing info
+    this.name = overrides["name"] ?? (existingNpc ? existingNpc.name : null);
+    this.abilities = null;
+    this.proficiencyBonus = null;
+    this.cr = 0;
     this.items = [];
     this.img = null;
-    this.name = overrides["name"] ?? (existingNpc ? existingNpc.name : null);
-    this.overrides = overrides;
-    this.removedHitPoints = this.setProperty("removedHitPoints", 0);
-    this.temporaryHitPoints = this.setProperty("temporaryHitPoints", 0);
-    this.actions = [];
-    this.lairActions = [];
-    this.legendaryActions = [];
-    this.specialTraits = [];
-    this.reactions = [];
-    this.bonus = [];
-    this.mythic = [];
-    this.characterDescriptionAction = null;
-    this.characterDescriptionReaction = null;
-    this.unexpectedDescription = null;
-    this.abilities = null;
-    this.removedHitPoints = this.source?.removedHitPoints ?? 0;
-    this.temporaryHitPoints = this.source?.temporaryHitPoints ?? 0;
+    if (existingNpc) {
+      this.proficiencyBonus = this.setProperty("proficiencyBonus", existingNpc.system.attributes.prof);
+      this.cr = this.setProperty("cr", existingNpc.system.details.cr);
+      this.abilities = this.setProperty("abilities", existingNpc.system.abilities);
+      this.items = duplicate(existingNpc.items);
+      this.img = existingNpc.img;
+    }
   }
 
   async addSpells() {
@@ -336,8 +345,10 @@ export default class DDBMonster {
     this._generateEnvironments();
     this.npc.system.details.biography.value = this.source.characteristicsDescription;
 
-    [this.actions, this.characterDescriptionAction] = getActions(this.source);
-    this.items.push(...this.actions);
+    const featureFactory = new DDBFeatureFactory({ ddbMonster: this });
+    this.featureFactory = featureFactory;
+    featureFactory.generateActions(this.source.actionsDescription, "action");
+    this.items.push(...featureFactory.actions);
 
     if (this.source.hasLair) {
       this.lairActions = getLairActions(this.source);
@@ -346,7 +357,7 @@ export default class DDBMonster {
     }
 
     if (this.source.legendaryActionsDescription != "") {
-      this.legendaryActions = getLegendaryActions(this.source, this.actions);
+      this.legendaryActions = getLegendaryActions(this.source, featureFactory.features.action);
       this.items.push(...this.legendaryActions.legendaryActions);
       this.npc.system.resources["legact"] = this.legendaryActions.actions;
       this.npc.prototypeToken.bar2 = {
@@ -355,30 +366,33 @@ export default class DDBMonster {
     }
 
     if (this.source.specialTraitsDescription != "") {
-      this.specialTraits = getSpecialTraits(this.source, this.actions);
+      this.specialTraits = getSpecialTraits(this.source, featureFactory.features.action);
       this.items.push(...this.specialTraits.specialActions);
       this.npc.system.resources["legres"] = this.specialTraits.resistance;
     }
 
-    [this.reactions, this.characterDescriptionReaction] = getActions(this.source, "reaction");
-    this.items.push(...this.reactions);
-    [this.bonus, this.unexpectedDescription] = getActions(this.source, "bonus");
-    this.items.push(...this.bonus);
-    [this.mythic, this.unexpectedDescription] = getActions(this.source, "mythic");
-    this.items.push(...this.mythic);
+    featureFactory.generateActions(this.source.reactionsDescription, "reaction");
+    featureFactory.generateActions(this.source.reactionsDescription, "bonus");
+    featureFactory.generateActions(this.source.reactionsDescription, "mythic");
 
-    if (this.unexpectedDescription) {
-      logger.warn(`Unexpected description for ${this.source.name}`);
+    this.items.push(
+      ...featureFactory.lair,
+      ...featureFactory.legendary,
+      ...featureFactory.special,
+      ...featureFactory.reactions,
+      ...featureFactory.bonus,
+      ...featureFactory.mythic,
+    );
+
+    if (featureFactory.characterDescription.unexpected) {
+      logger.warn(`Unexpected description for ${this.source.name}`, { description: featureFactory.characterDescription });
     }
-    if (this.characterDescriptionAction) {
-      this.npc.system.details.biography.value += this.characterDescriptionAction;
-    }
-    if (this.characterDescriptionReaction) {
-      this.npc.system.details.biography.value += this.characterDescriptionReaction;
-    }
+    this.characterDescription += this.characterDescriptionAction;
+    this.characterDescription += this.featureFactory.characterDescription.reaction;
     if (this.specialTraits?.characterDescription) {
-      this.npc.system.details.biography.value += this.specialTraits.characterDescription;
+      this.characterDescription += this.specialTraits.characterDescription;
     }
+    this.npc.system.details.biography.value += this.characterDescription;
 
     // Spellcasting
     const spellcastingData = getSpells(this.source);
