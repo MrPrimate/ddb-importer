@@ -1,4 +1,4 @@
-import { getRecharge, getActivation, getFeatSave, getDamage, getRange, getTarget, replaceRollable, getMonsterSource } from "../utils.js";
+import { getRecharge, getActivation, getFeatSave, getExtendedDamage, getRange, getTarget, replaceRollable, getMonsterSource } from "../utils.js";
 import { newFeat } from "../templates/feat.js";
 import { generateTable } from "../../../muncher/table.js";
 
@@ -70,7 +70,7 @@ export function getLegendaryActions(monster, monsterActions) {
 
     action.flags.monsterMunch = {};
     if (actionMatch) {
-      action = duplicate(actionMatch);
+      action = duplicate(actionMatch.feature);
       action.flags.monsterMunch['actionCopy'] = true;
     } else {
       action.flags.monsterMunch['actionCopy'] = false;
@@ -145,7 +145,7 @@ export function getLegendaryActions(monster, monsterActions) {
           }
           action.system.range = getRange(node.textContent);
           action.system.target = getTarget(node.textContent);
-          action.system.damage = getDamage(node.textContent);
+          action.system.damage = getExtendedDamage(node.textContent).damage;
         }
       }
     });
