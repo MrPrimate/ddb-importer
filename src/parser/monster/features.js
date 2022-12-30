@@ -2,7 +2,6 @@ import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 import DDBMonster from "../DDBMonster.js";
 import { getLegendaryActions } from "./features/legendary.js";
-import { getSpecialTraits } from "./features/specialtraits.js";
 
 // extracts various attacks and features (not spells)
 // generates and extra descriptions found in these fields
@@ -28,9 +27,8 @@ DDBMonster.prototype._generateFeatures = function () {
   }
 
   if (this.source.specialTraitsDescription != "") {
-    this.specialTraits = getSpecialTraits(this.source, this.featureFactory.features.action);
-    this.items.push(...this.specialTraits.specialActions);
-    this.npc.system.resources["legres"] = this.specialTraits.resistance;
+    this.featureFactory.generateActions(this.source.specialTraitsDescription, "special");
+    this.npc.system.resources["legres"] = this.featureFactory.resources["resistance"];
   }
 
   this.featureFactory.generateActions(this.source.reactionsDescription, "reaction");
