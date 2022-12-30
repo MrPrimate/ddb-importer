@@ -1,7 +1,6 @@
 // monster parser
 import "./DDBMonster.js";
 // load files with extensions here. this will add the functions to the class
-// for use at run time
 import "./monster/abilities.js";
 import "./monster/ac.js";
 import "./monster/conditions.js";
@@ -14,11 +13,11 @@ import "./monster/languages.js";
 import "./monster/hp.js";
 import "./monster/movement.js";
 import "./monster/source.js";
+import "./monster/features.js";
 
 // character parser
 import "./DDBCharacter.js";
 // load files with extensions here. this will add the functions to the class
-// for use at run time
 import "./character/index.js";
 import "./character/token.js";
 import "./character/ac.js";

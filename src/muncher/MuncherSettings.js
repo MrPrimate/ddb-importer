@@ -741,6 +741,12 @@ const MuncherSettings = {
         enabled: true,
       },
       {
+        name: "munching-policy-monster-set-legendary-resource-bar",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar"),
+        description: "Monsters display legendary resources on bar2? (Like the SRD Monsters)",
+        enabled: true,
+      },
+      {
         name: "add-monster-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-monster-effects"),
         description: "[Experimental] Attempt to generate Midi-QOL effects on monster attacks/features?",
