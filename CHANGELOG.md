@@ -22,6 +22,7 @@
 * Major code refactoring for Companion Parsing support. (Please report any oddities with Extra or Monster parsing).
 * Cloudkill checked save at wrong point in the turn.
 * Fixcritters funciton removed as no longer needed.
+* Experimental bulk import mode has been removed due to duplication of data issues.
 
 # 3.2.10
 
