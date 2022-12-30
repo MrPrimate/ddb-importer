@@ -758,12 +758,12 @@ const MuncherSettings = {
         description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE SRD/Midi SRD module).",
         enabled: daeInstalled && daeSRDContentAvailable,
       },
-      {
-        name: "monster-bulk-import",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-bulk-import"),
-        description: "Use bulk import mode? Experimental, potentially faster. Does not preserve excluded items.",
-        enabled: true,
-      },
+      // {
+      //   name: "monster-bulk-import",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-bulk-import"),
+      //   description: "Use bulk import mode? Experimental, potentially faster. Does not preserve excluded items.",
+      //   enabled: true,
+      // },
     ];
 
     const homebrewMonsterConfig = includeHomebrew

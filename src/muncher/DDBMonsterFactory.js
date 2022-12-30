@@ -185,7 +185,9 @@ export default class DDBMonsterFactory {
     const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
     const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    const bulkImport = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-bulk-import");
+    // const bulkImport = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-bulk-import");
+    // bulk import is disabled for now de to entry duplication
+    const bulkImport = false;
 
     // to speed up file checking we pregenerate existing files now.
     logger.info("Checking for existing files...");
