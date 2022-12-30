@@ -1,8 +1,15 @@
-import { replaceRollable } from "../utils.js";
 import utils from "../../../lib/utils.js";
+import logger from "../../../logger.js";
 import DDBFeature from "./DDBFeature.js";
 
 export class DDBFeatureFactory {
+
+  // some monsters now have [rollable] tags - if these exist we need to parse them out
+  // in the future we may be able to use them, but not consistent yet
+  static replaceRollable(text) {
+    const rollableRegex = new RegExp(/(\[rollable\])([^;]*);(.*)(\[\/rollable\])/g);
+    return text.replaceAll(rollableRegex, "$2");
+  }
 
   constructor({ ddbMonster } = {}) {
     this.ddbMonster = ddbMonster;
@@ -41,6 +48,14 @@ export class DDBFeatureFactory {
       special: "",
     };
 
+    this.resources = {
+      legendary: null,
+      lair: {
+        value: false,
+        initiative: null
+      },
+    };
+
     this.resistance = {};
   }
 
@@ -76,17 +91,21 @@ export class DDBFeatureFactory {
     return this.getFeatures("special");
   }
 
-  // possible types:
-  // action, reaction, bonus, mythic
-  // this.ddbMonster.source.actionsDescription
-  // this.ddbMonster.source.reactionsDescription
-  // this.ddbMonster.source.bonusActionsDescription
-  // this.ddbMonster.source.mythicActionsDescription
-  generateActions(html, type = "action") {
-    if (!html || html.trim() == "") return;
+  #buildDom(type) {
+    let dom = new DocumentFragment();
+    $.parseHTML(this.html[type]).forEach((element) => {
+      dom.appendChild(element);
+    });
+    dom.childNodes.forEach((node) => {
+      if (node.textContent == "\n" || node.textContent == "\r\n") {
+        dom.removeChild(node);
+      }
+    });
+    return dom;
+  }
 
-    this.html[type] = utils.replaceHtmlSpaces(`${html}`);
-    this.html[type] = replaceRollable(this.html[type]);
+  #generateActionActions(type) {
+    this.html[type] = DDBFeatureFactory.replaceRollable(this.html[type]);
 
     let splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions.length > 1) {
@@ -97,21 +116,7 @@ export class DDBFeatureFactory {
       .replace(/<\/strong><strong>/g, "")
       .replace(/&shy;/g, "");
 
-    let dom = new DocumentFragment();
-    $.parseHTML(this.html[type]).forEach((element) => {
-      dom.appendChild(element);
-    });
-
-    // console.error(`Starting ${type} processing`)
-    // console.warn(dom);
-    // console.log(actions);
-    // console.log(dom.childNodes);
-
-    dom.childNodes.forEach((node) => {
-      if (node.textContent == "\n") {
-        dom.removeChild(node);
-      }
-    });
+    let dom = this.#buildDom(type);
 
     // build out skeleton actions
     dom.querySelectorAll("p").forEach((node) => {
@@ -254,4 +259,117 @@ export class DDBFeatureFactory {
     // console.log(JSON.stringify(this.features[type], null, 4));
 
   }
+
+  #generateLairActions(type = "lair") {
+    this.html[type] = DDBFeatureFactory.replaceRollable(this.html[type]);
+
+    let dom = this.#buildDom(type);
+
+    const defaultAction = new DDBFeature("Lair Actions", { ddbMonster: this.ddbMonster, type });
+    this.features[type].push(defaultAction);
+
+    dom.querySelectorAll("h4").forEach((node) => {
+      const name = node.textContent.trim();
+      if (name !== "") {
+        let action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
+        if (node.textContent == "Lair Actions" || node.textContent == "") {
+          return;
+        }
+        this.features[type].push(action);
+      }
+    });
+
+    dom.querySelectorAll("h3").forEach((node) => {
+      const name = node.textContent.trim();
+      if (name !== "") {
+        let action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
+        if (node.textContent == "Lair Actions" || action.name == "") {
+          return;
+        }
+        this.features[type].push(action);
+      }
+    });
+
+    let actionType = "Lair Actions";
+    let action = this.features[type].find((act) => act.name == actionType);
+
+    if (!action) {
+      action = this.features[type][0];
+    }
+
+    dom.childNodes.forEach((node) => {
+      // const switchAction = dynamicActions.find((act) => act.name == node.textContent);
+      const nodeName = node.textContent.split('.')[0].trim();
+      const switchAction = this.features[type].find((act) => nodeName === act.name);
+      let startFlag = false;
+      if (switchAction) {
+        actionType = node.textContent;
+        action = switchAction;
+        if (action.html === "") startFlag = true;
+      }
+      if (node.outerHTML) {
+        let outerHTML = node.outerHTML;
+        if (switchAction && startFlag) {
+          outerHTML = outerHTML.replace(`${nodeName}.`, "");
+        }
+        action.html += outerHTML;
+      }
+
+      const initiativeMatch = node.textContent.match(/initiative count (\d+)/);
+      if (initiativeMatch) {
+        this.resources.lair = {
+          value: true,
+          initiative: parseInt(initiativeMatch[1]),
+        };
+      }
+    });
+
+    this.features[type].forEach((feature) => {
+      feature.parse();
+    });
+
+  }
+
+  #generateLegendaryActions(type) {
+
+  }
+
+  #generateSpecialActions(type) {
+
+  }
+
+  // possible types:
+  // action, reaction, bonus, mythic
+  // this.ddbMonster.source.actionsDescription
+  // this.ddbMonster.source.reactionsDescription
+  // this.ddbMonster.source.bonusActionsDescription
+  // this.ddbMonster.source.mythicActionsDescription
+
+  generateActions(html, type = "action") {
+    if (!html || html.trim() == "") return;
+
+    this.html[type] = utils.replaceHtmlSpaces(`${html}`);
+
+    switch (type) {
+      case "action":
+      case "bonus":
+      case "mythic":
+      case "reaction":
+        this.#generateActionActions(type);
+        break;
+      case "lair":
+        this.#generateLairActions(type);
+        break;
+      case "legendary":
+        this.#generateLegendaryActions(type);
+        break;
+      case "special":
+        this.#generateSpecialActions(type);
+        break;
+      default:
+        logger.error(`Unknown action parsing type ${this.type}`, { DDBFeatureFactory: this });
+        throw new Error(`Unknown action parsing type ${this.type}`);
+    }
+  }
+
 }

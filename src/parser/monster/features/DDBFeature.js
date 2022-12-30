@@ -103,13 +103,6 @@ export default class DDBFeature {
 
   }
 
-  // some monsters now have [rollable] tags - if these exist we need to parse them out
-  // in the future we may be able to use them, but not consistent yet
-  static replaceRollable(text) {
-    const rollableRegex = new RegExp(/(\[rollable\])([^;]*);(.*)(\[\/rollable\])/g);
-    return text.replaceAll(rollableRegex, "$2");
-  }
-
   damageModReplace(text, damageType) {
     let result;
     const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
@@ -614,7 +607,10 @@ export default class DDBFeature {
   }
 
   #buildLair() {
-    // to do
+    if (this.feature.name.trim() === "Lair Actions") {
+      this.feature.system.activation.cost = 1;
+    }
+    return this.feature;
   }
 
   #buildLegendary() {
@@ -643,7 +639,7 @@ export default class DDBFeature {
 
   // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
   prepare() {
-    this.strippedHtml = DDBFeature.replaceRollable(utils.stripHtml(`${this.html}`));
+    this.strippedHtml = utils.stripHtml(`${this.html}`);
 
     const matches = this.strippedHtml.match(
       /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/i
