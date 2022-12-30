@@ -54,6 +54,10 @@ export class DDBFeatureFactory {
         value: false,
         initiative: null
       },
+      resistance: {
+        value: 0,
+        max: 0
+      },
     };
 
     this.resistance = {};
@@ -105,8 +109,6 @@ export class DDBFeatureFactory {
   }
 
   #generateActionActions(type) {
-    this.html[type] = DDBFeatureFactory.replaceRollable(this.html[type]);
-
     let splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions.length > 1) {
       this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
@@ -131,11 +133,7 @@ export class DDBFeatureFactory {
       if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
         name = name.split(";").pop().trim();
       }
-      const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
-      action.feature.flags.monsterMunch = {
-        titleHTML: query.outerHTML,
-        fullName: query.textContent,
-      };
+      const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent });
       this.features[type].push(action);
     });
 
@@ -153,11 +151,7 @@ export class DDBFeatureFactory {
         if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
           name = name.split(";").pop().trim();
         }
-        const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
-        action.feature.flags.monsterMunch = {
-          titleHTML: query.outerHTML,
-          fullName: query.textContent,
-        };
+        const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent });
         this.features[type].push(action);
       });
     }
@@ -174,12 +168,8 @@ export class DDBFeatureFactory {
         const title = pDom.textContent.split('.')[0];
         const name = title.trim();
         if (name && name.length > 0) {
-          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
-          if (pDom.outerHTML) {
-            action.feature.flags.monsterMunch = {
-              titleHTML: pDom.outerHTML.split('.')[0],
-            };
-          }
+          const titleHTML = pDom.outerHTML ? pDom.outerHTML.split('.')[0] : undefined;
+          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML });
           this.features[type].push(action);
         }
       });
@@ -196,18 +186,12 @@ export class DDBFeatureFactory {
         const title = pDom.textContent.split('.')[0];
         const name = title.trim();
         if (name && name.length > 0) {
-          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
-          if (pDom.outerHTML) {
-            action.feature.flags.monsterMunch = {
-              titleHTML: pDom.outerHTML.split('.')[0],
-            };
-          }
+          const titleHTML = pDom.outerHTML ? pDom.outerHTML.split('.')[0] : undefined;
+          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML });
           this.features[type].push(action);
         }
       });
     }
-
-    // console.error(dynamicActions);
 
     let action = this.features[type][0];
 
@@ -221,8 +205,8 @@ export class DDBFeatureFactory {
 
       if (!switchAction) {
         switchAction = this.features[type].find((act) =>
-          act.flags?.monsterMunch?.fullName
-          && node.textContent.startsWith(act.flags.monsterMunch.fullName)
+          act.feature.flags.monsterMunch?.fullName
+          && node.textContent.startsWith(act.feature.flags.monsterMunch.fullName)
         );
       }
       let startFlag = false;
@@ -255,14 +239,9 @@ export class DDBFeatureFactory {
       feature.parse();
     });
 
-    // console.warn(this.features[type]);
-    // console.log(JSON.stringify(this.features[type], null, 4));
-
   }
 
   #generateLairActions(type = "lair") {
-    this.html[type] = DDBFeatureFactory.replaceRollable(this.html[type]);
-
     let dom = this.#buildDom(type);
 
     const defaultAction = new DDBFeature("Lair Actions", { ddbMonster: this.ddbMonster, type });
@@ -271,7 +250,7 @@ export class DDBFeatureFactory {
     dom.querySelectorAll("h4").forEach((node) => {
       const name = node.textContent.trim();
       if (name !== "") {
-        let action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
+        const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
         if (node.textContent == "Lair Actions" || node.textContent == "") {
           return;
         }
@@ -282,7 +261,7 @@ export class DDBFeatureFactory {
     dom.querySelectorAll("h3").forEach((node) => {
       const name = node.textContent.trim();
       if (name !== "") {
-        let action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
+        const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
         if (node.textContent == "Lair Actions" || action.name == "") {
           return;
         }
@@ -335,6 +314,126 @@ export class DDBFeatureFactory {
   }
 
   #generateSpecialActions(type) {
+    console.error(this)
+    let splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
+    if (splitActions.length > 1) {
+      this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
+    }
+
+    const fixedDescription = splitActions[0]
+      .replace(/<\/strong> <strong>/g, "").replace(/<\/strong><strong>/g, "")
+      .replace(/&shy;/g, "")
+      .replace(/<br \/>/g, "</p><p>");
+
+    this.html[type] = fixedDescription;
+    let dom = this.#buildDom(type);
+
+    // build out skeleton actions
+    dom.querySelectorAll("p").forEach((node) => {
+      let pDom = new DocumentFragment();
+      $.parseHTML(node.outerHTML).forEach((element) => {
+        pDom.appendChild(element);
+      });
+      const query = pDom.querySelector("em");
+      if (!query) return;
+      let name = query.textContent.trim().replace(/\./g, '');
+      if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
+        name = name.split(";").pop().trim();
+      }
+      if (name) {
+        const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent });
+        this.features[type].push(action);
+      }
+    });
+
+    if (this.features[type].length == 0) {
+      dom.querySelectorAll("p").forEach((node) => {
+        let pDom = new DocumentFragment();
+        $.parseHTML(node.outerHTML).forEach((element) => {
+          pDom.appendChild(element);
+        });
+        const query = pDom.querySelector("strong");
+        if (!query) return;
+        let name = query.textContent.trim().replace(/\./g, '');
+        if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
+          name = name.split(";").pop().trim();
+        }
+        if (name) {
+          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent });
+          this.features[type].push(action);
+        }
+      });
+    }
+
+    if (this.features[type].length == 0) {
+      dom.querySelectorAll("em").forEach((node) => {
+        const name = node.textContent.trim().replace(/\.$/, '').trim();
+        if (name) {
+          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent });
+          this.features[type].push(action);
+        }
+      });
+    }
+
+    if (this.features[type].length == 0) {
+      dom.querySelectorAll("strong").forEach((node) => {
+        const name = node.textContent.trim().replace(/\.$/, '').trim();
+        if (name) {
+          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent });
+          this.features[type].push(action);
+        }
+      });
+    }
+
+    if (this.features[type].length == 0) {
+      const action = new DDBFeature("Special Traits", { ddbMonster: this.ddbMonster, type });
+      this.features[type].push(action);
+    }
+
+    let action = this.features[type][0];
+
+    dom.childNodes.forEach((node) => {
+      const nodeName = node.textContent.split('.')[0].trim();
+      let switchAction = this.features[type].find((act) => nodeName === act.name);
+      if (action.name.includes("; Recharges after a Short or Long Rest")) action.name = action.name.replace("; Recharges after a Short or Long Rest", "");
+      if (!switchAction) {
+        switchAction = this.features[type].find((act) => node.textContent.startsWith(act.feature.flags.monsterMunch.fullName));
+      }
+      let startFlag = false;
+      if (switchAction) {
+        action = switchAction;
+        if (action.html === "") {
+          startFlag = true;
+        }
+      }
+
+      if (node.outerHTML) {
+        let outerHTML = node.outerHTML;
+        if (switchAction && startFlag) {
+          if (action.feature.flags.monsterMunch?.fullName) {
+            outerHTML = outerHTML.replace(action.feature.flags.monsterMunch.fullName, "");
+          } else {
+            outerHTML = outerHTML.replace(nodeName, "");
+          }
+        }
+        const titleDom = new DocumentFragment();
+        $.parseHTML(outerHTML).forEach((element) => {
+          titleDom.appendChild(element);
+        });
+        if (titleDom.textContent.startsWith(". ")) outerHTML = outerHTML.replace(". ", "");
+        action.html += outerHTML;
+      }
+
+      const resistanceMatch = node.textContent.match(/Legendary Resistance \((\d+)\/Day/i);
+      if (resistanceMatch) {
+        this.resources.resistance.value = parseInt(resistanceMatch[1]);
+        this.resources.resistance.max = parseInt(resistanceMatch[1]);
+      }
+    });
+
+    this.features[type].forEach((feature) => {
+      feature.parse();
+    });
 
   }
 
@@ -348,7 +447,7 @@ export class DDBFeatureFactory {
   generateActions(html, type = "action") {
     if (!html || html.trim() == "") return;
 
-    this.html[type] = utils.replaceHtmlSpaces(`${html}`);
+    this.html[type] = DDBFeatureFactory.replaceRollable(utils.replaceHtmlSpaces(`${html}`));
 
     switch (type) {
       case "action":

@@ -5,7 +5,7 @@ import { generateTable } from "../../../muncher/table.js";
 
 export default class DDBFeature {
 
-  constructor(name, { ddbMonster, html, type } = {}) {
+  constructor(name, { ddbMonster, html, type, titleHTML, fullName } = {}) {
 
     console.error(name, { ddbMonster, html, type });
     this.name = name;
@@ -26,8 +26,11 @@ export default class DDBFeature {
           dndbeyond: {
           },
         },
+        monsterMunch: {}
       },
     };
+    if (titleHTML) this.feature.flags.monsterMunch["titleHTML"] = titleHTML;
+    if (fullName) this.feature.flags.monsterMunch["fullName"] = fullName;
 
     console.error("feature", this.feature);
 
@@ -594,18 +597,6 @@ export default class DDBFeature {
     return this.feature;
   }
 
-  #buildBonus() {
-    // to do
-  }
-
-  #buildMythic() {
-    // to do
-  }
-
-  #buildReaction() {
-    // to do
-  }
-
   #buildLair() {
     if (this.feature.name.trim() === "Lair Actions") {
       this.feature.system.activation.cost = 1;
@@ -618,7 +609,40 @@ export default class DDBFeature {
   }
 
   #buildSpecial() {
-    // to do
+    this.feature.system.activation.type = this.getAction();
+    const activationCost = this.actionInfo.activation;
+    if (activationCost) {
+      this.feature.system.activation.cost = activationCost;
+      this.feature.system.consume.amount = activationCost;
+    } else if (this.feature.system.activation.type !== "") {
+      this.feature.system.activation.cost = 1;
+    }
+
+    this.feature.system.uses = this.actionInfo.uses;
+    this.feature.system.recharge = this.actionInfo.recharge;
+    this.feature.system.save = this.actionInfo.save;
+    this.feature.system.target = this.actionInfo.target;
+    // assumption - if we have parsed a save dc set action type to save
+    if (this.feature.system.save.dc) {
+      this.feature.system.actionType = "save";
+    }
+    this.feature.system.damage = this.actionInfo.damage;
+    // assumption - if the action type is not set but there is damage, the action type is other
+    if (!this.feature.system.actionType && this.feature.system.damage.parts.length != 0) {
+      this.feature.system.actionType = "other";
+    }
+
+    // legendary resistance check
+    const resistanceMatch = this.name.match(/Legendary Resistance \((\d+)\/Day/i);
+    if (resistanceMatch) {
+      this.feature.system.activation.type = "special";
+      this.feature.system.activation.const = null;
+      this.feature.system.consume = {
+        type: "attribute",
+        target: "resources.legres.value",
+        amount: 1
+      };
+    }
   }
 
   #generateActionInfo() {
@@ -660,16 +684,10 @@ export default class DDBFeature {
     this.#generateActionInfo();
     switch (this.type) {
       case "action":
-        this.#buildAction();
-        break;
-      case "bonus":
-        this.#buildBonus();
-        break;
       case "mythic":
-        this.#buildMythic();
-        break;
       case "reaction":
-        this.#buildReaction();
+      case "bonus":
+        this.#buildAction();
         break;
       case "lair":
         this.#buildLair();
