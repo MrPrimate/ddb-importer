@@ -1101,6 +1101,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-monster-set-legendary-resource-bar": {
+            type: Boolean,
+            default: true,
+          },
           "munching-policy-update-world-monster-update-images": {
             type: Boolean,
             default: true,

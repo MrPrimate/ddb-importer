@@ -1,7 +1,5 @@
 /* eslint-disable require-atomic-updates */
 
-import { getLegendaryActions } from "./monster/features/legendary.js";
-import { getSpecialTraits } from "./monster/features/specialtraits.js";
 import { getSpells } from "./monster/spells.js";
 import { newNPC } from "./monster/templates/monster.js";
 import { specialCases } from "./monster/special.js";
@@ -11,6 +9,7 @@ import logger from '../logger.js';
 import DICTIONARY from "../dictionary.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { DDBFeatureFactory } from "./monster/features/DDBFeatureFactory.js";
+import SETTINGS from "../settings.js";
 
 /**
  *
@@ -36,7 +35,7 @@ async function retrieveCompendiumItems(items, compendiumName) {
  * @param {[items]} spells Array of Strings or items
  */
 async function retrieveCompendiumSpells(spells) {
-  const compendiumName = await game.settings.get("ddb-importer", "entity-spell-compendium");
+  const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
   const compendiumItems = await retrieveCompendiumItems(spells, compendiumName);
   const itemData = compendiumItems.map((i) => {
     let spell = i.toObject();
@@ -147,6 +146,8 @@ export default class DDBMonster {
       this.items = duplicate(existingNpc.items);
       this.img = existingNpc.img;
     }
+
+    this.featureFactory = new DDBFeatureFactory({ ddbMonster: this });
   }
 
   async addSpells() {
@@ -344,53 +345,7 @@ export default class DDBMonster {
     this._generateEnvironments();
     this.npc.system.details.biography.value = this.source.characteristicsDescription;
 
-    const featureFactory = new DDBFeatureFactory({ ddbMonster: this });
-    this.featureFactory = featureFactory;
-    featureFactory.generateActions(this.source.actionsDescription, "action");
-    this.items.push(...featureFactory.actions);
-
-    if (this.source.hasLair && this.source.lairDescription != "") {
-      featureFactory.generateActions(this.source.lairDescription, "lair");
-      this.npc.system.resources["lair"] = featureFactory.resources["lair"];
-    }
-
-    if (this.source.legendaryActionsDescription != "") {
-      this.legendaryActions = getLegendaryActions(this.source, featureFactory.features.action);
-      this.items.push(...this.legendaryActions.legendaryActions);
-      this.npc.system.resources["legact"] = this.legendaryActions.actions;
-      this.npc.prototypeToken.bar2 = {
-        attribute: "resources.legact"
-      };
-    }
-
-    if (this.source.specialTraitsDescription != "") {
-      this.specialTraits = getSpecialTraits(this.source, featureFactory.features.action);
-      this.items.push(...this.specialTraits.specialActions);
-      this.npc.system.resources["legres"] = this.specialTraits.resistance;
-    }
-
-    featureFactory.generateActions(this.source.reactionsDescription, "reaction");
-    featureFactory.generateActions(this.source.reactionsDescription, "bonus");
-    featureFactory.generateActions(this.source.reactionsDescription, "mythic");
-
-    this.items.push(
-      ...featureFactory.lair,
-      ...featureFactory.legendary,
-      ...featureFactory.special,
-      ...featureFactory.reactions,
-      ...featureFactory.bonus,
-      ...featureFactory.mythic,
-    );
-
-    if (featureFactory.characterDescription.unexpected) {
-      logger.warn(`Unexpected description for ${this.source.name}`, { description: featureFactory.characterDescription });
-    }
-    this.characterDescription += this.characterDescriptionAction;
-    this.characterDescription += this.featureFactory.characterDescription.reaction;
-    if (this.specialTraits?.characterDescription) {
-      this.characterDescription += this.specialTraits.characterDescription;
-    }
-    this.npc.system.details.biography.value += this.characterDescription;
+    this._generateFeatures();
 
     // Spellcasting
     const spellcastingData = getSpells(this.source);
