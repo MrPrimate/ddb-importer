@@ -1,6 +1,5 @@
 /* eslint-disable require-atomic-updates */
 
-import { getLairActions } from "./monster/features/lair.js";
 import { getLegendaryActions } from "./monster/features/legendary.js";
 import { getSpecialTraits } from "./monster/features/specialtraits.js";
 import { getSpells } from "./monster/spells.js";
@@ -350,10 +349,9 @@ export default class DDBMonster {
     featureFactory.generateActions(this.source.actionsDescription, "action");
     this.items.push(...featureFactory.actions);
 
-    if (this.source.hasLair) {
-      this.lairActions = getLairActions(this.source);
-      this.items.push(...this.lairActions.lairActions);
-      this.npc.system.resources["lair"] = this.lairActions.resource;
+    if (this.source.hasLair && this.source.lairDescription != "") {
+      featureFactory.generateActions(this.source.lairDescription, "lair");
+      this.npc.system.resources["lair"] = featureFactory.resources["lair"];
     }
 
     if (this.source.legendaryActionsDescription != "") {
