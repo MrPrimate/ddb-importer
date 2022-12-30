@@ -21,6 +21,7 @@
 * Improve Spell Sorting on character imports.
 * Major code refactoring for Companion Parsing support. (Please report any oddities with Extra or Monster parsing).
 * Cloudkill checked save at wrong point in the turn.
+* Fixcritters funciton removed as no longer needed.
 
 # 3.2.10
 

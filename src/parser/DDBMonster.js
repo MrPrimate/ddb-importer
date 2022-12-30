@@ -129,8 +129,8 @@ export default class DDBMonster {
     this.overrides = overrides;
 
     // used by extra processing
-    this.removedHitPoints = this.setProperty("removedHitPoints", this.source?.removedHitPoints ?? 0);
-    this.temporaryHitPoints = this.setProperty("temporaryHitPoints", this.source?.temporaryHitPoints ?? 0);
+    this.removedHitPoints = this.setProperty("removedHitPoints", (this.source?.removedHitPoints ?? 0));
+    this.temporaryHitPoints = this.setProperty("temporaryHitPoints", (this.source?.temporaryHitPoints ?? 0));
 
     this.characterDescription = "";
     this.unexpectedDescription = null;

@@ -4,6 +4,7 @@ import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBMuncher from "./DDBMuncher.js";
 import { copySupportedItemFlags } from "./import.js";
 import { getNPCImage } from "./importMonster.js";
+import DDBMonsterFactory from "./DDBMonsterFactory.js";
 
 let totalTargets = 0;
 let count = 0;
@@ -130,4 +131,10 @@ export async function resetCompendiumActorImages(compendiumName = null, type = "
   const results = await Actor.updateDocuments(updates, { pack: monsterCompendiumLabel });
   logger.debug("Reset results", results);
   return results;
+}
+
+export async function parseCritters(ids = null) {
+  const monsterFactory = new DDBMonsterFactory();
+  const parsedExtras = await monsterFactory.processIntoCompendium(ids);
+  return parsedExtras;
 }
