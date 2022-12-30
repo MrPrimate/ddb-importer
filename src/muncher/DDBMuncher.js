@@ -3,7 +3,6 @@ import logger from "../logger.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import { parseItems } from "./items.js";
 import { parseSpells } from "./spells.js";
-import { parseCritters } from "./monsters.js";
 import { parseRaces } from "./races.js";
 import { parseFeats } from "./feats.js";
 import { parseClasses } from "./classes.js";
@@ -21,6 +20,8 @@ import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
 import { parseBackgrounds } from "./backgrounds.js";
 import { parseTransports } from "./vehicles.js";
 import DDBSources from "../lib/DDBSources.js";
+import SETTINGS from "../settings.js";
+import DDBMonsterFactory from "./DDBMonsterFactory.js";
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {
@@ -202,7 +203,7 @@ export default class DDBMuncher extends Application {
 
   static enableButtons() {
     const cobalt = getCobalt() != "";
-    const tier = game.settings.get("ddb-importer", "patreon-tier");
+    const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
     const tiers = PatreonHelper.getPatreonTiers(tier);
 
     if (cobalt) {
@@ -237,7 +238,8 @@ export default class DDBMuncher extends Application {
   static async parseCritters() {
     try {
       logger.info("Munching monsters!");
-      const result = await parseCritters();
+      const monsterFactory = new DDBMonsterFactory();
+      const result = await monsterFactory.processIntoCompendium();
       DDBMuncher.munchNote(`Finished importing ${result} monsters!`, true);
       DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
@@ -263,7 +265,7 @@ export default class DDBMuncher extends Application {
   static async parseSpells() {
     try {
       logger.info("Munching spells!");
-      if (game.settings.get("ddb-importer", "munching-policy-add-spell-effects")) await createGMMacros("spells");
+      if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects")) await createGMMacros("spells");
       await parseSpells();
       DDBMuncher.munchNote(`Finished importing spells!`, true);
       DDBMuncher.munchNote("");

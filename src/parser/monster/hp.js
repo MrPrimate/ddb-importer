@@ -19,10 +19,10 @@ import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype._generateHitPoints = function _generateHitPoints () {
   this.npc.system.attributes.hp = {
-    value: this.source.averageHitPoints - this.removedHitPoints,
+    value: this.source.averageHitPoints - (this.removedHitPoints ?? 0),
     min: 0,
     max: this.source.averageHitPoints,
-    temp: this.temporaryHitPoints,
+    temp: this.temporaryHitPoints ?? 0,
     tempmax: 0,
     formula: this.source.hitPointDice.diceString,
   };

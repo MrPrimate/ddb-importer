@@ -661,7 +661,7 @@ export async function generateCharacterExtras(html, characterData, actor) {
       });
 
     logger.debug("Extracted creatures", extractedCreatures);
-    const monsterFactory = new DDBMonsterFactory(extractedCreatures, true);
+    const monsterFactory = new DDBMonsterFactory({ ddbData: extractedCreatures, extra: true });
     const parsedExtras = await monsterFactory.parse();
     logger.debug("Parsed Extras:", duplicate(parsedExtras.actors));
 

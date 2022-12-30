@@ -4,11 +4,11 @@ import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import PatreonHelper from "../../lib/PatreonHelper.js";
 import MuncherSettings from "../../muncher/MuncherSettings.js";
 import { getAvailableCampaigns } from "../../lib/Settings.js";
-import { parseCritters } from "../../muncher/monsters.js";
 import AdventureMunchHelpers from "../../muncher/adventure/AdventureMunchHelpers.js";
 import { importCharacterById } from "../../lib/DDBCharacterManager.js";
 import SETTINGS from "../../settings.js";
 import DDBEncounters from "./DDBEncounters.js";
+import DDBMonsterFactory from "../../muncher/DDBMonsterFactory.js";
 
 export default class DDBEncounterMunch extends Application {
 
@@ -167,7 +167,8 @@ export default class DDBEncounterMunch extends Application {
 
     if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
       logger.debug("Importing missing monsters from DDB");
-      await parseCritters(this.encounter.missingMonsterIds.map((monster) => monster.ddbId));
+      const monsterFactory = new DDBMonsterFactory();
+      await monsterFactory.processIntoCompendium(this.encounter.missingMonsterIds.map((monster) => monster.ddbId));
       logger.debug("Finised Importing missing monsters from DDB");
     }
 

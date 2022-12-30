@@ -3,9 +3,8 @@ import DDBMonster from "../../parser/DDBMonster.js";
 import DDBMonsterFactory from "../../muncher/DDBMonsterFactory.js";
 import { parseSpells } from "../../muncher/spells.js";
 import { parseItems } from "../../muncher/items.js";
-import { parseCritters, fixCritters } from "../../muncher/monsters.js";
 import { parseTransports } from "../../muncher/vehicles.js";
-import { updateWorldMonsters, resetCompendiumActorImages } from "../../muncher/tools.js";
+import { updateWorldMonsters, resetCompendiumActorImages, parseCritters } from "../../muncher/tools.js";
 import { migrateExistingCompendium, createCompendiumFolderStructure } from "../../muncher/compendiumFolders.js";
 import DDBEncounterMunch from "../../parser/encounters/DDBEncounterMunch.js";
 import DDBEncounters from "../../parser/encounters/DDBEncounters.js";
@@ -86,7 +85,6 @@ export function registerWindow() {
     generateIcon,
     loadSRDRules,
     importCacheLoad,
-    fixCritters,
     macros: MACROS,
     getNPCImage,
     resetCompendiumActorImages,
