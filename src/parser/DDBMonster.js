@@ -348,6 +348,24 @@ export default class DDBMonster {
     });
   }
 
+  async #linkResourcesConsumption() {
+    if (this.items.some((item) => item.system.recharge?.value)) {
+      logger.debug(`Resource linking for ${this.name}`);
+      this.items.forEach((item) => {
+        if (item.system?.recharge?.value) {
+          const itemID = randomID(16);
+          item._id = itemID;
+          if (item.type === "weapon") item.type = "feat";
+          item.system.consume = {
+            type: "charges",
+            target: itemID,
+            amount: null,
+          };
+        }
+      });
+    }
+  }
+
   async parse() {
     if (!this.name) this.name = this.source.name;
     this.npc = duplicate(await newNPC(this.name));
@@ -411,8 +429,8 @@ export default class DDBMonster {
       this.items = this.items.filter((i) => i.name && i.name !== "");
     }
 
+    await this.#linkResourcesConsumption();
     this.npc.items = this.items;
-
 
     if (this.legacyName) {
       if (this.source.isLegacy) {
