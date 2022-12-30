@@ -11,6 +11,10 @@ import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { DDBFeatureFactory } from "./monster/features/DDBFeatureFactory.js";
 import SETTINGS from "../settings.js";
 
+import FileHelper from "../lib/FileHelper.js";
+import { getCobalt } from "../lib/Secrets.js";
+import DDBProxy from "../lib/DDBProxy.js";
+
 /**
  *
  * @param {[string]} items Array of Strings or
@@ -298,6 +302,51 @@ export default class DDBMonster {
     };
   }
 
+
+  async fetchMonsterSourceFromDDB(id) {
+    if (!id && Number.isInteger(id) && Number.isInteger(Number.parseInt(id))) {
+      throw new Error("Please provide a monster ID (number) to fetch");
+    }
+    const cobaltCookie = getCobalt();
+    const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const parsingApi = DDBProxy.getProxy();
+
+    const body = {
+      cobalt: cobaltCookie,
+      betaKey: betaKey,
+      ids: [Number.parseInt(id)],
+    };
+
+    const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
+
+    return new Promise((resolve, reject) => {
+      fetch(`${parsingApi}/proxy/monsters/ids`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body), // body data type must match "Content-Type" header
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (!data.success) {
+            logger.error(`API Failure:`, data.message);
+            reject(data.message);
+          }
+          if (debugJson) {
+            FileHelper.download(JSON.stringify(data), `monsters-raw.json`, "application/json");
+          }
+          return data;
+        })
+        .then((data) => {
+          logger.info(`Retrieved monster`, { monster: data.data });
+          this.source = data.data[0];
+          return data.data[0];
+        })
+        .catch((error) => reject(error));
+    });
+  }
 
   async parse() {
     if (!this.name) this.name = this.source.name;
