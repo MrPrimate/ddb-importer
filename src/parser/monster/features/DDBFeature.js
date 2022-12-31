@@ -7,7 +7,6 @@ export default class DDBFeature {
 
   constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy } = {}) {
 
-    console.error(name, { ddbMonster, html, type });
     this.name = name;
     this.ddbMonster = ddbMonster;
     this.type = type;
@@ -733,7 +732,7 @@ export default class DDBFeature {
 
     this.#generateDescription();
 
-    console.error(`Parsed Feature`, { feature: this });
+    // logger.debug(`Parsed Feature`, { feature: this });
 
   }
 
