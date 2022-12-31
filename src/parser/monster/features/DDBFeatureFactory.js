@@ -324,7 +324,6 @@ export class DDBFeatureFactory {
         || name == `${mstAction.name} Attack`.split('(', 1)[0].trim()
       );
 
-      action.flags.monsterMunch = {};
       if (actionMatch) {
         action.html = duplicate(actionMatch.html);
         action.feature = duplicate(actionMatch.feature);
