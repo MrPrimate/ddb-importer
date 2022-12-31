@@ -32,8 +32,6 @@ export default class DDBFeature {
     if (fullName) this.feature.flags.monsterMunch["fullName"] = fullName;
     if (actionCopy !== undefined) this.feature.flags.monsterMunch["fullName"] = actionCopy;
 
-    console.error("feature", this.feature);
-
     // copy source details from parent
     if (this.ddbMonster) this.feature.system.source = this.ddbMonster.npc.system.details.source;
 
