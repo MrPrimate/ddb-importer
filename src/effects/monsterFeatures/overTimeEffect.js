@@ -1,9 +1,9 @@
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 import utils from "../../lib/utils.js";
-import { getFeatSave, getExtendedDamage } from "../../parser/monster/utils.js";
 import DICTIONARY from "../../dictionary.js";
 import { generateStatusEffectChange } from "../effects.js";
 import logger from "../../logger.js";
+import DDBFeature from "../../parser/monster/features/DDBFeature.js";
 
 const DEFAULT_DURATION = 60;
 
@@ -125,7 +125,9 @@ function generateConditionEffect(effect, text) {
 function getOvertimeDamage(text) {
   if (text.includes("taking") && (text.includes("on a failed save") || text.includes("damage on a failure"))) {
     const damageText = text.split("taking")[1];
-    return getExtendedDamage(damageText).damage;
+    const feature = new DDBFeature("overTimeFeature", { html: damageText });
+    feature.prepare().generateExtendedDamageInfo();
+    return feature.actionInfo.damage;
   }
   return undefined;
 }
@@ -159,9 +161,10 @@ export function generateOverTimeEffect(document, actor, monster) {
   const turn = startOrEnd(document.system.description.value);
   if (!turn) return effectCleanup(document, actor, monster, effect);
 
-  const save = getFeatSave(document.system.description.value, {});
-  if (!save.dc) return effectCleanup(document, actor, monster, effect);
-
+  const saveFeature = new DDBFeature("overTimeSaveFeature", { html: document.system.description.value });
+  saveFeature.prepare();
+  const save = saveFeature.getFeatSave();
+  if (!Number.isInteger(Number.parseInt(save.dc))) return effectCleanup(document, actor, monster, effect);
 
   const saveAbility = save.ability;
   const dc = save.dc;
