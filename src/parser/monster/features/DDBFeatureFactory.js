@@ -49,7 +49,10 @@ export class DDBFeatureFactory {
     };
 
     this.resources = {
-      legendary: null,
+      legendary: {
+        value: 3,
+        max: 3
+      },
       lair: {
         value: false,
         initiative: null
@@ -113,10 +116,7 @@ export class DDBFeatureFactory {
     if (splitActions.length > 1) {
       this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
     }
-    this.html[type] = splitActions[0]
-      .replace(/<\/strong> <strong>/g, "")
-      .replace(/<\/strong><strong>/g, "")
-      .replace(/&shy;/g, "");
+    this.html[type] = splitActions[0];
 
     let dom = this.#buildDom(type);
 
@@ -234,11 +234,6 @@ export class DDBFeatureFactory {
         action.html += outerHTML;
       }
     });
-
-    this.features[type].forEach((feature) => {
-      feature.parse();
-    });
-
   }
 
   #generateLairActions(type = "lair") {
@@ -302,30 +297,85 @@ export class DDBFeatureFactory {
         };
       }
     });
-
-    this.features[type].forEach((feature) => {
-      feature.parse();
-    });
-
   }
 
   #generateLegendaryActions(type) {
+    let dom = this.#buildDom(type);
 
+    // Base feat
+    const feat = new DDBFeature("Legendary Actions", { ddbMonster: this.ddbMonster, type, actionCopy: false });
+    feat.html = `${this.html[type]}`;
+    this.features[type].push(feat);
+
+
+    // build out skeleton actions
+    dom.querySelectorAll("strong").forEach((node) => {
+      const name = node.textContent.trim().replace(/\.$/, '').trim();
+      let action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, actionCopy: false });
+
+      const actionMatch = this.features["action"].concat(
+        this.features.reaction,
+        this.features.reaction,
+        this.features.bonus,
+      ).find((mstAction) =>
+        name == mstAction.name
+        || name == `${mstAction.name} Attack`
+        || name == `${mstAction.name}`.split('(', 1)[0].trim()
+        || name == `${mstAction.name} Attack`.split('(', 1)[0].trim()
+      );
+
+      action.flags.monsterMunch = {};
+      if (actionMatch) {
+        action.html = duplicate(actionMatch.html);
+        action.feature = duplicate(actionMatch.feature);
+        action.feature.flags.monsterMunch.actionCopy = true;
+      }
+      this.features[type].push(action);
+    });
+
+    let action = this.features[type].find((act) => act.name == "Legendary Actions");
+
+    dom.childNodes
+      .forEach((node) => {
+      // check for action numbers
+      // can take 3 legendary actions
+        let startFlag = false;
+        const actionMatch = node.textContent.match(/can take (d+) legendary actions/);
+        if (actionMatch) {
+          this.resource.legendary.value = parseInt(actionMatch[1]);
+          this.resource.legendary.max = parseInt(actionMatch[1]);
+        }
+
+        const nodeName = node.textContent.split('.')[0].trim();
+        const switchAction = this.features[type].find((act) => nodeName === act.name);
+        if (action.name !== "Legendary Actions" || switchAction) {
+
+          if (switchAction) {
+            action = switchAction;
+            if (action.system.description.value === "") {
+              startFlag = true;
+            }
+          }
+
+          if (action.flags?.monsterMunch?.actionCopy) return;
+          if (node.outerHTML) {
+            let outerHTML = node.outerHTML;
+            if (switchAction && startFlag) {
+              outerHTML = outerHTML.replace(`${nodeName}.`, "");
+            }
+            action.html += outerHTML;
+          }
+        }
+      });
   }
 
   #generateSpecialActions(type) {
-    console.error(this)
     let splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions.length > 1) {
       this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
     }
 
-    const fixedDescription = splitActions[0]
-      .replace(/<\/strong> <strong>/g, "").replace(/<\/strong><strong>/g, "")
-      .replace(/&shy;/g, "")
-      .replace(/<br \/>/g, "</p><p>");
-
-    this.html[type] = fixedDescription;
+    this.html[type] = splitActions[0];
     let dom = this.#buildDom(type);
 
     // build out skeleton actions
@@ -430,14 +480,9 @@ export class DDBFeatureFactory {
         this.resources.resistance.max = parseInt(resistanceMatch[1]);
       }
     });
-
-    this.features[type].forEach((feature) => {
-      feature.parse();
-    });
-
   }
 
-  // possible types:
+  // possible regular types:
   // action, reaction, bonus, mythic
   // this.ddbMonster.source.actionsDescription
   // this.ddbMonster.source.reactionsDescription
@@ -447,7 +492,10 @@ export class DDBFeatureFactory {
   generateActions(html, type = "action") {
     if (!html || html.trim() == "") return;
 
-    this.html[type] = DDBFeatureFactory.replaceRollable(utils.replaceHtmlSpaces(`${html}`));
+    this.html[type] = DDBFeatureFactory.replaceRollable(utils.replaceHtmlSpaces(`${html}`))
+      .replace(/<\/strong> <strong>/g, "")
+      .replace(/<\/strong><strong>/g, "")
+      .replace(/&shy;/g, "");
 
     switch (type) {
       case "action":
@@ -469,6 +517,10 @@ export class DDBFeatureFactory {
         logger.error(`Unknown action parsing type ${this.type}`, { DDBFeatureFactory: this });
         throw new Error(`Unknown action parsing type ${this.type}`);
     }
+
+    this.features[type].forEach((feature) => {
+      feature.parse();
+    });
   }
 
 }
