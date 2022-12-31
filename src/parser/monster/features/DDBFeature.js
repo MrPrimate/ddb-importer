@@ -5,7 +5,7 @@ import { generateTable } from "../../../muncher/table.js";
 
 export default class DDBFeature {
 
-  constructor(name, { ddbMonster, html, type, titleHTML, fullName } = {}) {
+  constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy } = {}) {
 
     console.error(name, { ddbMonster, html, type });
     this.name = name;
@@ -31,11 +31,12 @@ export default class DDBFeature {
     };
     if (titleHTML) this.feature.flags.monsterMunch["titleHTML"] = titleHTML;
     if (fullName) this.feature.flags.monsterMunch["fullName"] = fullName;
+    if (actionCopy !== undefined) this.feature.flags.monsterMunch["fullName"] = actionCopy;
 
     console.error("feature", this.feature);
 
     // copy source details from parent
-    this.feature.system.source = this.ddbMonster.npc.system.details.source;
+    if (this.ddbMonster) this.feature.system.source = this.ddbMonster.npc.system.details.source;
 
     // set calc flags
     this.weaponAttack = false;
@@ -605,7 +606,34 @@ export default class DDBFeature {
   }
 
   #buildLegendary() {
-    // to do
+    this.feature.system.activation.type = "legendary";
+    this.feature.system.consume = {
+      type: "attribute",
+      target: "resources.legact.value",
+      amount: 1
+    };
+
+    if (this.actionInfo.activation) {
+      this.feature.system.activation.cost = this.actionInfo.activation;
+      this.feature.system.consume.amount = this.actionInfo.activation;
+    } else {
+      this.feature.system.activation.cost = 1;
+    }
+
+    // only attempt to update these if we don't parse an action
+    if (!this.feature.flags.monsterMunch.actionCopy) {
+      this.feature.system.recharge = this.actionInfo.recharge;
+      this.feature.system.save = this.actionInfo.save;
+      // assumption - if we have parsed a save dc set action type to save
+      if (this.feature.system.save.dc) {
+        this.feature.system.actionType = "save";
+      // action.type = "weapon";
+      }
+      this.feature.system.range = this.actionInfo.range;
+      this.feature.system.target = this.actionInfo.target;
+      this.feature.system.damage = this.actionInfo.damage;
+    }
+
   }
 
   #buildSpecial() {

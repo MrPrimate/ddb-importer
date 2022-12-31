@@ -1,7 +1,6 @@
 import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 import DDBMonster from "../DDBMonster.js";
-import { getLegendaryActions } from "./features/legendary.js";
 
 // extracts various attacks and features (not spells)
 // generates and extra descriptions found in these fields
@@ -18,9 +17,8 @@ DDBMonster.prototype._generateFeatures = function () {
   }
 
   if (this.source.legendaryActionsDescription != "") {
-    this.legendaryActions = getLegendaryActions(this.source, this.featureFactory.features.action);
-    this.items.push(...this.legendaryActions.legendaryActions);
-    this.npc.system.resources["legact"] = this.legendaryActions.actions;
+    this.featureFactory.generateActions(this.source.lairDescription, "legendary");
+    this.npc.system.resources["legact"] = this.featureFactory.resources["legendary"];
     if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar")) {
       this.npc.prototypeToken.bar2 = { attribute: "resources.legact" };
     }
