@@ -351,12 +351,12 @@ export class DDBFeatureFactory {
 
           if (switchAction) {
             action = switchAction;
-            if (action.system.description.value === "") {
+            if (this.html === "") {
               startFlag = true;
             }
           }
 
-          if (action.flags?.monsterMunch?.actionCopy) return;
+          if (action.feature.flags.monsterMunch.actionCopy) return;
           if (node.outerHTML) {
             let outerHTML = node.outerHTML;
             if (switchAction && startFlag) {
