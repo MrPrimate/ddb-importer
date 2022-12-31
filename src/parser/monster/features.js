@@ -17,7 +17,7 @@ DDBMonster.prototype._generateFeatures = function () {
   }
 
   if (this.source.legendaryActionsDescription != "") {
-    this.featureFactory.generateActions(this.source.lairDescription, "legendary");
+    this.featureFactory.generateActions(this.source.legendaryActionsDescription, "legendary");
     this.npc.system.resources["legact"] = this.featureFactory.resources["legendary"];
     if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar")) {
       this.npc.prototypeToken.bar2 = { attribute: "resources.legact" };
@@ -30,8 +30,8 @@ DDBMonster.prototype._generateFeatures = function () {
   }
 
   this.featureFactory.generateActions(this.source.reactionsDescription, "reaction");
-  this.featureFactory.generateActions(this.source.reactionsDescription, "bonus");
-  this.featureFactory.generateActions(this.source.reactionsDescription, "mythic");
+  this.featureFactory.generateActions(this.source.bonusActionsDescription, "bonus");
+  this.featureFactory.generateActions(this.source.mythicActionsDescription, "mythic");
 
   this.items.push(
     ...this.featureFactory.actions,

@@ -50,7 +50,7 @@ DDBCharacter.prototype._getCompanionSpell = async function _getCompanionSpell(na
   const ddbSpell = this._findDDBSpell(spell.flags.ddbimporter?.originalName ?? spell.name);
   if (!ddbSpell) return [];
 
-  console.warn(`Companion parse for ${name}`, {spell, ddbSpell});
+  console.warn(`Companion parse for ${name}`, { spell, ddbSpell });
   const ddbCompanionFactory = new DDBCompanionFactory(this, ddbSpell.definition.description, {});
   await ddbCompanionFactory.parse();
   return ddbCompanionFactory.companions;
