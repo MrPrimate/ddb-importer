@@ -137,7 +137,7 @@ export default class DDBFeature {
     const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
     const regainMatch = hit.match(regainExpression);
 
-    logger.debug("Damage matches: ", { hit, matches, regainMatch });
+    logger.debug(`${this.name} Damage matches`, { hit, matches, regainMatch });
     let versatile = false;
     for (let dmg of matches) {
       let other = false;
@@ -603,7 +603,11 @@ export default class DDBFeature {
   }
 
   #buildLegendary() {
+    // for the legendary actions feature itself we don't want to do most processing
+    if (this.name === "Legendary Actions") return;
+
     this.feature.system.activation.type = "legendary";
+
     this.feature.system.consume = {
       type: "attribute",
       target: "resources.legact.value",
@@ -618,6 +622,8 @@ export default class DDBFeature {
     }
 
     // only attempt to update these if we don't parse an action
+    // most legendary actions are just do x thing, where thing is an existing action
+    // these have been copied from the existing actions so we don't change
     if (!this.feature.flags.monsterMunch.actionCopy) {
       this.feature.system.recharge = this.actionInfo.recharge;
       this.feature.system.save = this.actionInfo.save;
@@ -730,7 +736,7 @@ export default class DDBFeature {
 
     this.#generateDescription();
 
-    // logger.debug(`Parsed Feature`, { feature: this });
+    logger.debug(`Parsed Feature ${this.name} for ${this.ddbMonster.name}`, { feature: this });
 
   }
 
