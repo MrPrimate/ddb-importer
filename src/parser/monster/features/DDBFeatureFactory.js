@@ -305,6 +305,7 @@ export class DDBFeatureFactory {
     // Base feat
     const feat = new DDBFeature("Legendary Actions", { ddbMonster: this.ddbMonster, type, actionCopy: false });
     feat.html = `${this.html[type]}`;
+    feat.feature.system.activation.type = "";
     this.features[type].push(feat);
 
 

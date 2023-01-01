@@ -449,12 +449,7 @@ export default class DDBMonster {
       this.npc = await monsterFeatureEffectAdjustment(this.npc, this.source);
     }
 
-    // console.warn("Data:", monster);
-    // console.warn("Monster:", duplicate(foundryActor));
-    // logger.info(foundryActor.system.resources);
-    // logger.info(foundryActor.system.traits.languages);
-
-    // logger.info(foundryActor.system.attributes);
+    console.warn(`Generated ${this.name}`, this);
     return this.npc;
 
   }
