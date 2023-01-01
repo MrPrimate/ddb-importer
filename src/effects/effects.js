@@ -463,7 +463,7 @@ function extractModifierValue(modifier) {
 
 function getValueFromModifiers(modifiers, name, modifierSubType, modifierType = "bonus") {
   let bonuses;
-  const bonusEffects = DDBHelper.filterModifiers(modifiers, modifierType, modifierSubType);
+  const bonusEffects = DDBHelper.filterModifiers(modifiers, modifierType, modifierSubType, null);
 
   if (bonusEffects.length > 0) {
     logger.debug(`Generating ${modifierSubType} ${modifierType} for ${name}`);

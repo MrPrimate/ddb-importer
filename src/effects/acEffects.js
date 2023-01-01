@@ -156,13 +156,13 @@ function addACSets(modifiers, name) {
  * @param {*} name
  * @param {*} subType
  */
-function addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "", null]) {
+function addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
   const bonusModifiers = DDBHelper.filterModifiers(modifiers, "bonus", subType, restrictions);
 
   // using bonus here adds them to the bonus field, but then items that add a bonsu don't get applied
   // (e.g. bracers of defense) if wearing something like robi of archmage.
   // this is set to value, and show up as separate line in ac calculation.
-  // we set this to bonus if dae is not installed as itherwise it is not applied.
+  // we set this to bonus if dae is not installed as otherwise it is not applied.
   const key = game.modules.get("dae")?.active
     ? "system.attributes.ac.value"
     : "system.attributes.ac.bonus";
@@ -232,9 +232,11 @@ function addEffectFlags(foundryItem, effect, ddbItem, isCompendiumItem) {
 
 function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCompendiumItem, effect) {
   const noModifiers = !ddbItem.definition?.grantedModifiers || ddbItem.definition.grantedModifiers.length === 0;
-  const noACValue = !foundryItem.system?.armor?.value;
+  // const noACValue = !foundryItem.system?.armor?.value;
 
-  if (noModifiers && noACValue) return [];
+  // note: I don't know why I had noACValue here. does this break stuff if I remove it?
+  // if (noModifiers && noACValue) return [];
+  if (noModifiers) return [];
   // console.error(`Item: ${foundryItem.name}`, ddbItem);
   logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.label}`);
 
