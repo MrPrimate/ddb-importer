@@ -9,7 +9,16 @@
 
 * Monsters with multiple actions with the same name (e.g. Legendary Actions), would have an action removed on a monster upate.
 * Improve tag parsing to compendium items.
+<<<<<<< HEAD
 * Features which added bonuses to initiative such as Dread Ambusher could end up with the character having a stupidly high initiative bonus (like +32000).
+=======
+* Improve Spell Sorting on character imports.
+* Major code refactoring for Monster parsing to support upcoming features.
+* Cloudkill checked save at wrong point in the turn.
+* Fixcritters function removed as no longer needed.
+* Experimental bulk import mode has been removed due to duplication of data issues.
+* Legendary resources no longer tracked by default on bar2 monsters with legendary actions.
+>>>>>>> changelog
 
 # 3.2.11
 
@@ -18,12 +27,6 @@
 * Characters skill bonuses did not always calculate successfully if not using effects.
 * Export unlinked notes in scene config for adventure muncher.
 * Ice Knife and Witch Bolt macro tweaks.
-* Improve Spell Sorting on character imports.
-* Major code refactoring for Companion Parsing support. (Please report any oddities with Extra or Monster parsing).
-* Cloudkill checked save at wrong point in the turn.
-* Fixcritters function removed as no longer needed.
-* Experimental bulk import mode has been removed due to duplication of data issues.
-* Legendary resources no longer tracked by default on bar2 monsters with legendary actions.
 
 # 3.2.10
 
