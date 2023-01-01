@@ -1,3 +1,7 @@
+# 3.2.12
+
+* Improve tag parsing to compendium items.
+
 # 3.2.11
 
 * Third Party Scene import would fail if there were scenes in the world not in folders. @blair#9056
