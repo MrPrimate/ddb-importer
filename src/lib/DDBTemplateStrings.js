@@ -328,12 +328,13 @@ function findMatchingTagInIndex(type, tag) {
     logger.warn(`Unable to load compendium ${type}s`);
     return tag;
   }
-  const match = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === tag.replace("’", "'").replace("&nbsp;", " ").toLowerCase());
+  const strippedTag = utils.stripHtml(tag);
+  const match = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === strippedTag.replace("’", "'").replace("&nbsp;", " ").toLowerCase());
   if (match) {
     const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
     return `@Compendium[${label}.${match._id}]{${tag}}`;
-  } else if (tag.includes(";")) {
-    const tagSplit = tag.replace("&nbsp;", " ").replace("’", "'").split(";")[0];
+  } else if (strippedTag.includes(";")) {
+    const tagSplit = strippedTag.replace("&nbsp;", " ").replace("’", "'").split(";")[0];
     const splitMatch = index.find((entry) => entry.name.replace("’", "'").toLowerCase() === tagSplit.toLowerCase());
     if (splitMatch) {
       const label = getProperty(CONFIG.DDBI, `compendium.label.${type}`);
@@ -350,21 +351,23 @@ function replaceTag(match, p1, p2, p3, offset, string) {
     logger.warn(`Unable to tag parse ${match}`);
     return match;
   }
+  const strippedP2 = utils.stripHtml(p2);
+
   if (INDEX_COMPENDIUMS.includes(p1)) {
     return findMatchingTagInIndex(p1, p2);
-  } else if (["total cover", "half cover", "three-quaters cover"].includes(p2.toLowerCase())) {
+  } else if (["total cover", "half cover", "three-quaters cover"].includes(strippedP2.toLowerCase())) {
     const coverMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((entry) => entry.name === "Cover");
     if (coverMatch) {
       return `@Compendium[dnd5e.rules.${coverMatch._id}.JournalEntryPage.${coverMatch.pageId}]{${p2}}`;
     }
-  } else if (hasProperty(CONFIG.DDBI.SRD_LOOKUP, p2.split(";")[0])) {
-    const lookup = getProperty(CONFIG.DDBI.SRD_LOOKUP, p2);
+  } else if (hasProperty(CONFIG.DDBI.SRD_LOOKUP, strippedP2.split(";")[0])) {
+    const lookup = getProperty(CONFIG.DDBI.SRD_LOOKUP, strippedP2);
     const pageLink = lookup.pageId ? `.JournalEntryPage.${lookup.pageId}` : "";
     const linkStub = lookup.headerLink ? `#${lookup.headerLink}` : "";
     return `@Compendium[dnd5e.rules.${lookup._id}${pageLink}${linkStub}]{${p2}}`;
   } else {
-    const srdMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((page) => page.name.toLowerCase() === p2.toLowerCase().split(";")[0]
-      || page.name.replace("’", "'").toLowerCase() === p2.replace("’", "'").toLowerCase().split("ing")[0].split(";")[0]
+    const srdMatch = CONFIG.DDBI.SRD_LOOKUP.fullPageMap.find((page) => page.name.toLowerCase() === strippedP2.toLowerCase().split(";")[0]
+      || page.name.replace("’", "'").toLowerCase() === strippedP2.replace("’", "'").toLowerCase().split("ing")[0].split(";")[0]
     );
     if (srdMatch) {
       const pageLink = srdMatch.pageId ? `.JournalEntryPage.${srdMatch.pageId}` : "";
