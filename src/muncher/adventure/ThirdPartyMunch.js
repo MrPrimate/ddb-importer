@@ -472,7 +472,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
       const existingScene = game.scenes.find((s) =>
         s.name === scene.name
-        && (s.folder?.id === folder.id || s.folder.ancestors.some((f) => f.id === folder.id))
+        && (s.folder?.id === folder.id || s.folder?.ancestors?.some((f) => f.id === folder.id))
       );
 
       logger.debug("Third Party Scene Processing", {

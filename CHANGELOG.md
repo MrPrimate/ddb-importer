@@ -1,5 +1,6 @@
 # 3.2.11
 
+* Third Party Scene import would fail if there were scenes in the world not in folders. @blair#9056
 * Symic Hybrid Carapace will now generate an AC effect. @Kasai#9958
 * Characters skill bonuses did not always calculate successfully if not using effects.
 * Export unlinked notes in scene config for adventure muncher.
