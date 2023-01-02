@@ -1,12 +1,10 @@
-/* eslint-disable require-atomic-updates */
 
-import { getSpells, getSpellEdgeCase, retrieveCompendiumSpells } from "./monster/spells.js";
+
 import { newNPC } from "./monster/templates/monster.js";
 import { specialCases } from "./monster/special.js";
 import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters.js";
 
 import logger from '../logger.js';
-import DICTIONARY from "../dictionary.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { DDBFeatureFactory } from "./monster/features/DDBFeatureFactory.js";
 import SETTINGS from "../settings.js";
@@ -63,124 +61,6 @@ export default class DDBMonster {
     }
 
     this.featureFactory = new DDBFeatureFactory({ ddbMonster: this });
-  }
-
-  async addSpells() {
-    // check to see if we have munched flags to work on
-    if (!this.npc?.flags?.monsterMunch?.spellList) {
-      return;
-    }
-
-    const spellList = this.npc.flags.monsterMunch.spellList;
-    logger.debug(`Spell List for edgecases`, spellList);
-    const atWill = spellList.atwill;
-    const klass = spellList.class;
-    const innate = spellList.innate;
-    const pact = spellList.pact;
-
-    if (atWill.length !== 0) {
-      logger.debug("Retrieving at Will spells:", atWill);
-      let spells = await retrieveCompendiumSpells(atWill);
-      spells = spells.filter((spell) => spell !== null).map((spell) => {
-        if (spell.system.level == 0) {
-          spell.system.preparation = {
-            mode: "prepared",
-            prepared: false,
-          };
-        } else {
-          spell.system.preparation = {
-            mode: "atwill",
-            prepared: false,
-          };
-          spell.system.uses = {
-            value: null,
-            max: null,
-            per: "",
-          };
-        }
-        getSpellEdgeCase(spell, "atwill", spellList);
-        return spell;
-      });
-      this.npc.items = this.npc.items.concat(spells);
-    }
-
-    // class spells
-    if (klass.length !== 0) {
-      logger.debug("Retrieving class spells:", klass);
-      let spells = await retrieveCompendiumSpells(klass);
-      spells = spells.filter((spell) => spell !== null).map((spell) => {
-        spell.system.preparation = {
-          mode: "prepared",
-          prepared: true,
-        };
-        getSpellEdgeCase(spell, "class", spellList);
-        return spell;
-      });
-      this.npc.items = this.npc.items.concat(spells);
-    }
-
-    // pact spells
-    if (pact.length !== 0) {
-      logger.debug("Retrieving pact spells:", pact);
-      let spells = await retrieveCompendiumSpells(pact);
-      spells = spells.filter((spell) => spell !== null).map((spell) => {
-        spell.system.preparation = {
-          mode: "pact",
-          prepared: true,
-        };
-        getSpellEdgeCase(spell, "pact", spellList);
-        return spell;
-      });
-      this.npc.items = this.npc.items.concat(spells);
-    }
-
-    // innate spells
-    if (innate.length !== 0) {
-      // innate:
-      // {name: "", type: "srt/lng/day", value: 0}
-      logger.debug("Retrieving innate spells:", innate);
-      const spells = await retrieveCompendiumSpells(innate);
-      const innateSpells = spells.filter((spell) => spell !== null)
-        .map((spell) => {
-          const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
-          if (spellInfo) {
-            const isAtWill = hasProperty(spellInfo, "innate") && !spellInfo.innate;
-            if (spell.system.level == 0) {
-              spell.system.preparation = {
-                mode: "prepared",
-                prepared: false,
-              };
-            } else {
-              spell.system.preparation = {
-                mode: isAtWill ? "atwill" : "innate",
-                prepared: !isAtWill,
-              };
-            }
-            if (isAtWill && spellInfo.type === "atwill") {
-              spell.system.uses = {
-                value: null,
-                max: null,
-                per: "",
-              };
-            } else {
-              const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
-              const per = spellInfo.type === "atwill"
-                ? null
-                : (perLookup && perLookup.type)
-                  ? perLookup.type
-                  : "day";
-              spell.system.uses = {
-                value: spellInfo.value,
-                max: spellInfo.value,
-                per: per,
-              };
-            }
-            getSpellEdgeCase(spell, "innate", spellList);
-          }
-          return spell;
-        });
-      this.npc.items = this.npc.items.concat(innateSpells);
-    }
   }
 
   _calculateImage() {
@@ -326,13 +206,8 @@ export default class DDBMonster {
     this._generateFeatures();
 
     // Spellcasting
-    const spellcastingData = getSpells(this.source);
-    this.npc.system.attributes.spellcasting = spellcastingData.spellcasting;
-    this.npc.system.attributes.spelldc = spellcastingData.spelldc;
-    this.npc.system.attributes.spellLevel = spellcastingData.spellLevel;
-    this.npc.system.details.spellLevel = spellcastingData.spellLevel;
-    this.npc.system.spells = spellcastingData.spells;
-    this.npc.flags.monsterMunch['spellList'] = spellcastingData.spellList;
+    this._generateSpells();
+    await this.addSpells();
 
     const badItems = this.items.filter((i) => i.name === "" || !i.name);
     if (badItems.length > 0) {
@@ -343,21 +218,18 @@ export default class DDBMonster {
     await this.#linkResourcesConsumption();
     this.npc.items = this.items;
 
+    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc);
+
+    this.npc = specialCases(this.npc);
+    if (this.addMonsterEffects) {
+      this.npc = await monsterFeatureEffectAdjustment(this.npc, this.source);
+    }
+
     if (this.legacyName) {
       if (this.source.isLegacy) {
         this.npc.name += " (Legacy)";
         this.npc.prototypeToken.name += " (Legacy)";
       }
-    }
-
-    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc);
-
-    logger.debug("Importing Spells");
-    await this.addSpells();
-
-    this.npc = specialCases(this.npc);
-    if (this.addMonsterEffects) {
-      this.npc = await monsterFeatureEffectAdjustment(this.npc, this.source);
     }
 
     console.warn(`Generated ${this.name}`, this);
