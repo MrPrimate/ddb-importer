@@ -239,9 +239,9 @@ export default class DDBMonsterFactory {
       if (bulkImport) {
         this.munchNote(`[${currentMonster}/${monsterCount}] Checking dietary requirements for ${monster.name}`, false, true);
       } else {
-        this.munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name}`, false, true);
+        this.munchNote(`[${currentMonster}/${monsterCount}] Importing ${monster.name} to compendium`, false, true);
       }
-      logger.debug(`Importing/second parse of ${monster.name} data`);
+      logger.debug(`Preparing ${monster.name} data for import`);
       // eslint-disable-next-line no-await-in-loop
       const munched = await addNPC(monster, bulkImport, "monster");
       monstersParsed.push(munched);
