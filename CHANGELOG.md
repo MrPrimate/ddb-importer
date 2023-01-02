@@ -4,12 +4,6 @@
 * Tools default ability did not always set.
 * Numeric class advancements did not set the type correctly.
 * Some ScaleValue names will change during munch to meet new schema requirements.
-
-# 3.2.12
-
-* Monsters with multiple actions with the same name (e.g. Legendary Actions), would have an action removed on a monster upate.
-* Improve tag parsing to compendium items.
-* Features which added bonuses to initiative such as Dread Ambusher could end up with the character having a stupidly high initiative bonus (like +32000).
 * Improve Spell Sorting on character imports.
 * Major code refactoring for Monster parsing to support upcoming features.
 * Cloudkill checked save at wrong point in the turn.
@@ -17,6 +11,12 @@
 * Experimental bulk import mode has been removed due to duplication of data issues.
 * Legendary resources no longer tracked by default on bar2 monsters with legendary actions.
 * Monster parsing: New option to strip things like the recharge and action cost from feature names.
+
+# 3.2.12
+
+* Monsters with multiple actions with the same name (e.g. Legendary Actions), would have an action removed on a monster upate.
+* Improve tag parsing to compendium items.
+* Features which added bonuses to initiative such as Dread Ambusher could end up with the character having a stupidly high initiative bonus (like +32000).
 
 # 3.2.11
 
