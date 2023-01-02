@@ -741,6 +741,12 @@ const MuncherSettings = {
         enabled: true,
       },
       {
+        name: "monster-strip-name",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name"),
+        description: "Strip uses and recharge information from action names?",
+        enabled: true,
+      },
+      {
         name: "munching-policy-monster-set-legendary-resource-bar",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar"),
         description: "Monsters display legendary resources on bar2? (Like the SRD Monsters)",

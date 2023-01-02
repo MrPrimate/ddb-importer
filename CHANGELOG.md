@@ -16,6 +16,7 @@
 * Fixcritters function removed as no longer needed.
 * Experimental bulk import mode has been removed due to duplication of data issues.
 * Legendary resources no longer tracked by default on bar2 monsters with legendary actions.
+* Monster parsing: New option to strip things like the recharge and action cost from feature names.
 
 # 3.2.11
 

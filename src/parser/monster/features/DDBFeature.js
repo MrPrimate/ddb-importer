@@ -2,6 +2,7 @@ import utils from "../../../lib/utils.js";
 import logger from "../../../logger.js";
 import DICTIONARY from "../../../dictionary.js";
 import { generateTable } from "../../../muncher/table.js";
+import SETTINGS from "../../../settings.js";
 
 export default class DDBFeature {
 
@@ -12,11 +13,12 @@ export default class DDBFeature {
     this.type = type;
     this.html = html ?? "";
 
-    this.hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
-    this.updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
+    this.hideDescription = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
+    this.updateExisting = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+    this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
 
     this.feature = {
-      name: name,
+      name,
       type: "feat",
       system: JSON.parse(utils.getTemplate("feat")),
       effects: [],
@@ -260,8 +262,10 @@ export default class DDBFeature {
   }
 
   getActivation() {
-    const matches = this.strippedHtml.toLowerCase().match(/\(costs ([0-9]+) actions\)/i);
+    const matches = this.strippedHtml.match(/\(costs ([0-9]+) actions\)/i);
     if (matches) return parseInt(matches[1]);
+    const nameMatch = this.name.match(/\(costs ([0-9]+) actions\)/i);
+    if (nameMatch) return parseInt(nameMatch[1]);
     return null;
   }
 
@@ -513,6 +517,16 @@ export default class DDBFeature {
     return target;
   }
 
+  generateAdjustedName() {
+    if (!this.stripName) return;
+    const regex = /(.*)\s\((:?costs \d actions|\d\/day|recharge \d-\d)\)/i;
+    const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
+    if (nameMatch) {
+      this.feature.name = nameMatch[1];
+      this.nameSplit = nameMatch[2];
+    }
+  }
+
   #getHiddenDescription() {
     let description = `<section class="secret">\n${this.html}`;
     if (["rwak", "mwak"].includes(this.feature.system.actionType)) {
@@ -529,6 +543,7 @@ export default class DDBFeature {
 
   #generateDescription() {
     let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
+    description = description.replaceAll("<em><strong></strong></em>", "");
     this.feature.system.description.value = generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
   }
 
@@ -614,7 +629,7 @@ export default class DDBFeature {
       amount: 1
     };
 
-    if (this.actionInfo.activation) {
+    if (Number.isInteger(Number.parseInt(this.actionInfo.activation))) {
       this.feature.system.activation.cost = this.actionInfo.activation;
       this.feature.system.consume.amount = this.actionInfo.activation;
     } else {
@@ -694,7 +709,8 @@ export default class DDBFeature {
 
   // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
   prepare() {
-    this.strippedHtml = utils.stripHtml(`${this.html}`);
+    this.generateAdjustedName();
+    this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
     const matches = this.strippedHtml.match(
       /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/i

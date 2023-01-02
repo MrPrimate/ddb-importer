@@ -1117,6 +1117,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-monster-strip-name": {
+            type: Boolean,
+            default: true,
+          },
         },
         ENCOUNTER: {
           "encounter-import-policy-create-scene": {
