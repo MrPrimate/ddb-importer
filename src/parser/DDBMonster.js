@@ -1,6 +1,6 @@
 /* eslint-disable require-atomic-updates */
 
-import { getSpells } from "./monster/spells.js";
+import { getSpells, getSpellEdgeCase, retrieveCompendiumSpells } from "./monster/spells.js";
 import { newNPC } from "./monster/templates/monster.js";
 import { specialCases } from "./monster/special.js";
 import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters.js";
@@ -14,94 +14,6 @@ import SETTINGS from "../settings.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
-
-/**
- *
- * @param {[string]} items Array of Strings or
- */
-async function retrieveCompendiumItems(items, compendiumName) {
-  const GET_ENTITY = true;
-
-  const itemNames = items.map((item) => {
-    if (typeof item === "string") return item;
-    if (typeof item === "object" && Object.prototype.hasOwnProperty.call(item, "name")) return item.name;
-    return "";
-  });
-
-  const results = await CompendiumHelper.queryCompendiumEntries(compendiumName, itemNames, GET_ENTITY);
-  const cleanResults = results.filter((item) => item !== null);
-
-  return cleanResults;
-}
-
-/**
- *
- * @param {[items]} spells Array of Strings or items
- */
-async function retrieveCompendiumSpells(spells) {
-  const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
-  const compendiumItems = await retrieveCompendiumItems(spells, compendiumName);
-  const itemData = compendiumItems.map((i) => {
-    let spell = i.toObject();
-    delete spell._id;
-    return spell;
-  });
-
-  return itemData;
-}
-
-function getSpellEdgeCase(spell, type, spellList) {
-  const edgeCases = spellList.edgeCases;
-  const edgeCase = edgeCases.find((edge) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
-
-  if (edgeCase) {
-    logger.debug(`Spell edge case for ${spell.name}`);
-    switch (edgeCase.edge.toLowerCase()) {
-      case "self":
-      case "self only":
-        spell.system.target.type = "self";
-        logger.debug("spell target changed to self");
-        break;
-      // no default
-    }
-    spell.name = `${spell.name} (${edgeCase.edge})`;
-    spell.system.description.chat = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.chat}`;
-    spell.system.description.value = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.value}`;
-
-    const diceSearch = /(\d+)d(\d+)/;
-    const diceMatch = edgeCase.edge.match(diceSearch);
-    if (diceMatch) {
-      if (spell.system.damage.parts[0] && spell.system.damage.parts[0][0]) {
-        spell.system.damage.parts[0][0] = diceMatch[0];
-      } else if (spell.system.damage.parts[0]) {
-        spell.system.damage.parts[0] = [diceMatch[0]];
-      } else {
-        spell.system.damage.parts = [[diceMatch[0]]];
-      }
-    }
-
-    // save DC 12
-    const saveSearch = /save DC (\d+)/;
-    const saveMatch = edgeCase.edge.match(saveSearch);
-    if (saveMatch) {
-      spell.system.save.dc = saveMatch[1];
-      spell.system.save.scaling = "flat";
-    }
-
-  }
-
-  // remove material components?
-  if (!spellList.material) {
-    spell.system.materials = {
-      value: "",
-      consumed: false,
-      cost: 0,
-      supply: 0
-    };
-    spell.system.components.material = false;
-  }
-
-}
 
 export default class DDBMonster {
 
@@ -134,7 +46,6 @@ export default class DDBMonster {
 
     this.characterDescription = "";
     this.unexpectedDescription = null;
-
 
     // processing info
     this.name = overrides["name"] ?? (existingNpc ? existingNpc.name : null);
