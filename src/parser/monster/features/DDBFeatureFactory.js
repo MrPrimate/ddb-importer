@@ -328,6 +328,7 @@ export class DDBFeatureFactory {
       if (actionMatch) {
         action.html = duplicate(actionMatch.html);
         action.feature = duplicate(actionMatch.feature);
+        action.feature.name = action.name; // fix up name to make sure things like Attack are included
         action.feature.flags.monsterMunch.actionCopy = true;
       }
       this.features[type].push(action);
