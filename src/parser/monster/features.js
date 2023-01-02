@@ -47,10 +47,8 @@ DDBMonster.prototype._generateFeatures = function () {
   if (this.featureFactory.characterDescription.unexpected) {
     logger.warn(`Unexpected description for ${this.source.name}`, { description: this.featureFactory.characterDescription });
   }
-  this.characterDescription += this.characterDescriptionAction;
+  this.characterDescription += this.featureFactory.characterDescription.action;
   this.characterDescription += this.featureFactory.characterDescription.reaction;
-  if (this.specialTraits?.characterDescription) {
-    this.characterDescription += this.specialTraits.characterDescription;
-  }
+  this.characterDescription += this.featureFactory.characterDescription.special;
   this.npc.system.details.biography.value += this.characterDescription;
 };
