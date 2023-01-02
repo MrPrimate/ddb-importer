@@ -1,5 +1,6 @@
 # 3.2.12
 
+* Monsters with multiple actions with the same name (e.g. Legendary Actions), would have an action removed on a monster upate.
 * Improve tag parsing to compendium items.
 * Features which added bonuses to initiative such as Dread Ambusher could end up with the character having a stupidly high initiative bonus (like +32000).
 

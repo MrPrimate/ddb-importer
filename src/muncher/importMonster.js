@@ -15,6 +15,7 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
       const simpleMatch
         = item.name === owned.name
         && item.type === owned.type
+        && item.system.activation?.type === owned.system.activation?.type
         && ((checkId && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id) || !checkId);
 
       return simpleMatch;
@@ -123,7 +124,7 @@ export async function addNPCsToCompendium(npcs, type = "monster") {
 
     if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
       const updateNPCs = npcs.filter((npc) => hasProperty(npc, "_id") && compendium.index.has(npc._id));
-      logger.debug("NPC Update Data", duplicate(updateNPCs));
+      logger.debug("NPCs Update Data", duplicate(updateNPCs));
       const updateResults = await Actor.updateDocuments(updateNPCs, options);
       results = results.concat(updateResults);
     }
@@ -165,7 +166,7 @@ export async function addNPCDDBId(npc, type = "monster") {
           _id: npcMatch._id,
           "flags.ddbimporter.id": npcBasic.flags.ddbimporter.id,
         };
-        logger.debug("NPC Update Data", duplicate(updateDDBData));
+        logger.debug("NPCId Update Data", duplicate(updateDDBData));
         await existingNPC.update(updateDDBData);
       }
     }
