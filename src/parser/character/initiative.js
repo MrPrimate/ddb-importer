@@ -13,7 +13,7 @@ DDBCharacter.prototype._generateInitiative = function _generateInitiative() {
       mod: this.abilities.withEffects.dex.mod,
     }
     : {
-      value: initiativeBonus,
+      value: Number.isInteger(Number.parseInt(initiativeBonus)) ? Number.parseInt(initiativeBonus) : initiativeBonus,
       bonus: 0, // used by FVTT internally
       mod: this.abilities.withEffects.dex.mod,
     };

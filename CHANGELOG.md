@@ -1,6 +1,7 @@
 # 3.2.12
 
 * Improve tag parsing to compendium items.
+* Features which added bonuses to initiative such as Dread Ambusher could end up with the character having a stupidly high initiative bonus (like +32000).
 
 # 3.2.11
 
