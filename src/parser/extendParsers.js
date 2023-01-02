@@ -14,6 +14,7 @@ import "./monster/hp.js";
 import "./monster/movement.js";
 import "./monster/source.js";
 import "./monster/features.js";
+import "./monster/spells.js";
 
 // character parser
 import "./DDBCharacter.js";

@@ -2,6 +2,8 @@ import { getAbilityMods } from "./helpers.js";
 import logger from '../../logger.js';
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import SETTINGS from "../../settings.js";
+import DDBMonster from "../DDBMonster.js";
+import DICTIONARY from "../../dictionary.js";
 
 function parseSpellcasting(text) {
   let spellcasting = "";
@@ -36,19 +38,19 @@ function parseSpelldc(text) {
   return dc;
 }
 
-function parseBonusSpellAttack(text, monster) {
+DDBMonster.prototype.parseSpellAttackBonus = function (text) {
   let spellAttackBonus = 0;
   const dcSearch = "([+-]\\d+)\\s+to\\s+hit\\s+with\\s+spell\\s+attacks";
   const match = text.match(dcSearch);
   if (match) {
     const toHit = match[1];
-    const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == monster.challengeRatingId).proficiencyBonus;
-    const abilities = getAbilityMods(monster);
+    const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
+    const abilities = getAbilityMods(this.source);
     const castingAbility = parseSpellcasting(text);
     spellAttackBonus = toHit - proficiencyBonus - abilities[castingAbility];
   }
   return spellAttackBonus;
-}
+};
 
 function parseInnateSpells({ text, spells, spellList }) {
   // handle innate style spells here
@@ -229,8 +231,7 @@ function getEdgeCases(spellList) {
 
 // <p><em><strong>Innate Spellcasting.</strong></em> The oblex&rsquo;s innate spellcasting ability is Intelligence (spell save DC 15). It can innately cast the following spells, requiring no components:</p>\r\n<p>3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)</p>
 
-
-export function getSpells(monster) {
+DDBMonster.prototype._generateSpells = function() {
   let spelldc = 10;
   // data.details.spellLevel (spellcasting level)
   let spellLevel = 0;
@@ -307,22 +308,9 @@ export function getSpells(monster) {
 
   // some monsters have poor spell formating, reported and might be able to remove in future
   // https://www.dndbeyond.com/forums/d-d-beyond-general/bugs-support/91228-sir-godfrey-gwilyms-spell-statblock
-  // let specialTraits = monster.specialTraitsDescription;
-  const possibleSpellSources = monster.specialTraitsDescription + monster.actionsDescription;
+  const possibleSpellSources = this.source.specialTraitsDescription + this.source.actionsDescription;
   let specialTraits = possibleSpellSources.replace(/<br \/>/g, "</p><p>");
-  //   const specialCases = ["Sir Godfrey Gwilym", "Hlam", "Ygorl, Lord of Entropy",
-  //     "Whymsee (Kraken Priest Variant)", "Strahd Zombie", "Skr’a S’orsk",
-  //     "Mongrelfolk", "Laeral Silverhand", "Jarlaxle Baenre", "Gar Shatterkeel (Noncore)", "Forlarren",
-  //     "Fog Giant", "Fhenimore (Kraken Priest Variant)", "Drow Arachnomancer",
-  //     "Archon of the Triumvirate", "Amble",
-  // ];
-  //   if (specialCases.includes(monster.name)) {
-  //     specialTraits = specialTraits.replace(/<br \/>/g, "</p><p>");
-  //     logger.warn(`Fiddling with ${monster.name} spells due to bad formatting`);
-  //   }
-  //   if (specialTraits.includes("<br />")) console.error(`"SPECIAL CASE ${monster.name}`);
 
-  // console.warn(specialTraits);
   $.parseHTML(specialTraits).forEach((element) => {
     dom.appendChild(element);
   });
@@ -346,7 +334,7 @@ export function getSpells(monster) {
       spellcasting = parseSpellcasting(spellText);
       spelldc = parseSpelldc(spellText);
       spellLevel = parseSpellLevel(spellText);
-      spellAttackBonus = parseBonusSpellAttack(spellText, monster);
+      spellAttackBonus = this.parseSpellAttackBonus(spellText);
     }
 
     const noMaterialSearch = new RegExp(/no material component|no component/);
@@ -375,24 +363,25 @@ export function getSpells(monster) {
 
   spellList = getEdgeCases(spellList);
 
-  // console.warn(spellList);
   logger.debug("Parsed spell list", spellList);
 
-  // console.log("*****")
-
-  const result = {
-    spelldc: spelldc,
-    spellcasting: spellcasting,
-    spellLevel: spellLevel,
-    spells: spells,
-    spellList: spellList,
-    spellAttackBonus: spellAttackBonus,
+  this.spellcasting = {
+    spelldc,
+    spellcasting,
+    spellLevel,
+    spells,
+    spellList,
+    spellAttackBonus,
   };
 
-  // console.warn("spell result", JSON.stringify(result, null, 4));
-  return result;
+  this.npc.system.attributes.spellcasting = spellcasting;
+  this.npc.system.attributes.spelldc = spelldc;
+  this.npc.system.attributes.spellLevel = spellLevel;
+  this.npc.system.details.spellLevel = spellLevel;
+  this.npc.system.spells = spells;
+  this.npc.flags.monsterMunch['spellList'] = spellList;
 
-}
+};
 
 /**
  *
@@ -481,3 +470,122 @@ export function getSpellEdgeCase(spell, type, spellList) {
   }
 
 }
+
+
+DDBMonster.prototype.addSpells = async function() {
+  // check to see if we have munched flags to work on
+  if (!this.npc?.flags?.monsterMunch?.spellList) {
+    return;
+  }
+
+  const spellList = this.npc.flags.monsterMunch.spellList;
+  logger.debug(`Spell List for edgecases`, spellList);
+  const atWill = spellList.atwill;
+  const klass = spellList.class;
+  const innate = spellList.innate;
+  const pact = spellList.pact;
+
+  if (atWill.length !== 0) {
+    logger.debug("Retrieving at Will spells:", atWill);
+    let spells = await retrieveCompendiumSpells(atWill);
+    spells = spells.filter((spell) => spell !== null).map((spell) => {
+      if (spell.system.level == 0) {
+        spell.system.preparation = {
+          mode: "prepared",
+          prepared: false,
+        };
+      } else {
+        spell.system.preparation = {
+          mode: "atwill",
+          prepared: false,
+        };
+        spell.system.uses = {
+          value: null,
+          max: null,
+          per: "",
+        };
+      }
+      getSpellEdgeCase(spell, "atwill", spellList);
+      return spell;
+    });
+    this.items.push(...spells);
+  }
+
+  // class spells
+  if (klass.length !== 0) {
+    logger.debug("Retrieving class spells:", klass);
+    let spells = await retrieveCompendiumSpells(klass);
+    spells = spells.filter((spell) => spell !== null).map((spell) => {
+      spell.system.preparation = {
+        mode: "prepared",
+        prepared: true,
+      };
+      getSpellEdgeCase(spell, "class", spellList);
+      return spell;
+    });
+    this.items.push(...spells);
+  }
+
+  // pact spells
+  if (pact.length !== 0) {
+    logger.debug("Retrieving pact spells:", pact);
+    let spells = await retrieveCompendiumSpells(pact);
+    spells = spells.filter((spell) => spell !== null).map((spell) => {
+      spell.system.preparation = {
+        mode: "pact",
+        prepared: true,
+      };
+      getSpellEdgeCase(spell, "pact", spellList);
+      return spell;
+    });
+    this.items.push(...spells);
+  }
+
+  // innate spells
+  if (innate.length !== 0) {
+    // innate:
+    // {name: "", type: "srt/lng/day", value: 0}
+    logger.debug("Retrieving innate spells:", innate);
+    const spells = await retrieveCompendiumSpells(innate);
+    const innateSpells = spells.filter((spell) => spell !== null)
+      .map((spell) => {
+        const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
+        if (spellInfo) {
+          const isAtWill = hasProperty(spellInfo, "innate") && !spellInfo.innate;
+          if (spell.system.level == 0) {
+            spell.system.preparation = {
+              mode: "prepared",
+              prepared: false,
+            };
+          } else {
+            spell.system.preparation = {
+              mode: isAtWill ? "atwill" : "innate",
+              prepared: !isAtWill,
+            };
+          }
+          if (isAtWill && spellInfo.type === "atwill") {
+            spell.system.uses = {
+              value: null,
+              max: null,
+              per: "",
+            };
+          } else {
+            const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
+            const per = spellInfo.type === "atwill"
+              ? null
+              : (perLookup && perLookup.type)
+                ? perLookup.type
+                : "day";
+            spell.system.uses = {
+              value: spellInfo.value,
+              max: spellInfo.value,
+              per: per,
+            };
+          }
+          getSpellEdgeCase(spell, "innate", spellList);
+        }
+        return spell;
+      });
+    this.items.push(...innateSpells);
+  }
+};
