@@ -15,6 +15,9 @@ const BACKGROUND_TEMPLATE = {
       "chat": "",
       "unidentified": ""
     },
+    "type": {
+      "value": "background",
+    },
     "source": "",
   },
   "sort": 2600000,

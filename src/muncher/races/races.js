@@ -57,6 +57,10 @@ function getRacialTrait(trait, fullName, isLegacy) {
   result.flags.ddbimporter['race'] = fullName;
   result.system.requirements = fullName;
 
+  result.system.type = {
+    value: "species",
+  };
+
   result.system.description.value = parseTags(result.system.description.value);
 
   return result;
