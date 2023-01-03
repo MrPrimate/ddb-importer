@@ -18,7 +18,6 @@ export default class DDBFeature {
 
   // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
   prepare() {
-    this.generateAdjustedName();
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
     const matches = this.strippedHtml.match(
@@ -72,8 +71,16 @@ export default class DDBFeature {
       },
     };
 
+    this.generateAdjustedName();
+
+    // if not attack set to a monster type action
+    if (!this.isAttack) this.feature.system.type.value = "monster";
+
     // copy source details from parent
     if (this.ddbMonster) this.feature.system.source = this.ddbMonster.npc.system.details.source;
+
+    // these templates not good
+    this.feature.system.duration.value = "";
 
     this.actionInfo = {
       damage: {
@@ -271,7 +278,7 @@ export default class DDBFeature {
     const usesMatch = this.strippedHtml.match(usesSearch);
     // console.log(usesMatch);
     if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
-      uses.value = usesMatch[1];
+      uses.value = Number.parseInt(usesMatch[1]);
       uses.max = usesMatch[1];
       uses.per = "day";
       const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
@@ -292,7 +299,7 @@ export default class DDBFeature {
     }
 
     return {
-      value: "",
+      value: null,
       charged: false
     };
   }
@@ -641,7 +648,10 @@ export default class DDBFeature {
 
   #buildLegendary() {
     // for the legendary actions feature itself we don't want to do most processing
-    if (this.name === "Legendary Actions") return;
+    if (this.name === "Legendary Actions") {
+      this.feature.system.activation.type = "";
+      return;
+    }
 
     this.feature.system.activation.type = "legendary";
 
@@ -729,7 +739,8 @@ export default class DDBFeature {
   }
 
   parse() {
-    this.prepare();
+    // this.prepare();
+    // this.generateAdjustedName();
     this.#generateActionInfo();
     switch (this.type) {
       case "action":
