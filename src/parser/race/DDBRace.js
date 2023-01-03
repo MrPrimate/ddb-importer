@@ -19,6 +19,9 @@ export default class DDBRace {
           "unidentified": ""
         },
         "source": "",
+        "type": {
+          "value": "species",
+        },
       },
       "sort": 2600000,
       "flags": {

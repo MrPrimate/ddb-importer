@@ -13,6 +13,9 @@ const FEAT_TEMPLATE = {
       "chat": "",
       "unidentified": ""
     },
+    "type": {
+      "value": "feat",
+    },
     "source": "",
   },
   "sort": 2600000,

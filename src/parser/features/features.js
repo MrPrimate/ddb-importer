@@ -31,6 +31,8 @@ function parseFeature(feat, ddb, character, source, type) {
     },
   };
 
+  item.system.type.value = type === "race" ? "species" : type;
+
   logger.debug(`Getting Feature ${item.name}`);
 
   const klassAction = DDBHelper.findComponentByComponentId(ddb, feat.id);

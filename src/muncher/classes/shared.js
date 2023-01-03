@@ -199,6 +199,10 @@ export function getClassFeature(feature, klass, subClassName = "") {
 
   result.system.description.value = parseTags(result.system.description.value);
 
+  result.system.type = {
+    value: "class",
+  };
+
   return result;
 }
 
