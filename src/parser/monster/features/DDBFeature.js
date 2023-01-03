@@ -6,44 +6,74 @@ import SETTINGS from "../../../settings.js";
 
 export default class DDBFeature {
 
+  generateAdjustedName() {
+    if (!this.stripName) return;
+    const regex = /(.*)\s\((:?costs \d actions|\d\/day|recharge \d-\d)\)/i;
+    const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
+    if (nameMatch) {
+      this.feature.name = nameMatch[1];
+      this.nameSplit = nameMatch[2];
+    }
+  }
+
+  // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
+  prepare() {
+    this.generateAdjustedName();
+    this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
+
+    const matches = this.strippedHtml.match(
+      /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/i
+    );
+
+    // set calc flags
+    this.isAttack = matches ? matches[1] !== undefined : false;
+    this.weaponAttack = matches
+      ? (matches[2].toLowerCase() === "weapon" || matches[2] === "")
+      : false;
+    this.spellAttack = matches ? matches[2].toLowerCase() === "spell" : false;
+    this.meleeAttack = matches ? matches[1].indexOf("Melee") !== -1 : false;
+    this.rangedAttack = matches ? matches[1].indexOf("Ranged") !== -1 : false;
+    this.toHit = matches ? parseInt(matches[3]) : 0;
+    this.templateType = this.isAttack ? "weapon" : "feat";
+
+  }
+
   constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy } = {}) {
 
     this.name = name;
     this.ddbMonster = ddbMonster;
     this.type = type;
     this.html = html ?? "";
+    this.titleHTML = titleHTML ?? undefined;
+    this.fullName = fullName ?? this.name;
+    this.actionCopy = actionCopy ?? false;
 
     this.hideDescription = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
     this.updateExisting = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
 
+    this.prepare();
+
     this.feature = {
       name,
-      type: "feat",
-      system: JSON.parse(utils.getTemplate("feat")),
+      type: this.templateType,
+      system: JSON.parse(utils.getTemplate(this.templateType)),
       effects: [],
       flags: {
         ddbimporter: {
           dndbeyond: {
           },
         },
-        monsterMunch: {}
+        monsterMunch: {
+          titleHTML: this.titleHTML,
+          fullName: this.fullName,
+          actionCopy: this.actionCopy,
+        }
       },
     };
-    if (titleHTML) this.feature.flags.monsterMunch["titleHTML"] = titleHTML;
-    if (fullName) this.feature.flags.monsterMunch["fullName"] = fullName;
-    if (actionCopy !== undefined) this.feature.flags.monsterMunch["fullName"] = actionCopy;
 
     // copy source details from parent
     if (this.ddbMonster) this.feature.system.source = this.ddbMonster.npc.system.details.source;
-
-    // set calc flags
-    this.weaponAttack = false;
-    this.spellAttack = false;
-    this.meleeAttack = false;
-    this.rangedAttack = false;
-    this.weaponType = null;
-    this.toHit = 0;
 
     this.actionInfo = {
       damage: {
@@ -62,7 +92,7 @@ export default class DDBFeature {
         "type": ""
       },
       duration: {
-        "value": null,
+        "value": "",
         "units": "inst"
       },
       extraAttackBonus: 0,
@@ -91,16 +121,21 @@ export default class DDBFeature {
         units: "",
       },
       recharge: { value: null, charged: true },
-      activation: null,
+      activation: {
+        type: "",
+        cost: null,
+        condition: ""
+      },
       save: {
         dc: null,
-        ability: null,
+        ability: "",
         scaling: "flat",
       },
       uses: {
-        value: 0,
-        max: 0,
+        value: null,
+        max: "",
         per: null,
+        recovery: "",
       },
     };
 
@@ -229,6 +264,7 @@ export default class DDBFeature {
       value: 0,
       max: 0,
       per: null,
+      recovery: "",
     };
 
     const usesSearch = name ? /(\d+)\/(\w+)\)/ : /\((\d+)\/(\w+)\)/;
@@ -256,8 +292,8 @@ export default class DDBFeature {
     }
 
     return {
-      value: null,
-      charged: null
+      value: "",
+      charged: false
     };
   }
 
@@ -476,10 +512,10 @@ export default class DDBFeature {
 
   getTarget() {
     let target = {
-      "value": null,
-      "width": null,
-      "units": "",
-      "type": ""
+      value: null,
+      width: null,
+      units: "",
+      type: ""
     };
 
     // 90-foot line that is 10 feet wide
@@ -517,16 +553,6 @@ export default class DDBFeature {
     return target;
   }
 
-  generateAdjustedName() {
-    if (!this.stripName) return;
-    const regex = /(.*)\s\((:?costs \d actions|\d\/day|recharge \d-\d)\)/i;
-    const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
-    if (nameMatch) {
-      this.feature.name = nameMatch[1];
-      this.nameSplit = nameMatch[2];
-    }
-  }
-
   #getHiddenDescription() {
     let description = `<section class="secret">\n${this.html}`;
     if (["rwak", "mwak"].includes(this.feature.system.actionType)) {
@@ -549,7 +575,7 @@ export default class DDBFeature {
 
 
   #buildAction() {
-    if (this.actionInfo.activation) {
+    if (Number.isInteger(this.actionInfo.activation)) {
       this.feature.system.activation.cost = this.actionInfo.activation;
       this.feature.system.consume.amount = this.actionInfo.activation;
     } else {
@@ -594,10 +620,6 @@ export default class DDBFeature {
       this.feature.system.actionType = "save";
     }
 
-    if (this.isAttack) {
-      this.feature.type = "weapon";
-    }
-
     this.feature.system.range = this.actionInfo.range;
     this.feature.system.target = this.actionInfo.target;
     this.feature.system.duration = this.actionInfo.duration;
@@ -629,7 +651,7 @@ export default class DDBFeature {
       amount: 1
     };
 
-    if (Number.isInteger(Number.parseInt(this.actionInfo.activation))) {
+    if (Number.isInteger(this.actionInfo.activation)) {
       this.feature.system.activation.cost = this.actionInfo.activation;
       this.feature.system.consume.amount = this.actionInfo.activation;
     } else {
@@ -656,10 +678,9 @@ export default class DDBFeature {
 
   #buildSpecial() {
     this.feature.system.activation.type = this.getAction();
-    const activationCost = this.actionInfo.activation;
-    if (activationCost) {
-      this.feature.system.activation.cost = activationCost;
-      this.feature.system.consume.amount = activationCost;
+    if (Number.isInteger(this.actionInfo.activation)) {
+      this.feature.system.activation.cost = this.actionInfo.activation;
+      this.feature.system.consume.amount = this.actionInfo.activation;
     } else if (this.feature.system.activation.type !== "") {
       this.feature.system.activation.cost = 1;
     }
@@ -705,25 +726,6 @@ export default class DDBFeature {
     this.actionInfo.save = this.getFeatSave();
     this.actionInfo.target = this.getTarget();
     this.actionInfo.uses = this.getUses();
-  }
-
-  // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
-  prepare() {
-    this.generateAdjustedName();
-    this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
-
-    const matches = this.strippedHtml.match(
-      /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/i
-    );
-
-    if (matches) {
-      this.isAttack = matches[1] !== undefined;
-      this.weaponAttack = matches[2].toLowerCase() === "weapon" || matches[2] === "";
-      this.spellAttack = matches[2].toLowerCase() === "spell";
-      this.meleeAttack = matches[1].indexOf("Melee") !== -1;
-      this.rangedAttack = matches[1].indexOf("Ranged") !== -1;
-      this.toHit = parseInt(matches[3]);
-    }
   }
 
   parse() {

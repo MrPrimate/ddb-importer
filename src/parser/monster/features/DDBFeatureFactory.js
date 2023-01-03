@@ -17,6 +17,16 @@ export class DDBFeatureFactory {
     this.hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
     this.updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
+    this.featureBlocks = {
+      action: [],
+      reaction: [],
+      bonus: [],
+      mythic: [],
+      lair: [],
+      legendary: [],
+      special: [],
+    };
+
     this.features = {
       action: [],
       reaction: [],
@@ -133,12 +143,12 @@ export class DDBFeatureFactory {
       if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
         name = name.split(";").pop().trim();
       }
-      const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent });
-      this.features[type].push(action);
+      const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
+      this.featureBlocks[type].push(action);
     });
 
     // there is inconsistent formatting
-    if (this.features[type].length == 0) {
+    if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("p").forEach((node) => {
 
         let pDom = new DocumentFragment();
@@ -151,14 +161,14 @@ export class DDBFeatureFactory {
         if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
           name = name.split(";").pop().trim();
         }
-        const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent });
-        this.features[type].push(action);
+        const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
+        this.featureBlocks[type].push(action);
       });
     }
 
 
     // there is inconsistent formatting
-    if (this.features[type].length == 0) {
+    if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("p").forEach((node) => {
 
         let pDom = new DocumentFragment();
@@ -169,14 +179,14 @@ export class DDBFeatureFactory {
         const name = title.trim();
         if (name && name.length > 0) {
           const titleHTML = pDom.outerHTML ? pDom.outerHTML.split('.')[0] : undefined;
-          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML });
-          this.features[type].push(action);
+          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML } };
+          this.featureBlocks[type].push(action);
         }
       });
     }
 
     // homebrew fun
-    if (this.features[type].length == 0) {
+    if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("div").forEach((node) => {
 
         let pDom = new DocumentFragment();
@@ -187,13 +197,13 @@ export class DDBFeatureFactory {
         const name = title.trim();
         if (name && name.length > 0) {
           const titleHTML = pDom.outerHTML ? pDom.outerHTML.split('.')[0] : undefined;
-          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML });
-          this.features[type].push(action);
+          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML } };
+          this.featureBlocks[type].push(action);
         }
       });
     }
 
-    let action = this.features[type][0];
+    let action = this.featureBlocks[type][0];
 
     dom.childNodes.forEach((node) => {
       const nodeContextSplit = node.textContent.split('.');
@@ -201,12 +211,12 @@ export class DDBFeatureFactory {
       const longNodeName = (nodeContextSplit.length > 2 && nodeContextSplit[1].trim().startsWith('('))
         ? `${nodeName} ${nodeContextSplit[1].trim()}`
         : nodeName;
-      let switchAction = this.features[type].find((act) => nodeName === act.name || longNodeName === act.name);
+      let switchAction = this.featureBlocks[type].find((act) => nodeName === act.name || longNodeName === act.name);
 
       if (!switchAction) {
-        switchAction = this.features[type].find((act) =>
-          act.feature.flags.monsterMunch?.fullName
-          && node.textContent.startsWith(act.feature.flags.monsterMunch.fullName)
+        switchAction = this.featureBlocks[type].find((act) =>
+          act.options?.fullName
+          && node.textContent.startsWith(act.options.fullName)
         );
       }
       let startFlag = false;
@@ -222,7 +232,7 @@ export class DDBFeatureFactory {
       if (node.outerHTML) {
         let outerHTML = `${node.outerHTML}`;
         if (switchAction && startFlag) {
-          const replaceName = getProperty(action.feature, "flags.monsterMunch.fullName") ?? nodeName;
+          const replaceName = getProperty(action, "fullName") ?? nodeName;
           outerHTML = outerHTML.replace(replaceName, "");
 
           const titleDom = new DocumentFragment();
@@ -239,42 +249,42 @@ export class DDBFeatureFactory {
   #generateLairActions(type = "lair") {
     let dom = this.#buildDom(type);
 
-    const defaultAction = new DDBFeature("Lair Actions", { ddbMonster: this.ddbMonster, type });
-    this.features[type].push(defaultAction);
+    const defaultAction = { name: "Lair Actions", options: { ddbMonster: this.ddbMonster, type } };
+    this.featureBlocks[type].push(defaultAction);
 
     dom.querySelectorAll("h4").forEach((node) => {
       const name = node.textContent.trim();
       if (name !== "") {
-        const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
+        const action = { name, options: { ddbMonster: this.ddbMonster, type } };
         if (node.textContent == "Lair Actions" || node.textContent == "") {
           return;
         }
-        this.features[type].push(action);
+        this.featureBlocks[type].push(action);
       }
     });
 
     dom.querySelectorAll("h3").forEach((node) => {
       const name = node.textContent.trim();
       if (name !== "") {
-        const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type });
+        const action = { name, options: { ddbMonster: this.ddbMonster, type } };
         if (node.textContent == "Lair Actions" || action.name == "") {
           return;
         }
-        this.features[type].push(action);
+        this.featureBlocks[type].push(action);
       }
     });
 
     let actionType = "Lair Actions";
-    let action = this.features[type].find((act) => act.name == actionType);
+    let action = this.featureBlocks[type].find((act) => act.name == actionType);
 
     if (!action) {
-      action = this.features[type][0];
+      action = this.featureBlocks[type][0];
     }
 
     dom.childNodes.forEach((node) => {
       // const switchAction = dynamicActions.find((act) => act.name == node.textContent);
       const nodeName = node.textContent.split('.')[0].trim();
-      const switchAction = this.features[type].find((act) => nodeName === act.name);
+      const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
       let startFlag = false;
       if (switchAction) {
         actionType = node.textContent;
@@ -303,16 +313,16 @@ export class DDBFeatureFactory {
     let dom = this.#buildDom(type);
 
     // Base feat
-    const feat = new DDBFeature("Legendary Actions", { ddbMonster: this.ddbMonster, type, actionCopy: false });
+    const feat = { name: "Legendary Actions", options: { ddbMonster: this.ddbMonster, type, actionCopy: false } };
     feat.html = `${this.html[type]}`;
     feat.feature.system.activation.type = "";
-    this.features[type].push(feat);
+    this.featureBlocks[type].push(feat);
 
 
     // build out skeleton actions
     dom.querySelectorAll("strong").forEach((node) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
-      let action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, actionCopy: false });
+      let action = { name, options: { ddbMonster: this.ddbMonster, type, actionCopy: false } };
 
       const actionMatch = this.features["action"].concat(
         this.features.reaction,
@@ -326,15 +336,17 @@ export class DDBFeatureFactory {
       );
 
       if (actionMatch) {
-        action.html = duplicate(actionMatch.html);
-        action.feature = duplicate(actionMatch.feature);
-        action.feature.name = action.name; // fix up name to make sure things like Attack are included
-        action.feature.flags.monsterMunch.actionCopy = true;
+        const dupFeature = new DDBFeature(name, { ddbMonster: this.ddbMonster, html: actionMatch.html, type, actionCopy: true });
+        dupFeature.feature = duplicate(actionMatch.feature);
+        dupFeature.feature.name = action.name; // fix up name to make sure things like Attack are included
+        this.features[type].push(dupFeature);
+      } else {
+        this.featureBlocks[type].push(action);
       }
-      this.features[type].push(action);
+
     });
 
-    let action = this.features[type].find((act) => act.name == "Legendary Actions");
+    let action = this.featureBlocks[type].find((act) => act.name == "Legendary Actions");
 
     dom.childNodes
       .forEach((node) => {
@@ -348,7 +360,7 @@ export class DDBFeatureFactory {
         }
 
         const nodeName = node.textContent.split('.')[0].trim();
-        const switchAction = this.features[type].find((act) => nodeName === act.name);
+        const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
         if (action.name !== "Legendary Actions" || switchAction) {
 
           if (switchAction) {
@@ -358,7 +370,7 @@ export class DDBFeatureFactory {
             }
           }
 
-          if (action.feature.flags.monsterMunch.actionCopy) return;
+          if (action.actionCopy) return;
           if (node.outerHTML) {
             let outerHTML = node.outerHTML;
             if (switchAction && startFlag) {
@@ -392,12 +404,12 @@ export class DDBFeatureFactory {
         name = name.split(";").pop().trim();
       }
       if (name) {
-        const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent });
-        this.features[type].push(action);
+        const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
+        this.featureBlocks[type].push(action);
       }
     });
 
-    if (this.features[type].length == 0) {
+    if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("p").forEach((node) => {
         let pDom = new DocumentFragment();
         $.parseHTML(node.outerHTML).forEach((element) => {
@@ -410,45 +422,47 @@ export class DDBFeatureFactory {
           name = name.split(";").pop().trim();
         }
         if (name) {
-          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent });
-          this.features[type].push(action);
+          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
+          this.featureBlocks[type].push(action);
         }
       });
     }
 
-    if (this.features[type].length == 0) {
+    if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("em").forEach((node) => {
         const name = node.textContent.trim().replace(/\.$/, '').trim();
         if (name) {
-          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent });
-          this.features[type].push(action);
+          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent } };
+          this.featureBlocks[type].push(action);
         }
       });
     }
 
-    if (this.features[type].length == 0) {
+    if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("strong").forEach((node) => {
         const name = node.textContent.trim().replace(/\.$/, '').trim();
         if (name) {
-          const action = new DDBFeature(name, { ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent });
-          this.features[type].push(action);
+          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent } };
+          this.featureBlocks[type].push(action);
         }
       });
     }
 
-    if (this.features[type].length == 0) {
-      const action = new DDBFeature("Special Traits", { ddbMonster: this.ddbMonster, type });
-      this.features[type].push(action);
+    if (this.featureBlocks[type].length == 0) {
+      const action = { name: "Special Traits", options: { ddbMonster: this.ddbMonster, type } };
+      this.featureBlocks[type].push(action);
     }
 
-    let action = this.features[type][0];
+    if (this.featureBlocks[type].length === 0) return;
+
+    let action = this.featureBlocks[type][0];
 
     dom.childNodes.forEach((node) => {
       const nodeName = node.textContent.split('.')[0].trim();
-      let switchAction = this.features[type].find((act) => nodeName === act.name);
+      let switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
       if (action.name.includes("; Recharges after a Short or Long Rest")) action.name = action.name.replace("; Recharges after a Short or Long Rest", "");
       if (!switchAction) {
-        switchAction = this.features[type].find((act) => node.textContent.startsWith(act.feature.flags.monsterMunch.fullName));
+        switchAction = this.featureBlocks[type].find((act) => node.textContent.startsWith(act.fullName));
       }
       let startFlag = false;
       if (switchAction) {
@@ -461,8 +475,8 @@ export class DDBFeatureFactory {
       if (node.outerHTML) {
         let outerHTML = node.outerHTML;
         if (switchAction && startFlag) {
-          if (action.feature.flags.monsterMunch?.fullName) {
-            outerHTML = outerHTML.replace(action.feature.flags.monsterMunch.fullName, "");
+          if (action.fullName) {
+            outerHTML = outerHTML.replace(action.fullName, "");
           } else {
             outerHTML = outerHTML.replace(nodeName, "");
           }
@@ -519,9 +533,19 @@ export class DDBFeatureFactory {
         throw new Error(`Unknown action parsing type ${this.type}`);
     }
 
+    // some features are duplicated and we parse these first
     this.features[type].forEach((feature) => {
       feature.parse();
     });
+
+    // parse remaining feature blocks
+    this.featureBlocks[type].forEach((feature) => {
+      const ddbFeature = new DDBFeature(feature.name, feature.options);
+      ddbFeature.parse();
+      this.features[type].push(ddbFeature);
+    });
+
   }
 
 }
+
