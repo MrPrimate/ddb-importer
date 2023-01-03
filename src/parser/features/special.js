@@ -193,7 +193,7 @@ export function setLevelScales(classes, features) {
   const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
   if (useScale) {
     features.forEach((feature) => {
-      const featureName = feature.name.toLowerCase().replace(/\s|'|’/g, '-');
+      const featureName = utils.referenceNameString(feature.name.toLowerCase());
       const scaleKlass = classes.find((klass) =>
         klass.system.advancement
           .some((advancement) => advancement.type === "ScaleValue"

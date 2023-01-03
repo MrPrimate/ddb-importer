@@ -1,3 +1,10 @@
+# 3.2.13
+
+* Some fixes for upcoming schema changes/enforcement in the next D&D system version.
+* Tools default ability did not always set.
+* Numeric class advancements did not set the type correctly.
+* Some ScaleValue names will change during munch to meet new schema requirements.
+
 # 3.2.12
 
 * Monsters with multiple actions with the same name (e.g. Legendary Actions), would have an action removed on a monster upate.

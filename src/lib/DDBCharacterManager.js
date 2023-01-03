@@ -275,10 +275,7 @@ export default class DDBCharacterManager extends FormApplication {
       && (!imagePath || imagePath.includes("mystery-man") || this.settings.updatePolicyImage)
     ) {
       this.showCurrentTask("Uploading avatar image");
-      const filename = `${data.character.id}-${data.character.name}`
-        .replace(/[^a-zA-Z0-9]/g, "-")
-        .replace(/-+/g, "-")
-        .trim();
+      const filename = utils.referenceNameString(`${data.character.id}-${data.character.name}`);
 
       const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
       imagePath = await FileHelper.uploadRemoteImage(decorations.avatarUrl, uploadDirectory, filename);

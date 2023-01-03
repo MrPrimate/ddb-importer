@@ -12,6 +12,12 @@ const utils = {
     return str.toLowerCase().replace(/\W/g, "");
   },
 
+  referenceNameString: (str) => {
+    return str.replace(/[^a-zA-Z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .trim();
+  },
+
   stripHtml: (html) => {
     let tmp = document.createElement("DIV");
     tmp.innerHTML = html;

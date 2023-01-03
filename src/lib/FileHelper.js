@@ -2,6 +2,7 @@ import { DirectoryPicker } from "../lib/DirectoryPicker.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "./DDBProxy.js";
+import utils from "./utils.js";
 
 const FileHelper = {
   BAD_DIRS: ["[data]", "[data] ", "", null],
@@ -283,7 +284,7 @@ const FileHelper = {
       if (!name) name = imageUrl.split("/").pop();
 
       // image upload
-      const filename = type + "-" + name.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").trim();
+      const filename = type + "-" + utils.referenceNameString(name);
       const imageExists = await FileHelper.fileExists(uploadDirectory, filename + "." + ext);
 
       if (imageExists && !force) {

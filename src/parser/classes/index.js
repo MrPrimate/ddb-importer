@@ -31,7 +31,7 @@ function getSources(data) {
 }
 
 function generateScaleValueAdvancement(feature) {
-  // distance, numeric, dice, anything
+  // distance, number, dice, anything
   let type = "string";
   const die = feature.levelScales[0]?.dice ? feature.levelScales[0]?.dice : feature.levelScales[0]?.die ? feature.levelScales[0]?.die : undefined;
 
@@ -41,7 +41,7 @@ function generateScaleValueAdvancement(feature) {
     && feature.levelScales[0].fixedValue !== ""
     && Number.isInteger(feature.levelScales[0].fixedValue)
   ) {
-    type = "numeric";
+    type = "number";
   }
 
   const scaleValue = {
@@ -49,7 +49,7 @@ function generateScaleValueAdvancement(feature) {
     type: "ScaleValue",
     configuration: {
       distance: { units: "" },
-      identifier: feature.name.toLowerCase().replace(/\s|'|’/g, '-'),
+      identifier: utils.referenceNameString(feature.name).toLowerCase(),
       type,
       scale: {},
     },
@@ -66,7 +66,7 @@ function generateScaleValueAdvancement(feature) {
         n: die.diceCount,
         die: die.diceValue,
       };
-    } else if (type === "numeric") {
+    } else if (type === "number") {
       scaleValue.configuration.scale[scale.level] = {
         value: scale.fixedValue,
       };
@@ -206,7 +206,7 @@ export async function addSRDAdvancements(advancements, klass) {
     const scaleAdvancements = srdKlass.system.advancement.filter((srdA) =>
       srdA.type === "ScaleValue"
       && !advancements.some((ddbA) => ddbA.configuration.identifier === srdA.configuration.identifier)
-    );
+    ).map((advancement) => advancement.toObject());
     advancements.push(...scaleAdvancements);
   }
 
@@ -261,8 +261,8 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
     },
   };
 
-  subKlass.system.classIdentifier = characterClass.definition.name.toLowerCase().replace(/\s|'|’/g, '-');
-  subKlass.system.identifier = characterClass.subclassDefinition.name.toLowerCase().replace(/\s|'|’/g, '-');
+  subKlass.system.classIdentifier = utils.referenceNameString(characterClass.definition.name.toLowerCase());
+  subKlass.system.identifier = utils.referenceNameString(characterClass.subclassDefinition.name.toLowerCase());
 
   const castSpells = characterClass.subclassDefinition.canCastSpells;
 
@@ -343,7 +343,7 @@ export async function getClasses(ddb, character) {
       klass.system.description.value += `<h1>Starting Equipment</h1>\n${characterClass.definition.equipmentDescription}\n\n`;
     }
 
-    klass.system.identifier = characterClass.definition.name.toLowerCase().replace(/\s|'|’/g, '-');
+    klass.system.identifier = utils.referenceNameString(characterClass.definition.name.toLowerCase());
     klass.system.levels = characterClass.level;
     klass.system.source = getSources(characterClass);
     klass.system.hitDice = `d${characterClass.definition.hitDice}`;
