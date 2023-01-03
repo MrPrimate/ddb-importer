@@ -143,7 +143,7 @@ export class DDBFeatureFactory {
       if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
         name = name.split(";").pop().trim();
       }
-      const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
+      const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
       this.featureBlocks[type].push(action);
     });
 
@@ -161,7 +161,7 @@ export class DDBFeatureFactory {
         if (!name.includes("Spell;") && !name.includes("Mythic Trait;")) {
           name = name.split(";").pop().trim();
         }
-        const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
+        const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
         this.featureBlocks[type].push(action);
       });
     }
@@ -179,7 +179,7 @@ export class DDBFeatureFactory {
         const name = title.trim();
         if (name && name.length > 0) {
           const titleHTML = pDom.outerHTML ? pDom.outerHTML.split('.')[0] : undefined;
-          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML } };
+          const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML } };
           this.featureBlocks[type].push(action);
         }
       });
@@ -197,7 +197,7 @@ export class DDBFeatureFactory {
         const name = title.trim();
         if (name && name.length > 0) {
           const titleHTML = pDom.outerHTML ? pDom.outerHTML.split('.')[0] : undefined;
-          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML } };
+          const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML } };
           this.featureBlocks[type].push(action);
         }
       });
@@ -222,7 +222,7 @@ export class DDBFeatureFactory {
       let startFlag = false;
       if (switchAction) {
         action = switchAction;
-        if (action.html === "") {
+        if (action.options.html === "") {
           startFlag = true;
         }
       }
@@ -241,7 +241,7 @@ export class DDBFeatureFactory {
           });
           if (titleDom.textContent.startsWith(".")) outerHTML = outerHTML.replace(".", "");
         }
-        action.html += outerHTML;
+        action.options.html += outerHTML;
       }
     });
   }
@@ -249,13 +249,13 @@ export class DDBFeatureFactory {
   #generateLairActions(type = "lair") {
     let dom = this.#buildDom(type);
 
-    const defaultAction = { name: "Lair Actions", options: { ddbMonster: this.ddbMonster, type } };
+    const defaultAction = { name: "Lair Actions", options: { html: "", ddbMonster: this.ddbMonster, type } };
     this.featureBlocks[type].push(defaultAction);
 
     dom.querySelectorAll("h4").forEach((node) => {
       const name = node.textContent.trim();
       if (name !== "") {
-        const action = { name, options: { ddbMonster: this.ddbMonster, type } };
+        const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type } };
         if (node.textContent == "Lair Actions" || node.textContent == "") {
           return;
         }
@@ -266,7 +266,7 @@ export class DDBFeatureFactory {
     dom.querySelectorAll("h3").forEach((node) => {
       const name = node.textContent.trim();
       if (name !== "") {
-        const action = { name, options: { ddbMonster: this.ddbMonster, type } };
+        const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type } };
         if (node.textContent == "Lair Actions" || action.name == "") {
           return;
         }
@@ -289,14 +289,14 @@ export class DDBFeatureFactory {
       if (switchAction) {
         actionType = node.textContent;
         action = switchAction;
-        if (action.html === "") startFlag = true;
+        if (action.options.html === "") startFlag = true;
       }
       if (node.outerHTML) {
         let outerHTML = node.outerHTML;
         if (switchAction && startFlag) {
           outerHTML = outerHTML.replace(`${nodeName}.`, "");
         }
-        action.html += outerHTML;
+        action.options.html += outerHTML;
       }
 
       const initiativeMatch = node.textContent.match(/initiative count (\d+)/);
@@ -313,16 +313,15 @@ export class DDBFeatureFactory {
     let dom = this.#buildDom(type);
 
     // Base feat
-    const feat = { name: "Legendary Actions", options: { ddbMonster: this.ddbMonster, type, actionCopy: false } };
-    feat.html = `${this.html[type]}`;
-    feat.feature.system.activation.type = "";
+    const feat = { name: "Legendary Actions", options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
+    feat.options.html = `${this.html[type]}`;
     this.featureBlocks[type].push(feat);
 
 
     // build out skeleton actions
     dom.querySelectorAll("strong").forEach((node) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
-      let action = { name, options: { ddbMonster: this.ddbMonster, type, actionCopy: false } };
+      let action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
 
       const actionMatch = this.features["action"].concat(
         this.features.reaction,
@@ -365,7 +364,7 @@ export class DDBFeatureFactory {
 
           if (switchAction) {
             action = switchAction;
-            if (this.html === "") {
+            if (action.options.html === "") {
               startFlag = true;
             }
           }
@@ -376,7 +375,7 @@ export class DDBFeatureFactory {
             if (switchAction && startFlag) {
               outerHTML = outerHTML.replace(`${nodeName}.`, "");
             }
-            action.html += outerHTML;
+            action.options.html += outerHTML;
           }
         }
       });
@@ -404,7 +403,7 @@ export class DDBFeatureFactory {
         name = name.split(";").pop().trim();
       }
       if (name) {
-        const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
+        const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
         this.featureBlocks[type].push(action);
       }
     });
@@ -422,7 +421,7 @@ export class DDBFeatureFactory {
           name = name.split(";").pop().trim();
         }
         if (name) {
-          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
+          const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
           this.featureBlocks[type].push(action);
         }
       });
@@ -432,7 +431,7 @@ export class DDBFeatureFactory {
       dom.querySelectorAll("em").forEach((node) => {
         const name = node.textContent.trim().replace(/\.$/, '').trim();
         if (name) {
-          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent } };
+          const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent } };
           this.featureBlocks[type].push(action);
         }
       });
@@ -442,14 +441,14 @@ export class DDBFeatureFactory {
       dom.querySelectorAll("strong").forEach((node) => {
         const name = node.textContent.trim().replace(/\.$/, '').trim();
         if (name) {
-          const action = { name, options: { ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent } };
+          const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent } };
           this.featureBlocks[type].push(action);
         }
       });
     }
 
     if (this.featureBlocks[type].length == 0) {
-      const action = { name: "Special Traits", options: { ddbMonster: this.ddbMonster, type } };
+      const action = { name: "Special Traits", options: { html: "", ddbMonster: this.ddbMonster, type } };
       this.featureBlocks[type].push(action);
     }
 
@@ -462,12 +461,12 @@ export class DDBFeatureFactory {
       let switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
       if (action.name.includes("; Recharges after a Short or Long Rest")) action.name = action.name.replace("; Recharges after a Short or Long Rest", "");
       if (!switchAction) {
-        switchAction = this.featureBlocks[type].find((act) => node.textContent.startsWith(act.fullName));
+        switchAction = this.featureBlocks[type].find((act) => node.textContent.startsWith(act.options.fullName));
       }
       let startFlag = false;
       if (switchAction) {
         action = switchAction;
-        if (action.html === "") {
+        if (action.options.html === "") {
           startFlag = true;
         }
       }
@@ -475,7 +474,7 @@ export class DDBFeatureFactory {
       if (node.outerHTML) {
         let outerHTML = node.outerHTML;
         if (switchAction && startFlag) {
-          if (action.fullName) {
+          if (action.options.fullName) {
             outerHTML = outerHTML.replace(action.fullName, "");
           } else {
             outerHTML = outerHTML.replace(nodeName, "");
@@ -486,7 +485,7 @@ export class DDBFeatureFactory {
           titleDom.appendChild(element);
         });
         if (titleDom.textContent.startsWith(". ")) outerHTML = outerHTML.replace(". ", "");
-        action.html += outerHTML;
+        action.options.html += outerHTML;
       }
 
       const resistanceMatch = node.textContent.match(/Legendary Resistance \((\d+)\/Day/i);
