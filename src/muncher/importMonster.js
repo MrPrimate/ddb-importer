@@ -5,6 +5,7 @@ import { updateIcons, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compe
 import DDBMuncher from "./DDBMuncher.js";
 import { migrateItemsDAESRD } from "./dae.js";
 import SETTINGS from "../settings.js";
+import utils from "../lib/utils.js";
 
 // check items to see if retaining item, img or resources
 async function existingItemRetentionCheck(currentItems, newItems, checkId = true) {
@@ -207,8 +208,8 @@ export async function getNPCImage(npcData, options) {
   }
 
   const npcType = options.type.startsWith("vehicle") ? "vehicle" : npcData.system.details.type.value;
-  const genericNPCName = npcType.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
-  const npcName = npcData.name.replace(/[^a-zA-Z]/g, "-").replace(/-+/g, "-").trim();
+  const genericNPCName = utils.referenceNameString(npcType);
+  const npcName = utils.referenceNameString(npcData.name);
 
   if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
   if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;

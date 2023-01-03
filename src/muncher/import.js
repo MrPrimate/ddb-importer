@@ -329,12 +329,21 @@ async function createCompendiumItems(type, compendium, inputItems, index, matchF
           break;
         }
         default: {
-          // eslint-disable-next-line no-await-in-loop
-          newItem = await Item.create(item, {
-            temporary: true,
-            displaySheet: false,
-          });
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            newItem = await Item.create(item, {
+              temporary: true,
+              displaySheet: false,
+            });
+          } catch (err) {
+            logger.error(`Error creating ${item.name}`, { item, err });
+            throw err;
+          }
+
         }
+      }
+      if (!newItem) {
+        logger.error(`Item ${item.name} failed creation`, { item, newItem });
       }
       DDBMuncher.munchNote(`Creating ${item.name}`);
       logger.debug(`Pushing ${item.name} to compendium`);

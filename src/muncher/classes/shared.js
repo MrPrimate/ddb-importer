@@ -5,6 +5,7 @@ import logger from "../../logger.js";
 import DICTIONARY from "../../dictionary.js";
 import { generateTable } from "../table.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
+import utils from "../../lib/utils.js";
 
 const CLASS_TEMPLATE = {
   "name": "",
@@ -206,7 +207,7 @@ export async function buildBaseClass(klass) {
   logger.debug(`Parsing ${klass.name}`);
   result.flags.obsidian.source.text = klass.name;
   result.type = "class";
-  result.system.identifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
+  result.system.identifier = utils.referenceNameString(klass.name).toLowerCase();
   result.system.advancement = [];
 
   let avatarUrl;

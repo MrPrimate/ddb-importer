@@ -5,6 +5,7 @@ import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
 import DDBMuncher from "../DDBMuncher.js";
+import utils from "../../lib/utils.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 
 async function buildSubClassBase(klass, subClass) {
@@ -62,8 +63,8 @@ async function buildSubClassBase(klass, subClass) {
     klass.system.description.value.replace(imageMatch, image);
   }
 
-  klass.system.classIdentifier = klass.name.toLowerCase().replace(/\s|'|’/g, '-');
-  klass.system.identifier = subClass.name.toLowerCase().replace(/\s|'|’/g, '-');
+  klass.system.classIdentifier = utils.referenceNameString(klass.name).toLowerCase();
+  klass.system.identifier = utils.referenceNameString(subClass.name).toLowerCase();
   klass.type = "subclass";
   klass.name = `${subClass.name} (${klass.name})`;
 
