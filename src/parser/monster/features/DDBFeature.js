@@ -6,7 +6,7 @@ import SETTINGS from "../../../settings.js";
 
 export default class DDBFeature {
 
-  generateAdjustedName() {
+  #generateAdjustedName() {
     if (!this.stripName) return;
     const regex = /(.*)\s\((:?costs \d actions|\d\/day|recharge \d-\d)\)/i;
     const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
@@ -14,6 +14,29 @@ export default class DDBFeature {
       this.feature.name = nameMatch[1];
       this.nameSplit = nameMatch[2];
     }
+  }
+
+  createBaseFeature() {
+    this.feature = {
+      name: this.name,
+      type: this.templateType,
+      system: JSON.parse(utils.getTemplate(this.templateType)),
+      effects: [],
+      flags: {
+        ddbimporter: {
+          dndbeyond: {
+          },
+        },
+        monsterMunch: {
+          titleHTML: this.titleHTML,
+          fullName: this.fullName,
+          actionCopy: this.actionCopy,
+        }
+      },
+    };
+    // these templates not good
+    this.feature.system.duration.value = "";
+    this.feature.system.requirements = "";
   }
 
   // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
@@ -35,6 +58,12 @@ export default class DDBFeature {
     this.toHit = matches ? parseInt(matches[3]) : 0;
     this.templateType = this.isAttack ? "weapon" : "feat";
 
+    if (!this.feature) this.createBaseFeature();
+    this.#generateAdjustedName();
+
+    // if not attack set to a monster type action
+    if (!this.isAttack) this.feature.system.type.value = "monster";
+
   }
 
   constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy } = {}) {
@@ -53,34 +82,8 @@ export default class DDBFeature {
 
     this.prepare();
 
-    this.feature = {
-      name,
-      type: this.templateType,
-      system: JSON.parse(utils.getTemplate(this.templateType)),
-      effects: [],
-      flags: {
-        ddbimporter: {
-          dndbeyond: {
-          },
-        },
-        monsterMunch: {
-          titleHTML: this.titleHTML,
-          fullName: this.fullName,
-          actionCopy: this.actionCopy,
-        }
-      },
-    };
-
-    this.generateAdjustedName();
-
-    // if not attack set to a monster type action
-    if (!this.isAttack) this.feature.system.type.value = "monster";
-
     // copy source details from parent
     if (this.ddbMonster) this.feature.system.source = this.ddbMonster.npc.system.details.source;
-
-    // these templates not good
-    this.feature.system.duration.value = "";
 
     this.actionInfo = {
       damage: {
@@ -268,8 +271,8 @@ export default class DDBFeature {
 
   getUses(name = false) {
     let uses = {
-      value: 0,
-      max: 0,
+      value: null,
+      max: "",
       per: null,
       recovery: "",
     };
@@ -313,7 +316,7 @@ export default class DDBFeature {
   }
 
   getFeatSave() {
-    const saveSearch = /DC (\d+) (\w+) saving throw/;
+    const saveSearch = /DC (\d+) (\w+) (saving throw|check)/i;
     const match = this.strippedHtml.match(saveSearch);
     if (match) {
       this.actionInfo.save.dc = parseInt(match[1]);
@@ -419,6 +422,7 @@ export default class DDBFeature {
     return results;
   }
 
+  // eslint-disable-next-line complexity
   generateWeaponAttackInfo() {
     const abilities = ["str", "dex", "int", "wis", "cha", "con"];
     let initialAbilities = [];
@@ -439,6 +443,10 @@ export default class DDBFeature {
         weaponAbilities = ["str"];
       }
       this.actionInfo.weaponType = lookup.weaponType;
+    } else if (this.meleeAttack) {
+      this.actionInfo.weaponType = "simpleM";
+    } else if (this.rangedAttack) {
+      this.actionInfo.weaponType = "simpleR";
     }
 
     if (this.spellAttack) {
@@ -593,7 +601,7 @@ export default class DDBFeature {
     this.feature.system.recharge = this.actionInfo.recharge;
     this.feature.system.save = this.actionInfo.save;
     // assumption - if we have parsed a save dc set action type to save
-    if (this.feature.system.save.dc) {
+    if (this.feature.system.save.dc && !this.isAttack) {
       this.feature.system.actionType = "save";
     }
 
@@ -602,11 +610,13 @@ export default class DDBFeature {
     this.feature.system.properties = this.actionInfo.properties;
     this.feature.system.proficient = this.actionInfo.proficient;
     this.feature.system.ability = this.actionInfo.baseAbility;
-    this.feature.system.attackBonus = this.actionInfo.extraAttackBonus;
+    this.feature.system.attackBonus = `${this.actionInfo.extraAttackBonus}`;
 
     if (this.weaponAttack) {
-      this.feature.system.weaponType = this.actionInfo.weaponType;
-      this.feature.system.equipped = true;
+      if (this.templateType !== "feat") {
+        this.feature.system.weaponType = this.actionInfo.weaponType;
+        this.feature.system.equipped = true;
+      }
       // console.log(actionInfo.weaponAttack);
       // console.log(actionInfo.meleeAttack);
       // console.log(actionInfo.rangedAttack);
@@ -632,7 +642,7 @@ export default class DDBFeature {
     this.feature.system.duration = this.actionInfo.duration;
     this.feature.system.uses = this.actionInfo.uses;
 
-    if (this.feature.name.includes("/Day")) {
+    if (this.name.includes("/Day")) {
       this.feature.system.uses = this.getUses(true);
     }
 
@@ -713,11 +723,22 @@ export default class DDBFeature {
     const resistanceMatch = this.name.match(/Legendary Resistance \((\d+)\/Day/i);
     if (resistanceMatch) {
       this.feature.system.activation.type = "special";
-      this.feature.system.activation.const = null;
+      this.feature.system.activation.cost = null;
       this.feature.system.consume = {
         type: "attribute",
         target: "resources.legres.value",
         amount: 1
+      };
+    }
+
+    // if this special action has nothing to do, then we remove the activation type
+    if (this.feature.system.actionType === null
+      && (this.feature.system.uses.value === null || this.feature.system.uses.value === 0)
+      && this.feature.system.recharge.value === null
+    ) {
+      this.feature.system.activation = {
+        cost: null,
+        type: "",
       };
     }
   }
@@ -739,8 +760,6 @@ export default class DDBFeature {
   }
 
   parse() {
-    // this.prepare();
-    // this.generateAdjustedName();
     this.#generateActionInfo();
     switch (this.type) {
       case "action":
