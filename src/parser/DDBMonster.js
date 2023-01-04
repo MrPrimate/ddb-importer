@@ -146,7 +146,13 @@ export default class DDBMonster {
         if (item.system?.recharge?.value) {
           const itemID = randomID(16);
           item._id = itemID;
-          if (item.type === "weapon") item.type = "feat";
+          if (item.type === "weapon") {
+            item.type = "feat";
+            delete item.system.weaponType;
+            item.system.type = {
+              value: "monster"
+            };
+          }
           item.system.consume = {
             type: "charges",
             target: itemID,
@@ -219,8 +225,8 @@ export default class DDBMonster {
     this.npc.items = this.items;
 
     this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc);
-
     this.npc = specialCases(this.npc);
+
     if (this.addMonsterEffects) {
       this.npc = await monsterFeatureEffectAdjustment(this.npc, this.source);
     }
@@ -232,7 +238,7 @@ export default class DDBMonster {
       }
     }
 
-    console.warn(`Generated ${this.name}`, this);
+    logger.debug(`Generated ${this.name}`, this);
     return this.npc;
 
   }

@@ -122,15 +122,15 @@ function parseSpells({ text, spells, spellList }) {
   const spellMatches = (match) ? match[3] : warlockMatch[4];
 
   if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))) {
-    spells[`spell${spellLevel}`]['value'] = slots;
-    spells[`spell${spellLevel}`]['max'] = slots;
-    spells[`spell${spellLevel}`]['override'] = slots;
+    spells[`spell${spellLevel}`]['value'] = parseInt(slots);
+    spells[`spell${spellLevel}`]['max'] = slots ?? "";
+    spells[`spell${spellLevel}`]['override'] = parseInt(slots) ?? null;
     const spellArray = spellMatches.split(",").map((spell) => spell.trim());
     spellList.class.push(...spellArray);
   } else if (spellLevel === 'pact' && Number.isInteger(parseInt(slots))) {
-    spells[spellLevel]['value'] = slots;
-    spells[spellLevel]['max'] = slots;
-    spells[spellLevel]['override'] = slots;
+    spells[spellLevel]['value'] = parseInt(slots);
+    spells[spellLevel]['max'] = slots ?? "";
+    spells[spellLevel]['override'] = parseInt(slots) ?? null;
     spells[spellLevel]['level'] = warlockMatch[3];
     const spellArray = spellMatches.split(",").map((spell) => spell.trim());
     spellList.pact.push(...spellArray);
@@ -433,7 +433,7 @@ export function getSpellEdgeCase(spell, type, spellList) {
       // no default
     }
     spell.name = `${spell.name} (${edgeCase.edge})`;
-    spell.system.description.chat = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.chat}`;
+    // spell.system.description.chat = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.chat}`;
     spell.system.description.value = `<p><b>Special Notes: ${edgeCase.edge}.</b></p>\n\n${spell.system.description.value}`;
 
     const diceSearch = /(\d+)d(\d+)/;
@@ -452,7 +452,7 @@ export function getSpellEdgeCase(spell, type, spellList) {
     const saveSearch = /save DC (\d+)/;
     const saveMatch = edgeCase.edge.match(saveSearch);
     if (saveMatch) {
-      spell.system.save.dc = saveMatch[1];
+      spell.system.save.dc = parseInt(saveMatch[1]);
       spell.system.save.scaling = "flat";
     }
 
@@ -501,8 +501,9 @@ DDBMonster.prototype.addSpells = async function() {
         };
         spell.system.uses = {
           value: null,
-          max: null,
-          per: "",
+          max: "",
+          per: null,
+          recovery: "",
         };
       }
       getSpellEdgeCase(spell, "atwill", spellList);
@@ -566,8 +567,9 @@ DDBMonster.prototype.addSpells = async function() {
           if (isAtWill && spellInfo.type === "atwill") {
             spell.system.uses = {
               value: null,
-              max: null,
-              per: "",
+              max: "",
+              per: null,
+              recovery: "",
             };
           } else {
             const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
@@ -577,9 +579,10 @@ DDBMonster.prototype.addSpells = async function() {
                 ? perLookup.type
                 : "day";
             spell.system.uses = {
-              value: spellInfo.value,
-              max: spellInfo.value,
-              per: per,
+              value: parseInt(spellInfo.value),
+              max: spellInfo.value ?? "",
+              per,
+              recovery: "",
             };
           }
           getSpellEdgeCase(spell, "innate", spellList);
