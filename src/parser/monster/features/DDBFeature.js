@@ -747,6 +747,7 @@ export default class DDBFeature {
       this.feature.system.activation = {
         cost: null,
         type: "",
+        condition: "",
       };
     }
   }
