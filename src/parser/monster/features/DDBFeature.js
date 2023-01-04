@@ -342,15 +342,17 @@ export default class DDBFeature {
       units: "",
     };
 
-    const rangeSearch1 = /range\s*(\d+)\s*\s*\/\s*(\d+)\s*\s*ft/;
-    const rangeSearch2 = /range\s*(\d+)\s*ft[.]*\s*\s*\/\s*(\d+)\s*\s*ft/;
-    const rangeSearch3 = /range\s*(\d+)\s*\s*ft/;
-    const reachSearch = /reach\s*(\d+)\s*\s*ft/;
+    const rangeSearch1 = /range\s*(\d+)\s*\/\s*(\d+)\s*ft/;
+    const rangeSearch2 = /range\s*(\d+)\s*ft[.]*\s*\/\s*(\d+)\s*ft/;
+    const rangeSearch3 = /range\s*(\d+)\s*(:?ft|feet)/;
+    const reachSearch = /reach\s*(\d+)\s*(:?ft|feet)/;
+    const withinSearch = /within\s*(\d+)\s*(:?ft|feet)/;
 
     const matches1 = this.strippedHtml.match(rangeSearch1);
     const matches2 = this.strippedHtml.match(rangeSearch2);
     const matches3 = this.strippedHtml.match(rangeSearch3);
     const reachMatch = this.strippedHtml.match(reachSearch);
+    const withinMatch = this.strippedHtml.match(withinSearch);
 
     if (matches1) {
       range.value = parseInt(matches1[1]);
@@ -365,6 +367,9 @@ export default class DDBFeature {
       range.units = "ft";
     } else if (reachMatch) {
       range.value = parseInt(reachMatch[1]);
+      range.units = "ft";
+    } else if (withinMatch) {
+      range.value = parseInt(withinMatch[1]);
       range.units = "ft";
     }
 
