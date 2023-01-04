@@ -15,6 +15,7 @@
 * Improved parsing of Monster Feature types into Weapons, Actions and Features.
 * Monster Parsing: Dragon Wings now detect reach.
 * Monster Parsing: Slightly improved damage detection for some actions.
+* Prevent spell duplication for some feat choices.
 
 # 3.2.12
 
