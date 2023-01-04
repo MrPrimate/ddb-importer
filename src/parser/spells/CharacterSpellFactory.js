@@ -307,28 +307,28 @@ export default class CharacterSpellFactory {
         },
       };
 
-      if (spell.alwaysPrepared && spell.limitedUse) {
-        const dups = this.ddb.character.spells.feat.filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
-        const duplicateSpell = this.items.findIndex(
-          (existingSpell) =>
-            (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
-            && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
-        );
-        if (!dups && !this.items[duplicateSpell]) {
-          // also parse spell as non-limited use
-          let unlimitedSpell = duplicate(spell);
-          unlimitedSpell.limitedUse = null;
-          unlimitedSpell.usesSpellSlot = true;
-          unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
-          unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "feat";
-          unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-          delete unlimitedSpell.id;
-          delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-          // eslint-disable-next-line no-await-in-loop
-          const parsedSpell = await parseSpell(spell, this.character);
-          this.items.push(parsedSpell);
-        }
-      }
+      // if (spell.alwaysPrepared && spell.limitedUse) {
+      //   const dups = this.ddb.character.spells.feat.filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
+      //   const duplicateSpell = this.items.findIndex(
+      //     (existingSpell) =>
+      //       (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
+      //       && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
+      //   );
+      //   if (!dups && !this.items[duplicateSpell]) {
+      //     // also parse spell as non-limited use
+      //     let unlimitedSpell = duplicate(spell);
+      //     unlimitedSpell.limitedUse = null;
+      //     unlimitedSpell.usesSpellSlot = true;
+      //     unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
+      //     unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "feat";
+      //     unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
+      //     delete unlimitedSpell.id;
+      //     delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+      //     // eslint-disable-next-line no-await-in-loop
+      //     const parsedSpell = await parseSpell(spell, this.character);
+      //     this.items.push(parsedSpell);
+      //   }
+      // }
 
       // eslint-disable-next-line no-await-in-loop
       const parsedSpell = await parseSpell(spell, this.character);
