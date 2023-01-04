@@ -18,7 +18,7 @@ function addAdditionalUses (advancement) {
     configuration: {
       distance: { units: "" },
       identifier: `${advancement.configuration.identifier}-uses`,
-      type: "numeric",
+      type: "number",
       scale: {},
     },
     value: {},
