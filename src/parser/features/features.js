@@ -31,7 +31,7 @@ function parseFeature(feat, ddb, character, source, type) {
     },
   };
 
-  item.system.type.value = type === "race" ? "species" : type;
+  item.system.type.value = type;
 
   logger.debug(`Getting Feature ${item.name}`);
 

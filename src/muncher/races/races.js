@@ -58,7 +58,7 @@ function getRacialTrait(trait, fullName, isLegacy) {
   result.system.requirements = fullName;
 
   result.system.type = {
-    value: "species",
+    value: "race",
   };
 
   result.system.description.value = parseTags(result.system.description.value);
