@@ -146,7 +146,7 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
     });
   }
 
-  const rulesCompendium = foundry.utils.isNewerVersion(game.system.version, "2.0.3") ? "dnd5e.rules" : "dnd5e-srd.rules";
+  const rulesCompendium = foundry.utils.isNewerVersion(game.system.version, "2.0.3") ? "dnd5e-srd.rules" : "dnd5e.rules";
   const srdCompendium = CompendiumHelper.getCompendium(rulesCompendium);
   if (!srdCompendium) return result;
 
