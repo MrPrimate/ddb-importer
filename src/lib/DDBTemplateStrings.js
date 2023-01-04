@@ -382,6 +382,7 @@ function replaceTag(match, p1, p2, p3, offset, string) {
 }
 
 function parseSRDLinks(text) {
+  if (!CONFIG.DDBI.SRD_LOOKUP?.lookups) return text;
   [
     CONFIG.DDBI.SRD_LOOKUP.lookups.conditions,
     CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
