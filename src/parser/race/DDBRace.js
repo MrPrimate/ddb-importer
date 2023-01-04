@@ -20,7 +20,7 @@ export default class DDBRace {
         },
         "source": "",
         "type": {
-          "value": "species",
+          "value": "race",
         },
       },
       "sort": 2600000,
