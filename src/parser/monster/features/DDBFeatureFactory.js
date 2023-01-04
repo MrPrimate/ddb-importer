@@ -321,7 +321,7 @@ export class DDBFeatureFactory {
     // build out skeleton actions
     dom.querySelectorAll("strong").forEach((node) => {
       const name = node.textContent.trim().replace(/\.$/, '').trim();
-      let action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
+      const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
 
       const actionMatch = this.features["action"].concat(
         this.features.reaction,
@@ -339,9 +339,9 @@ export class DDBFeatureFactory {
         dupFeature.feature = duplicate(actionMatch.feature);
         dupFeature.feature.name = action.name; // fix up name to make sure things like Attack are included
         this.features[type].push(dupFeature);
-      } else {
-        this.featureBlocks[type].push(action);
+        action.options.actionCopy = true;
       }
+      this.featureBlocks[type].push(action);
 
     });
 
@@ -369,7 +369,7 @@ export class DDBFeatureFactory {
             }
           }
 
-          if (action.actionCopy) return;
+          if (action.options.actionCopy) return;
           if (node.outerHTML) {
             let outerHTML = node.outerHTML;
             if (switchAction && startFlag) {
@@ -538,11 +538,13 @@ export class DDBFeatureFactory {
     });
 
     // parse remaining feature blocks
-    this.featureBlocks[type].forEach((feature) => {
-      const ddbFeature = new DDBFeature(feature.name, feature.options);
-      ddbFeature.parse();
-      this.features[type].push(ddbFeature);
-    });
+    this.featureBlocks[type]
+      .filter((feature) => !feature.options.actionCopy)
+      .forEach((feature) => {
+        const ddbFeature = new DDBFeature(feature.name, feature.options);
+        ddbFeature.parse();
+        this.features[type].push(ddbFeature);
+      });
 
   }
 
