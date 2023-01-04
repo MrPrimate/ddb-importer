@@ -298,7 +298,8 @@ async function linkResourcesConsumption(actor) {
           item.type = "feat";
           delete item.system.weaponType;
           item.system.type = {
-            value: "monster"
+            value: "monster",
+            subtype: "",
           };
         }
         item.system.consume = {
