@@ -294,7 +294,13 @@ async function linkResourcesConsumption(actor) {
       if (item.system?.recharge?.value) {
         const itemID = randomID(16);
         item._id = itemID;
-        if (item.type === "weapon") item.type = "feat";
+        if (item.type === "weapon") {
+          item.type = "feat";
+          delete item.system.weaponType;
+          item.system.type = {
+            value: "monster"
+          };
+        }
         item.system.consume = {
           type: "charges",
           target: itemID,
