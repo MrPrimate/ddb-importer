@@ -8,7 +8,7 @@ export default class DDBFeature {
 
   #generateAdjustedName() {
     if (!this.stripName) return;
-    const regex = /(.*)\s\((:?costs \d actions|\d\/day|recharge \d-\d)\)/i;
+    const regex = /(.*)\s*\((:?costs \d actions|\d\/day|recharge \d-\d)\)/i;
     const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
     if (nameMatch) {
       this.feature.name = nameMatch[1];
@@ -172,21 +172,20 @@ export default class DDBFeature {
   // eslint-disable-next-line complexity
   generateExtendedDamageInfo() {
     const hitIndex = this.strippedHtml.indexOf("Hit:");
-    let hit = this.strippedHtml;
-    if (hitIndex > 0) hit = this.strippedHtml.slice(hitIndex);
+    let hit = (hitIndex > 0) ? this.strippedHtml.slice(hitIndex) : `${this.strippedHtml}`;
     hit = hit.split("At the end of each")[0].split("At the start of each")[0];
     hit = hit.replace(/[–-–−]/g, "-");
     // console.warn(hit);
     // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
     // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/((?:saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/g);
-    const matches = hit.matchAll(damageExpression);
+    const damageExpression = new RegExp(/((?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/g);
+    const matches = [...hit.matchAll(damageExpression)];
     const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
     const regainMatch = hit.match(regainExpression);
 
     logger.debug(`${this.name} Damage matches`, { hit, matches, regainMatch });
     let versatile = false;
-    for (let dmg of matches) {
+    for (const dmg of matches) {
       let other = false;
       if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
         continue; // eslint-disable-line no-continue
@@ -697,6 +696,10 @@ export default class DDBFeature {
       this.feature.system.range = this.actionInfo.range;
       this.feature.system.target = this.actionInfo.target;
       this.feature.system.damage = this.actionInfo.damage;
+
+      if (!this.feature.system.actionType && !this.isAttack && this.feature.system.damage.parts.length > 0) {
+        this.feature.system.actionType = "other";
+      }
     }
 
   }

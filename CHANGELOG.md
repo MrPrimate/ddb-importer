@@ -13,6 +13,8 @@
 * Monster parsing: New option to strip things like the recharge and action cost from feature names.
 * Parsing is now supported for schema changes in D&D System v2.1.x. These necessitated major changes, especially to monster parsing. Risk of breakage high.
 * Improved parsing of Monster Feature types into Weapons, Actions and Features.
+* Monster Parsing: Dragon Wings now detect reach.
+* Monster Parsing: Slightly improved damage detection for some actions.
 
 # 3.2.12
 
