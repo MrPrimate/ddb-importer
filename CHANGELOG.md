@@ -17,6 +17,7 @@
 * Monster Parsing: Slightly improved damage detection for some actions.
 * Prevent spell duplication for some feat choices.
 * Effects: Tweaks to DamageOnlyWorkflow macros to support levels auto cover and midi-qol when cover is enabled. @Chris#8375
+* Character Updates: if the death saves were cleared rather than set to 0, update to DDB would fail.
 
 # 3.2.12
 

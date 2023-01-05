@@ -230,7 +230,7 @@ async function currency(actor, ddbData) {
 
 async function updateDDBXP(actor) {
   return new Promise((resolve) => {
-    resolve(updateCharacterCall(actor, "xp", { currentXp: actor.system.details.xp.value }, "XP"));
+    resolve(updateCharacterCall(actor, "xp", { currentXp: actor.system.details.xp.value ?? 0 }, "XP"));
   });
 }
 
@@ -249,8 +249,8 @@ async function xp(actor, ddbData) {
 
 async function updateDDBHitPoints(actor) {
   return new Promise((resolve) => {
-    const temporaryHitPoints = actor.system.attributes.hp.temp ? actor.system.attributes.hp.temp : 0;
-    const removedHitPoints = actor.system.attributes.hp.max - actor.system.attributes.hp.value;
+    const temporaryHitPoints = actor.system.attributes.hp.temp ?? 0;
+    const removedHitPoints = actor.system.attributes.hp.max - (actor.system.attributes.hp.value ?? 0);
     const hitPointData = {
       removedHitPoints,
       temporaryHitPoints,
@@ -262,10 +262,9 @@ async function updateDDBHitPoints(actor) {
 async function hitPoints(actor, ddbData) {
   return new Promise((resolve) => {
     if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-hitpoints")) resolve();
-    const temporaryHitPoints = actor.system.attributes.hp.temp ? actor.system.attributes.hp.temp : 0;
     const same
-      = ddbData.character.character.system.attributes.hp.value === actor.system.attributes.hp.value
-      && ddbData.character.character.system.attributes.hp.temp === temporaryHitPoints;
+      = ddbData.character.character.system.attributes.hp.value === (actor.system.attributes.hp.value ?? 0)
+      && ddbData.character.character.system.attributes.hp.temp === (actor.system.attributes.hp.temp ?? 0);
 
     if (!same) {
       resolve(updateDDBHitPoints(actor));
@@ -361,8 +360,8 @@ async function conditions(actor, ddbData) {
 async function updateDDBDeathSaves(actor) {
   return new Promise((resolve) => {
     const deathSaveData = {
-      failCount: actor.system.attributes.death.failure,
-      successCount: actor.system.attributes.death.success,
+      failCount: actor.system.attributes.death.failure ?? 0,
+      successCount: actor.system.attributes.death.success ?? 0,
     };
     resolve(updateCharacterCall(actor, "deathsaves", deathSaveData, "Death Saves"));
   });
