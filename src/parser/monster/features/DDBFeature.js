@@ -66,7 +66,7 @@ export default class DDBFeature {
 
   }
 
-  constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy } = {}) {
+  constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription } = {}) {
 
     this.name = name;
     this.ddbMonster = ddbMonster;
@@ -76,8 +76,8 @@ export default class DDBFeature {
     this.fullName = fullName ?? this.name;
     this.actionCopy = actionCopy ?? false;
 
-    this.hideDescription = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
-    this.updateExisting = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+    this.hideDescription = hideDescription ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
+    this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
 
     this.prepare();

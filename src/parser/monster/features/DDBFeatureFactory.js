@@ -11,11 +11,11 @@ export class DDBFeatureFactory {
     return text.replaceAll(rollableRegex, "$2");
   }
 
-  constructor({ ddbMonster } = {}) {
+  constructor({ ddbMonster, hideDescription, updateExisting } = {}) {
     this.ddbMonster = ddbMonster;
 
-    this.hideDescription = game.settings.get("ddb-importer", "munching-policy-hide-description");
-    this.updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
+    this.hideDescription = hideDescription;
+    this.updateExisting = updateExisting;
 
     this.featureBlocks = {
       action: [],
@@ -541,6 +541,8 @@ export class DDBFeatureFactory {
     this.featureBlocks[type]
       .filter((feature) => !feature.options.actionCopy)
       .forEach((feature) => {
+        feature.options["hideDescription"] = this.hideDescription;
+        feature.options["updateExisting"] = this.updateExisting;
         const ddbFeature = new DDBFeature(feature.name, feature.options);
         ddbFeature.parse();
         this.features[type].push(ddbFeature);
