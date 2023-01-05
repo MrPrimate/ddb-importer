@@ -31,7 +31,7 @@ function parseFeature(feat, ddb, character, source, type) {
     },
   };
 
-  item.system.type.value = type;
+  setProperty(item, "system.type.value", type);
 
   logger.debug(`Getting Feature ${item.name}`);
 
