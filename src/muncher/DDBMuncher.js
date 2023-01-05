@@ -238,7 +238,7 @@ export default class DDBMuncher extends Application {
   static async parseCritters() {
     try {
       logger.info("Munching monsters!");
-      const monsterFactory = new DDBMonsterFactory();
+      const monsterFactory = new DDBMonsterFactory({ munchNote: DDBMuncher.munchNote });
       const result = await monsterFactory.processIntoCompendium();
       DDBMuncher.munchNote(`Finished importing ${result} monsters!`, true);
       DDBMuncher.munchNote("");
