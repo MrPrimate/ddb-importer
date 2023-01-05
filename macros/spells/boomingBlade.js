@@ -102,7 +102,7 @@ if (args[0].tag === "OnUse") {
       casterToken,
       damageRoll.total,
       damageType,
-      [targetToken],
+      [targetToken.object], // bug in midi/levels auto cover can't cope with token
       damageRoll,
       {
         flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
