@@ -62,7 +62,7 @@ export default class DDBFeature {
     this.#generateAdjustedName();
 
     // if not attack set to a monster type action
-    if (!this.isAttack) this.feature.system.type.value = "monster";
+    if (!this.isAttack) setProperty(this.feature, ".system.type.value", "monster");
 
   }
 
