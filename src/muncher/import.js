@@ -259,7 +259,7 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
       const existing = existingItems[0];
       // eslint-disable-next-line require-atomic-updates
       item._id = existing._id;
-      DDBMuncher.munchNote(`Updating ${item.name}`);
+      DDBMuncher.munchNote(`Updating ${item.name} compendium entry`);
       // purge existing active effects on this item
       if (existing.results) await existing.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
       if (existing.effects) await existing.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });

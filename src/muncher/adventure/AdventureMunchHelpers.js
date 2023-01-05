@@ -6,6 +6,7 @@ import { parseItems } from "../items.js";
 import AdventureMunch from "./AdventureMunch.js";
 import SETTINGS from "../../settings.js";
 import DDBMonsterFactory from "../DDBMonsterFactory.js";
+import DDBMuncher from "../DDBMuncher.js";
 
 export default class AdventureMunchHelpers {
 
@@ -213,7 +214,7 @@ export default class AdventureMunchHelpers {
               if (tiers.all) {
                 logger.debug(`Importing missing ${type}s from DDB`, docIds);
                 AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
-                const monsterFactory = new DDBMonsterFactory();
+                const monsterFactory = new DDBMonsterFactory({ munchNote: DDBMuncher.munchNote });
                 resolve(monsterFactory.processIntoCompendium(docIds));
               } else {
                 logger.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, docIds);
