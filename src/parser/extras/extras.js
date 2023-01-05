@@ -48,6 +48,7 @@ async function updateExtras(extras, existingExtras) {
             exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id
             && extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
         );
+        extra.folder = existingExtra.folder?.id;
         extra._id = existingExtra._id;
         logger.info(`Updating extra ${extra.name}`);
         await copySupportedItemFlags(existingExtra, extra);
@@ -538,8 +539,8 @@ async function updateOrCreateExtras(actor, folder, parsedExtras) {
   // const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
 
   const existingExtras = await game.actors.contents
-    .filter((extra) => extra.folder === folder.id)
-    .map((extra) => extra.system);
+    .filter((extra) => extra.folder?.id === folder.id)
+    .map((extra) => extra);
 
   if (!updateBool || !updateImages) {
     if (!updateImages) {
@@ -554,8 +555,8 @@ async function updateOrCreateExtras(actor, folder, parsedExtras) {
   if (updateBool) await updateExtras(finalExtras, existingExtras);
   const importedExtras = await createExtras(finalExtras, existingExtras, folder.id);
 
-  const isAutomatedEvocations = game.modules.get("automated-evocations")?.active;
-  if (isAutomatedEvocations) {
+  // add companions to automated evocations list
+  if (game.modules.get("automated-evocations")?.active) {
     const currentAutomatedEvocationSettings = {
       isLocal: actor.getFlag("automated-evocations", "isLocal"),
       companions: actor.getFlag("automated-evocations", "isLocal"),
@@ -660,7 +661,7 @@ export async function generateCharacterExtras(html, characterData, actor) {
         return creature;
       });
 
-    logger.debug("Extracted creatures", extractedCreatures);
+    logger.debug("Extracted creatures", duplicate(extractedCreatures));
     const monsterFactory = new DDBMonsterFactory({ ddbData: extractedCreatures, extra: true });
     const parsedExtras = await monsterFactory.parse();
     logger.debug("Parsed Extras:", duplicate(parsedExtras.actors));
