@@ -1,5 +1,7 @@
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
+import DDBMonster from "../DDBMonster.js";
+import { DDBFeatureFactory } from "../monster/features/DDBFeatureFactory.js";
 import { newNPC } from "../monster/templates/monster.js";
 
 export default class DDBCompanion {
@@ -12,6 +14,10 @@ export default class DDBCompanion {
     this.npc = null;
     this.data = {};
     this.parsed = false;
+
+    this.useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
+    this.legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+    this.addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
   }
 
   #generateAbilities() {
@@ -436,8 +442,11 @@ export default class DDBCompanion {
 
 
   async getFeature(text, type) {
-    return {};
-
+    const options = { extra: true, useItemAC: this.useItemAC, legacyName: this.legacyName, addMonsterEffects: this.addMonsterEffects };
+    const ddbMonster = new DDBMonster(null, options);
+    const featureFactory = new DDBFeatureFactory({ ddbMonster, hideDescription: false, updateExisting: false });
+    featureFactory.generateActions(text, type);
+    return featureFactory.getFeatures(type);
   }
 
   async #generateFeatures() {
@@ -451,7 +460,7 @@ export default class DDBCompanion {
     let now = data.nextSibling;
     let featType = "feature";
     while (!end) {
-      switch (end.innerText.trim().toLowerCase()) {
+      switch (now.innerText.trim().toLowerCase()) {
         case "action":
         case "actions":
           featType = "action";
@@ -541,6 +550,7 @@ export default class DDBCompanion {
     this.#generateSenses();
     this.#generateLanguages();
     this.#generateSpeed();
+    this.#generateFeatures();
 
     this.data = duplicate(this.npc);
     this.parsed = true;
