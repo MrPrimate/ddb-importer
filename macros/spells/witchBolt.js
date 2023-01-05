@@ -22,7 +22,10 @@ async function sustainedDamage(options) {
   const damageRoll = await new Roll(`1d12[${damageType}]`).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll, game.users.get(options.userId));
 
-  const targets = await Promise.all(options.targets.map(async (uuid) => await fromUuid(uuid)));
+  const targets = await Promise.all(options.targets.map(async (uuid) => {
+    const tok = await fromUuid(uuid);
+    return tok.object;
+  }));
   const casterToken = await fromUuid(options.sourceUuid);
   const itemData = sourceItem.toObject();
   setProperty(itemData, "system.components.concentration", false);
