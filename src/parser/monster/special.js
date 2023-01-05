@@ -24,9 +24,9 @@ export function specialCases(monster) {
             target: "resources.legact.value",
             amount: 1
           };
-          this[index].system.activation.cost = "1";
+          this[index].system.activation.cost = 1;
         } else if (item.name.startsWith("Headless Wail")) {
-          this[index].system.activation.cost = "2";
+          this[index].system.activation.cost = 2;
           this[index].system.activation.type = "legendary";
           this[index].system.consume = {
             type: "attribute",
