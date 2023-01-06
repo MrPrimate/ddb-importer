@@ -7,7 +7,7 @@ import { newNPC } from "../monster/templates/monster.js";
 export default class DDBCompanion {
 
   constructor(block, options = {}) {
-    console.warn("DDBCompanion", { block });
+    // console.warn("DDBCompanion", { block });
     this.options = options;
     this.block = block;
     this.blockDatas = this.block.querySelectorAll("p.Stat-Block-Styles_Stat-Block-Data");
@@ -444,48 +444,60 @@ export default class DDBCompanion {
   async getFeature(text, type) {
     const options = { extra: true, useItemAC: this.useItemAC, legacyName: this.legacyName, addMonsterEffects: this.addMonsterEffects };
     const ddbMonster = new DDBMonster(null, options);
+    ddbMonster.name = this.name;
+    ddbMonster.npc = duplicate(this.npc);
+    ddbMonster.abilities = ddbMonster.npc.system.abilities;
+    ddbMonster.proficiencyBonus = 0;
     const featureFactory = new DDBFeatureFactory({ ddbMonster, hideDescription: false, updateExisting: false });
     featureFactory.generateActions(text, type);
+    logger.debug("Generating companion feature", { text, type, featureFactory });
     return featureFactory.getFeatures(type);
   }
 
+
+  async #processFeatureElement(element, featType) {
+    let next = element.nextElementSibling;
+
+    if (!next) return { next, featType };
+
+    switch (next.innerText.trim().toLowerCase()) {
+      case "action":
+      case "actions":
+        logger.debug("Companion parsing switching to actions");
+        return { next, featType: "action" };
+      case "reaction":
+      case "reactions":
+        logger.debug("Companion parsing switching to reactions");
+        return { next, featType: "reaction" };
+      case "bonus actions":
+      case "bonus":
+      case "bonus action":
+        logger.debug("Companion parsing switching to bonus actions");
+        return { next, featType: "bonus" };
+      // no default
+    }
+
+    const feature = await this.getFeature(next.outerHTML, featType);
+    this.npc.items.push(...feature);
+
+    return { next, featType };
+  }
+
   async #generateFeatures() {
+
     const data = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Data-Last");
     if (!data) {
       logger.error(`Unable to parse ${this.npc.name} features and actions`, { this: this });
       return;
     }
 
-    let end = false;
-    let now = data.nextSibling;
-    let featType = "feature";
-    while (!end) {
-      switch (now.innerText.trim().toLowerCase()) {
-        case "action":
-        case "actions":
-          featType = "action";
-          // eslint-disable-next-line no-continue
-          continue;
-        case "reaction":
-        case "reactions":
-          featType = "reaction";
-          // eslint-disable-next-line no-continue
-          continue;
-        case "bonus actions":
-        case "bonus":
-        case "bonus action":
-          featType = "bonus";
-          // eslint-disable-next-line no-continue
-          continue;
-        // no default
-      }
-
+    let now = data;
+    let featType = "special";
+    while (now !== null) {
       // eslint-disable-next-line no-await-in-loop
-      const feature = await this.getFeature(now, featType);
-      this.npc.items.push(feature);
-
-      now = now.nextSibling;
-      if (!now) end = true;
+      const result = await this.#processFeatureElement(now, featType);
+      now = result.next;
+      featType = result.featType;
     }
   }
 
@@ -508,13 +520,14 @@ export default class DDBCompanion {
   //   }
 
   async parse() {
-    console.warn("PARSE COMPANION", { block: this.block, aThis: this });
+    // console.warn("PARSE COMPANION", { block: this.block, aThis: this });
     const name = this.options.name ?? this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Title").innerHTML;
     const namePostfix = this.options.subType
       ? `(${this.options.subType})`
       : "";
 
     if (!name) return;
+    this.name = name;
     logger.debug(`Beginning companion parse for ${name}`, { name, block: this.block });
 
     const actorName = `${name} ${namePostfix}`.trim();
@@ -550,13 +563,12 @@ export default class DDBCompanion {
     this.#generateSenses();
     this.#generateLanguages();
     this.#generateSpeed();
-    this.#generateFeatures();
+    await this.#generateFeatures();
 
     this.data = duplicate(this.npc);
     this.parsed = true;
 
     logger.debug(`Finished companion parse for ${name}`, { name, block: this.block, data: this.data, npc: this.npc });
-    console.warn(`Finished companion parse for ${name}`, { name, block: this.block, data: this.data, npc: this.npc });
   }
 
 }
