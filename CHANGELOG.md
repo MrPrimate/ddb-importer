@@ -1,4 +1,4 @@
-# 3.2.13
+# 3.3.0
 
 * Some fixes for upcoming schema changes/enforcement in the next D&D system version.
 * Tools default ability did not always set.
