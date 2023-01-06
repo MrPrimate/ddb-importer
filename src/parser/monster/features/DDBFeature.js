@@ -204,7 +204,6 @@ export default class DDBFeature {
       const damage = dmg[3]?.includes(" + PB")
         ? `${dmg[2]}${dmg[3]?.replace(" + PB", "")}`
         : dmg[3] ?? dmg[2];
-      console.warn(damage);
       // Make sure we did match a damage
       if (damage) {
         const includesDiceRegExp = /[0-9]*d[0-9]+/;

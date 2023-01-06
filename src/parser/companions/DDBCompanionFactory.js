@@ -5,7 +5,7 @@ import DDBCompanion from "./DDBCompanion.js";
 export default class DDBCompanionFactory {
 
   constructor(ddbCharacter, html, options = {}) {
-    console.warn("html", html);
+    // console.warn("html", html);
     this.options = options;
     this.ddbCharacter = ddbCharacter;
     this.html = html;
@@ -28,7 +28,6 @@ export default class DDBCompanionFactory {
   };
 
   async #buildCompanion(block, options = {}) {
-    console.warn("factoryblock", block);
     logger.debug("Beginning companion parse", { block });
     const ddbCompanion = new DDBCompanion(block, options);
     // eslint-disable-next-line no-await-in-loop
@@ -37,11 +36,10 @@ export default class DDBCompanionFactory {
   }
 
   async parse() {
-    console.warn(this.doc);
-
+    // console.warn(this.doc);
     const statBlockDivs = this.doc.querySelectorAll("div.stat-block-background, div.stat-block-finder");
 
-    console.warn("statblkc divs", { statBlockDivs, athis: this });
+    // console.warn("statblkc divs", { statBlockDivs, athis: this });
     for (const block of statBlockDivs) {
       const name = block
         .querySelector("p.Stat-Block-Styles_Stat-Block-Title")
