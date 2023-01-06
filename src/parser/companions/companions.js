@@ -1,19 +1,20 @@
+import logger from "../../logger.js";
 import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "./DDBCompanionFactory.js";
 
-DDBCharacter.prototype.addCompanionsToDocument = function addCompanionsToDocument(document, companions) {
-  return document;
-};
+// DDBCharacter.prototype.addCompanionsToDocument = function(document, companions) {
+//   return document;
+// };
 
-DDBCharacter.prototype.getClassFeature = function getClassFeature(name) {
+DDBCharacter.prototype.getClassFeature = function(name) {
   const klass = this.source.ddb.character.classes
     .find((k) => k.classFeatures.some((f) => f.definition.name == name));
   return klass?.classFeatures?.find((f) => f.definition.name == name);
 };
 
 
-DDBCharacter.prototype._findDDBSpell = function _findDDBSpell(name) {
+DDBCharacter.prototype._findDDBSpell = function(name) {
   const spells = [];
   this.source.ddb.character.classSpells.forEach((playerClass) => {
     spells.push(...playerClass.spells);
@@ -42,21 +43,21 @@ DDBCharacter.prototype._findDDBSpell = function _findDDBSpell(name) {
   return undefined;
 };
 
-DDBCharacter.prototype._getCompanionSpell = async function _getCompanionSpell(name) {
-  console.warn(`Check data for spell ${name}`);
+DDBCharacter.prototype._getCompanionSpell = async function(name) {
+  // console.warn(`Check data for spell ${name}`);
   const spell = this.data.spells.find((s) => s.name === name || s.flags.ddbimporter?.originalName === name);
   if (!spell) return [];
 
   const ddbSpell = this._findDDBSpell(spell.flags.ddbimporter?.originalName ?? spell.name);
   if (!ddbSpell) return [];
 
-  console.warn(`Companion parse for ${name}`, { spell, ddbSpell });
+  // console.warn(`Companion parse for ${name}`, { spell, ddbSpell });
   const ddbCompanionFactory = new DDBCompanionFactory(this, ddbSpell.definition.description, {});
   await ddbCompanionFactory.parse();
   return ddbCompanionFactory.companions;
 };
 
-DDBCharacter.prototype._getCompanionFeature = async function _getCompanionFeature(featureName) {
+DDBCharacter.prototype._getCompanionFeature = async function(featureName) {
   const feature = this.data.features.concat(this.data.actions).find((s) =>
     s.name === featureName || s.flags.ddbimporter?.originalName === featureName
   );
@@ -68,7 +69,7 @@ DDBCharacter.prototype._getCompanionFeature = async function _getCompanionFeatur
   return ddbCompanionFactory.companions;
 };
 
-DDBCharacter.prototype.generateCompanions = async function generateCompanions() {
+DDBCharacter.prototype.generateCompanions = async function() {
   if (!game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) return;
   if (!game.modules.get("arbron-summoner")?.active) return;
   const steelDefender = await this._getCompanionFeature("Steel Defender");
@@ -105,7 +106,7 @@ DDBCharacter.prototype.generateCompanions = async function generateCompanions() 
 
   this.companions = await Promise.all(companions);
 
-  console.warn("parsed companions", this.companions);
+  logger.debug("parsed companions", this.companions);
   // different types of companion
   // ranger beast companions, classic and new
   // ranger drake warden
