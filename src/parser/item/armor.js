@@ -60,7 +60,7 @@ function getArmorType(data, character, flags) {
  * @param {obj} data Item data
  */
 function getStrength(data) {
-  return data.definition.strengthRequirement !== null ? data.definition.strengthRequirement : 0;
+  return data.definition.strengthRequirement ?? 0; // in future null might be permitted again
 }
 
 /**
