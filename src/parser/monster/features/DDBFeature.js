@@ -44,7 +44,7 @@ export default class DDBFeature {
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
     const matches = this.strippedHtml.match(
-      /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+)\s+to\s+hit/i
+      /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)\s+to\s+hit/i
     );
 
     // set calc flags
@@ -55,8 +55,13 @@ export default class DDBFeature {
     this.spellAttack = matches ? matches[2].toLowerCase() === "spell" : false;
     this.meleeAttack = matches ? matches[1].indexOf("Melee") !== -1 : false;
     this.rangedAttack = matches ? matches[1].indexOf("Ranged") !== -1 : false;
-    this.toHit = matches ? parseInt(matches[3]) : 0;
+    this.toHit = matches
+      ? Number.isInteger(parseInt(matches[3]))
+        ? parseInt(matches[3])
+        : 0
+      : 0;
     this.templateType = this.isAttack ? "weapon" : "feat";
+    this.yourSpellAttackModToHit = matches ? matches[3]?.startsWith("your spell") : false;
 
     if (!this.feature) this.createBaseFeature();
     this.#generateAdjustedName();
@@ -178,7 +183,7 @@ export default class DDBFeature {
     // console.warn(hit);
     // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
     // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/((?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/g);
+    const damageExpression = new RegExp(/((?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB))?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/g);
     const matches = [...hit.matchAll(damageExpression)];
     const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
     const regainMatch = hit.match(regainExpression);
@@ -196,7 +201,10 @@ export default class DDBFeature {
       }
       // check for other
       if (dmg[5] && dmg[5].trim() == "at the start of") other = true;
-      const damage = dmg[3] || dmg[2];
+      const damage = dmg[3]?.includes(" + PB")
+        ? `${dmg[2]}${dmg[3]?.replace(" + PB", "")}`
+        : dmg[3] ?? dmg[2];
+      console.warn(damage);
       // Make sure we did match a damage
       if (damage) {
         const includesDiceRegExp = /[0-9]*d[0-9]+/;
@@ -461,7 +469,11 @@ export default class DDBFeature {
       initialAbilities = abilities;
     }
 
-    if (this.weaponAttack || this.spellAttack) {
+    // force companions to null and proficient
+    if (this.yourSpellAttackModToHit) {
+      this.actionInfo.baseAbility = null;
+      this.actionInfo.proficient = true;
+    } else if (this.weaponAttack || this.spellAttack) {
       // check most likely initial attacks - str and dex based weapon, mental for spell
       const checkInitialAbilities = this.checkAbility(initialAbilities);
       if (checkInitialAbilities.success) {
@@ -503,7 +515,7 @@ export default class DDBFeature {
 
       // negative mods!
       if (!this.actionInfo.baseAbility) {
-        logger.info(`Negative ability parse for ${this.ddbMonster.name}, to hit ${this.toHit} with ${this.name}`);
+        logger.info(`Negative ability parse for ${this.ddbMonster.npc.name}, to hit ${this.toHit} with ${this.name}`);
 
         const magicAbilities = this.checkAbilities(initialAbilities, true);
 
