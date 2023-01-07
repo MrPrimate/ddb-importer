@@ -1,4 +1,4 @@
-
+let actor = args[0].actor;
 if (actor.flags?.dae?.onUpdateTarget && args[0].hitTargets.length > 0) {
   const isMarked = actor.flags.dae.onUpdateTarget.find(flag =>
     flag.flagName === "Hunter's Mark" && flag.sourceTokenUuid === args[0].hitTargetUuids[0]

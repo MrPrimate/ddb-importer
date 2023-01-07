@@ -20,6 +20,7 @@
 * Character Updates: if the death saves were cleared rather than set to 0, update to DDB would fail.
 * Extras Import: Would duplicate folder, extra or move extras to root directory.
 * If not using effects global spell attack bonuses might not always stack correctly.
+* Hunters Mark macro would not work if using dynamically loaded macros.
 
 # 3.2.12
 
