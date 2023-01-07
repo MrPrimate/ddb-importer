@@ -352,6 +352,26 @@ const CompendiumHelper = {
     return id ? id : null;
   },
 
+  /**
+   *
+   * @param {[string]} items Array of Strings or
+   */
+  async retrieveMatchingCompendiumItems(items, compendiumName) {
+    const GET_ENTITY = true;
+
+    const itemNames = items.map((item) => {
+      if (typeof item === "string") return item;
+      if (typeof item === "object" && Object.prototype.hasOwnProperty.call(item, "name")) return item.name;
+      return "";
+    });
+
+    const results = await CompendiumHelper.queryCompendiumEntries(compendiumName, itemNames, GET_ENTITY);
+    const cleanResults = results.filter((item) => item !== null);
+
+    return cleanResults;
+  }
+
+
 };
 
 export default CompendiumHelper;

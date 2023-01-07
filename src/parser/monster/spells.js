@@ -5,7 +5,8 @@ import SETTINGS from "../../settings.js";
 import DDBMonster from "../DDBMonster.js";
 import DICTIONARY from "../../dictionary.js";
 
-function parseSpellcasting(text) {
+
+DDBMonster.prototype.getSpellcasting = function(text) {
   let spellcasting = "";
   const abilitySearch = /((?:spellcasting ability) (?:is|uses|using) (\w+)| (\w+)(?: as \w+ spellcasting ability))/;
   const match = text.match(abilitySearch);
@@ -14,19 +15,27 @@ function parseSpellcasting(text) {
     spellcasting = abilityMatch.toLowerCase().substr(0, 3);
   }
   return spellcasting;
-}
+};
 
-function parseSpellLevel(text) {
+DDBMonster.prototype._generateSpellcasting = function(text) {
+  let spellcasting = this.getSpellcasting(text);
+  this.spellcasting.spellcasting = spellcasting;
+  this.npc.system.attributes.spellcasting = spellcasting;
+};
+
+DDBMonster.prototype._generateSpellLevel = function(text) {
   let spellLevel = 0;
   const levelSearch = /is (?:a|an) (\d+)(?:th|nd|rd|st)(?:-| )level spellcaster/;
   const match = text.match(levelSearch);
   if (match) {
     spellLevel = parseInt(match[1]);
   }
-  return spellLevel;
-}
+  this.spellcasting.spellLevel = spellLevel;
+  this.npc.system.attributes.spellLevel = spellLevel;
+  this.npc.system.details.spellLevel = spellLevel;
+};
 
-function parseSpelldc(text) {
+DDBMonster.prototype._generateSpelldc = function(text) {
   let dc = 10;
   const dcSearch = "spell\\s+save\\s+DC\\s*(\\d+)(?:,|\\)|\\s)";
   const match = text.match(dcSearch);
@@ -35,10 +44,11 @@ function parseSpelldc(text) {
   if (match) {
     dc = parseInt(match[1]);
   }
-  return dc;
-}
+  this.spellcasting.spelldc = dc;
+  this.npc.system.attributes.spelldc = dc;
+};
 
-DDBMonster.prototype.parseSpellAttackBonus = function (text) {
+DDBMonster.prototype._generateSpellAttackBonus = function(text) {
   let spellAttackBonus = 0;
   const dcSearch = "([+-]\\d+)\\s+to\\s+hit\\s+with\\s+spell\\s+attacks";
   const match = text.match(dcSearch);
@@ -46,13 +56,14 @@ DDBMonster.prototype.parseSpellAttackBonus = function (text) {
     const toHit = match[1];
     const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
     const abilities = getAbilityMods(this.source);
-    const castingAbility = parseSpellcasting(text);
+    const castingAbility = this.getSpellcasting(text);
     spellAttackBonus = toHit - proficiencyBonus - abilities[castingAbility];
   }
-  return spellAttackBonus;
+  this.spellcasting.spellAttackBonus = spellAttackBonus;
 };
 
-function parseInnateSpells({ text, spells, spellList }) {
+
+DDBMonster.prototype.parseOutInnateSpells = function(text) {
   // handle innate style spells here
   // 3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)
   // console.log(text);
@@ -62,7 +73,7 @@ function parseInnateSpells({ text, spells, spellList }) {
   if (innateMatch) {
     const spellArray = innateMatch[3].split(",").map((spell) => spell.trim());
     spellArray.forEach((spell) => {
-      spellList.innate.push({ name: spell, type: innateMatch[2], value: innateMatch[1], innate: spellList.innateMatch });
+      this.spellList.innate.push({ name: spell, type: innateMatch[2], value: innateMatch[1], innate: this.spellList.innateMatch });
     });
   }
 
@@ -72,10 +83,10 @@ function parseInnateSpells({ text, spells, spellList }) {
   if (atWillMatch) {
     const spellArray = atWillMatch[1].split(",").map((spell) => spell.trim());
     spellArray.forEach((spell) => {
-      if (spellList.innate) {
-        spellList.innate.push({ name: spell, type: "atwill", value: null, innate: spellList.innateMatch });
+      if (this.spellList.innateMatch) {
+        this.spellList.innate.push({ name: spell, type: "atwill", value: null, innate: this.spellList.innateMatch });
       } else {
-        spellList.atwill.push(spell);
+        this.spellList.atwill.push(spell);
       }
 
     });
@@ -86,27 +97,31 @@ function parseInnateSpells({ text, spells, spellList }) {
     const mephitMatch = text.match(/(\d+)\/(\w+)(?:.*)?cast (.*),/);
     if (mephitMatch) {
       const spell = mephitMatch[3].trim();
-      spellList.innate.push({ name: spell, type: mephitMatch[2], value: mephitMatch[1], innate: spellList.innateMatch });
+      this.spellList.innate.push({ name: spell, type: mephitMatch[2], value: mephitMatch[1], innate: this.spellList.innateMatch });
     }
   }
-
-  return [spells, spellList];
-
-}
+};
 
 
 // e.g. The archmage can cast disguise self and invisibility at will and has the following wizard spells prepared:
-function parseAdditionalAtWill(text) {
+DDBMonster.prototype.parseAdditionalAtWillSpells = function(text) {
   const atWillSearch = /can cast (.*?) at will/;
   const atWillMatch = text.match(atWillSearch);
   let atWillSpells = [];
   if (atWillMatch) {
     atWillSpells = atWillMatch[1].replace(" and", ",").split(",").map((spell) => spell.split('(', 1)[0].trim());
   }
-  return atWillSpells;
-}
 
-function parseSpells({ text, spells, spellList }) {
+  this.spellList.atwill.push(...atWillSpells);
+};
+
+
+/**
+ * First pass at breaking out spells to cast
+ * @param text spell text block
+ * @returns
+ */
+DDBMonster.prototype.parseOutSpells = function(text) {
   // console.log(text);
   const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|at-will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
   const match = text.match(spellLevelSearch);
@@ -115,36 +130,35 @@ function parseSpells({ text, spells, spellList }) {
   const warlockLevelSearch = /^1st–(\d)(?:st|th|nd|rd)\s+level\s+\((\d)\s+(\d)(?:st|th|nd|rd)?\s*(?:Level|level|-level)\s*(?:slot|slots)?\):\s+(.*$)/;
   const warlockMatch = text.match(warlockLevelSearch);
 
-  if (!match && !warlockMatch) return parseInnateSpells({ text, spells, spellList });
+  if (!match && !warlockMatch) {
+    this.parseOutInnateSpells(text);
+    return;
+  }
 
   const spellLevel = (match) ? match[1] : 'pact';
   const slots = (match) ? match[2] : warlockMatch[2];
   const spellMatches = (match) ? match[3] : warlockMatch[4];
 
   if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))) {
-    spells[`spell${spellLevel}`]['value'] = parseInt(slots);
-    spells[`spell${spellLevel}`]['max'] = slots ?? "";
-    spells[`spell${spellLevel}`]['override'] = parseInt(slots) ?? null;
+    this.npc.system.spells[`spell${spellLevel}`]['value'] = parseInt(slots);
+    this.npc.system.spells[`spell${spellLevel}`]['max'] = slots ?? "";
+    this.npc.system.spells[`spell${spellLevel}`]['override'] = parseInt(slots) ?? null;
     const spellArray = spellMatches.split(",").map((spell) => spell.trim());
-    spellList.class.push(...spellArray);
+    this.spellList.class.push(...spellArray);
   } else if (spellLevel === 'pact' && Number.isInteger(parseInt(slots))) {
-    spells[spellLevel]['value'] = parseInt(slots);
-    spells[spellLevel]['max'] = slots ?? "";
-    spells[spellLevel]['override'] = parseInt(slots) ?? null;
-    spells[spellLevel]['level'] = warlockMatch[3];
+    this.npc.system.spells[spellLevel]['value'] = parseInt(slots);
+    this.npc.system.spells[spellLevel]['max'] = slots ?? "";
+    this.npc.system.spells[spellLevel]['override'] = parseInt(slots) ?? null;
+    this.npc.system.spells[spellLevel]['level'] = warlockMatch[3];
     const spellArray = spellMatches.split(",").map((spell) => spell.trim());
-    spellList.pact.push(...spellArray);
+    this.spellList.pact.push(...spellArray);
   } else if (["at will", "at-will"].includes(slots)) {
     // at will spells
     const spellArray = spellMatches.replace(/\*/g, '').split(",").map((spell) => spell.trim());
-    spellList.atwill.push(...spellArray);
+    this.spellList.atwill.push(...spellArray);
   }
 
-  // console.log(spellList);
-
-  return [spells, spellList];
-
-}
+};
 
 
 function splitEdgeCase(spell) {
@@ -162,80 +176,49 @@ function splitEdgeCase(spell) {
   return result;
 }
 
-function getEdgeCases(spellList) {
-  let results = {
-    class: [],
-    pact: [],
-    atwill: [],
-    // {name: "", type: "srt/lng/day", value: 0} // check these values
-    innate: [],
-    edgeCases: [], // map { name: "", type: "", edge: "" }
-    material: spellList.material,
-  };
+DDBMonster.prototype._generateSpellEdgeCases = function() {
+  ["pact", "class", "atwill"].forEach((spellType) => {
+    this.spellList[spellType].forEach((spellName) => {
+      const edgeCheck = splitEdgeCase(`${spellName}`);
+      if (edgeCheck.edge) {
+        const edgeEntry = {
+          name: edgeCheck.name,
+          type: spellType,
+          edge: edgeCheck.edge,
+        };
+        this.spellList.edgeCases.push(edgeEntry);
+      }
+      spellName = edgeCheck.name;
+    });
+  });
 
-  // class and atwill
-  spellList.class.forEach((spell) => {
-    const edgeCheck = splitEdgeCase(spell);
-    results.class.push(edgeCheck.name);
-    if (edgeCheck.edge) {
-      const edgeEntry = {
-        name: edgeCheck.name,
-        type: "class",
-        edge: edgeCheck.edge,
-      };
-      results.edgeCases.push(edgeEntry);
-    }
-  });
-  spellList.atwill.forEach((spell) => {
-    const edgeCheck = splitEdgeCase(spell);
-    results.atwill.push(edgeCheck.name);
-    if (edgeCheck.edge) {
-      const edgeEntry = {
-        name: edgeCheck.name,
-        type: "atwill",
-        edge: edgeCheck.edge,
-      };
-      results.edgeCases.push(edgeEntry);
-    }
-  });
-  spellList.pact.forEach((spell) => {
-    const edgeCheck = splitEdgeCase(spell);
-    results.pact.push(edgeCheck.name);
-    if (edgeCheck.edge) {
-      const edgeEntry = {
-        name: edgeCheck.name,
-        type: "pact",
-        edge: edgeCheck.edge,
-      };
-      results.edgeCases.push(edgeEntry);
-    }
-  });
   // innate
-  spellList.innate.forEach((spellMap) => {
+  this.spellList.innate.forEach((spellMap) => {
     const edgeCheck = splitEdgeCase(spellMap.name);
     spellMap.name = edgeCheck.name;
-    results.innate.push(spellMap);
     if (edgeCheck.edge) {
       const edgeEntry = {
         name: edgeCheck.name,
         type: "innate",
         edge: edgeCheck.edge,
       };
-      results.edgeCases.push(edgeEntry);
+      this.spellList.edgeCases.push(edgeEntry);
     }
   });
-
-  return results;
-}
+};
 
 
 // <p><em><strong>Innate Spellcasting.</strong></em> The oblex&rsquo;s innate spellcasting ability is Intelligence (spell save DC 15). It can innately cast the following spells, requiring no components:</p>\r\n<p>3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)</p>
 
 DDBMonster.prototype._generateSpells = function() {
-  let spelldc = 10;
-  // data.details.spellLevel (spellcasting level)
-  let spellLevel = 0;
-  let spellList = {
+
+  this.spellcasting = {
+    spelldc: 10,
+    spellcasting: "", // ability associated
+    spellLevel: 0,
+    spellAttackBonus: 0,
+  };
+  this.spellList = {
     class: [],
     pact: [],
     atwill: [],
@@ -244,64 +227,6 @@ DDBMonster.prototype._generateSpells = function() {
     edgeCases: [], // map { name: "", type: "", edge: "" }
     material: true,
     innateMatch: false,
-  };
-
-  // ability associated
-  let spellcasting = "";
-  let spellAttackBonus = 0;
-
-  let spells = {
-    "spell1": {
-      "value": 0,
-      "max": 0,
-      "override": null
-    },
-    "spell2": {
-      "value": 0,
-      "max": 0,
-      "override": null
-    },
-    "spell3": {
-      "value": 0,
-      "max": 0,
-      "override": null
-    },
-    "spell4": {
-      "value": 0,
-      "max": 0,
-      "override": null
-    },
-    "spell5": {
-      "value": 0,
-      "max": 0,
-      "override": null
-    },
-    "spell6": {
-      "value": 0,
-      "max": 0,
-      "override": null
-    },
-    "spell7": {
-      "value": 0,
-      "max": 0,
-      "override": null
-    },
-    "spell8": {
-      "value": 0,
-      "max": 0,
-      "override": null
-    },
-    "spell9": {
-      "value": 0,
-      "max": 0,
-      "override": null
-    },
-    "pact": {
-      "value": 0,
-      "max": 0,
-      "override": null,
-      "level": 0
-    }
   };
 
   let dom = new DocumentFragment();
@@ -331,84 +256,54 @@ DDBMonster.prototype._generateSpells = function() {
     const innateSpellcastingMatch = innateSpellCastingRegEx.test(trimmedText);
 
     if (spellcastingMatch || innateSpellcastingMatch) {
-      spellcasting = parseSpellcasting(spellText);
-      spelldc = parseSpelldc(spellText);
-      spellLevel = parseSpellLevel(spellText);
-      spellAttackBonus = this.parseSpellAttackBonus(spellText);
+      this._generateSpellcasting(spellText);
+      this._generateSpelldc(spellText);
+      this._generateSpellLevel(spellText);
+      this._generateSpellAttackBonus(spellText);
     }
 
     const noMaterialSearch = new RegExp(/no material component|no component/);
     const noMaterialMatch = noMaterialSearch.test(trimmedText);
 
     if (noMaterialMatch) {
-      spellList.material = false;
+      this.spellList.material = false;
     }
 
     // lets see if the spell block is innate
     if (innateSpellcastingMatch) {
-      spellList.innateMatch = true;
+      this.spellList.innateMatch = true;
     } else if (spellcastingMatch) {
-      spellList.innateMatch = false;
+      this.spellList.innateMatch = false;
     }
 
-    const spellOptions = {
-      text: spellText,
-      spells,
-      spellList,
-    };
-    [spells, spellList] = parseSpells(spellOptions);
-    const additionalAtWill = parseAdditionalAtWill(spellText);
-    spellList.atwill.push(...additionalAtWill);
+    this.parseOutSpells(spellText);
+    this.parseAdditionalAtWillSpells(spellText);
   });
 
-  spellList = getEdgeCases(spellList);
+  this._generateSpellEdgeCases();
 
-  logger.debug("Parsed spell list", spellList);
+  logger.debug("Parsed spell list", this.spellList);
 
-  this.spellcasting = {
-    spelldc,
-    spellcasting,
-    spellLevel,
-    spells,
-    spellList,
-    spellAttackBonus,
-  };
+  // this.spellcasting = {
+  //   spelldc,
+  //   spellcasting,
+  //   spellLevel,
+  //   spells,
+  //   spellList,
+  //   spellAttackBonus,
+  // };
 
-  this.npc.system.attributes.spellcasting = spellcasting;
-  this.npc.system.attributes.spelldc = spelldc;
-  this.npc.system.attributes.spellLevel = spellLevel;
-  this.npc.system.details.spellLevel = spellLevel;
-  this.npc.system.spells = spells;
-  this.npc.flags.monsterMunch['spellList'] = spellList;
+  this.npc.flags.monsterMunch['spellList'] = this.spellList;
 
 };
 
 /**
  *
- * @param {[string]} items Array of Strings or
- */
-async function retrieveCompendiumItems(items, compendiumName) {
-  const GET_ENTITY = true;
-
-  const itemNames = items.map((item) => {
-    if (typeof item === "string") return item;
-    if (typeof item === "object" && Object.prototype.hasOwnProperty.call(item, "name")) return item.name;
-    return "";
-  });
-
-  const results = await CompendiumHelper.queryCompendiumEntries(compendiumName, itemNames, GET_ENTITY);
-  const cleanResults = results.filter((item) => item !== null);
-
-  return cleanResults;
-}
-
-/**
- *
  * @param {[items]} spells Array of Strings or items
  */
-export async function retrieveCompendiumSpells(spells) {
+DDBMonster.prototype.retrieveCompendiumSpells = async function(spells) {
   const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
-  const compendiumItems = await retrieveCompendiumItems(spells, compendiumName);
+  const compendiumItems = await CompendiumHelper.retrieveMatchingCompendiumItems(spells, compendiumName);
   const itemData = compendiumItems.map((i) => {
     let spell = i.toObject();
     delete spell._id;
@@ -416,9 +311,9 @@ export async function retrieveCompendiumSpells(spells) {
   });
 
   return itemData;
-}
+};
 
-export function getSpellEdgeCase(spell, type, spellList) {
+DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
   const edgeCases = spellList.edgeCases;
   const edgeCase = edgeCases.find((edge) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
 
@@ -469,25 +364,23 @@ export function getSpellEdgeCase(spell, type, spellList) {
     spell.system.components.material = false;
   }
 
-}
-
+};
 
 DDBMonster.prototype.addSpells = async function() {
   // check to see if we have munched flags to work on
-  if (!this.npc?.flags?.monsterMunch?.spellList) {
+  if (!this.spellList) {
     return;
   }
 
-  const spellList = this.npc.flags.monsterMunch.spellList;
-  logger.debug(`Spell List for edgecases`, spellList);
-  const atWill = spellList.atwill;
-  const klass = spellList.class;
-  const innate = spellList.innate;
-  const pact = spellList.pact;
+  logger.debug(`Spell List for edgecases`, this.spellList);
+  const atWill = this.spellList.atwill;
+  const klass = this.spellList.class;
+  const innate = this.spellList.innate;
+  const pact = this.spellList.pact;
 
   if (atWill.length !== 0) {
     logger.debug("Retrieving at Will spells:", atWill);
-    let spells = await retrieveCompendiumSpells(atWill);
+    let spells = await this.retrieveCompendiumSpells(atWill);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
       if (spell.system.level == 0) {
         spell.system.preparation = {
@@ -506,7 +399,7 @@ DDBMonster.prototype.addSpells = async function() {
           recovery: "",
         };
       }
-      getSpellEdgeCase(spell, "atwill", spellList);
+      this.getSpellEdgeCase(spell, "atwill", this.spellList);
       return spell;
     });
     this.items.push(...spells);
@@ -515,13 +408,13 @@ DDBMonster.prototype.addSpells = async function() {
   // class spells
   if (klass.length !== 0) {
     logger.debug("Retrieving class spells:", klass);
-    let spells = await retrieveCompendiumSpells(klass);
+    let spells = await this.retrieveCompendiumSpells(klass);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
       spell.system.preparation = {
         mode: "prepared",
         prepared: true,
       };
-      getSpellEdgeCase(spell, "class", spellList);
+      this.getSpellEdgeCase(spell, "class", this.spellList);
       return spell;
     });
     this.items.push(...spells);
@@ -530,13 +423,13 @@ DDBMonster.prototype.addSpells = async function() {
   // pact spells
   if (pact.length !== 0) {
     logger.debug("Retrieving pact spells:", pact);
-    let spells = await retrieveCompendiumSpells(pact);
+    let spells = await this.retrieveCompendiumSpells(pact);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
       spell.system.preparation = {
         mode: "pact",
         prepared: true,
       };
-      getSpellEdgeCase(spell, "pact", spellList);
+      this.getSpellEdgeCase(spell, "pact", this.spellList);
       return spell;
     });
     this.items.push(...spells);
@@ -547,7 +440,7 @@ DDBMonster.prototype.addSpells = async function() {
     // innate:
     // {name: "", type: "srt/lng/day", value: 0}
     logger.debug("Retrieving innate spells:", innate);
-    const spells = await retrieveCompendiumSpells(innate);
+    const spells = await this.retrieveCompendiumSpells(innate);
     const innateSpells = spells.filter((spell) => spell !== null)
       .map((spell) => {
         const spellInfo = innate.find((w) => w.name.toLowerCase() == spell.name.toLowerCase());
@@ -585,7 +478,7 @@ DDBMonster.prototype.addSpells = async function() {
               recovery: "",
             };
           }
-          getSpellEdgeCase(spell, "innate", spellList);
+          this.getSpellEdgeCase(spell, "innate", this.spellList);
         }
         return spell;
       });
