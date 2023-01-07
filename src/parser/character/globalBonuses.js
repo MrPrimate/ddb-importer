@@ -11,7 +11,7 @@ import DDBCharacter from "../DDBCharacter.js";
   },
  * @param {*} lookupTable
  */
-DDBCharacter.prototype.getGlobalBonusAttackModifiers = function getGlobalBonusAttackModifiers(lookupTable) {
+DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(lookupTable) {
   let result = {
     attack: "",
     damage: "",
@@ -34,10 +34,10 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function getGlobalBonusAt
     const lookupMatch = diceFormula.test(lookupResult);
 
     // if a match then a dice string
-    if (lookupMatch) {
+    if (lookupMatch || !Number.isInteger(parseInt(lookupResult))) {
       lookupResults[b.fvttType].diceString += lookupResult === "" ? lookupResult : " + " + lookupResult;
     } else {
-      lookupResults[b.fvttType].sum += lookupResult;
+      lookupResults[b.fvttType].sum += parseInt(lookupResult);
     }
   });
 
@@ -68,7 +68,7 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function getGlobalBonusAt
   },
  * @param {*} type
  */
-DDBCharacter.prototype.getBonusSpellAttacks = function getBonusSpellAttacks(type) {
+DDBCharacter.prototype.getBonusSpellAttacks = function(type) {
   // I haven't found any matching global spell damage boosting mods in ddb
   const bonusLookups = [
     { fvttType: "attack", ddbSubType: "spell-attacks" },
@@ -79,7 +79,7 @@ DDBCharacter.prototype.getBonusSpellAttacks = function getBonusSpellAttacks(type
   return this.getGlobalBonusAttackModifiers(bonusLookups);
 };
 
-DDBCharacter.prototype._generateBonusSpellAttacks = function _generateBonusSpellAttacks() {
+DDBCharacter.prototype._generateBonusSpellAttacks = function() {
   this.raw.character.system.bonuses.rsak = this.getBonusSpellAttacks("ranged");
   this.raw.character.system.bonuses.msak = this.getBonusSpellAttacks("melee");
 };
@@ -95,7 +95,7 @@ DDBCharacter.prototype._generateBonusSpellAttacks = function _generateBonusSpell
   },
  * @param {*} type
  */
-DDBCharacter.prototype.getBonusWeaponAttacks = function getBonusWeaponAttacks(type) {
+DDBCharacter.prototype.getBonusWeaponAttacks = function(type) {
   // global melee damage is not a ddb type, in that it's likely to be
   // type specific. The only class one I know of is the Paladin Improved Smite
   // which will be handled in the weapon import later.
@@ -108,7 +108,7 @@ DDBCharacter.prototype.getBonusWeaponAttacks = function getBonusWeaponAttacks(ty
   return this.getGlobalBonusAttackModifiers(bonusLookups);
 };
 
-DDBCharacter.prototype._generateBonusWeaponAttacks = function _generateBonusWeaponAttacks() {
+DDBCharacter.prototype._generateBonusWeaponAttacks = function() {
   this.raw.character.system.bonuses.mwak = this.getBonusWeaponAttacks("melee");
   this.raw.character.system.bonuses.rwak = this.getBonusWeaponAttacks("ranged");
 };
@@ -123,7 +123,7 @@ DDBCharacter.prototype._generateBonusWeaponAttacks = function _generateBonusWeap
   },
  * @param {*} this.raw.character
  */
-DDBCharacter.prototype._generateBonusAbilities = function _generateBonusAbilities() {
+DDBCharacter.prototype._generateBonusAbilities = function() {
   let result = {
     "check": "",
     "save": "",
@@ -143,7 +143,7 @@ DDBCharacter.prototype._generateBonusAbilities = function _generateBonusAbilitie
   this.raw.character.system.bonuses.abilities = result;
 };
 
-DDBCharacter.prototype._generateBonusSpellDC = function _generateBonusSpellDC() {
+DDBCharacter.prototype._generateBonusSpellDC = function() {
   let result = {
     "dc": "",
   };
