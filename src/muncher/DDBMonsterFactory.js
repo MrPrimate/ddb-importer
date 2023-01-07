@@ -35,7 +35,7 @@ export default class DDBMonsterFactory {
 
     const options = {
       ids,
-      searchTerm: finalSearchTerm,
+      searchTerm: finalSearchTerm.trim(),
       sources,
       homebrew,
       homebrewOnly,
