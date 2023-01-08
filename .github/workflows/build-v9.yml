@@ -33,7 +33,7 @@ jobs:
     - name: Get Version              # Run the script that returns the version from `module.json`
       shell: bash
       id: get-version
-      run: echo "::set-output name=version::$(node ./.github/workflows/get-version.js)"
+      run: echo "release_version=$(node ./.github/workflows/get-version.js)" >> $GITHUB_OUTPUT
     - name: Build module.json
       run: node ./.github/workflows/build-module-json.js | jq . > module.json
     - run: npm ci
@@ -48,19 +48,19 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: false # set to false if you do not want to allow updates on existing releases
-        name: Release ${{ steps.get-version.outputs.version }} # Use the version in the name
+        name: Release ${{ env.release_version }} # Use the version in the name
         draft: false
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json,./ddb-importer.zip'    # don't forget to rename module zip thing
-        tag: ${{ steps.get-version.outputs.version }} # Use the version as the tag
+        tag: ${{ env.release_version }} # Use the version as the tag
     - name: Discord notification
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_HOOK }}
         DISCORD_USERNAME: "Head of Marketing (Krum)"
       uses: Ilshidur/action-discord@0.0.2
       with:
-        args: 'DDB Importer ${{ steps.get-version.outputs.version }} has been published by our development Kobolds!'
+        args: 'DDB Importer ${{ env.release_version }} has been published by our development Kobolds!'
 
     # - name: FoundryVTT AutoPublish
     #   uses: Varriount/fvtt-autopublish@v1.0.2a
@@ -68,6 +68,6 @@ jobs:
     #     username: ${{ secrets.FOUNDRY_ADMIN_USER }}
     #     password: ${{ secrets.FOUNDRY_ADMIN_PW }}
     #     module-id: ${{ secrets.FOUNDRY_MODULE_ID }}
-    #     manifest-url: https://github.com/${{ github.repository }}/releases/download/${{ steps.get-version.outputs.version }} /module.json
+    #     manifest-url: https://github.com/${{ github.repository }}/releases/download/${{ env.release_version }} /module.json
     #     manifest-file: ./module.json
 
