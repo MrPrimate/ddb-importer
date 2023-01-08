@@ -1,24 +1,10 @@
 import logger from "../../logger.js";
 import utils from "../../lib/utils.js";
 import DDBMonsterFactory from "../../muncher/DDBMonsterFactory.js";
-import { copySupportedItemFlags, srdFiddling } from "../../muncher/import.js";
-import { buildNPC, generateIconMap, copyExistingMonsterImages } from "../../muncher/importMonster.js";
 import { getAbilityMods } from "../monster/helpers.js";
 import DICTIONARY from "../../dictionary.js";
-
-const MUNCH_DEFAULTS = [
-  { name: "munching-policy-update-existing", needed: true },
-  { name: "munching-policy-use-srd", needed: false },
-  { name: "munching-policy-use-inbuilt-icons", needed: true },
-  { name: "munching-policy-use-srd-icons", needed: false },
-  { name: "munching-policy-download-images", needed: true },
-  { name: "munching-policy-remote-images", needed: false },
-  { name: "munching-policy-use-dae-effects", needed: false },
-  { name: "munching-policy-hide-description", needed: false },
-  { name: "munching-policy-monster-items", needed: false },
-  { name: "munching-policy-update-images", needed: false },
-  { name: "munching-policy-dae-copy", needed: false },
-];
+import SETTINGS from "../../settings.js";
+import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
 
 function getCustomValue(ddbCharacter, typeId, valueId, valueTypeId) {
   const characterValues = ddbCharacter.characterValues;
@@ -30,58 +16,6 @@ function getCustomValue(ddbCharacter, typeId, valueId, valueTypeId) {
     return customValue.value;
   }
   return null;
-}
-
-async function updateExtras(extras, existingExtras) {
-  return Promise.all(
-    extras
-      .filter((extra) =>
-        existingExtras.some(
-          (exist) =>
-            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id
-            && extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
-        )
-      )
-      .map(async (extra) => {
-        const existingExtra = await existingExtras.find(
-          (exist) =>
-            exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id
-            && extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
-        );
-        extra.folder = existingExtra.folder?.id;
-        extra._id = existingExtra._id;
-        logger.info(`Updating extra ${extra.name}`);
-        await copySupportedItemFlags(existingExtra, extra);
-        // await Actor.update(extra);
-        await buildNPC(extra, "monster", false, true, true);
-        return extra;
-      })
-  );
-}
-
-async function createExtras(extras, existingExtras, folderId) {
-  return Promise.all(
-    extras
-      .filter(
-        (extra) =>
-          !existingExtras.some(
-            (exist) =>
-              exist.flags?.ddbimporter?.id === extra.flags.ddbimporter.id
-              && extra.flags?.ddbimporter?.entityTypeId === extra.flags.ddbimporter.entityTypeId
-          )
-      )
-      .map(async (extra) => {
-        if (!game.user.can("ITEM_CREATE")) {
-          ui.notifications.warn(`Cannot create Extra ${extra.name}`);
-        } else {
-          logger.info(`Creating Extra ${extra.name}`);
-          extra.folder = folderId;
-          const importedExtra = await buildNPC(extra, "monster", false, false, true);
-          return importedExtra;
-        }
-        return extra;
-      })
-  );
 }
 
 function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
@@ -294,7 +228,7 @@ function getCreatureAnimationType(name, creatureGroup) {
 function setExtraMunchDefaults() {
   let munchSettings = [];
 
-  MUNCH_DEFAULTS.forEach((setting) => {
+  SETTINGS.MUNCH_DEFAULTS.forEach((setting) => {
     logger.debug(`Loading extras munch settings ${setting.name}`);
     setting["chosen"] = game.settings.get("ddb-importer", setting.name);
     munchSettings.push(setting);
@@ -315,7 +249,7 @@ function revertExtraMunchDefaults(munchSettings) {
   });
 }
 
-function addOwnerSkillProficiencies(characterData, mock) {
+function addOwnerSkillProficiencies(ddbCharacter, mock) {
   let newSkills = [];
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find(
     (cr) => cr.id == mock.challengeRatingId
@@ -323,7 +257,7 @@ function addOwnerSkillProficiencies(characterData, mock) {
 
   DICTIONARY.character.skills.forEach((skill) => {
     const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.skillId);
-    const characterProficient = characterData.character.character.system.skills[skill.name].value;
+    const characterProficient = ddbCharacter.character.character.system.skills[skill.name].value;
 
     const ability = DICTIONARY.character.abilities.find((ab) => ab.value === skill.ability);
     const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
@@ -351,12 +285,12 @@ function addOwnerSkillProficiencies(characterData, mock) {
   return mock;
 }
 
-function addOwnerSaveProficiencies(characterData, mock) {
+function addOwnerSaveProficiencies(ddbCharacter, mock) {
 // add owner save profs
   let newSaves = [];
   DICTIONARY.character.abilities.forEach((ability) => {
     const existingProficient = mock.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
-    const characterProficient = characterData.character.character.system.abilities[ability.value].proficient;
+    const characterProficient = ddbCharacter.character.character.system.abilities[ability.value].proficient;
 
     if (existingProficient || characterProficient) {
       const bonus = {
@@ -447,8 +381,8 @@ function addCreatureFlags(creature, mock) {
 
 }
 
-function transformExtraToMonsterData(characterData, actor, creature) {
-  let ddbCharacter = characterData.ddb.character;
+function transformExtraToMonsterData(ddbCharacter, actor, creature) {
+  let ddbCharacterData = ddbCharacter.source.ddb.character;
   logger.debug("Extra data", creature);
   let mock = duplicate(creature.definition);
 
@@ -463,28 +397,28 @@ function transformExtraToMonsterData(characterData, actor, creature) {
   mock.automatedEvcoationAnimation = getCreatureAnimationType(mock.name, mock.creatureGroup);
 
   // size
-  const sizeChange = getCustomValue(ddbCharacter, 46, creature.id, creature.entityTypeId);
+  const sizeChange = getCustomValue(ddbCharacterData, 46, creature.id, creature.entityTypeId);
   if (sizeChange) mock.sizeId = sizeChange;
 
   // hp
-  mock = addAverageHitPoints(ddbCharacter, actor, creature, mock);
+  mock = addAverageHitPoints(ddbCharacterData, actor, creature, mock);
   mock.removedHitPoints = creature.removedHitPoints;
   mock.temporaryHitPoints = creature.temporaryHitPoints;
 
   // creature type
-  const typeChange = getCustomValue(ddbCharacter, 44, creature.id, creature.entityTypeId);
+  const typeChange = getCustomValue(ddbCharacterData, 44, creature.id, creature.entityTypeId);
   if (typeChange) mock.typeId = typeChange;
 
   // ac
-  const acChange = getCustomValue(ddbCharacter, 42, creature.id, creature.entityTypeId);
+  const acChange = getCustomValue(ddbCharacterData, 42, creature.id, creature.entityTypeId);
   if (acChange) mock.armorClass = acChange;
 
   // alignment
-  const alignmentChange = getCustomValue(ddbCharacter, 45, creature.id, creature.entityTypeId);
+  const alignmentChange = getCustomValue(ddbCharacterData, 45, creature.id, creature.entityTypeId);
   if (alignmentChange) mock.alignmentId = alignmentChange;
 
   // notes
-  const extraNotes = getCustomValue(ddbCharacter, 47, creature.id, creature.entityTypeId);
+  const extraNotes = getCustomValue(ddbCharacterData, 47, creature.id, creature.entityTypeId);
   if (extraNotes) mock.characteristicsDescription += `\n\n${extraNotes}`;
 
   // stats
@@ -508,12 +442,12 @@ function transformExtraToMonsterData(characterData, actor, creature) {
 
   // Evaluate Owner Skill Proficiencies
   if (mock.creatureFlags.includes("EOSKP")) {
-    mock = addOwnerSkillProficiencies(characterData, mock);
+    mock = addOwnerSkillProficiencies(ddbCharacter, mock);
   }
 
   // Evaluate Owner Save Proficiencies
   if (mock.creatureFlags.includes("EOSVP")) {
-    mock = addOwnerSaveProficiencies(characterData, mock);
+    mock = addOwnerSaveProficiencies(ddbCharacter, mock);
   }
 
   // Cannot Use Legendary Actions
@@ -531,55 +465,6 @@ function transformExtraToMonsterData(characterData, actor, creature) {
   logger.debug("mock creature", mock);
   return mock;
 
-}
-
-async function updateOrCreateExtras(actor, folder, parsedExtras) {
-  const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-  // const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
-
-  const existingExtras = await game.actors.contents
-    .filter((extra) => extra.folder?.id === folder.id)
-    .map((extra) => extra);
-
-  if (!updateBool || !updateImages) {
-    if (!updateImages) {
-      logger.debug("Copying monster images across...");
-      parsedExtras = copyExistingMonsterImages(parsedExtras, existingExtras);
-    }
-  }
-
-  let finalExtras = await srdFiddling(parsedExtras, "monsters");
-  await generateIconMap(finalExtras);
-
-  if (updateBool) await updateExtras(finalExtras, existingExtras);
-  const importedExtras = await createExtras(finalExtras, existingExtras, folder.id);
-
-  // add companions to automated evocations list
-  if (game.modules.get("automated-evocations")?.active) {
-    const currentAutomatedEvocationSettings = {
-      isLocal: actor.getFlag("automated-evocations", "isLocal"),
-      companions: actor.getFlag("automated-evocations", "isLocal"),
-    };
-
-    const companions = existingExtras.concat(importedExtras).map((extra) => {
-      return {
-        id: extra.id ? extra.id : extra._id,
-        number: 1,
-        animation: extra.flags?.ddbimporter?.automatedEvcoationAnimation
-          ? extra.flags?.ddbimporter?.automatedEvcoationAnimation
-          : "magic1",
-      };
-    });
-    const newAutomatedEvocationSettings = {
-      isLocal: true,
-      companions,
-    };
-    const mergedSettings = mergeObject(currentAutomatedEvocationSettings, newAutomatedEvocationSettings);
-
-    actor.setFlag("automated-evocations", "isLocal", mergedSettings.isLocal);
-    actor.setFlag("automated-evocations", "companions", mergedSettings.companions);
-  }
 }
 
 function enhanceParsedExtra(actor, extra) {
@@ -644,18 +529,17 @@ function enhanceParsedExtra(actor, extra) {
   return extra;
 }
 
-export async function generateCharacterExtras(html, characterData, actor) {
-  let ddbCharacter = characterData.ddb.character;
+export async function generateCharacterExtras(html, ddbCharacter, actor) {
   const munchSettings = setExtraMunchDefaults();
 
   try {
-    logger.debug("characterData", characterData);
-    if (ddbCharacter.creatures.length === 0) return;
+    logger.debug("ddbCharacter", ddbCharacter);
+    if (ddbCharacter.source.ddb.character.creatures.length === 0) return;
 
     const folder = await utils.getOrCreateFolder(actor.folder, "Actor", `[Extras] ${actor.name}`);
 
-    const extractedCreatures = ddbCharacter.creatures
-      .map((creature) => transformExtraToMonsterData(characterData, actor, creature))
+    const extractedCreatures = ddbCharacter.source.ddb.character.creatures
+      .map((creature) => transformExtraToMonsterData(ddbCharacter, actor, creature))
       .map((creature) => {
         creature.folder = folder.id;
         return creature;
@@ -669,7 +553,8 @@ export async function generateCharacterExtras(html, characterData, actor) {
     const enhancedExtras = parsedExtras.actors.map((extra) => enhanceParsedExtra(actor, extra));
     logger.debug("Enhanced Parsed Extras:", duplicate(enhancedExtras));
 
-    await updateOrCreateExtras(actor, folder, enhancedExtras);
+    const ddbCompanionFactory = new DDBCompanionFactory(ddbCharacter, "", { actor, data: enhancedExtras });
+    await ddbCompanionFactory.updateOrCreateCompanions({ folderOverride: folder });
 
   } catch (err) {
     logger.error("Failure parsing extra", err);

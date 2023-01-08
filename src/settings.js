@@ -112,6 +112,20 @@ const URLS = {
   DYNAMIC: "https://dynamic.ddb.mrprimate.co.uk",
 };
 
+const MUNCH_DEFAULTS = [
+  { name: "munching-policy-update-existing", needed: true },
+  { name: "munching-policy-use-srd", needed: false },
+  { name: "munching-policy-use-inbuilt-icons", needed: true },
+  { name: "munching-policy-use-srd-icons", needed: false },
+  { name: "munching-policy-download-images", needed: true },
+  { name: "munching-policy-remote-images", needed: false },
+  { name: "munching-policy-use-dae-effects", needed: false },
+  { name: "munching-policy-hide-description", needed: false },
+  { name: "munching-policy-monster-items", needed: false },
+  { name: "munching-policy-update-images", needed: false },
+  { name: "munching-policy-dae-copy", needed: false },
+];
+
 const FILTER_SECTIONS = ["classes", "race", "features", "actions", "inventory", "spells"];
 
 const DISABLE_FOUNDRY_UPGRADE = {
@@ -151,6 +165,7 @@ const SETTINGS = {
   POPUPS,
   DISABLE_FOUNDRY_UPGRADE,
   FILTER_SECTIONS,
+  MUNCH_DEFAULTS,
   DEFAULT_SETTINGS: {
     // these settigs are loaded during renderSidebarTab
     EARLY: {

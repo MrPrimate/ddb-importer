@@ -526,7 +526,7 @@ export default class DDBCharacterManager extends FormApplication {
             FileHelper.download(JSON.stringify(characterData), `${characterId}.json`, "application/json");
           }
           if (characterData.success) {
-            await generateCharacterExtras(html, characterData, this.actor);
+            await generateCharacterExtras(html, this.ddbCharacter, this.actor);
             this.showCurrentTask("Loading Extras", "Done.", false);
             $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
             this.close();

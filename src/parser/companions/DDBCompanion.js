@@ -14,6 +14,7 @@ export default class DDBCompanion {
     this.npc = null;
     this.data = {};
     this.parsed = false;
+    this.type = this.options.type;
 
     this.useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
     this.legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
@@ -48,7 +49,7 @@ export default class DDBCompanion {
     if (!block) return undefined;
 
     const header = block.getElementsByTagName("strong")[0].innerText.toLowerCase();
-    if (header.includes("only") && !header.includes(this.options.subType.toLowerCase())) {
+    if (header.includes("only ") && !header.includes(this.options.subType.toLowerCase())) {
       return undefined;
     }
 
@@ -281,7 +282,7 @@ export default class DDBCompanion {
 
   filterDamageConditions(data) {
     const onlyFiltered = data.split(/[;,]/).filter((state) => {
-      if (state.includes("only")) {
+      if (state.includes("only ")) {
         if (state.toLowerCase().includes(this.options.subType.toLowerCase())) {
           return true;
         } else {
@@ -409,7 +410,7 @@ export default class DDBCompanion {
     // 30 ft., fly 40 ft.
 
     const onlyFiltered = data.split(/[;,]/).filter((speed) => {
-      if (speed.includes("only")) {
+      if (speed.includes("only ")) {
         if (speed.toLowerCase().includes(this.options.subType.toLowerCase())) {
           return true;
         } else {
@@ -477,9 +478,16 @@ export default class DDBCompanion {
       // no default
     }
 
-    const feature = await this.getFeature(next.outerHTML, featType);
-    this.npc.items.push(...feature);
-
+    const features = await this.getFeature(next.outerHTML, featType);
+    features.forEach((feature) => {
+      if (feature.name.toLowerCase().includes("only ")
+        && feature.name.toLowerCase().includes(this.options.subType.toLowerCase())
+      ) {
+        this.npc.items.push(feature);
+      } else if (!feature.name.toLowerCase().includes("only ")) {
+        this.npc.items.push(feature);
+      }
+    });
     return { next, featType };
   }
 

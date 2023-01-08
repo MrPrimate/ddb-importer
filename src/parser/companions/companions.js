@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "./DDBCompanionFactory.js";
 
@@ -52,7 +51,7 @@ DDBCharacter.prototype._getCompanionSpell = async function(name) {
   if (!ddbSpell) return [];
 
   // console.warn(`Companion parse for ${name}`, { spell, ddbSpell });
-  const ddbCompanionFactory = new DDBCompanionFactory(this, ddbSpell.definition.description, {});
+  const ddbCompanionFactory = new DDBCompanionFactory(this, ddbSpell.definition.description, { type: "spell" });
   await ddbCompanionFactory.parse();
   return ddbCompanionFactory.companions;
 };
@@ -64,14 +63,16 @@ DDBCharacter.prototype._getCompanionFeature = async function(featureName) {
   if (!feature) return [];
   const ddbFeature = this.getClassFeature(featureName);
   if (!ddbFeature) return [];
-  const ddbCompanionFactory = new DDBCompanionFactory(this, ddbFeature.definition.description, {});
+  const ddbCompanionFactory = new DDBCompanionFactory(this, ddbFeature.definition.description, { type: "feature" });
   await ddbCompanionFactory.parse();
   return ddbCompanionFactory.companions;
 };
 
 DDBCharacter.prototype.generateCompanions = async function() {
-  if (!game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) return;
-  if (!game.modules.get("arbron-summoner")?.active) return;
+  if (!game.modules.get("arbron-summoner")?.active) {
+    logger.warn("Companion Parsing requires the Arbron Summoner module");
+    return;
+  }
   const steelDefender = await this._getCompanionFeature("Steel Defender");
   const infusions = await this._getCompanionFeature("Artificer Infusions");
   const wildFireSpirit = await this._getCompanionFeature("Summon Wildfire Spirit");

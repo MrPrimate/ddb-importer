@@ -172,7 +172,7 @@ export default class DDBMonsterFactory {
       logger.error(`Failed to parse`, result.failedMonsterNames);
     }
 
-    this.npcs = result;
+    this.npcs = result.actors;
     return result;
   }
 

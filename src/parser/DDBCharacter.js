@@ -8,6 +8,7 @@ import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
 import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import SETTINGS from "../settings.js";
 
 
 export default class DDBCharacter {
@@ -202,7 +203,10 @@ export default class DDBCharacter {
       this._addSpecialAdditions();
 
       // find supported companion blocks
-      this.generateCompanions();
+      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) {
+        await this.generateCompanions();
+      }
+
 
     } catch (error) {
       logger.error(error);

@@ -1,5 +1,7 @@
 import utils from "../../lib/utils.js";
 import logger from "../../logger.js";
+import { copySupportedItemFlags, srdFiddling } from "../../muncher/import.js";
+import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion from "./DDBCompanion.js";
 
 export default class DDBCompanionFactory {
@@ -11,6 +13,12 @@ export default class DDBCompanionFactory {
     this.html = html;
     this.doc = new DOMParser().parseFromString(html.replaceAll("\n", ""), 'text/html');
     this.companions = [];
+    this.actor = this.options.actor;
+    this.folderIds = new Set();
+  }
+
+  get data() {
+    return this.options.data ?? this.companions.map((c) => c.data);
   }
 
   static MULTI = {
@@ -32,7 +40,9 @@ export default class DDBCompanionFactory {
     const ddbCompanion = new DDBCompanion(block, options);
     // eslint-disable-next-line no-await-in-loop
     await ddbCompanion.parse();
-    if (ddbCompanion.parsed) this.companions.push(ddbCompanion.data);
+    if (ddbCompanion.parsed) {
+      this.companions.push(ddbCompanion);
+    }
   }
 
   async parse() {
@@ -62,7 +72,121 @@ export default class DDBCompanionFactory {
 
     }
 
-    return this.companions;
+    return this.data;
+  }
+
+
+  static async updateCompanions(companions, existingCompanions) {
+    return Promise.all(
+      companions
+        .filter((companion) =>
+          existingCompanions.some(
+            (exist) =>
+              exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
+              && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+          )
+        )
+        .map(async (companion) => {
+          const existingCompanion = await existingCompanions.find(
+            (exist) =>
+              exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
+              && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+          );
+          companion.folder = existingCompanion.folder?.id;
+          companion._id = existingCompanion._id;
+          logger.info(`Updating companion ${companion.name}`);
+          await copySupportedItemFlags(existingCompanion, companion);
+          await buildNPC(companion, "monster", false, true, true);
+          return companion;
+        })
+    );
+  }
+
+  static async createCompanions(companions, existingCompanions, folderId) {
+    return Promise.all(
+      companions
+        .filter(
+          (companion) =>
+            !existingCompanions.some(
+              (exist) =>
+                exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
+                && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+            )
+        )
+        .map(async (companion) => {
+          if (!game.user.can("ITEM_CREATE")) {
+            ui.notifications.warn(`Cannot create Companion ${companion.name}`);
+          } else {
+            logger.info(`Creating Companion ${companion.name}`);
+            if (folderId) companion.folder = folderId;
+            const importedCompanions = await buildNPC(companion, "monster", false, false, true);
+            return importedCompanions;
+          }
+          return companion;
+        })
+    );
+  }
+
+  #generateCompanionFolders(rootFolderName = "DDB Companions") {
+    const rootFolder = utils.getOrCreateFolder(null, "Actor", rootFolderName);
+    this.companions.forEach((companion) => {
+      const folder = utils.getOrCreateFolder(rootFolder.folder, "Actor", utils.capitalize(companion.type ?? "other"));
+      companion.data.folder = folder._id;
+      this.folderIds.add(folder._id);
+    });
+  }
+
+  async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined }) {
+
+    if (!folderOverride) this.#generateCompanionFolders(rootFolderNameOverride);
+
+    const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
+    const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+
+    const existingCompanions = await game.actors.contents
+      .filter((companion) => hasProperty(companion, "folder.id") && this.folderIds.has(companion.folder.id))
+      .map((companion) => companion);
+
+    let companionData = this.data;
+
+    if (!updateBool || !updateImages) {
+      if (!updateImages) {
+        logger.debug("Copying monster images across...");
+        companionData = copyExistingMonsterImages(companionData, existingCompanions);
+      }
+    }
+
+    let finalCompanions = await srdFiddling(companionData, "monsters");
+    await generateIconMap(finalCompanions);
+
+    if (updateBool) await DDBCompanionFactory.updateCompanions(finalCompanions, existingCompanions);
+    const importedCompanions = await DDBCompanionFactory.createCompanions(finalCompanions, existingCompanions, folderOverride?.id);
+
+    // add companions to automated evocations list
+    if (this.actor && game.modules.get("automated-evocations")?.active) {
+      const currentAutomatedEvocationSettings = {
+        isLocal: this.actor.getFlag("automated-evocations", "isLocal"),
+        companions: this.actor.getFlag("automated-evocations", "isLocal"),
+      };
+
+      const companions = existingCompanions.concat(importedCompanions).map((companion) => {
+        return {
+          id: companion.id ? companion.id : companion._id,
+          number: 1,
+          animation: companion.flags?.ddbimporter?.automatedEvcoationAnimation
+            ? companion.flags?.ddbimporter?.automatedEvcoationAnimation
+            : "magic1",
+        };
+      });
+      const newAutomatedEvocationSettings = {
+        isLocal: true,
+        companions,
+      };
+      const mergedSettings = mergeObject(currentAutomatedEvocationSettings, newAutomatedEvocationSettings);
+
+      this.actor.setFlag("automated-evocations", "isLocal", mergedSettings.isLocal);
+      this.actor.setFlag("automated-evocations", "companions", mergedSettings.companions);
+    }
   }
 
 }
