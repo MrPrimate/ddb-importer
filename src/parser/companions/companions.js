@@ -3,6 +3,7 @@ import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "./DDBCompanionFactory.js";
 
 // DDBCharacter.prototype.addCompanionsToDocument = function(document, companions) {
+
 //   return document;
 // };
 
@@ -42,30 +43,35 @@ DDBCharacter.prototype._findDDBSpell = function(name) {
   return undefined;
 };
 
-DDBCharacter.prototype._getCompanionSpell = async function(name) {
-  // console.warn(`Check data for spell ${name}`);
-  const spell = this.data.spells.find((s) => s.name === name || s.flags.ddbimporter?.originalName === name);
-  if (!spell) return [];
-
-  const ddbSpell = this._findDDBSpell(spell.flags.ddbimporter?.originalName ?? spell.name);
-  if (!ddbSpell) return [];
-
-  // console.warn(`Companion parse for ${name}`, { spell, ddbSpell });
-  const ddbCompanionFactory = new DDBCompanionFactory(this, ddbSpell.definition.description, { type: "spell" });
+DDBCharacter.prototype._parseCompanion = async function(html, type) {
+  const ddbCompanionFactory = new DDBCompanionFactory(this, html, { type });
   await ddbCompanionFactory.parse();
-  return ddbCompanionFactory.companions;
+  this.companionFactories.push(ddbCompanionFactory);
+};
+
+DDBCharacter.prototype._importCompanions = async function() {
+  for (const factory of this.companionFactories) {
+    // eslint-disable-next-line no-await-in-loop
+    await factory.updateOrCreateCompanions();
+  }
+};
+
+DDBCharacter.prototype._getCompanionSpell = async function(name) {
+  const spell = this.data.spells.find((s) => s.name === name || s.flags.ddbimporter?.originalName === name);
+  if (!spell) return;
+  const ddbSpell = this._findDDBSpell(spell.flags.ddbimporter?.originalName ?? spell.name);
+  if (!ddbSpell) return;
+  await this._parseCompanion(ddbSpell.definition.description, "spell");
 };
 
 DDBCharacter.prototype._getCompanionFeature = async function(featureName) {
   const feature = this.data.features.concat(this.data.actions).find((s) =>
     s.name === featureName || s.flags.ddbimporter?.originalName === featureName
   );
-  if (!feature) return [];
+  if (!feature) return;
   const ddbFeature = this.getClassFeature(featureName);
-  if (!ddbFeature) return [];
-  const ddbCompanionFactory = new DDBCompanionFactory(this, ddbFeature.definition.description, { type: "feature" });
-  await ddbCompanionFactory.parse();
-  return ddbCompanionFactory.companions;
+  if (!ddbFeature) return;
+  await this._parseCompanion(ddbFeature.definition.description, "feature");
 };
 
 DDBCharacter.prototype.generateCompanions = async function() {
@@ -73,41 +79,42 @@ DDBCharacter.prototype.generateCompanions = async function() {
     logger.warn("Companion Parsing requires the Arbron Summoner module");
     return;
   }
-  const steelDefender = await this._getCompanionFeature("Steel Defender");
-  const infusions = await this._getCompanionFeature("Artificer Infusions");
-  const wildFireSpirit = await this._getCompanionFeature("Summon Wildfire Spirit");
-  const primalCompanions = await this._getCompanionFeature("Primal Companion");
-  const aberration = await this._getCompanionSpell("Summon Aberration");
-  const beast = await this._getCompanionSpell("Summon Beast");
-  const celestial = await this._getCompanionSpell("Summon Celestial");
-  const construct = await this._getCompanionSpell("Summon Construct");
-  const elemental = await this._getCompanionSpell("Summon Elemental");
-  const fey = await this._getCompanionSpell("Summon Fey");
-  const fiend = await this._getCompanionSpell("Summon Fiend");
-  const shadowspawn = await this._getCompanionSpell("Summon Shadowspawn");
-  const undead = await this._getCompanionSpell("Summon Undead");
-  const draconic = await this._getCompanionSpell("Summon Draconic Spirit");
-
-  const companions = [
-    ...steelDefender,
-    ...infusions,
-    ...wildFireSpirit,
-    ...primalCompanions,
-    ...aberration,
-    ...beast,
-    ...celestial,
-    ...construct,
-    ...elemental,
-    ...fey,
-    ...fiend,
-    ...shadowspawn,
-    ...undead,
-    ...draconic,
+  const companionSpells = [
+    "Summon Aberration",
+    "Summon Beast",
+    "Summon Celestial",
+    "Summon Construct",
+    "Summon Elemental",
+    "Summon Fey",
+    "Summon Fiend",
+    "Summon Shadowspawn",
+    "Summon Undead",
+    "Summon Draconic Spirit",
   ];
+  const companionFeatures = [
+    "Steel Defender",
+    "Artificer Infusions",
+    "Summon Wildfire Spirit",
+    "Primal Companion",
+  ];
+  for (const name of companionFeatures) {
+    // eslint-disable-next-line no-await-in-loop
+    await this._getCompanionFeature(name);
+  }
+  for (const name of companionSpells) {
+    // eslint-disable-next-line no-await-in-loop
+    await this._getCompanionSpell(name);
+  }
 
-  this.companions = await Promise.all(companions);
+  console.warn(this.companionFactories);
+  await this._importCompanions();
 
-  logger.debug("parsed companions", this.companions);
+  this.companions = this.companionFactories.map((factory) => factory.companions);
+
+  logger.debug("parsed companions", {
+    factories: this.companionFactories,
+    parsed: this.companions,
+  });
   // different types of companion
   // ranger beast companions, classic and new
   // ranger drake warden

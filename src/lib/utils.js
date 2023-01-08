@@ -265,7 +265,8 @@ const utils = {
   getOrCreateFolder: async (root, entityType, folderName, folderColor = "") => {
     let folder = game.folders.contents.find((f) =>
       f.type === entityType && f.name === folderName
-      && f.parent === (root ? root.id : null)
+      // if a root folder we want to match the root id for the parent folder
+      && (root ? root.id : null) === (f.folder?.id ?? null)
     );
     // console.warn(`Looking for ${root} ${entityType} ${folderName}`);
     // console.warn(folder);

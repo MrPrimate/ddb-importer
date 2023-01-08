@@ -37,7 +37,7 @@ export default class DDBCompanionFactory {
 
   async #buildCompanion(block, options = {}) {
     logger.debug("Beginning companion parse", { block });
-    const ddbCompanion = new DDBCompanion(block, options);
+    const ddbCompanion = new DDBCompanion(block, mergeObject(options, { type: this.options.type }));
     // eslint-disable-next-line no-await-in-loop
     await ddbCompanion.parse();
     if (ddbCompanion.parsed) {
@@ -127,18 +127,21 @@ export default class DDBCompanionFactory {
     );
   }
 
-  #generateCompanionFolders(rootFolderName = "DDB Companions") {
-    const rootFolder = utils.getOrCreateFolder(null, "Actor", rootFolderName);
-    this.companions.forEach((companion) => {
-      const folder = utils.getOrCreateFolder(rootFolder.folder, "Actor", utils.capitalize(companion.type ?? "other"));
+  async #generateCompanionFolders(rootFolderName = "DDB Companions") {
+    const rootFolder = await utils.getOrCreateFolder(null, "Actor", rootFolderName);
+    console.warn(rootFolder);
+    for (const companion of this.companions) {
+      // eslint-disable-next-line no-await-in-loop
+      const folder = await utils.getOrCreateFolder(rootFolder, "Actor", utils.capitalize(companion.type ?? "other"));
+      console.warn(companion);
       companion.data.folder = folder._id;
       this.folderIds.add(folder._id);
-    });
+    }
   }
 
-  async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined }) {
+  async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined } = {}) {
 
-    if (!folderOverride) this.#generateCompanionFolders(rootFolderNameOverride);
+    if (!folderOverride) await this.#generateCompanionFolders(rootFolderNameOverride);
 
     const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");

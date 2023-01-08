@@ -35,6 +35,7 @@ export default class DDBCharacter {
     };
     this.spellSlots = {};
     this.totalLevels = 0;
+    this.companionFactories = [];
   }
 
   /**
