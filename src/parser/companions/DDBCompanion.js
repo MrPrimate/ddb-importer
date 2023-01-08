@@ -16,9 +16,11 @@ export default class DDBCompanion {
     this.parsed = false;
     this.type = this.options.type;
 
-    this.useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
-    this.legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    this.addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
+    this.useItemAC = false; // game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
+    this.legacyName = false; // game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+    this.addMonsterEffects = true; // game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
+    this.removeSplitCreatureActions = true;
+    this.removeCreatureOnlyNames = true;
   }
 
   #generateAbilities() {
@@ -49,7 +51,7 @@ export default class DDBCompanion {
     if (!block) return undefined;
 
     const header = block.getElementsByTagName("strong")[0].innerText.toLowerCase();
-    if (header.includes("only ") && !header.includes(this.options.subType.toLowerCase())) {
+    if (header.includes("only") && !header.includes(this.options.subType.toLowerCase())) {
       return undefined;
     }
 
@@ -282,7 +284,7 @@ export default class DDBCompanion {
 
   filterDamageConditions(data) {
     const onlyFiltered = data.split(/[;,]/).filter((state) => {
-      if (state.includes("only ")) {
+      if (state.includes("only")) {
         if (state.toLowerCase().includes(this.options.subType.toLowerCase())) {
           return true;
         } else {
@@ -410,7 +412,7 @@ export default class DDBCompanion {
     // 30 ft., fly 40 ft.
 
     const onlyFiltered = data.split(/[;,]/).filter((speed) => {
-      if (speed.includes("only ")) {
+      if (speed.includes("only")) {
         if (speed.toLowerCase().includes(this.options.subType.toLowerCase())) {
           return true;
         } else {
@@ -480,11 +482,12 @@ export default class DDBCompanion {
 
     const features = await this.getFeature(next.outerHTML, featType);
     features.forEach((feature) => {
-      if (feature.name.toLowerCase().includes("only ")
+      if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")
         && feature.name.toLowerCase().includes(this.options.subType.toLowerCase())
       ) {
+        if (this.removeCreatureOnlyNames) feature.name = feature.name.split("only")[0].split("(")[0].trim();
         this.npc.items.push(feature);
-      } else if (!feature.name.toLowerCase().includes("only ")) {
+      } else if (!this.removeSplitCreatureActions || !feature.name.toLowerCase().includes("only")) {
         this.npc.items.push(feature);
       }
     });

@@ -15,6 +15,8 @@ export default class DDBCompanionFactory {
     this.companions = [];
     this.actor = this.options.actor;
     this.folderIds = new Set();
+    this.updateCompanions = false; //  game.settings.get("ddb-importer", "munching-policy-update-existing");
+    this.updateImages = false; // game.settings.get("ddb-importer", "munching-policy-update-images");
   }
 
   get data() {
@@ -140,11 +142,7 @@ export default class DDBCompanionFactory {
   }
 
   async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined } = {}) {
-
     if (!folderOverride) await this.#generateCompanionFolders(rootFolderNameOverride);
-
-    const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-    const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
 
     const existingCompanions = await game.actors.contents
       .filter((companion) => hasProperty(companion, "folder.id") && this.folderIds.has(companion.folder.id))
@@ -152,8 +150,8 @@ export default class DDBCompanionFactory {
 
     let companionData = this.data;
 
-    if (!updateBool || !updateImages) {
-      if (!updateImages) {
+    if (!this.updateCompanions || !this.updateImages) {
+      if (!this.updateImages) {
         logger.debug("Copying monster images across...");
         companionData = copyExistingMonsterImages(companionData, existingCompanions);
       }
@@ -162,7 +160,7 @@ export default class DDBCompanionFactory {
     let finalCompanions = await srdFiddling(companionData, "monsters");
     await generateIconMap(finalCompanions);
 
-    if (updateBool) await DDBCompanionFactory.updateCompanions(finalCompanions, existingCompanions);
+    if (this.updateCompanions) await DDBCompanionFactory.updateCompanions(finalCompanions, existingCompanions);
     const importedCompanions = await DDBCompanionFactory.createCompanions(finalCompanions, existingCompanions, folderOverride?.id);
 
     // add companions to automated evocations list
