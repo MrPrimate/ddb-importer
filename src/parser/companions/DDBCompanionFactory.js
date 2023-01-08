@@ -17,6 +17,10 @@ export default class DDBCompanionFactory {
     this.folderIds = new Set();
     this.updateCompanions = false; //  game.settings.get("ddb-importer", "munching-policy-update-existing");
     this.updateImages = false; // game.settings.get("ddb-importer", "munching-policy-update-images");
+    this.results = {
+      created: [],
+      updated: [],
+    };
   }
 
   get data() {
@@ -79,54 +83,55 @@ export default class DDBCompanionFactory {
 
 
   static async updateCompanions(companions, existingCompanions) {
-    return Promise.all(
-      companions
-        .filter((companion) =>
-          existingCompanions.some(
-            (exist) =>
-              exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-              && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
-          )
-        )
-        .map(async (companion) => {
-          const existingCompanion = await existingCompanions.find(
-            (exist) =>
-              exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-              && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
-          );
-          companion.folder = existingCompanion.folder?.id;
-          companion._id = existingCompanion._id;
-          logger.info(`Updating companion ${companion.name}`);
-          await copySupportedItemFlags(existingCompanion, companion);
-          await buildNPC(companion, "monster", false, true, true);
-          return companion;
-        })
-    );
+    const updateCompanions = companions.filter((companion) =>
+      existingCompanions.some(
+        (exist) =>
+          exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
+          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+      ));
+
+    const results = [];
+
+    for (const companion of updateCompanions) {
+      // eslint-disable-next-line no-await-in-loop
+      const existingCompanion = await existingCompanions.find((exist) =>
+        exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
+        && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+      );
+      companion.folder = existingCompanion.folder?.id;
+      companion._id = existingCompanion._id;
+      logger.info(`Updating companion ${companion.name}`);
+      // eslint-disable-next-line no-await-in-loop
+      await copySupportedItemFlags(existingCompanion, companion);
+      // eslint-disable-next-line no-await-in-loop
+      const npc = await buildNPC(companion, "monster", false, true, true);
+      results.push(npc);
+    }
+
+    return results;
   }
 
   static async createCompanions(companions, existingCompanions, folderId) {
-    return Promise.all(
-      companions
-        .filter(
-          (companion) =>
-            !existingCompanions.some(
-              (exist) =>
-                exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
-                && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
-            )
-        )
-        .map(async (companion) => {
-          if (!game.user.can("ITEM_CREATE")) {
-            ui.notifications.warn(`Cannot create Companion ${companion.name}`);
-          } else {
-            logger.info(`Creating Companion ${companion.name}`);
-            if (folderId) companion.folder = folderId;
-            const importedCompanions = await buildNPC(companion, "monster", false, false, true);
-            return importedCompanions;
-          }
-          return companion;
-        })
-    );
+    if (!game.user.can("ITEM_CREATE")) {
+      ui.notifications.warn(`User is unable to create world items, and cannot create companions`);
+      return [];
+    }
+    const newCompanions = companions.filter((companion) =>
+      !existingCompanions.some(
+        (exist) =>
+          exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id
+          && companion.flags?.ddbimporter?.entityTypeId === companion.flags.ddbimporter.entityTypeId
+      ));
+
+    const results = [];
+    for (const companion of newCompanions) {
+      logger.info(`Creating Companion ${companion.name}`);
+      if (folderId) companion.folder = folderId;
+      // eslint-disable-next-line no-await-in-loop
+      const importedCompanion = await buildNPC(companion, "monster", false, false, true);
+      results.push(importedCompanion);
+    }
+    return results;
   }
 
   async #generateCompanionFolders(rootFolderName = "DDB Companions") {
@@ -158,8 +163,10 @@ export default class DDBCompanionFactory {
     let finalCompanions = await srdFiddling(companionData, "monsters");
     await generateIconMap(finalCompanions);
 
-    if (this.updateCompanions) await DDBCompanionFactory.updateCompanions(finalCompanions, existingCompanions);
-    const importedCompanions = await DDBCompanionFactory.createCompanions(finalCompanions, existingCompanions, folderOverride?.id);
+    if (this.updateCompanions) {
+      this.results.updated = await DDBCompanionFactory.updateCompanions(finalCompanions, existingCompanions);
+    }
+    this.results.created = await DDBCompanionFactory.createCompanions(finalCompanions, existingCompanions, folderOverride?.id);
 
     // add companions to automated evocations list
     if (this.actor && game.modules.get("automated-evocations")?.active) {
@@ -168,7 +175,7 @@ export default class DDBCompanionFactory {
         companions: this.actor.getFlag("automated-evocations", "isLocal"),
       };
 
-      const companions = existingCompanions.concat(importedCompanions).map((companion) => {
+      const companions = existingCompanions.concat(this.results.created).map((companion) => {
         return {
           id: companion.id ? companion.id : companion._id,
           number: 1,

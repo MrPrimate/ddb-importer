@@ -1,4 +1,5 @@
 import logger from "../../logger.js";
+import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "./DDBCompanionFactory.js";
 
@@ -79,34 +80,16 @@ DDBCharacter.prototype.generateCompanions = async function() {
     logger.warn("Companion Parsing requires the Arbron Summoner module");
     return;
   }
-  const companionSpells = [
-    "Summon Aberration",
-    "Summon Beast",
-    "Summon Celestial",
-    "Summon Construct",
-    "Summon Elemental",
-    "Summon Fey",
-    "Summon Fiend",
-    "Summon Shadowspawn",
-    "Summon Undead",
-    "Summon Draconic Spirit",
-  ];
-  const companionFeatures = [
-    "Steel Defender",
-    "Artificer Infusions",
-    "Summon Wildfire Spirit",
-    "Primal Companion",
-  ];
-  for (const name of companionFeatures) {
+
+  for (const name of SETTINGS.COMPANIONS.COMPANION_FEATURES) {
     // eslint-disable-next-line no-await-in-loop
     await this._getCompanionFeature(name);
   }
-  for (const name of companionSpells) {
+  for (const name of SETTINGS.COMPANIONS.COMPANION_SPELLS) {
     // eslint-disable-next-line no-await-in-loop
     await this._getCompanionSpell(name);
   }
 
-  console.warn(this.companionFactories);
   await this._importCompanions();
 
   this.companions = this.companionFactories.map((factory) => factory.companions);

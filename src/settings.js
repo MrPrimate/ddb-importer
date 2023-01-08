@@ -128,6 +128,26 @@ const MUNCH_DEFAULTS = [
 
 const FILTER_SECTIONS = ["classes", "race", "features", "actions", "inventory", "spells"];
 
+const COMPANION_SPELLS = [
+  "Summon Aberration",
+  "Summon Beast",
+  "Summon Celestial",
+  "Summon Construct",
+  "Summon Elemental",
+  "Summon Fey",
+  "Summon Fiend",
+  "Summon Shadowspawn",
+  "Summon Undead",
+  "Summon Draconic Spirit",
+];
+const COMPANION_FEATURES = [
+  "Steel Defender",
+  "Artificer Infusions",
+  "Summon Wildfire Spirit",
+  "Primal Companion",
+  "Drake Companion",
+];
+
 const DISABLE_FOUNDRY_UPGRADE = {
   applyFeatures: false,
   addFeatures: false,
@@ -161,6 +181,10 @@ const SETTINGS = {
   COMPENDIUM_REMOVE_FLAGS,
   ADVENTURE_FLAG: "isDDBAdventure",
   ADVENTURE_CSS: "ddbAdventure",
+  COMPANIONS: {
+    COMPANION_FEATURES,
+    COMPANION_SPELLS,
+  },
   URLS,
   POPUPS,
   DISABLE_FOUNDRY_UPGRADE,

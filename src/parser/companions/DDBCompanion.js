@@ -557,6 +557,9 @@ export default class DDBCompanion {
       }
     });
 
+    setProperty(this.npc, "flags.ddbimporter.id", `companion-${actorName}`);
+    setProperty(this.npc, "flags.ddbimporter.entityTypeId", `companion-${this.type}`);
+
     this.#generateSize();
     this.#generateType();
     this.#generateAbilities();
