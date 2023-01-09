@@ -37,6 +37,7 @@ import { activateUpdateHooks } from "./updater/character.js";
 
 // foundry is initializing
 export function init() {
+  earlySettings();
   setupLogging();
   registerWindow();
   chatHooks();
@@ -83,7 +84,6 @@ export function onReady() {
 }
 
 export function renderSidebarTab(app, html) {
-  earlySettings();
   addEncounterMuncher(app, html);
   addMuncher(app, html);
 }
