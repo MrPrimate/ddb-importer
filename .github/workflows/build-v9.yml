@@ -48,19 +48,19 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: false # set to false if you do not want to allow updates on existing releases
-        name: Release ${{ env.release_version }} # Use the version in the name
+        name: Release ${{ steps.get-version.outputs.release_version }} # Use the version in the name
         draft: false
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './module.json,./ddb-importer.zip'    # don't forget to rename module zip thing
-        tag: ${{ env.release_version }} # Use the version as the tag
+        tag: ${{ steps.get-version.outputs.release_version }} # Use the version as the tag
     - name: Discord notification
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_HOOK }}
         DISCORD_USERNAME: "Head of Marketing (Krum)"
       uses: Ilshidur/action-discord@0.0.2
       with:
-        args: 'DDB Importer ${{ env.release_version }} has been published by our development Kobolds!'
+        args: 'DDB Importer ${{ steps.get-version.outputs.release_version }} has been published by our development Kobolds!'
 
     # - name: FoundryVTT AutoPublish
     #   uses: Varriount/fvtt-autopublish@v1.0.2a
