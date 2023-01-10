@@ -1,6 +1,6 @@
 # 3.3.0
 
-* Some fixes for upcoming schema changes/enforcement in the next D&D system version.
+* Some fixes for upcoming schema changes/enforcement in the newest D&D system version, 2.1.0.
 * Tools default ability did not always set.
 * Numeric class advancements did not set the type correctly.
 * Some ScaleValue names will change during munch to meet new schema requirements.
