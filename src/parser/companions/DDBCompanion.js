@@ -121,7 +121,8 @@ export default class DDBCompanion {
     if (!hpString) return;
 
     const hpInt = this.#getBaseHitPoints(hpString);
-    this.npc.system.attributes.hp = hpInt;
+    this.npc.system.attributes.hp.max = hpInt;
+    this.npc.system.attributes.hp.value = hpInt;
 
     // conditions
     // 5 + five times your druid level
@@ -133,7 +134,7 @@ export default class DDBCompanion {
     // 30 (Ghostly and Putrid only) or 20 (Skeletal only) + 10 for each spell level above 3rd
 
     // additional summon points
-    const hpAdjustments = [];
+    const hpAdjustments = [hpInt];
     const modMatch = hpString.match(/\+ your (\w+) modifier/);
 
     if (modMatch) hpAdjustments.push(`@abilities.${modMatch[1].toLowerCase().substring(0, 3)}.mod`);
