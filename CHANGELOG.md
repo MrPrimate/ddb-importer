@@ -21,6 +21,7 @@
 * Extras Import: Would duplicate folder, extra or move extras to root directory.
 * If not using effects global spell attack bonuses might not always stack correctly.
 * Hunters Mark macro would not work if using dynamically loaded macros.
+* In certain circumstances and class combos, some subclass features would not be correctly evaluated and added to a character sheet, depending on the levels of those subclasses.
 
 # 3.2.12
 

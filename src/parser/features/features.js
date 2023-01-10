@@ -57,7 +57,13 @@ function parseFeature(feat, ddb, character, source, type) {
   }
 
   if (feat?.requiredLevel) {
-    const klass = ddb.character.classes.find((klass) => klass.definition.id === feat.classId || klass.subclassDefinition?.id === feat.classId);
+    const klass = ddb.character.classes.find((klass) =>
+      (feat.classId && (klass.definition.id === feat.classId || klass.subclassDefinition?.id === feat.classId))
+      || (feat.className && klass.definition.name === feat.className
+        && ((!feat.subclassName || feat.subclassName === "")
+          || (feat.subclassName && klass.subclassDefinition?.name === feat.subclassName))
+      )
+    );
     if (klass && feat.requiredLevel > klass.level) return [];
   }
 
