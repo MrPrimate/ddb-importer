@@ -96,7 +96,7 @@ export default class DDBCompanionFactory {
     if (!folderOverride) await this.#generateCompanionFolders(rootFolderNameOverride);
 
     const companionNames = limitToFactory ? this.data.map((c) => c.name) : [];
-    console.warn(companionNames);
+    logger.debug("Matched companion names", companionNames);
 
     const existingCompanions = await game.actors.contents
       .filter((companion) => hasProperty(companion, "folder.id")
