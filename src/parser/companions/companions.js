@@ -3,10 +3,23 @@ import SETTINGS from "../../settings.js";
 import DDBCharacter from "../DDBCharacter.js";
 import DDBCompanionFactory from "./DDBCompanionFactory.js";
 
-// DDBCharacter.prototype.addCompanionsToDocument = function(document, companions) {
-
-//   return document;
-// };
+DDBCharacter.prototype.addCompanionsToDocuments = async function() {
+  for (const factory of this.companionFactories) {
+    // eslint-disable-next-line no-await-in-loop
+    const worldActors = await factory.getExistingWorldCompanions({ limitToFactory: true });
+    const summons = worldActors
+      .map((actor) => {
+        return {
+          name: actor.name,
+          uuid: `Actor.${actor.id}`,
+        };
+      });
+    if (factory.originDocument) {
+      setProperty(factory.originDocument, "flags.arbron-summoner.summons", summons);
+      setProperty(factory.originDocument, "system.actionType", "summon");
+    }
+  }
+};
 
 DDBCharacter.prototype.getClassFeature = function(name) {
   const klass = this.source.ddb.character.classes
@@ -44,8 +57,8 @@ DDBCharacter.prototype._findDDBSpell = function(name) {
   return undefined;
 };
 
-DDBCharacter.prototype._parseCompanion = async function(html, type) {
-  const ddbCompanionFactory = new DDBCompanionFactory(this, html, { type });
+DDBCharacter.prototype._parseCompanion = async function(html, type, originDocument) {
+  const ddbCompanionFactory = new DDBCompanionFactory(this, html, { type, originDocument });
   await ddbCompanionFactory.parse();
   this.companionFactories.push(ddbCompanionFactory);
 };
@@ -62,7 +75,7 @@ DDBCharacter.prototype._getCompanionSpell = async function(name) {
   if (!spell) return;
   const ddbSpell = this._findDDBSpell(spell.flags.ddbimporter?.originalName ?? spell.name);
   if (!ddbSpell) return;
-  await this._parseCompanion(ddbSpell.definition.description, "spell");
+  await this._parseCompanion(ddbSpell.definition.description, "spell", spell);
 };
 
 DDBCharacter.prototype._getCompanionFeature = async function(featureName) {
@@ -72,7 +85,7 @@ DDBCharacter.prototype._getCompanionFeature = async function(featureName) {
   if (!feature) return;
   const ddbFeature = this.getClassFeature(featureName);
   if (!ddbFeature) return;
-  await this._parseCompanion(ddbFeature.definition.description, "feature");
+  await this._parseCompanion(ddbFeature.definition.description, "feature", feature);
 };
 
 DDBCharacter.prototype.generateCompanions = async function() {
@@ -98,6 +111,8 @@ DDBCharacter.prototype.generateCompanions = async function() {
     factories: this.companionFactories,
     parsed: this.companions,
   });
+
+  await this.addCompanionsToDocuments();
   // different types of companion
   // ranger beast companions, classic and new
   // ranger drake warden

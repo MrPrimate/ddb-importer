@@ -21,6 +21,7 @@ export default class DDBCompanionFactory {
       created: [],
       updated: [],
     };
+    this.originDocument = options.originDocument;
   }
 
   get data() {
@@ -81,6 +82,31 @@ export default class DDBCompanionFactory {
     return this.data;
   }
 
+  async #generateCompanionFolders(rootFolderName = "DDB Companions") {
+    const rootFolder = await utils.getOrCreateFolder(null, "Actor", rootFolderName);
+    for (const companion of this.companions) {
+      // eslint-disable-next-line no-await-in-loop
+      const folder = await utils.getOrCreateFolder(rootFolder, "Actor", utils.capitalize(companion.type ?? "other"));
+      companion.data.folder = folder._id;
+      this.folderIds.add(folder._id);
+    }
+  }
+
+  async getExistingWorldCompanions({ folderOverride = null, rootFolderNameOverride = undefined, limitToFactory = false } = {}) {
+    if (!folderOverride) await this.#generateCompanionFolders(rootFolderNameOverride);
+
+    const companionNames = limitToFactory ? this.data.map((c) => c.name) : [];
+    console.warn(companionNames);
+
+    const existingCompanions = await game.actors.contents
+      .filter((companion) => hasProperty(companion, "folder.id")
+        && ((!folderOverride && this.folderIds.has(companion.folder.id))
+          || folderOverride?.id === companion.folder.id)
+        && (!limitToFactory || (limitToFactory && companionNames.includes(companion.name)))
+      )
+      .map((companion) => companion);
+    return existingCompanions;
+  }
 
   static async updateCompanions(companions, existingCompanions) {
     const updateCompanions = companions.filter((companion) =>
@@ -134,22 +160,8 @@ export default class DDBCompanionFactory {
     return results;
   }
 
-  async #generateCompanionFolders(rootFolderName = "DDB Companions") {
-    const rootFolder = await utils.getOrCreateFolder(null, "Actor", rootFolderName);
-    for (const companion of this.companions) {
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await utils.getOrCreateFolder(rootFolder, "Actor", utils.capitalize(companion.type ?? "other"));
-      companion.data.folder = folder._id;
-      this.folderIds.add(folder._id);
-    }
-  }
-
   async updateOrCreateCompanions({ folderOverride = null, rootFolderNameOverride = undefined } = {}) {
-    if (!folderOverride) await this.#generateCompanionFolders(rootFolderNameOverride);
-
-    const existingCompanions = await game.actors.contents
-      .filter((companion) => hasProperty(companion, "folder.id") && this.folderIds.has(companion.folder.id))
-      .map((companion) => companion);
+    const existingCompanions = await this.getExistingWorldCompanions({ folderOverride, rootFolderNameOverride });
 
     let companionData = this.data;
 
