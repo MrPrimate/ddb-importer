@@ -202,7 +202,7 @@ export default class DDBFeature {
       // check for other
       if (dmg[5] && dmg[5].trim() == "at the start of") other = true;
       const profBonus = dmg[3]?.includes(" + PB") ? "@prof" : "";
-      const levelBonus = dmg[3] && (/the spell[’']s level/i).test(dmg[3]) ? "@item.level" : "";
+      const levelBonus = dmg[3] && (/the spell[’']s level/i).test(dmg[3]) ? "@summoner.item.level" : "";
       const damage = profBonus !== "" || levelBonus !== ""
         ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
         : dmg[3] ?? dmg[2];
