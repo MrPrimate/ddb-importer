@@ -455,6 +455,14 @@ export default class DDBCompanion {
     const featureFactory = new DDBFeatureFactory({ ddbMonster, hideDescription: false, updateExisting: false });
     featureFactory.generateActions(text, type);
     logger.debug("Generating companion feature", { text, type, featureFactory });
+    const toHitRegex = /(your spell attack modifier to hit)/i;
+    if (toHitRegex.test(text)) {
+      setProperty(this.npc, "flags.arbron-summoner.config.matchToHit", true);
+    }
+    const spellSaveRegex = /(against your spell save DC)/i;
+    if (spellSaveRegex.test(text)) {
+      setProperty(this.npc, "flags.arbron-summoner.config.matchSaveDCs", true);
+    }
     return featureFactory.getFeatures(type);
   }
 

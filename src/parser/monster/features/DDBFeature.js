@@ -201,16 +201,20 @@ export default class DDBFeature {
       }
       // check for other
       if (dmg[5] && dmg[5].trim() == "at the start of") other = true;
-      const damage = dmg[3]?.includes(" + PB")
-        ? `${dmg[2]}${dmg[3]?.replace(" + PB", "")}`
+      const profBonus = dmg[3]?.includes(" + PB");
+      const damage = profBonus
+        ? `${dmg[2]}${dmg[3]}`
         : dmg[3] ?? dmg[2];
+
       // Make sure we did match a damage
       if (damage) {
         const includesDiceRegExp = /[0-9]*d[0-9]+/;
         const includesDice = includesDiceRegExp.test(damage);
-        const finalDamage = (this.actionInfo && includesDice)
+        const parsedDiceDamage = (this.actionInfo && includesDice)
           ? this.damageModReplace(damage.replace("plus", "+"), dmg[4])
           : damage.replace("plus", "+");
+
+        const finalDamage = profBonus ? `${parsedDiceDamage} + @prof` : parsedDiceDamage;
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
         // versatile for damage
@@ -328,6 +332,15 @@ export default class DDBFeature {
       this.actionInfo.save.dc = parseInt(match[1]);
       this.actionInfo.save.ability = match[2].toLowerCase().substr(0, 3);
       this.actionInfo.save.scaling = "flat";
+    } else {
+      const saveSelfSearch = /(\w+) saving throw against your spell save DC/i;
+      const selfMatch = this.strippedHtml.match(saveSelfSearch);
+      if (selfMatch) {
+        this.feature.system.actionType = "save";
+        this.actionInfo.save.dc = 10;
+        this.actionInfo.save.ability = selfMatch[1].toLowerCase().substr(0, 3);
+        this.actionInfo.save.scaling = "flat";
+      }
     }
     return this.actionInfo.save;
   }

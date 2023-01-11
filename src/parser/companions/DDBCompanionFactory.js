@@ -15,7 +15,7 @@ export default class DDBCompanionFactory {
     this.companions = [];
     this.actor = this.options.actor;
     this.folderIds = new Set();
-    this.updateCompanions = false; //  game.settings.get("ddb-importer", "munching-policy-update-existing");
+    this.updateCompanions = true; //  game.settings.get("ddb-importer", "munching-policy-update-existing");
     this.updateImages = false; // game.settings.get("ddb-importer", "munching-policy-update-images");
     this.results = {
       created: [],

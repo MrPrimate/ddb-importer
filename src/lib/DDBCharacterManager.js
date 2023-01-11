@@ -577,7 +577,7 @@ export default class DDBCharacterManager extends FormApplication {
           });
           this.showCurrentTask("Status");
         } else {
-          DDBCharacterManager.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
+          this.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
           $(html)
             .find(".dndbeyond-url-status i")
             .replaceWith('<i class="fas fa-exclamation-triangle" style="color:red"></i>');
