@@ -183,7 +183,7 @@ export default class DDBFeature {
     // console.warn(hit);
     // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
     // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/((?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB))?(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/g);
+    const damageExpression = new RegExp(/((?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/gi);
     const matches = [...hit.matchAll(damageExpression)];
     const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
     const regainMatch = hit.match(regainExpression);
@@ -201,9 +201,10 @@ export default class DDBFeature {
       }
       // check for other
       if (dmg[5] && dmg[5].trim() == "at the start of") other = true;
-      const profBonus = dmg[3]?.includes(" + PB");
-      const damage = profBonus
-        ? `${dmg[2]}${dmg[3]}`
+      const profBonus = dmg[3]?.includes(" + PB") ? "@prof" : "";
+      const levelBonus = dmg[3] && (/the spell[’']s level/i).test(dmg[3]) ? "@item.level" : "";
+      const damage = profBonus !== "" || levelBonus !== ""
+        ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
         : dmg[3] ?? dmg[2];
 
       // Make sure we did match a damage
@@ -214,7 +215,7 @@ export default class DDBFeature {
           ? this.damageModReplace(damage.replace("plus", "+"), dmg[4])
           : damage.replace("plus", "+");
 
-        const finalDamage = profBonus ? `${parsedDiceDamage} + @prof` : parsedDiceDamage;
+        const finalDamage = [parsedDiceDamage, profBonus, levelBonus].filter((t) => t !== "").join(" + ");
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
         // versatile for damage

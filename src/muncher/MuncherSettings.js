@@ -192,12 +192,12 @@ const MuncherSettings = {
         description: "If Item Collection/Containers module is installed, put items in containers to match DDB layout",
         enabled: game.modules.get("itemcollection")?.active,
       },
-      // {
-      //   name: "create-companions",
-      //   isChecked: game.modules.get("arbron-summoner")?.active && game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"),
-      //   description: "Generate summon monster actors? (Requires item create permissions and Arbron Summoner module)",
-      //   enabled: game.modules.get("arbron-summoner")?.active,
-      // },
+      {
+        name: "create-companions",
+        isChecked: game.modules.get("arbron-summoner")?.active && game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"),
+        description: "[Experimental] Generate summon monster actors? (Requires item create permissions and Arbron Summoner module)",
+        enabled: game.modules.get("arbron-summoner")?.active,
+      },
     ];
 
     const advancedImportConfig = [
