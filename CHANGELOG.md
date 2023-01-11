@@ -1,3 +1,7 @@
+# 3.3.1
+
+* Hunters Mark Macro updated to match midi sample item where it will check if spell is already cast and target is dead when item is rolled again.
+
 # 3.3.0
 
 * Some fixes for upcoming schema changes/enforcement in the newest D&D system version, 2.1.0.
