@@ -7766,5 +7766,9 @@
   {
     "name": "Zuggtmoy's Lair",
     "path": "icons/environment/settlement/city-night.webp"
+  },
+  {
+    "name": "Flame Seed",
+    "path": "icons/magic/fire/explosion-fireball-small-orange.webp"
   }
 ]
