@@ -464,7 +464,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
     definitions: [],
   };
 
-  const useScaleAll = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description-all") || foundry.utils.isNewerVersion(game.system.version, "2.0.3");
+  const useScaleAll = foundry.utils.isNewerVersion(game.system.version, "2.0.3");
   const useScaleText = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description")
     ? "{Scaled Roll}"
     : "";
