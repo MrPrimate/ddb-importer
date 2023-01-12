@@ -56,7 +56,7 @@ export async function importCacheLoad() {
  */
 // eslint-disable-next-line complexity
 function parseMatch(ddb, character, match, feature) {
-  const useScaleAll = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description-all");
+  const useScaleAll = foundry.utils.isNewerVersion(game.system.version, "2.0.3");
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
@@ -118,14 +118,14 @@ function parseMatch(ddb, character, match, feature) {
       ? ddb.character.classes.find((cls) => cls.definition.id == feature.classId)
       : DDBHelper.findClassByFeatureId(ddb, feature.componentId);
     if (cls) {
-      const clsLevel = useScaleAll ? ` + @classes.${cls.definition.name.toLowerCase()}.level` : cls.level;
+      const clsLevel = useScaleAll ? ` + @classes.${cls.definition.name.toLowerCase()}.levels` : cls.level;
       result = result.replace("classlevel", clsLevel);
       linktext = result.replace("classlevel", ` (${cls.definition.name} Level) `);
     } else if (classOption) {
       // still not found a cls? could be an option
       const optionCls = DDBHelper.findClassByFeatureId(ddb, classOption.componentId);
       if (optionCls) {
-        const clsLevel = useScaleAll ? ` + @classes.${optionCls.definition.name.toLowerCase()}.level` : optionCls.level;
+        const clsLevel = useScaleAll ? ` + @classes.${optionCls.definition.name.toLowerCase()}.levels` : optionCls.level;
         result = result.replace("classlevel", clsLevel);
         linktext = result.replace("classlevel", ` (${optionCls.definition.name} Level) `);
       } else {
@@ -464,6 +464,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
     definitions: [],
   };
 
+  const useScaleAll = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description-all") || foundry.utils.isNewerVersion(game.system.version, "2.0.3");
   const useScaleText = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description")
     ? "{Scaled Roll}"
     : "";
@@ -531,7 +532,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
         for (let start = evalString.startsWith("("), end = evalString.endsWith(")"); start && end; start = evalString.startsWith("("), end = evalString.endsWith(")")) {
           evalString = evalString.replace(/^\(/, "").replace(/\)$/, "");
         }
-        const evalMatch = evaluateMath(evalString);
+        const evalMatch = useScaleAll ? evalString : evaluateMath(evalString);
         if (splitMatchAt.length > 1) {
           let evalConstraint = evalMatch;
           for (let i = 1; i < splitMatchAt.length; i++) {
@@ -542,6 +543,9 @@ export default function parseTemplateString(ddb, character, text, feature) {
           entry.parsed = getNumber(evalMatch, signed);
         }
         entry.parsed = entry.parsed.replace("+ +", "+");
+        if (useScaleAll && !result.text.includes("[[/roll") && (/^\+\s/).test(entry.parsed.trim())) {
+          entry.parsed = `${entry.parsed.trim().replace(/^\+\s/, "+ [[")}]]`;
+        }
         result.text = result.text.replace(entry.replacePattern, entry.parsed);
       } catch (err) {
         result.text = result.text.replace(entry.replacePattern, `{{${match}}}`);

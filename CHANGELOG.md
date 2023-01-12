@@ -1,6 +1,8 @@
 # 3.3.1
 
 * Hunters Mark Macro updated to match midi sample item where it will check if spell is already cast and target is dead when item is rolled again.
+* Improve the handling of feature descriptions that use character values to ue new inline calculations rather than fixed values.
+* Experimental mode to generate actors from stat blocks in spells and features. This is for features like Primal Companion, Summon Wildfire Spirit, and the new Summon Spells in Tasha's. It requires the Arbron's Summoning (5e) module by @arbron#6515 https://foundryvtt.com/packages/arbron-summoner. It will generate appropriate actors in a world folder, and link in the spell. Unfortunately (for now), there is no avatar/token art, so you will need to source that yourselves.
 
 # 3.3.0
 
