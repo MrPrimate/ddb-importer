@@ -405,7 +405,8 @@ export default class DDBCharacterManager extends FormApplication {
           const ddbCharacterOptions = {
             currentActor: this.actor,
             characterId,
-            resourceSelection: true
+            resourceSelection: true,
+            enableCompanions: true,
           };
           const getOptions = {
             syncId: null,

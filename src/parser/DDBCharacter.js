@@ -12,7 +12,7 @@ import SETTINGS from "../settings.js";
 
 
 export default class DDBCharacter {
-  constructor({ currentActor = null, characterId = null, resourceSelection = true } = {}) {
+  constructor({ currentActor = null, characterId = null, resourceSelection = true, enableCompanions = false } = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
     this.currentActorId = currentActor?.id;
@@ -36,6 +36,7 @@ export default class DDBCharacter {
     this.spellSlots = {};
     this.totalLevels = 0;
     this.companionFactories = [];
+    this.enableCompanions = enableCompanions;
   }
 
   /**
@@ -204,7 +205,7 @@ export default class DDBCharacter {
       this._addSpecialAdditions();
 
       // find supported companion blocks
-      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) {
+      if (this.enableCompanions && game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) {
         await this.generateCompanions();
       }
 

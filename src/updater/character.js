@@ -909,71 +909,73 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
   const foundryItems = getFoundryItems(actor);
 
   const itemsToEquip = foundryItems.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
-    && !item.flags.ddbimporter?.custom
+    hasProperty(item, "system.equipped")
+    && hasProperty(item, "flags.ddbimporter.id")
+    && !getProperty(item, "flags.ddbimporter.action")
+    && !getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id
-      && dItem.id === item.flags.ddbimporter?.id
+      getProperty(item, "flags.ddbimporter.id") === dItem.id
       && item.system.equipped !== dItem.equipped
     )
   );
   const itemsToAttune = foundryItems.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
-    && !item.flags.ddbimporter?.custom
+    hasProperty(item, "system.attunement")
+    && hasProperty(item, "flags.ddbimporter.id")
+    && !getProperty(item, "flags.ddbimporter.action")
+    && !getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id
-      && dItem.id === item.flags.ddbimporter?.id
+      getProperty(item, "flags.ddbimporter.id") === dItem.id
       && ((item.system.attunement === 2) !== dItem.isAttuned)
     )
   );
   const itemsToCharge = foundryItems.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
-    && !item.flags.ddbimporter?.custom
+    hasProperty(item, "system.uses")
+    && hasProperty(item, "flags.ddbimporter.id")
+    && !getProperty(item, "flags.ddbimporter.action")
+    && !getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id
-      && dItem.id === item.flags.ddbimporter?.id
+      getProperty(item, "flags.ddbimporter.id") === dItem.id
       && Number.isInteger(parseInt(item.system.uses?.max)) && Number.isInteger(parseInt(dItem.limitedUse?.numberUsed))
       && ((parseInt(item.system.uses.max) - parseInt(item.system.uses.value)) !== dItem.limitedUse.numberUsed)
     )
   );
   const itemsToQuantity = foundryItems.filter((item) =>
-    !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
-    && !item.system.quantity == 0
-    && !item.flags.ddbimporter?.custom
-    && ((item.type !== "weapon" && item.type !== "armor") || item.flags.ddbimporter?.dndbeyond?.stackable)
-    && !item.system?.armor?.type
+    hasProperty(item, "system.quantity")
+    && item.system.quantity !== 0
+    && !getProperty(item, "system.armor.type")
+    && ((item.type !== "weapon" && item.type !== "armor") || getProperty(item, "flags.ddbimporter.dndbeyond.stackable"))
+    && hasProperty(item, "flags.ddbimporter.id")
+    && !getProperty(item, "flags.ddbimporter.action")
+    && !getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
-      item.flags.ddbimporter.id === dItem.id
-      && dItem.id === item.flags.ddbimporter?.id
+      getProperty(item, "flags.ddbimporter.id") === dItem.id
       && item.system.quantity !== dItem.quantity
     )
   );
   // this is for items that have been added and might have a different name
   const itemsToName = foundryItems.filter((item) =>
-    item.flags.ddbimporter?.id
-    && item.system.quantity !== 0
-    && !item.flags.ddbimporter?.custom
+    hasProperty(item, "flags.ddbimporter.id")
+    && item.system?.quantity !== 0
+    && !getProperty(item, "flags.ddbimporter.custom")
     && ddbItems.some((dItem) =>
-      // item.flags.ddbimporter.id === dItem.id &&
       item.flags.ddbimporter.originalName === dItem.definition.name
       && item.flags.ddbimporter.originalName !== item.name.replaceAll("[Infusion]", "").trim()
-      && !item.system.quantity == 0
-      && dItem.id === item.flags.ddbimporter?.id
+      && getProperty(item, "flags.ddbimporter.id") === dItem.id
       && item.name.replaceAll("[Infusion]", "").trim() !== dItem.definition.name
     )
   );
 
   // update.name || update.data?.description || update.data?.weight || update.data?.price || update.data?.quantity
   const customItems = foundryItems.filter((item) =>
-    item.flags.ddbimporter?.id
-    && item.system.quantity !== 0
+    hasProperty(item, "flags.ddbimporter.id")
+    && item.system?.quantity !== 0
     && (getProperty(item, "flags.ddbimporter.custom") === true || getProperty(item, "flags.ddbimporter.isCustom") === true)
     && customDDBItems.some((dItem) => dItem.id === item.flags.ddbimporter.id
       && (
         item.name !== dItem.name
         || utils.stripHtml(item.system.description.value) != dItem.description
-        || item.system.quantity != dItem.quantity
-        || item.system.weight != dItem.weight
+        || (hasProperty(item, "system.quantity") && item.system.quantity != dItem.quantity)
+        || (hasProperty(item, "system.weight") && item.system.weight != dItem.weight)
         //  ||
         // item.data.price != dItem.cost
       )
@@ -982,11 +984,11 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
 
   const itemsToMove = game.modules.get("itemcollection")?.active
     ? foundryItems.filter((item) =>
-      !item.flags.ddbimporter?.action && item.flags.ddbimporter?.id
+      hasProperty(item, "flags.ddbimporter.id")
+      && !getProperty(item, "flags.ddbimporter.action")
       && hasProperty(item, "flags.ddbimporter.containerEntityId")
       && ddbItems.some((dItem) =>
         item.flags.ddbimporter.id === dItem.id
-        && dItem.id === item.flags.ddbimporter?.id
         && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId)
       ))
     : [];
