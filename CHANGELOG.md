@@ -1,3 +1,8 @@
+# 3.3.2
+
+* Polymorph and light now have the midi flag "friends automatically fail" set if generating spells with effects.
+* A race condition could prevent item spells parsing correctly.
+
 # 3.3.1
 
 * Hunters Mark Macro updated to match midi sample item where it will check if spell is already cast and target is dead when item is rolled again.

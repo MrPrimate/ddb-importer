@@ -788,10 +788,9 @@ export default class DDBCharacterManager extends FormApplication {
     let items = [];
 
     // process spells for magic items
-    if ((magicItemsInstalled || itemsWithSpellsInstalled) && this.result.itemSpells
-      && Array.isArray(this.result.itemSpells)
-    ) {
+    if ((magicItemsInstalled || itemsWithSpellsInstalled) && Array.isArray(this.result.itemSpells)) {
       this.showCurrentTask("Preparing magicitem spells");
+      logger.debug("Preparing magicitem spells");
       await addMagicItemSpells(this.result);
     }
 

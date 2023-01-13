@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 import utils from "../../lib/utils.js";
 
 // Import parsing functions
@@ -7,17 +8,17 @@ import { parseSpell } from "./parseSpell.js";
 import { hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 
 
-export function getItemSpells(ddb, character) {
+export async function getItemSpells(ddb, character) {
   let items = [];
   const proficiencyModifier = character.system.attributes.prof;
   const lookups = getLookups(ddb.character);
 
   // feat spells are handled slightly differently
-  ddb.character.spells.item.forEach(async (spell) => {
-    if (!spell.definition) return;
+  for (const spell of ddb.character.spells.item) {
+    if (!spell.definition) continue;
 
     const itemInfo = lookups.item.find((it) => it.id === spell.componentId);
-    if (!itemInfo) return;
+    if (!itemInfo) continue;
 
     const active
       = (!itemInfo.canEquip && !itemInfo.canAttune) // if item just gives a thing
@@ -60,8 +61,9 @@ export function getItemSpells(ddb, character) {
       },
     };
 
+    // eslint-disable-next-line no-await-in-loop
     items.push(await parseSpell(spell, character));
-  });
+  }
 
   if (items) fixSpells(ddb, items);
 
