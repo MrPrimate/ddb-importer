@@ -73,7 +73,18 @@ function darknessLight(cx, cy, radius) {
         },
       },
       "perfect-vision": {
-        sightLimit: 0,
+        resolution: 1,
+        visionLimitation: {
+          enabled: true,
+          sight: 0,
+          detection: {
+            feelTremor: null,
+            seeAll: null,
+            seeInvisibility: 0,
+            senseAll: null,
+            senseInvisibility: null,
+          },
+        },
       },
     },
   };

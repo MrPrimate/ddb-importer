@@ -2,6 +2,7 @@
 
 * Polymorph and light now have the midi flag "friends automatically fail" set if generating spells with effects.
 * A race condition could prevent item spells parsing correctly.
+* Darkness effect improvement if using Perfect Vision (thanks @dinesh#9364)
 
 # 3.3.1
 
