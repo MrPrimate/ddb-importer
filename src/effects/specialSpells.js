@@ -90,6 +90,7 @@ import { mistyStepEffect } from "./spells/mistyStep.js";
 import { moonbeamEffect } from "./spells/moonbeam.js";
 import { passWithoutTraceEffect } from "./spells/passWithoutTrace.js";
 import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
+import { polymorphEffect } from "./spells/polymorph.js";
 import { protectionfromEnergyEffect } from "./spells/protectionfromEnergy.js";
 import { protectionfromPoisonEffect } from "./spells/protectionfromPoison.js";
 import { rayofEnfeeblementEffect } from "./spells/rayofEnfeeblement.js";
@@ -546,6 +547,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Phantasmal Killer": {
       document = phantasmalKillerEffect(document);
+      break;
+    }
+    case "Polymorph": {
+      document = polymorphEffect(document);
       break;
     }
     case "Protection from Energy": {
