@@ -158,7 +158,7 @@ const CompendiumHelper = {
       foundryActor._id = matchingActor._id;
       foundryActor = await CompendiumHelper.copyExistingActorProperties(type, foundryActor);
     } else {
-      logger.debug(`No existing compendium match for ${matchingActor.name}`);
+      logger.debug(`No existing compendium match for ${foundryActor.name}`);
     }
     return foundryActor;
   },
