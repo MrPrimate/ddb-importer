@@ -157,10 +157,11 @@ const CompendiumHelper = {
       // eslint-disable-next-line require-atomic-updates
       foundryActor._id = matchingActor._id;
       foundryActor = await CompendiumHelper.copyExistingActorProperties(type, foundryActor);
+    } else {
+      logger.debug(`No existing compendium match for ${matchingActor.name}`);
     }
     return foundryActor;
   },
-
 
   sanitize: (text) => {
     if (text && typeof text === "string") {

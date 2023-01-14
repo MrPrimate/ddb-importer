@@ -225,18 +225,18 @@ export default class DDBMonster {
     await this.#linkResourcesConsumption();
     this.npc.items = this.items;
 
-    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc);
-    this.npc = specialCases(this.npc);
-
-    if (this.addMonsterEffects) {
-      this.npc = await monsterFeatureEffectAdjustment(this.npc, this.source);
-    }
-
     if (this.legacyName) {
       if (this.source.isLegacy) {
         this.npc.name += " (Legacy)";
         this.npc.prototypeToken.name += " (Legacy)";
       }
+    }
+
+    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc);
+    this.npc = specialCases(this.npc);
+
+    if (this.addMonsterEffects) {
+      this.npc = await monsterFeatureEffectAdjustment(this.npc, this.source);
     }
 
     logger.debug(`Generated ${this.name}`, this);

@@ -1,6 +1,7 @@
 # 3.3.3
 
 * Primal Companion companions are now parsed. @callbritton#5405
+* Legacy monsters would be duplicated rather than updated.
 
 # 3.3.2
 
