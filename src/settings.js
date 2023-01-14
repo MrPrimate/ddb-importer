@@ -144,10 +144,17 @@ const COMPANION_FEATURES = [
   "Steel Defender",
   "Artificer Infusions",
   "Summon Wildfire Spirit",
-  "Primal Companion",
+  // "Primal Companion",
   "Drake Companion",
   "Drake Companion: Summon",
 ];
+const COMPANION_OPTIONS = {
+  "Primal Companion": [
+    "Beast of the Land",
+    "Beast of the Sea",
+    "Beast of the Sky",
+  ],
+};
 
 const DISABLE_FOUNDRY_UPGRADE = {
   applyFeatures: false,
@@ -185,6 +192,7 @@ const SETTINGS = {
   COMPANIONS: {
     COMPANION_FEATURES,
     COMPANION_SPELLS,
+    COMPANION_OPTIONS,
   },
   URLS,
   POPUPS,

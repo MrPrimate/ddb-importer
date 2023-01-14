@@ -27,7 +27,6 @@ DDBCharacter.prototype.getClassFeature = function(name) {
   return klass?.classFeatures?.find((f) => f.definition.name == name);
 };
 
-
 DDBCharacter.prototype._findDDBSpell = function(name) {
   const spells = [];
   this.source.ddb.character.classSpells.forEach((playerClass) => {
@@ -88,6 +87,19 @@ DDBCharacter.prototype._getCompanionFeature = async function(featureName) {
   await this._parseCompanion(ddbFeature.definition.description, "feature", feature);
 };
 
+DDBCharacter.prototype._getCompanionOption = async function(parentFeature, childName) {
+  const feature = this.data.features.concat(this.data.actions).find((s) =>
+    s.name === parentFeature
+    || s.flags.ddbimporter?.originalName === parentFeature
+    || s.name === `${parentFeature}: ${childName}`
+    || s.flags.ddbimporter?.originalName === `${parentFeature}: ${childName}`
+  );
+  if (!feature) return;
+  const ddbOption = this.source.ddb.character.options.class.find((o) => o.definition.name == childName);
+  if (!ddbOption) return;
+  await this._parseCompanion(ddbOption.definition.description, "feature", feature);
+};
+
 DDBCharacter.prototype.generateCompanions = async function() {
   if (!game.modules.get("arbron-summoner")?.active) {
     logger.warn("Companion Parsing requires the Arbron Summoner module");
@@ -101,6 +113,12 @@ DDBCharacter.prototype.generateCompanions = async function() {
   for (const name of SETTINGS.COMPANIONS.COMPANION_SPELLS) {
     // eslint-disable-next-line no-await-in-loop
     await this._getCompanionSpell(name);
+  }
+  for (const [parentFeature, childNames] of Object.entries(SETTINGS.COMPANIONS.COMPANION_OPTIONS)) {
+    for (const name of childNames) {
+      // eslint-disable-next-line no-await-in-loop
+      await this._getCompanionOption(parentFeature, name);
+    }
   }
 
   await this._importCompanions();

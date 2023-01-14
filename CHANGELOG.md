@@ -1,3 +1,7 @@
+# 3.3.3
+
+* Primal Companion companions are now parsed. @callbritton#5405
+
 # 3.3.2
 
 * Polymorph and light now have the midi flag "friends automatically fail" set if generating spells with effects.

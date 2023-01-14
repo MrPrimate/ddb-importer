@@ -40,6 +40,7 @@ export default class DDBCompanionFactory {
     "Undead Spirit": ["Ghostly", "Putrid", "Skeletal"],
     "Drake Companion": ["Acid", "Cold", "Fire", "Lightning", "Poison"],
     "Draconic Spirit": ["Chromatic", "Gem", "Metallic"],
+    // "Primal Companion": ["Beast of the Land", "Beast of the Sea", "Beast of the Sky"],
   };
 
   async #buildCompanion(block, options = {}) {
@@ -54,7 +55,7 @@ export default class DDBCompanionFactory {
 
   async parse() {
     // console.warn(this.doc);
-    const statBlockDivs = this.doc.querySelectorAll("div.stat-block-background, div.stat-block-finder");
+    const statBlockDivs = this.doc.querySelectorAll("div.stat-block-background, div.stat-block-finder, div.basic-text-frame");
 
     // console.warn("statblkc divs", { statBlockDivs, athis: this });
     for (const block of statBlockDivs) {
