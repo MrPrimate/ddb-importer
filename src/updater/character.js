@@ -1387,8 +1387,8 @@ async function activeUpdateAddOrDeleteItem(document, state) {
     const actorActiveUpdate = parentActor && getProperty(parentActor, "flags.ddbimporter.activeUpdate");
 
     if (parentActor && actorActiveUpdate && syncEquipment) {
-      logger.debug(`Preparing to ${state.toLowerCase()} item on DDB...`);
-      const action = document.flags.ddbimporter?.action || document.type === "feat";
+      logger.debug(`Checking to see if ${state.toLowerCase()} can be added to DDB...`);
+      const action = document.flags.ddbimporter?.action || ["feat", "class", "subclass", "spell", "background", "race"].includes(document.type);
       if (!action) {
         logger.debug(`Attempting to ${state.toLowerCase()} new Item`, document);
 

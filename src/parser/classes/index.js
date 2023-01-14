@@ -89,12 +89,22 @@ function generateScaleValueAdvancement(feature) {
   return scaleValue;
 }
 
-export function getHPAdvancement() {
+export function getHPAdvancement(klass) {
+  // const value = "value": {
+  //   "1": "max",
+  //   "2": "avg"
+  // },
+  let value = {};
+  if (klass) {
+    for (let i = 1; i <= klass.system.levels; i++) {
+      value[`${i}`] = i === 1 && getProperty(klass, "flags.ddbimporter.isStartingClass") === true ? "max" : "avg";
+    };
+  }
   return {
     _id: foundry.utils.randomID(),
     type: "HitPoints",
     configuration: {},
-    value: {},
+    value,
     title: "",
     icon: "",
     classRestriction: "",
@@ -320,6 +330,7 @@ export async function getClasses(ddb, character) {
           definitionId: characterClass.definition.id,
           entityTypeId: characterClass.entityTypeId,
           type: "class",
+          isStartingClass: characterClass.isStartingClass,
         },
         obsidian: {
           source: {
@@ -352,12 +363,7 @@ export async function getClasses(ddb, character) {
     klass.system.hitDiceUsed = characterClass.hitDiceUsed;
     // eslint-disable-next-line no-await-in-loop
     klass.system.advancement = await addSRDAdvancements([
-      getHPAdvancement(),
-      // hp should be set like this - we don't actually know in DDB
-      // "value": {
-      //   "1": "max",
-      //   "2": "avg"
-      // },
+      getHPAdvancement(klass),
       ...parseFeaturesForScaleValues(ddb, characterClass, characterClass.definition, subClassFeatureIds),
       // eslint-disable-next-line no-await-in-loop
       ...await generateFeatureAdvancements(ddb, characterClass, characterClass.definition, featuresIndex, subClassFeatureIds),
