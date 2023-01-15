@@ -257,8 +257,7 @@ function addOwnerSkillProficiencies(ddbCharacter, mock) {
 
   DICTIONARY.character.skills.forEach((skill) => {
     const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.skillId);
-    const characterProficient = ddbCharacter.character.character.system.skills[skill.name].value;
-
+    const characterProficient = ddbCharacter.source.character.character.system.skills[skill.name].value;
     const ability = DICTIONARY.character.abilities.find((ab) => ab.value === skill.ability);
     const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
     const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
@@ -290,7 +289,7 @@ function addOwnerSaveProficiencies(ddbCharacter, mock) {
   let newSaves = [];
   DICTIONARY.character.abilities.forEach((ability) => {
     const existingProficient = mock.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
-    const characterProficient = ddbCharacter.character.character.system.abilities[ability.value].proficient;
+    const characterProficient = ddbCharacter.abilities.withEffects[ability.value].proficient;
 
     if (existingProficient || characterProficient) {
       const bonus = {
@@ -304,14 +303,14 @@ function addOwnerSaveProficiencies(ddbCharacter, mock) {
   return mock;
 }
 
-function addAverageHitPoints(ddbCharacter, actor, creature, mock) {
+function addAverageHitPoints(ddbCharacterData, actor, creature, mock) {
   // hp
-  const hpMaxChange = getCustomValue(ddbCharacter, 43, creature.id, creature.entityTypeId);
+  const hpMaxChange = getCustomValue(ddbCharacterData, 43, creature.id, creature.entityTypeId);
   if (hpMaxChange) mock.averageHitPoints = hpMaxChange;
 
   // assume this is beast master
   if (mock.creatureFlags.includes("HPLM")) {
-    const ranger = ddbCharacter.classes.find((klass) => klass.definition.id === 5);
+    const ranger = ddbCharacterData.classes.find((klass) => klass.definition.id === 5);
     const level = ranger ? ranger.level : 0;
     mock.averageHitPoints = Math.max(mock.averageHitPoints, 4 * level);
   }
@@ -319,7 +318,7 @@ function addAverageHitPoints(ddbCharacter, actor, creature, mock) {
   // homunculus servant
   // Max Hit Points Base Artificer Level
   if (mock.creatureFlags.includes("MHPBAL")) {
-    const artificer = ddbCharacter.classes.find((klass) => klass.definition.name === "Artificer");
+    const artificer = ddbCharacterData.classes.find((klass) => klass.definition.name === "Artificer");
     if (artificer) {
       mock.averageHitPoints = parseInt(artificer.level);
       setProperty(mock, "hitPointDice.diceCount", artificer.level);
@@ -328,7 +327,7 @@ function addAverageHitPoints(ddbCharacter, actor, creature, mock) {
   }
 
   if (mock.creatureFlags.includes("AHM")) {
-    const artificer = ddbCharacter.classes.find((klass) => klass.definition.name === "Artificer");
+    const artificer = ddbCharacterData.classes.find((klass) => klass.definition.name === "Artificer");
     if (artificer) {
       mock.averageHitPoints = parseInt(5 * artificer.level);
     }
@@ -385,10 +384,8 @@ function transformExtraToMonsterData(ddbCharacter, actor, creature) {
   let ddbCharacterData = ddbCharacter.source.ddb.character;
   logger.debug("Extra data", creature);
   let mock = duplicate(creature.definition);
-
   mock.id = creature.id;
   mock.entityTypeId = creature.entityTypeId;
-
   mock = addCreatureFlags(creature, mock);
 
   if (creature.name) mock.name = creature.name;

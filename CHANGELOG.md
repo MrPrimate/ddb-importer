@@ -1,3 +1,7 @@
+# 3.3.4
+
+* Extra parsing failed for monsters that had skill or prof adjustments.
+
 # 3.3.3
 
 * Primal Companion companions are now parsed. @callbritton#5405
