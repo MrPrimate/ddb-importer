@@ -1,6 +1,7 @@
 # 3.3.5
 
 * Global bonuses did not always sum up correctly, e.g. Aura of Protection and Cloak of Protection could add up to 51, not 6.
+* Some spell icon improvements from @Raccoomph#8480
 
 # 3.3.4
 
