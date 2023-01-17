@@ -29,11 +29,11 @@
   },
   {
     "name": "Aid",
-    "path": "icons/magic/life/heart-cross-strong-blue.webp"
+    "path": "icons/magic/life/cross-embers-glow-yellow-purple.webp"
   },
   {
     "name": "Alarm",
-    "path": "icons/magic/symbols/runes-triangle-orange-purple.webp"
+    "path": "icons/magic/sonic/bell-alarm-red-purple.webp"
   },
   {
     "name": "Alter Self",
@@ -53,7 +53,7 @@
   },
   {
     "name": "Animate Dead",
-    "path": "icons/magic/death/skull-sand-white-yellow.webp"
+    "path": "icons/magic/death/undead-skeleton-energy-green.webp"
   },
   {
     "name": "Animate Objects",
@@ -109,11 +109,11 @@
   },
   {
     "name": "Augury",
-    "path": "icons/magic/perception/eye-tendrils-web-purple.webp"
+    "path": "icons/magic/perception/orb-crystal-ball-scrying.webp"
   },
   {
     "name": "Aura of Life",
-    "path": "icons/magic/life/heart-cross-strong-green.webp"
+    "path": "icons/magic/life/heart-area-circle-red-green.webp"
   },
   {
     "name": "Aura of Purity",
@@ -121,7 +121,7 @@
   },
   {
     "name": "Aura of Vitality",
-    "path": "icons/magic/air/air-burst-spiral-pink.webp"
+    "path": "icons/magic/life/cross-area-circle-green-white.webp"
   },
   {
     "name": "Awaken",
@@ -129,7 +129,7 @@
   },
   {
     "name": "Bane",
-    "path": "icons/magic/unholy/strike-beam-blood-red-purple.webp"
+    "path": "icons/magic/unholy/hands-praying-fire-green.webp"
   },
   {
     "name": "Banishing Smite",
@@ -157,7 +157,7 @@
   },
   {
     "name": "Bestow Curse",
-    "path": "icons/magic/control/energy-stream-link-spiral-orange.webp"
+    "path": "icons/magic/symbols/triangle-glow-purple.webp"
   },
   {
     "name": "Bigby's Hand",
@@ -165,7 +165,7 @@
   },
   {
     "name": "Black Tentacles",
-    "path": "icons/magic/water/bubbles-air-water-light.webp"
+    "path": "icons/creatures/tentacles/tentacles-octopus-black-pink.webp"
   },
   {
     "name": "Blade Barrier",
@@ -181,7 +181,7 @@
   },
   {
     "name": "Bless",
-    "path": "icons/magic/life/cross-worn-green.webp"
+    "path": "icons/magic/holy/prayer-hands-glowing-yellow-green.webp"
   },
   {
     "name": "Blight",
@@ -229,7 +229,7 @@
   },
   {
     "name": "Calm Emotions",
-    "path": "icons/commodities/currency/coin-engraved-sun-smile-copper.webp"
+    "path": "icons/magic/control/buff-luck-fortune-rainbow.webp"
   },
   {
     "name": "Catapult",
@@ -277,11 +277,11 @@
   },
   {
     "name": "Circle of Power",
-    "path": "icons/magic/light/explosion-star-large-teal-purple.webp"
+    "path": "icons/magic/light/explosion-star-glow-blue-purple.webp"
   },
   {
     "name": "Clairvoyance",
-    "path": "icons/magic/perception/eye-ringed-glow-angry-large-teal.webp"
+    "path": "icons/magic/perception/eye-winged-pink.webp"
   },
   {
     "name": "Clone",
@@ -301,7 +301,7 @@
   },
   {
     "name": "Command",
-    "path": "icons/creatures/abilities/mouth-teeth-tongue-purple.webp"
+    "path": "icons/skills/social/wave-halt-stop.webp"
   },
   {
     "name": "Commune",
@@ -377,7 +377,7 @@
   },
   {
     "name": "Continual Flame",
-    "path": "icons/magic/light/explosion-star-orange.webp"
+    "path": "icons/magic/light/torch-fire-orange.webp"
   },
   {
     "name": "Control Flames",
@@ -473,11 +473,11 @@
   },
   {
     "name": "Daylight",
-    "path": "icons/magic/light/explosion-star-large-orange-purple.webp"
+    "path": "icons/magic/light/beam-rays-yellow.webp"
   },
   {
     "name": "Death Ward",
-    "path": "icons/magic/water/heart-ice-freeze.webp"
+    "path": "icons/magic/holy/angel-wings-gray.webp"
   },
   {
     "name": "Delayed Blast Fireball",
@@ -497,11 +497,11 @@
   },
   {
     "name": "Detect Magic",
-    "path": "icons/magic/light/explosion-star-pink.webp"
+    "path": "icons/magic/symbols/rune-sigil-black-pink.webp"
   },
   {
     "name": "Detect Poison and Disease",
-    "path": "icons/magic/light/explosion-star-teal.webp"
+    "path": "icons/magic/acid/dissolve-drip-droplet-smoke.webp"
   },
   {
     "name": "Detect Thoughts",
@@ -509,7 +509,7 @@
   },
   {
     "name": "Dimension Door",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
   },
   {
     "name": "Disguise Self",
@@ -517,11 +517,11 @@
   },
   {
     "name": "Disintegrate",
-    "path": "icons/magic/light/beam-rays-green.webp"
+    "path": "icons/magic/unholy/strike-body-explode-disintegrate.webp"
   },
   {
     "name": "Dispel Evil and Good",
-    "path": "icons/magic/light/orb-beams-green.webp"
+    "path": "icons/magic/holy/yin-yang-balance-symbol.webp"
   },
   {
     "name": "Dispel Magic",
@@ -629,7 +629,7 @@
   },
   {
     "name": "Enhance Ability",
-    "path": "icons/magic/control/buff-flight-wings-runes-purple.webp"
+    "path": "icons/magic/control/buff-strength-muscle-damage-orange.webp"
   },
   {
     "name": "Enlarge/Reduce",
@@ -657,11 +657,11 @@
   },
   {
     "name": "Evard's Black Tentacles",
-    "path": "icons/magic/water/bubbles-air-water-light.webp"
+    "path": "icons/creatures/tentacles/tentacles-octopus-black-pink.webp"
   },
   {
     "name": "Expeditious Retreat",
-    "path": "icons/magic/control/buff-flight-wings-runes-purple.webp"
+    "path": "icons/skills/movement/feet-winged-boots-glowing-yellow.webp"
   },
   {
     "name": "Eyebite",
@@ -685,7 +685,7 @@
   },
   {
     "name": "Far Step",
-    "path": "icons/magic/symbols/rune-sigil-black-pink.webp"
+    "path": "icons/magic/air/air-pressure-shield-blue.webp"
   },
   {
     "name": "Fast Friends",
@@ -841,11 +841,11 @@
   },
   {
     "name": "Geas",
-    "path": "icons/magic/nature/leaf-rune-glow-green.webp"
+    "path": "icons/magic/control/control-influence-puppet.webp"
   },
   {
     "name": "Gentle Repose",
-    "path": "icons/sundries/misc/tombstone.webp"
+    "path": "icons/magic/air/air-smoke-casting.webp"
   },
   {
     "name": "Giant Insect",
@@ -977,7 +977,7 @@
   },
   {
     "name": "Heroism",
-    "path": "icons/magic/symbols/cog-shield-white-blue.webp"
+    "path": "icons/magic/control/control-influence-crown-gold.webp"
   },
   {
     "name": "Hex",
@@ -993,7 +993,7 @@
   },
   {
     "name": "Hold Person",
-    "path": "icons/magic/control/energy-stream-link-large-teal.webp"
+    "path": "icons/magic/control/debuff-energy-hold-blue-yellow.webp"
   },
   {
     "name": "Holy Aura",
@@ -1013,7 +1013,7 @@
   },
   {
     "name": "Hypnotic Pattern",
-    "path": "icons/magic/air/wind-vortex-swirl-purple.webp"
+    "path": "icons/magic/control/hypnosis-mesmerism-swirl.webp"
   },
   {
     "name": "Ice Knife",
@@ -1069,7 +1069,7 @@
   },
   {
     "name": "Insect Plague",
-    "path": "icons/environment/creatures/bug-spider-blue.webp"
+    "path": "icons/creatures/invertebrates/wasp-swarm-attack.webp"
   },
   {
     "name": "Instant Summons",
@@ -1077,7 +1077,7 @@
   },
   {
     "name": "Intellect Fortress",
-    "path": "icons/magic/symbols/runes-star-blue.webp"
+    "path": "icons/magic/control/control-influence-rally-purple.webp"
   },
   {
     "name": "Investiture of Flame",
@@ -1449,7 +1449,7 @@
   },
   {
     "name": "Prayer of Healing",
-    "path": "icons/magic/unholy/orb-glowing-purple.webp"
+    "path": "icons/magic/holy/prayer-hands-glowing-yellow.webp"
   },
   {
     "name": "Prestidigitation",
@@ -1509,7 +1509,7 @@
   },
   {
     "name": "Purify Food and Drink",
-    "path": "icons/tools/cooking/pot-camping-iron-black.webp"
+    "path": "icons/consumables/food/plate-chicken-grilled-mushroom-brown.webp"
   },
   {
     "name": "Pyrotechnics",
@@ -1557,7 +1557,7 @@
   },
   {
     "name": "Remove Curse",
-    "path": "icons/skills/wounds/blood-cells-disease-green.webp"
+    "path": "icons/magic/symbols/triangle-glowing-green.webp"
   },
   {
     "name": "Resilient Sphere",
@@ -1629,7 +1629,7 @@
   },
   {
     "name": "Sending",
-    "path": "icons/magic/control/sihouette-hold-beam-green.webp"
+    "path": "icons/sundries/documents/envelope-sealed-red-brown.webp"
   },
   {
     "name": "Sequester",
@@ -1701,7 +1701,7 @@
   },
   {
     "name": "Sleep",
-    "path": "icons/magic/control/debuff-chains-ropes-blue.webp"
+    "path": "icons/magic/control/sleep-bubble-purple.webp"
   },
   {
     "name": "Sleet Storm",
@@ -1861,7 +1861,7 @@
   },
   {
     "name": "Synaptic Static",
-    "path": "icons/magic/fire/explosion-fireball-medium-purple-pink.webp"
+    "path": "icons/magic/sonic/projectile-sound-rings-wave.webp"
   },
   {
     "name": "Tasha's Caustic Brew",
@@ -1929,7 +1929,7 @@
   },
   {
     "name": "Thunder Step",
-    "path": "icons/skills/ranged/projectile-explosion-black-orange.webp"
+    "path": "icons/magic/sonic/explosion-impact-shock-wave.webp"
   },
   {
     "name": "Thunderclap",
@@ -2097,7 +2097,7 @@
   },
   {
     "name": "Wish",
-    "path": "icons/magic/light/explosion-star-glow-blue-purple.webp"
+    "path": "icons/magic/light/projectiles-star-purple.webp"
   },
   {
     "name": "Witch Bolt",
@@ -2125,7 +2125,7 @@
   },
   {
     "name": "Wristpocket",
-    "path": "icons/magic/unholy/orb-swirling-teal.webp"
+    "path": "icons/magic/movement/trail-streak-impact-blue.webp"
   },
   {
     "name": "Zephyr Strike",
@@ -2133,6 +2133,6 @@
   },
   {
     "name": "Zone of Truth",
-    "path": "icons/magic/fire/barrier-wall-explosion-orange.webp"
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
   }
 ]
