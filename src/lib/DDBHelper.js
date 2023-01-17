@@ -402,6 +402,18 @@ const DDBHelper = {
     return DDBHelper.filterModifiers(modifiers, type, subType, restriction);
   },
 
+  stringIntAdder(one, two) {
+    const oneInt = `${one}`.trim().replace(/^[+-]\s*/, "");
+    const twoInt = `${two}`.trim().replace(/^[+-]\s*/, "");
+    if (Number.isInteger(parseInt(oneInt)) && Number.isInteger(parseInt(twoInt))) {
+      const num = parseInt(oneInt) + parseInt(twoInt);
+      return `${num}`;
+    } else {
+      const twoAdjusted = (/^[+-]/).test(`${two}`.trim()) ? two : `+ ${two}`;
+      return `${one} ${twoAdjusted}`;
+    }
+  },
+
   /**
    * Checks the list of modifiers provided for a matching bonus type
    * and returns a sum of it's value. May include a dice string.
@@ -432,22 +444,24 @@ const DDBHelper = {
           const mod = die.diceString + modBonus + fixedBonus;
           diceString += diceString === "" ? mod : " + " + mod;
         } else if (fixedBonus) {
-          sum += fixedBonus + modBonus;
+          sum = DDBHelper.stringIntAdder(sum, fixedBonus + modBonus);
         }
       } else if (modifier.fixedValue) {
-        sum += modifier.fixedValue;
+        sum = DDBHelper.stringIntAdder(sum, modifier.fixedValue);
       } else if (modifier.value) {
-        sum += modifier.value;
+        sum = DDBHelper.stringIntAdder(sum, modifier.value);
       } else if (modBonus !== 0) {
-        sum += modBonus;
+        sum = DDBHelper.stringIntAdder(sum, modBonus);
       } else if (modifier.modifierTypeId === 1 && modifier.modifierSubTypeId === 218) {
         // prof bonus
-        sum += character.system.attributes.prof;
+        sum = DDBHelper.stringIntAdder(sum, character.system.attributes.prof);
       }
     });
     if (diceString !== "") {
       sum = diceString + " + " + sum;
     }
+
+    sum = `${sum}`.trim().replace(/\+\s*\+/, "+");
 
     return sum !== "" ? sum : 0;
   },

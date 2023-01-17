@@ -1,3 +1,7 @@
+# 3.3.5
+
+* Global bonuses did not always sum up correctly, e.g. Aura of Protection and Cloak of Protection could add up to 51, not 6.
+
 # 3.3.4
 
 * Extra parsing failed for monsters that had skill or prof adjustments.

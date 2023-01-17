@@ -138,7 +138,7 @@ DDBCharacter.prototype._generateBonusAbilities = function() {
   bonusLookup.forEach((b) => {
     const mods = DDBHelper.filterBaseModifiers(this.source.ddb, "bonus", b.ddbSubType);
     const bonus = DDBHelper.getModifierSum(mods, this.raw.character);
-    if (bonus !== 0) result[b.fvttType] = `+ ${bonus}`;
+    if (bonus !== 0 && bonus !== "") result[b.fvttType] = `+ ${bonus}`.trim().replace(/\+\s*\+/, "+");
   });
   this.raw.character.system.bonuses.abilities = result;
 };
