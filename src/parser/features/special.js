@@ -349,6 +349,10 @@ export function fixFeatures(features) {
         };
         break;
       }
+      case "Hand of Healing": {
+        feature.system.actionType = "heal";
+        break;
+      }
       case "Harness Divine Power": {
         feature.system.damage = { parts: [], versatile: "", value: "" };
         break;
