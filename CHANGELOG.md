@@ -4,6 +4,7 @@
 * Some spell icon improvements from @Raccoomph#8480
 * Hand of Healing was not parsing as Heal action. @OmnesPotens#2683
 * Companions: should be friendly disposition.
+* Companions: did not always parse all restricted options, e.g. Draconic Spirits would not parse Damage Resistances for Gem spirits, only Chromatic and Metallic.
 
 # 3.3.4
 

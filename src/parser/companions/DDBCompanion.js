@@ -47,7 +47,14 @@ export default class DDBCompanion {
   }
 
   getBlockData(type) {
-    const block = Array.from(this.blockDatas).find((el) => el.innerText.trim().startsWith(type));
+    const block = Array.from(this.blockDatas).find((el) => {
+      const elementName = el.innerText.trim();
+      const elementStartsWith = elementName.startsWith(type);
+      const isOnly = elementName.toLowerCase().includes("only")
+        ? elementName.toLowerCase().includes(this.options.subType.toLowerCase())
+        : true;
+      return elementStartsWith && isOnly;
+    });
     if (!block) return undefined;
 
     const header = block.getElementsByTagName("strong")[0].innerText.toLowerCase();
