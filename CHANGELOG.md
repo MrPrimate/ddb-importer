@@ -2,7 +2,8 @@
 
 * Global bonuses did not always sum up correctly, e.g. Aura of Protection and Cloak of Protection could add up to 51, not 6.
 * Some spell icon improvements from @Raccoomph#8480
-* Hand of Healing was not parsing as Heal action.
+* Hand of Healing was not parsing as Heal action. @OmnesPotens#2683
+* Companions: should be friendly disposition.
 
 # 3.3.4
 

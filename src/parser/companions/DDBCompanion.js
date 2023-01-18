@@ -588,6 +588,9 @@ export default class DDBCompanion {
     this.#generateSpeed();
     await this.#generateFeatures();
 
+    // make friendly
+    setProperty(this.npc, "prototypeToken.disposition", 1);
+
     this.data = duplicate(this.npc);
     this.parsed = true;
 
