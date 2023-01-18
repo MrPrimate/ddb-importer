@@ -39,6 +39,7 @@ import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { warCasterEffect } from "./feats/warCaster.js";
 import { fontOfMagicEffect } from "./feats/fontOfMagic.js";
 import { forceItemEffect } from "./effects.js";
+import { momentaryStasis } from "./feats/momentaryStasis.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -134,6 +135,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Hill Rune": {
         document = hillRuneEffect(document);
+        break;
+      }
+      case "Momentary Stasis": {
+        document = momentaryStasis(document);
         break;
       }
       case "Rage": {

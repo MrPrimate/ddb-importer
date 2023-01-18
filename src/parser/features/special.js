@@ -377,6 +377,11 @@ export function fixFeatures(features) {
         feature.system.damage = { parts: [["1d6"]], versatile: "", value: "" };
         break;
       }
+      case "Momentary Stasis": {
+        feature.system.actionType = "save";
+        feature.system.save.ability = "con";
+        break;
+      }
       case "Polearm Master - Bonus Attack": {
         feature.system.actionType = "mwak";
         feature.system.range = { value: 10, long: null, units: "ft" };
