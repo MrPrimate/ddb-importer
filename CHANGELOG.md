@@ -2,6 +2,7 @@
 
 * Some sorcery Metamagic features consumed the wrong amount.
 * Psionic Recovery now consumes Psi Points correctly.
+* Correct CSS changes in some adventures for Read Aloud aside blocks. @singitformehal#3216
 
 # 3.3.5
 
