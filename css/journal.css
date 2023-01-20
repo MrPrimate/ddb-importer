@@ -137,6 +137,44 @@ aside.read-aloud-text {
   border-image-source: var(--theme-read-aloud-border,url(https://media.dndbeyond.com/ddb-compendium-client/146117d0758df55ed5ff299b916e9bd1.png));
 }
 
+.text--quote-box, .text-quote-box {
+  display: block !important;
+  background-color: var(--compendium-quote-box-color, #FAF8EC) !important;
+  padding: 20px 25px 15px 25px !important;
+  position: relative !important;
+  width: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: visible !important;
+  border-radius: 0 !important;
+  border-left: 1px solid !important;
+  border-right: 1px solid !important;
+  border-color: var(--compendium-quote-box-border, #620000) !important;
+  border-top: 0;
+  border-bottom: 0;
+  color: var(--theme-page-fg-color) !important;
+  margin: 40px 0px !important;
+  line-height: 1.6 !important;
+  font-size: 14px !important;
+}
+
+.text--quote-box::before, .text--quote-box::after {
+  content: '';
+  border-radius: 50%;
+  background-position: left !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  height: 8px !important;
+  width: 8px !important;
+  left: -4px !important;
+  position: absolute !important;
+  background-color: var(--compendium-quote-box-corner, #620000);
+  box-sizing: inherit;
+  -webkit-tap-highlight-color: transparent;
+  outline: 0;
+}
+
+
 .stat-block-background {
   background-repeat: no-repeat;
   -webkit-box-shadow: 0px 5px 8px 0px #aaa;
