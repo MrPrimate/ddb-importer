@@ -1,5 +1,10 @@
 # 3.3.5
 
+* Some sorcery Metamagic features consumed the wrong amount.
+* Psionic Recovery now consumes Psi Points correctly.
+
+# 3.3.5
+
 * Global bonuses did not always sum up correctly, e.g. Aura of Protection and Cloak of Protection could add up to 51, not 6.
 * Some spell icon improvements from @Raccoomph#8480
 * Hand of Healing was not parsing as Heal action. @OmnesPotens#2683

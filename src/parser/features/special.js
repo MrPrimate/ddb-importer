@@ -377,6 +377,14 @@ export function fixFeatures(features) {
         feature.system.damage = { parts: [["1d6"]], versatile: "", value: "" };
         break;
       }
+      case "Metamagic - Heightened Spell": {
+        feature.system.consume.amount = 3;
+        break;
+      }
+      case "Metamagic - Quickened Spell": {
+        feature.system.consume.amount = 2;
+        break;
+      }
       case "Momentary Stasis": {
         feature.system.actionType = "save";
         feature.system.save.ability = "con";

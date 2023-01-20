@@ -286,6 +286,7 @@ const resourceFeatureLinkMap = {
   "Psionic Power: Psionic Energy": [
     "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",
     "Psionic Power: Psi-Bolstered Knack", "Soul Blades: Homing Strikes", "Soul Blades: Psychic Teleportation",
+    "Psionic Power: Recovery",
   ],
   "Ki Points": [
     "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",
@@ -355,10 +356,11 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
             const update = {
               _id: child._id
             };
+            const charge = getProperty(child, "system.consume.amount") ?? 1;
             setProperty(update, "system.consume", {
               type: "charges",
               target: parent._id,
-              amount: 1,
+              amount: charge,
             });
             toUpdate.push(update);
           });
