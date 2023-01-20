@@ -1,4 +1,4 @@
-# 3.3.5
+# 3.3.6
 
 * Some sorcery Metamagic features consumed the wrong amount.
 * Psionic Recovery now consumes Psi Points correctly.
