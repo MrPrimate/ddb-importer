@@ -3457,6 +3457,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/30591/814/638054153540284547.jpeg",
       sourceURL: "sources/mcv2",
     },
+    {
+      id: 102,
+      name: "ToD",
+      description: "Tyranny of Dragons",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/31000/357/638070661674299942.jpeg",
+      sourceURL: "sources/tod",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
