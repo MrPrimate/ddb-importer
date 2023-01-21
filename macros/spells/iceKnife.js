@@ -17,7 +17,8 @@ if (lastArg.targets.length > 0) {
   areaSpellData.system.actionType = "save";
   areaSpellData.system.save.ability = "dex";
   areaSpellData.system.scaling = { mode: "level", formula: "1d6" };
-  areaSpellData.system.preparation.mode ="atwill";
+  areaSpellData.system.preparation.mode = "atwill";
+  areaSpellData.system.target.value = 99;
   const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor });
   const target = canvas.tokens.get(lastArg.targets[0].id);
   const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>
