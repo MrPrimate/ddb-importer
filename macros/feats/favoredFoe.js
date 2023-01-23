@@ -1,3 +1,5 @@
+
+console.warn(args);
 if (args[0].tag === "OnUse") {
   const lastArg = args[args.length - 1];
   const item = await fromUuid(lastArg.itemUuid);
@@ -35,7 +37,7 @@ if (args[0].tag === "OnUse") {
 
       const damageType = args[0].item.system.damage.parts[0][1];
       const diceMult = args[0].isCritical ? 2 : 1;
-      return { damageRoll: `${diceMult}${args[0].actor._classes.ranger.scaleValues['favored-foe'].substr(1)}[${damageType}]`, flavor: "Favored Foe" };
+      return { damageRoll: `${diceMult}d${args[0].actor.classes.ranger.scaleValues["favored-foe"].faces }[${damageType}]`, flavor: "Favored Foe" };
     }
   }
 
