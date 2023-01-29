@@ -1,3 +1,7 @@
+# NEXT
+
+* Items with custom images, should now retain them.
+
 # 3.3.6
 
 * Some sorcery Metamagic features consumed the wrong amount.

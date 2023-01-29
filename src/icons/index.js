@@ -176,24 +176,26 @@ export async function copyInbuiltIcons(items, monster = false, monsterName = "")
 
   return new Promise((resolve) => {
     const iconItems = items.map((item) => {
-      // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
-      // if we have a monster lets check the monster dict first
-      if (monster) {
-        const monsterPath = getIconPath(item, "monster", monsterName);
-        if (monsterPath) {
-          item.img = monsterPath;
-          return item;
+      if (getProperty(item, "flags.ddbimporter.keepIcon") !== true) {
+        // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
+        // if we have a monster lets check the monster dict first
+        if (monster) {
+          const monsterPath = getIconPath(item, "monster", monsterName);
+          if (monsterPath) {
+            item.img = monsterPath;
+            return item;
+          }
         }
-      }
-      const pathMatched = getIconPath(item, item.type);
-      if (pathMatched) {
-        item.img = pathMatched;
-        if (item.effects) {
-          item.effects.forEach((effect) => {
-            if (!effect.icon || effect.icon === "") {
-              effect.icon = pathMatched;
-            }
-          });
+        const pathMatched = getIconPath(item, item.type);
+        if (pathMatched) {
+          item.img = pathMatched;
+          if (item.effects) {
+            item.effects.forEach((effect) => {
+              if (!effect.icon || effect.icon === "") {
+                effect.icon = pathMatched;
+              }
+            });
+          }
         }
       }
       return item;
