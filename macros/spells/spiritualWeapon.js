@@ -63,7 +63,7 @@ if (args[0] === "on") {
     const weaponData = {
       name: castItemName,
       type: "weapon",
-      data: {
+      system: {
         quantity: 1,
         activation: { type: "bonus", cost: 1, condition: "", },
         target: { value: 1, type: "creature", },
