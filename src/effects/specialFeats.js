@@ -40,6 +40,7 @@ import { warCasterEffect } from "./feats/warCaster.js";
 import { fontOfMagicEffect } from "./feats/fontOfMagic.js";
 import { forceItemEffect } from "./effects.js";
 import { momentaryStasis } from "./feats/momentaryStasis.js";
+import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -256,6 +257,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Storm Rune": {
         document = stormRuneEffect(document);
+        break;
+      }
+      case "Visage of the Astral Self": {
+        document = visageOfTheAstralSelfEffect(document);
         break;
       }
       case "War Caster":

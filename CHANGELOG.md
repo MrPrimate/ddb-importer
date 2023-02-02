@@ -1,6 +1,7 @@
 # NEXT
 
 * Items with custom images, should now retain them.
+* Visage of the Astral Self effect.
 
 # 3.3.6
 
