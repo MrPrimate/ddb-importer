@@ -1,5 +1,7 @@
 # NEXT
 
+# 3.3.7
+
 * Items with custom images, should now retain them.
 * Visage of the Astral Self effect.
 * P13 Support.
