@@ -56,23 +56,25 @@ export function anchorInjection() {
 
     // capture notes that are now refreshed after this point
     const closeRefreshId = Hooks.on("refreshNote", async (note) => {
-      // capture note config close hooks and trigger a check on that
-      const closeNoteId = Hooks.on("closeNoteConfig", async (closeNoteConfig) => {
-        if (noteConfig.id == closeNoteConfig.id) {
-          Hooks.off("closeNoteConfig", closeNoteId);
-          Hooks.off("refreshNote", closeRefreshId);
-          const slugInput = closeNoteConfig.element[0].querySelector("input[name='slug']");
-          const slug = slugInput.value;
-          if (slug && slug.trim() !== "" && slug !== closeNoteConfig.document.flags.ddb?.slugLink) {
-            logger.debug("Saving anchor slug", {
-              slug,
-              note: note,
-              noteId: note._id,
-            });
-            await saveSlug(note, slugInput.value);
+      if (note.id == noteConfig.document.id) {
+        // capture note config close hooks and trigger a check on that
+        const closeNoteId = Hooks.on("closeNoteConfig", async (closeNoteConfig) => {
+          if (noteConfig.id == closeNoteConfig.id) {
+            Hooks.off("closeNoteConfig", closeNoteId);
+            Hooks.off("refreshNote", closeRefreshId);
+            const slugInput = closeNoteConfig.element[0].querySelector("input[name='slug']");
+            const slug = slugInput.value;
+            if (slug && slug.trim() !== "" && slug !== closeNoteConfig.document.flags.ddb?.slugLink) {
+              logger.debug("Saving anchor slug", {
+                slug,
+                note: note,
+                noteId: note._id,
+              });
+              await saveSlug(note, slugInput.value);
+            }
           }
-        }
-      });
+        });
+      }
     });
   });
 
