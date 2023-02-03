@@ -112,10 +112,26 @@ export async function maneuversEffect(ddb, character, document) {
     }
     case "Maneuvers: Quick Toss":
     case "Maneuvers: Lunging Attack":
-    case "Maneuvers: Commander’s Strike":
-    case "Maneuvers: Commander's Strike":
     case "Maneuvers: Feinting Attack": {
       effect.changes.push(damageEffect);
+      document.effects.push(effect);
+      break;
+    }
+    // no default
+  }
+
+  const rangedDamageEffect = {
+    "key": "system.bonuses.rwak.damage",
+    "mode": CONST.ACTIVE_EFFECT_MODES.ADD,
+    "value": `+ ${diceString}`,
+    "priority": "20"
+  };
+  // damage effect
+  switch (name) {
+    case "Maneuvers: Commander’s Strike":
+    case "Maneuvers: Commander's Strike": {
+      effect.changes.push(damageEffect);
+      effect.changes.push(rangedDamageEffect);
       document.effects.push(effect);
       break;
     }

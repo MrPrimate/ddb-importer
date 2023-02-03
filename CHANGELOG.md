@@ -2,6 +2,8 @@
 
 * Items with custom images, should now retain them.
 * Visage of the Astral Self effect.
+* P13 Support.
+* Battle Master: Commanders Strike effect did not apply to ranged attacks.
 
 # 3.3.6
 
