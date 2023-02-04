@@ -88,10 +88,12 @@ function parseMatch(ddb, character, match, feature) {
           // not sure if we should add this, probably not.
           // const bonus = DDBHelper.getModifierSum(DDBHelper.filterBaseModifiers(ddb, "bonus", "spell-save-dc"), character);
           const dc = 8 + character.system.attributes.prof + abilityModifier;
-          return dc;
+          return useScaleAll
+            ? `8 + @abilities.${save}.mod + @prof`
+            : dc;
         });
       const saveRegexp = RegExp(match[0], "g");
-      result = result.replace(saveRegexp, Math.max(...saveDCs));
+      result = result.replace(saveRegexp, useScaleAll ? `max(${saveDCs.join(", ")})` : Math.max(...saveDCs));
       linktext = result.replace(saveRegexp, " (Save DC) ");
     });
   }
