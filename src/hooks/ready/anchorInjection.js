@@ -56,6 +56,7 @@ export function anchorInjection() {
 
     // capture notes that are now refreshed after this point
     const closeRefreshId = Hooks.on("refreshNote", async (note) => {
+      if (noteConfig.object.id !== note.document.id) return;
       // capture note config close hooks and trigger a check on that
       const closeNoteId = Hooks.on("closeNoteConfig", async (closeNoteConfig) => {
         if (noteConfig.id == closeNoteConfig.id) {

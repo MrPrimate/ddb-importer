@@ -1,5 +1,7 @@
 # NEXT
 
+* Improve HTML Slug note handling to reduce chance of notes been incorrectly updated with bad anchors.
+
 # 3.3.7
 
 * Items with custom images, should now retain them.
