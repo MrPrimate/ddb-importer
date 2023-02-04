@@ -423,7 +423,8 @@ function replaceRoll(match, p1, p2) {
   } else if (Number.isInteger(parseInt(p2))) {
     return p2;
   } else {
-    return `[[${p2}]]`;
+    const prefix = p2.trim().startsWith("+") ? "+ " : "";
+    return `${prefix}[[${p2}]]`;
   }
 }
 
@@ -536,7 +537,9 @@ export default function parseTemplateString(ddb, character, text, feature) {
         if (splitMatchAt.length > 1) {
           let evalConstraint = evalMatch;
           for (let i = 1; i < splitMatchAt.length; i++) {
-            evalConstraint = applyConstraint(evalConstraint, splitMatchAt[i]);
+            evalConstraint = Number.isInteger(Number.parseInt(evalConstraint))
+              ? applyConstraint(evalConstraint, splitMatchAt[i])
+              : addConstraintEvaluations(evalConstraint, splitMatchAt[i]);
           }
           entry.parsed = getNumber(evalConstraint, signed);
         } else {

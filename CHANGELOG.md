@@ -1,6 +1,7 @@
 # NEXT
 
 * Improve HTML Slug note handling to reduce chance of notes been incorrectly updated with bad anchors.
+* Some dynamic numbers in descriptions were not parsing correctly. e.g. Unwavering Mark, Mote of Potential, Dark One's Blessing. @WalderGallifrey#3504
 
 # 3.3.7
 
