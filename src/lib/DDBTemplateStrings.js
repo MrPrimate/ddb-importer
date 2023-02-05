@@ -462,13 +462,13 @@ export default function parseTemplateString(ddb, character, text, feature) {
     componentTypeId: feature.componentTypeId ? feature.componentTypeId : null,
     damageTypeId: feature.damageTypeId ? feature.damageTypeId : null,
     text: text,
-    resultString: "",
-    displayString: "",
+    resultStrings: [],
+    displayStrings: [],
     definitions: [],
   };
 
   const useScaleAll = foundry.utils.isNewerVersion(game.system.version, "2.0.3");
-  const useScaleText = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description")
+  const useScaleText = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description") && !useScaleAll
     ? "{Scaled Roll}"
     : "";
   const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)?({{.*?}})(?:$|[., "')+<])/g;
@@ -502,7 +502,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
     const splitMatchAt = splitRemoveUnsigned.split("@");
     const parsedMatchData = parseMatch(ddb, character, splitRemoveUnsigned, feature);
     const parsedMatch = parsedMatchData.parsed;
-    result.displayString += parsedMatchData.displayString;
+    result.displayStrings.push(parsedMatchData.displayString);
     const dicePattern = /\d*d\d\d*/;
     const typeSplit = splitMatchAt[0].split(":");
     entry.type = typeSplit[0];
@@ -548,8 +548,14 @@ export default function parseTemplateString(ddb, character, text, feature) {
           entry.parsed = getNumber(evalMatch, signed);
         }
         entry.parsed = entry.parsed.replace("+ +", "+");
-        if (useScaleAll && !result.text.includes("[[/roll") && (/^\+\s/).test(entry.parsed.trim())) {
+        const isRoll = result.text.includes("[[/roll");
+        // there are some edge cases here where some template string matches do not get the correct [[]] boxes because
+        // they are not all [[/roll ]] boxes
+        // I need to move the [[]] box addition to outside this process loop
+        if (useScaleAll && !isRoll && (/^\+\s/).test(entry.parsed.trim())) {
           entry.parsed = `${entry.parsed.trim().replace(/^\+\s/, "+ [[")}]]`;
+        } else if (useScaleAll && !isRoll && [undefined, "unsigned"].includes(signed)) {
+          entry.parsed = `[[${entry.parsed.trim()}]]`;
         }
         result.text = result.text.replace(entry.replacePattern, entry.parsed);
       } catch (err) {
@@ -558,7 +564,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
         logger.warn(err.stack);
       }
     }
-    if (entry.parsed) result.resultString += entry.parsed;
+    if (entry.parsed) result.resultStrings.push(entry.parsed);
     result.definitions.push(entry);
   });
 
