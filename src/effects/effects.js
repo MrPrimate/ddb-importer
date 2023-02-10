@@ -1139,7 +1139,7 @@ function consumableEffect(effect, ddbItem, foundryItem) {
   effect.disabled = false;
   effect.transfer = false;
   setProperty(effect, "flags.ddbimporter.disabled", false);
-  setProperty(foundryItem, "flags.dae.transfer", false);
+  setProperty(effect, "flags.dae.transfer", false);
   effect.duration = generateEffectDuration(foundryItem);
   if (!foundryItem.system.target?.value) {
     foundryItem.system.target = {
