@@ -41,6 +41,7 @@ import { fontOfMagicEffect } from "./feats/fontOfMagic.js";
 import { forceItemEffect } from "./effects.js";
 import { momentaryStasis } from "./feats/momentaryStasis.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
+import { stonesEnduranceEffect } from "./feats/stonesEndurance.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -253,6 +254,11 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Stone Rune": {
         document = stoneRuneEffect(document);
+        break;
+      }
+      case "Stone's Endurance":
+      case "Stone’s Endurance": {
+        document = stonesEnduranceEffect(document);
         break;
       }
       case "Storm Rune": {
