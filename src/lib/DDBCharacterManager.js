@@ -756,13 +756,15 @@ export default class DDBCharacterManager extends FormApplication {
           if (!ddbMatchedItem.flags.ddbimporter?.ignoreItemImport) {
             item["_id"] = ddbMatchedItem["id"];
             if (ddbMatchedItem.flags.ddbimporter?.ignoreIcon) {
+              logger.debug(`Retaining icons for ${item.name}`);
               item.flags.ddbimporter.matchedImg = ddbMatchedItem.img;
               item.flags.ddbimporter.ignoreIcon = true;
             }
-            if (ddbMatchedItem.flags.ddbimporter?.retainResourceConsumption) {
-              item.system.consume = ddbMatchedItem.system.consume;
+            if (getProperty(ddbMatchedItem, "flags.ddbimporter.retainResourceConsumption")) {
+              logger.debug(`Retaining resources for ${item.name}`);
+              item.system.consume = deepClone(ddbMatchedItem.system.consume);
               item.flags.ddbimporter.retainResourceConsumption = true;
-              if (hasProperty(ddbMatchedItem, "data.flags.link-item-resource-5e")) {
+              if (hasProperty(ddbMatchedItem, "flags.link-item-resource-5e")) {
                 setProperty(item, "flags.link-item-resource-5e", ddbMatchedItem.flags["link-item-resource-5e"]);
               }
             }
