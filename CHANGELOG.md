@@ -1,6 +1,9 @@
 # NEXT
 
 * More fixes to dynamic feature string parsing, not all dynamic values were correctly placed within `[[` brackets, e.g. Healing Light.
+* Support for KftGV
+* In some cases, character resource retention would not work. @Whirling-In-Rags#8302
+* Consumable items had transfer effects set up incorrectly.
 
 # 3.3.8
 
