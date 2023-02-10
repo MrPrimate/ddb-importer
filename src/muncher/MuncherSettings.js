@@ -120,9 +120,10 @@ const MuncherSettings = {
       game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", false);
     }
     const daeInstalled = spellEffectModulesAvailable.daeInstalled;
-    const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
-    const midiSRDInstalled = game.modules.get("midi-srd")?.active;
-    const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
+    // disable srd/midi srd copy as v10 does not work
+    // const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
+    // const midiSRDInstalled = game.modules.get("midi-srd")?.active;
+    // const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
     const featureEffectText = `Generate effects for a character. Some effects are always generated, some are optional (see below). These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}. For best results Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} are strongly recommended.`;
     const spellEffectText = `Generate effects for spells. These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}`;
 
@@ -273,14 +274,14 @@ const MuncherSettings = {
         description: "Add AC values as effects to features, this might not work as expected for some AC calculations. If unticked some ac bonuses will still be generated.",
         enabled: daeInstalled,
       },
-      {
-        name: "dae-effect-copy",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy") && daeSRDContentAvailable,
-        title: "Copy Active Effect from DAE Compendiums",
-        description:
-          "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug. This will overwrite effects generated with the above options.",
-        enabled: daeInstalled && daeSRDContentAvailable,
-      },
+      // {
+      //   name: "dae-effect-copy",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy") && daeSRDContentAvailable,
+      //   title: "Copy Active Effect from DAE Compendiums",
+      //   description:
+      //     "<i>Transfer</i> the <i>Dynamic Active Effects Compendiums</i> effect for matching items/features/spells (requires DAE SRD and/or Midi SRD module). This may result in odd character AC's, HP etc. especially if the generate item and character effect options above are unticked. Please try importing the character with this option disabled before logging a bug. This will overwrite effects generated with the above options.",
+      //   enabled: daeInstalled && daeSRDContentAvailable,
+      // },
       {
         name: "active-effect-copy",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy"),
@@ -628,9 +629,10 @@ const MuncherSettings = {
     const tiers = PatreonHelper.getPatreonTiers(tier);
     const spellEffectModulesAvailable = spellEffectModules();
     const daeInstalled = spellEffectModulesAvailable.daeInstalled;
-    const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
-    const midiSRDInstalled = game.modules.get("midi-srd")?.active;
-    const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
+    // disable srd/midi srd copy as v10 does not work
+    // const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
+    // const midiSRDInstalled = game.modules.get("midi-srd")?.active;
+    // const daeSRDContentAvailable = (daeSRDInstalled || midiSRDInstalled);
     const compendiumFolderAdd = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
     const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
     const compendiumFolderMonsterStyles = MuncherSettings.getCompendiumFolderLookups("monster");
@@ -764,12 +766,12 @@ const MuncherSettings = {
         description: "[Experimental] Attempt to generate Midi-QOL effects on monster attacks/features?",
         enabled: spellEffectModulesAvailable.hasCore,
       },
-      {
-        name: "dae-copy",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-dae-copy"),
-        description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE SRD/Midi SRD module).",
-        enabled: daeInstalled && daeSRDContentAvailable,
-      },
+      // {
+      //   name: "dae-copy",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-dae-copy"),
+      //   description: "Use Dynamic Active Effects Compendiums for matching items/features (requires DAE SRD/Midi SRD module).",
+      //   enabled: daeInstalled && daeSRDContentAvailable,
+      // },
       // {
       //   name: "monster-bulk-import",
       //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-bulk-import"),
@@ -834,12 +836,12 @@ const MuncherSettings = {
         description: "Use D&D Beyond remote images (a lot quicker)",
         enabled: true,
       },
-      {
-        name: "use-dae-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-dae-effects"),
-        description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD or Midi content module). Will replace dynamically generated effects.",
-        enabled: daeInstalled && daeSRDContentAvailable,
-      },
+      // {
+      //   name: "use-dae-effects",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-dae-effects"),
+      //   description: "Copy effects from DAE (items and spells only). (Requires DAE and SRD or Midi content module). Will replace dynamically generated effects.",
+      //   enabled: daeInstalled && daeSRDContentAvailable,
+      // },
       {
         name: "use-compendium-folders",
         isChecked: compendiumFoldersInstalled ? compendiumFolderAdd : false,

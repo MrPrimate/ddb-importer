@@ -189,4 +189,10 @@ export default function () {
   if (game.settings.get(SETTINGS.MODULE_ID, "developer-mode")) {
     CONFIG.DDBI.DEV.enabled = true;
   }
+
+  // disable srd/midi srd copy as v10 does not work
+  game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
+  game.settings.set(SETTINGS.MODULE_ID, "munching-policy-dae-copy", false);
+  game.settings.set(SETTINGS.MODULE_ID, "munching-policy-use-dae-effects", false);
+
 }
