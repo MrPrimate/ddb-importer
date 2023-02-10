@@ -352,6 +352,7 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
         if (children) {
           logger.debug(`Found children`, children);
           children.forEach((child) => {
+            if (getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
             logger.debug("child", child);
             const update = {
               _id: child._id
@@ -386,6 +387,7 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
         });
 
         if (child) {
+          if (getProperty(child, "flags.ddbimporter.retainResourceConsumption")) return;
           logger.debug("child", child);
           const update = {
             _id: child._id
