@@ -3467,6 +3467,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/tod",
     },
     {
+      id: 103,
+      name: "KftGV",
+      description: "Keys from the Golden Vault",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/31000/595/638070671792143197.jpeg",
+      sourceURL: "sources/kftgv",
+    },
+    {
       id: 105,
       name: "P13",
       description: "Prisoner 13",
