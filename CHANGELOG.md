@@ -4,6 +4,7 @@
 * Support for KftGV
 * In some cases, character resource retention would not work. @Whirling-In-Rags#8302
 * Consumable items had transfer effects set up incorrectly.
+* Improved Chill Touch effect/macro.
 
 # 3.3.8
 

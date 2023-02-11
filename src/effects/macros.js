@@ -171,6 +171,14 @@ export const MACROS = {
     isGM: true,
     img: "icons/magic/unholy/orb-glowing-yellow-purple.webp",
     world: true,
+  },
+  CHILL_TOUCH: {
+    name: "Chill Touch (Target effect)",
+    type: "spell",
+    file: "chillTouchWorld.js",
+    isGM: false,
+    img: "icons/magic/fire/flame-burning-hand-purple.webp",
+    world: true,
   }
 };
 
