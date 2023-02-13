@@ -1,5 +1,3 @@
-
-console.warn(args);
 if (args[0].tag === "OnUse") {
   const lastArg = args[args.length - 1];
   const item = await fromUuid(lastArg.itemUuid);

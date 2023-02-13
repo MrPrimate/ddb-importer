@@ -1,3 +1,7 @@
+# NEXT
+
+* Slayer's Prey effect
+
 # 3.3.9
 
 * More fixes to dynamic feature string parsing, not all dynamic values were correctly placed within `[[` brackets, e.g. Healing Light.

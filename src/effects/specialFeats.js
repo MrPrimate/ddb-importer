@@ -42,6 +42,7 @@ import { forceItemEffect } from "./effects.js";
 import { momentaryStasis } from "./feats/momentaryStasis.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { stonesEnduranceEffect } from "./feats/stonesEndurance.js";
+import { slayersPreyEffect } from "./feats/slayersPrey.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -312,6 +313,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Planar Warrior": {
       document = await planarWarriorEffect(document);
+      break;
+    }
+    case "Slayer's Prey": {
+      document = await slayersPreyEffect(document);
       break;
     }
     // no default
