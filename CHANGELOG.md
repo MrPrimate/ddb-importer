@@ -1,6 +1,7 @@
 # NEXT
 
-* Slayer's Prey effect
+* Slayer's Prey effect.
+* Hypnotic Pattern effect improvements.
 
 # 3.3.9
 
