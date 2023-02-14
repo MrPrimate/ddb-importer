@@ -203,12 +203,16 @@ export function fixSpells(ddb, items) {
         spell.system.target["value"] = 1;
         break;
       case "Booming Blade":
-        spell.system.damage = { parts: [["0", "thunder"]], versatile: "1d8", value: "" };
+        if (!usingEffects) {
+          spell.system.damage = { parts: [["0", "thunder"]], versatile: "1d8", value: "" };
+        }
         spell.system.scaling = { mode: "cantrip", formula: "1d8" };
         spell.system.actionType = "other";
         break;
       case "Green-Flame Blade":
-        spell.system.damage = { parts: [["0", "fire"]], versatile: "@mod", value: "" };
+        if (!usingEffects) {
+          spell.system.damage = { parts: [["0", "fire"]], versatile: "@mod", value: "" };
+        }
         spell.system.scaling = { mode: "cantrip", formula: "1d8" };
         spell.system.actionType = "other";
         break;

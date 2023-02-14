@@ -2,6 +2,7 @@
 
 * Slayer's Prey effect.
 * Hypnotic Pattern effect improvements.
+* Green Flame Blade spell effect tweaks.
 
 # 3.3.9
 
