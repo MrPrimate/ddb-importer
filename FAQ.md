@@ -40,6 +40,14 @@ DDBImporter.resetProxy();
 
 Sometimes DDB can get confused, especially if the character is created using the random or guided mode. Try adding and removing a level on DDB and then reimporting.
 
+## The Importer is overwriting custom or modified items/actions
+
+There are two options available:
+
+1) Click on the item, then the DDB icon on the title bar and check the ignore this item option.
+
+2) On the import screen check the "Ignore items on character sheet that have not been imported from DDB"
+
 ## I see the message "Unable to open the Compendium"
 
 Open "Configure Settings" -> "Module Settings" -> "D&D Beyond Importer" -> "Compendiums".
