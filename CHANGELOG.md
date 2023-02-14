@@ -3,6 +3,7 @@
 * Slayer's Prey effect.
 * Hypnotic Pattern effect improvements.
 * Green Flame Blade spell effect tweaks.
+* Ensnaring Strike effect by Elwin#1410. Thanks Elwin!
 
 # 3.3.9
 

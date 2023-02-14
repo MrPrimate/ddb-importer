@@ -49,6 +49,7 @@ import { dominatePersonEffect } from "./spells/dominatePerson.js";
 import { elementalWeaponEffect } from "./spells/elementalWeapon.js";
 import { enhanceAbilityEffect } from "./spells/enhanceAbility.js";
 import { enlargeReduceEffect } from "./spells/enlargeReduce.js";
+import { ensnaringStrikeEffect } from "./spells/ensnaringStrike.js";
 import { entangleEffect } from "./spells/entangle.js";
 import { eyebiteEffect } from "./spells/eyebite.js";
 import { faerieFireEffect } from "./spells/faerieFire.js";
@@ -377,6 +378,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Enlarge/Reduce": {
       document = await enlargeReduceEffect(document);
+      break;
+    }
+    case "Ensnaring Strike": {
+      document = await ensnaringStrikeEffect(document);
       break;
     }
     case "Entangle": {
