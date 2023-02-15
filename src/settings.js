@@ -1040,7 +1040,7 @@ const SETTINGS = {
             hint: "ddb-importer.settings.munching-policy-add-effects.hint",
             scope: "player",
             type: Boolean,
-            default: false,
+            default: true,
           },
           "munching-policy-add-spell-effects": {
             scope: "player",
@@ -1163,6 +1163,23 @@ const SETTINGS = {
           "munching-policy-monster-strip-name": {
             type: Boolean,
             default: true,
+          },
+          "munching-policy-item-homebrew": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-item-homebrew-only": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-spell-homebrew": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-spell-homebrew-only": {
+            type: Boolean,
+            default: false,
           },
         },
         ENCOUNTER: {

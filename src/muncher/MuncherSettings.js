@@ -645,6 +645,17 @@ const MuncherSettings = {
       game.settings.set(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects", false);
     }
 
+    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+    const sourceArray = enableSources
+      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
+      : [];
+    const sourcesSelected = enableSources && sourceArray.length > 0;
+    const sourceNames = DDBSources.getSourcesLookups(sourceArray).filter((source) => source.selected).map((source) => source.label);
+    const homebrewDescription = sourcesSelected
+      ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
+      : "Include homebrew?";
+    const sourceDescription = `Importing from the following sources only: ${sourceNames.join(", ")}`;
+
     const itemConfig = [
       {
         name: "use-ddb-item-icons",
@@ -661,14 +672,26 @@ const MuncherSettings = {
       {
         name: "add-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-effects"),
-        description: "Dynamically generate DAE effects (equipment only). (Requires DAE)",
+        description: "Dynamically generate effects (equipment only). (Requires DAE)",
         enabled: daeInstalled,
       },
+      // {
+      //   name: "add-ac-armor-effects",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-ac-armor-effects"),
+      //   description: "[Caution] Dynamically generate DAE AC effects on armor equipment. (Requires DAE). Probably not required.",
+      //   enabled: daeInstalled,
+      // },
       {
-        name: "add-ac-armor-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-ac-armor-effects"),
-        description: "[Caution] Dynamically generate DAE AC effects on armor equipment. (Requires DAE). Probably not required.",
-        enabled: daeInstalled,
+        name: "item-homebrew",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew"),
+        description: homebrewDescription,
+        enabled: !sourcesSelected,
+      },
+      {
+        name: "item-homebrew-only",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only"),
+        description: "Only homebrew items?",
+        enabled: !sourcesSelected,
       },
     ];
 
@@ -685,18 +708,20 @@ const MuncherSettings = {
         description: spellEffectText,
         enabled: spellEffectModulesAvailable.hasCore,
       },
+      {
+        name: "spell-homebrew",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew"),
+        description: homebrewDescription,
+        enabled: !sourcesSelected,
+      },
+      {
+        name: "spell-homebrew-only",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only"),
+        description: "Only homebrew spells?",
+        enabled: !sourcesSelected,
+      },
     ];
 
-    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
-    const sourceArray = enableSources
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
-      : [];
-    const sourcesSelected = enableSources && sourceArray.length > 0;
-    const sourceNames = DDBSources.getSourcesLookups(sourceArray).filter((source) => source.selected).map((source) => source.label);
-    const homebrewDescription = sourcesSelected
-      ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
-      : "Include homebrew?";
-    const sourceDescription = `Importing from the following sources only: ${sourceNames.join(", ")}`;
     const tokenizerReady = game.modules.get("vtta-tokenizer")?.active;
 
     const basicMonsterConfig = [
@@ -914,6 +939,7 @@ const MuncherSettings = {
     return resultData;
   },
 
+  // eslint-disable-next-line complexity
   updateMuncherSettings: (html, event, dialog) => {
     const selection = event.currentTarget.dataset.section;
     const checked = event.currentTarget.checked;
@@ -948,6 +974,34 @@ const MuncherSettings = {
         if (checked) {
           game.settings.set(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew", true);
           $("#munching-policy-monster-homebrew").prop("checked", true);
+        }
+        break;
+      }
+      case "spell-homebrew": {
+        if (!checked) {
+          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only", false);
+          $("#munching-policy-spell-homebrew-only").prop("checked", false);
+        }
+        break;
+      }
+      case "spell-homebrew-only": {
+        if (checked) {
+          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew", true);
+          $("#munching-policy-spell-homebrew").prop("checked", true);
+        }
+        break;
+      }
+      case "item-homebrew": {
+        if (!checked) {
+          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only", false);
+          $("#munching-policy-item-homebrew-only").prop("checked", false);
+        }
+        break;
+      }
+      case "item-homebrew-only": {
+        if (checked) {
+          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-item-homebrew", true);
+          $("#munching-policy-item-homebrew").prop("checked", true);
         }
         break;
       }

@@ -123,6 +123,16 @@ function getItemData(sourceFilter) {
           item.sources.some((source) => sources.includes(source.sourceId))
         );
       })
+      .then((data) => {
+        if (sources.length > 0) return data;
+        if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only")) {
+          return data.filter((item) => item.isHomebrew);
+        } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew")) {
+          return data.filter((item) => !item.isHomebrew);
+        } else {
+          return data;
+        }
+      })
       .then((data) => getCharacterInventory(data))
       .then((items) => generateImportItems(items))
       .then((data) => resolve(data))

@@ -47,6 +47,16 @@ function getSpellData(className, sourceFilter) {
           spell.definition.sources.some((source) => sources.includes(source.sourceId))
         );
       })
+      .then((data) => {
+        if (sources.length > 0) return data;
+        if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only")) {
+          return data.filter((spell) => spell.definition.isHomebrew);
+        } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew")) {
+          return data.filter((spell) => !spell.definition.isHomebrew);
+        } else {
+          return data;
+        }
+      })
       .then((data) => resolve(data))
       .catch((error) => {
         logger.warn(error);

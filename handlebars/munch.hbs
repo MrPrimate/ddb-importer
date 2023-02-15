@@ -56,7 +56,7 @@
                 <div>
                 {{#each spellConfig}}
                 <div class="munching-spell-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                        name="munching-policy-{{this.name}}"
+                        name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
                         data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
                 </div>
                 {{/each}}
@@ -78,7 +78,7 @@
               <div>
                 {{#each itemConfig}}
                 <div class="munching-item-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                        name="munching-policy-{{this.name}}"
+                        name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
                         data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
                 </div>
                 {{/each}}
