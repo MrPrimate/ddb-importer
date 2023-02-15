@@ -14,7 +14,7 @@ Hit F12 or CTRL + Shift + I > Application > Cookies > dndbeyond.com > Search for
 Open the Browser Developer Console (F12) and run the following:
 
 ```javascript
-DDBImporter.resetSecrets();
+game.modules.get("ddb-importer").api.resetSecrets();
 ```
 
 ## My Muncher window never appears
@@ -24,7 +24,7 @@ I just get a UI message `Checking your DDB details - this might take a few secon
 Open the Browser Developer Console (F12) and run the following:
 
 ```javascript
-DDBImporter.resetSecrets();
+game.modules.get("ddb-importer").api.resetSecrets();
 ```
 
 
@@ -33,7 +33,7 @@ DDBImporter.resetSecrets();
 Open the Browser Developer Console (F12) and run the following:
 
 ```javascript
-DDBImporter.resetProxy();
+game.modules.get("ddb-importer").api.resetProxy();
 ```
 
 ## My Characters Hit Points aren't right
@@ -142,7 +142,7 @@ Setup a shared compendium module. [Read](https://www.reddit.com/r/FoundryVTT/com
 Open the Browser Developer Console (F12) and run the following:
 
 ```javascript
-DDBImporter.migrateCompendiums();
+game.modules.get("ddb-importer").api.migrateCompendiums();
 ```
 
 Okay so I have migrated to D&D 5e sytem version 1.4.0/1 and now none of my shared compendium monster AC's are right!
@@ -165,7 +165,7 @@ for (let [key, value] of actors.entries()) {
   const ddbImported = 'ddbimporter' in value.flags;
   if (ddbImported && value.type === "character") {
     console.log('Importing: ' + value.name);
-    await DDBImporter.importCharacter(value);
+    await game.modules.get("ddb-importer").api.importCharacter(value);
   }
 }
 ```
@@ -212,10 +212,10 @@ Yes!
 ```javascript
 let item = game.items.find(i => i.name === "Shield")
 
-await DDBImporter.getIconPath(item)
+await game.modules.get("ddb-importer").api.getIconPath(item);
 'systems/dnd5e/icons/skills/weapon_18.jpg'
 
-await DDBImporter.getIconPath({ name: "Claws", type: "weapon" }, true, "Wolf");
+await game.modules.get("ddb-importer").api.getIconPath({ name: "Claws", type: "weapon" }, true, "Wolf");
 'icons/commodities/claws/talon-red.webp'
 ```
 
@@ -238,17 +238,17 @@ See the macro below, WARNING: All data removed by this can't be recovered unless
 Replace world.testcomp with whatever id you named your compendium and run this in the browser console.
 
 ```javascript
-let pack = game.packs.get("world.testcomp")
-let docs = await pack.getDocuments()
-let count = 0, total = docs.length
+let pack = game.packs.get("world.testcomp");
+let docs = await pack.getDocuments();
+let count = 0, total = docs.length;
 for (let i = 0; i < total; i++) {
     if (docs[i].data.flags.ddbimporter != null) {
-        await docs[i].delete()
+        await docs[i].delete();
     }
-    count++
-    console.log(`[${Math.floor(count / total * 100)}%] done (${count} of ${total} entries)`)
+    count++;
+    console.log(`[${Math.floor(count / total * 100)}%] done (${count} of ${total} entries)`);
 }
-console.log("Finished!")
+console.log("Finished!");
 ```
 
 ## How do I purge all the content in journals?
@@ -262,18 +262,18 @@ Folder.deleteDocuments(game.folders.filter(f => f.type == "JournalEntry").map(f 
 
 ## I want to send you a useful log info
 
-Open the console (F12) and type:
+Open the browser dev console (F12) and type:
 
 ```javascript
-CONFIG.debug.ddbimporter.record = true;
+await game.modules.get("ddb-importer").api.debug.start();
 ```
 
-Perform the action which errors.
+Perform the action which errors. (e.g. importing a character, trying to update a character)
 
-In the console enter:
+In the browser dev console (F12) enter:
 
 ```javascript
-CONFIG.debug.ddbimporter.download();
+await game.modules.get("ddb-importer").api.debug.stop();
 ```
 
 This will download a file to send to me.

@@ -4,6 +4,7 @@
 * Hypnotic Pattern effect improvements.
 * Green Flame Blade spell effect tweaks.
 * Ensnaring Strike effect by Elwin#1410. Thanks Elwin!
+* Added `.api` extension to `game.modules.get("ddb-importer")` to expose functions exposed through the window previously (old method will still work indefinitely).
 
 # 3.3.9
 

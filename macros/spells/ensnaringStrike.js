@@ -188,8 +188,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   });
 
   // If AA has a special custom effect for the restrained condition, use it instead of standard one
-  if (game.modules.get("autoanimations")?.active && game.modules.get("ddb-importer")?.active) {
-    window.DDBImporter.effects.configureCustomAAForCondition("restrained", macroData, originItem.name, spell.uuid);
+  if (game.modules.get("autoanimations")?.active) {
+    game.modules.get("ddb-importer")?.api.effects.configureCustomAAForCondition("restrained", macroData, originItem.name, spell.uuid);
   }
   // Check if target is large or larger and give it advantage on next save
   const targetActor = macroData.hitTargets[0].actor;

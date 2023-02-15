@@ -63,10 +63,10 @@ export default async () => {
       let text = $(
         `<h2>${MODULE_TITLE} Update!</h2><p>A new <b>${MODULE_NAME}</b> version is available. Please update to <b>v${latestVersion}</b> if you are experiencing issues and before reporting a bug.</p>`
       );
-      window.DDBImporter.notification.show(text, null);
+      game.modules.get("ddb-importer").api?.notification.show(text, null);
     }
   } catch (error) {
     logger.warn(error);
-    window.DDBImporter.notification.show(`Could not retrieve latest ${MODULE_NAME} version`);
+    game.modules.get("ddb-importer").api?.notification.show(`Could not retrieve latest ${MODULE_NAME} version`);
   }
 };

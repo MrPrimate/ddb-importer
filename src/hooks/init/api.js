@@ -28,6 +28,7 @@ import DDBProxy from "../../lib/DDBProxy.js";
 import DDBCompanion from "../../parser/companions/DDBCompanion.js";
 import DDBCompanionFactory from "../../parser/companions/DDBCompanionFactory.js";
 import { configureCustomAAForCondition, addSaveAdvantageToTarget } from "../../effects/helpers.js";
+import SETTINGS from "../../settings.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -47,8 +48,16 @@ function migrateCompendiums() {
     .forEach(migrateAllCompendiums);
 }
 
-export function registerWindow() {
-  window.DDBImporter = {
+function debugStart() {
+  CONFIG.debug.ddbimporter.record = true;
+}
+
+function debugStop() {
+  CONFIG.debug.ddbimporter.download();
+}
+
+export function registerApi() {
+  const API = {
     base64Check: base64Check,
     checkCobalt,
     checkPatreon: PatreonHelper.checkPatreon,
@@ -103,6 +112,13 @@ export function registerWindow() {
     effects: {
       configureCustomAAForCondition,
       addSaveAdvantageToTarget,
+    },
+    debug: {
+      start: debugStart,
+      stop: debugStop,
     }
   };
+
+  window.DDBImporter = API;
+  game.modules.get(SETTINGS.MODULE_ID).api = API;
 }

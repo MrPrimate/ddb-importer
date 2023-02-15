@@ -77,7 +77,7 @@ function findDAEItem(itemData, packs) {
       delete matchItem._id;
       return matchItem;
     }
-    
+
   }
   return undefined;
 }

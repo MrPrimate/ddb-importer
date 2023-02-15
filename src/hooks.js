@@ -3,7 +3,7 @@ import logger from "./logger.js";
 
 // init hooks
 import setupLogging from "./hooks/init/setupLogging.js";
-import { registerWindow } from "./hooks/init/window.js";
+import { registerApi } from "./hooks/init/api.js";
 import { chatHooks } from "./hooks/init/chatHooks.js";
 import adventureImporter from "./hooks/init/adventureImporter.js";
 
@@ -39,7 +39,7 @@ import { activateUpdateHooks } from "./updater/character.js";
 export function init() {
   earlySettings();
   setupLogging();
-  registerWindow();
+  registerApi();
   chatHooks();
   adventureImporter();
   logger.info("Init complete");

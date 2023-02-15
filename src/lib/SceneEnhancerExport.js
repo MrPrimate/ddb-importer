@@ -230,14 +230,6 @@ function getCompendiumScenes(compendiumCollection, selectedId = null, selectedNa
   return scenes;
 }
 
-
-// scene.flags.ddb.bookCode
-
-
-// window.DDBScene = {
-//   exportScene: exportScene,
-// };
-
 const ddbFlags = ["ddb", "ddbimporter"];
 const allowedFlags = ["stairways", "perfect-vision", "dynamic-illumination"];
 

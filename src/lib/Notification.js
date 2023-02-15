@@ -13,7 +13,7 @@ const registerNotifications = () => {
     $("body").append(`<div id="ddbimporter-hints"></div>`);
   }
 
-  window.DDBImporter.notification = {
+  game.modules.get("ddb-importer").api.notification = {
     clear: () => {
       $("#ddbimporter-notifications div").fadeOut(200, () => {
         $("#ddbimporter-notifications").empty();
@@ -44,7 +44,7 @@ const registerNotifications = () => {
       });
     },
   };
-  window.DDBImporter.hint = {
+  game.modules.get("ddb-importer").api.hint = {
     clear: () => {
       $("#ddbimporter-hints div").hide(200, () => {
         $("#ddbimporter-hints").empty();
