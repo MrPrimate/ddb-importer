@@ -3,6 +3,11 @@ if (!game.modules.get("ActiveAuras")?.active) {
   return;
 }
 
+if (!game.combat) {
+  ui.notifications.error("No combat, not applying effect");
+  return;
+}
+
 const lastArg = args[args.length - 1];
 console.warn(args);
 
