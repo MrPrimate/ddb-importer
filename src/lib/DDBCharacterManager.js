@@ -1202,9 +1202,10 @@ export default class DDBCharacterManager extends FormApplication {
           if (previousEffectDiff) return true;
           return false;
         });
-        targetEffects.forEach((ae) => {
-          this.actor.updateEmbeddedDocument("ActiveEffect", { _id: ae._id, disabled: !ae.disabled });
+        const updatedEffects = targetEffects.map((ae) => {
+          return { _id: ae._id, disabled: !ae.disabled };
         });
+        await this.actor.updateEmbeddedDocuments("ActiveEffect", updatedEffects);
       }
 
       await this.ddbCharacter.autoLinkResources();

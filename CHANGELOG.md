@@ -1,3 +1,8 @@
+# NEXT
+
+* Arcane Ward Effect (self only, does not automate projected ward).
+* Vitriolic Sphere Spell Effect and scaling.
+
 # 3.3.10
 
 * Slayer's Prey effect.
