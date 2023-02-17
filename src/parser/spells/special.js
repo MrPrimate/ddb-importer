@@ -288,9 +288,14 @@ export function fixSpells(ddb, items) {
         spell.system.damage.parts[0] = ["@mod", "temphp"];
         break;
       }
-      case "Protection from Energy":
+      case "Protection from Energy": {
         spell.system.target.type = "creature";
         break;
+      }
+      case "Vitriolic Sphere": {
+        spell.system.scaling = { mode: "level", formula: "2d4" };
+        break;
+      }
       // no default
     }
 

@@ -117,6 +117,7 @@ import { thunderousSmiteEffect } from "./spells/thunderousSmite.js";
 import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { trueStrikeEffect } from "./spells/trueStrike.js";
 import { viciousMockeryEffect } from "./spells/viciousMockery.js";
+import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
 import { wardingBondEffect } from "./spells/wardingBond.js";
 import { webEffect } from "./spells/web.js";
 import { witchBoltEffect } from "./spells/witchBolt.js";
@@ -657,6 +658,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Vicious Mockery": {
       document = viciousMockeryEffect(document);
+      break;
+    }
+    case "Vitriolic Sphere": {
+      document = await vitriolicSphereEffect(document);
       break;
     }
     case "Warding Bond": {
