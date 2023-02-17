@@ -43,6 +43,7 @@ import { momentaryStasis } from "./feats/momentaryStasis.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { stonesEnduranceEffect } from "./feats/stonesEndurance.js";
 import { slayersPreyEffect } from "./feats/slayersPrey.js";
+import { arcaneWardEffect } from "./feats/arcaneWard.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -296,6 +297,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
   switch (name) {
     case "Ancestral Protectors": {
       document = await ancestralProtectorsEffect(document);
+      break;
+    }
+    case "Arcane Ward": {
+      document = await arcaneWardEffect(document);
       break;
     }
     case "Blessed Healer": {
