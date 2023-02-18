@@ -1,5 +1,9 @@
 import { configureDependencies } from "./macros.js";
+import { forceItemEffect } from "./effects.js";
+
+// effect loads
 import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
+import { arcaneWardEffect } from "./feats/arcaneWard.js";
 import { bardicInspirationEffect } from "./feats/bardicInspiration.js";
 import { bladesongEffect } from "./feats/bladesong.js";
 import { blessedHealerEffect } from "./feats/blessedHealer.js";
@@ -11,6 +15,7 @@ import { deflectMissilesEffect } from "./feats/deflectMissiles.js";
 import { favoredFoeEffect } from "./feats/favoredFoe.js";
 import { fightingStyleInterceptionEffect } from "./feats/fightingStyles.js";
 import { fireRuneEffect } from "./feats/fireRune.js";
+import { fontOfMagicEffect } from "./feats/fontOfMagic.js";
 import { frostRuneEffect } from "./feats/frostRune.js";
 import { giantsMightEffect } from "./feats/giantsMight.js";
 import { heavyArmorMasterEffect } from "./feats/heavyArmorMaster.js";
@@ -18,7 +23,9 @@ import { hillRuneEffect } from "./feats/hillRune.js";
 import { indomitableEffect } from "./feats/indomitable.js";
 import { kiEmptyBodyEffect } from "./feats/kiEmptyBody.js";
 import { maneuversEffect } from "./feats/maneuvers.js";
+import { momentaryStasis } from "./feats/momentaryStasis.js";
 import { paladinDefaultAuraEffect } from "./feats/paladinDefaultAura.js";
+import { piercerCriticalEffect, piercerRerollEffect } from "./feats/piercer.js";
 import { planarWarriorEffect } from "./feats/planarWarrior.js";
 import { potentCantripEffect } from "./feats/potentCantrip.js";
 import { radiantSoulEffect } from "./feats/radiantSoul.js";
@@ -30,20 +37,16 @@ import { savageAttackerEffect } from "./feats/savageAttacker.js";
 import { sculptSpellsEffect } from "./feats/sculptSpells.js";
 import { sharpShooterEffect } from "./feats/sharpShooter.js";
 import { shiftEffect } from "./feats/shift.js";
+import { slayersPreyEffect } from "./feats/slayersPrey.js";
 import { steadyAimEffect } from "./feats/steadyAim.js";
 import { stoneRuneEffect } from "./feats/stoneRune.js";
+import { stonesEnduranceEffect } from "./feats/stonesEndurance.js";
 import { stormRuneEffect } from "./feats/stormRune.js";
 import { unarmoredMovementEffect } from "./feats/unarmoredMovement.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
-import { warCasterEffect } from "./feats/warCaster.js";
-import { fontOfMagicEffect } from "./feats/fontOfMagic.js";
-import { forceItemEffect } from "./effects.js";
-import { momentaryStasis } from "./feats/momentaryStasis.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
-import { stonesEnduranceEffect } from "./feats/stonesEndurance.js";
-import { slayersPreyEffect } from "./feats/slayersPrey.js";
-import { arcaneWardEffect } from "./feats/arcaneWard.js";
+import { warCasterEffect } from "./feats/warCaster.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -314,6 +317,19 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Favored Foe": {
       document = await favoredFoeEffect(document);
+      break;
+    }
+    case "Piercer": {
+      document = await piercerCriticalEffect(document);
+      document = await piercerRerollEffect(document);
+      break;
+    }
+    case "Piercer: Reroll Damage": {
+      document = await piercerRerollEffect(document);
+      break;
+    }
+    case "Piercer: Critical Hit": {
+      document = await piercerCriticalEffect(document);
       break;
     }
     case "Planar Warrior": {
