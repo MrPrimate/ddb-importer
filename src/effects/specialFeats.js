@@ -49,6 +49,8 @@ import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { warCasterEffect } from "./feats/warCaster.js";
 import { crusherEffect } from "./feats/crusher.js";
 import { crusherCriticalEffect } from "./feats/crusherCritical.js";
+import { slasherReduceSpeedEffect } from "./feats/slasherReduceSpeed.js";
+import { slasherCriticalEffect } from "./feats/slasherCritical.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -344,6 +346,14 @@ export async function featureEffectAdjustment(ddb, character, document) {
     }
     case "Planar Warrior": {
       document = await planarWarriorEffect(document);
+      break;
+    }
+    case "Slasher: Reduce Speed": {
+      document = await slasherReduceSpeedEffect(document);
+      break;
+    }
+    case "Slasher: Critical Hit": {
+      document = await slasherCriticalEffect(document);
       break;
     }
     case "Slayer's Prey": {

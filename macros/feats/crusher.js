@@ -1,6 +1,6 @@
 // console.warn("Crusher", args);
 
-if (args[0].tag !== "DamageBonus") return;
+if (args[0].tag !== "DamageBonus" && args[0].hitTargets == 0) return;
 if (!["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) return;
 
 const damageType = game.i18n.localize("bludgeoning");

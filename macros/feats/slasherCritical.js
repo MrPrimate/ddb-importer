@@ -2,17 +2,17 @@
 
 // critical effect
 if (args[0].tag === "DamageBonus" && args[0].isCritical) {
-  const crushCriticalFeatName = "Crusher: Critical";
-  const crusherFeat = args[0].actor.items.find((i) => i.name === crushCriticalFeatName)?.uuid;
-  const criticalEffectName = "Crusher: Critical Advantage";
-  const crusherIcon = "icons/weapons/hammers/hammer-double-stone.webp";
+  const slasherCriticalFeatName = "Slasher: Critical";
+  const slasherFeat = args[0].actor.items.find((i) => i.name === slasherCriticalFeatName)?.uuid;
+  const criticalEffectName = "Slasher: Critical Disadvantage";
+  const slasherIcon = "icons/skills/melee/blade-tips-triple-bent-white.webp";
 
   for (const hitTarget of args[0].hitTargets) {
     if (!hitTarget.actor._source.effects.some((e) => e.label === criticalEffectName)) {
       const effect = {
         label: criticalEffectName,
-        icon: crusherIcon,
-        origin: crusherFeat?.uuid,
+        icon: slasherIcon,
+        origin: slasherFeat?.uuid,
         disabled: false,
         transfer: false,
         duration: {
@@ -22,7 +22,7 @@ if (args[0].tag === "DamageBonus" && args[0].isCritical) {
         },
         changes: [
           {
-            key: "flags.midi-qol.grants.advantage.attack.all",
+            key: "flags.midi-qol.disadvantage.attack.all",
             mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
             value: 1,
             priority: 20,
