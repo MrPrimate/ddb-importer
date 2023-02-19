@@ -21,7 +21,30 @@ if (args[0].macroPass === "postDamageRoll" && lowDice !== dieSize) {
     content: `<p>${token.name} rolled a ${lowDice} on 1d${dieSize}. Reroll?</p>`,
   });
   if (!response) return;
+
   const damageRoll = new Roll(`1d${dieSize}`);
-  await damageRoll.toMessage({ flavor: `Piercer rerolled ${lowDice}..` });
+  await damageRoll.toMessage({ flavor: `Piercer rerolled ${lowDice}...` });
   workflow.damageRoll.dice[0].results.find((i) => i.result === lowDice).result = damageRoll.total;
+
+  Hooks.once("midi-qol.DamageRollComplete", async (workflow) => {
+    let totalDamage = 0;
+    let merged = workflow.damageDetail.concat(workflow.bonusDamageDetail ?? []).reduce((acc, item) => {
+      acc[item.type] = (acc[item.type] ?? 0) + item.damage;
+      return acc;
+    }, {});
+
+    const newDetail = Object.keys(merged).map((key) => { return { damage: Math.max(0, merged[key]), type: key } });
+    totalDamage = newDetail.reduce((acc, value) => acc + value.damage, 0);
+    workflow.damageDetail = newDetail;
+    workflow.damageTotal = totalDamage;
+
+    workflow.damageRoll._total = workflow.damageTotal;
+    workflow.damageRollHTML = await workflow.damageRoll.render();
+
+    await workflow.displayDamageRoll()
+    // console.warn("workflow2", duplicate({damageRoll: workflow.damageRoll, damageDetail:workflow.damageDetail, damageTotal: workflow.damageTotal}));
+    return true;
+  });
+
 }
+

@@ -19,7 +19,7 @@ async function commonPiercer(document) {
   return document;
 };
 
-export async function piercerRerollEffect(document) {
+export async function piercerCriticalEffect(document) {
   const effect = baseFeatEffect(document, document.name);
   effect.changes.push(
     {
@@ -39,7 +39,8 @@ export async function piercerRerollEffect(document) {
   return document;
 }
 
-export async function piercerCriticalEffect(document) {
+
+export async function piercerRerollEffect(document) {
   const effect = baseFeatEffect(document, document.name);
 
   effect.changes.push(
