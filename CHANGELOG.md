@@ -1,5 +1,7 @@
 # NEXT
 
+# 3.3.11
+
 * Arcane Ward Effect (self only, does not automate projected ward).
 * Vitriolic Sphere Spell Effect and scaling.
 * Piercer, Crusher and Slasher feat effects.
