@@ -47,6 +47,8 @@ import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { vigilantBlessingEffect } from "./feats/vigilantBlessing.js";
 import { visageOfTheAstralSelfEffect } from "./feats/visageOfTheAstralSelf.js";
 import { warCasterEffect } from "./feats/warCaster.js";
+import { crusherEffect } from "./feats/crusher.js";
+import { crusherCriticalEffect } from "./feats/crusherCritical.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -313,6 +315,14 @@ export async function featureEffectAdjustment(ddb, character, document) {
     case "Convert Sorcery Points":
     case "Font of Magic": {
       document = await fontOfMagicEffect(document);
+      break;
+    }
+    case "Crusher": {
+      document = await crusherEffect(document);
+      break;
+    }
+    case "Crusher: Critical": {
+      document = await crusherCriticalEffect(document);
       break;
     }
     case "Favored Foe": {

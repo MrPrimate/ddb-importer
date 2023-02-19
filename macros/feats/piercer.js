@@ -1,14 +1,13 @@
-if (!["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) return
+if (!["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) return;
 if (args[0].hitTargets.length < 1 || args[0].item.system.damage.parts[0][1] !== "piercing") return {};
 
 const roll = args[0].damageRoll;
 if (!roll.terms[0].faces) return;
 
 const dieSize = roll.terms[0].faces;
-const isCrit = args[0].isCritical;
 
-if (args[0].tag === "DamageBonus" && args[0].item.system.damage.parts[0][1] === "piercing") {
-  if (isCrit) return { damageRoll: `1d${dieSize}[piercing]`, flavor: "Critical Piercer Feat extra damage" };
+if (args[0].tag === "DamageBonus" && args[0].isCritical) {
+  return { damageRoll: `1d${dieSize}[piercing]`, flavor: "Critical Piercer Feat extra damage" };
 }
 
 const lowDice = Math.min(...roll.terms[0].values);
