@@ -2258,6 +2258,13 @@
     "class_feature": "Draconic Presence",
     "class": "Sorcerer",
     "subclass": "Draconic Bloodline",
+    "path": "icons/magic/sonic/scream-wail-shout-teal.webp"
+  },
+  {
+    "name": "Draconic Strike",
+    "class_feature": "Draconic Strike",
+    "class": "Sorcerer",
+    "subclass": "Draconic Bloodline",
     "path": "icons/magic/acid/projectile-smoke-glowing.webp"
   },
   {
