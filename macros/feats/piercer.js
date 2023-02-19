@@ -27,7 +27,7 @@ if (args[0].macroPass === "postDamageRoll" && lowDice !== dieSize) {
 
   Hooks.once("midi-qol.DamageRollComplete", async (workflow) => {
     let totalDamage = 0;
-    let merged = workflow.damageDetail.concat(workflow.bonusDamageDetail ?? []).reduce((acc, item) => {
+    let merged = workflow.damageDetail.reduce((acc, item) => {
       acc[item.type] = (acc[item.type] ?? 0) + item.damage;
       return acc;
     }, {});
