@@ -6377,6 +6377,13 @@
     "path": "icons/magic/air/wind-stream-blue-gray.webp"
   },
   {
+    "name": "Psionic Fortitude",
+    "class_feature": "Psionic Fortitude",
+    "class": "Sorcerer",
+    "subclass": "Aberrant Mind",
+    "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
     "name": "Purity of Body",
     "class_feature": "Purity of Body",
     "class": "Monk",

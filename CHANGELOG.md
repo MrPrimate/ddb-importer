@@ -3,6 +3,7 @@
 * Arcane Ward Effect (self only, does not automate projected ward).
 * Vitriolic Sphere Spell Effect and scaling.
 * Piercer feat effect.
+* Some new icon matches thanks to @AriHedgehog#0001
 
 # 3.3.10
 
