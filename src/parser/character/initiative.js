@@ -8,14 +8,12 @@ DDBCharacter.prototype._generateInitiative = function _generateInitiative() {
   // If we have the alert Feat set, lets sub 5 so it's correct
   this.raw.character.system.attributes.init = this.raw.character.flags.dnd5e.initiativeAlert
     ? {
-      value: initiativeBonus - 5,
-      bonus: 5, // used by FVTT internally
-      mod: this.abilities.withEffects.dex.mod,
+      ability: "dex",
+      bonus: Number.isInteger(Number.parseInt(initiativeBonus)) ? Number.parseInt(initiativeBonus) - 5 : `${initiativeBonus} - 5`,
     }
     : {
-      value: Number.isInteger(Number.parseInt(initiativeBonus)) ? Number.parseInt(initiativeBonus) : initiativeBonus,
-      bonus: 0, // used by FVTT internally
-      mod: this.abilities.withEffects.dex.mod,
+      ability: "dex",
+      bonus: Number.isInteger(Number.parseInt(initiativeBonus)) ? Number.parseInt(initiativeBonus) : initiativeBonus,
     };
 
 };
