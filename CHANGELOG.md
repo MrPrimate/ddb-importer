@@ -1,5 +1,8 @@
 # NEXT
 
+* Some macro formatting updates
+* Alert bonus could be added twice to initiative @Galag'r#0001
+
 # 3.3.11
 
 * Arcane Ward Effect (self only, does not automate projected ward).

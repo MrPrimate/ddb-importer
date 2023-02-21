@@ -66,7 +66,6 @@ if (args[0] === "each") {
 }
 
 if (args[0] === "off") {
-  console.warn("ALSO HERE");
   ChatMessage.create({
     content: `Flesh to stone ends, if concentration was maintained for the entire duration, the creature (${targetActor.name}) is turned to stone until the effect is removed.`,
   });

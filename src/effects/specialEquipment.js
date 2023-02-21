@@ -9,6 +9,7 @@ import { featEffectModules } from "./specialFeats.js";
 import { bootsOfSpeedEffect } from "./items/bootsOfSpeed.js";
 import { cloakOfDisplacementEffect } from "./items/cloakOfDisplacement.js";
 import { moonSickleEffect } from "./items/moonSickle.js";
+import { javelinOfLightningEffect } from "./items/javelinOfLightning.js";
 
 
 export async function midiItemEffects(document) {
@@ -17,6 +18,11 @@ export async function midiItemEffects(document) {
   switch (name) {
     case "Cloak of Displacement": {
       document = await cloakOfDisplacementEffect(document);
+      break;
+    }
+    case "Tempus Javelin":
+    case "Javelin of Lightning": {
+      document = await javelinOfLightningEffect(document);
       break;
     }
     // no default

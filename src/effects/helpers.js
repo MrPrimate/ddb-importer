@@ -63,3 +63,27 @@ export async function addSaveAdvantageToTarget(targetActor, originItem, ability,
   };
   await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [effectData] });
 }
+
+/**
+ * Returns ids of tokens in template
+ *
+ * @param {*} templateDoc the templatedoc to check
+ */
+export function findContainedTokensInTemplate(templateDoc) {
+  const contained = new Set();
+  for (const tokenDoc of templateDoc.parent.tokens) {
+    const startX = tokenDoc.width >= 1 ? 0.5 : tokenDoc.width / 2;
+    const startY = tokenDoc.height >= 1 ? 0.5 : tokenDoc.height / 2;
+    for (let x = startX; x < tokenDoc.width; x++) {
+      for (let y = startY; y < tokenDoc.width; y++) {
+        const curr = {
+          x: tokenDoc.x + (x * templateDoc.parent.grid.size) - templateDoc.x,
+          y: tokenDoc.y + (y * templateDoc.parent.grid.size) - templateDoc.y,
+        };
+        const contains = templateDoc.object.shape.contains(curr.x, curr.y);
+        if (contains) contained.add(tokenDoc.id);
+      }
+    }
+  }
+  return [...contained];
+}
