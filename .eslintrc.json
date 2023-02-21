@@ -8,12 +8,9 @@
     "prettier"
   ],
   "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly",
     "$": true,
     "Actor": true,
     "Application": true,
-    "Azzu": true,
     "ChatMessage": true,
     "Compendium": true,
     "CONFIG": true,
