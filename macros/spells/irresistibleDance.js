@@ -1,6 +1,6 @@
 const lastArg = args[args.length - 1];
 
-//DAE Macro Execute, Effect Value = "Macro Name"
+// DAE Macro Execute, Effect Value = "Macro Name"
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
@@ -19,14 +19,11 @@ if (args[0] === "each") {
 
           if (saveRoll >= saveData.dc) {
             targetActor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
-          } else {
-            if (saveRoll < saveData.dc) ChatMessage.create({ content: `${targetActor.name} fails the save` });
-          }
+          } else if (saveRoll < saveData.dc) ChatMessage.create({ content: `${targetActor.name} fails the save` });
         },
       },
       two: {
         label: "No",
-        callback: () => {},
       },
     },
   }).render(true);

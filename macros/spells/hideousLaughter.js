@@ -1,7 +1,6 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const targetToken = await fromUuid(lastArg.tokenUuid);
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
 const saveData = DAEItem.system.save;
@@ -10,9 +9,9 @@ const flavor = `${CONFIG.DND5E.abilities["wis"]} DC${saveData.dc} ${DAEItem?.nam
 function effectAppliedAndActive(conditionName) {
   return targetActor.effects.some(
     (activeEffect) =>
-      activeEffect?.flags?.isConvenient &&
-      activeEffect?.label == conditionName &&
-      !activeEffect?.disabled
+      activeEffect?.flags?.isConvenient
+      && activeEffect?.label == conditionName
+      && !activeEffect?.disabled
   );
 }
 
@@ -32,9 +31,9 @@ async function cleanUp() {
   await targetActor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
 }
 
-async function onDamageHook(hookActor, update, options, userId) {
+async function onDamageHook(hookActor, update) {
   const flag = await DAE.getFlag(hookActor, "hideousLaughterHook");
-  if (!"actorData.system.attributes.hp" in update || !flag) return;
+  if (!("actorData.system.attributes.hp" in update) || !flag) return;
   const oldHP = hookActor.system.attributes.hp.value;
   const newHP = getProperty(update, "system.attributes.hp.value");
   const hpChange = oldHP - newHP;

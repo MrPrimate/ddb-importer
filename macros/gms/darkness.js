@@ -9,10 +9,10 @@ function circleWall(cx, cy, radius) {
     let theta0 = Math.toRadians(i - step);
     let theta1 = Math.toRadians(i);
 
-    let lastX = Math.floor(radius * Math.cos(theta0) + cx);
-    let lastY = Math.floor(radius * Math.sin(theta0) + cy);
-    let newX = Math.floor(radius * Math.cos(theta1) + cx);
-    let newY = Math.floor(radius * Math.sin(theta1) + cy);
+    let lastX = Math.floor((radius * Math.cos(theta0)) + cx);
+    let lastY = Math.floor((radius * Math.sin(theta0)) + cy);
+    let newX = Math.floor((radius * Math.cos(theta1)) + cx);
+    let newY = Math.floor((radius * Math.sin(theta1)) + cy);
 
     walls.push({
       c: [lastX, lastY, newX, newY],

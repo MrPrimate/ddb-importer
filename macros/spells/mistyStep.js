@@ -1,7 +1,7 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const tokenFromUuid  = await fromUuid(lastArg.tokenUuid);
+const tokenFromUuid = await fromUuid(lastArg.tokenUuid);
 const targetToken = tokenFromUuid.data || token;
 
 async function deleteTemplatesAndTeleport(destinationTemplate, actorId, flagName) {
@@ -19,8 +19,8 @@ if (args[0] === "on") {
   const rangeTemplateData = {
     t: "circle",
     user: game.userId,
-    x: targetToken.x + canvas.grid.size / 2,
-    y: targetToken.y + canvas.grid.size / 2,
+    x: targetToken.x + (canvas.grid.size / 2),
+    y: targetToken.y + (canvas.grid.size / 2),
     direction: 0,
     distance: 30,
     borderColor: "#FF0000",

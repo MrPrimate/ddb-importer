@@ -12,7 +12,7 @@ async function updateHP(max, current) {
 if (args[0] === "on") {
   const hpMax = targetActor.system.attributes.hp.max;
   const hp = targetActor.system.attributes.hp.value;
-  await updateHP(hpMax + amount,  hp + amount);
+  await updateHP(hpMax + amount, hp + amount);
   ChatMessage.create({ content: `${targetActor.name} gains ${amount} Max HP` });
   await DAE.setFlag(targetActor, "heroesFeastSpell", amount);
 }
@@ -23,7 +23,7 @@ if (args[0] === "off") {
   const hpMax = targetActor.system.attributes.hp.max;
   const newHpMax = hpMax - amountOff;
   const hp = targetActor.system.attributes.hp.value > newHpMax ? newHpMax : targetActor.system.attributes.hp.value;
-  await updateHP(newHpMax,  hp);
+  await updateHP(newHpMax, hp);
   ChatMessage.create({ content: targetActor.name + "'s Max HP returns to normal" });
   DAE.unsetFlag(targetActor, "heroesFeastSpell");
 }

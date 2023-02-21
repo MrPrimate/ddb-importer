@@ -1,8 +1,8 @@
-//DAE Item Macro, pass spell level
+// DAE Item Macro, pass spell level
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const tokenFromUuid  = await fromUuid(lastArg.tokenUuid);
+const tokenFromUuid = await fromUuid(lastArg.tokenUuid);
 const targetToken = tokenFromUuid.data || token;
 const DAEItem = lastArg.efData.flags.dae.itemData;
 const saveData = DAEItem.system.save;
@@ -18,7 +18,7 @@ async function deleteTemplates(actorId, flagName) {
   const templateIds = canvas.templates.placeables.filter(
     (i) => i.data.flags?.spellEffects?.[flagName] === actorId
   ).map((t) => t.id);
-  if (templateIds.length >0) await deleteTemplateIds(templateIds);
+  if (templateIds.length > 0) await deleteTemplateIds(templateIds);
 }
 
 async function getTemplateId(template, caster) {
@@ -31,8 +31,8 @@ async function placeMoonBeam(casterActor, range, originObject, deleteOriginTempl
   await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [{
     t: "circle",
     user: game.userId,
-    x: isTemplate ? originObject.x : originObject.x + canvas.grid.size / 2,
-    y: isTemplate ? originObject.y : originObject.y + canvas.grid.size / 2,
+    x: isTemplate ? originObject.x : originObject.x + (canvas.grid.size / 2),
+    y: isTemplate ? originObject.y : originObject.y + (canvas.grid.size / 2),
     direction: 0,
     distance: range,
     borderColor: "#517bc9",
@@ -56,13 +56,13 @@ async function placeMoonBeam(casterActor, range, originObject, deleteOriginTempl
       }
     },
     fillColor: game.user.color
-  }
+  };
   Hooks.once("createMeasuredTemplate", () => deleteTemplates(casterActor.id, "MoonbeamRange"));
   Hooks.once("createMeasuredTemplate", (template) => getTemplateId(template, casterActor));
   if (deleteOriginTemplate) Hooks.once("createMeasuredTemplate", () => deleteTemplateIds([originObject.id]));
 
-  const doc = new MeasuredTemplateDocument(templateData, { parent: canvas.scene })
-  const template = new game.dnd5e.canvas.AbilityTemplate(doc)
+  const doc = new MeasuredTemplateDocument(templateData, { parent: canvas.scene });
+  const template = new game.dnd5e.canvas.AbilityTemplate(doc);
   template.actorSheet = casterActor.sheet;
   template.drawPreview();
 }
@@ -118,7 +118,7 @@ if (args[0] === "each") {
       no: {
         label: "No",
         callback: () => {
-          console.log("Moonbeam remains where it is.")
+          console.log("Moonbeam remains where it is.");
         }
       }
     },

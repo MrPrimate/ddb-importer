@@ -2,22 +2,26 @@
 // uses convinient effects
 // Midi-qol "On Use"
 
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+async function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 const sleepHp = await args[0].damageTotal;
 const condition = "Unconscious";
 console.log(`Sleep Spell => Available HP Pool [${sleepHp}] points`);
 const targets = await args[0].targets
-  .filter((i) => i.actor.system.attributes.hp.value != 0 && !i.actor.effects.find(x => x.data.label === condition))
-  .sort((a, b) => canvas.tokens.get(a.id).actor.system.attributes.hp.value < canvas.tokens.get(b.id).actor.system.attributes.hp.value ? -1 : 1);
+  .filter((i) => i.actor.system.attributes.hp.value != 0 && !i.actor.effects.find((x) => x.data.label === condition))
+  .sort((a, b) => (canvas.tokens.get(a.id).actor.system.attributes.hp.value < canvas.tokens.get(b.id).actor.system.attributes.hp.value ? -1 : 1));
 let remainingSleepHp = sleepHp;
 let sleepTarget = [];
 
 for (let target of targets) {
   const findTarget = await canvas.tokens.get(target.id);
   const immuneType = findTarget.actor.type === "character"
-    ? ["undead", "construct"].some(race => (findTarget.actor.system.details.race || "").toLowerCase().includes(race))
-    : ["undead", "construct"].some(value => (findTarget.actor.system.details.type.value || "").toLowerCase().includes(value));
+    ? ["undead", "construct"].some((race) => (findTarget.actor.system.details.race || "").toLowerCase().includes(race))
+    : ["undead", "construct"].some((value) => (findTarget.actor.system.details.type.value || "").toLowerCase().includes(value));
   const immuneCI = findTarget.actor.system.traits.ci.custom.includes("Sleep");
   const sleeping = findTarget.actor.effects.find((i) => i.label === condition);
   const targetHpValue = findTarget.actor.system.attributes.hp.value;

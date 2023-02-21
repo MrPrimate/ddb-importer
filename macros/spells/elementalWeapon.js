@@ -1,12 +1,10 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const DAEItem = lastArg.efData.flags.dae.itemData;
 
 function valueLimit(val, min, max) {
   return val < min ? min : val > max ? max : val;
 }
-
 
 async function selectDamage() {
   const damageTypes = {
@@ -87,11 +85,11 @@ async function selectDamage() {
  */
 if (args[0] === "on") {
   const weapons = targetActor.items.filter((i) => i.type === "weapon" && !i.system.properties.mgc);
-  let weapon_content = "";
+  let weaponContent = "";
 
-  //Filter for weapons
+  // Filter for weapons
   weapons.forEach((weapon) => {
-    weapon_content += `<label class="radio-label">
+    weaponContent += `<label class="radio-label">
   <input type="radio" name="weapon" value="${weapon.id}">
   <img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">
   ${weapon.name}
@@ -136,7 +134,7 @@ if (args[0] === "on") {
     </style>
     <form class="magicWeapon">
       <div class="form-group" id="weapons">
-          ${weapon_content}
+          ${weaponContent}
       </div>
     </form>
 `;
@@ -146,7 +144,7 @@ if (args[0] === "on") {
     buttons: {
       ok: {
         label: `Ok`,
-        callback: async (html) => {
+        callback: async () => {
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
           const weaponItem = targetActor.items.get(itemId);
           let copyItem = duplicate(weaponItem);
@@ -180,14 +178,14 @@ if (args[0] === "on") {
   }).render(true);
 }
 
-//Revert weapon and unset flag.
+// Revert weapon and unset flag.
 if (args[0] === "off") {
   const { name, attackBonus, weapon, damage, mgc } = DAE.getFlag(targetActor, "magicWeapon");
   const weaponItem = targetActor.items.get(weapon);
   let copyItem = duplicate(weaponItem);
   copyItem.name = name;
   copyItem.system.attackBonus = attackBonus;
-  copyItem.system.damage= damage;
+  copyItem.system.damage = damage;
   copyItem.system.properties.mgc = mgc;
   targetActor.updateEmbeddedDocuments("Item", [copyItem]);
   DAE.unsetFlag(targetActor, "magicWeapon");

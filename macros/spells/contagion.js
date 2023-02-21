@@ -8,9 +8,9 @@ const saveData = DAEItem.system.save;
 function effectAppliedAndActive(conditionName) {
   return targetActor.effects.some(
     (activeEffect) =>
-      activeEffect?.flags?.isConvenient &&
-      activeEffect?.label == conditionName &&
-      !activeEffect?.disabled
+      activeEffect?.flags?.isConvenient
+      && activeEffect?.label == conditionName
+      && !activeEffect?.disabled
   );
 }
 

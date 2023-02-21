@@ -8,7 +8,7 @@ const currentTemp = Number.isInteger(targetActor.system.attributes.hp.temp)
 
 async function rejuvenateTempHP(tempHP) {
   if (tempHP > currentTemp) {
-    const flag = await DAE.setFlag(targetActor, "heroismSpell", tempHP);
+    await DAE.setFlag(targetActor, "heroismSpell", tempHP);
     await targetActor.update({ "system.attributes.hp.temp": tempHP });
     ChatMessage.create({ content: `Heroism applies ${tempHP} temporary HP to ${targetActor.name}` });
   }

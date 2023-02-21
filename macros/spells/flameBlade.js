@@ -1,5 +1,5 @@
-//DAE Item Macro, pass spell level
-const lastArg = args[args.length-1]
+// DAE Item Macro, pass spell level
+const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const castItemName = "Summoned Flame Blade";

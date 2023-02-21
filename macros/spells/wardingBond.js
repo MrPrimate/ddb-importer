@@ -1,16 +1,15 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const targetToken = await fromUuid(lastArg.tokenUuid);
 const DAEItem = lastArg.efData.flags.dae.itemData;
 
-const caster = canvas.tokens.placeables.find((token) => token?.actor?.items.get(DAEItem._id) != null);
+const caster = canvas.tokens.placeables.find((token) => token?.actor?.items.get(DAEItem._id) !== null);
 
 async function setWardingBondHook() {
   const hookId = Hooks.on("preUpdateActor", async (actor, update) => {
     const flag = await DAE.getFlag(targetActor, "WardingBondIds");
     if (flag.targetID !== actor.id) return;
-    if (!"actorData.system.attributes.hp" in update) return;
+    if (!("actorData.system.attributes.hp" in update)) return;
     const oldHP = actor.system.attributes.hp.value;
     const newHP = getProperty(update, "system.attributes.hp.value");
     const hpChange = oldHP - newHP;

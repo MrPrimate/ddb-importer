@@ -1,22 +1,17 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const DAEItem = lastArg.efData.flags.dae.itemData;
-
-function valueLimit(val, min, max) {
-  return val < min ? min : val > max ? max : val;
-}
 
 /**
  * Select for weapon and apply bonus based on spell level
  */
 if (args[0] === "on") {
   const weapons = targetActor.items.filter((i) => i.type === "weapon");
-  let weapon_content = "";
+  let weaponContent = "";
 
-  //Filter for weapons
+  // Filter for weapons
   weapons.forEach((weapon) => {
-    weapon_content += `<label class="radio-label">
+    weaponContent += `<label class="radio-label">
   <input type="radio" name="weapon" value="${weapon.id}">
   <img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">
   ${weapon.name}
@@ -61,7 +56,7 @@ if (args[0] === "on") {
     </style>
     <form class="sacredWeapon">
       <div class="form-group" id="weapons">
-          ${weapon_content}
+          ${weaponContent}
       </div>
     </form>
 `;
@@ -71,7 +66,7 @@ if (args[0] === "on") {
     buttons: {
       ok: {
         label: `Ok`,
-        callback: (html) => {
+        callback: () => {
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
           const weaponItem = targetActor.items.get(itemId);
           let copyItem = duplicate(weaponItem);
@@ -96,7 +91,7 @@ if (args[0] === "on") {
   }).render(true);
 }
 
-//Revert weapon and unset flag.
+// Revert weapon and unset flag.
 if (args[0] === "off") {
   const { bonus, name, weapon, mgc } = DAE.getFlag(targetActor, "sacredWeapon");
   const weaponItem = targetActor.items.get(weapon);

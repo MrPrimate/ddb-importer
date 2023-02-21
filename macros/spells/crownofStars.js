@@ -1,6 +1,6 @@
-//DAE Item Macro, pass spell level
+// DAE Item Macro, pass spell level
 
-const lastArg = args[args.length-1]
+const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const castItemName = "Summoned Crown of Stars";
@@ -40,7 +40,7 @@ if (args[0] === "on") {
       img: DAEItem.img,
     };
 
-    await target.createEmbeddedDocuments("Item", [weaponData], { keepId: true});
+    await target.createEmbeddedDocuments("Item", [weaponData], { keepId: true });
     ui.notifications.notify("Crown of Stars created in your inventory");
   }
 }

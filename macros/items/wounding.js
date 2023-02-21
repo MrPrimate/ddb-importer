@@ -41,7 +41,7 @@ if (args[0] === "on") {
   } else {
     const damageRoll = await new Roll(`${woundCount}d4[necrotic]`).evaluate({ async: true });
     if (game.dice3d) game.dice3d.showForRoll(damageRoll);
-    new MidiQOL.DamageOnlyWorkflow(
+    await new MidiQOL.DamageOnlyWorkflow(
       targetActor,
       targetToken,
       damageRoll.total,

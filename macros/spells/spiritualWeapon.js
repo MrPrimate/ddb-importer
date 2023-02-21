@@ -15,17 +15,17 @@ async function deleteTemplates(actorId) {
  * Create Spiritual Weapon item in inventory
  */
 if (args[0] === "on") {
-  const tokenFromUuid  = await fromUuid(lastArg.tokenUuid);
+  const tokenFromUuid = await fromUuid(lastArg.tokenUuid);
   const targetToken = tokenFromUuid.data || token;
   const DAEItem = lastArg.efData.flags.dae.itemData;
-  const damage = Math.floor(Math.floor(args[1]/ 2));
+  const damage = Math.floor(Math.floor(args[1] / 2));
   // draw range template
   await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [
     {
       t: "circle",
       user: game.userId,
-      x: targetToken.x + canvas.grid.size / 2,
-      y: targetToken.y + canvas.grid.size / 2,
+      x: targetToken.x + (canvas.grid.size / 2),
+      y: targetToken.y + (canvas.grid.size / 2),
       direction: 0,
       distance: 60,
       borderColor: "#FF0000",

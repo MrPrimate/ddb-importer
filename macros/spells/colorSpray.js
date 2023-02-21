@@ -4,14 +4,18 @@
 
 console.warn(args);
 
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+async function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms); 
+  }); 
+}
 
 const blindHp = await args[0].damageTotal;
 const immuneConditions = [game.i18n.localize("Blinded"), game.i18n.localize("Unconscious")];
 console.log(`Color Spray Spell => Available HP Pool [${blindHp}] points`);
 const targets = await args[0].targets
   .filter((i) => i.actor.system.attributes.hp.value != 0 && !i.actor.effects.find((x) => immuneConditions.includes(x.label)))
-  .sort((a, b) => canvas.tokens.get(a.id).actor.system.attributes.hp.value < canvas.tokens.get(b.id).actor.system.attributes.hp.value ? -1 : 1);
+  .sort((a, b) => (canvas.tokens.get(a.id).actor.system.attributes.hp.value < canvas.tokens.get(b.id).actor.system.attributes.hp.value ? -1 : 1));
 let remainingBlindHp = blindHp;
 let blindTarget = [];
 

@@ -2,8 +2,7 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.system.save;
-const castItemName = "Call Lightning - bolt";
+const castItemName = "Call Lightning - Bolt";
 const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === "spell");
 
 /**

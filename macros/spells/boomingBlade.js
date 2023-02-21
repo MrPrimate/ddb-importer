@@ -56,7 +56,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             label: sourceItemData.name,
             origin,
             transfer: false,
-            flags: { targetUuid: target.uuid, casterUuid: caster.uuid, origin, cantripDice, damageType, dae: { specialDuration: ["turnStartSource", "isMoved"], transfer: false }},
+            flags: { targetUuid: target.uuid, casterUuid: caster.uuid, origin, cantripDice, damageType, dae: { specialDuration: ["turnStartSource", "isMoved"], transfer: false } },
           });
           setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);

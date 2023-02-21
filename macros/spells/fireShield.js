@@ -3,7 +3,6 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const tokenFromUuid = await fromUuid(lastArg.tokenUuid);
 const targetToken = tokenFromUuid.data || token;
-const DAEitem = lastArg.efData.flags.dae.itemData;
 
 function getShieldName(type) {
   return `Summoned Fire Shield (${type})`;
@@ -11,8 +10,9 @@ function getShieldName(type) {
 
 function createShieldItem(type) {
   const damageType = type == "warm" ? "fire" : "cold";
-  const img =
-    type === "warm" ? "icons/magic/defensive/shield-barrier-flaming-pentagon-red.webp" : "icons/magic/defensive/shield-barrier-flaming-pentagon-blue.webp";
+  const img = type === "warm"
+    ? "icons/magic/defensive/shield-barrier-flaming-pentagon-red.webp"
+    : "icons/magic/defensive/shield-barrier-flaming-pentagon-blue.webp";
   const item = {
     name: getShieldName(type),
     type: "weapon",

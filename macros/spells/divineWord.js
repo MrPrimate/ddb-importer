@@ -1,6 +1,6 @@
 const lastArg = args[args.length - 1];
 
-//DAE Macro Execute, Effect Value = "Macro Name"
+// DAE Macro Execute, Effect Value = "Macro Name"
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const targetToken = await fromUuid(lastArg.tokenUuid);
@@ -8,9 +8,9 @@ const targetToken = await fromUuid(lastArg.tokenUuid);
 function effectAppliedAndActive(conditionName) {
   return targetToken.effects.some(
     (activeEffect) =>
-      activeEffect?.flags?.isConvenient &&
-      activeEffect?.label == conditionName &&
-      !activeEffect?.disabled
+      activeEffect?.flags?.isConvenient
+      && activeEffect?.label == conditionName
+      && !activeEffect?.disabled
   );
 }
 

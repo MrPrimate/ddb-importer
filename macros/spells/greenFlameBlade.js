@@ -129,8 +129,8 @@ async function attackNearby(originToken, ignoreIds) {
 function weaponAttack(caster, sourceItemData, origin, target) {
   const chosenWeapon = DAE.getFlag(caster, "greenFlameBladeChoice");
   const filteredWeapons = caster.items.filter((i) =>
-    i.type === "weapon" && i.system.equipped &&
-    i.system.activation.type ==="action" && i.system.actionType == "mwak"
+    i.type === "weapon" && i.system.equipped
+    && i.system.activation.type === "action" && i.system.actionType == "mwak"
   );
   const weaponContent = filteredWeapons
     .map((w) => {
@@ -167,13 +167,13 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             label: sourceItemData.name,
             origin,
             transfer: false,
-            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { transfer: false }},
+            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { transfer: false } },
           });
           setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
           if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonPrimary)) {
             const autoAnimationsAdjustments = duplicate(baseAutoAnimation);
-            autoAnimationsAdjustments.animation = weaponCopy.system.baseItem ? weaponCopy.system.baseItem  : "shortsword";
+            autoAnimationsAdjustments.animation = weaponCopy.system.baseItem ? weaponCopy.system.baseItem : "shortsword";
             const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
               ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
               : autoAnimationsAdjustments;
@@ -191,7 +191,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
   }).render(true);
 }
 
-if (args[0].tag === "OnUse"){
+if (args[0].tag === "OnUse") {
   if (lastArg.targets.length > 0) {
     const casterData = await fromUuid(lastArg.actorUuid);
     const caster = casterData.actor ? casterData.actor : casterData;

@@ -11,7 +11,7 @@ async function checkTargetInRange({ sourceUuid, targetUuid, distance }) {
   const targetsInRange = MidiQOL.findNearby(null, sourceUuid, distance, null);
   const isInRange = targetsInRange.reduce((result, possible) => {
     const collisionRay = new Ray(sourceToken, possible);
-    const collision = canvas.walls.checkCollision(collisionRay, {mode: "any", type: "sight"});
+    const collision = canvas.walls.checkCollision(collisionRay, { mode: "any", type: "sight" });
     if (possible.uuid === targetUuid && !collision) result = true;
     return result;
   }, false);
@@ -29,7 +29,7 @@ async function sustainedDamage(options) {
   const casterToken = await fromUuid(options.sourceUuid);
   const itemData = sourceItem.toObject();
   setProperty(itemData, "system.components.concentration", false);
-  new MidiQOL.DamageOnlyWorkflow(
+  await new MidiQOL.DamageOnlyWorkflow(
     caster,
     casterToken,
     damageRoll.total,

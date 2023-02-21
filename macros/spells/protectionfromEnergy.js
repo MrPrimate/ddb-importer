@@ -86,7 +86,7 @@ if (args[0] === "on") {
       yes: {
         icon: '<i class="fas fa-check"></i>',
         label: 'Protect!',
-        callback: async (html) => {
+        callback: async () => {
           const element = $("input[type='radio'][name='type']:checked").val();
           const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
           const changes = [
@@ -103,7 +103,7 @@ if (args[0] === "on") {
         }
       },
     },
-  }).render(true, {width: 400});
+  }).render(true, { width: 400 });
 }
 if (args[0] === "off") {
   const element = DAE.getFlag(targetActor, 'protectionFromEnergySpell');

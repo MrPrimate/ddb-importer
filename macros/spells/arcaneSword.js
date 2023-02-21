@@ -14,7 +14,7 @@ async function deleteTemplates(actorId) {
  * Create Arcane Sword item in inventory
  */
 if (args[0] === "on") {
-  const tokenFromUuid  = await fromUuid(lastArg.tokenUuid);
+  const tokenFromUuid = await fromUuid(lastArg.tokenUuid);
   const casterToken = tokenFromUuid.data || token;
   const DAEItem = lastArg.efData.flags.dae.itemData;
   // draw range template
@@ -22,8 +22,8 @@ if (args[0] === "on") {
     {
       t: "circle",
       user: game.userId,
-      x: casterToken.x + canvas.grid.size / 2,
-      y: casterToken.y + canvas.grid.size / 2,
+      x: casterToken.x + (canvas.grid.size / 2),
+      y: casterToken.y + (canvas.grid.size / 2),
       direction: 0,
       distance: 60,
       borderColor: "#FF0000",

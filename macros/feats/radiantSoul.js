@@ -1,9 +1,9 @@
-if (!["spell"].some((value) => args[0].item.type.includes(value))) return; //if there is anything else that should trigger it, add it here like ["spell","bananas"]
-if (!["fire", "radiant"].some((value) => args[0].damageDetail.find((i) => i.type.includes(value)))) return; //if not fire or radiant stop
+if (!["spell"].some((value) => args[0].item.type.includes(value))) return; // if there is anything else that should trigger it, add it here like ["spell","bananas"]
+if (!["fire", "radiant"].some((value) => args[0].damageDetail.find((i) => i.type.includes(value)))) return; // if not fire or radiant stop
 
 const damageType = args[0].damageDetail.find((i) =>
   ["fire", "radiant"].some((value) => args[0].damageDetail.find((i) => i.type.includes(value)))
-).type; //ugly but works
+).type; // ugly but works
 
 const extraDamage = args[0].actorData.system.abilities.cha.mod;
 const dialog = new Promise((resolve, reject) => {
