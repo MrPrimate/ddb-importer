@@ -51,6 +51,7 @@ import { crusherEffect } from "./feats/crusher.js";
 import { crusherCriticalEffect } from "./feats/crusherCritical.js";
 import { slasherReduceSpeedEffect } from "./feats/slasherReduceSpeed.js";
 import { slasherCriticalEffect } from "./feats/slasherCritical.js";
+import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -255,6 +256,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Shift": {
         document = shiftEffect(ddb, character, document);
+        break;
+      }
+      case "Squire of Solamnia: Precise Strike": {
+        document = await squireOfSolamniaEffect(document);
         break;
       }
       case "Steady Aim": {
