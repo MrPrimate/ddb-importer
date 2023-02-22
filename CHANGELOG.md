@@ -1,9 +1,9 @@
-# NEXT
+# 3.3.12
 
 * Some macro formatting updates
 * Alert bonus could be added twice to initiative @Galag'r#0001
 * Item effect: Javelin of Lightning based on a macro by @Chris#8375
-* Squire of Solamnia: Precise Strike based on a macro by @Wheels#2393
+* Effect: Squire of Solamnia: Precise Strike based on a macro by @Wheels#2393
 
 # 3.3.11
 
