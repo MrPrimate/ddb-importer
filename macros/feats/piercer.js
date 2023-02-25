@@ -1,6 +1,7 @@
 if (!["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) return;
 if (args[0].hitTargets.length < 1 || args[0].item.system.damage.parts[0][1] !== "piercing") return {};
 
+console.warn(args[0]);
 const roll = args[0].damageRoll;
 if (!roll.terms[0].faces) return;
 
@@ -17,7 +18,7 @@ if (args[0].macroPass === "postDamageRoll" && lowDice !== dieSize) {
   let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
   let response = await Dialog.confirm({
     title: "Piercer feat",
-    content: `<p>${token.name} rolled a ${lowDice} on 1d${dieSize}. Reroll?</p>`,
+    content: `<p>${args[0].actor.name} rolled a ${lowDice} on 1d${dieSize}. Reroll?</p>`,
   });
   if (!response) return;
 

@@ -1,3 +1,7 @@
+# NEXT
+
+* Tweaks to dynamic macro loading
+
 # 3.3.12
 
 * Some macro formatting updates

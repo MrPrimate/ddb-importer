@@ -66,7 +66,7 @@ export async function loadMacroFile(type, fileName, forceLoad = false, forceDDB 
     const response = await fetch(url, { method: "GET" });
     data = await response.text();
   } else if (fileExists && (!embedMacros || forceDDB)) {
-    data = `// Execute DDB Importer dynamic macro\nreturn DDBImporter.executeDDBMacro("${type}", "${fileName}", ...args);`;
+    data = `// Execute DDB Importer dynamic macro\nreturn game.modules.get("ddb-importer")?.api.executeDDBMacro("${type}", "${fileName}", ...args);`;
   } else if (!fileExists) {
     data = "// Unable to load the macro file";
   }
@@ -199,7 +199,8 @@ export async function createGMMacros() {
 
 export async function executeDDBMacro(type, fileName, ...params) {
   if (!fileName.endsWith(".js")) fileName = `${fileName}.js`;
-  let macro = CONFIG.DDBI.MACROS[type]?.[fileName];
+  const strippedName = fileName.split(".js")[0];
+  let macro = CONFIG.DDBI.MACROS[type]?.[strippedName];
   if (!macro) {
     const macroText = await loadMacroFile(type, fileName, true);
     if (!macroText) {
@@ -211,8 +212,8 @@ export async function executeDDBMacro(type, fileName, ...params) {
     // eslint-disable-next-line require-atomic-updates
     macro = await createMacro({ name: `${type} ${fileName}`, content: macroText, img: null, isGM: false, isTemp: true });
     // eslint-disable-next-line require-atomic-updates
-    setProperty(CONFIG.DDBI.MACROS, `${type}${fileName}`, macro);
-    logger.debug(`Macro (${type}) ${fileName} loaded`, macro);
+    setProperty(CONFIG.DDBI.MACROS, `${type}.${strippedName}`, macro);
+    logger.debug(`Macro (${type}) ${fileName} loaded from file into cache`, macro);
   }
 
   logger.debug(`Calling (${type}) ${fileName} with params`, ...params);

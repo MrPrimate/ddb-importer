@@ -1,8 +1,8 @@
 try {
-  const act = actor ?? args[0].actor;
+  const act = args[0].actor ?? actor;
   if (args[0].macroPass === "DamageBonus") {
-    if (act.flags?.dae?.onUpdateTarget && args[0].hitTargets.length > 0) {
-      const isMarked = act.flags.dae.onUpdateTarget.find(
+    if (hasProperty(act, "flags.dae.onUpdateTarget") && args[0].hitTargets.length > 0) {
+      const isMarked = act.flags.dae.onUpdateTarget.some(
         (flag) =>
           flag.flagName === "Hunter's Mark" &&
           flag.sourceTokenUuid === args[0].hitTargetUuids[0]
@@ -15,8 +15,9 @@ try {
           flavor: "Hunter's Mark Damage",
         };
       }
+    } else {
+      return {};
     }
-    return {};
   } else if (args[0].macroPass === "preItemRoll") {
     // check if we are already marking and if the marked target is dead.
     const markedTarget = act.flags.dae.onUpdateTarget.find(
