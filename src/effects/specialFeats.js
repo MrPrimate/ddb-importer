@@ -52,6 +52,7 @@ import { crusherCriticalEffect } from "./feats/crusherCritical.js";
 import { slasherReduceSpeedEffect } from "./feats/slasherReduceSpeed.js";
 import { slasherCriticalEffect } from "./feats/slasherCritical.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
+import { arcaneRecoveryEffect } from "./feats/arcaneRecovery.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -175,6 +176,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
 
   if (deps.daeInstalled && deps.midiQolInstalled) {
     switch (name) {
+      case "Arcane Recovery": {
+        document = await arcaneRecoveryEffect(document);
+        break;
+      }
       case "Bladesong": {
         document = bladesongEffect(document);
         break;
