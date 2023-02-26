@@ -1,6 +1,7 @@
 # NEXT
 
-* Tweaks to dynamic macro loading
+* Tweaks to dynamic macro loading.
+* Better handling of targets for spells like darkness so they are no longer set to self when using midi-qol and macros.
 
 # 3.3.12
 

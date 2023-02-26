@@ -7,12 +7,13 @@ export async function arcaneSwordEffect(document) {
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
 
+  setProperty(effect, "flags.dae.selfTarget", true);
+  setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.system.damage = { parts: [], versatile: "", value: "" };
-  document.system['target']['type'] = "self";
-  document.system.range = { value: null, units: "self", long: null };
   document.system.actionType = "other";
 
   document.effects.push(effect);
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
 
   return document;
 }

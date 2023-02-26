@@ -6,11 +6,12 @@ export async function flameBladeEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "flameBlade.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("@spellLevel"));
-  document.system.damage = { parts: [], versatile: "", value: "" };
-  document.system['target']['type'] = "self";
-  document.system.range = { value: null, units: "self", long: null };
+  setProperty(effect, "flags.dae.selfTarget", true);
+  setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.system.actionType = "other";
   document.effects.push(effect);
+  document.system.damage = { parts: [], versatile: "", value: "" };
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
 
   return document;
 }

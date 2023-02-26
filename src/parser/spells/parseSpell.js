@@ -83,6 +83,7 @@ export async function parseSpell(data, character) {
   spell.system.save = getSave(data);
   spell.system.scaling = getSpellScaling(data);
   spell.system.uses = getUses(data, character);
+  spell.system.consume.target = "";
 
   // attach the spell ability id to the spell data so VTT always uses the
   // correct one, useful if multi-classing and spells have different
@@ -93,6 +94,7 @@ export async function parseSpell(data, character) {
       spell.system.save.scaling = data.flags.ddbimporter.dndbeyond.ability;
     }
   }
+  if (spell.system.ability === null) spell.system.ability = "";
 
   if (addSpellEffects) {
     await spellEffectAdjustment(spell);

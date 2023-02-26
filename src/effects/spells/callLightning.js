@@ -10,6 +10,8 @@ export async function callLightningEffect(document) {
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);
   setProperty(document, "system.actionType", "other");
+  document.system.save.ability = "";
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
 
   return document;
 }

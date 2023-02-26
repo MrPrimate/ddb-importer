@@ -1,3 +1,9 @@
+if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
+  args[0].workflow.item.system['target']['type'] = "self";
+  args[0].workflow.item.system.range = { value: null, units: "self", long: null };
+  return;
+}
+
 const castItemName = "Summoned Arcane Sword";
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);

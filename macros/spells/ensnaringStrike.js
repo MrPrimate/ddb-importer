@@ -11,6 +11,11 @@
 //       - Variant: 01
 //       - Color: Green
 
+if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
+  args[0].workflow.item.system['target']['type'] = "self";
+  return;
+}
+
 const itemName = "Ensnaring Strike";
 const icon = "icons/magic/nature/root-vine-entangled-hand.webp";
 

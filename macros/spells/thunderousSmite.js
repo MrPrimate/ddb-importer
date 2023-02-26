@@ -1,3 +1,8 @@
+if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
+  args[0].workflow.item.system['target']['type'] = "self";
+  return;
+}
+
 try {
   if (!["mwak"].includes(args[0].item.system.actionType)) return {};
   if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone

@@ -1,3 +1,9 @@
+if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
+  args[0].workflow.item.system['target']['type'] = "self";
+  args[0].workflow.item.system.range = { value: null, units: "self", long: null };
+  return;
+}
+
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const target = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;

@@ -1,5 +1,11 @@
 if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module");
 
+if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
+  args[0].workflow.item.system['target']['type'] = "self";
+  args[0].workflow.item.system.range = { value: null, units: "self", long: null };
+  return;
+}
+
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -43,9 +49,7 @@ if (args[0] === "on") {
   const measureTemplate = new game.dnd5e.canvas.AbilityTemplate(doc);
   measureTemplate.actorSheet = targetActor.sheet;
   measureTemplate.drawPreview();
-}
-
-if (args[0] === "off") {
+} else if (args[0] === "off") {
   const params = await DAE.getFlag(targetActor, "darknessSpell");
   const gmMacro = game.macros.find((m) => m.name === gmMacroName);
   gmMacro.execute("off", params);

@@ -18,16 +18,16 @@ export async function thunderousSmiteEffect(document) {
     },
   );
   setProperty(effect, "flags.dae.specialDuration", ["1Hit:mwak"]);
+  setProperty(effect, "flags.dae.selfTarget", true);
+  setProperty(effect, "flags.dae.selfTargetAlways", true);
 
   const itemMacroText = await loadMacroFile("spell", "thunderousSmite.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
-
-  document.system.actionType = "other";
-  document.system.target.type = "self";
-  document.system.save.ability = "";
   document.system.damage.parts = [];
+  document.system.save.ability = "";
+  document.system.actionType = "other";
   document.effects.push(effect);
-  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro,[preTargeting]ItemMacro");
 
   return document;
 }

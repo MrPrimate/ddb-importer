@@ -12,13 +12,14 @@ export async function ensnaringStrikeEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
     priority: "20",
   });
-
+  setProperty(effect, "flags.dae.selfTarget", true);
+  setProperty(effect, "flags.dae.selfTargetAlways", true);
 
   document.effects.push(effect);
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system.actionType = null;
-  document.system.target.type = "self";
-  document.system.save.ability = null;
+  document.system.save.ability = "";
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
 
   return document;
 }

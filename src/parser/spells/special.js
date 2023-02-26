@@ -183,8 +183,6 @@ export function fixSpells(ddb, items) {
       case "Call Lightning": {
         if (usingEffects) {
           spell.system.damage = { parts: [], versatile: "", value: "" };
-          spell.system.target.type = "self";
-          // spell.system.range = { value: null, units: "self", long: null };
           spell.system.save.ability = "";
         }
         break;

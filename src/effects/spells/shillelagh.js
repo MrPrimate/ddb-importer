@@ -6,12 +6,12 @@ export async function shillelaghEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "shillelagh.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
-
-  document.system.damage = { parts: [], versatile: "", value: "" };
-  document.system['target']['type'] = "self";
-  document.system.range = { value: null, units: "self", long: null };
+  setProperty(effect, "flags.dae.selfTarget", true);
+  setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.system.actionType = "other";
   document.effects.push(effect);
+  document.system.damage = { parts: [], versatile: "", value: "" };
+  setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");
 
   return document;
 }
