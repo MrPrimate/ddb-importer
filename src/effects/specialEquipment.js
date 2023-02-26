@@ -6,10 +6,12 @@ import {
   forceItemEffect,
 } from "./effects.js";
 import { featEffectModules } from "./specialFeats.js";
+// load item effects
 import { bootsOfSpeedEffect } from "./items/bootsOfSpeed.js";
 import { cloakOfDisplacementEffect } from "./items/cloakOfDisplacement.js";
-import { moonSickleEffect } from "./items/moonSickle.js";
 import { javelinOfLightningEffect } from "./items/javelinOfLightning.js";
+import { moonSickleEffect } from "./items/moonSickle.js";
+import { pearlOfPowerEffect } from "./items/pearlOfPower.js";
 
 
 export async function midiItemEffects(document) {
@@ -20,9 +22,13 @@ export async function midiItemEffects(document) {
       document = await cloakOfDisplacementEffect(document);
       break;
     }
-    case "Tempus Javelin":
-    case "Javelin of Lightning": {
+    case "Javelin of Lightning":
+    case "Tempus Javelin": {
       document = await javelinOfLightningEffect(document);
+      break;
+    }
+    case "Pearl of Power": {
+      document = await pearlOfPowerEffect(document);
       break;
     }
     // no default

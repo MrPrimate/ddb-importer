@@ -2,6 +2,8 @@
 
 * Tweaks to dynamic macro loading.
 * Better handling of targets for spells like darkness so they are no longer set to self when using midi-qol and macros.
+* Arcane Recovery Macro based on the wonderful work of @Zhell#9201
+* Pearl of Power Item Effect
 
 # 3.3.12
 
