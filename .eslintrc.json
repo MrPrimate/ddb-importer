@@ -64,7 +64,10 @@
     "AdventureImporter": true,
     "DocumentSheetConfig": true,
     "Sequencer": true,
-    "AutomatedAnimations": true
+    "AutomatedAnimations": true,
+    "Ray": true,
+    "fromUuidSync": true,
+    "Token": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,

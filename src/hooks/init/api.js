@@ -27,7 +27,12 @@ import { generateIcon } from "../../lib/icons.js";
 import DDBProxy from "../../lib/DDBProxy.js";
 import DDBCompanion from "../../parser/companions/DDBCompanion.js";
 import DDBCompanionFactory from "../../parser/companions/DDBCompanionFactory.js";
-import { configureCustomAAForCondition, addSaveAdvantageToTarget, findContainedTokensInTemplate } from "../../effects/helpers.js";
+import {
+  checkTargetInRange,
+  configureCustomAAForCondition,
+  addSaveAdvantageToTarget,
+  findContainedTokensInTemplate
+} from "../../effects/helpers.js";
 import SETTINGS from "../../settings.js";
 
 function resetSecrets() {
@@ -113,6 +118,7 @@ export function registerApi() {
       addSaveAdvantageToTarget,
       configureCustomAAForCondition,
       findContainedTokensInTemplate,
+      checkTargetInRange,
     },
     debug: {
       start: debugStart,

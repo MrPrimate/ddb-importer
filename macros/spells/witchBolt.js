@@ -1,35 +1,19 @@
-const lastArg = args[args.length - 1];
-const sourceItem = await fromUuid(lastArg.origin);
-const caster = sourceItem.parent;
-const damageType = "lightning";
-const parentEffectName = "WitchBolt (Concentration)";
-const hasParentEffect = caster.effects.some((e) => e.label === parentEffectName);
-
-async function checkTargetInRange({ sourceUuid, targetUuid, distance }) {
-  const sourceToken = await fromUuid(sourceUuid);
-  if (!sourceToken) return false;
-  const targetsInRange = MidiQOL.findNearby(null, sourceUuid, distance, null);
-  const isInRange = targetsInRange.reduce((result, possible) => {
-    const collisionRay = new Ray(sourceToken, possible);
-    const collision = canvas.walls.checkCollision(collisionRay, { mode: "any", type: "sight" });
-    if (possible.uuid === targetUuid && !collision) result = true;
-    return result;
-  }, false);
-  return isInRange;
-}
-
-async function sustainedDamage(options) {
-  const damageRoll = await new Roll(`1d12[${damageType}]`).evaluate({ async: true });
+async function sustainedDamage({ options, damageType, damageDice, sourceItem, caster }) {
+  const damageRoll = await new Roll(`${damageDice}[${damageType}]`).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll, game.users.get(options.userId));
 
+  console.warn({ options, damageType, damageDice, sourceItem, caster });
   const targets = await Promise.all(options.targets.map(async (uuid) => {
-    const tok = await fromUuid(uuid);
+    const tok = await fromUuidSync(uuid);
     return tok.object;
   }));
   const casterToken = await fromUuid(options.sourceUuid);
   const itemData = sourceItem.toObject();
   setProperty(itemData, "system.components.concentration", false);
-  await new MidiQOL.DamageOnlyWorkflow(
+  itemData.effects = [];
+  delete itemData._id;
+
+  const workflow = await new MidiQOL.DamageOnlyWorkflow(
     caster,
     casterToken,
     damageRoll.total,
@@ -39,14 +23,13 @@ async function sustainedDamage(options) {
     {
       flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
       itemCardId: "new",
-      itemData: itemData,
+      itemData,
       isCritical: false,
     }
   );
-
 }
 
-async function cancel() {
+async function cancel(caster) {
   const concentration = caster.effects.find((i) => i.label === "Concentrating");
   if (concentration) {
     await MidiQOL.socket().removeEffects({ actorUuid: caster.uuid, effects: [concentration.id] });
@@ -54,14 +37,18 @@ async function cancel() {
   await DAE.unsetFlag(caster, "witchBoltSpell");
 }
 
-if (args[0] === "on" && !hasParentEffect && caster.uuid !== lastArg.actorUuid) {
-  // create caster round-by-round damage effect
-  const sourceItem = await fromUuid(lastArg.origin);
+const lastArg = args[args.length - 1];
+const damageDice = "1d12";
+const damageType = "lightning";
+
+if (args[0].macroPass === "postActiveEffects") {
+  if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
+
   const effectData = [{
-    label: parentEffectName,
-    icon: sourceItem.img,
+    label: "WitchBolt (Concentration)",
+    icon: args[0].item.img,
     duration: { rounds: 10, startTime: game.time.worldTime },
-    origin: lastArg.origin,
+    origin: args[0].item.uuid,
     changes: [{
       key: "macro.itemMacro.local",
       value: "",
@@ -72,36 +59,36 @@ if (args[0] === "on" && !hasParentEffect && caster.uuid !== lastArg.actorUuid) {
     "flags.dae.macroRepeat": "startEveryTurn",
   }];
 
-  const targets = [];
-  for (let t of game.user.targets) {
-    targets.push(t.document.uuid);
-  }
-  const casterToken = canvas.tokens.placeables.find((t) => t.actor?.id === caster.id);
   const options = {
-    targets,
-    sourceUuid: casterToken?.document?.uuid,
-    distance: sourceItem.system.range.value,
+    targets: args[0].hitTargetUuids,
+    sourceUuid: args[0].tokenUuid,
+    distance: args[0].item.system.range.value,
     userId: game.userId,
   };
-  DAE.setFlag(caster, "witchBoltSpell", options);
-  await caster.createEmbeddedDocuments("ActiveEffect", effectData);
+
+  DAE.setFlag(args[0].actor, "witchBoltSpell", options);
+  await args[0].actor.createEmbeddedDocuments("ActiveEffect", effectData);
 } else if (args[0] == "off") {
+  const sourceItem = await fromUuid(lastArg.origin);
+  const caster = sourceItem.parent;
   DAE.unsetFlag(caster, "witchBoltSpell");
 } else if (args[0] == "each") {
+  const sourceItem = await fromUuid(lastArg.origin);
+  const caster = sourceItem.parent;
   const options = DAE.getFlag(caster, "witchBoltSpell");
-  const isOn = await checkTargetInRange(options);
-  if (isOn) {
+  const isInRange = await game.modules.get("ddb-importer")?.api.effects.checkTargetInRange(options);
+  if (isInRange) {
     new Dialog({
       title: sourceItem.name,
       content: "<p>Use action to sustain Witch Bolt?</p>",
       buttons: {
         continue: {
           label: "Yes, damage!",
-          callback: () => sustainedDamage(options)
+          callback: () => sustainedDamage({options, damageType, damageDice, sourceItem, caster} )
         },
         end: {
           label: "No, end concentration",
-          callback: () => cancel()
+          callback: () => cancel(caster)
         }
       }
     }).render(true);

@@ -1,3 +1,5 @@
+import logger from "../logger.js";
+
 /**
  * If a custom AA condition animation exists for the specified name, registers the appropriate hook with AA
  * to be able to replace the default condition animation by the custom one.
@@ -29,7 +31,6 @@ export function configureCustomAAForCondition(condition, macroData, originItemNa
     });
   }
 }
-
 
 /**
  * Adds a save advantage effect for the next save on the specified target actor.
@@ -86,4 +87,22 @@ export function findContainedTokensInTemplate(templateDoc) {
     }
   }
   return [...contained];
+}
+
+export async function checkTargetInRange({ sourceUuid, targetUuid, distance }) {
+  if (!game.modules.get("midi-qol")?.active) {
+    ui.notifications.error("checkTargetInRange requires midiQoL, not checking");
+    logger.error("checkTargetInRange requires midiQoL, not checking");
+    return true;
+  }
+  const sourceToken = await fromUuid(sourceUuid);
+  if (!sourceToken) return false;
+  const targetsInRange = MidiQOL.findNearby(null, sourceUuid, distance);
+  const isInRange = targetsInRange.reduce((result, possible) => {
+    const collisionRay = new Ray(sourceToken, possible);
+    const collision = canvas.walls.checkCollision(collisionRay, { mode: "any", type: "sight" });
+    if (possible.uuid === targetUuid && !collision) result = true;
+    return result;
+  }, false);
+  return isInRange;
 }
