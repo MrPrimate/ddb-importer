@@ -1,4 +1,4 @@
-# NEXT
+# 3.3.14
 
 * Tweaks to Witchbolt effect.
 * Fix issue with effect generation with statuses in the latests versions of Convenient Effects.
