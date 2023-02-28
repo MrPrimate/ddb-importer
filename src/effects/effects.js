@@ -303,9 +303,9 @@ export function generateStatusEffectChange(statusName, priority = 20, macro = fa
     logger.error(`Status effect ${statusName} not found`);
   }
   return {
-    key: macro ? "macro.CE" : "StatusEffect",
+    key: macro && !value.startsWith("Convenient Effect:") ? "macro.CE" : "StatusEffect",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    value,
+    value: macro || value.startsWith("Convenient Effect:") ? value : `Convenient Effect: ${value}`,
     priority: priority,
   };
 }
