@@ -1,3 +1,7 @@
+# NEXT
+
+* Tweaks to Witchbolt effect.
+
 # 3.3.13
 
 * Tweaks to dynamic macro loading.

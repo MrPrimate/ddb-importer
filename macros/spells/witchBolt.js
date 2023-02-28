@@ -78,6 +78,13 @@ if (args[0].macroPass === "postActiveEffects") {
   const options = DAE.getFlag(caster, "witchBoltSpell");
   const isInRange = await game.modules.get("ddb-importer")?.api.effects.checkTargetInRange(options);
   if (isInRange) {
+    const userIds = Object.entries(caster.ownership).filter((k) => k[1] === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER).map((k) => k[0]);
+    const mes = await ChatMessage.create({
+      content: `<p>${caster.name} may use their action to sustain Witch Bolt.</p><br>`,
+      type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+      speaker: caster.uuid,
+      whisper: game.users.filter((u) => userIds.includes(u.id) || u.isGM),
+    });
     new Dialog({
       title: sourceItem.name,
       content: "<p>Use action to sustain Witch Bolt?</p>",
