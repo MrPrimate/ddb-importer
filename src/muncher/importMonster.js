@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import FileHelper from "../lib/FileHelper.js";
-import { updateIcons, getCompendiumItems, getSRDIconLibrary, copySRDIcons, compendiumFolders } from "./import.js";
+import { updateIcons, getCompendiumItems, getSRDImageLibrary, copySRDIcons, compendiumFolders } from "./import.js";
 import DDBMuncher from "./DDBMuncher.js";
 import { migrateItemsDAESRD } from "./dae.js";
 import SETTINGS from "../settings.js";
@@ -214,7 +214,7 @@ export async function getNPCImage(npcData, options) {
   if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
   if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
 
-  if (ddbAvatarUrl) {
+  if (ddbAvatarUrl && getProperty(npcData, "flags.monsterMunch.imgSet") !== true) {
     const ext = ddbAvatarUrl.split(".").pop().split(/#|\?|&/)[0];
     const genericNpc = ddbAvatarUrl.endsWith(npcType + "." + ext);
     const name = genericNpc ? genericNPCName : npcName;
@@ -225,7 +225,7 @@ export async function getNPCImage(npcData, options) {
   }
 
   // Token images always have to be downloaded.
-  if (ddbTokenUrl) {
+  if (ddbTokenUrl && getProperty(npcData, "flags.monsterMunch.tokenImgSet") !== true) {
     const tokenExt = ddbTokenUrl.split(".").pop().split(/#|\?|&/)[0];
     const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt);
     const name = genericNpc ? genericNPCName : npcName;
@@ -383,20 +383,65 @@ export function addNPC(data, bulkImport, type) {
   });
 }
 
+export async function useSRDMonsterImages(monsters) {
+  // eslint-disable-next-line require-atomic-updates
+  if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) {
+    const srdImageLibrary = await getSRDImageLibrary();
+    DDBMuncher.munchNote(`Updating SRD Monster Images`, true);
+
+    monsters.forEach((monster) => {
+      logger.debug(`Checking ${monster.name} for srd images`);
+      const nameMatch = srdImageLibrary.find((m) => m.name === monster.name && m.type === "npc");
+      if (nameMatch) {
+        logger.debug(`Updating monster ${monster.name} to srd images`, nameMatch);
+        const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == "monsters").name;
+        const moduleArt = game.dnd5e.moduleArt.map.get(`Compendium.${compendiumName}.${nameMatch._id}`);
+        logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
+        if (moduleArt?.actor && nameMatch.actor !== "" && !moduleArt.actor.includes("mystery-man")) {
+          monster.img = moduleArt.actor;
+          setProperty(monster, "flags.monsterMunch.imgSet", true);
+        } else if (nameMatch.img && nameMatch.img !== "" && !nameMatch.img.includes("mystery-man")) {
+          monster.img = nameMatch.img;
+          setProperty(monster, "flags.monsterMunch.imgSet", true);
+        }
+        if (moduleArt.token && !hasProperty(moduleArt, "token.texture.src")) {
+          monster.prototypeToken.texture.src = moduleArt.token;
+        } else if (moduleArt.token?.texture?.src
+          && moduleArt.token.texture.src !== ""
+          && !moduleArt.token.texture.src.includes("mystery-man")
+        ) {
+          monster.prototypeToken.texture.src = moduleArt.token.texture.src;
+          setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
+          if (moduleArt.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
+          if (moduleArt.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
+        } else if (nameMatch.prototypeToken?.texture?.src
+          && nameMatch.prototypeToken.texture.src !== ""
+          && !nameMatch.prototypeToken.texture.src.includes("mystery-man")
+        ) {
+          setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
+          monster.prototypeToken.texture.src = nameMatch.prototypeToken.texture.src;
+        }
+      }
+    });
+  }
+
+  return monsters;
+}
+
 export async function generateIconMap(monsters) {
   let promises = [];
 
   const srdIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons");
   // eslint-disable-next-line require-atomic-updates
   if (srdIcons) {
-    const srdIconLibrary = await getSRDIconLibrary();
+    const srdImageLibrary = await getSRDImageLibrary();
     DDBMuncher.munchNote(`Updating SRD Icons`, true);
     let itemMap = [];
 
     monsters.forEach((monster) => {
       DDBMuncher.munchNote(`Processing ${monster.name}`);
       promises.push(
-        copySRDIcons(monster.items, srdIconLibrary, itemMap).then((items) => {
+        copySRDIcons(monster.items, srdImageLibrary, itemMap).then((items) => {
           monster.items = items;
         })
       );

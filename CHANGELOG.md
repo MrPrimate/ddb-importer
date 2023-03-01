@@ -1,3 +1,7 @@
+# NEXT
+
+* Added option to copy monster images from SRD.
+
 # 3.3.14
 
 * Tweaks to Witchbolt effect.

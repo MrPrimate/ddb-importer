@@ -9,7 +9,7 @@ import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 
 // targets for migration
-import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium } from "./importMonster.js";
+import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium, useSRDMonsterImages } from "./importMonster.js";
 
 export default class DDBMonsterFactory {
 
@@ -222,6 +222,7 @@ export default class DDBMonsterFactory {
 
     this.munchNote(`Generating Icon Map..`, true);
     await generateIconMap(finalMonsters);
+    await useSRDMonsterImages(finalMonsters);
 
     const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
     const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;

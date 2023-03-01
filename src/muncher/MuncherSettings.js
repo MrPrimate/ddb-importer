@@ -756,6 +756,12 @@ const MuncherSettings = {
         enabled: true,
       },
       {
+        name: "use-srd-monster-images",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images"),
+        description: "Use images from the SRD compendiums.",
+        enabled: true,
+      },
+      {
         name: "update-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images"),
         description: "[CAUTION] Update Monster images on existing npcs? (This will dramatically slow down re-munching).",

@@ -117,6 +117,7 @@ const MUNCH_DEFAULTS = [
   { name: "munching-policy-use-srd", needed: false },
   { name: "munching-policy-use-inbuilt-icons", needed: true },
   { name: "munching-policy-use-srd-icons", needed: false },
+  { name: "munching-policy-use-srd-monster-images", needed: false },
   { name: "munching-policy-download-images", needed: true },
   { name: "munching-policy-remote-images", needed: false },
   { name: "munching-policy-use-dae-effects", needed: false },
@@ -1108,6 +1109,10 @@ const SETTINGS = {
           },
           "munching-policy-monster-tokenize": {
             scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-use-srd-monster-images": {
             type: Boolean,
             default: false,
           },

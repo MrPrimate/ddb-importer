@@ -9,19 +9,6 @@ import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";
 
-async function loadpacks(compendiumName) {
-  if (CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) return;
-  const srdPack = CompendiumHelper.getCompendium(compendiumName);
-  if (!srdPack) {
-    logger.error(`Failed to load SRDPack ${compendiumName}`);
-  } else {
-    // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.SRD_LOAD.packs[compendiumName] = await srdPack.getDocuments();
-    // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName] = true;
-  }
-}
-
 /**
  * Removes items
  * @param {*} items
@@ -408,41 +395,34 @@ export async function updateCompendium(type, input, updateExisting = false, matc
 
 async function getSRDIconMatch(type) {
   const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == type).name;
-  if (!CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) await loadpacks(compendiumName);
-
-  const items = CONFIG.DDBI.SRD_LOAD.packs[compendiumName].map((item) => {
-    let smallItem = {
-      name: item.name,
-      img: item.img,
-      type: item.type,
-      system: {},
-    };
-    if (item.system.activation) smallItem.system.activation = item.system.activation;
-    return smallItem;
-  });
-
-  return items;
+  const srdPack = CompendiumHelper.getCompendium(compendiumName);
+  const srdIndices = ["name", "img", "prototypeToken.texture.src", "type", "system.activation"];
+  const index = await srdPack.getIndex({ fields: srdIndices });
+  return index;
 }
 
-export async function getSRDIconLibrary() {
+export async function getSRDImageLibrary() {
   if (CONFIG.DDBI.SRD_LOAD.mapLoaded) return CONFIG.DDBI.SRD_LOAD.iconMap;
   const compendiumFeatureItems = await getSRDIconMatch("features");
   const compendiumInventoryItems = await getSRDIconMatch("inventory");
   const compendiumSpellItems = await getSRDIconMatch("spells");
   const compendiumMonsterFeatures = await getSRDIconMatch("monsterfeatures");
+  const compendiumMonsters = await getSRDIconMatch("monsters");
 
   // eslint-disable-next-line require-atomic-updates
-  CONFIG.DDBI.SRD_LOAD.iconMap = compendiumInventoryItems.concat(
-    compendiumSpellItems,
-    compendiumFeatureItems,
-    compendiumMonsterFeatures,
-  );
+  CONFIG.DDBI.SRD_LOAD.iconMap = [
+    ...compendiumInventoryItems,
+    ...compendiumSpellItems,
+    ...compendiumFeatureItems,
+    ...compendiumMonsterFeatures,
+    ...compendiumMonsters,
+  ];
   return CONFIG.DDBI.SRD_LOAD.iconMap;
 }
 
-export async function copySRDIcons(items, srdIconLibrary = null, nameMatchList = []) {
+export async function copySRDIcons(items, srdImageLibrary = null, nameMatchList = []) {
   // eslint-disable-next-line require-atomic-updates
-  if (!srdIconLibrary) srdIconLibrary = await getSRDIconLibrary();
+  if (!srdImageLibrary) srdImageLibrary = await getSRDImageLibrary();
 
   return new Promise((resolve) => {
     const srdItems = items.map((item) => {
@@ -451,9 +431,9 @@ export async function copySRDIcons(items, srdIconLibrary = null, nameMatchList =
       if (nameMatch) {
         item.img = nameMatch.img;
       } else {
-        looseItemNameMatch(item, srdIconLibrary, true).then((match) => {
+        looseItemNameMatch(item, srdImageLibrary, true).then((match) => {
           if (match) {
-            srdIconLibrary.push({ name: item.name, img: match.img });
+            srdImageLibrary.push({ name: item.name, img: match.img });
             item.img = match.img;
           }
         });
@@ -972,11 +952,12 @@ export async function getCompendiumItems(items, type, inOptions) {
 
 export async function getSRDCompendiumItems(items, type, looseMatch = false, keepId = false, monster = false) {
   const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == type).name;
-  if (!CONFIG.DDBI.SRD_LOAD.packsLoaded[compendiumName]) await loadpacks(compendiumName);
-  const compendiumItems = CONFIG.DDBI.SRD_LOAD.packs[compendiumName];
+  const srdPack = CompendiumHelper.getCompendium(compendiumName);
+  const srdIndices = ["name", "type", "flags.ddbimporter.dndbeyond.alternativeNames"];
+  const index = await srdPack.getIndex({ fields: srdIndices });
 
-  const loadedItems = await compendiumItems.filter((i) =>
-    compendiumItems.some((orig) => {
+  const matchedIds = index.filter((i) =>
+    index.some((orig) => {
       const extraNames = (orig.flags?.ddbimporter?.dndbeyond?.alternativeNames)
         ? orig.flags.ddbimporter.dndbeyond.alternativeNames
         : [];
@@ -987,15 +968,18 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
         return i.name === orig.name || extraNames.includes(i.name);
       }
     })
-  ).map((i) => {
-    const item = i.toObject();
-    if (item.flags.ddbimporter) {
-      item.flags.ddbimporter["pack"] = compendiumName;
-    } else {
-      item.flags.ddbimporter = { pack: compendiumName };
-    }
-    return item;
-  });
+  ).map((i) => i._id);
+
+  const loadedItems = (await srdPack.getDocuments(matchedIds))
+    .map((i) => {
+      const item = i.toObject();
+      if (item.flags.ddbimporter) {
+        item.flags.ddbimporter["pack"] = compendiumName;
+      } else {
+        item.flags.ddbimporter = { pack: compendiumName };
+      }
+      return item;
+    });
   // logger.debug(`SRD ${type} loaded items:`, loadedItems);
 
   const matchingOptions = {
