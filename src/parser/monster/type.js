@@ -20,11 +20,11 @@ DDBMonster.prototype._generateType = function _generateType() {
   const type = CONFIG.DDB.monsterTypes.find((c) => this.source.typeId == c.id);
   if (!type) {
     this.npc.system.details.type.custom = "Unknown";
+  } else {
+    const typeName = type.name.toLowerCase();
+
+    if (CONFIG.DND5E.creatureTypes[typeName]) this.npc.system.details.type.value = typeName;
   }
-
-  const typeName = type.name.toLowerCase();
-
-  if (CONFIG.DND5E.creatureTypes[typeName]) this.npc.system.details.type.value = typeName;
 
   this.npc.system.details.type.subtype = CONFIG.DDB.monsterSubTypes
     .filter((c) => this.source.subTypes.includes(c.id))

@@ -2,6 +2,7 @@
 
 * Added option to copy monster images from SRD.
 * Correct Hideous Laughter effect saveDC not passing through correctly, not running save when damaged.
+* Improve parsing on Unknown custom monster types.
 
 # 3.3.14
 
