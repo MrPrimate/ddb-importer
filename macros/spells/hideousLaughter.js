@@ -4,7 +4,11 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
 const saveData = DAEItem.system.save;
-const flavor = `${CONFIG.DND5E.abilities["wis"]} DC${saveData.dc} ${DAEItem?.name || ""}`;
+const saveDC = (saveData.dc === null || saveData.dc === "") && saveData.scaling === "spell"
+  ? (await fromUuid(lastArg.efData.origin)).parent.getRollData().attributes.spelldc
+  : saveData.dc;
+const dcString = saveDC && saveDC !== "" ? `DC${saveDC} ` : "";
+const flavor = `${CONFIG.DND5E.abilities["wis"]} DC${dcString}${DAEItem?.name || ""}`;
 
 function effectAppliedAndActive(conditionName) {
   return targetActor.effects.some(
@@ -33,7 +37,7 @@ async function cleanUp() {
 
 async function onDamageHook(hookActor, update) {
   const flag = await DAE.getFlag(hookActor, "hideousLaughterHook");
-  if (!("actorData.system.attributes.hp" in update) || !flag) return;
+  if (!hasProperty(update, "system.attributes.hp") || !flag) return;
   const oldHP = hookActor.system.attributes.hp.value;
   const newHP = getProperty(update, "system.attributes.hp.value");
   const hpChange = oldHP - newHP;
