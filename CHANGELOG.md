@@ -1,4 +1,4 @@
-# NEXT
+# 3.3.15
 
 * Added option to copy monster images from SRD.
 * Correct Hideous Laughter effect saveDC not passing through correctly, not running save when damaged.
