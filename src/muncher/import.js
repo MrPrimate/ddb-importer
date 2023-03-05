@@ -604,6 +604,7 @@ export async function getDDBEquipmentIcons(items, download) {
         const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
         if (imageMatch && imageMatch.img) {
           item.img = imageMatch.img;
+          setProperty(item, "flags.ddbimporter.keepIcon", true);
         }
         if (imageMatch && imageMatch.large) {
           item.flags.ddbimporter.dndbeyond['pictureUrl'] = imageMatch.large;

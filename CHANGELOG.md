@@ -1,3 +1,7 @@
+# COMING NEXT!
+
+* DDB Icon image selection was not always respected.
+
 # 3.3.15
 
 * Added option to copy monster images from SRD.

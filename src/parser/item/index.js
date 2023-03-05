@@ -383,7 +383,7 @@ async function getIcon(item, ddbItem) {
     if (img) {
       // eslint-disable-next-line require-atomic-updates
       item.img = img;
-      setProperty(item, "flags.ddbimporter.keepIcon", true);
+      setProperty(item, "flags.ddbimporter.keepIcon", false);
     }
   }
   return item;
@@ -453,7 +453,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       // eslint-disable-next-line no-await-in-loop
       item = await midiItemEffects(item);
       // eslint-disable-next-line no-await-in-loop
-      item = await getIcon(item, ddbItem);
+      // item = await getIcon(item, ddbItem);
 
       items.push(item);
     }
