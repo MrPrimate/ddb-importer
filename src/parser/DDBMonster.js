@@ -210,7 +210,7 @@ export default class DDBMonster {
     this._generateEnvironments();
     this.npc.system.details.biography.value = this.source.characteristicsDescription;
 
-    this._generateFeatures();
+    await this._generateFeatures();
 
     // Spellcasting
     this._generateSpells();

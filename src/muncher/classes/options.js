@@ -17,15 +17,16 @@ export async function getClassOptions(data, className) {
     id: classMatch.id,
   };
 
-  data.forEach((feature) => {
+  for (const feature of data) {
     const existingFeature = classFeatures.some((f) => f.name === feature.name);
     logger.debug(`${feature.name} feature starting...`);
     if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
-      const parsedFeature = getClassFeature(feature, klass);
+      // eslint-disable-next-line no-await-in-loop
+      const parsedFeature = await getClassFeature(feature, klass);
       classFeatures.push(parsedFeature);
       results.push({ class: className, subClass: "", feature: feature.name });
     }
-  });
+  }
 
   const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
   DDBMuncher.munchNote(`Importing ${fiddledClassFeatures.length} options!`, true);

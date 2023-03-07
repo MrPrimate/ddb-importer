@@ -1,4 +1,5 @@
 import { parseTable, getHeadings } from "../../vendor/parseTable.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import { updateCompendium } from "./import.js";
@@ -68,16 +69,15 @@ function guessTableName(parentName, htmlDocument, tableNum) {
 }
 
 
-function tableReplacer(htmlDocument, tableNum, compendiumTables) {
+function tableReplacer(htmlDocument, tableNum, compendiumTables, compendiumLabel) {
   // future enhancement - replace liks to DDB spells, monsters, items etc to munched compendium
   const element = htmlDocument.querySelectorAll('table');
   const tablePoint = element[tableNum];
 
   if (tablePoint) {
-    const rollCompendiumLabel = game.settings.get("ddb-importer", "entity-table-compendium");
     compendiumTables.slice().reverse().forEach((table) => {
       logger.debug(`Updating table reference for: ${table.name}`);
-      tablePoint.insertAdjacentHTML("afterend", `<div id="table-link">@Compendium[${rollCompendiumLabel}.${table.name}]{Open RollTable ${table.name}}</div>`);
+      tablePoint.insertAdjacentHTML("afterend", `<div id="table-link">@Compendium[${compendiumLabel}.${table.name}]{Open RollTable ${table.name}}</div>`);
     });
   }
 
@@ -198,55 +198,69 @@ function buildTable(parsedTable, keys, diceKeys, tableName, parentName) {
   return generatedTables;
 }
 
-export function generateTable(parentName, html, updateExisting, type = "") {
+export async function generateTable(parentName, html, updateExisting, type = "") {
+  let name = `${parentName}`;
   const document = utils.htmlToDoc(html);
   const tableNodes = document.querySelectorAll("table");
   let tablesMatched = [];
   let updatedDocument = utils.htmlToDoc(html);
-  if (type === "background" && !parentName.startsWith("Background:")) {
-    parentName = `Background: ${parentName}`;
+  if (type === "background" && !name.startsWith("Background:")) {
+    name = `Background: ${name}`;
   }
-  if (parentName.startsWith("Background:")) {
-    const parentNamesArray = parentName.split(":");
+  if (name.startsWith("Background:")) {
+    const namesArray = name.split(":");
     // if (parentNamesArray.length > 2) parentNamesArray.pop();
-    parentName = parentNamesArray.join(":");
+    name = namesArray.join(":");
   }
 
+  const tableCompendiumLabel = CompendiumHelper.getCompendiumLabel("tables");
   let tableNum = 0;
-  tableNodes.forEach((node) => {
+  let foundTables = [];
+  for (const node of tableNodes) {
   // for (let i = 0; i < tableNodes.length; i++) {
     // const node = tableNodes[i];
     const parsedTable = parseTable(node);
     const keys = getHeadings(node);
     const diceKeys = findDiceColumns(node);
-    let nameGuess = guessTableName(parentName, document, tableNum);
+    let nameGuess = guessTableName(name, document, tableNum);
     if (nameGuess.split(" ").length > 5 && diceKeys.length === 1 && keys.length === 2) {
       nameGuess = keys[1];
+    } else if (nameGuess.trim() === "") {
+      nameGuess = keys[1];
     }
-    const finalName = `${parentName}: ${nameGuess}`;
-    const tableGenerated = (finalName in CONFIG.DDBI.TABLES);
+    const finalName = `${name}: ${nameGuess}`;
+    // eslint-disable-next-line no-await-in-loop
+    const tableGenerated = await CompendiumHelper.queryCompendiumEntry(tableCompendiumLabel, finalName, true);
 
-    logger.debug(`Table detection triggered for ${parentName}!`);
-    logger.debug(`Table: "${finalName}"`);
-    logger.debug(`Dice Keys: ${diceKeys.join(", ")}`);
-    logger.debug(`Keys: ${keys.join(", ")}`);
+    logger.debug(`Table detection triggered for ${name} (parentName: ${parentName})!`, {
+      finalName,
+      diceKeys,
+      keys,
+      node,
+      html,
+      parsedTable,
+      foundTables,
+      nameGuess,
+      tableGenerated,
+    });
 
     const builtTables = tableGenerated
-      ? CONFIG.DDBI.TABLES[finalName]
-      : buildTable(parsedTable, keys, diceKeys, finalName, parentName);
+      ? [tableGenerated.toObject()]
+      : buildTable(parsedTable, keys, diceKeys, finalName, name);
 
     if (builtTables.length > 0) {
       // these updates are done async, and we continue. this is fine as we actually use the table name for linking
       if (!tableGenerated) {
-        CONFIG.DDBI.TABLES[finalName] = builtTables;
         logger.debug(`Generated table`, builtTables);
-        updateCompendium("tables", { tables: builtTables }, updateExisting);
+        // eslint-disable-next-line no-await-in-loop
+        await updateCompendium("tables", { tables: builtTables }, updateExisting);
       }
 
       let tableData = {
         nameGuess,
         finalName,
         parentName,
+        name,
         tableNum,
         length: parsedTable.length,
         keys: keys,
@@ -255,16 +269,15 @@ export function generateTable(parentName, html, updateExisting, type = "") {
         multiDiceKeys: diceKeys.length > 1,
         diceKeysNumber: diceKeys.length,
         totalKeys: keys.length,
-        builtTables: CONFIG.DDBI.TABLES[finalName],
+        builtTables,
       };
       tablesMatched.push(tableData);
-      updatedDocument = tableReplacer(updatedDocument, tableNum, tableData.builtTables);
+      updatedDocument = tableReplacer(updatedDocument, tableNum, builtTables, tableCompendiumLabel);
 
     }
     tableNum++;
   // }
-  });
+  }
 
   return updatedDocument.body.innerHTML;
-
 }

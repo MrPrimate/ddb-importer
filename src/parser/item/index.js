@@ -2,7 +2,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import DICTIONARY from "../../dictionary.js";
 import DDBCharacter from "../DDBCharacter.js";
 import logger from "../../logger.js";
-import FileHelper from "../../lib/FileHelper.js";
+// import FileHelper from "../../lib/FileHelper.js";
 
 // magicitems support
 import { parseMagicItem } from "./magicify.js";
@@ -375,19 +375,19 @@ function getItemFlags(ddbCharacter, ddbItem) {
   return flags;
 }
 
-async function getIcon(item, ddbItem) {
-  if (ddbItem.definition?.avatarUrl || ddbItem.definition?.largeAvatarUrl) {
-    const url = ddbItem.definition?.avatarUrl ?? ddbItem.definition?.largeAvatarUrl;
-    const downloadOptions = { type: "item", name: `custom-${item.name}`, download: true };
-    const img = await FileHelper.getImagePath(url, downloadOptions);
-    if (img) {
-      // eslint-disable-next-line require-atomic-updates
-      item.img = img;
-      setProperty(item, "flags.ddbimporter.keepIcon", false);
-    }
-  }
-  return item;
-}
+// async function getIcon(item, ddbItem) {
+//   if (ddbItem.definition?.avatarUrl || ddbItem.definition?.largeAvatarUrl) {
+//     const url = ddbItem.definition?.avatarUrl ?? ddbItem.definition?.largeAvatarUrl;
+//     const downloadOptions = { type: "item", name: `custom-${item.name}`, download: true };
+//     const img = await FileHelper.getImagePath(url, downloadOptions);
+//     if (img) {
+//       // eslint-disable-next-line require-atomic-updates
+//       item.img = img;
+//       setProperty(item, "flags.ddbimporter.keepIcon", false);
+//     }
+//   }
+//   return item;
+// }
 
 
 // TO DO: revisit to break up item parsing
@@ -424,7 +424,8 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
     const updateExisting = compendiumItem
       ? game.settings.get("ddb-importer", "munching-policy-update-existing")
       : false;
-    ddbItem.definition.description = generateTable(ddbItem.definition.name, ddbItem.definition.description, updateExisting);
+    // eslint-disable-next-line no-await-in-loop
+    ddbItem.definition.description = await generateTable(ddbItem.definition.name, ddbItem.definition.description, updateExisting);
 
     let item = Object.assign({}, parseItem(this.source.ddb, ddbItem, this.raw.character, flags));
 

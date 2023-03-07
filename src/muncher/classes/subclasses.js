@@ -88,7 +88,7 @@ async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
   const ignoreIds = klass.flags.ddbimporter.data.classFeatures.map((f) => f.id);
   result.system.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures, ignoreIds);
   result.system.description.value = parseTags(result.system.description.value);
-  result.system.advancement.push(...await generateFeatureAdvancements(subclass, compendiumSubClassFeatures, ignoreIds));
+  result.system.advancement.push(...(await generateFeatureAdvancements(subclass, compendiumSubClassFeatures, ignoreIds)));
   return result;
 }
 
@@ -106,26 +106,27 @@ export async function getSubClasses(data) {
   let classFeatures = [];
   let results = [];
 
-  data.forEach((subClass) => {
+  for (const subClass of data) {
     const classMatch = CONFIG.DDB.classConfigurations.find((k) => k.id === subClass.parentClassId);
     logger.debug(`${subClass.name} feature parsing started...`);
-    subClass.classFeatures
+    const filteredFeatures = subClass.classFeatures
       .filter((feature) =>
         !classFeatureIndex.some((i) => hasProperty(i, "flags.ddbimporter.classId")
         && hasProperty(i, "flags.ddbimporter.featureName")
         && feature.name === i.flags.ddbimporter.featureName
         && subClass.parentClassId === i.flags.ddbimporter.classId)
-      )
-      .forEach((feature) => {
-        const existingFeature = classFeatures.some((f) => f.name === feature.name);
-        logger.debug(`${feature.name} feature starting...`);
-        if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
-          const parsedFeature = getClassFeature(feature, subClass, subClass.name);
-          classFeatures.push(parsedFeature);
-          results.push({ class: classMatch.name, subClass: subClass.name, feature: feature.name });
-        }
-      });
-  });
+      );
+    for (const feature of filteredFeatures) {
+      const existingFeature = classFeatures.some((f) => f.name === feature.name);
+      logger.debug(`${feature.name} feature starting...`);
+      if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
+        // eslint-disable-next-line no-await-in-loop
+        const parsedFeature = await getClassFeature(feature, subClass, subClass.name);
+        classFeatures.push(parsedFeature);
+        results.push({ class: classMatch.name, subClass: subClass.name, feature: feature.name });
+      }
+    }
+  }
 
   const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
   DDBMuncher.munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);

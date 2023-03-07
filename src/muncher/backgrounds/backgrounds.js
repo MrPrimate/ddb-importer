@@ -32,7 +32,7 @@ const BACKGROUND_TEMPLATE = {
   "img": "icons/skills/trades/academics-book-study-purple.webp",
 };
 
-function buildBase(data) {
+async function buildBase(data) {
   let result = duplicate(BACKGROUND_TEMPLATE);
   const bgData = generateBackground(data);
   result.name = data.name;
@@ -45,14 +45,14 @@ function buildBase(data) {
 
   result.system.source = DDBHelper.parseSource(data);
   result.system.description.value = parseTags(result.system.description.value);
-  result.system.description.value = generateTable(result.name, result.system.description.value, true, "background");
+  result.system.description.value = await generateTable(result.name, result.system.description.value, true, "background");
 
   return result;
 }
 
 
-function buildBackground(background) {
-  let result = buildBase(background);
+async function buildBackground(background) {
+  let result = await buildBase(background);
 
   return result;
 }
@@ -66,11 +66,12 @@ export async function getBackgrounds(data) {
 
   // console.warn(data);
 
-  data.forEach((background) => {
+  for (const background of data) {
     logger.debug(`${background.name} background parsing started...`);
-    const parsedBackground = buildBackground(background);
+    // eslint-disable-next-line no-await-in-loop
+    const parsedBackground = await buildBackground(background);
     backgrounds.push(parsedBackground);
-  });
+  }
 
   // console.warn("backgrounds", backgrounds);
 

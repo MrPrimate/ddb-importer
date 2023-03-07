@@ -460,7 +460,7 @@ export default class DDBCompanion {
     ddbMonster.abilities = ddbMonster.npc.system.abilities;
     ddbMonster.proficiencyBonus = 0;
     const featureFactory = new DDBFeatureFactory({ ddbMonster, hideDescription: false, updateExisting: false });
-    featureFactory.generateActions(text, type);
+    await featureFactory.generateActions(text, type);
     logger.debug("Generating companion feature", { text, type, featureFactory });
     const toHitRegex = /(your spell attack modifier to hit)/i;
     if (toHitRegex.test(text)) {

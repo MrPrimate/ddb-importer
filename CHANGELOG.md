@@ -2,6 +2,7 @@
 
 * DDB Icon image selection was not always respected.
 * Some monsters would cause the use SRD images copy to fail.
+* Tables did not parse and link correctly during background, and some other parsing operations.
 
 # 3.3.15
 

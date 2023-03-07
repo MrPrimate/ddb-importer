@@ -757,7 +757,7 @@ export default async function parseActions(ddb, character) {
     }
   });
 
-  fixFeatures(actions);
+  await fixFeatures(actions);
   const results = await addExtraEffects(ddb, actions, character);
   return results;
 }

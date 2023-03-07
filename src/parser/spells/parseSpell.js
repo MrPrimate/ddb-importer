@@ -67,7 +67,8 @@ export async function parseSpell(data, character) {
   const updateExisting = data.flags.ddbimporter.generic
     ? game.settings.get("ddb-importer", "munching-policy-update-existing")
     : false;
-  data.definition.description = generateTable(spell.name, data.definition.description, updateExisting);
+  // eslint-disable-next-line require-atomic-updates
+  data.definition.description = await generateTable(spell.name, data.definition.description, updateExisting);
 
   spell.system.description = {
     value: parseTags(data.definition.description),

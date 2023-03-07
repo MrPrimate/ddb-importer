@@ -72,12 +72,12 @@ export const FEATURE_DUP = [
   "Tool Proficiency",
 ];
 
-function buildBase(data) {
+async function buildBase(data) {
   let result = duplicate(CLASS_TEMPLATE);
   const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
   result.name = data.name;
-  const tableDescription = generateTable(data.name, data.description, updateExisting);
+  const tableDescription = await generateTable(data.name, data.description, updateExisting);
   result.system.description.value += `${tableDescription}\n\n`;
 
   result.flags.ddbimporter = {
@@ -177,10 +177,10 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
   return description;
 }
 
-export function getClassFeature(feature, klass, subClassName = "") {
+export async function getClassFeature(feature, klass, subClassName = "") {
   logger.debug("Class feature build started");
 
-  let result = buildBase(feature);
+  let result = await buildBase(feature);
   result.flags.obsidian.source.text = klass.name;
 
   const duplicateFeature = FEATURE_DUP.includes(feature.name);
@@ -207,7 +207,7 @@ export function getClassFeature(feature, klass, subClassName = "") {
 }
 
 export async function buildBaseClass(klass) {
-  let result = buildBase(klass);
+  let result = await buildBase(klass);
   logger.debug(`Parsing ${klass.name}`);
   result.flags.obsidian.source.text = klass.name;
   result.type = "class";

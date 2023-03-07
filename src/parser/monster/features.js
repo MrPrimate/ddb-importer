@@ -7,17 +7,17 @@ import DDBMonster from "../DDBMonster.js";
 // feature parsing is handled in a separate class, the DDBFeatureFactory
 // that class breaks down the html into possible actions which it passes to the
 // DDBFeature class which tries to parse the feature for details
-DDBMonster.prototype._generateFeatures = function () {
+DDBMonster.prototype._generateFeatures = async function () {
 
-  this.featureFactory.generateActions(this.source.actionsDescription, "action");
+  await this.featureFactory.generateActions(this.source.actionsDescription, "action");
 
   if (this.source.hasLair && this.source.lairDescription != "") {
-    this.featureFactory.generateActions(this.source.lairDescription, "lair");
+    await this.featureFactory.generateActions(this.source.lairDescription, "lair");
     this.npc.system.resources["lair"] = this.featureFactory.resources["lair"];
   }
 
   if (this.source.legendaryActionsDescription != "") {
-    this.featureFactory.generateActions(this.source.legendaryActionsDescription, "legendary");
+    await this.featureFactory.generateActions(this.source.legendaryActionsDescription, "legendary");
     this.npc.system.resources["legact"] = this.featureFactory.resources["legendary"];
     if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar")) {
       this.npc.prototypeToken.bar2 = { attribute: "resources.legact" };
@@ -25,13 +25,13 @@ DDBMonster.prototype._generateFeatures = function () {
   }
 
   if (this.source.specialTraitsDescription != "") {
-    this.featureFactory.generateActions(this.source.specialTraitsDescription, "special");
+    await this.featureFactory.generateActions(this.source.specialTraitsDescription, "special");
     this.npc.system.resources["legres"] = this.featureFactory.resources["resistance"];
   }
 
-  this.featureFactory.generateActions(this.source.reactionsDescription, "reaction");
-  this.featureFactory.generateActions(this.source.bonusActionsDescription, "bonus");
-  this.featureFactory.generateActions(this.source.mythicActionsDescription, "mythic");
+  await this.featureFactory.generateActions(this.source.reactionsDescription, "reaction");
+  await this.featureFactory.generateActions(this.source.bonusActionsDescription, "bonus");
+  await this.featureFactory.generateActions(this.source.mythicActionsDescription, "mythic");
 
   this.items.push(
     ...this.featureFactory.actions,

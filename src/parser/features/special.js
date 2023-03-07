@@ -217,10 +217,11 @@ export function setLevelScales(classes, features) {
  * @param {*} ddb
  * @param {*} features
  */
-export function fixFeatures(features) {
+// eslint-disable-next-line complexity
+export async function fixFeatures(features) {
   const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-  // eslint-disable-next-line complexity
-  features.forEach((feature) => {
+
+  for (let feature of features) {
     const name = feature.flags.ddbimporter.originalName || feature.name;
     switch (name) {
       case "Action Surge": {
@@ -513,7 +514,8 @@ export function fixFeatures(features) {
       // no default
     }
 
-    const tableDescription = generateTable(feature.name, feature.system.description.value, true, feature.type);
+    // eslint-disable-next-line no-await-in-loop
+    const tableDescription = await generateTable(feature.name, feature.system.description.value, true, feature.type);
     feature.system.description.value = tableDescription;
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
     feature.system.description.chat = chatAdd ? tableDescription : "";
@@ -523,7 +525,7 @@ export function fixFeatures(features) {
     // if (useScale) {
     //   feature = setLevelScale(feature);
     // }
-  });
+  }
 }
 
 export async function addExtraEffects(ddb, documents, character) {

@@ -611,10 +611,10 @@ export default class DDBFeature {
     return description;
   }
 
-  #generateDescription() {
+  async #generateDescription() {
     let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
     description = description.replaceAll("<em><strong></strong></em>", "");
-    this.feature.system.description.value = generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
+    this.feature.system.description.value = await generateTable(this.ddbMonster.npc.name, description, this.updateExisting);
   }
 
 
@@ -793,7 +793,7 @@ export default class DDBFeature {
     this.actionInfo.uses = this.getUses();
   }
 
-  parse() {
+  async parse() {
     this.#generateActionInfo();
     switch (this.type) {
       case "action":
@@ -816,7 +816,7 @@ export default class DDBFeature {
         throw new Error(`Unknown action parsing type ${this.type}`);
     }
 
-    this.#generateDescription();
+    await this.#generateDescription();
 
     logger.debug(`Parsed Feature ${this.name} for ${this.ddbMonster.name}`, { feature: this });
 

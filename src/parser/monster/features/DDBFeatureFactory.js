@@ -503,7 +503,7 @@ export class DDBFeatureFactory {
   // this.ddbMonster.source.bonusActionsDescription
   // this.ddbMonster.source.mythicActionsDescription
 
-  generateActions(html, type = "action") {
+  async generateActions(html, type = "action") {
     if (!html || html.trim() == "") return;
 
     this.html[type] = DDBFeatureFactory.replaceRollable(utils.replaceHtmlSpaces(`${html}`))
@@ -533,21 +533,20 @@ export class DDBFeatureFactory {
     }
 
     // some features are duplicated and we parse these first
-    this.features[type].forEach((feature) => {
-      feature.parse();
-    });
+    for (const feature of this.features[type]) {
+      // eslint-disable-next-line no-await-in-loop
+      await feature.parse();
+    }
 
     // parse remaining feature blocks
-    this.featureBlocks[type]
-      .filter((feature) => !feature.options.actionCopy)
-      .forEach((feature) => {
-        feature.options["hideDescription"] = this.hideDescription;
-        feature.options["updateExisting"] = this.updateExisting;
-        const ddbFeature = new DDBFeature(feature.name, feature.options);
-        ddbFeature.parse();
-        this.features[type].push(ddbFeature);
-      });
-
+    for (const feature of this.featureBlocks[type].filter((feature) => !feature.options.actionCopy)) {
+      feature.options["hideDescription"] = this.hideDescription;
+      feature.options["updateExisting"] = this.updateExisting;
+      const ddbFeature = new DDBFeature(feature.name, feature.options);
+      // eslint-disable-next-line no-await-in-loop
+      await ddbFeature.parse();
+      this.features[type].push(ddbFeature);
+    }
   }
 
 }

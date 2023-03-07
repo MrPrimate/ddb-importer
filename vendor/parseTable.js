@@ -36,7 +36,9 @@ import { uniq } from "./lowdash/uniq.js";
 function mapRow(headings, highSplit = false) {
   return function mapRowToObject({ cells }) {
     const lowCells = [...cells];
-    const highCells = lowCells.length > headings.length ? lowCells.splice(lowCells.length / 2) : [];
+    const highCells = lowCells.length > headings.length
+      ? lowCells.splice(Math.ceil(lowCells.length / 2))
+      : [];
     const range = highSplit ? highCells : lowCells;
 
     return range.reduce((result, cell, i) => {
@@ -64,7 +66,7 @@ export function getHeadings(table, unique = true) {
   if (!table.tHead || table.tHead.rows.length === 0) return [];
   const headings = [...table.tHead.rows[0].cells].map((heading) => {
     return heading.textContent;
-  });
+  }); // .filter((h) => h.trim() !== "");
 
   if (unique) return uniq(headings);
   return headings;
@@ -98,8 +100,9 @@ export function parseTable(table) {
       : [];
   // DDB often puts d rolls alongside each other. we attempt to detect these
   const lowResults = rows.map(mapRow(headings));
-  const highResults =
-    allHeadings.length !== headings.length ? rows.map(mapRow(headings, true)) : [];
+  const highResults = allHeadings.length !== headings.length
+    ? rows.map(mapRow(headings, true))
+    : [];
 
   return lowResults.concat(highResults);
 }

@@ -370,6 +370,6 @@ DDBCharacter.prototype._generateFeatures = async function _generateFeatures() {
 
   logger.debug("Feature fixes");
   setLevelScales(classes, items);
-  fixFeatures(items);
+  await fixFeatures(items);
   this.raw.features = await addExtraEffects(ddb, items, character);
 };

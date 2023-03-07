@@ -11,7 +11,7 @@ async function buildClass(klass, compendiumClassFeatures) {
   let result = await buildBaseClass(klass);
   result.system.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
   result.system.description.value = parseTags(result.system.description.value);
-  result.system.advancement.push(getHPAdvancement(), ...await generateFeatureAdvancements(klass, compendiumClassFeatures));
+  result.system.advancement.push(getHPAdvancement(), ...(await generateFeatureAdvancements(klass, compendiumClassFeatures)));
   result.system.advancement = await addSRDAdvancements(result.system.advancement, result);
   return result;
 }
@@ -24,23 +24,22 @@ export async function getClasses(data) {
   let klasses = [];
   let classFeatures = [];
 
-  data.forEach((klass) => {
+  for (const klass of data) {
     logger.debug(`${klass.name} feature parsing started...`);
-    klass.classFeatures
-      .sort((a, b) => a.requiredLevel - b.requiredLevel)
-      .forEach((feature) => {
-        const existingFeature = classFeatures.some((f) =>
-          f.flags.ddbimporter.featureName === feature.name
-          && f.flags.ddbimporter.classId === klass.id
-        );
-        logger.debug(`${feature.name} feature starting...`);
-        if (!NO_TRAITS.includes(feature.name) && !existingFeature) {
-          const parsedFeature = getClassFeature(feature, klass);
-          classFeatures.push(parsedFeature);
-          results.push({ class: klass.name, subClass: "", feature: feature.name });
-        }
-      });
-  });
+    for (const feature of klass.classFeatures.sort((a, b) => a.requiredLevel - b.requiredLevel)) {
+      const existingFeature = classFeatures.some((f) =>
+        f.flags.ddbimporter.featureName === feature.name
+        && f.flags.ddbimporter.classId === klass.id
+      );
+      logger.debug(`${feature.name} feature starting...`);
+      if (!NO_TRAITS.includes(feature.name) && !existingFeature) {
+        // eslint-disable-next-line no-await-in-loop
+        const parsedFeature = await getClassFeature(feature, klass);
+        classFeatures.push(parsedFeature);
+        results.push({ class: klass.name, subClass: "", feature: feature.name });
+      }
+    }
+  }
 
   const fiddledClassFeatures = await srdFiddling(classFeatures, "features");
   DDBMuncher.munchNote(`Importing ${fiddledClassFeatures.length} features!`, true);
