@@ -404,16 +404,16 @@ export async function useSRDMonsterImages(monsters) {
           monster.img = nameMatch.img;
           setProperty(monster, "flags.monsterMunch.imgSet", true);
         }
-        if (moduleArt.token && !hasProperty(moduleArt, "token.texture.src")) {
+        if (moduleArt?.token && !hasProperty(moduleArt, "token.texture.src")) {
           monster.prototypeToken.texture.src = moduleArt.token;
-        } else if (moduleArt.token?.texture?.src
+        } else if (moduleArt?.token?.texture?.src
           && moduleArt.token.texture.src !== ""
           && !moduleArt.token.texture.src.includes("mystery-man")
         ) {
           monster.prototypeToken.texture.src = moduleArt.token.texture.src;
           setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
-          if (moduleArt.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
-          if (moduleArt.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
+          if (moduleArt.token.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
+          if (moduleArt.token.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
         } else if (nameMatch.prototypeToken?.texture?.src
           && nameMatch.prototypeToken.texture.src !== ""
           && !nameMatch.prototypeToken.texture.src.includes("mystery-man")

@@ -4,7 +4,7 @@ async function sustainedDamage({ options, damageType, damageDice, sourceItem, ca
 
   console.warn({ options, damageType, damageDice, sourceItem, caster });
   const targets = await Promise.all(options.targets.map(async (uuid) => {
-    const tok = await fromUuidSync(uuid);
+    const tok = await fromUuid(uuid);
     return tok.object;
   }));
   const casterToken = await fromUuid(options.sourceUuid);
