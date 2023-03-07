@@ -1,4 +1,4 @@
-# COMING NEXT!
+# 3.3.16
 
 * DDB Icon image selection was not always respected.
 * Some monsters would cause the use SRD images copy to fail.
