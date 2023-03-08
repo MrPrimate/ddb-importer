@@ -247,6 +247,11 @@ export function fixSpells(ddb, items) {
         }
         break;
       }
+      case "Spiritual Weapon":
+      case "Spirit Shroud": {
+        spell.system.scaling = { mode: "level", formula: "floor((@item.level - 1)/2)d8" };
+        break;
+      }
       case "Spike Growth": {
         spell.system.actionType = "other";
         break;
