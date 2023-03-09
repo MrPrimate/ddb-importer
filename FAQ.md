@@ -27,6 +27,14 @@ Open the Browser Developer Console (F12) and run the following:
 game.modules.get("ddb-importer").api.resetSecrets();
 ```
 
+## Whenever I use the "Fetch My Campaigns" button it hangs and nothing happens
+
+If you know what the campaign ID (it's a number, you can find it in the URL of your campaign on DDB) you can manually set it by opening the Browser Developer Console (F12) and run the following:
+
+```javascript
+game.settings.set("ddb-importer", "campaign-id", "ID_HERE")
+```
+
 
 ## I tried the custom proxy and want to reset to use yours
 
