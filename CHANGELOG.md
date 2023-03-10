@@ -1,3 +1,8 @@
+# COMING NEXT!
+
+* Viscous Mockery turn fix for effect expiry.
+* Correctly select token scale when importing SRD images for monsters.
+
 # 3.3.16
 
 * DDB Icon image selection was not always respected.

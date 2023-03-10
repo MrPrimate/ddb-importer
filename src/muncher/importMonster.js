@@ -397,6 +397,8 @@ export async function useSRDMonsterImages(monsters) {
         const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == "monsters").name;
         const moduleArt = game.dnd5e.moduleArt.map.get(`Compendium.${compendiumName}.${nameMatch._id}`);
         logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
+        monster.prototypeToken.texture.scaleY = nameMatch.prototypeToken.texture.scaleY;
+        monster.prototypeToken.texture.scaleX = nameMatch.prototypeToken.texture.scaleX;
         if (moduleArt?.actor && nameMatch.actor !== "" && !moduleArt.actor.includes("mystery-man")) {
           monster.img = moduleArt.actor;
           setProperty(monster, "flags.monsterMunch.imgSet", true);

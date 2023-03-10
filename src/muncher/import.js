@@ -396,7 +396,7 @@ export async function updateCompendium(type, input, updateExisting = false, matc
 async function getSRDIconMatch(type) {
   const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == type).name;
   const srdPack = CompendiumHelper.getCompendium(compendiumName);
-  const srdIndices = ["name", "img", "prototypeToken.texture.src", "type", "system.activation"];
+  const srdIndices = ["name", "img", "prototypeToken.texture.src", "type", "system.activation", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
   const index = await srdPack.getIndex({ fields: srdIndices });
   return index;
 }

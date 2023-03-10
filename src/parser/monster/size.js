@@ -37,6 +37,7 @@ DDBMonster.prototype._generateSize = function _generateSize () {
   this.npc.system.traits.size = sizeData.value;
   this.npc.prototypeToken.width = token.value;
   this.npc.prototypeToken.height = token.value;
-  this.npc.prototypeToken.scale = token.scale;
+  this.npc.prototypeToken.texture.scaleX = token.scale;
+  this.npc.prototypeToken.texture.scaleY = token.scale;
 
 };
