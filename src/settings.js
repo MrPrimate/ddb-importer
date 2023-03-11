@@ -763,6 +763,11 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "character-update-policy-use-chris-premades": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
         },
         SYNC: {
           "sync-policy-currency": {
@@ -1068,6 +1073,11 @@ const SETTINGS = {
           "munching-policy-dae-copy": {
             name: "ddb-importer.settings.munching-policy-dae-copy.name",
             hint: "ddb-importer.settings.munching-policy-dae-copy.hint",
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-use-chris-premades": {
             scope: "player",
             type: Boolean,
             default: false,
