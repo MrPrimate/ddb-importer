@@ -4,6 +4,7 @@ import {
   generateTokenMagicFXChange as baseGenerateTokenMagicFXChange,
   generateATLChange as baseGenerateATLChange,
   forceItemEffect,
+  effectModules,
 } from "./effects.js";
 import { configureDependencies } from "./macros.js";
 
@@ -125,36 +126,7 @@ import { zephyrStrikeEffect } from "./spells/zephyrStrike.js";
 
 
 export function spellEffectModules() {
-  if (CONFIG.DDBI.EFFECT_CONFIG.SPELLS.installedModules) {
-    return CONFIG.DDBI.EFFECT_CONFIG.SPELLS.installedModules;
-  }
-  const midiQolInstalled = game.modules.get("midi-qol")?.active;
-  const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active;
-  const itemMacroInstalled = game.modules.get("itemacro")?.active;
-  const timesUp = game.modules.get("times-up")?.active;
-  const daeInstalled = game.modules.get("dae")?.active;
-  const convenientEffectsInstalled = game.modules.get("dfreds-convenient-effects")?.active;
-
-  const activeAurasInstalled = game.modules.get("ActiveAuras")?.active;
-  const atlInstalled = game.modules.get("ATL")?.active;
-  const tokenAurasInstalled = game.modules.get("token-auras")?.active;
-  const tokenMagicInstalled = game.modules.get("tokenmagic")?.active;
-  const autoAnimationsInstalled = game.modules.get("autoanimations")?.active;
-  CONFIG.DDBI.EFFECT_CONFIG.SPELLS.installedModules = {
-    hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
-    midiQolInstalled,
-    itemMacroInstalled,
-    advancedMacrosInstalled,
-    timesUp,
-    daeInstalled,
-    convenientEffectsInstalled,
-    atlInstalled,
-    tokenAurasInstalled,
-    tokenMagicInstalled,
-    activeAurasInstalled,
-    autoAnimationsInstalled,
-  };
-  return CONFIG.DDBI.EFFECT_CONFIG.SPELLS.installedModules;
+  return effectModules();
 }
 
 export function baseSpellEffect(document, label) {

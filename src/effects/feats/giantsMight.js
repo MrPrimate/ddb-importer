@@ -1,10 +1,10 @@
-import { baseFeatEffect, featEffectModules } from "../specialFeats.js";
-import { generateATLChange } from "../effects.js";
+import { baseFeatEffect } from "../specialFeats.js";
+import { generateATLChange, effectModules } from "../effects.js";
 
 export function giantsMightEffect(document) {
   let effect = baseFeatEffect(document, document.name);
 
-  if (featEffectModules().atlInstalled) {
+  if (effectModules().atlInstalled) {
     effect.changes.push(generateATLChange("ATL.width", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5));
     effect.changes.push(generateATLChange("ATL.height", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5));
   }

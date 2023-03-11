@@ -1,5 +1,5 @@
-import { baseFeatEffect, featEffectModules } from "../specialFeats.js";
-import { generateATLChange } from "../effects.js";
+import { baseFeatEffect } from "../specialFeats.js";
+import { generateATLChange, effectModules } from "../effects.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
 
 export async function runeCarverEffect(document) {
@@ -61,7 +61,7 @@ export async function runeCarverEffect(document) {
           priority: 20,
         },
       );
-      if (featEffectModules().atlInstalled) {
+      if (effectModules().atlInstalled) {
         baseEffect.changes.push(generateATLChange("ATL.dimSight", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5));
       } else {
         const itemMacroText = await loadMacroFile("spell", "darkvision.js");

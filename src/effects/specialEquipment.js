@@ -4,8 +4,8 @@ import {
   generateAddChange,
   generateCustomChange,
   forceItemEffect,
+  effectModules,
 } from "./effects.js";
-import { featEffectModules } from "./specialFeats.js";
 // load item effects
 import { bootsOfSpeedEffect } from "./items/bootsOfSpeed.js";
 import { cloakOfDisplacementEffect } from "./items/cloakOfDisplacement.js";
@@ -15,7 +15,7 @@ import { pearlOfPowerEffect } from "./items/pearlOfPower.js";
 
 
 export async function midiItemEffects(document) {
-  if (!featEffectModules().hasCore) return document;
+  if (!effectModules().hasCore) return document;
   const name = document.flags.ddbimporter.originalName || document.name;
   switch (name) {
     case "Cloak of Displacement": {
