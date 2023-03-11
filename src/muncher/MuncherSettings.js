@@ -115,6 +115,7 @@ const MuncherSettings = {
     ];
 
     const effectModulesAvailable = effectModules();
+    const chrisInstalled = effectModulesAvailable.chrisInstalled;
     const generateSpellEffects = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects");
     if (generateSpellEffects && !effectModulesAvailable.hasCore) {
       game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", false);
@@ -269,6 +270,12 @@ const MuncherSettings = {
         title: "Generate Effects ACs for Character Features & Racial Traits",
         description: "Add AC values as effects to features, this might not work as expected for some AC calculations. If unticked some ac bonuses will still be generated.",
         enabled: daeInstalled,
+      },
+      {
+        name: "use-chris-premades",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"),
+        description: "Use effects from Chris's Premades module? (Requires Chris's Premades module). These will replace any effects created by DDB Importer.",
+        enabled: chrisInstalled,
       },
       {
         name: "active-effect-copy",
