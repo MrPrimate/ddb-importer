@@ -121,8 +121,10 @@ const MuncherSettings = {
       game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-spell-effects", false);
     }
     const daeInstalled = effectModulesAvailable.daeInstalled;
-    const featureEffectText = `Generate effects for a character. Some effects are always generated, some are optional (see below). These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}. For best results Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} are strongly recommended.`;
+    const basicEffectsText = `These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}. For best results Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} are strongly recommended.`;
+    const featureEffectText = `Generate effects for a character. Some effects are always generated, some are optional (see below). ${basicEffectsText}`;
     const spellEffectText = `Generate effects for spells. These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}`;
+    const itemEffectText = `Generate effects for a characters equipment, doesn't include AC effects on armor, but will for things like the Ring of Protection. ${basicEffectsText}`;
 
     // const importExtras = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-extras");
 
@@ -200,22 +202,6 @@ const MuncherSettings = {
 
     const advancedImportConfig = [
       {
-        name: "use-scalevalue",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-scalevalue"),
-        title: "Generate Scale Value links in damage fields",
-        description:
-          "If not enabled will use fixed value for the current level.",
-        enabled: true,
-      },
-      {
-        name: "use-scalevalue-description",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-scalevalue-description"),
-        title: "Generate Scale Value links in descriptions",
-        description:
-          "If not enabled will use fixed value for the current level.",
-        enabled: true,
-      },
-      {
         name: "use-override",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-override"),
         title: "Replace Items using those in your Override compendium",
@@ -246,7 +232,7 @@ const MuncherSettings = {
         name: "add-item-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-item-effects") && daeInstalled,
         title: "Generate Effects for Equipment",
-        description: "Generate effects for a characters equipment, doesn't include AC effects on armor, but will for things like the Ring of Protection.",
+        description: itemEffectText,
         enabled: daeInstalled,
       },
       {
@@ -274,7 +260,8 @@ const MuncherSettings = {
       {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"),
-        description: "Use effects from Chris's Premades module? (Requires Chris's Premades module). These will replace any effects created by DDB Importer.",
+        title: "Use effects from Chris's Premades module?",
+        description: `Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chris-premade")} module. These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       {
@@ -289,12 +276,6 @@ const MuncherSettings = {
 
     const effectSelectionConfig = {
       class: [
-        {
-          name: "effect-class-spell-bonus",
-          title: "Spell Bonuses",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-class-spell-bonus"),
-          enabled: true,
-        },
         {
           name: "effect-class-speed",
           title: "Movement",
@@ -322,12 +303,6 @@ const MuncherSettings = {
       ],
       race: [
         {
-          name: "effect-race-spell-bonus",
-          title: "Spell Bonuses",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-race-spell-bonus"),
-          enabled: true,
-        },
-        {
           name: "effect-race-speed",
           title: "Movement",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-race-speed"),
@@ -354,12 +329,6 @@ const MuncherSettings = {
       ],
       background: [
         {
-          name: "effect-background-spell-bonus",
-          title: "Spell Bonuses",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-background-spell-bonus"),
-          enabled: true,
-        },
-        {
           name: "effect-background-speed",
           title: "Movement",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-background-speed"),
@@ -385,12 +354,6 @@ const MuncherSettings = {
         },
       ],
       feat: [
-        {
-          name: "effect-feat-spell-bonus",
-          title: "Spell Bonuses",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-effect-feat-spell-bonus"),
-          enabled: true,
-        },
         {
           name: "effect-feat-speed",
           title: "Movement",
@@ -630,7 +593,7 @@ const MuncherSettings = {
     const compendiumFolderMonsterStyles = MuncherSettings.getCompendiumFolderLookups("monster");
     const compendiumFolderSpellStyles = MuncherSettings.getCompendiumFolderLookups("spell");
     const compendiumFolderItemStyles = MuncherSettings.getCompendiumFolderLookups("item");
-    const spellEffectText = `Create active effects. These require DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}. Copying from MidiSRD will override these spells.`;
+    const spellEffectText = `Create active effects. These require the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")}, Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.`;
 
     const generateSpellEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects");
     if (generateSpellEffects && !effectModulesAvailable.hasCore) {
@@ -780,8 +743,8 @@ const MuncherSettings = {
       {
         name: "add-monster-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-monster-effects"),
-        description: "[Experimental] Attempt to generate Midi-QOL effects on monster attacks/features?",
-        enabled: effectModulesAvailable.hasCore,
+        description: `Generate Midi-QOL effects on monster attacks/features? Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")}`,
+        enabled: effectModulesAvailable.hasMonster,
       },
       // {
       //   name: "monster-bulk-import",
@@ -850,7 +813,7 @@ const MuncherSettings = {
       {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades"),
-        description: "Use effects from Chris's Premades module? (Requires Chris's Premades module). These will replace any effects created by DDB Importer.",
+        description: `Use effects from Chris's Premades module? (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chris-premade")} module). These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       {

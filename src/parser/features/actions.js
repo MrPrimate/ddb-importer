@@ -153,11 +153,10 @@ function getDamage(ddb, action, feat) {
   const fixedBonus = die?.fixedValue ? ` + ${die.fixedValue}` : "";
   const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
 
-  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
   const scaleValueLink = DDBHelper.getScaleValueString(ddb, action).value;
   const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
 
-  const useScaleValueLink = useScale && !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
+  const useScaleValueLink = !excludedScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}";
 
   if (die || useScaleValueLink) {
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
@@ -202,11 +201,9 @@ const LEVEL_SCALE_INFUSIONS = [
  * @param {*} action
  * @param {*} feat
  */
-function getLevelScaleDice(ddb, character, action, feat) {
-  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-  const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
-
+function getLevelScaleDice(ddb, character, action, feat, useScale = true) {
   if (useScale) return feat;
+  const excludedScale = LEVEL_SCALE_EXCLUSION.includes(feat.name);
   const parts = ddb.character.classes
     .filter((cls) => cls.classFeatures.some((feature) =>
       feature.definition.id == action.componentId
@@ -266,8 +263,6 @@ function martialArtsDamage(ddb, action) {
 
   // are we dealing with martial arts?
   if (isMartialArtists(ddb.character.classes)) {
-    const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-
     const dies = ddb.character.classes
       .filter((cls) => isMartialArtists([cls]))
       .map((cls) => {
@@ -277,7 +272,7 @@ function martialArtsDamage(ddb, action) {
         if (levelScaleDie?.diceString) {
 
           const scaleValueLink = DDBHelper.getScaleValueLink(ddb, feature);
-          const scaleString = useScale && scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
+          const scaleString = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
             ? scaleValueLink
             : levelScaleDie.diceString;
 
@@ -295,7 +290,7 @@ function martialArtsDamage(ddb, action) {
       });
     const die = dies.length > 0 ? dies[0] : "";
     const damageTag = (globalDamageHints && damageType) ? `[${damageType}]` : "";
-    const damageString = useScale && die.includes("@")
+    const damageString = die.includes("@")
       ? `${die}${damageTag}${damageBonus} + @mod`
       : utils.parseDiceString(die, `${damageBonus} + @mod`, damageTag).diceString;
 

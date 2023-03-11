@@ -478,11 +478,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-effect-race-spell-bonus": {
-            scope: "player",
-            type: Boolean,
-            default: true,
-          },
           "character-update-policy-effect-class-damages": {
             scope: "player",
             type: Boolean,
@@ -502,11 +497,6 @@ const SETTINGS = {
             scope: "player",
             type: Boolean,
             default: false,
-          },
-          "character-update-policy-effect-class-spell-bonus": {
-            scope: "player",
-            type: Boolean,
-            default: true,
           },
           "character-update-policy-effect-feat-proficiencies": {
             scope: "player",
@@ -537,11 +527,6 @@ const SETTINGS = {
             scope: "player",
             type: Boolean,
             default: false,
-          },
-          "character-update-policy-effect-feat-spell-bonus": {
-            scope: "player",
-            type: Boolean,
-            default: true,
           },
           "character-update-policy-effect-feat-ability-bonus": {
             scope: "player",
@@ -578,22 +563,7 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-effect-background-spell-bonus": {
-            scope: "player",
-            type: Boolean,
-            default: true,
-          },
           "character-update-policy-effect-background-ability-bonus": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
-          "character-update-policy-use-scalevalue": {
-            scope: "player",
-            type: Boolean,
-            default: true,
-          },
-          "character-update-policy-use-scalevalue-description": {
             scope: "player",
             type: Boolean,
             default: false,

@@ -260,8 +260,8 @@ export async function featureEffectAdjustment(ddb, character, document) {
   if (!deps.hasCore) {
     return forceItemEffect(document);
   }
-  if (!CONFIG.DDBI.EFFECT_CONFIG.FEATS.configured) {
-    CONFIG.DDBI.EFFECT_CONFIG.FEATS.configured = configureDependencies();
+  if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
+    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = configureDependencies();
   }
 
 

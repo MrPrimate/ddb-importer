@@ -182,10 +182,7 @@ const DDBHelper = {
       logger.debug("no scale value for ", feature);
       return { name: undefined, value: undefined };
     }
-    const scaleValue = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue")
-      ? DDBHelper.getScaleValueLink(ddb, feat)
-      : DDBHelper.getExactScalingValue(feat);
-
+    const scaleValue = DDBHelper.getScaleValueLink(ddb, feat);
     if (scaleValue) {
       return {
         name: feat.definition?.name ? feat.definition?.name : feat.name,

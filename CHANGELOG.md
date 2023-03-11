@@ -2,6 +2,8 @@
 
 * Viscous Mockery turn fix for effect expiry.
 * Correctly select token scale when importing SRD images for monsters.
+* Removal of scalevalue choices for damage and text as these can be evaluated within description text in 5e v2.1.x.
+* Now requires D&D 5e system 2.1.x or higher.
 
 # 3.3.16
 

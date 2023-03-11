@@ -190,25 +190,22 @@ export function getDescription(ddb, character, feat, forceFull = false) {
 }
 
 export function setLevelScales(classes, features) {
-  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-  if (useScale) {
-    features.forEach((feature) => {
-      const featureName = utils.referenceNameString(feature.name.toLowerCase());
-      const scaleKlass = classes.find((klass) =>
-        klass.system.advancement
-          .some((advancement) => advancement.type === "ScaleValue"
-            && advancement.configuration.identifier === featureName
-          ));
+  features.forEach((feature) => {
+    const featureName = utils.referenceNameString(feature.name.toLowerCase());
+    const scaleKlass = classes.find((klass) =>
+      klass.system.advancement
+        .some((advancement) => advancement.type === "ScaleValue"
+          && advancement.configuration.identifier === featureName
+        ));
 
-      if (scaleKlass) {
-        if (hasProperty(feature, "system.damage.parts") && feature.system.damage.parts.length > 0) {
-          feature.system.damage.parts[0][0] = `@scale.${scaleKlass.system.identifier}.${featureName}`;
-        } else {
-          setProperty(feature, "system.damage.parts", [[`@scale.${scaleKlass.system.identifier}.${featureName}`]]);
-        }
+    if (scaleKlass) {
+      if (hasProperty(feature, "system.damage.parts") && feature.system.damage.parts.length > 0) {
+        feature.system.damage.parts[0][0] = `@scale.${scaleKlass.system.identifier}.${featureName}`;
+      } else {
+        setProperty(feature, "system.damage.parts", [[`@scale.${scaleKlass.system.identifier}.${featureName}`]]);
       }
-    });
-  }
+    }
+  });
 }
 
 /**
@@ -219,8 +216,6 @@ export function setLevelScales(classes, features) {
  */
 // eslint-disable-next-line complexity
 export async function fixFeatures(features) {
-  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-
   for (let feature of features) {
     const name = feature.flags.ddbimporter.originalName || feature.name;
     switch (name) {
@@ -405,10 +400,8 @@ export async function fixFeatures(features) {
         feature.system.actionType = "heal";
         feature.system.target.type = "self";
         feature.system.range.units = "self";
-        if (useScale) {
-          feature.system.damage.parts[0][0] += " + @prof[healing]";
-          feature.system.damage.parts[0][1] = "healing";
-        }
+        feature.system.damage.parts[0][0] += " + @prof[healing]";
+        feature.system.damage.parts[0][1] = "healing";
         break;
       }
       case "Celestial Revelation (Radiant Soul)":
@@ -465,7 +458,6 @@ export async function fixFeatures(features) {
         break;
       }
       case "Sneak Attack": {
-        if (!useScale) feature.system.damage = { parts: [["(ceil(@classes.rogue.levels /2))d6", ""]], versatile: "", value: "" };
         if (!feature.flags.ddbimporter.action) {
           feature.system.actionType = "other";
           feature.system.activation = { type: "special", cost: 0, condition: "" };
@@ -520,11 +512,6 @@ export async function fixFeatures(features) {
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
     feature.system.description.chat = chatAdd ? tableDescription : "";
     feature = setConsumeAmount(feature);
-
-
-    // if (useScale) {
-    //   feature = setLevelScale(feature);
-    // }
   }
 }
 

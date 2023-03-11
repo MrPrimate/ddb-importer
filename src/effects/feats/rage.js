@@ -3,16 +3,10 @@ import { baseFeatEffect } from "../specialFeats.js";
 export function rageEffect(document) {
   let effect = baseFeatEffect(document, `${document.name}`);
 
-  const useScale = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue");
-  const extraDamage = useScale
-    ? "@scale.barbarian.rage"
-    : document.flags?.ddbimporter?.dndbeyond?.levelScale?.fixedValue
-      ? document.flags.ddbimporter.dndbeyond.levelScale.fixedValue
-      : 2;
   effect.changes.push(
     {
       key: "system.bonuses.mwak.damage",
-      value: `${extraDamage}`,
+      value: "@scale.barbarian.rage",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 0,
     },

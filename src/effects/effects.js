@@ -70,9 +70,8 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "bonus", subType: "melee-weapon-attacks" },
   { type: "bonus", subType: "ranged-weapon-attacks" },
   { type: "damage", subType: null },
-];
 
-const EFFECT_EXCLUDED_SPELL_MODIFIERS = [
+  // spell modifiers
   { type: "bonus", subType: "spell-save-dc" },
   { type: "bonus", subType: "spell-attacks" },
   { type: "bonus", subType: "warlock-spell-save-dc" },
@@ -168,7 +167,6 @@ export function getEffectExcludedModifiers(type, features, ac) {
     const speedEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-speed`);
     const senseEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-senses`);
     const hpEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-hp`);
-    const spellBonusEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-spell-bonus`);
     const damageEffect = game.settings.get("ddb-importer", `character-update-policy-effect-${type}-damages`);
 
     // features represent core non ac features
@@ -178,7 +176,6 @@ export function getEffectExcludedModifiers(type, features, ac) {
         if (speedEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_GENERAL_SPEED_MODIFIERS);
         if (senseEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_SENSE_MODIFIERS);
         if (hpEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_HP_MODIFIERS);
-        if (spellBonusEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_SPELL_MODIFIERS);
         if (damageEffect) modifiers = modifiers.concat(EFFECT_EXCLUDED_DAMAGE_CONDITION_MODIFIERS);
       }
       if (["class"].includes(type)) {
@@ -205,7 +202,6 @@ export function getEffectExcludedModifiers(type, features, ac) {
       EFFECT_EXCLUDED_ALL_SPEED_MODIFIERS,
       EFFECT_EXCLUDED_SENSE_MODIFIERS,
       EFFECT_EXCLUDED_HP_MODIFIERS,
-      EFFECT_EXCLUDED_SPELL_MODIFIERS,
       AC_EFFECTS,
       AC_BONUS_MODIFIERS,
     );
@@ -230,8 +226,9 @@ export function effectModules() {
   const tokenMagicInstalled = game.modules.get("tokenmagic")?.active;
   const autoAnimationsInstalled = game.modules.get("autoanimations")?.active;
   const chrisInstalled = game.modules.get("chris-premades")?.active;
-  CONFIG.DDBI.EFFECT_CONFIG.SPELLS.installedModules = {
+  CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
     hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
+    hasMonster: midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
     midiQolInstalled,
     itemMacroInstalled,
     advancedMacrosInstalled,

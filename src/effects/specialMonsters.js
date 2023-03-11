@@ -64,8 +64,8 @@ export async function monsterFeatureEffectAdjustment(document, monster) {
   if (!deps.hasCore) {
     return document;
   }
-  if (!CONFIG.DDBI.EFFECT_CONFIG.MONSTERS.configured) {
-    CONFIG.DDBI.EFFECT_CONFIG.MONSTERS.configured = configureDependencies();
+  if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
+    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = configureDependencies();
   }
 
   // const name = document.flags.ddbimporter.originalName || document.name;

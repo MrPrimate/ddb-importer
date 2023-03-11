@@ -467,15 +467,10 @@ export default function parseTemplateString(ddb, character, text, feature) {
     definitions: [],
   };
 
-  const useScaleAll = foundry.utils.isNewerVersion(game.system.version, "2.0.3");
-  const useScaleText = game.settings.get("ddb-importer", "character-update-policy-use-scalevalue-description") && !useScaleAll
-    ? "{Scaled Roll}"
-    : "";
   const fullMatchRegex = /(?:^|[ "'(+>])(\d*d\d\d*\s)?({{.*?}})(?:$|[., "')+<])/g;
   const fullMatches = [...new Set(Array.from(result.text.matchAll(fullMatchRegex), (m) => `${m[1] !== undefined ? m[1] : ""}${m[2]}`))];
   fullMatches.forEach((match) => {
-    const scaledText = match.includes("scalevalue") ? useScaleText : "";
-    result.text = result.text.replace(match, `[[/roll ${match}]]${scaledText}`);
+    result.text = result.text.replace(match, `[[/roll ${match}]]`);
   });
 
   const regexp = /{{(.*?)}}/g;
@@ -535,9 +530,8 @@ export default function parseTemplateString(ddb, character, text, feature) {
         for (let start = evalString.startsWith("("), end = evalString.endsWith(")"); start && end; start = evalString.startsWith("("), end = evalString.endsWith(")")) {
           evalString = evalString.replace(/^\(/, "").replace(/\)$/, "");
         }
-        const evalMatch = useScaleAll ? evalString : evaluateMath(evalString);
         if (splitMatchAt.length > 1) {
-          let evalConstraint = evalMatch;
+          let evalConstraint = `${evalString}`;
           for (let i = 1; i < splitMatchAt.length; i++) {
             evalConstraint = Number.isInteger(Number.parseInt(evalConstraint))
               ? applyConstraint(evalConstraint, splitMatchAt[i])
@@ -545,16 +539,16 @@ export default function parseTemplateString(ddb, character, text, feature) {
           }
           entry.parsed = getNumber(evalConstraint, signed);
         } else {
-          entry.parsed = getNumber(evalMatch, signed);
+          entry.parsed = getNumber(`${evalString}`, signed);
         }
         entry.parsed = entry.parsed.replace("+ +", "+");
         const isRoll = result.text.includes("[[/roll");
         // there are some edge cases here where some template string matches do not get the correct [[]] boxes because
         // they are not all [[/roll ]] boxes
         // I need to move the [[]] box addition to outside this process loop
-        if (useScaleAll && !isRoll && (/^\+\s/).test(entry.parsed.trim())) {
+        if (!isRoll && (/^\+\s/).test(entry.parsed.trim())) {
           entry.parsed = `${entry.parsed.trim().replace(/^\+\s/, "+ [[")}]]`;
-        } else if (useScaleAll && !isRoll && [undefined, "unsigned"].includes(signed)) {
+        } else if (!isRoll && [undefined, "unsigned"].includes(signed)) {
           entry.parsed = `[[${entry.parsed.trim()}]]`;
         }
         result.text = result.text.replace(entry.replacePattern, entry.parsed);
