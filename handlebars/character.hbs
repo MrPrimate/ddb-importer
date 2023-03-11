@@ -133,9 +133,13 @@
     </div>
     {{/each}}
     <hr>
-    <h2>Active Effects to include for Characters</h2>
-    <p>Some common effects are always generated. You can enable/disable other effects below. These are used if character effect generation selected above.</p>
-    <p>Please consider if you need effects on the character, each effect adds an overhead. Sense effects are not added to tokens without additional modules. You probably don't need an effect if the ability is always applied.</p>
+    <details>
+      <summary>
+        <h2>Outlier Effects to include for Characters</h2>
+      </summary>
+    <p>Most effects are always generated. You probably don't need an effect if the ability is always applied.</p>
+    <p>The types listed below are typically not needed below, or cause conflicts with due to how tokens and characters have unlinked sense detection.</p>
+    <p>Each effect adds a performance overhead. Sense effects are not added to tokens without additional modules. </p>
     <hr>
     <p><b>Class Features</b></p>
     <div class="effect-policy-group-class">
@@ -172,6 +176,7 @@
       </label>
       {{/each}}
     </div>
+    </details>
   </section>
 
 <!-- Extras section -->
@@ -257,19 +262,18 @@
     <p>If you need help getting setup checkout the following YouTube videos:</p>
     <ul>
       <li>MrPrimate's <a href="https://youtu.be/OMaJHLQORWo">Overview</a></li>
-      <li>Encounter Library's <a href="https://www.youtube.com/watch?v=9PjPkugkF1o">Overview (Install, Setup, How to Use)</a> is recommended!</li>
       </ul>
     <h3>FAQ</h3>
     <ul>
-      <li>If Spells and Items are not syncing please try munching them again.</li>
-      <li>If AC is not calculating properly and you are using DAE you may need to turn off Auto Calculate AC in the settings.</li>
-      <li>The module will try and retain settings for common modules such as MESS, midi-qol etc.</li>
+      <li>Please see the <a href="https://github.com/MrPrimate/ddb-importer/blob/main/FAQ.md">FAQ page.</a></li>
     </ul>
     <h3>Troubleshooting</h3>
     <ul>
       <li>Make sure you're using the latest version.</li>
-      <li>Check that your character is complete of D&D Beyond.</li>
+      <li>Check that your character is complete on D&D Beyond.</li>
       <li>Try unticking any option marked Experimental.</li>
+      <li>Check your modules are upto date.</li>
+      <li>Use <a href="https://foundryvtt.com/packages/find-the-culprit/">Find the Culprit</a> to see if the problem occurs with other modules disabled.</li>
       <li>Ask a question/submit a bug on <a href="https://discord.gg/WzPuRuDJVP">Discord</a>.</li>
       <li>Or submit a bug on <a href="https://github.com/MrPrimate/ddb-importer">GitHub</a>.</li>
     </ul>

@@ -261,7 +261,7 @@ const MuncherSettings = {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"),
         title: "Use effects from Chris's Premades module?",
-        description: `Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chris-premade")} module. These will replace any effects created by DDB Importer.`,
+        description: `Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module. These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       {
@@ -813,7 +813,7 @@ const MuncherSettings = {
       {
         name: "use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades"),
-        description: `Use effects from Chris's Premades module? (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chris-premade")} module). These will replace any effects created by DDB Importer.`,
+        description: `Use effects from Chris's Premades module? (Requires Chris's Premades ${MuncherSettings.getInstalledIcon("chrisInstalled")} module). These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       {

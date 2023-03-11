@@ -79,7 +79,7 @@
                 {{#each itemConfig}}
                 <div class="munching-item-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
                         name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
-                        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
                 </div>
                 {{/each}}
                 {{#if sourcesSelected}}
@@ -116,7 +116,7 @@
                 {{#each monsterConfig}}
                 <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
                         name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
-                        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+                        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
                 </div>
                 {{/each}}
                 <hr>
