@@ -16,7 +16,7 @@ export async function maneuversEffect(ddb, character, document) {
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
   const ability = characterAbilities.str?.value > characterAbilities.dex?.value ? "str" : "dex";
 
-  const name = document.flags.ddbimporter.originalName || document.name;
+  const name = document.flags.ddbimporter?.originalName ?? document.name;
   let effect = baseFeatEffect(document, document.name);
   setProperty(document, "system.range.units", "");
   setProperty(document, "system.range.value", null);

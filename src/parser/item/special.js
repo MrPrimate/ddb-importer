@@ -20,7 +20,7 @@ function prepItem(item) {
 export function fixItems(items) {
   items.forEach((item) => {
     prepItem(item);
-    const name = item.flags.ddbimporter.originalName || item.name;
+    const name = item.flags.ddbimporter?.originalName ?? item.name;
     switch (name) {
       case "Potion of Healing":
         item.system.damage = { parts: [["2d4 + 2", "healing"]], versatile: "", value: "" };

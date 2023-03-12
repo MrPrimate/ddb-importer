@@ -179,7 +179,7 @@ export async function addRestrictionFlags(document) {
   if (!game.modules.get("midi-qol")?.active) return document;
   const restrictions = getProperty(document, "flags.ddbimporter.dndbeyond.restrictions");
   if (!restrictions || restrictions.length == 0) return document;
-  const name = document.flags.ddbimporter.originalName || document.name;
+  const name = document.flags.ddbimporter?.originalName ?? document.name;
 
   const nameMatch = RESTRICTION_MAPPINGS.find((r) => {
     return r.name && name.toLowerCase()[0].includes(r.name.toLowerCase());

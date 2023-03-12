@@ -67,7 +67,8 @@
     "AutomatedAnimations": true,
     "Ray": true,
     "fromUuidSync": true,
-    "Token": true
+    "Token": true,
+    "chrisPremades": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,

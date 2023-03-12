@@ -16,7 +16,7 @@ import { pearlOfPowerEffect } from "./items/pearlOfPower.js";
 
 export async function midiItemEffects(document) {
   if (!effectModules().hasCore) return document;
-  const name = document.flags.ddbimporter.originalName || document.name;
+  const name = document.flags.ddbimporter?.originalName || document.name;
   switch (name) {
     case "Cloak of Displacement": {
       document = await cloakOfDisplacementEffect(document);
@@ -42,7 +42,7 @@ export async function midiItemEffects(document) {
  * @param {*} document
  */
 export function equipmentEffectAdjustment(document) {
-  const name = document.flags.ddbimporter.originalName || document.name;
+  const name = document.flags.ddbimporter?.originalName ?? document.name;
   switch (name) {
     case "Armor of Invulnerability": {
       // this effect is 1/day, we have to add it

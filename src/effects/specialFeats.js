@@ -85,7 +85,7 @@ export function baseFeatEffect(document, label) {
 export async function featureEffectAdjustment(ddb, character, document) {
   if (!document.effects) document.effects = [];
 
-  const name = document.flags.ddbimporter.originalName || document.name;
+  const name = document.flags.ddbimporter?.originalName ?? document.name;
 
   // check that we can gen effects
   const deps = effectModules();
@@ -220,7 +220,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
         break;
       }
       case "Shift": {
-        document = shiftEffect(ddb, character, document);
+        if (ddb && character) document = shiftEffect(ddb, character, document);
         break;
       }
       case "Squire of Solamnia: Precise Strike": {
@@ -265,7 +265,7 @@ export async function featureEffectAdjustment(ddb, character, document) {
   }
 
 
-  if (name.startsWith("Maneuvers: ")) {
+  if (name.startsWith("Maneuvers: ") && ddb && character) {
     document = await maneuversEffect(ddb, character, document);
   }
   if (name.startsWith("Rune Carver: ")) {

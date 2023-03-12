@@ -31,7 +31,9 @@ import {
   checkTargetInRange,
   configureCustomAAForCondition,
   addSaveAdvantageToTarget,
-  findContainedTokensInTemplate
+  findContainedTokensInTemplate,
+  addDDBIEffectToDocument,
+  addDDBIEffectsToActorDocuments,
 } from "../../effects/helpers.js";
 import SETTINGS from "../../settings.js";
 
@@ -119,6 +121,8 @@ export function registerApi() {
       configureCustomAAForCondition,
       findContainedTokensInTemplate,
       checkTargetInRange,
+      addDDBIEffectToDocument,
+      addDDBIEffectsToActorDocuments,
     },
     debug: {
       start: debugStart,

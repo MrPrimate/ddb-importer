@@ -7,6 +7,19 @@
 * Trim custom item descriptions to 2056 characters to prevent error at DDB when updating.
 * Strip compendium links out of custom item descriptions when syncing back to DDB, as DDB won't accept them.
 * Fox for Ensnaring Strike Effect following CE changes.
+* You can now add (most) effects from DDB Importer to actor items or items using the following api call. GUI integration will follow.
+
+Actor:
+```javascript
+actor = game.actors.getName("Zinroe");
+game.modules.get("ddb-importer")?.api.effects.addDDBIEffectsToActorDocuments(actor);
+```
+
+Item:
+```javascript
+item = game.items.getName("Cloak of Displacement");
+game.modules.get("ddb-importer")?.api.effects.addDDBIEffectToDocument(item);
+```
 
 # 3.3.16
 

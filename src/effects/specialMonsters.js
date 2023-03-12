@@ -68,7 +68,7 @@ export async function monsterFeatureEffectAdjustment(document, monster) {
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = configureDependencies();
   }
 
-  // const name = document.flags.ddbimporter.originalName || document.name;
+  // const name = document.flags.ddbimporter?.originalName ?? document.name;
 
   // absorbtion on monster
   document = absorptionEffect(document);

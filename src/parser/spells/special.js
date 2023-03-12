@@ -74,7 +74,7 @@ export function fixSpells(ddb, items) {
   const rangeMultiplier = ddb ? getRangeAdjustmentMultiplier(ddb) : 1;
 
   items.forEach((spell) => {
-    const name = spell.flags.ddbimporter.originalName || spell.name;
+    const name = spell.flags.ddbimporter?.originalName ?? spell.name;
     logger.debug(`Checking spell ${name} for corrections...`);
     switch (name) {
       case "Melf's Acid Arrow":

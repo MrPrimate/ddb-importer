@@ -217,7 +217,7 @@ export function setLevelScales(classes, features) {
 // eslint-disable-next-line complexity
 export async function fixFeatures(features) {
   for (let feature of features) {
-    const name = feature.flags.ddbimporter.originalName || feature.name;
+    const name = feature.flags.ddbimporter?.originalName ?? feature.name;
     switch (name) {
       case "Action Surge": {
         feature.system.damage = { parts: [], versatile: "", value: "" };

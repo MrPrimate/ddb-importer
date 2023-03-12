@@ -183,7 +183,7 @@ export async function spellEffectAdjustment(document) {
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = configureDependencies();
   }
 
-  const name = document.flags.ddbimporter.originalName ?? document.name;
+  const name = document.flags.ddbimporter?.originalName ?? document.name;
   logger.debug(`Adding effects to ${name}`);
   switch (name) {
     case "Absorb Elements": {

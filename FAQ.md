@@ -44,6 +44,24 @@ Open the Browser Developer Console (F12) and run the following:
 game.modules.get("ddb-importer").api.resetProxy();
 ```
 
+## I want to use your macros/effects/etc but don't use DDB
+
+You can apply the effects to existing actors/items using the following commands:
+
+Actor:
+```javascript
+actor = game.actors.getName("Zinroe");
+game.modules.get("ddb-importer")?.api.effects.addDDBIEffectsToActorDocuments(actor);
+```
+
+Item:
+```javascript
+item = game.items.getName("Cloak of Displacement");
+game.modules.get("ddb-importer")?.api.effects.addDDBIEffectToDocument(item);
+```
+
+Integration into the GUI will be forthcoming.
+
 ## My Characters Hit Points aren't right
 
 Sometimes DDB can get confused, especially if the character is created using the random or guided mode. Try adding and removing a level on DDB and then reimporting.
