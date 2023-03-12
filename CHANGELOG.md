@@ -7,6 +7,8 @@
 * Trim custom item descriptions to 2056 characters to prevent error at DDB when updating.
 * Strip compendium links out of custom item descriptions when syncing back to DDB, as DDB won't accept them.
 * Fox for Ensnaring Strike Effect following CE changes.
+* You can load effects from Chris's Premades module (thanks @Chris
+#8375). These will overwrite any effects that DDB Importer generates - there are a couple of overlaps.
 * You can now add (most) effects from DDB Importer to actor items or items using the following api call. GUI integration will follow.
 
 Actor:

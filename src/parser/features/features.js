@@ -3,6 +3,7 @@ import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
 import DDBCharacter from "../DDBCharacter.js";
+import { applyChrisPremadeEffect } from "../../muncher/chrisPremades.js";
 
 function parseFeature(feat, ddb, character, source, type) {
   let features = [];
@@ -371,5 +372,18 @@ DDBCharacter.prototype._generateFeatures = async function _generateFeatures() {
   logger.debug("Feature fixes");
   setLevelScales(classes, items);
   await fixFeatures(items);
-  this.raw.features = await addExtraEffects(ddb, items, character);
+  // eslint-disable-next-line require-atomic-updates
+  items = await addExtraEffects(ddb, items, character);
+
+  const applyChrisEffects = character.flags.ddbimporter.compendium
+    ? game.settings.get("ddb-importer", "munching-policy-use-chris-premades")
+    : game.settings.get("ddb-importer", "character-update-policy-use-chris-premades");
+  if (applyChrisEffects) {
+    for (let f of items) {
+      // eslint-disable-next-line no-await-in-loop
+      f = await applyChrisPremadeEffect(f, "feat");
+    }
+  }
+
+  this.raw.features = items;
 };

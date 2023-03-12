@@ -18,7 +18,7 @@ const CP_FLAGS_TO_REMOVE = [
 ];
 
 const CP_FIELDS_TO_COPY = [
-
+  "effects",
 ];
 
 export async function getChrisCompendium(type) {
@@ -38,13 +38,16 @@ async function getFolderId(name, type, compendiumName) {
 
 
 export async function applyChrisPremadeEffect(document, type) {
-  const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type);
+  console.warn("CHRIS PREMADE GO!", document);
+  const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
+
+  console.warn("Compendium", compendiumName);
   if (!compendiumName) return document;
   const folderId = type === "monster"
     ? await getFolderId(document.name, type, compendiumName)
     : undefined;
 
-  const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, document.name, false, folderId);
+  const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, document.name, true, folderId);
   if (!chrisDoc) return document;
 
   DDB_FLAGS_TO_REMOVE.forEach((flagName) => {
@@ -59,11 +62,14 @@ export async function applyChrisPremadeEffect(document, type) {
 
   document.flags = mergeObject(document.flags, chrisDoc.flags);
 
-
+  CP_FIELDS_TO_COPY.forEach((field) => {
+    setProperty(document, field, getProperty(chrisDoc, field));
+  });
 
   setProperty(document, "flags.ddbimporter.effectsApplied", true);
   setProperty(document, "flags.ddbimporter.chrisEffectsApplied", true);
 
+  console.warn("CHRIS PREMADE END", document);
   return document;
 
 }

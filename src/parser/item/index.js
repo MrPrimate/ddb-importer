@@ -45,6 +45,7 @@ import parseLoot from "./loot.js";
 import parseCustomItem from "./custom.js";
 
 import { getAttunement, getBaseItem } from "./common.js";
+import { applyChrisPremadeEffect } from "../../muncher/chrisPremades.js";
 
 
 function getItemFromGearTypeIdOne(ddb, data) {
@@ -391,6 +392,7 @@ function getItemFlags(ddbCharacter, ddbItem) {
 
 
 // TO DO: revisit to break up item parsing
+// eslint-disable-next-line complexity
 DDBCharacter.prototype.getInventory = async function getInventory() {
 
   let items = [];
@@ -461,6 +463,17 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   }
 
   fixItems(items);
+
+  const applyChrisEffects = compendiumItem
+    ? game.settings.get("ddb-importer", "munching-policy-use-chris-premades")
+    : game.settings.get("ddb-importer", "character-update-policy-use-chris-premades");
+  if (applyChrisEffects) {
+    for (let i of items) {
+      // eslint-disable-next-line no-await-in-loop
+      i = await applyChrisPremadeEffect(i, "inventory");
+    }
+  }
+
   items = fixForItemCollections(this.source.ddb, items);
   return items;
 };

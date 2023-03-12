@@ -26,8 +26,6 @@ const MuncherSettings = {
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
 
     ["class", "race", "background", "feat"].forEach((type) => {
-      $(html).find(`#character-import-policy-effect-${type}-spell-bonus`).prop("checked", true);
-      game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-spell-bonus`, true);
       $(html).find(`#character-import-policy-effect-${type}-speed`).prop("checked", false);
       game.settings.set(SETTINGS.MODULE_ID, `character-update-policy-effect-${type}-speed`, false);
       $(html).find(`#character-import-policy-effect-${type}-senses`).prop("checked", false);
