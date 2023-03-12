@@ -40,6 +40,23 @@ const SRD_COMPENDIUM_LOOKUPS = [
   { type: "backgrounds", name: "dnd5e.backgrounds" },
 ];
 
+const CHRIS_PREMADES_COMPENDIUM_LOOKUPS = [
+  { type: "spells", name: "chris-premades.CPR Spells" },
+  { type: "spell", name: "chris-premades.CPR Spells" },
+  { type: "features", name: "chris-premades.CPR Class Features" },
+  { type: "traits", name: "chris-premades.CPR Race Features" },
+  { type: "feat", name: "chris-premades.CPR Class Features" },
+  { type: "feats", name: "chris-premades.CPR Class Features" },
+  { type: "inventory", name: "chris-premades.CPR Items" },
+  { type: "weapon", name: "chris-premades.CPR Items" },
+  { type: "consumable", name: "chris-premades.CPR Items" },
+  { type: "tool", name: "chris-premades.CPR Items" },
+  { type: "loot", name: "chris-premades.CPR Items" },
+  { type: "backpack", name: "chris-premades.CPR Items" },
+  { type: "equipment", name: "chris-premades.CPR Items" },
+  { type: "monsterfeatures", name: "chris-premades.CPR Monster Features" },
+];
+
 const SUPPORTED_FLAG_GROUPS = [
   "dae",
   "maestro",
@@ -184,6 +201,7 @@ const SETTINGS = {
   MODULE_NAME: "D&D Beyond Importer",
   COMPENDIUMS: COMPENDIUMS,
   SRD_COMPENDIUMS: SRD_COMPENDIUM_LOOKUPS,
+  CHRIS_PREMADES_COMPENDIUM: CHRIS_PREMADES_COMPENDIUM_LOOKUPS,
   EFFECTS_IGNORE_FLAG_GROUPS,
   SUPPORTED_FLAG_GROUPS,
   GAME_FOLDER_LOOKUPS,
