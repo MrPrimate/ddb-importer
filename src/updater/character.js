@@ -24,6 +24,10 @@ function getFoundryItems(actor) {
   return actorItems.concat(itemCollections);
 }
 
+function getCustomItemDescription(text) {
+  return utils.stripHtml(text).substring(0, 2055);
+}
+
 async function getUpdateItemIndex() {
   if (hasProperty(CONFIG, "DDBI.update.itemIndex")) return getProperty(CONFIG, "DDBI.update.itemIndex");
   const compendium = await CompendiumHelper.getCompendiumType("item", false);
@@ -586,7 +590,7 @@ async function addDDBCustomItems(actor, itemsToAdd) {
         containerEntityId,
         containerEntityTypeId,
         name: item.name,
-        description: utils.stripHtml(item.system.description.value),
+        description: getCustomItemDescription(item.system.description.value),
         quantity: parseInt(item.system.quantity),
         cost: null,
         weight: Number.isInteger(item.system.weight) ? parseInt(item.system.weight) : 0,
@@ -879,7 +883,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
           id: item.flags.ddbimporter.definitionId,
           mappingId: item.flags.ddbimporter.id,
           name: item.name,
-          description: utils.stripHtml(item.system.description.value),
+          description: getCustomItemDescription(item.system.description.value),
           // revist these need to be ints
           // weight: `${item.data.weight}`,
           // cost: ${item.data.price},
@@ -973,7 +977,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     && customDDBItems.some((dItem) => dItem.id === item.flags.ddbimporter.id
       && (
         item.name !== dItem.name
-        || utils.stripHtml(item.system.description.value) != dItem.description
+        || getCustomItemDescription(item.system.description.value) != dItem.description
         || (hasProperty(item, "system.quantity") && item.system.quantity != dItem.quantity)
         || (hasProperty(item, "system.weight") && item.system.weight != dItem.weight)
         //  ||

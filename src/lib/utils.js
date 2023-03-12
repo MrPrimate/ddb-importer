@@ -8,6 +8,19 @@ const utils = {
     return s.charAt(0).toUpperCase() + s.slice(1);
   },
 
+  removeCompendiumLinks: (text) => {
+    const linkRegExTag = /@\w+\[(.*)\](\{.*?\})/g;
+    const linkRegExNoTag = /@\w+\[(.*)\]/g;
+    function replaceRule(match, p1, p2) {
+      if (p2) {
+        return `${p2}`;
+      } else {
+        return `${p1}`;
+      }
+    }
+    return text.replaceAll(linkRegExTag, replaceRule).replaceAll(linkRegExNoTag, replaceRule);
+  },
+
   normalizeString: (str) => {
     return str.toLowerCase().replace(/\W/g, "");
   },
