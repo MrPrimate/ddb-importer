@@ -84,7 +84,7 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
   const nbDice = level;
 
   // Get restrained condition id
-  const statusId = CONFIG.statusEffects.find(se => se.name === CONFIG.DND5E.conditionTypes["restrained"])?.id;
+  const statusId = CONFIG.statusEffects.find(se => se.label === CONFIG.DND5E.conditionTypes["restrained"])?.id;
   const conEffect = MidiQOL.getConcentrationEffect(sourceActor);
 
   // Temporary spell data for the ensnaring effect.
