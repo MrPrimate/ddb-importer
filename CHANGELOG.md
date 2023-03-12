@@ -4,6 +4,9 @@
 * Correctly select token scale when importing SRD images for monsters.
 * Removal of scalevalue choices for damage and text as these can be evaluated within description text in 5e v2.1.x.
 * Now requires D&D 5e system 2.1.x or higher.
+* Trim custom item descriptions to 2056 characters to prevent error at DDB when updating.
+* Strip compendium links out of custom item descriptions when syncing back to DDB, as DDB won't accept them.
+* Fox for Ensnaring Strike Effect following CE changes.
 
 # 3.3.16
 
