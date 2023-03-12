@@ -1,4 +1,4 @@
-# COMING NEXT!
+# 3.4.0
 
 * Viscous Mockery turn fix for effect expiry.
 * Correctly select token scale when importing SRD images for monsters.

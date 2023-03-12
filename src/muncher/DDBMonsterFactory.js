@@ -135,13 +135,14 @@ export default class DDBMonsterFactory {
     const useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     const addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
+    const addChrisPremades = game.settings.get("ddb-importer", "munching-policy-use-chris-premades");
 
     logger.time("Monster Parsing");
     for (const monster of this.source) {
       try {
         logger.debug(`Attempting to parse ${monster.name}`);
         logger.time(`Monster Parse ${monster.name}`);
-        const ddbMonster = new DDBMonster(monster, { extra: this.extra, useItemAC, legacyName, addMonsterEffects });
+        const ddbMonster = new DDBMonster(monster, { extra: this.extra, useItemAC, legacyName, addMonsterEffects, addChrisPremades });
         // eslint-disable-next-line no-await-in-loop
         await ddbMonster.parse();
         foundryActors.push(duplicate(ddbMonster.npc));

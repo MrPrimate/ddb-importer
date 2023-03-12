@@ -37,14 +37,11 @@ async function getFolderId(name, type, compendiumName) {
 }
 
 
-export async function applyChrisPremadeEffect(document, type) {
-  console.warn("CHRIS PREMADE GO!", document);
+export async function applyChrisPremadeEffect(document, type, folderName = null) {
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
-
-  console.warn("Compendium", compendiumName);
   if (!compendiumName) return document;
-  const folderId = type === "monster"
-    ? await getFolderId(document.name, type, compendiumName)
+  const folderId = type === "monsterfeatures"
+    ? await getFolderId(folderName ?? document.name, type, compendiumName)
     : undefined;
 
   const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, document.name, true, folderId);
@@ -69,7 +66,5 @@ export async function applyChrisPremadeEffect(document, type) {
   setProperty(document, "flags.ddbimporter.effectsApplied", true);
   setProperty(document, "flags.ddbimporter.chrisEffectsApplied", true);
 
-  console.warn("CHRIS PREMADE END", document);
   return document;
-
 }

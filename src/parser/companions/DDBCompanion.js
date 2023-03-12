@@ -21,6 +21,7 @@ export default class DDBCompanion {
     this.addMonsterEffects = true; // game.settings.get("ddb-importer", "munching-policy-add-monster-effects");
     this.removeSplitCreatureActions = true;
     this.removeCreatureOnlyNames = true;
+    this.addChrisPremades = true;
   }
 
   #generateAbilities() {
@@ -453,7 +454,7 @@ export default class DDBCompanion {
 
 
   async getFeature(text, type) {
-    const options = { extra: true, useItemAC: this.useItemAC, legacyName: this.legacyName, addMonsterEffects: this.addMonsterEffects };
+    const options = { extra: true, useItemAC: this.useItemAC, legacyName: this.legacyName, addMonsterEffects: this.addMonsterEffects, addChrisPremades: this.addChrisPremades };
     const ddbMonster = new DDBMonster(null, options);
     ddbMonster.name = this.name;
     ddbMonster.npc = duplicate(this.npc);

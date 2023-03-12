@@ -12,6 +12,7 @@ import SETTINGS from "../settings.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import { applyChrisPremadeEffect } from "../muncher/chrisPremades.js";
 
 export default class DDBMonster {
 
@@ -24,7 +25,7 @@ export default class DDBMonster {
   }
 
   constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
-    legacyName = true, addMonsterEffects = false } = {}, overrides = {}
+    legacyName = true, addMonsterEffects = false, addChrisPremades = false } = {}, overrides = {}
   ) {
     this.source = ddbObject;
 
@@ -34,6 +35,7 @@ export default class DDBMonster {
     this.useItemAC = useItemAC;
     this.legacyName = legacyName;
     this.addMonsterEffects = addMonsterEffects;
+    this.addChrisPremades = addChrisPremades;
 
     // some of this data can be overwritten, useful for mangling new actions
     this.overrides = overrides;
@@ -237,6 +239,13 @@ export default class DDBMonster {
 
     if (this.addMonsterEffects) {
       this.npc = await monsterFeatureEffectAdjustment(this.npc, this.source);
+    }
+
+    if (this.addChrisPremades) {
+      for (let item of this.npc.items) {
+        // eslint-disable-next-line no-await-in-loop
+        await applyChrisPremadeEffect(item, "monsterfeatures", this.npc.name);
+      }
     }
 
     logger.debug(`Generated ${this.name}`, this);
