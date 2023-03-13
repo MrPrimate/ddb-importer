@@ -19,6 +19,16 @@ const CP_FLAGS_TO_REMOVE = [
 
 const CP_FIELDS_TO_COPY = [
   "effects",
+  "system.damage",
+  "system.target",
+  "system.range",
+  "system.duration",
+  "system.save",
+  "system.activation",
+  "system.ability",
+  "system.critical",
+  "system.formula",
+  "system.actionType",
 ];
 
 export async function getChrisCompendium(type) {
