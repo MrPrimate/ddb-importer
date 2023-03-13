@@ -18,7 +18,6 @@ In addition you can:
 - Use the built in dictionary to get a large icon coverage during import.
 - Use supplied SRD items where available.
 - Choose to use matching SRD icons.
-- Apply effects from DAE or DAE SRD.
 - Attempt to auto-generate effects for items.
 
 ## Video Tutorial

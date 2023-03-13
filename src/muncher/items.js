@@ -10,6 +10,7 @@ import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
+import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -197,7 +198,8 @@ export async function parseItems(ids = null) {
   const filteredItems = (ids !== null && ids.length > 0)
     ? srdItems.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : srdItems;
-  const finalItems = await daeFiddling(filteredItems);
+  const daeItems = await daeFiddling(filteredItems);
+  const finalItems = await applyChrisPremadeEffects(daeItems, true);
 
   const finalCount = finalItems.length;
   DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);

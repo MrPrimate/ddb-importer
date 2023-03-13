@@ -12,7 +12,7 @@ import SETTINGS from "../settings.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
-import { applyChrisPremadeEffect } from "../muncher/chrisPremades.js";
+import { applyChrisPremadeEffect } from "../effects/chrisPremades.js";
 
 export default class DDBMonster {
 

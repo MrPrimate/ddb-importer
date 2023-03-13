@@ -9,6 +9,7 @@ import { getCampaignId } from "../lib/Settings.js";
 import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -123,7 +124,8 @@ export async function parseSpells(ids = null) {
   const filteredSpells = (ids !== null && ids.length > 0)
     ? srdSpells.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : srdSpells;
-  const finalSpells = await daeFiddling(filteredSpells);
+  const daeSpells = await daeFiddling(filteredSpells);
+  const finalSpells = await applyChrisPremadeEffects(daeSpells, true);
 
   const finalCount = finalSpells.length;
   DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);

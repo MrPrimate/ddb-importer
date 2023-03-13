@@ -3,6 +3,7 @@ import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
 import DDBMuncher from "../DDBMuncher.js";
+import { applyChrisPremadeEffects } from "../../effects/chrisPremades.js";
 
 const FEAT_TEMPLATE = {
   "name": "",
@@ -79,7 +80,8 @@ export async function getFeats(data) {
   });
 
   const fiddledFeats = await srdFiddling(feats, "feats");
-  const finalFeats = await daeFiddling(fiddledFeats);
+  const daeFeats = await daeFiddling(fiddledFeats);
+  const finalFeats = await applyChrisPremadeEffects(daeFeats, true);
 
   DDBMuncher.munchNote(`Importing ${finalFeats.length} feats!`, true);
   await updateCompendium("feats", { feats: finalFeats }, updateBool);

@@ -3,7 +3,7 @@ import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects, setLevelScales } from "./special.js";
 import DDBCharacter from "../DDBCharacter.js";
-import { applyChrisPremadeEffect } from "../../muncher/chrisPremades.js";
+import { applyChrisPremadeEffect } from "../../effects/chrisPremades.js";
 
 function parseFeature(feat, ddb, character, source, type) {
   let features = [];

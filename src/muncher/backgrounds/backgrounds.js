@@ -5,6 +5,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import { updateCompendium, srdFiddling, daeFiddling } from "../import.js";
 import DDBMuncher from "../DDBMuncher.js";
 import { generateTable } from "../table.js";
+import { applyChrisPremadeEffects } from "../../effects/chrisPremades.js";
 
 const BACKGROUND_TEMPLATE = {
   "name": "",
@@ -76,7 +77,8 @@ export async function getBackgrounds(data) {
   // console.warn("backgrounds", backgrounds);
 
   const fiddledBackgrounds = await srdFiddling(backgrounds, "backgrounds");
-  const finalBackgrounds = await daeFiddling(fiddledBackgrounds);
+  const daeBackgrounds = await daeFiddling(fiddledBackgrounds);
+  const finalBackgrounds = await applyChrisPremadeEffects(daeBackgrounds, true);
 
   DDBMuncher.munchNote(`Importing ${finalBackgrounds.length} backgrounds!`, true);
   await updateCompendium("backgrounds", { backgrounds: finalBackgrounds }, updateBool);

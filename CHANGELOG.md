@@ -1,3 +1,7 @@
+# 3.4.2
+
+* Muncher could render itself not working in some configurations of effect generation.
+
 # 3.4.1
 
 * Copy some additional properties from Chris's Premades when using effects.

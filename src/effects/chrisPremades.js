@@ -1,4 +1,6 @@
+/* eslint-disable no-continue */
 /* eslint-disable require-atomic-updates */
+import DICTIONARY from "../dictionary.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import SETTINGS from "../settings.js";
 
@@ -48,6 +50,7 @@ async function getFolderId(name, type, compendiumName) {
 
 
 export async function applyChrisPremadeEffect(document, type, folderName = null) {
+  if (!game.modules.get("chris-premades")?.active) return document;
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
   if (!compendiumName) return document;
   const folderId = type === "monsterfeatures"
@@ -77,4 +80,30 @@ export async function applyChrisPremadeEffect(document, type, folderName = null)
   setProperty(document, "flags.ddbimporter.chrisEffectsApplied", true);
 
   return document;
+}
+
+
+export async function applyChrisPremadeEffects(documents, compendiumItem = false) {
+  if (!game.modules.get("chris-premades")?.active) return documents;
+
+  const applyChrisEffects = compendiumItem
+    ? game.settings.get("ddb-importer", "munching-policy-use-chris-premades")
+    : game.settings.get("ddb-importer", "character-update-policy-use-chris-premades");
+  if (!applyChrisEffects) return documents;
+
+  console.warn(documents);
+  for (let doc of documents) {
+    console.warn(doc);
+    let type = doc.type;
+
+    if (["class", "subclass", "background"].includes(type)) continue;
+    if (DICTIONARY.types.inventory.includes(doc.type)) {
+      type = "inventory";
+    }
+
+    // eslint-disable-next-line no-await-in-loop
+    doc = await applyChrisPremadeEffect(doc, type);
+  }
+
+  return documents;
 }

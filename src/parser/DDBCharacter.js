@@ -9,6 +9,7 @@ import { getCampaignId } from "../lib/Settings.js";
 import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
+import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 
 
 export default class DDBCharacter {
@@ -209,6 +210,7 @@ export default class DDBCharacter {
         await this.generateCompanions();
       }
 
+      await this._applyChrisPremades();
 
     } catch (error) {
       logger.error(error);
@@ -246,6 +248,13 @@ export default class DDBCharacter {
     this.currentActor.flags.ddbimporter.activeSyncSpells = state;
     const activeUpdateData = { flags: { ddbimporter: { activeSyncSpells: state } } };
     await this.currentActor.update(activeUpdateData);
+  }
+
+  async _applyChrisPremades() {
+    await applyChrisPremadeEffects(this.data.inventory, false);
+    await applyChrisPremadeEffects(this.data.spells, false);
+    await applyChrisPremadeEffects(this.data.features, false);
+    await applyChrisPremadeEffects(this.data.actions, false);
   }
 
 }

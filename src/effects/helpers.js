@@ -4,59 +4,65 @@ import logger from "../logger.js";
 import { addExtraEffects, fixFeatures } from "../parser/features/special.js";
 import { fixItems } from "../parser/item/special.js";
 import { fixSpells } from "../parser/spells/special.js";
+import { applyChrisPremadeEffects } from "./chrisPremades.js";
 import { equipmentEffectAdjustment, midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 
 
-export async function addDDBIEffectToDocument(document) {
-  game.settings.set("ddb-importer", "munching-policy-add-spell-effects", true);
-  game.settings.set("ddb-importer", "munching-policy-add-effects", true);
+export async function addDDBIEffectToDocument(document, { useChrisPremades = false }) {
+  const startingSpellPolicy = game.settings.get("ddb-importer", "munching-policy-add-spell-effects");
+  const startingAddPolicy = game.settings.get("ddb-importer", "munching-policy-add-effects");
+  try {
+    game.settings.set("ddb-importer", "munching-policy-add-spell-effects", true);
+    game.settings.set("ddb-importer", "munching-policy-add-effects", true);
 
-  let data = document.toObject();
+    let data = document.toObject();
 
-  if (DICTIONARY.types.inventory.includes(data.type)) {
-    equipmentEffectAdjustment(data);
-    data = await midiItemEffects(data);
-    fixItems([data]);
-  } else if (data.type === "spell") {
-    data = await spellEffectAdjustment(data);
-    fixSpells(null, [data]);
-  } else if (data.type === "feat") {
-    const mockCharacter = {
-      system: JSON.parse(utils.getTemplate("character")),
-      type: "character",
-      name: "",
-      flags: {
-        ddbimporter: {
-          compendium: true,
-          dndbeyond: {
-            effectAbilities: [],
-            totalLevels: 0,
-            proficiencies: [],
-            proficienciesIncludingEffects: [],
-            characterValues: [],
+    if (DICTIONARY.types.inventory.includes(data.type)) {
+      equipmentEffectAdjustment(data);
+      data = await midiItemEffects(data);
+      fixItems([data]);
+    } else if (data.type === "spell") {
+      data = await spellEffectAdjustment(data);
+      fixSpells(null, [data]);
+    } else if (data.type === "feat") {
+      const mockCharacter = {
+        system: JSON.parse(utils.getTemplate("character")),
+        type: "character",
+        name: "",
+        flags: {
+          ddbimporter: {
+            compendium: true,
+            dndbeyond: {
+              effectAbilities: [],
+              totalLevels: 0,
+              proficiencies: [],
+              proficienciesIncludingEffects: [],
+              characterValues: [],
+            },
           },
         },
-      },
-    };
+      };
 
-    fixFeatures([data]);
-    data = await addExtraEffects(null, [data], mockCharacter);
+      fixFeatures([data]);
+      data = await addExtraEffects(null, [data], mockCharacter);
+      if (useChrisPremades) data = await applyChrisPremadeEffects([data]);
+    }
+
+    await document.update(data);
+  } finally {
+    game.settings.set("ddb-importer", "munching-policy-add-spell-effects", startingSpellPolicy);
+    game.settings.set("ddb-importer", "munching-policy-add-effects", startingAddPolicy);
   }
-
-  await document.update(data);
 }
 
 export async function addDDBIEffectsToActorDocuments(actor) {
-  game.settings.set("ddb-importer", "munching-policy-add-spell-effects", true);
-
   logger.info("Starting to add effects to actor items");
   for (const doc of actor.items) {
     // eslint-disable-next-line no-await-in-loop
     await addDDBIEffectToDocument(doc);
   }
   logger.info("Effect addition complete");
-
 }
 
 /**

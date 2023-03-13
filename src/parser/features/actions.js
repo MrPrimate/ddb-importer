@@ -4,7 +4,6 @@ import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { fixFeatures, getDescription, addFeatEffects, addExtraEffects } from "./special.js";
 import { getInfusionActionData } from "../item/infusions.js";
-import { applyChrisPremadeEffect } from "../../muncher/chrisPremades.js";
 
 function getProperties(ddb, feature) {
 
@@ -755,14 +754,5 @@ export default async function parseActions(ddb, character) {
 
   await fixFeatures(actions);
   const results = await addExtraEffects(ddb, actions, character);
-  const applyChrisEffects = character.flags.ddbimporter.compendium
-    ? game.settings.get("ddb-importer", "munching-policy-use-chris-premades")
-    : game.settings.get("ddb-importer", "character-update-policy-use-chris-premades");
-  if (applyChrisEffects) {
-    for (let f of results) {
-      // eslint-disable-next-line no-await-in-loop
-      f = await applyChrisPremadeEffect(f, "feat");
-    }
-  }
   return results;
 }

@@ -18,7 +18,6 @@ import { generateTable } from "../../muncher/table.js";
 import { spellEffectAdjustment } from "../../effects/specialSpells.js";
 import { getName } from "./name.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
-import { applyChrisPremadeEffect } from "../../muncher/chrisPremades.js";
 
 export async function parseSpell(data, character) {
   let spell = {
@@ -105,13 +104,6 @@ export async function parseSpell(data, character) {
   if (addSpellEffects) {
     await spellEffectAdjustment(spell);
     setProperty(spell, "flags.ddbimporter.effectsApplied", true);
-  }
-
-  const applyChrisEffects = isGeneric
-    ? game.settings.get("ddb-importer", "munching-policy-use-chris-premades")
-    : game.settings.get("ddb-importer", "character-update-policy-use-chris-premades");
-  if (applyChrisEffects) {
-    spell = await applyChrisPremadeEffect(spell, "spell");
   }
 
   return spell;
