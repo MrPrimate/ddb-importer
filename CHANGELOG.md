@@ -1,3 +1,7 @@
+# 3.4.1
+
+* Copy some additional properties from Chris's Premades when using effects.
+
 # 3.4.0
 
 * Viscous Mockery turn fix for effect expiry.
