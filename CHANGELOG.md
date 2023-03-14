@@ -2,7 +2,8 @@
 
 * Tweaks to Flame Tongue weapons to move damage back to damage block rather than as other damage when using midi-qol effects.
 * If damage type hints were disabled, damage type was not pulled through for secondary damage sources.
-* Added a function to apply Chris's effects to actors, and all actors in world:
+* Overtime effects now all `killAnim=true` @TreeDragon#2125
+* Added a function to apply Chris's effects to actors, and all actors in world (@Chris#8375, @TMinz#2168):
 
 ```javascript
 actor = game.actors.getName("Zinroe");

@@ -6,7 +6,7 @@ export async function blindnessDeafnessEffect(document) {
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    value: "label=Blindness/Deafness (End of Turn),turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true",
+    value: "label=Blindness/Deafness (End of Turn),turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true,killAnim=true",
     priority: "20",
   });
   const itemMacroText = await loadMacroFile("spell", "blindnessDeafness.js");

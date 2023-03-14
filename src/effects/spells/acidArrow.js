@@ -5,7 +5,7 @@ export function acidArrowEffect(document) {
   effect.changes.push({
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-    value: `label=${document.name} (End of Turn),turn=end,damageRoll=(@spellLevel)d4[acid],damageType=acid`,
+    value: `label=${document.name} (End of Turn),turn=end,damageRoll=(@spellLevel)d4[acid],damageType=acid,killAnim=true`,
     priority: "20",
   });
   effect.flags.dae.specialDuration = ["turnEnd"];

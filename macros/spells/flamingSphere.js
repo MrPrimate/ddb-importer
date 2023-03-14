@@ -13,7 +13,7 @@ try {
             console.error("No Flaming Sphere");
             return;
         }
-        const changeValue = `turn=end,saveDC=${caster.data.data.attributes.spelldc ?? 10},saveAbility=dex,damageRoll=${args[0].spellLevel}d6,damageType=fire,saveDamage=halfdamage,saveRemove=false`;
+        const changeValue = `turn=end,saveDC=${caster.data.data.attributes.spelldc ?? 10},saveAbility=dex,damageRoll=${args[0].spellLevel}d6,damageType=fire,saveDamage=halfdamage,saveRemove=false,killAnim=true`;
         const updates = {
             Item: {
                 "Flaming Sphere Damage": {

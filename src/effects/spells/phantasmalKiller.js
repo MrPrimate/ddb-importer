@@ -6,7 +6,7 @@ export function phantasmalKillerEffect(document) {
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     value:
-      "label=Phantasmal Killer (Start of Turn),turn=end,saveAbility=wis,saveDC=@attributes.spelldc,saveMagic=true,damageRoll=(@item.level)d10,damageType=psychic,savingThrow=true,damageBeforeSave=false",
+      "label=Phantasmal Killer (Start of Turn),turn=end,saveAbility=wis,saveDC=@attributes.spelldc,saveMagic=true,damageRoll=(@item.level)d10,damageType=psychic,savingThrow=true,damageBeforeSave=false,killAnim=true",
     priority: "20",
   });
   document.effects.push(effect);

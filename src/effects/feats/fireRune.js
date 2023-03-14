@@ -14,13 +14,13 @@ export function fireRuneEffect(document) {
     {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-      value: `label=${document.name} (Start of Turn Damage),turn=start,savingThrow=false,damageRoll=${document.system.damage.parts[0][0]}, damageType=${document.system.damage.parts[0][1]}`,
+      value: `label=${document.name} (Start of Turn Damage),turn=start,savingThrow=false,damageRoll=${document.system.damage.parts[0][0]}, damageType=${document.system.damage.parts[0][1]},killAnim=true`,
       priority: "20",
     },
     {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-      value: `label=${document.name} (End of Turn Save),turn=end,saveDC=@attributes.spelldc,saveAbility=${document.system.save.ability},savingThrow=true,saveMagic=true,saveRemove=true`,
+      value: `label=${document.name} (End of Turn Save),turn=end,saveDC=@attributes.spelldc,saveAbility=${document.system.save.ability},savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true`,
       priority: "20",
     }
   );

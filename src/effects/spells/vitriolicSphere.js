@@ -10,7 +10,7 @@ export function vitriolicSphereEffect(document) {
     {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: `turn=end,label=${document.name} (End of Turn),damageRoll=5d4,damageType=acid,removeCondition=true`,
+      value: `turn=end,label=${document.name} (End of Turn),damageRoll=5d4,damageType=acid,removeCondition=true,killAnim=true`,
       priority: "20",
     }
   );

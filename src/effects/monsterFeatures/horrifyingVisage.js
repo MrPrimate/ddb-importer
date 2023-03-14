@@ -10,7 +10,7 @@ export function horrifyingVisageEffect(document) {
     {
       "key": "flags.midi-qol.OverTime",
       "mode": 5,
-      "value": "turn=end,saveAbility=wis,saveDC=13,saveMagic=true,label=Frightened",
+      "value": "turn=end,saveAbility=wis,saveDC=13,saveMagic=true,label=Frightened,killAnim=true",
       "priority": "20"
     },
     {

@@ -121,7 +121,7 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
           {
             key: "flags.midi-qol.OverTime",
             mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-            value: `turn=start,damageRoll=${nbDice}d6,damageType=piercing,label=${originItem.name}: Effect,actionSave=true,rollType=check,saveAbility=str,saveDC=@attributes.spelldc`,
+            value: `turn=start,damageRoll=${nbDice}d6,damageType=piercing,label=${originItem.name}: Effect,actionSave=true,rollType=check,saveAbility=str,saveDC=@attributes.spelldc,killAnim=true`,
             priority: 20,
           },
         ],
