@@ -51,16 +51,34 @@ You can apply the effects to existing actors/items using the following commands:
 Actor:
 ```javascript
 actor = game.actors.getName("Zinroe");
-game.modules.get("ddb-importer")?.api.effects.addDDBIEffectsToActorDocuments(actor);
+await game.modules.get("ddb-importer")?.api.effects.addDDBIEffectsToActorDocuments(actor);
 ```
 
 Item:
 ```javascript
 item = game.items.getName("Cloak of Displacement");
-game.modules.get("ddb-importer")?.api.effects.addDDBIEffectToDocument(item);
+await game.modules.get("ddb-importer")?.api.effects.addDDBIEffectToDocument(item);
 ```
 
 Integration into the GUI will be forthcoming.
+
+## Can I apply Chris's Premade effects to an imported actor?
+
+Yes! Run the following macro of via the developer console (F12):
+
+```javascript
+actor = game.actors.getName("Zinroe");
+await game.modules.get("ddb-importer")?.api.effects.addChrisEffectsToActorDocuments(actor);
+```
+
+If you want to apply to all characters in your world:
+
+```javascript
+for (const [key, actor] of game.actors.entries()) {
+  console.log('Updating: ' + actor.name);
+  await game.modules.get("ddb-importer").api.effects.addChrisEffectsToActorDocuments(actor);
+}
+```
 
 ## My Characters Hit Points aren't right
 

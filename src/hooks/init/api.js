@@ -34,7 +34,9 @@ import {
   findContainedTokensInTemplate,
   addDDBIEffectToDocument,
   addDDBIEffectsToActorDocuments,
+  addChrisEffectsToActorDocuments,
 } from "../../effects/helpers.js";
+import { applyChrisPremadeEffect, applyChrisPremadeEffects } from "../../effects/chrisPremades.js";
 import SETTINGS from "../../settings.js";
 
 function resetSecrets() {
@@ -123,6 +125,11 @@ export function registerApi() {
       checkTargetInRange,
       addDDBIEffectToDocument,
       addDDBIEffectsToActorDocuments,
+      addChrisEffectsToActorDocuments,
+    },
+    chris: {
+      generateEffect: applyChrisPremadeEffect,
+      generateEffects: applyChrisPremadeEffects,
     },
     debug: {
       start: debugStart,
