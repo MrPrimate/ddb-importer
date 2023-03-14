@@ -1,3 +1,23 @@
+# COMING NEXT
+
+* Tweaks to Flame Tongue weapons to move damage back to damage block rather than as other damage when using midi-qol effects.
+* If damage type hints were disabled, damage type was not pulled through for secondary damage sources.
+* Added a function to apply Chris's effects to actors, and all actors in world:
+
+```javascript
+actor = game.actors.getName("Zinroe");
+await game.modules.get("ddb-importer")?.api.effects.addChrisEffectsToActorDocuments(actor);
+```
+
+If you want to apply to all characters in your world:
+
+```javascript
+for (const [key, actor] of game.actors.entries()) {
+  console.log('Updating: ' + actor.name);
+  await game.modules.get("ddb-importer").api.effects.addChrisEffectsToActorDocuments(actor);
+}
+```
+
 # 3.4.2
 
 * Muncher could render itself not working in some configurations of effect generation.

@@ -41,9 +41,10 @@ const DDBHelper = {
     const damageTagData = DDBHelper.globalDamageTagInfo(mod);
     const damageType = overrideDamageType
       ? overrideDamageType
-      : mod.subType && damageTagData.globalDamageHints ? mod.subType : "";
+      : mod.subType ? mod.subType : "";
+    const hintTag = damageType !== "" && damageTagData.globalDamageHints ? damageType : "";
     const damageHint = damageTagData.hintOrRestriction
-      ? `${damageType}${damageTagData.hintAndRestriction}${damageTagData.restriction}`
+      ? `${hintTag}${damageTagData.hintAndRestriction}${damageTagData.restriction}`
       : "";
     const damageTag = damageTagData.hintOrRestriction ? `[${damageHint}]` : "";
     return {

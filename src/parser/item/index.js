@@ -448,7 +448,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
       }
 
       // eslint-disable-next-line no-await-in-loop
-      if (addEffects) item = await addRestrictionFlags(item);
+      item = await addRestrictionFlags(item, addEffects);
 
       if (!compendiumItem) item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, compendiumItem);
       // eslint-disable-next-line no-await-in-loop
