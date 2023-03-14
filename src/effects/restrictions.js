@@ -146,6 +146,9 @@ const RESTRICTION_MAPPINGS = [
     name: "Flame Tongue",
     ddb: ["While Flaming"],
     restriction: "",
+    removeOther: true,
+    damageParts: [["2d6[fire]", "fire"]],
+    replaceFlavor: "Extra damage only whilst flaming",
   },
   {
     name: "Dwarven Thrower",
@@ -174,9 +177,8 @@ const RESTRICTION_MAPPINGS = [
   },
 ];
 
-export async function addRestrictionFlags(document) {
+export async function addRestrictionFlags(document, addEffects) {
 
-  if (!game.modules.get("midi-qol")?.active) return document;
   const restrictions = getProperty(document, "flags.ddbimporter.dndbeyond.restrictions");
   if (!restrictions || restrictions.length == 0) return document;
   const name = document.flags.ddbimporter?.originalName ?? document.name;
@@ -191,13 +193,25 @@ export async function addRestrictionFlags(document) {
     });
 
   if (restriction) {
+    if (restriction.removeOther) {
+      setProperty(document, "system.formula", "");
+    }
+    if (restriction.replaceFlavor) {
+      setProperty(document, "system.chatFlavor", restriction.replaceFlavor);
+    }
+    if (restriction.damageParts) {
+      document.system.damage.parts.push(...restriction.damageParts);
+    }
+
+    if (!game.modules.get("midi-qol")?.active || !addEffects) return document;
+
     let restrictionText = restriction.restriction;
 
     if (document.system.attunement > 0 && !["", "false"].includes(restriction.restriction)) {
       restrictionText += ` && @item.attunement !== 1`;
     }
     setProperty(document, "system.activation.condition", restrictionText);
-    if (restriction.effectRestrictionACtivation) {
+    if (restriction.effectRestrictionActivation) {
       setProperty(document, "flags.midi-qol.effectActivation", true);
     }
 
