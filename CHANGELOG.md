@@ -1,4 +1,4 @@
-# COMING NEXT
+# 3.4.3
 
 * Tweaks to Flame Tongue weapons to move damage back to damage block rather than as other damage when using midi-qol effects.
 * If damage type hints were disabled, damage type was not pulled through for secondary damage sources.
