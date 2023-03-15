@@ -1,6 +1,8 @@
-# COMING NEXT
+# 3.4.4
 
 * Match renamed items in Chris's Premades.
+* Chris's Premade will now add and remove features, e.g. Arcane Armor makes a number of substitutions.
+* Rage effect now has the tokenMagic outline.
 
 # 3.4.3
 
