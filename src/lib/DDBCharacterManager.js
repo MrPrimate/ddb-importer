@@ -28,6 +28,7 @@ import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
 import { addContainerItemsToContainers, addContainerItemsToActor } from "../parser/special/itemCollections.js";
 import SETTINGS from "../settings.js";
+import { addAndReplaceRedundantChrisDocuments } from "../effects/chrisPremades.js";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
@@ -1087,6 +1088,7 @@ export default class DDBCharacterManager extends FormApplication {
       useExistingCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
       useSRDCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-srd"),
       useOverrideCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-override"),
+      useChrisPremades: game.settings.get("ddb-importer", "character-update-policy-use-chris-premades"),
     };
   }
 
@@ -1209,6 +1211,10 @@ export default class DDBCharacterManager extends FormApplication {
       }
 
       await this.ddbCharacter.autoLinkResources();
+
+      if (this.settings.useChrisPremades) {
+        await addAndReplaceRedundantChrisDocuments(this.actor);
+      }
       await setConditions(this.actor, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
       await addContainerItemsToContainers(this.ddbCharacter.source.ddb, this.actor);
 

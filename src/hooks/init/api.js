@@ -34,9 +34,12 @@ import {
   findContainedTokensInTemplate,
   addDDBIEffectToDocument,
   addDDBIEffectsToActorDocuments,
-  addChrisEffectsToActorDocuments,
 } from "../../effects/helpers.js";
-import { applyChrisPremadeEffect, applyChrisPremadeEffects } from "../../effects/chrisPremades.js";
+import {
+  applyChrisPremadeEffect,
+  applyChrisPremadeEffects,
+  addChrisEffectsToActorDocuments,
+} from "../../effects/chrisPremades.js";
 import SETTINGS from "../../settings.js";
 import DICTIONARY from "../../dictionary.js";
 
@@ -53,9 +56,7 @@ function migrateAllCompendiums(value, key, map) {
 
 function migrateCompendiums() {
   const compendiumNames = CompendiumHelper.getCompendiumNames();
-  game.packs
-    .filter((pack) => compendiumNames.includes(pack.collection))
-    .forEach(migrateAllCompendiums);
+  game.packs.filter((pack) => compendiumNames.includes(pack.collection)).forEach(migrateAllCompendiums);
 }
 
 function debugStart() {
@@ -131,11 +132,12 @@ export function registerApi() {
     chris: {
       generateEffect: applyChrisPremadeEffect,
       generateEffects: applyChrisPremadeEffects,
+      adjustActor: addChrisEffectsToActorDocuments,
     },
     debug: {
       start: debugStart,
       stop: debugStop,
-    }
+    },
   };
 
   window.DDBImporter = API;

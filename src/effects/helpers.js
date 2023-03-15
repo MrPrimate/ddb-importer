@@ -65,20 +65,6 @@ export async function addDDBIEffectsToActorDocuments(actor) {
   logger.info("Effect addition complete");
 }
 
-export async function addChrisEffectsToActorDocuments(actor) {
-  if (!game.modules.get("chris-premades")?.active) {
-    ui.notifications.error("Chris Premades module not installed");
-    return;
-  }
-
-  logger.info("Starting to add Chris Premades effects to actor items");
-  let documents = actor.getEmbeddedCollection("Item").toObject();
-  const data = await applyChrisPremadeEffects(documents, false, true);
-  await actor.updateEmbeddedDocuments("Item", data);
-  logger.info("Effect addition complete");
-}
-
-
 /**
  * If a custom AA condition animation exists for the specified name, registers the appropriate hook with AA
  * to be able to replace the default condition animation by the custom one.

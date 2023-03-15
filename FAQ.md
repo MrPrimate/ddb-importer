@@ -68,7 +68,7 @@ Yes! Run the following macro of via the developer console (F12):
 
 ```javascript
 actor = game.actors.getName("Zinroe");
-await game.modules.get("ddb-importer")?.api.effects.addChrisEffectsToActorDocuments(actor);
+await game.modules.get("ddb-importer")?.api.chris.adjustActor(actor);
 ```
 
 If you want to apply to all characters in your world:
@@ -76,8 +76,9 @@ If you want to apply to all characters in your world:
 ```javascript
 for (const [key, actor] of game.actors.entries()) {
   console.log('Updating: ' + actor.name);
-  await game.modules.get("ddb-importer").api.effects.addChrisEffectsToActorDocuments(actor);
+  await game.modules.get("ddb-importer").api.chris.adjustActor(actor);
 }
+```
 ```
 
 ## My Characters Hit Points aren't right
