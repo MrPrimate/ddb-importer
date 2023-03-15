@@ -6,7 +6,7 @@ export function rageEffect(document) {
   effect.changes.push(
     {
       key: "system.bonuses.mwak.damage",
-      value: "@scale.barbarian.rage",
+      value: "+ @scale.barbarian.rage",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
       priority: 0,
     },
@@ -39,7 +39,13 @@ export function rageEffect(document) {
       value: "1",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       priority: 20,
-    }
+    },
+    {
+      key: "macro.tokenMagic",
+      value: "outline",
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      priority: 10,
+    },
   );
   effect.duration = {
     startTime: null,
