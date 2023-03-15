@@ -53,11 +53,12 @@ export async function applyChrisPremadeEffect(document, type, folderName = null)
   if (!game.modules.get("chris-premades")?.active) return document;
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
   if (!compendiumName) return document;
+  const chrisName = chrisPremades.ddb.getItemName(document.name);
   const folderId = type === "monsterfeatures"
-    ? await getFolderId(folderName ?? document.name, type, compendiumName)
+    ? await getFolderId(folderName ?? chrisName, type, compendiumName)
     : undefined;
 
-  const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, document.name, true, folderId);
+  const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, chrisName, true, folderId);
   if (!chrisDoc) return document;
 
   DDB_FLAGS_TO_REMOVE.forEach((flagName) => {

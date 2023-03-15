@@ -38,6 +38,7 @@ import {
 } from "../../effects/helpers.js";
 import { applyChrisPremadeEffect, applyChrisPremadeEffects } from "../../effects/chrisPremades.js";
 import SETTINGS from "../../settings.js";
+import DICTIONARY from "../../dictionary.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -139,4 +140,5 @@ export function registerApi() {
 
   window.DDBImporter = API;
   game.modules.get(SETTINGS.MODULE_ID).api = API;
+  game.modules.get(SETTINGS.MODULE_ID).DICTIONARY = DICTIONARY;
 }

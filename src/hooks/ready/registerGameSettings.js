@@ -1,3 +1,4 @@
+import DICTIONARY from "../../dictionary.js";
 import { DDBProxySetup } from "../../lib/DDBProxySetup.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup, DDBLocationSetup } from "../../lib/Settings.js";
@@ -6,6 +7,7 @@ import SETTINGS from "../../settings.js";
 setProperty(CONFIG, "DDBI", {
   module: "DDB Importer",
   schemaVersion: 4.2,
+  DICTIONARY: DICTIONARY,
   ADVENTURE: {},
   MACROS: {
     spell: {},

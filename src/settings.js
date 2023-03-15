@@ -1,4 +1,5 @@
 import { DirectoryPicker } from "./lib/DirectoryPicker.js";
+import DICTIONARY from "./dictionary.js";
 
 const COMPENDIUMS = [
   { title: "Backgrounds", setting: "entity-background-compendium", type: "Item" },
@@ -199,6 +200,7 @@ const SETTINGS = {
   MODULE_ID: "ddb-importer",
   FLAG_NAME: "ddbimporter",
   MODULE_NAME: "D&D Beyond Importer",
+  DICTIONARY,
   COMPENDIUMS: COMPENDIUMS,
   SRD_COMPENDIUMS: SRD_COMPENDIUM_LOOKUPS,
   CHRIS_PREMADES_COMPENDIUM: CHRIS_PREMADES_COMPENDIUM_LOOKUPS,

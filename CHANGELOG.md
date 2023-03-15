@@ -1,3 +1,7 @@
+# COMING NEXT
+
+* Match renamed items in Chris's Premades.
+
 # 3.4.3
 
 * Tweaks to Flame Tongue weapons to move damage back to damage block rather than as other damage when using midi-qol effects.
