@@ -187,6 +187,10 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
       .filterBaseModifiers(this.source.ddb, "bonus", skill.subType)
       .map((skl) => skl.value)
       .reduce((a, b) => a + b, 0) ?? 0;
+    let passiveBonus = DDBHelper
+      .filterBaseModifiers(this.source.ddb, "bonus", `passive-${skill.subType}`)
+      .map((skl) => skl.value)
+      .reduce((a, b) => a + b, 0) ?? 0;
     const customSkillBonus = this.getCustomSkillBonus(skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
     const value = this.raw.character.system.abilities[skill.ability].value + proficiencyBonus + skillBonus;
@@ -197,7 +201,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
     if (customAbility) {
       const label = "Skill Ability Changes";
       const change = {
-        key: `data.skills.${skill.name}.ability`,
+        key: `system.skills.${skill.name}.ability`,
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: `${customAbility}`,
         priority: "20"
@@ -222,7 +226,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
       bonus: 0,
       bonuses: {
         check: `${skillBonus}`,
-        passive: "",
+        passive: `${passiveBonus}`,
         minimum: null,
       },
     };

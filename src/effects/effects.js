@@ -43,6 +43,10 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "bonus", subType: "sleight-of-hand" },
   { type: "bonus", subType: "stealth" },
   { type: "bonus", subType: "survival" },
+
+  { type: "bonus", subType: "passive-insight" },
+  { type: "bonus", subType: "passive-investigation" },
+  { type: "bonus", subType: "passive-perception" },
   // advantage on skills - not added here as not used elsewhere in importer.
   // { type: "advantage", subType: "acrobatics" },
 
@@ -1017,12 +1021,24 @@ function addSkillMidiEffect(modifiers, name, skill, midiEffect = "advantage") {
   return effects;
 }
 
+function addSkillPassiveBonusEffect(modifiers, name, skill) {
+  const bonus = DDBHelper.getValueFromModifiers(modifiers, name, `passive-${skill.subType}`, "bonus");
+
+  let changes = [];
+  if (bonus) {
+    logger.debug(`Generating ${skill.subType} skill bonus for ${name}`, bonus);
+    changes.push(generateAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.passive`));
+  }
+  return changes;
+}
+
 function addSkillBonuses(modifiers, name) {
   let changes = [];
   DICTIONARY.character.skills.forEach((skill) => {
     const skillBonuses = addSkillBonusEffect(modifiers, name, skill);
+    const skillPassiveBonuses = addSkillPassiveBonusEffect(modifiers, name, skill);
     const skillAdvantages = addSkillMidiEffect(modifiers, name, skill, "advantage");
-    changes = changes.concat(skillBonuses, skillAdvantages);
+    changes = changes.concat(skillBonuses, skillPassiveBonuses, skillAdvantages);
   });
 
   return changes;

@@ -56,9 +56,10 @@ DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() 
     = DDBHelper.filterBaseModifiers(this.source.ddb, "half-proficiency", "initiative").length > 0;
 
   // observant
-  this.raw.character.flags.dnd5e.observantFeat = this.source.ddb.character.feats.some(
-    (feat) => feat.definition.name === "Observant"
-  );
+  // we now just add this to the skill
+  // this.raw.character.flags.dnd5e.observantFeat = this.source.ddb.character.feats.some(
+  //   (feat) => feat.definition.name === "Observant"
+  // );
 
   // weapon critical threshold
   // fighter improved crit

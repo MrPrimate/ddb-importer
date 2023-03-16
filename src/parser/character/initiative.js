@@ -7,8 +7,6 @@ DDBCharacter.prototype._generateInitiative = function _generateInitiative() {
 
   let initiativeBonus = DDBHelper.getValueFromModifiers(initMods, "initiative", "initiative", "bonus");
 
-  console.warn(initiativeBonus)
-
   if (initiativeBonus && this.raw.character.flags.dnd5e.initiativeAlert) {
     if (initiativeBonus.includes("+ 5")) {
       initiativeBonus = initiativeBonus.replace("+ 5", "");

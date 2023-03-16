@@ -1,3 +1,10 @@
+# NEXT UP
+
+* Slight code rewrites
+* Better handling of Alert and initiative bonuses if not used DAE.
+* Passive bonuses now added to skills.
+* Observant feat is no longer selected as a special trait, but the bonus applied to the skill.
+
 # 3.4.4
 
 * Match renamed items in Chris's Premades.
