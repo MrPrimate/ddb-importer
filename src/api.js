@@ -1,32 +1,32 @@
 // for exports
-import DDBMonster from "../../parser/DDBMonster.js";
-import DDBMonsterFactory from "../../muncher/DDBMonsterFactory.js";
-import { parseSpells } from "../../muncher/spells.js";
-import { parseItems } from "../../muncher/items.js";
-import { parseTransports } from "../../muncher/vehicles.js";
-import { updateWorldMonsters, resetCompendiumActorImages, parseCritters } from "../../muncher/tools.js";
-import { migrateExistingCompendium, createCompendiumFolderStructure } from "../../muncher/compendiumFolders.js";
-import DDBEncounterMunch from "../../parser/encounters/DDBEncounterMunch.js";
-import DDBEncounters from "../../parser/encounters/DDBEncounters.js";
-import { generateAdventureConfig } from "../../muncher/adventure.js";
-import { updateDDBCharacter } from "../../updater/character.js";
-import DDBCharacterManager, { importCharacter, importCharacterById } from "../../lib/DDBCharacterManager.js";
-import { checkCobalt } from "../../lib/Secrets.js";
-import { base64Check } from "../../lib/base64Check.js";
-import { getFeats } from "../../muncher/feats/feats.js";
-import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "../../effects/macros.js";
-import { iconPath } from "../../icons/index.js";
-import { loadSRDRules, importCacheLoad } from "../../lib/DDBTemplateStrings.js";
-import { getNPCImage } from "../../muncher/importMonster.js";
-import PatreonHelper from "../../lib/PatreonHelper.js";
-import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import FileHelper from "../../lib/FileHelper.js";
-import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
-import MuncherSettings from "../../muncher/MuncherSettings.js";
-import { generateIcon } from "../../lib/icons.js";
-import DDBProxy from "../../lib/DDBProxy.js";
-import DDBCompanion from "../../parser/companions/DDBCompanion.js";
-import DDBCompanionFactory from "../../parser/companions/DDBCompanionFactory.js";
+import DDBMonster from "./parser/DDBMonster.js";
+import DDBMonsterFactory from "./parser/DDBMonsterFactory.js";
+import { parseSpells } from "./muncher/spells.js";
+import { parseItems } from "./muncher/items.js";
+import { parseTransports } from "./muncher/vehicles.js";
+import { updateWorldMonsters, resetCompendiumActorImages, parseCritters } from "./muncher/tools.js";
+import { migrateExistingCompendium, createCompendiumFolderStructure } from "./muncher/compendiumFolders.js";
+import DDBEncounterMunch from "./apps/DDBEncounterMunch.js";
+import DDBEncounters from "./parser/DDBEncounters.js";
+import { generateAdventureConfig } from "./muncher/adventure.js";
+import { updateDDBCharacter } from "./updater/character.js";
+import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
+import { checkCobalt } from "./lib/Secrets.js";
+import { base64Check } from "./lib/base64Check.js";
+import { getFeats } from "./muncher/feats/feats.js";
+import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "./effects/macros.js";
+import { iconPath } from "./icons/index.js";
+import { loadSRDRules, importCacheLoad } from "./lib/DDBTemplateStrings.js";
+import { getNPCImage } from "./muncher/importMonster.js";
+import PatreonHelper from "./lib/PatreonHelper.js";
+import CompendiumHelper from "./lib/CompendiumHelper.js";
+import FileHelper from "./lib/FileHelper.js";
+import { DirectoryPicker } from "./lib/DirectoryPicker.js";
+import MuncherSettings from "./lib/MuncherSettings.js";
+import { generateIcon } from "./lib/icons.js";
+import DDBProxy from "./lib/DDBProxy.js";
+import DDBCompanion from "./parser/companions/DDBCompanion.js";
+import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.js";
 import {
   checkTargetInRange,
   configureCustomAAForCondition,
@@ -34,14 +34,14 @@ import {
   findContainedTokensInTemplate,
   addDDBIEffectToDocument,
   addDDBIEffectsToActorDocuments,
-} from "../../effects/helpers.js";
+} from "./effects/helpers.js";
 import {
   applyChrisPremadeEffect,
   applyChrisPremadeEffects,
   addChrisEffectsToActorDocuments,
-} from "../../effects/chrisPremades.js";
-import SETTINGS from "../../settings.js";
-import DICTIONARY from "../../dictionary.js";
+} from "./effects/chrisPremades.js";
+import SETTINGS from "./settings.js";
+import DICTIONARY from "./dictionary.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);

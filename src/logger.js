@@ -1,3 +1,5 @@
+import FileHelper from "./lib/FileHelper.js";
+
 const logger = {
 
   LOG_PREFIX: "DDB Importer",
@@ -136,3 +138,21 @@ const logger = {
 
 };
 export default logger;
+
+
+function downloadLog() {
+  FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log), `ddbimporter-log-data.json`, "application/json");
+  setProperty(CONFIG.debug, "ddbimporter.log", []);
+}
+
+export function setupLogger() {
+  const enabledDebugLogging = false;
+
+  const defaults = {
+    record: enabledDebugLogging,
+    log: [],
+    download: downloadLog,
+  };
+
+  setProperty(CONFIG.debug, "ddbimporter", defaults);
+}

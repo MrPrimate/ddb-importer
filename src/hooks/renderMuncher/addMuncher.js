@@ -1,4 +1,4 @@
-import DDBMuncher from "../../muncher/DDBMuncher.js";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 import { DDBSetup, DDBCookie, isSetupComplete, isValidKey } from "../../lib/Settings.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 

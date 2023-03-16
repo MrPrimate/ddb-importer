@@ -1,7 +1,7 @@
-import utils from "./utils.js";
-import FileHelper from "./FileHelper.js";
-import CompendiumHelper from "./CompendiumHelper.js";
-import MuncherSettings from "../muncher/MuncherSettings.js";
+import utils from "../lib/utils.js";
+import FileHelper from "../lib/FileHelper.js";
+import CompendiumHelper from "../lib/CompendiumHelper.js";
+import MuncherSettings from "../lib/MuncherSettings.js";
 import logger from "../logger.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import {
@@ -20,10 +20,10 @@ import {
 import { addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../icons/index.js";
 import { updateDDBCharacter } from "../updater/character.js";
-import { generateCharacterExtras } from "../parser/extras/extras.js";
+import { generateCharacterExtras } from "../parser/DDBExtras.js";
 import DICTIONARY from "../dictionary.js";
-import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "./Secrets.js";
-import { DDBCookie } from "./Settings.js";
+import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
+import { DDBCookie } from "../lib/Settings.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
 import { addContainerItemsToContainers, addContainerItemsToActor } from "../parser/special/itemCollections.js";

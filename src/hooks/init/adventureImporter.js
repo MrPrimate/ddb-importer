@@ -1,4 +1,4 @@
-import { DDBAdventureImporter } from "../../lib/DDBAdventureImporter.js";
+import { DDBAdventureImporter } from "../../apps/DDBAdventureImporter.js";
 import SETTINGS from "../../settings.js";
 
 export default function () {

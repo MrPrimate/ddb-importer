@@ -1,9 +1,8 @@
 import "./hooks/init/extendClasses.js";
-import logger from "./logger.js";
+import logger, { setupLogger } from "./logger.js";
 
 // init hooks
-import setupLogging from "./hooks/init/setupLogging.js";
-import { registerApi } from "./hooks/init/api.js";
+import { registerApi } from "./api.js";
 import { chatHooks } from "./hooks/init/chatHooks.js";
 import adventureImporter from "./hooks/init/adventureImporter.js";
 
@@ -38,7 +37,7 @@ import { activateUpdateHooks } from "./updater/character.js";
 // foundry is initializing
 export function init() {
   earlySettings();
-  setupLogging();
+  setupLogger();
   registerApi();
   chatHooks();
   adventureImporter();

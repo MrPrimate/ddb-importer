@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import { updateCompendium, srdFiddling } from "../import.js";
-import DDBMuncher from "../DDBMuncher.js";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 import DDBRace from "../../parser/race/DDBRace.js";
 
 const FEATURE_DUP = [

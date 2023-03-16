@@ -1,5 +1,5 @@
 import SETTINGS from "../settings.js";
-import DDBProxy from "./DDBProxy.js";
+import DDBProxy from "../lib/DDBProxy.js";
 
 
 export class DDBProxySetup extends FormApplication {

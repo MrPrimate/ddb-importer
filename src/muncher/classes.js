@@ -1,6 +1,6 @@
 // Main module class
 import { getClasses } from "./classes/classes.js";
-import DDBMuncher from "./DDBMuncher.js";
+import DDBMuncher from "../apps/DDBMuncher.js";
 import { getSubClasses } from "./classes/subclasses.js";
 import { getClassOptions } from "./classes/options.js";
 import { getCobalt } from "../lib/Secrets.js";

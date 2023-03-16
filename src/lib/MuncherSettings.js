@@ -1,9 +1,9 @@
 // import logger from "../logger.js";
 import logger from "../logger.js";
-import FileHelper from "../lib/FileHelper.js";
-import PatreonHelper from "../lib/PatreonHelper.js";
-import { getCobalt } from "../lib/Secrets.js";
-import DDBSources from "../lib/DDBSources.js";
+import FileHelper from "./FileHelper.js";
+import PatreonHelper from "./PatreonHelper.js";
+import { getCobalt } from "./Secrets.js";
+import DDBSources from "../apps/DDBSources.js";
 import SETTINGS from "../settings.js";
 import { effectModules } from "../effects/effects.js";
 

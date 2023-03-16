@@ -1,6 +1,6 @@
 import { DirectoryPicker } from "./DirectoryPicker.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
-import DDBMuncher from "../muncher/DDBMuncher.js";
+import DDBMuncher from "../apps/DDBMuncher.js";
 import { getCobalt, setCobalt, moveCobaltToLocal, moveCobaltToSettings, checkCobalt } from "./Secrets.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";

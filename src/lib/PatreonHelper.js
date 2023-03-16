@@ -1,4 +1,4 @@
-import DDBMuncher from "../muncher/DDBMuncher.js";
+import DDBMuncher from "../apps/DDBMuncher.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "./DDBProxy.js";
 

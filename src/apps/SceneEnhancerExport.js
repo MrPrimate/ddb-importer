@@ -1,6 +1,6 @@
-import DDBSources from "../lib/DDBSources.js";
+import DDBSources from "./DDBSources.js";
 import logger from "../logger.js";
-import FileHelper from "./FileHelper.js";
+import FileHelper from "../lib/FileHelper.js";
 
 /**
    * Extracts all notes that have been placed by ddb-importer

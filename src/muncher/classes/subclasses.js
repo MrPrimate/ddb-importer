@@ -4,7 +4,7 @@ import FileHelper from "../../lib/FileHelper.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
-import DDBMuncher from "../DDBMuncher.js";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 import utils from "../../lib/utils.js";
 // import { buildClassFeatures } from "../../parser/classes/index.js";
 

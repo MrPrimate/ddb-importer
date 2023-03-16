@@ -5,8 +5,8 @@ import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
 import AdventureMunch from "./AdventureMunch.js";
 import SETTINGS from "../../settings.js";
-import DDBMonsterFactory from "../DDBMonsterFactory.js";
-import DDBMuncher from "../DDBMuncher.js";
+import DDBMonsterFactory from "../../parser/DDBMonsterFactory.js";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 
 export default class AdventureMunchHelpers {
 

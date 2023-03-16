@@ -1,4 +1,4 @@
-import DDBMuncher from "../muncher/DDBMuncher.js";
+import DDBMuncher from "./DDBMuncher.js";
 
 export default class DDBSources extends FormApplication {
   static get defaultOptions() {

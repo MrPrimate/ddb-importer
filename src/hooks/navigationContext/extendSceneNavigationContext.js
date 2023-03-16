@@ -1,6 +1,6 @@
 // import utils from "../../lib/utils.js";
 import FileHelper from "../../lib/FileHelper.js";
-import { collectSceneData, SceneEnhancerExport } from "../../lib/SceneEnhancerExport.js";
+import { collectSceneData, SceneEnhancerExport } from "../../apps/SceneEnhancerExport.js";
 
 function getSceneId(li) {
   return $(li).attr("data-document-id")

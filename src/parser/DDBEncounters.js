@@ -1,11 +1,11 @@
 
-import logger from "../../logger.js";
-import FileHelper from "../../lib/FileHelper.js";
-import { getCobalt } from "../../lib/Secrets.js";
-import { getAvailableCampaigns } from "../../lib/Settings.js";
-import SETTINGS from "../../settings.js";
-import DDBProxy from "../../lib/DDBProxy.js";
-import DDBEncounterMunch from "./DDBEncounterMunch.js";
+import logger from "../logger.js";
+import FileHelper from "../lib/FileHelper.js";
+import { getCobalt } from "../lib/Secrets.js";
+import { getAvailableCampaigns } from "../lib/Settings.js";
+import SETTINGS from "../settings.js";
+import DDBProxy from "../lib/DDBProxy.js";
+import DDBEncounterMunch from "../apps/DDBEncounterMunch.js";
 
 export default class DDBEncounters {
 

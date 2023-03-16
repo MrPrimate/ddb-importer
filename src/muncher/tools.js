@@ -1,10 +1,10 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
-import DDBMuncher from "./DDBMuncher.js";
+import DDBMuncher from "../apps/DDBMuncher.js";
 import { copySupportedItemFlags } from "./import.js";
 import { getNPCImage } from "./importMonster.js";
-import DDBMonsterFactory from "./DDBMonsterFactory.js";
+import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 
 let totalTargets = 0;
 let count = 0;

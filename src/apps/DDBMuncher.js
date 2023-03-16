@@ -1,27 +1,27 @@
 // Main module class
 import logger from "../logger.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
-import { parseItems } from "./items.js";
-import { parseSpells } from "./spells.js";
-import { parseRaces } from "./races.js";
-import { parseFeats } from "./feats.js";
-import { parseClasses } from "./classes.js";
-import { parseFrames } from "./frames.js";
+import { parseItems } from "../muncher/items.js";
+import { parseSpells } from "../muncher/spells.js";
+import { parseRaces } from "../muncher/races.js";
+import { parseFeats } from "../muncher/feats.js";
+import { parseClasses } from "../muncher/classes.js";
+import { parseFrames } from "../muncher/frames.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { base64Check } from "../lib/base64Check.js";
-import { downloadAdventureConfig } from "./adventure.js";
-import AdventureMunch from "./adventure/AdventureMunch.js";
-import ThirdPartyMunch from "./adventure/ThirdPartyMunch.js";
-import MuncherSettings from "./MuncherSettings.js";
-import { migrateExistingCompendium } from "./compendiumFolders.js";
+import { downloadAdventureConfig } from "../muncher/adventure.js";
+import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
+import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
+import MuncherSettings from "../lib/MuncherSettings.js";
+import { migrateExistingCompendium } from "../muncher/compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
 import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
-import { updateWorldMonsters, resetCompendiumActorImages } from "./tools.js";
-import { parseBackgrounds } from "./backgrounds.js";
-import { parseTransports } from "./vehicles.js";
-import DDBSources from "../lib/DDBSources.js";
+import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
+import { parseBackgrounds } from "../muncher/backgrounds.js";
+import { parseTransports } from "../muncher/vehicles.js";
+import DDBSources from "./DDBSources.js";
 import SETTINGS from "../settings.js";
-import DDBMonsterFactory from "./DDBMonsterFactory.js";
+import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {

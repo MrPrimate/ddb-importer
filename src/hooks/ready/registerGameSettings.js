@@ -1,5 +1,5 @@
 import DICTIONARY from "../../dictionary.js";
-import { DDBProxySetup } from "../../lib/DDBProxySetup.js";
+import { DDBProxySetup } from "../../apps/DDBProxySetup.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup, DDBLocationSetup } from "../../lib/Settings.js";
 import SETTINGS from "../../settings.js";

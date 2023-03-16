@@ -1,15 +1,15 @@
 import logger from "../logger.js";
-import DDBMonster from "../parser/DDBMonster.js";
+import DDBMonster from "./DDBMonster.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
 
-import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
-import { createCompendiumFolderStructure } from "./compendiumFolders.js";
+import { srdFiddling, getCompendiumItems, removeItems } from "../muncher/import.js";
+import { createCompendiumFolderStructure } from "../muncher/compendiumFolders.js";
 
 // targets for migration
-import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium, useSRDMonsterImages } from "./importMonster.js";
+import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium, useSRDMonsterImages } from "../muncher/importMonster.js";
 
 export default class DDBMonsterFactory {
 

@@ -1,10 +1,10 @@
-import logger from "../../logger.js";
-import utils from "../../lib/utils.js";
-import DDBMonsterFactory from "../../muncher/DDBMonsterFactory.js";
-import { getAbilityMods } from "../monster/helpers.js";
-import DICTIONARY from "../../dictionary.js";
-import SETTINGS from "../../settings.js";
-import DDBCompanionFactory from "../companions/DDBCompanionFactory.js";
+import logger from "../logger.js";
+import utils from "../lib/utils.js";
+import DDBMonsterFactory from "./DDBMonsterFactory.js";
+import { getAbilityMods } from "./monster/helpers.js";
+import DICTIONARY from "../dictionary.js";
+import SETTINGS from "../settings.js";
+import DDBCompanionFactory from "./companions/DDBCompanionFactory.js";
 
 function getCustomValue(ddbCharacter, typeId, valueId, valueTypeId) {
   const characterValues = ddbCharacter.characterValues;

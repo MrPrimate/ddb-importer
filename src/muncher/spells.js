@@ -1,6 +1,6 @@
 // Main module class
 import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
-import DDBMuncher from "./DDBMuncher.js";
+import DDBMuncher from "../apps/DDBMuncher.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 import FileHelper from "../lib/FileHelper.js";
 import logger from "../logger.js";

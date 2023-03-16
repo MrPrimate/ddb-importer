@@ -2,7 +2,7 @@ import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import FileHelper from "../lib/FileHelper.js";
 import { updateIcons, getCompendiumItems, getSRDImageLibrary, copySRDIcons, compendiumFolders } from "./import.js";
-import DDBMuncher from "./DDBMuncher.js";
+import DDBMuncher from "../apps/DDBMuncher.js";
 import { migrateItemsDAESRD } from "./dae.js";
 import SETTINGS from "../settings.js";
 import utils from "../lib/utils.js";

@@ -1,5 +1,5 @@
-import { DDBItemConfig } from "../../lib/DDBItemConfig.js";
-import { DDBAdventureFlags } from "../../lib/DDBAdventureFlags.js";
+import { DDBItemConfig } from "../../apps/DDBItemConfig.js";
+import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags.js";
 
 function initItemSheetHook(app, html) {
   if (!app.document.isOwned) return;
