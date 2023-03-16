@@ -53,6 +53,7 @@ import { slasherReduceSpeedEffect } from "./feats/slasherReduceSpeed.js";
 import { slasherCriticalEffect } from "./feats/slasherCritical.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
 import { arcaneRecoveryEffect } from "./feats/arcaneRecovery.js";
+import { alertEffect } from "./feats/alert.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -92,6 +93,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
 
   if (deps.daeInstalled) {
     switch (name) {
+      case "Alert": {
+        document = alertEffect(document);
+        break;
+      }
       // if using active auras add the aura effect
       case "Aura of Courage":
       case "Aura of Protection": {

@@ -48,6 +48,7 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
 
   // initiative
   { type: "advantage", subType: "initiative" },
+  { type: "bonus", subType: "initiative" },
 
   { type: "bonus", subType: "strength-ability-checks" },
   { type: "bonus", subType: "dexterity-ability-checks" },
@@ -450,78 +451,12 @@ function attunedItemsBonus(actor, change) {
 Hooks.on("applyActiveEffect", attunedItemsBonus);
 
 
-//
-function extractModifierValue(modifier) {
-  let value = "";
-  let modBonus = "";
-
-  let statBonus = (modifier.statId)
-    ? modifier.statId
-    : modifier.abilityModifierStatId
-      ? modifier.abilityModifierStatId
-      : null;
-
-  if (statBonus) {
-    const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId).value;
-    modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `+ @abilities.${ability}.mod`;
-  }
-
-  const die = modifier.dice ? modifier.dice : modifier.die ? modifier.die : undefined;
-
-  if (die) {
-    const fixedBonus = die.fixedValue ? ` + ${die.fixedValue}` : "";
-    if (die.diceString) {
-      value = die.diceString + modBonus + fixedBonus;
-    } else if (fixedBonus) {
-      value = fixedBonus + modBonus;
-    }
-  } else if (modifier.fixedValue) {
-    value = modifier.fixedValue;
-  } else if (modifier.value) {
-    value = modifier.value;
-  } else if (modBonus) {
-    value = modBonus;
-  }
-
-  if (value === "" && modifier.subType == "saving-throws" && modifier.bonusTypes.includes(2)) {
-    // we set the value to zero and when the saving throw is calculated it will
-    // be updated by the attunedItemsBonus function above
-    value = "ATTUNED_ITEM_BONUS";
-  }
-
-  return value;
-}
-
-
-function getValueFromModifiers(modifiers, name, modifierSubType, modifierType = "bonus") {
-  let bonuses;
-  const bonusEffects = DDBHelper.filterModifiers(modifiers, modifierType, modifierSubType, null);
-
-  if (bonusEffects.length > 0) {
-    logger.debug(`Generating ${modifierSubType} ${modifierType} for ${name}`);
-    bonuses = "";
-    bonusEffects.forEach((modifier) => {
-      let bonusParse = extractModifierValue(modifier);
-      if (bonuses !== "") bonuses += " + ";
-      bonuses += bonusParse;
-    });
-    if (bonuses === "") {
-      bonuses = undefined;
-      logger.debug(`Modifier value 0 for ${modifierSubType} ${modifierType} for ${name}. Reset to undefined`);
-    } else {
-      logger.debug(`Modifier value string for ${modifierSubType} ${modifierType} for ${name}`, bonuses);
-    }
-  }
-
-  return bonuses;
-}
-
 /**
  * Generates a global custom bonus for an item with a +
  */
 function addCustomBonusEffect(modifiers, name, type, key) {
   let changes = [];
-  const bonuses = getValueFromModifiers(modifiers, name, type, "bonus");
+  const bonuses = DDBHelper.getValueFromModifiers(modifiers, name, type, "bonus");
 
   if (bonuses) {
     changes.push(generateCustomChange(`${bonuses}`, 18, key));
@@ -552,7 +487,7 @@ function addGlobalSavingBonusEffect(modifiers, name) {
     logger.debug(`Generating ${type} bonus for ${name}`);
     let bonuses = "";
     regularModifiers.forEach((modifier) => {
-      let bonusParse = extractModifierValue(modifier);
+      let bonusParse = DDBHelper.extractModifierValue(modifier);
       if (bonuses !== "") bonuses += " + ";
       bonuses += bonusParse;
     });
@@ -583,7 +518,7 @@ function addCustomEffect(modifiers, name, type, key, extra = "") {
 export function addAddEffect(modifiers, name, type, key) {
   let changes = [];
   // const bonus = DDBHelper.filterModifiers(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
-  const bonus = getValueFromModifiers(modifiers, name, type, "bonus");
+  const bonus = DDBHelper.getValueFromModifiers(modifiers, name, type, "bonus");
   if (bonus) {
     logger.debug(`Generating ${type} bonus for ${name}`, bonus);
     changes.push(generateAddChange(`+ ${bonus}`, 18, key));
@@ -1028,7 +963,7 @@ function addHPEffect(ddb, modifiers, name, consumable) {
   if (hpBonusModifiers.length > 0 && !consumable) {
     let hpBonus = "";
     hpBonusModifiers.forEach((modifier) => {
-      let hpParse = extractModifierValue(modifier);
+      let hpParse = DDBHelper.extractModifierValue(modifier);
       if (hpBonus !== "") hpBonus += " + ";
       hpBonus += hpParse;
     });
@@ -1042,7 +977,7 @@ function addHPEffect(ddb, modifiers, name, consumable) {
 // Generate skill bonuses
 //
 function addSkillBonusEffect(modifiers, name, skill) {
-  const bonus = getValueFromModifiers(modifiers, name, skill.subType, "bonus");
+  const bonus = DDBHelper.getValueFromModifiers(modifiers, name, skill.subType, "bonus");
 
   let changes = [];
   if (bonus) {
@@ -1100,9 +1035,16 @@ function addInitiativeBonuses(modifiers, name) {
   let changes = [];
   const advantage = DDBHelper.filterModifiers(modifiers, "advantage", "initiative");
   if (advantage.length > 0) {
-    logger.debug(`Generating Intiative advantage for ${name}`);
+    logger.debug(`Generating Initiative advantage for ${name}`);
     changes.push(generateCustomChange(1, 20, "flags.dnd5e.initiativeAdv"));
   }
+
+  const advantageBonus = DDBHelper.getValueFromModifiers(modifiers, "initiative", "initiative", "bonus");
+  if (advantageBonus) {
+    logger.debug(`Generating Initiative bonus for ${name}`);
+    changes.push(generateAddChange(advantageBonus, 20, "system.attributes.init.bonus"));
+  }
+
   return changes;
 }
 

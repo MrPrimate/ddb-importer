@@ -737,6 +737,70 @@ const DDBHelper = {
     }
   },
 
+  extractModifierValue(modifier) {
+    let value = "";
+    let modBonus = "";
+
+    let statBonus = (modifier.statId)
+      ? modifier.statId
+      : modifier.abilityModifierStatId
+        ? modifier.abilityModifierStatId
+        : null;
+
+    if (statBonus) {
+      const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId).value;
+      modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `+ @abilities.${ability}.mod`;
+    }
+
+    const die = modifier.dice ? modifier.dice : modifier.die ? modifier.die : undefined;
+
+    if (die) {
+      const fixedBonus = die.fixedValue ? ` + ${die.fixedValue}` : "";
+      if (die.diceString) {
+        value = die.diceString + modBonus + fixedBonus;
+      } else if (fixedBonus) {
+        value = fixedBonus + modBonus;
+      }
+    } else if (modifier.fixedValue) {
+      value = modifier.fixedValue;
+    } else if (modifier.value) {
+      value = modifier.value;
+    } else if (modBonus) {
+      value = modBonus;
+    }
+
+    if (value === "" && modifier.subType == "saving-throws" && modifier.bonusTypes.includes(2)) {
+      // we set the value to zero and when the saving throw is calculated it will
+      // be updated by the attunedItemsBonus function above
+      value = "ATTUNED_ITEM_BONUS";
+    }
+
+    return value;
+  },
+
+  getValueFromModifiers(modifiers, name, modifierSubType, modifierType = "bonus") {
+    let bonuses;
+    const bonusEffects = DDBHelper.filterModifiers(modifiers, modifierType, modifierSubType, null);
+
+    if (bonusEffects.length > 0) {
+      logger.debug(`Generating ${modifierSubType} ${modifierType} for ${name}`);
+      bonuses = "";
+      bonusEffects.forEach((modifier) => {
+        let bonusParse = DDBHelper.extractModifierValue(modifier);
+        if (bonuses !== "") bonuses += " + ";
+        bonuses += bonusParse;
+      });
+      if (bonuses === "") {
+        bonuses = undefined;
+        logger.debug(`Modifier value 0 for ${modifierSubType} ${modifierType} for ${name}. Reset to undefined`);
+      } else {
+        logger.debug(`Modifier value string for ${modifierSubType} ${modifierType} for ${name}`, bonuses);
+      }
+    }
+
+    return bonuses;
+  },
+
 };
 
 export default DDBHelper;
