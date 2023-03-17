@@ -12,6 +12,10 @@ div.ddbCharacterName {
   visibility: hidden;
 }
 
+.ddbimporter-none {
+  display: none;
+}
+
 .ddbimporter div.form-section {
   display: flex;
   flex-direction: row;

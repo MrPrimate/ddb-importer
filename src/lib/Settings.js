@@ -123,7 +123,14 @@ function getDDBCampaigns(cobalt = null) {
       body: JSON.stringify(body), // body data type must match "Content-Type" header
     })
       .then((response) => response.json())
-      .then((data) => resolve(data.data))
+      .then((data) => {
+        if (data.success) {
+          resolve(data.data);
+        } else {
+          logger.error(`Campaign fetch failed, got the following message: ${data.message}`, data);
+          resolve([]);
+        }
+      })
       .catch((error) => {
         logger.error(`Cobalt cookie check error`);
         logger.error(error);
@@ -387,16 +394,23 @@ export class DDBSetup extends FormApplication {
       event.preventDefault();
       const cookie = html.find("#cobalt-cookie-input");
       const campaigns = await refreshCampaigns(cookie[0].value);
-      let campaignList = `<option value="">Select campaign:</option>`;
-      if (Array.isArray(campaigns)) {
-        campaigns.forEach((campaign) => {
-          campaignList += `<option value="${campaign.id}">${campaign.name} (${campaign.dmUsername}) - ${campaign.id}</option>\n`;
-        });
-      } else {
-        logger.warn("Unable to fetch campaigns", campaigns);
-      }
       const list = html.find("#campaign-select");
-      list[0].innerHTML = campaignList;
+      let campaignList = `<option value="">Select campaign:</option>`;
+      if (!campaigns || (Array.isArray(campaigns) && campaigns.length === 0)) {
+        const fallback = html.find("#ddb-campaign-fallback");
+        list[0].classList.add("ddbimporter-none");
+        fallback[0].classList.remove("ddbimporter-none");
+        logger.warn("Unable to fetch campaigns", campaigns);
+      } else {
+        if (Array.isArray(campaigns) && campaigns.length > 0) {
+          campaigns.forEach((campaign) => {
+            campaignList += `<option value="${campaign.id}">${campaign.name} (${campaign.dmUsername}) - ${campaign.id}</option>\n`;
+          });
+        }
+
+        list[0].innerHTML = campaignList;
+      }
+
     });
     html.find("#check-cobalt-button").click(async (event) => {
       event.preventDefault();
@@ -418,7 +432,10 @@ export class DDBSetup extends FormApplication {
   async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
     const campaignSelect = formData['campaign-select'];
-    const campaignId = campaignSelect == 0 ? "" : campaignSelect;
+    const fallbackCampaign = formData['campaign-fallback'];
+    const campaignId = fallbackCampaign !== ""
+      ? fallbackCampaign ?? ""
+      : campaignSelect == 0 ? "" : campaignSelect;
     const cobaltCookie = formData['cobalt-cookie'];
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
     const currentKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");

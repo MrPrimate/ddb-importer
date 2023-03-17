@@ -5,6 +5,7 @@
 * Passive bonuses now added to skills.
 * Observant feat is no longer selected as a special trait, but the bonus applied to the skill.
 * Armor of Agathys set to util to avoid scaling issue in core for healing spells.
+* Fallback to manual campaign ID entry if campaign api endpoint unavailable.
 
 # 3.4.4
 
