@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.5
 
 * Slight code rewrites
 * Better handling of Alert and initiative bonuses if not used DAE.
