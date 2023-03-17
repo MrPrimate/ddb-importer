@@ -257,7 +257,7 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Armor of Agathys": {
-        spell.system.actionType = "heal";
+        spell.system.actionType = "util";
         spell.system.target.type = "self";
         spell.system.damage.parts[0] = ["5", "temphp"];
         spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
