@@ -8,7 +8,7 @@ export default class DDBFeature {
 
   #generateAdjustedName() {
     if (!this.stripName) return;
-    const regex = /(.*)\s*\((:?costs \d actions|\d\/day|recharge \d-\d)\)/i;
+    const regex = /(.*)\s*\((:?costs \d actions|Recharges after a Short or Long Rest|\d\/day|recharge \d-\d)\)/i;
     const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
     if (nameMatch) {
       this.feature.name = nameMatch[1];
@@ -297,6 +297,13 @@ export default class DDBFeature {
       uses.per = "day";
       const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
       if (perMatch) uses.per = perMatch.value;
+    } else {
+      const shortMatchesRegex = /(Recharges after a Short or Long Rest)/i;
+      if (shortMatchesRegex.test(this.name)) {
+        uses.per = "sr";
+        uses.value = 1;
+        uses.max = 1;
+      }
     }
 
     return uses;

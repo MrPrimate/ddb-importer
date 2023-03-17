@@ -6,6 +6,7 @@
 * Observant feat is no longer selected as a special trait, but the bonus applied to the skill.
 * Armor of Agathys set to util to avoid scaling issue in core for healing spells.
 * Fallback to manual campaign ID entry if campaign api endpoint unavailable.
+* Duergar's "Enlarge" and "Invisibility"  unaffected by the importer's strip recharge information from item name feature.
 
 # 3.4.4
 
