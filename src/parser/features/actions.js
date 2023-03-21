@@ -505,6 +505,27 @@ function getAttackType(ddb, character, action, weapon) {
   return weapon;
 }
 
+function getSystemActionType(ddb, action) {
+  if (ddb.character.actions.class.some((a) =>
+    a.name === action.name
+    || (hasProperty(a, "definition.name") && a.definition.name === action.definition?.name)
+  )) {
+    return "class";
+  } else if (ddb.character.actions.race.some((a) =>
+    a.name === action.name
+    || (hasProperty(a, "definition.name") && a.definition.name === action.definition?.name)
+  )) {
+    return "race";
+  } else if (ddb.character.actions.feat.some((a) =>
+    a.name === action.name
+    || (hasProperty(a, "definition.name") && a.definition.name === action.definition?.name)
+  )) {
+    return "feat";
+  } else {
+    return "";
+  }
+}
+
 const excludedActionFeatures = ["Unarmed Strike"];
 
 function getAttackAction(ddb, character, action) {
@@ -557,6 +578,7 @@ function getAttackAction(ddb, character, action) {
     feature.system.uses = getLimitedUse(action, character);
     feature.system.consume = getResource(character, action);
     feature.system.properties = getProperties(ddb, feature);
+    setProperty(feature, "system.type.value", getSystemActionType(ddb, action));
 
     feature = addFlagHints(ddb, character, action, feature);
     feature = addFeatEffects(ddb, character, action, feature);
@@ -690,6 +712,7 @@ function getOtherActions(ddb, character, parsedActions) {
       if (action.infusionFlags) {
         setProperty(feature, "flags.infusions", action.infusionFlags);
       }
+      setProperty(feature, "system.type.value", getSystemActionType(ddb, action));
       feature.system.activation = getActivation(action);
       feature.system.description = getDescription(ddb, character, action);
       feature.system.uses = getLimitedUse(action, character);

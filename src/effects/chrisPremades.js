@@ -50,6 +50,37 @@ async function getFolderId(name, type, compendiumName) {
   return allFolders.find((f) => f.name === name)?.id;
 }
 
+function getType(doc, isMonster = false) {
+  if (DICTIONARY.types.inventory.includes(doc.type)) {
+    return "inventory";
+  }
+  if (doc.type !== "feat") return doc.type;
+
+  // feats cover a variety of sins, lets try and narrow it down
+  if (isMonster) return "monsterfeature";
+
+  // lets see if we have marked this as a class or race type
+  const systemTypeValue = getProperty(doc, "system.type.value");
+  if (systemTypeValue && systemTypeValue !== "") {
+    if (systemTypeValue === "class") return "features";
+    if (systemTypeValue === "race") return "traits";
+    return systemTypeValue;
+  }
+
+  // can we derive the type from the ddb importer type flag?
+  const ddbType = getProperty(doc, "flags.ddbimporter.type");
+  if (ddbType && !["", "other"].includes(ddbType)) {
+    if (ddbType === "class") return "features";
+    if (ddbType === "race") return "traits";
+    return ddbType;
+  }
+
+  if (doc.type === "feat") {
+    return "features";
+  }
+
+  return doc.type;
+}
 
 export async function applyChrisPremadeEffect(document, type, folderName = null) {
   if (!game.modules.get("chris-premades")?.active) return document;
@@ -88,7 +119,7 @@ export async function applyChrisPremadeEffect(document, type, folderName = null)
 }
 
 
-export async function applyChrisPremadeEffects(documents, compendiumItem = false, force = false) {
+export async function applyChrisPremadeEffects(documents, compendiumItem = false, force = false, isMonster = false) {
   if (!game.modules.get("chris-premades")?.active) return documents;
 
   const applyChrisEffects = force || compendiumItem
@@ -97,12 +128,8 @@ export async function applyChrisPremadeEffects(documents, compendiumItem = false
   if (!applyChrisEffects) return documents;
 
   for (let doc of documents) {
-    let type = doc.type;
-
-    if (["class", "subclass", "background"].includes(type)) continue;
-    if (DICTIONARY.types.inventory.includes(doc.type)) {
-      type = "inventory";
-    }
+    if (["class", "subclass", "background"].includes(doc.type)) continue;
+    const type = getType(doc, isMonster);
 
     doc = await applyChrisPremadeEffect(doc, type);
   }
@@ -118,13 +145,12 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
   const toDelete = [];
 
   for (let doc of documents) {
-    let type = doc.type;
-
-    if (["class", "subclass", "background"].includes(type)) continue;
+    if (["class", "subclass", "background"].includes(doc.type)) continue;
+    const type = getType(doc);
     const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
-    if (!compendiumName) continue;
-    if (DICTIONARY.types.inventory.includes(doc.type)) {
-      type = "inventory";
+    if (!compendiumName) {
+      logger.debug(`No Chris Compendium mapping for ${type} yet parsing ${doc.name}`);
+      continue;
     }
 
     const ddbName = doc.flags.ddbimporter?.originalName ?? doc.name;
@@ -140,7 +166,18 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
       for (const newItemName of newItemNames) {
         logger.debug(`Adding new item ${newItemName}`);
         const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, newItemName, true, folderId);
-        if (!documents.find((d) => d.name === chrisDoc.name)) toAdd.push(chrisDoc);
+        if (!chrisDoc) {
+          logger.error(`DDB Importer expected to find an item in Chris's Premades for ${newItemName} but did not`, {
+            ddbName,
+            doc,
+            chrisName,
+            newItemNames,
+            documents,
+            compendiumName,
+          });
+        } else if (!documents.find((d) => d.name === chrisDoc.name)) {
+          toAdd.push(chrisDoc);
+        }
       }
     }
 
@@ -172,7 +209,8 @@ export async function addChrisEffectsToActorDocuments(actor) {
 
   logger.info("Starting to update actor documents with Chris Premades effects");
   let documents = actor.getEmbeddedCollection("Item").toObject();
-  const data = await applyChrisPremadeEffects(documents, false, true);
+  const isMonster = actor.type === "npc";
+  const data = await applyChrisPremadeEffects(documents, false, true, isMonster);
   await actor.updateEmbeddedDocuments("Item", data);
   await addAndReplaceRedundantChrisDocuments(actor);
   logger.info("Effect replacement complete");

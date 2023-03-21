@@ -275,6 +275,9 @@ Use the following workflow:
 
 If you like the SRD art them the ["Forgotten Adventures"](https://www.forgotten-adventures.net/product-category/tokens/) tokens and also the [Token Variant Art](https://foundryvtt.com/packages/token-variants) module which allows you to easily apply the art from such packs to tokens.
 
+## I want to use tokens like Forgotten Adventures etc
+
+If you want other art like ["Forgotten Adventures"](https://www.forgotten-adventures.net/product-category/tokens/) the [Token Variant Art](https://foundryvtt.com/packages/token-variants) module which allows you to easily apply the art from such packs to monster compendiums.
 
 ## How can I purge a compendium of all content munched by DDBI?
 

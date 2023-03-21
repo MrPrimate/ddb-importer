@@ -1,3 +1,7 @@
+# NEXT UP
+
+* Improvements to item matching for Chris's Premades.
+
 # 3.4.5
 
 * Slight code rewrites

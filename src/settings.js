@@ -46,8 +46,9 @@ const CHRIS_PREMADES_COMPENDIUM_LOOKUPS = [
   { type: "spell", name: "chris-premades.CPR Spells" },
   { type: "features", name: "chris-premades.CPR Class Features" },
   { type: "traits", name: "chris-premades.CPR Race Features" },
-  { type: "feat", name: "chris-premades.CPR Class Features" },
-  { type: "feats", name: "chris-premades.CPR Class Features" },
+  // these are now left uncommented for possible future Feat support
+  // { type: "feat", name: "chris-premades.CPR Class Features" },
+  // { type: "feats", name: "chris-premades.CPR Class Features" },
   { type: "inventory", name: "chris-premades.CPR Items" },
   { type: "weapon", name: "chris-premades.CPR Items" },
   { type: "consumable", name: "chris-premades.CPR Items" },
@@ -55,6 +56,7 @@ const CHRIS_PREMADES_COMPENDIUM_LOOKUPS = [
   { type: "loot", name: "chris-premades.CPR Items" },
   { type: "backpack", name: "chris-premades.CPR Items" },
   { type: "equipment", name: "chris-premades.CPR Items" },
+  { type: "monsterfeature", name: "chris-premades.CPR Monster Features" },
   { type: "monsterfeatures", name: "chris-premades.CPR Monster Features" },
 ];
 
