@@ -38,6 +38,7 @@ export async function zephyrStrikeEffect(document) {
     },
   );
 
+  document.system.target.type = "self";
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   setProperty(document, "system.actionType", "other");

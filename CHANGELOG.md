@@ -1,6 +1,7 @@
 # NEXT UP
 
 * Improvements to item matching for Chris's Premades.
+* Zephyr Strike effect improvements.
 
 # 3.4.5
 

@@ -17,6 +17,7 @@ const effectData = {
       priority: 20,
     },
   ],
+  flags: { dae: { specialDuration: ["turnEndSource"] } },
 };
 
 ChatMessage.create({ content: `${targetActor.name} gains 30ft of movement until the end of their turn` });
