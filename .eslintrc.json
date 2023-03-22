@@ -68,7 +68,8 @@
     "Ray": true,
     "fromUuidSync": true,
     "Token": true,
-    "chrisPremades": true
+    "chrisPremades": true,
+    "NoteConfig": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,

@@ -19,17 +19,11 @@ function updateSlugField(element, slug) {
   slugInput.setAttribute('value', slug);
 }
 
-async function saveSlug(note, slug) {
-  await note.scene.updateEmbeddedDocuments("Note", [
-    {
-      _id: note.id,
-      flags: {
-        "anchor.slug": slug,
-        "ddb.slugLink": slug,
-        "ddb.labelName": note.label,
-      },
-    },
-  ]);
+function setSlugProperties(doc, slug, label) {
+  setProperty(doc, "flags.anchor.slug", slug);
+  setProperty(doc, "flags.ddb.slugLink", slug);
+  setProperty(doc, "flags.ddb.labelName", label);
+  return doc;
 }
 
 export function anchorInjection() {
@@ -46,35 +40,36 @@ export function anchorInjection() {
     }
   });
 
-  // when we render a note we add the
+  // when we render a note we add the anchor links box
   Hooks.on("renderNoteConfig", (noteConfig) => {
     const slug = noteConfig.document.flags.ddb?.slugLink
       ?? noteConfig.document.flags.anchor?.slug
       ?? "";
-    addSlugField(noteConfig.element[0], slug);
+    if (!noteConfig.element[0].querySelector("input[name='slug']")) addSlugField(noteConfig.element[0], slug);
     noteConfig.element[0].style.height = "auto";
+    const isExistingNote = noteConfig.document.id !== null;
 
-    // capture notes that are now refreshed after this point
-    const closeRefreshId = Hooks.on("refreshNote", async (note) => {
-      if (noteConfig.document.id !== note.document.id && noteConfig.document.id !== null) return;
-      // capture note config close hooks and trigger a check on that
-      const closeNoteId = Hooks.on("closeNoteConfig", async (closeNoteConfig) => {
-        if (noteConfig.id == closeNoteConfig.id) {
-          Hooks.off("closeNoteConfig", closeNoteId);
-          Hooks.off("refreshNote", closeRefreshId);
-          const slugInput = closeNoteConfig.element[0].querySelector("input[name='slug']");
-          const slug = slugInput.value;
-          if (slug && slug.trim() !== "" && slug !== closeNoteConfig.document.flags.ddb?.slugLink) {
-            logger.debug("Saving anchor slug", {
-              slug,
-              note: note,
-              noteId: note._id,
-            });
-            await saveSlug(note, slugInput.value);
-          }
+    if (isExistingNote) {
+      const closeHookId = Hooks.on("closeDocumentSheet", async (documentSheet, html) => {
+        if (!(documentSheet instanceof NoteConfig)) return;
+        if (noteConfig.document.id !== documentSheet.document.id) return;
+        Hooks.off("closeNoteConfig", closeHookId);
+        const slugInput = html[0].querySelector("input[name='slug']");
+        const slug = slugInput.value;
+        if (slug && slug.trim() !== "" && slug !== documentSheet.document.flags.ddb?.slugLink) {
+          const update = setSlugProperties({ _id: documentSheet.document.id }, slug, documentSheet.document.label);
+          await canvas.scene.updateEmbeddedDocuments("Note", [update]);
         }
       });
-    });
+    }
+  });
+
+  // handle new notes, we just inject the slug properties into the source from the sheet data
+  Hooks.on("preCreateNote", (note, data) => {
+    if (data.slug) {
+      const flagData = setSlugProperties(deepClone(note), data.slug, data.text);
+      note.updateSource({ flags: flagData.flags });
+    };
   });
 
   Hooks.on("dropCanvasData", (_, dropData) => {

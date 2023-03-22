@@ -1,3 +1,7 @@
+# COMING SOON
+
+* When placing new notes with anchor links, it was possible to update many notes with the incorrect anchor link.
+
 # 3.4.6
 
 * Improvements to item matching for Chris's Premades.
