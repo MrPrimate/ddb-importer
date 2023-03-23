@@ -1,3 +1,7 @@
+# NEXT UP
+
+* Improve Pack Tactics effect.
+
 # 3.4.7
 
 * When placing new notes with anchor links, it was possible to update many notes with the incorrect anchor link.

@@ -7,7 +7,7 @@ export function generatePackTacticsEffect(document) {
     {
       key: "flags.midi-qol.advantage.attack.all",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: "findNearby(1, tokenUuid, 5, 0).length > 0",
+      value: "findNearby(-1, targetUuid, 5, 0).length > 1",
       priority: "20",
     },
   );
