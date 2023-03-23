@@ -125,7 +125,7 @@ export async function parseSpells(ids = null) {
     ? srdSpells.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : srdSpells;
   const daeSpells = await daeFiddling(filteredSpells);
-  const finalSpells = await applyChrisPremadeEffects(daeSpells, true);
+  const finalSpells = await applyChrisPremadeEffects({ documents: daeSpells, compendiumItem: true });
 
   const finalCount = finalSpells.length;
   DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);

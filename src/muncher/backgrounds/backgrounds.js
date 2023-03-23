@@ -78,7 +78,7 @@ export async function getBackgrounds(data) {
 
   const fiddledBackgrounds = await srdFiddling(backgrounds, "backgrounds");
   const daeBackgrounds = await daeFiddling(fiddledBackgrounds);
-  const finalBackgrounds = await applyChrisPremadeEffects(daeBackgrounds, true);
+  const finalBackgrounds = await applyChrisPremadeEffects({ documents: daeBackgrounds, compendiumItem: true });
 
   DDBMuncher.munchNote(`Importing ${finalBackgrounds.length} backgrounds!`, true);
   await updateCompendium("backgrounds", { backgrounds: finalBackgrounds }, updateBool);

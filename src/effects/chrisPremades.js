@@ -82,12 +82,12 @@ function getType(doc, isMonster = false) {
   return doc.type;
 }
 
-export async function applyChrisPremadeEffect(document, type, folderName = null) {
+export async function applyChrisPremadeEffect({ document, type, folderName = null, chrisNameOverride = null } = {}) {
   if (!game.modules.get("chris-premades")?.active) return document;
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
   if (!compendiumName) return document;
   const ddbName = document.flags.ddbimporter?.originalName ?? document.name;
-  const chrisName = CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
+  const chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
   const folderId = type === "monsterfeatures"
     ? await getFolderId(folderName ?? chrisName, type, compendiumName)
     : undefined;
@@ -113,13 +113,14 @@ export async function applyChrisPremadeEffect(document, type, folderName = null)
 
   setProperty(document, "flags.ddbimporter.effectsApplied", true);
   setProperty(document, "flags.ddbimporter.chrisEffectsApplied", true);
+  setProperty(document, "flags.ddbimporter.chrisPreEffectName", ddbName);
   logger.debug(`Updated ${document.name} with a Chris effect`);
 
   return document;
 }
 
 
-export async function applyChrisPremadeEffects(documents, compendiumItem = false, force = false, isMonster = false) {
+export async function applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, isMonster = false, folderName = null } = {}) {
   if (!game.modules.get("chris-premades")?.active) return documents;
 
   const applyChrisEffects = force || compendiumItem
@@ -131,10 +132,119 @@ export async function applyChrisPremadeEffects(documents, compendiumItem = false
     if (["class", "subclass", "background"].includes(doc.type)) continue;
     const type = getType(doc, isMonster);
 
-    doc = await applyChrisPremadeEffect(doc, type);
+    doc = await applyChrisPremadeEffect({ document: doc, type, folderName });
   }
 
   return documents;
+}
+
+
+// eslint-disable-next-line complexity
+export async function restrictedItemReplacer(actor, folderName = null) {
+  if (!game.modules.get("chris-premades")?.active) return;
+  logger.debug("Beginning additions and removals of restricted effects.");
+
+  const documents = actor.getEmbeddedCollection("Item").toObject();
+  const restrictedItems = getProperty(CONFIG, `chrisPremades.restrictedItems`);
+  const sortedItems = restrictedItems.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
+
+  const toAdd = [];
+  const toDelete = [];
+
+  for (let restrictedItem of sortedItems) {
+
+    const doc = documents.find((d) => {
+      const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? d.flags.ddbimporter?.originalName ?? d.name;
+      return ddbName.name === restrictedItem.originalName;
+    });
+    if (["class", "subclass", "background"].includes(doc.type)) continue;
+    const ddbName = doc.flags.ddbimporter?.chrisPreEffectName ?? doc.flags.ddbimporter?.originalName ?? doc.name;
+
+    const rollData = actor.getRollData();
+
+    if (restrictedItem.requiredClass && !rollData.classes[restrictedItem.requiredClass.toLowerCase()]) continue;
+    if (restrictedItem.requiredSubclass) {
+      const subClassData = rollData.classes[restrictedItem.requiredClass.toLowerCase()].subclass;
+      if (!subClassData) continue;
+      if (subClassData.parent.name.toLowerCase() !== restrictedItem.requiredSubclass.toLowerCase()) continue;
+    }
+    if (restrictedItem.requiredRace && restrictedItem.requiredRace !== rollData.details.race) continue;
+
+
+    if (restrictedItem.requiredEquipment) {
+      for (const doc of restrictedItem.requiredEquipment) {
+        const itemMatch = documents.some((d) => d.name === doc.name && DICTIONARY.types.inventory.includes(doc.type));
+        if (!itemMatch) continue;
+      }
+    }
+
+    if (restrictedItem.requiredFeature) {
+      for (const doc of restrictedItem.requiredFeature) {
+        const itemMatch = documents.some((d) => d.name === doc.name && doc.type === "feat");
+        if (!itemMatch) continue;
+      }
+    }
+
+    // now replace the matched item with the replaced Item
+    if (restrictedItem.replacedItemName && restrictedItem.replacedItemName !== "") {
+      let document = duplicate(doc);
+      const type = getType(document);
+      document = await applyChrisPremadeEffect({ document, type, folderName, chrisNameOverride: restrictedItem.replacedItemName });
+      await actor.updateEmbeddedDocuments("Item", [document]);
+    }
+
+
+    if (restrictedItem.additionalItems && restrictedItem.additionalItems.length > 0) {
+      logger.debug(`Adding new items for ${ddbName}`);
+      // come back and make this work
+      const docAdd = documents.find((d) => d.name === ddbName);
+      if (docAdd) {
+        const type = getType(docAdd);
+        const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
+        if (!compendiumName) {
+          logger.debug(`No Chris Compendium mapping for ${type} yet parsing ${docAdd.name}`);
+        }
+        const folderId = type === "monsterfeatures"
+          ? await getFolderId(folderName ?? ddbName, type, compendiumName)
+          : undefined;
+
+        for (const newItemName of restrictedItem.additionalItems) {
+          logger.debug(`Adding new item ${newItemName}`);
+          const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, newItemName, true, folderId);
+          // eslint-disable-next-line max-depth
+          if (!chrisDoc) {
+            logger.error(`DDB Importer expected to find an item in Chris's Premades for ${newItemName} but did not`, {
+              ddbName,
+              doc: docAdd,
+              additionalItems: restrictedItem.additionalItems,
+              documents,
+              compendiumName,
+            });
+          } else if (!documents.find((d) => d.name === chrisDoc.name)) {
+            toAdd.push(chrisDoc);
+          }
+        }
+      }
+    }
+
+    if (restrictedItem.removedItems && restrictedItem.removedItems.length > 0) {
+      logger.debug(`Removing items for ${ddbName}`);
+      for (const removeItemName of restrictedItem.removedItems) {
+        logger.debug(`Removing item ${removeItemName}`);
+        const deleteDoc = documents.find((d) => d.name === removeItemName);
+        if (deleteDoc) toDelete.push(deleteDoc._id);
+      }
+    }
+
+  }
+
+  logger.debug("Adding and removing the following restricted Chris's Premades", {
+    toDelete,
+    toAdd,
+  });
+  await actor.deleteEmbeddedDocuments("Item", toDelete);
+  await actor.createEmbeddedDocuments("Item", toAdd);
+
 }
 
 export async function addAndReplaceRedundantChrisDocuments(actor, folderName = null) {
@@ -210,8 +320,11 @@ export async function addChrisEffectsToActorDocuments(actor) {
   logger.info("Starting to update actor documents with Chris Premades effects");
   let documents = actor.getEmbeddedCollection("Item").toObject();
   const isMonster = actor.type === "npc";
-  const data = await applyChrisPremadeEffects(documents, false, true, isMonster);
+  const folderName = isMonster ? actor.name : undefined;
+  const data = await applyChrisPremadeEffects({ documents, compendiumItem: false, force: true, isMonster });
   await actor.updateEmbeddedDocuments("Item", data);
+  await restrictedItemReplacer(actor, folderName);
   await addAndReplaceRedundantChrisDocuments(actor);
   logger.info("Effect replacement complete");
 }
+

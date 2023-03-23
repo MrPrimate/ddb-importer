@@ -81,7 +81,7 @@ export async function getFeats(data) {
 
   const fiddledFeats = await srdFiddling(feats, "feats");
   const daeFeats = await daeFiddling(fiddledFeats);
-  const finalFeats = await applyChrisPremadeEffects(daeFeats, true);
+  const finalFeats = await applyChrisPremadeEffects({ documents: daeFeats, compendiumItem: true });
 
   DDBMuncher.munchNote(`Importing ${finalFeats.length} feats!`, true);
   await updateCompendium("feats", { feats: finalFeats }, updateBool);

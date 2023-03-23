@@ -199,7 +199,7 @@ export async function parseItems(ids = null) {
     ? srdItems.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : srdItems;
   const daeItems = await daeFiddling(filteredItems);
-  const finalItems = await applyChrisPremadeEffects(daeItems, true);
+  const finalItems = await applyChrisPremadeEffects({ documents: daeItems, compendiumItem: true });
 
   const finalCount = finalItems.length;
   DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);

@@ -251,10 +251,10 @@ export default class DDBCharacter {
   }
 
   async _applyChrisPremades() {
-    await applyChrisPremadeEffects(this.data.inventory, false);
-    await applyChrisPremadeEffects(this.data.spells, false);
-    await applyChrisPremadeEffects(this.data.features, false);
-    await applyChrisPremadeEffects(this.data.actions, false);
+    await applyChrisPremadeEffects({ documents: this.data.inventory });
+    await applyChrisPremadeEffects({ documents: this.data.spells });
+    await applyChrisPremadeEffects({ documents: this.data.features });
+    await applyChrisPremadeEffects({ documents: this.data.actions });
   }
 
 }

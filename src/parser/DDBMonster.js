@@ -244,7 +244,7 @@ export default class DDBMonster {
     if (this.addChrisPremades) {
       for (let item of this.npc.items) {
         // eslint-disable-next-line no-await-in-loop
-        await applyChrisPremadeEffect(item, "monsterfeatures", this.npc.name);
+        await applyChrisPremadeEffect({ document: item, type: "monsterfeatures", folderName: this.npc.name });
       }
     }
 
