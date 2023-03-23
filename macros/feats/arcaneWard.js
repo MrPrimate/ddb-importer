@@ -66,7 +66,7 @@ if (args[0].macroPass === "preActiveEffects" && args[0].item?.system.school === 
         content: `${lastArg.originItem.name} absorbs ${absorbed} of ${damage} points of damage.<br> Hp -> ${newHP}<br>Wardstength -> ${wardStrength - absorbed}`,
         speaker
       });
-      lastArg.updates.system.attributes.hp.value = newHP;
+      lastArg.updates.system.attributes.hp.value = oldHP; //Set hp to oldHP so the uses update, won't be interpreted as taking damage.
       await lastArg.targetActor.updateEmbeddedDocuments("Item", [{
         _id: hpItem._id,
         system: {
@@ -75,6 +75,7 @@ if (args[0].macroPass === "preActiveEffects" && args[0].item?.system.school === 
           }
         }
       }]);
+      lastArg.updates.system.attributes.hp.value = newHP; //Hp is actually set here.
     }
   }
   return true;
