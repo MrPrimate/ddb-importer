@@ -1,5 +1,4 @@
 import DICTIONARY from "../../dictionary.js";
-import utils from "../../lib/utils.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import { generateBaseSkillEffect } from "../../effects/effects.js";
 import logger from "../../logger.js";
@@ -149,15 +148,12 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
           ? ` + ${customSkillMatch.magicBonus}`
           : "";
         if (customSkillMatch) {
+          const checkBonus = (miscBonus + magicBonus).trim();
           this.raw.character.system.skills[key] = {
-            type: "Number",
-            label: value.label,
             ability: value.ability,
             value: prof,
-            mod: utils.calculateModifier(value),
-            bonus: 0,
             bonuses: {
-              "check": `${(miscBonus + magicBonus).trim()}`,
+              "check": `${parseInt(checkBonus) === 0 ? "" : checkBonus}`,
               "passive": "",
               "minimum": null,
             },
@@ -177,23 +173,17 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
     // we use !== undefined because the return value could be 0, which is falsey
     const proficient = customProficient !== undefined ? customProficient : this.getSkillProficiency(skill);
 
-    // some abilities round half prof up, some down
-    const proficiencyBonus = this._isHalfProficiencyRoundedUp(skill)
-      ? Math.ceil(2 * this.raw.character.system.attributes.prof * proficient)
-      : Math.floor(2 * this.raw.character.system.attributes.prof * proficient);
-
     // Skill bonuses
     const skillModifierBonus = DDBHelper
       .filterBaseModifiers(this.source.ddb, "bonus", skill.subType)
       .map((skl) => skl.value)
-      .reduce((a, b) => a + b, 0) ?? 0;
-    let passiveBonus = DDBHelper
+      .reduce((a, b) => a + b, 0) ?? "";
+    const passiveBonus = DDBHelper
       .filterBaseModifiers(this.source.ddb, "bonus", `passive-${skill.subType}`)
       .map((skl) => skl.value)
-      .reduce((a, b) => a + b, 0) ?? 0;
+      .reduce((a, b) => a + b, 0) ?? "";
     const customSkillBonus = this.getCustomSkillBonus(skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
-    const value = this.raw.character.system.abilities[skill.ability].value + proficiencyBonus + skillBonus;
     const customAbility = this.getCustomSkillAbility(skill);
     const ability = customAbility !== undefined ? customAbility : skill.ability;
 
@@ -218,15 +208,11 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
     }
 
     this.raw.character.system.skills[skill.name] = {
-      type: "Number",
-      label: skill.label,
-      ability: ability,
       value: proficient,
-      mod: utils.calculateModifier(value),
-      bonus: 0,
+      ability: ability,
       bonuses: {
-        check: `${skillBonus}`,
-        passive: `${passiveBonus}`,
+        check: `${parseInt(skillBonus) === 0 ? "" : skillBonus}`,
+        passive: `${parseInt(passiveBonus) === 0 ? "" : passiveBonus}`,
         minimum: null,
       },
     };
