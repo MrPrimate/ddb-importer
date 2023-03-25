@@ -1,6 +1,10 @@
-# NEXT UP
+# 3.4.8
 
 * Improve Pack Tactics effect.
+* Green Flame Blade Effect - Tweak animations for recent versions of Sequencer.
+* Darkness spell tweaks for breaking changes in Advanced Macros.
+* Fix for campaign selection not always saving campaign value.
+* Supported for specific class/subclass/racial feature replacement with Chris's Premades. e.g. different versions of bardic inspiration depending on the subclass chosen.
 
 # 3.4.7
 

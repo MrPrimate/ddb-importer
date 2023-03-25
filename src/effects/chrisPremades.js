@@ -146,17 +146,22 @@ export async function restrictedItemReplacer(actor, folderName = null) {
 
   const documents = actor.getEmbeddedCollection("Item").toObject();
   const restrictedItems = getProperty(CONFIG, `chrisPremades.restrictedItems`);
-  const sortedItems = restrictedItems.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
 
+  const sortedItems = Object.keys(restrictedItems).map((key) => {
+    const data = restrictedItems[key];
+    data["key"] = key;
+    return data;
+  }).sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
   const toAdd = [];
   const toDelete = [];
 
-  for (let restrictedItem of sortedItems) {
-
+  for (const restrictedItem of sortedItems) {
+    logger.debug(`Checking restricted Item ${restrictedItem.key}: ${restrictedItem.originalName}`);
     const doc = documents.find((d) => {
       const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? d.flags.ddbimporter?.originalName ?? d.name;
-      return ddbName.name === restrictedItem.originalName;
+      return ddbName === restrictedItem.originalName;
     });
+    if (!doc) continue;
     if (["class", "subclass", "background"].includes(doc.type)) continue;
     const ddbName = doc.flags.ddbimporter?.chrisPreEffectName ?? doc.flags.ddbimporter?.originalName ?? doc.name;
 
@@ -187,15 +192,17 @@ export async function restrictedItemReplacer(actor, folderName = null) {
 
     // now replace the matched item with the replaced Item
     if (restrictedItem.replacedItemName && restrictedItem.replacedItemName !== "") {
+      logger.debug(`Replacing item data for ${ddbName}, using restricted data from ${restrictedItem.key}`);
       let document = duplicate(doc);
       const type = getType(document);
       document = await applyChrisPremadeEffect({ document, type, folderName, chrisNameOverride: restrictedItem.replacedItemName });
-      await actor.updateEmbeddedDocuments("Item", [document]);
+      await actor.deleteEmbeddedDocuments("Item", [doc._id]);
+      await actor.createEmbeddedDocuments("Item", [document], { keepId: true });
     }
 
 
     if (restrictedItem.additionalItems && restrictedItem.additionalItems.length > 0) {
-      logger.debug(`Adding new items for ${ddbName}`);
+      logger.debug(`Adding new items for ${ddbName}, using restricted data from ${restrictedItem.key}`);
       // come back and make this work
       const docAdd = documents.find((d) => d.name === ddbName);
       if (docAdd) {
@@ -228,7 +235,7 @@ export async function restrictedItemReplacer(actor, folderName = null) {
     }
 
     if (restrictedItem.removedItems && restrictedItem.removedItems.length > 0) {
-      logger.debug(`Removing items for ${ddbName}`);
+      logger.debug(`Removing items for ${ddbName}, using restricted data from ${restrictedItem.key}`);
       for (const removeItemName of restrictedItem.removedItems) {
         logger.debug(`Removing item ${removeItemName}`);
         const deleteDoc = documents.find((d) => d.name === removeItemName);
@@ -321,8 +328,10 @@ export async function addChrisEffectsToActorDocuments(actor) {
   let documents = actor.getEmbeddedCollection("Item").toObject();
   const isMonster = actor.type === "npc";
   const folderName = isMonster ? actor.name : undefined;
-  const data = await applyChrisPremadeEffects({ documents, compendiumItem: false, force: true, isMonster });
-  await actor.updateEmbeddedDocuments("Item", data);
+  const data = (await applyChrisPremadeEffects({ documents, compendiumItem: false, force: true, isMonster }))
+    .filter((d) => getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true);
+  await actor.deleteEmbeddedDocuments("Item", data.map((d) => d._id));
+  await actor.createEmbeddedDocuments("Item", data.filter, { keepId: true });
   await restrictedItemReplacer(actor, folderName);
   await addAndReplaceRedundantChrisDocuments(actor);
   logger.info("Effect replacement complete");
