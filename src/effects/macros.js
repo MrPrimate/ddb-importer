@@ -113,7 +113,8 @@ export async function createMacro({ name, content, img, isGM, isTemp }) {
     "folder": macroFolder ? macroFolder.id : undefined,
     "flags": {
       "advanced-macros": {
-        "runAsGM": isGM
+        "runAsGM": isGM,
+        "runForSpecificUser": "",
       },
     }
   };

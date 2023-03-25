@@ -97,10 +97,10 @@ if (args[0] == "on") {
 }
 
 if (args[0] == "off") {
-  const darkWalls = canvas.walls.placeables.filter((w) => w.data.flags?.spellEffects?.Darkness?.ActorId === darknessParams.targetActorId);
+  const darkWalls = canvas.walls.placeables.filter((w) => w.document.flags?.spellEffects?.Darkness?.ActorId === darknessParams.targetActorId);
   const wallArray = darkWalls.map((w) => w.id);
-  const darkLights = canvas.lighting.placeables.filter((w) => w.data.flags?.spellEffects?.Darkness?.ActorId === darknessParams.targetActorId);
+  const darkLights = canvas.lighting.placeables.filter((w) => w.document.flags?.spellEffects?.Darkness?.ActorId === darknessParams.targetActorId);
   const lightArray = darkLights.map((w) => w.id);
-  await canvas.scene.deleteEmbeddedDocuments("Wall", wallArray);
-  await canvas.scene.deleteEmbeddedDocuments("AmbientLight", lightArray);
+  if (wallArray.length > 0) await canvas.scene.deleteEmbeddedDocuments("Wall", wallArray);
+  if (lightArray.length > 0) await canvas.scene.deleteEmbeddedDocuments("AmbientLight", lightArray);
 }
