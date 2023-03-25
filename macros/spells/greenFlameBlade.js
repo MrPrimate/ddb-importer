@@ -55,12 +55,16 @@ function sequencerEffect(target, origin = null) {
         .effect()
         .atLocation(origin)
         .stretchTo(target)
-        .file(secondary)
+        .file(patreonSecondary)
         .repeats(1, 200, 300)
         .randomizeMirrorY()
         .play();
     } else {
-      const attackAnimation = Sequencer.Database.entryExists(patreonPrimary) ?? Sequencer.Database.entryExists(freeSequence);
+      const attackAnimation = Sequencer.Database.entryExists(patreonPrimary)
+        ? patreonPrimary
+        : Sequencer.Database.entryExists(freeSequence)
+          ? freeSequence
+          : undefined;
       if (attackAnimation) {
         new Sequence()
           .effect()
