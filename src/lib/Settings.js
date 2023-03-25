@@ -433,7 +433,7 @@ export class DDBSetup extends FormApplication {
     event.preventDefault();
     const campaignSelect = formData['campaign-select'];
     const fallbackCampaign = formData['campaign-fallback'];
-    const campaignId = fallbackCampaign !== ""
+    const campaignId = fallbackCampaign && fallbackCampaign !== ""
       ? fallbackCampaign ?? ""
       : campaignSelect == 0 ? "" : campaignSelect;
     const cobaltCookie = formData['cobalt-cookie'];
