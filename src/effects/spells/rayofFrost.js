@@ -8,6 +8,7 @@ export function rayofFrostEffect(document) {
     mode: CONST.ACTIVE_EFFECT_MODES.ADD,
     priority: 20,
   });
+  effect.duration.rounds = 2;
   effect.flags.dae.specialDuration = ["turnStart"];
   document.effects.push(effect);
 
