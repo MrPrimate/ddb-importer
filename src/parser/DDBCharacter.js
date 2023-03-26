@@ -175,7 +175,7 @@ export default class DDBCharacter {
         await this.resourceSelectionDialog();
       }
       logger.debug("Character parse complete");
-      this._generateRace();
+      await this._generateRace();
       logger.debug("Race parse complete");
       this.raw.classes = await getClasses(this.source.ddb, this.raw.character);
       logger.debug("Classes parse complete");
@@ -251,10 +251,12 @@ export default class DDBCharacter {
   }
 
   async _applyChrisPremades() {
-    await applyChrisPremadeEffects({ documents: this.data.inventory });
-    await applyChrisPremadeEffects({ documents: this.data.spells });
-    await applyChrisPremadeEffects({ documents: this.data.features });
-    await applyChrisPremadeEffects({ documents: this.data.actions });
+    if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades")) {
+      await applyChrisPremadeEffects({ documents: this.data.inventory });
+      await applyChrisPremadeEffects({ documents: this.data.spells });
+      await applyChrisPremadeEffects({ documents: this.data.features });
+      await applyChrisPremadeEffects({ documents: this.data.actions });
+    }
   }
 
 }

@@ -64,7 +64,7 @@ export default class DDBRace {
     return this.data;
   }
 
-  async getRaceImage() {
+  async _generateRaceImage() {
     let avatarUrl;
     let largeAvatarUrl;
     let portraitAvatarUrl;
@@ -106,6 +106,7 @@ export default class DDBRace {
 
     const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
     this.data.system.description.value += image;
+    return image;
   }
 
   async buildRace() {
@@ -122,7 +123,7 @@ export default class DDBRace {
     this.data.flags.ddbimporter.moreDetailsUrl = this.race.moreDetailsUrl;
     this.data.flags.ddbimporter.featIds = this.race.featIds;
 
-    await this.getRaceImage();
+    await this._generateRaceImage();
 
     const compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
 
