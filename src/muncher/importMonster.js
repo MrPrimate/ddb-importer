@@ -214,12 +214,18 @@ export async function getNPCImage(npcData, options) {
   if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
   if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
 
+  const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+  const type = getProperty(npcData, "system.details.type.value") ?? "unknown";
+  const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+
   if (ddbAvatarUrl && getProperty(npcData, "flags.monsterMunch.imgSet") !== true) {
     const ext = ddbAvatarUrl.split(".").pop().split(/#|\?|&/)[0];
     const genericNpc = ddbAvatarUrl.endsWith(npcType + "." + ext);
     const name = genericNpc ? genericNPCName : npcName;
     const nameType = genericNpc ? "npc-generic" : "npc";
-    const downloadOptions = { type: nameType, name };
+    const imageNamePrefix = useDeepPaths ? "" : nameType;
+    const pathPostfix = useDeepPaths ? `/monster/avatar/${type}` : "";
+    const downloadOptions = { type: nameType, name, targetDirectory, pathPostfix, imageNamePrefix };
     // eslint-disable-next-line require-atomic-updates
     npcData.img = await FileHelper.getImagePath(ddbAvatarUrl, downloadOptions);
   }
@@ -230,7 +236,9 @@ export async function getNPCImage(npcData, options) {
     const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt);
     const name = genericNpc ? genericNPCName : npcName;
     const nameType = genericNpc ? "npc-generic-token" : "npc-token";
-    const downloadOptions = { type: nameType, name, download: true, remoteImages: false, force: true };
+    const imageNamePrefix = useDeepPaths ? "" : nameType;
+    const pathPostfix = useDeepPaths ? `/monster/token/${type}` : "";
+    const downloadOptions = { type: nameType, name, download: true, remoteImages: false, force: true, imageNamePrefix, pathPostfix, targetDirectory };
     // eslint-disable-next-line require-atomic-updates
     npcData.prototypeToken.texture.src = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
   }

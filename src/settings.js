@@ -457,6 +457,12 @@ const SETTINGS = {
           type: Boolean,
           default: true,
         },
+        "use-deep-file-paths": {
+          name: "ddb-importer.settings.use-deep-file-paths.name",
+          hint: "ddb-importer.settings.use-deep-file-paths.hint",
+          type: Boolean,
+          default: false,
+        },
       },
       // character settings
       CHARACTER: {

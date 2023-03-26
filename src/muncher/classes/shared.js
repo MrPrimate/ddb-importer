@@ -6,6 +6,7 @@ import DICTIONARY from "../../dictionary.js";
 import { generateTable } from "../table.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import utils from "../../lib/utils.js";
+import SETTINGS from "../../settings.js";
 
 const CLASS_TEMPLATE = {
   "name": "",
@@ -206,27 +207,28 @@ export async function getClassFeature(feature, klass, subClassName = "") {
   return result;
 }
 
-export async function buildBaseClass(klass) {
-  let result = await buildBase(klass);
-  logger.debug(`Parsing ${klass.name}`);
-  result.flags.obsidian.source.text = klass.name;
-  result.type = "class";
-  result.system.identifier = utils.referenceNameString(klass.name).toLowerCase();
-  result.system.advancement = [];
-
+export async function getClassImages(klass, result) {
   let avatarUrl;
   let largeAvatarUrl;
   let portraitAvatarUrl;
 
+  const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+  const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+  const name = klass.fullName ?? klass.name;
+
   if (klass.portraitAvatarUrl) {
-    const downloadOptions = { type: "class-portrait", name: klass.fullName };
+    const imageNamePrefix = useDeepPaths ? "" : "class-portrait";
+    const pathPostfix = useDeepPaths ? `/class/portrait` : "";
+    const downloadOptions = { type: "class-portrait", name, targetDirectory, imageNamePrefix, pathPostfix };
     portraitAvatarUrl = await FileHelper.getImagePath(klass.portraitAvatarUrl, downloadOptions);
     result.img = portraitAvatarUrl;
     result.flags.ddbimporter['portraitAvatarUrl'] = klass.portraitAvatarUrl;
   }
 
   if (klass.avatarUrl) {
-    const downloadOptions = { type: "class-avatar", name: klass.fullName };
+    const imageNamePrefix = useDeepPaths ? "" : "class-avatar";
+    const pathPostfix = useDeepPaths ? `/class/avatar` : "";
+    const downloadOptions = { type: "class-avatar", name, targetDirectory, imageNamePrefix, pathPostfix };
     avatarUrl = await FileHelper.getImagePath(klass.avatarUrl, downloadOptions);
     result.flags.ddbimporter['avatarUrl'] = klass.avatarUrl;
     if (!result.img) {
@@ -235,7 +237,9 @@ export async function buildBaseClass(klass) {
   }
 
   if (klass.largeAvatarUrl) {
-    const downloadOptions = { type: "class-large", name: klass.fullName };
+    const imageNamePrefix = useDeepPaths ? "" : "class-large";
+    const pathPostfix = useDeepPaths ? `/class/large` : "";
+    const downloadOptions = { type: "class-large", name, targetDirectory, imageNamePrefix, pathPostfix };
     largeAvatarUrl = await FileHelper.getImagePath(klass.largeAvatarUrl, downloadOptions);
     // eslint-disable-next-line require-atomic-updates
     result.flags.ddbimporter['largeAvatarUrl'] = klass.largeAvatarUrl;
@@ -245,12 +249,29 @@ export async function buildBaseClass(klass) {
     }
   }
 
-  const image = (avatarUrl)
-    ? `<img class="ddb-class-image" src="${avatarUrl}">\n\n`
-    : `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
+  if (avatarUrl || largeAvatarUrl) {
+    const image = (avatarUrl)
+      ? `<img class="ddb-class-image" src="${avatarUrl}">\n\n`
+      : `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
 
+    setProperty(result, "flags.ddbimporter.image", image);
+  } else {
+    setProperty(result, "flags.ddbimporter.image", "");
+  }
+
+}
+
+export async function buildBaseClass(klass) {
+  let result = await buildBase(klass);
+  logger.debug(`Parsing ${klass.name}`);
+  result.flags.obsidian.source.text = klass.name;
+  result.type = "class";
+  result.system.identifier = utils.referenceNameString(klass.name).toLowerCase();
+  result.system.advancement = [];
+
+  await getClassImages(klass, result);
   // eslint-disable-next-line require-atomic-updates
-  result.system.description.value += image;
+  result.system.description.value += getProperty(result, "flags.ddbimporter.image");
 
   // eslint-disable-next-line require-atomic-updates
   result.flags.ddbimporter['parentClassId'] = klass.parentClassId;

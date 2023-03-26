@@ -1,8 +1,7 @@
 import logger from "../../logger.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
-import FileHelper from "../../lib/FileHelper.js";
 import { parseTags } from "../../lib/DDBTemplateStrings.js";
-import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
+import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements, getClassImages } from "./shared.js";
 import { updateCompendium, srdFiddling } from "../import.js";
 import DDBMuncher from "../../apps/DDBMuncher.js";
 import utils from "../../lib/utils.js";
@@ -10,41 +9,7 @@ import utils from "../../lib/utils.js";
 
 async function buildSubClassBase(klass, subClass) {
   delete klass['_id'];
-
-  let avatarUrl;
-  let largeAvatarUrl;
-  let portraitAvatarUrl;
-
-  if (subClass.portraitAvatarUrl) {
-    const downloadOptions = { type: "class-portrait", name: subClass.fullName };
-    portraitAvatarUrl = await FileHelper.getImagePath(subClass.portraitAvatarUrl, downloadOptions);
-    // eslint-disable-next-line require-atomic-updates
-    klass.img = portraitAvatarUrl;
-    // eslint-disable-next-line require-atomic-updates
-    klass.flags.ddbimporter['portraitAvatarUrl'] = subClass.portraitAvatarUrl;
-  }
-
-  if (subClass.avatarUrl) {
-    const downloadOptions = { type: "class-avatar", name: subClass.fullName };
-    avatarUrl = await FileHelper.getImagePath(subClass.avatarUrl, downloadOptions);
-    // eslint-disable-next-line require-atomic-updates
-    klass.flags.ddbimporter['avatarUrl'] = subClass.avatarUrl;
-    if (!klass.img) {
-      // eslint-disable-next-line require-atomic-updates
-      klass.img = avatarUrl;
-    }
-  }
-
-  if (subClass.largeAvatarUrl) {
-    const downloadOptions = { type: "class-large", name: subClass.fullName };
-    largeAvatarUrl = await FileHelper.getImagePath(subClass.largeAvatarUrl, downloadOptions);
-    // eslint-disable-next-line require-atomic-updates
-    klass.flags.ddbimporter['largeAvatarUrl'] = subClass.largeAvatarUrl;
-    if (!klass.img) {
-      // eslint-disable-next-line require-atomic-updates
-      klass.img = largeAvatarUrl;
-    }
-  }
+  await getClassImages(subClass, klass);
 
   // eslint-disable-next-line require-atomic-updates
   klass.flags.ddbimporter['parentClassId'] = subClass.parentClassId;
@@ -55,11 +20,9 @@ async function buildSubClassBase(klass, subClass) {
   // eslint-disable-next-line require-atomic-updates
   klass.flags.ddbimporter['moreDetailsUrl'] = subClass.moreDetailsUrl;
 
-  if (avatarUrl || largeAvatarUrl) {
+  const image = getProperty(klass, "flags.ddbimporter.image");
+  if (image && image !== "") {
     const imageMatch = /$<img class="ddb-class-image"(.*)$/;
-    const image = (avatarUrl)
-      ? `<img class="ddb-class-image" src="${avatarUrl}">\n\n`
-      : `<img class="ddb-class-image" src="${largeAvatarUrl}">\n\n`;
     klass.system.description.value.replace(imageMatch, image);
   }
 

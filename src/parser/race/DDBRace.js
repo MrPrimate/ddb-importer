@@ -2,6 +2,7 @@ import { parseTags } from "../../lib/DDBTemplateStrings.js";
 import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from "../../lib/CompendiumHelper.js";
 import FileHelper from "../../lib/FileHelper.js";
+import SETTINGS from "../../settings.js";
 
 
 export default class DDBRace {
@@ -63,12 +64,52 @@ export default class DDBRace {
     return this.data;
   }
 
-  async buildRace() {
-    this.buildBase();
-
+  async getRaceImage() {
     let avatarUrl;
     let largeAvatarUrl;
     let portraitAvatarUrl;
+
+    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+
+    if (this.race.portraitAvatarUrl) {
+      const imageNamePrefix = useDeepPaths ? "" : "race-portrait";
+      const pathPostfix = useDeepPaths ? `/race/portrait` : "";
+      const downloadOptions = { type: "race-portrait", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix };
+      portraitAvatarUrl = await FileHelper.getImagePath(this.race.portraitAvatarUrl, downloadOptions);
+      this.data.img = portraitAvatarUrl;
+      this.data.flags.ddbimporter['portraitAvatarUrl'] = this.race.portraitAvatarUrl;
+    }
+
+    if (this.race.avatarUrl) {
+      const imageNamePrefix = useDeepPaths ? "" : "race-avatar";
+      const pathPostfix = useDeepPaths ? `/race/avatar` : "";
+      const downloadOptions = { type: "race-avatar", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix };
+      avatarUrl = await FileHelper.getImagePath(this.race.avatarUrl, downloadOptions);
+      this.data.flags.ddbimporter['avatarUrl'] = this.race.avatarUrl;
+      if (!this.data.img) {
+        this.data.img = avatarUrl;
+      }
+    }
+
+    if (this.race.largeAvatarUrl) {
+      const imageNamePrefix = useDeepPaths ? "" : "race-large";
+      const pathPostfix = useDeepPaths ? `/race/large` : "";
+      const downloadOptions = { type: "race-large", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix };
+      largeAvatarUrl = await FileHelper.getImagePath(this.race.largeAvatarUrl, downloadOptions);
+      // eslint-disable-next-line require-atomic-updates
+      this.data.flags.ddbimporter['largeAvatarUrl'] = this.race.largeAvatarUrl;
+      if (!this.data.img) {
+        this.data.img = largeAvatarUrl;
+      }
+    }
+
+    const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
+    this.data.system.description.value += image;
+  }
+
+  async buildRace() {
+    this.buildBase();
 
     this.data.flags.ddbimporter.baseRaceId = this.race.baseRaceId;
     this.data.flags.ddbimporter.baseName = this.race.baseName;
@@ -81,34 +122,7 @@ export default class DDBRace {
     this.data.flags.ddbimporter.moreDetailsUrl = this.race.moreDetailsUrl;
     this.data.flags.ddbimporter.featIds = this.race.featIds;
 
-    if (this.race.portraitAvatarUrl) {
-      const downloadOptions = { type: "race-portrait", name: this.race.fullName };
-      portraitAvatarUrl = await FileHelper.getImagePath(this.race.portraitAvatarUrl, downloadOptions);
-      this.data.img = portraitAvatarUrl;
-      this.data.flags.ddbimporter['portraitAvatarUrl'] = this.race.portraitAvatarUrl;
-    }
-
-    if (this.race.avatarUrl) {
-      const downloadOptions = { type: "race-avatar", name: this.race.fullName };
-      avatarUrl = await FileHelper.getImagePath(this.race.avatarUrl, downloadOptions);
-      this.data.flags.ddbimporter['avatarUrl'] = this.race.avatarUrl;
-      if (!this.data.img) {
-        this.data.img = avatarUrl;
-      }
-    }
-
-    if (this.race.largeAvatarUrl) {
-      const downloadOptions = { type: "race-large", name: this.race.fullName };
-      largeAvatarUrl = await FileHelper.getImagePath(this.race.largeAvatarUrl, downloadOptions);
-      // eslint-disable-next-line require-atomic-updates
-      this.data.flags.ddbimporter['largeAvatarUrl'] = this.race.largeAvatarUrl;
-      if (!this.data.img) {
-        this.data.img = largeAvatarUrl;
-      }
-    }
-
-    const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
-    this.data.system.description.value += image;
+    await this.getRaceImage();
 
     const compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
 

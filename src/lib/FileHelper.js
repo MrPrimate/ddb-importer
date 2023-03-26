@@ -268,11 +268,24 @@ const FileHelper = {
     return encodeURI(uri);
   },
 
-  // const options = { type: "frame", name: `DDB ${frame.name}`, download: true, remoteImages: false, force: false };
-  getImagePath: async (imageUrl, { type = "ddb", name = "", download = false, remoteImages = false, force = false } = {}) => {
-    const frameDirectory = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory").replace(/^\/|\/$/g, "");
-    const otherDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    const uploadDirectory = type === "frame" ? frameDirectory : otherDirectory;
+  getImagePath: async (imageUrl, { type = "ddb", imageNamePrefix = "", name = undefined, download = false,
+    remoteImages = false, force = false, pathPostfix = "", targetDirectory = undefined } = {}
+  ) => {
+    if (!name || !targetDirectory) {
+      logger.error(`You must supply a targetDirectory and name for the image ${imageUrl}`, { name, targetDirectory, type });
+      throw new Error(`You must supply a targetDirectory and name for the image ${imageUrl}`);
+    }
+    logger.debug(`Getting image path for ${imageUrl}`, {
+      type,
+      imageNamePrefix,
+      name,
+      download,
+      remoteImages,
+      force,
+      pathPostfix,
+      targetDirectory,
+    });
+    const uploadDirectory = `${targetDirectory}${pathPostfix}`;
     const downloadImage = (download) ? download : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     const remoteImage = (remoteImages) ? remoteImages : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
@@ -284,7 +297,8 @@ const FileHelper = {
       if (!name) name = imageUrl.split("/").pop();
 
       // image upload
-      const filename = type + "-" + utils.referenceNameString(name);
+      const fileNamePrefix = !imageNamePrefix || imageNamePrefix.trim() === "" ? "" : `${imageNamePrefix}-`;
+      const filename = `${fileNamePrefix}${utils.referenceNameString(name)}`;
       const imageExists = await FileHelper.fileExists(uploadDirectory, filename + "." + ext);
 
       if (imageExists && !force) {
