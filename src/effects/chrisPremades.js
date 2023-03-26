@@ -92,6 +92,10 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
     ? await getFolderId(folderName ?? chrisName, type, compendiumName)
     : undefined;
 
+  // expected to find feature in a folder, but we could not
+  if (folderName && folderId === undefined) return document;
+
+  logger.warn(`CHRIS EFFECT: GETTING ${document.name} from ${compendiumName} with folderID ${folderId}`);
   const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, chrisName, true, folderId);
   if (!chrisDoc) return document;
 
@@ -124,8 +128,8 @@ export async function applyChrisPremadeEffects({ documents, compendiumItem = fal
   if (!game.modules.get("chris-premades")?.active) return documents;
 
   const applyChrisEffects = force || compendiumItem
-    ? game.settings.get("ddb-importer", "munching-policy-use-chris-premades")
-    : game.settings.get("ddb-importer", "character-update-policy-use-chris-premades");
+    ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades")
+    : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades");
   if (!applyChrisEffects) return documents;
 
   for (let doc of documents) {
