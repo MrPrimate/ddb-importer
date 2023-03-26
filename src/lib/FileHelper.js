@@ -48,6 +48,25 @@ const FileHelper = {
     }
   },
 
+  dirExistsUpdate: (dirList) => {
+    const targetFiles = dirList.filter((f) => !CONFIG.DDBI.KNOWN.DIRS.has(f));
+    for (const file of targetFiles) {
+      CONFIG.DDBI.KNOWN.DIRS.add(file);
+    }
+  },
+
+  doesDirExist: async (directoryPath) => {
+    const dir = DirectoryPicker.parse(directoryPath);
+    try {
+      await DirectoryPicker.browse(dir.activeSource, dir.current, {
+        bucket: dir.bucket,
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+
   generateCurrentFiles: async (directoryPath) => {
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
       logger.debug(`Checking for files in ${directoryPath}...`);
@@ -56,6 +75,7 @@ const FileHelper = {
         bucket: dir.bucket,
       });
       FileHelper.fileExistsUpdate(fileList.files);
+      FileHelper.dirExistsUpdate(fileList.dirs);
       // lets do some forge fun because
       if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
         if (fileList.bazaar) {

@@ -45,9 +45,9 @@ export function init() {
 }
 
 // foundry is ready
-export function onceReady() {
+export async function onceReady() {
   // register the game settings
-  registerGameSettings();
+  await registerGameSettings();
 
   // check for valid compendiums
   checkCompendiums();

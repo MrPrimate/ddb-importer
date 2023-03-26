@@ -464,7 +464,7 @@ const SETTINGS = {
           hint: "ddb-importer.settings.use-deep-file-paths.hint",
           type: Boolean,
           default: false,
-          requiresReload: true,
+          // requiresReload: true,
         },
       },
       // character settings

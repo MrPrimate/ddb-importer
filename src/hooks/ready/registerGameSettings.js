@@ -3,6 +3,7 @@ import { DDBProxySetup } from "../../apps/DDBProxySetup.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
 import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup, DDBLocationSetup } from "../../lib/Settings.js";
 import SETTINGS from "../../settings.js";
+import FileHelper from "../../lib/FileHelper.js";
 
 setProperty(CONFIG, "DDBI", {
   module: "DDB Importer",
@@ -18,6 +19,7 @@ setProperty(CONFIG, "DDBI", {
   KNOWN: {
     CHECKED_DIRS: new Set(),
     FILES: new Set(),
+    DIRS: new Set(),
     FORGE: {
       TARGET_URL_PREFIX: {},
       TARGETS: {},
@@ -83,12 +85,17 @@ class ResetSettingsDialog extends FormApplication {
   }
 }
 
-function createFolderPaths() {
+async function createFolderPaths() {
   if (game.user.isGM) {
     const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
-    const otherUploads = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
-    DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
     DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
+
+    const otherUploads = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
+    if (!(await FileHelper.doesDirExist(otherUploads))) {
+      await game.settings.set(SETTINGS.MODULE_ID, "use-deep-file-paths", true);
+    }
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
+
 
     const frameUploads = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
     DirectoryPicker.verifyPath(DirectoryPicker.parse(frameUploads));
@@ -101,7 +108,7 @@ function createFolderPaths() {
   }
 }
 
-export default function () {
+export default async function () {
 
   game.settings.registerMenu(SETTINGS.MODULE_ID, 'setupMenu', {
     name: `${SETTINGS.MODULE_ID}.settings.setup.name`,
@@ -144,7 +151,7 @@ export default function () {
   }
 
   // SETTING TWEAKS AND MIGRATIONS
-  createFolderPaths();
+  await createFolderPaths();
 
   if (game.user.isGM && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local")
     && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie") != "") {

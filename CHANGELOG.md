@@ -1,3 +1,7 @@
+# 3.4.9
+
+* Deep Image Paths! Store your monster/item images in deep paths. This will be turned on for new worlds/games, but needs to be manually enabled in the Importer Directory Location settings. This will then store images in folders relating to image type and monster type, e.g. `monster/token/aberration/Elder-Brain-Dragon.jpeg`. @drowbe#2787 @YakFromStateFarm#4001
+
 # 3.4.8
 
 * Improve Pack Tactics effect.

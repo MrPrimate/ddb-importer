@@ -648,7 +648,8 @@ export class DDBLocationSetup extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
+    this.useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
+    this.useDeepFilePaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
     const directories = [];
 
     for (const [key, value] of Object.entries(SETTINGS.DEFAULT_SETTINGS.READY.DIRECTORIES)) {
@@ -662,7 +663,8 @@ export class DDBLocationSetup extends FormApplication {
 
     return {
       directories,
-      useWebP,
+      useWebP: this.useWebP,
+      useDeepFilePaths: this.useDeepFilePaths,
     };
   }
 
@@ -671,8 +673,12 @@ export class DDBLocationSetup extends FormApplication {
     event.preventDefault();
 
     const useWebP = formData['image-use-webp'];
+    const useDeepFilePaths = formData['image-use-deep-file-paths'];
 
-    await game.settings.set(SETTINGS.MODULE_ID, "use-webp", useWebP);
+    if (this.useWebP !== useWebP) await game.settings.set(SETTINGS.MODULE_ID, "use-webp", useWebP);
+    if (this.useDeepFilePaths !== useDeepFilePaths) {
+      await game.settings.set(SETTINGS.MODULE_ID, "use-deep-file-paths", useDeepFilePaths);
+    }
 
     const directoryStatus = [];
 

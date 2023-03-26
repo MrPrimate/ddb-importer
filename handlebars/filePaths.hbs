@@ -16,7 +16,8 @@
 
     <hr>
     <h3>Image settings</h3>
-      <input {{#if useWebP}}checked{{/if}} class="setup-config" type="checkbox" name="image-use-webp" data-section="useWebP" style="flex: 0 1 auto"> Convert images to webp?
+      <div><input {{#if useWebP}}checked{{/if}} class="setup-config" type="checkbox" name="image-use-webp" data-section="useWebP" style="flex: 0 1 auto"> Convert images to webp?</div>
+      <div><input {{#if useDeepFilePaths}}checked{{/if}} class="setup-config" type="checkbox" name="image-use-deep-file-paths" data-section="useDeepFilePaths" style="flex: 0 1 auto"> Use deep file paths? Store images in different folders for npcs, items etc. Will store monster images inside a folder related to their monster type.</div>
     <hr>
 
     <div class="munching-folder-setup" id="munching-folder-setup" style="color: red">
