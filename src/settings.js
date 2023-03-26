@@ -261,12 +261,14 @@ const SETTINGS = {
         config: false,
         type: Boolean,
         default: false,
+        requiresReload: true,
       },
       "encounter-muncher-enabled": {
         scope: "world",
         config: false,
         type: Boolean,
         default: true,
+        requiresReload: true,
       },
       "developer-mode": {
         scope: "world",
@@ -462,6 +464,7 @@ const SETTINGS = {
           hint: "ddb-importer.settings.use-deep-file-paths.hint",
           type: Boolean,
           default: false,
+          requiresReload: true,
         },
       },
       // character settings
@@ -1230,24 +1233,29 @@ const SETTINGS = {
         "dynamic-sync": {
           type: Boolean,
           default: false,
+          requiresReload: true,
         },
         "dynamic-sync-user": {
           type: String,
           default: "",
+          requiresReload: true,
         },
       },
       PROXY: {
         "api-endpoint": {
           type: String,
           default: "http://localhost:3000",
+          requiresReload: true,
         },
         "cors-endpoint": {
           type: String,
           default: URLS.CORS,
+          requiresReload: true,
         },
         "dynamic-api-endpoint": {
           type: String,
           default: URLS.DYNAMIC,
+          requiresReload: true,
         },
         "cors-encode": {
           type: Boolean,

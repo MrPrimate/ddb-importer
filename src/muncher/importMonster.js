@@ -215,7 +215,7 @@ export async function getNPCImage(npcData, options) {
   if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
 
   const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-  const type = getProperty(npcData, "system.details.type.value") ?? "unknown";
+  const type = getProperty(npcData, "system.details.type.value") ?? "other";
   const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
   if (ddbAvatarUrl && getProperty(npcData, "flags.monsterMunch.imgSet") !== true) {

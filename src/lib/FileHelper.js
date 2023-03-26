@@ -286,6 +286,7 @@ const FileHelper = {
       targetDirectory,
     });
     const uploadDirectory = `${targetDirectory}${pathPostfix}`;
+    await DirectoryPicker.verifyPath(DirectoryPicker.parse(uploadDirectory));
     const downloadImage = (download) ? download : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     const remoteImage = (remoteImages) ? remoteImages : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");

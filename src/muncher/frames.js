@@ -52,11 +52,10 @@ export async function parseFrames() {
   const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory").replace(/^\/|\/$/g, "");
   const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
   const imageNamePrefix = useDeepPaths ? "" : "frames";
-  const pathPostfix = useDeepPaths ? "frames" : "";
 
   DDBMuncher.munchNote(`Fetching DDB Frames`);
   frames.forEach(async (frame) => {
-    const options = { type: "frame", name: `DDB ${frame.name}`, download: true, targetDirectory, pathPostfix, imageNamePrefix };
+    const options = { type: "frame", name: `DDB ${frame.name}`, download: true, targetDirectory, pathPostfix: "", imageNamePrefix };
     await FileHelper.getImagePath(frame.frameAvatarUrl, options);
   });
 

@@ -87,11 +87,7 @@ function createFolderPaths() {
   if (game.user.isGM) {
     const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
     const otherUploads = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
-    if (characterUploads !== "[data] ddb-images/characters" && otherUploads === "[data] ddb-images/other") {
-      game.settings.set(SETTINGS.MODULE_ID, "other-image-upload-directory", characterUploads);
-    } else {
-      DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
-    }
+    DirectoryPicker.verifyPath(DirectoryPicker.parse(otherUploads));
     DirectoryPicker.verifyPath(DirectoryPicker.parse(characterUploads));
 
     const frameUploads = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
