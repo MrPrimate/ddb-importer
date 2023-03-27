@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Invisibility spell with expire with with a spell or attack
+
 # 3.4.11
 
 * Slight tweaks to scene update tools (no functional change).
