@@ -1,3 +1,7 @@
+# COMING NEXT
+
+* Slight tweaks to scene update tools (no functional change).
+
 # 3.4.10
 
 * A race condition could cause character imports to fail.

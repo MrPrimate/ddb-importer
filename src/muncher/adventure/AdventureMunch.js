@@ -1264,6 +1264,8 @@ export default class AdventureMunch extends FormApplication {
       }
     });
 
+    logger.debug("Scene update choices", fileData);
+
     return new Promise((resolve) => {
       if (hasVersions && fileData.length > 0) {
         new Dialog(
@@ -1272,7 +1274,7 @@ export default class AdventureMunch extends FormApplication {
             content: {
               dataType: type,
               dataTypeDisplay: importType,
-              fileData: fileData,
+              fileData,
               cssClass: "import-data-updates",
             },
             buttons: {

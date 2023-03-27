@@ -378,7 +378,6 @@ export default class AdventureMunchHelpers {
       let versionUpdates = {};
 
       if (metaVersionChanged || muncherVersionChanged || foundryVersionNewer) {
-        versionUpdates.oldVersions = oldVersions;
         versionUpdates.importerVersionChanged = importerVersionChanged;
         versionUpdates.metaVersionChanged = metaVersionChanged;
         versionUpdates.muncherVersionChanged = muncherVersionChanged;
@@ -389,7 +388,9 @@ export default class AdventureMunchHelpers {
         versionUpdates.wallVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["walls"], oldVersions["ddbMetaData"]["walls"]);
         versionUpdates.lightVersionChanged = isNewerVersion(documentVersions["ddbMetaData"]["lights"], oldVersions["ddbMetaData"]["lights"]);
       }
+      setProperty(newDoc, "flags.ddb.versions.ddbImporter", ddbIVersion);
       setProperty(newDoc, "flags.ddb.versions.importer", versionUpdates);
+      setProperty(newDoc, "flags.ddb.oldVersions", oldVersions);
     }
     return newDoc;
   }

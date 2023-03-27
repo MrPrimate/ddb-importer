@@ -196,6 +196,14 @@ export function collectSceneData(scene, bookCode) {
           result.flags.ddbActorFlags.name = token.actor.prototypeToken?.name ? token.actor.prototypeToken.name : token.actor.name;
         }
       }
+      delete token.flags["token-action-hud-core"];
+      delete token.flags["simbuls-cover-calculator"];
+      delete token.flags["monks-enhanced-journal"];
+      delete token.flags["monks-tokenbar"];
+      delete token.flags["tagger"];
+      delete token.flags["monks-combat-marker"];
+      delete token.flags["image-hover"];
+      delete token.flags["elevation-drag-ruler"];
 
       return result;
     });
