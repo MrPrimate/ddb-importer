@@ -1,3 +1,7 @@
+# 2.9.68
+
+* Prevent update to DDB passing more that 2055 characters.
+
 # 2.9.67
 
 * Fix import breakage on the Forge due to service change.

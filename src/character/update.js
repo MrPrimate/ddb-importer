@@ -8,12 +8,17 @@ import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getCurrentDynamicUpdateState, updateDynamicUpdates, disableDynamicUpdates, setActiveSyncSpellsFlag } from "./utils.js";
 import { getActorConditionStates, getCondition } from "./conditions.js";
 import { getItemCollectionItems } from "./itemCollections.js";
+import utils from "../utils.js";
 
 function activeUpdate() {
   const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
   const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
   const gmSyncUser = game.user.isGM && game.user.id == updateUser;
   return dynamicSync && gmSyncUser;
+}
+
+function getCustomItemDescription(text) {
+  return utils.stripHtml(text).substring(0, 2055);
 }
 
 function getFoundryItems(actor) {
@@ -589,7 +594,7 @@ async function addDDBCustomItems(actor, itemsToAdd) {
         containerEntityId,
         containerEntityTypeId,
         name: item.name,
-        description: item.data.description.value,
+        description: getCustomItemDescription(item.data.description.value),
         quantity: parseInt(item.data.quantity),
         cost: null,
         weight: Number.isInteger(item.data.weight) ? parseInt(item.data.weight) : 0,
@@ -879,7 +884,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
           id: item.flags.ddbimporter.definitionId,
           mappingId: item.flags.ddbimporter.id,
           name: item.name,
-          description: item.data.description.value,
+          description: getCustomItemDescription(item.data.description.value),
           // revist these need to be ints
           // weight: `${item.data.weight}`,
           // cost: ${item.data.price},
@@ -971,7 +976,7 @@ async function equipmentStatus(actor, ddbData, addEquipmentResults) {
     customDDBItems.some((dItem) => dItem.id === item.flags.ddbimporter.id &&
       (
         item.name !== dItem.name ||
-        item.data.description.value != dItem.description ||
+        getCustomItemDescription(item.data.description.value) != dItem.description ||
         item.data.quantity != dItem.quantity ||
         item.data.weight != dItem.weight
         //  ||
