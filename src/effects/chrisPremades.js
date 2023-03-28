@@ -95,9 +95,12 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
   // expected to find feature in a folder, but we could not
   if (folderName && folderId === undefined) return document;
 
-  logger.warn(`CHRIS EFFECT: GETTING ${document.name} from ${compendiumName} with folderID ${folderId}`);
+  logger.debug(`CP Effect: Attempting to fetch ${document.name} from ${compendiumName} with folderID ${folderId}`);
   const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, chrisName, true, folderId);
-  if (!chrisDoc) return document;
+  if (!chrisDoc) {
+    logger.debug(`No CP Effect found for ${document.name} from ${compendiumName} with folderID ${folderId}`);
+    return document;
+  }
 
   DDB_FLAGS_TO_REMOVE.forEach((flagName) => {
     delete document.flags[flagName];
@@ -335,7 +338,7 @@ export async function addChrisEffectsToActorDocuments(actor) {
   const data = (await applyChrisPremadeEffects({ documents, compendiumItem: false, force: true, isMonster }))
     .filter((d) => getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true);
   await actor.deleteEmbeddedDocuments("Item", data.map((d) => d._id));
-  await actor.createEmbeddedDocuments("Item", data.filter, { keepId: true });
+  await actor.createEmbeddedDocuments("Item", data, { keepId: true });
   await restrictedItemReplacer(actor, folderName);
   await addAndReplaceRedundantChrisDocuments(actor);
   logger.info("Effect replacement complete");
