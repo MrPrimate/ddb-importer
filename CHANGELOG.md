@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.12
 
 - Invisibility spell with expire with with a spell or attack.
 - When calling the Chris Premades actor update function, it would fail (typo).
