@@ -133,7 +133,7 @@ function getOvertimeDamage(text) {
   return undefined;
 }
 
-function effectCleanup(document, actor, monster, effect) {
+function effectCleanup(ddbMonster, document, actor, effect) {
   if (effect.changes.length > 0) {
     document.effects.push(effect);
     let overTimeFlags = hasProperty(actor, "flags.monsterMunch.overTime") ? getProperty(actor, "flags.monsterMunch.overTime") : [];
@@ -142,10 +142,10 @@ function effectCleanup(document, actor, monster, effect) {
     // console.warn(`ITEM OVER TIME EFFECT: ${actor.name}, ${document.name}`);
     logger.debug(`Generating damage over time effect for ${actor.name}, ${actor.name}`);
   }
-  return { document, actor, monster };
+  return { document, actor, ddbMonster };
 }
 
-export function generateOverTimeEffect(document, actor, monster) {
+export function generateOverTimeEffect(ddbMonster, actor, document) {
   logger.debug("Generating damage over time effect for", document.name);
   if (!document.effects) document.effects = [];
   let effect = baseMonsterFeatureEffect(document, `${document.name}`);
@@ -160,19 +160,19 @@ export function generateOverTimeEffect(document, actor, monster) {
   setProperty(effect, "duration.seconds", durationSeconds);
 
   const turn = startOrEnd(document.system.description.value);
-  if (!turn) return effectCleanup(document, actor, monster, effect);
+  if (!turn) return effectCleanup(ddbMonster, document, actor, effect);
 
   const saveFeature = new DDBFeature("overTimeSaveFeature", { html: document.system.description.value });
   saveFeature.prepare();
   const save = saveFeature.getFeatSave();
-  if (!Number.isInteger(Number.parseInt(save.dc))) return effectCleanup(document, actor, monster, effect);
+  if (!Number.isInteger(Number.parseInt(save.dc))) return effectCleanup(ddbMonster, document, actor, effect);
 
   const saveAbility = save.ability;
   const dc = save.dc;
 
   const dmg = getOvertimeDamage(document.system.description.value);
 
-  if (!dmg) return effectCleanup(document, actor, monster, effect);
+  if (!dmg) return effectCleanup(ddbMonster, document, actor, effect);
 
   // overtime damage, revert any full damage flag, reset to default on save
   setProperty(document, "flags.midiProperties.fulldam", false);
@@ -199,7 +199,7 @@ export function generateOverTimeEffect(document, actor, monster) {
   effect.changes.push(overTime({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
   document.effects.push(effect);
 
-  return effectCleanup(document, actor, monster, effect);
+  return effectCleanup(ddbMonster, document, actor, effect);
 }
 
 

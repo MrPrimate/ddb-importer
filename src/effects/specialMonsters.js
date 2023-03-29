@@ -6,6 +6,7 @@ import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
 import { generateLegendaryEffect } from "./monsterFeatures/legendary.js";
 import { generateOverTimeEffect } from "./monsterFeatures/overTimeEffect.js";
 import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
+import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
 
 export function baseMonsterFeatureEffect(document, label) {
   return {
@@ -23,6 +24,7 @@ export function baseMonsterFeatureEffect(document, label) {
       },
       ddbimporter: {
         disabled: false,
+        originName: document.name,
       },
       "midi-qol": { // by default force CE effect usage to off
         forceCEOff: true,
@@ -45,6 +47,7 @@ function transferEffectsToActor(document) {
         transferEffect._id = randomID();
         transferEffect.transfer = false;
         transferEffect.origin = `Compendium.${compendiumLabel}.${document._id}.Item.${item._id}`;
+        setProperty(transferEffect, "flags.ddbimporter.originName", item.name);
         document.effects.push(transferEffect);
       }
     });
@@ -57,12 +60,14 @@ function transferEffectsToActor(document) {
  * This function is mainly for effects that can't be dynamically generated
  * @param {*} document
  */
-export async function monsterFeatureEffectAdjustment(document, monster) {
-  if (!document.effects) document.effects = [];
+export async function monsterFeatureEffectAdjustment(ddbMonster) {
+  let npc = duplicate(ddbMonster.npc);
+
+  if (!npc.effects) npc.effects = [];
 
   const deps = effectModules();
   if (!deps.hasCore) {
-    return document;
+    return npc;
   }
   if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = configureDependencies();
@@ -71,21 +76,22 @@ export async function monsterFeatureEffectAdjustment(document, monster) {
   // const name = document.flags.ddbimporter?.originalName ?? document.name;
 
   // absorbtion on monster
-  document = absorptionEffect(document);
+  npc = absorptionEffect(npc);
 
   // damage over time effects
-  document.items.forEach(function(item, index) {
+  npc.items.forEach(function(item, index) {
     // Legendary Resistance Effects
     if (item.name.startsWith("Legendary Resistance")) item = generateLegendaryEffect(item);
     if (item.name.startsWith("Pack Tactics")) item = generatePackTacticsEffect(item);
+    if (item.name === "Suave Defense") item = generateSuaveDefenseEffect(ddbMonster, item);
     // auto overtime effect
-    const overTimeResults = generateOverTimeEffect(item, document, monster);
+    const overTimeResults = generateOverTimeEffect(ddbMonster, npc, item);
     this[index] = overTimeResults.document;
-    document = overTimeResults.actor;
+    npc = overTimeResults.actor;
 
-    document = forceItemEffect(document);
-  }, document.items);
+    npc = forceItemEffect(npc);
+  }, npc.items);
 
-  document = transferEffectsToActor(document);
-  return document;
+  npc = transferEffectsToActor(npc);
+  return npc;
 }

@@ -238,7 +238,7 @@ export default class DDBMonster {
     this.npc = specialCases(this.npc);
 
     if (this.addMonsterEffects) {
-      this.npc = await monsterFeatureEffectAdjustment(this.npc, this.source);
+      this.npc = await monsterFeatureEffectAdjustment(this);
     }
 
     if (this.addChrisPremades) {

@@ -55,11 +55,8 @@ DDBMonster.prototype._generateAC = async function _generateAC() {
         if (lowerDescription.includes("+2") || lowerDescription.includes("+ 2")) ac.flat = parseInt(ac.flat) - 2;
         if (lowerDescription.includes("+3") || lowerDescription.includes("+ 3")) ac.flat = parseInt(ac.flat) - 3;
       } else if (!item.includes("with mage armor")) {
-        if (item === "leather armor") {
-          item = "leather";
-        } else if (item === "hide armor") {
-          item = "hide";
-        } else if (item.startsWith("+")) {
+        item = item.replace("leather armor", "leather").replace("hide armor", "hide");
+        if (item.startsWith("+")) {
           const bonusRegex = /(\+\d+)(?:\s+)(.*)/;
           const matches = item.match(bonusRegex);
           if (matches) {
@@ -67,7 +64,10 @@ DDBMonster.prototype._generateAC = async function _generateAC() {
           }
         }
         // const type = item.includes("ring") || item.includes("cloak") ? "trinket" : "equipment";
-        itemsToCheck.push({ name: item, type: "equipment", flags: {}, system: { equipped: true } });
+        const itemsToIgnore = this.addMonsterEffects ? ["suave defense"] : [];
+        if (!itemsToIgnore.includes(item)) {
+          itemsToCheck.push({ name: item, type: "equipment", flags: {}, system: { equipped: true } });
+        }
       };
     });
   }
