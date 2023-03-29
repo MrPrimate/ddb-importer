@@ -3476,6 +3476,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/kftgv",
     },
     {
+      id: 104,
+      name: "TG",
+      description: "Thieves’ Gallery",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/32269/153/638120143799885947.jpeg",
+      sourceURL: "sources/tg",
+    },
+    {
       id: 105,
       name: "P13",
       description: "Prisoner 13",
@@ -3483,6 +3492,15 @@ export const fallbackDDBConfig = {
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/31678/948/638097617627683009.jpeg",
       sourceURL: "sources/p13",
+    },
+    {
+      id: 115,
+      name: "MCv3",
+      description: "Monstrous Compendium Volume Three: Minecraft Creatures",
+      sourceCategoryId: 15,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/33103/791/638151695270317390.jpeg",
+      sourceURL: "sources/mcv3",
     },
   ],
   levelProficiencyBonuses: [
