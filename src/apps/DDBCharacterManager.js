@@ -18,7 +18,7 @@ import {
   getIndividualOverrideItems,
 } from "../muncher/import.js";
 import { addItemsDAESRD } from "../muncher/dae.js";
-import { copyInbuiltIcons } from "../icons/index.js";
+import { copyInbuiltIcons } from "../lib/Iconizer.js";
 import { updateDDBCharacter } from "../updater/character.js";
 import { generateCharacterExtras } from "../parser/DDBExtras.js";
 import DICTIONARY from "../dictionary.js";

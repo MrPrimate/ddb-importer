@@ -1,7 +1,7 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
 import logger from "../../logger.js";
 import { generateAdventureConfig } from "../adventure.js";
-import { generateIcon } from "../../lib/icons.js";
+import { generateIcon } from "../../lib/Iconizer.js";
 import AdventureMunch from "./AdventureMunch.js";
 import { PageFinder } from "./PageFinder.js";
 import SETTINGS from "../../settings.js";

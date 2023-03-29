@@ -6,7 +6,7 @@ import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { addItemsDAESRD } from "./dae.js";
-import { copyInbuiltIcons } from "../icons/index.js";
+import { copyInbuiltIcons } from "../lib/Iconizer.js";
 import { addToCompendiumFolder } from "./compendiumFolders.js";
 
 /**
@@ -1023,9 +1023,8 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
  */
 export function addItemEffectIcons(items) {
   logger.debug("Adding Icons to effects");
-
   items.forEach((item) => {
-    if (item.effects && (item.img || item.img !== "" || item.img !== CONST.DEFAULT_TOKEN)) {
+    if (item.effects && (item.img && (item.img !== "" || item.img !== CONST.DEFAULT_TOKEN))) {
       item.effects.forEach((effect) => {
 
         if (!effect.icon || effect.icon === "" || effect.icon === CONST.DEFAULT_TOKEN) {
@@ -1036,6 +1035,21 @@ export function addItemEffectIcons(items) {
 
   });
   return items;
+}
+
+export function addActorEffectIcons(actor) {
+  if (!actor.effects) return actor;
+  logger.debug("Adding Icons to actor effects");
+  actor.effects.forEach((effect) => {
+    const name = getProperty(effect, "flags.ddbimporter.originName");
+    if (name) {
+      const actorItem = actor.items.find((i) => i.name === name);
+      if (actorItem) {
+        effect.icon = actorItem.img;
+      }
+    }
+  });
+  return actor;
 }
 
 /**

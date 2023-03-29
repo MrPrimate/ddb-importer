@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import FileHelper from "../lib/FileHelper.js";
-import { updateIcons, getCompendiumItems, getSRDImageLibrary, copySRDIcons, compendiumFolders } from "./import.js";
+import { updateIcons, addActorEffectIcons, getCompendiumItems, getSRDImageLibrary, copySRDIcons, compendiumFolders } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { migrateItemsDAESRD } from "./dae.js";
 import SETTINGS from "../settings.js";
@@ -341,6 +341,7 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
   logger.debug("Importing Icons");
   // eslint-disable-next-line require-atomic-updates
   data.items = await updateIcons(data.items, false, true, data.name);
+  data = addActorEffectIcons(data);
   data = await linkResourcesConsumption(data);
 
   if (handleBuild) {
