@@ -120,14 +120,14 @@ function parseMatch(ddb, character, match, feature) {
       ? ddb.character.classes.find((cls) => cls.definition.id == feature.classId)
       : DDBHelper.findClassByFeatureId(ddb, feature.componentId);
     if (cls) {
-      const clsLevel = useScaleAll ? ` + @classes.${cls.definition.name.toLowerCase()}.levels` : cls.level;
+      const clsLevel = useScaleAll ? ` + @classes.${cls.definition.name.toLowerCase().replace(" ", "-")}.levels` : cls.level;
       result = result.replace("classlevel", clsLevel);
       linktext = result.replace("classlevel", ` (${cls.definition.name} Level) `);
     } else if (classOption) {
       // still not found a cls? could be an option
       const optionCls = DDBHelper.findClassByFeatureId(ddb, classOption.componentId);
       if (optionCls) {
-        const clsLevel = useScaleAll ? ` + @classes.${optionCls.definition.name.toLowerCase()}.levels` : optionCls.level;
+        const clsLevel = useScaleAll ? ` + @classes.${optionCls.definition.name.toLowerCase().replace(" ", "-")}.levels` : optionCls.level;
         result = result.replace("classlevel", clsLevel);
         linktext = result.replace("classlevel", ` (${optionCls.definition.name} Level) `);
       } else {
@@ -259,49 +259,52 @@ const applyConstraint = (value, constraint) => {
 
 /**
  * Apply the expression constraint
- * @param {*} value
+ * @param {*} result
  * @param {*} constraint
  */
-const addConstraintEvaluations = (value, constraint) => {
+const addConstraintEvaluations = (value, constraintList) => {
+  let result = `${value}`;
+
+  // {{@rounddown,max:9}}
   // {{(classlevel/2)@rounddown#unsigned}}
   // @ features
   // @roundup
   // @roundown
   // min:1
   // max:3
-  const splitConstraint = constraint.split(":");
-  const multiConstraint = splitConstraint[0].split("*");
-  const match = multiConstraint[0];
+  constraintList.split(",").forEach((constraint) => {
+    const splitConstraint = constraint.split(":");
+    const multiConstraint = splitConstraint[0].split("*");
+    const match = multiConstraint[0];
 
-  let result = value;
+    switch (match) {
+      case "max": {
+        result = `min(${result}, ${splitConstraint[1]})`;
+        break;
+      }
+      case "min": {
+        result = `max(${result}, ${splitConstraint[1]})`;
+        break;
+      }
+      case "roundup": {
+        result = `ceil(${result})`;
+        break;
+      }
+      case "rounddown":
+      case "roundown": {
+        result = `floor(${result})`;
+        break;
+      }
+      default: {
+        logger.debug(`Missed match is ${match}`);
+        logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`); // eslint-disable-line no-console
+      }
+    }
 
-  switch (match) {
-    case "max": {
-      result = `min(${value}, ${splitConstraint[1]})`;
-      break;
+    if (multiConstraint.length > 1) {
+      result = `${result}*${multiConstraint[1].replace(")", "")}`;
     }
-    case "min": {
-      result = `max(${value}, ${splitConstraint[1]})`;
-      break;
-    }
-    case "roundup": {
-      result = `ceil(${value})`;
-      break;
-    }
-    case "rounddown":
-    case "roundown": {
-      result = `floor(${value})`;
-      break;
-    }
-    default: {
-      logger.debug(`Missed match is ${match}`);
-      logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`); // eslint-disable-line no-console
-    }
-  }
-
-  if (multiConstraint.length > 1) {
-    result = `${result}*${multiConstraint[1].replace(")", "")}`;
-  }
+  });
 
   if (typeof result === 'string') result = result.trim().replace(/^\+\s*/, "");
 
@@ -437,7 +440,7 @@ function fixRollables(text) {
     text = text.replaceAll(diceMatchRegex, "[[/roll $1 ");
   }
 
-  const noRollRegex = /(\[\[\/roll)([\w\s.,@\d+\\*/()]*(?![0-9]*d[0-9]+)(?!@scale\.)[\w\s.,@\d+\\*/()]*)(\]\](?:{Scaled Roll})*)/g;
+  const noRollRegex = /(\[\[\/roll)([\w\s.,@\d+-\\*/()]*(?![0-9]*d[0-9]+)(?!@scale\.)[\w\s.,@\d-+\\*/()]*)(\]\])/g;
   // const noRollMatches = text.match(noRollRegex);
   // console.warn("noRollMatches", {text: duplicate(text), noRollMatches});
   text = text.replaceAll(noRollRegex, replaceRoll);
@@ -481,7 +484,7 @@ export default function parseTemplateString(ddb, character, text, feature) {
   matches.forEach((match) => {
     let entry = {
       parsed: null,
-      match: match,
+      match,
       replacePattern: new RegExp(`{{${escapeRegExp(match)}}}`, "g"),
       type: null,
       subType: null,

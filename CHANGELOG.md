@@ -4,6 +4,7 @@
 - Chris's Premades replacements now supports Chris's Feats.
 - Improvements to iconizing effect icons on monster effects.
 - Catapult spell should have midi no damage save flag set.
+- Small improvements to the DDB Template String parser for text descriptions of dynamic values.
 
 # 3.4.12
 
