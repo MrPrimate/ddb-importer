@@ -85,6 +85,10 @@ export function fixSpells(ddb, items) {
         spell.system.formula = otherDamage[0];
         break;
       }
+      case "Catapult": {
+        setProperty(spell, "flags.midiProperties.nodam", true);
+        break;
+      }
       // Eldritch Blast is a special little kitten and has some fun Eldritch
       // Invocations which can adjust it.
       case "Eldritch Blast": {

@@ -3,7 +3,7 @@
 - Suave Defense will now add to monster AC correctly.
 - Chris's Premades replacements now supports Chris's Feats.
 - Improvements to iconizing effect icons on monster effects.
-
+- Catapult spell should have midi no damage save flag set.
 
 # 3.4.12
 
