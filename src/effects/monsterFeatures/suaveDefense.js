@@ -2,7 +2,6 @@
 import { baseItemEffect } from "../effects.js";
 
 export function generateSuaveDefenseEffect(ddbMonster, document) {
-  console.warn(ddbMonster)
   let effect = baseItemEffect(document, document.name);
   effect.changes.push(
     {

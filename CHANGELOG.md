@@ -1,3 +1,10 @@
+# NEXT UP
+
+- Suave Defense will now add to monster AC correctly.
+- Chris's Premades replacements now supports Chris's Feats.
+- Improvements to iconizing effect icons on monster effects.
+
+
 # 3.4.12
 
 - Invisibility spell with expire with with a spell or attack.
