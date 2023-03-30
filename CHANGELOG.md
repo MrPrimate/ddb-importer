@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.13
 
 - Suave Defense will now add to monster AC correctly.
 - Chris's Premades replacements now supports Chris's Feats.
