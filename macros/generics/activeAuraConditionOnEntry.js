@@ -45,7 +45,7 @@ async function attemptRemoval(targetToken, condition, item) {
 async function applyCondition(condition, targetToken, item, itemLevel) {
   if (!game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
     const caster = item.parent;
-    const workflowItemData = duplicate(item.data);
+    const workflowItemData = duplicate(item);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
     workflowItemData.system.save.ability = item.flags.ddbimporter.effect.save;
     workflowItemData.system.components.concentration = false;
