@@ -54,6 +54,7 @@ import { slasherCriticalEffect } from "./feats/slasherCritical.js";
 import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
 import { arcaneRecoveryEffect } from "./feats/arcaneRecovery.js";
 import { alertEffect } from "./feats/alert.js";
+import { evasionEffect } from "./feats/evasion.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -167,6 +168,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Deflect Missiles": {
         document = deflectMissilesEffect(document);
+        break;
+      }
+      case "Evasion": {
+        document = evasionEffect(document);
         break;
       }
       case "Empty Body":

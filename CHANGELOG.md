@@ -5,6 +5,7 @@
 - Improvements to iconizing effect icons on monster effects.
 - Catapult spell should have midi no damage save flag set.
 - Small improvements to the DDB Template String parser for text descriptions of dynamic values.
+- Evasion Effect
 
 # 3.4.12
 
