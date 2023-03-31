@@ -467,7 +467,11 @@ export function copyExistingMonsterImages(monsters, existingMonsters) {
     const existing = existingMonsters.find((m) => monster.name === m.name);
     if (existing) {
       monster.img = existing.img;
-      monster.prototypeToken.texture.src = existing.prototypeToken.texture.src;
+      for (const key of Object.keys(monster.prototypeToken)) {
+        if (!["sight", "detectionModes"].includes(key)) {
+          monster.prototypeToken[key] = deepClone(existing.prototypeToken[key]);
+        }
+      }
       return monster;
     } else {
       return monster;

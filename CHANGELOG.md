@@ -1,7 +1,7 @@
 # NEXT UP
 
 - Disable resources did not work as intended - blanked resource selection instead of retaining existing values. @Allffo#0001
-
+- Token Image update setting for monster muncher will now correctly retain prototype token settings other than senses and detection modes. @TheEvilSquid#1034
 
 
 # 3.4.13
