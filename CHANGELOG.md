@@ -1,8 +1,8 @@
-# NEXT UP
+# 3.4.14
 
 - Disable resources did not work as intended - blanked resource selection instead of retaining existing values. @Allffo#0001
 - Token Image update setting for monster muncher will now correctly retain prototype token settings other than senses and detection modes. @TheEvilSquid#1034
-
+- Sleep Effect no longer needs to force Prone condition.
 
 # 3.4.13
 
