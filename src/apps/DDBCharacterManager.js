@@ -319,8 +319,7 @@ export default class DDBCharacterManager extends FormApplication {
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.experimentalMid;
     const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
-    const resourceSelection
-      = !hasProperty(this.actor, "flags.ddbimporter.resources.ask")
+    const resourceSelection = !hasProperty(this.actor, "flags.ddbimporter.resources.ask")
       || getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
 
     const itemsMunched = syncEnabled && itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
@@ -1151,12 +1150,9 @@ export default class DDBCharacterManager extends FormApplication {
         this.result.character.system.traits.languages = this.actorOriginal.system.traits.languages;
       }
       // if resource mode is in disable and not asking, then we use the previous resources
-      if (
-        hasProperty(this.result.character, "flags.ddbimporter.resources.ask")
-        && !this.result.character.flags.ddbimporter.resources.ask
-        && this.result.character.flags.ddbimporter.resources.type === "disable"
-      ) {
-        this.result.character.system.resources = this.actorOriginal.system.resources;
+      const resourceFlags = getProperty(this.result.character, "flags.ddbimporter.resources");
+      if (resourceFlags.type === "disable") {
+        this.result.character.system.resources = duplicate(this.actorOriginal.system.resources);
       }
 
       // flag as having items ids

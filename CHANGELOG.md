@@ -1,3 +1,9 @@
+# NEXT UP
+
+- Disable resources did not work as intended - blanked resource selection instead of retaining existing values. @Allffo#0001
+
+
+
 # 3.4.13
 
 - Suave Defense will now add to monster AC correctly.
