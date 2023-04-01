@@ -39,7 +39,7 @@ function findDiceColumns(table) {
     headings.forEach((h) => {
       const diceRegex = new RegExp(/(\d*[d|D]\d+(\s*[+-]?\s*\d*)?)/, "g");
       const match = h.replace(/[­––−-]/gu, "-").replace(/-+/g, "-").match(diceRegex);
-      if (match) {
+      if (match && !h.match(/lasts 1d10 minutes/i)) {
         result.push(h);
       }
     });
@@ -217,8 +217,6 @@ export async function generateTable(parentName, html, updateExisting, type = "")
   let tableNum = 0;
   let foundTables = [];
   for (const node of tableNodes) {
-  // for (let i = 0; i < tableNodes.length; i++) {
-    // const node = tableNodes[i];
     const parsedTable = parseTable(node);
     const keys = getHeadings(node);
     const diceKeys = findDiceColumns(node);
@@ -249,34 +247,36 @@ export async function generateTable(parentName, html, updateExisting, type = "")
       : buildTable(parsedTable, keys, diceKeys, finalName, name);
 
     if (builtTables.length > 0) {
-      // these updates are done async, and we continue. this is fine as we actually use the table name for linking
-      if (!tableGenerated) {
-        logger.debug(`Generated table`, builtTables);
-        // eslint-disable-next-line no-await-in-loop
-        await updateCompendium("tables", { tables: builtTables }, updateExisting);
+      try {
+        if (!tableGenerated) {
+          logger.debug(`Generated table`, builtTables);
+          // eslint-disable-next-line no-await-in-loop
+          await updateCompendium("tables", { tables: builtTables }, updateExisting);
+        }
+
+        let tableData = {
+          nameGuess,
+          finalName,
+          parentName,
+          name,
+          tableNum,
+          length: parsedTable.length,
+          keys: keys,
+          diceKeys: diceKeys,
+          diceTable: diceKeys.length > 0,
+          multiDiceKeys: diceKeys.length > 1,
+          diceKeysNumber: diceKeys.length,
+          totalKeys: keys.length,
+          builtTables,
+        };
+        tablesMatched.push(tableData);
+        updatedDocument = tableReplacer(updatedDocument, tableNum, builtTables, tableCompendiumLabel);
+
+      } catch (error) {
+        logger.error("Table parser failed, please log a bug!", error);
       }
-
-      let tableData = {
-        nameGuess,
-        finalName,
-        parentName,
-        name,
-        tableNum,
-        length: parsedTable.length,
-        keys: keys,
-        diceKeys: diceKeys,
-        diceTable: diceKeys.length > 0,
-        multiDiceKeys: diceKeys.length > 1,
-        diceKeysNumber: diceKeys.length,
-        totalKeys: keys.length,
-        builtTables,
-      };
-      tablesMatched.push(tableData);
-      updatedDocument = tableReplacer(updatedDocument, tableNum, builtTables, tableCompendiumLabel);
-
     }
     tableNum++;
-  // }
   }
 
   return updatedDocument.body.innerHTML;

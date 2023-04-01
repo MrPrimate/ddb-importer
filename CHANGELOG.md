@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Better handling of table errors
+
 # 3.4.14
 
 - Disable resources did not work as intended - blanked resource selection instead of retaining existing values. @Allffo#0001
