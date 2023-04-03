@@ -1,8 +1,8 @@
 {
   "id": "ddb-importer",
   "author": "MrPrimate",
-  "title": "[ALPHA] D&D Beyond Importer",
-  "description": "ALPHA DDB Importer for Active Updates",
+  "title": "[ALPHA] DDB-Importer: A D&D Beyond Integrator",
+  "description": "ALPHA DDB-Importer",
   "version": "2.10.21",
   "download": "https://ALPHA_SITE/ALPHA_PATH/ddb-importer.zip",
   "manifest": "https://ALPHA_SITE/ALPHA_PATH/module.json",

@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Better handling of table errors
+- Fix Tidy 5e favourites been lost on reimport.
 
 # 3.4.14
 

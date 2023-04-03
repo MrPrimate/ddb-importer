@@ -85,6 +85,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "spell-class-filter-for-5e",
   "forien-unidentified-items",
   "arbron-summoner",
+  "tidy5e-sheet",
 ];
 
 const EFFECTS_IGNORE_FLAG_GROUPS = [
