@@ -1,7 +1,8 @@
-# NEXT UP
+# 3.4.15
 
 - Better handling of table errors
 - Fix Tidy 5e favourites been lost on reimport.
+- If an ability grants advantage on a skill, it will no longer double up on passive bonus if using midi. @Chris#8375
 
 # 3.4.14
 
