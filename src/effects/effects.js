@@ -44,6 +44,26 @@ const EFFECT_EXCLUDED_COMMON_MODIFIERS = [
   { type: "bonus", subType: "stealth" },
   { type: "bonus", subType: "survival" },
 
+  { type: "advantage", subType: "acrobatics" },
+  { type: "advantage", subType: "animal-handling" },
+  { type: "advantage", subType: "arcana" },
+  { type: "advantage", subType: "athletics" },
+  { type: "advantage", subType: "deception" },
+  { type: "advantage", subType: "history" },
+  { type: "advantage", subType: "insight" },
+  { type: "advantage", subType: "intimidation" },
+  { type: "advantage", subType: "investigation" },
+  { type: "advantage", subType: "medicine" },
+  { type: "advantage", subType: "nature" },
+  { type: "advantage", subType: "perception" },
+  { type: "advantage", subType: "performance" },
+  { type: "advantage", subType: "persuasion" },
+  { type: "advantage", subType: "religion" },
+  { type: "advantage", subType: "sleight-of-hand" },
+  { type: "advantage", subType: "stealth" },
+  { type: "advantage", subType: "survival" },
+
+
   { type: "bonus", subType: "passive-insight" },
   { type: "bonus", subType: "passive-investigation" },
   { type: "bonus", subType: "passive-perception" },
@@ -1035,11 +1055,22 @@ function addSkillPassiveBonusEffect(modifiers, name, skill) {
 function addSkillBonuses(modifiers, name) {
   let changes = [];
   DICTIONARY.character.skills.forEach((skill) => {
-    const skillBonuses = addSkillBonusEffect(modifiers, name, skill);
-    const skillPassiveBonuses = addSkillPassiveBonusEffect(modifiers, name, skill);
-    const skillAdvantages = addSkillMidiEffect(modifiers, name, skill, "advantage");
+    const newMods = modifiers.filter((mod) => {
+      if (mod.subType === `passive-${skill.subType}`) {
+        const passiveMods = DDBHelper.filterModifiers(modifiers, "bonus", `passive-${skill.subType}`);
+        const advantageMods = DDBHelper.filterModifiers(modifiers, "advantage", skill.subType);
+        if (passiveMods.length > 0 && advantageMods.length > 0) return false;
+        else return true;
+      } else {
+        return true;
+      }
+    });
+    const skillBonuses = addSkillBonusEffect(newMods, name, skill);
+    const skillPassiveBonuses = addSkillPassiveBonusEffect(newMods, name, skill);
+    const skillAdvantages = addSkillMidiEffect(newMods, name, skill, "advantage");
     changes = changes.concat(skillBonuses, skillPassiveBonuses, skillAdvantages);
   });
+
 
   return changes;
 }
