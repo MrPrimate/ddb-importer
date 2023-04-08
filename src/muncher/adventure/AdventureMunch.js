@@ -886,6 +886,10 @@ export default class AdventureMunch extends FormApplication {
       // eslint-disable-next-line require-atomic-updates
       data.img = await this.importImage(data.img);
     }
+    if (data.background?.source) {
+      // eslint-disable-next-line require-atomic-updates
+      data.background.source = await this.importImage(data.background.source);
+    }
     if (data.thumb) {
       // eslint-disable-next-line require-atomic-updates
       data.thumb = await this.importImage(data.thumb);
