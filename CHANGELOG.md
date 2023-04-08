@@ -1,5 +1,8 @@
 # COMING SOON
 
+- Some improvements for future adventure muncher changes.
+- Some icon updates for spells from @Raccoomph#8480
+
 # 3.4.15
 
 - Better handling of table errors

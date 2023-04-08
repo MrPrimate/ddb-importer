@@ -153,7 +153,7 @@
   },
   {
     "name": "Beast Sense",
-    "path": "icons/magic/nature/wolf-paw-glow-purple-teal.webp"
+    "path": "icons/creatures/eyes/humanoid-single-red-brown.webp"
   },
   {
     "name": "Bestow Curse",
@@ -193,7 +193,7 @@
   },
   {
     "name": "Blindness/Deafness",
-    "path": "icons/magic/perception/third-eye-blue-red.webp"
+    "path": "icons/creatures/eyes/humanoid-single-blind.webp"
   },
   {
     "name": "Blink",
@@ -273,7 +273,7 @@
   },
   {
     "name": "Circle of Death",
-    "path": "icons/magic/lightning/orb-ball-purple.webp"
+    "path": "icons/magic/lightning/barrier-shield-crackling-orb-pink.webp"
   },
   {
     "name": "Circle of Power",
@@ -289,7 +289,7 @@
   },
   {
     "name": "Cloud of Daggers",
-    "path": "icons/skills/melee/weapons-crossed-swords-teal.webp"
+    "path": "icons/skills/ranged/daggers-thrown-salvo-green.webp"
   },
   {
     "name": "Cloudkill",
@@ -333,7 +333,7 @@
   },
   {
     "name": "Conjure Animals",
-    "path": "icons/magic/nature/wolf-paw-glow-large-teal-blue.webp"
+    "path": "icons/creatures/abilities/paw-print-pair-purple.webp"
   },
   {
     "name": "Conjure Barrage",
@@ -381,7 +381,7 @@
   },
   {
     "name": "Control Flames",
-    "path": "icons/sundries/lights/candles-lit-red-evil.webp"
+    "path": "icons/magic/light/hand-sparks-glow-yellow.webp"
   },
   {
     "name": "Control Water",
@@ -401,7 +401,7 @@
   },
   {
     "name": "Counterspell",
-    "path": "icons/magic/control/debuff-chains-ropes-net-green.webp"
+    "path": "icons/magic/unholy/hands-cloud-light-pink.webp"
   },
   {
     "name": "Create Bonfire",
@@ -525,7 +525,7 @@
   },
   {
     "name": "Dispel Magic",
-    "path": "icons/magic/unholy/strike-beam-blood-red-blue.webp"
+    "path": "icons/magic/light/orbs-hand-gray.webp"
   },
   {
     "name": "Dissonant Whispers",
@@ -601,7 +601,7 @@
   },
   {
     "name": "Earthquake",
-    "path": "icons/magic/light/explosion-beam-impact-silhouette.webp"
+    "path": "icons/magic/earth/explosion-lava-stone-yellow.webp"
   },
   {
     "name": "Eldritch Blast",
@@ -797,7 +797,7 @@
   },
   {
     "name": "Foresight",
-    "path": "icons/magic/air/air-burst-spiral-large-teal-green.webp"
+    "path": "icons/magic/perception/hand-eye-fire-blue.webp"
   },
   {
     "name": "Fortune's Favor",
@@ -1253,7 +1253,7 @@
   },
   {
     "name": "Maximilian's Earthen Grasp",
-    "path": "icons/magic/earth/lava-explosion-orange.webp"
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
   },
   {
     "name": "Maze",
@@ -1349,7 +1349,7 @@
   },
   {
     "name": "Mordenkainen's Sword",
-    "path": "icons/skills/melee/strike-dagger-arcane-pink.webp"
+    "path": "icons/skills/melee/sword-stuck-glowing-pink.webp"
   },
   {
     "name": "Motivational Speech",
@@ -1637,7 +1637,7 @@
   },
   {
     "name": "Shadow Blade",
-    "path": "icons/magic/water/strike-ice-blades.webp"
+    "path": "icons/weapons/swords/sword-flanged-lightning.webp"
   },
   {
     "name": "Shadow of Moil",
@@ -1729,7 +1729,7 @@
   },
   {
     "name": "Speak with Animals",
-    "path": "icons/magic/nature/wolf-paw-glow-teal-blue.webp"
+    "path": "icons/creatures/abilities/wolf-howl-moon-purple.webp"
   },
   {
     "name": "Speak with Dead",
@@ -1873,7 +1873,7 @@
   },
   {
     "name": "Tasha's Mind Whip",
-    "path": "icons/magic/control/energy-stream-link-spiral-blue.webp"
+    "path": "icons/magic/lightning/bolt-strike-pink.webp"
   },
   {
     "name": "Tasha's Otherworldly Guise",
@@ -1897,7 +1897,7 @@
   },
   {
     "name": "Teleportation Circle",
-    "path": "icons/magic/air/air-burst-spiral-yellow.webp"
+    "path": "icons/magic/symbols/ring-circle-smoke-blue.webp"
   },
   {
     "name": "Temple of the Gods",
@@ -2009,7 +2009,7 @@
   },
   {
     "name": "Vampiric Touch",
-    "path": "icons/magic/control/energy-stream-link-spiral-teal.webp"
+    "path": "icons/magic/unholy/hand-claw-fog-green.webp"
   },
   {
     "name": "Vicious Mockery",
@@ -2017,7 +2017,7 @@
   },
   {
     "name": "Vitriolic Sphere",
-    "path": "icons/magic/fire/projectile-fireball-smoke-large-green.webp"
+    "path": "icons/magic/acid/orb-bubble-smoke-drip.webp"
   },
   {
     "name": "Vortex Warp",
@@ -2053,7 +2053,7 @@
   },
   {
     "name": "Wall of Water",
-    "path": "icons/magic/water/pseudopod-teal.webp"
+    "path": "icons/magic/water/wave-water-explosion.webp"
   },
   {
     "name": "Warding Bond",
