@@ -196,6 +196,7 @@ export function collectSceneData(scene, bookCode) {
           result.flags.ddbActorFlags.name = token.actor.prototypeToken?.name ? token.actor.prototypeToken.name : token.actor.name;
         }
       }
+      if (hasProperty(token, "token.actorData.flags")) delete token.actorData.flags["token-action-hud-core"];
       delete token.flags["token-action-hud-core"];
       delete token.flags["simbuls-cover-calculator"];
       delete token.flags["monks-enhanced-journal"];
