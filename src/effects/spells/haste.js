@@ -12,6 +12,13 @@ export function hasteEffect(document) {
     },
     { key: "system.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "*2", priority: "30" }
   );
+  effect.duration = {
+    startTime: null,
+    seconds: null,
+    turns: 10,
+    startRound: null,
+    startTurn: null,
+  };
   document.effects.push(effect);
 
   return document;
