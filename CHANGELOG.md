@@ -1,4 +1,4 @@
-# COMING SOON
+# 3.4.16
 
 - Some improvements for future adventure muncher changes.
 - Some icon updates for spells from @Raccoomph#8480
