@@ -9,7 +9,7 @@ function initItemSheetHook(app, html) {
   const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
   let button = $(`<a class="open-item-ddb-importer" title="${title}"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
   button.click((event) => {
-    if (event.shiftKey && event.ctrlKey) {
+    if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
       new DDBAdventureFlags(app.document, {}).render(true);
     } else {
       new DDBItemConfig(app.document, {}).render(true);

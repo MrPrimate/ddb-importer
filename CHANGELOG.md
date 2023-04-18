@@ -2,6 +2,9 @@
 
 - Some improvements for future adventure muncher changes.
 - Some icon updates for spells from @Raccoomph#8480
+- Healing light damage type changed to healing.
+- Haste effect has duration explicitly defined.
+- Items can be configured to not apply Chris's Premade effects to that explicit item.
 
 # 3.4.15
 

@@ -747,6 +747,9 @@ export default class DDBCharacterManager extends FormApplication {
         });
 
         if (ddbMatchedItem) {
+          if (hasProperty(ddbMatchedItem, "flags.ddbimporter.ignoreItemForChrisPremades")) {
+            setProperty(item, "flags.ddbimporter.ignoreItemForChrisPremades", ddbMatchedItem.flags.ddbimporter.ignoreItemForChrisPremades);
+          }
           if (hasProperty(ddbMatchedItem, "flags.ddbimporter.overrideId")) {
             setProperty(item, "flags.ddbimporter.overrideId", ddbMatchedItem.flags.ddbimporter.overrideId);
             if ((hasProperty(ddbMatchedItem, "flags.ddbimporter.overrideItem"))) {

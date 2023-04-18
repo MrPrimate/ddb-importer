@@ -19,6 +19,7 @@ export class DDBItemConfig extends FormApplication {
     const icon = item.flags.ddbimporter?.ignoreIcon;
     const itemImport = item.flags.ddbimporter?.ignoreItemImport;
     const resource = item.flags.ddbimporter?.retainResourceConsumption;
+    const chris = item.flags.ddbimporter?.ignoreItemForChrisPremades;
     // const itemSync = item.flags.ddbimporter?.ignoreItemSync;
     const overrideId = item.flags.ddbimporter?.overrideId;
 
@@ -27,6 +28,11 @@ export class DDBItemConfig extends FormApplication {
         name: "ignoreItemImport",
         isChecked: itemImport,
         description: "Ignore this item when importing the character (implies all other settings here).",
+      },
+      {
+        name: "ignoreItemForChrisPremades",
+        isChecked: chris,
+        description: "Ignore this item when replacing effects with those from Chris's Premades module.",
       },
       {
         name: "ignoreIcon",
@@ -97,6 +103,7 @@ export class DDBItemConfig extends FormApplication {
     item.flags.ddbimporter['overrideId'] = formData['override'];
     item.flags.ddbimporter['ignoreIcon'] = formData['ignoreIcon'];
     item.flags.ddbimporter['ignoreItemImport'] = formData['ignoreItemImport'];
+    item.flags.ddbimporter['ignoreItemForChrisPremades'] = formData['ignoreItemForChrisPremades'];
     item.flags.ddbimporter['retainResourceConsumption'] = formData['retainResourceConsumption'];
     // item.flags.ddbimporter['ignoreItemSync'] = formData['ignoreItemSync'];
 

@@ -370,7 +370,8 @@ export async function fixFeatures(features) {
         break;
       }
       case "Healing Light": {
-        feature.system.damage = { parts: [["1d6"]], versatile: "", value: "" };
+        feature.system.actionType = "heal";
+        feature.system.damage = { parts: [["1d6", "healing"]], versatile: "", value: "" };
         break;
       }
       case "Metamagic - Heightened Spell": {

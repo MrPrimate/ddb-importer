@@ -84,6 +84,7 @@ function getType(doc, isMonster = false) {
 
 export async function applyChrisPremadeEffect({ document, type, folderName = null, chrisNameOverride = null } = {}) {
   if (!game.modules.get("chris-premades")?.active) return document;
+  if (getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) return document;
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
   if (!compendiumName) return document;
   const ddbName = document.flags.ddbimporter?.originalName ?? document.name;
@@ -166,7 +167,8 @@ export async function restrictedItemReplacer(actor, folderName = null) {
     logger.debug(`Checking restricted Item ${restrictedItem.key}: ${restrictedItem.originalName}`);
     const doc = documents.find((d) => {
       const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? d.flags.ddbimporter?.originalName ?? d.name;
-      return ddbName === restrictedItem.originalName;
+      const retainDoc = getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true;
+      return ddbName === restrictedItem.originalName && !retainDoc;
     });
     if (!doc) continue;
     if (["class", "subclass", "background"].includes(doc.type)) continue;

@@ -67,7 +67,7 @@ export default function () {
       }
 
       button.click((event) => {
-        if (event.shiftKey && event.ctrlKey) {
+        if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
           new DDBAdventureFlags(app.document, {}).render(true);
         } else if (event.shiftKey) {
           event.preventDefault();
@@ -137,7 +137,7 @@ export default function () {
 
       // eslint-disable-next-line no-unused-vars
       button.click((event) => {
-        if (event.shiftKey && event.ctrlKey) {
+        if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
           new DDBAdventureFlags(app.document, {}).render(true);
         } else {
           logger.debug(`Clicked for url ${url}`);
