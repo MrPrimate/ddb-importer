@@ -1,3 +1,7 @@
+# 3.4.17
+
+- Some adventure muncher scenes with tiles would not import the tile, if the tile config was generated in v10 of Foundry.
+
 # 3.4.16
 
 - Some improvements for future adventure muncher changes.

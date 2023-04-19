@@ -1163,7 +1163,9 @@ export default class AdventureMunch extends FormApplication {
 
       await AdventureMunchHelpers.asyncForEach(data.tiles, async (tile) => {
         // eslint-disable-next-line require-atomic-updates
-        tile.img = await this.importImage(tile.img);
+        if (tile.img) tile.img = await this.importImage(tile.img);
+        // eslint-disable-next-line require-atomic-updates
+        if (tile.texture?.src) tile.texture.src = await this.importImage(tile.texture.src);
       });
 
       if (overwriteEntity) await Scene.deleteDocuments([data._id]);
