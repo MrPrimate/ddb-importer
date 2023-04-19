@@ -79,7 +79,6 @@ for (const [key, actor] of game.actors.entries()) {
   await game.modules.get("ddb-importer").api.chris.adjustActor(actor);
 }
 ```
-```
 
 ## My Characters Hit Points aren't right
 
