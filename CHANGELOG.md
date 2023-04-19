@@ -1,6 +1,7 @@
 # 3.4.17
 
 - Some adventure muncher scenes with tiles would not import the tile, if the tile config was generated in v10 of Foundry.
+- Effect: Hail of Thorns provided by the delightful @Elwin#1410
 
 # 3.4.16
 
