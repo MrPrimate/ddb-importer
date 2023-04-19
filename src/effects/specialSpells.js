@@ -66,6 +66,7 @@ import { greaseEffect } from "./spells/grease.js";
 import { greenFlameBladeEffect } from "./spells/greenFlameBlade.js";
 import { guidanceEffect } from "./spells/guidance.js";
 import { guidingBoltEffect } from "./spells/guidingBolt.js";
+import { hailOfThornsEffect } from "./spells/hailOfThorns.js";
 import { hasteEffect } from "./spells/haste.js";
 import { heroesFeastEffect } from "./spells/heroesFeast.js";
 import { heroismEffect } from "./spells/heroism.js";
@@ -419,6 +420,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Guiding Bolt": {
       document = guidingBoltEffect(document);
+      break;
+    }
+    case "Hail of Thorns": {
+      document = await hailOfThornsEffect(document);
       break;
     }
     case "Haste": {
