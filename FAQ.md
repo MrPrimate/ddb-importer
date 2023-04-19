@@ -177,6 +177,14 @@ The [DAE Readme](https://gitlab.com/tposney/dae/-/blob/master/Readme.md) is usef
 - the importer will offer you "regular" or "effects" driven approach
 
 
+## I want to prevent DDB Importer overwriting a thing on my character sheet!
+
+There are two main options available:
+
+1) Click on the feature/item/spell/etc and click the DDB Icon in the title bar, select the "Ignore this item when importing the character".
+2) Add a copy of the feature/item/spell/etc to the DDB Overrides compendium, and on the Advanced tab of the character importer screen select "Replace Items using those in your Override compendium".
+
+
 ## How can I share content between my worlds in Foundry?
 
 Setup a shared compendium module. [Read](https://www.reddit.com/r/FoundryVTT/comments/fvw3c7/how_to_create_a_tiny_module_for_shared_content/) or [watch](https://www.youtube.com/watch?v=Q23cJJ36kX8) how.
