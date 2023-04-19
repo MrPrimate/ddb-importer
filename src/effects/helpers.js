@@ -9,6 +9,24 @@ import { applyChrisPremadeEffects } from "./chrisPremades.js";
 import { equipmentEffectAdjustment, midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
 
+/**
+ * If the requirements are met, returns true, false otherwise.
+ *
+ * @returns true if the requirements are met, false otherwise.
+ */
+export function requirementsSatisfied(name, dependencies) {
+  let missingDep = false;
+  dependencies.forEach((dep) => {
+    if (!game.modules.get(dep)?.active) {
+      const errorMsg = `${name}: ${dep} must be installed and active.`;
+      ui.notifications.error(errorMsg);
+      console.warn(errorMsg);
+      missingDep = true;
+    }
+  });
+  return !missingDep;
+}
+
 
 export async function addDDBIEffectToDocument(document, { useChrisPremades = false }) {
   const startingSpellPolicy = game.settings.get("ddb-importer", "munching-policy-add-spell-effects");
@@ -170,4 +188,47 @@ export async function checkTargetInRange({ sourceUuid, targetUuid, distance }) {
     return result;
   }, false);
   return isInRange;
+}
+
+
+/**
+ * Returns true if the attack is a ranged weapon attack that hit. It also supports melee weapons
+ * with the thrown property.
+ * @param {*} macroData the midi-qol macro data.
+ * @returns true if the attack is a ranged weapon attack that hit
+ */
+export function isRangedWeaponAttack(macroData) {
+  if (macroData.hitTargets.length < 1) {
+    return false;
+  }
+  if (macroData.item?.system.actionType === "rwak") {
+    return true;
+  }
+  if (macroData.item?.system.actionType !== "mwak" || !macroData.item?.system.properties?.thr) {
+    return false;
+  }
+
+  const sourceToken = canvas.tokens?.get(macroData.tokenId);
+  const targetToken = macroData.hitTargets[0].object;
+  const distance = MidiQOL.getDistance(sourceToken, targetToken, true, true);
+  const meleeDistance = 5; // Would it be possible to have creatures with reach and thrown weapon?
+  return distance >= 0 && distance > meleeDistance;
+}
+
+/**
+ * Selects all the tokens that are within X distance of the source token for the current game user.
+ * @param {Token} sourceToken the reference token from which to compute the distance.
+ * @param {number} distance the distance from the reference token.
+ * @param {boolean} includeSource flag to indicate if the reference token should be included or not in the selected targets.
+ * @returns an array of Token instances that were selected.
+ */
+export function selectTargetsWithinX(sourceToken, distance, includeSource) {
+  let aoeTargets = MidiQOL.findNearby(null, sourceToken, distance);
+  if (includeSource) {
+    aoeTargets.unshift(sourceToken);
+  }
+  const aoeTargetIds = aoeTargets.map((t) => t.document.id);
+  game.user?.updateTokenTargets(aoeTargetIds);
+  game.user?.broadcastActivity({ aoeTargetIds });
+  return aoeTargets;
 }

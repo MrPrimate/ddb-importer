@@ -33,6 +33,9 @@ import {
   findContainedTokensInTemplate,
   addDDBIEffectToDocument,
   addDDBIEffectsToActorDocuments,
+  requirementsSatisfied,
+  selectTargetsWithinX,
+  isRangedWeaponAttack,
 } from "./effects/helpers.js";
 import {
   applyChrisPremadeEffect,
@@ -124,9 +127,12 @@ export function registerApi() {
       configureCustomAAForCondition,
       findContainedTokensInTemplate,
       checkTargetInRange,
+      selectTargetsWithinX,
       addDDBIEffectToDocument,
       addDDBIEffectsToActorDocuments,
       addChrisEffectsToActorDocuments,
+      requirementsSatisfied,
+      isRangedWeaponAttack,
     },
     chris: {
       generateEffect: applyChrisPremadeEffect,
