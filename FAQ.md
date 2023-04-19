@@ -89,8 +89,15 @@ Sometimes DDB can get confused, especially if the character is created using the
 There are two options available:
 
 1) Click on the item, then the DDB icon on the title bar and check the ignore this item option.
-
 2) On the import screen check the "Ignore items on character sheet that have not been imported from DDB"
+
+
+## I want to prevent DDB Importer overwriting a thing on my character sheet!
+
+There are two main options available:
+
+1) Click on the feature/item/spell/etc and click the DDB Icon in the title bar, select the "Ignore this item when importing the character".
+2) Add a copy of the feature/item/spell/etc to the DDB Overrides compendium, and on the Advanced tab of the character importer screen select "Replace Items using those in your Override compendium".
 
 ## I see the message "Unable to open the Compendium"
 
@@ -175,15 +182,6 @@ The [DAE Readme](https://gitlab.com/tposney/dae/-/blob/master/Readme.md) is usef
 ### Dream
 
 - the importer will offer you "regular" or "effects" driven approach
-
-
-## I want to prevent DDB Importer overwriting a thing on my character sheet!
-
-There are two main options available:
-
-1) Click on the feature/item/spell/etc and click the DDB Icon in the title bar, select the "Ignore this item when importing the character".
-2) Add a copy of the feature/item/spell/etc to the DDB Overrides compendium, and on the Advanced tab of the character importer screen select "Replace Items using those in your Override compendium".
-
 
 ## How can I share content between my worlds in Foundry?
 
