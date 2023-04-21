@@ -81,6 +81,7 @@ I'd strongly recommend installing:
 - [DAE](https://foundryvtt.com/packages/dae/) for skill bonuses and basic effects
 - [Link Item and Resource DnD5e module](https://foundryvtt.com/packages/link-item-resource-5e ) for good resource linking
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects) for proper condition management
+- [Arbron’s Summoning](https://foundryvtt.com/packages/arbron-summoner) will allow the creation and use of summoned actors for spells and features in Tasha's
 
 If you want to add spell effects, and high levels of automation you will need:
 - [Midi-QOL](https://foundryvtt.com/packages/midi-qol/)
@@ -88,6 +89,9 @@ If you want to add spell effects, and high levels of automation you will need:
 - [Times Up](https://foundryvtt.com/packages/times-up/).
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects)
 - [Advanced Macros](https://foundryvtt.com/packages/advanced-macros)
+
+For super high automation:
+- [Chris's Premades](https://foundryvtt.com/packages/chris-premades) includes a lot of more advanced effects, but has a lot of module dependencies.
 
 Several macros that impact tokens rely on:
 - [Active Auras](https://foundryvtt.com/packages/ActiveAuras)
