@@ -55,6 +55,7 @@ import { squireOfSolamniaEffect } from "./feats/squireOfSolamnia.js";
 import { arcaneRecoveryEffect } from "./feats/arcaneRecovery.js";
 import { alertEffect } from "./feats/alert.js";
 import { evasionEffect } from "./feats/evasion.js";
+import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -185,6 +186,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Fire Rune": {
         document = fireRuneEffect(document);
+        break;
+      }
+      case "Form of the Beast: Tail (reaction)": {
+        document = formOfTheBeastReactionEffect(document);
         break;
       }
       case "Giant's Might": {
