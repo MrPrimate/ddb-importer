@@ -326,6 +326,11 @@ export async function fixFeatures(features) {
         feature.system.target.type = "self";
         feature.system.range.units = "self";
         break;
+      case "Form of the Beast: Tail (reaction)":
+        feature.system.actionType = "other";
+        feature.system.target.type = "self";
+        feature.system.range.units = "self";
+        break;
       case "Genie's Vessel: Genie's Wrath (Dao)": {
         feature.system.activation.type = "special";
         feature.system.target.value = 1;
