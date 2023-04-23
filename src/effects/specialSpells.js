@@ -115,6 +115,8 @@ import { spiritualWeaponEffect } from "./spells/spiritualWeapon.js";
 import { stoneskinEffect } from "./spells/stoneskin.js";
 import { stormSphereEffect } from "./spells/stormSphere.js";
 import { sunbeamEffect } from "./spells/sunbeam.js";
+import { swordBurstEffect } from "./spells/swordburst.js";
+import { thunderclapEffect } from "./spells/thunderclap.js";
 import { thunderousSmiteEffect } from "./spells/thunderousSmite.js";
 import { tolltheDeadEffect } from "./spells/tolltheDead.js";
 import { trueStrikeEffect } from "./spells/trueStrike.js";
@@ -621,12 +623,20 @@ export async function spellEffectAdjustment(document) {
       document = sunbeamEffect(document);
       break;
     }
-    case "Toll the Dead": {
-      document = await tolltheDeadEffect(document);
+    case "Sword Burst": {
+      document = swordBurstEffect(document);
+      break;
+    }
+    case "Thunderclap": {
+      document = thunderclapEffect(document);
       break;
     }
     case "Thunderous Smite": {
       document = await thunderousSmiteEffect(document);
+      break;
+    }
+    case "Toll the Dead": {
+      document = await tolltheDeadEffect(document);
       break;
     }
     case "True Strike": {
