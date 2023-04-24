@@ -313,6 +313,21 @@ JournalEntry.deleteDocuments([],{ deleteAll: true });
 Folder.deleteDocuments(game.folders.filter(f => f.type == "JournalEntry").map(f => f.id));
 ```
 
+## Are some, but not all, map files are missing after import?
+
+If you are running FoundryVTT behind an Ingress(e.g. Kubernetes) or a web proxy, it may have an individual file size limit on uploads. If this limit is smaller than some of the high-res maps images it may cause them to fail to be imported.
+
+Here are some links to common resolutions to this issue:
+
+  - Ingres-Nginx(Kubernetes)
+    - https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#custom-max-body-size
+  - Apache 2.4
+    - https://httpd.apache.org/docs/2.4/mod/core.html#limitrequestbody
+  - Nginx
+    - https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size
+  - Squid
+    - http://www.squid-cache.org/Doc/config/request_body_max_size/
+
 ## I want to send you a useful log info
 
 Open the browser dev console (F12) and type:
