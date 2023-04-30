@@ -158,6 +158,14 @@ export function fixItems(items) {
         };
         break;
       }
+      case "Healer's Kit": {
+        item.system.activation = { type: "action", cost: 1, condition: "" };
+        item.system.target = { value: 1, width: null, units: "any", type: "creature" };
+        item.system.range = { value: 20, long: null, units: "ft" };
+        item.system.uses = { value: 10, max: "10", per: "charge" };
+        setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
+        break;
+      }
       // no default
     }
   });
