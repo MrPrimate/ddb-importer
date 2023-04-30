@@ -2,6 +2,8 @@
 
 - Form of the beast effect
 - Tweaks to Thunderclap and Sword Burst spells if using midi effects to better use midi features.
+- Healer's Kit will add charges.
+- `addDDBIEffectToDocument` failed for some items. Issue #322.
 
 # 3.4.17
 

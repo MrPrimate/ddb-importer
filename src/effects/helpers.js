@@ -28,7 +28,7 @@ export function requirementsSatisfied(name, dependencies) {
 }
 
 
-export async function addDDBIEffectToDocument(document, { useChrisPremades = false }) {
+export async function addDDBIEffectToDocument(document, { useChrisPremades = false } = {}) {
   const startingSpellPolicy = game.settings.get("ddb-importer", "munching-policy-add-spell-effects");
   const startingAddPolicy = game.settings.get("ddb-importer", "munching-policy-add-effects");
   try {
