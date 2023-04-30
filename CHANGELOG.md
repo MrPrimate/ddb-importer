@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.18
 
 - Form of the beast effect
 - Tweaks to Thunderclap and Sword Burst spells if using midi effects to better use midi features.
