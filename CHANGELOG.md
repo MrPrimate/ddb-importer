@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Witch bolt macro tweak to end effect as GM.
+
 # 3.4.19
 
 - Ice Knife effect will now correctly target creatures larger than medium that are in the blast radius.

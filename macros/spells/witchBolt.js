@@ -32,7 +32,7 @@ async function sustainedDamage({ options, damageType, damageDice, sourceItem, ca
 async function cancel(caster) {
   const concentration = caster.effects.find((i) => i.label === "Concentrating");
   if (concentration) {
-    await MidiQOL.socket().removeEffects({ actorUuid: caster.uuid, effects: [concentration.id] });
+    await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: caster.uuid, effects: [concentration.id] });
   }
   await DAE.unsetFlag(caster, "witchBoltSpell");
 }
