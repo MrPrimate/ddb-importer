@@ -1,3 +1,10 @@
+# NEXT UP
+
+- Ice Knife effect will now correctly target creatures larger than medium that are in the blast radius.
+- Fix breaking change in midi if using the option to not embed macros in items.
+- Try adn reduce API calls for folder checking ont The Forge.
+- Starry Form actions no longer link to Wild Shape resource consumption. @Whirling-In-Rags#8302
+
 # 3.4.18
 
 - Form of the beast effect
