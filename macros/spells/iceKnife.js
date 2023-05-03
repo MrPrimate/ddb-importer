@@ -31,8 +31,6 @@ if (lastArg.targets.length > 0) {
     .concat(target)
     .map((t) => t.document.uuid);
 
-  console.warn(aoeTargets);
-
   const options = {
     showFullCard: false,
     createWorkflow: true,
