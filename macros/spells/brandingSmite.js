@@ -18,7 +18,7 @@ try {
           value: 5,
           mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
           priority: 20,
-          key: "ATL.dimLight",
+          key: "ATL.light.dim",
         },
       ],
       duration: { seconds: 60 },

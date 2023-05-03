@@ -27,13 +27,7 @@ if (args[0] === "on") {
           game.dfreds.effectInterface.addEffect({ effectName: "Blinded", uuid: targetActor.uuid });
           const changes = [
             {
-              key: "ATL.brightSight",
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-              priority: 99,
-              value: "0",
-            },
-            {
-              key: "ATL.dimSight",
+              key: "ATL.sight.range",
               mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
               priority: 99,
               value: "0",
