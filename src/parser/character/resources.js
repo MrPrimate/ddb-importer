@@ -328,6 +328,10 @@ const resourceSpellLinkMap = {
   ],
 };
 
+const notReplace = {
+  "Starry Form": ["Starry Form: Archer", "Starry Form: Chalice", "Starry Form: Dragon"],
+};
+
 DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
   // loop over resourceFeatureLinkMap
   const possibleItems = this.currentActor.items.toObject();
@@ -346,7 +350,8 @@ DDBCharacter.prototype.autoLinkResources = async function autoLinkResources() {
         logger.debug(`Checking ${value}`);
         const children = possibleItems.filter((doc) => {
           const name = doc.flags.ddbimporter?.originalName || doc.name;
-          return name.startsWith(value);
+          const dontReplace = notReplace[value]?.includes(name);
+          return name.startsWith(value) && !dontReplace;
         });
 
         if (children) {

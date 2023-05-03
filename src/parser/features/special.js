@@ -479,6 +479,7 @@ export async function fixFeatures(features) {
         feature.system.target.value = 1;
         feature.system.target.type = "creature";
         feature.system.range.units = "ft";
+        feature.system.consume = { type: "", target: "", amount: null };
         break;
       case "Starry Form: Chalice":
         feature.system.damage.parts[0][1] = "healing";
@@ -488,6 +489,7 @@ export async function fixFeatures(features) {
         feature.system.range.value = 30;
         feature.system.range.units = "ft";
         feature.system.activation.type = "special";
+        feature.system.consume = { type: "", target: "", amount: null };
         break;
       case "Starry Form: Dragon":
         break;
@@ -498,6 +500,7 @@ export async function fixFeatures(features) {
         feature.system.ability = "con";
         feature.system.target.type = "self";
         feature.system.range.units = "self";
+        feature.system.consume = { type: "", target: "", amount: null };
         break;
       case "Stunning Strike":
         feature.system.actionType = "save";
