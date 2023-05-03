@@ -20,10 +20,18 @@ if (lastArg.targets.length > 0) {
   areaSpellData.system.target.value = 99;
   const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor });
   const target = canvas.tokens.get(lastArg.targets[0].id);
-  const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>
-    canvas.grid.measureDistance(target, placeable) <= 9.5
-    && !canvas.walls.checkCollision(new Ray(target.center, placeable.center), { mode: "any", type: "light" })
-  ).map((placeable) => placeable.document.uuid);
+  const aoeTargets = MidiQOL
+    .findNearby(null, target, 5, { includeIncapacitated: true })
+    .filter((possible) => {
+      const collisionRay = new Ray(target, possible);
+      const collision = canvas.walls.checkCollision(collisionRay, { mode: "any", type: "sight" });
+      if (collision) return false;
+      else return true;
+    })
+    .concat(target)
+    .map((t) => t.document.uuid);
+
+  console.warn(aoeTargets);
 
   const options = {
     showFullCard: false,
@@ -33,9 +41,12 @@ if (lastArg.targets.length > 0) {
     versatile: false,
     consumeResource: false,
     consumeSlot: false,
+    // workflowOptions: {
+    //   autoRollDamage: 'always'
+    // }
   };
 
-  await MidiQOL.completeItemRoll(areaSpell, options);
+  await MidiQOL.completeItemUse(areaSpell, {}, options);
 } else {
   ui.notifications.error("Ice Knife: No target selected: unable to automate burst effect.");
 }
