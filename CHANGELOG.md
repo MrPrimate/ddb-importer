@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.19
 
 - Ice Knife effect will now correctly target creatures larger than medium that are in the blast radius.
 - Fix breaking change in midi if using the option to not embed macros in items.
