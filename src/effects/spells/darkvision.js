@@ -13,7 +13,7 @@ export async function darkvisionEffect(document) {
   if (spellEffectModules().atlInstalled) {
     effect.changes.push(
       generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
-      generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "darkvision", 5),
+      generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
     );
   } else {
     const itemMacroText = await loadMacroFile("spell", "darkvision.js");
