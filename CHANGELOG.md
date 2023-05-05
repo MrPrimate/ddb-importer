@@ -2,6 +2,8 @@
 
 - Witch bolt macro tweak to end effect as GM.
 - Update ATL flags.
+- Some changes for effect support in upcoming v11.
+- Global setting to use Convenient Effect Toggles for conditions rather than links to the SRD rules. @MaxPat#7936
 
 # 3.4.19
 

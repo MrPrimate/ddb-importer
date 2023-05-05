@@ -27,6 +27,7 @@ function buildBaseACEffect(label) {
     },
     origin: null,
     label,
+    name: label,
     tint: "",
     disabled: true,
     transfer: true,
@@ -238,7 +239,7 @@ function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCom
   // if (noModifiers && noACValue) return [];
   if (noModifiers) return [];
   // console.error(`Item: ${foundryItem.name}`, ddbItem);
-  logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.label}`);
+  logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.label ?? effect.name}`);
 
   // base ac from modifiers
   const acSets = game.modules.get("dae")?.active

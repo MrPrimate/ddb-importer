@@ -135,6 +135,7 @@ export function spellEffectModules() {
 export function baseSpellEffect(document, label) {
   return {
     label,
+    name: label,
     icon: document.img,
     changes: [],
     duration: {},

@@ -96,15 +96,16 @@ export function configureCustomAAForCondition(condition, macroData, originItemNa
   // Get default condition label
   const statusName = CONFIG.DND5E.conditionTypes[condition];
   const customStatusName = `${statusName} [${originItemName}]`;
-  if (AutomatedAnimations.AutorecManager.getAutorecEntries().aefx.find((a) => a.label === customStatusName)) {
+  if (AutomatedAnimations.AutorecManager.getAutorecEntries().aefx.find((a) => (a.label ?? a.name) === customStatusName)) {
     const aaHookId = Hooks.on("AutomatedAnimations-WorkflowStart", (data) => {
       if (
         data.item instanceof CONFIG.ActiveEffect.documentClass
-        && data.item.label === statusName
+        && (data.item.label ?? data.item.name) === statusName
         && data.item.origin === macroData.sourceItemUuid
       ) {
         data.recheckAnimation = true;
         data.item.label = customStatusName;
+        data.item.name = customStatusName;
         Hooks.off("AutomatedAnimations-WorkflowStart", aaHookId);
       }
     });
@@ -138,6 +139,7 @@ export async function addSaveAdvantageToTarget(targetActor, originItem, ability,
     transfer: false,
     icon,
     label: `${originItem.name}${additionLabel}: Save Advantage Large Creature`,
+    name: `${originItem.name}${additionLabel}: Save Advantage Large Creature`,
     duration: { turns: 1 },
     flags: {
       dae: {

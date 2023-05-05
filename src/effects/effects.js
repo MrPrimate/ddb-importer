@@ -284,6 +284,7 @@ export function effectModules() {
 export function baseItemEffect(foundryItem, label) {
   return {
     label,
+    name: label,
     icon: foundryItem.img,
     changes: [],
     duration: {},
@@ -1157,6 +1158,7 @@ function generateEffectDuration(foundryItem) {
 
 function consumableEffect(effect, ddbItem, foundryItem) {
   effect.label = `${foundryItem.name} - Consumable Effects`;
+  effect.name = `${foundryItem.name} - Consumable Effects`;
   effect.disabled = false;
   effect.transfer = false;
   setProperty(effect, "flags.ddbimporter.disabled", false);

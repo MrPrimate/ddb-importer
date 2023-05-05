@@ -4,12 +4,12 @@ import SETTINGS from "../../settings.js";
 
 
 export function getCondition(conditionName) {
-  return DICTIONARY.conditions.find((condition) => condition.label === conditionName);
+  return DICTIONARY.conditions.find((condition) => (condition.label ?? condition.name) === conditionName);
 }
 
 export async function getActiveConditions(actor) {
   const conditions = await Promise.all(DICTIONARY.conditions.filter(async (condition) => {
-    const conditionApplied = await game.dfreds.effectInterface.hasEffectApplied(condition.label, actor.uuid);
+    const conditionApplied = await game.dfreds.effectInterface.hasEffectApplied((condition.label ?? condition.name), actor.uuid);
     return conditionApplied;
   }));
   return conditions;
@@ -19,7 +19,7 @@ async function effectAppliedAndActive(condition, actor) {
   return actor.effects.some(
     (activeEffect) =>
       activeEffect?.flags?.isConvenient
-      && activeEffect?.label == condition.label
+      && (activeEffect?.label ?? activeEffect?.name) == (condition.label ?? condition.name)
       && !activeEffect?.disabled
   );
 }
@@ -60,11 +60,11 @@ export async function setConditions(actor, ddb, keepLocal = false) {
       // console.warn(condition);
       if (condition.needsUpdate) {
         const state = condition.conditionApplied ? "off" : "on";
-        logger.info(`Toggling condition to ${state} for ${condition.label} to ${actor.name} (${actor.uuid})`);
-        await game.dfreds.effectInterface.toggleEffect(condition.label, { uuids: [actor.uuid] });
+        logger.info(`Toggling condition to ${state} for ${(condition.label ?? condition.name)} to ${actor.name} (${actor.uuid})`);
+        await game.dfreds.effectInterface.toggleEffect((condition.label ?? condition.name), { uuids: [actor.uuid] });
       } else {
         const state = condition.conditionApplied ? "on" : "off";
-        logger.info(`Condition ${condition.label} ignored (currently ${state}) for ${actor.name} (${actor.uuid})`);
+        logger.info(`Condition ${(condition.label ?? condition.name)} ignored (currently ${state}) for ${actor.name} (${actor.uuid})`);
       }
       return condition;
     }));

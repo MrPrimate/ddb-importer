@@ -1,6 +1,6 @@
 export function unarmoredMovementEffect(document) {
   document.effects.forEach((effect) => {
-    if (effect.label.includes("Constant Effects")) {
+    if ((effect.label ?? effect.name).includes("Constant Effects")) {
       effect.changes = [
         {
           key: "system.attributes.movement.walk",

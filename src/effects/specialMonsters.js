@@ -11,6 +11,7 @@ import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
 export function baseMonsterFeatureEffect(document, label) {
   return {
     label,
+    name: label,
     icon: document.img,
     changes: [],
     duration: {},
