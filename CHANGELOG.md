@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.20
 
 - Witch bolt macro tweak to end effect as GM.
 - Update ATL flags.
