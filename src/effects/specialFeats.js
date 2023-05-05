@@ -56,6 +56,7 @@ import { arcaneRecoveryEffect } from "./feats/arcaneRecovery.js";
 import { alertEffect } from "./feats/alert.js";
 import { evasionEffect } from "./feats/evasion.js";
 import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
+import { deflectMissilesAttackEffect } from "./feats/deflectMissilesAttack.js";
 
 export function baseFeatEffect(document, label) {
   return {
@@ -170,6 +171,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Deflect Missiles": {
         document = deflectMissilesEffect(document);
+        break;
+      }
+      case "Deflect Missiles Attack": {
+        document = deflectMissilesAttackEffect(document);
         break;
       }
       case "Evasion": {

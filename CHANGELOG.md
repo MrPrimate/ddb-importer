@@ -4,6 +4,8 @@
 - Update ATL flags.
 - Some changes for effect support in upcoming v11.
 - Global setting to use Convenient Effect Toggles for conditions rather than links to the SRD rules. @MaxPat#7936
+- Tweaks to deflect missiles attack to move to manual reaction if using midi effects.
+- Deflect missiles effect removes damage.
 
 # 3.4.19
 

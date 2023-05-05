@@ -13,6 +13,7 @@ export function deflectMissilesEffect(document) {
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   setProperty(document, "system.activation.type", "reactiondamage");
 
+  document.system.damage.parts = [];
   document.system["target"]["type"] = "self";
   document.system.range = { value: null, units: "self", long: null };
 
