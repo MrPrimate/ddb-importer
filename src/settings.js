@@ -393,6 +393,13 @@ const SETTINGS = {
         },
       },
       PARSING: {
+        "use-ce-toggles": {
+          name: "ddb-importer.settings.use-ce-toggles.name",
+          hint: "ddb-importer.settings.use-ce-toggles.hint",
+          config: true,
+          type: Boolean,
+          default: false,
+        },
         "use-full-source": {
           name: "ddb-importer.settings.use-full-source.name",
           hint: "ddb-importer.settings.use-full-source.hint",

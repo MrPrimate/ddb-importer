@@ -3,6 +3,7 @@ import DDBHelper from "./DDBHelper.js";
 import logger from "../logger.js";
 import CompendiumHelper from "./CompendiumHelper.js";
 import { generateAdventureConfig } from "../muncher/adventure.js";
+import SETTINGS from "../settings.js";
 
 const INDEX_COMPENDIUMS = [
   "spell",
@@ -387,21 +388,31 @@ function replaceTag(match, p1, p2, p3, offset, string) {
 }
 
 function parseSRDLinks(text) {
+  const useCEToggles = game.settings.get(SETTINGS.MODULE_ID, "use-ce-toggles")
+    && game.modules.get("dfreds-convenient-effects")?.active;
+
   if (!CONFIG.DDBI.SRD_LOOKUP?.lookups) return text;
   [
     CONFIG.DDBI.SRD_LOOKUP.lookups.conditions,
     CONFIG.DDBI.SRD_LOOKUP.lookups.skills,
     CONFIG.DDBI.SRD_LOOKUP.lookups.senses,
     // CONFIG.DDBI.SRD_LOOKUP.lookups.weaponproperties,
-  ]
+  ].concat(useCEToggles ? [] : CONFIG.DDBI.SRD_LOOKUP.lookups.conditions).flat()
     .flat()
     .forEach((entry) => {
       const linkRegEx = new RegExp(`(^| |\\(|\\[|>)(${entry.name})( |\\)|\\]|\\.|,|$|\n|<)`, "ig");
       function replaceRule(match, p1, p2, p3) {
         return `${p1}@Compendium[${entry.compendium}.${entry._id}]{${p2}}${p3}`;
       }
-      text = text.replaceAll(linkRegEx, replaceRule);
+      function replaceCERule(match, p1, p2, p3) {
+        return `${p1}@toggleEffect[${entry.name}]${p3}`;
+      }
+
+      text = useCEToggles && game.dfreds.effectInterface.findEffectByName(entry.name)
+        ? text.replaceAll(linkRegEx, replaceCERule)
+        : text.replaceAll(linkRegEx, replaceRule);
     });
+
   return text;
 }
 
