@@ -1,5 +1,5 @@
 import { configureDependencies } from "./macros.js";
-import { effectModules, forceItemEffect } from "./effects.js";
+import { effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
 
 // effect loads
 import { ancestralProtectorsEffect } from "./feats/ancestralProtectors.js";
@@ -242,6 +242,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Shift": {
         if (ddb && character) document = shiftEffect(ddb, character, document);
+        break;
+      }
+      case "Slow Fall": {
+        document = forceManualReaction(document);
         break;
       }
       case "Squire of Solamnia: Precise Strike": {

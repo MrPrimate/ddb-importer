@@ -5,6 +5,7 @@ import {
   generateATLChange as baseGenerateATLChange,
   forceItemEffect,
   effectModules,
+  forceManualReaction,
 } from "./effects.js";
 import { configureDependencies } from "./macros.js";
 
@@ -305,6 +306,10 @@ export async function spellEffectAdjustment(document) {
       document = await contagionEffect(document);
       break;
     }
+    case "Counterspell": {
+      document = forceManualReaction(document);
+      break;
+    }
     case "Crown of Stars": {
       document = await crownofStarsEffect(document);
       break;
@@ -375,6 +380,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Fear": {
       document = fearEffect(document);
+      break;
+    }
+    case "Feather Fall": {
+      document = forceManualReaction(document);
       break;
     }
     case "Feeblemind": {

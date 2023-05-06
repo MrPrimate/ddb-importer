@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Counterspell, Feather Fall, Slow Fall set to manual reaction type for midi-qol.
+
 # 3.4.20
 
 - Witch bolt macro tweak to end effect as GM.

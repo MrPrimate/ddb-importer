@@ -330,6 +330,10 @@ export function forceItemEffect(document) {
   return document;
 }
 
+export function forceManualReaction(document) {
+  setProperty(document, "system.activation.type", "reactionmanual");
+  return document;
+}
 // *
 // CONST.ACTIVE_EFFECT_MODES.
 // ADD: 2
