@@ -269,6 +269,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
         document = stormRuneEffect(document);
         break;
       }
+      case "Swiftstride Reaction": {
+        document = forceManualReaction(document);
+        break;
+      }
       case "Visage of the Astral Self": {
         document = visageOfTheAstralSelfEffect(document);
         break;
