@@ -13,7 +13,6 @@ function buildBaseOverrideEffect(label) {
       startTurn: null,
     },
     origin: "Ability.Override",
-    label,
     tint: "",
     disabled: false,
     transfer: true,
@@ -24,6 +23,11 @@ function buildBaseOverrideEffect(label) {
       ddbimporter: { disabled: false, itemId: null, entityTypeId: null }
     },
   };
+  if (isNewerVersion(game.version, 11)) {
+    effect.name = label;
+  } else {
+    effect.label = label;
+  }
   return effect;
 }
 

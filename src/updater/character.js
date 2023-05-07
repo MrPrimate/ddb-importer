@@ -1457,7 +1457,7 @@ async function activeUpdateEffectTrigger(document, state) {
       // is it a condition?
       // is it a suitable type?
       const isConvenient = document.system?.flags?.isConvenient;
-      const condition = getCondition(document.system?.label);
+      const condition = getCondition(document.system?.name ?? document.system?.label);
       // exhaustion is a special case, but also a condition effect, handled by character update
       const notExhaustion = condition ? condition.ddbId !== 4 : false;
 

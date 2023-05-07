@@ -26,14 +26,17 @@ function buildBaseACEffect(label) {
       startTurn: null,
     },
     origin: null,
-    label,
-    name: label,
     tint: "",
     disabled: true,
     transfer: true,
     selectedKey: [],
     icon: "icons/svg/shield.svg",
   };
+  if (isNewerVersion(game.version, 11)) {
+    effect.name = label;
+  } else {
+    effect.label = label;
+  }
   return effect;
 }
 
@@ -239,7 +242,7 @@ function generateBaseACEffectChanges(ddb, character, ddbItem, foundryItem, isCom
   // if (noModifiers && noACValue) return [];
   if (noModifiers) return [];
   // console.error(`Item: ${foundryItem.name}`, ddbItem);
-  logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.label ?? effect.name}`);
+  logger.debug(`Generating supported AC changes for ${foundryItem.name} for effect ${effect.name ?? effect.label}`);
 
   // base ac from modifiers
   const acSets = game.modules.get("dae")?.active

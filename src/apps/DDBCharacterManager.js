@@ -1198,7 +1198,7 @@ export default class DDBCharacterManager extends FormApplication {
         // and that have a different active state and activate them
         const targetEffects = this.actor.effects.filter((ae) => {
           const previousEffectDiff = this.actorOriginal.effects.find(
-            (oae) => oae.label === ae.label && oae.disabled !== ae.disabled
+            (oae) => (oae.name ?? oae.label) === (ae.name ?? ae.label) && oae.disabled !== ae.disabled
           );
           if (previousEffectDiff) return true;
           return false;

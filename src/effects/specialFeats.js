@@ -59,9 +59,7 @@ import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js"
 import { deflectMissilesAttackEffect } from "./feats/deflectMissilesAttack.js";
 
 export function baseFeatEffect(document, label) {
-  return {
-    label,
-    name: label,
+  let effect = {
     icon: document.img,
     changes: [],
     duration: {},
@@ -81,6 +79,12 @@ export function baseFeatEffect(document, label) {
       },
     },
   };
+  if (isNewerVersion(game.version, 11)) {
+    effect.name = label;
+  } else {
+    effect.label = label;
+  }
+  return effect;
 }
 
 /**

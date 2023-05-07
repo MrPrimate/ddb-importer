@@ -134,9 +134,7 @@ export function spellEffectModules() {
 }
 
 export function baseSpellEffect(document, label) {
-  return {
-    label,
-    name: label,
+  let effect = {
     icon: document.img,
     changes: [],
     duration: {},
@@ -156,6 +154,12 @@ export function baseSpellEffect(document, label) {
       },
     },
   };
+  if (isNewerVersion(game.version, 11)) {
+    effect.name = label;
+  } else {
+    effect.label = label;
+  }
+  return effect;
 }
 
 export function generateStatusEffectChange(statusName, priority = 20, macro = false) {

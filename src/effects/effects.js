@@ -234,25 +234,29 @@ export function getEffectExcludedModifiers(type, features, ac) {
   return modifiers;
 }
 
+// eslint-disable-next-line complexity
 export function effectModules() {
   if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules) {
     return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
   }
-  const midiQolInstalled = game.modules.get("midi-qol")?.active;
-  const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active;
-  const itemMacroInstalled = game.modules.get("itemacro")?.active;
-  const timesUp = game.modules.get("times-up")?.active;
-  const daeInstalled = game.modules.get("dae")?.active;
-  const convenientEffectsInstalled = game.modules.get("dfreds-convenient-effects")?.active;
+  const midiQolInstalled = game.modules.get("midi-qol")?.active ?? false;
+  const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active ?? false;
+  const itemMacroInstalled = game.modules.get("itemacro")?.active ?? false;
+  const timesUp = game.modules.get("times-up")?.active ?? false;
+  const daeInstalled = game.modules.get("dae")?.active ?? false;
+  const convenientEffectsInstalled = game.modules.get("dfreds-convenient-effects")?.active ?? false;
 
-  const activeAurasInstalled = game.modules.get("ActiveAuras")?.active;
-  const atlInstalled = game.modules.get("ATL")?.active;
-  const tokenAurasInstalled = game.modules.get("token-auras")?.active;
-  const tokenMagicInstalled = game.modules.get("tokenmagic")?.active;
-  const autoAnimationsInstalled = game.modules.get("autoanimations")?.active;
-  const chrisInstalled = game.modules.get("chris-premades")?.active;
+  const activeAurasInstalled = game.modules.get("ActiveAuras")?.active ?? false;
+  const atlInstalled = game.modules.get("ATL")?.active ?? false;
+  const tokenAurasInstalled = game.modules.get("token-auras")?.active ?? false;
+  const tokenMagicInstalled = game.modules.get("tokenmagic")?.active ?? false;
+  const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
+  const chrisInstalled = game.modules.get("chris-premades")?.active ?? false;
+
+  const needAdvancedMacros = isNewerVersion(11, game.version);
   CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
-    hasCore: itemMacroInstalled && midiQolInstalled && advancedMacrosInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
+    hasCore: itemMacroInstalled && midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled
+      && ((needAdvancedMacros && advancedMacrosInstalled) || !needAdvancedMacros),
     hasMonster: midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
     midiQolInstalled,
     itemMacroInstalled,
@@ -282,9 +286,7 @@ export function effectModules() {
  */
 
 export function baseItemEffect(foundryItem, label) {
-  return {
-    label,
-    name: label,
+  let effect = {
     icon: foundryItem.img,
     changes: [],
     duration: {},
@@ -314,6 +316,12 @@ export function baseItemEffect(foundryItem, label) {
       },
     },
   };
+  if (isNewerVersion(game.version, 11)) {
+    effect.name = label;
+  } else {
+    effect.label = label;
+  }
+  return effect;
 }
 
 export function getMidiCEOnFlags(midiFlags = {}) {
@@ -334,6 +342,7 @@ export function forceManualReaction(document) {
   setProperty(document, "system.activation.type", "reactionmanual");
   return document;
 }
+
 // *
 // CONST.ACTIVE_EFFECT_MODES.
 // ADD: 2
@@ -1161,8 +1170,12 @@ function generateEffectDuration(foundryItem) {
 }
 
 function consumableEffect(effect, ddbItem, foundryItem) {
-  effect.label = `${foundryItem.name} - Consumable Effects`;
-  effect.name = `${foundryItem.name} - Consumable Effects`;
+  let label = `${foundryItem.name} - Consumable Effects`;
+  if (isNewerVersion(game.version, 11)) {
+    effect.name = label;
+  } else {
+    effect.label = label;
+  }
   effect.disabled = false;
   effect.transfer = false;
   setProperty(effect, "flags.ddbimporter.disabled", false);

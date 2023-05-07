@@ -9,9 +9,7 @@ import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
 import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
 
 export function baseMonsterFeatureEffect(document, label) {
-  return {
-    label,
-    name: label,
+  let effect = {
     icon: document.img,
     changes: [],
     duration: {},
@@ -32,6 +30,12 @@ export function baseMonsterFeatureEffect(document, label) {
       },
     },
   };
+  if (isNewerVersion(game.version, 11)) {
+    effect.name = label;
+  } else {
+    effect.label = label;
+  }
+  return effect;
 }
 
 function transferEffectsToActor(document) {
