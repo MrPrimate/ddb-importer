@@ -12,7 +12,7 @@
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "compatibility": {
     "minimum": "10.279",
-    "verified": 10
+    "verified": 11
   },
   "authors": [
     {
@@ -38,13 +38,28 @@
         "compatibility": {
           "verified": "2.1.0"
         }
+      }
+    ],
+    "recommends": [
+      {
+       "id": "dae",
+       "type": "module",
+       "reason": "Provides improvements to active effects"
       },
       {
-        "id": "a5e",
-        "type": "system",
-        "compatibility": {
-          "verified": "0.0.0"
-        }
+        "id": "foundryvtt-items-with-spells-5e",
+        "type": "module",
+        "reason": "Provides ability to embed items with spells"
+      },
+      {
+        "id": "link-item-resource-5",
+        "type": "module",
+        "reason": "Links items and resources up, so consumption of one reduces the other"
+      },
+      {
+        "id": "arbron-summoner",
+        "type": "module",
+        "reason": "Provides the ability to summon creatures with Summon spells"
       }
     ]
   },

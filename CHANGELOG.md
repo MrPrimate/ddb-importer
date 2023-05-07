@@ -1,7 +1,8 @@
 # NEXT UP
 
 - Counterspell, Feather Fall, Slow Fall, Swiftstride Reaction, and War Caster set to manual reaction type for midi-qol.
-- V11 Support: Support top level folder for compendiums.
+- V11 Support: Support top level folder for compendiums.- V11 Support: First pass of macros.
+- Note: Current aim is to maintain v10 and v11 compatibility within the module, baring any unforeseen changes or difficulties.
 
 # 3.4.20
 
