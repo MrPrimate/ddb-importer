@@ -917,6 +917,13 @@ const SETTINGS = {
       // muncher settings
       MUNCHER: {
         COMPENDIUM_FOLDERS: {
+          "top-level-compendium-folder": {
+            name: "ddb-importer.settings.top-level-compendium-folder.name",
+            hint: "ddb-importer.settings.top-level-compendium-folder.hint",
+            config: true,
+            type: Boolean,
+            default: true,
+          },
           "munching-selection-compendium-folders-monster": {
             name: "ddb-importer.settings.munching-selection-compendium-folders-monster.name",
             hint: "ddb-importer.settings.munching-selection-compendium-folders-monster.hint",

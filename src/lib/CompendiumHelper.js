@@ -184,7 +184,7 @@ const CompendiumHelper = {
    * @param  {string} packageType - package type of compendium, defaults to world
    * @returns {object} - Object consisting of compendium and creation result
    */
-  createIfNotExists: async ({ label, type, id = undefined, packageType = "world" } = {}) => {
+  createIfNotExists: async ({ label, type, id = undefined, packageType = "world", folderId = null } = {}) => {
     if (id) logger.debug(`Checking if Compendium with id ${id} exists for ${SETTINGS.MODULE_ID}`);
     else if (label) logger.debug(`Checking if Compendium with label ${label} exists for ${SETTINGS.MODULE_ID}`);
     const compendium = await game.packs.get(id) ?? game.packs.find((p) => p.metadata.label === label);
@@ -211,6 +211,7 @@ const CompendiumHelper = {
           label,
           name,
           package: packageType,
+          folder: folderId,
         });
         return {
           compendium: newCompendium,

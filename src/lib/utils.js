@@ -316,6 +316,7 @@ const utils = {
     entityTypes.set("journal", "JournalEntry");
     entityTypes.set("journalEntry", "JournalEntry");
     entityTypes.set("background", "Item");
+    entityTypes.set("compendium", "Compendium");
 
     const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
     const entityType = entityTypes.get(kind);

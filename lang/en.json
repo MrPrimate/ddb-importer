@@ -65,6 +65,8 @@
       "add-damage-restrictions-to-hints.hint": "If a damage restriction is in place, add this to the damage hint",
       "allow-scene-download.name": "Allow Download of Scene Data",
       "allow-scene-download.hint": "If you wish to submit data for walls and lighting of a scene use this option to download a config file for submission.",
+      "top-level-compendium-folder.name": "Top level compendium folder?",
+      "top-level-compendium-folder.hint": "If selected will place compendiums into a folder called D&D Beyond (v11 only)",
       "munching-selection-compendium-folders-monster.name": "Compendium Folders Style (Monsters)",
       "munching-selection-compendium-folders-monster.hint": "If using compendium folders, what kind of folders do you want the muncher to create?",
       "munching-selection-compendium-folders-spell.name": "Compendium Folders Style (Spells)",
