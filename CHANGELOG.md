@@ -1,6 +1,6 @@
 # NEXT UP
 
-- Counterspell, Feather Fall, Slow Fall set to manual reaction type for midi-qol.
+- Counterspell, Feather Fall, Slow Fall, Swiftstride Reaction, and War Caster set to manual reaction type for midi-qol.
 
 # 3.4.20
 
