@@ -146,7 +146,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   return await AAhelpers.applyTemplate(args);
 
 } else if (args[0] == "on") {
-  const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
+  const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
@@ -179,7 +179,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   }
   await DAE.setFlag(target, `${safeName}Tracker`, targetTokenTracker);
 } else if (args[0] == "off") {
-  const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
+  const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const target = canvas.tokens.get(lastArg.tokenId);
   const targetTokenTracker = DAE.getFlag(target, `${safeName}Tracker`);
 

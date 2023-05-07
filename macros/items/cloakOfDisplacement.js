@@ -15,6 +15,7 @@ if (args[0] === "each") {
     disabled: false,
     icon: lastArg.efData.icon,
     label: `Cloak of Displacement - Enforced Disadvantage`,
+    name: `Cloak of Displacement - Enforced Disadvantage`,
   };
   setProperty(effectData, "flags.dae.specialDuration", ["isDamaged", "turnStartSource"]);
   await lastArg.actor.createEmbeddedDocuments("ActiveEffect", [effectData]);

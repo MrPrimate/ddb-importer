@@ -9,7 +9,7 @@ async function lightUp(colour) {
     green: "#55d553",
   };
 
-  const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
+  const effect = targetActor.effects.find((e) => (e.name ?? e.label) === (lastArg.efData.name ?? lastArg.efData.label));
   const changes = effect.changes.concat([
     {
       key: "ATL.light.color",

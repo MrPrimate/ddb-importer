@@ -12,7 +12,7 @@ const sleepHp = await args[0].damageTotal;
 const condition = "Unconscious";
 console.log(`Sleep Spell => Available HP Pool [${sleepHp}] points`);
 const targets = await args[0].targets
-  .filter((i) => i.actor.system.attributes.hp.value != 0 && !i.actor.effects.find((x) => x.data.label === condition))
+  .filter((i) => i.actor.system.attributes.hp.value != 0 && !i.actor.effects.find((x) => (x.name ?? x.label) === condition))
   .sort((a, b) => (canvas.tokens.get(a.id).actor.system.attributes.hp.value < canvas.tokens.get(b.id).actor.system.attributes.hp.value ? -1 : 1));
 let remainingSleepHp = sleepHp;
 let sleepTarget = [];
@@ -23,7 +23,7 @@ for (let target of targets) {
     ? ["undead", "construct"].some((race) => (findTarget.actor.system.details.race || "").toLowerCase().includes(race))
     : ["undead", "construct"].some((value) => (findTarget.actor.system.details.type.value || "").toLowerCase().includes(value));
   const immuneCI = findTarget.actor.system.traits.ci.custom.includes("Sleep");
-  const sleeping = findTarget.actor.effects.find((i) => i.label === condition);
+  const sleeping = findTarget.actor.effects.find((i) => (i.name ?? i.label) === condition);
   const targetHpValue = findTarget.actor.system.attributes.hp.value;
   const targetImg = target?.texture?.src;
   if ((immuneType) || (immuneCI) || (sleeping)) {
@@ -36,6 +36,7 @@ for (let target of targets) {
     const gameRound = game.combat ? game.combat.round : 0;
     const effectData = {
       label: "Sleep Spell",
+      name: "Sleep Spell",
       icon: "icons/svg/sleep.svg",
       origin: args[0].uuid,
       disabled: false,

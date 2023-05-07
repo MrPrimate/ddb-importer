@@ -169,6 +169,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             duration: { },
             icon: sourceItemData.img,
             label: sourceItemData.name,
+            name: sourceItemData.name,
             origin,
             transfer: false,
             flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { transfer: false } },

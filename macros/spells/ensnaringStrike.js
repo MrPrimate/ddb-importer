@@ -41,6 +41,7 @@ async function addSaveAdvantageToTarget(targetActor, originItem) {
     transfer: false,
     icon,
     label: `${originItem.name}: Save Advantage Large Creature`,
+    name: `${originItem.name}: Save Advantage Large Creature`,
     duration: { turns: 1 },
     flags: {
       dae: {
@@ -84,7 +85,7 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
   const nbDice = level;
 
   // Get restrained condition id
-  const statusId = CONFIG.statusEffects.find(se => se.label === CONFIG.DND5E.conditionTypes["restrained"])?.id;
+  const statusId = CONFIG.statusEffects.find(se => (se.name ?? se.label) === CONFIG.DND5E.conditionTypes["restrained"])?.id;
   const conEffect = MidiQOL.getConcentrationEffect(sourceActor);
 
   // Temporary spell data for the ensnaring effect.
@@ -130,6 +131,7 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
         transfer: false,
         icon,
         label: originItem.name,
+        name: originItem.name,
         duration: getRemainingDuration(conEffect.duration),
       },
     ],

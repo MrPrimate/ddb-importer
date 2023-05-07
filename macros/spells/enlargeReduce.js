@@ -36,7 +36,7 @@ async function reSize(flavour) {
       value: `${types[flavour].size}`,
     },
   ];
-  const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
+  const effect = targetActor.effects.find((e) => (e.name ?? e.label) === (lastArg.efData.name ?? lastArg.efData.label));
   await effect.update({ changes: changes.concat(effect.changes) });
   ChatMessage.create({ content: `${targetToken.name} is ${flavour}d` });
 }

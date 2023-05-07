@@ -1,5 +1,3 @@
-if (!game.modules.get("advanced-macros")?.active) ui.notifications.error("Please enable the Advanced Macros module");
-
 if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
   args[0].workflow.item.system['target']['type'] = "self";
   args[0].workflow.item.system.range = { value: null, units: "self", long: null };

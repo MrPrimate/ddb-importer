@@ -21,10 +21,10 @@ if (args[0] === "on") {
   }
   if (!lastArg.canWound) {
     const stacks = getProperty(lastArg.efData, "flags.dae.stacks") || 1;
-    const label = lastArg.efData.label.replace(/\s+\(\d*\)/, "") +` (${stacks - 1})`;
+    const label = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s+\(\d*\)/, "") +` (${stacks - 1})`;
     Hooks.once("midi-qol.RollComplete", () => {
       targetActor.updateEmbeddedDocuments("ActiveEffect", [
-        { _id: lastArg.efData._id, "flags.dae.stacks": stacks - 1, label }
+        { _id: lastArg.efData._id, "flags.dae.stacks": stacks - 1, label, name: label }
       ]);
     });
   }

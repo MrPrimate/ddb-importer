@@ -26,6 +26,6 @@ if (
   );
 }
 if (lastArg.updates.system.attributes.hp.temp <= 0) {
-  const effectId = lastArg.sourceActor.effects.find((eff) => eff.label === "Armor of Agathys").id;
+  const effectId = lastArg.sourceActor.effects.find((eff) => (eff.name ?? eff.label) === "Armor of Agathys").id;
   await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: lastArg.actorUuid, effects: [effectId] });
 }

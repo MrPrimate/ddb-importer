@@ -9,7 +9,7 @@ function effectAppliedAndActive(conditionName) {
   return targetActor.effects.some(
     (activeEffect) =>
       activeEffect?.flags?.isConvenient
-      && activeEffect?.label == conditionName
+      && (activeEffect?.name ?? activeEffect?.label) == conditionName
       && !activeEffect?.disabled
   );
 }
@@ -45,6 +45,7 @@ async function applyContagion() {
             ],
             icon: "modules/dfreds-convenient-effects/images/blinded.svg",
             label: "Blinding Sickness",
+            name: "Blinding Sickness",
             _id: lastArg.effectId,
           };
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
@@ -81,6 +82,7 @@ async function applyContagion() {
               },
             ],
             label: "Filth Fever",
+            name: "Filth Fever",
             _id: lastArg.effectId,
           };
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
@@ -106,6 +108,7 @@ async function applyContagion() {
             ],
             icon: "icons/skills/wounds/injury-hand-blood-red.webp",
             label: "Flesh Rot",
+            name: "Flesh Rot",
             _id: lastArg.effectId,
           };
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
@@ -131,6 +134,7 @@ async function applyContagion() {
             ],
             icon: "icons/svg/daze.svg",
             label: "Mindfire",
+            name: "Mindfire",
             _id: lastArg.effectId,
           };
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
@@ -168,6 +172,7 @@ async function applyContagion() {
             ],
             icon: "icons/svg/paralysis.svg",
             label: "Seizure",
+            name: "Seizure",
             _id: lastArg.effectId,
           };
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
@@ -193,6 +198,7 @@ async function applyContagion() {
             ],
             icon: "icons/magic/unholy/projectile-helix-blood-red.webp",
             label: "Slimy Doom",
+            name: "Slimy Doom",
             _id: lastArg.effecId,
           };
           targetActor.updateEmbeddedDocuments("ActiveEffect", [data]);
@@ -239,5 +245,5 @@ if (args[0] === "off") {
 
 if (args[0] === "each") {
   let contagion = lastArg.efData;
-  if (contagion.label === "Contagion") contagionSave();
+  if ((contagion.name ?? contagion.label) === "Contagion") contagionSave();
 }

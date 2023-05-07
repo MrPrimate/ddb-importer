@@ -4,7 +4,7 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function updateActor(kind) {
   DAE.setFlag(targetActor, 'enhanceAbility', { name: kind });
-  const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
+  const effect = targetActor.effects.find((e) => (e.name ?? e.label) === (lastArg.efData.name ?? lastArg.efData.label));
   let changes = [];
   switch (kind) {
     case "bear": {

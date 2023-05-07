@@ -64,6 +64,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
     duration: { rounds: 1 },
     icon: sourceItem.img,
     label: `${sourceItemName} - Target`,
+    name: `${sourceItemName} - Target`,
   };
   await actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
 
@@ -98,6 +99,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
     duration: { rounds: 1 },
     icon: sourceItem.img,
     label: `Marked by ${sourceItemName}`,
+    name: `Marked by ${sourceItemName}`,
   };
   await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [targetEffectData] });
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "preDamageApplication") {
@@ -118,7 +120,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll") {
  * @returns true if the effect is found, false otherwise.
  */
 function hasEffectApplied(effectName, actor) {
-  return actor.effects.find((ae) => ae.label === effectName) !== undefined;
+  return actor.effects.find((ae) => (ae.name ?? ae.label) === effectName) !== undefined;
 }
 
 /**
@@ -181,6 +183,7 @@ async function handlePreDamageByMarkedTarget(macroData) {
       duration: { turns: 1 },
       icon: sourceItem.img,
       label: `${sourceItemName} - Damage resistance`,
+      name: `${sourceItemName} - Damage resistance`,
     };
     setProperty(targetEffectData, "flags.dae.specialDuration", ["isDamaged"]);
 

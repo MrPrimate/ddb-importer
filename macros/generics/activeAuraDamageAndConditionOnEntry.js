@@ -231,7 +231,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     };
   }
 } else if (args[0] == "on" || args[0] == "each") {
-  const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
+  const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
   const ddbEffectFlags = item.flags.ddbimporter.effect;
   // sometimes the round info has not updated, so we pause a bit
@@ -303,7 +303,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     await attemptRemoval(target, targetTokenTracker.condition, item);
   }
 } else if (args[0] == "off") {
-  const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
+  const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const targetToken = await fromUuid(lastArg.tokenUuid);
   const targetTokenTracker = await DAE.getFlag(targetToken, `${safeName}Tracker`);
   const removeOnOff = hasProperty(lastArg, "efData.flags.ddbimporter.effect.removeOnOff")

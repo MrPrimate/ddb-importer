@@ -6,12 +6,13 @@ try {
     const targetActor = target.actor;
     if (!targetActor) continue;
     // remove the invisible condition
-    const effect = targetActor?.effects.find((ef) => ef.label === game.i18n.localize("midi-qol.invisible"));
+    const effect = targetActor?.effects.find((ef) => (ef.name ?? ef.label) === game.i18n.localize("midi-qol.invisible"));
     if (effect)
       await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: targetActor.uuid, effects: [effect.id] });
     // create the dim light effect on the target
     let bsEffect = new ActiveEffect({
       label: "Branding Smite",
+      name: "Branding Smite",
       icon: "icons/magic/fire/dagger-rune-enchant-flame-strong-purple.webp",
       changes: [
         {

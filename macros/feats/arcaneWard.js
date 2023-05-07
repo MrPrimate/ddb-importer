@@ -27,7 +27,7 @@ if (args[0].macroPass === "preActiveEffects" && args[0].item?.system.school === 
   }
 
   const arcaneWardAbsorptionEffectLabel = "Arcane Ward: Absorption Effect";
-  const absorptionEffect = args[0].actor.effects.find((e) => e.label === arcaneWardAbsorptionEffectLabel);
+  const absorptionEffect = args[0].actor.effects.find((e) => (e.name ?? e.label) === arcaneWardAbsorptionEffectLabel);
   if (!absorptionEffect) {
     // create absorption effect
     const effectData = {
@@ -44,6 +44,7 @@ if (args[0].macroPass === "preActiveEffects" && args[0].item?.system.school === 
       transfer: true,
       icon: args[0].item.img,
       label: arcaneWardAbsorptionEffectLabel,
+      name: arcaneWardAbsorptionEffectLabel,
     };
     setProperty(effectData, "flags.dae.specialDuration", ["longRest"]);
     await args[0].actor.createEmbeddedDocuments("ActiveEffect", [effectData]);

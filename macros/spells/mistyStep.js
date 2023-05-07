@@ -10,7 +10,7 @@ async function deleteTemplatesAndTeleport(destinationTemplate, actorId, flagName
     (i) => i.data.flags?.spellEffects?.[flagName] === actorId
   ).map((t) => t.id);
   await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", templateIds);
-  const effectIds = targetActor.data.effects.filter((e) => e.data.label === "Misty Step").map((t) => t.id);
+  const effectIds = targetActor.data.effects.filter((e) => (e.data.name ?? e.data.label) === "Misty Step").map((t) => t.id);
   await targetActor.deleteEmbeddedDocuments("ActiveEffect", effectIds);
 }
 

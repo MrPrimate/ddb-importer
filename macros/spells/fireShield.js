@@ -39,7 +39,7 @@ function createShieldItem(type) {
 async function createFireShield(type) {
   const resistanceType = type == "warm" ? "cold" : "fire";
   const item = createShieldItem(type);
-  const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
+  const effect = targetActor.effects.find((e) => (e.name ?? e.label) === (lastArg.efData.name ?? lastArg.efData.label));
   const changes = [
     {
       key: "system.traits.dr.value",

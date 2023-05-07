@@ -70,6 +70,7 @@ if (args[0].macroPass === "postActiveEffects") {
   const templateDoc = changes[0];
   const boltEffectData = {
     label: `${workflow.item.name}: Bolt Template`,
+    name: `${workflow.item.name}: Bolt Template`,
     icon: "icons/magic/lightning/bolt-forked-large-blue-yellow.webp",
     changes: [
       {

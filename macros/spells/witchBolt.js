@@ -30,7 +30,7 @@ async function sustainedDamage({ options, damageType, damageDice, sourceItem, ca
 }
 
 async function cancel(caster) {
-  const concentration = caster.effects.find((i) => i.label === "Concentrating");
+  const concentration = caster.effects.find((i) => i.name ?? i.label === "Concentrating");
   if (concentration) {
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: caster.uuid, effects: [concentration.id] });
   }
@@ -46,6 +46,7 @@ if (args[0].macroPass === "postActiveEffects") {
 
   const effectData = [{
     label: "WitchBolt (Concentration)",
+    name: "WitchBolt (Concentration)",
     icon: args[0].item.img,
     duration: { rounds: 10, startTime: game.time.worldTime },
     origin: args[0].item.uuid,

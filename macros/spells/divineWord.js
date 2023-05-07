@@ -9,7 +9,7 @@ function effectAppliedAndActive(conditionName) {
   return targetToken.effects.some(
     (activeEffect) =>
       activeEffect?.flags?.isConvenient
-      && activeEffect?.label == conditionName
+      && (activeEffect?.name ?? activeEffect?.label) == conditionName
       && !activeEffect?.disabled
   );
 }

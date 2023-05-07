@@ -29,6 +29,7 @@ if (args[0].tag === "OnUse") {
         disabled: false,
         icon: args[0].item.img,
         label: "Favored Foe Hit",
+        name: "Favored Foe Hit",
       };
       setProperty(favoredFoeHitData, "flags.dae.specialDuration", ["turnStartSource"]);
       await args[0].actor.createEmbeddedDocuments("ActiveEffect", [favoredFoeHitData]);

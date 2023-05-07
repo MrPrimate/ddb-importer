@@ -11,7 +11,7 @@ function effectAppliedAndActive(conditionName) {
   return targetActor.effects.some(
     (activeEffect) =>
       activeEffect?flags?.isConvenient &&
-      activeEffect?.label == conditionName &&
+      (activeEffect?.name ?? activeEffect?.label) == conditionName &&
       !activeEffect?.disabled
   );
 }
@@ -33,7 +33,7 @@ if (args[0] === "on") {
               value: "0",
             },
           ];
-          const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
+          const effect = targetActor.effects.find((e) => (e.name ?? e.label) === (lastArg.efData.name ?? lastArg.efData.label));
           effect.update({ changes: changes.concat(effect.changes) });
         },
       },

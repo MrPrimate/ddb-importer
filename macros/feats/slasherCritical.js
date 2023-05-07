@@ -8,9 +8,10 @@ if (args[0].tag === "DamageBonus" && args[0].isCritical) {
   const slasherIcon = "icons/skills/melee/blade-tips-triple-bent-white.webp";
 
   for (const hitTarget of args[0].hitTargets) {
-    if (!hitTarget.actor._source.effects.some((e) => e.label === criticalEffectName)) {
+    if (!hitTarget.actor._source.effects.some((e) => (e.name ?? e.label) === criticalEffectName)) {
       const effect = {
         label: criticalEffectName,
+        name: criticalEffectName,
         icon: slasherIcon,
         origin: slasherFeat?.uuid,
         disabled: false,

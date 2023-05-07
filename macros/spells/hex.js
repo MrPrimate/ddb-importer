@@ -31,6 +31,7 @@ if (args[0].tag === "OnUse") {
     duration: args[0].item.effects[0].duration,
     icon: args[0].item.img,
     label: args[0].item.name,
+    name: args[0].item.name,
   };
   effectData.duration.startTime = game.time.worldTime;
   await caster.createEmbeddedDocuments("ActiveEffect", [effectData]);

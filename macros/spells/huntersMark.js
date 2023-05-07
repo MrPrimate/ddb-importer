@@ -29,7 +29,7 @@ try {
         //marked target is dead or removed so don't consume a resource
         const currentDuration = duplicate(
           act.effects.find(
-            (ef) => ef.label === game.i18n.localize("midi-qol.Concentrating")
+            (ef) => (ef.name ?? ef.label) === game.i18n.localize("midi-qol.Concentrating")
           ).duration
         );
         const useHookId = Hooks.on(
@@ -44,7 +44,7 @@ try {
         const effectHookId = Hooks.on(
           "preCreateActiveEffect",
           (effect, data, options, user) => {
-            if (effect.label === game.i18n.localize("midi-qol.Concentrating")) {
+            if ((effect.name ?? effect.label) === game.i18n.localize("midi-qol.Concentrating")) {
               effect.updateSource({ duration: currentDuration });
               Hooks.off("dnd5e.preCreateActiveEffect", effectHookId);
             }

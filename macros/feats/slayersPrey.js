@@ -26,6 +26,7 @@ if (args[0].tag === "OnUse") {
         disabled: false,
         icon: args[0].item.img,
         label: "Slayer's Prey Hit",
+        name: "Slayer's Prey Hit",
       };
       setProperty(slayersPreyHitData, "flags.dae.specialDuration", ["turnStartSource"]);
       await args[0].actor.createEmbeddedDocuments("ActiveEffect", [slayersPreyHitData]);

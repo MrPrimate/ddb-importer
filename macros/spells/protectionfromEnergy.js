@@ -88,7 +88,7 @@ if (args[0] === "on") {
         label: 'Protect!',
         callback: async () => {
           const element = $("input[type='radio'][name='type']:checked").val();
-          const effect = targetActor.effects.find((e) => e.label === lastArg.efData.label);
+          const effect = targetActor.effects.find((e) => (e.name ?? e.label) === (lastArg.efData.name ?? lastArg.efData.label));
           const changes = [
             {
               key: "data.traits.dr.value",

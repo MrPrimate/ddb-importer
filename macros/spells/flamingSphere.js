@@ -26,6 +26,7 @@ try {
                     "changes":  [{"key":"flags.midi-qol.OverTime","mode":5,"value": changeValue,"priority":"20"}],
                     "disabled": false,
                     "label": "Flaming Sphere Damage",
+                    "name": "Flaming Sphere Damage",
                     "icon": "icons/magic/fire/orb-vortex.webp",
                     "flags": {
                         "ActiveAuras": {
@@ -51,6 +52,7 @@ try {
         await caster.createEmbeddedDocuments("ActiveEffect", [{
             "changes":  [{"key":"flags.dae.deleteUuid","mode":5,"value": summonedUuid,"priority":"30"}],
             "label": "Flaming Sphere Summon",
+            "name": "Flaming Sphere Summon",
             "duration": {seconds: 60, rounds: 10},
             "origin": args[0].itemUuid,
             "icon": "icons/magic/fire/orb-vortex.webp",
