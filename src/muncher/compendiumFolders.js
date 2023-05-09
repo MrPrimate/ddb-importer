@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
@@ -15,70 +16,6 @@ let consumableFolders = {};
 let lootFolders = {};
 let toolFolders = {};
 let backpackFolders = {};
-
-const spellLevelFolderNames = [
-  "0th Level (Cantrip)",
-  "1st Level",
-  "2nd Level",
-  "3rd Level",
-  "4th Level",
-  "5th Level",
-  "6th Level",
-  "7th Level",
-  "8th Level",
-  "9th Level",
-];
-
-const itemRarityNames = [
-  "Common",
-  "Uncommon",
-  "Rare",
-  "Very Rare",
-  "Legendary",
-  "Artifact",
-  "Varies",
-  "Unknown",
-];
-
-const rootItemFolderNames = {
-  equipment: "Equipment",
-  tool: "Tools",
-  loot: "Loot",
-  weapon: "Weapon",
-  backpack: "Backpack",
-  consumable: "Consumable",
-};
-
-const equipmentFolderNames = {
-  heavy: "Heavy Armor",
-  medium: "Medium Armor",
-  light: "Light Armor",
-  trinket: "Trinket",
-  shield: "Shield",
-};
-const weaponFolderNames = {
-  simpleM: "Simple Melee",
-  simpleR: "Simple Ranged",
-  martialM: "Martial Melee",
-  martialR: "Martial Ranged",
-};
-const trinketFolderNames = ["Wand", "Wondrous item", "Ring", "Rod"];
-const consumableFolderNames = ["Ammunition", "Potion", "Scroll", "Poison", "Adventuring Gear"];
-const lootFolderNames = [
-  "Adventuring Gear",
-  "Vehicle",
-  "Gemstone",
-  "Mount",
-  "Arcane Focus",
-  "Holy Symbol",
-  "Druidic Focus",
-];
-const toolFolderNames = {
-  art: "Artisan's Tools",
-  music: "Musical Instrument",
-  game: "Gaming Set",
-};
-const backpackFolderNames = ["Equipment Pack", "Adventuring Gear", "Vehicle", "Mount"];
 
 async function createCompendiumFolder(packName, folderName, color = "#6f0006") {
   const existingFolder = game.customFolders.fic.folders.find((f) => f.packCode === packName && f.name == folderName);
@@ -148,7 +85,7 @@ async function createAlphabeticalCompendiumFolders(packName) {
 async function createSpellLevelCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
-    spellLevelFolderNames.forEach((levelName) => {
+    DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL.forEach((levelName) => {
       logger.info(`Creating folder '${levelName}'`);
       promises.push(createCompendiumFolder(packName, levelName));
     });
@@ -173,7 +110,7 @@ async function createSpellSchoolCompendiumFolders(packName) {
 async function createItemRarityCompendiumFolders(packName) {
   return new Promise((resolve) => {
     let promises = [];
-    itemRarityNames.forEach((rarityName) => {
+    DICTIONARY.COMPENDIUM_FOLDERS.RARITY.forEach((rarityName) => {
       logger.info(`Creating folder '${rarityName}'`);
       promises.push(createCompendiumFolder(packName, rarityName));
     });
@@ -185,7 +122,7 @@ async function createItemRarityCompendiumFolders(packName) {
 async function createItemTypeCompendiumFolders(packName) {
   let promises = [];
 
-  for (const [key, value] of Object.entries(rootItemFolderNames)) {
+  for (const [key, value] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.ITEM_ROOT)) {
     logger.info(`Creating root folder '${value}' with key '${key}'`);
     // eslint-disable-next-line no-await-in-loop
     const folder = await createCompendiumFolder(packName, value);
@@ -193,7 +130,7 @@ async function createItemTypeCompendiumFolders(packName) {
     promises.push(folder);
   }
 
-  for (const [key, value] of Object.entries(equipmentFolderNames)) {
+  for (const [key, value] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.EQUIPMENT)) {
     logger.info(`Creating Equipment folder '${value}' with key '${key}'`);
     // eslint-disable-next-line no-await-in-loop
     const folder = await createCompendiumFolderWithParent(packName, value, rootItemFolders["equipment"], "#222222");
@@ -201,7 +138,7 @@ async function createItemTypeCompendiumFolders(packName) {
     promises.push(folder);
   }
 
-  for (const [key, value] of Object.entries(weaponFolderNames)) {
+  for (const [key, value] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.WEAPON)) {
     logger.info(`Creating Weapon folder '${value}' with key '${key}'`);
     // eslint-disable-next-line no-await-in-loop
     const folder = await createCompendiumFolderWithParent(packName, value, rootItemFolders["weapon"], "#222222");
@@ -209,7 +146,7 @@ async function createItemTypeCompendiumFolders(packName) {
     promises.push(folder);
   }
 
-  for (const [key, value] of Object.entries(toolFolderNames)) {
+  for (const [key, value] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.TOOLS)) {
     logger.info(`Creating Tool folder '${value}' with key '${key}'`);
     // eslint-disable-next-line no-await-in-loop
     const folder = await createCompendiumFolderWithParent(packName, value, rootItemFolders["tool"], "#222222");
@@ -217,7 +154,7 @@ async function createItemTypeCompendiumFolders(packName) {
     promises.push(folder);
   }
 
-  for (const folderName of trinketFolderNames) {
+  for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.TRINKET) {
     logger.info(`Creating Equipment\\Trinket folder '${folderName}'`);
     // eslint-disable-next-line no-await-in-loop
     const folder = await createCompendiumFolderWithParent(packName, folderName, equipmentFolders["trinket"], "#444444");
@@ -225,7 +162,7 @@ async function createItemTypeCompendiumFolders(packName) {
     promises.push(folder);
   }
 
-  for (const folderName of consumableFolderNames) {
+  for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.CONSUMABLE) {
     logger.info(`Creating Consumable folder '${folderName}'`);
     // eslint-disable-next-line no-await-in-loop
     const folder = await createCompendiumFolderWithParent(packName, folderName, rootItemFolders["consumable"], "#222222");
@@ -233,7 +170,7 @@ async function createItemTypeCompendiumFolders(packName) {
     promises.push(folder);
   }
 
-  for (const folderName of lootFolderNames) {
+  for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.LOOT) {
     logger.info(`Creating Loot folder '${folderName}'`);
     // eslint-disable-next-line no-await-in-loop
     const folder = await createCompendiumFolderWithParent(packName, folderName, rootItemFolders["loot"], "#222222");
@@ -241,7 +178,7 @@ async function createItemTypeCompendiumFolders(packName) {
     promises.push(folder);
   }
 
-  for (const folderName of backpackFolderNames) {
+  for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.BACKPACK) {
     logger.info(`Creating Backpack folder '${folderName}'`);
     // eslint-disable-next-line no-await-in-loop
     const folder = await createCompendiumFolderWithParent(packName, folderName, rootItemFolders["backpack"], "#222222");
@@ -497,7 +434,7 @@ function getCompendiumFolderName(type, document) {
           break;
         }
         case "LEVEL": {
-          const levelFolder = spellLevelFolderNames[document.system?.level];
+          const levelFolder = DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL[document.system?.level];
           if (levelFolder) {
             name = levelFolder;
           }
@@ -552,6 +489,7 @@ export async function addToCompendiumFolder(type, document, folders) {
 }
 
 // create compendium folders for existing things
+// eslint-disable-next-line complexity
 export async function migrateExistingCompendium(type) {
   const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
 
