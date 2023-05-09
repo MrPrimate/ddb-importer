@@ -1,5 +1,3 @@
-// console.warn("Crusher: Critical", args);
-
 // critical effect
 if (args[0].tag === "DamageBonus" && args[0].isCritical) {
   const slasherCriticalFeatName = "Slasher: Critical";

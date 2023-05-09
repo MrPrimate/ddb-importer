@@ -1,4 +1,3 @@
-console.warn(args)
 try {
     if (args[0].itemData.type !== "spell") return;
     // no healing done?

@@ -2,7 +2,7 @@ async function sustainedDamage({ options, damageType, damageDice, sourceItem, ca
   const damageRoll = await new Roll(`${damageDice}[${damageType}]`).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll, game.users.get(options.userId));
 
-  console.warn({ options, damageType, damageDice, sourceItem, caster });
+  // console.warn({ options, damageType, damageDice, sourceItem, caster });
   const targets = await Promise.all(options.targets.map(async (uuid) => {
     const tok = await fromUuid(uuid);
     return tok.object;

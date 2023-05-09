@@ -1,4 +1,3 @@
-// console.warn(args);
 // based on a macro by @Chris#8375
 if (["on", "off"].includes(args[0])) {
   const lastArg = args[args.length - 1];

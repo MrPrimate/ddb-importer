@@ -1,7 +1,5 @@
 /* Squire of Solamnia: Precise Strike based on a macro by @Wheels#2393 */
 
-console.warn(args);
-
 async function refundUse(sourceActor, effectItem) {
   if (effectItem.system.uses?.value < effectItem.system.uses?.max) {
     const newValue = effectItem.system.uses.value + 1;
@@ -34,7 +32,6 @@ if (["off"].includes(args[0])) {
 } else if (args[0].tag === "DamageBonus") {
   try {
     const effectItem = await fromUuid(args[0].sourceItemUuid);
-    console.warn(effectItem)
     if (args[0].hitTargets.length === 0) {
       //if player misses the target, refund the resource as per feature description
       if (effectItem) {

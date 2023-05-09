@@ -3,7 +3,7 @@
 // Default name of the item
 const defaultItemName = "Hail of Thorns";
 // Set to false to remove debug logging
-const debug = true;
+const debug = false;
 
 const dependencies = ["dae", "itemacro", "times-up", "midi-qol"];
 if (!game.modules.get("ddb-importer")?.api.effects.requirementsSatisfied(defaultItemName, dependencies)) {
@@ -128,7 +128,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   const targetToken = macroData.targets[0].object;
   const aoeTargets = game.modules.get("ddb-importer")?.api.effects.selectTargetsWithinX(targetToken, effectRange, true);
   if (debug) {
-    console.warn(`${defaultItemName} | Burst targets`, aoeTargets);
+    console.log(`${defaultItemName} | Burst targets`, aoeTargets);
   }
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const macroData = args[0];

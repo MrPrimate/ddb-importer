@@ -36,7 +36,6 @@ if (args[0].hitTargets.length === 0) return;
 
 
 if (args[0].tag === "OnUse") {
-  console.warn("onuse args:", args)
   const tokenOrActor = await fromUuid(args[0].actorUuid);
   const caster = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
@@ -60,7 +59,6 @@ if (args[0].tag === "OnUse") {
   await caster.createEmbeddedDocuments("ActiveEffect", [effectData]);
   selectDamage(caster);
 } else if (args[0].tag === "DamageBonus") {
-  console.warn("damage macro args", args);
   // only attacks
   if (!["mwak", "rwak", "rsak", "msak"].includes(args[0].item.system.actionType)) return {};
   const target = args[0].hitTargets[0];

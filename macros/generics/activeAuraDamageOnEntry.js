@@ -3,8 +3,6 @@ if(!game.modules.get("ActiveAuras")?.active) {
   return;
 }
 
-console.warn(args)
-
 const lastArg = args[args.length - 1];
 
 function getCantripDice(actor) {
@@ -42,10 +40,10 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   delete workflowItemData._id;
 
   const saveOnEntry = ddbEffectFlags.saveOnEntry;
-  console.warn("saveOnEntry", {ddbEffectFlags, saveOnEntry});
+  // console.warn("saveOnEntry", {ddbEffectFlags, saveOnEntry});
   if (saveOnEntry) {
     const entryItem = new CONFIG.Item.documentClass(workflowItemData, { parent: caster });
-    console.warn("Saving item on entry", {entryItem, targetToken});
+    // console.warn("Saving item on entry", {entryItem, targetToken});
     const options = {
       showFullCard: false,
       createWorkflow: true,
@@ -61,7 +59,6 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     if (game.dice3d) game.dice3d.showForRoll(damageRoll);
 
     workflowItemData.name = `${workflowItemData.name}: Turn Entry Damage`;
-    // console.warn("workflowItemData", workflowItemData);
 
     await new MidiQOL.DamageOnlyWorkflow(
       caster,

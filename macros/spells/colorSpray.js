@@ -2,8 +2,6 @@
 // uses convinient effects
 // Midi-qol "On Use"
 
-console.warn(args);
-
 async function wait(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);

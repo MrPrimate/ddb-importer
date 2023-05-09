@@ -76,7 +76,6 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     setProperty(workflowItemData, "effects", []);
     delete workflowItemData._id;
     workflowItemData.name = `${workflowItemData.name}: ${item.name} Condition save`;
-    // console.warn("workflowItemData", workflowItemData);
 
     const saveTargets = [...game.user?.targets].map((t )=> t.id);
     game.user.updateTokenTargets([targetToken.id]);
@@ -147,7 +146,6 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   setProperty(workflowItemData, "effects", []);
   delete workflowItemData._id;
   workflowItemData.name = `${workflowItemData.name}: Turn Entry Damage`;
-  // console.warn("workflowItemData", workflowItemData);
 
   await new MidiQOL.DamageOnlyWorkflow(
     caster,
@@ -299,7 +297,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const hasConditionAppliedEnd = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
   if (currentTokenCombatTurn && allowVsRemoveCondition && hasConditionAppliedEnd) {
-    console.warn(`Asking ${target.name} wants to remove ${targetTokenTracker.condition}`);
+    console.log(`Asking ${target.name} wants to remove ${targetTokenTracker.condition}`);
     await attemptRemoval(target, targetTokenTracker.condition, item);
   }
 } else if (args[0] == "off") {

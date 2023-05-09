@@ -9,7 +9,7 @@ if (!game.combat) {
 }
 
 const lastArg = args[args.length - 1];
-console.warn(args);
+
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
@@ -48,7 +48,6 @@ async function applySpikeGrowthDamage() {
   setProperty(workflowItemData, "effects", []);
   delete workflowItemData._id;
   workflowItemData.name = `${workflowItemData.name}: Movement Damage`;
-  // console.warn("workflowItemData", workflowItemData);
 
   await new MidiQOL.DamageOnlyWorkflow(
     caster,
@@ -112,12 +111,12 @@ if (args[0] === "off") {
   const testString = getDamageTestString(target, targetTrackerFlag);
   const isSame = testString === targetTrackerFlag.testString;
 
-  console.warn("isSame", {
-    target,
-    targetTrackerFlag,
-    testString,
-    isSame,
-  });
+  // console.warn("isSame", {
+  //   target,
+  //   targetTrackerFlag,
+  //   testString,
+  //   isSame,
+  // });
 
   if (!isSame) {
     await applySpikeGrowthDamage();

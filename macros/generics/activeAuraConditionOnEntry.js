@@ -59,7 +59,6 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     setProperty(workflowItemData, "effects", []);
     delete workflowItemData._id;
     workflowItemData.name = `${workflowItemData.name}: ${item.name} Condition save`;
-    // console.warn("workflowItemData", workflowItemData);
 
     const saveTargets = [...game.user?.targets].map((t )=> t.id);
     game.user.updateTokenTargets([targetToken.id]);
@@ -187,7 +186,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const effectApplied = game.dfreds.effectInterface.hasEffectApplied(targetTokenTracker.condition, target.document.uuid);
   const currentTokenCombatTurn = game.combat.current.tokenId === lastArg.tokenId;
   if (currentTokenCombatTurn && allowVsRemoveCondition && effectApplied) {
-    console.warn(`Removing ${targetTokenTracker.condition}`);
+    console.log(`Removing ${targetTokenTracker.condition}`);
     await attemptRemoval(target, targetTokenTracker.condition, item);
   }
 } else if (args[0] == "off") {
