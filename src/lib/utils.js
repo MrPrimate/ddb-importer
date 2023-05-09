@@ -296,10 +296,13 @@ const utils = {
     return folder;
   },
 
-  // eslint-disable-next-line no-unused-vars
-  getFolder: async (kind, subFolder = "", baseFolderName = "D&D Beyond Import", baseColor = "#6f0006", subColor = "#98020a", typeFolder = true) => {
+  entityMap: () => {
     let entityTypes = new Map();
     entityTypes.set("spell", "Item");
+    entityTypes.set("spells", "Item");
+    entityTypes.set("inventory", "Item");
+    entityTypes.set("item", "Item");
+    entityTypes.set("items", "Item");
     entityTypes.set("equipment", "Item");
     entityTypes.set("consumable", "Item");
     entityTypes.set("tool", "Item");
@@ -310,14 +313,22 @@ const utils = {
     entityTypes.set("magic-item-spells", "Item");
     entityTypes.set("npc", "Actor");
     entityTypes.set("character", "Actor");
+    entityTypes.set("monsters", "Actor");
+    entityTypes.set("monster", "Actor");
     entityTypes.set("extras", "Actor");
     entityTypes.set("scene", "Scene");
     entityTypes.set("page", "JournalEntry");
     entityTypes.set("journal", "JournalEntry");
     entityTypes.set("journalEntry", "JournalEntry");
-    entityTypes.set("background", "Item");
+    entityTypes.set("background", "Background");
     entityTypes.set("compendium", "Compendium");
+    entityTypes.set("class", "Class");
+    return entityTypes;
+  },
 
+  // eslint-disable-next-line no-unused-vars
+  getFolder: async (kind, subFolder = "", baseFolderName = "D&D Beyond Import", baseColor = "#6f0006", subColor = "#98020a", typeFolder = true) => {
+    const entityTypes = utils.entityMap();
     const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);
     const entityType = entityTypes.get(kind);
     const baseFolder = await utils.getOrCreateFolder(null, entityType, baseFolderName, baseColor);
