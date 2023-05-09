@@ -2,20 +2,20 @@ import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import DICTIONARY from "./dictionary.js";
 
 const COMPENDIUMS = [
-  { title: "Backgrounds", setting: "entity-background-compendium", type: "Item" },
-  { title: "Classes", setting: "entity-class-compendium", type: "Item" },
-  { title: "Subclasses", setting: "entity-subclass-compendium", type: "Item" },
-  { title: "Class Features", setting: "entity-feature-compendium", type: "Item" },
-  { title: "Feats", setting: "entity-feat-compendium", type: "Item" },
-  { title: "Items", setting: "entity-item-compendium", type: "Item" },
-  { title: "Monsters", setting: "entity-monster-compendium", type: "Actor" },
-  { title: "Vehicles", setting: "entity-vehicle-compendium", type: "Actor" },
-  { title: "Races", setting: "entity-race-compendium", type: "Item" },
-  { title: "Racial Traits", setting: "entity-trait-compendium", type: "Item" },
-  { title: "Spells", setting: "entity-spell-compendium", type: "Item" },
-  { title: "Tables", setting: "entity-table-compendium", type: "RollTable" },
-  { title: "Override", setting: "entity-override-compendium", type: "Item" },
-  { title: "Adventures", setting: "entity-adventure-compendium", type: "Adventure" },
+  { title: "Backgrounds", setting: "entity-background-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/86797d176a398d9f2f05b75b2f54b6dd.jpg" },
+  { title: "Classes", setting: "entity-class-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/b778ff3ca3f18e5f75ad4b348615cab5.jpg" },
+  { title: "Subclasses", setting: "entity-subclass-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/b778ff3ca3f18e5f75ad4b348615cab5.jpg" },
+  { title: "Class Features", setting: "entity-feature-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/b778ff3ca3f18e5f75ad4b348615cab5.jpg" },
+  { title: "Feats", setting: "entity-feat-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/a69ab5bf67b03308893b582dbef700e9.jpg" },
+  { title: "Items", setting: "entity-item-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/c06b79eae8ee234d1cea4688e117152b.jpg" },
+  { title: "Monsters", setting: "entity-monster-compendium", type: "Actor", image: "https://media.dndbeyond.com/mega-menu/36ee49066331fc36e3b37147d123463a.jpg" },
+  { title: "Vehicles", setting: "entity-vehicle-compendium", type: "Actor", image: "https://media.dndbeyond.com/mega-menu/e95485e82519aa807da5011d42b8c9d3.jpg" },
+  { title: "Races", setting: "entity-race-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg" },
+  { title: "Racial Traits", setting: "entity-trait-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/bfe65858aaa13919ce3d86d938bcb05b.jpg" },
+  { title: "Spells", setting: "entity-spell-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/8894f93deeca83cdf0a6df3f36ffb52e.jpg" },
+  { title: "Tables", setting: "entity-table-compendium", type: "RollTable", image: "https://media.dndbeyond.com/mega-menu/f1a2343aee786f21827daf763c60d30f.jpg" },
+  { title: "Override", setting: "entity-override-compendium", type: "Item", image: "https://media.dndbeyond.com/mega-menu/e116466f43544117a34ed5f642c680f7.jpg" },
+  { title: "Adventures", setting: "entity-adventure-compendium", type: "Adventure", image: "https://media.dndbeyond.com/mega-menu/4af3d4c196428ab0809cf71d332d540d.png" },
 ];
 
 const SRD_COMPENDIUM_LOOKUPS = [

@@ -6,7 +6,12 @@ export default async function () {
   if (game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium")) {
     for (const compendium of SETTINGS.COMPENDIUMS) {
       const compendiumName = game.settings.get(SETTINGS.MODULE_ID, compendium.setting);
-      const compendiumData = { id: compendiumName, type: compendium.type, label: `DDB ${compendium.title}` };
+      const compendiumData = {
+        id: compendiumName,
+        type: compendium.type,
+        label: `DDB ${compendium.title}`,
+        image: compendium.image,
+      };
 
       const createCompendiumFolder = isNewerVersion(game.version, 11)
         && game.settings.get(SETTINGS.MODULE_ID, "top-level-compendium-folder");
