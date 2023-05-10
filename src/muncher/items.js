@@ -6,11 +6,11 @@ import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
 import logger from "../logger.js";
-import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
+import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -170,10 +170,12 @@ export async function parseItems(ids = null) {
   logger.info("Check complete, getting ItemData.");
 
   const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
-  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
-  if (addToCompendiumFolder && compendiumFoldersInstalled) {
+  if (addToCompendiumFolder) {
+    const compendiumFolders = new DDBCompendiumFolders("items");
     DDBMuncher.munchNote(`Checking compendium folders..`, true);
-    await createCompendiumFolderStructure("items");
+    await compendiumFolders.loadCompendium("items");
+    await compendiumFolders.createCompendiumFolders();
+    DDBMuncher.munchNote("", true);
   }
 
   DDBMuncher.munchNote("Downloading item data..");

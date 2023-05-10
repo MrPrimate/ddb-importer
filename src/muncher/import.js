@@ -7,7 +7,7 @@ import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { addItemsDAESRD } from "./dae.js";
 import { copyInbuiltIcons } from "../lib/Iconizer.js";
-import { addToCompendiumFolder } from "./compendiumFolders.js";
+import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 /**
  * Removes items
@@ -340,15 +340,35 @@ async function createCompendiumItems(type, compendium, inputItems, index, matchF
   return Promise.all(promises);
 }
 
-export async function compendiumFolders(document, type) {
+export async function compendiumFoldersV10(document, type) {
   // using compendium folders?
   const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
-  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
-  if (compendiumFolderAdd && compendiumFoldersInstalled) {
+
+  if (compendiumFolderAdd) {
     // we create the compendium folder before import
     DDBMuncher.munchNote(`Adding ${document.name} to compendium folder`);
     logger.debug(`Adding ${document.name} to compendium folder`);
-    await addToCompendiumFolder(type, document);
+    const compendiumFolders = new DDBCompendiumFolders(type);
+    await compendiumFolders.loadCompendium(type);
+    await compendiumFolders.addToCompendiumFolder(document);
+  }
+}
+
+export async function addCompendiumFolderIds(documents, type) {
+  const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
+  if (compendiumFolderAdd) {
+    const compendiumFolders = new DDBCompendiumFolders(type);
+    compendiumFolders.loadCompendium(type);
+
+    const results = documents.map(async (d) => {
+      const folderId = await compendiumFolders.getFolderId(d);
+      // eslint-disable-next-line require-atomic-updates
+      if (folderId) d.folder = folderId;
+      return d;
+    });
+    return Promise.all(results);
+  } else {
+    return documents;
   }
 }
 
@@ -360,13 +380,16 @@ export async function updateCompendium(type, input, updateExisting = false, matc
   if (game.user.isGM) {
     const initialIndex = await compendium.getIndex();
     // remove duplicate items based on name and type
-    const inputItems = [...new Map(input[type].map((item) => {
+    const filterItems = [...new Map(input[type].map((item) => {
       let filterItem = item["name"] + item["type"];
       matchFlags.forEach((flag) => {
         filterItem += item.flags.ddbimporter[flag];
       });
       return [filterItem, item];
     })).values()];
+
+    // v11 compendium folders - just add to doc before creation/update
+    const inputItems = await addCompendiumFolderIds(filterItems, type);
 
     let updateResults = [];
     // update existing items
@@ -382,10 +405,12 @@ export async function updateCompendium(type, input, updateExisting = false, matc
     logger.debug(`Created ${createResults.length} new ${type} items in compendium`);
     DDBMuncher.munchNote("", true);
 
-    // compendium folders
-    createResults.forEach(async (document) => {
-      await compendiumFolders(document, type);
-    });
+    // compendium folders for v10
+    if (isNewerVersion(11, game.version)) {
+      createResults.forEach(async (document) => {
+        await compendiumFoldersV10(document, type);
+      });
+    }
 
     const results = createResults.concat(updateResults);
     return new Promise((resolve) => resolve(results));

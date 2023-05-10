@@ -4,9 +4,8 @@ import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
-
+import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 import { srdFiddling, getCompendiumItems, removeItems } from "../muncher/import.js";
-import { createCompendiumFolderStructure } from "../muncher/compendiumFolders.js";
 
 // targets for migration
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium, useSRDMonsterImages } from "../muncher/importMonster.js";
@@ -51,6 +50,7 @@ export default class DDBMonsterFactory {
     this.npcs = [];
     this.source = ddbData;
     this.munchNote = munchNote ?? DDBMonsterFactory.#noteStub;
+    this.compendiumFolders = new DDBCompendiumFolders("monsters");
   }
 
   /**
@@ -226,10 +226,10 @@ export default class DDBMonsterFactory {
     await useSRDMonsterImages(finalMonsters);
 
     const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
-    const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
-    if (addToCompendiumFolder && compendiumFoldersInstalled) {
+    if (addToCompendiumFolder) {
       this.munchNote(`Checking compendium folders..`, true);
-      await createCompendiumFolderStructure("monsters");
+      await this.compendiumFolders.loadCompendium("monsters");
+      await this.compendiumFolders.createCompendiumFolders();
       this.munchNote("", true);
     }
 

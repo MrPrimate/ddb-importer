@@ -5,14 +5,13 @@ import { parseSpells } from "./muncher/spells.js";
 import { parseItems } from "./muncher/items.js";
 import { parseTransports } from "./muncher/vehicles.js";
 import { updateWorldMonsters, resetCompendiumActorImages, parseCritters } from "./muncher/tools.js";
-import { migrateExistingCompendium, createCompendiumFolderStructure } from "./muncher/compendiumFolders.js";
 import DDBEncounterMunch from "./apps/DDBEncounterMunch.js";
 import DDBEncounters from "./parser/DDBEncounters.js";
 import { generateAdventureConfig } from "./muncher/adventure.js";
 import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
 import { checkCobalt } from "./lib/Secrets.js";
-import { base64Check } from "./lib/base64Check.js";
+// import { base64Check } from "./lib/base64Check.js";
 import { getFeats } from "./muncher/feats/feats.js";
 import { loadMacroFile, generateItemMacroFlag, createMacro, executeDDBMacro, MACROS } from "./effects/macros.js";
 import { iconPath, generateIcon } from "./lib/Iconizer.js";
@@ -25,6 +24,7 @@ import { DirectoryPicker } from "./lib/DirectoryPicker.js";
 import MuncherSettings from "./lib/MuncherSettings.js";
 import DDBProxy from "./lib/DDBProxy.js";
 import DDBCompanion from "./parser/companions/DDBCompanion.js";
+import { DDBCompendiumFolders } from "./lib/DDBCompendiumFolders.js";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.js";
 import {
   checkTargetInRange,
@@ -71,57 +71,76 @@ function debugStop() {
 
 export function registerApi() {
   const API = {
-    base64Check: base64Check,
+    migrateCompendiums,
+    compendiums: {
+      migrateCompendiums,
+      DDBCompendiumFolders,
+      getCompendiumLabel: CompendiumHelper.getCompendiumLabel,
+      getCompendiumType: CompendiumHelper.getCompendiumType,
+      getCompendiumNames: CompendiumHelper.getCompendiumNames,
+      deleteDefaultCompendiums: CompendiumHelper.deleteDefaultCompendiums,
+    },
+    patreon: {
+      checkPatreon: PatreonHelper.checkPatreon,
+      getPatreonTier: PatreonHelper.getPatreonTier,
+      getPatreonTiers: PatreonHelper.getPatreonTiers,
+      setPatreonTier: PatreonHelper.setPatreonTier,
+    },
+    lib: {
+      DDBCompendiumFolders,
+      DDBCharacterManager,
+      DDBEncounters,
+      DDBMonster,
+      DDBMonsterFactory,
+      DDBProxy,
+      DDBEncounterMunch,
+      MuncherSettings,
+      DDBCompanion,
+      DDBCompanionFactory,
+      CompendiumHelper,
+      FileHelper,
+      DirectoryPicker,
+    },
+    settings: {
+      muncherSettings: MuncherSettings.getMuncherSettings,
+      characterSettings: MuncherSettings.getCharacterImportSettings,
+    },
+
+    // base64Check: base64Check,
     checkCobalt,
-    checkPatreon: PatreonHelper.checkPatreon,
-    createCompendiumFolderStructure,
+    resetProxy: DDBProxy.resetProxy,
+    resetSecrets,
+
+    // macro tools
     createMacro,
     executeDDBMacro,
+    loadMacroFile,
+    macros: MACROS,
+
     generateAdventureConfig,
-    generateItemMacroFlag,
-    getPatreonTier: PatreonHelper.getPatreonTier,
-    getPatreonTiers: PatreonHelper.getPatreonTiers,
+
     importCharacter,
     importCharacterById,
-    loadMacroFile,
-    migrateCompendiums,
-    migrateExistingCompendiumToCompendiumFolders: migrateExistingCompendium,
+
     parseCritters,
     parseTransports,
     parseFeats: getFeats,
     parseItems,
-    DDBMonster,
-    DDBMonsterFactory,
     parseSpells,
-    DDBCharacterManager,
-    DDBProxy,
-    DDBEncounters,
-    DDBEncounterMunch,
-    MuncherSettings,
-    resetProxy: DDBProxy.resetProxy,
-    resetSecrets,
-    setPatreonTier: PatreonHelper.setPatreonTier,
+
+
     updateDDBCharacter,
     updateWorldMonsters,
+
     getIconPath: iconPath,
     iconPath,
     generateIcon,
+
     loadSRDRules,
     importCacheLoad,
-    macros: MACROS,
     getNPCImage,
     resetCompendiumActorImages,
-    CompendiumHelper,
-    FileHelper,
-    DirectoryPicker,
-    getCompendiumLabel: CompendiumHelper.getCompendiumLabel,
-    getCompendiumType: CompendiumHelper.getCompendiumType,
-    getCompendiumNames: CompendiumHelper.getCompendiumNames,
-    deleteDefaultCompendiums: CompendiumHelper.deleteDefaultCompendiums,
-    muncherSettings: MuncherSettings.getMuncherSettings,
-    characterSettings: MuncherSettings.getCharacterImportSettings,
-    DDBCompanion,
-    DDBCompanionFactory,
+    generateItemMacroFlag,
     effects: {
       addSaveAdvantageToTarget,
       configureCustomAAForCondition,

@@ -3,6 +3,7 @@ import utils from "../lib/utils.js";
 import logger from "../logger.js";
 import DICTIONARY from "../dictionary.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
+import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 let compendiumFolderTypeMonster;
 let compendiumFolderTypeSpell;
@@ -269,45 +270,6 @@ export async function createCompendiumFolderStructure(type) {
   return undefined;
 }
 
-function getItemCompendiumFolderNameForRarity(document) {
-  let name;
-  const rarity = document.system.rarity;
-
-  if (rarity && rarity != "") {
-    switch (rarity.toLowerCase().trim()) {
-      case "common":
-        name = "Common";
-        break;
-      case "uncommon":
-        name = "Uncommon";
-        break;
-      case "rare":
-        name = "Rare";
-        break;
-      case "very rare":
-      case "veryrare":
-        name = "Very Rare";
-        break;
-      case "legendary":
-        name = "Legendary";
-        break;
-      case "artifact":
-        name = "Artifact";
-        break;
-      case "varies":
-        name = "Varies";
-        break;
-      case "unknown":
-      default:
-        name = "Unknown";
-        break;
-    }
-  } else {
-    name = "Unknown";
-  }
-  return name;
-}
-
 function getItemCompendiumFolderNameForType(document) {
   let name;
 
@@ -379,7 +341,7 @@ function getItemCompendiumFolderName(document) {
   let name;
   switch (compendiumFolderTypeItem) {
     case "RARITY": {
-      name = getItemCompendiumFolderNameForRarity(document);
+      name = DDBCompendiumFolders.getItemCompendiumFolderNameForRarity(document);
       break;
     }
     case "TYPE": {

@@ -593,8 +593,8 @@ const MuncherSettings = {
     const compendiumFolderMonsterStyles = MuncherSettings.getCompendiumFolderLookups("monster");
     const compendiumFolderSpellStyles = MuncherSettings.getCompendiumFolderLookups("spell");
     const compendiumFolderItemStyles = MuncherSettings.getCompendiumFolderLookups("item");
-    const needAdvancedMacros = isNewerVersion(11, game.version);
-    const advancedMacrosText = needAdvancedMacros ? ` Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")},` : "";
+    const version11OrHigher = isNewerVersion(game.version, 11);
+    const advancedMacrosText = version11OrHigher ? "" : ` Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")},`;
     const spellEffectText = `Create active effects. These require the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")},${advancedMacrosText} Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.`;
 
     const generateSpellEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-spell-effects");
@@ -875,7 +875,7 @@ const MuncherSettings = {
       worldUpdateConfig,
       beta: betaKey && cobalt,
       tiers,
-      compendiumFoldersInstalled,
+      compendiumFoldersEnabled: compendiumFoldersInstalled || version11OrHigher,
       compendiumFolderMonsterStyles,
       compendiumFolderItemStyles,
       compendiumFolderSpellStyles,
@@ -883,6 +883,7 @@ const MuncherSettings = {
       sourceDescription,
       enableSources,
       version: CONFIG.DDBI.version,
+      version11OrHigher,
     };
 
     // console.warn(resultData);

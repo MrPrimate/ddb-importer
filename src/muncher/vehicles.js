@@ -6,9 +6,9 @@ import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
 import { parseVehicles } from "../parser/vehicle/vehicle.js";
-// import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 /**
  *
@@ -133,13 +133,14 @@ export async function parseTransports(ids = null) {
   await generateIconMap(finalVehicles);
 
   // Compendium folders not yet in use for Vehicles
-  // const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
-  // const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
-  // if (addToCompendiumFolder && compendiumFoldersInstalled) {
-  //   DDBMuncher.munchNote(`Checking compendium folders..`, true);
-  //   await createCompendiumFolderStructure("vehicles");
-  //   DDBMuncher.munchNote("", true);
-  // }
+  const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
+  if (addToCompendiumFolder) {
+    const compendiumFolders = new DDBCompendiumFolders("vehicles");
+    DDBMuncher.munchNote(`Checking compendium folders..`, true);
+    await compendiumFolders.loadCompendium("vehicles");
+    await compendiumFolders.createCompendiumFolders();
+    DDBMuncher.munchNote("", true);
+  }
 
   let vehiclesParsed = [];
   let currentVehicle = 1;

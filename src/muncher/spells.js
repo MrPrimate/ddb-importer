@@ -6,10 +6,10 @@ import FileHelper from "../lib/FileHelper.js";
 import logger from "../logger.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
-import { createCompendiumFolderStructure } from "./compendiumFolders.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
+import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -74,10 +74,11 @@ export async function parseSpells(ids = null) {
   await FileHelper.generateCurrentFiles(uploadDirectory);
 
   const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
-  const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
-  if (addToCompendiumFolder && compendiumFoldersInstalled) {
+  if (addToCompendiumFolder) {
+    const compendiumFolders = new DDBCompendiumFolders("spells");
     DDBMuncher.munchNote(`Checking compendium folders..`, true);
-    await createCompendiumFolderStructure("spells");
+    await compendiumFolders.loadCompendium("spells");
+    await compendiumFolders.createCompendiumFolders();
     DDBMuncher.munchNote("", true);
   }
 

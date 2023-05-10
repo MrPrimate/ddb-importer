@@ -192,7 +192,7 @@ Setup a shared compendium module. [Read](https://www.reddit.com/r/FoundryVTT/com
 Open the Browser Developer Console (F12) and run the following:
 
 ```javascript
-game.modules.get("ddb-importer").api.migrateCompendiums();
+game.modules.get("ddb-importer").api.compendiums.migrateCompendiums();
 ```
 
 Okay so I have migrated to D&D 5e sytem version 1.4.0/1 and now none of my shared compendium monster AC's are right!

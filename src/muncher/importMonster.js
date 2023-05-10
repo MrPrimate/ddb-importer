@@ -1,7 +1,7 @@
 import logger from "../logger.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import FileHelper from "../lib/FileHelper.js";
-import { updateIcons, addActorEffectIcons, getCompendiumItems, getSRDImageLibrary, copySRDIcons, compendiumFolders } from "./import.js";
+import { updateIcons, addActorEffectIcons, getCompendiumItems, getSRDImageLibrary, copySRDIcons, compendiumFoldersV10, addCompendiumFolderIds } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { migrateItemsDAESRD } from "./dae.js";
 import SETTINGS from "../settings.js";
@@ -60,7 +60,7 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 async function addNPCToCompendium(npc, type = "monster") {
   const compendium = CompendiumHelper.getCompendiumType(type, false);
   if (compendium) {
-    const npcBasic = duplicate(npc);
+    const npcBasic = (await addCompendiumFolderIds([duplicate(npc)], type))[0];
 
     // unlock the compendium for update/create
     compendium.configure({ locked: false });
@@ -98,9 +98,9 @@ async function addNPCToCompendium(npc, type = "monster") {
       compendiumNPC = await Actor.create(npcBasic, options);
     }
 
-    // using compendium folders?
-    if (compendiumNPC) {
-      await compendiumFolders(compendiumNPC, "npc");
+    // using compendium folders v10?
+    if (compendiumNPC && isNewerVersion(11, game.version)) {
+      await compendiumFoldersV10(compendiumNPC, "npc");
       return compendiumNPC;
     }
   } else {
@@ -109,10 +109,11 @@ async function addNPCToCompendium(npc, type = "monster") {
   return npc;
 }
 
-export async function addNPCsToCompendium(npcs, type = "monster") {
+export async function addNPCsToCompendium(npcsData, type = "monster") {
   const compendium = CompendiumHelper.getCompendiumType(type, false);
   let results = [];
   if (compendium) {
+    const npcs = addCompendiumFolderIds(npcsData, type);
     // unlock the compendium for update/create
     compendium.configure({ locked: false });
 
@@ -134,12 +135,6 @@ export async function addNPCsToCompendium(npcs, type = "monster") {
     logger.debug("NPC New Data", duplicate(newNPCs));
     const createResults = await Actor.createDocuments(newNPCs, options);
     results = results.concat(createResults);
-
-    // // using compendium folders?
-    // if (compendiumNPC) {
-    //   await compendiumFolders(compendiumNPC, "npc");
-    //   return compendiumNPC;
-    // }
   } else {
     logger.error("Error opening compendium, check your settings");
   }

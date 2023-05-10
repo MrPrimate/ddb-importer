@@ -175,7 +175,7 @@
                   <h2>Compendium Folders Migration</h2>
                   <p>
                   Compendium folder migration can take a while against big compendiums.
-                  It needs the <a href="https://foundryvtt.com/packages/compendium-folders">Compendium Folders module</a>.
+                  {{#if version11OrHigher}}{{else}}It needs the <a href="https://foundryvtt.com/packages/compendium-folders">Compendium Folders module</a>.{{/if}}
                   </p>
                   <div class="form-group" style="display: flex">
                     <select name="compendium-folder-style" id="compendium-folder-style-monster" style="flex: 55%; vertical-align:middle">
@@ -183,7 +183,7 @@
                         <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
                       {{/each}}
                     </select>
-                      <button type="button" id="munch-migrate-compendium-monster" style="vertical-align:middle" class="munch-button" {{#if compendiumFoldersInstalled}}enabled{{else}}disabled{{/if}}
+                      <button type="button" id="munch-migrate-compendium-monster" style="vertical-align:middle" class="munch-button" {{#if compendiumFoldersEnabled}}enabled{{else}}disabled{{/if}}
                       >Migrate Monster Compendium</button>
                   </div>
                   <div class="form-group" style="display: flex">
@@ -192,7 +192,7 @@
                         <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
                       {{/each}}
                     </select>
-                      <button type="button" id="munch-migrate-compendium-spell" style="vertical-align:middle" class="munch-button" {{#if compendiumFoldersInstalled}}enabled{{else}}disabled{{/if}}
+                      <button type="button" id="munch-migrate-compendium-spell" style="vertical-align:middle" class="munch-button" {{#if compendiumFoldersEnabled}}enabled{{else}}disabled{{/if}}
                       >Migrate Spell Compendium</button>
                   </div>
                   <div class="form-group" style="display: flex">
@@ -201,7 +201,7 @@
                         <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
                       {{/each}}
                     </select>
-                      <button type="button" id="munch-migrate-compendium-item" style="vertical-align:middle" class="munch-button" {{#if compendiumFoldersInstalled}}enabled{{else}}disabled{{/if}}
+                      <button type="button" id="munch-migrate-compendium-item" style="vertical-align:middle" class="munch-button" {{#if compendiumFoldersEnabled}}enabled{{else}}disabled{{/if}}
                       >Migrate Item Compendium</button>
                   </div>
               </div>

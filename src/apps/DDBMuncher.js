@@ -13,7 +13,6 @@ import { downloadAdventureConfig } from "../muncher/adventure.js";
 import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
 import MuncherSettings from "../lib/MuncherSettings.js";
-import { migrateExistingCompendium } from "../muncher/compendiumFolders.js";
 import { createGMMacros } from "../effects/macros.js";
 import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
@@ -22,6 +21,7 @@ import { parseTransports } from "../muncher/vehicles.js";
 import DDBSources from "./DDBSources.js";
 import SETTINGS from "../settings.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
+import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 export default class DDBMuncher extends Application {
   static get defaultOptions() {
@@ -380,7 +380,9 @@ export default class DDBMuncher extends Application {
 
   static async migrateCompendiumFolders(type) {
     logger.info(`Migrating ${type} compendium`);
-    await migrateExistingCompendium(type);
+    const compendiumFolders = new DDBCompendiumFolders(type);
+    await compendiumFolders.loadCompendium(type);
+    await compendiumFolders.migrateExistingCompendium();
     DDBMuncher.munchNote(`Migrating complete.`, true);
     DDBMuncher.enableButtons();
   }
