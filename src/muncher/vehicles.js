@@ -138,7 +138,6 @@ export async function parseTransports(ids = null) {
     const compendiumFolders = new DDBCompendiumFolders("vehicles");
     DDBMuncher.munchNote(`Checking compendium folders..`, true);
     await compendiumFolders.loadCompendium("vehicles");
-    await compendiumFolders.createCompendiumFolders();
     DDBMuncher.munchNote("", true);
   }
 

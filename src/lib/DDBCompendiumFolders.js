@@ -5,17 +5,6 @@ import CompendiumHelper from "../lib/CompendiumHelper.js";
 import utils from "./utils.js";
 import { addToCompendiumFolder, createCompendiumFolderStructure, migrateExistingCompendium } from "../muncher/compendiumFolders.js";
 
-
-// const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
-// const useV10Folders = isNewerVersion(11, game.version);
-
-// if (useV10Folders && !compendiumFoldersInstalled) {
-//   logger.warn("Compendium Folders module is not installed");
-//   return new Promise((resolve) => {
-//     resolve(false);
-//   });
-// }
-
 export class DDBCompendiumFolders {
   resetFolderLookups() {
     this.rootItemFolders = {};
@@ -26,6 +15,7 @@ export class DDBCompendiumFolders {
     this.lootFolders = {};
     this.toolFolders = {};
     this.backpackFolders = {};
+    this.validFolderIds = [];
   }
 
   constructor(type, packName) {
@@ -53,16 +43,27 @@ export class DDBCompendiumFolders {
       this.entityType = this.entityTypes.get(type);
     }
     this.compendium = CompendiumHelper.getCompendium(this.packName);
+    await this.createCompendiumFolders();
   }
 
-  async createCompendiumFolder({ name, parentId = null, color = "#6f0006", folderId = null } = {}) {
+  async createCompendiumFolder({ name, parentId = null, color = "#6f0006", folderId = null, flagTag = "" } = {}) {
+    logger.debug("Finding folder", {
+      folders: this.compendium.folders,
+      parentId,
+    });
     const existingFolder = this.compendium.folders.find((f) =>
       f.name === name
+      && flagTag === f.flags?.ddbimporter?.flagTag
       && (parentId === null
         || (parentId === f.folder?._id)
       )
     );
     if (existingFolder) return existingFolder;
+
+    logger.debug("Creating folder", {
+      folders: this.compendium.folders,
+      parentId,
+    });
 
     const newFolder = await Folder.create({
       _id: folderId,
@@ -70,151 +71,149 @@ export class DDBCompendiumFolders {
       color,
       type: this.entityType,
       folder: parentId,
+      flags: {
+        ddbimporter: {
+          flagTag,
+        },
+      }
     }, { pack: this.packName, keepId: true });
 
     return newFolder;
   }
 
   async createCreatureTypeCompendiumFolders() {
-    return new Promise((resolve) => {
-      let promises = [];
-      for (const monsterType of CONFIG.DDB.monsterTypes) {
-        promises.push(this.createCompendiumFolder({ name: monsterType.name, color: "#6f0006" }));
-      }
-      resolve(Promise.all(promises));
-    });
+    for (const monsterType of CONFIG.DDB.monsterTypes) {
+      const folder = this.getFolder(monsterType.name)
+        ?? (await this.createCompendiumFolder({ name: monsterType.name, color: "#6f0006" }));
+      this.validFolderIds.push(folder._id);
+    }
   }
 
   async createAlphabeticalCompendiumFolders() {
-    return new Promise((resolve) => {
-      let promises = [];
-      for (let i = 9; ++i < 36;) {
-        const folderName = i.toString(36).toUpperCase();
-        promises.push(this.createCompendiumFolder({ name: folderName, color: "#6f0006" }));
-      }
-      resolve(Promise.all(promises));
-    });
+    for (let i = 9; ++i < 36;) {
+      const folderName = i.toString(36).toUpperCase();
+      const folder = this.getFolder(folderName)
+        ?? (await this.createCompendiumFolder({ name: folderName, color: "#6f0006" }));
+      this.validFolderIds.push(folder._id);
+    }
   }
 
   async createChallengeRatingCompendiumFolders() {
-    return new Promise((resolve) => {
-      let promises = [];
-      CONFIG.DDB.challengeRatings.forEach((cr) => {
-        const paddedCR = String(cr.value).padStart(2, "0");
-        promises.push(this.createCompendiumFolder({ name: `CR ${paddedCR}`, color: "#6f0006" }));
-      });
-      resolve(Promise.all(promises));
-    });
+    for (const cr of CONFIG.DDB.challengeRatings) {
+      const paddedCR = String(cr.value).padStart(2, "0");
+      const folder = this.getFolder(`CR ${paddedCR}`)
+        ?? (await this.createCompendiumFolder({ name: `CR ${paddedCR}`, color: "#6f0006" }));
+      this.validFolderIds.push(folder._id);
+    }
   }
 
   // spell level
   async createSpellLevelCompendiumFolders() {
-    return new Promise((resolve) => {
-      let promises = [];
-      DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL.forEach((levelName) => {
-        logger.info(`Creating folder '${levelName}'`);
-        promises.push(this.createCompendiumFolder({ name: levelName }));
-      });
-      resolve(Promise.all(promises));
-    });
+    for (const levelName of DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL) {
+      logger.info(`Creating folder '${levelName}'`);
+      const folder = this.getFolder(levelName)
+        ?? (await this.createCompendiumFolder({ name: levelName }));
+      this.validFolderIds.push(folder._id);
+    }
   }
 
   // spell school
   async createSpellSchoolCompendiumFolders() {
-    return new Promise((resolve) => {
-      let promises = [];
-      DICTIONARY.spell.schools.forEach((school) => {
-        const schoolName = utils.capitalize(school.name);
-        logger.info(`Creating folder '${schoolName}'`);
-        promises.push(this.createCompendiumFolder({ name: schoolName }));
-      });
-      resolve(Promise.all(promises));
-    });
+    for (const school of DICTIONARY.spell.schools) {
+      const schoolName = utils.capitalize(school.name);
+      logger.info(`Creating folder '${schoolName}'`);
+      const folder = this.getFolder(schoolName)
+        ?? (await this.createCompendiumFolder({ name: schoolName }));
+      this.validFolderIds.push(folder._id);
+    }
   }
 
   // item rarity folder
   async createItemRarityCompendiumFolders() {
-    return new Promise((resolve) => {
-      let promises = [];
-      DICTIONARY.COMPENDIUM_FOLDERS.RARITY.forEach((rarityName) => {
-        logger.info(`Creating folder '${rarityName}'`);
-        promises.push(this.createCompendiumFolder({ name: rarityName }));
-      });
-      resolve(promises);
-    });
+    for (const rarityName of DICTIONARY.COMPENDIUM_FOLDERS.RARITY) {
+      logger.info(`Creating folder '${rarityName}'`);
+      const folder = this.getFolder(rarityName, rarityName)
+        ?? (await this.createCompendiumFolder({ name: rarityName, flagTag: rarityName }));
+      this.validFolderIds.push(folder._id);
+    }
   }
 
   // item type folder
   async createItemTypeCompendiumFolders() {
-    let promises = [];
-
-    for (const [key, value] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.ITEM_ROOT)) {
-      logger.info(`Creating root folder '${value}' with key '${key}'`);
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await this.createCompendiumFolder({ name: value });
+    for (const [key, folderName] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.ITEM_ROOT)) {
+      const flagTag = folderName;
+      logger.info(`Creating root folder '${folderName}' with key '${key}'`);
+      const folder = this.getFolder(folderName, flagTag)
+        ?? (await this.createCompendiumFolder({ name: folderName, flagTag: folderName }));
       this.rootItemFolders[key] = folder;
-      promises.push(folder);
+      this.validFolderIds.push(folder._id);
     }
 
-    for (const [key, value] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.EQUIPMENT)) {
-      logger.info(`Creating Equipment folder '${value}' with key '${key}'`);
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await this.createCompendiumFolder({ name: value, parentId: this.rootItemFolders["equipment"], color: "#222222" });
+    logger.debug("Root item folders", this.rootItemFolders);
+
+    for (const [key, folderName] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.EQUIPMENT)) {
+      const flagTag = `equipment/${folderName}`;
+      logger.info(`Creating Equipment folder '${folderName}' with key '${key}'`);
+
+      const folder = this.getFolder(folderName, flagTag)
+        ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["equipment"]._id, color: "#222222", flagTag }));
       this.equipmentFolders[key] = folder;
-      promises.push(folder);
+      this.validFolderIds.push(folder._id);
     }
 
-    for (const [key, value] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.WEAPON)) {
-      logger.info(`Creating Weapon folder '${value}' with key '${key}'`);
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await this.createCompendiumFolder({ name: value, parentId: this.rootItemFolders["weapon"], color: "#222222" });
+    for (const [key, folderName] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.WEAPON)) {
+      const flagTag = `weapon/${folderName}`;
+      logger.info(`Creating Weapon folder '${folderName}' with key '${key}'`);
+      const folder = this.getFolder(folderName, flagTag)
+        ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["weapon"]._id, color: "#222222", flagTag }));
       this.weaponFolders[key] = folder;
-      promises.push(folder);
+      this.validFolderIds.push(folder._id);
     }
 
-    for (const [key, value] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.TOOLS)) {
-      logger.info(`Creating Tool folder '${value}' with key '${key}'`);
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await this.createCompendiumFolder({ name: value, parentId: this.rootItemFolders["tool"], color: "#222222" });
+    for (const [key, folderName] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.TOOLS)) {
+      const flagTag = `tool/${folderName}`;
+      logger.info(`Creating Tool folder '${folderName}' with key '${key}'`);
+      const folder = this.getFolder(folderName, flagTag)
+        ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["tool"]._id, color: "#222222", flagTag }));
       this.toolFolders[key] = folder;
-      promises.push(folder);
+      this.validFolderIds.push(folder._id);
     }
 
     for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.TRINKET) {
+      const flagTag = `trinket/${folderName}`;
       logger.info(`Creating Equipment\\Trinket folder '${folderName}'`);
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await this.createCompendiumFolder({ name: folderName, parentId: this.equipmentFolders["trinket"], color: "#444444" });
+      const folder = this.getFolder(folderName, flagTag)
+       ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.equipmentFolders["trinket"]._id, color: "#444444", flagTag }));
       this.trinketFolders[folderName] = folder;
-      promises.push(folder);
+      this.validFolderIds.push(folder._id);
     }
 
     for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.CONSUMABLE) {
+      const flagTag = `consumable/${folderName}`;
       logger.info(`Creating Consumable folder '${folderName}'`);
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["consumable"], color: "#222222" });
+      const folder = this.getFolder(folderName, flagTag)
+       ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["consumable"]._id, color: "#222222", flagTag }));
       this.consumableFolders[folderName] = folder;
-      promises.push(folder);
+      this.validFolderIds.push(folder._id);
     }
 
     for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.LOOT) {
+      const flagTag = `loot/${folderName}`;
       logger.info(`Creating Loot folder '${folderName}'`);
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["loot"], color: "#222222" });
+      const folder = this.getFolder(folderName, flagTag)
+       ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["loot"]._id, color: "#222222", flagTag }));
       this.lootFolders[folderName] = folder;
-      promises.push(folder);
+      this.validFolderIds.push(folder._id);
     }
 
     for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.BACKPACK) {
+      const flagTag = `backpack/${folderName}`;
       logger.info(`Creating Backpack folder '${folderName}'`);
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["backpack"], color: "#222222" });
+      const folder = this.getFolder(folderName, flagTag)
+        ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["backpack"]._id, color: "#222222", flagTag }));
       this.backpackFolders[folderName] = folder;
-      promises.push(folder);
+      this.validFolderIds.push(folder._id);
     }
-
-    return new Promise((resolve) => {
-      resolve(promises);
-    });
   }
 
 
@@ -314,11 +313,14 @@ export class DDBCompendiumFolders {
     } else {
       name = "Unknown";
     }
-    return name;
+    return { name, flagTag: name };
   }
 
   getItemCompendiumFolderNameForType(document) {
-    let name;
+    const result = {
+      name: undefined,
+      flagTag: "",
+    };
 
     switch (document.type) {
       case "equipment": {
@@ -326,39 +328,45 @@ export class DDBCompendiumFolders {
           case "trinket": {
             const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
             if (ddbType) {
-              name = this.trinketFolders[ddbType].name;
+              result.name = this.trinketFolders[ddbType].name;
+              result.flagTag = `trinket/${result.name}`;
             }
             break;
           }
           default: {
-            name = this.equipmentFolders[document.system.armor.type].name;
+            result.name = this.equipmentFolders[document.system.armor.type].name;
+            result.flagTag = `equipment/${result.name}`;
             break;
           }
         }
         break;
       }
       case "weapon": {
-        name = this.weaponFolders[document.system.weaponType].name;
+        result.name = this.weaponFolders[document.system.weaponType].name;
+        result.flagTag = `weapon/${result.name}`;
         break;
       }
       case "consumable": {
         const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
         if (ddbType) {
-          name = this.consumableFolders[ddbType].name;
+          result.name = this.consumableFolders[ddbType].name;
+          result.flagTag = `consumable/${result.name}`;
         }
         break;
       }
       case "loot": {
         const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
         if (ddbType) {
-          name = this.lootFolders[ddbType].name;
+          result.name = this.lootFolders[ddbType].name;
+          result.flagTag = `loot/${result.name}`;
         }
         break;
       }
       case "backpack": {
         const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
         if (ddbType) {
-          name = this.backpackFolders[ddbType].name;
+          result.name = this.backpackFolders[ddbType].name;
+          result.flagTag = `backpack/${result.name}`;
         }
         break;
       }
@@ -367,21 +375,26 @@ export class DDBCompendiumFolders {
         const instrument = document.flags?.ddbimporter?.dndbeyond?.tags.includes("Instrument");
         const ddbType = ["art", "music", "game"].includes(toolType);
         if (instrument) {
-          name = this.toolFolders["music"].name;
+          result.name = this.toolFolders["music"].name;
+          result.flagTag = `tool/${result.name}`;
         } else if (ddbType) {
-          name = this.toolFolders[toolType].name;
+          result.name = this.toolFolders[toolType].name;
+          result.flagTag = `tool/${result.name}`;
         } else {
-          name = this.rootItemFolders[document.type].name;
+          result.name = this.rootItemFolders[document.type].name;
+          result.flagTag = `Tools`;
         }
+
         break;
       }
       default: {
-        name = this.rootItemFolders[document.type].name;
+        result.name = this.rootItemFolders[document.type].name;
+        result.flagTag = `${result.name}`;
         break;
       }
     }
 
-    return name;
+    return result;
   }
 
   getItemCompendiumFolderName(document) {
@@ -463,25 +476,21 @@ export class DDBCompendiumFolders {
     return name;
   }
 
-  async getFolderId(document) {
-    switch (this.type) {
-      case "inventory":
-      case "items":
-      case "item":
-      case "spells":
-      case "spell":
-      case "monsters":
-      case "npc":
-      case "monster": {
-        const folderName = this.getCompendiumFolderName(document);
-        if (folderName) {
-          const folder = this.compendium.folders.find((f) => f.name == folderName);
-          if (folder) return folder._id;
-        }
-        break;
-      }
-      // no default
+  getFolder(folderName, flagTag = "") {
+    const folder = this.compendium.folders.find((f) =>
+      f.name == folderName
+      && f.flags?.ddbimporter?.flagTag === flagTag
+    );
+    return folder;
+  }
+
+  getFolderId(document) {
+    const folderName = this.getCompendiumFolderName(document);
+    if (folderName) {
+      const folder = this.getFolder((folderName.name ?? folderName), (folderName.flagTag ?? ""));
+      if (folder) return folder._id;
     }
+
     return undefined;
   }
 
@@ -492,29 +501,55 @@ export class DDBCompendiumFolders {
     }
     logger.debug(`Checking ${document.name} in ${this.packName}`);
 
+    const folderName = this.getCompendiumFolderName(document);
+    if (folderName) {
+      const folder = this.compendium.folders.find((f) => f.name == folderName);
+      if (folder) {
+        logger.info(`Moving ${this.type} ${document.name} to folder ${folder.name}`);
+        await document.update({ folder: folder._id });
+      } else {
+        logger.error(`Unable to find folder "${folderName}" in "${this.packName}" for ${this.type}`);
+      }
+    }
+  }
+
+
+  #getIndexFields() {
     switch (this.type) {
+      case "spells":
+      case "spell": {
+        return [
+          "name",
+          "system.level",
+          "system.school",
+        ];
+      }
       case "inventory":
       case "items":
-      case "item":
-      case "spells":
-      case "spell":
-      case "monsters":
-      case "npc":
-      case "monster": {
-        const folderName = this.getCompendiumFolderName(document);
-        if (folderName) {
-          const folder = this.compendium.folders.find((f) => f.name == folderName);
-          if (folder) {
-            logger.info(`Moving ${this.type} ${document.name} to folder ${folder.name}`);
-            await document.update({ folder: folder._id });
-          } else {
-            logger.error(`Unable to find folder "${folderName}" in "${this.packName}" for ${this.type}`);
-          }
-        }
+      case "item": {
+        return [
+          "name",
+          "type",
+          "flags.ddbimporter.dndbeyond.type",
+          "flags.ddbimporter.dndbeyond.tags",
+          "system.armor.type",
+          "system.weaponType",
+          "system.rarity",
+          "system.toolType",
+        ];
       }
-      // no default
+      case "monster":
+      case "monsters": {
+        return [
+          "name",
+          "type",
+          "system.details.type.value",
+          "system.details.cr",
+        ];
+      }
+      default:
+        return ["name"];
     }
-
   }
 
   async migrateExistingCompendium() {
@@ -522,53 +557,49 @@ export class DDBCompendiumFolders {
       return migrateExistingCompendium(this.type);
     }
     if (!this.compendium) return undefined;
-    await this.createCompendiumFolders();
 
-    logger.debug("Compendium Folders", this.compendium.folders);
+    const foldersToRemove = this.compendium.folders.filter((f) => !this.validFolderIds.includes(f._id));
+    await Folder.deleteDocuments(foldersToRemove.map((f) => f._id), { pack: this.packName });
 
-    let indexFields = ["name"];
-    switch (this.type) {
-      case "spells":
-      case "spell": {
-        indexFields = ["name", "data.level"];
-        break;
+    logger.debug("Remaining Compendium Folders", this.compendium.folders);
+
+    const index = await this.compendium.getIndex({ fields: this.#getIndexFields() });
+
+    const results = [];
+    for (const i of index) {
+      const folderId = this.getFolderId(i);
+      // console.warn(`Migrating ${i.name} to ${folderId}`, {
+      //   i,
+      //   folderId,
+      // });
+      if (folderId) {
+        results.push({
+          _id: i._id,
+          folder: folderId,
+        });
       }
-      case "inventory":
-      case "items":
-      case "item": {
-        indexFields = [
-          "name",
-          "type",
-          "flags.ddbimporter.dndbeyond.type",
-          "data.armor.type",
-          "data.weaponType",
-          "data.rarity"
-        ];
-        break;
-      }
-      // no default
     }
 
-    const index = await this.compendium.getIndex({ fields: indexFields });
+    logger.debug("Folder update results", results);
 
     switch (this.type) {
       case "inventory":
       case "items":
       case "item":
       case "spells":
-      case "spell":
+      case "spell": {
+        await Item.updateDocuments(results, { pack: this.packName });
+        break;
+      }
       case "monsters":
       case "npc":
       case "monster": {
-        // loop through all existing monsters and move them to their type
-        for (const i of index) {
-          const existing = await this.compendium.getDocument(i._id);
-          await this.addToCompendiumFolder(existing);
-        }
+        await Actor.updateDocuments(results, { pack: this.packName });
         break;
       }
       // no default
     }
+
 
     return this.compendium.folders;
   }

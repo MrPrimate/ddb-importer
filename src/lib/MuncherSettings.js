@@ -590,10 +590,11 @@ const MuncherSettings = {
     const chrisInstalled = effectModulesAvailable.chrisInstalled;
     const compendiumFolderAdd = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
     const compendiumFoldersInstalled = game.modules.get("compendium-folders")?.active;
+    const version11OrHigher = isNewerVersion(game.version, 11);
+    const compendiumFoldersEnabled = compendiumFoldersInstalled || version11OrHigher;
     const compendiumFolderMonsterStyles = MuncherSettings.getCompendiumFolderLookups("monster");
     const compendiumFolderSpellStyles = MuncherSettings.getCompendiumFolderLookups("spell");
     const compendiumFolderItemStyles = MuncherSettings.getCompendiumFolderLookups("item");
-    const version11OrHigher = isNewerVersion(game.version, 11);
     const advancedMacrosText = version11OrHigher ? "" : ` Advanced Macros${MuncherSettings.getInstalledIcon("advancedMacrosInstalled")},`;
     const spellEffectText = `Create active effects. These require the following modules: DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")},${advancedMacrosText} Item Macro${MuncherSettings.getInstalledIcon("itemMacroInstalled")}, Times Up${MuncherSettings.getInstalledIcon("timesUp")}, and Convenient Effects${MuncherSettings.getInstalledIcon("convenientEffectsInstalled")} as a minimum. Also recommened is Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")}, Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}, Token Magic FX${MuncherSettings.getInstalledIcon("tokenMagicInstalled")}, and Automated Animations${MuncherSettings.getInstalledIcon("autoAnimationsInstalled")}.`;
 
@@ -820,9 +821,9 @@ const MuncherSettings = {
       },
       {
         name: "use-compendium-folders",
-        isChecked: compendiumFoldersInstalled ? compendiumFolderAdd : false,
-        description: "Generate compendium folders. You can migrate an existing import in the Tools tab.",
-        enabled: compendiumFoldersInstalled,
+        isChecked: compendiumFoldersEnabled ? compendiumFolderAdd : false,
+        description: "Generate compendium folders. You can migrate an existing DDB Compendium in the Tools tab.",
+        enabled: compendiumFoldersEnabled,
       },
       {
         name: "use-srd",
@@ -875,7 +876,7 @@ const MuncherSettings = {
       worldUpdateConfig,
       beta: betaKey && cobalt,
       tiers,
-      compendiumFoldersEnabled: compendiumFoldersInstalled || version11OrHigher,
+      compendiumFoldersEnabled,
       compendiumFolderMonsterStyles,
       compendiumFolderItemStyles,
       compendiumFolderSpellStyles,

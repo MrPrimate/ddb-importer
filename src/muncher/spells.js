@@ -78,7 +78,6 @@ export async function parseSpells(ids = null) {
     const compendiumFolders = new DDBCompendiumFolders("spells");
     DDBMuncher.munchNote(`Checking compendium folders..`, true);
     await compendiumFolders.loadCompendium("spells");
-    await compendiumFolders.createCompendiumFolders();
     DDBMuncher.munchNote("", true);
   }
 

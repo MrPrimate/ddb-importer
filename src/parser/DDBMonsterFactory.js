@@ -229,7 +229,6 @@ export default class DDBMonsterFactory {
     if (addToCompendiumFolder) {
       this.munchNote(`Checking compendium folders..`, true);
       await this.compendiumFolders.loadCompendium("monsters");
-      await this.compendiumFolders.createCompendiumFolders();
       this.munchNote("", true);
     }
 

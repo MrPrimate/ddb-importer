@@ -174,7 +174,6 @@ export async function parseItems(ids = null) {
     const compendiumFolders = new DDBCompendiumFolders("items");
     DDBMuncher.munchNote(`Checking compendium folders..`, true);
     await compendiumFolders.loadCompendium("items");
-    await compendiumFolders.createCompendiumFolders();
     DDBMuncher.munchNote("", true);
   }
 
