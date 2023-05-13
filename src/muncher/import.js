@@ -356,7 +356,7 @@ export async function compendiumFoldersV10(document, type) {
 
 export async function addCompendiumFolderIds(documents, type) {
   const compendiumFolderAdd = game.settings.get("ddb-importer", "munching-policy-use-compendium-folders");
-  if (compendiumFolderAdd) {
+  if (compendiumFolderAdd && isNewerVersion(game.version, 11)) {
     const compendiumFolders = new DDBCompendiumFolders(type);
     await compendiumFolders.loadCompendium(type);
 

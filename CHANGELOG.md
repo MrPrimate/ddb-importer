@@ -4,6 +4,7 @@
 - V11 Support: Support top level folder for compendiums.- V11 Support: First pass of macros.
 - Note: Current aim is to maintain v10 and v11 compatibility within the module, baring any unforeseen changes or difficulties.
 - Some changes to the locations of undocumented apis. Unlikely to impact you.
+- V11 Support: Native compendium folders.
 
 # 3.4.20
 
