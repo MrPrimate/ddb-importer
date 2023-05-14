@@ -1,3 +1,7 @@
+# Next Up
+
+- Effect: Psychic Scream Spell (Thanks @Moto Moto#0295)
+
 # 3.4.21
 
 - Counterspell, Feather Fall, Slow Fall, Swiftstride Reaction, and War Caster set to manual reaction type for midi-qol.

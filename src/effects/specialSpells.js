@@ -97,6 +97,7 @@ import { phantasmalKillerEffect } from "./spells/phantasmalKiller.js";
 import { polymorphEffect } from "./spells/polymorph.js";
 import { protectionfromEnergyEffect } from "./spells/protectionfromEnergy.js";
 import { protectionfromPoisonEffect } from "./spells/protectionfromPoison.js";
+import { psychicScreamEffect } from "./spells/psychicScream.js";
 import { rayofEnfeeblementEffect } from "./spells/rayofEnfeeblement.js";
 import { rayofFrostEffect } from "./spells/rayofFrost.js";
 import { regenerateEffect } from "./spells/regenerate.js";
@@ -558,6 +559,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Protection from Poison": {
       document = protectionfromPoisonEffect(document);
+      break;
+    }
+    case "Psychic Scream": {
+      document = psychicScreamEffect(document);
       break;
     }
     case "Ray of Enfeeblement": {
