@@ -56,6 +56,15 @@ export function specialCases(monster) {
       monster.system.attributes.spellcasting = "int";
       break;
     }
+    case "Nilbog (Legacy)":
+    case "Nilbog": {
+      monster.items.forEach(function(item, index) {
+        if (item.name === "Reversal of Fortune") {
+          this[index].system.actionType = "heal";
+        }
+      }, monster.items);
+      break;
+    }
     case "Nosferatu": {
       monster.items.forEach(function(item, index) {
         if (item.name === "Bite") {
