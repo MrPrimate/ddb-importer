@@ -276,6 +276,13 @@ export async function fixFeatures(features) {
           value: "",
         };
         break;
+      case "Channel Divinity: Sacred Weapon":
+        feature.system["target"]["type"] = "self";
+        feature.system.duration = {
+          value: 1,
+          units: "minute",
+        };
+        break;
       case "Dark One’s Blessing":
       case "Dark One's Blessing": {
         feature.system.damage = { parts: [["@classes.warlock.level + @mod", "temphp"]], versatile: "", value: "" };
