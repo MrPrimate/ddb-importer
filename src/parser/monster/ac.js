@@ -89,7 +89,7 @@ DDBMonster.prototype._generateAC = async function _generateAC() {
     ac.calc = "default";
     ac.formula = "";
     flatAC = false;
-  } else if (!this.useItemAC && ac.calc !== "natural") {
+  } else if ((!this.useItemAC && ac.calc !== "natural") || attunedItems.length === 0) {
     // default monsters with no ac equipment to natural
     ac.calc = "natural";
     flatAC = false;

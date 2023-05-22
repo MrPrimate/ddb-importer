@@ -3,6 +3,7 @@
 - Effect: Psychic Scream Spell (Thanks @Moto Moto#0295)
 - Nilbog Reversal of Fortune is now a healing action.
 - Effect: Sacred Weapon: fixes.
+- If using AC Items mode in Monster importer, some npcs with no items would be set to flat rather than natural ac. (Natural AC is prefered here as things like ac bonus will not work on a flat ac npc)
 
 # 3.4.21
 
