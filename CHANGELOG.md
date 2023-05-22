@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Effect: Greater Invisibility Corrections.
+
 # 3.4.22
 
 - Effect: Psychic Scream Spell (Thanks @Moto Moto#0295)
