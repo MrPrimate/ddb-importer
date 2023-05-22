@@ -1,4 +1,4 @@
-# Next Up
+# 3.4.22
 
 - Effect: Psychic Scream Spell (Thanks @Moto Moto#0295)
 - Nilbog Reversal of Fortune is now a healing action.
