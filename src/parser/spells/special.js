@@ -85,120 +85,21 @@ export function fixSpells(ddb, items) {
         spell.system.formula = otherDamage[0];
         break;
       }
-      case "Catapult": {
-        setProperty(spell, "flags.midiProperties.nodam", true);
-        break;
-      }
-      // Eldritch Blast is a special little kitten and has some fun Eldritch
-      // Invocations which can adjust it.
-      case "Eldritch Blast": {
-        if (!ddb) break;
-        const eldritchBlastMods = getEldritchInvocations(ddb);
-        spell.system.damage.parts[0][0] += " + " + eldritchBlastMods["damage"];
-        spell.system.range.value += eldritchBlastMods["range"];
-        break;
-      }
-      case "Light": {
-        spell.system.target = { value: 1, width: null, units: "", type: "object" };
-        break;
-      }
-      case "Guidance": {
-        spell.system.target = { value: 1, units: "", type: "creature" };
-        break;
-      }
       case "Aid": {
         spell.system.scaling = { mode: "level", formula: "(@item.level - 2) * 5" };
         break;
       }
-      case "Darkvision": {
-        spell.system.target.type = "creature";
-        break;
-      }
-      // The target/range input data are incorrect on some AOE spells centred
-      // on self.
-      // Range is self with an AoE target of 15 ft cube
-      // i.e. affects all creatures within 5 ft of caster
-      case "Thunderclap":
-      case "Word of Radiance":
-        spell.system.range = { value: null, units: "spec", long: null };
-        spell.system.target = { value: 15, units: "ft", type: "cube" };
-        break;
-      case "Thunder Step":
-        spell.system.range = { value: null, units: "spec", long: null };
-        break;
-      case "Sleep": {
-        if (!usingEffects) {
-          spell.system.damage = { parts: [["5d8", ""]], versatile: "", value: "" };
-        }
-        spell.system.scaling = { mode: "level", formula: "2d8" };
-        break;
-      }
-      case "Ray of Enfeeblement":
-        spell.system.actionType = "rsak";
-        break;
-      case "Color Spray": {
-        if (!usingEffects) {
-          spell.system.damage = { parts: [["6d10", ""]], versatile: "", value: "" };
-        }
-        spell.system.scaling = { mode: "level", formula: "2d10" };
-        break;
-      }
-      case "Gust of Wind":
-        spell.system.target = { value: 60, units: "ft", type: "line", width: 10 };
-        break;
-      case "Produce Flame":
-        spell.system.range = { value: 30, units: "ft", long: null };
-        break;
-      case "Hex": {
-        spell.system.actionType = "other";
-        if (usingEffects) {
-          spell.system.damage = { parts: [], versatile: "", value: "" };
-        }
-        break;
-      }
-      case "Shadow of Moil":
-      case "Cloud of Daggers":
-      case "Magic Missile":
-        spell.system.actionType = "other";
-        break;
-      // dnd beyond lists a damage for each type
-      case "Chaos Bolt":
-        spell.system.damage = { parts: [["2d8", ""], ["1d6", ""]], versatile: "", value: "", };
-        break;
-      // dnd beyond lists a damage for each type
-      case "Chromatic Orb":
-        spell.system.damage = { parts: [["3d8", ""]], versatile: "", value: "" };
-        spell.system.chatFlavor = "Choose from Acid, Cold, Fire, Lightning, Poison, Thunder, or Acid";
-        break;
-      case "Dragon's Breath":
-        spell.system.damage = { parts: [["3d6", ""]], versatile: "", value: "" };
-        spell.system.chatFlavor = "Choose one of Acid, Cold, Fire, Lightning, or Poison.";
-        break;
-      case "Hunter's Mark":
-      case "Hunter’s Mark": {
-        spell.system.actionType = "other";
-        if (usingEffects) {
-          spell.system.damage = { parts: [], versatile: "", value: "" };
-        } else {
-          spell.system.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
-        }
-        break;
-      }
-      case "Call Lightning": {
-        if (usingEffects) {
-          spell.system.damage = { parts: [], versatile: "", value: "" };
-          spell.system.save.ability = "";
-        }
-        break;
-      }
-      case "Control Weather": {
+      case "Armor of Agathys": {
+        spell.system.actionType = "util";
         spell.system.target.type = "self";
-        spell.system.range = { value: 5, units: "mi", long: null };
+        spell.system.damage.parts[0] = ["5", "temphp"];
+        spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
         break;
       }
-      case "Pyrotechnics":
-        spell.system.target["value"] = 15;
+      case "Arms of Hadar": {
+        spell.system.target.type = "special";
         break;
+      }
       case "Absorb Elements":
         spell.system.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
         spell.system.chatFlavor = "Uses the damage type of the triggered attack: Acid, Cold, Fire, Lightning, or Poison.";
@@ -211,6 +112,78 @@ export function fixSpells(ddb, items) {
         spell.system.scaling = { mode: "cantrip", formula: "1d8" };
         spell.system.actionType = "other";
         break;
+      case "Bones of the Earth": {
+        spell.system.target.value = 2.5;
+        break;
+      }
+      case "Catapult": {
+        setProperty(spell, "flags.midiProperties.nodam", true);
+        break;
+      }
+      case "Call Lightning": {
+        if (usingEffects) {
+          spell.system.damage = { parts: [], versatile: "", value: "" };
+          spell.system.save.ability = "";
+        }
+        break;
+      }
+      // dnd beyond lists a damage for each type
+      case "Chaos Bolt":
+        spell.system.damage = { parts: [["2d8", ""], ["1d6", ""]], versatile: "", value: "", };
+        break;
+      // dnd beyond lists a damage for each type
+      case "Chromatic Orb":
+        spell.system.damage = { parts: [["3d8", ""]], versatile: "", value: "" };
+        spell.system.chatFlavor = "Choose from Acid, Cold, Fire, Lightning, Poison, Thunder, or Acid";
+        break;
+      case "Color Spray": {
+        if (!usingEffects) {
+          spell.system.damage = { parts: [["6d10", ""]], versatile: "", value: "" };
+        }
+        spell.system.scaling = { mode: "level", formula: "2d10" };
+        break;
+      }
+      case "Control Weather": {
+        spell.system.target.type = "self";
+        spell.system.range = { value: 5, units: "mi", long: null };
+        break;
+      }
+      case "Cloud of Daggers":
+        spell.system.actionType = "other";
+        break;
+      case "Darkvision": {
+        spell.system.target.type = "creature";
+        break;
+      }
+      case "Divine Favor": {
+        spell.system.actionType = "util";
+        spell.system.target.type = "self";
+        break;
+      }
+      case "Dragon's Breath":
+        spell.system.damage = { parts: [["3d6", ""]], versatile: "", value: "" };
+        spell.system.chatFlavor = "Choose one of Acid, Cold, Fire, Lightning, or Poison.";
+        break;
+      // Eldritch Blast is a special little kitten and has some fun Eldritch
+      // Invocations which can adjust it.
+      case "Eldritch Blast": {
+        if (!ddb) break;
+        const eldritchBlastMods = getEldritchInvocations(ddb);
+        spell.system.damage.parts[0][0] += " + " + eldritchBlastMods["damage"];
+        spell.system.range.value += eldritchBlastMods["range"];
+        break;
+      }
+      case "False Life": {
+        spell.system.actionType = "heal";
+        spell.system.target.type = "self";
+        spell.system.damage.parts[0] = ["1d4 + 4", "temphp"];
+        spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
+        break;
+      }
+      case "Guidance": {
+        spell.system.target = { value: 1, units: "", type: "creature" };
+        break;
+      }
       case "Green-Flame Blade":
         if (!usingEffects) {
           spell.system.damage = { parts: [["0", "fire"]], versatile: "@mod", value: "" };
@@ -218,17 +191,65 @@ export function fixSpells(ddb, items) {
         spell.system.scaling = { mode: "cantrip", formula: "1d8" };
         spell.system.actionType = "other";
         break;
-      case "Toll the Dead":
-        spell.system.scaling = { mode: "cantrip", formula: "" };
+      case "Gust of Wind":
+        spell.system.target = { value: 60, units: "ft", type: "line", width: 10 };
         break;
       case "Goodberry":
         spell.system.damage = { parts: [["1", "healing"]], versatile: "", value: "" };
         break;
+      case "Heat Metal":
+        spell.system.actionType = "save";
+        break;
+      case "Hex": {
+        spell.system.actionType = "other";
+        if (usingEffects) {
+          spell.system.damage = { parts: [], versatile: "", value: "" };
+        }
+        break;
+      }
+      case "Heroes Feast": {
+        spell.system.duration = { value: 1, units: "day" };
+        break;
+      }
+      case "Heroism": {
+        spell.system.damage.parts[0] = ["@mod", "temphp"];
+        break;
+      }
+      case "Hunter's Mark":
+      case "Hunter’s Mark": {
+        spell.system.actionType = "other";
+        if (usingEffects) {
+          spell.system.damage = { parts: [], versatile: "", value: "" };
+        } else {
+          spell.system.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
+        }
+        break;
+      }
       case "Flaming Sphere":
         spell.system.target["value"] = 2.5;
         break;
-      case "Heat Metal":
-        spell.system.actionType = "save";
+      case "Light": {
+        spell.system.target = { value: 1, width: null, units: "", type: "object" };
+        break;
+      }
+      case "Magic Missile":
+        spell.system.actionType = "other";
+        break;
+      case "Produce Flame":
+        spell.system.range = { value: 30, units: "ft", long: null };
+        break;
+      case "Pyrotechnics":
+        spell.system.target["value"] = 15;
+        break;
+      case "Protection from Energy": {
+        spell.system.target.type = "creature";
+        break;
+      }
+      case "Ray of Enfeeblement":
+        spell.system.actionType = "rsak";
+        break;
+      case "Shadow of Moil":
+        spell.system.actionType = "other";
         break;
       case "Searing Smite": {
         if (spell.system.damage.parts.length > 1) {
@@ -260,45 +281,28 @@ export function fixSpells(ddb, items) {
         spell.system.actionType = "other";
         break;
       }
-      case "Armor of Agathys": {
-        spell.system.actionType = "util";
-        spell.system.target.type = "self";
-        spell.system.damage.parts[0] = ["5", "temphp"];
-        spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
+      case "Sleep": {
+        if (!usingEffects) {
+          spell.system.damage = { parts: [["5d8", ""]], versatile: "", value: "" };
+        }
+        spell.system.scaling = { mode: "level", formula: "2d8" };
         break;
       }
-      case "Arms of Hadar": {
-        spell.system.target.type = "special";
+      // The target/range input data are incorrect on some AOE spells centred
+      // on self.
+      // Range is self with an AoE target of 15 ft cube
+      // i.e. affects all creatures within 5 ft of caster
+      case "Thunderclap":
+      case "Word of Radiance":
+        spell.system.range = { value: null, units: "spec", long: null };
+        spell.system.target = { value: 15, units: "ft", type: "cube" };
         break;
-      }
-      case "False Life": {
-        spell.system.actionType = "heal";
-        spell.system.target.type = "self";
-        spell.system.damage.parts[0] = ["1d4 + 4", "temphp"];
-        spell.system.scaling = { mode: "level", formula: "(@item.level - 1) * 5" };
+      case "Thunder Step":
+        spell.system.range = { value: null, units: "spec", long: null };
         break;
-      }
-      case "Divine Favor": {
-        spell.system.actionType = "util";
-        spell.system.target.type = "self";
+      case "Toll the Dead":
+        spell.system.scaling = { mode: "cantrip", formula: "" };
         break;
-      }
-      case "Bones of the Earth": {
-        spell.system.target.value = 2.5;
-        break;
-      }
-      case "Heroes Feast": {
-        spell.system.duration = { value: 1, units: "day" };
-        break;
-      }
-      case "Heroism": {
-        spell.system.damage.parts[0] = ["@mod", "temphp"];
-        break;
-      }
-      case "Protection from Energy": {
-        spell.system.target.type = "creature";
-        break;
-      }
       case "Vitriolic Sphere": {
         spell.system.scaling = { mode: "level", formula: "2d4" };
         break;
