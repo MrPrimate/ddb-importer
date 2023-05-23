@@ -225,6 +225,10 @@ export function fixSpells(ddb, items) {
         }
         break;
       }
+      case "Ice Storm":
+        spell.system.damage.parts[0][0] = "(@item.level - 2)d8[bludgeoning]";
+        spell.system.scaling = { mode: "", formula: "" };
+        break;
       case "Flaming Sphere":
         spell.system.target["value"] = 2.5;
         break;

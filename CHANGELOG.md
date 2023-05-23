@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Effect: Greater Invisibility Corrections.
+0 Spell: Ice Storm: fix scaling damage.
 
 # 3.4.22
 
