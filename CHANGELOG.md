@@ -1,7 +1,8 @@
 # NEXT UP
 
 - Effect: Greater Invisibility Corrections.
-0 Spell: Ice Storm: fix scaling damage.
+- Spell: Ice Storm: fix scaling damage.
+- Effect: Nilbog Reversal of Fortune.
 
 # 3.4.22
 

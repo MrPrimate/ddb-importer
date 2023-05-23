@@ -6,6 +6,7 @@ import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
 import { generateLegendaryEffect } from "./monsterFeatures/legendary.js";
 import { generateOverTimeEffect } from "./monsterFeatures/overTimeEffect.js";
 import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
+import { generateReversalOfFortuneEffect } from "./monsterFeatures/reversalOfFortune.js";
 import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
 
 export function baseMonsterFeatureEffect(document, label) {
@@ -89,6 +90,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     if (item.name.startsWith("Legendary Resistance")) item = generateLegendaryEffect(item);
     if (item.name.startsWith("Pack Tactics")) item = generatePackTacticsEffect(item);
     if (item.name === "Suave Defense") item = generateSuaveDefenseEffect(ddbMonster, item);
+    if (item.name === "Reversal of Fortune") item = generateReversalOfFortuneEffect(item);
     // auto overtime effect
     const overTimeResults = generateOverTimeEffect(ddbMonster, npc, item);
     this[index] = overTimeResults.document;
