@@ -62,7 +62,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
-          await MidiQOL.completeItemRoll(attackItem, options);
+          await MidiQOL.completeItemUse(attackItem, {}, options);
         },
       },
       Cancel: {

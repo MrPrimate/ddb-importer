@@ -64,7 +64,7 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     game.user.updateTokenTargets([targetToken.id]);
     const saveItem = new CONFIG.Item.documentClass(workflowItemData, { parent: caster });
     const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
-    const result = await MidiQOL.completeItemRoll(saveItem, options);
+    const result = await MidiQOL.completeItemUse(saveItem, {}, options);
 
     game.user.updateTokenTargets(saveTargets);
     const failedSaves = [...result.failedSaves];

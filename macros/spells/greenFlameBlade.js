@@ -1,4 +1,7 @@
+console.warn("INVOKE", args)
+
 const lastArg = args[args.length - 1];
+console.warn(lastArg)
 
 // macro vars
 const damageType = "fire";
@@ -186,7 +189,9 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           }
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
-          await MidiQOL.completeItemRoll(attackItem, options);
+          console.warn("ITEM USE START")
+          await MidiQOL.completeItemUse(attackItem, {}, options);
+          console.warn("ITEM USE END")
         },
       },
       Cancel: {
@@ -210,3 +215,5 @@ if (args[0].tag === "OnUse") {
   console.log(`Checking ${targetToken.name} for nearby tokens for Green-Flame Blade from ${casterId}`);
   await attackNearby(targetToken, [casterId]);
 }
+
+console.warn("FINISHED")

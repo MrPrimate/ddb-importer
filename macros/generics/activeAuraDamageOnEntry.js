@@ -53,7 +53,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
       consumeResource: false,
       consumeSlot: false,
     };
-    await MidiQOL.completeItemRoll(entryItem, options);
+    await MidiQOL.completeItemUse(entryItem, {}, options);
   } else {
     const damageRoll = await new Roll(upscaledDamage).evaluate({ async: true });
     if (game.dice3d) game.dice3d.showForRoll(damageRoll);
