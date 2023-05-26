@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.23
 
 - Effect: Greater Invisibility Corrections.
 - Spell: Ice Storm: fix scaling damage.
