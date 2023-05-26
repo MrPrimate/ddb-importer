@@ -130,7 +130,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     };
   }
 
-  return await AAhelpers.applyTemplate(args);
+  return await game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
 
 } else if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   if (lastArg.item.flags.ddbimporter?.effect?.applyImmediate) {

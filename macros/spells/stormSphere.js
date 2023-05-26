@@ -6,7 +6,7 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === "spell");
 
 if (args[0].tag === "OnUse") {
-  await AAhelpers.applyTemplate(args);
+  await game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
   // place templates
   const spellLevel = lastArg.spellLevel;
   const DAEItem = lastArg.itemData;

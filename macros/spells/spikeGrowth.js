@@ -25,7 +25,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   await DAE.unsetFlag(item, `${safeName}ItemTracker`);
   await DAE.setFlag(item, `${safeName}ItemTracker`, dataTracker);
 
-  return AAhelpers.applyTemplate(args);
+  return game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
 }
 
 
@@ -123,7 +123,7 @@ if (args[0] === "off") {
     const token = await fromUuid(lastArg.tokenUuid);
     targetTrackerFlag["testString"] = getDamageTestString(token, targetTrackerFlag);
     await DAE.setFlag(token, `${safeName}Tracker`, targetTrackerFlag);
-    await ActiveAuras.MainAura(token, "movement update", token.parent.id);
+    await game.modules.get("ActiveAuras").api.ActiveAuras.MainAura(token, "movement update", token.parent.id);
   }
 
 }

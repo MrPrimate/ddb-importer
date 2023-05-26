@@ -4,5 +4,5 @@ if(!game.modules.get("ActiveAuras")?.active) {
 }
 
 if (args[0].tag === "OnUse") {
-  return await AAhelpers.applyTemplate(args);
+  return await game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
 }

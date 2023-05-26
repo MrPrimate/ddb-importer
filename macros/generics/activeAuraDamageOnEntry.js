@@ -140,7 +140,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
     await template.update({"flags.effect": ddbEffectFlags});
   }
 
-  return await AAhelpers.applyTemplate(args);
+  return await game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
 
 } else if (args[0] == "on") {
   const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");

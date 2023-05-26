@@ -3,6 +3,7 @@
 - Effect: Greater Invisibility Corrections.
 - Spell: Ice Storm: fix scaling damage.
 - Effect: Nilbog Reversal of Fortune.
+- Effects: updates for latest ActiveAuras.
 
 # 3.4.22
 
