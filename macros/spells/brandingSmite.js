@@ -38,7 +38,8 @@ try {
     return true;
   });
   const spellLevel = actor.flags["midi-qol"].brandingSmite.level;
-  return { damageRoll: `${spellLevel}d6[radiant]`, flavor: "Branding Smite" };
+  const damageDice = args[0].isCritical ? spellLevel * 2 : spellLevel;
+  return { damageRoll: `${damageDice}d6[radiant]`, flavor: "Branding Smite" };
 } catch (err) {
   console.error(`${args[0].itemData.name} - Branding Smite`, err);
 }

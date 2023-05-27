@@ -37,7 +37,8 @@ try {
     if (effect) effect.delete();
     return true;
   });
-  return { damageRoll: `2d6[thunder]`, flavor: "Thunderous Smite" };
+  const damageDice = args[0].isCritical ? 2 * 2 : 2;
+  return { damageRoll: `${damageDice}d6[thunder]`, flavor: "Thunderous Smite" };
 } catch (err) {
   console.error(`${args[0].itemData.name} - Thunderous Smite`, err);
 }

@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Branding Smite and Thunderous Smite effects did not do crit damage on a crit.
+
 # 3.4.23
 
 - Effect: Greater Invisibility Corrections.
