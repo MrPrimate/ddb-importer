@@ -219,7 +219,8 @@ export default class DDBFeature {
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
         // versatile for damage
-        if (((dmg[5] && dmg[5].trim() == "on a failed save")
+        // ignore if dmg[1] is and as it likely indicates the whole thing is a save
+        if ((((dmg[5] ?? "").trim() == "on a failed save" && (dmg[1] ?? "").trim() !== "and")
             || (dmg[1] && dmg[1].includes("saving throw")))
           && this.actionInfo.damage.parts.length >= 1
         ) {
