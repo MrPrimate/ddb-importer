@@ -105,7 +105,7 @@ if (args[0] === "on") {
 
 
 if (args[0] === "off") {
-  const safeName = lastArg.efData.label.replace(/\s|'|\.|’/g, "_");
+  const safeName =  (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const target = canvas.tokens.get(lastArg.tokenId);
   const targetTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
   const testString = getDamageTestString(target, targetTrackerFlag);
