@@ -1,8 +1,9 @@
-# NEXT UP
+# 3.4.24
 
 - Branding Smite and Thunderous Smite effects did not do crit damage on a crit.
 - Monster features such as Warlock of the Fiend Hellfire parsed the second part of a saving throw damage into the versatile field rather than as an additional damage part.
-- Fix for macro changes in newest DAE/Midi releases.
+- Fix for macro changes in newest DAE/Midi releases. @dinesh#9364
+- Some improvements for CHris Premades name matching.
 
 # 3.4.23
 
