@@ -245,6 +245,7 @@ export default class DDBFeature {
       const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
       const damageHint = globalDamageHints ? `[healing]` : "";
       this.actionInfo.damage.parts.push([utils.parseDiceString(regainMatch[3], null, damageHint).diceString, 'healing']);
+      this.feature.system.actionType = "heal";
     }
 
     const save = hit.match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);

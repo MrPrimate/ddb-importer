@@ -3,6 +3,9 @@
 - Duergar Warlord Psychic-Attuned hammer did not parse psychic damage.
 - Some monster such as Duergar Warlord have "plate mail" rather than "plate" as the armor type and would not detect that armor item correctly, they now do!
 - Some monsters like Warlock of the Fiend did not always parses uses correctly for some features like Fiendish Rebuke.
+- Holy Fire icon.
+- Improvements to detection of healing only monster actions.
+
 
 # 3.4.24
 
