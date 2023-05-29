@@ -55,7 +55,7 @@ DDBMonster.prototype._generateAC = async function _generateAC() {
         if (lowerDescription.includes("+2") || lowerDescription.includes("+ 2")) ac.flat = parseInt(ac.flat) - 2;
         if (lowerDescription.includes("+3") || lowerDescription.includes("+ 3")) ac.flat = parseInt(ac.flat) - 3;
       } else if (!item.includes("with mage armor")) {
-        item = item.replace("leather armor", "leather").replace("hide armor", "hide");
+        item = item.replace("leather armor", "leather").replace("hide armor", "hide").replace("plate mail", "plate");
         if (item.startsWith("+")) {
           const bonusRegex = /(\+\d+)(?:\s+)(.*)/;
           const matches = item.match(bonusRegex);
