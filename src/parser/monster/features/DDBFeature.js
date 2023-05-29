@@ -290,7 +290,7 @@ export default class DDBFeature {
     };
 
     const usesSearch = name ? /(\d+)\/(\w+)\)/ : /\((\d+)\/(\w+)\)/;
-    const usesMatch = this.strippedHtml.match(usesSearch);
+    const usesMatch = name ? this.titleHTML.match(usesSearch) : this.strippedHtml.match(usesSearch);
     // console.log(usesMatch);
     if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
       uses.value = Number.parseInt(usesMatch[1]);
