@@ -37,6 +37,14 @@ export function specialCases(monster) {
       }, monster.items);
       break;
     }
+    case "Duergar Warlord": {
+      monster.items.forEach(function(item, index) {
+        if (item.name === "Psychic-Attuned Hammer") {
+          this[index].system.damage.parts.push(["1d10[psychic]", "psychic"]);
+        }
+      }, monster.items);
+      break;
+    }
     // flumph tendrils have weird syntax for damage over time.
     case "Flumph": {
       monster.items.forEach(function(item, index) {
