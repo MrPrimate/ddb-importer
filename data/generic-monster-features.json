@@ -1,5 +1,9 @@
 [
   {
+    "name": "Holy Fire",
+    "path": "icons/magic/light/beam-rays-red-large.webp"
+  },
+  {
     "name": "Fiery Skull",
     "path": "icons/magic/fire/flame-burning-skull-orange.webp"
   },
