@@ -50,6 +50,19 @@ async function getFolderId(name, type, compendiumName) {
   return allFolders.find((f) => f.name === name)?.id;
 }
 
+function getName(document) {
+  const flagName = document.flags.ddbimporter?.originalName ?? document.name;
+
+  const regex = /(.*)\s*\((:?costs \d actions|Recharges after a Short or Long Rest|\d\/day|recharge \d-\d)\)/i;
+  const nameMatch = flagName.replace(/[–-–−]/g, "-").match(regex);
+  if (nameMatch) {
+    return nameMatch[1].trim();
+  } else {
+    return flagName;
+  }
+
+}
+
 function getType(doc, isMonster = false) {
   if (DICTIONARY.types.inventory.includes(doc.type)) {
     return "inventory";
@@ -88,7 +101,7 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
   if (!compendiumName) return document;
   // .split("(")[0].trim()
-  const ddbName = document.flags.ddbimporter?.originalName ?? document.name;
+  const ddbName = getName(document);
   const chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
   const folderId = type === "monsterfeatures"
     ? await getFolderId(folderName ?? chrisName, type, compendiumName)
@@ -167,13 +180,13 @@ export async function restrictedItemReplacer(actor, folderName = null) {
   for (const restrictedItem of sortedItems) {
     logger.debug(`Checking restricted Item ${restrictedItem.key}: ${restrictedItem.originalName}`);
     const doc = documents.find((d) => {
-      const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? d.flags.ddbimporter?.originalName ?? d.name;
+      const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? getName(d);
       const retainDoc = getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true;
       return ddbName === restrictedItem.originalName && !retainDoc;
     });
     if (!doc) continue;
     if (["class", "subclass", "background"].includes(doc.type)) continue;
-    const ddbName = doc.flags.ddbimporter?.chrisPreEffectName ?? doc.flags.ddbimporter?.originalName ?? doc.name;
+    const ddbName = doc.flags.ddbimporter?.chrisPreEffectName ?? getName(doc);
 
     const rollData = actor.getRollData();
 
@@ -187,15 +200,15 @@ export async function restrictedItemReplacer(actor, folderName = null) {
 
 
     if (restrictedItem.requiredEquipment) {
-      for (const doc of restrictedItem.requiredEquipment) {
-        const itemMatch = documents.some((d) => d.name === doc.name && DICTIONARY.types.inventory.includes(doc.type));
+      for (const requiredEquipment of restrictedItem.requiredEquipment) {
+        const itemMatch = documents.some((d) => ddbName === requiredEquipment && DICTIONARY.types.inventory.includes(d.type));
         if (!itemMatch) continue;
       }
     }
 
     if (restrictedItem.requiredFeature) {
-      for (const doc of restrictedItem.requiredFeature) {
-        const itemMatch = documents.some((d) => d.name === doc.name && doc.type === "feat");
+      for (const requiredFeature of restrictedItem.requiredFeature) {
+        const itemMatch = documents.some((d) => ddbName === requiredFeature && d.type === "feat");
         if (!itemMatch) continue;
       }
     }
@@ -237,7 +250,7 @@ export async function restrictedItemReplacer(actor, folderName = null) {
               documents,
               compendiumName,
             });
-          } else if (!documents.find((d) => d.name === chrisDoc.name)) {
+          } else if (!documents.some((d) => d.name === chrisDoc.name)) {
             toAdd.push(chrisDoc);
           }
         }
@@ -248,7 +261,7 @@ export async function restrictedItemReplacer(actor, folderName = null) {
       logger.debug(`Removing items for ${ddbName}, using restricted data from ${restrictedItem.key}`);
       for (const removeItemName of restrictedItem.removedItems) {
         logger.debug(`Removing item ${removeItemName}`);
-        const deleteDoc = documents.find((d) => d.name === removeItemName);
+        const deleteDoc = documents.find((d) => getName(d) === removeItemName);
         if (deleteDoc) toDelete.push(deleteDoc._id);
       }
     }
@@ -280,7 +293,7 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
       continue;
     }
 
-    const ddbName = doc.flags.ddbimporter?.originalName ?? doc.name;
+    const ddbName = getName(doc);
     const chrisName = CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
     const newItemNames = getProperty(CONFIG, `chrisPremades.additionalItems.${chrisName}`);
 
@@ -302,7 +315,7 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
             documents,
             compendiumName,
           });
-        } else if (!documents.find((d) => d.name === chrisDoc.name)) {
+        } else if (!documents.some((d) => d.name === chrisDoc.name)) {
           toAdd.push(chrisDoc);
         }
       }
@@ -313,7 +326,7 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
       logger.debug(`Removing items for ${chrisName}`);
       for (const removeItemName of itemsToRemoveNames) {
         logger.debug(`Removing item ${removeItemName}`);
-        const deleteDoc = documents.find((d) => d.name === removeItemName);
+        const deleteDoc = documents.find((d) => getName(d) === removeItemName);
         if (deleteDoc) toDelete.push(deleteDoc._id);
       }
     }
