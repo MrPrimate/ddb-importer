@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.25
 
 - Duergar Warlord Psychic-Attuned hammer did not parse psychic damage.
 - Some monster such as Duergar Warlord have "plate mail" rather than "plate" as the armor type and would not detect that armor item correctly, they now do!
