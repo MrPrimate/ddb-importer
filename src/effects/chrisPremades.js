@@ -87,6 +87,7 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
   if (getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) return document;
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
   if (!compendiumName) return document;
+  // .split("(")[0].trim()
   const ddbName = document.flags.ddbimporter?.originalName ?? document.name;
   const chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
   const folderId = type === "monsterfeatures"
@@ -330,7 +331,7 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
 export async function addChrisEffectsToActorDocuments(actor) {
   if (!game.modules.get("chris-premades")?.active) {
     ui.notifications.error("Chris Premades module not installed");
-    return;
+    return [];
   }
 
   logger.info("Starting to update actor documents with Chris Premades effects");
@@ -344,5 +345,6 @@ export async function addChrisEffectsToActorDocuments(actor) {
   await restrictedItemReplacer(actor, folderName);
   await addAndReplaceRedundantChrisDocuments(actor);
   logger.info("Effect replacement complete");
+  return data.map((d) => d.name);
 }
 
