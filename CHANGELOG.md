@@ -1,3 +1,7 @@
+# 3.4.26
+
+- Broken artificer infusions in v11
+
 # 3.4.25
 
 - Duergar Warlord Psychic-Attuned hammer did not parse psychic damage.
