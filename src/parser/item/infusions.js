@@ -138,8 +138,8 @@ export function parseInfusion(ddb, character, foundryItem, ddbItem, compendiumIt
     foundryItem = addMagicBonus(character, foundryItem, ddbInfusionItem.definition.grantedModifiers);
 
     // add infusion flags
-    foundryItem.flags.infusions.infused = true
-    // these are too bif/deep forv11
+    foundryItem.flags.infusions.infused = true;
+    // these are too bif/deep for v11
     // foundryItem.flags.infusions.applied.push(infusionDetail);
     // foundryItem.flags.infusions.maps.push(infusionItemMap);
 
