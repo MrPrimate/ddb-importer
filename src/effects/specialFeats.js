@@ -57,6 +57,7 @@ import { alertEffect } from "./feats/alert.js";
 import { evasionEffect } from "./feats/evasion.js";
 import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
 import { deflectMissilesAttackEffect } from "./feats/deflectMissilesAttack.js";
+import { patientDefenseEffect } from "./feats/patientDefense.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -212,6 +213,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Indomitable": {
         document = indomitableEffect(document);
+        break;
+      }
+      case "Patient Defense": {
+        document = patientDefenseEffect(document);
         break;
       }
       case "Potent Cantrip": {
