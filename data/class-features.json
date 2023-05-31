@@ -9357,5 +9357,19 @@
     "class": "Barbarian",
     "subclass": "Path of the Zealot",
     "path": "icons/creatures/magical/construct-iron-stomping-yellow.webp"
+  },
+  {
+    "name": "Agile Parry",
+    "class_feature": "Agile Parry",
+    "class": "Monk",
+    "subclass": "Way of the Kensei",
+    "path": "icons/skills/melee/swords-parry-block-blue.webp"
+  },
+  {
+    "name": "Kensei's Shot",
+    "class_feature": "Kensei's Shot",
+    "class": "Monk",
+    "subclass": "Way of the Kensei",
+    "path": "icons/weapons/thrown/dagger-ringed-engraved-green.webp"
   }
 ]
