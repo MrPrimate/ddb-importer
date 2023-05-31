@@ -1,3 +1,9 @@
+# NEXT UP
+
+- Effect: Deflect Missiles tweaks from @Moto Moto#0295
+- Way of the Kensei: missing feature icons (thanks @Moto Moto#0295)
+- Effect: Patient Defense
+
 # 3.4.26
 
 - Broken artificer infusions in v11
