@@ -20,7 +20,7 @@ if (args[0].macroPass === "postDamageRoll" && lowDice !== dieSize) {
   });
   if (!response) return;
 
-  const damageRoll = new Roll(`1d${dieSize}`);
+  const damageRoll = new CONFIG.Dice.DamageRoll(`1d${dieSize}`);
   await damageRoll.toMessage({ flavor: `Piercer rerolled ${lowDice}...` });
   workflow.damageRoll.dice[0].results.find((i) => i.result === lowDice).result = damageRoll.total;
 

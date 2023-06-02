@@ -130,7 +130,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const upscaledDamage =  isCantrip
     ? `${getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
-  const damageRoll = await new Roll(upscaledDamage).evaluate({ async: true });
+  const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll);
   const workflowItemData = duplicate(item.data);
   workflowItemData.system.target = { value: 1, units: "", type: "creature" };

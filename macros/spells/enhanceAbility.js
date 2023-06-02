@@ -15,7 +15,7 @@ async function updateActor(kind) {
         value: "1",
       }];
       ChatMessage.create({ content: `${targetActor.name} has advantage on Constitution checks` });
-      const amount = await new Roll("2d6").evaluate({ async: true });
+      const amount = await new CONFIG.Dice.DamageRoll("2d6").evaluate({ async: true });
       if (
         !Number.isInteger(targetActor.system.attributes.hp.temp)
         || amount.total > targetActor.system.attributes.hp.temp

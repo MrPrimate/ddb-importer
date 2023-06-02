@@ -17,19 +17,6 @@ console.warn("macro caled", {
 })
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
-  const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
-  const dataTracker = {
-    randomId: randomID(),
-    targetUuids: lastArg.targetUuids,
-    startRound: game.combat.round,
-    startTurn: game.combat.turn,
-  };
-
-  // const item = await fromUuid(lastArg.itemUuid);
-  // await item.update(dataTracker);
-  await DAE.unsetFlag(lastArg.actor, `${safeName}ItemTracker`);
-  await DAE.setFlag(lastArg.actor, `${safeName}ItemTracker`, dataTracker);
-
   return game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
 }
 
@@ -40,7 +27,7 @@ async function applySpikeGrowthDamage() {
 
   const caster = item.parent;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
-  const damageRoll = await new Roll(`2d4[piercing]`).evaluate({ async: true });
+  const damageRoll = await new CONFIG.Dice.DamageRoll(`2d4[piercing]`).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll);
   const workflowItemData = duplicate(item);
   workflowItemData.system.components.concentration = false;
@@ -99,23 +86,6 @@ if (args[0] === "on") {
   const existingTestString = hasProperty(targetTokenTracker, "testString");
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
 
-  console.warn("on", {
-    testString,
-    targetItemTracker,
-    targetTokenTracker,
-    targetedThisCombat,
-    castTurn,
-    originalTarget,
-    firstRound: targetTokenTracker.firstRound,
-    existingTestString,
-    evals: (existingTestString && targetTokenTracker.testString !== testString),
-    stringsEqual: targetTokenTracker.testString === testString,
-    strings: {
-      testString: duplicate(testString),
-      tokenTrackerString: duplicate(targetTokenTracker),
-    }
-  });
-
   if (castTurn && originalTarget && targetTokenTracker.firstRound) {
     console.debug(`Token ${target.name} is part of the original target for ${item.name}`);
     targetTokenTracker.firstRound = false;
@@ -133,29 +103,10 @@ if (args[0] === "off") {
   const safeName =  (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const target = canvas.tokens.get(lastArg.tokenId);
   const targetTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
-  console.warn("token tracker off", targetTrackerFlag);
-  const testString = getDamageTestString(target, targetTrackerFlag);
-  const isSame = testString === targetTrackerFlag.testString;
 
-  console.warn("isSame", {
-    target,
-    targetDoc: deepClone(target.document),
-    targetTrackerFlag,
-    testString,
-    isSame,
-    targetNowSource: duplicate(target.document._source),
+  const token = await fromUuid(lastArg.tokenUuid);
+  targetTrackerFlag["testString"] = getDamageTestString(token, targetTrackerFlag);
 
-  });
-
-  if (!isSame) {
-    await applySpikeGrowthDamage();
-    const token = await fromUuid(lastArg.tokenUuid);
-    targetTrackerFlag["testString"] = getDamageTestString(token, targetTrackerFlag);
-
-    await game.modules.get("ActiveAuras").api.ActiveAuras.MainAura(token, "movement update", token.parent.id);
-
-    //todo : this now needs to be set after movement stops or, need to check bounds of square
-    await DAE.setFlag(token, `${safeName}Tracker`, targetTrackerFlag);
-  }
-
+  await DAE.setFlag(token, `${safeName}Tracker`, targetTrackerFlag);
+  await game.modules.get("ActiveAuras").api.ActiveAuras.MainAura(token, "movement update", token.parent.id);
 }

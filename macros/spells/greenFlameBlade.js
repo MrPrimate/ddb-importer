@@ -99,7 +99,7 @@ async function attackNearby(originToken, ignoreIds) {
           const targetToken = canvas.tokens.get(selectedId);
           const sourceItem = await fromUuid(lastArg.efData.flags.origin);
           const mod = caster.system.abilities[sourceItem.abilityMod].mod;
-          const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
+          const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
           if (game.dice3d) game.dice3d.showForRoll(damageRoll);
           const workflowItemData = duplicate(sourceItem);
           workflowItemData.effects = [];

@@ -39,7 +39,7 @@ if (args[0] === "on") {
     ChatMessage.create({content: "Wounding Save was made"});
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: targetActor.uuid, effects: [lastArg.effectId] })
   } else {
-    const damageRoll = await new Roll(`${woundCount}d4[necrotic]`).evaluate({ async: true });
+    const damageRoll = await new CONFIG.Dice.DamageRoll(`${woundCount}d4[necrotic]`).evaluate({ async: true });
     if (game.dice3d) game.dice3d.showForRoll(damageRoll);
     await new MidiQOL.DamageOnlyWorkflow(
       targetActor,

@@ -37,8 +37,15 @@ try {
     if (effect) effect.delete();
     return true;
   });
-  const damageDice = args[0].isCritical ? 2 * 2 : 2;
-  return { damageRoll: `${damageDice}d6[thunder]`, flavor: "Thunderous Smite" };
+  const workflow = args[0].workflow;
+  const rollOptions = {
+    critical: workflow.isCritical,
+    criticalMultiplier: workflow.damageRoll?.options?.criticalMultiplier,
+    powerfulCritical: workflow.damageRoll?.options?.powerfulCritical,
+    multiplyNumeric: workflow.damageRoll?.options?.multiplyNumeric,
+  };
+  const damageFormula = new CONFIG.Dice.DamageRoll(`2d6[thunder]`, {}, rollOptions);
+  return { damageRoll: damageFormula.formula, flavor: "Thunderous Smite" };
 } catch (err) {
   console.error(`${args[0].itemData.name} - Thunderous Smite`, err);
 }

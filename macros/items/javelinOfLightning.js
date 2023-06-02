@@ -124,7 +124,7 @@ if (args[0].macroPass === "postActiveEffects") {
   if (!workflow.item.flags.world?.useBolt) return;
   const diceNum = workflow.isCritical ? 8 : 4;
   const formula = `${workflow.damageRoll._formula} + ${diceNum}d4[lightning]`;
-  const damageRoll = await new Roll(formula).roll({ async: true });
+  const damageRoll = await new CONFIG.Dice.DamageRoll(formula).roll({ async: true });
   await workflow.setDamageRoll(damageRoll);
 } else if (args[0].macroPass === "preAttackRoll") {
   if (workflow.item.getFlag("world", "boltUsed")) return;

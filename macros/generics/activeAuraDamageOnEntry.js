@@ -55,7 +55,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     };
     await MidiQOL.completeItemUse(entryItem, {}, options);
   } else {
-    const damageRoll = await new Roll(upscaledDamage).evaluate({ async: true });
+    const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });
     if (game.dice3d) game.dice3d.showForRoll(damageRoll);
 
     workflowItemData.name = `${workflowItemData.name}: Turn Entry Damage`;

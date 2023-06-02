@@ -4,7 +4,7 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 if (args[0] === "each") {
 
-  const confusionRoll = await new Roll("1d10").evaluate({ async: true });
+  const confusionRoll = await new CONFIG.Dice.DamageRoll("1d10").evaluate({ async: true });
   const result = confusionRoll.total;
   let content;
   switch (result) {

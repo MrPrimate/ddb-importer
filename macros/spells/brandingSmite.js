@@ -38,8 +38,15 @@ try {
     return true;
   });
   const spellLevel = actor.flags["midi-qol"].brandingSmite.level;
-  const damageDice = args[0].isCritical ? spellLevel * 2 : spellLevel;
-  return { damageRoll: `${damageDice}d6[radiant]`, flavor: "Branding Smite" };
+  const workflow = args[0].workflow;
+  const rollOptions = {
+    critical: workflow.isCritical,
+    criticalMultiplier: workflow.damageRoll?.options?.criticalMultiplier,
+    powerfulCritical: workflow.damageRoll?.options?.powerfulCritical,
+    multiplyNumeric: workflow.damageRoll?.options?.multiplyNumeric,
+  };
+  const damageFormula = new CONFIG.Dice.DamageRoll(`${spellLevel}d6[radiant]`, {}, rollOptions);
+  return { damageRoll: damageFormula.formula, flavor: "Branding Smite" };
 } catch (err) {
   console.error(`${args[0].itemData.name} - Branding Smite`, err);
 }

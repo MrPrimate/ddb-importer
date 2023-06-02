@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Some macro tweaks thanks to @Chris#8375 and @Elwin#1410 for respecting critical damage settings better.
+- Spike Growth effect now deals correct damage again. (CHanges in ActiveAuras for v11 caused double damage).
+
 # 3.4.27
 
 - Effect: Deflect Missiles tweaks from @Moto Moto#0295
