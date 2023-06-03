@@ -6,7 +6,6 @@ import logger from "../../logger.js";
 
 
 export function addEncounterMuncher (app, html) {
-  console.warn(app)
   const tier = game.settings.get("ddb-importer", "patreon-tier");
   const tiers = PatreonHelper.getPatreonTiers(tier);
   const enabled = game.settings.get("ddb-importer", "encounter-muncher-enabled");
@@ -46,7 +45,6 @@ export function addEncounterMuncher (app, html) {
 
     const top = game.settings.get("ddb-importer", "show-munch-top");
     if (top) {
-      console.warn($(html).find(".directory-header"))
       $(html).find(".directory-header").prepend(button);
     } else {
       $(html).find(".directory-footer").append(button);
