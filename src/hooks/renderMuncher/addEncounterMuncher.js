@@ -6,11 +6,14 @@ import logger from "../../logger.js";
 
 
 export function addEncounterMuncher (app, html) {
+  console.warn(app)
   const tier = game.settings.get("ddb-importer", "patreon-tier");
   const tiers = PatreonHelper.getPatreonTiers(tier);
   const enabled = game.settings.get("ddb-importer", "encounter-muncher-enabled");
 
-  if (enabled && app.options.id == "scenes" && game.user.isGM && tiers.supporter) {
+  const scenesTab = app.options.id == "scenes" || app.id === "scenes";
+
+  if (enabled && scenesTab && game.user.isGM && tiers.supporter) {
     let button = $("<div class='header-actions action-buttons flexrow'><button class='ddb-muncher' id='ddb-encounter-munch-open'><i class='fas fa-dungeon'></i> DDB Encounter Muncher</button></div>");
 
     const actualButton = button.find('#ddb-encounter-munch-open');
@@ -43,6 +46,7 @@ export function addEncounterMuncher (app, html) {
 
     const top = game.settings.get("ddb-importer", "show-munch-top");
     if (top) {
+      console.warn($(html).find(".directory-header"))
       $(html).find(".directory-header").prepend(button);
     } else {
       $(html).find(".directory-footer").append(button);
