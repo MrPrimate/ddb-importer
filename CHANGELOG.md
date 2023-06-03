@@ -1,7 +1,8 @@
-# NEXT UP
+# 3.4.28
 
 - Some macro tweaks thanks to @Chris#8375 and @Elwin#1410 for respecting critical damage settings better.
 - Spike Growth effect now deals correct damage again. (CHanges in ActiveAuras for v11 caused double damage).
+- In v11 Encounter Muncher no longer showed up as a button.
 
 # 3.4.27
 
