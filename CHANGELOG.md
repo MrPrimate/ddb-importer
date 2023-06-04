@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Monster spells would check item mappings first for icons, rather than spells, resulting in a bad shield icon for monsters such as Mage.
+
 # 3.4.28
 
 - Some macro tweaks thanks to @Chris#8375 and @Elwin#1410 for respecting critical damage settings better.

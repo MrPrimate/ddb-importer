@@ -180,7 +180,7 @@ export async function copyInbuiltIcons(items, monster = false, monsterName = "")
       if (getProperty(item, "flags.ddbimporter.keepIcon") !== true) {
         // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
         // if we have a monster lets check the monster dict first
-        if (monster) {
+        if (monster && !["spell"].includes(item.type)) {
           const monsterPath = getIconPath(item, "monster", monsterName);
           if (monsterPath) {
             item.img = monsterPath;
