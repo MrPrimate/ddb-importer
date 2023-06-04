@@ -7,11 +7,20 @@ import DDBFeature from "../../parser/monster/features/DDBFeature.js";
 
 const DEFAULT_DURATION = 60;
 
-function overTime({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }) {
+function overTimeDamage({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc } = {}) {
   return {
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    value: `turn=end,label=${document.name} (${utils.capitalize(turn)} of Turn),damageRoll=${damage},damageType=${damageType},saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},saveDamage=${saveDamage},killAnim=true`,
+    value: `turn=${turn},label=${document.name} (${utils.capitalize(turn)} of Turn),damageRoll=${damage},damageType=${damageType},saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},saveDamage=${saveDamage},killAnim=true`,
+    priority: "20",
+  };
+}
+
+function overTimeSave({ document, turn, saveAbility, saveRemove = true, dc } = {}) {
+  return {
+    key: "flags.midi-qol.OverTime",
+    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    value: `turn=${turn},label=${document.name} (${utils.capitalize(turn)} of Turn),saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},killAnim=true`,
     priority: "20",
   };
 }
@@ -113,13 +122,21 @@ function generateConditionEffect(effect, text) {
       : undefined;
     if (group4Condition) {
       results.condition = group4Condition.value;
-      results.effect.changes.push(generateStatusEffectChange(group4Condition.name));
+      results.effect.changes.push(generateStatusEffectChange(group4Condition.name, 20, true));
       effect = getSpecialDuration(results.effect, match);
     } else if (match[3] && match[3] === "die") {
       results.effect.changes.push(generateStatusEffectChange("Dead"));
     }
   }
   return results;
+}
+
+function overTimeSaveEnd(document, effect, save, text) {
+  const saveSearch = /repeat the saving throw at the (end|start) of each/;
+  const match = text.match(saveSearch);
+  if (match) {
+    effect.changes.push(overTimeSave({ document, turn: match[1], saveAbility: save.ability, dc: save.dc }));
+  }
 }
 
 function getOvertimeDamage(text) {
@@ -152,7 +169,10 @@ export function generateOverTimeEffect(ddbMonster, actor, document) {
   // add any condition effects
   const conditionResults = generateConditionEffect(effect, document.system.description.value);
   effect = conditionResults.effect;
-  if (conditionResults.success) setProperty(document, "flags.midiProperties.fulldam", true);
+  if (conditionResults.success) {
+    setProperty(document, "flags.midiProperties.fulldam", true);
+    overTimeSaveEnd(document, effect, conditionResults.save, document.system.description.value);
+  }
 
   const durationSeconds = hasProperty(document.flags, "monsterMunch.overTime.durationSeconds")
     ? getProperty(document.flags, "monsterMunch.overTime.durationSeconds")
@@ -196,7 +216,7 @@ export function generateOverTimeEffect(ddbMonster, actor, document) {
     ? getProperty(document.flags, "monsterMunch.overTime.saveDamage")
     : "nodamage";
 
-  effect.changes.push(overTime({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
+  effect.changes.push(overTimeDamage({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
   document.effects.push(effect);
 
   return effectCleanup(ddbMonster, document, actor, effect);
@@ -209,10 +229,10 @@ export function damageOverTimeEffect({ document, startTurn = false, endTurn = fa
   if (!startTurn && !endTurn) return document;
 
   if (startTurn) {
-    effect.changes.push(overTime({ document, turn: "start", damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
+    effect.changes.push(overTimeDamage({ document, turn: "start", damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
   }
   if (endTurn) {
-    effect.changes.push(overTime({ document, turn: "end", damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
+    effect.changes.push(overTimeDamage({ document, turn: "end", damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
   }
 
   setProperty(effect, "duration.seconds", durationSeconds);

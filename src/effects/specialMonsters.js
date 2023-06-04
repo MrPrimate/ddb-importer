@@ -1,5 +1,5 @@
 import CompendiumHelper from "../lib/CompendiumHelper.js";
-import { effectModules, forceItemEffect } from "./effects.js";
+import { effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
 import { configureDependencies } from "./macros.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
@@ -92,12 +92,27 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     if (item.name === "Suave Defense") item = generateSuaveDefenseEffect(ddbMonster, item);
     if (item.name === "Reversal of Fortune") item = generateReversalOfFortuneEffect(item);
     // auto overtime effect
-    const overTimeResults = generateOverTimeEffect(ddbMonster, npc, item);
-    this[index] = overTimeResults.document;
-    npc = overTimeResults.actor;
+    if (item.type !== "spell") {
+      const overTimeResults = generateOverTimeEffect(ddbMonster, npc, item);
+      this[index] = overTimeResults.document;
+      npc = overTimeResults.actor;
+    }
 
     npc = forceItemEffect(npc);
   }, npc.items);
+
+  switch (npc.name) {
+    case "Carrion Crawler":
+    case "Reduced-threat Carrion Crawler": {
+      npc.items.forEach(function(item, index) {
+        if (item.name === "Tentacles") {
+          this[index].effects[0].changes.push(generateStatusEffectChange("Paralyzed", 20, true));
+        }
+      }, npc.items);
+      break;
+    }
+    // no default
+  }
 
   npc = transferEffectsToActor(npc);
   return npc;

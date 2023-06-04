@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Monster spells would check item mappings first for icons, rather than spells, resulting in a bad shield icon for monsters such as Mage.
+- Monster Midi effect generation will now add an Overtime effect where the ability grants a save at the beginning or end of the turn, such as Carrion Crawler Tentacles Attack.
 
 # 3.4.28
 
