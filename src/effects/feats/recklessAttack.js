@@ -11,14 +11,9 @@ export function recklessAttackEffect(document) {
       priority: 20,
     },
   );
-  attackEffect.duration = {
-    startTime: null,
-    seconds: null,
-    rounds: 1,
-    turns: null,
-    startRound: null,
-    startTurn: null,
-  };
+
+
+  setProperty(attackEffect, "flags.dae.stackable", "noneName");
 
   document.effects.push(attackEffect);
 
@@ -32,15 +27,28 @@ export function recklessAttackEffect(document) {
       priority: 20,
     },
   );
+  defenseEffect.duration = {
+    startTime: null,
+    seconds: 12,
+    rounds: 2,
+    turns: null,
+    startRound: null,
+    startTurn: null,
+  };
   setProperty(defenseEffect, "flags.dae.specialDuration", ["turnStartSource"]);
   setProperty(defenseEffect, "flags.core.statusId", "Reckless");
+  setProperty(defenseEffect, "flags.dae.stackable", "noneName");
 
   document.effects.push(defenseEffect);
 
   document.system["target"]["type"] = "self";
   document.system.range = { value: null, units: "self", long: null };
   document.system.actionType = null;
-  document.system.activation = { type: "none", cost: null, condition: "" };
+  setProperty(document, "system.activation.type", "special");
+  document.system.duration = {
+    value: 1,
+    units: "turn",
+  };
 
   return document;
 }
