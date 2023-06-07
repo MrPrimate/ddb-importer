@@ -1,7 +1,4 @@
-console.warn("INVOKE", args)
-
 const lastArg = args[args.length - 1];
-console.warn(lastArg)
 
 // macro vars
 const damageType = "fire";
@@ -169,7 +166,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             changes: [{ key: "macro.itemMacro", mode: 0, value: "", priority: "20", }],
             disabled: false,
             // duration: { turns: 0 },
-            duration: { },
+            duration: { turns: 0 },
             icon: sourceItemData.img,
             label: sourceItemData.name,
             name: sourceItemData.name,
@@ -189,9 +186,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           }
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
-          console.warn("ITEM USE START")
           await MidiQOL.completeItemUse(attackItem, {}, options);
-          console.warn("ITEM USE END")
         },
       },
       Cancel: {
@@ -216,4 +211,3 @@ if (args[0].tag === "OnUse") {
   await attackNearby(targetToken, [casterId]);
 }
 
-console.warn("FINISHED")
