@@ -11,15 +11,16 @@ export function steadyAimEffect(document) {
     },
   );
   effect.flags.dae.specialDuration = ["1Attack"];
+  setProperty(effect, "flags.dae.stackable", "noneName");
   setProperty(effect, "duration.turns", 1);
 
   document.system["target"]["type"] = "self";
   document.system.range = { value: null, units: "self", long: null };
   document.system.actionType = null;
-  document.system.duration = {
-    value: 1,
-    units: "turn",
-  };
+  // document.system.duration = {
+  //   value: 1,
+  //   units: "turn",
+  // };
   document.effects.push(effect);
 
   let moveEffect = baseFeatEffect(document, `${document.name} Movement Restriction`);
@@ -31,8 +32,16 @@ export function steadyAimEffect(document) {
       priority: "40",
     },
   );
+  moveEffect.duration = {
+    startTime: null,
+    seconds: 12,
+    rounds: 2,
+    turns: null,
+    startRound: null,
+    startTurn: null,
+  };
   moveEffect.flags.dae.specialDuration = ["turnStartSource"];
-  setProperty(moveEffect, "duration.turns", 1);
+  setProperty(moveEffect, "flags.dae.stackable", "noneName");
   document.effects.push(moveEffect);
 
   return document;

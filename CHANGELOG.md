@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Effect: Steady aim improvements. (thanks @Moto Moto#0295)
+
 # 3.4.29
 
 - Monster spells would check item mappings first for icons, rather than spells, resulting in a bad shield icon for monsters such as Mage.
