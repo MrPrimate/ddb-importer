@@ -166,13 +166,13 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             changes: [{ key: "macro.itemMacro", mode: 0, value: "", priority: "20", }],
             disabled: false,
             // duration: { turns: 0 },
-            duration: { turns: 0 },
+            duration: { turns: 1 },
             icon: sourceItemData.img,
             label: sourceItemData.name,
             name: sourceItemData.name,
             origin,
             transfer: false,
-            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { transfer: false } },
+            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { specialDuration: ["1Action", "1Attack", "turnStartSource"], transfer: false } },
           });
           setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
