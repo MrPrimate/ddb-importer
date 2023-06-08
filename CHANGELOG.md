@@ -1,6 +1,9 @@
 # NEXT UP
 
 - Effect: Steady aim improvements. (thanks @Moto Moto#0295)
+- Error when uploading a character with a buff that increase temporary Max hp #336
+- Temp Max HP is no longer added to Max HP when imported via the muncher, but just added to temp max hp field.
+- Effect: Greenflame blade tweaks
 
 # 3.4.29
 
