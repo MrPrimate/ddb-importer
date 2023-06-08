@@ -283,22 +283,12 @@ async function hitPoints(actor, ddbData) {
     && (ddbData.character.character.system.attributes.hp.temp ?? 0) === (actor.system.attributes.hp.temp ?? 0);
 
   if (!same) {
-    console.warn("hp", {
-      ddbData: ddbData.character.character.system.attributes.hp,
-      actorData: actor.system.attributes.hp,
-      same
-    })
     promises.push(updateDDBHitPoints(actor));
   }
 
   const hpSame = ddbData.character.character.system.attributes.hp.tempmax === (actor.system.attributes.hp.tempmax ?? 0);
 
   if (!hpSame) {
-    console.warn("hpmax", {
-      ddbData: ddbData.character.character.system.attributes.hp,
-      actorData: actor.system.attributes.hp,
-      hpSame
-    })
     promises.push(updateTempMaxDDBHitPoints(actor));
   }
 
