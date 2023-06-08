@@ -254,7 +254,8 @@ async function xp(actor, ddbData) {
 async function updateDDBHitPoints(actor) {
   return new Promise((resolve) => {
     const temporaryHitPoints = actor.system.attributes.hp.temp ?? 0;
-    const removedHitPoints = actor.system.attributes.hp.max - (actor.system.attributes.hp.value ?? 0);
+    const bonusHitPoints = actor.system.attributes.hp.tempmax ?? 0;
+    const removedHitPoints = (actor.system.attributes.hp.max + bonusHitPoints) - (actor.system.attributes.hp.value ?? 0);
     const hitPointData = {
       removedHitPoints,
       temporaryHitPoints,
@@ -263,19 +264,45 @@ async function updateDDBHitPoints(actor) {
   });
 }
 
-async function hitPoints(actor, ddbData) {
+async function updateTempMaxDDBHitPoints(actor) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-hitpoints")) resolve();
-    const same
-      = ddbData.character.character.system.attributes.hp.value === (actor.system.attributes.hp.value ?? 0)
-      && ddbData.character.character.system.attributes.hp.temp === (actor.system.attributes.hp.temp ?? 0);
 
-    if (!same) {
-      resolve(updateDDBHitPoints(actor));
-    } else {
-      resolve();
-    }
+    const bonusHitPoints = {
+      bonusHitPoints: actor.system.attributes.hp.tempmax ?? 0,
+    };
+    resolve(updateCharacterCall(actor, "hpbonus", bonusHitPoints, "HPBonus"));
   });
+}
+
+
+async function hitPoints(actor, ddbData) {
+  if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-hitpoints")) return [];
+  let promises = [];
+  const same
+    = ddbData.character.character.system.attributes.hp.value === (actor.system.attributes.hp.value ?? 0)
+    && (ddbData.character.character.system.attributes.hp.temp ?? 0) === (actor.system.attributes.hp.temp ?? 0);
+
+  if (!same) {
+    console.warn("hp", {
+      ddbData: ddbData.character.character.system.attributes.hp,
+      actorData: actor.system.attributes.hp,
+      same
+    })
+    promises.push(updateDDBHitPoints(actor));
+  }
+
+  const hpSame = ddbData.character.character.system.attributes.hp.tempmax === (actor.system.attributes.hp.tempmax ?? 0);
+
+  if (!hpSame) {
+    console.warn("hpmax", {
+      ddbData: ddbData.character.character.system.attributes.hp,
+      actorData: actor.system.attributes.hp,
+      hpSame
+    })
+    promises.push(updateTempMaxDDBHitPoints(actor));
+  }
+
+  return Promise.all(promises);
 }
 
 async function updateDDBInspiration(actor) {
@@ -1093,7 +1120,6 @@ export async function updateDDBCharacter(actor) {
   let singlePromises = []
     .concat(
       currency(actor, ddbData),
-      hitPoints(actor, ddbData),
       hitDice(actor, ddbData),
       spellSlots(actor, ddbData),
       spellSlotsPact(actor, ddbData),
@@ -1104,6 +1130,7 @@ export async function updateDDBCharacter(actor) {
     ).flat();
 
   const singleResults = await Promise.all(singlePromises);
+  const hpResults = await hitPoints(actor, ddbData);
   const spellsPreparedResults = await spellsPrepared(actor, ddbData);
   const actionStatusResults = await actionUseStatus(actor, ddbData);
   const nameUpdateResults = await updateCustomNames(actor, ddbData);
@@ -1130,6 +1157,7 @@ export async function updateDDBCharacter(actor) {
   // we can now process item attunements and uses (not yet done)
 
   const results = singleResults.concat(
+    hpResults,
     nameUpdateResults,
     addEquipmentResults,
     spellsPreparedResults,
@@ -1165,9 +1193,15 @@ async function activeUpdateActor(actor, update) {
       const syncXP = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-xp");
 
 
-      if (syncHP && update.system?.attributes?.hp) {
+      if (syncHP && (update.system?.attributes?.hp?.value
+        || update.system?.attributes?.hp?.temp)
+      ) {
         logger.debug("Updating DDB Hitpoints...");
         promises.push(updateDDBHitPoints(actor));
+      }
+      if (syncHP && update.system?.attributes?.hp?.tempmax) {
+        logger.debug("Updating DDB Bonus Hitpoints...");
+        promises.push(updateTempMaxDDBHitPoints(actor));
       }
       if (syncCurrency && update.system?.currency) {
         logger.debug("Updating DDB Currency...");
