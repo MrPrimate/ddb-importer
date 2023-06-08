@@ -4,7 +4,7 @@ import DDBCharacter from "../DDBCharacter.js";
 DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   const constitutionHP = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities.con.mod * this.raw.character.flags.ddbimporter.dndbeyond.totalLevels;
   const baseHitPoints = this.source.ddb.character.baseHitPoints || 0;
-  const bonusHitPoints = this.source.ddb.character.bonusHitPoints || 0;
+  const tempMaxHitPoints = this.source.ddb.character.bonusHitPoints || 0;
   const overrideHitPoints = this.source.ddb.character.overrideHitPoints || 0;
   const removedHitPoints = this.source.ddb.character.removedHitPoints || 0;
   const temporaryHitPoints = this.source.ddb.character.temporaryHitPoints || 0;
@@ -37,19 +37,15 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   const totalBonusHPWithEffects = bonusHitPointValuesWithEffects.reduce((prev, cur) => prev + cur, 0);
   const bonusHPEffectDiff = totalBonusHPWithEffects - totalBonusHitPoints;
 
-  // add the result to the base hitpoints
-  // baseHitPoints += totalBonusHitPoints;
-
-  const totalHitPoints = overrideHitPoints === 0
-    ? constitutionHP + baseHitPoints + bonusHitPoints + totalBonusHitPoints
+  const maxHitPoints = overrideHitPoints === 0
+    ? constitutionHP + baseHitPoints + totalBonusHitPoints
     : overrideHitPoints;
 
   this.raw.character.system.attributes.hp = {
-    value: totalHitPoints - removedHitPoints + bonusHPEffectDiff,
-    min: 0,
-    max: totalHitPoints,
-    temp: temporaryHitPoints,
-    tempmax: bonusHitPoints,
+    value: maxHitPoints + tempMaxHitPoints - removedHitPoints + bonusHPEffectDiff,
+    max: maxHitPoints,
+    temp: temporaryHitPoints !== 0 ? temporaryHitPoints : null,
+    tempmax: tempMaxHitPoints !== 0 ? tempMaxHitPoints : null,
   };
 };
 
