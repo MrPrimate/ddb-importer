@@ -4,6 +4,7 @@
 - Error when uploading a character with a buff that increase temporary Max hp #336
 - Temp Max HP is no longer added to Max HP when imported via the muncher, but just added to temp max hp field.
 - Effect: Greenflame blade tweaks
+- Monster actions: Regain healing actions without a dice roll such as the Champion's Second Wind now parse the correct value, and set to target self.
 
 # 3.4.29
 

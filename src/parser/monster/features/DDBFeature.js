@@ -47,6 +47,9 @@ export default class DDBFeature {
       /(Melee|Ranged|Melee\s+or\s+Ranged)\s+(|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)\s+to\s+hit/i
     );
 
+    const healingRegex = /(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i;
+    const healingMatch = healingRegex.test(this.strippedHtml);
+
     // set calc flags
     this.isAttack = matches ? matches[1] !== undefined : false;
     this.weaponAttack = matches
@@ -55,6 +58,7 @@ export default class DDBFeature {
     this.spellAttack = matches ? matches[2].toLowerCase() === "spell" : false;
     this.meleeAttack = matches ? matches[1].indexOf("Melee") !== -1 : false;
     this.rangedAttack = matches ? matches[1].indexOf("Ranged") !== -1 : false;
+    this.healingAction = healingMatch;
     this.toHit = matches
       ? Number.isInteger(parseInt(matches[3]))
         ? parseInt(matches[3])
@@ -185,7 +189,7 @@ export default class DDBFeature {
     // eslint-disable-next-line no-useless-escape
     const damageExpression = new RegExp(/((?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if used with )?(\s?two hands|\s?at the start of|\son a failed save)?/gi);
     const matches = [...hit.matchAll(damageExpression)];
-    const regainExpression = new RegExp(/(regains)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
+    const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
     const regainMatch = hit.match(regainExpression);
 
     logger.debug(`${this.name} Damage matches`, { hit, matches, regainMatch });
@@ -244,7 +248,8 @@ export default class DDBFeature {
     if (regainMatch) {
       const globalDamageHints = game.settings.get("ddb-importer", "use-damage-hints");
       const damageHint = globalDamageHints ? `[healing]` : "";
-      this.actionInfo.damage.parts.push([utils.parseDiceString(regainMatch[3], null, damageHint).diceString, 'healing']);
+      const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
+      this.actionInfo.damage.parts.push([utils.parseDiceString(damageValue, null, damageHint).diceString, 'healing']);
       this.feature.system.actionType = "heal";
     }
 
@@ -601,6 +606,10 @@ export default class DDBFeature {
       target.value = parseInt(sphereMatch[1]);
       target.units = "ft";
       target.type = "sphere";
+    }
+
+    if (target.type === "" && this.healingAction) {
+      target.type = "self";
     }
 
     return target;
