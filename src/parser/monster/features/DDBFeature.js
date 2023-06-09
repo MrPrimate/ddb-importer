@@ -131,7 +131,8 @@ export default class DDBFeature {
         "spc": false,
         "thr": false,
         "two": false,
-        "ver": false
+        "ver": false,
+        "mgc": false
       },
       reach: "",
       range: {
@@ -680,6 +681,14 @@ export default class DDBFeature {
       } else {
         this.feature.system.actionType = "save";
       }
+      if (this.templateType === "feat") {
+        this.feature.system.equipped = true;
+      }
+      setProperty(this.feature, "flags.midiProperties", {
+        "magicdam": true,
+        "magiceffect": true,
+      });
+      this.feature.system.properties.mgc = true;
     } else if (this.actionInfo.save.dc) {
       this.feature.system.actionType = "save";
     }
