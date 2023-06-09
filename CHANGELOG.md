@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.30
 
 - Effect: Steady aim improvements. (thanks @Moto Moto#0295)
 - Error when uploading a character with a buff that increase temporary Max hp #336
