@@ -1,5 +1,13 @@
 [
   {
+    "name": "Astral Bolt",
+    "path": "icons/magic/light/projectile-beam-yellow.webp"
+  },
+  {
+    "name": "Astral Step",
+    "path": "icons/magic/control/debuff-energy-snare-blue.webp"
+  },
+  {
     "name": "Holy Fire",
     "path": "icons/magic/light/beam-rays-red-large.webp"
   },
