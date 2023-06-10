@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Effect: monsters with Uncanny Dodge will get the Uncanny Dodge effect on the actor item.
+
+
 # 3.4.30
 
 - Effect: Steady aim improvements. (thanks @Moto Moto#0295)

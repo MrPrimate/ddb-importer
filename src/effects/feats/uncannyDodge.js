@@ -1,7 +1,7 @@
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function uncannyDodgeEffect(document) {
-  let effect = baseFeatEffect(document, "1/2 Damage");
+  let effect = baseFeatEffect(document, `${document.name} - 1/2 Damage`);
   effect.changes.push({
     key: "flags.midi-qol.uncanny-dodge",
     value: "1",

@@ -1,5 +1,6 @@
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
+import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
 import { configureDependencies } from "./macros.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
@@ -89,8 +90,9 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     // Legendary Resistance Effects
     if (item.name.startsWith("Legendary Resistance")) item = generateLegendaryEffect(item);
     if (item.name.startsWith("Pack Tactics")) item = generatePackTacticsEffect(item);
-    if (item.name === "Suave Defense") item = generateSuaveDefenseEffect(ddbMonster, item);
     if (item.name === "Reversal of Fortune") item = generateReversalOfFortuneEffect(item);
+    if (item.name === "Suave Defense") item = generateSuaveDefenseEffect(ddbMonster, item);
+    if (item.name === "Uncanny Dodge") item = uncannyDodgeEffect(item);
     // auto overtime effect
     if (item.type !== "spell") {
       const overTimeResults = generateOverTimeEffect(ddbMonster, npc, item);
