@@ -1,5 +1,9 @@
 [
   {
+    "name": "Cacophony",
+    "path": "icons/magic/air/wind-tornado-spiral-brown.webp"
+  },
+  {
     "name": "Astral Bolt",
     "path": "icons/magic/light/projectile-beam-yellow.webp"
   },

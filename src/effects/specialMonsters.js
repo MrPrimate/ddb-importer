@@ -9,6 +9,7 @@ import { generateOverTimeEffect } from "./monsterFeatures/overTimeEffect.js";
 import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
 import { generateReversalOfFortuneEffect } from "./monsterFeatures/reversalOfFortune.js";
 import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
+import { generateTauntEffect } from "./monsterFeatures/taunt.js";
 
 export function baseMonsterFeatureEffect(document, label) {
   let effect = {
@@ -104,6 +105,14 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
   }, npc.items);
 
   switch (npc.name) {
+    case "Bard": {
+      npc.items.forEach((item) => {
+        if (item.name === "Taunt") {
+          item = generateTauntEffect(item);
+        }
+      });
+      break;
+    }
     case "Carrion Crawler":
     case "Reduced-threat Carrion Crawler": {
       npc.items.forEach(function(item, index) {

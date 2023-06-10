@@ -11,7 +11,7 @@ export default class DDBFeature {
     const regex = /(.*)\s*\((:?costs \d actions|Recharges after a Short or Long Rest|\d\/day|recharge \d-\d)\)/i;
     const nameMatch = this.name.replace(/[–-–−]/g, "-").match(regex);
     if (nameMatch) {
-      this.feature.name = nameMatch[1];
+      this.feature.name = nameMatch[1].trim();
       this.nameSplit = nameMatch[2];
     }
   }
@@ -77,7 +77,7 @@ export default class DDBFeature {
 
   constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription } = {}) {
 
-    this.name = name;
+    this.name = name.trim();
     this.ddbMonster = ddbMonster;
     this.type = type;
     this.html = html ?? "";
