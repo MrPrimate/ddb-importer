@@ -722,8 +722,8 @@ const DICTIONARY = {
       martialM: "Martial Melee",
       martialR: "Martial Ranged",
     },
-    TRINKET: ["Wand", "Wondrous item", "Ring", "Rod"],
-    CONSUMABLE: ["Ammunition", "Potion", "Scroll", "Poison", "Adventuring Gear"],
+    TRINKET: ["Wondrous item", "Ring"],
+    CONSUMABLE: ["Ammunition", "Potion", "Scroll", "Poison", "Adventuring Gear", "Wand", "Rod"],
     LOOT: [
       "Adventuring Gear",
       "Vehicle",
