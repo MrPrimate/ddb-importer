@@ -47,7 +47,10 @@ function updateNotePage(noteConfig, slug) {
 
 export function anchorInjection() {
   // don't load if similar modules present
-  if (game.modules.get("jal")?.active || game.modules.get("notelicker")?.active) return;
+  if (game.modules.get("jal")?.active || game.modules.get("notelicker")?.active) {
+    logger.warn("Anchor injection already loaded from another module.");
+    return;
+  }
 
   Hooks.on("activateNote", (note, options) => {
     const slug = getSlug(note.document);
