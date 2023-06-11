@@ -2,6 +2,7 @@
 
 - Effect: monsters with Uncanny Dodge will get the Uncanny Dodge effect on the actor item.
 - Monster effect: Bard Taunt. (thanks @Moto Moto#0295)
+- Wands and Rods are now consumable items rather than trinkets to support D&D system 2.2.1 changes.
 
 
 # 3.4.30

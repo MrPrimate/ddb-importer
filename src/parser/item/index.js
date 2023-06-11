@@ -2,9 +2,8 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import DICTIONARY from "../../dictionary.js";
 import DDBCharacter from "../DDBCharacter.js";
 import logger from "../../logger.js";
-// import FileHelper from "../../lib/FileHelper.js";
 
-// magicitems support
+// magic items support
 import { parseMagicItem } from "./magicify.js";
 
 import { fixItems } from "./special.js";
@@ -22,123 +21,112 @@ import { generateTable } from "../../muncher/table.js";
 // item collections
 import { fixForItemCollections } from "./itemCollections.js";
 
-// type: weapon
 import parseWeapon from "./weapon.js";
 import parseAmmunition from "./ammunition.js";
 import parseStaff from "./staves.js";
-
-// type: armor
 import parseArmor from "./armor.js";
-
-// tyoe: wonderous item
 import parseWonderous from "./wonderous.js";
-
-// type: consumables
-import parsePotion from "./potion.js";
-import parseScroll from "./scroll.js";
-
-// type: tool
 import parseTool from "./tool.js";
-
-// other loot
+import parseConsumable from "./consumable.js";
 import parseLoot from "./loot.js";
 import parseCustomItem from "./custom.js";
 
 import { getAttunement, getBaseItem } from "./common.js";
 
-function getItemFromGearTypeIdOne(ddb, data) {
+
+function getItemFromGearTypeIdOne(ddb, ddbItem) {
   let item = {};
 
-  switch (data.definition.subType) {
+  switch (ddbItem.definition.subType) {
     case "Potion":
-      item = parsePotion(data, data.definition.subType);
+      item = parseConsumable(ddbItem, { consumableTypeOverride: "potion", ddbTypeOverride: ddbItem.definition.subType });
       break;
     case "Tool":
-      item = parseTool(ddb, data, data.definition.subType);
+      item = parseTool(ddb, ddbItem, ddbItem.definition.subType);
       break;
     case "Ammunition":
-      item = parseAmmunition(data, data.definition.subType);
+      item = parseAmmunition(ddbItem, ddbItem.definition.subType);
       break;
     default:
-      item = parseLoot(data, data.definition.subType);
+      item = parseLoot(ddbItem, ddbItem.definition.subType);
   }
   return item;
 }
 
-function otherGear(ddb, data) {
+function otherGear(ddb, ddbItem) {
   let item = {};
 
-  switch (data.definition.gearTypeId) {
+  switch (ddbItem.definition.gearTypeId) {
     case 1:
-      item = getItemFromGearTypeIdOne(ddb, data);
+      item = getItemFromGearTypeIdOne(ddb, ddbItem);
       break;
     case 4:
-      item = parseLoot(data, "Mount");
+      item = parseLoot(ddbItem, "Mount");
       break;
     case 5:
-      item = parsePotion(data, "Poison");
+      item = parseConsumable(ddbItem, { consumableTypeOverride: "potion", ddbTypeOverride: "Poison" });
       break;
     case 6:
-      item = parsePotion(data, "Potion");
+      item = parseConsumable(ddbItem, { consumableTypeOverride: "potion", ddbTypeOverride: "Potion" });
       break;
     case 11:
-      item = parseTool(ddb, data, "Tool");
+      item = parseTool(ddb, ddbItem, "Tool");
       break;
     case 12:
     case 17:
     case 19:
-      item = parseLoot(data, "Vehicle");
+      item = parseLoot(ddbItem, "Vehicle");
       break;
     case 16:
-      item = parseLoot(data, "Equipment Pack");
+      item = parseLoot(ddbItem, "Equipment Pack");
       break;
     case 18:
       // Change to parseGemstone (consummable) ?
-      item = parseLoot(data, "Gemstone");
+      item = parseLoot(ddbItem, "Gemstone");
       break;
     default:
-      logger.warn("Other Gear type missing from " + data.definition.name, data);
+      logger.warn("Other Gear type missing from " + ddbItem.definition.name, ddbItem);
   }
   return item;
 }
 
-function addExtraDDBFlags(data, item) {
-  item.flags.ddbimporter['id'] = data.id;
-  item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
+function addExtraDDBFlags(ddbItem, item) {
+  item.flags.ddbimporter['id'] = ddbItem.id;
+  item.flags.ddbimporter['entityTypeId'] = ddbItem.entityTypeId;
 
-  if (data.definition.avatarUrl) item.flags.ddbimporter.dndbeyond['avatarUrl'] = data.definition.avatarUrl.split('?')[0];
-  if (data.definition.largeAvatarUrl) item.flags.ddbimporter.dndbeyond['largeAvatarUrl'] = data.definition.largeAvatarUrl.split('?')[0];
-  if (data.definition.filterType) {
-    const filter = DICTIONARY.items.find((i) => i.filterType === data.definition.filterType);
+  if (ddbItem.definition.avatarUrl) item.flags.ddbimporter.dndbeyond['avatarUrl'] = ddbItem.definition.avatarUrl.split('?')[0];
+  if (ddbItem.definition.largeAvatarUrl) item.flags.ddbimporter.dndbeyond['largeAvatarUrl'] = ddbItem.definition.largeAvatarUrl.split('?')[0];
+  if (ddbItem.definition.filterType) {
+    const filter = DICTIONARY.items.find((i) => i.filterType === ddbItem.definition.filterType);
     if (filter) item.flags.ddbimporter.dndbeyond['filterType'] = filter.filterType;
   }
 
   // container info
-  if (data.containerEntityId) setProperty(item, "flags.ddbimporter.containerEntityId", data.containerEntityId);
-  if (data.containerEntityTypeId) setProperty(item, "flags.ddbimporter.containerEntityTypeId", data.containerEntityTypeId);
+  if (ddbItem.containerEntityId) setProperty(item, "flags.ddbimporter.containerEntityId", ddbItem.containerEntityId);
+  if (ddbItem.containerEntityTypeId) setProperty(item, "flags.ddbimporter.containerEntityTypeId", ddbItem.containerEntityTypeId);
 
-  setProperty(item, "flags.ddbimporter.dndbeyond.isConsumable", data.definition.isConsumable);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isContainer", data.definition.isContainer);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", data.definition.isCustomItem);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isHomebrew", data.definition.isHomebrew);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isMonkWeapon", data.definition.isMonkWeapon);
-  setProperty(item, "flags.ddbimporter.dndbeyond.isPack", data.definition.isPack);
-  setProperty(item, "flags.ddbimporter.dndbeyond.levelInfusionGranted", data.definition.levelInfusionGranted);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isConsumable", ddbItem.definition.isConsumable);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isContainer", ddbItem.definition.isContainer);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isCustomItem", ddbItem.definition.isCustomItem);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isHomebrew", ddbItem.definition.isHomebrew);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isMonkWeapon", ddbItem.definition.isMonkWeapon);
+  setProperty(item, "flags.ddbimporter.dndbeyond.isPack", ddbItem.definition.isPack);
+  setProperty(item, "flags.ddbimporter.dndbeyond.levelInfusionGranted", ddbItem.definition.levelInfusionGranted);
 
   return item;
 }
 
-function enrichFlags(data, item) {
-  if (data.definition.magic) {
+function enrichFlags(ddbItem, item) {
+  if (ddbItem.definition.magic) {
     setProperty(item, "system.properties.mgc", true);
   }
-  if (data.definition?.entityTypeId) item.flags.ddbimporter['definitionEntityTypeId'] = data.definition.entityTypeId;
-  if (data.definition?.id) item.flags.ddbimporter['definitionId'] = data.definition.id;
-  if (data.entityTypeId) item.flags.ddbimporter['entityTypeId'] = data.entityTypeId;
-  if (data.id) item.flags.ddbimporter['id'] = data.id;
-  if (data.definition?.tags) item.flags.ddbimporter.dndbeyond['tags'] = data.definition.tags;
-  if (data.definition?.sources) item.flags.ddbimporter.dndbeyond['sources'] = data.definition.sources;
-  if (data.definition?.stackable) item.flags.ddbimporter.dndbeyond['stackable'] = data.definition.stackable;
+  if (ddbItem.definition?.entityTypeId) item.flags.ddbimporter['definitionEntityTypeId'] = ddbItem.definition.entityTypeId;
+  if (ddbItem.definition?.id) item.flags.ddbimporter['definitionId'] = ddbItem.definition.id;
+  if (ddbItem.entityTypeId) item.flags.ddbimporter['entityTypeId'] = ddbItem.entityTypeId;
+  if (ddbItem.id) item.flags.ddbimporter['id'] = ddbItem.id;
+  if (ddbItem.definition?.tags) item.flags.ddbimporter.dndbeyond['tags'] = ddbItem.definition.tags;
+  if (ddbItem.definition?.sources) item.flags.ddbimporter.dndbeyond['sources'] = ddbItem.definition.sources;
+  if (ddbItem.definition?.stackable) item.flags.ddbimporter.dndbeyond['stackable'] = ddbItem.definition.stackable;
 }
 
 // the filter type "Other Gear" represents the equipment while the other filters represents the magic items in ddb
@@ -159,20 +147,20 @@ export function parseItem(ddb, ddbItem, character, flags) {
         case "Armor":
           item = parseArmor(ddbItem, character, flags);
           break;
-        case "Wondrous item":
         case "Ring":
+        case "Wondrous item":
+          item = parseWonderous(ddbItem);
+          break;
+        case "Scroll":
         case "Wand":
         case "Rod":
-          item = parseWonderous(ddbItem);
+          item = parseConsumable(ddbItem);
           break;
         case "Staff":
           item = parseStaff(ddbItem, character);
           break;
         case "Potion":
-          item = parsePotion(ddbItem, ddbItem.definition.type);
-          break;
-        case "Scroll":
-          item = parseScroll(ddbItem);
+          item = parseConsumable(ddbItem, { consumableTypeOverride: "potion", ddbTypeOverride: ddbItem.definition.type });
           break;
         case "Other Gear":
           item = otherGear(ddb, ddbItem);
