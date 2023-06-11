@@ -1,3 +1,7 @@
+# 3.4.32
+
+- Fix for compendium folders and moving Wands and Rods to consumable items rather than trinkets to support D&D system 2.2.1 changes.
+
 # 3.4.31
 
 - Effect: monsters with Uncanny Dodge will get the Uncanny Dodge effect on the actor item.
