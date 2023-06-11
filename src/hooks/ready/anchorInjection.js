@@ -31,6 +31,12 @@ function setSlugProperties(doc, slug, label) {
   return doc;
 }
 
+function getSlug(doc) {
+  return doc.flags.ddb?.slugLink
+      ?? doc.flags.anchor?.slug
+      ?? "";
+}
+
 function updateNotePage(noteConfig, slug) {
   const journalId = noteConfig.form.elements.entryId?.value;
   const pageId = noteConfig.form.elements.pageId?.value;
@@ -41,23 +47,16 @@ function updateNotePage(noteConfig, slug) {
 
 export function anchorInjection() {
   Hooks.on("activateNote", (note, options) => {
-    if (note.document?.flags?.ddb?.slugLink) {
-      logger.debug("Injecting note anchor", note.document.flags.ddb.slugLink);
-      options["anchor"] = note.document.flags.ddb.slugLink;
-    } else if (note.document.flags.anchor?.slug) {
-      logger.debug("Injecting note anchor", note.document.flags.anchor.slug);
-      options["anchor"] = note.document.flags.anchor.slug;
-    } else if (note.document?.flags?.anchor) {
-      logger.debug("Injecting note anchor", note.document.flags.anchor);
-      options["anchor"] = note.document.flags.anchor;
+    const slug = getSlug(note.document);
+    if (slug) {
+      logger.debug("Injecting note anchor", slug);
+      options["anchor"] = slug;
     }
   });
 
   // when we render a note we add the anchor links box
   Hooks.on("renderNoteConfig", (noteConfig, html, data) => {
-    const slug = noteConfig.document.flags.ddb?.slugLink
-      ?? noteConfig.document.flags.anchor?.slug
-      ?? "";
+    const slug = getSlug(noteConfig.document);
     if (!noteConfig.element[0].querySelector("input[name='slug']")) {
       addSlugField(noteConfig.element[0], slug, data.document);
       if (!noteConfig._minimized) {
@@ -78,9 +77,9 @@ export function anchorInjection() {
         if (noteConfig.document.id !== documentSheet.document.id) return;
         Hooks.off("closeNoteConfig", closeHookId);
         const slugInput = html[0].querySelector("select[name='slug']");
-        const slug = slugInput?.value;
-        if (slug && slug.trim() !== "" && slug !== documentSheet.document.flags.ddb?.slugLink) {
-          const update = setSlugProperties({ _id: documentSheet.document.id }, slug, documentSheet.document.label);
+        const selectedSlug = slugInput?.value;
+        if (selectedSlug && selectedSlug.trim() !== "" && selectedSlug !== documentSheet.document.flags.ddb?.slugLink) {
+          const update = setSlugProperties({ _id: documentSheet.document.id }, selectedSlug, documentSheet.document.label);
           await canvas.scene.updateEmbeddedDocuments("Note", [update]);
         }
       });
