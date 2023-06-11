@@ -140,6 +140,13 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
   setProperty(document, "flags.ddbimporter.effectsApplied", true);
   setProperty(document, "flags.ddbimporter.chrisEffectsApplied", true);
   setProperty(document, "flags.ddbimporter.chrisPreEffectName", ddbName);
+
+  const correctionProperties = getProperty(CONFIG, `chrisPremades.correctedItems.${chrisName}`);
+  if (correctionProperties) {
+    logger.debug(`Updating ${document.name} with a Chris correction properties`);
+    document = mergeObject(document, correctionProperties);
+  }
+
   logger.debug(`Updated ${document.name} with a Chris effect`);
 
   return document;

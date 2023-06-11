@@ -4,7 +4,7 @@
 - Monster effect: Bard Taunt. (thanks @Moto Moto#0295)
 - Wands and Rods are now consumable items rather than trinkets to support D&D system 2.2.1 changes.
 - Monster effects: Venom Troll (thanks @Moto Moto#0295)
-
+- Support special override properties for some Chris Premades such as Steal Defender Uses.
 
 # 3.4.30
 
