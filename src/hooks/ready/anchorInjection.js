@@ -46,6 +46,9 @@ function updateNotePage(noteConfig, slug) {
 }
 
 export function anchorInjection() {
+  // don't load if similar modules present
+  if (game.modules.get("jal")?.active || game.modules.get("notelicker")?.active) return;
+
   Hooks.on("activateNote", (note, options) => {
     const slug = getSlug(note.document);
     if (slug) {
