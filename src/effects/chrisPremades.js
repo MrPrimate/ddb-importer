@@ -35,10 +35,6 @@ const CP_FIELDS_TO_COPY = [
   "system.actionType",
 ];
 
-const ITEM_USE_ADJUSTMENTS = [
-
-];
-
 export async function getChrisCompendium(type) {
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type);
   const cpPack = CompendiumHelper.getCompendium(compendiumName);
