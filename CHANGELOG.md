@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.31
 
 - Effect: monsters with Uncanny Dodge will get the Uncanny Dodge effect on the actor item.
 - Monster effect: Bard Taunt. (thanks @Moto Moto#0295)
