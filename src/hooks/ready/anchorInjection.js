@@ -1,12 +1,22 @@
 import logger from "../../logger.js";
 import utils from "../../lib/utils.js";
 
-function addSlugField(element, slug) {
+function getOptions(page, current) {
+  let options = "<option></option>";
+  if (page?.type === "text") {
+    for (const section of Object.values(page.toc)) {
+      options += `<option value="${section.slug}"${section.slug === current ? " selected" : ""}>${section.text}</option>`;
+    }
+  }
+  return options;
+}
+
+function addSlugField(element, slug, document) {
   const titleInput = element.querySelector("input[name='text']");
   const slugHTML = `<div class="form-group">
   <label>Jump to HTML Slug</label>
   <div class="form-fields">
-      <input type="text" name="slug" value="${slug}" placeholder="">
+      <select name="slug" >${getOptions(document.page, slug)}</select>
   </div>
 </div>`;
 
@@ -14,16 +24,19 @@ function addSlugField(element, slug) {
   titleInput.parentNode.parentNode.parentNode.insertBefore(div, titleInput.parentNode.parentNode.nextSibling.nextSibling);
 }
 
-function updateSlugField(element, slug) {
-  const slugInput = element.querySelector("input[name='slug']");
-  slugInput.setAttribute('value', slug);
-}
-
 function setSlugProperties(doc, slug, label) {
   setProperty(doc, "flags.anchor.slug", slug);
   setProperty(doc, "flags.ddb.slugLink", slug);
   setProperty(doc, "flags.ddb.labelName", label);
   return doc;
+}
+
+function updateNotePage(noteConfig, slug) {
+  const journalId = noteConfig.form.elements.entryId?.value;
+  const pageId = noteConfig.form.elements.pageId?.value;
+  const journal = game.journal.get(journalId);
+  const page = journal?.pages.get(pageId);
+  noteConfig.form.elements["slug"].innerHTML = getOptions(page, slug);
 }
 
 export function anchorInjection() {
@@ -41,21 +54,31 @@ export function anchorInjection() {
   });
 
   // when we render a note we add the anchor links box
-  Hooks.on("renderNoteConfig", (noteConfig) => {
+  Hooks.on("renderNoteConfig", (noteConfig, html, data) => {
     const slug = noteConfig.document.flags.ddb?.slugLink
       ?? noteConfig.document.flags.anchor?.slug
       ?? "";
-    if (!noteConfig.element[0].querySelector("input[name='slug']")) addSlugField(noteConfig.element[0], slug);
+    if (!noteConfig.element[0].querySelector("input[name='slug']")) {
+      addSlugField(noteConfig.element[0], slug, data.document);
+      if (!noteConfig._minimized) {
+        const pos = noteConfig.position;
+        pos.height = 'auto';
+        noteConfig.setPosition(pos);
+      }
+    }
     noteConfig.element[0].style.height = "auto";
     const isExistingNote = noteConfig.document.id !== null;
+
+    html.find("select[name='entryId']").change(() => updateNotePage(noteConfig, slug));
+    html.find("select[name='pageId']").change(() => updateNotePage(noteConfig, slug));
 
     if (isExistingNote) {
       const closeHookId = Hooks.on("closeDocumentSheet", async (documentSheet, html) => {
         if (!(documentSheet instanceof NoteConfig)) return;
         if (noteConfig.document.id !== documentSheet.document.id) return;
         Hooks.off("closeNoteConfig", closeHookId);
-        const slugInput = html[0].querySelector("input[name='slug']");
-        const slug = slugInput.value;
+        const slugInput = html[0].querySelector("select[name='slug']");
+        const slug = slugInput?.value;
         if (slug && slug.trim() !== "" && slug !== documentSheet.document.flags.ddb?.slugLink) {
           const update = setSlugProperties({ _id: documentSheet.document.id }, slug, documentSheet.document.label);
           await canvas.scene.updateEmbeddedDocuments("Note", [update]);
@@ -80,7 +103,9 @@ export function anchorInjection() {
     Hooks.once("renderNoteConfig", (noteConfig) => {
       const titleInput = noteConfig.element[0].querySelector("input[name='text']");
       titleInput.setAttribute('value', dropData.anchor.name);
-      if (dropData.anchor.slug) updateSlugField(noteConfig.element[0], dropData.anchor.slug);
+      if (dropData.anchor.slug) {
+        updateNotePage(noteConfig, dropData.anchor.slug);
+      }
     });
   });
 }

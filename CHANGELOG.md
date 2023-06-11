@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Update Journal Anchor Links/Slug selection to use a drop down.
+
 # 3.4.32
 
 - Fix for compendium folders and moving Wands and Rods to consumable items rather than trinkets to support D&D system 2.2.1 changes.
