@@ -1,3 +1,4 @@
+/* eslint-disable require-atomic-updates */
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
@@ -10,6 +11,7 @@ import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
 import { generateReversalOfFortuneEffect } from "./monsterFeatures/reversalOfFortune.js";
 import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
 import { generateTauntEffect } from "./monsterFeatures/taunt.js";
+import { venomTrollEffects } from "./monsterFeatures/venomTroll.js";
 
 export function baseMonsterFeatureEffect(document, label) {
   let effect = {
@@ -121,6 +123,9 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
         }
       }, npc.items);
       break;
+    }
+    case "Venom Troll": {
+      npc = await venomTrollEffects(npc);
     }
     // no default
   }
