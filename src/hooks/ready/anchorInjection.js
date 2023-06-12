@@ -3,7 +3,7 @@ import utils from "../../lib/utils.js";
 
 function getOptions(page, current) {
   let options = "<option></option>";
-  if (page?.type === "text") {
+  if (page?.toc) {
     for (const section of Object.values(page.toc)) {
       options += `<option value="${section.slug}"${section.slug === current ? " selected" : ""}>${section.text}</option>`;
     }
@@ -47,8 +47,8 @@ function updateNotePage(noteConfig, slug) {
 
 export function anchorInjection() {
   // don't load if similar modules present
-  if (game.modules.get("jal")?.active || game.modules.get("notelicker")?.active) {
-    logger.warn("Anchor injection already loaded from another module.");
+  if (game.modules.get("jal")?.active) {
+    logger.warn("Anchor injection already loaded from JAL.");
     return;
   }
 
