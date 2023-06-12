@@ -153,7 +153,7 @@ export default class AdventureMunch extends FormApplication {
         if (paths.uploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.uploadPath)) {
           logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-          FileHelper.generateCurrentFiles(paths.uploadPath);
+          await FileHelper.generateCurrentFiles(paths.uploadPath);
           CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.uploadPath);
         }
 
