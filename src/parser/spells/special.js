@@ -292,6 +292,10 @@ export function fixSpells(ddb, items) {
         spell.system.scaling = { mode: "level", formula: "2d8" };
         break;
       }
+      case "Thorn Whip": {
+        spell.system.actionType = "msak";
+        break;
+      }
       // The target/range input data are incorrect on some AOE spells centred
       // on self.
       // Range is self with an AoE target of 15 ft cube

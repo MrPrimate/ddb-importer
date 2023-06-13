@@ -2,6 +2,7 @@
 
 - Nasty hack for S3 bucket bugs in v11.
 - Update Journal Anchor Links/Slug selection to use a drop down.
+- Thorn Whip is now a melee spell attack.
 
 # 3.4.32
 
