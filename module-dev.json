@@ -52,7 +52,7 @@
         "reason": "Provides ability to embed items with spells"
       },
       {
-        "id": "link-item-resource-5",
+        "id": "link-item-resource-5e",
         "type": "module",
         "reason": "Links items and resources up, so consumption of one reduces the other"
       },
