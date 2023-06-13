@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.33
 
 - Nasty hack for S3 bucket bugs in v11.
 - Update Journal Anchor Links/Slug selection to use a drop down.
