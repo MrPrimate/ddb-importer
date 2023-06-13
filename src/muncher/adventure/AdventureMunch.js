@@ -114,8 +114,10 @@ export default class AdventureMunch extends FormApplication {
     const fullUploadPath = misc
       ? `${baseUploadPath}/${targetPath}`
       : `${baseUploadPath}/${adventurePath}/${targetPath}`;
+    const pathKey = `${fullUploadPath}/${filename}`;
     const returnFilePath = misc ? `${targetPath}/${filename}` : `${adventurePath}/${targetPath}/${filename}`;
     return {
+      pathKey,
       adventurePath,
       targetPath,
       filename,
@@ -148,30 +150,30 @@ export default class AdventureMunch extends FormApplication {
         return path;
       } else {
         const paths = this.getImportFilePaths(path, misc);
-        const returnPath = await FileHelper.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
 
-        if (paths.uploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.uploadPath)) {
+        if (paths.fullUploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.fullUploadPath)) {
           logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-          await FileHelper.generateCurrentFiles(paths.uploadPath);
-          CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.uploadPath);
+          await FileHelper.generateCurrentFiles(paths.fullUploadPath);
+          CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.fullUploadPath);
         }
 
-        if (!CONFIG.DDBI.KNOWN.FILES.has(returnPath)) {
+        if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
           logger.debug(`Importing raw file from ${path}`, paths);
           const fileData = new File([content], paths.filename, { type: mimeType });
-          await AdventureMunchHelpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, {
+          const targetPath = await AdventureMunchHelpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, {
             bucket: paths.parsedBaseUploadPath.bucket,
           });
-          CONFIG.DDBI.KNOWN.FILES.add(returnPath);
+          CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
+          CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}}`, targetPath);
         } else {
           logger.debug(`File already imported ${path}`);
         }
 
-        return `${returnPath}`;
+        return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(`${paths.pathKey}`)}`;
       }
     } catch (err) {
-      logger.error(`Error importing image file ${path} : ${err.message}`);
+      logger.error(`Error importing image file ${path} : ${err.message}`, { err });
     }
 
     return path;
@@ -194,28 +196,28 @@ export default class AdventureMunch extends FormApplication {
         return path;
       } else {
         const paths = this.getImportFilePaths(path, misc);
-        const returnPath = await FileHelper.getFileUrl(paths.baseUploadPath, paths.returnFilePath);
 
-        if (paths.uploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.uploadPath)) {
+        if (paths.fullUploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.fullUploadPath)) {
           logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
           await DirectoryPicker.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-          FileHelper.generateCurrentFiles(paths.uploadPath);
-          CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.uploadPath);
+          await FileHelper.generateCurrentFiles(paths.fullUploadPath);
+          CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.fullUploadPath);
         }
 
-        if (!CONFIG.DDBI.KNOWN.FILES.has(returnPath)) {
+        if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
           logger.debug(`Importing image from ${path}`, paths);
           const img = await this.zip.file(path).async("blob");
-          await FileHelper.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
-          CONFIG.DDBI.KNOWN.FILES.add(returnPath);
+          const targetPath = await FileHelper.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
+          CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
+          CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
         } else {
           logger.debug(`File already imported ${path}`);
         }
 
-        return `${returnPath}`;
+        return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(`${paths.fullUploadPath}/${paths.filename}`)}`;
       }
     } catch (err) {
-      logger.error(`Error importing image file ${path} : ${err.message}`);
+      logger.error(`Error importing image file ${path} : ${err.message}`, { err });
     }
 
     return path;

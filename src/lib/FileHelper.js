@@ -41,10 +41,16 @@ const FileHelper = {
     a.click();
   },
 
-  fileExistsUpdate: (fileList) => {
+  fileExistsUpdate: (parsedDir, directoryPath, fileList) => {
     const targetFiles = fileList.filter((f) => !CONFIG.DDBI.KNOWN.FILES.has(f));
     for (const file of targetFiles) {
       CONFIG.DDBI.KNOWN.FILES.add(file);
+      const split = file.split(parsedDir.current);
+      if (split.length > 1) {
+        const fileName = split[1].startsWith("/") ? split[1] : `/${split[1]}`;
+        CONFIG.DDBI.KNOWN.FILES.add(`${directoryPath}${fileName}`);
+        CONFIG.DDBI.KNOWN.LOOKUPS.set(`${directoryPath}${fileName}`, file);
+      }
     }
   },
 
@@ -74,7 +80,7 @@ const FileHelper = {
       const fileList = await DirectoryPicker.browse(dir.activeSource, dir.current, {
         bucket: dir.bucket,
       });
-      FileHelper.fileExistsUpdate(fileList.files);
+      FileHelper.fileExistsUpdate(dir, directoryPath, fileList.files);
       FileHelper.dirExistsUpdate(fileList.dirs);
       // lets do some forge fun because
       if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
@@ -101,22 +107,22 @@ const FileHelper = {
   },
 
   fileExists: async (directoryPath, filename) => {
-    const fileUrl = await FileHelper.getFileUrl(directoryPath, filename);
-    let existingFile = CONFIG.DDBI.KNOWN.FILES.has(fileUrl);
+    const fileRef = `${directoryPath}/${filename}`;
+    let existingFile = CONFIG.DDBI.KNOWN.FILES.has(fileRef);
     if (existingFile) return true;
 
-    logger.debug(`Checking for ${filename} at ${fileUrl}...`);
+    logger.debug(`Checking for ${filename} at ${fileRef}...`);
     await FileHelper.generateCurrentFiles(directoryPath);
 
-    const filePresent = CONFIG.DDBI.KNOWN.FILES.has(fileUrl);
+    const filePresent = CONFIG.DDBI.KNOWN.FILES.has(fileRef);
 
     if (filePresent) {
-      logger.debug(`Found ${fileUrl} after directory scan.`);
+      logger.debug(`Found ${fileRef} after directory scan.`);
     } else {
-      logger.debug(`Could not find ${fileUrl}`, {
+      logger.debug(`Could not find ${fileRef}`, {
         directoryPath,
         filename,
-        fileUrl,
+        fileUrl: fileRef,
       });
     }
 
@@ -223,6 +229,7 @@ const FileHelper = {
       if (data.type === "application/xml") return null;
       const result = await FileHelper.uploadImage(data, targetDirectory, filename + "." + ext);
       CONFIG.DDBI.KNOWN.FILES.add(result);
+      CONFIG.DDBI.KNOWN.LOOKUPS.set(`${targetDirectory}/${baseFilename}`, result);
       return result;
     } catch (error) {
       logger.error("Image upload error", error);
@@ -281,9 +288,7 @@ const FileHelper = {
         }
       }
     } catch (exception) {
-      throw new Error(
-        'Unable to determine file URL for directoryPath"' + directoryPath + '" and filename"' + filename + '"'
-      );
+      throw new Error(`Unable to determine file URL for directoryPath "${directoryPath}" and filename "${filename}"`);
     }
     return encodeURI(uri);
   },
@@ -327,7 +332,8 @@ const FileHelper = {
 
       if (imageExists && !force) {
         // eslint-disable-next-line require-atomic-updates
-        const image = await FileHelper.getFileUrl(uploadDirectory, filename + "." + ext);
+        // const image = await FileHelper.getFileUrl(uploadDirectory, filename + "." + ext);
+        const image = CONFIG.DDBI.KNOWN.LOOKUPS.get(`${uploadDirectory}/${filename}.${ext}`);
         return image.trim();
       } else {
         // eslint-disable-next-line require-atomic-updates

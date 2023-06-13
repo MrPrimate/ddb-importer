@@ -136,6 +136,9 @@ export class DirectoryPicker extends FilePicker {
    */
   static async verifyPath(parsedPath, targetPath = null) {
     try {
+      // in v11 the api can't create directories individually any more, if we are writing though we can assume
+      // it will now be created however.
+      if (isNewerVersion(game.version, 11) && parsedPath.activeSource === "s3") return true;
       const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
       let currentSource = paths[0];
 
@@ -146,7 +149,6 @@ export class DirectoryPicker extends FilePicker {
           }
           // eslint-disable-next-line no-await-in-loop
           await DirectoryPicker.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
-
         } catch (err) {
           if (!err.startsWith("EEXIST") && !err.startsWith("The S3 key")) {
             logger.error(`Error trying to verify path [${parsedPath.activeSource}], ${parsedPath.current}`, err);

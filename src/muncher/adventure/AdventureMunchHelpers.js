@@ -124,7 +124,7 @@ export default class AdventureMunchHelpers {
     } else if (request.status !== 200) {
       return ui.notifications.error(game.i18n.localize("FILES.ErrorSomethingWrong"));
     }
-    return undefined;
+    return request.path;
   }
 
   /**

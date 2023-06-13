@@ -20,6 +20,7 @@ setProperty(CONFIG, "DDBI", {
     CHECKED_DIRS: new Set(),
     FILES: new Set(),
     DIRS: new Set(),
+    LOOKUPS: new Map(),
     FORGE: {
       TARGET_URL_PREFIX: {},
       TARGETS: {},
