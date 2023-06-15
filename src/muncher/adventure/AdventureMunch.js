@@ -165,12 +165,12 @@ export default class AdventureMunch extends FormApplication {
             bucket: paths.parsedBaseUploadPath.bucket,
           });
           CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
-          CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}}`, targetPath);
+          CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
         } else {
           logger.debug(`File already imported ${path}`);
         }
 
-        return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(`${paths.pathKey}`)}`;
+        return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(paths.pathKey)}`;
       }
     } catch (err) {
       logger.error(`Error importing image file ${path} : ${err.message}`, { err });
@@ -209,12 +209,13 @@ export default class AdventureMunch extends FormApplication {
           const img = await this.zip.file(path).async("blob");
           const targetPath = await FileHelper.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
           CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
-          CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
+          CONFIG.DDBI.KNOWN.LOOKUPS.set(paths.pathKey, targetPath);
         } else {
           logger.debug(`File already imported ${path}`);
         }
+        const returnKey = `${paths.fullUploadPath}/${paths.filename}`;
 
-        return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(`${paths.fullUploadPath}/${paths.filename}`)}`;
+        return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(returnKey)}`;
       }
     } catch (err) {
       logger.error(`Error importing image file ${path} : ${err.message}`, { err });
