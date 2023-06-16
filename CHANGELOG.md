@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Monsters: Fix parsing of monster features which can be used two handed and do a secondary damage such as the Astral Elf Warrior.
+
 # 3.4.33
 
 - Nasty hack for S3 bucket bugs in v11.

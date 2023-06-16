@@ -197,6 +197,7 @@ export default class DDBFeature {
     let versatile = false;
     for (const dmg of matches) {
       let other = false;
+      let thisVersatile = false;
       if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
         continue; // eslint-disable-line no-continue
       }
@@ -230,6 +231,7 @@ export default class DDBFeature {
           && this.actionInfo.damage.parts.length >= 1
         ) {
           versatile = true;
+          thisVersatile = true;
         }
         // assumption here is that there is just one field added to versatile. this is going to be rare.
         if (other) {
@@ -240,6 +242,10 @@ export default class DDBFeature {
           // } else {
           //   result.damage.versatile += ` + ${finalDamage}`;
           // }
+          if (!thisVersatile && dmg[1].trim() == "plus") {
+            this.actionInfo.damage.versatile += ` + ${finalDamage}`;
+            this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
+          }
         } else {
           this.actionInfo.damage.parts.push([finalDamage, dmg[4]]);
         }
