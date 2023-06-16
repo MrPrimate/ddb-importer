@@ -163,6 +163,56 @@ export class DirectoryPicker extends FilePicker {
 
     return true;
   }
+
+  /**
+   * Browse files using Forge API
+   * @param  {string} source
+   * @param  {string} target
+   * @param  {object} options={}
+   */
+  static async browseForgeFiles(source, target, options = {}) {
+    if (target.startsWith(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX)) {
+      if (options.wildcard)
+        options.wildcard = target;
+      target = target.slice(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX.length);
+      target = target.split("/").slice(1, -1).join("/"); // Remove userid from url to get target path
+    }
+
+    const response = await ForgeAPI.call('assets/browse', { path: decodeURIComponent(target), options });
+    if (!response || response.error) {
+      ui.notifications.error(response ? response.error : "An unknown error occured accessing The Forge API");
+      return { target, dirs: [], files: [], gridSize: null, private: false, privateDirs: [], extensions: options.extensions };
+    }
+    // Should be decodeURIComponent but FilePicker's _onPick needs to do encodeURIComponent too, but on each separate path.
+    response.target = decodeURI(response.folder);
+    delete response.folder;
+    response.dirs = response.dirs.map((d) => d.path.slice(0, -1));
+    response.files = response.files.map((f) => f.url);
+    // 0.5.6 specific
+    response.private = true;
+    response.privateDirs = [];
+    response.gridSize = null;
+    response.extensions = options.extensions;
+    return response;
+  }
+
+  /**
+   * Browse files using FilePicker
+   * @param  {string} source
+   * @param  {string} target
+   * @param  {object} options={}
+   */
+  static async browseFiles(source, target, options = {}) {
+    if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
+      if (target.startsWith(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX)) source = "forgevtt";
+
+      if (source === "forgevtt") {
+        return DirectoryPicker.browseForgeFiles(source, target, options);
+      }
+    }
+
+    return FilePicker.browse(source, target, options);
+  }
 }
 
 // this s hooked in, we don't use all the data, so lets stop eslint complaining

@@ -161,9 +161,7 @@ export default class AdventureMunch extends FormApplication {
         if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
           logger.debug(`Importing raw file from ${path}`, paths);
           const fileData = new File([content], paths.filename, { type: mimeType });
-          const targetPath = await AdventureMunchHelpers.UploadFile(paths.parsedBaseUploadPath.activeSource, `${paths.uploadPath}`, fileData, {
-            bucket: paths.parsedBaseUploadPath.bucket,
-          });
+          const targetPath = (await DirectoryPicker.uploadToPath(paths.fullUploadPath, fileData))?.path;
           CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
           CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
         } else {
@@ -238,7 +236,7 @@ export default class AdventureMunch extends FormApplication {
           extensions: [".fvttadv", ".FVTTADV", ".zip"],
           wildcard: false,
         };
-        data = await AdventureMunchHelpers.BrowseFiles(this._importPathData.activeSource, this._importPathData.current, options);
+        data = await DirectoryPicker.browseFiles(this._importPathData.activeSource, this._importPathData.current, options);
         files = data.files.map((file) => {
           const filename = decodeURIComponent(file).replace(/^.*[\\/]/, "");
 

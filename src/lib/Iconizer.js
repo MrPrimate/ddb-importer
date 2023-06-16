@@ -1,5 +1,4 @@
 import logger from "../logger.js";
-import AdventureMunchHelpers from "../muncher/adventure/AdventureMunchHelpers.js";
 import FileHelper from "./FileHelper.js";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
@@ -241,11 +240,19 @@ const STUBS = {
   </svg>`,
 };
 
+function unPad(match, p1) {
+  if (isNaN(parseInt(p1))) {
+    return p1;
+  } else {
+    return parseInt(p1);
+  }
+}
+
 export async function generateIcon(adventure, title) {
   // default path
   let iconPath = "icons/svg/book.svg";
   let stub = title.trim().split(".")[0].split(" ")[0];
-  stub = stub.replace(/(\d+)/, AdventureMunchHelpers.unPad);
+  stub = stub.replace(/(\d+)/, unPad);
   if (stub.length <= 4) {
     iconPath = `assets/icons/${stub}.svg`;
     logger.info(stub);

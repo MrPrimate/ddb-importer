@@ -10,14 +10,6 @@ import DDBMuncher from "../../apps/DDBMuncher.js";
 
 export default class AdventureMunchHelpers {
 
-  static unPad(match, p1) {
-    if (isNaN(parseInt(p1))) {
-      return p1;
-    } else {
-      return parseInt(p1);
-    }
-  }
-
   /**
    * Async for each loop
    *
@@ -98,104 +90,6 @@ export default class AdventureMunchHelpers {
       });
     }
     return matches;
-  }
-
-  /**
-   * Uploads a file to Foundry without the UI Notification
-   * @param  {string} source
-   * @param  {string} path
-   * @param  {blog} file
-   * @param  {object} options
-   */
-  static async UploadFile(source, path, file, options) {
-    if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
-      return AdventureMunchHelpers.ForgeUploadFile(path, file);
-    }
-
-    const fd = new FormData();
-    fd.set("source", source);
-    fd.set("target", path);
-    fd.set("upload", file);
-    Object.entries(options).forEach((o) => fd.set(...o));
-
-    const request = await fetch(FilePicker.uploadURL, { method: "POST", body: fd });
-    if (request.status === 413) {
-      return ui.notifications.error(game.i18n.localize("FILES.ErrorTooLarge"));
-    } else if (request.status !== 200) {
-      return ui.notifications.error(game.i18n.localize("FILES.ErrorSomethingWrong"));
-    }
-    return request.path;
-  }
-
-  /**
-   * Uploads a file to Forge Asset Library without the UI Notification
-   * @param  {string} source
-   * @param  {string} path
-   * @param  {blog} file
-   * @param  {object} options
-   */
-  static async ForgeUploadFile(path, file) {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("path", `${path}/${file.name}`);
-
-    const response = await ForgeAPI.call("assets/upload", fd);
-    if (!response || response.error) {
-      ui.notifications.error(response ? response.error : "An unknown error occured accessing The Forge API");
-      return false;
-    } else {
-      return { path: response.url };
-    }
-  }
-
-  /**
-   * Browse files using FilePicker
-   * @param  {string} source
-   * @param  {string} target
-   * @param  {object} options={}
-   */
-  static async BrowseFiles(source, target, options = {}) {
-    if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
-      if (target.startsWith(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX)) source = "forgevtt";
-
-      if (source === "forgevtt") {
-        return AdventureMunchHelpers.BrowseForgeFiles(source, target, options);
-      }
-    }
-
-    return FilePicker.browse(source, target, options);
-  }
-
-  /**
-   * Browse files using Forge API
-   * @param  {string} source
-   * @param  {string} target
-   * @param  {object} options={}
-   */
-  static async BrowseForgeFiles(source, target, options = {}) {
-    if (target.startsWith(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX)) {
-      if (options.wildcard)
-        options.wildcard = target;
-      target = target.slice(ForgeVTT.ASSETS_LIBRARY_URL_PREFIX.length);
-      target = target.split("/").slice(1, -1).join("/"); // Remove userid from url to get target path
-    }
-
-    const response = await ForgeAPI.call('assets/browse', { path: decodeURIComponent(target), options });
-    if (!response || response.error) {
-      ui.notifications.error(response ? response.error : "An unknown error occured accessing The Forge API");
-      return { target, dirs: [], files: [], gridSize: null, private: false, privateDirs: [], extensions: options.extensions };
-    }
-    // Should be decodeURIComponent but FilePicker's _onPick needs to do encodeURIComponent too, but on each separate path.
-    response.target = decodeURI(response.folder);
-    delete response.folder;
-    response.dirs = response.dirs.map((d) => d.path.slice(0, -1));
-    response.files = response.files.map((f) => f.url);
-    // 0.5.6 specific
-    response.private = true;
-    response.privateDirs = [];
-    response.gridSize = null;
-    response.extensions = options.extensions;
-    return response;
   }
 
   static async loadMissingDocuments(type, docIds) {
