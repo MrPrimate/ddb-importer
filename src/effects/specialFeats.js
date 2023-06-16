@@ -58,6 +58,7 @@ import { evasionEffect } from "./feats/evasion.js";
 import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js";
 import { deflectMissilesAttackEffect } from "./feats/deflectMissilesAttack.js";
 import { patientDefenseEffect } from "./feats/patientDefense.js";
+import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -213,6 +214,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Indomitable": {
         document = indomitableEffect(document);
+        break;
+      }
+      case "Mantle of Inspiration": {
+        document = await mantleOfInspirationEffect(document);
         break;
       }
       case "Patient Defense": {
