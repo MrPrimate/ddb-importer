@@ -386,6 +386,10 @@ export async function fixFeatures(features) {
         feature.system.damage = { parts: [["1d6", "healing"]], versatile: "", value: "" };
         break;
       }
+      case "Mantle of Inspiration": {
+        feature.system.damage.parts[0][1] = "temphp";
+        break;
+      }
       case "Metamagic - Heightened Spell": {
         feature.system.consume.amount = 3;
         break;
