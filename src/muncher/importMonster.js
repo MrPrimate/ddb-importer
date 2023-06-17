@@ -172,9 +172,9 @@ export async function addNPCDDBId(npc, type = "monster") {
 }
 
 
-// eslint-disable-next-line complexity
-export async function getNPCImage(npcData, options, { forceUpdate = false, forceUseFullToken = false,
-  forceUseTokenAvatar = false, disableAutoTokenizeOverride = false, type = "monster" } = {}
+// eslint-disable-next-line complexity, no-unused-vars
+export async function getNPCImage(npcData, { type = "monster", forceUpdate = false, forceUseFullToken = false,
+  forceUseTokenAvatar = false, disableAutoTokenizeOverride = false } = {}
 ) {
   // check to see if we have munched flags to work on
   if (!hasProperty(npcData, "flags.monsterMunch.img")) {
@@ -197,7 +197,7 @@ export async function getNPCImage(npcData, options, { forceUpdate = false, force
     ddbAvatarUrl = ddbTokenUrl;
   }
 
-  const npcType = options.type.startsWith("vehicle") ? "vehicle" : npcData.system.details.type.value;
+  const npcType = type.startsWith("vehicle") ? "vehicle" : npcData.system.details.type.value;
   const genericNPCName = utils.referenceNameString(npcType);
   const npcName = utils.referenceNameString(npcData.name);
 
@@ -262,13 +262,13 @@ export async function getNPCImage(npcData, options, { forceUpdate = false, force
   // eslint-disable-next-line require-atomic-updates
   if (npcData.prototypeToken.texture.src === null) npcData.prototypeToken.texture.src = CONST.DEFAULT_TOKEN;
 
-  // okays, but do we now want to tokenize that?
-  const tokenizerReady = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize")
+  // do we now want to tokenize that?
+  const useTokenizer = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize")
     && !disableAutoTokenizeOverride
     && game.modules.get("vtta-tokenizer")?.active;
-  // we don't tokenize if this oath was already looked up, as it will already be done
-  if (tokenizerReady && !hasTokenProcessedAlready) {
-    const compendiumLabel = CompendiumHelper.getCompendiumLabel(options.type);
+  // we don't tokenize if this path was already looked up, as it will already be done
+  if (useTokenizer && !hasTokenProcessedAlready) {
+    const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     const tokenizerName = isStock
       ? npcType
       : npcData.name;
