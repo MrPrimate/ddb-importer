@@ -141,15 +141,15 @@ export default class DDBMonsterFactory {
     for (const monster of this.source) {
       try {
         logger.debug(`Attempting to parse ${monster.name}`);
-        logger.time(`Monster Parse ${monster.name}`);
+        logger.time(`Monster Parse ${monster.name}${monster.isLegacy ? " legacy" : ""}`);
         const ddbMonster = new DDBMonster(monster, { extra: this.extra, useItemAC, legacyName, addMonsterEffects, addChrisPremades });
         // eslint-disable-next-line no-await-in-loop
         await ddbMonster.parse();
         foundryActors.push(duplicate(ddbMonster.npc));
-        logger.timeEnd(`Monster Parse ${monster.name}`);
+        logger.timeEnd(`Monster Parse ${monster.name}${monster.isLegacy ? " legacy" : ""}`);
         // logger.timeLog("Monster Parsing", monster.name);
       } catch (err) {
-        logger.error(`Failed parsing ${monster.name}`);
+        logger.error(`Failed parsing ${monster.name}${monster.isLegacy ? " legacy" : ""}`);
         logger.error(err);
         logger.error(err.stack);
         failedMonsterNames.push(monster.name);

@@ -21,6 +21,7 @@ setProperty(CONFIG, "DDBI", {
     FILES: new Set(),
     DIRS: new Set(),
     LOOKUPS: new Map(),
+    MONSTER_IMG_LOOKUPS: new Map(),
     FORGE: {
       TARGET_URL_PREFIX: {},
       TARGETS: {},

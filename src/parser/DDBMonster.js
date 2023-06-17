@@ -61,9 +61,27 @@ export default class DDBMonster {
       this.items = duplicate(existingNpc.items);
       this.img = existingNpc.img;
     }
+    this.stockImage = false;
 
     this.featureFactory = new DDBFeatureFactory({ ddbMonster: this });
   }
+
+  static STOCK_TYPE_IMAGES = [
+    "https://www.dndbeyond.com/avatars/4675/664/636747837303835953.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/665/636747837392078487.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/666/636747837434463638.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/667/636747837482013331.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/668/636747837521115242.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/669/636747837569942785.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/671/636747837638112910.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/672/636747837699453839.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/674/636747837751071918.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/675/636747837794884984.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/676/636747837839875603.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/678/636747837893364274.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/679/636747837952193011.jpeg",
+    "https://www.dndbeyond.com/avatars/4675/680/636747837998336262.jpeg",
+  ];
 
   _calculateImage() {
     if (this.source) {
@@ -71,6 +89,9 @@ export default class DDBMonster {
       // foundry doesn't support gifs
       if (this.img && this.img.match(/.gif$/)) {
         this.img = null;
+      }
+      if (DDBMonster.STOCK_TYPE_IMAGES.includes(this.source.avatarUrl)) {
+        this.stockImage = true;
       }
     } else {
       this.img = null;
@@ -82,6 +103,7 @@ export default class DDBMonster {
       url: this.source.url,
       img: (this.img) ? this.img : this.source.avatarUrl,
       tokenImg: this.source.avatarUrl,
+      isStockImg: DDBMonster.STOCK_TYPE_IMAGES.includes(this.source.avatarUrl),
     };
     this.npc.flags.ddbimporter = {
       id: this.source.id,
