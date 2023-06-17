@@ -3,6 +3,7 @@
  */
 
 import logger from "../logger.js";
+import utils from "./utils.js";
 
 export class DirectoryPicker extends FilePicker {
   constructor(options = {}) {
@@ -35,8 +36,8 @@ export class DirectoryPicker extends FilePicker {
   // formats the data into a string for saving it as a GameSetting
   static format(value) {
     return value.bucket !== null
-      ? `[${value.activeSource}:${value.bucket}] ${value.path}`
-      : `[${value.activeSource}] ${value.path}`;
+      ? `[${value.activeSource}:${value.bucket}] ${value.path ?? value.current ?? ""}`
+      : `[${value.activeSource}] ${value.path ?? value.current ?? ""}`;
   }
 
   // parses the string back to something the FilePicker can understand as an option
@@ -51,12 +52,14 @@ export class DirectoryPicker extends FilePicker {
           activeSource: s3,
           bucket: bucket,
           current: current,
+          fullPath: str,
         };
       } else {
         return {
           activeSource: s3,
           bucket: null,
           current: current,
+          fullPath: str,
         };
       }
     }
@@ -136,9 +139,10 @@ export class DirectoryPicker extends FilePicker {
    */
   static async verifyPath(parsedPath, targetPath = null) {
     try {
+      if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
       // in v11 the api can't create directories individually any more, if we are writing though we can assume
       // it will now be created however.
-      if (isNewerVersion(game.version, 11) && parsedPath.activeSource === "s3") return true;
+      // if (isNewerVersion(game.version, 11) && parsedPath.activeSource === "s3") return true;
       const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
       let currentSource = paths[0];
 
@@ -147,10 +151,22 @@ export class DirectoryPicker extends FilePicker {
           if (currentSource !== paths[i]) {
             currentSource = `${currentSource}/${paths[i]}`;
           }
+
           // eslint-disable-next-line no-await-in-loop
           await DirectoryPicker.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
         } catch (err) {
-          if (!err.startsWith("EEXIST") && !err.startsWith("The S3 key")) {
+          const errMessage = `${(err?.message ?? utils.isString(err) ? err : err)}`.replace(/^Error: /, "").trim();
+          // if (errMessage.startsWith("EEXIST")) {
+          //   const newBrowsePath = DirectoryPicker.format({
+          //     activeSource: parsedPath.activeSource,
+          //     bucket: parsedPath.bucket,
+          //     current: currentSource,
+          //   });
+          //   console.warn("about to check files on existing folder", newBrowsePath);
+          //   // eslint-disable-next-line no-await-in-loop
+          //   await FileHelper.generateCurrentFiles(newBrowsePath);
+          // }
+          if (!errMessage.startsWith("EEXIST") && !errMessage.startsWith("The S3 key")) {
             logger.error(`Error trying to verify path [${parsedPath.activeSource}], ${parsedPath.current}`, err);
             logger.error("parsedPath", parsedPath);
             logger.error("targetPath", targetPath);
@@ -158,10 +174,16 @@ export class DirectoryPicker extends FilePicker {
         }
       }
     } catch (err) {
+      logger.error("Unable to verify path", err);
       return false;
     }
 
     return true;
+  }
+
+  static async verifyDirectory(parsedPath, targetPath = null) {
+    if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
+    return DirectoryPicker.verifyPath(parsedPath, targetPath);
   }
 
   /**
@@ -214,9 +236,3 @@ export class DirectoryPicker extends FilePicker {
     return FilePicker.browse(source, target, options);
   }
 }
-
-// this s hooked in, we don't use all the data, so lets stop eslint complaining
-// eslint-disable-next-line no-unused-vars
-// Hooks.on("renderSettingsConfig", (app, html, user) => {
-//   DirectoryPicker.processHtml(html);
-// });

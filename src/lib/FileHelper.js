@@ -41,15 +41,15 @@ const FileHelper = {
     a.click();
   },
 
-  fileExistsUpdate: (parsedDir, directoryPath, fileList) => {
+  fileExistsUpdate: (parsedDir, fileList) => {
     const targetFiles = fileList.filter((f) => !CONFIG.DDBI.KNOWN.FILES.has(f));
     for (const file of targetFiles) {
       CONFIG.DDBI.KNOWN.FILES.add(file);
       const split = file.split(parsedDir.current);
       if (split.length > 1) {
         const fileName = split[1].startsWith("/") ? split[1] : `/${split[1]}`;
-        CONFIG.DDBI.KNOWN.FILES.add(`${directoryPath}${fileName}`);
-        CONFIG.DDBI.KNOWN.LOOKUPS.set(`${directoryPath}${fileName}`, file);
+        CONFIG.DDBI.KNOWN.FILES.add(`${parsedDir.fullPath}${fileName}`);
+        CONFIG.DDBI.KNOWN.LOOKUPS.set(`${parsedDir.fullPath}${fileName}`, file);
       }
     }
   },
@@ -73,34 +73,43 @@ const FileHelper = {
     }
   },
 
-  generateCurrentFiles: async (directoryPath) => {
-    if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
-      logger.debug(`Checking for files in ${directoryPath}...`);
-      const dir = DirectoryPicker.parse(directoryPath);
-      const fileList = await DirectoryPicker.browse(dir.activeSource, dir.current, {
-        bucket: dir.bucket,
+  generateCurrentFilesFromParsedDir: async (parsedDir) => {
+    if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedDir.fullPath)) {
+      logger.debug(`Checking for files in ${parsedDir.fullPath}...`, parsedDir);
+      const fileList = await DirectoryPicker.browse(parsedDir.activeSource, parsedDir.current, {
+        bucket: parsedDir.bucket,
       });
-      FileHelper.fileExistsUpdate(dir, directoryPath, fileList.files);
+      FileHelper.fileExistsUpdate(parsedDir, fileList.files);
       FileHelper.dirExistsUpdate(fileList.dirs);
       // lets do some forge fun because
       if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
         if (fileList.bazaar) {
           // eslint-disable-next-line require-atomic-updates
-          CONFIG.DDBI.KNOWN.FORGE.TARGETS[directoryPath] = {};
+          CONFIG.DDBI.KNOWN.FORGE.TARGETS[parsedDir.fullPath] = {};
           fileList.files.forEach((file) => {
             const fileName = file.split("/").pop();
-            CONFIG.DDBI.KNOWN.FORGE.TARGETS[directoryPath][fileName] = file;
+            CONFIG.DDBI.KNOWN.FORGE.TARGETS[parsedDir.fullPath][fileName] = file;
             CONFIG.DDBI.KNOWN.FILES.add(file);
           });
         } else {
           const status = ForgeAPI.lastStatus || (await ForgeAPI.status());
           const userId = status.user;
           // eslint-disable-next-line require-atomic-updates
-          CONFIG.DDBI.KNOWN.FORGE.TARGET_URL_PREFIX[directoryPath] = `https://assets.forge-vtt.com/${userId}/${dir.current}`;
+          CONFIG.DDBI.KNOWN.FORGE.TARGET_URL_PREFIX[parsedDir.fullPath] = `https://assets.forge-vtt.com/${userId}/${parsedDir.current}`;
         }
       }
 
-      CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(directoryPath);
+      CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(parsedDir.fullPath);
+    } else {
+      logger.debug(`Skipping full dir scan for ${parsedDir.fullPath}...`);
+    }
+  },
+
+  generateCurrentFiles: async (directoryPath) => {
+    if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
+      logger.debug(`Checking for files in directoryPath ${directoryPath}...`);
+      const dir = DirectoryPicker.parse(directoryPath);
+      await FileHelper.generateCurrentFilesFromParsedDir(dir);
     } else {
       logger.debug(`Skipping full dir scan for ${directoryPath}...`);
     }
@@ -312,8 +321,9 @@ const FileHelper = {
     });
     const uploadDirectory = `${targetDirectory}${pathPostfix}`;
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(uploadDirectory)) {
-      await DirectoryPicker.verifyPath(DirectoryPicker.parse(uploadDirectory));
-      await FileHelper.generateCurrentFiles(uploadDirectory);
+      const parsedPath = DirectoryPicker.parse(uploadDirectory);
+      await DirectoryPicker.verifyPath(parsedPath);
+      await FileHelper.generateCurrentFilesFromParsedDir(parsedPath);
     }
     const downloadImage = (download) ? download : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     const remoteImage = (remoteImages) ? remoteImages : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");

@@ -218,8 +218,12 @@ const utils = {
     return result;
   },
 
-  isObject: (item) => {
-    return item && typeof item === "object" && !Array.isArray(item);
+  isObject: (obj) => {
+    return typeof obj === 'object' && !Array.isArray(obj) && obj !== null;
+  },
+
+  isString: (str) => {
+    return typeof str === 'string' || str instanceof String;
   },
 
   mergeDeep: (target, source) => {
