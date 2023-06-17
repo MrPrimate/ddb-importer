@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.34
 
 - Monsters: Fix parsing of monster features which can be used two handed and do a secondary damage such as the Astral Elf Warrior.
 - Fix up creation of folder to match changes in v11.302 of Foundry.
