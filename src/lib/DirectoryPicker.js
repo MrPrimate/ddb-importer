@@ -140,9 +140,6 @@ export class DirectoryPicker extends FilePicker {
   static async verifyPath(parsedPath, targetPath = null) {
     try {
       if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
-      // in v11 the api can't create directories individually any more, if we are writing though we can assume
-      // it will now be created however.
-      // if (isNewerVersion(game.version, 11) && parsedPath.activeSource === "s3") return true;
       const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
       let currentSource = paths[0];
 
