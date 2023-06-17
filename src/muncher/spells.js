@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
+import { updateCompendium, srdFiddling, daeFiddling, preFetchDDBIconImages } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { getSpells } from "../parser/spells/getGenericSpells.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -118,6 +118,8 @@ export async function parseSpells(ids = null) {
     DDBMuncher.munchNote("Failed to parse some spells, see the developer console (F12) for details.");
     logger.error("Failed spell parsing", results);
   }
+
+  await preFetchDDBIconImages();
 
   let uniqueSpells = spells.filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
   const srdSpells = await srdFiddling(uniqueSpells, "spells");

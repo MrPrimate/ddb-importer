@@ -695,6 +695,12 @@ export async function updateMagicItemImages(items) {
   return items;
 }
 
+export async function preFetchDDBIconImages() {
+  await getDDBGenericItemImages(true);
+  await getDDBGenericLootImages(true);
+  await getDDBSchoolSpellImages(true);
+}
+
 /**
  * Updates game folder items
  * @param {*} type

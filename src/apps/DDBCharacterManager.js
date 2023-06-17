@@ -16,6 +16,7 @@ import {
   addItemEffectIcons,
   retainExistingIcons,
   getIndividualOverrideItems,
+  preFetchDDBIconImages,
 } from "../muncher/import.js";
 import { addItemsDAESRD } from "../muncher/dae.js";
 import { copyInbuiltIcons } from "../lib/Iconizer.js";
@@ -608,6 +609,8 @@ export default class DDBCharacterManager extends FormApplication {
     const daeSRDInstalled = game.modules.get("Dynamic-Effects-SRD")?.active;
     const daeMidiInstalled = game.modules.get("midi-srd")?.active;
     const daeInstalled = game.modules.get("dae")?.active;
+
+    await preFetchDDBIconImages();
 
     // if we still have items to add, add them
     if (items.length > 0) {

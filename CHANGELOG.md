@@ -1,6 +1,9 @@
 # NEXT UP
 
 - Monsters: Fix parsing of monster features which can be used two handed and do a secondary damage such as the Astral Elf Warrior.
+- Fix up creation of folder to match changes in v11.302 of Foundry.
+- S3 uploads should now be as efficient in v11 as they were in v10 due to fixes in Foundry v11.302, this version of DDB Importer will not work with S3 uploads a v11.301.
+- Monsters using the generic DDB tokens will now download only a single token, rather than one for each monster, where it can determine that images match (still a few edge cases).
 
 # 3.4.33
 

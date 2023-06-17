@@ -5,7 +5,7 @@ import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
-import { srdFiddling, getCompendiumItems, removeItems } from "../muncher/import.js";
+import { srdFiddling, getCompendiumItems, removeItems, preFetchDDBIconImages } from "../muncher/import.js";
 
 // targets for migration
 import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium, useSRDMonsterImages } from "../muncher/importMonster.js";
@@ -193,6 +193,9 @@ export default class DDBMonsterFactory {
     // to speed up file checking we pregenerate existing files now.
     logger.info("Checking for existing files...");
     this.munchNote(`Checking existing image files...`);
+    CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.clear();
+    CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.clear();
+    await preFetchDDBIconImages();
     await FileHelper.generateCurrentFiles(uploadDirectory);
     await FileHelper.generateCurrentFiles("[data] modules/ddb-importer/data");
     logger.info("Check complete getting monster data...");

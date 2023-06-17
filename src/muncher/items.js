@@ -1,5 +1,5 @@
 // Main module class
-import { updateCompendium, srdFiddling, daeFiddling } from "./import.js";
+import { updateCompendium, srdFiddling, daeFiddling, preFetchDDBIconImages } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
 import utils from "../lib/utils.js";
 import FileHelper from "../lib/FileHelper.js";
@@ -194,6 +194,8 @@ export async function parseItems(ids = null) {
   if (magicItemsInstalled && itemSpells && Array.isArray(itemSpells)) {
     await addMagicItemSpells(items, itemSpells, updateBool);
   }
+
+  await preFetchDDBIconImages();
 
   const srdItems = await srdFiddling(items, "inventory");
   const filteredItems = (ids !== null && ids.length > 0)

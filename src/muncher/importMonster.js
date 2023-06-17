@@ -173,30 +173,24 @@ export async function addNPCDDBId(npc, type = "monster") {
 
 
 // eslint-disable-next-line complexity
-export async function getNPCImage(npcData, options) {
-  const defaultOptions = {
-    forceUpdate: false,
-    forceUseFullToken: false,
-    forceUseTokenAvatar: false,
-    disableAutoTokenizeOverride: false,
-    type: "monster"
-  };
-  const mergedOptions = mergeObject(defaultOptions, options);
+export async function getNPCImage(npcData, options, { forceUpdate = false, forceUseFullToken = false,
+  forceUseTokenAvatar = false, disableAutoTokenizeOverride = false, type = "monster" } = {}
+) {
   // check to see if we have munched flags to work on
   if (!hasProperty(npcData, "flags.monsterMunch.img")) {
     return npcData;
   }
 
   const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
-  if (!mergedOptions.forceUpdate && !updateImages && npcData.img !== CONST.DEFAULT_TOKEN) {
+  if (!forceUpdate && !updateImages && npcData.img !== CONST.DEFAULT_TOKEN) {
     return npcData;
   }
 
   let ddbAvatarUrl = npcData.flags.monsterMunch.img;
   let ddbTokenUrl = npcData.flags.monsterMunch.tokenImg;
   const isStock = npcData.flags.monsterMunch.isStockImg;
-  const useAvatarAsToken = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image") || mergedOptions.forceUseFullToken;
-  const useTokenAsAvatar = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image") || mergedOptions.forceUseTokenAvatar;
+  const useAvatarAsToken = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image") || forceUseFullToken;
+  const useTokenAsAvatar = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image") || forceUseTokenAvatar;
   if (useAvatarAsToken) {
     ddbTokenUrl = ddbAvatarUrl;
   } else if (useTokenAsAvatar) {
@@ -210,24 +204,24 @@ export async function getNPCImage(npcData, options) {
   if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
   if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
 
-  const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.LOOKUPS.get(ddbAvatarUrl);
-  const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.LOOKUPS.get(ddbTokenUrl);
+  const hasAvatarProcessedAlready = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
+  const hasTokenProcessedAlready = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
 
   const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-  const type = getProperty(npcData, "system.details.type.value") ?? "other";
+  const subType = getProperty(npcData, "system.details.type.value") ?? "other";
   const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
   if (ddbAvatarUrl && getProperty(npcData, "flags.monsterMunch.imgSet") !== true) {
     if (hasAvatarProcessedAlready) {
-      npcData.img = CONFIG.DDBI.KNOWN.LOOKUPS.get(ddbAvatarUrl);
+      npcData.img = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
     } else {
       const ext = ddbAvatarUrl.split(".").pop().split(/#|\?|&/)[0];
       const genericNpc = ddbAvatarUrl.endsWith(npcType + "." + ext) || isStock;
       const name = genericNpc ? genericNPCName : npcName;
       const nameType = genericNpc ? "npc-generic" : "npc";
       const imageNamePrefix = useDeepPaths ? "" : nameType;
-      const pathPostfix = useDeepPaths ? `/monster/avatar/${type}` : "";
-      const downloadOptions = { type: nameType, name, targetDirectory, pathPostfix, imageNamePrefix };
+      const pathPostfix = useDeepPaths ? `/monster/avatar/${subType}` : "";
+      const downloadOptions = { type: nameType, name, targetDirectory, pathPostfix, imageNamePrefix, force: forceUpdate || updateImages };
       // eslint-disable-next-line require-atomic-updates
       npcData.img = await FileHelper.getImagePath(ddbAvatarUrl, downloadOptions);
     }
@@ -235,16 +229,24 @@ export async function getNPCImage(npcData, options) {
 
   if (ddbTokenUrl && getProperty(npcData, "flags.monsterMunch.tokenImgSet") !== true) {
     if (hasTokenProcessedAlready) {
-      npcData.prototypeToken.texture.src = CONFIG.DDBI.KNOWN.LOOKUPS.get(ddbTokenUrl);
+      npcData.prototypeToken.texture.src = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
     } else {
       const tokenExt = ddbTokenUrl.split(".").pop().split(/#|\?|&/)[0];
       const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
       const name = genericNpc ? genericNPCName : npcName;
       const nameType = genericNpc ? "npc-generic-token" : "npc-token";
       const imageNamePrefix = useDeepPaths ? "" : nameType;
-      const pathPostfix = useDeepPaths ? `/monster/token/${type}` : "";
+      const pathPostfix = useDeepPaths ? `/monster/token/${subType}` : "";
       // Token images always have to be downloaded.
-      const downloadOptions = { type: nameType, name, download: true, remoteImages: false, force: true, imageNamePrefix, pathPostfix, targetDirectory };
+      const downloadOptions = {
+        type: nameType,
+        name, download: true,
+        remoteImages: false,
+        force: forceUpdate || updateImages,
+        imageNamePrefix,
+        pathPostfix,
+        targetDirectory
+      };
       // eslint-disable-next-line require-atomic-updates
       npcData.prototypeToken.texture.src = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
     }
@@ -262,21 +264,22 @@ export async function getNPCImage(npcData, options) {
 
   // okays, but do we now want to tokenize that?
   const tokenizerReady = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize")
-    && !mergedOptions.disableAutoTokenizeOverride
+    && !disableAutoTokenizeOverride
     && game.modules.get("vtta-tokenizer")?.active;
   // we don't tokenize if this oath was already looked up, as it will already be done
   if (tokenizerReady && !hasTokenProcessedAlready) {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(options.type);
-    const tokenizerData = isStock
-      ? (deepClone(npcData)).name = npcType
-      : npcData;
+    const tokenizerName = isStock
+      ? npcType
+      : npcData.name;
+    const autoOptions = { name: tokenizerName, nameSuffix: `-${compendiumLabel}`, updateActor: false };
     // eslint-disable-next-line require-atomic-updates
-    npcData.prototypeToken.texture.src = await window.Tokenizer.autoToken(tokenizerData, { nameSuffix: `-${compendiumLabel}`, updateActor: false });
+    npcData.prototypeToken.texture.src = await window.Tokenizer.autoToken(npcData, autoOptions);
     logger.debug(`Generated tokenizer image at ${npcData.prototypeToken.texture.src}`);
   }
 
-  if (!hasAvatarProcessedAlready) CONFIG.DDBI.KNOWN.LOOKUPS.set(ddbAvatarUrl, npcData.img);
-  if (!hasTokenProcessedAlready) CONFIG.DDBI.KNOWN.LOOKUPS.set(ddbTokenUrl, npcData.prototypeToken.texture.src);
+  if (!hasAvatarProcessedAlready) CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.set(ddbAvatarUrl, npcData.img);
+  if (!hasTokenProcessedAlready) CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.set(ddbTokenUrl, npcData.prototypeToken.texture.src);
 
   return npcData;
 }

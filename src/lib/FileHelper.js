@@ -41,16 +41,20 @@ const FileHelper = {
     a.click();
   },
 
+  addFileToKnown: (parsedDir, file) => {
+    CONFIG.DDBI.KNOWN.FILES.add(file);
+    const split = file.split(parsedDir.current);
+    if (split.length > 1) {
+      const fileName = split[1].startsWith("/") ? split[1] : `/${split[1]}`;
+      CONFIG.DDBI.KNOWN.FILES.add(`${parsedDir.fullPath}${fileName}`);
+      CONFIG.DDBI.KNOWN.LOOKUPS.set(`${parsedDir.fullPath}${fileName}`, file);
+    }
+  },
+
   fileExistsUpdate: (parsedDir, fileList) => {
     const targetFiles = fileList.filter((f) => !CONFIG.DDBI.KNOWN.FILES.has(f));
     for (const file of targetFiles) {
-      CONFIG.DDBI.KNOWN.FILES.add(file);
-      const split = file.split(parsedDir.current);
-      if (split.length > 1) {
-        const fileName = split[1].startsWith("/") ? split[1] : `/${split[1]}`;
-        CONFIG.DDBI.KNOWN.FILES.add(`${parsedDir.fullPath}${fileName}`);
-        CONFIG.DDBI.KNOWN.LOOKUPS.set(`${parsedDir.fullPath}${fileName}`, file);
-      }
+      FileHelper.addFileToKnown(parsedDir, file);
     }
   },
 
@@ -89,7 +93,7 @@ const FileHelper = {
           fileList.files.forEach((file) => {
             const fileName = file.split("/").pop();
             CONFIG.DDBI.KNOWN.FORGE.TARGETS[parsedDir.fullPath][fileName] = file;
-            CONFIG.DDBI.KNOWN.FILES.add(file);
+            FileHelper.addFileToKnown(parsedDir, file);
           });
         } else {
           const status = ForgeAPI.lastStatus || (await ForgeAPI.status());
@@ -237,7 +241,7 @@ const FileHelper = {
       // hack as proxy returns ddb access denied as application/xml
       if (data.type === "application/xml") return null;
       const result = await FileHelper.uploadImage(data, targetDirectory, filename + "." + ext);
-      CONFIG.DDBI.KNOWN.FILES.add(result);
+      FileHelper.addFileToKnown(DirectoryPicker.parse(targetDirectory), result);
       CONFIG.DDBI.KNOWN.LOOKUPS.set(`${targetDirectory}/${baseFilename}`, result);
       return result;
     } catch (error) {
