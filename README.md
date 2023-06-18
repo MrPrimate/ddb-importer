@@ -84,6 +84,9 @@ I'd strongly recommend installing:
 - [DFreds Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects) for proper condition management
 - [Arbron’s Summoning](https://foundryvtt.com/packages/arbron-summoner) will allow the creation and use of summoned actors for spells and features in Tasha's
 
+In v11:
+- [Vision/Detection Modes 5e](https://foundryvtt.com/packages/vision-5e) adds those lovely missing vision modes for 5e.
+
 If you want to add spell effects, and high levels of automation you will need:
 - [Midi-QOL](https://foundryvtt.com/packages/midi-qol/)
 - [About Time](https://foundryvtt.com/packages/about-time)
