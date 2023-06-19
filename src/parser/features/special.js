@@ -357,6 +357,13 @@ export async function fixFeatures(features) {
         };
         break;
       }
+      case "Ghostly Gaze": {
+        feature.system.duration = {
+          value: 1,
+          units: "minute",
+        };
+        break;
+      }
       case "Hand of Healing": {
         feature.system.actionType = "heal";
         break;

@@ -9,6 +9,7 @@ import { getCampaignId } from "../lib/Settings.js";
 import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
+import { addVision5eStubs } from "../effects/vision5e.js";
 // import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 
 
@@ -210,6 +211,7 @@ export default class DDBCharacter {
         await this.generateCompanions();
       }
 
+      await this._addVision5eEffects();
       // await this._applyChrisPremades();
 
     } catch (error) {
@@ -248,6 +250,13 @@ export default class DDBCharacter {
     this.currentActor.flags.ddbimporter.activeSyncSpells = state;
     const activeUpdateData = { flags: { ddbimporter: { activeSyncSpells: state } } };
     await this.currentActor.update(activeUpdateData);
+  }
+
+  _addVision5eEffects() {
+    this.data.inventory = addVision5eStubs(this.data.inventory);
+    this.data.spells = addVision5eStubs(this.data.spells);
+    this.data.features = addVision5eStubs(this.data.features);
+    this.data.actions = addVision5eStubs(this.data.actions);
   }
 
   // async _applyChrisPremades() {

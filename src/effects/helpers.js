@@ -8,6 +8,7 @@ import { fixSpells } from "../parser/spells/special.js";
 import { applyChrisPremadeEffects } from "./chrisPremades.js";
 import { equipmentEffectAdjustment, midiItemEffects } from "./specialEquipment.js";
 import { spellEffectAdjustment } from "./specialSpells.js";
+import { addVision5eStub } from "./vision5e.js";
 
 /**
  * If the requirements are met, returns true, false otherwise.
@@ -68,6 +69,7 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
       if (useChrisPremades) data = await applyChrisPremadeEffects({ documents: [data] });
     }
 
+    data = addVision5eStub(data);
     await document.update(data);
   } finally {
     game.settings.set("ddb-importer", "munching-policy-add-spell-effects", startingSpellPolicy);

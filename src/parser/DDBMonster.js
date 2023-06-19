@@ -13,6 +13,7 @@ import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import { applyChrisPremadeEffect } from "../effects/chrisPremades.js";
+import { addVision5eStubs } from "../effects/vision5e.js";
 
 export default class DDBMonster {
 
@@ -247,6 +248,7 @@ export default class DDBMonster {
     }
 
     await this.#linkResourcesConsumption();
+    this.items = addVision5eStubs(this.items);
     this.npc.items = this.items;
 
     if (this.legacyName) {
