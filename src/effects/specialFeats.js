@@ -83,6 +83,7 @@ export function baseFeatEffect(document, label) {
   };
   if (isNewerVersion(game.version, 11)) {
     effect.name = label;
+    effect.statuses = [];
   } else {
     effect.label = label;
   }

@@ -20,9 +20,7 @@ export function sharpShooterEffect(document) {
   );
 
   effect.transfer = true;
-  // effect.flags.dae.selfTarget = true;
   effect.flags.dae.transfer = true;
-  // setProperty(effect, "flags.core.statusId", true);
 
   document.effects.push(effect);
   document.system.activation = {

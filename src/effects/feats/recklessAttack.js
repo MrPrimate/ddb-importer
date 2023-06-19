@@ -36,8 +36,12 @@ export function recklessAttackEffect(document) {
     startTurn: null,
   };
   setProperty(defenseEffect, "flags.dae.specialDuration", ["turnStartSource"]);
-  setProperty(defenseEffect, "flags.core.statusId", "Reckless");
   setProperty(defenseEffect, "flags.dae.stackable", "noneName");
+  if (isNewerVersion(11, game.version)) {
+    setProperty(defenseEffect, "flags.core.statusId", "Reckless");
+  } else {
+    defenseEffect.statuses.push("Reckless");
+  }
 
   document.effects.push(defenseEffect);
 
