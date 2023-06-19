@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.35
 
 - The check to copy the flag over to the new item to see if it should ignore a Chris's Premades was happening after Chris's Premades have been applied.
 - If Vision/Detection Modes 5e module is installed, DDB Importer will add stub effects to feats and spells it knows about for the module to use.
