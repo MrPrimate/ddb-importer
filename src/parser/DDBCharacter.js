@@ -9,7 +9,7 @@ import { getCampaignId } from "../lib/Settings.js";
 import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
-import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
+// import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 
 
 export default class DDBCharacter {
@@ -210,7 +210,7 @@ export default class DDBCharacter {
         await this.generateCompanions();
       }
 
-      await this._applyChrisPremades();
+      // await this._applyChrisPremades();
 
     } catch (error) {
       logger.error(error);
@@ -250,13 +250,13 @@ export default class DDBCharacter {
     await this.currentActor.update(activeUpdateData);
   }
 
-  async _applyChrisPremades() {
-    if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades")) {
-      await applyChrisPremadeEffects({ documents: this.data.inventory });
-      await applyChrisPremadeEffects({ documents: this.data.spells });
-      await applyChrisPremadeEffects({ documents: this.data.features });
-      await applyChrisPremadeEffects({ documents: this.data.actions });
-    }
-  }
+  // async _applyChrisPremades() {
+  //   if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades")) {
+  //     await applyChrisPremadeEffects({ documents: this.data.inventory });
+  //     await applyChrisPremadeEffects({ documents: this.data.spells });
+  //     await applyChrisPremadeEffects({ documents: this.data.features });
+  //     await applyChrisPremadeEffects({ documents: this.data.actions });
+  //   }
+  // }
 
 }

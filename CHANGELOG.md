@@ -1,3 +1,7 @@
+# NEXT UP
+
+- The check to copy the flag over to the new item to see if it should ignore a Chris's Premades was happening after Chris's Premades have been applied.
+
 # 3.4.34
 
 - Monsters: Fix parsing of monster features which can be used two handed and do a secondary damage such as the Astral Elf Warrior.

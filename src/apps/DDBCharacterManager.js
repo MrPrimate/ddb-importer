@@ -29,7 +29,11 @@ import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
 import { addContainerItemsToContainers, addContainerItemsToActor } from "../parser/special/itemCollections.js";
 import SETTINGS from "../settings.js";
-import { addAndReplaceRedundantChrisDocuments, restrictedItemReplacer } from "../effects/chrisPremades.js";
+import {
+  // addAndReplaceRedundantChrisDocuments,
+  addChrisEffectsToActorDocuments,
+  // restrictedItemReplacer
+} from "../effects/chrisPremades.js";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
@@ -1215,8 +1219,9 @@ export default class DDBCharacterManager extends FormApplication {
       await this.ddbCharacter.autoLinkResources();
 
       if (this.settings.useChrisPremades) {
-        await restrictedItemReplacer(this.actor);
-        await addAndReplaceRedundantChrisDocuments(this.actor);
+        await addChrisEffectsToActorDocuments(this.actor);
+        // await restrictedItemReplacer(this.actor);
+        // await addAndReplaceRedundantChrisDocuments(this.actor);
       }
       await setConditions(this.actor, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
       await addContainerItemsToContainers(this.ddbCharacter.source.ddb, this.actor);

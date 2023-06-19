@@ -97,7 +97,10 @@ function getType(doc, isMonster = false) {
 
 export async function applyChrisPremadeEffect({ document, type, folderName = null, chrisNameOverride = null } = {}) {
   if (!game.modules.get("chris-premades")?.active) return document;
-  if (getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) return document;
+  if (getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) {
+    logger.info(`${document.name} set to ignore Chris's Premade effect application`);
+    return document;
+  }
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
   if (!compendiumName) return document;
   // .split("(")[0].trim()
