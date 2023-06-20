@@ -14,6 +14,7 @@ import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import { applyChrisPremadeEffect } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
+import utils from "../lib/utils.js";
 
 export default class DDBMonster {
 
@@ -203,10 +204,10 @@ export default class DDBMonster {
     this._generateAbilities();
 
     // skills are different with extras, because DDB
-    if (this.extra) {
-      this._generateSkills();
-    } else {
+    if (utils.isString(this.source.skillsHtml) && this.source.skillsHtml.trim() !== "") {
       this._generateSkillsHTML();
+    } else {
+      this._generateSkills();
     }
 
     // Senses needed for actor and token

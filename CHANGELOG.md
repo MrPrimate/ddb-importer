@@ -1,3 +1,7 @@
+# NEXT
+
+- When monsters are pulled in via an adventure or encounter the skills would not parse expertise correctly.
+
 # 3.4.35
 
 - The check to copy the flag over to the new item to see if it should ignore a Chris's Premades was happening after Chris's Premades have been applied.
