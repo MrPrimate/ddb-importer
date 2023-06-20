@@ -1,4 +1,4 @@
-# NEXT
+# 3.4.36
 
 - When monsters are pulled in via an adventure or encounter the skills would not parse expertise correctly.
 
