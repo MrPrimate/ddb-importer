@@ -5,25 +5,25 @@ export function fightingStyleInterceptionEffect(document) {
   effect.changes.push(
     {
       key: "flags.midi-qol.DR.rwak",
-      mode: 0,
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "1d10 + @system.attributes.prof",
       priority: "20",
     },
     {
       key: "flags.midi-qol.DR.mwak",
-      mode: 2,
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "1d10 + @system.attributes.prof",
       priority: "20",
     },
     {
       key: "flags.midi-qol.DR.msak",
-      mode: 2,
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "1d10 + @system.attributes.prof",
       priority: "20",
     },
     {
       key: "flags.midi-qol.DR.rsak",
-      mode: 2,
+      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: "1d10 + @system.attributes.prof",
       priority: "20",
     }
