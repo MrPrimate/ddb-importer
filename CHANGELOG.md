@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Some abilities with a flat save would parse the save number in the field rather than "flat". Potent Poisoner is the only ability that I have discovered with this trait so I think the impact is small. @sage9001
+
 # 3.4.36
 
 - When monsters are pulled in via an adventure or encounter the skills would not parse expertise correctly.

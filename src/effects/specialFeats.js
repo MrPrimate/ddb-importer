@@ -71,7 +71,7 @@ export function baseFeatEffect(document, label) {
     flags: {
       dae: {
         transfer: false,
-        stackable: "none",
+        stackable: "noneName",
       },
       ddbimporter: {
         disabled: false,
