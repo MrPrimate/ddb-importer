@@ -435,8 +435,8 @@ function calculateSaveAttack(ddb, action, weapon) {
   weapon.system.actionType = "save";
   weapon.system.damage = getDamage(ddb, action, weapon);
 
-  const fixedDC = (action.fixedSaveDc) ? action.fixedSaveDc : null;
-  const scaling = (fixedDC) ? fixedDC : (action.abilityModifierStatId) ? DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
+  const fixedDC = action.fixedSaveDc ? action.fixedSaveDc : null;
+  const scaling = fixedDC ? "flat" : (action.abilityModifierStatId) ? DICTIONARY.character.abilities.find((stat) => stat.id === action.abilityModifierStatId).value : "spell";
 
   const saveAbility = (action.saveStatId)
     ? DICTIONARY.character.abilities.find((stat) => stat.id === action.saveStatId).value
