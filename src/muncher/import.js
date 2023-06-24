@@ -817,6 +817,7 @@ export function updateCharacterItemFlags(itemData, replaceData) {
   if (itemData.system.preparation) replaceData.system.preparation = itemData.system.preparation;
   if (itemData.system.proficient) replaceData.system.proficient = itemData.system.proficient;
   if (itemData.system.ability) replaceData.system.ability = itemData.system.ability;
+  if (hasProperty(itemData, "system.levels")) replaceData.system.levels = itemData.system.levels;
   return replaceData;
 }
 
