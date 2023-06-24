@@ -7,10 +7,10 @@ const targetToken = tokenFromUuid.data || token;
 async function deleteTemplatesAndTeleport(destinationTemplate, actorId, flagName) {
   await targetToken.update({ x: destinationTemplate.data.x, y: destinationTemplate.data.y }, { animate: false });
   const templateIds = canvas.templates.placeables.filter(
-    (i) => i.data.flags?.spellEffects?.[flagName] === actorId
+    (i) => i.flags?.spellEffects?.[flagName] === actorId
   ).map((t) => t.id);
   await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", templateIds);
-  const effectIds = targetActor.data.effects.filter((e) => (e.data.name ?? e.data.label) === "Misty Step").map((t) => t.id);
+  const effectIds = targetActor.data.effects.filter((e) => (e.name ?? e.label) === "Misty Step").map((t) => t.id);
   await targetActor.deleteEmbeddedDocuments("ActiveEffect", effectIds);
 }
 
