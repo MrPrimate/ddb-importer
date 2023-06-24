@@ -154,6 +154,7 @@ export function baseSpellEffect(document, label) {
       "midi-qol": { // by default force CE effect usage to off
         forceCEOff: true,
       },
+      core: {},
     },
   };
   if (isNewerVersion(game.version, 11)) {
