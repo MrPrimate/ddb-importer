@@ -1,6 +1,7 @@
 # NEXT UP
 
 - Some abilities with a flat save would parse the save number in the field rather than "flat". Potent Poisoner is the only ability that I have discovered with this trait so I think the impact is small. @sage9001
+- Fix a bug where items with a linked resource when using Chris's Premades and Link Item and Resource 5e module would not link.
 
 # 3.4.36
 
