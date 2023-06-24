@@ -19,6 +19,7 @@ const CP_FLAGS_TO_REMOVE = [
   "ddbimporter",
   "monsterMunch",
   "core",
+  "link-item-resource-5e",
 ];
 
 const CP_FIELDS_TO_COPY = [
