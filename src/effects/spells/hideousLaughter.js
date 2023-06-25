@@ -5,7 +5,6 @@ export async function hideousLaughterEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     generateStatusEffectChange("Incapacitated"),
-    generateStatusEffectChange("Prone", 20, true),
   );
 
   effect.changes.push({
@@ -20,6 +19,12 @@ export async function hideousLaughterEffect(document) {
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
+
+  let proneEffect = baseSpellEffect(document, `${document.name} (Prone)`);
+  proneEffect.changes.push(
+    generateStatusEffectChange("Prone", 20, true),
+  );
+  document.effects.push(proneEffect);
 
   return document;
 }
