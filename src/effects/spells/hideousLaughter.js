@@ -5,7 +5,7 @@ export async function hideousLaughterEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     generateStatusEffectChange("Incapacitated"),
-    generateStatusEffectChange("Prone"),
+    generateStatusEffectChange("Prone", 20, true),
   );
 
   effect.changes.push({

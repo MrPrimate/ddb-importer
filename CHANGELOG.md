@@ -1,6 +1,9 @@
 # NEXT UP
 
 - Fix for when using Compendium folders and Item Collections on v11.
+- Effect: Prevent Prone removed on Hideous Laughter Save
+- Effect: Initiative bonus for Guidance spell.
+
 
 # 3.4.37
 
