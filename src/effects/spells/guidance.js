@@ -21,8 +21,14 @@ export function guidanceEffect(document) {
       value: '+ 1d4',
       priority: "20",
     },
+    {
+      key: 'system.attributes.init.bonus',
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      value: '+ 1d4',
+      priority: "20",
+    },
   );
-  setProperty(effect, "flags.dae.specialDuration", ["isSkill", "isCheck"]);
+  setProperty(effect, "flags.dae.specialDuration", ["isSkill", "isCheck", "isInitiative"]);
 
   document.effects.push(effect);
 
