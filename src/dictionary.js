@@ -738,7 +738,7 @@ const DICTIONARY = {
       music: "Musical Instrument",
       game: "Gaming Set",
     },
-    BACKPACK: ["Equipment Pack", "Adventuring Gear", "Vehicle", "Mount"],
+    BACKPACK: ["Equipment Pack", "Adventuring Gear", "Vehicle", "Mount", "Wondrous item"],
   }
 };
 

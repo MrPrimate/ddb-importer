@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Fix for when using Compendium folders and Item Collections on v11.
+
 # 3.4.37
 
 - Some abilities with a flat save would parse the save number in the field rather than "flat". Potent Poisoner is the only ability that I have discovered with this trait so I think the impact is small. @sage9001

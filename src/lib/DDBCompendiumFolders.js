@@ -327,10 +327,13 @@ export class DDBCompendiumFolders {
         switch (document.system?.armor?.type) {
           case "trinket": {
             const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
-            if (ddbType) {
-              result.name = this.trinketFolders[ddbType].name;
-              result.flagTag = `trinket/${result.name}`;
-            }
+            const isContainer = getProperty(document, "flags.ddbimporter.dndbeyond.isContainer") === true;
+            result.name = isContainer
+              ? this.backpackFolders[ddbType].name
+              : this.trinketFolders[ddbType].name;
+            result.flagTag = isContainer
+              ? `backpack/${result.name}`
+              : `trinket/${result.name}`;
             break;
           }
           default: {
