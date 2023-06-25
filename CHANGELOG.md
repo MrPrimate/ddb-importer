@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.38
 
 - Fix for when using Compendium folders and Item Collections on v11.
 - Effect: Prevent Prone removed on Hideous Laughter Save
