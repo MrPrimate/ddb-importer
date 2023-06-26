@@ -237,6 +237,56 @@ async function getFilteredItems(compendium, item, index, matchFlags) {
 //   return Promise.all(results);
 // }
 
+/**
+ * Asynchronously creates a new item to be added to a compendium based on its type.
+ *
+ * @param {string} type - type of item to be created ("table" or "tables" for RollTable or
+ * any other value for Item)
+ * @param {Compendium} compendium - the compendium to import the new item into
+ * @param {object} item - the data for the new item to be created
+ * @return {Promise<object|null>} a Promise that resolves with the imported item or null if import failed
+ */
+async function createCompendiumItem(type, compendium, item) {
+  let newItem;
+  switch (type) {
+    case "table":
+    case "tables": {
+      newItem = new RollTable(item);
+      break;
+    }
+    default: {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        newItem = await Item.create(item, {
+          temporary: true,
+          displaySheet: false,
+        });
+      } catch (err) {
+        logger.error(`Error creating ${item.name}`, { item, err });
+        throw err;
+      }
+
+    }
+  }
+  if (!newItem) {
+    logger.error(`Item ${item.name} failed creation`, { item, newItem });
+  }
+  DDBMuncher.munchNote(`Creating ${item.name}`);
+  logger.debug(`Pushing ${item.name} to compendium`);
+  return compendium.importDocument(newItem);
+}
+
+async function updateCompendiumItem(compendium, updateItem, existingItem) {
+  // purge existing active effects on this item
+  if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
+  if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+  if (existingItem.flags) await copySupportedItemFlags(existingItem, updateItem);
+  DDBMuncher.munchNote(`Updating ${updateItem.name} compendium entry`);
+
+  const update = await existingItem.update(updateItem, { pack: compendium.metadata.id });
+  return update;
+}
+
 async function updateCompendiumItems(compendium, inputItems, index, matchFlags) {
   let updates = [];
   inputItems.forEach(async (item) => {
@@ -246,25 +296,35 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
       const existing = existingItems[0];
       // eslint-disable-next-line require-atomic-updates
       item._id = existing._id;
-      DDBMuncher.munchNote(`Updating ${item.name} compendium entry`);
-      // purge existing active effects on this item
-      if (existing.results) await existing.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
-      if (existing.effects) await existing.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-      if (existing.flags) await copySupportedItemFlags(existing, item);
 
-      const tableUpdate = await existing.update(item, { pack: compendium.metadata.id });
-      // v10 bug - left in until fixed - tables don't update correctly
-      // if (tableUpdate === undefined) console.warn("Undefined table update");
-      updates.push(tableUpdate);
+      if (item.type !== existing.type) {
+        logger.warn(`Item type mismatch ${item.name} from ${existing.type} to ${item.type}. DDB Importer will delete and recreate this item from scratch. You can most likely ignore this message.`);
+        await existing.delete();
+        let newItem = createCompendiumItem(item.type, compendium, item);
+        updates.push(newItem);
+      } else {
+        let update = updateCompendiumItem(compendium, item, existing);
+        updates.push(update);
+      }
     }
   });
 
-  // in v10 the table.update may not be returning all the updated items correctly
+  return Promise.all(updates);
+}
 
-  return updates;
-  // const results = await RollTable.updateDocuments(updates, { pack: compendium.metadata.id });
-  // console.warn(results);
-  // return results;
+
+async function createCompendiumItems(type, compendium, inputItems, index, matchFlags) {
+  let promises = [];
+  for (const item of inputItems) {
+    // eslint-disable-next-line no-await-in-loop
+    const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
+    // we have a single match
+    if (existingItems.length === 0) {
+      let newItem = createCompendiumItem(type, compendium, item);
+      promises.push(compendium.importDocument(newItem));
+    }
+  };
+  return Promise.all(promises);
 }
 
 export async function updateMidiFlags() {
@@ -296,48 +356,6 @@ export async function updateMidiFlags() {
 
   updateCompendiumItems(compendium, filteredSpells, index, []);
 
-}
-
-// window.updateMidiFlags = updateMidiFlags;
-
-async function createCompendiumItems(type, compendium, inputItems, index, matchFlags) {
-  let promises = [];
-  // compendiumItems.forEach(async (item) => {
-  for (const item of inputItems) {
-    // eslint-disable-next-line no-await-in-loop
-    const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
-    // we have a single match
-    if (existingItems.length === 0) {
-      let newItem;
-      switch (type) {
-        case "table":
-        case "tables": {
-          newItem = new RollTable(item);
-          break;
-        }
-        default: {
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            newItem = await Item.create(item, {
-              temporary: true,
-              displaySheet: false,
-            });
-          } catch (err) {
-            logger.error(`Error creating ${item.name}`, { item, err });
-            throw err;
-          }
-
-        }
-      }
-      if (!newItem) {
-        logger.error(`Item ${item.name} failed creation`, { item, newItem });
-      }
-      DDBMuncher.munchNote(`Creating ${item.name}`);
-      logger.debug(`Pushing ${item.name} to compendium`);
-      promises.push(compendium.importDocument(newItem));
-    }
-  };
-  return Promise.all(promises);
 }
 
 export async function compendiumFoldersV10(document, type) {

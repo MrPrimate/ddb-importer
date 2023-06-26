@@ -70,6 +70,11 @@ async function addNPCToCompendium(npc, type = "monster") {
       if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
         const existingNPC = await compendium.getDocument(npc._id);
 
+        if (hasProperty(existingNPC, "prototypeToken.flags.tagger.tags")) {
+          const newTags = [...new Set(npcBasic.prototypeToken.flags.tagger.tags, existingNPC.prototypeToken.flags.tagger.tags)];
+          setProperty(existingNPC, "prototypeToken.flags.tagger.tags", newTags);
+        }
+
         const monsterTaggedItems = npcBasic.items.map((item) => {
           setProperty(item, "flags.ddbimporter.parentId", npc._id);
           return item;
