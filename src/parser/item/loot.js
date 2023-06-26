@@ -69,7 +69,7 @@ export default function parseLoot(data, itemType) {
   let loot = {
     name: data.definition.name,
     type: type.type,
-    system: JSON.parse(utils.getTemplate("loot")), // was: tool
+    system: JSON.parse(utils.getTemplate(type.type)), // was: tool
     flags: {
       ddbimporter: {
         dndbeyond: {

@@ -1,3 +1,8 @@
+# NEXT UP
+
+- WARNING: A change here forces Wonderous Items that are containers to always be backpack type. Previously they were equipment/trinkets.
+
+
 # 3.4.38
 
 - Fix for when using Compendium folders and Item Collections on v11.
