@@ -110,7 +110,7 @@ export class DDBCompendiumFolders {
   // spell level
   async createSpellLevelCompendiumFolders() {
     for (const levelName of DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL) {
-      logger.info(`Creating folder '${levelName}'`);
+      logger.debug(`Checking for folder '${levelName}'`);
       const folder = this.getFolder(levelName)
         ?? (await this.createCompendiumFolder({ name: levelName }));
       this.validFolderIds.push(folder._id);
@@ -121,7 +121,7 @@ export class DDBCompendiumFolders {
   async createSpellSchoolCompendiumFolders() {
     for (const school of DICTIONARY.spell.schools) {
       const schoolName = utils.capitalize(school.name);
-      logger.info(`Creating folder '${schoolName}'`);
+      logger.debug(`Checking for folder '${schoolName}'`);
       const folder = this.getFolder(schoolName)
         ?? (await this.createCompendiumFolder({ name: schoolName }));
       this.validFolderIds.push(folder._id);
@@ -131,7 +131,7 @@ export class DDBCompendiumFolders {
   // item rarity folder
   async createItemRarityCompendiumFolders() {
     for (const rarityName of DICTIONARY.COMPENDIUM_FOLDERS.RARITY) {
-      logger.info(`Creating folder '${rarityName}'`);
+      logger.debug(`Checking for folder '${rarityName}'`);
       const folder = this.getFolder(rarityName, rarityName)
         ?? (await this.createCompendiumFolder({ name: rarityName, flagTag: rarityName }));
       this.validFolderIds.push(folder._id);
@@ -142,7 +142,7 @@ export class DDBCompendiumFolders {
   async createItemTypeCompendiumFolders() {
     for (const [key, folderName] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.ITEM_ROOT)) {
       const flagTag = folderName;
-      logger.info(`Creating root folder '${folderName}' with key '${key}'`);
+      logger.debug(`Checking for root folder '${folderName}' with key '${key}'`);
       const folder = this.getFolder(folderName, flagTag)
         ?? (await this.createCompendiumFolder({ name: folderName, flagTag: folderName }));
       this.rootItemFolders[key] = folder;
@@ -153,7 +153,7 @@ export class DDBCompendiumFolders {
 
     for (const [key, folderName] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.EQUIPMENT)) {
       const flagTag = `equipment/${folderName}`;
-      logger.info(`Creating Equipment folder '${folderName}' with key '${key}'`);
+      logger.debug(`Checking for Equipment folder '${folderName}' with key '${key}'`);
 
       const folder = this.getFolder(folderName, flagTag)
         ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["equipment"]._id, color: "#222222", flagTag }));
@@ -163,7 +163,7 @@ export class DDBCompendiumFolders {
 
     for (const [key, folderName] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.WEAPON)) {
       const flagTag = `weapon/${folderName}`;
-      logger.info(`Creating Weapon folder '${folderName}' with key '${key}'`);
+      logger.debug(`Checking for Weapon folder '${folderName}' with key '${key}'`);
       const folder = this.getFolder(folderName, flagTag)
         ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["weapon"]._id, color: "#222222", flagTag }));
       this.weaponFolders[key] = folder;
@@ -172,7 +172,7 @@ export class DDBCompendiumFolders {
 
     for (const [key, folderName] of Object.entries(DICTIONARY.COMPENDIUM_FOLDERS.TOOLS)) {
       const flagTag = `tool/${folderName}`;
-      logger.info(`Creating Tool folder '${folderName}' with key '${key}'`);
+      logger.debug(`Checking for Tool folder '${folderName}' with key '${key}'`);
       const folder = this.getFolder(folderName, flagTag)
         ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["tool"]._id, color: "#222222", flagTag }));
       this.toolFolders[key] = folder;
@@ -181,7 +181,7 @@ export class DDBCompendiumFolders {
 
     for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.TRINKET) {
       const flagTag = `trinket/${folderName}`;
-      logger.info(`Creating Equipment\\Trinket folder '${folderName}'`);
+      logger.debug(`Checking for Equipment\\Trinket folder '${folderName}'`);
       const folder = this.getFolder(folderName, flagTag)
        ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.equipmentFolders["trinket"]._id, color: "#444444", flagTag }));
       this.trinketFolders[folderName] = folder;
@@ -190,7 +190,7 @@ export class DDBCompendiumFolders {
 
     for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.CONSUMABLE) {
       const flagTag = `consumable/${folderName}`;
-      logger.info(`Creating Consumable folder '${folderName}'`);
+      logger.debug(`Checking for Consumable folder '${folderName}'`);
       const folder = this.getFolder(folderName, flagTag)
        ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["consumable"]._id, color: "#222222", flagTag }));
       this.consumableFolders[folderName] = folder;
@@ -199,7 +199,7 @@ export class DDBCompendiumFolders {
 
     for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.LOOT) {
       const flagTag = `loot/${folderName}`;
-      logger.info(`Creating Loot folder '${folderName}'`);
+      logger.debug(`Checking for Loot folder '${folderName}'`);
       const folder = this.getFolder(folderName, flagTag)
        ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["loot"]._id, color: "#222222", flagTag }));
       this.lootFolders[folderName] = folder;
@@ -208,7 +208,7 @@ export class DDBCompendiumFolders {
 
     for (const folderName of DICTIONARY.COMPENDIUM_FOLDERS.BACKPACK) {
       const flagTag = `backpack/${folderName}`;
-      logger.info(`Creating Backpack folder '${folderName}'`);
+      logger.debug(`Checking for Backpack folder '${folderName}'`);
       const folder = this.getFolder(folderName, flagTag)
         ?? (await this.createCompendiumFolder({ name: folderName, parentId: this.rootItemFolders["backpack"]._id, color: "#222222", flagTag }));
       this.backpackFolders[folderName] = folder;
@@ -221,7 +221,7 @@ export class DDBCompendiumFolders {
     if (this.isV10) {
       return createCompendiumFolderStructure(this.type);
     }
-    logger.debug(`Creating Compendium folder structure for ${this.type}`);
+    logger.debug(`Checking and creating Compendium folder structure for ${this.type}`);
 
     switch (this.type) {
       case "monsters":
