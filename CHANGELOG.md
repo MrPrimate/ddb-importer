@@ -1,7 +1,6 @@
-# NEXT UP
+# 3.4.39
 
-- WARNING: A change here forces Wonderous Items that are containers to always be backpack type. Previously they were equipment/trinkets.
-
+- BREAKING: A change here forces Wonderous Items that are containers to always be backpack type. Previously they were equipment/trinkets. This will cause full replacements when the items are munched into compendiums.
 
 # 3.4.38
 
