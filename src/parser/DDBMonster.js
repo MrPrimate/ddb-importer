@@ -190,6 +190,25 @@ export default class DDBMonster {
     }
   }
 
+  _generateTaggerFlags() {
+    // if (!CONFIG.DDBI.tagger) return;
+    const tags = [
+      "dndbeyond",
+      "ddb-importer",
+    ];
+
+    const type = this.npc.system.details.type.value;
+    const customType = this.npc.system.details.type.custom;
+    const subType = this.npc.system.details.type.custom;
+    for (const tagElement of [type, customType, subType]) {
+      if (utils.isString(tagElement) && tagElement.trim() !== "") {
+        tags.push(tagElement);
+      }
+    }
+
+    setProperty(this.npc.prototypeToken, "flags.tagger.tags", tags);
+  }
+
   async parse() {
     if (!this.name) this.name = this.source.name;
     this.npc = duplicate(await newNPC(this.name));
@@ -272,6 +291,8 @@ export default class DDBMonster {
         await applyChrisPremadeEffect({ document: item, type: "monsterfeatures", folderName: this.npc.name });
       }
     }
+
+    this._generateTaggerFlags();
 
     logger.debug(`Generated ${this.name}`, this);
     return this.npc;
