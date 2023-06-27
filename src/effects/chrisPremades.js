@@ -46,9 +46,14 @@ export async function getChrisCompendium(type) {
 
 
 async function getFolderId(name, type, compendiumName) {
-  const folderAPI = game.CF.FICFolderAPI;
-  const allFolders = await folderAPI.loadFolders(compendiumName);
-  return allFolders.find((f) => f.name === name)?.id;
+  if (isNewerVersion(11, game.version)) {
+    const folderAPI = game.CF.FICFolderAPI;
+    const allFolders = await folderAPI.loadFolders(compendiumName);
+    return allFolders.find((f) => f.name === name)?.id;
+  } else {
+    const compendium = game.packs.get(compendiumName);
+    return compendium.folders.find((f) => f.name === name)?._id;
+  }
 }
 
 function getName(document) {
