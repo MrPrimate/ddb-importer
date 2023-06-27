@@ -36,7 +36,7 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "verified": "2.1.0"
+          "verified": "2.1.5"
         }
       }
     ],
@@ -60,6 +60,16 @@
         "id": "arbron-summoner",
         "type": "module",
         "reason": "Provides the ability to summon creatures with Summon spells"
+      },
+      {
+        "id": "vision-5e",
+        "type": "module",
+        "reason": "Adds missing vision modes to 5e system"
+      },
+      {
+        "id": "dfreds-convenient-effects",
+        "type": "module",
+        "reason": "Adds some useful low touch effects and automated conditions"
       }
     ]
   },
