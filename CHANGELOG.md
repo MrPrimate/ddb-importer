@@ -1,6 +1,6 @@
 # 3.4.40
 
-- Fix "You man not import a Promise Document" bug.
+- Fix "You can not import a Promise Document" bug.
 - Bump to support removal of Compendium Folders requirements for Chris' Premades.
 
 # 3.4.39
