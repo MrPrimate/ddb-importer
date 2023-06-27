@@ -1,3 +1,7 @@
+# 3.4.40
+
+- Fix "You man not import a Promise Document" bug.
+
 # 3.4.39
 
 - BREAKING: A change here forces Wonderous Items that are containers to always be backpack type. Previously they were equipment/trinkets. This will cause full replacements when the items are munched into compendiums.

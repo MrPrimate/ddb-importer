@@ -321,7 +321,7 @@ async function createCompendiumItems(type, compendium, inputItems, index, matchF
     // we have a single match
     if (existingItems.length === 0) {
       let newItem = createCompendiumItem(type, compendium, item);
-      promises.push(compendium.importDocument(newItem));
+      promises.push(newItem);
     }
   };
   return Promise.all(promises);
