@@ -17,10 +17,12 @@ function overTimeDamage({ document, turn, damage, damageType, saveAbility, saveR
 }
 
 function overTimeSave({ document, turn, saveAbility, saveRemove = true, dc } = {}) {
+  const turnValue = turn === "action" ? "end" : turn;
+  const actionSave = turn === "action" ? ",actionSave=true" : "";
   return {
     key: "flags.midi-qol.OverTime",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    value: `turn=${turn},label=${document.name} (${utils.capitalize(turn)} of Turn),saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},killAnim=true`,
+    value: `turn=${turnValue},label=${document.name} (${utils.capitalize(turn)} of Turn),saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},killAnim=true${actionSave}`,
     priority: "20",
   };
 }
@@ -136,6 +138,12 @@ function overTimeSaveEnd(document, effect, save, text) {
   const match = text.match(saveSearch);
   if (match) {
     effect.changes.push(overTimeSave({ document, turn: match[1], saveAbility: save.ability, dc: save.dc }));
+  } else {
+    const actionSaveSearch = /can use its action to repeat the saving throw/;
+    const actionSaveMatch = text.match(actionSaveSearch);
+    if (actionSaveMatch) {
+      effect.changes.push(overTimeSave({ document, turn: "action", saveAbility: save.ability, dc: save.dc }));
+    }
   }
 }
 
