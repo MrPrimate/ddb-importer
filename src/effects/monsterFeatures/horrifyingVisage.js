@@ -1,3 +1,4 @@
+import { generateStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 
 export function horrifyingVisageEffect(document) {
@@ -13,13 +14,8 @@ export function horrifyingVisageEffect(document) {
       "value": "turn=end,saveAbility=wis,saveDC=13,saveMagic=true,label=Frightened,killAnim=true",
       "priority": "20"
     },
-    {
-      "key": "macro.CE",
-      "mode": 0,
-      "value": "Frightened",
-      "priority": "20"
-    }
   );
+  effect.changes.push(generateStatusEffectChange("Frightened", 20, true));
   effect.transfer = false;
 
   document.effects.push(effect);

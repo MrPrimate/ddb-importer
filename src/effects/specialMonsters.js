@@ -11,6 +11,7 @@ import { generatePackTacticsEffect } from "./monsterFeatures/packTactics.js";
 import { generateReversalOfFortuneEffect } from "./monsterFeatures/reversalOfFortune.js";
 import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
 import { generateTauntEffect } from "./monsterFeatures/taunt.js";
+import { skeletalJuggernautEffects } from "./monsterFeatures/skeletalJuggernautEffects.js";
 import { venomTrollEffects } from "./monsterFeatures/venomTroll.js";
 
 export function baseMonsterFeatureEffect(document, label) {
@@ -126,8 +127,13 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       }, npc.items);
       break;
     }
+    case "Skeletal Juggernaut": {
+      npc = await skeletalJuggernautEffects(npc);
+      break;
+    }
     case "Venom Troll": {
       npc = await venomTrollEffects(npc);
+      break;
     }
     // no default
   }

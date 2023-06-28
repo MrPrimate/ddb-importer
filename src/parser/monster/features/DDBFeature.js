@@ -364,6 +364,13 @@ export default class DDBFeature {
         this.actionInfo.save.scaling = "flat";
       }
     }
+
+    const halfSaveSearch = /or half as much damage on a successful one/i;
+    const halfMatch = this.strippedHtml.match(halfSaveSearch);
+    if (halfMatch) {
+      setProperty(this.feature, "flags.midiProperties.halfdam", true);
+    }
+
     return this.actionInfo.save;
   }
 
@@ -690,10 +697,8 @@ export default class DDBFeature {
       if (this.templateType === "feat") {
         this.feature.system.equipped = true;
       }
-      setProperty(this.feature, "flags.midiProperties", {
-        "magicdam": true,
-        "magiceffect": true,
-      });
+      setProperty(this.feature, "flags.midiProperties.magicdam", true);
+      setProperty(this.feature, "flags.midiProperties.magiceffect", true);
       this.feature.system.properties.mgc = true;
     } else if (this.actionInfo.save.dc) {
       this.feature.system.actionType = "save";
