@@ -23,7 +23,12 @@ if (args[0] === "on") {
     await DAE.setFlag(targetActor, "darknessSpell", darknessSpellParams);
     canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
     const gmMacro = game.macros.find((m) => m.name === gmMacroName);
-    gmMacro.execute("on", darknessSpellParams);
+    if (isNewerVersion(11, game.version)) {
+      gmMacro.execute("on", darknessSpellParams);
+    } else {
+      gmMacro.execute({ actor, token, args: ["on", darknessSpellParams] })
+    }
+
   });
 
   const measureTemplateData = {
@@ -50,6 +55,10 @@ if (args[0] === "on") {
 } else if (args[0] === "off") {
   const params = await DAE.getFlag(targetActor, "darknessSpell");
   const gmMacro = game.macros.find((m) => m.name === gmMacroName);
-  gmMacro.execute("off", params);
+  if (isNewerVersion(11, game.version)) {
+    gmMacro.execute("off", params);
+  } else {
+    gmMacro.execute({ actor, token, args: ["off", params] })
+  }
   await DAE.unsetFlag(targetActor, "darknessSpell");
 }

@@ -3,7 +3,7 @@ import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../ma
 
 export async function darknessEffect(document) {
   let effect = baseSpellEffect(document, document.name);
-  setProperty(effect, "flags.dae.selfTarget", true);
+  // setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   const itemMacroText = await loadMacroFile("spell", "darkness.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);

@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Effects: Fix Darkness macros for v11.
+
 # 3.4.40
 
 - Fix "You can not import a Promise Document" bug.
