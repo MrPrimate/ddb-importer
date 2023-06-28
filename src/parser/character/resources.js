@@ -7,7 +7,8 @@ DDBCharacter.prototype.resourceList = function resourceList() {
     .flat()
     .filter((action) =>
       action.limitedUse
-        && (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus));
+        && (action.limitedUse.maxUses || action.limitedUse.statModifierUsesId || action.limitedUse.useProficiencyBonus)
+        && !["Hypnotic Gaze"].includes(action.name));
 
   return resources;
 };

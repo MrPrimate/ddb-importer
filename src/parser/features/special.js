@@ -393,6 +393,14 @@ export async function fixFeatures(features) {
         feature.system.damage = { parts: [["1d6", "healing"]], versatile: "", value: "" };
         break;
       }
+      case "Hypnotic Gaze": {
+        feature.system.uses = {
+          value: null,
+          max: null,
+          per: "",
+        };
+        break;
+      }
       case "Mantle of Inspiration": {
         feature.system.damage.parts[0][1] = "temphp";
         break;
