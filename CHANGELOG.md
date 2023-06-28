@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.41
 
 - Effects: Fix Darkness macros for v11.
 - Character: School of Enchantment: Hypnotic Gaze incorrectly set limited uses.
