@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.42
 
 - When importing inventory/weapon items from compendiums, typically the override compendium, they will now retain the compendiums `uses`, `consume` and `ability`.
 
