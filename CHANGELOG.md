@@ -1,9 +1,14 @@
+# NEXT UP
+
+- When importing inventory/weapon items from compendiums, typically the override compendium, they will now retain the compendiums `uses`, `consume` and `ability`.
+
 # 3.4.41
 
 - Effects: Fix Darkness macros for v11.
 - Character: School of Enchantment: Hypnotic Gaze incorrectly set limited uses.
 - Monster effects: MidiQoL `actionSave` effects. The parser will try and add overtime effects for saves where characters can use their action to shake off an effect such as the Deathlock Mastermind Grave Bolt.
 - Monster ffects: Skeletal Juggernaut (Thanks @MotoMoto)
+
 # 3.4.40
 
 - Fix "You can not import a Promise Document" bug.

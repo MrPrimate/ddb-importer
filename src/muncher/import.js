@@ -829,39 +829,34 @@ export function updateCharacterItemFlags(itemData, replaceData) {
   if (itemData.system.attuned) replaceData.system.attuned = itemData.system.attuned;
   if (itemData.system.attunement) replaceData.system.attunement = itemData.system.attunement;
   if (itemData.system.equipped) replaceData.system.equipped = itemData.system.equipped;
-  if (itemData.system.uses) replaceData.system.uses = itemData.system.uses;
   if (itemData.system.resources) replaceData.system.resources = itemData.system.resources;
-  if (itemData.system.consume) replaceData.system.consume = itemData.system.consume;
   if (itemData.system.preparation) replaceData.system.preparation = itemData.system.preparation;
   if (itemData.system.proficient) replaceData.system.proficient = itemData.system.proficient;
-  if (itemData.system.ability) replaceData.system.ability = itemData.system.ability;
+  if (!DICTIONARY.types.inventory.includes(itemData.type)) {
+    if (itemData.system.uses) replaceData.system.uses = itemData.system.uses;
+    if (itemData.system.consume) replaceData.system.consume = itemData.system.consume;
+    if (itemData.system.ability) replaceData.system.ability = itemData.system.ability;
+  }
   if (hasProperty(itemData, "system.levels")) replaceData.system.levels = itemData.system.levels;
   return replaceData;
 }
 
-export async function updateMatchingItems(oldItems, newItems, inOptions) {
+export async function updateMatchingItems(oldItems, newItems,
+  { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false } = {}
+) {
   let results = [];
-
-  const defaultOptions = {
-    looseMatch: false,
-    monster: false,
-    keepId: false,
-    keepDDBId: false,
-    overrideId: false,
-  };
-  const options = mergeObject(defaultOptions, inOptions);
 
   for (let newItem of newItems) {
     let item = duplicate(newItem);
 
-    const matched = options.overrideId
+    const matched = overrideId
       ? oldItems.find((oldItem) => getProperty(oldItem, "flags.ddbimporter.overrideId") == item._id)
-      : await looseItemNameMatch(item, oldItems, options.looseMatch, options.monster); // eslint-disable-line no-await-in-loop
+      : await looseItemNameMatch(item, oldItems, looseMatch, monster); // eslint-disable-line no-await-in-loop
 
     if (matched) {
       const match = duplicate(matched);
       // in some instances we want to keep the ddb id
-      if (options.keepDDBId && hasProperty(item, "flags.ddbimporter.id")) {
+      if (keepDDBId && hasProperty(item, "flags.ddbimporter.id")) {
         setProperty(match, "flags.ddbimporter.id", duplicate(item.flags.ddbimporter.id));
       }
       if (!item.flags.ddbimporter) {
@@ -877,7 +872,7 @@ export async function updateMatchingItems(oldItems, newItems, inOptions) {
       setProperty(item, "flags.ddbimporter.replaced", true);
       item = updateCharacterItemFlags(match, item);
 
-      if (!options.keepId) delete item["_id"];
+      if (!keepId) delete item["_id"];
       results.push(item);
     }
   }
@@ -921,29 +916,23 @@ export async function getIndividualOverrideItems(overrideItems) {
 /**
  *
  */
-export async function loadPassedItemsFromCompendium(compendium, items, type, inOptions) {
+export async function loadPassedItemsFromCompendium(compendium, items, type,
+  { looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true,
+    indexFilter = {}, // { fields: ["name", "flags.ddbimporter.id"] }
+    keepDDBId = false } = {}
+) {
   if (!compendium) return [];
-  const defaultOptions = {
-    looseMatch: false,
-    monsterMatch: false,
-    keepId: false,
-    deleteCompendiumId: true,
-    indexFilter: {}, // { fields: ["name", "flags.ddbimporter.id"] }
-    keepDDBId: false,
-  };
-  const options = mergeObject(defaultOptions, inOptions);
-
-  if (!compendium.indexed) await compendium.getIndex(options.indexFilter);
+  if (!compendium.indexed) await compendium.getIndex(indexFilter);
   const index = compendium.index;
   const firstPassItems = await index.filter((i) =>
     items.some((orig) => {
       const extraNames = (orig.flags?.ddbimporter?.dndbeyond?.alternativeNames)
         ? orig.flags.ddbimporter.dndbeyond.alternativeNames
         : [];
-      if (options.looseMatch) {
+      if (looseMatch) {
         const looseNames = getLooseNames(orig.name, extraNames);
         return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
-      } else if (options.monsterMatch) {
+      } else if (monsterMatch) {
         const monsterNames = getMonsterNames(orig.name);
         // console.log(magicNames)
         if (i.name === orig.name) {
@@ -964,7 +953,7 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
     // eslint-disable-next-line no-await-in-loop
     let item = await compendium.getDocument(i._id).then((doc) => {
       const docData = doc.toObject();
-      if (options.deleteCompendiumId) delete docData._id;
+      if (deleteCompendiumId) delete docData._id;
       SETTINGS.COMPENDIUM_REMOVE_FLAGS.forEach((flag) => {
         if (hasProperty(docData, flag)) setProperty(docData, flag, undefined);
       });
@@ -977,10 +966,10 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
   logger.debug(`compendium ${type} loaded items:`, loadedItems);
 
   const matchingOptions = {
-    looseMatch: options.looseMatch,
-    monster: options.monsterMatch,
-    keepId: options.keepId,
-    keepDDBId: options.keepDDBId,
+    looseMatch,
+    monster: monsterMatch,
+    keepId,
+    keepDDBId,
   };
 
   const results = await updateMatchingItems(items, loadedItems, matchingOptions);
@@ -994,29 +983,21 @@ export async function loadPassedItemsFromCompendium(compendium, items, type, inO
  * @param {*} type
  * @param {*} options
  */
-export async function getCompendiumItems(items, type, inOptions) {
-  const defaultOptions = {
-    compendiumLabel: null,
-    looseMatch: false,
-    monsterMatch: false,
-    keepId: false,
-    deleteCompendiumId: true,
-    keepDDBId: false,
-  };
-  const options = mergeObject(defaultOptions, inOptions);
+export async function getCompendiumItems(items, type,
+  { compendiumLabel = null, looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true,
+    keepDDBId = false } = {}
+) {
 
-  if (!options.compendiumLabel) {
-    options.compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
-  }
-  const compendium = CompendiumHelper.getCompendium(options.compendiumLabel, false);
+  const label = compendiumLabel ?? CompendiumHelper.getCompendiumLabel(type);
+  const compendium = CompendiumHelper.getCompendium(label, false);
   if (!compendium) return [];
 
   const loadOptions = {
-    looseMatch: options.looseMatch,
-    monsterMatch: options.monsterMatch,
-    keepId: options.keepId,
-    keepDDBId: options.keepDDBId,
-    deleteCompendiumId: options.deleteCompendiumId,
+    looseMatch,
+    monsterMatch,
+    keepId,
+    keepDDBId,
+    deleteCompendiumId,
   };
   const results = await loadPassedItemsFromCompendium(compendium, items, type, loadOptions);
 
