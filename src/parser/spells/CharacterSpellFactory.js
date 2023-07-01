@@ -65,6 +65,7 @@ export default class CharacterSpellFactory {
               entityTypeId: spell.entityTypeId,
               healingBoost: this.healingBoost,
               usesSpellSlot: spell.usesSpellSlot,
+              forceMaterial: classInfo.definition.name === "Artificer",
             },
           },
           "spell-class-filter-for-5e": {
@@ -158,6 +159,7 @@ export default class CharacterSpellFactory {
             entityTypeId: spell.entityTypeId,
             healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
+            forceMaterial: klass?.definition?.name === "Artificer",
           },
         },
       };

@@ -3,7 +3,7 @@ export function getComponents (data) {
     value: data.definition.componentsDescription,
     vocal: data.definition.components.includes(1),
     somatic: data.definition.components.includes(2),
-    material: data.definition.components.includes(3),
+    material: data.definition.components.includes(3) || getProperty(data, "flags.ddbimporter.dndbeyond.forceMaterial"),
     ritual: data.definition.ritual,
     concentration: data.definition.concentration,
   };
