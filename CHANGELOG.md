@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.43
 
 - When using Items with Spells some items, notably Staves, would not get the charges for spells linked to the item charges.
 - Artificer spells now force the M/material property for components.
