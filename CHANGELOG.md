@@ -1,3 +1,7 @@
+# NEXT UP
+
+- When using Items with Spells some items, notably Staves, would not get the charges for spells linked to the item charges.
+
 # 3.4.42
 
 - When importing inventory/weapon items from compendiums, typically the override compendium, they will now retain the compendiums `uses`, `consume` and `ability`.

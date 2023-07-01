@@ -136,7 +136,7 @@ export const MACROS = {
   AA_ONLY: {
     name: "Active Aura Only (Generic)",
     type: "generic",
-    file: "activeAuraConditionOnEntry.js",
+    file: "activeAuraOnly.js",
     isGM: false,
     img: null,
     world: true,

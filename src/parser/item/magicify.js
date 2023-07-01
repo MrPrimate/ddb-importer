@@ -43,6 +43,7 @@
 //
 import DICTIONARY from "../../dictionary.js";
 import logger from "../../logger.js";
+import { getUses } from "./common.js";
 
 const MAGICITEMS = {
   DAILY: "r1",
@@ -307,6 +308,10 @@ function parseItemsWithSpellsModule(item, data, itemSpells, characterItem) {
   if (thisItemSpells.length === 0) return item;
 
   const perSpell = getPerSpell(data.limitedUse?.resetTypeDescription ?? "", data.definition.description);
+
+  if (!perSpell && getProperty(item, "system.uses.value") === null) {
+    item.system.uses = getUses(data);
+  }
 
   const iSpells = thisItemSpells.map((itemSpell) => {
     const isPerSpell = Number.isInteger(perSpell);
