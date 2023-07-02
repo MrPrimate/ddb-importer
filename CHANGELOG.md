@@ -1,7 +1,7 @@
 # 3.4.44
 
 - Some Artificer Infusions still causing problems with flag depths in v11. @ItsScottish
-- If 3d canvas, mapmaking pack, and  3d token compendium are installed then the importer will do a fuzzy search on monsters when they are imported to add a default monster model, if one does not already exist on the item in the compendium.
+- If 3d canvas, mapmaking pack, and  3d token compendium are installed then the importer will do a search on monsters when they are imported to add a default monster model. It will only do this if one does not already exist on the monster in the compendium.
 
 # 3.4.43
 
