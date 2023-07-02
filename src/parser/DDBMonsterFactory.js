@@ -8,7 +8,13 @@ import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 import { srdFiddling, getCompendiumItems, removeItems, preFetchDDBIconImages } from "../muncher/import.js";
 
 // targets for migration
-import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium, useSRDMonsterImages } from "../muncher/importMonster.js";
+import {
+  addNPC,
+  generateIconMap,
+  copyExistingMonsterImages,
+  // addNPCsToCompendium,
+  useSRDMonsterImages
+} from "../muncher/importMonster.js";
 
 export default class DDBMonsterFactory {
 
@@ -198,6 +204,12 @@ export default class DDBMonsterFactory {
     await preFetchDDBIconImages();
     await FileHelper.generateCurrentFiles(uploadDirectory);
     await FileHelper.generateCurrentFiles("[data] modules/ddb-importer/data");
+
+    if (game.canvas3D?.CONFIG?.UI) {
+      // generate 3d model cache
+      await game.canvas3D.CONFIG.UI.TokenBrowser.preloadData();
+    }
+
     logger.info("Check complete getting monster data...");
     this.munchNote(`Getting monster data from DDB...`);
     await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids));
@@ -223,7 +235,6 @@ export default class DDBMonsterFactory {
     this.munchNote("");
     this.munchNote(`Fiddling with the SRD data...`, true);
     const finalMonsters = await srdFiddling(monsters, "monsters");
-
     this.munchNote(`Generating Icon Map..`, true);
     await generateIconMap(finalMonsters);
     await useSRDMonsterImages(finalMonsters);
@@ -252,11 +263,11 @@ export default class DDBMonsterFactory {
       currentMonster += 1;
     }
     logger.debug("Monsters Parsed", monstersParsed);
-    if (bulkImport) {
-      this.munchNote(`Importing ${monstersParsed.length} monsters`, false, true);
-      logger.debug(`Importing ${monstersParsed.length} monsters`);
-      await addNPCsToCompendium(monstersParsed, "monster");
-    }
+    // if (bulkImport) {
+    //   this.munchNote(`Importing ${monstersParsed.length} monsters`, false, true);
+    //   logger.debug(`Importing ${monstersParsed.length} monsters`);
+    //   await addNPCsToCompendium(monstersParsed, "monster");
+    // }
     this.munchNote("", false, true);
     setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 

@@ -2,7 +2,12 @@ import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import { srdFiddling, getCompendiumItems, removeItems } from "./import.js";
 import DDBMuncher from "../apps/DDBMuncher.js";
-import { addNPC, generateIconMap, copyExistingMonsterImages, addNPCsToCompendium } from "./importMonster.js";
+import {
+  addNPC,
+  generateIconMap,
+  copyExistingMonsterImages,
+  // addNPCsToCompendium,
+} from "./importMonster.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getCampaignId } from "../lib/Settings.js";
 import { parseVehicles } from "../parser/vehicle/vehicle.js";
@@ -158,11 +163,11 @@ export async function parseTransports(ids = null) {
     currentVehicle += 1;
   }
   logger.debug("Vehicles Parsed", vehiclesParsed);
-  if (bulkImport) {
-    DDBMuncher.munchNote(`Importing ${vehiclesParsed.length} vehicles`, false, true);
-    logger.debug(`Importing ${vehiclesParsed.length} vehicles`);
-    await addNPCsToCompendium(vehiclesParsed, "vehicle");
-  }
+  // if (bulkImport) {
+  //   DDBMuncher.munchNote(`Importing ${vehiclesParsed.length} vehicles`, false, true);
+  //   logger.debug(`Importing ${vehiclesParsed.length} vehicles`);
+  //   await addNPCsToCompendium(vehiclesParsed, "vehicle");
+  // }
   DDBMuncher.munchNote("", false, true);
   setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 

@@ -91,18 +91,19 @@ export function getInfusionActionData(ddb) {
     .filter((infusionDetail) => infusionDetail.type === "augment" && infusionDetail.actions.length > 0)
     .map((infusionDetail) => {
       const actions = infusionDetail.actions.map((action) => {
-        const itemLookup = ddb.infusions.item.find((mapping) => mapping.definitionKey === infusionDetail.definitionKey);
+        // const itemLookup = ddb.infusions.item.find((mapping) => mapping.definitionKey === infusionDetail.definitionKey);
         if (!action.name) {
           const itemLookup = ddb.infusions.item.find((mapping) => mapping.definitionKey === infusionDetail.definitionKey);
           const item = ddb.character.inventory.find((item) => item.id === itemLookup.inventoryMappingId);
           const itemName = item?.definition?.name ? `${item.definition.name} : ` : ``;
           action.name = `${itemName}[Infusion] ${infusionDetail.name}`;
         }
-        action.infusionFlags = {
-          maps: [duplicate(itemLookup)],
-          applied: [duplicate(infusionDetail)],
-          infused: true,
-        };
+        // action.infusionFlags = {
+        //   // maps: [duplicate(itemLookup)],
+        //   applied: action.name,
+        //   // applied: infusionDetail.map((d) => d.name),
+        //   infused: true,
+        // };
         return action;
       });
       return actions;

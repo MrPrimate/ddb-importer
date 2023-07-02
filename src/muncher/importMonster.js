@@ -75,6 +75,11 @@ async function addNPCToCompendium(npc, type = "monster") {
           setProperty(existingNPC, "prototypeToken.flags.tagger.tags", newTags);
         }
 
+        const existing3dModel = getProperty(existingNPC.prototypeToken, "flags.levels-3d-preview.model3d");
+        if (existing3dModel && existing3dModel.trim() !== "") {
+          setProperty(npcBasic.prototypeToken, "flags.levels-3d-preview.model3d", existing3dModel);
+        }
+
         const monsterTaggedItems = npcBasic.items.map((item) => {
           setProperty(item, "flags.ddbimporter.parentId", npc._id);
           return item;
@@ -114,37 +119,38 @@ async function addNPCToCompendium(npc, type = "monster") {
   return npc;
 }
 
-export async function addNPCsToCompendium(npcsData, type = "monster") {
-  const compendium = CompendiumHelper.getCompendiumType(type, false);
-  let results = [];
-  if (compendium) {
-    const npcs = addCompendiumFolderIds(npcsData, type);
-    // unlock the compendium for update/create
-    compendium.configure({ locked: false });
+// bulk import currently disabled
+// export async function addNPCsToCompendium(npcsData, type = "monster") {
+//   const compendium = CompendiumHelper.getCompendiumType(type, false);
+//   let results = [];
+//   if (compendium) {
+//     const npcs = addCompendiumFolderIds(npcsData, type);
+//     // unlock the compendium for update/create
+//     compendium.configure({ locked: false });
 
-    const options = {
-      pack: compendium.collection,
-      displaySheet: false,
-      recursive: false,
-      keepId: true,
-    };
+//     const options = {
+//       pack: compendium.collection,
+//       displaySheet: false,
+//       recursive: false,
+//       keepId: true,
+//     };
 
-    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
-      const updateNPCs = npcs.filter((npc) => hasProperty(npc, "_id") && compendium.index.has(npc._id));
-      logger.debug("NPCs Update Data", duplicate(updateNPCs));
-      const updateResults = await Actor.updateDocuments(updateNPCs, options);
-      results = results.concat(updateResults);
-    }
+//     if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
+//       const updateNPCs = npcs.filter((npc) => hasProperty(npc, "_id") && compendium.index.has(npc._id));
+//       logger.debug("NPCs Update Data", duplicate(updateNPCs));
+//       const updateResults = await Actor.updateDocuments(updateNPCs, options);
+//       results = results.concat(updateResults);
+//     }
 
-    const newNPCs = npcs.filter((npc) => !hasProperty(npc, "_id") || !compendium.index.has(npc._id));
-    logger.debug("NPC New Data", duplicate(newNPCs));
-    const createResults = await Actor.createDocuments(newNPCs, options);
-    results = results.concat(createResults);
-  } else {
-    logger.error("Error opening compendium, check your settings");
-  }
-  return results;
-}
+//     const newNPCs = npcs.filter((npc) => !hasProperty(npc, "_id") || !compendium.index.has(npc._id));
+//     logger.debug("NPC New Data", duplicate(newNPCs));
+//     const createResults = await Actor.createDocuments(newNPCs, options);
+//     results = results.concat(createResults);
+//   } else {
+//     logger.error("Error opening compendium, check your settings");
+//   }
+//   return results;
+// }
 
 export async function addNPCDDBId(npc, type = "monster") {
   let npcBasic = duplicate(npc);
@@ -490,7 +496,7 @@ export function copyExistingMonsterImages(monsters, existingMonsters) {
     if (existing) {
       monster.img = existing.img;
       for (const key of Object.keys(monster.prototypeToken)) {
-        if (!["sight", "detectionModes"].includes(key)) {
+        if (!["sight", "detectionModes", "flags"].includes(key) && hasProperty(existing.prototypeToken, key)) {
           monster.prototypeToken[key] = deepClone(existing.prototypeToken[key]);
         }
       }

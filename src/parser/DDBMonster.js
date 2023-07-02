@@ -209,6 +209,14 @@ export default class DDBMonster {
     setProperty(this.npc.prototypeToken, "flags.tagger.tags", tags);
   }
 
+  _generate3DModels() {
+    if (!game.canvas3D?.CONFIG?.UI?.TokenBrowser) return;
+    const matches = game.canvas3D.CONFIG.UI.TokenBrowser.findByName(this.name.replace("(Legacy)", "").trim());
+    if (matches && matches.length > 0) {
+      setProperty(this.npc.prototypeToken, "flags.levels-3d-preview.model3d", matches[0].output);
+    }
+  }
+
   async parse() {
     if (!this.name) this.name = this.source.name;
     this.npc = duplicate(await newNPC(this.name));
@@ -293,6 +301,7 @@ export default class DDBMonster {
     }
 
     this._generateTaggerFlags();
+    this._generate3DModels();
 
     logger.debug(`Generated ${this.name}`, this);
     return this.npc;

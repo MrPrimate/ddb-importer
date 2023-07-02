@@ -78,6 +78,7 @@ const SUPPORTED_FLAG_GROUPS = [
   "inventory-plus",
   "itemacro",
   "itemmacro",
+  "levels-3d-preview",
   "maestro",
   "mess",
   "midi-qol",
