@@ -954,6 +954,7 @@ export async function loadPassedItemsFromCompendium(compendium, items, type,
     let item = await compendium.getDocument(i._id).then((doc) => {
       const docData = doc.toObject();
       if (deleteCompendiumId) delete docData._id;
+      delete docData.folder;
       SETTINGS.COMPENDIUM_REMOVE_FLAGS.forEach((flag) => {
         if (hasProperty(docData, flag)) setProperty(docData, flag, undefined);
       });
@@ -1027,6 +1028,7 @@ export async function getSRDCompendiumItems(items, type, looseMatch = false, kee
   const loadedItems = (await srdPack.getDocuments(matchedIds))
     .map((i) => {
       const item = i.toObject();
+      delete i.folder;
       if (item.flags.ddbimporter) {
         item.flags.ddbimporter["pack"] = compendiumName;
       } else {
@@ -1286,8 +1288,6 @@ export async function addMagicItemSpells(input) {
         } else {
           ui.notifications.warn(`Magic Item ${item.name}: cannot add spell ${spellData.name}`);
         }
-
-
       });
     }
   });

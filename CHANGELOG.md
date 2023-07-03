@@ -1,3 +1,7 @@
+# NEXT UP
+
+- If using Chris' Premades with Items With Spells, som items would fail if effects were applied to the spells loaded by items with spells.
+
 # 3.4.44
 
 - Some Artificer Infusions still causing problems with flag depths in v11. @ItsScottish

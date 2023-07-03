@@ -153,6 +153,7 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
   }
 
   logger.debug(`Updated ${document.name} with a Chris effect`);
+  delete document.folder;
 
   return document;
 }
@@ -368,10 +369,25 @@ export async function addChrisEffectsToActorDocuments(actor) {
   const isMonster = actor.type === "npc";
   const folderName = isMonster ? actor.name : undefined;
   const data = (await applyChrisPremadeEffects({ documents, compendiumItem: false, force: true, isMonster }))
-    .filter((d) => getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true);
-  await actor.deleteEmbeddedDocuments("Item", data.map((d) => d._id));
+    .filter((d) =>
+      getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true
+      && !hasProperty(d, "flags.items-with-spells-5e.item-spells.parent-item")
+    );
+  const dataIds = data.map((d) => d._id);
+  logger.debug("Chris premades generation complete, beginning replace", {
+    isMonster,
+    folderName,
+    data,
+    dataIds,
+    actor,
+    documents,
+  });
+  await actor.deleteEmbeddedDocuments("Item", dataIds);
+  logger.debug("Chris premades, deletion complete");
   await actor.createEmbeddedDocuments("Item", data, { keepId: true });
+  logger.debug("Delete and recreate complete, beginning restricted item replacer");
   await restrictedItemReplacer(actor, folderName);
+  logger.debug("Restricted item replacer complete, beginning Replacement of Redundant Chris Documents");
   await addAndReplaceRedundantChrisDocuments(actor);
   logger.info("Effect replacement complete");
   return data.map((d) => d.name);
