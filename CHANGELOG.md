@@ -1,3 +1,7 @@
+# 3.4.46
+
+- Chris Premade effects would not apply to characters if the option was not selected in the muncher.
+
 # 3.4.45
 
 - If using Chris' Premades with Items With Spells, som items would fail if effects were applied to the spells loaded by items with spells.
