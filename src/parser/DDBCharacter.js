@@ -10,7 +10,6 @@ import { importCacheLoad } from "../lib/DDBTemplateStrings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import SETTINGS from "../settings.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
-// import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 
 
 export default class DDBCharacter {
@@ -258,14 +257,5 @@ export default class DDBCharacter {
     this.data.features = addVision5eStubs(this.data.features);
     this.data.actions = addVision5eStubs(this.data.actions);
   }
-
-  // async _applyChrisPremades() {
-  //   if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades")) {
-  //     await applyChrisPremadeEffects({ documents: this.data.inventory });
-  //     await applyChrisPremadeEffects({ documents: this.data.spells });
-  //     await applyChrisPremadeEffects({ documents: this.data.features });
-  //     await applyChrisPremadeEffects({ documents: this.data.actions });
-  //   }
-  // }
 
 }

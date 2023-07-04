@@ -162,9 +162,9 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
 export async function applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, isMonster = false, folderName = null } = {}) {
   if (!game.modules.get("chris-premades")?.active) return documents;
 
-  const applyChrisEffects = force || compendiumItem
+  const applyChrisEffects = force || (compendiumItem
     ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades")
-    : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades");
+    : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"));
   if (!applyChrisEffects) return documents;
 
   for (let doc of documents) {
