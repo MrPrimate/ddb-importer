@@ -1,6 +1,7 @@
 # NEXT UP
 
 - If using Chris' Premades with Items With Spells, som items would fail if effects were applied to the spells loaded by items with spells.
+- Vision 5e stub effects would not apply to items or spells munched into compendiums.
 
 # 3.4.44
 

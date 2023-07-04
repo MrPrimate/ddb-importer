@@ -11,6 +11,7 @@ import DDBProxy from "../lib/DDBProxy.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
+import { addVision5eStubs } from "../effects/vision5e.js";
 
 async function getCharacterInventory(items) {
   return items.map((item) => {
@@ -202,7 +203,8 @@ export async function parseItems(ids = null) {
     ? srdItems.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : srdItems;
   const daeItems = await daeFiddling(filteredItems);
-  const finalItems = await applyChrisPremadeEffects({ documents: daeItems, compendiumItem: true });
+  const vision5eItems = addVision5eStubs(daeItems);
+  const finalItems = await applyChrisPremadeEffects({ documents: vision5eItems, compendiumItem: true });
 
   const finalCount = finalItems.length;
   DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);

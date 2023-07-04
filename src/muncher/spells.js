@@ -10,6 +10,7 @@ import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
+import { addVision5eStubs } from "../effects/vision5e.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -127,7 +128,8 @@ export async function parseSpells(ids = null) {
     ? srdSpells.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
     : srdSpells;
   const daeSpells = await daeFiddling(filteredSpells);
-  const finalSpells = await applyChrisPremadeEffects({ documents: daeSpells, compendiumItem: true });
+  const visionSpells = addVision5eStubs(daeSpells);
+  const finalSpells = await applyChrisPremadeEffects({ documents: visionSpells, compendiumItem: true });
 
   const finalCount = finalSpells.length;
   DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);
