@@ -63,6 +63,9 @@ export function addVision5eStub(document) {
     const effect = baseSpellEffect(document, VISION_EFFECTS[name].effectName);
     effect.transfer = VISION_EFFECTS[name].transfer;
     document.effects.push(effect);
+    if (VISION_EFFECTS[name].type === "spell") {
+      document.system.target.type = "self";
+    }
   }
   return document;
 }

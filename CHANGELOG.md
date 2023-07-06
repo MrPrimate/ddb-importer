@@ -1,3 +1,7 @@
+# NEXT UP
+
+- When applying Vision/Detection Modes 5e effects spell targets will be set to self.
+
 # 3.4.46
 
 - Chris Premade effects would not apply to characters if the option was not selected in the muncher.
