@@ -277,7 +277,10 @@ export default class ThirdPartyMunch extends FormApplication {
     if (CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key]) {
       return CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key];
     } else {
-      const existingActor = game.actors.find((actor) => actor.folder?.id == folderId && actor.flags.ddbimporter.id == ddbId);
+      const existingActor = game.actors.find((actor) =>
+        hasProperty(actor, "flags.ddbimporter.id")
+        && actor.folder?.id == folderId && actor.flags.ddbimporter.id == ddbId
+      );
       const actorId = existingActor ? existingActor.id : randomID();
       CONFIG.DDBI.ADVENTURE.TEMPORARY.mockActors[key] = actorId;
       return actorId;

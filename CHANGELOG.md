@@ -1,6 +1,7 @@
 # NEXT UP
 
 - When applying Vision/Detection Modes 5e effects spell targets will be set to self.
+- A fix for third party munch where the importer could choke on actors taht are not from DDB. @Amphibicat
 
 # 3.4.46
 
