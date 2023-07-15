@@ -1,3 +1,7 @@
+# 3.4.48
+
+- Chris's Premades would not always capture all feature types when applying via the medkit pack.
+
 # 3.4.47
 
 - When applying Vision/Detection Modes 5e effects spell targets will be set to self.

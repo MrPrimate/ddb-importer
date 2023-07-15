@@ -45,7 +45,7 @@ export async function getChrisCompendium(type) {
 }
 
 
-async function getFolderId(name, type, compendiumName) {
+async function getFolderId(name, compendiumName) {
   if (isNewerVersion(11, game.version)) {
     const folderAPI = game.CF.FICFolderAPI;
     const allFolders = await folderAPI.loadFolders(compendiumName);
@@ -108,16 +108,22 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
     return document;
   }
   const compendiumName = SETTINGS.CHRIS_PREMADES_COMPENDIUM.find((c) => c.type === type)?.name;
-  if (!compendiumName) return document;
+  if (!compendiumName) {
+    logger.warn(`No compendium found for Chris's Premade effect for ${type} and ${document.name}!`);
+    return document;
+  }
   // .split("(")[0].trim()
   const ddbName = getName(document);
   const chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
-  const folderId = type === "monsterfeatures"
-    ? await getFolderId(folderName ?? chrisName, type, compendiumName)
+  const folderId = ["monsterfeatures", "monsterfeature"].includes(type)
+    ? await getFolderId((folderName ?? chrisName), compendiumName)
     : undefined;
 
   // expected to find feature in a folder, but we could not
-  if (folderName && folderId === undefined) return document;
+  if (folderName && folderId === undefined) {
+    logger.debug(`No folder found for ${folderName} and ${document.name}, using compendium name ${compendiumName}`);
+    return document;
+  }
 
   logger.debug(`CP Effect: Attempting to fetch ${document.name} from ${compendiumName} with folderID ${folderId}`);
   const chrisDoc = await chrisPremades.helpers.getItemFromCompendium(compendiumName, chrisName, true, folderId);
@@ -160,18 +166,29 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
 
 
 export async function applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, isMonster = false, folderName = null } = {}) {
-  if (!game.modules.get("chris-premades")?.active) return documents;
+  if (!game.modules.get("chris-premades")?.active) {
+    logger.debug("Chris Premades not active");
+    return documents;
+  }
 
   const applyChrisEffects = force || (compendiumItem
     ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades")
     : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"));
-  if (!applyChrisEffects) return documents;
+  if (!applyChrisEffects) {
+    logger.debug("Not Applying basic premades");
+    return documents;
+  }
 
   for (let doc of documents) {
     if (["class", "subclass", "background"].includes(doc.type)) continue;
     const type = getType(doc, isMonster);
+    logger.debug(`Evaluating ${doc.name} of type ${type} for Chris's Premade application.`, { type, folderName });
 
     doc = await applyChrisPremadeEffect({ document: doc, type, folderName });
+    if (isMonster && !["monsterfeatures", "monsterfeature"].includes(type) && !getProperty(document, "flags.ddbimporter.effectsApplied") === true) {
+      logger.debug(`No Chris' Premade found for ${doc.name} with type "${type}", checking for monster feature.`);
+      doc = await applyChrisPremadeEffect({ document: doc, type: "monsterfeature", folderName });
+    }
   }
 
   return documents;
@@ -251,8 +268,8 @@ export async function restrictedItemReplacer(actor, folderName = null) {
         if (!compendiumName) {
           logger.debug(`No Chris Compendium mapping for ${type} yet parsing ${docAdd.name}`);
         }
-        const folderId = type === "monsterfeatures"
-          ? await getFolderId(folderName ?? ddbName, type, compendiumName)
+        const folderId = ["monsterfeatures", "monsterfeature"].includes(type)
+          ? await getFolderId((folderName ?? ddbName), compendiumName)
           : undefined;
 
         for (const newItemName of restrictedItem.additionalItems) {
@@ -316,8 +333,8 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
 
     if (newItemNames) {
       logger.debug(`Adding new items for ${chrisName}`);
-      const folderId = type === "monsterfeatures"
-        ? await getFolderId(folderName ?? chrisName, type, compendiumName)
+      const folderId = ["monsterfeatures", "monsterfeature"].includes(type)
+        ? await getFolderId((folderName ?? chrisName), compendiumName)
         : undefined;
 
       for (const newItemName of newItemNames) {
@@ -367,8 +384,8 @@ export async function addChrisEffectsToActorDocuments(actor) {
   logger.info("Starting to update actor documents with Chris Premades effects");
   let documents = actor.getEmbeddedCollection("Item").toObject();
   const isMonster = actor.type === "npc";
-  const folderName = isMonster ? actor.name : undefined;
-  const data = (await applyChrisPremadeEffects({ documents, compendiumItem: false, force: true, isMonster }))
+  const folderName = isMonster ? actor.name : null;
+  const data = (await applyChrisPremadeEffects({ documents, compendiumItem: false, force: true, folderName, isMonster }))
     .filter((d) =>
       getProperty(d, "flags.ddbimporter.chrisEffectsApplied") === true
       && !hasProperty(d, "flags.items-with-spells-5e.item-spells.parent-item")
