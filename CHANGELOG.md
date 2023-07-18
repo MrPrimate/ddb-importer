@@ -1,3 +1,7 @@
+# 3.4.49
+
+- When using Chris' Premades if more than one document had the same effect it could cause issues.
+
 # 3.4.48
 
 - Chris's Premades would not always capture all feature types when applying via the medkit pack.

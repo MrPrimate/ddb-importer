@@ -145,7 +145,13 @@ export async function applyChrisPremadeEffect({ document, type, folderName = nul
   document.flags = mergeObject(document.flags, chrisDoc.flags);
 
   CP_FIELDS_TO_COPY.forEach((field) => {
-    setProperty(document, field, getProperty(chrisDoc, field));
+    const values = getProperty(chrisDoc, field);
+    if (field === "effects") {
+      values.forEach((effect) => {
+        effect._id = randomID();
+      });
+    }
+    setProperty(document, field, values);
   });
 
   setProperty(document, "flags.ddbimporter.effectsApplied", true);
@@ -401,6 +407,7 @@ export async function addChrisEffectsToActorDocuments(actor) {
   });
   await actor.deleteEmbeddedDocuments("Item", dataIds);
   logger.debug("Chris premades, deletion complete");
+  logger.debug("Creating chris premade items", data);
   await actor.createEmbeddedDocuments("Item", data, { keepId: true });
   logger.debug("Delete and recreate complete, beginning restricted item replacer");
   await restrictedItemReplacer(actor, folderName);
