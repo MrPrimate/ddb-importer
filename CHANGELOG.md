@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.50
 
 - Monster sense parsing. If Vision/Detection modes 5e is installed, then don't add detection modes to monsters.
 - Adamantine Armor and similar now will add midi-qol effect.
