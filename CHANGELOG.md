@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Monster sense parsing. If Vision/Detection modes 5e is installed, then don't add detection modes to monsters.
+- Adamantine Armor and similar now will add midi-qol effect.
+
 # 3.4.49
 
 - When using Chris' Premades if more than one document had the same effect it could cause issues.
