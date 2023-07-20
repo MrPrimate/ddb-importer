@@ -676,6 +676,18 @@ function getGenericConditionAffect(modifiers, condition, typeId) {
   return result;
 }
 
+
+function addCriticalHitImmunities(modifiers, name) {
+  const result = DDBHelper.filterModifiers(modifiers, "immunity", "critical-hits");
+
+  if (result.length > 0) {
+    logger.debug(`Generating critical hit immunity for ${name}`);
+    return [generateCustomChange(1, 1, "flags.midi-qol.fail.critical.all")];
+  } else {
+    return [];
+  }
+}
+
 /**
  * Get  Damage Conditions, and Condition Immunities
  * @param {*} ddbItem
@@ -1295,6 +1307,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   );
   const languages = addLanguages(ddbItem.definition.grantedModifiers, foundryItem.name);
   const conditions = addDamageConditions(ddbItem.definition.grantedModifiers, foundryItem.name);
+  const criticalHitImmunity = addCriticalHitImmunities(ddbItem.definition.grantedModifiers, foundryItem.name);
   const statSets = addStatChanges(ddbItem.definition.grantedModifiers, foundryItem.name);
   const statBonuses = addStatBonuses(ddbItem.definition.grantedModifiers, foundryItem.name);
   const senses = addSenseBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
@@ -1380,6 +1393,7 @@ function generateGenericEffects(ddb, character, ddbItem, foundryItem, isCompendi
   const globalDamageBonus = addGlobalDamageBonus(ddbItem.definition.grantedModifiers, foundryItem.name);
 
   effect.changes = [
+    ...criticalHitImmunity,
     ...globalSaveBonus,
     ...globalAbilityBonus,
     ...globalSkillBonus,
