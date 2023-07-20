@@ -49,8 +49,10 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
             enabled: true,
           };
 
+          const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
           // only add duplicate modes if they don't exist
-          if (!this.npc.prototypeToken.detectionModes.some((mode) => mode.id === detectionMode.id)) {
+          // don't add if vision 5e is installed, as it can handle these detection modes.
+          if (!vision5eInstalled && !this.npc.prototypeToken.detectionModes.some((mode) => mode.id === detectionMode.id)) {
             this.npc.prototypeToken.detectionModes.push(detectionMode);
           }
         }
