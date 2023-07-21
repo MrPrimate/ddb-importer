@@ -36,6 +36,10 @@ import {
   requirementsSatisfied,
   selectTargetsWithinX,
   isRangedWeaponAttack,
+  attachSequencerFileToTemplate,
+  getCantripDice,
+  wait,
+  getHighestAbility,
 } from "./effects/helpers.js";
 import {
   applyChrisPremadeEffect,
@@ -152,6 +156,10 @@ export function registerApi() {
       addChrisEffectsToActorDocuments,
       requirementsSatisfied,
       isRangedWeaponAttack,
+      attachSequencerFileToTemplate,
+      getCantripDice,
+      wait,
+      getHighestAbility,
     },
     chris: {
       generateEffect: applyChrisPremadeEffect,

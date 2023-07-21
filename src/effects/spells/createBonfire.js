@@ -45,6 +45,7 @@ export async function createBonfireEffect(document) {
     damageType: document.system.damage.parts[0][1],
     save: document.system.save.ability,
     sequencerFile: "jb2a.flames.01.orange",
+    sequencerScale: 2,
     isCantrip: true,
     saveOnEntry: true,
   });

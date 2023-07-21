@@ -242,3 +242,51 @@ export function selectTargetsWithinX(sourceToken, distance, includeSource) {
   game.user?.broadcastActivity({ aoeTargetIds });
   return aoeTargets;
 }
+
+
+export async function attachSequencerFileToTemplate(templateUuid, sequencerFile, originUuid, scale = 1) {
+  if (game.modules.get("sequencer")?.active) {
+    if (Sequencer.Database.entryExists(sequencerFile)) {
+      logger.debug(`Trying to apply sequencer effect (${sequencerFile}) to ${templateUuid} from ${originUuid}`, sequencerFile);
+      const template = await fromUuid(templateUuid);
+      new Sequence()
+        .effect()
+        .file(Sequencer.Database.entryExists(sequencerFile))
+        .size({
+          width: canvas.grid.size * (template.width / canvas.dimensions.distance),
+          height: canvas.grid.size * (template.width / canvas.dimensions.distance),
+        })
+        .persist(true)
+        .origin(originUuid)
+        .belowTokens()
+        .opacity(0.5)
+        .attachTo(template, { followRotation: true })
+        .scaleToObject(scale)
+        .play();
+    }
+  }
+}
+
+
+export async function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+export function getHighestAbility(actor, abilities) {
+  if (typeof abilities === "string") {
+    return abilities;
+  } else if (Array.isArray(abilities)) {
+    return abilities.reduce((prv, current) => {
+      if (actor.system.abilities[current].value > actor.system.abilities[prv].value) return current;
+      else return prv;
+    }, abilities[0]);
+  }
+  return undefined;
+}
+
+export function getCantripDice(actor) {
+  const level = actor.type === "character" ? actor.system.details.level : actor.system.details.cr;
+  return 1 + Math.floor((level + 1) / 6);
+}

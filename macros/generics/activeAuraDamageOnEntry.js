@@ -1,14 +1,12 @@
-if(!game.modules.get("ActiveAuras")?.active) {
+if (!game.modules.get("ActiveAuras")?.active) {
   ui.notifications.error("ActiveAuras is not enabled");
+  return;
+} else if (!game.modules.get("ddb-importer")?.active) {
+  ui.notifications.error("ddb-importer is not enabled");
   return;
 }
 
 const lastArg = args[args.length - 1];
-
-function getCantripDice(actor) {
-  const level = actor.type === "character" ? actor.system.details.level : actor.system.details.cr;
-  return 1 + Math.floor((level + 1) / 6);
-}
 
 async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const item = await fromUuid(itemUuid);
@@ -22,7 +20,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const scalingDiceArray = item.system.scaling.formula.split("d");
   const scalingDiceNumber = itemLevel - item.system.level;
   const upscaledDamage =  isCantrip
-    ? `${getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
+    ? `${game.modules.get("ddb-importer").api.effects.getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
 
   const workflowItemData = duplicate(item.data);
@@ -78,29 +76,6 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
 
 }
 
-async function attachSequencerFileToTemplate(templateUuid, sequencerFile, originUuid) {
-  if (game.modules.get("sequencer")?.active) {
-    if (Sequencer.Database.entryExists(sequencerFile)) {
-      console.debug("Trying to apply sequencer effect", {sequencerFile, templateUuid});
-      const template = await fromUuid(templateUuid);
-      new Sequence()
-      .effect()
-        .file(Sequencer.Database.entryExists(sequencerFile))
-        .size({
-          width: canvas.grid.size * (template.width / canvas.dimensions.distance),
-          height: canvas.grid.size * (template.width / canvas.dimensions.distance),
-        })
-        .persist(true)
-        .origin(originUuid)
-        .belowTokens()
-        .opacity(0.5)
-        .attachTo(template, { followRotation: true })
-        .stretchTo(template, { attachTo: true})
-      .play();
-    }
-  }
-}
-
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const safeName = lastArg.itemData.name.replace(/\s|'|\.|’/g, "_");
   const dataTracker = {
@@ -120,10 +95,11 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   if (ddbEffectFlags) {
     const sequencerFile = ddbEffectFlags.sequencerFile;
     if (sequencerFile) {
-      attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid)
+      const scale = ddbEffectFlags.sequencerScale ?? 1;
+      await game.modules.get("ddb-importer").api.effects.attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid, scale);
     }
     if (ddbEffectFlags.isCantrip) {
-      const cantripDice = getCantripDice(lastArg.actor);
+      const cantripDice = game.modules.get("ddb-importer").api.effects.getCantripDice(lastArg.actor);
       args[0].spellLevel = cantripDice;
       ddbEffectFlags.cantripDice = cantripDice;
       let newEffects = args[0].item.effects.map((effect) => {

@@ -1,28 +1,12 @@
-if(!game.modules.get("ActiveAuras")?.active) {
+if (!game.modules.get("ActiveAuras")?.active) {
   ui.notifications.error("ActiveAuras is not enabled");
+  return;
+} else if (!game.modules.get("ddb-importer")?.active) {
+  ui.notifications.error("ddb-importer is not enabled");
   return;
 }
 
 const lastArg = args[args.length - 1];
-
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
-
-function getHighestAbility(actor, abilities) {
-  if (typeof abilities === "string") {
-    return abilities;
-  } else if (Array.isArray(abilities)) {
-    return abilities.reduce((prv, current) => {
-      if (actor.system.abilities[current].value > actor.system.abilities[prv].value) return current;
-      else return prv;
-    }, abilities[0]);
-  }
-}
-
-function getCantripDice(actor) {
-  const level = actor.type === "character" ? actor.system.details.level : actor.system.details.cr;
-  return 1 + Math.floor((level + 1) / 6);
-}
-
 
 async function attemptRemoval(targetToken, condition, item) {
   if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
@@ -36,7 +20,9 @@ async function attemptRemoval(targetToken, condition, item) {
             const saveDc = caster.system.attributes.spelldc;
             const removalCheck = item.system.flags.ddbimporter.effect.removalCheck;
             const removalSave = item.system.flags.ddbimporter.effect.removalSave;
-            const ability = removalCheck ? getHighestAbility(targetToken.actor.data, removalCheck) : getHighestAbility(targetToken.actor.data, removalSave);
+            const ability = removalCheck
+              ? game.modules.get("ddb-importer").api.effects.getHighestAbility(targetToken.actor.data, removalCheck)
+              : game.modules.get("ddb-importer").api.effects.getHighestAbility(targetToken.actor.data, removalSave);
             const type = removalCheck ? "check" : "save";
             const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
             const rollResult = removalCheck
@@ -93,30 +79,6 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
   }
 }
 
-async function attachSequencerFileToTemplate(templateUuid, sequencerFile, originUuid) {
-  if (game.modules.get("sequencer")?.active) {
-    if (Sequencer.Database.entryExists(sequencerFile)) {
-      console.debug(`Trying to apply sequencer effect (${sequencerFile}) to ${templateUuid} from ${originUuid}`, sequencerFile);
-      const template = await fromUuid(templateUuid);
-      new Sequence()
-      .effect()
-        .file(Sequencer.Database.entryExists(sequencerFile))
-        .size({
-          width: canvas.grid.size * (template.width / canvas.dimensions.distance),
-          height: canvas.grid.size * (template.width / canvas.dimensions.distance),
-        })
-        .persist(true)
-        .origin(originUuid)
-        .belowTokens()
-        .opacity(0.5)
-        .attachTo(template, { followRotation: true })
-        .stretchTo(template, { attachTo: true})
-      .play();
-    }
-  }
-}
-
-
 async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const item = await fromUuid(itemUuid);
   const caster = item.parent;
@@ -128,7 +90,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const scalingDiceArray = item.system.scaling.formula.split("d");
   const scalingDiceNumber = itemLevel - item.system.level;
   const upscaledDamage =  isCantrip
-    ? `${getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
+    ? `${game.modules.get("ddb-importer").api.effects.getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
   const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll);
@@ -182,10 +144,11 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   if (ddbEffectFlags) {
     const sequencerFile = ddbEffectFlags.sequencerFile;
     if (sequencerFile) {
-      await attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid)
+      const scale = ddbEffectFlags.sequencerScale ?? 1;
+      await game.modules.get("ddb-importer").api.effects.attachSequencerFileToTemplate(lastArg.templateUuid, sequencerFile, lastArg.itemUuid, scale);
     }
     if (ddbEffectFlags.isCantrip) {
-      const cantripDice = getCantripDice(lastArg.actor);
+      const cantripDice = game.modules.get("ddb-importer").api.effects.getCantripDice(lastArg.actor);
       args[0].spellLevel = cantripDice;
       ddbEffectFlags.cantripDice = cantripDice;
       let newEffects = args[0].item.effects.map((effect) => {
@@ -203,7 +166,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
     if (ddbEffectFlags.applyImmediate) {
       console.debug("Applying immediate effect");
-      await wait(500);
+      await game.modules.get("ddb-importer").api.effects.wait(500);
       const condition = ddbEffectFlags.condition;
       for (const token of lastArg.failedSaves) {
         if (!game.dfreds.effectInterface.hasEffectApplied(condition, token.actor.uuid)) {
@@ -233,7 +196,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   const item = await fromUuid(lastArg.efData.origin);
   const ddbEffectFlags = item.flags.ddbimporter.effect;
   // sometimes the round info has not updated, so we pause a bit
-  if (args[0] == "each") await wait(500);
+  if (args[0] == "each") await game.modules.get("ddb-importer").api.effects.wait(500);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
   const target = canvas.tokens.get(lastArg.tokenId);
