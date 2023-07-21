@@ -90,7 +90,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const scalingDiceArray = item.system.scaling.formula.split("d");
   const scalingDiceNumber = itemLevel - item.system.level;
   const upscaledDamage =  isCantrip
-    ? `${game.modules.get("ddb-importer").api.effects.getCantripDice(caster.data)}d${scalingDiceArray[1]}[${damageType}]`
+    ? `${game.modules.get("ddb-importer").api.effects.getCantripDice(caster)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
   const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll);
