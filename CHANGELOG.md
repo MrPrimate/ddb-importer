@@ -1,6 +1,6 @@
-# NEXT UP
+# 3.4.51
 
-- Tweaks to create bonfire
+- Tweaks to create bonfire and active aura template spells.
 
 # 3.4.50
 
