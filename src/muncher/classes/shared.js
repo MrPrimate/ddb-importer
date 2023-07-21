@@ -178,7 +178,7 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
   return description;
 }
 
-export async function getClassFeature(feature, klass, subClassName = "") {
+export async function getClassFeature(feature, klass, subClassName = "", className = undefined) {
   logger.debug("Class feature build started");
 
   let result = await buildBase(feature);
@@ -191,7 +191,7 @@ export async function getClassFeature(feature, klass, subClassName = "") {
   result.flags.ddbimporter['featureName'] = feature.name;
   result.flags.ddbimporter['requiredLevel'] = feature.requiredLevel;
   result.flags.ddbimporter['prerequisite'] = feature.prerequisite;
-  result.flags.ddbimporter['class'] = klass.name;
+  result.flags.ddbimporter['class'] = className ?? klass.name;
   result.flags.ddbimporter['classId'] = klass.id;
   result.flags.ddbimporter['subClass'] = subClassName;
   result.flags.ddbimporter['parentClassId'] = klass.parentClassId;

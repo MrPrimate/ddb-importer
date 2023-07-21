@@ -1,3 +1,7 @@
+# 3.4.52
+
+- Correct class name on flag data for class features for @kaelad
+
 # 3.4.51
 
 - Tweaks to create bonfire and active aura template spells.

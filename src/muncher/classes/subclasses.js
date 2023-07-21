@@ -84,7 +84,7 @@ export async function getSubClasses(data) {
       logger.debug(`${feature.name} feature starting...`);
       if (!NO_TRAITS.includes(feature.name.trim()) && !existingFeature) {
         // eslint-disable-next-line no-await-in-loop
-        const parsedFeature = await getClassFeature(feature, subClass, subClass.name);
+        const parsedFeature = await getClassFeature(feature, subClass, subClass.name, classMatch.name);
         classFeatures.push(parsedFeature);
         results.push({ class: classMatch.name, subClass: subClass.name, feature: feature.name });
       }
