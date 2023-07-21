@@ -34,6 +34,7 @@ export async function createBonfireEffect(document) {
     displayTemp: true,
   };
   setProperty(effect, "duration.seconds", 60);
+  setProperty(effect, "duration.rounds", 10);
   effect.changes.push(generateMacroChange(""));
   setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
 

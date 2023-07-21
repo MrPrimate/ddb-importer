@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Tweaks to create bonfire
+
 # 3.4.50
 
 - Monster sense parsing. If Vision/Detection modes 5e is installed, then don't add detection modes to monsters.

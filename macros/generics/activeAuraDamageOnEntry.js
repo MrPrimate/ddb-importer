@@ -87,8 +87,8 @@ async function attachSequencerFileToTemplate(templateUuid, sequencerFile, origin
       .effect()
         .file(Sequencer.Database.entryExists(sequencerFile))
         .size({
-          width: canvas.grid.size * (template.data.width / canvas.dimensions.distance),
-          height: canvas.grid.size * (template.data.width / canvas.dimensions.distance),
+          width: canvas.grid.size * (template.width / canvas.dimensions.distance),
+          height: canvas.grid.size * (template.width / canvas.dimensions.distance),
         })
         .persist(true)
         .origin(originUuid)
