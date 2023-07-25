@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Correct "Chain Shirt" icon for monster items. e.g. on the Goblin Boss.
+
 # 3.4.52
 
 - Correct class name on flag data for class features for @kaelad
