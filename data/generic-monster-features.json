@@ -1120,6 +1120,10 @@
     "path": "icons/magic/control/debuff-chains-shackle-movement-red.webp"
   },
   {
+    "name": "Chain Shirt",
+    "path": "icons/commodities/metal/mail-chain-steel.webp"
+  },
+  {
     "name": "Chain Smash",
     "path": "icons/magic/control/debuff-chains-shackle-movement-red.webp"
   },
