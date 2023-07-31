@@ -7,33 +7,39 @@ export async function zephyrStrikeEffect(document) {
   // macroToCall
   effect.changes.push(
     {
-      key: "flags.midi-qol.optional.ZepyrStrike.macroToCall",
+      key: "flags.midi-qol.optional.ZephyrStrike.macroToCall",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: "ItemMacro.Zephyr Strike",
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.ZepyrStrike.damage.mwak",
+      key: "flags.midi-qol.optional.ZephyrStrike.damage.mwak",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: `${document.system.damage.parts[0][0]}`,
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.ZepyrStrike.damage.rwak",
+      key: "flags.midi-qol.optional.ZephyrStrike.damage.rwak",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: `${document.system.damage.parts[0][0]}`,
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.ZepyrStrike.count",
+      key: "flags.midi-qol.optional.ZephyrStrike.count",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: "1",
       priority: "20",
     },
     {
-      key: "flags.midi-qol.optional.ZepyrStrike.label",
+      key: "flags.midi-qol.optional.ZephyrStrike.label",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: "Gain Zephyr Strike damage bonus?",
+      priority: "20",
+    },
+    {
+      key: "flags.midi-qol.optional.ZephyrStrike.criticalDamage",
+      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      value: "1",
       priority: "20",
     },
   );
