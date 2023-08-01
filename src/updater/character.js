@@ -1349,8 +1349,9 @@ async function activeUpdateUpdateItem(document, update) {
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
     const actorActiveUpdate = parentActor && parentActor.flags.ddbimporter?.activeUpdate;
+    const ignore = getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
 
-    if (!parentActor || !actorActiveUpdate) {
+    if (!parentActor || !actorActiveUpdate || ignore) {
       resolve([]);
     } else {
       logger.debug("Preparing to sync item change to DDB...");
@@ -1414,8 +1415,9 @@ async function activeUpdateAddOrDeleteItem(document, state) {
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
     const actorActiveUpdate = parentActor && getProperty(parentActor, "flags.ddbimporter.activeUpdate");
+    const ignore = getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
 
-    if (parentActor && actorActiveUpdate && syncEquipment) {
+    if (parentActor && actorActiveUpdate && syncEquipment && !ignore) {
       logger.debug(`Checking to see if ${state.toLowerCase()} can be added to DDB...`);
       const action = document.flags.ddbimporter?.action || ["feat", "class", "subclass", "spell", "background", "race"].includes(document.type);
       if (!action) {
