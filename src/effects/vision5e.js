@@ -53,7 +53,7 @@ const VISION_EFFECTS = {
 export function addVision5eStub(document) {
   if (!document.effects) document.effects = [];
 
-  const name = document.flags.ddbimporter?.originalName ?? document.name;
+  const name = document.flags?.ddbimporter?.originalName ?? document.name;
 
   // if document name in Vision effects then add effect
   if (VISION_EFFECTS[name]
