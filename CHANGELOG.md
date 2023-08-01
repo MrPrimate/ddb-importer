@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.53
 
 - Correct "Chain Shirt" icon for monster items. e.g. on the Goblin Boss.
 - Effect: ZephyrStrike now handles crit dice correctly.
