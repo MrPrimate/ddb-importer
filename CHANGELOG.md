@@ -2,6 +2,7 @@
 
 - Correct "Chain Shirt" icon for monster items. e.g. on the Goblin Boss.
 - Effect: ZephyrStrike now handles crit dice correctly.
+- Update to DDB: Add option to ignore items, update items created via effects to be ignored by DDB Importer. @Galag'r
 
 # 3.4.52
 

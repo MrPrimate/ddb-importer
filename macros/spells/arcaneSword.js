@@ -67,7 +67,7 @@ if (args[0] === "on") {
     const weaponData = {
       name: castItemName,
       type: "weapon",
-      data: {
+      system: {
         quantity: 1,
         activation: { type: "action", cost: 1, condition: "", },
         target: { value: 1, type: "creature", },
@@ -82,7 +82,7 @@ if (args[0] === "on") {
         proficient: true,
         equipped: true,
       },
-      flags: { ArcaneSword: targetActor.id },
+      flags: { ArcaneSword: targetActor.id, ddbimporter: { ignoreItemUpdate: true } },
       img: DAEItem.img,
     };
 

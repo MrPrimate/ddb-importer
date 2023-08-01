@@ -18,7 +18,7 @@ if (args[0] === "on") {
       _id: uuid,
       name: castItemName,
       type: "weapon",
-      data: {
+      system: {
         quantity: 1,
         activation: { type: "bonus", cost: 1, condition: "", },
         target: { value: 1, type: "creature", },
@@ -36,7 +36,7 @@ if (args[0] === "on") {
         description: DAEItem.system.description,
         consume: { type: "charges", target: uuid, amount: 1 }
       },
-      flags: { CrownOfStars: target.id },
+      flags: { CrownOfStars: target.id, ddbimporter: { ignoreItemUpdate: true } },
       img: DAEItem.img,
     };
 

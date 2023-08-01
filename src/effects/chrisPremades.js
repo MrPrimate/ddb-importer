@@ -291,6 +291,7 @@ export async function restrictedItemReplacer(actor, folderName = null) {
               compendiumName,
             });
           } else if (!documents.some((d) => d.name === chrisDoc.name)) {
+            setProperty(chrisDoc, "flags.ddbimporter.ignoreItemUpdate", true);
             toAdd.push(chrisDoc);
           }
         }
@@ -356,6 +357,7 @@ export async function addAndReplaceRedundantChrisDocuments(actor, folderName = n
             compendiumName,
           });
         } else if (!documents.some((d) => d.name === chrisDoc.name)) {
+          setProperty(chrisDoc, "flags.ddbimporter.ignoreItemUpdate", true);
           toAdd.push(chrisDoc);
         }
       }

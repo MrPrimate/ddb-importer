@@ -21,7 +21,8 @@ function getFoundryItems(actor) {
     delete item.flags.ddbimporter.updateDocumentId;
     return item;
   });
-  return actorItems.concat(itemCollections);
+  // don't return update ignored items
+  return (actorItems.concat(itemCollections)).filter((item) => !(item.flags.ddbimporter?.ignoreItemUpdate ?? false));
 }
 
 function getCustomItemDescription(text) {
@@ -726,7 +727,7 @@ async function addEquipment(actor, ddbData) {
 
   const items = getFoundryItems(actor);
   const itemsToAdd = items.filter((item) =>
-    !item.flags.ddbimporter?.action
+    !(item.flags.ddbimporter?.action ?? false)
     && item.system.quantity !== 0
     && DICTIONARY.types.inventory.includes(item.type)
     && !item.flags.ddbimporter?.custom

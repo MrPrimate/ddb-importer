@@ -21,7 +21,7 @@ if (args[0] === "on") {
     const weaponData = {
       name: castItemName,
       type: "weapon",
-      data: {
+      system: {
         quantity: 1,
         activation: { type: "action", cost: 1, condition: "", },
         target: { value: 1, type: "creature", },
@@ -37,7 +37,7 @@ if (args[0] === "on") {
         equipped: true,
         description: DAEItem.system.description,
       },
-      flags: { FlameBlade: target.id },
+      flags: { FlameBlade: target.id, ddbimporter: { ignoreItemUpdate: true } },
       img: DAEItem.img,
     };
 

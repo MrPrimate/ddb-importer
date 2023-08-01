@@ -17,7 +17,7 @@ function createShieldItem(type) {
     name: getShieldName(type),
     type: "weapon",
     img: img,
-    data: {
+    system: {
       source: "Fire Shield Spell",
       activation: {
         type: "special",
@@ -31,6 +31,7 @@ function createShieldItem(type) {
       },
       weaponType: "natural",
     },
+    flags: { ddbimporter: { ignoreItemUpdate: true } },
     effects: [],
   };
   return item;

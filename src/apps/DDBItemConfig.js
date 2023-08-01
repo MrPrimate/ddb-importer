@@ -20,7 +20,7 @@ export class DDBItemConfig extends FormApplication {
     const itemImport = item.flags.ddbimporter?.ignoreItemImport;
     const resource = item.flags.ddbimporter?.retainResourceConsumption;
     const chris = item.flags.ddbimporter?.ignoreItemForChrisPremades;
-    // const itemSync = item.flags.ddbimporter?.ignoreItemSync;
+    const ignoreItemUpdate = item.flags.ddbimporter?.ignoreItemUpdate;
     const overrideId = item.flags.ddbimporter?.overrideId;
 
     const settings = [
@@ -28,6 +28,11 @@ export class DDBItemConfig extends FormApplication {
         name: "ignoreItemImport",
         isChecked: itemImport,
         description: "Ignore this item when importing the character (implies all other settings here).",
+      },
+      {
+        name: "ignoreItemUpdate",
+        isChecked: ignoreItemUpdate,
+        description: "Ignore this item when when updating the character back to DDB?",
       },
       {
         name: "ignoreItemForChrisPremades",
@@ -44,11 +49,6 @@ export class DDBItemConfig extends FormApplication {
         isChecked: resource,
         description: "Retain Resource Consumption linking.",
       },
-      // {
-      //   name: "ignoreItemSync",
-      //   isChecked: itemSync,
-      //   description: "Ignore this item when when syncing the character",
-      // },
     ];
 
     const overrides = {
@@ -105,7 +105,7 @@ export class DDBItemConfig extends FormApplication {
     item.flags.ddbimporter['ignoreItemImport'] = formData['ignoreItemImport'];
     item.flags.ddbimporter['ignoreItemForChrisPremades'] = formData['ignoreItemForChrisPremades'];
     item.flags.ddbimporter['retainResourceConsumption'] = formData['retainResourceConsumption'];
-    // item.flags.ddbimporter['ignoreItemSync'] = formData['ignoreItemSync'];
+    item.flags.ddbimporter['ignoreItemUpdate'] = formData['ignoreItemUpdate'];
 
     this.object.actor.updateEmbeddedDocuments("Item", [item]);
 

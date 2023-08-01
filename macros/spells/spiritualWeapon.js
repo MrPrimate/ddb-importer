@@ -79,7 +79,7 @@ if (args[0] === "on") {
         proficient: true,
         equipped: true,
       },
-      flags: { SpiritualWeapon: targetActor.id },
+      flags: { SpiritualWeapon: targetActor.id, ddbimporter: { ignoreItemUpdate: true } },
       img: DAEItem.img,
     };
 

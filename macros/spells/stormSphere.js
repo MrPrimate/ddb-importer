@@ -15,7 +15,7 @@ if (args[0].tag === "OnUse") {
     const spell = {
       name: castItemName,
       type: "spell",
-      data: {
+      system: {
         description: DAEItem.system.description,
         activation: { type: "bonus", },
         ability: DAEItem.system.ability,
@@ -27,6 +27,7 @@ if (args[0].tag === "OnUse") {
         preparation: { mode: "prepared", prepared: false, },
         scaling: { mode: "none", formula: "", },
       },
+      flags: { ddbimporter: { ignoreItemUpdate: true } },
       img: DAEItem.img,
       effects: [],
     };

@@ -42,7 +42,7 @@ if (args[0] === "on") {
     const spell = {
       name: castItemName,
       type: "spell",
-      data: {
+      system: {
         description: DAEItem.system.description,
         activation: { type: "action", },
         target: { value: 5, width: null, units: "ft", type: "radius", },
@@ -58,6 +58,7 @@ if (args[0] === "on") {
         scaling: { mode: "none", formula: "", },
       },
       img: DAEItem.img,
+      flags: { ddbimporter: { ignoreItemUpdate: true } },
       effects: [],
     };
     await targetActor.createEmbeddedDocuments("Item", [spell]);

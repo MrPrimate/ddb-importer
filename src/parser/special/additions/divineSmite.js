@@ -11,7 +11,11 @@ export function getDivineSmiteSpell(feature) {
   const extraDamage = utils.parseDiceString("1d8", "", extraDamageTagInfo.damageTag).diceString;
 
   let result = {
-    flags: {},
+    flags: {
+      ddbimporter: {
+        ignoreItemUpdate: true,
+      },
+    },
     name: "Divine Smite",
     type: "spell",
     img: "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp",
