@@ -188,4 +188,5 @@ DDBCharacter.prototype._generateMaxPreparedSpells = function _generateMaxPrepare
     });
 
   this.raw.character.system.details.maxPreparedSpells = max;
+  setProperty(this.raw.character, "flags.tidy5e-sheet.maxPreparedSpells", max);
 };
