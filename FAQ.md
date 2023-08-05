@@ -315,6 +315,8 @@ Folder.deleteDocuments(game.folders.filter(f => f.type == "JournalEntry").map(f 
 
 ## Are some, but not all, map files are missing after import?
 
+This might also appear as an error such as `Scene [xxxxxxx] validation errors: background: src: does not have a valid file extension`.
+
 If you are running FoundryVTT behind an Ingress(e.g. Kubernetes) or a web proxy, it may have an individual file size limit on uploads. If this limit is smaller than some of the high-res maps images it may cause them to fail to be imported.
 
 Here are some links to common resolutions to this issue:
@@ -327,6 +329,24 @@ Here are some links to common resolutions to this issue:
     - https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size
   - Squid
     - http://www.squid-cache.org/Doc/config/request_body_max_size/
+
+## Can I set the doors to make a sound on opening?
+
+The following macro will update a scene:
+
+```javascript
+/// Update All Door Sounds on scene
+/// All Door Sounds from CONFIG.Wall.doorSounds
+/// "futuristicFast", "futuristicHydraulic","futuristicForcefield"
+/// "industrial","industrialCreaky"
+/// "jail","metal"
+/// "slidingMetal","slidingModern","slidingWood"
+/// "stoneBasic","stoneRocky","stoneSandy"
+/// "woodBasic","woodCreaky","woodHeavy"
+
+const updates = canvas.walls.doors.map(d => ({_id: d.id, doorSound: "stoneSandy"}));
+await canvas.scene.updateEmbeddedDocuments("Wall", updates);
+```
 
 ## I want to send you a useful log info
 
