@@ -1169,6 +1169,12 @@ export default class AdventureMunch extends FormApplication {
         if (tile.texture?.src) tile.texture.src = await this.importImage(tile.texture.src);
       });
 
+      for (const wall of data.walls) {
+        if (wall.door !== 0 && !wall.doorSound && wall.doorSound !== "") {
+          wall.doorSound = "woodBasic";
+        }
+      }
+
       if (overwriteEntity) await Scene.deleteDocuments([data._id]);
       const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
       const scene = await Scene.create(data, options);
