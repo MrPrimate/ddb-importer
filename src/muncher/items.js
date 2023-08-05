@@ -8,6 +8,7 @@ import { getCampaignId } from "../lib/Settings.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
@@ -92,7 +93,7 @@ function getItemData(sourceFilter) {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
   const parsingApi = DDBProxy.getProxy();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");

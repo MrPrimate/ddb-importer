@@ -11,6 +11,7 @@ import { getActorConditionStates, getCondition } from "../parser/special/conditi
 import { getItemCollectionItems } from "../parser/special/itemCollections.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 
 function getFoundryItems(actor) {
   const characterId = actor.flags.ddbimporter.dndbeyond.characterId;
@@ -60,7 +61,7 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const parsingApi = dynamicSync
     ? DDBProxy.getDynamicProxy()
     : DDBProxy.getProxy();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
   const coreBody = {

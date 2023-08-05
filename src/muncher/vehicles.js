@@ -13,6 +13,7 @@ import { getCampaignId } from "../lib/Settings.js";
 import { parseVehicles } from "../parser/vehicle/vehicle.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 
 /**
@@ -21,7 +22,7 @@ import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
  */
 export function getVehicleData(ids) {
   const cobaltCookie = getCobalt();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const parsingApi = DDBProxy.getProxy();
 
   const campaignId = getCampaignId();

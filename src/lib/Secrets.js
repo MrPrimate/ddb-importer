@@ -1,6 +1,7 @@
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "./DDBProxy.js";
+import PatreonHelper from "./PatreonHelper.js";
 
 function isJSON(str) {
   try {
@@ -76,7 +77,7 @@ export async function checkCobalt(keyPostfix = "", alternativeKey = null) {
       : alternativeKey
     : getCobalt(keyPostfix);
   const parsingApi = DDBProxy.getProxy();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, betaKey: betaKey };
 
   return new Promise((resolve, reject) => {

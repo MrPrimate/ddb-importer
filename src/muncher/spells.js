@@ -11,12 +11,13 @@ import DDBProxy from "../lib/DDBProxy.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
   const parsingApi = DDBProxy.getProxy();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");

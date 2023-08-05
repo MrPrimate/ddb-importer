@@ -8,12 +8,13 @@ import { getCampaignId } from "../lib/Settings.js";
 import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 
 function getSubClassesData(className) {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
   const parsingApi = DDBProxy.getProxy();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
@@ -46,7 +47,7 @@ function getClassOptionsData(className) {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
   const parsingApi = DDBProxy.getProxy();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, className: className };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
@@ -79,7 +80,7 @@ function getClassesData() {
   const cobaltCookie = getCobalt();
   const campaignId = getCampaignId();
   const parsingApi = DDBProxy.getProxy();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 

@@ -125,7 +125,7 @@ export default class DDBMonster {
       throw new Error("Please provide a monster ID (number) to fetch");
     }
     const cobaltCookie = getCobalt();
-    const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
 
     const body = {

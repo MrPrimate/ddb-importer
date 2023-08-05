@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Default door sound added to DDB Maps.
+
 # 3.4.53
 
 - Correct "Chain Shirt" icon for monster items. e.g. on the Goblin Boss.

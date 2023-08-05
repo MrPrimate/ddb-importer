@@ -582,7 +582,7 @@ const MuncherSettings = {
 
   getMuncherSettings: (includeHomebrew = true) => {
     const cobalt = getCobalt() != "";
-    const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key") != "";
+    const betaKey = PatreonHelper.getPatreonKey() != "";
     const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
     const tiers = PatreonHelper.getPatreonTiers(tier);
     const effectModulesAvailable = effectModules();

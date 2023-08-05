@@ -5,10 +5,11 @@ import { getCobalt } from "../lib/Secrets.js";
 import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 
 async function getFrameData() {
   const cobaltCookie = getCobalt();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const parsingApi = DDBProxy.getProxy();
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 

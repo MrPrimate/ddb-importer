@@ -4,9 +4,25 @@ import DDBProxy from "./DDBProxy.js";
 
 const PatreonHelper = {
 
-  getPatreonTier: async () => {
+  getPatreonKey: (local = false) => {
+    if (local) {
+      return localStorage.getItem("ddb-patreon-key");
+    } else {
+      return game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    }
+  },
+
+  setPatreonKey: async (key, local = false) => {
+    if (local) {
+      localStorage.setItem("ddb-patreon-key", key);
+    } else {
+      await game.settings.set(SETTINGS.MODULE_ID, "beta-key", key);
+    }
+  },
+
+  getPatreonTier: async (local = false) => {
     if (DDBProxy.isCustom()) return { success: true, message: "custom proxy", data: "CUSTOM" };
-    const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const key = PatreonHelper.getPatreonKey(local);
     const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: key };
 

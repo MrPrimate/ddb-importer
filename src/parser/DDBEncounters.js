@@ -6,6 +6,7 @@ import { getAvailableCampaigns } from "../lib/Settings.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import DDBEncounterMunch from "../apps/DDBEncounterMunch.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 
 export default class DDBEncounters {
 
@@ -23,7 +24,7 @@ export default class DDBEncounters {
 
   static async getEncounterData() {
     const cobaltCookie = getCobalt();
-    const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 

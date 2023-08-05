@@ -110,7 +110,7 @@ async function linkToPatreon() {
 function getDDBCampaigns(cobalt = null) {
   const cobaltCookie = cobalt ? cobalt : getCobalt();
   const parsingApi = DDBProxy.getProxy();
-  const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, betaKey: betaKey };
 
   return new Promise((resolve, reject) => {
@@ -210,7 +210,7 @@ export class DDBKeyChange extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const key = PatreonHelper.getPatreonKey();
     const setupConfig = {
       "beta-key": key,
     };
@@ -230,7 +230,7 @@ export class DDBKeyChange extends FormApplication {
   // eslint-disable-next-line no-unused-vars
   async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
-    const currentKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const currentKey = PatreonHelper.getPatreonKey();
     if (currentKey !== formData['beta-key']) {
       await game.settings.set(SETTINGS.MODULE_ID, "beta-key", formData['beta-key']);
       await PatreonHelper.setPatreonTier();
@@ -249,7 +249,7 @@ export class DDBKeyChange extends FormApplication {
 export async function isValidKey() {
   let validKey = false;
 
-  const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+  const key = PatreonHelper.getPatreonKey();
   if (key === "") {
     validKey = true;
   } else {
@@ -349,8 +349,8 @@ export class DDBSetup extends FormApplication {
     const isCobalt = cobalt != "";
     const cobaltStatus = await checkCobalt("", cobalt);
     const cobaltLocal = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
-    const hasKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key") != "";
-    const key = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const hasKey = PatreonHelper.getPatreonKey() != "";
+    const key = PatreonHelper.getPatreonKey();
     const campaignId = getCampaignId();
     const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
     const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
@@ -438,7 +438,7 @@ export class DDBSetup extends FormApplication {
       : campaignSelect == 0 ? "" : campaignSelect;
     const cobaltCookie = formData['cobalt-cookie'];
     const cobaltCookieLocal = formData['cobalt-cookie-local'];
-    const currentKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const currentKey = PatreonHelper.getPatreonKey();
 
     if (currentKey !== formData['beta-key']) {
       await game.settings.set(SETTINGS.MODULE_ID, "beta-key", formData['beta-key']);

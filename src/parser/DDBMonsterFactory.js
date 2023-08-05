@@ -3,6 +3,7 @@ import DDBMonster from "./DDBMonster.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
 import DDBProxy from "../lib/DDBProxy.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 import SETTINGS from "../settings.js";
 import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 import { srdFiddling, getCompendiumItems, removeItems, preFetchDDBIconImages } from "../muncher/import.js";
@@ -68,7 +69,7 @@ export default class DDBMonsterFactory {
     homebrewOnly = false, exactMatch = false, excludeLegacy = false }
   ) {
     const cobaltCookie = getCobalt();
-    const betaKey = game.settings.get(SETTINGS.MODULE_ID, "beta-key");
+    const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
 
     const body = {
