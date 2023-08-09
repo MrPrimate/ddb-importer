@@ -436,6 +436,23 @@ const utils = {
       }).render(true);
     });
     return name;
+  },
+
+  renderPopup: (type, url) => {
+    if (CONFIG.DDBI.POPUPS[type] && !CONFIG.DDBI.POPUPS[type].close) {
+      CONFIG.DDBI.POPUPS[type].focus();
+      CONFIG.DDBI.POPUPS[type].location.href = url;
+    } else {
+      const ratio = window.innerWidth / window.innerHeight;
+      const width = Math.round(window.innerWidth * 0.5);
+      const height = Math.round(window.innerWidth * 0.5 * ratio);
+      CONFIG.DDBI.POPUPS[type] = window.open(
+        url,
+        "ddb_sheet_popup",
+        `resizeable,scrollbars,location=no,width=${width},height=${height},toolbar=1`
+      );
+    }
+    return true;
   }
 };
 

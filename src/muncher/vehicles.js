@@ -9,7 +9,7 @@ import {
   // addNPCsToCompendium,
 } from "./importMonster.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { getCampaignId } from "../lib/Settings.js";
+import { getCampaignId } from "../lib/DDBCampaigns.js";
 import { parseVehicles } from "../parser/vehicle/vehicle.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";

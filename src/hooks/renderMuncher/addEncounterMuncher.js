@@ -1,5 +1,7 @@
 import DDBEncounterMunch from "../../apps/DDBEncounterMunch.js";
-import { DDBSetup, DDBCookie, isSetupComplete, isValidKey } from "../../lib/Settings.js";
+import DDBCookie from "../../apps/DDBCookie.js";
+import DDBSetup from "../../apps/DDBSetup.js";
+import { isValidKey } from "../../apps/DDBKeyChange.js";
 import { checkCobalt } from "../../lib/Secrets.js";
 import PatreonHelper from "../../lib/PatreonHelper.js";
 import logger from "../../logger.js";
@@ -20,7 +22,7 @@ export function addEncounterMuncher (app, html) {
       actualButton.prop('disabled', true);
       ui.notifications.info("Fetching your DDB Encounter Information, this might take a few seconds!");
       try {
-        const setupComplete = isSetupComplete();
+        const setupComplete = DDBSetup.isSetupComplete();
 
         if (setupComplete) {
           const cobaltStatus = await checkCobalt();

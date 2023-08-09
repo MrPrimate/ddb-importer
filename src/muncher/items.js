@@ -4,7 +4,7 @@ import DDBMuncher from "../apps/DDBMuncher.js";
 import utils from "../lib/utils.js";
 import FileHelper from "../lib/FileHelper.js";
 import { getCobalt } from "../lib/Secrets.js";
-import { getCampaignId } from "../lib/Settings.js";
+import { getCampaignId } from "../lib/DDBCampaigns.js";
 import logger from "../logger.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";

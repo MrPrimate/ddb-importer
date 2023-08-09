@@ -24,7 +24,7 @@ import { updateDDBCharacter } from "../updater/character.js";
 import { generateCharacterExtras } from "../parser/DDBExtras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
-import { DDBCookie } from "../lib/Settings.js";
+import DDBCookie from "../apps/DDBCookie.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
 import { addContainerItemsToContainers, addContainerItemsToActor } from "../parser/special/itemCollections.js";
@@ -502,7 +502,35 @@ export default class DDBCharacterManager extends FormApplication {
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
-          this.showCurrentTask("Error updating character", error, true);
+          this.showCurrentTask("Error setting local cookie", error, true);
+        }
+      });
+
+    $(html)
+      .find("#delete-local-patreon-key")
+      .on("click", async () => {
+        this.html = html;
+        try {
+          deleteLocalCobalt(this.actor.id);
+          $(html).find("#delete-local-patreon-key").prop("disabled", true);
+        } catch (error) {
+          logger.error(error);
+          logger.error(error.stack);
+          this.showCurrentTask("Error deleting local cookie", error, true);
+        }
+      });
+
+    $(html)
+      .find("#set-local-patreon-key")
+      .on("click", async () => {
+        this.html = html;
+        try {
+          new DDBCookie({}, this.actor, true).render(true);
+          $(html).find("#delete-local-patreon-key").prop("disabled", false);
+        } catch (error) {
+          logger.error(error);
+          logger.error(error.stack);
+          this.showCurrentTask("Error setting local patreon key", error, true);
         }
       });
 

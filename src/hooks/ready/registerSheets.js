@@ -1,6 +1,6 @@
 import DDBCharacterManager from "../../apps/DDBCharacterManager.js";
 import logger from "../../logger.js";
-import { DDBSetup, isSetupComplete } from "../../lib/Settings.js";
+import DDBSetup from "../../apps/DDBSetup.js";
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags.js";
 
 const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v5/character/";
@@ -83,7 +83,7 @@ export default function () {
             return renderPopup("json", API_ENDPOINT + characterId);
           }
         } else if ((!event.shiftKey && !event.ctrlKey && !event.altKey) || url === null) {
-          const setupComplete = isSetupComplete(false);
+          const setupComplete = DDBSetup.isSetupComplete(false);
 
           if (setupComplete) {
             const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, data.actor);

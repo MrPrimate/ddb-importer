@@ -1,7 +1,10 @@
 import DICTIONARY from "../../dictionary.js";
 import { DDBProxySetup } from "../../apps/DDBProxySetup.js";
 import { DirectoryPicker } from "../../lib/DirectoryPicker.js";
-import { DDBSetup, DDBCompendiumSetup, DDBDynamicUpdateSetup, DDBLocationSetup } from "../../lib/Settings.js";
+import DDBDynamicUpdateSetup from "../../apps/DDBDynamicUpdateSetup.js";
+import DDBSetup from "../../apps/DDBSetup.js";
+import DDBCompendiumSetup from "../../apps/DDBCompendiumSetup.js";
+import DDBLocationSetup from "../../apps/DDBLocationSetup.js";
 import SETTINGS from "../../settings.js";
 import FileHelper from "../../lib/FileHelper.js";
 
@@ -46,6 +49,10 @@ setProperty(CONFIG, "DDBI", {
       installedModules: null,
       configured: false,
     },
+  },
+  POPUPS: {
+    json: null,
+    web: null,
   },
 });
 

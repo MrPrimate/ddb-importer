@@ -1,6 +1,8 @@
 import DDBMuncher from "../../apps/DDBMuncher.js";
-import { DDBSetup, DDBCookie, isSetupComplete, isValidKey } from "../../lib/Settings.js";
+import DDBCookie from "../../apps/DDBCookie.js";
+import DDBSetup from "../../apps/DDBSetup.js";
 import { checkCobalt } from "../../lib/Secrets.js";
+import { isValidKey } from "../../apps/DDBKeyChange.js";
 
 export function addMuncher(app, html) {
   if (app.options.id == "compendium" && game.user.isGM) {
@@ -8,7 +10,7 @@ export function addMuncher(app, html) {
 
     button.click(async () => {
       ui.notifications.info("Checking your DDB details - this might take a few seconds!");
-      const setupComplete = isSetupComplete();
+      const setupComplete = DDBSetup.isSetupComplete();
 
       if (setupComplete) {
         const cobaltStatus = await checkCobalt();

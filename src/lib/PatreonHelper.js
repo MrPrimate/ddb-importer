@@ -1,6 +1,8 @@
 import DDBMuncher from "../apps/DDBMuncher.js";
+import logger from "../logger.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "./DDBProxy.js";
+import utils from "./utils.js";
 
 const PatreonHelper = {
 
@@ -107,6 +109,60 @@ const PatreonHelper = {
   setPatreonTier: async () => {
     const tier = await PatreonHelper.getPatreonTier();
     game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
+  },
+
+  linkToPatreon: async () => {
+
+    const proxy = DDBProxy.getProxy();
+    const patreonId = "oXQUxnRAbV6mq2DXlsXY2uDYQpU-Ea2ds0G_5hIdi0Bou33ZRJgvV8Ub3zsEQcHp";
+    const patreonAuthUrl = `${proxy}/patreon/auth`;
+    const patreonScopes = encodeURI("identity identity[email]");
+
+    const socketOptions = {
+      transports: ['websocket', 'polling', 'flashsocket'],
+      // reconnection: false,
+      // reconnectionAttempts: 10,
+    };
+    const socket = io(`${proxy}/`, socketOptions);
+
+    socket.on("connect", () => {
+      logger.debug("DDB Muncher socketID", socket.id);
+      const serverDetails = {
+        id: socket.id,
+        world: game.world.title,
+        userId: game.userId,
+      };
+      socket.emit("register", serverDetails);
+
+    });
+
+    socket.on('registered', (data) => {
+      logger.info(`Foundry instance registered with DDB Muncher Proxy`);
+      logger.debug(data);
+      utils.renderPopup("web", `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${patreonId}&redirect_uri=${patreonAuthUrl}&state=${data.userHash}&scope=${patreonScopes}`);
+    });
+
+    socket.on('auth', (data) => {
+      logger.debug(`Response from auth socket!`, data);
+
+      CONFIG.DDBI.POPUPS["web"].close();
+
+      game.settings.set(SETTINGS.MODULE_ID, "beta-key", data.key);
+      game.settings.set(SETTINGS.MODULE_ID, "patreon-user", data.email);
+      game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", data.tier);
+
+      $('#ddb-patreon-user').text(data.email);
+      $('#ddb-patreon-tier').text(data.tier);
+      $('#ddb-patreon-valid').text("True");
+      $('#ddb-beta-key').val(data.key);
+
+      socket.disconnect();
+    });
+
+    socket.on('error', (data) => {
+      logger.error(`Error Response from socket!`, data);
+      socket.disconnect();
+    });
   },
 
 };

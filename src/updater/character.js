@@ -4,7 +4,7 @@ import CompendiumHelper from "../lib/CompendiumHelper.js";
 import DICTIONARY from "../dictionary.js";
 import SETTINGS from "../settings.js";
 import { isEqual } from "../../vendor/lowdash/isequal.js";
-import { getCampaignId } from "../lib/Settings.js";
+import { getCampaignId } from "../lib/DDBCampaigns.js";
 import { looseItemNameMatch } from "../muncher/import.js";
 import { getCobalt, checkCobalt } from "../lib/Secrets.js";
 import { getActorConditionStates, getCondition } from "../parser/special/conditions.js";
@@ -61,7 +61,8 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const parsingApi = dynamicSync
     ? DDBProxy.getDynamicProxy()
     : DDBProxy.getProxy();
-  const betaKey = PatreonHelper.getPatreonKey();
+  const useCharacterKey = actor.flags.ddbimporter.dndbeyond.useLocalPatreonKey ?? false;
+  const betaKey = PatreonHelper.getPatreonKey(useCharacterKey);
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
   const coreBody = {
@@ -635,6 +636,16 @@ async function addDDBEquipment(actor, itemsToAdd) {
   const generatedItemsToAddData = generateItemsToAdd(actor, ddbEnrichedItems);
 
   logger.debug(`Generated items data`, generatedItemsToAddData);
+  logger.debug(`Generated items data light`, generatedItemsToAddData.items.map((i) => {
+    return {
+      name: i.name,
+      definitionId: i.flags.ddbimporter.definitionId,
+      definitionEntityTypeId: i.flags.ddbimporter.definitionEntityTypeId,
+      containerEntityId: i.flags.ddbimporter.containerEntityId,
+      containerEntityTypeId: i.flags.ddbimporter.containerEntityTypeId,
+      entityTypeId: i.flags.ddbimporter.entityTypeId,
+    };
+  }));
 
   const addItemData = {
     equipment: generatedItemsToAddData.toAdd,

@@ -1,4 +1,4 @@
-import { getCampaignId } from "../lib/Settings.js";
+import { getCampaignId } from "../lib/DDBCampaigns.js";
 import { getCobalt } from "../lib/Secrets.js";
 import { getVehicleData } from "./vehicles.js";
 import FileHelper from "../lib/FileHelper.js";
