@@ -103,7 +103,7 @@ export default class AdventureMunchHelpers {
             break;
           case "monster": {
             try {
-              const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
+              const tier = PatreonHelper.getPatreonTier();
               const tiers = PatreonHelper.getPatreonTiers(tier);
               if (tiers.all) {
                 logger.debug(`Importing missing ${type}s from DDB`, docIds);

@@ -38,7 +38,7 @@ const PatreonHelper = {
     }
   },
 
-  getPatreonTier: async (local = false) => {
+  fetchPatreonTier: async (local = false) => {
     if (DDBProxy.isCustom()) return { success: true, message: "custom proxy", data: "CUSTOM" };
     const key = PatreonHelper.getPatreonKey(local);
     const parsingApi = DDBProxy.getProxy();
@@ -117,19 +117,26 @@ const PatreonHelper = {
   },
 
   checkPatreon: async (local = false) => {
-    const tier = await PatreonHelper.getPatreonTier(local);
+    const tier = await PatreonHelper.fetchPatreonTier(local);
     const tiers = PatreonHelper.getPatreonTiers(tier);
     return tiers;
   },
 
-  setPatreonTier: async (local = false) => {
-    const tier = await PatreonHelper.getPatreonTier(local);
+  getPatreonTier: async (local = false) => {
     if (local) {
-      localStorage.setItem("ddb-patreon-user", tier);
+      localStorage.getItem("ddb-patreon-tier");
     } else {
-      game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
+      game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
     }
+  },
 
+  setPatreonTier: async (local = false) => {
+    const tier = await PatreonHelper.fetchPatreonTier(local);
+    if (local) {
+      localStorage.setItem("ddb-patreon-tier", tier);
+    } else {
+      await game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
+    }
   },
 
   linkToPatreon: async () => {

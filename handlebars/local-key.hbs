@@ -1,0 +1,25 @@
+<h2>DDB Patreon Key For Players</h2>
+
+{{#if success}}
+<p>Please enter your Patreon Key below, you can generate one at <a href="https://activate.ddb.mrprimate.co.uk">https://activate.ddb.mrprimate.co.uk</a></p>
+
+{{else}}
+<p>There was a failure checking your Patreon Key the API said:</p>
+<p style="color: red">{{message}}</p>
+{{/if}}
+
+<div class="form-description">
+  <form id="ddb-importer-settings" autocomplete="off" onsubmit="event.preventDefault();">
+    <h2>Patreon</h2>
+    <p>Link your <a href="https://www.patreon.com/MrPrimate">Patreon account</a> by entering a <a href="https://activate.ddb.mrprimate.co.uk">provided key</a></p>
+    <p>Patreon User: <i id=ddb-patreon-user>{{#if this.patreonLinked}}{{patreonUser}}{{else}}Not connected{{/if}}</i></p>
+    <p>Tier: <i id=ddb-patreon-tier>{{#if this.tier}}{{this.tier}}{{else}}{{/if}}</i></p>
+    <p>Valid: <i id=ddb-patreon-valid>{{#if this.tier}}{{validKey}}{{else}}{{/if}}</i></p>
+    <p>If you have been provided a Key, enter it here:</p>
+    <input id="ddb-beta-key" class="setup-config" type="password" name="beta-key" style="flex: 0 1 auto" ;
+      value="{{setupConfig.beta-key}}" />
+      <p><i>Note: this will be auto filled when you connect to patreon, and the key will be valid for a month.</i></p>
+    <hr>
+    <button id="munch-settings" class="munch-button" type="submit">Save</button>
+  </form>
+</div>

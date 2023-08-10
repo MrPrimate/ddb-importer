@@ -489,6 +489,7 @@ export default class DDBCharacterManager extends FormApplication {
         try {
           deleteLocalCobalt(this.actor.id);
           $(html).find("#delete-local-cobalt").prop("disabled", true);
+          $(html).find("#set-local-cobalt").text("Add Cobalt Cookie");
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
@@ -503,6 +504,7 @@ export default class DDBCharacterManager extends FormApplication {
         try {
           new DDBCookie({}, this.actor, true).render(true);
           $(html).find("#delete-local-cobalt").prop("disabled", false);
+          $(html).find("#set-local-cobalt").text("Update Cobalt Cookie");
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
@@ -518,7 +520,7 @@ export default class DDBCharacterManager extends FormApplication {
           await PatreonHelper.setPatreonKey(null, true);
           this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: false } } });
           $(html).find("#delete-local-patreon-key").prop("disabled", true);
-          $(html).find("#set-local-patreon-key").innerHtml = "Add Patreon Key";
+          $(html).find("#set-local-patreon-key").text("Add Patreon Key");
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
@@ -533,7 +535,7 @@ export default class DDBCharacterManager extends FormApplication {
         const updateActorState = async () => {
           await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: true } } });
           $(html).find("#delete-local-patreon-key").prop("disabled", false);
-          $(html).find("#set-local-patreon-key").innerHtml = "Update Patreon Key";
+          $(html).find("#set-local-patreon-key").text("Update Patreon Key");
         };
         try {
           const existingKey = await PatreonHelper.getPatreonKey(true);

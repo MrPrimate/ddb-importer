@@ -203,7 +203,7 @@ export default class DDBMuncher extends Application {
 
   static enableButtons() {
     const cobalt = getCobalt() != "";
-    const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
+    const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.getPatreonTiers(tier);
 
     if (cobalt) {

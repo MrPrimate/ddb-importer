@@ -36,7 +36,7 @@ export default class DDBDynamicUpdateSetup extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
+    const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.getPatreonTiers(tier);
     const enabled = tiers.experimentalMid;
 

@@ -44,7 +44,7 @@ export default class DDBSetup extends FormApplication {
     const hasKey = PatreonHelper.getPatreonKey() != "";
     const key = PatreonHelper.getPatreonKey();
     const campaignId = getCampaignId();
-    const tier = game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
+    const tier = PatreonHelper.getPatreonTier();
     const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
     const validKeyObject = hasKey ? await PatreonHelper.getPatreonValidity(key) : false;
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
