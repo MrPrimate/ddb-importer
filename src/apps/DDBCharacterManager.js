@@ -303,15 +303,24 @@ export default class DDBCharacterManager extends FormApplication {
     }
   }
 
+
+  static async itemsMunched() {
+    const itemCompendium = await CompendiumHelper.getCompendiumType("item", false);
+    const itemsMunched = itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
+    return itemsMunched;
+  }
+
   /* -------------------------------------------- */
 
   async getData() {
     // loads settings for actor
-    const importSettings = MuncherSettings.getCharacterImportSettings();
+    this.importSettings = MuncherSettings.getCharacterImportSettings();
     const useLocalPatreonKey = this.actor.flags?.ddbimporter?.useLocalPatreonKey;
 
     const characterId = this.actor.flags?.ddbimporter?.dndbeyond?.characterId;
-    const syncEnabled = characterId && (importSettings.tiers.all || useLocalPatreonKey);
+    this.dmSyncEnabled = characterId && this.importSettings.tiers.all;
+    this.activateListenersplayerSyncEnabled = characterId && useLocalPatreonKey;
+    const syncEnabled = characterId && (this.importSettings.tiers.all || useLocalPatreonKey);
 
     const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
     const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
@@ -320,32 +329,32 @@ export default class DDBCharacterManager extends FormApplication {
     const localCobalt = isLocalCobalt(this.actor.id);
     const cobaltCookie = getCobalt(this.actor.id);
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
-    const itemCompendium = await CompendiumHelper.getCompendiumType("item", false);
 
     const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
     const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
-    const dynamicUpdateAllowed = dynamicSync && gmSyncUser && importSettings.tiers.experimentalMid;
+    const dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
     const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
     const resourceSelection = !hasProperty(this.actor, "flags.ddbimporter.resources.ask")
       || getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
 
-    const itemsMunched = syncEnabled && itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
+    const itemCompendium = await CompendiumHelper.getCompendiumType("item", false);
+    this.itemsMunched = itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
 
-    const actorSettings = {
+    this.actorSettings = {
       actor: this.actor,
       localCobalt: localCobalt,
       cobaltSet: cobaltSet,
-      syncEnabled: syncEnabled && itemsMunched,
+      syncEnabled: syncEnabled && this.itemsMunched,
       importAllowed: !syncOnly,
-      itemsMunched: itemsMunched,
+      itemsMunched: this.itemsMunched,
       dynamicUpdateAllowed,
       dynamicUpdateStatus,
       resourceSelection,
-      useLocalPatreonKey: useLocalPatreonKey && itemsMunched,
+      useLocalPatreonKey: useLocalPatreonKey && this.itemsMunched,
     };
 
-    return mergeObject(importSettings, actorSettings);
+    return mergeObject(this.importSettings, this.actorSettings);
   }
 
   /* -------------------------------------------- */
@@ -518,9 +527,13 @@ export default class DDBCharacterManager extends FormApplication {
         this.html = html;
         try {
           await PatreonHelper.setPatreonKey(null, true);
-          this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: false } } });
+          await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: false } } });
           $(html).find("#delete-local-patreon-key").prop("disabled", true);
           $(html).find("#set-local-patreon-key").text("Add Patreon Key");
+          if (!this.dmSyncEnabled) {
+            $(html).find("#dndbeyond-character-update").prop("disabled", true);
+            $(html).find("#dndbeyond-character-update").text("D&D Beyond Update Available to Patreon Supporters");
+          }
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
@@ -536,6 +549,12 @@ export default class DDBCharacterManager extends FormApplication {
           await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: true } } });
           $(html).find("#delete-local-patreon-key").prop("disabled", false);
           $(html).find("#set-local-patreon-key").text("Update Patreon Key");
+          if (this.itemsMunched) {
+            $(html).find("#dndbeyond-character-update").prop("disabled", false);
+            $(html).find("#dndbeyond-character-update").text("Update D&D Beyond with changes");
+          } else {
+            $(html).find("#dndbeyond-character-update").text("Your DM needs to import D&D Beyond items and spells into the DDB compendiums first.");
+          }
         };
         try {
           const existingKey = await PatreonHelper.getPatreonKey(true);

@@ -61,7 +61,7 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const parsingApi = dynamicSync
     ? DDBProxy.getDynamicProxy()
     : DDBProxy.getProxy();
-  const useCharacterKey = actor.flags.ddbimporter.dndbeyond.useLocalPatreonKey ?? false;
+  const useCharacterKey = getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
   const betaKey = PatreonHelper.getPatreonKey(useCharacterKey);
   const campaignId = getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;

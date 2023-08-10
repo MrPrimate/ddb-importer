@@ -4,6 +4,16 @@ import SETTINGS from "../settings.js";
 import DDBProxy from "./DDBProxy.js";
 import utils from "./utils.js";
 
+async function setLocalStorage(key, value) {
+  // remove item if null or undefined
+  if (value === null || value === undefined) {
+    localStorage.removeItem(key);
+  } else {
+    localStorage.setItem(key, value);
+  }
+}
+
+
 const PatreonHelper = {
 
   getPatreonKey: (local = false) => {
@@ -16,7 +26,7 @@ const PatreonHelper = {
 
   setPatreonKey: async (key, local = false) => {
     if (local) {
-      localStorage.setItem("ddb-patreon-key", key);
+      setLocalStorage("ddb-patreon-key", key);
     } else {
       await game.settings.set(SETTINGS.MODULE_ID, "beta-key", key);
     }
@@ -32,7 +42,7 @@ const PatreonHelper = {
 
   setPatreonUser: async (user, local = false) => {
     if (local) {
-      localStorage.setItem("ddb-patreon-user", user);
+      setLocalStorage("ddb-patreon-user", user);
     } else {
       await game.settings.set(SETTINGS.MODULE_ID, "patreon-user", user);
     }
@@ -133,7 +143,7 @@ const PatreonHelper = {
   setPatreonTier: async (local = false) => {
     const tier = await PatreonHelper.fetchPatreonTier(local);
     if (local) {
-      localStorage.setItem("ddb-patreon-tier", tier);
+      setLocalStorage("ddb-patreon-tier", tier);
     } else {
       await game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
     }
