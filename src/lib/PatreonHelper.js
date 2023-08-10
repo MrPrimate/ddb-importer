@@ -22,6 +22,22 @@ const PatreonHelper = {
     }
   },
 
+  getPatreonUser: (local = false) => {
+    if (local) {
+      return localStorage.getItem("ddb-patreon-user");
+    } else {
+      return game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
+    }
+  },
+
+  setPatreonUser: async (user, local = false) => {
+    if (local) {
+      localStorage.setItem("ddb-patreon-user", user);
+    } else {
+      await game.settings.set(SETTINGS.MODULE_ID, "patreon-user", user);
+    }
+  },
+
   getPatreonTier: async (local = false) => {
     if (DDBProxy.isCustom()) return { success: true, message: "custom proxy", data: "CUSTOM" };
     const key = PatreonHelper.getPatreonKey(local);
@@ -43,9 +59,9 @@ const PatreonHelper = {
             DDBMuncher.munchNote(`API Failure: ${data.message}`);
             reject(data.message);
           }
-          let currentEmail = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
+          let currentEmail = PatreonHelper.getPatreonUser(local);
           if (data.email !== currentEmail) {
-            game.settings.set("ddb-importer", "patreon-user", data.email).then(() => {
+            PatreonHelper.setPatreonUser(data.email, local).then(() => {
               resolve(data.data);
             });
           } else {
@@ -100,15 +116,20 @@ const PatreonHelper = {
     return tiers;
   },
 
-  checkPatreon: async () => {
-    const tier = await PatreonHelper.getPatreonTier();
+  checkPatreon: async (local = false) => {
+    const tier = await PatreonHelper.getPatreonTier(local);
     const tiers = PatreonHelper.getPatreonTiers(tier);
     return tiers;
   },
 
-  setPatreonTier: async () => {
-    const tier = await PatreonHelper.getPatreonTier();
-    game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
+  setPatreonTier: async (local = false) => {
+    const tier = await PatreonHelper.getPatreonTier(local);
+    if (local) {
+      localStorage.setItem("ddb-patreon-user", tier);
+    } else {
+      game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
+    }
+
   },
 
   linkToPatreon: async () => {

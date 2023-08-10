@@ -2,6 +2,7 @@ import utils from "../lib/utils.js";
 import FileHelper from "../lib/FileHelper.js";
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import MuncherSettings from "../lib/MuncherSettings.js";
+import PatreonHelper from "../lib/PatreonHelper.js";
 import logger from "../logger.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import {
@@ -25,6 +26,7 @@ import { generateCharacterExtras } from "../parser/DDBExtras.js";
 import DICTIONARY from "../dictionary.js";
 import { getCobalt, isLocalCobalt, deleteLocalCobalt } from "../lib/Secrets.js";
 import DDBCookie from "../apps/DDBCookie.js";
+import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
 import { setConditions } from "../parser/special/conditions.js";
 import { addContainerItemsToContainers, addContainerItemsToActor } from "../parser/special/itemCollections.js";
@@ -306,9 +308,10 @@ export default class DDBCharacterManager extends FormApplication {
   async getData() {
     // loads settings for actor
     const importSettings = MuncherSettings.getCharacterImportSettings();
+    const useLocalPatreonKey = this.actor.flags?.ddbimporter?.useLocalPatreonKey;
 
     const characterId = this.actor.flags?.ddbimporter?.dndbeyond?.characterId;
-    const syncEnabled = characterId && importSettings.tiers.all;
+    const syncEnabled = characterId && (importSettings.tiers.all || useLocalPatreonKey);
 
     const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
     const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
@@ -339,6 +342,7 @@ export default class DDBCharacterManager extends FormApplication {
       dynamicUpdateAllowed,
       dynamicUpdateStatus,
       resourceSelection,
+      useLocalPatreonKey: useLocalPatreonKey && itemsMunched,
     };
 
     return mergeObject(importSettings, actorSettings);
@@ -511,8 +515,10 @@ export default class DDBCharacterManager extends FormApplication {
       .on("click", async () => {
         this.html = html;
         try {
-          deleteLocalCobalt(this.actor.id);
+          await PatreonHelper.setPatreonKey(null, true);
+          this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: false } } });
           $(html).find("#delete-local-patreon-key").prop("disabled", true);
+          $(html).find("#set-local-patreon-key").innerHtml = "Add Patreon Key";
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);
@@ -524,9 +530,21 @@ export default class DDBCharacterManager extends FormApplication {
       .find("#set-local-patreon-key")
       .on("click", async () => {
         this.html = html;
-        try {
-          new DDBCookie({}, this.actor, true).render(true);
+        const updateActorState = async () => {
+          await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: true } } });
           $(html).find("#delete-local-patreon-key").prop("disabled", false);
+          $(html).find("#set-local-patreon-key").innerHtml = "Update Patreon Key";
+        };
+        try {
+          const existingKey = await PatreonHelper.getPatreonKey(true);
+          if (!this.actor.flags.ddbimporter?.useLocalPatreonKey && existingKey && existingKey !== "") {
+            await updateActorState();
+          } else {
+            new DDBKeyChange({
+              local: true,
+              success: updateActorState,
+            }).render(true);
+          }
         } catch (error) {
           logger.error(error);
           logger.error(error.stack);

@@ -158,7 +158,7 @@ export default class DDBSetup extends FormApplication {
     const currentKey = PatreonHelper.getPatreonKey();
 
     if (currentKey !== formData['beta-key']) {
-      await game.settings.set(SETTINGS.MODULE_ID, "beta-key", formData['beta-key']);
+      await PatreonHelper.setPatreonKey(formData['beta-key']);
       await PatreonHelper.setPatreonTier();
     }
 

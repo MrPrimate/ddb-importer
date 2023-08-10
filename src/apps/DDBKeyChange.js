@@ -3,6 +3,13 @@ import DDBMuncher from "./DDBMuncher.js";
 import SETTINGS from "../settings.js";
 
 export class DDBKeyChange extends FormApplication {
+
+  constructor({ local = false, success = null } = {}) {
+    super();
+    this.local = local;
+    this.success = success;
+  }
+
   static get defaultOptions() {
     const options = super.defaultOptions;
     options.id = "ddb-importer-key-change";
@@ -14,7 +21,7 @@ export class DDBKeyChange extends FormApplication {
   get title() { // eslint-disable-line class-methods-use-this
     // improve localisation
     // game.i18n.localize("")
-    return "DDB Importer Key Change";
+    return this.local ? "DDB Importer Local Key" : "DDB Importer Key Change";
   }
 
   activateListeners(html) {
@@ -27,11 +34,11 @@ export class DDBKeyChange extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const key = PatreonHelper.getPatreonKey();
+    const key = PatreonHelper.getPatreonKey(this.local);
     const setupConfig = {
       "beta-key": key,
     };
-    const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
+    const patreonUser = PatreonHelper.getPatreonUser(this.local);
     const check = await PatreonHelper.getPatreonValidity(key);
 
     return {
@@ -40,6 +47,7 @@ export class DDBKeyChange extends FormApplication {
       setupConfig: setupConfig,
       patreonLinked: patreonUser && patreonUser != "",
       patreonUser: patreonUser,
+      local: this.local,
     };
   }
 
@@ -49,8 +57,8 @@ export class DDBKeyChange extends FormApplication {
     event.preventDefault();
     const currentKey = PatreonHelper.getPatreonKey();
     if (currentKey !== formData['beta-key']) {
-      await game.settings.set(SETTINGS.MODULE_ID, "beta-key", formData['beta-key']);
-      await PatreonHelper.setPatreonTier();
+      await PatreonHelper.setPatreonKey(formData['beta-key'], this.local);
+      await PatreonHelper.setPatreonTier(this.local);
     }
 
     const callMuncher = game.settings.get(SETTINGS.MODULE_ID, "settings-call-muncher");

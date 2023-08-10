@@ -110,13 +110,20 @@
     </div>
     <div>
     <hr>
-    <h2>Actor Specific Cobalt Cookie</h2>
+    <h2>Actor Specific Settings</h2>
     <p>You can save a Cobalt Cookie to use just for this character. This is saved in your browser and can only be used by you, on the current machine.</p>
     <div>
       <button type="button" id="delete-local-cobalt" {{#if cobaltSet}}enabled{{else}}disabled{{/if}}>Delete local Cobalt Cookie</button>
     </div>
     <div>
-      <button type="button" id="set-local-cobalt">Update Cobalt Cookie</button>
+      <button type="button" id="set-local-cobalt">{{#if cobaltSet}}Update Cobalt Cookie<{{else}}Add Cobalt Cookie{{/if}}/button>
+    </div>
+    <p>You can save a Patreon key to use just for this character. This is saved in your browser and can only be used by you, on the current machine to update the character back to DDB.</p>
+    <div>
+      <button type="button" id="delete-local-patreon-key" {{#if useLocalPatreonKey}}enabled{{else}}disabled{{/if}}>Delete local Patreon Key</button>
+    </div>
+    <div>
+      <button type="button" id="set-local-patreon-key">{{#if useLocalPatreonKey}}Update Patreon Key<{{else}}Add Patreon Key{{/if}}/button>
     </div>
   </section>
 
@@ -230,8 +237,8 @@
         <div class="form-description"></div>
         <div>
           <button type="button" id="dndbeyond-character-update"
-            {{#if syncEnabled}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}
-            {{#if itemsMunched}}Update D&D Beyond with changes{{else}}Please import D&D Beyond items into your compendium first.{{/if}}
+            {{#if syncEnabled}}enabled{{else if useLocalPatreonKey}}enabled{{else}}disabled{{/if}}>{{#if tiers.supporter}}
+            {{#if itemsMunched}}Update D&D Beyond with changes{{else}}Please import D&D Beyond items and spells into your DDB compendiums first.{{/if}}
             {{else}}D&D Beyond Update Available to Patreon Supporters{{/if}}</button>
         </div>
       </div>
