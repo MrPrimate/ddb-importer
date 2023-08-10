@@ -2,7 +2,9 @@
 
 - Default door sound added to DDB Maps.
 - Some code refactoring
+- Fix a journal page find collision when using THird Party Adventure Munch
 - Allow users to sync character back to DDB using their own patreon key, this can be set in the Advanced tab of the character.
+
 
 # 3.4.53
 

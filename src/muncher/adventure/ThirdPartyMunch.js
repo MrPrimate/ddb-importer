@@ -375,7 +375,8 @@ export default class ThirdPartyMunch extends FormApplication {
             // console.warn("MATCHES", { slugLinkPageId, contentChunkIdPageId, noteFlags: note.flags.ddb });
             // console.warn("PageIds", noteJournal.pages.map((p) => {return {id: p._id, flags: p.flags.ddb}}));
             const journalPage = noteJournal.pages.find((page) =>
-              page.flags.ddb.parentId == note.flags.ddb.parentId
+              hasProperty(page, "flags.ddb")
+              && page.flags.ddb.parentId == note.flags.ddb.parentId
               && (page.flags.ddb.slug == note.flags.ddb.slug
               || page.flags.ddb.slug.replace(/^([a-zA-Z]?)0+/, "$1") == note.flags.ddb.slug
               || page.flags.ddb.slug.startsWith(note.flags.ddb.slug)
