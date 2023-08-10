@@ -87,8 +87,11 @@ export function registerApi() {
     patreon: {
       checkPatreon: PatreonHelper.checkPatreon,
       getPatreonTier: PatreonHelper.getPatreonTier,
-      getPatreonTiers: PatreonHelper.getPatreonTiers,
+      getPatreonUser: PatreonHelper.getPatreonUser,
+      calculateAccessMatrix: PatreonHelper.calculateAccessMatrix,
       setPatreonTier: PatreonHelper.setPatreonTier,
+      fetchPatreonTier: PatreonHelper.fetchPatreonTier,
+      getPatreonValidity: PatreonHelper.getPatreonValidity,
     },
     lib: {
       DDBCompendiumFolders,

@@ -528,7 +528,7 @@ const MuncherSettings = {
     const uploadDir = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
     const dataDirSet = !FileHelper.BAD_DIRS.includes(uploadDir);
     const tier = PatreonHelper.getPatreonTier();
-    const tiers = PatreonHelper.getPatreonTiers(tier);
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
 
     const result = {
       importPolicies1,
@@ -584,7 +584,7 @@ const MuncherSettings = {
     const cobalt = getCobalt() != "";
     const betaKey = PatreonHelper.getPatreonKey() != "";
     const tier = PatreonHelper.getPatreonTier();
-    const tiers = PatreonHelper.getPatreonTiers(tier);
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
     const effectModulesAvailable = effectModules();
     const daeInstalled = effectModulesAvailable.daeInstalled;
     const chrisInstalled = effectModulesAvailable.chrisInstalled;

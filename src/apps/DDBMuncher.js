@@ -204,7 +204,7 @@ export default class DDBMuncher extends Application {
   static enableButtons() {
     const cobalt = getCobalt() != "";
     const tier = PatreonHelper.getPatreonTier();
-    const tiers = PatreonHelper.getPatreonTiers(tier);
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
 
     if (cobalt) {
       $('button[id^="munch-spells-start"]').prop('disabled', false);

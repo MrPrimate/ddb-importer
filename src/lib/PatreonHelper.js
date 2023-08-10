@@ -48,6 +48,23 @@ const PatreonHelper = {
     }
   },
 
+  getPatreonTier: (local = false) => {
+    if (local) {
+      return localStorage.getItem("ddb-patreon-tier");
+    } else {
+      return game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
+    }
+  },
+
+  setPatreonTier: async (local = false) => {
+    const tier = await PatreonHelper.fetchPatreonTier(local);
+    if (local) {
+      setLocalStorage("ddb-patreon-tier", tier);
+    } else {
+      await game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
+    }
+  },
+
   fetchPatreonTier: async (local = false) => {
     if (DDBProxy.isCustom()) return { success: true, message: "custom proxy", data: "CUSTOM" };
     const key = PatreonHelper.getPatreonKey(local);
@@ -70,6 +87,10 @@ const PatreonHelper = {
             reject(data.message);
           }
           let currentEmail = PatreonHelper.getPatreonUser(local);
+          logger.debug("Fetched Patreon tier information", {
+            user: data.email,
+            tier: data.data
+          });
           if (data.email !== currentEmail) {
             PatreonHelper.setPatreonUser(data.email, local).then(() => {
               resolve(data.data);
@@ -104,7 +125,7 @@ const PatreonHelper = {
     });
   },
 
-  getPatreonTiers: (tier) => {
+  calculateAccessMatrix: (tier) => {
     const godTier = tier === "GOD";
     const undyingTier = tier === "UNDYING";
     const coffeeTier = tier === "COFFEE";
@@ -128,25 +149,8 @@ const PatreonHelper = {
 
   checkPatreon: async (local = false) => {
     const tier = await PatreonHelper.fetchPatreonTier(local);
-    const tiers = PatreonHelper.getPatreonTiers(tier);
-    return tiers;
-  },
-
-  getPatreonTier: async (local = false) => {
-    if (local) {
-      localStorage.getItem("ddb-patreon-tier");
-    } else {
-      game.settings.get(SETTINGS.MODULE_ID, "patreon-tier");
-    }
-  },
-
-  setPatreonTier: async (local = false) => {
-    const tier = await PatreonHelper.fetchPatreonTier(local);
-    if (local) {
-      setLocalStorage("ddb-patreon-tier", tier);
-    } else {
-      await game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
-    }
+    const matrix = PatreonHelper.calculateAccessMatrix(tier);
+    return matrix;
   },
 
   linkToPatreon: async () => {

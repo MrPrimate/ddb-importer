@@ -775,7 +775,7 @@ export default class DDBEncounterMunch extends Application {
   // eslint-disable-next-line class-methods-use-this
   async getData() {
     const tier = PatreonHelper.getPatreonTier();
-    const tiers = PatreonHelper.getPatreonTiers(tier);
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
     const availableCampaigns = await getAvailableCampaigns();
     const availableEncounters = await this.ddbEncounters.filterEncounters();
 

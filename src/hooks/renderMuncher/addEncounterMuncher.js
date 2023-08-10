@@ -9,7 +9,7 @@ import logger from "../../logger.js";
 
 export function addEncounterMuncher (app, html) {
   const tier = PatreonHelper.getPatreonTier();
-  const tiers = PatreonHelper.getPatreonTiers(tier);
+  const tiers = PatreonHelper.calculateAccessMatrix(tier);
   const enabled = game.settings.get("ddb-importer", "encounter-muncher-enabled");
 
   const scenesTab = app.options.id == "scenes" || app.id === "scenes";

@@ -104,7 +104,7 @@ export default class AdventureMunchHelpers {
           case "monster": {
             try {
               const tier = PatreonHelper.getPatreonTier();
-              const tiers = PatreonHelper.getPatreonTiers(tier);
+              const tiers = PatreonHelper.calculateAccessMatrix(tier);
               if (tiers.all) {
                 logger.debug(`Importing missing ${type}s from DDB`, docIds);
                 AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);

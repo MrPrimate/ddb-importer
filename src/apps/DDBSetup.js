@@ -38,15 +38,15 @@ export default class DDBSetup extends FormApplication {
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
     const cobalt = getCobalt();
-    const isCobalt = cobalt != "";
+    const isCobalt = cobalt !== "";
     const cobaltStatus = await checkCobalt("", cobalt);
     const cobaltLocal = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
-    const hasKey = PatreonHelper.getPatreonKey() != "";
     const key = PatreonHelper.getPatreonKey();
+    const hasKey = key !== "";
     const campaignId = getCampaignId();
     const tier = PatreonHelper.getPatreonTier();
     const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
-    const validKeyObject = hasKey ? await PatreonHelper.getPatreonValidity(key) : false;
+    const validKeyObject = hasKey ? (await PatreonHelper.getPatreonValidity(key)) : false;
     const validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
     const availableCampaigns = isCobalt && cobaltStatus.success ? await getAvailableCampaigns() : [];
 

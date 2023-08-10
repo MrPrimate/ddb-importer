@@ -37,7 +37,7 @@ export default class DDBDynamicUpdateSetup extends FormApplication {
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
     const tier = PatreonHelper.getPatreonTier();
-    const tiers = PatreonHelper.getPatreonTiers(tier);
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
     const enabled = tiers.experimentalMid;
 
     const policySettings = Object.keys(SETTINGS.DEFAULT_SETTINGS.READY.CHARACTER.DYNAMIC_SYNC)
