@@ -66,7 +66,14 @@ export async function loadMacroFile(type, fileName, forceLoad = false, forceDDB 
     const response = await fetch(url, { method: "GET" });
     data = await response.text();
   } else if (fileExists && (!embedMacros || forceDDB)) {
-    data = `// Execute DDB Importer dynamic macro\nreturn game.modules.get("ddb-importer")?.api.executeDDBMacro("${type}", "${fileName}", ...args);`;
+    data = `
+// Execute DDB Importer dynamic macro
+if (isNewerVersion(11, game.version)) {
+  return game.modules.get("ddb-importer")?.api.executeDDBMacro("${type}", "${fileName}", ...args);
+} else {
+  return game.modules.get("ddb-importer")?.api.executeDDBMacro("${type}", "${fileName}", scope);
+}
+`;
   } else if (!fileExists) {
     data = "// Unable to load the macro file";
   }
@@ -217,6 +224,7 @@ export async function executeDDBMacro(type, fileName, ...params) {
     logger.debug(`Macro (${type}) ${fileName} loaded from file into cache`, macro);
   }
 
-  logger.debug(`Calling (${type}) ${fileName} with params`, ...params);
+  logger.debug(`Calling (${type}) ${fileName} with spread params`, ...params);
   return macro.execute(...params);
+
 }

@@ -21,8 +21,8 @@ async function attemptRemoval(targetToken, condition, item) {
             const removalCheck = item.system.flags.ddbimporter.effect.removalCheck;
             const removalSave = item.system.flags.ddbimporter.effect.removalSave;
             const ability = removalCheck
-              ? game.modules.get("ddb-importer").api.effects.getHighestAbility(targetToken.actor.data, removalCheck)
-              : game.modules.get("ddb-importer").api.effects.getHighestAbility(targetToken.actor.data, removalSave);
+              ? game.modules.get("ddb-importer").api.effects.getHighestAbility(targetToken.actor, removalCheck)
+              : game.modules.get("ddb-importer").api.effects.getHighestAbility(targetToken.actor, removalSave);
             const type = removalCheck ? "check" : "save";
             const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
             const rollResult = removalCheck
@@ -48,7 +48,7 @@ async function attemptRemoval(targetToken, condition, item) {
 async function applyCondition(condition, targetToken, item, itemLevel) {
   if (!game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.document.uuid)) {
     const caster = item.parent;
-    const workflowItemData = duplicate(item.data);
+    const workflowItemData = duplicate(item);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
     workflowItemData.system.save.ability = item.flags.ddbimporter.effect.save;
     workflowItemData.system.components.concentration = false;
@@ -94,7 +94,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
   const damageRoll = await new CONFIG.Dice.DamageRoll(upscaledDamage).evaluate({ async: true });
   if (game.dice3d) game.dice3d.showForRoll(damageRoll);
-  const workflowItemData = duplicate(item.data);
+  const workflowItemData = duplicate(item);
   workflowItemData.system.target = { value: 1, units: "", type: "creature" };
   workflowItemData.system.save.ability = saveAbility;
   workflowItemData.system.components.concentration = false;
@@ -214,7 +214,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
   const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
-  const everyEntry = hasProperty(item.data, "flags.ddbimporter.effect.everyEntry")
+  const everyEntry = hasProperty(item, "flags.ddbimporter.effect.everyEntry")
     ? item.flags.ddbimporter.effect.everyEntry
     : false;
 

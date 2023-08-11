@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Corrections for when calling some aura macros when not embedding ddb macros (will require reimport/munch) for spells to pick up these changes. Only needed if experiencing problems, e.g. with Web spell. @tatonker
+
 # 3.4.54
 
 - Default door sound added to DDB Maps.

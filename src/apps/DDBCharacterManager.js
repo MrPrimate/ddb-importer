@@ -1171,7 +1171,8 @@ export default class DDBCharacterManager extends FormApplication {
       useExistingCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
       useSRDCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-srd"),
       useOverrideCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-override"),
-      useChrisPremades: game.settings.get("ddb-importer", "character-update-policy-use-chris-premades"),
+      useChrisPremades: game.settings.get("ddb-importer", "character-update-policy-use-chris-premades")
+        && (game.modules.get("chris-premades")?.active ?? false),
     };
   }
 

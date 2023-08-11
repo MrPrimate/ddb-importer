@@ -23,7 +23,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
     ? `${game.modules.get("ddb-importer").api.effects.getCantripDice(caster)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
 
-  const workflowItemData = duplicate(item.data);
+  const workflowItemData = duplicate(item);
   workflowItemData.system.target = { value: 1, units: "", type: "creature" };
   workflowItemData.system.save.ability = saveAbility;
   workflowItemData.system.components.concentration = false;

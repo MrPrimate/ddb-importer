@@ -143,7 +143,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
 
   const castTurn = targetItemTracker.startRound === game.combat.round && targetItemTracker.startTurn === game.combat.turn;
   const isLaterTurn = game.combat.round > targetTokenTracker.round || game.combat.turn > targetTokenTracker.turn;
-  const everyEntry = hasProperty(item.data, "flags.ddbimporter.effect.everyEntry")
+  const everyEntry = hasProperty(item, "flags.ddbimporter.effect.everyEntry")
     ? item.flags.ddbimporter.effect.everyEntry
     : false;
 
