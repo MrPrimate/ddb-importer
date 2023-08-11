@@ -1,6 +1,6 @@
-# NEXT UP
+# 3.5.55
 
-- Corrections for when calling some aura macros when not embedding ddb macros (will require reimport/munch) for spells to pick up these changes. Only needed if experiencing problems, e.g. with Web spell. @tatonker
+- Corrections for when calling some aura macros when not embedding ddb macros (will require reimport/munch) for spells to pick up these changes. Only needed if experiencing problems, e.g. with Web spell.
 
 # 3.4.54
 
