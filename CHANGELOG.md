@@ -1,3 +1,7 @@
+# 3.5.56
+
+- Fixes for adding ddb effects to non-ddb actors
+
 # 3.5.55
 
 - Corrections for when calling some aura macros when not embedding ddb macros (will require reimport/munch) for spells to pick up these changes. Only needed if experiencing problems, e.g. with Web spell.
