@@ -37,6 +37,12 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
     game.settings.set("ddb-importer", "munching-policy-add-effects", true);
 
     let data = document.toObject();
+    // remove old effects
+    data.effects = [];
+    if (hasProperty(data, "flags.dae")) delete data.flags.dae;
+    if (hasProperty(data, "flags.itemacro")) delete data.flags.itemacro;
+    if (hasProperty(data, "flags.midi-qol")) delete data.flags["midi-qol"];
+    if (hasProperty(data, "flags.ActiveAuras")) delete data.flags.ActiveAuras;
 
     if (DICTIONARY.types.inventory.includes(data.type)) {
       equipmentEffectAdjustment(data);
@@ -64,12 +70,15 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
         },
       };
 
-      fixFeatures([data]);
-      data = await addExtraEffects(null, [data], mockCharacter);
-      if (useChrisPremades) data = await applyChrisPremadeEffects({ documents: [data], force: true });
+      await fixFeatures([data]);
+      data = (await addExtraEffects(null, [data], mockCharacter))[0];
+      if (useChrisPremades) data = (await applyChrisPremadeEffects({ documents: [data], force: true }))[0];
     }
 
     data = addVision5eStub(data);
+    logger.info(`Updating actor document ${document.name} with`, {
+      data: duplicate(data),
+    });
     await document.update(data);
   } finally {
     game.settings.set("ddb-importer", "munching-policy-add-spell-effects", startingSpellPolicy);
@@ -77,10 +86,11 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
   }
 }
 
-export async function addDDBIEffectsToActorDocuments(actor) {
+export async function addDDBIEffectsToActorDocuments(actor, { useChrisPremades = false } = {}) {
   logger.info("Starting to add effects to actor items");
   for (const doc of actor.items) {
-    await addDDBIEffectToDocument(doc);
+    await doc.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+    await addDDBIEffectToDocument(doc, useChrisPremades);
   }
   logger.info("Effect addition complete");
 }
