@@ -89,7 +89,16 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
 export async function addDDBIEffectsToActorDocuments(actor, { useChrisPremades = false } = {}) {
   logger.info("Starting to add effects to actor items");
   for (const doc of actor.items) {
-    await doc.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+    logger.debug(`Processing ${doc.name}`);
+    logger.debug("Removing existing effects");
+    if (isNewerVersion(game.version, 11)) {
+      await doc.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+    } else {
+      await doc.update({
+        effects: [],
+      }, { ...doc, recursive: false });
+    }
+    logger.debug(`Removal complete, adding effects to item ${doc.name}`);
     await addDDBIEffectToDocument(doc, useChrisPremades);
   }
   logger.info("Effect addition complete");
