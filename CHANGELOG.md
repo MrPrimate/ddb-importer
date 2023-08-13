@@ -1,3 +1,8 @@
+# 3.5.57
+
+- Back fix for ddb effect addition in v10.
+- Fox when applying ddb effects to Sneak Attack.
+
 # 3.5.56
 
 - Fixes for adding ddb effects to non-ddb actors
