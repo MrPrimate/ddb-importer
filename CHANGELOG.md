@@ -1,13 +1,13 @@
-# 3.5.57
+# 3.4.57
 
 - Back fix for ddb effect addition in v10.
 - Fox when applying ddb effects to Sneak Attack.
 
-# 3.5.56
+# 3.4.56
 
 - Fixes for adding ddb effects to non-ddb actors
 
-# 3.5.55
+# 3.4.55
 
 - Corrections for when calling some aura macros when not embedding ddb macros (will require reimport/munch) for spells to pick up these changes. Only needed if experiencing problems, e.g. with Web spell.
 
