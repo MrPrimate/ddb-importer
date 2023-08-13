@@ -490,7 +490,7 @@ export async function fixFeatures(features) {
         break;
       }
       case "Sneak Attack": {
-        if (!feature.flags.ddbimporter.action) {
+        if (!getProperty(feature, "flags.ddbimporter.action")) {
           feature.system.actionType = "other";
           feature.system.activation = { type: "special", cost: 0, condition: "" };
         }
