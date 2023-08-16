@@ -13,6 +13,8 @@ import { generateSuaveDefenseEffect } from "./monsterFeatures/suaveDefense.js";
 import { generateTauntEffect } from "./monsterFeatures/taunt.js";
 import { skeletalJuggernautEffects } from "./monsterFeatures/skeletalJuggernautEffects.js";
 import { venomTrollEffects } from "./monsterFeatures/venomTroll.js";
+import { quasitEffects } from "./monsterFeatures/quasit.js";
+import { invisibilityFeatureEffect } from "./monsterFeatures/invisibility.js";
 
 export function baseMonsterFeatureEffect(document, label) {
   let effect = {
@@ -105,6 +107,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       this[index] = overTimeResults.document;
       npc = overTimeResults.actor;
     }
+    if (item.name === "Invisibility") item = invisibilityFeatureEffect(item);
 
     npc = forceItemEffect(npc);
   }, npc.items);
@@ -125,6 +128,10 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
           this[index].effects[0].changes.push(generateStatusEffectChange("Paralyzed", 20, true));
         }
       }, npc.items);
+      break;
+    }
+    case "Quasit": {
+      npc = await quasitEffects(npc);
       break;
     }
     case "Skeletal Juggernaut": {
