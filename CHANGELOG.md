@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Misty step effect not applied if using Automated Animations as it has better built in support.
+
 # 3.4.57
 
 - Back fix for ddb effect addition in v10.

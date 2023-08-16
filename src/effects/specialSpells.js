@@ -537,7 +537,9 @@ export async function spellEffectAdjustment(document) {
       break;
     }
     case "Misty Step": {
-      document = await mistyStepEffect(document);
+      if (!deps.autoAnimationsInstalled) {
+        document = await mistyStepEffect(document);
+      }
       break;
     }
     case "Moonbeam": {
