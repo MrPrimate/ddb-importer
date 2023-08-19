@@ -169,7 +169,7 @@ DDBCharacter.prototype.getLanguagesFromModifiers = function getLanguagesFromModi
       let result = DICTIONARY.character.languages.find((lang) => lang.name === language.friendlySubtypeName);
       if (result) {
         languages.push(result.value);
-      } else {
+      } else if (language.friendlySubtypeName !== "Choose a Language") {
         custom.push(language.friendlySubtypeName);
       }
     });
