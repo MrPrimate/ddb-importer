@@ -3,6 +3,7 @@
 - Misty step effect not applied if using Automated Animations as it has better built in support.
 - Quasit effects for Claws.
 - Invisibility feature effect (not spell), for monsters.
+- Ensure proficiency bonus to initiative is added to effects (Harengon)
 
 # 3.4.57
 

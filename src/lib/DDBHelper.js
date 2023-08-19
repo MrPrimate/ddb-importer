@@ -749,7 +749,12 @@ const DDBHelper = {
 
     if (statBonus) {
       const ability = DICTIONARY.character.abilities.find((ability) => ability.id === modifier.statId).value;
-      modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `+ @abilities.${ability}.mod`;
+      modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `${modBonus} + @abilities.${ability}.mod`;
+    }
+
+    if (modifier.modifierTypeId === 1 && modifier.modifierSubTypeId === 218) {
+      // prof bonus
+      modBonus = modBonus === "" ? `@prof` : `${modBonus} + @prof`;
     }
 
     const die = modifier.dice ? modifier.dice : modifier.die ? modifier.die : undefined;
@@ -792,7 +797,12 @@ const DDBHelper = {
       });
       if (bonuses === "") {
         bonuses = undefined;
-        logger.debug(`Modifier value 0 for ${modifierSubType} ${modifierType} for ${name}. Reset to undefined`);
+        logger.debug(`Modifier value 0 for ${modifierSubType} ${modifierType} for ${name}. Reset to undefined`, {
+          modifiers,
+          name,
+          modifierSubType,
+          modifierType,
+        });
       } else {
         logger.debug(`Modifier value string for ${modifierSubType} ${modifierType} for ${name}`, bonuses);
       }
