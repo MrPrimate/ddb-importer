@@ -789,6 +789,35 @@ export default class DDBCharacterManager extends FormApplication {
     }
   }
 
+  static restoreDDBMatchedFlags(ddbMatchedItem, item) {
+    const ddbItemFlags = getProperty(ddbMatchedItem, "flags.ddbimporter");
+    // we retain some flags that might change the nature of the import for this item
+    // these flags are used elsewhere
+    ["ignoreItemForChrisPremades", "ignoreItemUpdate", "overrideId", "overrideItem"].forEach((flag) => {
+      if (hasProperty(ddbItemFlags, flag)) {
+        setProperty(item, `flags.ddbimporter.${flag}`, ddbItemFlags[flag]);
+      }
+    });
+    // some items get ignored completly, if so we don't match these
+    if (!getProperty(ddbItemFlags, "ignoreItemImport")) {
+      item["_id"] = ddbMatchedItem["id"];
+      if (getProperty(ddbItemFlags, "ignoreIcon")) {
+        logger.debug(`Retaining icons for ${item.name}`);
+        item.flags.ddbimporter.matchedImg = ddbMatchedItem.img;
+        item.flags.ddbimporter.ignoreIcon = true;
+      }
+      if (getProperty(ddbItemFlags, "retainResourceConsumption")) {
+        logger.debug(`Retaining resources for ${item.name}`);
+        item.system.consume = deepClone(ddbMatchedItem.system.consume);
+        item.flags.ddbimporter.retainResourceConsumption = true;
+        if (hasProperty(ddbMatchedItem, "flags.link-item-resource-5e")) {
+          setProperty(item, "flags.link-item-resource-5e", ddbMatchedItem.flags["link-item-resource-5e"]);
+        }
+      }
+    }
+    return item;
+  }
+
   // checks for existing items, and depending on options will keep or replace with imported item
   async mergeExistingItems(items) {
     if (this.actorOriginal.flags.ddbimporter) {
@@ -797,12 +826,19 @@ export default class DDBCharacterManager extends FormApplication {
       let nonMatchedItems = [];
       let matchedItems = [];
 
-      await items.forEach((item) => {
+      for (let item of items) {
         let ddbMatchedItem = ownedItems.find((owned) => {
+          // have we already matched against this id? lets not double dip
+          const existingMatch = matchedItems.find((matched) => {
+            return getProperty(owned, "flags.ddbimporter.id") === getProperty(matched, "flags.ddbimporter.id");
+          });
+          if (existingMatch) return false;
+          // the simple match
           const simpleMatch
             = item.name === owned.name
             && item.type === owned.type
             && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
+          // account for choices in ddb
           const isChoice
             = hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
             && hasProperty(owned, "flags.ddbimporter.dndbeyond.choice.choiceId");
@@ -810,6 +846,7 @@ export default class DDBCharacterManager extends FormApplication {
             ? item.flags.ddbimporter.dndbeyond.choice.choiceId
               === owned.flags.ddbimporter.dndbeyond.choice.choiceId
             : true;
+          // force an override
           const overrideDetails = getProperty(owned, "flags.ddbimporter.overrideItem");
           const overrideMatch
             = overrideDetails
@@ -821,37 +858,20 @@ export default class DDBCharacterManager extends FormApplication {
         });
 
         if (ddbMatchedItem) {
-          if (hasProperty(ddbMatchedItem, "flags.ddbimporter.ignoreItemForChrisPremades")) {
-            setProperty(item, "flags.ddbimporter.ignoreItemForChrisPremades", ddbMatchedItem.flags.ddbimporter.ignoreItemForChrisPremades);
-          }
-          if (hasProperty(ddbMatchedItem, "flags.ddbimporter.overrideId")) {
-            setProperty(item, "flags.ddbimporter.overrideId", ddbMatchedItem.flags.ddbimporter.overrideId);
-            if ((hasProperty(ddbMatchedItem, "flags.ddbimporter.overrideItem"))) {
-              setProperty(item, "flags.ddbimporter.overrideItem", ddbMatchedItem.flags.ddbimporter.overrideItem);
-            }
-          }
-          if (!ddbMatchedItem.flags.ddbimporter?.ignoreItemImport) {
-            item["_id"] = ddbMatchedItem["id"];
-            if (ddbMatchedItem.flags.ddbimporter?.ignoreIcon) {
-              logger.debug(`Retaining icons for ${item.name}`);
-              item.flags.ddbimporter.matchedImg = ddbMatchedItem.img;
-              item.flags.ddbimporter.ignoreIcon = true;
-            }
-            if (getProperty(ddbMatchedItem, "flags.ddbimporter.retainResourceConsumption")) {
-              logger.debug(`Retaining resources for ${item.name}`);
-              item.system.consume = deepClone(ddbMatchedItem.system.consume);
-              item.flags.ddbimporter.retainResourceConsumption = true;
-              if (hasProperty(ddbMatchedItem, "flags.link-item-resource-5e")) {
-                setProperty(item, "flags.link-item-resource-5e", ddbMatchedItem.flags["link-item-resource-5e"]);
-              }
-            }
-
+          // we use flags on the item to determine if we keep various properties
+          // NOW IS THE TIME!
+          item = DDBCharacterManager.restoreDDBMatchedFlags(ddbMatchedItem, item);
+          // we can now determine if we are going to ignore this item or not,
+          // this effectively filters out the items we don't want and they don't
+          // get returned from this function
+          const ignoreItemImport = getProperty(item, "flags.ddbimporter.ignoreItemImport") ?? false;
+          if (!ignoreItemImport) {
             matchedItems.push(item);
           }
         } else {
           nonMatchedItems.push(item);
         }
-      });
+      }
 
       logger.debug("Finished retaining items");
       return nonMatchedItems.concat(matchedItems);

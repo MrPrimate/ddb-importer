@@ -5,6 +5,8 @@
 - Invisibility feature effect (not spell), for monsters.
 - Ensure proficiency bonus to initiative is added to effects (Harengon).
 - Improve checks for language modifiers that are not set, or shouldn't be present on DDB.
+- Fix a bug that duplicated race granted cantrips, and could result in re-import failing.
+- Improvements to spells granted by feats that add to spell list as well as a use per rest.
 
 # 3.4.57
 
