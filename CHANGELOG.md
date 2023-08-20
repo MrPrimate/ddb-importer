@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.58
 
 - Misty step effect not applied if using Automated Animations as it has better built in support.
 - Quasit effects for Claws.
