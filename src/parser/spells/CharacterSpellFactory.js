@@ -191,6 +191,31 @@ export default class CharacterSpellFactory {
     }
   }
 
+  async handleGrantedSpells(spell, type) {
+    if (spell.limitedUse && spell.definition.level !== 0) {
+      const dups = this.ddb.character.spells[type].filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
+      const duplicateSpell = this.items.findIndex(
+        (existingSpell) =>
+          (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
+          && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
+      );
+      if (!dups && !this.items[duplicateSpell]) {
+        // also parse spell as non-limited use
+        let unlimitedSpell = duplicate(spell);
+        unlimitedSpell.limitedUse = null;
+        unlimitedSpell.usesSpellSlot = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
+        unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = type;
+        delete unlimitedSpell.id;
+        delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+        // eslint-disable-next-line no-await-in-loop
+        const parsedSpell = await parseSpell(unlimitedSpell, this.character);
+        this.items.push(parsedSpell);
+      }
+    }
+  }
+
   async getRaceSpells() {
     for (const spell of this.ddb.character.spells.race) {
       if (!spell.definition)
@@ -236,28 +261,7 @@ export default class CharacterSpellFactory {
         },
       };
 
-      if (spell.alwaysPrepared && spell.limitedUse) {
-        const dups = this.ddb.character.spells.race.filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
-        const duplicateSpell = this.items.findIndex(
-          (existingSpell) =>
-            (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
-            && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
-        );
-        if (!dups && !this.items[duplicateSpell]) {
-          // also parse spell as non-limited use
-          let unlimitedSpell = duplicate(spell);
-          unlimitedSpell.limitedUse = null;
-          unlimitedSpell.usesSpellSlot = true;
-          unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
-          unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-          unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "race";
-          delete unlimitedSpell.id;
-          delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-          // eslint-disable-next-line no-await-in-loop
-          const parsedSpell = await parseSpell(spell, this.character);
-          this.items.push(parsedSpell);
-        }
-      }
+      this.handleGrantedSpells(spell, "race");
 
       // eslint-disable-next-line no-await-in-loop
       const parsedSpell = await parseSpell(spell, this.character);
@@ -309,28 +313,7 @@ export default class CharacterSpellFactory {
         },
       };
 
-      // if (spell.alwaysPrepared && spell.limitedUse) {
-      //   const dups = this.ddb.character.spells.feat.filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
-      //   const duplicateSpell = this.items.findIndex(
-      //     (existingSpell) =>
-      //       (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
-      //       && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
-      //   );
-      //   if (!dups && !this.items[duplicateSpell]) {
-      //     // also parse spell as non-limited use
-      //     let unlimitedSpell = duplicate(spell);
-      //     unlimitedSpell.limitedUse = null;
-      //     unlimitedSpell.usesSpellSlot = true;
-      //     unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
-      //     unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "feat";
-      //     unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-      //     delete unlimitedSpell.id;
-      //     delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-      //     // eslint-disable-next-line no-await-in-loop
-      //     const parsedSpell = await parseSpell(spell, this.character);
-      //     this.items.push(parsedSpell);
-      //   }
-      // }
+      this.handleGrantedSpells(spell, "feat");
 
       // eslint-disable-next-line no-await-in-loop
       const parsedSpell = await parseSpell(spell, this.character);
@@ -371,28 +354,7 @@ export default class CharacterSpellFactory {
         },
       };
 
-      if (spell.alwaysPrepared && spell.limitedUse) {
-        const dups = this.ddb.character.spells.background.filter((otherSpell) => otherSpell.definition.name === spell.definition.name).length > 1;
-        const duplicateSpell = this.items.findIndex(
-          (existingSpell) =>
-            (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
-            && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot
-        );
-        if (!dups && !this.items[duplicateSpell]) {
-          // also parse spell as non-limited use
-          let unlimitedSpell = duplicate(spell);
-          unlimitedSpell.limitedUse = null;
-          unlimitedSpell.usesSpellSlot = true;
-          unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
-          unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = "background";
-          unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-          delete unlimitedSpell.id;
-          delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
-          // eslint-disable-next-line no-await-in-loop
-          const parsedSpell = await parseSpell(spell, this.character);
-          this.items.push(parsedSpell);
-        }
-      }
+      this.handleGrantedSpells(spell, "background");
 
       // eslint-disable-next-line no-await-in-loop
       const parsedSpell = await parseSpell(spell, this.character);
