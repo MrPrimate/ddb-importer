@@ -730,7 +730,7 @@ export const fallbackDDBConfig = {
     { id: 97, name: "Nordmaarian" },
     { id: 98, name: "Ogre" },
     { id: 99, name: "Solamnic" },
-    { id: 100, name: "Thieves’ Cant",},
+    { id: 100, name: "Thieves’ Cant", },
   ],
   restoreTypes: [
     { id: 1, name: "Full", description: "Restore life with full HP" },
