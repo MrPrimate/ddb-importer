@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Fox for dex save penalty for slow spell effect.
+
 # 3.4.58
 
 - Misty step effect not applied if using Automated Animations as it has better built in support.
