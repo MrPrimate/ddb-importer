@@ -58,3 +58,57 @@ export const SPECIAL_ADVANCEMENTS = {
     additionalFunctions: [],
   },
 };
+
+export function classFixes(klass) {
+  if (klass.name.startsWith("Order of the Profane Soul")) {
+    klass.name = "Order of the Profane Soul";
+    const slotsScaleValue = {
+      _id: foundry.utils.randomID(),
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: `pact-slots`,
+        type: "number",
+        scale: {
+          "3": {
+            "value": 1
+          },
+          "6": {
+            "value": 2
+          }
+        },
+      },
+      value: {},
+      title: `Pact Slots`,
+      icon: null,
+    };
+
+    const levelScaleValue = {
+      _id: foundry.utils.randomID(),
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: `pact-level`,
+        type: "number",
+        scale: {
+          "3": {
+            "value": 1
+          },
+          "7": {
+            "value": 2
+          },
+          "13": {
+            "value": 3
+          }
+        },
+      },
+      value: {},
+      title: `Pact Level`,
+      icon: null,
+    };
+
+    klass.system.advancement.push(slotsScaleValue, levelScaleValue);
+
+  }
+  return klass;
+}

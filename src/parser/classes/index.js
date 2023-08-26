@@ -5,7 +5,7 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import CompendiumHelper from '../../lib/CompendiumHelper.js';
 import { getSpellCastingAbility } from "../spells/ability.js";
 import parseTemplateString from "../../lib/DDBTemplateStrings.js";
-import { SPECIAL_ADVANCEMENTS } from './special.js';
+import { SPECIAL_ADVANCEMENTS, classFixes } from './special.js';
 
 /**
  * Fetches the sources and pages for class and subclass
@@ -308,6 +308,7 @@ async function parseSubclass(ddb, character, characterClass, featuresIndex) {
     ...await generateFeatureAdvancements(ddb, characterClass, characterClass.subclassDefinition, featuresIndex, baseClassFeatureIds),
   ];
 
+  subKlass = classFixes(subKlass);
   return subKlass;
 }
 
@@ -465,6 +466,7 @@ export async function getClasses(ddb, character) {
 
     klass.system.description.value = parseTemplateString(ddb, character, klass.system.description.value, klass).text;
 
+    klass = classFixes(klass);
     items.push(klass);
   }
 

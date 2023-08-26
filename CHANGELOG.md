@@ -2,6 +2,7 @@
 
 - BREAKING CHANGE: Most items which were previously loot, are now consumables.
 - Fix for dex save penalty for slow spell effect.
+- Order of the Profane Soul will set Pact Spell level correctly if munching with effects on.
 
 # 3.4.58
 

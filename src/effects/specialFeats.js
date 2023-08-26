@@ -59,6 +59,7 @@ import { formOfTheBeastReactionEffect } from "./feats/formOfTheBeastReaction.js"
 import { deflectMissilesAttackEffect } from "./feats/deflectMissilesAttack.js";
 import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
+import { pactMagicEffect } from "./feats/pactMagic.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -129,6 +130,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Momentary Stasis": {
         document = momentaryStasis(document);
+        break;
+      }
+      case "Pact Magic": {
+        document = pactMagicEffect(document);
         break;
       }
       case "Rage": {
