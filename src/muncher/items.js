@@ -211,8 +211,8 @@ export async function parseItems(ids = null) {
   const finalCount = finalItems.length;
   DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);
 
-  const updateResults = await updateCompendium("inventory", { inventory: finalItems }, updateBool);
-  await compendiumFolders.removeUnusedFolders();
+  const updateResults = await Promise.all(await updateCompendium("inventory", { inventory: finalItems }, updateBool));
+  if (addToCompendiumFolder) await compendiumFolders.removeUnusedFolders();
   return updateResults;
 }
 

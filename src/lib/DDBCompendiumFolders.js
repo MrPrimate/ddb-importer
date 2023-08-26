@@ -608,8 +608,10 @@ export class DDBCompendiumFolders {
   }
 
   async removeUnusedFolders() {
-    const folderIds = this.compendium.folders.filter((c) => c.contents.length === 0).map((f) => f.id);
-    console.warn("Deleting compendium folders", folderIds);
+    const folderIds = this.compendium.folders
+      .filter((c) => c.contents.length === 0 && c.children.length === 0)
+      .map((f) => f.id);
+    logger.debug("Deleting compendium folders", folderIds);
     await Folder.deleteDocuments(folderIds, { pack: this.packName });
   }
 }
