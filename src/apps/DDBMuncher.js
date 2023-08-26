@@ -276,6 +276,15 @@ export default class DDBMuncher extends Application {
     }
   }
 
+  static async cleanupCompendiumFolders(type) {
+    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders")) {
+      const compendiumFolders = new DDBCompendiumFolders(type);
+      DDBMuncher.munchNote(`Checking compendium folders..`, true);
+      await compendiumFolders.loadCompendium(type);
+      await compendiumFolders.removeUnusedFolders();
+    }
+  }
+
   static async parseItems() {
     try {
       logger.info("Munching items!");
@@ -283,6 +292,7 @@ export default class DDBMuncher extends Application {
       DDBMuncher.munchNote(`Finished importing items!`, true);
       DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();
+      await DDBMuncher.cleanupCompendiumFolders("items");
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
