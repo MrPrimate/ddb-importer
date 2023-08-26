@@ -172,8 +172,9 @@ export async function parseItems(ids = null) {
   logger.info("Check complete, getting ItemData.");
 
   const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
+
+  const compendiumFolders = new DDBCompendiumFolders("items");
   if (addToCompendiumFolder) {
-    const compendiumFolders = new DDBCompendiumFolders("items");
     DDBMuncher.munchNote(`Checking compendium folders..`, true);
     await compendiumFolders.loadCompendium("items");
     DDBMuncher.munchNote("", true);
@@ -210,9 +211,9 @@ export async function parseItems(ids = null) {
   const finalCount = finalItems.length;
   DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);
 
-  return new Promise((resolve) => {
-    resolve(updateCompendium("inventory", { inventory: finalItems }, updateBool));
-  });
+  const updateResults = await updateCompendium("inventory", { inventory: finalItems }, updateBool);
+  await compendiumFolders.removeUnusedFolders();
+  return updateResults;
 }
 
 

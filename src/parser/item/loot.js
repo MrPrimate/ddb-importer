@@ -3,12 +3,15 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription, getCapacity } from "./common.js";
 import DICTIONARY from "../../dictionary.js";
 
-function getItemType(data) {
+function getItemType(data, typeHint) {
   let result = {
     type: "loot"
   };
 
-  if (data.definition.isContainer) {
+  if (data.definition.isContainer
+    || ["Mount", "Vehicle"].includes(data.definition.subType)
+    || ["Vehicle", "Mount"].includes(typeHint)
+  ) {
     return {
       type: "backpack",
     };
@@ -39,11 +42,12 @@ function getItemType(data) {
   if (!itemType) {
     const isConsumable
       = data.definition.type === "Gear"
-      && data.definition.subType === "Adventuring Gear"
-      && data.definition.tags.includes('Utility')
-      && ((data.definition.tags.includes('Damage')
-      && data.definition.tags.includes('Combat'))
-      || data.definition.tags.includes('Healing'));
+      && ["Adventuring Gear"].includes(data.definition.subType);
+      // && data.definition.subType === "Adventuring Gear"
+      // && data.definition.tags.includes('Utility')
+      // && ((data.definition.tags.includes('Damage')
+      // && data.definition.tags.includes('Combat'))
+      // || data.definition.tags.includes('Healing'));
     if (isConsumable) itemType = "consumable";
   }
 
@@ -64,12 +68,12 @@ function getItemType(data) {
 }
 
 export default function parseLoot(data, itemType) {
-  const type = getItemType(data);
+  const type = getItemType(data, itemType);
 
   let loot = {
     name: data.definition.name,
     type: type.type,
-    system: JSON.parse(utils.getTemplate(type.type)), // was: tool
+    system: JSON.parse(utils.getTemplate(type.type)),
     flags: {
       ddbimporter: {
         dndbeyond: {

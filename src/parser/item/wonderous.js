@@ -10,7 +10,7 @@ import {
   getCapacity,
 } from "./common.js";
 
-export default function parseWonderous(data) {
+export default function parseWonderous(data, { ddbTypeOverride = null } = {}) {
 
   const isContainer = data.definition.isContainer;
   const type = isContainer ? "backpack" : "equipment";
@@ -24,7 +24,7 @@ export default function parseWonderous(data) {
     flags: {
       ddbimporter: {
         dndbeyond: {
-          type: data.definition.type,
+          type: ddbTypeOverride ?? data.definition.type,
         },
       },
     },

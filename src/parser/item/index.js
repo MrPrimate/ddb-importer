@@ -47,6 +47,17 @@ function getItemFromGearTypeIdOne(ddb, ddbItem) {
     case "Ammunition":
       item = parseAmmunition(ddbItem, ddbItem.definition.subType);
       break;
+    case "Arcane Focus":
+    case "Holy Symbol":
+    case "Druidic Focus":
+      item = parseWonderous(ddbItem, { ddbTypeOverride: ddbItem.definition.subType });
+      break;
+    case "Mount":
+      item = parseLoot(ddbItem, "Mount");
+      break;
+    case "Vehicle":
+      item = parseLoot(ddbItem, "Vehicle");
+      break;
     default:
       item = parseLoot(ddbItem, ddbItem.definition.subType);
   }

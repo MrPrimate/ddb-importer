@@ -722,23 +722,45 @@ const DICTIONARY = {
       martialM: "Martial Melee",
       martialR: "Martial Ranged",
     },
-    TRINKET: ["Wondrous item", "Ring"],
-    CONSUMABLE: ["Ammunition", "Potion", "Scroll", "Poison", "Adventuring Gear", "Wand", "Rod"],
-    LOOT: [
-      "Adventuring Gear",
-      "Vehicle",
-      "Gemstone",
-      "Mount",
+    TRINKET: [
+      "Wondrous item",
+      "Ring",
       "Arcane Focus",
       "Holy Symbol",
       "Druidic Focus",
+      "Adventuring Gear",
+    ],
+    CONSUMABLE: [
+      "Adventuring Gear",
+      "Ammunition",
+      "Potion",
+      "Scroll",
+      "Poison",
+      "Wand",
+      "Rod",
+    ],
+    LOOT: [
+      "Gemstone",
+      // "Mount",
+
+      "Adventuring Gear",
+      // "Vehicle",
+      // "Arcane Focus",
+      // "Holy Symbol",
+      // "Druidic Focus",
     ],
     TOOLS: {
       art: "Artisan's Tools",
       music: "Musical Instrument",
       game: "Gaming Set",
     },
-    BACKPACK: ["Equipment Pack", "Adventuring Gear", "Vehicle", "Mount", "Wondrous item"],
+    BACKPACK: [
+      "Equipment Pack",
+      "Adventuring Gear",
+      "Vehicle",
+      "Mount",
+      "Wondrous item",
+    ],
   }
 };
 
