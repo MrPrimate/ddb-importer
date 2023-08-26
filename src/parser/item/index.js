@@ -58,8 +58,15 @@ function getItemFromGearTypeIdOne(ddb, ddbItem) {
     case "Vehicle":
       item = parseLoot(ddbItem, "Vehicle");
       break;
-    default:
-      item = parseLoot(ddbItem, ddbItem.definition.subType);
+    default: {
+      const isContainerTag = ddbItem.definition.tags.includes('Container');
+      const isOuterwearTag = ddbItem.definition.tags.includes('Outerwear');
+      if (!ddbItem.definition.isContainer && isOuterwearTag && !isContainerTag) {
+        item = parseWonderous(ddbItem, { ddbTypeOverride: "Clothing", armorType: "clothing" });
+      } else {
+        item = parseLoot(ddbItem, ddbItem.definition.subType);
+      }
+    }
   }
   return item;
 }

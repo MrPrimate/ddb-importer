@@ -39,16 +39,13 @@ function getItemType(data, typeHint) {
       undefined
     );
 
-  if (!itemType) {
-    const isConsumable
-      = data.definition.type === "Gear"
-      && ["Adventuring Gear"].includes(data.definition.subType);
-      // && data.definition.subType === "Adventuring Gear"
-      // && data.definition.tags.includes('Utility')
-      // && ((data.definition.tags.includes('Damage')
-      // && data.definition.tags.includes('Combat'))
-      // || data.definition.tags.includes('Healing'));
-    if (isConsumable) itemType = "consumable";
+  if (!itemType && data.definition.type === "Gear" && ["Adventuring Gear"].includes(data.definition.subType)) {
+    // && data.definition.subType === "Adventuring Gear"
+    // && data.definition.tags.includes('Utility')
+    // && ((data.definition.tags.includes('Damage')
+    // && data.definition.tags.includes('Combat'))
+    // || data.definition.tags.includes('Healing'));
+    itemType = "consumable";
   }
 
   if (itemType) {

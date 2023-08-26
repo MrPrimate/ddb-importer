@@ -10,7 +10,7 @@ import {
   getCapacity,
 } from "./common.js";
 
-export default function parseWonderous(data, { ddbTypeOverride = null } = {}) {
+export default function parseWonderous(data, { ddbTypeOverride = null, armorType = "trinket" } = {}) {
 
   const isContainer = data.definition.isContainer;
   const type = isContainer ? "backpack" : "equipment";
@@ -39,8 +39,8 @@ export default function parseWonderous(data, { ddbTypeOverride = null } = {}) {
     // "dex": null
     // }
     item.system.armor = {
-      type: "trinket",
-      value: 10,
+      type: armorType,
+      value: null,
       dex: null,
     };
 

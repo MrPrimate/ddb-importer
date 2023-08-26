@@ -715,6 +715,7 @@ const DICTIONARY = {
       light: "Light Armor",
       trinket: "Trinket",
       shield: "Shield",
+      clothing: "Clothing",
     },
     WEAPON: {
       simpleM: "Simple Melee",
@@ -741,13 +742,7 @@ const DICTIONARY = {
     ],
     LOOT: [
       "Gemstone",
-      // "Mount",
-
       "Adventuring Gear",
-      // "Vehicle",
-      // "Arcane Focus",
-      // "Holy Symbol",
-      // "Druidic Focus",
     ],
     TOOLS: {
       art: "Artisan's Tools",
