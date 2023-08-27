@@ -3,6 +3,23 @@ import DDBHelper from "../../lib/DDBHelper.js";
 import { getItemRarity, getEquipped, getConsumableUses, getSingleItemWeight, getQuantity, getDescription, getCapacity } from "./common.js";
 import DICTIONARY from "../../dictionary.js";
 
+
+const LOOT_ITEM = [
+  "Abacus",
+  "Barding",
+  "Basic Fishing Equipment",
+  "Bedroll",
+  "Bell",
+  "Bit and Bridle",
+  "Blanket",
+  "Block and Tackle",
+  "Book",
+  "Magnifying Glass",
+  "Scale, Merchant's",
+  "Signet Ring",
+  "String",
+];
+
 function getItemType(data, typeHint) {
   let result = {
     type: "loot"
@@ -39,7 +56,10 @@ function getItemType(data, typeHint) {
       undefined
     );
 
-  if (!itemType && data.definition.type === "Gear" && ["Adventuring Gear"].includes(data.definition.subType)) {
+  if (!itemType && data.definition.type === "Gear"
+    && ["Adventuring Gear"].includes(data.definition.subType)
+    && !LOOT_ITEM.includes(data.definition.name)
+  ) {
     // && data.definition.subType === "Adventuring Gear"
     // && data.definition.tags.includes('Utility')
     // && ((data.definition.tags.includes('Damage')

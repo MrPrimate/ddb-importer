@@ -38,6 +38,32 @@ const CLOTHING_ITEMS = [
   "Boots",
   "Snowshoes",
   "Vestments",
+  "Saddle, Exotic",
+  "Saddle, Military",
+  "Saddle, Pack",
+  "Saddle, Riding",
+];
+
+const EQUIPMENT_TRINKET = [
+  "Canoe",
+  "Censer",
+  "Crowbar",
+  "Grenade Launcher",
+  "Hammer",
+  "Hammer, Sledge",
+  "Hourglass",
+  "Ladder (10 foot)",
+  "Mess Kit",
+  "Mirror, Steel",
+  "Pick, Miner's",
+  "Pole (10-foot)",
+  "Shovel",
+  "Signal Whistle",
+  "Small Knife",
+  "Spellbook",
+  "Spyglass",
+  "Tent, Two-Person",
+  "Whetstone",
 ];
 
 function getItemFromGearTypeIdOne(ddb, ddbItem) {
@@ -71,6 +97,8 @@ function getItemFromGearTypeIdOne(ddb, ddbItem) {
         || CLOTHING_ITEMS.includes(ddbItem.definition.name)
       ) {
         item = parseWonderous(ddbItem, { ddbTypeOverride: "Clothing", armorType: "clothing" });
+      } else if (EQUIPMENT_TRINKET.includes(ddbItem.definition.name)) {
+        item = parseWonderous(ddbItem, { ddbTypeOverride: ddbItem.definition.subType });
       } else {
         item = parseLoot(ddbItem, ddbItem.definition.subType);
       }
