@@ -1,6 +1,6 @@
-# NEXT UP
+# 3.4.59
 
-- BREAKING CHANGE: Most items which were previously loot, are now consumables.
+- BREAKING CHANGE: Most items which were previously loot, are now consumables. Please let me know if you think anything should change type.
 - Fix for dex save penalty for slow spell effect.
 - Order of the Profane Soul will set Pact Spell level correctly if munching with effects on.
 - Frostbite effect: some combinations would not allow effect to remain for the correct duration.
