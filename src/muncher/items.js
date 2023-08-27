@@ -11,7 +11,6 @@ import DDBProxy from "../lib/DDBProxy.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
-import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 
 async function getCharacterInventory(items) {
@@ -171,14 +170,7 @@ export async function parseItems(ids = null) {
   await FileHelper.generateCurrentFiles(uploadDirectory);
   logger.info("Check complete, getting ItemData.");
 
-  const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
-
-  if (addToCompendiumFolder) {
-    const compendiumFolders = new DDBCompendiumFolders("items");
-    DDBMuncher.munchNote(`Checking compendium folders..`, true);
-    await compendiumFolders.loadCompendium("items");
-    DDBMuncher.munchNote("", true);
-  }
+  await DDBMuncher.generateCompendiumFolders("items");
 
   DDBMuncher.munchNote("Downloading item data..");
 
@@ -211,9 +203,12 @@ export async function parseItems(ids = null) {
   const finalCount = finalItems.length;
   DDBMuncher.munchNote(`Importing ${finalCount} items!`, true);
 
-  return new Promise((resolve) => {
-    resolve(updateCompendium("inventory", { inventory: finalItems }, updateBool));
-  });
+  const updateResults = await updateCompendium("inventory", { inventory: finalItems }, updateBool);
+  const updatePromiseResults = await Promise.all(updateResults);
+
+  logger.debug({ finalItems, updateResults, updatePromiseResults });
+  DDBMuncher.munchNote("");
+  return updateResults;
 }
 
 

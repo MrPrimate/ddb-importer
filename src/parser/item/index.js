@@ -33,6 +33,12 @@ import parseCustomItem from "./custom.js";
 
 import { getAttunement, getBaseItem } from "./common.js";
 
+const CLOTHING_ITEMS = [
+  "Helm",
+  "Boots",
+  "Snowshoes",
+  "Vestments",
+];
 
 function getItemFromGearTypeIdOne(ddb, ddbItem) {
   let item = {};
@@ -61,7 +67,9 @@ function getItemFromGearTypeIdOne(ddb, ddbItem) {
     default: {
       const isContainerTag = ddbItem.definition.tags.includes('Container');
       const isOuterwearTag = ddbItem.definition.tags.includes('Outerwear');
-      if (!ddbItem.definition.isContainer && isOuterwearTag && !isContainerTag) {
+      if ((!ddbItem.definition.isContainer && isOuterwearTag && !isContainerTag)
+        || CLOTHING_ITEMS.includes(ddbItem.definition.name)
+      ) {
         item = parseWonderous(ddbItem, { ddbTypeOverride: "Clothing", armorType: "clothing" });
       } else {
         item = parseLoot(ddbItem, ddbItem.definition.subType);

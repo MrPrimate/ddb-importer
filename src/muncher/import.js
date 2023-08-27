@@ -55,13 +55,13 @@ export function filterItemsByUserSelection(result, sections) {
   return items;
 };
 
-async function copyFlagGroup(flagGroup, originalItem, targetItem) {
+function copyFlagGroup(flagGroup, originalItem, targetItem) {
   if (targetItem.flags === undefined) targetItem.flags = {};
   // if we have generated effects we dont want to copy some flag groups. mostly for AE on spells
   const effectsProperty = getProperty(targetItem, "flags.ddbimporter.effectsApplied")
     && SETTINGS.EFFECTS_IGNORE_FLAG_GROUPS.includes(flagGroup);
   if (originalItem.flags && !!originalItem.flags[flagGroup] && !effectsProperty) {
-    logger.debug(`Copying ${flagGroup} for ${originalItem.name}`);
+    // logger.debug(`Copying ${flagGroup} for ${originalItem.name}`);
     targetItem.flags[flagGroup] = originalItem.flags[flagGroup];
   }
 }
@@ -70,7 +70,7 @@ async function copyFlagGroup(flagGroup, originalItem, targetItem) {
  * Copies across some flags for existing item
  * @param {*} items
  */
-export async function copySupportedItemFlags(originalItem, targetItem) {
+export function copySupportedItemFlags(originalItem, targetItem) {
   SETTINGS.SUPPORTED_FLAG_GROUPS.forEach((flagGroup) => {
     copyFlagGroup(flagGroup, originalItem, targetItem);
   });
@@ -282,14 +282,16 @@ async function updateCompendiumItem(compendium, updateItem, existingItem) {
   if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
   if (existingItem.flags) await copySupportedItemFlags(existingItem, updateItem);
   DDBMuncher.munchNote(`Updating ${updateItem.name} compendium entry`);
+  logger.debug(`Updating ${updateItem.name} compendium entry`);
 
-  const update = await existingItem.update(updateItem, { pack: compendium.metadata.id });
+  const update = existingItem.update(updateItem, { pack: compendium.metadata.id });
   return update;
 }
 
 async function updateCompendiumItems(compendium, inputItems, index, matchFlags) {
   let updates = [];
-  inputItems.forEach(async (item) => {
+  for (const item of inputItems) {
+    // eslint-disable-next-line no-await-in-loop
     const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
     // we have a match, update first match
     if (existingItems.length >= 1) {
@@ -299,6 +301,7 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
 
       if (item.type !== existing.type) {
         logger.warn(`Item type mismatch ${item.name} from ${existing.type} to ${item.type}. DDB Importer will delete and recreate this item from scratch. You can most likely ignore this message.`);
+        // eslint-disable-next-line no-await-in-loop
         await existing.delete();
         let newItem = createCompendiumItem(item.type, compendium, item);
         updates.push(newItem);
@@ -307,7 +310,7 @@ async function updateCompendiumItems(compendium, inputItems, index, matchFlags) 
         updates.push(update);
       }
     }
-  });
+  }
 
   return Promise.all(updates);
 }
@@ -390,15 +393,15 @@ export async function addCompendiumFolderIds(documents, type) {
   }
 }
 
-export async function updateCompendium(type, input, updateExisting = false, matchFlags = []) {
-  logger.debug(`Getting compendium for update of ${type} documents (checking ${input[type].length} docs)`);
+export async function updateCompendium(type, documents, updateExisting = false, matchFlags = []) {
+  logger.debug(`Getting compendium for update of ${type} documents (checking ${documents[type].length} docs)`);
   const compendium = await CompendiumHelper.getCompendiumType(type);
   compendium.configure({ locked: false });
 
   if (game.user.isGM) {
     const initialIndex = await compendium.getIndex();
     // remove duplicate items based on name and type
-    const filterItems = [...new Map(input[type].map((item) => {
+    const filterItems = [...new Map(documents[type].map((item) => {
       let filterItem = item["name"] + item["type"];
       matchFlags.forEach((flag) => {
         filterItem += item.flags.ddbimporter[flag];
@@ -432,8 +435,9 @@ export async function updateCompendium(type, input, updateExisting = false, matc
 
     const results = createResults.concat(updateResults);
     return new Promise((resolve) => resolve(results));
+  } else {
+    return [];
   }
-  return [];
 }
 
 async function getSRDIconMatch(type) {
@@ -762,7 +766,7 @@ async function updateFolderItems(type, input, update = true) {
           const existingItem = await existingItems.find((existing) => item.name === existing.name);
           item._id = existingItem._id;
           logger.info(`Updating ${type} ${item.name}`);
-          await copySupportedItemFlags(existingItem, item);
+          copySupportedItemFlags(existingItem, item);
           await Item.update(item);
           return item;
         })

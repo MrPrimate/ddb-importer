@@ -129,7 +129,7 @@ export default class DDBCompanionFactory {
       companion._id = existingCompanion._id;
       logger.info(`Updating companion ${companion.name}`);
       // eslint-disable-next-line no-await-in-loop
-      await copySupportedItemFlags(existingCompanion, companion);
+      copySupportedItemFlags(existingCompanion, companion);
       // eslint-disable-next-line no-await-in-loop
       const npc = await buildNPC(companion, "monster", false, true, true);
       results.push(npc);

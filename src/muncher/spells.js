@@ -9,7 +9,6 @@ import { getCampaignId } from "../lib/DDBCampaigns.js";
 import SETTINGS from "../settings.js";
 import DDBProxy from "../lib/DDBProxy.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
-import { DDBCompendiumFolders } from "../lib/DDBCompendiumFolders.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
 
@@ -74,14 +73,7 @@ export async function parseSpells(ids = null) {
 
   // to speed up file checking we pregenerate existing files now.
   await FileHelper.generateCurrentFiles(uploadDirectory);
-
-  const addToCompendiumFolder = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-compendium-folders");
-  if (addToCompendiumFolder) {
-    const compendiumFolders = new DDBCompendiumFolders("spells");
-    DDBMuncher.munchNote(`Checking compendium folders..`, true);
-    await compendiumFolders.loadCompendium("spells");
-    DDBMuncher.munchNote("", true);
-  }
+  await DDBMuncher.generateCompendiumFolders("spells");
 
   DDBMuncher.munchNote("Downloading spell data..");
 
@@ -135,9 +127,12 @@ export async function parseSpells(ids = null) {
   const finalCount = finalSpells.length;
   DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);
 
-  return new Promise((resolve) => {
-    resolve(updateCompendium("spells", { spells: finalSpells }, updateBool));
-  });
+  const updateResults = await updateCompendium("spells", { inventory: finalSpells }, updateBool);
+  const updatePromiseResults = await Promise.all(updateResults);
+
+  logger.debug({ finalSpells, updateResults, updatePromiseResults });
+  DDBMuncher.munchNote("");
+  return updateResults;
 }
 
 

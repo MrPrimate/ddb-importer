@@ -128,7 +128,7 @@ const CompendiumHelper = {
         foundryActor.system.details.biography = existingNPC.system.details.biography;
       }
 
-      await copySupportedItemFlags(existingNPC.toObject(), foundryActor);
+      copySupportedItemFlags(existingNPC.toObject(), foundryActor);
     }
 
     return foundryActor;

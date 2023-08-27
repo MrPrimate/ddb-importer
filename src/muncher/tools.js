@@ -52,7 +52,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     actorUpdate.sort = targetActor.sort;
     actorUpdate.ownership = targetActor.ownership;
     // eslint-disable-next-line no-await-in-loop
-    await copySupportedItemFlags(targetActor, actorUpdate);
+    copySupportedItemFlags(targetActor, actorUpdate);
 
     // eslint-disable-next-line no-await-in-loop
     await targetActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
