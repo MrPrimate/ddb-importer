@@ -83,15 +83,10 @@ if (isNewerVersion(11, game.version)) {
 export function generateItemMacroFlag(document, macroText) {
   return {
     macro: {
-      data: {
-        name: document.name,
-        type: "script",
-        scope: "global",
-        command: macroText,
-      },
-      options: {},
-      apps: {},
-      compendium: null,
+      name: document.name,
+      type: "script",
+      scope: "global",
+      command: macroText,
     },
   };
 }

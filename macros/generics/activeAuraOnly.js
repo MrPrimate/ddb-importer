@@ -3,6 +3,6 @@ if(!game.modules.get("ActiveAuras")?.active) {
   return;
 }
 
-if (args[0].tag === "OnUse") {
+if (args[0].macroPass === "preActiveEffects" || args[0].tag === "OnUse") {
   return await game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
 }
