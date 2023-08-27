@@ -330,9 +330,9 @@ function getClassFeatures(ddb, weapon) {
   return warlockFeatures.concat(monkFeatures);
 }
 
-function getItemFlags(ddbCharacter, ddbItem) {
-  const ddb = ddbCharacter.source.ddb;
-  const character = ddbCharacter.raw.character;
+DDBCharacter.prototype.getItemFlags = function getItemFlags(ddbItem) {
+  const ddb = this.source.ddb;
+  const character = this.raw.character;
   let flags = {
     damage: {
       parts: [],
@@ -340,7 +340,12 @@ function getItemFlags(ddbCharacter, ddbItem) {
     // Some features, notably hexblade abilities we scrape out here
     classFeatures: getClassFeatures(ddb, ddbItem),
     martialArtsDie: getMartialArtsDie(ddb),
-    maxMediumArmorDex: Math.max(...DDBHelper.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier").map((mod) => mod.value), 2),
+    maxMediumArmorDex: Math.max(
+      ...DDBHelper.filterBaseModifiers(ddb, "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
+      ...DDBHelper.filterModifiers(ddbItem.definition?.grantedModifiers ?? ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
+      ...DDBHelper.filterModifiers(ddbItem.definition?.grantedModifiers ?? ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-modifier", ["", null], true).map((mod) => mod.value),
+      2,
+    ),
     magicItemAttackInt: DDBHelper.filterBaseModifiers(ddb, "bonus", "magic-item-attack-with-intelligence").length > 0,
   };
 
@@ -377,8 +382,10 @@ function getItemFlags(ddbCharacter, ddbItem) {
   // ranged fighting style is added as a global modifier elsewhere
   // as is defensive style
 
+  logger.debug(`Flags for ${ddbItem.name ?? ddbItem.definition.name}`, { ddbItem, flags });
+
   return flags;
-}
+};
 
 // async function getIcon(item, ddbItem) {
 //   if (ddbItem.definition?.avatarUrl || ddbItem.definition?.largeAvatarUrl) {
@@ -425,7 +432,7 @@ DDBCharacter.prototype.getInventory = async function getInventory() {
   for (let ddbItem of this.source.ddb.character.inventory) {
     const originalName = ddbItem.definition.name;
     ddbItem.definition.name = DDBHelper.getName(this.source.ddb, ddbItem, this.raw.character);
-    const flags = getItemFlags(this, ddbItem);
+    const flags = this.getItemFlags(ddbItem);
 
     const updateExisting = compendiumItem
       ? game.settings.get("ddb-importer", "munching-policy-update-existing")

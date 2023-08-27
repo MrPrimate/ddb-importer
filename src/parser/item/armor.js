@@ -36,7 +36,7 @@ function getArmorType(data, character, flags) {
       maxDexModifier = 0;
       break;
     case "medium":
-      maxDexModifier = flags.maxMediumArmorDex || 2;
+      maxDexModifier = flags.maxMediumArmorDex ?? 2;
       break;
     default:
       maxDexModifier = null;
