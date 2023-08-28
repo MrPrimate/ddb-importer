@@ -99,7 +99,7 @@ export async function addDDBIEffectsToActorDocuments(actor, { useChrisPremades =
       }, { ...doc, recursive: false });
     }
     logger.debug(`Removal complete, adding effects to item ${doc.name}`);
-    await addDDBIEffectToDocument(doc, useChrisPremades);
+    await addDDBIEffectToDocument(doc, { useChrisPremades });
   }
   logger.info("Effect addition complete");
 }
