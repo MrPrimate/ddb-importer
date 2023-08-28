@@ -1,6 +1,10 @@
+# NEXT UP
+
+- Green Flame blade macro threw an error when using automated animations, due to changes with animation config.
+
 # 3.4.60
 
-- SPell Munch was broken.
+- Spell Munch was broken.
 
 # 3.4.59
 

@@ -7,44 +7,65 @@ const patreonPrimary = "jb2a.dagger.melee.fire.green";
 const patreonSecondary = "jb2a.chain_lightning.secondary.green";
 
 const baseAutoAnimation = {
-  version: 4,
-  killAnim: false,
-  options: {
-    ammo: false,
-    menuType: "weapon",
-    variant: "01",
-    enableCustom: false,
-    repeat: null,
-    delay: null,
-    scale: null,
-    customPath: "",
-  },
-  override: true,
-  autoOverride: {
-    enable: false,
-    variant: "01",
-    color: "darkorangepurple",
-    repeat: null,
-    delay: null,
-    scale: null,
-  },
-  sourceToken: {
+  label: "WEAPON NAME",
+  macro: {
     enable: false,
   },
-  targetToken: {
-    enable: false,
-  },
-  animLevel: false,
-  animType: "melee",
-  animation: "shortsword",
-  color: "green",
-  preview: false,
   meleeSwitch: {
-    switchType: "on",
-    returning: false,
+    sound: {
+      enable: false,
+    },
+    options: {
+      detect: "automatic",
+      range: 2,
+      returning: false,
+      switchType: "on",
+    },
   },
+  menu: "melee",
+  primary: {
+    video: {
+      dbSection: "melee",
+      menuType: "weapon",
+      animation: "shortsword",
+      variant: "01",
+      color: "white",
+      enableCustom: false,
+      customPath: "",
+    },
+    sound: {
+      enable: false,
+    },
+    options: {
+      contrast: 0,
+      delay: 0,
+      elevation: 1000,
+      isWait: false,
+      opacity: 1,
+      playbackRate: 1,
+      repeat: 1,
+      repeatDelay: 250,
+      saturate: 0,
+      size: 1,
+      tint: true,
+      tintColor: "#09ce68",
+      zIndex: 1,
+    },
+  },
+  secondary: {
+    enable: false,
+  },
+  source: {
+    enable: false,
+  },
+  target: {
+    enable: false,
+  },
+  isEnabled: true,
+  isCustomized: true,
+  fromAmmo: false,
+  version: 5,
 };
-
 
 // sequencer caller for effects on target
 function sequencerEffect(target, origin = null) {
@@ -178,7 +199,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
           if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonPrimary)) {
             const autoAnimationsAdjustments = duplicate(baseAutoAnimation);
-            autoAnimationsAdjustments.animation = weaponCopy.system.baseItem ? weaponCopy.system.baseItem : "shortsword";
+            autoAnimationsAdjustments.primary.video.animation = weaponCopy.system.baseItem ? weaponCopy.system.baseItem : "shortsword";
             const autoanimations = hasProperty(weaponCopy, "flags.autoanimations")
               ? mergeObject(getProperty(weaponCopy, "flags.autoanimations"), autoAnimationsAdjustments)
               : autoAnimationsAdjustments;
@@ -198,8 +219,12 @@ function weaponAttack(caster, sourceItemData, origin, target) {
 
 if (args[0].tag === "OnUse") {
   if (lastArg.targets.length > 0) {
+    // console.warn(lastArg);
     const casterData = await fromUuid(lastArg.actorUuid);
     const caster = casterData.actor ? casterData.actor : casterData;
+    // console.warn({
+    //   caster, itemData: lastArg.itemData, uuid: lastArg.uuid, targets: lastArg.targets[0]
+    // })
     weaponAttack(caster, lastArg.itemData, lastArg.uuid, lastArg.targets[0]);
   } else {
     ui.notifications.error("Green Flame Blade: No target selected: please select a target and try again.");
