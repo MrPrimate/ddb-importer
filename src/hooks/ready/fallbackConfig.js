@@ -3581,6 +3581,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/gotsf",
     },
     {
+      id: 122,
+      name: "BGG",
+      description: "Baldur’s Gate Gazetteer",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/35728/82/638254794193165644.jpeg",
+      sourceURL: "sources/bgg",
+    },
+    {
       id: 123,
       name: "TCSR",
       description: "Tal’dorei Campaign Setting Reborn",
