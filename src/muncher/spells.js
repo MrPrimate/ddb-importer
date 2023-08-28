@@ -127,7 +127,7 @@ export async function parseSpells(ids = null) {
   const finalCount = finalSpells.length;
   DDBMuncher.munchNote(`Importing ${finalCount} spells...`, true);
 
-  const updateResults = await updateCompendium("spells", { inventory: finalSpells }, updateBool);
+  const updateResults = await updateCompendium("spells", { spells: finalSpells }, updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
   logger.debug({ finalSpells, updateResults, updatePromiseResults });
