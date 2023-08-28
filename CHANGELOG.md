@@ -1,6 +1,7 @@
-# NEXT UP
+# 3.4.61
 
 - Green Flame blade macro threw an error when using automated animations, due to changes with animation config.
+- Items ignored by import would be ignored, but also duplicated.
 
 # 3.4.60
 

@@ -789,29 +789,32 @@ export default class DDBCharacterManager extends FormApplication {
     }
   }
 
-  static restoreDDBMatchedFlags(ddbMatchedItem, item) {
-    const ddbItemFlags = getProperty(ddbMatchedItem, "flags.ddbimporter");
+  static restoreDDBMatchedFlags(existingItem, item) {
+    const ddbItemFlags = getProperty(existingItem, "flags.ddbimporter");
+    logger.debug(`Item flags for ${ddbItemFlags}`, ddbItemFlags);
     // we retain some flags that might change the nature of the import for this item
     // these flags are used elsewhere
-    ["ignoreItemForChrisPremades", "ignoreItemUpdate", "overrideId", "overrideItem"].forEach((flag) => {
+    ["ignoreItemForChrisPremades", "ignoreItemImport", "ignoreItemUpdate", "overrideId", "overrideItem"].forEach((flag) => {
       if (hasProperty(ddbItemFlags, flag)) {
+        logger.debug(`Overriding ${flag} for ${item.name} to ${ddbItemFlags[flag]}`);
         setProperty(item, `flags.ddbimporter.${flag}`, ddbItemFlags[flag]);
       }
     });
     // some items get ignored completly, if so we don't match these
-    if (!getProperty(ddbItemFlags, "ignoreItemImport")) {
-      item["_id"] = ddbMatchedItem["id"];
-      if (getProperty(ddbItemFlags, "ignoreIcon")) {
+    if (!getProperty(ddbItemFlags, "ignoreItemImport") ?? false) {
+      logger.debug(`Updating ${item.name} with id`);
+      item["_id"] = existingItem["id"];
+      if (getProperty(ddbItemFlags, "ignoreIcon") ?? false) {
         logger.debug(`Retaining icons for ${item.name}`);
-        item.flags.ddbimporter.matchedImg = ddbMatchedItem.img;
+        item.flags.ddbimporter.matchedImg = existingItem.img;
         item.flags.ddbimporter.ignoreIcon = true;
       }
-      if (getProperty(ddbItemFlags, "retainResourceConsumption")) {
+      if (getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
         logger.debug(`Retaining resources for ${item.name}`);
-        item.system.consume = deepClone(ddbMatchedItem.system.consume);
+        item.system.consume = deepClone(existingItem.system.consume);
         item.flags.ddbimporter.retainResourceConsumption = true;
-        if (hasProperty(ddbMatchedItem, "flags.link-item-resource-5e")) {
-          setProperty(item, "flags.link-item-resource-5e", ddbMatchedItem.flags["link-item-resource-5e"]);
+        if (hasProperty(existingItem, "flags.link-item-resource-5e") ?? false) {
+          setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
         }
       }
     }
@@ -827,7 +830,7 @@ export default class DDBCharacterManager extends FormApplication {
       let matchedItems = [];
 
       for (let item of items) {
-        let ddbMatchedItem = ownedItems.find((owned) => {
+        let existingItem = ownedItems.find((owned) => {
           // have we already matched against this id? lets not double dip
           const existingMatch = matchedItems.find((matched) => {
             return getProperty(owned, "flags.ddbimporter.id") === getProperty(matched, "flags.ddbimporter.id");
@@ -857,15 +860,18 @@ export default class DDBCharacterManager extends FormApplication {
           return (simpleMatch && choiceMatch) || overrideMatch;
         });
 
-        if (ddbMatchedItem) {
+        logger.debug(`Checking ${item.name} for existing match`, existingItem);
+
+        if (existingItem) {
           // we use flags on the item to determine if we keep various properties
           // NOW IS THE TIME!
-          item = DDBCharacterManager.restoreDDBMatchedFlags(ddbMatchedItem, item);
+          item = DDBCharacterManager.restoreDDBMatchedFlags(existingItem, item);
           // we can now determine if we are going to ignore this item or not,
           // this effectively filters out the items we don't want and they don't
           // get returned from this function
           const ignoreItemImport = getProperty(item, "flags.ddbimporter.ignoreItemImport") ?? false;
           if (!ignoreItemImport) {
+            logger.debug(`Importing matched item ${item.name}`);
             matchedItems.push(item);
           }
         } else {
