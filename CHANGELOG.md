@@ -1,3 +1,7 @@
+# 3.4.60
+
+- SPell Munch was broken.
+
 # 3.4.59
 
 - BREAKING CHANGE: Most items which were previously loot, are now consumables. Please let me know if you think anything should change type.
