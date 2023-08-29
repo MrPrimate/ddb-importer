@@ -72,8 +72,9 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
 
       await fixFeatures([data]);
       data = (await addExtraEffects(null, [data], mockCharacter))[0];
-      if (useChrisPremades) data = (await applyChrisPremadeEffects({ documents: [data], force: true }))[0];
     }
+
+    if (useChrisPremades) data = (await applyChrisPremadeEffects({ documents: [data], force: true }))[0];
 
     data = addVision5eStub(data);
     logger.info(`Updating actor document ${document.name} with`, {
