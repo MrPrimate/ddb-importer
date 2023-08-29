@@ -283,6 +283,10 @@ export async function fixFeatures(features) {
           units: "minute",
         };
         break;
+      case "Daunting Roar": {
+        feature.system.range.value = 10;
+        break;
+      }
       case "Dark One’s Blessing":
       case "Dark One's Blessing": {
         feature.system.damage = { parts: [["@classes.warlock.level + @mod", "temphp"]], versatile: "", value: "" };

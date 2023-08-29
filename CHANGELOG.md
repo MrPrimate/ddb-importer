@@ -2,7 +2,7 @@
 
 - If applying effects via api, chris' effects would not apply to items or spells
 - Primal Savagery, correct targets and range.
-
+- Daunting Roar effect.
 
 # 3.4.61
 

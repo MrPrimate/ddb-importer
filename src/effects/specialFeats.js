@@ -60,6 +60,7 @@ import { deflectMissilesAttackEffect } from "./feats/deflectMissilesAttack.js";
 import { patientDefenseEffect } from "./feats/patientDefense.js";
 import { mantleOfInspirationEffect } from "./feats/mantleOfInspiration.js";
 import { pactMagicEffect } from "./feats/pactMagic.js";
+import { dauntingRoarEffect } from "./feats/dauntingRoar.js";
 
 export function baseFeatEffect(document, label) {
   let effect = {
@@ -180,6 +181,10 @@ export async function featureEffectAdjustment(ddb, character, document) {
       }
       case "Crossbow Expert": {
         document = crossbowExpertEffect(document);
+        break;
+      }
+      case "Daunting Roar": {
+        document = dauntingRoarEffect(document);
         break;
       }
       case "Deflect Missiles": {
