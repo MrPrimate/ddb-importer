@@ -1,3 +1,7 @@
+# NEXT UP
+
+- If applying effects via api, chris' effects would not apply to items or spells
+
 # 3.4.61
 
 - Green Flame blade macro threw an error when using automated animations, due to changes with animation config.
