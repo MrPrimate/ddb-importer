@@ -242,6 +242,10 @@ export function fixSpells(ddb, items) {
       case "Produce Flame":
         spell.system.range = { value: 30, units: "ft", long: null };
         break;
+      case "Primal Savagery":
+        spell.system.target = { value: 1, width: null, units: "", type: "creature" };
+        spell.system.range = { value: 5, units: "ft", long: null };
+        break;
       case "Pyrotechnics":
         spell.system.target["value"] = 15;
         break;
