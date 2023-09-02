@@ -4,7 +4,7 @@ export function generateLegendaryEffect(document) {
   let effect = baseItemEffect(document, document.name);
   effect.changes.push(
     {
-      key: "flags.midi-qol.optional.LegRes.save.fail",
+      key: "flags.midi-qol.optional.LegRes.save.fail.all",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: "success",
       priority: "20",

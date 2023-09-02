@@ -1,3 +1,8 @@
+# NEXT UP
+
+- Legendary resistance effect was no longer working properly.
+
+
 # 3.4.62
 
 - If applying effects via api, chris' effects would not apply to items or spells
