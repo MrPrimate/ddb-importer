@@ -2,29 +2,23 @@ import DICTIONARY from "../../dictionary.js";
 import utils from "../../lib/utils.js";
 import DDBCharacter from "../DDBCharacter.js";
 
-// is there a spell casting ability?
-function hasSpellCastingAbility (spellCastingAbilityId) {
-  return DICTIONARY.character.abilities.some((ability) => ability.id === spellCastingAbilityId);
-};
 
 // convert spellcasting ability id to string used by foundry
 function convertSpellCastingAbilityId(spellCastingAbilityId) {
-  return DICTIONARY.character.abilities.find((ability) => ability.id === spellCastingAbilityId).value;
+  return DICTIONARY.character.abilities.find((ability) => ability.id === spellCastingAbilityId)?.value;
 };
 
 function getSpellCastingAbility(klass) {
-  let spellCastingAbility = undefined;
-  if (hasSpellCastingAbility(klass.definition.spellCastingAbilityId)) {
-    // check to see if class has a spell casting ability
-    spellCastingAbility = convertSpellCastingAbilityId(klass.definition.spellCastingAbilityId);
-  } else if (
-    klass.subclassDefinition
-    && hasSpellCastingAbility(klass.subclassDefinition.spellCastingAbilityId)
-  ) {
-    // some subclasses attach a spellcasting ability, e.g. Arcane Trickster
-    spellCastingAbility = convertSpellCastingAbilityId(klass.subclassDefinition.spellCastingAbilityId);
-  }
-  return spellCastingAbility;
+  const subClassAbilityId = getProperty(klass, "subclassDefinition.spellCastingAbilityId");
+  const subClassAbility = subClassAbilityId ? convertSpellCastingAbilityId(subClassAbilityId) : undefined;
+  if (subClassAbility) return subClassAbility;
+
+  const classAbilityId = getProperty(klass, "definition.spellCastingAbilityId");
+  const classAbility = classAbilityId ? convertSpellCastingAbilityId(classAbilityId) : undefined;
+
+  if (classAbility) return classAbility;
+
+  return undefined;
 }
 
 DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting() {
