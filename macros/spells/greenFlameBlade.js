@@ -205,14 +205,9 @@ function weaponAttack(caster, sourceItemData, origin, target) {
               : autoAnimationsAdjustments;
             setProperty(weaponCopy, "flags.autoanimations", autoanimations);
           }
-          // temp work around
-          if (weaponCopy.system.proficient === 1) {
-            weaponCopy.system.attackBonus = `${weaponCopy.system.attackBonus} + @prof`;
-            weaponCopy.system.proficient = 0;
-          }
-          // end work around
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();
+          attackItem.prepareFinalAttributes();
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
           await MidiQOL.completeItemUse(attackItem, {}, options);
         },

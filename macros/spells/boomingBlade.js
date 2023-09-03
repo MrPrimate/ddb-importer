@@ -60,14 +60,9 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           });
           setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
-          // temp work around
-          if (weaponCopy.system.proficient === 1) {
-            weaponCopy.system.attackBonus = `${weaponCopy.system.attackBonus} + @prof`;
-            weaponCopy.system.proficient = 0;
-          }
-          // end work around
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();
+          attackItem.prepareFinalAttributes();
           console.warn(attackItem);
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
           await MidiQOL.completeItemUse(attackItem, {}, options);
