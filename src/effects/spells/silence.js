@@ -1,9 +1,10 @@
-import { baseSpellEffect, spellEffectModules, generateStatusEffectChange } from "../specialSpells.js";
+import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
 import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { effectModules } from "../effects.js";
 
 export async function silenceEffect(document) {
 
-  if (!spellEffectModules().activeAurasInstalled) {
+  if (!effectModules().activeAurasInstalled) {
     return document;
   }
 

@@ -1,8 +1,9 @@
-import { baseSpellEffect, spellEffectModules } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { effectModules } from "../effects.js";
 
 export async function enlargeReduceEffect(document) {
-  if (!spellEffectModules().atlInstalled) return document;
+  if (!effectModules().atlInstalled) return document;
 
   let effect = baseSpellEffect(document, document.name);
   const itemMacroText = await loadMacroFile("spell", "enlargeReduce.js");

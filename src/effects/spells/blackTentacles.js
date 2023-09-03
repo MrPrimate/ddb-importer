@@ -1,8 +1,9 @@
-import { baseSpellEffect, spellEffectModules, generateStatusEffectChange } from "../specialSpells.js";
+import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
+import { effectModules } from "../effects.js";
 
 export async function blackTentaclesEffect(document) {
-  if (!spellEffectModules().activeAurasInstalled) {
+  if (!effectModules().activeAurasInstalled) {
     let effect = baseSpellEffect(document, document.name);
     effect.changes.push(generateStatusEffectChange("Restrained"));
     document.effects.push(effect);

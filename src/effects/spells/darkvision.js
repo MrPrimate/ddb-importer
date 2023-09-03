@@ -1,5 +1,6 @@
-import { baseSpellEffect, generateATLChange, spellEffectModules } from "../specialSpells.js";
+import { baseSpellEffect, generateATLChange } from "../specialSpells.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { effectModules } from "../effects.js";
 
 export async function darkvisionEffect(document) {
   let effect = baseSpellEffect(document, document.name);
@@ -10,7 +11,7 @@ export async function darkvisionEffect(document) {
     priority: 20,
   });
 
-  if (spellEffectModules().atlInstalled) {
+  if (effectModules().atlInstalled) {
     effect.changes.push(
       generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 60, 5),
       generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),

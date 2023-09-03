@@ -1,9 +1,10 @@
-import { baseSpellEffect, spellEffectModules } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
+import { effectModules } from "../effects.js";
 
 export async function insectPlagueEffect(document) {
   // we require active auras for this effect
-  if (!spellEffectModules().activeAurasInstalled) return document;
+  if (!effectModules().activeAurasInstalled) return document;
 
   const itemMacroText = await loadMacroFile("generic", MACROS.AA_DAMAGE_ON_ENTRY.file);
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);

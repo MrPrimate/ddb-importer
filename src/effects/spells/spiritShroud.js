@@ -1,8 +1,9 @@
-import { baseSpellEffect, spellEffectModules } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
+import { effectModules } from "../effects.js";
 
 export async function spiritShroudEffect(document) {
-  if (!spellEffectModules().activeAurasInstalled) return document;
+  if (!effectModules().activeAurasInstalled) return document;
   let effect = baseSpellEffect(document, document.name);
 
   effect.changes.push(

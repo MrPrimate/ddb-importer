@@ -1,9 +1,10 @@
-import { baseSpellEffect, spellEffectModules, generateStatusEffectChange } from "../specialSpells.js";
+import { baseSpellEffect, generateStatusEffectChange } from "../specialSpells.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag, MACROS } from "../macros.js";
+import { effectModules } from "../effects.js";
 
 export async function webEffect(document) {
 
-  if (!spellEffectModules().activeAurasInstalled) {
+  if (!effectModules().activeAurasInstalled) {
     let effectWebRestrained = baseSpellEffect(document, document.name);
     effectWebRestrained.changes.push(generateStatusEffectChange("Restrained"));
     document.effects.push(effectWebRestrained);

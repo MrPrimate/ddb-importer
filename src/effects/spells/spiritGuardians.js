@@ -1,9 +1,10 @@
-import { baseSpellEffect, spellEffectModules } from "../specialSpells.js";
+import { baseSpellEffect } from "../specialSpells.js";
 import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../macros.js";
+import { effectModules } from "../effects.js";
 
 export async function spiritGuardiansEffect(document) {
   // we require active auras for this effect
-  if (!spellEffectModules().activeAurasInstalled) return document;
+  if (!effectModules().activeAurasInstalled) return document;
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(

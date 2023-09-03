@@ -41,6 +41,7 @@ import { contagionEffect } from "./spells/contagion.js";
 import { createBonfireEffect } from "./spells/createBonfire.js";
 import { crownofMadnessEffect } from "./spells/crownofMadness.js";
 import { crownofStarsEffect } from "./spells/crownofStars.js";
+import { dancingLightsEffect } from "./spells/dancingLights.js";
 import { darknessEffect } from "./spells/darkness.js";
 import { darkvisionEffect } from "./spells/darkvision.js";
 import { divineFavorEffect } from "./spells/divineFavor.js";
@@ -131,10 +132,6 @@ import { witchBoltEffect } from "./spells/witchBolt.js";
 import { zephyrStrikeEffect } from "./spells/zephyrStrike.js";
 
 
-export function spellEffectModules() {
-  return effectModules();
-}
-
 export function baseSpellEffect(document, label) {
   let effect = {
     icon: document.img,
@@ -187,7 +184,7 @@ export async function spellEffectAdjustment(document) {
   if (!document.effects) document.effects = [];
 
   // check that we can gen effects
-  const deps = spellEffectModules();
+  const deps = effectModules();
   if (!deps.hasCore) {
     logger.warn("Sorry, you're missing some required modules for spell effects. Please install them and try again.", deps);
     return document;
@@ -328,6 +325,10 @@ export async function spellEffectAdjustment(document) {
     }
     case "Create Bonfire": {
       document = await createBonfireEffect(document);
+      break;
+    }
+    case "Dancing Lights": {
+      document = await dancingLightsEffect(document);
       break;
     }
     case "Darkness": {

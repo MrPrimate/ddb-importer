@@ -38,7 +38,6 @@ export async function absorbElementsEffect(document) {
     },
   );
   resistanceEffect.duration.rounds = 2;
-
   document.effects.push(resistanceEffect);
 
 
