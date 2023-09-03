@@ -101,9 +101,11 @@ export function fixSpells(ddb, items) {
         break;
       }
       case "Absorb Elements":
-        spell.system.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
+        if (!usingEffects) {
+          spell.system.damage = { parts: [["1d6", ""]], versatile: "", value: "" };
+          spell.system.target["value"] = 1;
+        }
         spell.system.chatFlavor = "Uses the damage type of the triggered attack: Acid, Cold, Fire, Lightning, or Poison.";
-        spell.system.target["value"] = 1;
         break;
       case "Booming Blade":
         if (!usingEffects) {
