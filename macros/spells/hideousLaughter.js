@@ -8,7 +8,7 @@ const saveDC = (saveData.dc === null || saveData.dc === "") && saveData.scaling 
   ? (await fromUuid(lastArg.efData.origin)).parent.getRollData().attributes.spelldc
   : saveData.dc;
 const dcString = saveDC && saveDC !== "" ? `DC${saveDC} ` : "";
-const flavor = `${CONFIG.DND5E.abilities["wis"]} DC${dcString}${DAEItem?.name || ""}`;
+const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dcString}${DAEItem?.name || ""}`;
 
 function effectAppliedAndActive(conditionName) {
   return targetActor.effects.some(

@@ -200,7 +200,7 @@ export async function spellEffectAdjustment(document) {
   logger.debug(`Adding effects to ${name}`);
   switch (name) {
     case "Absorb Elements": {
-      document = absorbElementsEffect(document);
+      document = await absorbElementsEffect(document);
       break;
     }
     case "Melf's Acid Arrow":

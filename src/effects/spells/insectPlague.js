@@ -14,7 +14,7 @@ export async function insectPlagueEffect(document) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value:
-        `label=${document.name} Turn End,turn=end, saveAbility=${document.system.save.ability}, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d10, damageType=${document.system.damage.parts[0][1]}, killAnim=true`,
+        `label=${document.name} Turn End,turn=end, saveAbility=con, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d10, damageType=${document.system.damage.parts[0][1]}, killAnim=true`,
       priority: "20",
     },
   );

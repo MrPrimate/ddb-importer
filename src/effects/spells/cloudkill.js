@@ -14,7 +14,7 @@ export async function cloudkillEffect(document) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value:
-        `label=${document.name} (Start of Turn),turn=start, saveAbility=${document.system.save.ability}, killAnim=true, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=${document.system.damage.parts[0][1]}`,
+        `label=${document.name} (Start of Turn),turn=start, saveAbility=con, killAnim=true, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=${document.system.damage.parts[0][1]}`,
       priority: "20",
     },
   );

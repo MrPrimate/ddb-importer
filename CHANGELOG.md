@@ -4,6 +4,9 @@
 - Small tweak to detecting primary spellcasting ability, that now defaults to the value set by the subclass rather than class. This is used by some custom subclasses that might change the default value. @sayshal
 - Booming Blade/Green Flame Blade no proficiency on attack roll work around.
 - If applying effect using the API or Chris' premades, effects will only be stripped from documents if ddb importer of Chris' module apply/generate effects for that document.
+- Fix the use of some spell effect macros, such as Eyebite, where the NPC is using spellcaster scaling, as opposed to a fixed dc.
+- Absorb Elements effect is now closer to MidiQoL default and includes bonus damage and resistance.
+- A number of small macro tweaks.
 
 # 3.4.62
 

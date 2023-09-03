@@ -6,6 +6,9 @@ const tokenFromUuid = await fromUuid(lastArg.tokenUuid);
 const targetToken = tokenFromUuid.data || token;
 const DAEItem = lastArg.efData.flags.dae.itemData;
 const saveData = DAEItem.system.save;
+const saveDC = (saveData.dc === null || saveData.dc === "") && saveData.scaling === "spell"
+  ? (await fromUuid(lastArg.efData.origin)).parent.getRollData().attributes.spelldc
+  : saveData.dc;
 const castItemName = "Moonbeam Attack";
 const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === "spell");
 
@@ -84,7 +87,7 @@ if (args[0] === "on") {
         actionType: "save",
         damage: { parts: [[`${spellLevel}d10`, "radiant"]], versatile: "", },
         formula: "",
-        save: { ability: "con", dc: saveData.dc, scaling: "spell" },
+        save: { ability: "con", dc: saveDC, scaling: "spell" },
         level: 0,
         school: DAEItem.system.school,
         preparation: { mode: "prepared", prepared: false, },

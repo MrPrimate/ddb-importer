@@ -10,7 +10,7 @@ export function entangleEffect(document) {
   //     key: "flags.midi-qol.OverTime",
   //     mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
   //     value:
-  //       `label=${document.name} (Start of Turn),turn=start, saveAbility=${document.system.save.ability}, saveDC=@attributes.spelldc, rollType=save, saveMagic=true, saveRemove=true`,
+  //       `label=${document.name} (Start of Turn),turn=start, saveAbility=str, saveDC=@attributes.spelldc, rollType=save, saveMagic=true, saveRemove=true`,
   //     priority: "20",
   //   },
   // );

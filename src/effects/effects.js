@@ -253,6 +253,7 @@ export function effectModules() {
   const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
   const chrisInstalled = game.modules.get("chris-premades")?.active ?? false;
   const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
+  const warpgateInstalled = game.modules.get("warpgate")?.active ?? false;
 
   const needAdvancedMacros = isNewerVersion(11, game.version);
   CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
@@ -272,6 +273,7 @@ export function effectModules() {
     autoAnimationsInstalled,
     chrisInstalled,
     vision5eInstalled,
+    warpgateInstalled,
   };
   return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
 }

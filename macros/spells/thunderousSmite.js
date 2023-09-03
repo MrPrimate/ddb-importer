@@ -11,7 +11,7 @@ try {
     const targetActor = target.actor;
     if (!targetActor) continue;
     const spellDC = actor.flags["midi-qol"].thunderousSmite.dc;
-    ChatMessage.create({ content: `${targetActor.name} needs to make a ${CONFIG.DND5E.abilities["str"]} DC${spellDC} vs Thunderous Smite Stagger.` });
+    ChatMessage.create({ content: `${targetActor.name} needs to make a ${CONFIG.DND5E.abilities["str"].label} DC${spellDC} vs Thunderous Smite Stagger.` });
 
     const saveRollData =  {
       request: "save",

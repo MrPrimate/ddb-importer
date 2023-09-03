@@ -3,7 +3,6 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.system.save;
 
 function effectAppliedAndActive(conditionName) {
   return targetActor.effects.some(
@@ -216,10 +215,10 @@ async function applyContagion() {
  */
 async function contagionSave() {
   const flag = DAE.getFlag(targetActor, "ContagionSpell");
-  const flavor = `${CONFIG.DND5E.abilities["con"]} DC${saveData.dc} ${DAEItem?.name || ""}`;
+  const flavor = `${CONFIG.DND5E.abilities["con"].label} DC${flag.saveDC} ${DAEItem?.name || ""}`;
   const saveRoll = await targetActor.rollAbilitySave("con", { flavor });
 
-  if (saveRoll.total < saveData.dc) {
+  if (saveRoll.total < flag.saveDC) {
     if (flag.count === 2) {
       ChatMessage.create({ content: `Contagion on ${targetActor.name} is complete` });
       applyContagion();
@@ -228,14 +227,19 @@ async function contagionSave() {
       DAE.setFlag(targetActor, "ContagionSpell", { count: contagionCount });
       console.log(`Contagion increased to ${contagionCount}`);
     }
-  } else if (saveRoll.total >= saveData.dc) {
+  } else if (saveRoll.total >= flag.saveDC) {
     targetActor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
   }
 }
 
 if (args[0] === "on") {
+  const saveData = DAEItem.system.save;
+  if (saveData.scaling === "spell") {
+    const rollData = actor.getRollData();
+    saveData.dc = rollData.attributes.spelldc;
+  }
   // Save the hook data for later access.
-  DAE.setFlag(targetActor, "ContagionSpell", { count: 0 });
+  DAE.setFlag(targetActor, "ContagionSpell", { count: 0, saveDC: saveData.dc });
 }
 
 if (args[0] === "off") {

@@ -7,7 +7,6 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const DAEItem = lastArg.efData.flags.dae.itemData;
-const saveData = DAEItem.system.save;
 
 function effectAppliedAndActive(conditionName) {
   return targetActor.effects.some(
@@ -18,11 +17,11 @@ function effectAppliedAndActive(conditionName) {
   );
 }
 
-async function eyebite(type) {
+async function eyebite(type, dc) {
   for (let t of game.user.targets) {
-    const flavor = `${CONFIG.DND5E.abilities["wis"]} DC${saveData.dc} ${DAEItem?.name || ""}`;
+    const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dc} ${DAEItem?.name || ""}`;
     const saveRoll = await targetActor.rollAbilitySave("wis", { flavor, fastFoward: true });
-    if (saveRoll.total < saveData.dc) {
+    if (saveRoll.total < dc) {
       ChatMessage.create({ content: `${t.name} failed the save with a ${saveRoll.total}` });
       switch (type) {
         case "asleep":
@@ -36,47 +35,53 @@ async function eyebite(type) {
           break;
         // no default
       }
-      DAE.setFlag(targetActor, "eyebiteSpell", type);
+      DAE.setFlag(targetActor, "eyebiteSpell", { type, dc });
     } else {
       ChatMessage.create({ content: `${t.name} passed the save with a ${saveRoll.total}` });
     }
   }
 }
 
-function eyebiteDialog() {
+function eyebiteDialog(dc) {
   new Dialog({
     title: "Eyebite options",
     content: "<p>Target a token and select the effect</p>",
     buttons: {
       one: {
         label: "Asleep",
-        callback: async () => await eyebite("asleep"),
+        callback: async () => await eyebite("asleep", dc),
       },
       two: {
         label: "Panicked",
-        callback: async () => await eyebite("panicked"),
+        callback: async () => await eyebite("panicked", dc),
       },
       three: {
         label: "Sickened",
-        callback: async () => await eyebite("sickened"),
+        callback: async () => await eyebite("sickened", dc),
       },
     },
   }).render(true);
 }
 
 if (args[0] === "on") {
-  eyebiteDialog();
+  const saveData = DAEItem.system.save;
+  if (saveData.scaling === "spell") {
+    const rollData = actor.getRollData();
+    saveData.dc = rollData.attributes.spelldc;
+  }
+  eyebiteDialog(saveData.dc);
   ChatMessage.create({ content: `${targetActor.name} is blessed with Eyebite` });
 }
 
 if (args[0] === "each") {
-  eyebiteDialog();
+  const flag = DAE.getFlag(targetActor, "eyebiteSpell");
+  eyebiteDialog(flag.dc);
 }
 
 if (args[0] === "off") {
   const flag = await DAE.getFlag(targetActor, "eyebiteSpell");
   if (flag) {
-    if (effectAppliedAndActive(flag, targetActor)) game.dfreds.effectInterface.removeEffect({ effectName: flag, uuid: targetActor.uuid });
+    if (effectAppliedAndActive(flag.type, targetActor)) game.dfreds.effectInterface.removeEffect({ effectName: flag.type, uuid: targetActor.uuid });
     await DAE.unsetFlag(targetActor, "eyebiteSpell");
   }
 }

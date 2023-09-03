@@ -6,6 +6,9 @@ const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 const DAEItem = lastArg.efData.flags.dae.itemData;
 const saveData = DAEItem.system.save;
+const saveDC = (saveData.dc === null || saveData.dc === "") && saveData.scaling === "spell"
+  ? (await fromUuid(lastArg.efData.origin)).parent.getRollData().attributes.spelldc
+  : saveData.dc;
 
 if (args[0] === "each") {
   new Dialog({
@@ -14,12 +17,12 @@ if (args[0] === "each") {
       one: {
         label: "Yes",
         callback: async () => {
-          const flavor = `${CONFIG.DND5E.abilities[saveData.ability]} DC${saveData.dc} ${DAEItem?.name || ""}`;
+          const flavor = `${CONFIG.DND5E.abilities[saveData.ability].label} DC${saveDC} ${DAEItem?.name || ""}`;
           const saveRoll = (await targetActor.rollAbilitySave(saveData.ability, { flavor })).total;
 
-          if (saveRoll >= saveData.dc) {
+          if (saveRoll >= saveDC) {
             targetActor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
-          } else if (saveRoll < saveData.dc) ChatMessage.create({ content: `${targetActor.name} fails the save` });
+          } else if (saveRoll < saveDC) ChatMessage.create({ content: `${targetActor.name} fails the save` });
         },
       },
       two: {

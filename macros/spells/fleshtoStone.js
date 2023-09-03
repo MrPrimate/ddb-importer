@@ -27,7 +27,7 @@ if (args[0] === "on") {
 }
 
 async function checkPetrification(flag) {
-  const flavor = `${CONFIG.DND5E.abilities[saveData.ability]} DC${saveData.dc} ${DAEItem?.name || ""}`;
+  const flavor = `${CONFIG.DND5E.abilities[saveData.ability].label} DC${saveData.dc} ${DAEItem?.name || ""}`;
   const saveRoll = await targetActor.rollAbilitySave(saveData.ability, { flavor, fastForward: true });
 
   if (saveRoll.total < saveData.dc) {

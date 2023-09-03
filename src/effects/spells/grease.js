@@ -18,7 +18,7 @@ export async function greaseEffect(document) {
     {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-      value: `turn=end,label=${document.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=${document.system.save.ability},saveDamage=nodamage,killAnim=true,macro=${MACROS.AA_CONDITION_ON_ENTRY.name}`,
+      value: `turn=end,label=${document.name},saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true,macro=${MACROS.AA_CONDITION_ON_ENTRY.name}`,
       priority: "20",
     },
   );
