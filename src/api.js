@@ -40,6 +40,9 @@ import {
   getCantripDice,
   wait,
   getHighestAbility,
+  checkJB2a,
+  getRemainingDuration,
+  createJB2aActors,
 } from "./effects/helpers.js";
 import {
   applyChrisPremadeEffect,
@@ -163,6 +166,9 @@ export function registerApi() {
       getCantripDice,
       wait,
       getHighestAbility,
+      checkJB2a,
+      getRemainingDuration,
+      createJB2aActors,
     },
     chris: {
       generateEffect: applyChrisPremadeEffect,

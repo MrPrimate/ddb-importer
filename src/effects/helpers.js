@@ -155,6 +155,18 @@ export function configureCustomAAForCondition(condition, macroData, originItemNa
   }
 }
 
+export function checkJB2a(free = true, patreon = true, notify = false) {
+  if (patreon && game.modules.get('jb2a_patreon')?.active) {
+    return true;
+  } else if (!free) {
+    if (notify) ui.notifications.error("This macro requires the patreon version of JB2A");
+    return false;
+  }
+  if (free && game.modules.get('JB2A_DnD5e')?.active) return true;
+  if (notify) ui.notifications.error("This macro requires either the patreon or free version of JB2A");
+  return false;
+}
+
 /**
  * Adds a save advantage effect for the next save on the specified target actor.
  *
@@ -185,9 +197,9 @@ export async function addSaveAdvantageToTarget(targetActor, originItem, ability,
     },
   };
   if (isNewerVersion(game.version, 11)) {
-    effectData.name = `${originItem.name}${additionLabel}: Save Advantage Large Creature`;
+    effectData.name = `${originItem.name}${additionLabel}: Save Advantage`;
   } else {
-    effectData.label = `${originItem.name}${additionLabel}: Save Advantage Large Creature`;
+    effectData.label = `${originItem.name}${additionLabel}: Save Advantage`;
   }
   await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [effectData] });
 }
@@ -301,6 +313,25 @@ export async function attachSequencerFileToTemplate(templateUuid, sequencerFile,
   }
 }
 
+/**
+ * Returns a new duration which reflects the remaining duration of the specified one.
+ *
+ * @param {*} duration the source duration
+ * @returns a new duration which reflects the remaining duration of the specified one.
+ */
+export function getRemainingDuration(duration) {
+  const newDuration = {};
+  if (duration.type === "seconds") {
+    newDuration.seconds = duration.remaining;
+  } else if (duration.type === "turns") {
+    const remainingRounds = Math.floor(duration.remaining);
+    const remainingTurns = (duration.remaining - remainingRounds) * 100;
+    newDuration.rounds = remainingRounds;
+    newDuration.turns = remainingTurns;
+  }
+  return newDuration;
+}
+
 
 export async function wait(ms) {
   return new Promise((resolve) => {
@@ -323,4 +354,25 @@ export function getHighestAbility(actor, abilities) {
 export function getCantripDice(actor) {
   const level = actor.type === "character" ? actor.system.details.level : actor.system.details.cr;
   return 1 + Math.floor((level + 1) / 6);
+}
+
+
+export async function createJB2aActors(subFolderName, name) {
+  const packKeys = ['jb2a_patreon.jb2a-actors', 'JB2A_DnD5e.jb2a-actors'];
+  for (let key of packKeys) {
+    let pack = game.packs.get(key);
+    // eslint-disable-next-line no-continue
+    if (!pack) continue;
+    const actors = pack.index.filter((f) => f.name.includes(name));
+    const subFolder = await utils.getFolder("npc", subFolderName, "JB2A Actors", "#ceb180", "#cccc00", false);
+
+    for (const actor of actors) {
+      if (!game.actors.find((a) => a.name === actor.name && a.folder?.id === subFolder.id)) {
+        await game.actors.importFromCompendium(pack, actor._id, {
+          folder: subFolder.id,
+        });
+      }
+    }
+  }
+
 }
