@@ -7,6 +7,7 @@
 - Fix the use of some spell effect macros, such as Eyebite, where the NPC is using spellcaster scaling, as opposed to a fixed dc.
 - Absorb Elements effect is now closer to MidiQoL default and includes bonus damage and resistance.
 - A number of small macro tweaks.
+- Effect: Dancing Lights (kindly based of a great macro by @tminz), this is the first effect DDBImporter implements that requires Warpgate. It will only be placed onto the item if Warpgate and a JB2A module is found.
 
 # 3.4.62
 

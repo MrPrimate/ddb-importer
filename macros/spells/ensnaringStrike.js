@@ -19,58 +19,6 @@ if (args[0].tag === "OnUse" && ["preTargeting"].includes(args[0].macroPass)) {
 const itemName = "Ensnaring Strike";
 const icon = "icons/magic/nature/root-vine-entangled-hand.webp";
 
-/**
- * Adds a save advantage effect for the next save on the specified target actor.
- *
- * @param {*} targetActor the target actor on which to add the effect.
- * @param {*} originItem the item that is the origin of the effect.
- */
-async function addSaveAdvantageToTarget(targetActor, originItem) {
-  const effectData = {
-    _id: randomID(),
-    changes: [
-      {
-        key: "flags.midi-qol.advantage.ability.save.str",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: "1",
-        priority: 20,
-      },
-    ],
-    origin: originItem.uuid,
-    disabled: false,
-    transfer: false,
-    icon,
-    label: `${originItem.name}: Save Advantage Large Creature`,
-    name: `${originItem.name}: Save Advantage Large Creature`,
-    duration: { turns: 1 },
-    flags: {
-      dae: {
-        specialDuration: ["isSave.str"],
-      },
-    },
-  };
-  await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [effectData] });
-}
-
-/**
- * Returns a new duration which reflects the remaining duration of the specified one.
- *
- * @param {*} duration the source duration
- * @returns a new duration which reflects the remaining duration of the specified one.
- */
-function getRemainingDuration(duration) {
-  const newDuration = {};
-  if (duration.type === "seconds") {
-    newDuration.seconds = duration.remaining;
-  } else if (duration.type === "turns") {
-    const remainingRounds = Math.floor(duration.remaining);
-    const remainingTurns = (duration.remaining - remainingRounds) * 100;
-    newDuration.rounds = remainingRounds;
-    newDuration.turns = remainingTurns;
-  }
-  return newDuration;
-}
-
 
 /**
  * Returns a temporary spell item data for the Ensnaring Strike effect.
@@ -132,7 +80,7 @@ function getTempSpellData(sourceActor, originItem, originEffect) {
         icon,
         label: originItem.name,
         name: originItem.name,
-        duration: getRemainingDuration(conEffect.duration),
+        duration: game.modules.get("ddb-importer")?.api.effects.getRemainingDuration(conEffect.duration),
       },
     ],
   };
@@ -201,7 +149,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
   // Check if target is large or larger and give it advantage on next save
   const targetActor = macroData.hitTargets[0].actor;
   if (dnd5e.config.tokenSizes[targetActor?.system.traits.size ?? "med"] >= dnd5e.config.tokenSizes["lg"]) {
-    await addSaveAdvantageToTarget(targetActor, originItem);
+    await game.modules.get("ddb-importer")?.api.effects.addSaveAdvantageToTarget(targetActor, originItem, "str", " (Large Creature)");
   }
   const options = {
     createWorkflow: true,
