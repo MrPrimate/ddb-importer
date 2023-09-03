@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.63
 
 - Legendary resistance effect was no longer working properly.
 - Small tweak to detecting primary spellcasting ability, that now defaults to the value set by the subclass rather than class. This is used by some custom subclasses that might change the default value. @sayshal
