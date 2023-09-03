@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { generateStatusEffectChange } from "../effects.js";
+import { forceItemEffect, generateStatusEffectChange } from "../effects.js";
 import { baseFeatEffect } from "../specialFeats.js";
 import { generateItemMacroFlag, generateMacroChange, loadMacroFile } from "../macros.js";
 
@@ -15,6 +15,7 @@ function avalancheOfBonesEffect(document) {
   effect.transfer = false;
 
   document.effects.push(effect);
+  document = forceItemEffect(document);
   return document;
 }
 
@@ -30,6 +31,7 @@ function fallingApartEffect(document) {
   );
   effect.transfer = true;
   document.effects.push(effect);
+  document = forceItemEffect(document);
   return document;
 }
 
@@ -42,6 +44,7 @@ async function disassembleEffect(document) {
   effect.transfer = true;
   setProperty(effect, "flags.dae.specialDuration", ["zeroHP"]);
   document.effects.push(effect);
+  document = forceItemEffect(document);
   return document;
 }
 

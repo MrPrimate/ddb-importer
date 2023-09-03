@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { generateStatusEffectChange } from "../effects.js";
+import { forceItemEffect, generateStatusEffectChange } from "../effects.js";
 import { generateItemMacroFlag, loadMacroFile } from "../macros.js";
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 
@@ -71,6 +71,7 @@ export async function venomTrollEffects(npc) {
       item.system.damage.parts = [];
       item.effects.push(effect);
     }
+    item = forceItemEffect(item);
   }
 
   return npc;

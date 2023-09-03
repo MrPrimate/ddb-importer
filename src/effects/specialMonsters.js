@@ -109,7 +109,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
     }
     if (item.name === "Invisibility") item = invisibilityFeatureEffect(item);
 
-    npc = forceItemEffect(npc);
+    item = forceItemEffect(item);
   }, npc.items);
 
   switch (npc.name) {
@@ -117,6 +117,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       npc.items.forEach((item) => {
         if (item.name === "Taunt") {
           item = generateTauntEffect(item);
+          item = forceItemEffect(item);
         }
       });
       break;
@@ -126,6 +127,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
       npc.items.forEach(function(item, index) {
         if (item.name === "Tentacles") {
           this[index].effects[0].changes.push(generateStatusEffectChange("Paralyzed", 20, true));
+          this[index] = forceItemEffect(this[index]);
         }
       }, npc.items);
       break;

@@ -3,6 +3,7 @@
 - Legendary resistance effect was no longer working properly.
 - Small tweak to detecting primary spellcasting ability, that now defaults to the value set by the subclass rather than class. This is used by some custom subclasses that might change the default value. @sayshal
 - Booming Blade/Green Flame Blade no proficiency on attack roll work around.
+- If applying effect using the API or Chris' premades, effects will only be stripped from documents if ddb importer of Chris' module apply/generate effects for that document.
 
 # 3.4.62
 

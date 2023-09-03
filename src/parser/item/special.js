@@ -7,7 +7,7 @@ function prepItem(item) {
     if (!item.system.target) item.system.target = { value: null, width: null, units: "", type: "creature" };
     if (!item.system.range) item.system.range = { value: null, long: null, units: "", type: "touch" };
   } else if (item.name.startsWith("Vicious")) {
-    setProperty(item, "data.critical", { damage: "+ 7", threshold: null });
+    setProperty(item, "system.critical", { damage: "+ 7", threshold: null });
   }
 }
 

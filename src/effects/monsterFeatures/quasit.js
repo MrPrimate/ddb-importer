@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { generateStatusEffectChange } from "../effects.js";
+import { forceItemEffect, generateStatusEffectChange } from "../effects.js";
 import { baseMonsterFeatureEffect } from "../specialMonsters.js";
 
 
@@ -23,6 +23,7 @@ export function quasitEffects(npc) {
 
       item.effects.push(effect);
       setProperty(item, "flags.midiProperties.fulldam", true);
+      item = forceItemEffect(item);
     }
   }
 

@@ -80,7 +80,21 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
     logger.info(`Updating actor document ${document.name} with`, {
       data: duplicate(data),
     });
-    await document.update(data);
+
+    if (getProperty(data, "flags.ddbimporter.effectsApplied") === true
+      || getProperty(data, "flags.ddbimporter.chrisEffectsApplied") === true
+    ) {
+      logger.debug("New effects generated, removing existing effects");
+      if (isNewerVersion(game.version, 11)) {
+        await document.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+      } else {
+        await document.update({
+          effects: [],
+        }, { ...document, recursive: false });
+      }
+      logger.debug(`Removal complete, adding effects to item ${document.name}`);
+      await document.update(data);
+    }
   } finally {
     game.settings.set("ddb-importer", "munching-policy-add-spell-effects", startingSpellPolicy);
     game.settings.set("ddb-importer", "munching-policy-add-effects", startingAddPolicy);
@@ -91,15 +105,6 @@ export async function addDDBIEffectsToActorDocuments(actor, { useChrisPremades =
   logger.info("Starting to add effects to actor items");
   for (const doc of actor.items) {
     logger.debug(`Processing ${doc.name}`);
-    logger.debug("Removing existing effects");
-    if (isNewerVersion(game.version, 11)) {
-      await doc.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-    } else {
-      await doc.update({
-        effects: [],
-      }, { ...doc, recursive: false });
-    }
-    logger.debug(`Removal complete, adding effects to item ${doc.name}`);
     await addDDBIEffectToDocument(doc, { useChrisPremades });
   }
   logger.info("Effect addition complete");
