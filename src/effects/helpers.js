@@ -30,6 +30,12 @@ export function requirementsSatisfied(name, dependencies) {
 
 
 export async function addDDBIEffectToDocument(document, { useChrisPremades = false } = {}) {
+  if (getProperty(document, "flags.ddbimporter.effectsApplied") === true
+    || getProperty(document, "flags.ddbimporter.chrisEffectsApplied") === true
+  ) {
+    logger.warn(`Skipping effect generation for ${document.name} as DDB Importer or Chris effect is already present.`);
+    return;
+  }
   const startingSpellPolicy = game.settings.get("ddb-importer", "munching-policy-add-spell-effects");
   const startingAddPolicy = game.settings.get("ddb-importer", "munching-policy-add-effects");
   try {
@@ -77,9 +83,6 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
     if (useChrisPremades) data = (await applyChrisPremadeEffects({ documents: [data], force: true }))[0];
 
     data = addVision5eStub(data);
-    logger.info(`Updating actor document ${document.name} with`, {
-      data: duplicate(data),
-    });
 
     if (getProperty(data, "flags.ddbimporter.effectsApplied") === true
       || getProperty(data, "flags.ddbimporter.chrisEffectsApplied") === true
@@ -93,7 +96,13 @@ export async function addDDBIEffectToDocument(document, { useChrisPremades = fal
         }, { ...document, recursive: false });
       }
       logger.debug(`Removal complete, adding effects to item ${document.name}`);
+
+      logger.info(`Updating actor document ${document.name} with`, {
+        data: duplicate(data),
+      });
       await document.update(data);
+    } else {
+      logger.info(`No effects applied to document ${document.name}`);
     }
   } finally {
     game.settings.set("ddb-importer", "munching-policy-add-spell-effects", startingSpellPolicy);
