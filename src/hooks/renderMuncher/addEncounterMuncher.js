@@ -39,6 +39,13 @@ export function addEncounterMuncher (app, html) {
           actualButton.prop('disabled', false);
           new DDBSetup().render(true);
         }
+
+        const hookId = Hooks.on("closeApplication", (app) => {
+          if (app instanceof DDBEncounterMunch) {
+            actualButton.prop('disabled', false);
+            Hooks.off("closeApplication", hookId);
+          }
+        });
       } catch (e) {
         logger.error(e);
         actualButton.prop('disabled', false);
@@ -51,12 +58,5 @@ export function addEncounterMuncher (app, html) {
     } else {
       $(html).find(".directory-footer").append(button);
     }
-
-    Hooks.on("closeApplication", (app) => {
-      if (app instanceof DDBEncounterMunch) {
-        actualButton.prop('disabled', false);
-      }
-    });
-
   }
 }

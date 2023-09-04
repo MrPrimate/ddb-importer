@@ -1,3 +1,7 @@
+# NEXT UP
+
+- Fix a potential slow down issue which left lots of unnecessary hooks around after munching.
+
 # 3.4.63
 
 - Legendary resistance effect was no longer working properly.
