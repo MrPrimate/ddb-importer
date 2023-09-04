@@ -6,8 +6,12 @@ export async function fireShieldEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "fireShield.js");
   document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
-  document.system.damage = { parts: [], versatile: "", value: "" };
-  document.effects.push(effect);
 
+  document.effects.push(effect);
+  document.system.damage = { parts: [], versatile: "", value: "" };
+  document.system.target.type = "self";
+  setProperty(document, "system.actionType", "util");
+
+  setProperty(effect, "flags.dae.selfTargetAlways", true);
   return document;
 }
