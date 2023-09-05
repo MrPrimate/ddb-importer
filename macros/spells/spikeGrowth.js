@@ -9,12 +9,12 @@ if (!game.combat) {
 }
 
 const lastArg = args[args.length - 1];
-console.warn("macro caled", {
-  args,
-  isOnUse: args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects",
-  lastArgs: lastArg.tag === "OnUse" && lastArg.macroPass === "preActiveEffects",
-  lastArg,
-})
+// console.warn("macro caled", {
+//   args,
+//   isOnUse: args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects",
+//   lastArgs: lastArg.tag === "OnUse" && lastArg.macroPass === "preActiveEffects",
+//   lastArg,
+// })
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
   return game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
@@ -67,7 +67,7 @@ if (args[0] === "on") {
   const safeName = (lastArg.efData.name ?? lastArg.efData.label).replace(/\s|'|\.|’/g, "_");
   const item = await fromUuid(lastArg.efData.origin);
   const targetItemTracker = DAE.getFlag(item.parent, `${safeName}ItemTracker`);
-  console.warn("token tracker on", targetItemTracker);
+  // console.warn("token tracker on", targetItemTracker);
   const originalTarget = targetItemTracker.targetUuids.includes(lastArg.tokenUuid);
   const target = canvas.tokens.get(lastArg.tokenId);
   const targetTokenTrackerFlag = DAE.getFlag(target, `${safeName}Tracker`);
