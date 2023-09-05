@@ -3554,6 +3554,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/mpmv1",
     },
     {
+      id: 113,
+      name: "PBTSO",
+      description: "Phandelver and Below: The Shattered Obelisk",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/35214/280/638233891719898500.jpeg",
+      sourceURL: "sources/pbtso",
+    },
+    {
       id: 115,
       name: "MCv3",
       description: "Monstrous Compendium Volume 3: Minecraft Creatures",
