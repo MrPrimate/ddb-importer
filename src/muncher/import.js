@@ -278,41 +278,41 @@ async function createCompendiumItem(type, compendium, item) {
 
 async function updateCompendiumItem(compendium, updateItem, existingItem) {
   // purge existing active effects on this item
-  if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
-  if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-  if (existingItem.flags) await copySupportedItemFlags(existingItem, updateItem);
+  // if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
+  // if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+  if (existingItem.flags) copySupportedItemFlags(existingItem, updateItem);
   DDBMuncher.munchNote(`Updating ${updateItem.name} compendium entry`);
   logger.debug(`Updating ${updateItem.name} compendium entry`);
 
-  const update = existingItem.update(updateItem, { pack: compendium.metadata.id });
+  const update = existingItem.update(updateItem, { pack: compendium.metadata.id, recursive: false, render: false });
   return update;
 }
 
 async function updateCompendiumItems(compendium, inputItems, index, matchFlags) {
-  let updates = [];
+  let results = [];
   for (const item of inputItems) {
     // eslint-disable-next-line no-await-in-loop
     const existingItems = await getFilteredItems(compendium, item, index, matchFlags);
     // we have a match, update first match
     if (existingItems.length >= 1) {
-      const existing = existingItems[0];
+      const existingItem = existingItems[0];
       // eslint-disable-next-line require-atomic-updates
-      item._id = existing._id;
+      item._id = existingItem._id;
 
-      if (item.type !== existing.type) {
-        logger.warn(`Item type mismatch ${item.name} from ${existing.type} to ${item.type}. DDB Importer will delete and recreate this item from scratch. You can most likely ignore this message.`);
+      if (item.type !== existingItem.type) {
+        logger.warn(`Item type mismatch ${item.name} from ${existingItem.type} to ${item.type}. DDB Importer will delete and recreate this item from scratch. You can most likely ignore this message.`);
         // eslint-disable-next-line no-await-in-loop
-        await existing.delete();
+        await existingItem.delete();
         let newItem = createCompendiumItem(item.type, compendium, item);
-        updates.push(newItem);
+        results.push(newItem);
       } else {
-        let update = updateCompendiumItem(compendium, item, existing);
-        updates.push(update);
+        let update = updateCompendiumItem(compendium, item, existingItem);
+        results.push(update);
       }
     }
   }
 
-  return Promise.all(updates);
+  return Promise.all(results);
 }
 
 
@@ -414,7 +414,7 @@ export async function updateCompendium(type, documents, updateExisting = false, 
 
     let updateResults = [];
     // update existing items
-    DDBMuncher.munchNote(`Creating and updating ${inputItems.length} new ${type} items in compendium...`, true);
+    DDBMuncher.munchNote(`Creating and updating ${inputItems.length} ${type} items in compendium...`, true);
 
     if (updateExisting) {
       updateResults = await updateCompendiumItems(compendium, inputItems, initialIndex, matchFlags);
