@@ -7,7 +7,7 @@ import { parseTransports } from "./muncher/vehicles.js";
 import { updateWorldMonsters, resetCompendiumActorImages, parseCritters } from "./muncher/tools.js";
 import DDBEncounterMunch from "./apps/DDBEncounterMunch.js";
 import DDBEncounters from "./parser/DDBEncounters.js";
-import { generateAdventureConfig } from "./muncher/adventure.js";
+import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adventure.js";
 import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
 import { checkCobalt } from "./lib/Secrets.js";
@@ -128,6 +128,7 @@ export function registerApi() {
     macros: MACROS,
 
     generateAdventureConfig,
+    downloadAdventureConfig,
 
     importCharacter,
     importCharacterById,
