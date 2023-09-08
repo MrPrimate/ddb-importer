@@ -185,13 +185,9 @@ export function collectSceneData(scene, bookCode) {
         elevation: token.elevation,
         hidden: token.hidden,
         tint: token.tint,
-        actorData: token.actorData,
+        actorData: isNewerVersion(game.version, 11) ? token.delta.toObject() : token.actorData,
         light: token.light,
       };
-
-      if (isNewerVersion(game.version, 11)) {
-        result.actorData = token.delta.toObject();
-      }
 
       // the token actor flags here help us match up actors using the DDB ID
       if (token.actor) {

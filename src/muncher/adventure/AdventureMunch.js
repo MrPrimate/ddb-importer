@@ -499,11 +499,12 @@ export default class AdventureMunch extends FormApplication {
 
   async _revisitScene(document) {
     let updatedData = {};
-    let tokenUpdates = [];
+    const tokenUpdates = [];
     const scene = duplicate(document);
     // this is a scene we need to update links to all items
     logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
-    let deadTokenIds = [];
+    const deadTokenIds = [];
+
     await AdventureMunchHelpers.asyncForEach(scene.tokens, async (token) => {
       if (token.actorId) {
         const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
@@ -511,12 +512,13 @@ export default class AdventureMunch extends FormApplication {
         const worldActor = this._getWorldActor(token.actorId);
         if (worldActor) {
           const updateData = await AdventureMunch._getTokenUpdateData(worldActor, sceneToken, token);
-          if (this.importToAdventureCompendium) {
-            await document.updateSource({ tokens: updateData });
-            tokenUpdates.push(updateData);
-          } else {
-            await document.updateEmbeddedDocuments("Token", [updateData], { keepId: true, keepEmbeddedIds: true });
-          }
+          tokenUpdates.push(updateData);
+          // if (this.importToAdventureCompendium) {
+          //   await document.updateSource({ tokens: updateData });
+          //   tokenUpdates.push(updateData);
+          // } else {
+          //   await document.updateEmbeddedDocuments("Token", [updateData], { keepId: true, keepEmbeddedIds: true });
+          // }
         } else {
           deadTokenIds.push(token._id);
         }
@@ -525,8 +527,11 @@ export default class AdventureMunch extends FormApplication {
       }
     });
 
+    logger.debug(`Updating ${document.name} tokens with updates`, tokenUpdates);
     if (this.importToAdventureCompendium) {
       await document.updateSource({ tokens: tokenUpdates }, { recursive: false });
+    } else {
+      await document.updateEmbeddedDocuments("Token", tokenUpdates, { keepId: true, keepEmbeddedIds: true });
     }
 
     // remove a token from the scene if we have not been able to link it
@@ -1195,6 +1200,15 @@ export default class AdventureMunch extends FormApplication {
     const options = { keepId: true, keepEmbeddedIds: true, temporary: this.importToAdventureCompendium };
     switch (typeName) {
       case "Scene": {
+        if (isNewerVersion(game.version, 11)) {
+          data.tokens = data.tokens.map((t) => {
+            if (hasProperty(t, "actorData")) {
+              setProperty(t, "delta", deepClone(t.actorData));
+              delete t.actorData;
+            }
+            return t;
+          });
+        }
         await this._importRenderedSceneFile(data, overwriteEntity);
         break;
       }
