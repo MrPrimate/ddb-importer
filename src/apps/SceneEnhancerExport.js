@@ -189,6 +189,10 @@ export function collectSceneData(scene, bookCode) {
         light: token.light,
       };
 
+      if (isNewerVersion(game.version, 11)) {
+        result.actorData = token.delta.toObject();
+      }
+
       // the token actor flags here help us match up actors using the DDB ID
       if (token.actor) {
         if (token.actor.flags.ddbimporter) {

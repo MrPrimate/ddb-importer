@@ -487,6 +487,12 @@ export default class AdventureMunch extends FormApplication {
       setProperty(jsonTokenData, "actorData.img", sceneToken.flags.ddbImages.avatarImage);
 
     const updateData = mergeObject(jsonTokenData, sceneToken);
+
+    if (isNewerVersion(game.version, 11)) {
+      setProperty(updateData, "delta", deepClone(updateData.actorData));
+      delete updateData.actorData;
+    }
+
     logger.debug(`${token.name} token data for id ${token.actorId}`, updateData);
     return updateData;
   }
