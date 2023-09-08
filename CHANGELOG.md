@@ -1,6 +1,8 @@
 # NEXT UP
 
 - Fix a potential slow down issue which left lots of unnecessary hooks around after munching.
+- Some tweaks to the import process that will hopefully improve the speed when updating.
+- Improvements to importing adventures in v11.
 
 # 3.4.63
 
