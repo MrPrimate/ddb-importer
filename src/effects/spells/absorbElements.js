@@ -22,7 +22,7 @@ export async function absorbElementsEffect(document) {
     },
   );
 
-  effect.flags.dae.specialDuration = ["DamageDealt"];
+  effect.flags.dae.specialDuration = ["DamageDealt", "turnEnd"];
   effect.duration.rounds = 2;
   effect.duration.startTurn = 1;
 
@@ -38,8 +38,8 @@ export async function absorbElementsEffect(document) {
     },
   );
   resistanceEffect.duration.rounds = 2;
+  setProperty(resistanceEffect, "flags.dae.specialDuration", ["turnStartSource"]);
   document.effects.push(resistanceEffect);
-
 
   document.system.damage = {
     parts: [],
