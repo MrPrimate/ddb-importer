@@ -13,10 +13,11 @@ async function updateEffects(html) {
   const resistanceEffect = targetActor.effects.find((i) => (i.name ?? i.label) === `${itemName} - Resistance`);
   const resistanceChanges = duplicate(resistanceEffect.changes);
   resistanceChanges[0].value = element;
-  await resistanceEffect.update({ resistanceChanges });
+  await resistanceEffect.update({ changes: resistanceChanges });
 }
 
-async function promptForChoice() {
+await new Promise(resolve => {
+  let isButtonClose = false;
   new Dialog({
     title: "Choose a damage type",
     content: `
@@ -37,10 +38,19 @@ async function promptForChoice() {
       yes: {
         icon: '<i class="fas fa-bolt"></i>',
         label: "Select",
-        callback: updateEffects,
+        callback: async(html) => {
+          isButtonClose = true;
+          try {
+            await updateEffects(html);
+          } finally {
+            resolve();
+          }
+        },
       },
     },
+    close: () => {
+      // Avoid racing the button callback if closed via button
+      if (!isButtonClose) resolve();
+    },
   }).render(true);
-}
-
-await promptForChoice();
+});
