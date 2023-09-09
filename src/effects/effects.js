@@ -240,8 +240,6 @@ export function effectModules() {
     return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
   }
   const midiQolInstalled = game.modules.get("midi-qol")?.active ?? false;
-  const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active ?? false;
-  const itemMacroInstalled = game.modules.get("itemacro")?.active ?? false;
   const timesUp = game.modules.get("times-up")?.active ?? false;
   const daeInstalled = game.modules.get("dae")?.active ?? false;
   const convenientEffectsInstalled = game.modules.get("dfreds-convenient-effects")?.active ?? false;
@@ -254,11 +252,14 @@ export function effectModules() {
   const chrisInstalled = game.modules.get("chris-premades")?.active ?? false;
   const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
   const warpgateInstalled = game.modules.get("warpgate")?.active ?? false;
+  // v10 only
+  const itemMacroInstalled = game.modules.get("itemacro")?.active ?? false;
+  const advancedMacrosInstalled = game.modules.get("advanced-macros")?.active ?? false;
 
-  const needAdvancedMacros = isNewerVersion(11, game.version);
+  const v10 = isNewerVersion(11, game.version);
   CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
-    hasCore: itemMacroInstalled && midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled
-      && ((needAdvancedMacros && advancedMacrosInstalled) || !needAdvancedMacros),
+    hasCore: midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled
+      && ((v10 && advancedMacrosInstalled && itemMacroInstalled) || !v10),
     hasMonster: midiQolInstalled && timesUp && daeInstalled && convenientEffectsInstalled,
     midiQolInstalled,
     itemMacroInstalled,

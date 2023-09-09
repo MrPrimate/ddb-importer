@@ -43,11 +43,11 @@ export function configureDependencies() {
   if (game.modules.get("itemacro")?.active) {
     const itemMacroSheet = game.settings.get("itemacro", "charsheet");
     if (itemMacroSheet) {
-      game.settings.get("itemacro", "charsheet", false);
+      game.settings.set("itemacro", "charsheet", false);
     }
-  } else {
-    logger.error("Item Macro needs to be installed for effects");
-    ui.notifications.warn("Item Macro needs to be installed for effects");
+  } else if (isNewerVersion(game.version, 11)) {
+    logger.error("Item Macro is recommended to be installed for effects");
+    ui.notifications.warn("Item Macro is recommended to be installed for effects");
   }
 
   return true;
