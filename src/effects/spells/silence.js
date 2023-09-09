@@ -46,6 +46,21 @@ export async function silenceEffect(document) {
   setProperty(effect, "duration.seconds", 600);
   setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
 
+  const limits = {
+    sight: {
+      hearing: { enabled: true, range: 0 }, // Hearing
+    },
+    sound: { enabled: true, range: 0 },
+  };
+
+  const walledtemplates = {
+    wallRestriction: "move",
+    wallsBlock: "walled",
+  };
+
+  setProperty(document, "flags.limits", limits);
+  setProperty(document, "flags.walledtemplates", walledtemplates);
+
   document.effects.push(effect);
 
   return document;

@@ -3,6 +3,7 @@
 - Fix a potential slow down issue which left lots of unnecessary hooks around after munching.
 - Some tweaks to the import process that will hopefully improve the speed when updating.
 - Improvements to importing adventures in v11.
+- Arcane Recovery will now detect if you have an Arcane Grimoire attuned and grant a bonus.
 
 # 3.4.63
 
