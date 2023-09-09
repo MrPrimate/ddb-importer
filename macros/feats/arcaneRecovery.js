@@ -10,6 +10,8 @@ const levels = tActor.getRollData().classes.wizard.levels;
 const spellConfig = duplicate(tActor.system.spells);
 const spellLevels = [];
 
+const arcaneGrimoire = tActor.items.some((i) => i.name.startsWith("Arcane Grimoire") && i.system?.equipped && i.system?.attunement === 2);
+
 for (let i = 1; i <= 5; i++) {
   if (spellConfig[`spell${i}`].max > 0) spellLevels.push(spellConfig[`spell${i}`]);
 }
@@ -19,10 +21,12 @@ if (!spellLevels.some((level) => level.value !== level.max)) {
   return;
 }
 
-const totalSpellLevels = Math.ceil(levels / 2);
+const totalSpellLevels = Math.ceil(levels / 2) + (arcaneGrimoire ? 1 : 0);
 let spent = 0;
 
-let content = `<p name="header">Recovering spell slots: <strong>${spent}</strong> / ${totalSpellLevels}.</p> <hr> <form>`;
+const agText = arcaneGrimoire ? "<p><i>Bonus +1 slot from Arcane Grimoire</i></p>" : "";
+
+let content = `<p name="header">Recovering spell slots: <strong>${spent}</strong> / ${totalSpellLevels}.</p> ${agText} <hr> <form>`;
 for (let i = 0; i < spellLevels.length; i++) {
   const val = i + 1;
   const name = `level${val}`;
