@@ -488,7 +488,7 @@ export default class AdventureMunch extends FormApplication {
 
     const updateData = mergeObject(jsonTokenData, sceneToken);
 
-    if (isNewerVersion(game.version, 11)) {
+    if (isNewerVersion(game.version, 11) && hasProperty(updateData, "actorData")) {
       setProperty(updateData, "delta", deepClone(updateData.actorData));
       delete updateData.actorData;
     }
@@ -1478,7 +1478,12 @@ export default class AdventureMunch extends FormApplication {
               : `${lookupEntry.compendium}.${lookupEntry._id}${pageLink}${linkStub}`;
             doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@${linkType}[${linkBody}]{${node.textContent}}`);
           } else {
-            logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}`);
+            logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}, using key "${lookupKey}"`, {
+              lookups,
+              actorData,
+              lookupRegExp,
+              lookupKey,
+            });
           }
         }
       });

@@ -440,6 +440,10 @@ export default class ThirdPartyMunch extends FormApplication {
         scene.tokens = scene.flags.ddb.tokens.map((token) => {
           token.flags.actorFolderId = actorFolder.id;
           token.actorId = ThirdPartyMunch._generateActorId(token);
+          if (isNewerVersion(game.version, 11) && hasProperty(token, "actorData")) {
+            setProperty(token, "delta", deepClone(token.actorData));
+            delete token.actorData;
+          }
           return token;
         });
 
