@@ -4,7 +4,7 @@ import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../ma
 export async function spiritualWeaponEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   const itemMacroText = await loadMacroFile("spell", "spiritualWeapon.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("@item.level"));
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);

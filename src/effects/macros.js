@@ -81,7 +81,7 @@ if (isNewerVersion(11, game.version)) {
 }
 
 export function generateItemMacroFlag(document, macroText) {
-  return {
+  const data = {
     macro: {
       name: document.name,
       type: "script",
@@ -89,6 +89,14 @@ export function generateItemMacroFlag(document, macroText) {
       command: macroText,
     },
   };
+  setProperty(document, "flags.itemacro", data);
+  // code for if permanent switch to itemacro flag is made
+  // if (isNewerVersion(11, game.version) || isNewerVersion("11.0.12", game.modules.get("dae")?.version)) {
+  //   setProperty(document, "flags.itemacro", data);
+  // } else {
+  //   setProperty(document, "flags.dae.macro", data);
+  // }
+  return document;
 }
 
 export function generateMacroChange(macroValues, priority = 20, local = false) {

@@ -4,7 +4,7 @@ import { loadMacroFile, generateItemMacroFlag, generateMacroChange } from "../ma
 export async function squireOfSolamniaEffect(document) {
   let effect = baseItemEffect(document, document.name);
   const itemMacroText = await loadMacroFile("feat", "squireOfSolamnia.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(`"${document.name}"`));
   effect.transfer = false;
 

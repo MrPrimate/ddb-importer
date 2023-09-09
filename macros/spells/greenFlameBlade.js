@@ -195,7 +195,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             transfer: false,
             flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { specialDuration: ["1Action", "1Attack", "turnStartSource"], transfer: false } },
           });
-          setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
+          if (hasProperty(sourceItemData, "flags.itemacro")) setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
+          if (hasProperty(sourceItemData, "flags.dae.macro")) setProperty(weaponCopy, "flags.dae.macro", duplicate(sourceItemData.flags.dae.macro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
           if (game.modules.get("sequencer")?.active && Sequencer.Database.entryExists(patreonPrimary)) {
             const autoAnimationsAdjustments = duplicate(baseAutoAnimation);

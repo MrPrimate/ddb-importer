@@ -25,7 +25,7 @@ export async function irresistibleDanceEffect(document) {
 
   effect.flags.dae.macroRepeat = "startEveryTurn";
   const itemMacroText = await loadMacroFile("spell", "irresistibleDance.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
 

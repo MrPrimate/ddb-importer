@@ -7,7 +7,7 @@ export async function enlargeReduceEffect(document) {
 
   let effect = baseSpellEffect(document, document.name);
   const itemMacroText = await loadMacroFile("spell", "enlargeReduce.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 0));
   document.effects.push(effect);
 

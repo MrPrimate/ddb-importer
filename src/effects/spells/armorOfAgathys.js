@@ -17,7 +17,7 @@ export async function armorOfAgathysEffect(document) {
   document.effects.push(effect);
 
   const itemMacroText = await loadMacroFile("spell", "armorOfAgathys.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "system.actionType", "util");
 
   return document;

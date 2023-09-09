@@ -16,7 +16,7 @@ export async function hideousLaughterEffect(document) {
 
   const itemMacroText = await loadMacroFile("spell", "hideousLaughter.js");
 
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
 

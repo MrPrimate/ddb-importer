@@ -4,7 +4,7 @@ import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../ma
 export async function enhanceAbilityEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   const itemMacroText = await loadMacroFile("spell", "enhanceAbility.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("", 20));
   document.effects.push(effect);
 

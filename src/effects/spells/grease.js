@@ -25,7 +25,7 @@ export async function greaseEffect(document) {
   );
 
   const itemMacroText = await loadMacroFile(MACROS.AA_CONDITION_ON_ENTRY.type, MACROS.AA_CONDITION_ON_ENTRY.file);
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "flags.midi-qol.onUseMacroName", "[preActiveEffects]ItemMacro");
   effect.changes.push(generateMacroChange("@item.level @attributes.spelldc"));
 

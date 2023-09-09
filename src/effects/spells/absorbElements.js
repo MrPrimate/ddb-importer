@@ -3,7 +3,7 @@ import { baseSpellEffect } from "../specialSpells.js";
 
 export async function absorbElementsEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "absorbElements.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
 
   const effect = baseSpellEffect(document, `${document.name} - Extra Damage`);

@@ -10,7 +10,7 @@ export async function beholderEyeRaysEffect(document) {
 
   let effect = baseFeatEffect(document, document.name);
   const itemMacroText = await loadMacroFile("monsterFeature", "beholderEyeRay.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
   // effect.changes.push(generateMacroChange(""));
   effect.transfer = false;

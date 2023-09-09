@@ -7,7 +7,7 @@ export async function spikeGrowthEffect(document) {
   if (!effectModules().activeAurasInstalled) return document;
 
   const itemMacroText = await loadMacroFile("spell", "spikeGrowth.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(

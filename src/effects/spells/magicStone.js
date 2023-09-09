@@ -3,7 +3,7 @@ import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 
 export async function magicStoneEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "magicStone.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "flags.ddbimporter.effect", {
     dice: document.system.damage.parts[0][0],
     damageType: document.system.damage.parts[0][1],

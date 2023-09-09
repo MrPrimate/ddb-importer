@@ -4,7 +4,7 @@ import { loadMacroFile, generateMacroChange, generateItemMacroFlag } from "../ma
 export async function eyebiteEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   const itemMacroText = await loadMacroFile("spell", "eyebite.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.flags.dae.macroRepeat = "startEveryTurn";
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

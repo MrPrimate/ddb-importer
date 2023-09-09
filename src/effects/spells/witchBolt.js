@@ -5,7 +5,7 @@ export async function witchBoltEffect(document) {
   let effect = baseSpellEffect(document, document.name);
 
   const itemMacroText = await loadMacroFile("spell", "witchBolt.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
   document.effects.push(effect);
 

@@ -10,7 +10,7 @@ export async function rayofEnfeeblementEffect(document) {
     priority: "20",
   });
   const itemMacroText = await loadMacroFile("spell", "rayofEnfeeblement.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
 

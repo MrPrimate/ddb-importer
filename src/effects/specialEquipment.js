@@ -140,7 +140,7 @@ export function equipmentEffectAdjustment(document) {
     // no default
   }
 
-  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
+  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro") || hasProperty(document.flags, "dae.macro")) {
     setProperty(document, "flags.ddbimporter.effectsApplied", true);
   }
 

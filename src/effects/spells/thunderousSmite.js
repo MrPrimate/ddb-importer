@@ -22,7 +22,7 @@ export async function thunderousSmiteEffect(document) {
   setProperty(effect, "flags.dae.selfTargetAlways", true);
 
   const itemMacroText = await loadMacroFile("spell", "thunderousSmite.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   document.system.damage.parts = [];
   document.system.save.ability = "";
   document.system.actionType = "other";

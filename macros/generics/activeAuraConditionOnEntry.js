@@ -55,6 +55,7 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
     workflowItemData.system.preparation.mode = "atwill";
     setProperty(workflowItemData, "flags.itemacro", {});
+    setProperty(workflowItemData, "flags.dae.macro", {});
     setProperty(workflowItemData, "flags.midi-qol", {});
     setProperty(workflowItemData, "flags.dae", {});
     setProperty(workflowItemData, "effects", []);

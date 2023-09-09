@@ -15,7 +15,7 @@ export async function chillTouchEffect(document) {
     priority: "30",
   });
   // const itemMacroText = await loadMacroFile("spell", "chillTouch.js");
-  // document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  // document = generateItemMacroFlag(document, itemMacroText);
   // effect.changes.push(generateMacroChange(""));
   setProperty(effect, "flags.dae.specialDuration", ["turnEndSource"]);
   document.effects.push(effect);

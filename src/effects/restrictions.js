@@ -21,7 +21,7 @@ async function woundingWeaponEffect(document) {
   };
 
   const itemMacroText = await loadMacroFile("item", "wounding.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange());
   document.effects.push(effect);
 
@@ -31,7 +31,7 @@ async function woundingWeaponEffect(document) {
 async function lifeStealingEffect(document) {
   let effect = baseItemEffect(document, document.name);
   const itemMacroText = await loadMacroFile("item", "lifeStealing.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
   document.effects.push(effect);
   return document;

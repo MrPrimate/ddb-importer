@@ -6,7 +6,7 @@ export async function contagionEffect(document) {
   effect.flags.dae.macroRepeat = "endEveryTurn";
   effect.changes.push(generateStatusEffectChange("Poisoned"));
   const itemMacroText = await loadMacroFile("spell", "contagion.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
 

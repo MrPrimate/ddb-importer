@@ -7,7 +7,7 @@ export async function cloudkillEffect(document) {
   if (!effectModules().activeAurasInstalled) return document;
 
   const itemMacroText = await loadMacroFile("generic", MACROS.AA_DAMAGE_ON_ENTRY.file);
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(

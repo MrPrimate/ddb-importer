@@ -25,6 +25,7 @@ export async function venomTrollEffects(npc) {
 
       const itemMacroText = await loadMacroFile("monsterFeature", "venomSpray.js");
       setProperty(item, "flags.itemacro", generateItemMacroFlag(item, itemMacroText));
+      item = generateItemMacroFlag(item, itemMacroText);
       setProperty(item, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
 
 
@@ -43,7 +44,7 @@ export async function venomTrollEffects(npc) {
       setProperty(effect, "flags.dae.stackable", "noneName");
 
       const itemMacroText = await loadMacroFile("monsterFeature", "poisonSplash.js");
-      setProperty(item, "flags.itemacro", generateItemMacroFlag(item, itemMacroText));
+      item = generateItemMacroFlag(item, itemMacroText);
 
       item.effects.push(effect);
 

@@ -68,7 +68,7 @@ export async function runeCarverEffect(document) {
         );
       } else {
         const itemMacroText = await loadMacroFile("spell", "darkvision.js");
-        document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+        document = generateItemMacroFlag(document, itemMacroText);
         baseEffect.changes.push(generateMacroChange(""));
       }
       break;

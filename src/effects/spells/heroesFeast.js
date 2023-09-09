@@ -8,7 +8,7 @@ export async function heroesFeastEffect(document) {
     { key: "system.traits.ci.value", value: "frightened", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20 }
   );
   const itemMacroText = await loadMacroFile("spell", "heroesFeast.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange("@damage", 0));
   document.effects.push(effect);
 

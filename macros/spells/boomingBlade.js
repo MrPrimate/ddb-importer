@@ -63,7 +63,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           attackItem.prepareData();
           attackItem.prepareFinalAttributes();
-          console.warn(attackItem);
+          // console.warn(attackItem);
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
           await MidiQOL.completeItemUse(attackItem, {}, options);
         },
@@ -91,12 +91,15 @@ if (args[0].tag === "OnUse") {
   // uses midis move flag to determine if to apply extra damage
   if (lastArg["expiry-reason"] === "midi-qol:isMoved" || lastArg["expiry-reaason"] === "midi-qol:isMoved") {
     const targetToken = await fromUuid(lastArg.tokenUuid);
-    const sourceItem = await fromUuid(lastArg.efData.flags.origin);
-    const caster = sourceItem.parent;
+    const caster = await fromUuid(lastArg.efData.flags.casterUuid);
+    const itemId = DAE.getFlag(caster, "boomingBladeChoice");
+    // const sourceItem = await fromUuid(lastArg.efData.flags.origin);
+    const sourceItem = caster.getEmbeddedDocument("Item", itemId);
+    // const caster = sourceItem.parent;
     const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
     const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice}d8[${damageType}]`).evaluate({ async: true });
     if (game.dice3d) game.dice3d.showForRoll(damageRoll);
-    const workflowItemData = duplicate(sourceItem.data);
+    const workflowItemData = duplicate(sourceItem);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
     workflowItemData.name = "Booming Blade: Movement Damage";
 

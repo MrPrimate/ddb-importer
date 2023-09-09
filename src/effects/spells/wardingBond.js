@@ -9,7 +9,7 @@ export async function wardingBondEffect(document) {
     { key: "system.bonuses.abilities.save", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "1", priority: "20" }
   );
   const itemMacroText = await loadMacroFile("spell", "wardingBond.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
 

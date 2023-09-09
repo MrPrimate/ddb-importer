@@ -8,7 +8,7 @@ export async function dancingLightsEffect(document) {
   await createJB2aActors("Dancing Lights", "Dancing light");
 
   const itemMacroText = await loadMacroFile("spell", "dancingLights.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
   return document;
 

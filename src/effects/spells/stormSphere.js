@@ -23,7 +23,7 @@ export async function stormSphereEffect(document) {
     }
   );
   const itemMacroText = await loadMacroFile("spell", "stormSphere.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",

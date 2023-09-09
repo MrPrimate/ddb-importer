@@ -4,7 +4,7 @@ import { baseFeatEffect } from "../specialFeats.js";
 export async function arcaneRecoveryEffect(document) {
   let effect = baseFeatEffect(document, document.name);
   const itemMacroText = await loadMacroFile("feat", "arcaneRecovery.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);

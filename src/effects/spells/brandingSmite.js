@@ -20,7 +20,7 @@ export async function brandingSmiteEffect(document) {
   setProperty(effect, "flags.dae.specialDuration", ["1Hit:rwak", "1Hit:mwak"]);
 
   const itemMacroText = await loadMacroFile("spell", "brandingSmite.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
 
   document.system.actionType = "other";
   document.system.target.type = "self";

@@ -5,7 +5,7 @@ export async function fleshtoStoneEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(generateStatusEffectChange("Restrained"));
   const itemMacroText = await loadMacroFile("spell", "fleshtoStone.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.flags.dae.macroRepeat = "endEveryTurn";
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);

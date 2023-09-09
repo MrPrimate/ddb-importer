@@ -18,7 +18,7 @@ export async function slasherReduceSpeedEffect(document) {
   document.effects.push(effect);
 
   const itemMacroText = await loadMacroFile("feat", "slasherReduceSpeed.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
   document.system.actionType = null;
   return document;
 }

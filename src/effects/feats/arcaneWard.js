@@ -4,7 +4,7 @@ import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 export async function arcaneWardEffect(document) {
   let detectionEffect = baseItemEffect(document, `${document.name}: Spell Detection`);
   const itemMacroText = await loadMacroFile("feat", "arcaneWard.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
 
   detectionEffect.changes.push({
     key: "flags.midi-qol.onUseMacroName",

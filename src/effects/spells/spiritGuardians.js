@@ -23,7 +23,7 @@ export async function spiritGuardiansEffect(document) {
     }
   );
   const itemMacroText = await loadMacroFile("spell", "spiritGuardians.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "Enemy",

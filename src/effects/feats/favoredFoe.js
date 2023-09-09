@@ -30,7 +30,7 @@ export async function favoredFoeEffect(document) {
   document.effects.push(damageBonusEffect);
 
   const itemMacroText = await loadMacroFile("feat", "favoredFoe.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
 
   setProperty(document, "system.actionType", "util");

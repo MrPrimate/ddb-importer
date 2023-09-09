@@ -32,6 +32,7 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
 
   setProperty(workflowItemData, "flags.itemacro", {});
+  setProperty(workflowItemData, "flags.dae.macro", {});
   setProperty(workflowItemData, "flags.midi-qol", {});
   setProperty(workflowItemData, "flags.dae", {});
   setProperty(workflowItemData, "effects", []);

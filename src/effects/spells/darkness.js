@@ -6,7 +6,7 @@ export async function darknessEffect(document) {
   // setProperty(effect, "flags.dae.selfTarget", true);
   setProperty(effect, "flags.dae.selfTargetAlways", true);
   const itemMacroText = await loadMacroFile("spell", "darkness.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
   setProperty(document, "flags.midi-qol.onUseMacroName", "[preTargeting]ItemMacro");

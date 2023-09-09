@@ -4,7 +4,7 @@ import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 export async function blessedHealerEffect(document) {
   let effect = baseItemEffect(document, document.name);
   const itemMacroText = await loadMacroFile("feat", "blessedHealer.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
 
   effect.changes.push({
     key: "flags.midi-qol.onUseMacroName",

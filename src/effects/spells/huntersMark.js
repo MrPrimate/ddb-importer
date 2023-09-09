@@ -29,7 +29,7 @@ export async function huntersMarkEffect(document) {
   document.effects.push(damageBonusEffect);
 
   const itemMacroText = await loadMacroFile("spell", "huntersMark.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
   setProperty(document, "system.actionType", "util");
 
   return document;

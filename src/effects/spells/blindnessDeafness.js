@@ -10,7 +10,7 @@ export async function blindnessDeafnessEffect(document) {
     priority: "20",
   });
   const itemMacroText = await loadMacroFile("spell", "blindnessDeafness.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push(generateMacroChange(""));
   document.effects.push(effect);
 

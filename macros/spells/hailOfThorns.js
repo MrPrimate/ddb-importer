@@ -5,7 +5,7 @@ const defaultItemName = "Hail of Thorns";
 // Set to false to remove debug logging
 const debug = false;
 
-const dependencies = ["dae", "itemacro", "times-up", "midi-qol"];
+const dependencies = ["dae", "times-up", "midi-qol"];
 if (!game.modules.get("ddb-importer")?.api.effects.requirementsSatisfied(defaultItemName, dependencies)) {
   return;
 }

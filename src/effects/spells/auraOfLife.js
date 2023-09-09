@@ -19,7 +19,7 @@ export async function auraOfLifeEffect(document) {
   );
 
   const itemMacroText = await loadMacroFile("spell", "auraOfLife.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "Allies",

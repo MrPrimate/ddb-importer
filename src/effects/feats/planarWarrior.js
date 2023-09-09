@@ -3,7 +3,7 @@ import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 
 export async function planarWarriorEffect(document) {
   const itemMacroText = await loadMacroFile("feat", "planarWarrior.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseFeatEffect(document, "Marked by Planar Warrior");
 

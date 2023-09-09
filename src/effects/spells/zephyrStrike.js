@@ -53,7 +53,7 @@ export async function zephyrStrikeEffect(document) {
   document.system.damage.parts = [];
 
   const itemMacroText = await loadMacroFile("spell", "zephyrStrike.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
 
   return document;
 }

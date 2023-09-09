@@ -18,7 +18,7 @@ export async function crusherCriticalEffect(document) {
   document.effects.push(effect);
 
   const itemMacroText = await loadMacroFile("feat", "crusherCritical.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
   document.system.actionType = null;
 
   return document;

@@ -2,7 +2,7 @@ import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 
 export async function greenFlameBladeEffect(document) {
   const itemMacroText = await loadMacroFile("spell", "greenFlameBlade.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system['target']['type'] = "self";
   document.system.range = { value: null, units: "self", long: null };

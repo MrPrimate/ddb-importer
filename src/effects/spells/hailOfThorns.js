@@ -5,7 +5,7 @@ export async function hailOfThornsEffect(document) {
   let effect = baseSpellEffect(document, document.name);
 
   const itemMacroText = await loadMacroFile("spell", "hailOfThorns.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
   effect.changes.push({
     key: "flags.midi-qol.onUseMacroName",
     value: `ItemMacro.${document.name},postActiveEffects`,

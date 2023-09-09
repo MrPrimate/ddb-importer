@@ -13,7 +13,7 @@ export async function webEffect(document) {
 
   // if we have active auras use a more advanced macro
   const itemMacroText = await loadMacroFile(MACROS.AA_CONDITION_ON_ENTRY.type, MACROS.AA_CONDITION_ON_ENTRY.file);
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(generateMacroChange("@item.level @attributes.spelldc"));

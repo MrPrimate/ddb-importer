@@ -5,6 +5,7 @@
 - Improvements to importing adventures in v11.
 - Arcane Recovery will now detect if you have an Arcane Grimoire attuned and grant a bonus.
 - Remove hard dependency on Item Macro for effects in v11 (DAE now provides an editor).
+- Some preliminary work for upcoming macro changes.
 
 # 3.4.63
 

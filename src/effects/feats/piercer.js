@@ -4,7 +4,7 @@ import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 
 async function commonPiercer(document) {
   const itemMacroText = await loadMacroFile("feat", "piercer.js");
-  setProperty(document, "flags.itemacro", generateItemMacroFlag(document, itemMacroText));
+  document = generateItemMacroFlag(document, itemMacroText);
   document.system.target = {
     value: null,
     width: null,

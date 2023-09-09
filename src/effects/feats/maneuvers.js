@@ -248,7 +248,7 @@ export async function maneuversEffect(ddb, character, document) {
     }
     case "Maneuvers: Rally": {
       const itemMacroText = await loadMacroFile("feat", "maneuversRally.js");
-      document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+      document = generateItemMacroFlag(document, itemMacroText);
       effect.changes.push(generateMacroChange(`${diceString} @abilities.cha.mod`, 20));
       document.effects.push(effect);
       break;

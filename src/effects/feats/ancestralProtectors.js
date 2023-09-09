@@ -3,7 +3,7 @@ import { loadMacroFile, generateItemMacroFlag } from "../macros.js";
 
 export async function ancestralProtectorsEffect(document) {
   const itemMacroText = await loadMacroFile("feat", "ancestralProtectors.js");
-  document.flags["itemacro"] = generateItemMacroFlag(document, itemMacroText);
+  document = generateItemMacroFlag(document, itemMacroText);
 
   let effect = baseFeatEffect(document, document.name);
   effect.changes.push({
