@@ -1,4 +1,4 @@
-# NEXT UP
+# 3.4.64
 
 - Fix a potential slow down issue which left lots of unnecessary hooks around after munching.
 - Some tweaks to the import process that will hopefully improve the speed when updating.
