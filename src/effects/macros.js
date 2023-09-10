@@ -1,6 +1,7 @@
 import logger from "../logger.js";
 import FileHelper from "../lib/FileHelper.js";
 import SETTINGS from "../settings.js";
+import { checkJB2a, createJB2aActors } from "./helpers.js";
 
 export async function checkMacroFolder() {
   const macroFolder = game.folders.find((folder) => folder.name === "DDB Macros" && folder.type === "Macro");
@@ -15,7 +16,7 @@ export async function checkMacroFolder() {
   }
 }
 
-export function configureDependencies() {
+export async function configureDependencies() {
   // allow item use macros on items
   if (game.modules.get("midi-qol")?.active) {
     let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
@@ -48,6 +49,10 @@ export function configureDependencies() {
   } else if (isNewerVersion(game.version, 11)) {
     logger.error("Item Macro is recommended to be installed for effects");
     ui.notifications.warn("Item Macro is recommended to be installed for effects");
+  }
+
+  if (game.modules.get("warpgate")?.active && checkJB2a(true, true, false)) {
+    await createJB2aActors("Dancing Lights", "Dancing light");
   }
 
   return true;

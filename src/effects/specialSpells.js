@@ -190,7 +190,8 @@ export async function spellEffectAdjustment(document) {
     return document;
   }
   if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
-    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = configureDependencies();
+    // eslint-disable-next-line require-atomic-updates
+    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await configureDependencies();
   }
 
   const name = document.flags.ddbimporter?.originalName ?? document.name;
