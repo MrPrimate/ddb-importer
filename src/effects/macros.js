@@ -46,7 +46,7 @@ export async function configureDependencies() {
     if (itemMacroSheet) {
       game.settings.set("itemacro", "charsheet", false);
     }
-  } else if (isNewerVersion(game.version, 11)) {
+  } else if (isNewerVersion(11, game.version)) {
     logger.error("Item Macro is recommended to be installed for effects");
     ui.notifications.warn("Item Macro is recommended to be installed for effects");
   }
