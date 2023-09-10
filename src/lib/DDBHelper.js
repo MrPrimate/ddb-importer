@@ -450,10 +450,12 @@ const DDBHelper = {
         sum = DDBHelper.stringIntAdder(sum, modifier.value);
       } else if (modBonus !== 0) {
         sum = DDBHelper.stringIntAdder(sum, modBonus);
-      } else if (modifier.modifierTypeId === 1 && modifier.modifierSubTypeId === 218) {
+      }
+      if (modifier.modifierTypeId === 1 && modifier.bonusTypes.includes(1)) {
         // prof bonus
         sum = DDBHelper.stringIntAdder(sum, character.system.attributes.prof);
       }
+
     });
     if (diceString !== "") {
       sum = diceString + " + " + sum;
@@ -752,7 +754,7 @@ const DDBHelper = {
       modBonus = modBonus === "" ? `@abilities.${ability}.mod` : `${modBonus} + @abilities.${ability}.mod`;
     }
 
-    if (modifier.modifierTypeId === 1 && modifier.modifierSubTypeId === 218) {
+    if (modifier.modifierTypeId === 1 && modifier.bonusTypes.includes(1)) {
       // prof bonus
       modBonus = modBonus === "" ? `@prof` : `${modBonus} + @prof`;
     }
