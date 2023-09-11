@@ -2,7 +2,6 @@
 import CompendiumHelper from "../lib/CompendiumHelper.js";
 import { effectModules, forceItemEffect, generateStatusEffectChange } from "./effects.js";
 import { uncannyDodgeEffect } from "./feats/uncannyDodge.js";
-import { configureDependencies } from "./macros.js";
 
 import { absorptionEffect } from "./monsterFeatures/absorbtion.js";
 import { generateLegendaryEffect } from "./monsterFeatures/legendary.js";
@@ -83,9 +82,6 @@ export async function monsterFeatureEffectAdjustment(ddbMonster) {
   const deps = effectModules();
   if (!deps.hasCore) {
     return npc;
-  }
-  if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
-    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await configureDependencies();
   }
 
   // const name = document.flags.ddbimporter?.originalName ?? document.name;

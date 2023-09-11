@@ -11,6 +11,7 @@ import DDBProxy from "../lib/DDBProxy.js";
 import { applyChrisPremadeEffects } from "../effects/chrisPremades.js";
 import { addVision5eStubs } from "../effects/vision5e.js";
 import PatreonHelper from "../lib/PatreonHelper.js";
+import { configureDependencies } from "../effects/macros.js";
 
 function getSpellData(className, sourceFilter) {
   const cobaltCookie = getCobalt();
@@ -74,6 +75,12 @@ export async function parseSpells(ids = null) {
   // to speed up file checking we pregenerate existing files now.
   await FileHelper.generateCurrentFiles(uploadDirectory);
   await DDBMuncher.generateCompendiumFolders("spells");
+
+  if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
+    // eslint-disable-next-line require-atomic-updates
+    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await configureDependencies();
+  }
+
 
   DDBMuncher.munchNote("Downloading spell data..");
 

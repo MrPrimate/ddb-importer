@@ -7,7 +7,6 @@ import {
   effectModules,
   forceManualReaction,
 } from "./effects.js";
-import { configureDependencies } from "./macros.js";
 
 // spell effects load start
 import { absorbElementsEffect } from "./spells/absorbElements.js";
@@ -188,10 +187,6 @@ export async function spellEffectAdjustment(document) {
   if (!deps.hasCore) {
     logger.warn("Sorry, you're missing some required modules for spell effects. Please install them and try again.", deps);
     return document;
-  }
-  if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
-    // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await configureDependencies();
   }
 
   const name = document.flags.ddbimporter?.originalName ?? document.name;

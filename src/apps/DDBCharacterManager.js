@@ -36,6 +36,7 @@ import {
   addChrisEffectsToActorDocuments,
   // restrictedItemReplacer
 } from "../effects/chrisPremades.js";
+import { configureDependencies } from "../effects/macros.js";
 
 export default class DDBCharacterManager extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
@@ -1204,6 +1205,10 @@ export default class DDBCharacterManager extends FormApplication {
 
   async processCharacterData() {
     this.getSettings();
+    if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
+      // eslint-disable-next-line require-atomic-updates
+      CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await configureDependencies();
+    }
     this.result = duplicate(this.ddbCharacter.data);
 
     // disable active sync

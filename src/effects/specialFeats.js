@@ -1,4 +1,3 @@
-import { configureDependencies } from "./macros.js";
 import { effectModules, forceItemEffect, forceManualReaction } from "./effects.js";
 
 // effect loads
@@ -314,10 +313,6 @@ export async function featureEffectAdjustment(ddb, character, document) {
 
   if (!deps.hasCore) {
     return forceItemEffect(document);
-  }
-  if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
-    // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await configureDependencies();
   }
 
 
