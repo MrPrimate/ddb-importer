@@ -1,3 +1,7 @@
+# 3.4.65
+
+- Corrections for accidental creation of many JB2a actor folders in 3.4.64 if using JB2a.
+
 # 3.4.64
 
 - Fix a potential slow down issue which left lots of unnecessary hooks around after munching.
