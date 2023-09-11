@@ -22,12 +22,9 @@ export async function venomTrollEffects(npc) {
       setProperty(effect, "duration.rounds", 10);
       setProperty(effect, "flags.dae.stackable", "noneName");
 
-
       const itemMacroText = await loadMacroFile("monsterFeature", "venomSpray.js");
-      setProperty(item, "flags.itemacro", generateItemMacroFlag(item, itemMacroText));
       item = generateItemMacroFlag(item, itemMacroText);
       setProperty(item, "flags.midi-qol.onUseMacroName", "[postActiveEffects]ItemMacro");
-
 
       item.effects.push(effect);
     } else if (item.name === "Poison Splash") {
