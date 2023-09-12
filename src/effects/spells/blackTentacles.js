@@ -41,7 +41,7 @@ export async function blackTentaclesEffect(document) {
     autoDamageIfCondition: true,
     applyEnd: false,
     applyEntry: true,
-    applyImmediate: true,
+    applyImmediate: false,
     everyEntry: false,
     conditionEffect: true,
     damageEffect: true,
@@ -51,14 +51,17 @@ export async function blackTentaclesEffect(document) {
     removalSave: null,
     saveRemoves: false,
     condition: "Restrained",
-    dice: document.system.damage.parts[0][0],
-    damageType: document.system.damage.parts[0][1],
-    save: document.system.save.ability,
+    dice: `${document.system.damage.parts[0][0]}`,
+    damageType: `${document.system.damage.parts[0][1]}`,
+    save: `${document.system.save.ability}`,
     sequencerFile: "jb2a.black_tentacles.dark_purple",
   };
   setProperty(document, "flags.ddbimporter.effect", aaMacroFlags);
   setProperty(effect, "flags.ddbimporter.effect", aaMacroFlags);
-  setProperty(document, "flags.midiProperties.nodam", true);
+  // setProperty(document, "flags.midiProperties.nodam", true);
+  document.system.damage = { parts: [], versatile: "", value: "" };
+  document.system.save.ability = "";
+  document.system.actionType = "other";
 
   document.effects.push(effect);
   return document;

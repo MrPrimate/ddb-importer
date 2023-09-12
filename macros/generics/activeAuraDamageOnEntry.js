@@ -18,7 +18,9 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   const saveAbility = ddbEffectFlags.save;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
   const scalingDiceArray = item.system.scaling.formula.split("d");
-  const scalingDiceNumber = itemLevel - item.system.level;
+  const scalingDiceNumber = item.system.scaling.mode === "none"
+    ? 0
+    : itemLevel - item.system.level;
   const upscaledDamage =  isCantrip
     ? `${game.modules.get("ddb-importer").api.effects.getCantripDice(caster)}d${scalingDiceArray[1]}[${damageType}]`
     : scalingDiceNumber > 0 ? `${scalingDiceNumber}d${scalingDiceArray[1]}[${damageType}] + ${damageDice}` : damageDice;
@@ -32,7 +34,6 @@ async function rollItemDamage(targetToken, itemUuid, itemLevel) {
   workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
 
   setProperty(workflowItemData, "flags.itemacro", {});
-  setProperty(workflowItemData, "flags.dae.macro", {});
   setProperty(workflowItemData, "flags.midi-qol", {});
   setProperty(workflowItemData, "flags.dae", {});
   setProperty(workflowItemData, "effects", []);
