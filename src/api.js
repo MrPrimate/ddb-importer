@@ -182,7 +182,7 @@ export function registerApi() {
     },
   };
 
-  window.DDBImporter = API;
+  globalThis['DDBImporter'] = API;
   game.modules.get(SETTINGS.MODULE_ID).api = API;
   game.modules.get(SETTINGS.MODULE_ID).DICTIONARY = DICTIONARY;
 }
