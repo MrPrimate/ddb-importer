@@ -35,7 +35,10 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
         setProperty(tokenData, "sight.range", value);
         tokenData.sight = mergeObject(tokenData.sight, CONFIG.Canvas.visionModes[visionMode].vision.defaults);
       }
-      if (value > 0 && hasProperty(DICTIONARY.detectionMap, key)) {
+      if (!game.modules.get("vision-5e")?.active
+        && value > 0
+        && hasProperty(DICTIONARY.detectionMap, key)
+      ) {
         const detectionMode = {
           id: DICTIONARY.detectionMap[key],
           range: value,
