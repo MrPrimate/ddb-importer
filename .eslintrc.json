@@ -69,7 +69,8 @@
     "fromUuidSync": true,
     "Token": true,
     "chrisPremades": true,
-    "NoteConfig": true
+    "NoteConfig": true,
+    "globalThis": true
   },
   "parserOptions": {
     "ecmaVersion": 2022,
