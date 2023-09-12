@@ -1,3 +1,11 @@
+# NEXT UP
+
+- Venom troll, venom spray correction.
+- Some more background macro changes for upcoming enhancements.
+- Black Tentacles, spell corrections
+- If Vision5e was enabled, characters would get senseAll rather than blindsight, if they have blindsight.
+- Effect: Mantle of Spell Effect was utterly barmy. No idea what I was doing when I wrote that... 3 years ago!
+
 # 3.4.65
 
 - Corrections for accidental creation of many JB2a actor folders in 3.4.64 if using JB2a.
