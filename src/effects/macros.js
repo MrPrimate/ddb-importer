@@ -95,12 +95,6 @@ export function generateItemMacroFlag(document, macroText) {
     },
   };
   setProperty(document, "flags.itemacro", data);
-  // code for if permanent switch to itemacro flag is made
-  // if (isNewerVersion(11, game.version) || isNewerVersion("11.0.12", game.modules.get("dae")?.version)) {
-  //   setProperty(document, "flags.itemacro", data);
-  // } else {
-  //   setProperty(document, "flags.dae.macro", data);
-  // }
   return document;
 }
 
@@ -213,26 +207,38 @@ export async function createGMMacros() {
   }
 }
 
-export async function executeDDBMacro(type, fileName, ...params) {
-  if (!fileName.endsWith(".js")) fileName = `${fileName}.js`;
-  const strippedName = fileName.split(".js")[0];
-  let macro = CONFIG.DDBI.MACROS[type]?.[strippedName];
-  if (!macro) {
-    const macroText = await loadMacroFile(type, fileName, true);
-    if (!macroText) {
-      ui.notifications.error(`Unable to load macro (${type}) ${fileName}`);
-      logger.warn(`Unable to load macro (${type}) ${fileName}`);
-      throw new Error(`Unable to load macro (${type}) ${fileName}`);
-    }
 
-    // eslint-disable-next-line require-atomic-updates
-    macro = await createMacro({ name: `${type} ${fileName}`, content: macroText, img: null, isGM: false, isTemp: true });
-    // eslint-disable-next-line require-atomic-updates
-    setProperty(CONFIG.DDBI.MACROS, `${type}.${strippedName}`, macro);
-    logger.debug(`Macro (${type}) ${fileName} loaded from file into cache`, macro);
+async function getMacroBody(type, fileName) {
+  const macroText = await loadMacroFile(type, fileName, true);
+  if (!macroText) {
+    ui.notifications.error(`Unable to load macro (${type}) ${fileName}`);
+    logger.warn(`Unable to load macro (${type}) ${fileName}`);
+    throw new Error(`Unable to load macro (${type}) ${fileName}`);
   }
+  return macroText;
+}
 
+async function loadDDBMacroToConfig(type, name, fileName) {
+  const macroText = await getMacroBody(type, fileName);
+  const macro = await createMacro({ name: `${type} ${fileName}`, content: macroText, img: null, isGM: false, isTemp: true });
+  setProperty(CONFIG.DDBI.MACROS, `${type}.${name}`, macro);
+  logger.debug(`Macro (${type}) ${fileName} loaded from file into cache`, macro);
+  return macro;
+}
+
+
+async function getMacro(type, name, fileName) {
+  // console.warn(`getMacro(${type}, ${name}, ${fileName})`);
+  const macro = CONFIG.DDBI.MACROS[type]?.[name] ?? (await loadDDBMacroToConfig(type, name, fileName));
+  // console.warn("macro", { macro });
+  return macro;
+}
+
+export async function executeDDBMacro(type, name, ...params) {
+  const strippedName = name.split(".js")[0]; // sanitise name
+  const fileName = `${strippedName}.js`;
+  const macro = await getMacro(type, strippedName, fileName);
   logger.debug(`Calling (${type}) ${fileName} with spread params`, ...params);
   return macro.execute(...params);
-
 }
+
