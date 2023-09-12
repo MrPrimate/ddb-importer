@@ -338,7 +338,7 @@ export function getMidiCEOnFlags(midiFlags = {}) {
 }
 
 export function forceItemEffect(document) {
-  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro") || hasProperty(document.flags, "dae.macro")) {
+  if (document.effects.length > 0 || hasProperty(document.flags, "itemacro")) {
     setProperty(document, "flags.ddbimporter.effectsApplied", true);
     setProperty(document, "flags.midi-qol.forceCEOff", true);
   }
@@ -1156,7 +1156,8 @@ function addMagicalAdvantage(modifiers, name) {
   const advantage = DDBHelper.filterModifiers(modifiers, "advantage", "saving-throws", restrictions);
   if (advantage.length > 0) {
     logger.debug(`Generating magical advantage on saving throws for ${name}`);
-    changes.push(generateCustomChange("magic-resistant", 5, "system.traits.dr.custom"));
+    changes.push(generateCustomChange("1", 5, "flags.midi-qol.magicResistance.all"));
+    // changes.push(generateCustomChange("magic-resistant", 5, "system.traits.dr.custom"));
   }
   return changes;
 }
@@ -1473,7 +1474,7 @@ export function generateEffects(ddb, character, ddbItem, foundryItem, isCompendi
     // no default
   }
 
-  if (foundryItem.effects?.length > 0 || hasProperty(foundryItem.flags, "itemacro") || hasProperty(document.flags, "dae.macro")) {
+  if (foundryItem.effects?.length > 0 || hasProperty(foundryItem.flags, "itemacro")) {
     logger.debug(`${type} effect ${foundryItem.name}:`, duplicate(foundryItem));
     setProperty(foundryItem, "flags.ddbimporter.effectsApplied", true);
   }
